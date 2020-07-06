@@ -524,7 +524,8 @@ class SimplePaymentsEdit extends Component {
 						onChange={ this.handleEmailChange }
 						placeholder={ __( 'Email', 'jetpack' ) }
 						required
-						type="email"
+						// TODO: switch this back to type="email" once Gutenberg paste handler ignores inputs of type email
+						type="text"
 						value={ email }
 					/>
 					<HelpMessage id={ `${ instanceId }-email-error` } isError>
@@ -573,7 +574,4 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	};
 } );
 
-export default compose(
-	mapSelectToProps,
-	withInstanceId
-)( SimplePaymentsEdit );
+export default compose( mapSelectToProps, withInstanceId )( SimplePaymentsEdit );

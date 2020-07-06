@@ -4,6 +4,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -41,7 +42,7 @@ describe( 'DashSectionHeader', () => {
 	} );
 
 	describe( 'renders additional elements when settings path and external links are supplied', () => {
-		let externalPath = 'https://wordpress.com/settings/security/' + testProps.siteRawUrl;
+		let externalPath = getRedirectUrl( 'calypso-settings-security', { site: testProps.siteRawUrl } );
 		testProps = Object.assign( testProps, {
 			settingsPath: '#security',
 			externalLinkPath: externalPath,

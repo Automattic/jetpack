@@ -29,6 +29,22 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * The banner is forcibly displayed.
+	 *
+	 * @return bool
+	 */
+	public static function force_display() {
+		/**
+		 * This is an experiment for partners to test. Allow customization of the behavior of pre-connection banners.
+		 *
+		 * @since 8.6.0
+		 *
+		 * @param bool $always_show_prompt Should this prompt always appear? Default to false.
+		 */
+		return apply_filters( 'jetpack_pre_connection_prompt_helpers', false );
+	}
+
+	/**
 	 * Given a string for the the banner was added, and an int that represents the slide to
 	 * a URL for, this function returns a connection URL with a from parameter that will
 	 * support split testing.
@@ -66,8 +82,11 @@ class Jetpack_Connection_Banner {
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
 
-		// Kill if banner has been dismissed
-		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
+		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
+		if (
+			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
+			! $this->force_display()
+		) {
 			return;
 		}
 
@@ -153,14 +172,10 @@ class Jetpack_Connection_Banner {
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile.
-		if ( $is_safari ) {
-			$force_variation = 'original';
-		} elseif ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
-			$force_variation = 'in_place';
-		} elseif ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+		if ( $is_safari || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
 		} else {
-			$force_variation = null;
+			$force_variation = 'in_place';
 		}
 
 		$tracking = new Automattic\Jetpack\Tracking();
@@ -192,7 +207,7 @@ class Jetpack_Connection_Banner {
 	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
 	 * @since 4.4.0
 	 */
-	function render_banner() {
+	public function render_banner() {
 		?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__container-top-text">
@@ -202,10 +217,19 @@ class Jetpack_Connection_Banner {
 				</span>
 			</div>
 			<div class="jp-wpcom-connect__inner-container">
-				<span
-					class="notice-dismiss connection-banner-dismiss"
-					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-				</span>
+
+				<?php
+				if ( ! $this->force_display() ) :
+					?>
+
+					<span
+						class="notice-dismiss connection-banner-dismiss"
+						title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
+					</span>
+
+					<?php
+				endif;
+				?>
 
 				<div class="jp-wpcom-connect__content-container">
 
@@ -295,9 +319,18 @@ class Jetpack_Connection_Banner {
 					echo $logo->render();
 					?>
 
-					<div class="jp-connect-full__dismiss">
-						<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
-					</div>
+					<?php
+					if ( ! self::force_display() ) :
+						?>
+
+						<div class="jp-connect-full__dismiss">
+							<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
+						</div>
+
+						<?php
+					endif;
+					?>
+
 				<?php endif; ?>
 
 				<div class="jp-connect-full__step-header">
@@ -359,17 +392,27 @@ class Jetpack_Connection_Banner {
 				</div>
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
-					<p class="jp-connect-full__dismiss-paragraph">
-						<a>
-							<?php
-							echo esc_html_x(
-								'Not now, thank you.',
-								'a link that closes the modal window that offers to connect Jetpack',
-								'jetpack'
-							);
-							?>
-						</a>
-					</p>
+
+					<?php
+					if ( ! self::force_display() ) :
+						?>
+
+						<p class="jp-connect-full__dismiss-paragraph">
+							<a>
+								<?php
+								echo esc_html_x(
+									'Not now, thank you.',
+									'a link that closes the modal window that offers to connect Jetpack',
+									'jetpack'
+								);
+								?>
+							</a>
+						</p>
+
+						<?php
+						endif;
+					?>
+
 				<?php endif; ?>
 			</div>
 		</div>

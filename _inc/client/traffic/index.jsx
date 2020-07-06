@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -22,7 +23,7 @@ import Shortlinks from './shortlinks';
 import { RelatedPosts } from './related-posts';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
-import { getLastPostUrl } from 'state/initial-state';
+import { getLastPostUrl, isAtomicSite } from 'state/initial-state';
 
 export class Traffic extends React.Component {
 	static displayName = 'TrafficSettings';
@@ -80,7 +81,10 @@ export class Traffic extends React.Component {
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
-						configureUrl={ 'https://wordpress.com/stats/ads/day/' + this.props.siteRawUrl }
+						isAtomicSite={ this.props.isAtomicSite }
+						configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {
+							site: this.props.siteRawUrl,
+						} ) }
 					/>
 				) }
 				{ foundRelated && (
@@ -99,17 +103,19 @@ export class Traffic extends React.Component {
 				{ foundSeo && (
 					<SEO
 						{ ...commonProps }
-						configureUrl={
-							'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl + '#seo'
-						}
+						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
+							site: this.props.siteRawUrl,
+							anchor: 'seo',
+						} ) }
 					/>
 				) }
 				{ foundAnalytics && (
 					<GoogleAnalytics
 						{ ...commonProps }
-						configureUrl={
-							'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl + '#analytics'
-						}
+						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
+							site: this.props.siteRawUrl,
+							anchor: 'analytics',
+						} ) }
 					/>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
@@ -131,5 +137,6 @@ export default connect( state => {
 		isSiteConnected: isSiteConnected( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( Traffic );

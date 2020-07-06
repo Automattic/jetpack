@@ -1,0 +1,22 @@
+
+// Stretch Cover MediaPlaceholder element.
+.jetpack-cover-media-placeholder {
+	width: 100%;
+}
+
+// tweak Upgrade nudge.
+.jetpack-upgrade-nudge-wrapper.wp-block {
+	.block-editor-warning__contents {
+		flex-wrap: initial;
+
+		.jetpack-block-nudge__text-container,
+		.block-editor-warning__actions {
+			align-self: center;
+		}
+	}
+
+	.jetpack-block-nudge {
+		width: 100%;
+		min-width: 100%;
+	}
+}

@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/onclick-has-role */
 /**
  * External dependencies
  */
@@ -87,6 +86,12 @@ export default class ModuleChartBar extends React.Component {
 		return sections;
 	};
 
+	keyHandler = key => {
+		if ( 'function' === typeof this.props.clickHandler && key.keyCode === 13 ) {
+			this.props.clickHandler( this.props.data );
+		}
+	};
+
 	clickHandler = () => {
 		if ( 'function' === typeof this.props.clickHandler ) {
 			this.props.clickHandler( this.props.data );
@@ -165,9 +170,11 @@ export default class ModuleChartBar extends React.Component {
 			<div
 				role="button"
 				tabIndex={ 0 }
+				onKeyUp={ this.keyHandler }
 				onClick={ this.clickHandler }
 				onMouseEnter={ this.mouseEnter }
 				onMouseLeave={ this.mouseLeave }
+				aria-label={ this.props.data.tooltipData[ 0 ].label + ' — ' + this.props.data.value + '.' }
 				className={ classNames( barClass ) }
 				style={ barStyle }
 			>

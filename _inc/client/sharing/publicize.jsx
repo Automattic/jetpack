@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -43,7 +44,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						onClick={ this.trackClickConfigure }
 						target="_blank"
 						rel="noopener noreferrer"
-						href={ 'https://wordpress.com/marketing/connections/' + siteRawUrl }
+						href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
 					>
 						{ __( 'Connect your social media accounts' ) }
 					</Card>
@@ -80,7 +81,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 									'Allows you to automatically share your newest content on social media sites, ' +
 										'including Facebook and Twitter.'
 								),
-								link: 'https://jetpack.com/support/publicize/',
+								link: getRedirectUrl( 'jetpack-support-publicize' ),
 							} }
 						>
 							<p>

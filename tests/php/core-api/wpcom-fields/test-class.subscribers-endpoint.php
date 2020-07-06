@@ -16,8 +16,8 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
 	}
 
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
+	public function setUp() {
+		parent::setUp();
 		self::set_subscribers_count( 100 );
 	}
 

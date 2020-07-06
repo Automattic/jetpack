@@ -40,6 +40,12 @@
 		&.aligncenter iframe {
 			width: 210px !important;
 		}
+
+		&.has-no-margin {
+			> div[id^="ot-widget-container"] {
+				margin: -14px;
+			}
+		}
 	}
 
 	.ot-dtp-picker {

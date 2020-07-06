@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -148,11 +149,15 @@ export class ConnectButton extends React.Component {
 							{
 								components: {
 									tosLink: (
-										<a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank" />
+										<a
+											href={ getRedirectUrl( 'wpcom-tos' ) }
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
 									),
 									shareDetailsLink: (
 										<a
-											href="https://jetpack.com/support/what-data-does-jetpack-sync"
+											href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
 											rel="noopener noreferrer"
 											target="_blank"
 										/>

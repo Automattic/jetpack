@@ -9,6 +9,7 @@ import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import analytics from 'lib/analytics';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -30,6 +31,7 @@ import {
 } from 'state/at-a-glance';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getRewindStatus } from 'state/rewind';
+import { getScanStatus } from 'state/scan';
 
 /**
  * Track click on Pro status badge.
@@ -109,7 +111,7 @@ class ProStatus extends React.Component {
 						context: 'A caption for a small button to fix security issues.',
 					} );
 				}
-				actionUrl = 'https://dashboard.vaultpress.com/';
+				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
 			case 'free':
 			case 'personal':
@@ -162,7 +164,10 @@ class ProStatus extends React.Component {
 				onClick={ handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
-				href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
+				href={ getRedirectUrl( 'calypso-plugins-setup', {
+					site: this.props.siteRawUrl,
+					query: `only=${ feature }`,
+				} ) }
 			>
 				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
 			</Button>
@@ -170,7 +175,7 @@ class ProStatus extends React.Component {
 	};
 
 	render() {
-		const sitePlan = this.props.sitePlan(),
+		const sitePlan = this.props.sitePlan,
 			vpData = this.props.getVaultPressData();
 		let pluginSlug = '';
 		if (
@@ -188,10 +193,9 @@ class ProStatus extends React.Component {
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
 			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			hasScan = get( vpData, [ 'data', 'features', 'security' ], false ),
-			hasJetpackBackup = [ 'is-daily-backup-plan', 'is-realtime-backup-plan' ].includes(
-				this.props.planClass
-			);
+			hasVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
+
+		const { scanStatus } = this.props;
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {
@@ -205,24 +209,20 @@ class ProStatus extends React.Component {
 					break;
 
 				case 'scan':
-					if (
-						this.props.fetchingSiteData ||
-						this.props.isFetchingVaultPressData ||
-						hasJetpackBackup
-					) {
-						return '';
-					}
-					if ( ( hasFree || hasPersonal ) && ! hasScan ) {
-						if ( this.props.isCompact ) {
-							return this.getProActions( 'free', 'scan' );
-						} else if ( hasPersonal && ! hasBackups ) {
-							// Personal plans doesn't have scan but it does have backups.
-							return this.getSetUpButton( 'backups' );
-						}
+					if ( this.props.fetchingSiteData || this.props.isFetchingVaultPressData ) {
 						return '';
 					}
 					if ( 'N/A' !== vpData ) {
-						if ( ! hasScan ) {
+						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
+							if ( this.props.isCompact ) {
+								return this.getProActions( 'free', 'scan' );
+							} else if ( hasPersonal && ! hasBackups ) {
+								// Personal plans doesn't have scan but it does have backups.
+								return this.getSetUpButton( 'backups' );
+							}
+							return '';
+						}
+						if ( ! hasVPScan ) {
 							return this.getSetUpButton( 'scan' );
 						}
 
@@ -230,6 +230,27 @@ class ProStatus extends React.Component {
 							0 === this.props.getScanThreats() ? 'secure' : 'threats',
 							'scan'
 						);
+					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
+						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
+							return (
+								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
+									{ __( 'Threat', 'Threats', {
+										count: scanStatus.threats.length,
+									} ) }
+								</SimpleNotice>
+							);
+						}
+						if ( ! scanStatus.credentials ) {
+							return '';
+						}
+						if ( scanStatus.credentials.length === 0 ) {
+							return (
+								<SimpleNotice showDismiss={ false } status="is-warning" isCompact>
+									{ __( 'Action needed' ) }
+								</SimpleNotice>
+							);
+						}
+						return this.getProActions( 'secure', 'scan' );
 					}
 					break;
 
@@ -292,7 +313,7 @@ export default connect( state => {
 		getVaultPressData: () => getVaultPressData( state ),
 		getAkismetData: () => getAkismetData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
-		sitePlan: () => sitePlan,
+		sitePlan,
 		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
@@ -304,5 +325,6 @@ export default connect( state => {
 		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
 		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
 		rewindStatus: getRewindStatus( state ),
+		scanStatus: getScanStatus( state ),
 	};
 } )( ProStatus );

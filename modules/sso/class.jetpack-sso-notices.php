@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Redirect;
+
 if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 
 /**
@@ -25,8 +27,8 @@ class Jetpack_SSO_Notices {
 				),
 				array(  'a' => array( 'href' => array() ) )
 			),
-			'https://wordpress.com/me/security/two-step',
-			'https://support.wordpress.com/security/two-step-authentication/'
+			Redirect::get_url( 'calypso-me-security-two-step' ),
+			Redirect::get_url( 'wpcom-support-security-two-step-authentication' )
 		);
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );

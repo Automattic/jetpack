@@ -379,6 +379,29 @@ class Functions {
 	}
 
 	/**
+	 * Return main site WordPress.com site ID.
+	 *
+	 * @return string
+	 */
+	public static function main_network_site_wpcom_id() {
+		/**
+		 * Return the current site WPCOM ID for single site installs
+		 */
+		if ( ! is_multisite() ) {
+			return \Jetpack_Options::get_option( 'id' );
+		}
+
+		/**
+		 * Return the main network site WPCOM ID for multi-site installs
+		 */
+		$current_network = get_network();
+		switch_to_blog( $current_network->blog_id );
+		$wpcom_blog_id = \Jetpack_Options::get_option( 'id' );
+		restore_current_blog();
+		return $wpcom_blog_id;
+	}
+
+	/**
 	 * Return URL with a normalized protocol.
 	 *
 	 * @param callable $callable Function to retrieve URL option.

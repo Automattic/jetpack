@@ -10,6 +10,7 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import { includes } from 'lodash';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -97,7 +98,7 @@ export class DashItem extends Component {
 							href={
 								this.props.isDevMode
 									? this.props.siteAdminUrl + 'update-core.php'
-									: 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl
+									: getRedirectUrl( 'calypso-plugins-manage', { site: this.props.siteRawUrl } )
 							}
 						>
 							<SimpleNotice showDismiss={ false } status={ this.props.status } isCompact={ true }>

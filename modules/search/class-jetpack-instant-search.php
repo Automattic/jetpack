@@ -22,8 +22,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @since 8.3.0
 	 */
 	public function load_php() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
+		$this->base_load_php();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once dirname( __FILE__ ) . '/class-jetpack-search-customize.php';
@@ -63,13 +62,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return;
 		}
 
-		$script_version = self::get_asset_version( $script_relative_path );
+		$script_version = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
 		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
+		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
-		$style_version = self::get_asset_version( $style_relative_path );
+		$style_version = Jetpack_Search_Helpers::get_asset_version( $style_relative_path );
 		$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 	}
@@ -83,8 +83,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options = end( $widget_options );
 		}
 
-		$overlay_widget_ids      = array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
-			get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'] : array();
+		$overlay_widget_ids      = is_active_sidebar( 'jetpack-instant-search-sidebar' ) ?
+			wp_get_sidebars_widgets()['jetpack-instant-search-sidebar'] : array();
 		$filters                 = Jetpack_Search_Helpers::get_filters_from_widgets();
 		$widgets                 = array();
 		$widgets_outside_overlay = array();
@@ -107,7 +107,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 		unset( $filter );
 
-		$post_type_objs   = get_post_types( array(), 'objects' );
+		$post_type_objs   = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
 		$post_type_labels = array();
 		foreach ( $post_type_objs as $key => $obj ) {
 			$post_type_labels[ $key ] = array(
@@ -116,26 +116,36 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			);
 		}
 
-		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
+		$prefix         = Jetpack_Search_Options::OPTION_PREFIX;
+		$posts_per_page = (int) get_option( 'posts_per_page' );
+		if ( ( $posts_per_page > 20 ) || ( $posts_per_page <= 0 ) ) {
+			$posts_per_page = 20;
+		}
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
-				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
+				'enableInfScroll' => get_option( $prefix . 'inf_scroll', '1' ) === '1',
+				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
-				'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
+				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
+				'resultFormat'    => get_option( $prefix . 'result_format', 'minimal' ),
+				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 			),
 
 			// core config.
 			'homeUrl'               => home_url(),
 			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
-			'postsPerPage'          => get_option( 'posts_per_page' ),
-			'siteId'                => Jetpack::get_option( 'id' ),
-
-			// filtering.
-			'postTypeFilters'       => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
+			'postsPerPage'          => $posts_per_page,
+			'siteId'                => $this->jetpack_blog_id,
 			'postTypes'             => $post_type_labels,
-			'sort'                  => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
+
+			// search options.
+			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
+
+			// widget info.
+			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 		);
@@ -190,18 +200,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function load_and_initialize_tracks() {
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-	}
-
-	/**
-	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
-	 *
-	 * @param string $file Path of the file we are looking for.
-	 * @return string $script_version Version number.
-	 */
-	public static function get_asset_version( $file ) {
-		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
-			? filemtime( JETPACK__PLUGIN_DIR . $file )
-			: JETPACK__VERSION;
 	}
 
 	/**
@@ -371,7 +369,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	/**
 	 * Get the raw Aggregation results from the Elasticsearch response.
 	 *
-	 * @since  8.3.0
+	 * @since  8.4.0
 	 *
 	 * @return array Array of Aggregations performed on the search.
 	 */
@@ -383,5 +381,166 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		return $this->search_result['aggregations'];
 	}
 
+	/**
+	 * Autoconfig search by adding filter widgets
+	 *
+	 * @since  8.3.0
+	 */
+	public function auto_config_search() {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+
+		// Set default result format to "expanded".
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', 'expanded' );
+
+		global $wp_registered_sidebars;
+		$sidebars = get_option( 'sidebars_widgets', array() );
+		$slug     = Jetpack_Search_Helpers::FILTER_WIDGET_BASE;
+
+		if ( isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
+			foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
+				if ( 0 === strpos( $widget_id, $slug ) ) {
+					// Already configured.
+					return;
+				}
+			}
+		}
+
+		$has_sidebar           = isset( $wp_registered_sidebars['sidebar-1'] );
+		$sidebar_id            = false;
+		$sidebar_searchbox_idx = false;
+		if ( $has_sidebar ) {
+			if ( empty( $sidebars['sidebar-1'] ) ) {
+				// Adding to an empty sidebar is generally a bad idea.
+				$has_sidebar = false;
+			}
+			foreach ( (array) $sidebars['sidebar-1'] as $idx => $widget_id ) {
+				if ( 0 === strpos( $widget_id, 'search-' ) ) {
+					$sidebar_searchbox_idx = $idx;
+				}
+				if ( 0 === strpos( $widget_id, $slug ) ) {
+					$sidebar_id = (int) str_replace( Jetpack_Search_Helpers::FILTER_WIDGET_BASE . '-', '', $widget_id );
+					break;
+				}
+			}
+		}
+
+		$next_id         = 1;
+		$widget_opt_name = Jetpack_Search_Helpers::get_widget_option_name();
+		$widget_options  = get_option( $widget_opt_name, array() );
+		foreach ( $widget_options as $id => $w ) {
+			if ( $id >= $next_id ) {
+				$next_id = $id + 1;
+			}
+		}
+
+		// Copy sidebar settings to overlay.
+		if ( ( false !== $sidebar_id ) && isset( $widget_options[ $sidebar_id ] ) ) {
+			$widget_options[ $next_id ] = $widget_options[ $sidebar_id ];
+			update_option( $widget_opt_name, $widget_options );
+
+			if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
+				$sidebars['jetpack-instant-search-sidebar'] = array();
+			}
+			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+			update_option( 'sidebars_widgets', $sidebars );
+
+			return;
+		}
+
+		// Configure overlay and sidebar (if it exists).
+		$preconfig_opts = $this->get_preconfig_widget_options();
+		if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
+			$sidebars['jetpack-instant-search-sidebar'] = array();
+		}
+		if ( $has_sidebar ) {
+			$widget_options[ $next_id ] = $preconfig_opts;
+			if ( false !== $sidebar_searchbox_idx ) {
+				// Replace Core search box.
+				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Jetpack_Search_Helpers::build_widget_id( $next_id );
+			} else {
+				// Add to top.
+				array_unshift( $sidebars['sidebar-1'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+			}
+			$next_id++;
+		}
+		$widget_options[ $next_id ] = $preconfig_opts;
+		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+
+		update_option( $widget_opt_name, $widget_options );
+		update_option( 'sidebars_widgets', $sidebars );
+	}
+
+	/**
+	 * Autoconfig search by adding filter widgets
+	 *
+	 * @since  8.4.0
+	 *
+	 * @return array Array of config settings for search widget.
+	 */
+	protected function get_preconfig_widget_options() {
+		$settings = array(
+			'title'              => '',
+			'search_box_enabled' => 1,
+			'user_sort_enabled'  => 0,
+			'filters'            => array(),
+		);
+
+		$post_types = get_post_types(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			)
+		);
+
+		if ( ! empty( $post_types ) ) {
+			$settings['filters'][] = array(
+				array(
+					'name'  => '',
+					'type'  => 'post_type',
+					'count' => 5,
+				),
+			);
+		}
+
+		$taxonomies = get_taxonomies(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			)
+		);
+
+		foreach ( $taxonomies as $t ) {
+			$settings['filters'][] = array(
+				'name'     => '',
+				'type'     => 'taxonomy',
+				'taxonomy' => $t,
+				'count'    => 5,
+			);
+		}
+
+		$settings['filters'][] = array(
+			'name'     => '',
+			'type'     => 'taxonomy',
+			'taxonomy' => 'category',
+			'count'    => 5,
+		);
+		$settings['filters'][] = array(
+			'name'     => '',
+			'type'     => 'taxonomy',
+			'taxonomy' => 'post_tag',
+			'count'    => 5,
+		);
+		$settings['filters'][] = array(
+			'name'     => '',
+			'type'     => 'date_histogram',
+			'count'    => 5,
+			'field'    => 'post_date',
+			'interval' => 'year',
+		);
+
+		return $settings;
+	}
 
 }

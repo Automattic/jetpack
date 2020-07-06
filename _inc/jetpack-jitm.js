@@ -9,8 +9,8 @@ jQuery( document ).ready( function( $ ) {
 				'" data-stats_url="' +
 				envelope.jitm_stats_url +
 				'">';
-			html += '<div class="jitm-banner__icon-plan">' + envelope.content.icon + '</div>';
 			html += '<div class="jitm-banner__content">';
+			html += '<div class="jitm-banner__icon-plan">' + envelope.content.icon + '</div>';
 			html += '<div class="jitm-banner__info">';
 			html += '<div class="jitm-banner__title">' + envelope.content.message + '</div>';
 			if ( envelope.content.description && envelope.content.description !== '' ) {
@@ -44,6 +44,10 @@ jQuery( document ).ready( function( $ ) {
 				html += '</div>';
 			}
 			html += '</div>';
+			html += '</div>';
+
+			html += '<div class="jitm-banner__buttons_container">';
+
 			if ( envelope.activate_module ) {
 				html += '<div class="jitm-banner__action" id="jitm-banner__activate">';
 				html +=
@@ -85,13 +89,15 @@ jQuery( document ).ready( function( $ ) {
 					'</a>';
 				html += '</div>';
 			}
+
+			html += '</div>';
+
 			if ( envelope.is_dismissible ) {
 				html +=
 					'<a href="#" data-module="' +
 					envelope.feature_class +
 					'" class="jitm-banner__dismiss"></a>';
 			}
-			html += '</div>';
 			html += '</div>';
 
 			return $( html );
@@ -201,6 +207,11 @@ jQuery( document ).ready( function( $ ) {
 	};
 
 	var reFetch = function() {
+		// Do not render JITMs if the Wizard Banner is displayed.
+		if ( $( '#jp-wizard-banner' ).length ) {
+			return;
+		}
+
 		$( '.jetpack-jitm-message' ).each( function() {
 			var $el = $( this );
 
@@ -217,9 +228,12 @@ jQuery( document ).ready( function( $ ) {
 				);
 			}
 
+			var full_jp_logo_exists = $( '.jetpack-logo__masthead' ).length ? true : false;
+
 			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
 				message_path: message_path,
 				query: query,
+				full_jp_logo_exists: full_jp_logo_exists,
 				_wpnonce: $el.data( 'nonce' ),
 			} ).then( function( response ) {
 				if ( 'object' === typeof response && response[ '1' ] ) {

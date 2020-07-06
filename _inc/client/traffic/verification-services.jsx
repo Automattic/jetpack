@@ -6,6 +6,7 @@ import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
 import { get, includes } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -89,7 +90,7 @@ class VerificationServicesComponent extends React.Component {
 						text: __(
 							'Provides the necessary hidden tags needed to verify your WordPress site with various services.'
 						),
-						link: 'https://jetpack.com/support/site-verification-tools',
+						link: getRedirectUrl( 'jetpack-support-site-verification-tools' ),
 					} }
 				>
 					<ModuleToggle
@@ -109,7 +110,9 @@ class VerificationServicesComponent extends React.Component {
 							{
 								components: {
 									b: <strong />,
-									support: <a href="https://jetpack.com/support/site-verification-tools/" />,
+									support: (
+										<a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />
+									),
 									google: (
 										<ExternalLink
 											icon={ true }

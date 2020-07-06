@@ -141,7 +141,7 @@ abstract class SAL_Post {
 				$metadata[] = array(
 					'id'    => $meta['meta_id'],
 					'key'   => $meta['meta_key'],
-					'value' => maybe_unserialize( $meta['meta_value'] ),
+					'value' => $this->safe_maybe_unserialize( $meta['meta_value'] ),
 				);
 			}
 		}
@@ -617,8 +617,11 @@ abstract class SAL_Post {
 
 		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			$response['length'] = $metadata['length'];
-			$response['exif']   = $metadata;
+			if ( isset( $metadata['length'] ) ) {
+				$response['length'] = $metadata['length'];
+			}
+
+			$response['exif'] = $metadata;
 		}
 
 		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
@@ -678,5 +681,21 @@ abstract class SAL_Post {
 		}
 
 		return (object) $response;
+	}
+
+	/**
+	 * Temporary wrapper around maybe_unserialize() to catch exceptions thrown by unserialize().
+	 *
+	 * Can be removed after https://core.trac.wordpress.org/ticket/45895 lands in Core.
+	 *
+	 * @param  string $original Serialized string.
+	 * @return string Unserialized string or original string if an exception was raised.
+	 **/
+	protected function safe_maybe_unserialize( $original ) {
+		try {
+			return maybe_unserialize( $original );
+		} catch ( Exception $e ) {
+			return $original;
+		}
 	}
 }

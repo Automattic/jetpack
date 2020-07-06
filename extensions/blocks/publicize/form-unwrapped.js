@@ -91,7 +91,7 @@ class PublicizeFormUnwrapped extends Component {
 								disabled={ this.isDisabled() }
 								maxLength={ MAXIMUM_MESSAGE_LENGTH }
 								placeholder={ __(
-									"Write a message for your audience here. If you leave this blank, we'll use the post title as the message.",
+									"Write a message for your audience here. If you leave this blank, we'll use an excerpt of the post content as the message.",
 									'jetpack'
 								) }
 								rows={ 4 }

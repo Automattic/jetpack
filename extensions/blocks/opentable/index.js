@@ -20,12 +20,13 @@ import './view.scss';
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
 import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
+import { supportsCollections } from '../../shared/block-category';
 
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [
 		_x( 'booking', 'block search term', 'jetpack' ),
 		_x( 'reservation', 'block search term', 'jetpack' ),
@@ -54,6 +55,7 @@ export const settings = {
 			domain: 'com',
 			lang: 'en-US',
 			newtab: false,
+			negativeMargin: false,
 		},
 	},
 	transforms: {

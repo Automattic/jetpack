@@ -97,7 +97,17 @@ function jetpack_woocommerce_infinite_scroll_style() {
 function jetpack_woocommerce_lazy_images_compat() {
 	wp_add_inline_script( 'wc-cart-fragments', "
 		jQuery( 'body' ).bind( 'wc_fragments_refreshed', function() {
-			jQuery( 'body' ).trigger( 'jetpack-lazy-images-load' );
+			var jetpackLazyImagesLoadEvent;
+			try {
+				jetpackLazyImagesLoadEvent = new Event( 'jetpack-lazy-images-load', {
+					bubbles: true,
+					cancelable: true
+				} );
+			} catch ( e ) {
+				jetpackLazyImagesLoadEvent = document.createEvent( 'Event' )
+				jetpackLazyImagesLoadEvent.initEvent( 'jetpack-lazy-images-load', true, true );
+			}
+			jQuery( 'body' ).get( 0 ).dispatchEvent( jetpackLazyImagesLoadEvent );
 		} );
 	" );
 }

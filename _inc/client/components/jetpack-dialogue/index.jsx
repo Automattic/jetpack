@@ -96,6 +96,7 @@ JetpackDialogue.propTypes = {
 	dismissOnClick: PropTypes.func,
 	showDismiss: PropTypes.bool,
 	title: PropTypes.string,
+	dismiss: PropTypes.func,
 };
 
 JetpackDialogue.defaultProps = {

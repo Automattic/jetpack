@@ -4,7 +4,7 @@
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"composer-plugin-api": "^1.1"
+		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"

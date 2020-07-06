@@ -1,37 +1,49 @@
-## 8.3
+## 8.7
+
+### Ads
+
+Jetpack's Ads feature now includes a "Do Not Sell My Personal Information" setting, as specified in the California Consumer Privacy Act (CCPA) for California site visitors to opt-out of targeted advertising.
+
+To test this, on a site with a Jetpack Premium or Professional plan, enable Ads under Jetpack > Settings > Traffic. On that same card, you'll have access to CCPA options.
+
+- You can then place the Do Not Sell widget or shortcode (`[[ccpa-do-not-sell-link]]`) on the homepage (likely in the footer area).
+- Verify the "Do Not Sell My Personal Information" link appears
+- Click the link, and verify the Modal Notice appears
+- Verify the usprivacy cookie is set to `1YNN`
+- Opt-out from the Modal Notice
+- Verify the usprivacy cookie is set to `1YYN`
+
+### Autoloader
+
+We've made some changes to the "Autoloader" tool we use to manage Jetpack libraries that are used in multiple plugins on the same site. This change should have no performance impact on sites using multiple plugins that rely on Jetpack libraries. The VaultPress plugin is a good example; you should be able to keep using both VaultPress and Jetpack with no issues. You can also test using a plugin like [this one](https://github.com/Automattic/client-example).
 
 ### Blocks
 
-#### Calendly / OpenTable / Eventbrite
+#### External Media
 
-We've made some changes to those blocks to improve the display of each each when using the button style, but also to improve the way data is saved when creating or updating the block. If you've already used the blocks on your site before this Beta, make sure those existing blocks are not broken, and ensure you can use the different options in the blocks' sidebars.
+When inserting images in the block editor, you can now choose images from your Google Photos account, or from the Pexels Free Photos library. To test this, try using an image, gallery, tiled gallery, or slideshow block and see the new options appear next to the usual option to pick images from your media library.
 
-When using the button style for those blocks (as well as other blocks such as Subscriptions, Recurring Payments, or Mailchimp), you'll want to ensure you can use the colors offered by your theme for the button.
+The images you pick should get added to your Media Library for you, and you should be able to continue to use the blocks with no issues.
 
-#### Google Calendar
+#### WhatsApp
 
-We've created a new Google Calendar block that will allow you to quickly embed calendars within your posts and pages. Give the block and its options a try, and let us know if you run into any issues.
+This new block allows you to add a button to any of your posts or pages. Try adding the button, and make sure it works well.
 
-#### Map
+### Gathering Twitter Threads
 
-We've made a lot of changes to the Map block in this release.
+We've extended the Twitter Block and added an "Unroll" button that allows you to import full Twitter Threads and their embeds into a post. Give it a try by pasting a tweet that's part of a thread into your block editor. You should see the "unroll" option appear in the block toolbar. Click on it and let us know what you think of the results!
 
-We would encourage you to test all features offered by the block, including the new Zoom, height, and Fullscreen options appearing in the block sidebar. Give those features a try in the editor, and check how the map looks like on your site's frontend as well.
+#### Mailchimp, Calendly, Payments, Eventbrite
 
-#### Revue
+We've made a number of changes to add more customization options to the buttons offered by the blocks above. To test this, try editing some of you existing blocks, and try creating new ones: you should now see more options to customize the block in the block sidebar, and any changes you make should appear in the block editor and on the frontend.
 
-This new block allows you to add a Revue Newsletter signup block to your posts and pages. To get started, [create an account with Revue](https://www.getrevue.co/) if you don't already have one. You'll then be able to create a form in Jetpack.
+### Jetpack Search
 
-Let us know if you experience any issues with that form.
+We've added some new options to the customizer. Try the following on a site where Jetpack's Instant Search option is activated:
 
-#### Tiled Gallery
-
-The Tiled Gallery block now comes with some new options:
-
-- You can choose rounded corners for your galleries.
-- You can reorder images within a gallery thanks to previous / next arrows appearing on each image.
-
-Give those features a try and let us know how it worked for you.
+- Go to Appearance > Customize
+- Ensure that your previous options haven't changed.
+- Try playing with all the options there; they should all be saved properly, and be reflected on the frontend of your site.
 
 ### Others
 

@@ -475,71 +475,6 @@ EXPECTED;
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
 	}
 
-	function test_sync_error_idc_validation_success_when_idc_allowed() {
-		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
-	}
-
-	function test_sync_error_idc_validation_fails_when_idc_disabled() {
-		add_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
-		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '0', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_disabled' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
-	}
-
-	function test_sync_error_idc_validation_success_when_idc_errored() {
-		add_filter( 'pre_http_request', array( $this, '__idc_check_errored' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_is_errored' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
-	}
-
-	function test_sync_error_idc_validation_success_when_idc_404() {
-		add_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
-		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
-
-		$this->assertNotEquals( false, get_transient( 'jetpack_idc_allowed' ) );
-		$this->assertEquals( '1', get_transient( 'jetpack_idc_allowed' ) );
-
-		// Cleanup
-		remove_filter( 'pre_http_request', array( $this, '__idc_check_404' ) );
-		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		delete_transient( 'jetpack_idc_allowed' );
-	}
-
 	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
 		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
 		$this->assertTrue( ( new Status() )->is_staging_site() );
@@ -919,37 +854,6 @@ EXPECTED;
 		return '1';
 	}
 
-	function __idc_is_allowed() {
-		return array(
-			'response' => array(
-				'code' => 200
-			),
-			'body' => '{"result":true}'
-		);
-	}
-
-	function __idc_is_disabled() {
-		return array(
-			'response' => array(
-				'code' => 200
-			),
-			'body' => '{"result":false}'
-		);
-	}
-
-	function __idc_check_errored() {
-		return new WP_Error( 'idc-request-failed' );
-	}
-
-	function __idc_check_404() {
-		return array(
-			'response' => array(
-				'code' => 404
-			),
-			'body' => '<div>some content</div>'
-		);
-	}
-
 	static function reset_tracking_of_module_activation() {
 		self::$activated_modules = array();
 		self::$deactivated_modules = array();
@@ -974,6 +878,10 @@ EXPECTED;
 	}
 
 	/**
+	 * Asserts that:
+	 *   - all of the required xmlrpc methods are in the actual method list.
+	 *   - all of the actual xmlrpc methods are in the required or allowed lists.
+	 *
 	 * @param string[] $required List of XML-RPC methods that must be contained in $actual.
 	 * @param string[] $allowed  Additional list of XML-RPC methods that may be contained in $actual.
 	 *                           Useful for listing methods that are added by modules that may or may
@@ -981,168 +889,188 @@ EXPECTED;
 	 * @param string[] $actual   The list of XML-RPC methods.
 	 */
 	private function assertXMLRPCMethodsComply( $required, $allowed, $actual ) {
-		$this->assertArraySubset( $required, $actual );
-
-		$this->assertEquals( [], array_diff( $actual, $required, $allowed ) );
+		$this->assertEquals( array(), array_diff( $required, $actual ) );
+		$this->assertEquals( array(), array_diff( $actual, $required, $allowed ) );
 	}
 
 	/**
+	 * Tests the setup of the xmlrpc methods when the site is active, the request is signed, and without a user.
+	 *
 	 * @group xmlrpc
 	 */
 	public function test_classic_xmlrpc_when_active_and_signed_with_no_user() {
-		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, true );
+		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), true, true );
 
-		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
-		$required = [
-			'jetpack.jsonAPI',
+		$required = array(
 			'jetpack.verifyAction',
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
-		];
+			'jetpack.jsonAPI',
+		);
 
 		// Nothing else is allowed.
-		$allowed = [];
+		$allowed = array();
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
+	 * Tests the setup of the xmlrpc methods when the site is active, the request is signed, and with a user.
+	 *
 	 * @group xmlrpc
 	 */
 	public function test_classic_xmlrpc_when_active_and_signed_with_user() {
-		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, true, get_user_by( 'ID', self::$admin_id ) );
+		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), true, true, get_user_by( 'ID', self::$admin_id ) );
 
-		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
-		$required = [
-			'jetpack.jsonAPI',
+		$required = array(
 			'jetpack.verifyAction',
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.jsonAPI',
 
-			'jetpack.testConnection',
 			'jetpack.testAPIUserCode',
-			'jetpack.featuresAvailable',
-			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
 			'jetpack.idcUrlValidation',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
 
 			'jetpack.syncObject',
-		];
+		);
 
-		// It's OK if these module-added methods are present. (Module active in tests.)
-		// It's OK if they are not. (Module inactive in tests.)
-		$allowed = [
+		// It's OK if these module-added methods are present (module active in tests).
+		// It's OK if they are not (module inactive in tests).
+		$allowed = array(
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
-		];
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
+	 * Tests the setup of the xmlrpc methods when the site is active, the request is signed, with a user,
+	 * and with edit methods enabled.
+	 *
 	 * @group xmlrpc
 	 */
 	public function test_classic_xmlrpc_when_active_and_signed_with_user_with_edit() {
-		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, true, get_user_by( 'ID', self::$admin_id ) );
+		$this->mocked_setup_xmlrpc_handlers(
+			array( 'for' => 'jetpack' ),
+			true,
+			true,
+			get_user_by( 'ID', self::$admin_id )
+		);
 
-		$methods = apply_filters( 'xmlrpc_methods', [
-			'test.test'                 => '__return_true',
-			'metaWeblog.editPost'       => '__return_true',
-			'metaWeblog.newMediaObject' => '__return_true',
-		] );
+		$methods = apply_filters(
+			'xmlrpc_methods',
+			array(
+				'test.test'                 => '__return_true',
+				'metaWeblog.editPost'       => '__return_true',
+				'metaWeblog.newMediaObject' => '__return_true',
+			)
+		);
 
-		$required = [
-			'jetpack.jsonAPI',
+		$required = array(
 			'jetpack.verifyAction',
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.jsonAPI',
 
-			'jetpack.testConnection',
 			'jetpack.testAPIUserCode',
-			'jetpack.featuresAvailable',
-			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
 			'jetpack.idcUrlValidation',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
 
 			'jetpack.syncObject',
-		];
+		);
 
-		// It's OK if these module-added methods are present. (Module active in tests.)
-		// It's OK if they are not. (Module inactive in tests.)
-		$allowed = [
+		// It's OK if these module-added methods are present (module active in tests).
+		// It's OK if they are not (module inactive in tests).
+		$allowed = array(
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
-		];
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
+	 * Tests the setup of the xmlrpc methods when the site is active and the request is not signed.
+	 *
 	 * @group xmlrpc
 	 */
 	public function test_classic_xmlrpc_when_active_and_not_signed() {
-		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, false );
+		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), true, false );
 
-		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
-		$required = [
+		$required = array(
 			'jetpack.remoteAuthorize',
-		];
+		);
 
 		// Nothing else is allowed.
-		$allowed = [];
+		$allowed = array();
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
+	 * Tests the setup of the xmlrpc methods when the site is not active and the request is not signed.
+	 *
 	 * @group xmlrpc
 	 */
 	public function test_classic_xmlrpc_when_not_active_and_not_signed() {
-		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], false, false );
+		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), false, false );
 
-		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
-		$required = [
+		$required = array(
 			'jetpack.remoteAuthorize',
 			'jetpack.remoteRegister',
 
 			'jetpack.verifyRegistration',
-		];
+		);
 
 		// Nothing else is allowed.
-		$allowed = [];
+		$allowed = array();
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
+	 * Tests the setup of the xmlrpc methods when the site is not active and the request is signed.
+	 *
 	 * @group xmlrpc
 	 */
 	public function test_classic_xmlrpc_when_not_active_and_signed() {
-		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], false, true );
+		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), false, true );
 
-		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
-		$required = [
+		$required = array(
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.remoteConnect',
 			'jetpack.getUser',
-		];
+		);
 
 		// Nothing else is allowed.
-		$allowed = [];
+		$allowed = array();
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
@@ -1208,4 +1136,116 @@ EXPECTED;
 		);
 	}
 
+	/**
+	 * Tests login URL only adds redirect param when redirect param is in original request.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_login_url_add_redirect() {
+		$login_url = wp_login_url( '/wp-admin' );
+		$this->assertFalse( strpos( $login_url, Jetpack::$jetpack_redirect_login ) );
+
+		$login_url = wp_login_url( '/wp-admin?' . Jetpack::$jetpack_redirect_login . '=true' );
+		parse_str( wp_parse_url( $login_url, PHP_URL_QUERY ), $login_parts );
+		$this->assertArraySubset( array( Jetpack::$jetpack_redirect_login => 'true' ), $login_parts, true );
+	}
+
+	/**
+	 * Tests login redirect sending users to Calypso when redirect param is set.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_login_init_redirect() {
+		tests_add_filter(
+			'wp_redirect',
+			function( $location ) {
+				$expected_location = add_query_arg(
+					array(
+						'forceInstall' => 1,
+						'url'          => rawurlencode( get_site_url() ),
+					),
+					'https://wordpress.com/jetpack/connect'
+				);
+				$this->assertEquals( $location, $expected_location );
+				throw new Exception(); // Cause an exception, as we don't want to run exit.
+			}
+		);
+
+		// Remove core filters that add headers.
+		remove_filter( 'login_init', 'wp_admin_headers' );
+		remove_filter( 'login_init', 'send_frame_options_header' );
+
+		// Run it once and no exception is thrown.
+		do_action( 'login_init' );
+
+		$this->expectException( Exception::class );
+		$_GET[ Jetpack::$jetpack_redirect_login ] = 'true';
+		do_action( 'login_init' ); // Now expect an exception.
+	}
+
+	/**
+	 * Tests getting the correct Calypso host.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_get_calypso_host() {
+		// No env.
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'development';
+		$this->assertEquals( 'http://calypso.localhost:3000/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'wpcalypso';
+		$this->assertEquals( 'https://wpcalypso.wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'horizon';
+		$this->assertEquals( 'https://horizon.wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'stage';
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'production';
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+	}
+
+	/**
+	 * Tests the Jetpack::should_set_cookie() method.
+	 *
+	 * @param string  $key The state key test value.
+	 * @param string  $set_screen The $current_screen->base test value.
+	 * @param boolean $expected_output The expected output of Jetpack::should_set_cookie().
+	 *
+	 * @covers Jetpack::should_set_cookie
+	 * @dataProvider should_set_cookie_provider
+	 */
+	public function test_should_set_cookie( $key, $set_screen, $expected_output ) {
+		global $current_screen;
+		$old_current_screen   = $current_screen;
+		$current_screen       = new stdClass();
+		$current_screen->base = $set_screen;
+
+		$this->assertEquals( $expected_output, Jetpack::should_set_cookie( $key ) );
+		$current_screen = $old_current_screen;
+	}
+
+	/**
+	 * The data provider for test_should_set_cookie(). Provides an array of
+	 * test data. Each data set is an array with the structure:
+	 *     [0] => The state key test value.
+	 *     [1] => The $current_screen->base test value.
+	 *     [2] => The expected output of Jetpack::should_set_cookie().
+	 */
+	public function should_set_cookie_provider() {
+		return array(
+			array( 'display_update_modal', 'toplevel_page_jetpack', false ),
+			array( 'display_update_modal', 'test_page', true ),
+			array( 'display_update_modal', null, true ),
+			array( 'message', 'toplevel_page_jetpack', true ),
+			array( 'message', 'test_page', true ),
+			array( 'message', null, true ),
+		);
+	}
 } // end class

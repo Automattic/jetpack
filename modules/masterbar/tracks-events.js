@@ -45,7 +45,6 @@
 		'wp-admin-bar-reader-followed-sites-manage': 'reader_manage_followed_sites',
 		'wp-admin-bar-discover-discover': 'reader_discover',
 		'wp-admin-bar-discover-search': 'reader_search',
-		'wp-admin-bar-discover-recommended-blogs': 'reader_recommendations',
 		'wp-admin-bar-my-activity-my-likes': 'reader_my_likes',
 		//account
 		'wp-admin-bar-user-info': 'my_account_user_name',

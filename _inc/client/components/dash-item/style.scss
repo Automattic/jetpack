@@ -37,7 +37,7 @@
 	display: inline-block;
 	border: 1px solid $light-gray-700;
 	border-radius: 4px;
-	padding: 0px 4px;
+	padding: 0 4px;
 	min-width: 36px;
 	text-align: center;
 
@@ -47,6 +47,23 @@
 
 	+ .jp-dash-item__description {
 		max-width: 61%;
+	}
+	&.is-alert {
+		color: $white;
+		background: $alert-red;
+		border-color: $alert-red;
+	}
+}
+
+.jp-dash-item__title {
+	max-width: calc( 100% - 18px ); // For the support icon
+
+	&.jp-dash-item__title_fullwidth {
+		flex-basis: 100%;
+	}
+
+	&.jp-dash-item__title_top {
+		margin-top: 0;
 	}
 }
 

@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -36,7 +37,7 @@ class DashMonitor extends Component {
 			text: __(
 				'Jetpack’s downtime monitor will continuously monitor your site, and alert you the moment that downtime is detected.'
 			),
-			link: 'https://jetpack.com/support/monitor/',
+			link: getRedirectUrl( 'jetpack-support-monitor' ),
 		};
 
 		if ( this.props.getOptionValue( 'monitor' ) ) {

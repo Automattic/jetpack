@@ -17,7 +17,6 @@ import {
 	getSearchQuery,
 	hasPreselectedFilters,
 	setSearchQuery,
-	setSortQuery,
 } from '../lib/query-string';
 import PreselectedSearchFilters from './preselected-search-filters';
 
@@ -30,7 +29,7 @@ class SearchForm extends Component {
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
 	onChangeSort = sort => {
-		setSortQuery( sort );
+		this.props.onChangeSort( sort );
 		this.hideFilters();
 	};
 
@@ -48,50 +47,56 @@ class SearchForm extends Component {
 		}
 	};
 
+	hasSelectableFilters = () =>
+		this.props.widgets.some( widget => Array( widget.filters ) && widget.filters.length > 0 );
+
+	hasPreselectedFilters = () =>
+		hasPreselectedFilters( this.props.widgets, this.props.widgetsOutsideOverlay );
+
 	render() {
 		return (
 			<form onSubmit={ noop } role="search" className={ this.props.className }>
 				<div className="jetpack-instant-search__search-form">
 					<SearchBox
-						enableFilters
+						enableFilters={ this.hasSelectableFilters() || this.hasPreselectedFilters() }
+						enableSort={ this.props.enableSort }
 						isVisible={ this.props.isVisible }
 						onChangeQuery={ this.onChangeQuery }
 						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
+						shouldRestoreFocus={ this.props.overlayTrigger !== 'immediate' }
 						showFilters={ this.state.showFilters }
+						sort={ this.props.sort }
 						toggleFilters={ this.toggleFilters }
-						widget={ this.props.widget }
 					/>
 				</div>
-				{ this.state.showFilters && (
-					<div className="jetpack-instant-search__search-form-filters">
-						<div className="jetpack-instant-search__search-form-filters-arrow" />
-						<PreselectedSearchFilters
-							loading={ this.props.isLoading }
-							locale={ this.props.locale }
-							postTypes={ this.props.postTypes }
-							results={ this.props.response }
-							widgets={ this.props.widgets }
-							widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
-						/>
-						{ this.props.widgets.map( ( widget, index ) => (
-							<SearchFilters
-								filters={ getFilterQuery() }
+				{ ( this.hasSelectableFilters() || this.hasPreselectedFilters() ) &&
+					this.state.showFilters && (
+						<div className="jetpack-instant-search__search-form-filters">
+							<div className="jetpack-instant-search__search-form-filters-arrow" />
+							<PreselectedSearchFilters
 								loading={ this.props.isLoading }
 								locale={ this.props.locale }
-								onChange={ this.hideFilters }
 								postTypes={ this.props.postTypes }
 								results={ this.props.response }
-								showClearFiltersButton={
-									! hasPreselectedFilters( this.props.widgets, this.props.widgetsOutsideOverlay ) &&
-									index === 0
-								}
-								widget={ widget }
+								widgets={ this.props.widgets }
+								widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
 							/>
-						) ) }
-						<JetpackColophon locale={ this.props.locale } />
-					</div>
-				) }
+							{ this.props.widgets.map( ( widget, index ) => (
+								<SearchFilters
+									filters={ getFilterQuery() }
+									loading={ this.props.isLoading }
+									locale={ this.props.locale }
+									onChange={ this.hideFilters }
+									postTypes={ this.props.postTypes }
+									results={ this.props.response }
+									showClearFiltersButton={ ! this.hasPreselectedFilters() && index === 0 }
+									widget={ widget }
+								/>
+							) ) }
+							<JetpackColophon locale={ this.props.locale } />
+						</div>
+					) }
 			</form>
 		);
 	}

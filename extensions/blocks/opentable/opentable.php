@@ -7,33 +7,12 @@
  * @package Jetpack
  */
 
-namespace Jetpack\OpenTable_Block;
+namespace Automattic\Jetpack\Extensions\OpenTable;
+
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'opentable';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
-/**
- * Check if the block should be available on the site.
- *
- * @return bool
- */
-function is_available() {
-	if (
-		defined( 'IS_WPCOM' )
-		&& IS_WPCOM
-		&& function_exists( 'has_any_blog_stickers' )
-	) {
-		if ( has_any_blog_stickers(
-			array( 'premium-plan', 'business-plan', 'ecommerce-plan' ),
-			get_current_blog_id()
-		) ) {
-			return true;
-		}
-		return false;
-	}
-
-	return true;
-}
 
 /**
  * Registers the block for use in Gutenberg
@@ -41,34 +20,15 @@ function is_available() {
  * registration if we need to.
  */
 function register_block() {
-	if ( is_available() ) {
-		jetpack_register_block(
-			BLOCK_NAME,
-			array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
-		);
-	}
+	jetpack_register_block(
+		BLOCK_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'plan_check'      => true,
+		)
+	);
 }
-add_action( 'init', 'Jetpack\OpenTable_Block\register_block' );
-
-/**
- * Set the availability of the block as the editor
- * is loaded.
- */
-function set_availability() {
-	if ( is_available() ) {
-		\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
-	} else {
-		\Jetpack_Gutenberg::set_extension_unavailable(
-			BLOCK_NAME,
-			'missing_plan',
-			array(
-				'required_feature' => 'opentable',
-				'required_plan'    => 'premium-plan',
-			)
-		);
-	}
-}
-add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\set_availability' );
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Adds an inline script which updates the block editor settings to
@@ -79,7 +39,7 @@ add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\se
 function add_language_setting() {
 	wp_add_inline_script( 'jetpack-blocks-editor', sprintf( "wp.data.dispatch( 'core/block-editor' ).updateSettings( { siteLocale: '%s' } )", str_replace( '_', '-', get_locale() ) ), 'before' );
 }
-add_action( 'enqueue_block_assets', 'Jetpack\OpenTable_Block\add_language_setting' );
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_language_setting' );
 
 /**
  * OpenTable block registration/dependency declaration.
@@ -89,13 +49,17 @@ add_action( 'enqueue_block_assets', 'Jetpack\OpenTable_Block\add_language_settin
  * @return string
  */
 function load_assets( $attributes ) {
-	\Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	$classes = array( sprintf( 'wp-block-jetpack-%s-theme-%s', FEATURE_NAME, get_attribute( $attributes, 'style' ) ) );
-	if ( count( $attributes['rid'] ) > 1 ) {
+	if ( array_key_exists( 'rid', $attributes ) && is_array( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
 		$classes[] = 'is-multi';
 	}
-	$classes = \Jetpack_Gutenberg::block_classes(
+	if ( array_key_exists( 'negativeMargin', $attributes ) && $attributes['negativeMargin'] ) {
+		$classes[] = 'has-no-margin';
+	}
+	$classes = Jetpack_Gutenberg::block_classes(
 		FEATURE_NAME,
 		$attributes,
 		$classes

@@ -170,6 +170,22 @@ class Actions {
 	}
 
 	/**
+	 * Decides if the sender should run on shutdown when actions are queued.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function should_initialize_sender_enqueue() {
+		if ( Constants::is_true( 'DOING_CRON' ) ) {
+			return self::sync_via_cron_allowed();
+		}
+
+		return true;
+	}
+
+	/**
 	 * Decides if sync should run at all during this request.
 	 *
 	 * @access public
@@ -261,9 +277,10 @@ class Actions {
 	 * @param float  $checkout_duration      Time spent retrieving queue items from the DB.
 	 * @param float  $preprocess_duration    Time spent converting queue items into data to send.
 	 * @param int    $queue_size             The size of the sync queue at the time of processing.
+	 * @param string $buffer_id              The ID of the Queue buffer checked out for processing.
 	 * @return Jetpack_Error|mixed|WP_Error  The result of the sending request.
 	 */
-	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null ) {
+	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
 		$query_args = array(
 			'sync'       => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
 			'codec'      => $codec_name,
@@ -274,6 +291,7 @@ class Actions {
 			'cd'         => sprintf( '%.4f', $checkout_duration ),
 			'pd'         => sprintf( '%.4f', $preprocess_duration ),
 			'queue_size' => $queue_size,
+			'buffer_id'  => $buffer_id,
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -311,7 +329,7 @@ class Actions {
 		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,
-				'user_id' => JETPACK_MASTER_USER,
+				'user_id' => Jetpack_Connection::JETPACK_MASTER_USER,
 				'timeout' => $query_args['timeout'],
 			)
 		);
@@ -473,6 +491,7 @@ class Actions {
 
 		$time_limit = Settings::get_setting( 'cron_sync_time_limit' );
 		$start_time = time();
+		$executions = 0;
 
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time( $type );
@@ -485,9 +504,18 @@ class Actions {
 					sleep( $delay );
 				}
 			}
+			$executions ++;
+
+			// Explicitly only allow 1 do_full_sync call until issue with Immediate Full Sync is resolved.
+			// For more context see p1HpG7-9pe-p2.
+			if ( 'full_sync' === $type && $executions > 1 ) {
+				break;
+			}
 
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
 		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
+
+		return $executions;
 	}
 
 	/**
@@ -508,7 +536,7 @@ class Actions {
 	 */
 	public static function initialize_sender() {
 		self::$sender = Sender::get_instance();
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 7 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 8 );
 	}
 
 	/**

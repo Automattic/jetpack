@@ -73,13 +73,16 @@ function videopress_get_video_details( $guid ) {
  *
  * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
- * @todo: Add some caching in here.
+ * @deprecated since 8.4.0
+ * @see videopress_get_post_id_by_guid()
  *
  * @param string $url
  *
  * @return int|bool Attachment ID on success, false on failure
  */
 function videopress_get_attachment_id_by_url( $url ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-8.4' );
+
 	$wp_upload_dir = wp_upload_dir();
 	// Strip out protocols, so it doesn't fail because searching for http: in https: dir.
 	$dir = set_url_scheme( trailingslashit( $wp_upload_dir['baseurl'] ), 'relative' );
@@ -619,7 +622,7 @@ function video_format_done( $info, $format ) {
  */
 function video_image_url_by_guid( $guid, $format ) {
 
-	$post = video_get_post_by_guid( $guid );
+	$post = videopress_get_post_by_guid( $guid );
 
 	if ( is_wp_error( $post ) ) {
 		return null;
@@ -636,14 +639,67 @@ function video_image_url_by_guid( $guid, $format ) {
 /**
  * Using a GUID, find a post.
  *
- * @param string $guid
- * @return WP_Post
+ * @param string $guid The post guid.
+ * @return WP_Post|false The post for that guid, or false if none is found.
+ */
+function videopress_get_post_by_guid( $guid ) {
+	$cache_key   = 'get_post_by_guid_' . $guid;
+	$cache_group = 'videopress';
+	$cached_post = wp_cache_get( $cache_key, $cache_group );
+
+	if ( is_object( $cached_post ) && 'WP_Post' === get_class( $cached_post ) ) {
+		return $cached_post;
+	}
+
+	$post_id = videopress_get_post_id_by_guid( $guid );
+
+	if ( is_int( $post_id ) ) {
+		$post = get_post( $post_id );
+		wp_cache_set( $cache_key, $post, $cache_group, HOUR_IN_SECONDS );
+
+		return $post;
+	}
+
+	return false;
+}
+
+/**
+ * Using a GUID, find a post.
+ *
+ * Kept for backward compatibility. Use videopress_get_post_by_guid() instead.
+ *
+ * @deprecated since 8.4.0
+ * @see videopress_get_post_by_guid()
+ *
+ * @param string $guid The post guid.
+ * @return WP_Post|false The post for that guid, or false if none is found.
  */
 function video_get_post_by_guid( $guid ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-8.4' );
+	return videopress_get_post_by_guid( $guid );
+}
+
+/**
+ * Using a GUID, find the associated post ID.
+ *
+ * @since 8.4.0
+ * @param string $guid The guid to look for the post ID of.
+ * @return int|false The post ID for that guid, or false if none is found.
+ */
+function videopress_get_post_id_by_guid( $guid ) {
+	$cache_key = 'videopress_get_post_id_by_guid_' . $guid;
+	$cached_id = get_transient( $cache_key );
+
+	if ( is_int( $cached_id ) ) {
+		return $cached_id;
+	}
+
 	$args = array(
 		'post_type'      => 'attachment',
 		'post_mime_type' => 'video/videopress',
 		'post_status'    => 'inherit',
+		'no_found_rows'  => true,
+		'fields'         => 'ids',
 		'meta_query'     => array(
 			array(
 				'key'     => 'videopress_guid',
@@ -655,9 +711,14 @@ function video_get_post_by_guid( $guid ) {
 
 	$query = new WP_Query( $args );
 
-	$post = $query->next_post();
+	if ( $query->have_posts() ) {
+		$post_id = $query->next_post();
+		set_transient( $cache_key, $post_id, HOUR_IN_SECONDS );
 
-	return $post;
+		return $post_id;
+	}
+
+	return false;
 }
 
 /**

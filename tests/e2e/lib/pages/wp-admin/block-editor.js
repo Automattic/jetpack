@@ -16,20 +16,28 @@ export default class BlockEditorPage extends Page {
 		super( page, { expectedSelector, url } );
 	}
 
-	static async init( page, enableTips = false ) {
+	static async init( page, showWelcomeGuide = false ) {
 		const it = await super.init( page );
-		await page.evaluate( _enableTips => {
-			const action = _enableTips ? 'enableTips' : 'disableTips';
-			wp.data.dispatch( 'core/nux' )[ action ]();
-		}, enableTips );
+
+		const isWelcomeGuideActive = await page.evaluate( () =>
+			wp.data.select( 'core/edit-post' ).isFeatureActive( 'welcomeGuide' )
+		);
+
+		if ( showWelcomeGuide !== isWelcomeGuideActive ) {
+			await page.evaluate( () =>
+				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
+			);
+
+			await it.reload();
+		}
+
 		return it;
 	}
 
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
 		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
-		const jetpackPanelSelector = '.components-panel__body .jetpack-logo';
-		await scrollIntoView( this.page, jetpackPanelSelector );
+		await scrollIntoView( this.page, blockIconSelector );
 		await waitAndClick( this.page, blockIconSelector );
 		const blockInfo = await this.getInsertedBlock();
 		return blockInfo;

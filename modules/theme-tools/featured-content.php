@@ -334,7 +334,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 				return;
 			}
 
-			// We need to respect post ids already in the blacklist.
+			// We need to respect post ids already in the blocklist.
 			$post__not_in = $query->get( 'post__not_in' );
 
 			if ( ! empty( $post__not_in ) ) {

@@ -7,10 +7,25 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/amazon',
-	array( 'render_callback' => 'jetpack_amazon_block_load_assets' )
-);
+namespace Automattic\Jetpack\Extensions\Amazon;
+
+use Jetpack_Gutenberg;
+
+const FEATURE_NAME = 'amazon';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Amazon block registration/dependency declaration.
@@ -20,7 +35,7 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_amazon_block_load_assets( $attr, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( 'amazon' );
+function load_assets( $attr, $content ) {
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	return $content;
 }

@@ -43,6 +43,7 @@ export const items = ( state = {}, action ) => {
 export const initialRequestsState = {
 	fetchingSettingsList: false,
 	settingsSent: {},
+	updatedSettings: {},
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
@@ -68,6 +69,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
 			return merge( {}, state, {
 				settingsSent: mapValues( action.updatedOptions, () => false ),
+				updatedSettings: mapValues( action.updatedOptions, () => Boolean( action.success ) ),
 			} );
 		default:
 			return state;
@@ -142,6 +144,17 @@ export function isUpdatingSetting( state, settings = '' ) {
 		);
 	}
 	return state.jetpack.settings.requests.settingsSent[ settings ];
+}
+
+/**
+ * Returns true if we successfully updated a setting
+ *
+ * @param  {Object}   state    Global state tree
+ * @param  {String}   setting  A setting name
+ * @return {Boolean|undefined} Whether the option has been updated successfully. Undefined if an attempt has not yet been made.
+ */
+export function hasUpdatedSetting( state, setting = '' ) {
+	return state.jetpack.settings.requests.updatedSettings[ setting ];
 }
 
 /**

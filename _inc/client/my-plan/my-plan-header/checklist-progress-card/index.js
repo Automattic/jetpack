@@ -4,6 +4,7 @@
 import { translate as __ } from 'i18n-calypso';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -48,7 +49,7 @@ class ChecklistProgressCard extends Component {
 						<div className="checklist__header-secondary">
 							<Button
 								compact
-								href={ `https://wordpress.com/plans/my-plan/${ siteSlug }` }
+								href={ getRedirectUrl( 'calypso-plans-my-plan', { site: siteSlug } ) }
 								onClick={ this.trackCtaClick }
 								primary
 							>

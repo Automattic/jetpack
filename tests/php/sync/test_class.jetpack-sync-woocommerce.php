@@ -15,9 +15,9 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		parent::setUpBeforeClass();
 
 		if ( "1" != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-			return; 
-		} 
-		
+			return;
+		}
+
 		self::$woo_enabled = true;
 
 		$woo_tests_dir = dirname( __FILE__ ) . '/../../../../woocommerce/tests';
@@ -104,7 +104,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		// pay
 		$order->payment_complete( '12345' );
-		
+
 		// just for fun
 		$this->assertEquals( 'completed', $order->get_status() );
 		$this->assertEquals( '12345', $order->get_transaction_id() );
@@ -125,7 +125,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$create_order_item_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_new_order_item' );
-		
+
 		$this->assertTrue( !! $create_order_item_event );
 		$this->assertEquals( $order_item->get_id(), $create_order_item_event->args[0] );
 		$this->assertHasOrderItemProperties( $create_order_item_event->args[1], $order_item );
@@ -144,7 +144,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$update_order_item_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_update_order_item' );
-		
+
 		$this->assertTrue( !! $update_order_item_event );
 		$this->assertEquals( $order_item->get_id(), $update_order_item_event->args[0] );
 		$this->assertHasOrderItemProperties( $update_order_item_event->args[1], $order_item );
@@ -173,9 +173,16 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_approving_a_review_is_synced() {
-		$post_id = $this->factory->post->create();
-		$review_ids = $this->factory->comment->create_post_comments( $post_id, 1, array( 'comment_type' => 'review', 'comment_approved' => 0 ) );
-		$review = get_comment( $review_ids[0] );
+		$post_id    = $this->factory->post->create();
+		$review_ids = $this->factory->comment->create_post_comments(
+			$post_id,
+			1,
+			array(
+				'comment_type'     => 'review',
+				'comment_approved' => 0,
+			)
+		);
+		$review     = get_comment( $review_ids[0] );
 
 		$this->sender->do_sync();
 
@@ -273,8 +280,8 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		foreach( $synced_order_items as $synced_order_item ) {
 			if ( $order1_item->get_id() == $synced_order_item->order_item_id ) {
 				$this->assertHasOrderItemProperties( $synced_order_item, $order1_item );
-				$found_order_item_1 = true;	
-				continue;	
+				$found_order_item_1 = true;
+				continue;
 			}
 
 			if ( $order2_item->get_id() == $synced_order_item->order_item_id ) {

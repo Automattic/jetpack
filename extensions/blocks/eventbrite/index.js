@@ -9,8 +9,19 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
+import { supportsCollections } from '../../shared/block-category';
+
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'a',
+		text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+		uniqueId: 'eventbrite-widget-id',
+	},
+};
 
 // Example URLs
 // https://www.eventbrite.com/e/test-event-tickets-123456789
@@ -19,6 +30,8 @@ export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[
 
 // Custom eventbrite urls use a subdomain of eventbrite.com
 export const CUSTOM_URL_REGEX = /^\s*https?:\/\/(?:.+\.)?(?:eventbrite\.[a-z.]+)\/?(?:\?[^\/]*)?\s*$/i;
+
+export const EVENTBRITE_EXAMPLE_URL = 'https://www.eventbrite.com/e/test-event-tickets-123456789';
 
 export const name = 'eventbrite';
 
@@ -40,7 +53,7 @@ export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
 		_x( 'events', 'block search term', 'jetpack' ),
 		_x( 'tickets', 'block search term', 'jetpack' ),
@@ -70,9 +83,11 @@ export const settings = {
 	// Make sure the example has `useModal` set to true.
 	example: {
 		attributes: {
-			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
+			url: EVENTBRITE_EXAMPLE_URL,
 			eventId: 123456789,
-			useModal: true,
+			style: 'modal',
 		},
+		innerBlocks: [ innerButtonBlock ],
 	},
+	deprecated,
 };

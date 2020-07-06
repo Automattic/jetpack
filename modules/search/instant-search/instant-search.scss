@@ -14,6 +14,8 @@ $grid-size-large: 16px;
 	}
 }
 
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+
 @import './components/gridicon/style.scss';
 @import './components/jetpack-colophon.scss';
 @import './components/notice.scss';
@@ -23,6 +25,7 @@ $grid-size-large: 16px;
 @import './components/search-box.scss';
 @import './components/search-form.scss';
 @import './components/search-result-minimal.scss';
+@import './components/search-result-expanded.scss';
 @import './components/search-result-product.scss';
 @import './components/search-sidebar.scss';
 

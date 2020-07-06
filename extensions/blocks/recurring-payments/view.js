@@ -47,13 +47,19 @@ const initializeMembershipButtonBlocks = () => {
 		document.querySelectorAll( '.' + blockClassName + ' a' )
 	);
 	membershipButtonBlocks.forEach( block => {
+		if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+			return;
+		}
+
 		const checkoutURL = block.getAttribute( 'href' );
 		try {
 			activateSubscription( block, checkoutURL );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem activating Recurring Payments ' + checkoutURL, err );
+			console.error( 'Problem activating Payments ' + checkoutURL, err );
 		}
+
+		block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 	} );
 };
 

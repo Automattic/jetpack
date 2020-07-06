@@ -24,6 +24,10 @@ import {
 	PLAN_PERSONAL,
 	PLAN_PERSONAL_2_YEARS,
 	PLAN_VIP,
+	PLAN_JETPACK_SEARCH,
+	PLAN_JETPACK_SEARCH_MONTHLY,
+	PLAN_WPCOM_SEARCH,
+	PLAN_WPCOM_SEARCH_MONTHLY,
 	getPlanClass,
 } from 'lib/plans/constants';
 
@@ -146,6 +150,26 @@ export default class PlanIcon extends Component {
 		);
 	}
 
+	getSearchIcon() {
+		return (
+			<svg
+				className={ this.getIconClassNames( 'dops-plan-icon__search' ) }
+				xmlns="http://www.w3.org/2000/svg"
+				version="1.1"
+				x="0"
+				y="0"
+				viewBox="0 0 64 64"
+			>
+				<circle className="dops-plan-icon__search-0" cx="32" cy="32" r="32" fill="#2fb41f" />
+				<path
+					className="dops-plan-icon__search-1"
+					d="M48 43.6L39.4 35c1.2-1.8 1.9-4 1.9-6.4 0-6.4-5.2-11.6-11.6-11.6S18 22.2 18 28.7s5.2 11.6 11.6 11.6c2.4 0 4.6-.7 6.4-1.9l8.6 8.6 3.4-3.4zM21.4 28.7c0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.7 8.3-8.3 8.3-8.3-3.7-8.3-8.3z"
+					fill="#fff"
+				/>
+			</svg>
+		);
+	}
+
 	getDefaultIcon() {
 		return (
 			<svg
@@ -201,6 +225,11 @@ export default class PlanIcon extends Component {
 			case PLAN_JETPACK_BUSINESS_MONTHLY:
 			case PLAN_VIP:
 				return this.getBusinessIcon();
+			case PLAN_JETPACK_SEARCH:
+			case PLAN_JETPACK_SEARCH_MONTHLY:
+			case PLAN_WPCOM_SEARCH:
+			case PLAN_WPCOM_SEARCH_MONTHLY:
+				return this.getSearchIcon();
 			default:
 				return this.getDefaultIcon();
 		}

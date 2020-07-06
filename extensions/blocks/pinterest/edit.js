@@ -1,20 +1,25 @@
 /**
  * External dependencies
  */
-import { invoke } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { Placeholder, SandBox, Button, IconButton, Spinner, Toolbar } from '@wordpress/components';
+import {
+	Placeholder,
+	SandBox,
+	Button,
+	IconButton,
+	Spinner,
+	Toolbar,
+	withNotices,
+} from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
-import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import { fallback, pinType } from './utils';
-import { icon } from '.';
-
-const PINIT_URL_REGEX = /^\s*https?:\/\/pin\.it\//i;
+import { icon, PINTEREST_EXAMPLE_URL } from '.';
+import testEmbedUrl from '../../shared/test-embed-url';
 
 class PinterestEdit extends Component {
 	constructor() {
@@ -23,64 +28,18 @@ class PinterestEdit extends Component {
 		this.state = {
 			editedUrl: this.props.attributes.url || '',
 			editingUrl: false,
-			// If this is a pin.it URL, we're going to need to find where it redirects to.
-			resolvingRedirect: PINIT_URL_REGEX.test( this.props.attributes.url ),
 			// The interactive-related magic comes from Core's EmbedPreview component,
 			// which currently isn't exported in a way we can use.
 			interactive: false,
+			isResolvingUrl: false,
 		};
 	}
 
 	componentDidMount() {
-		const { resolvingRedirect } = this.state;
-
-		// Check if we need to resolve a pin.it URL immediately.
-		if ( resolvingRedirect ) {
-			this.resolveRedirect();
-		}
-	}
-
-	componentDidUpdate( prevProps, prevState ) {
-		// Check if a pin.it URL has been entered, so we need to resolve it.
-		if ( ! prevState.resolvingRedirect && this.state.resolvingRedirect ) {
-			this.resolveRedirect();
-		}
-	}
-
-	componentWillUnmount() {
-		invoke( this.fetchRequest, [ 'abort' ] );
-	}
-
-	resolveRedirect = () => {
 		const { url } = this.props.attributes;
 
-		this.fetchRequest = apiFetch( {
-			path: `/wpcom/v2/resolve-redirect/${ url }`,
-		} );
-
-		this.fetchRequest.then(
-			response => {
-				// resolve
-				this.fetchRequest = null;
-				this.props.setAttributes( { url: response.url } );
-				this.setState( {
-					resolvingRedirect: false,
-					editedUrl: response.url,
-				} );
-			},
-			xhr => {
-				// reject
-				if ( xhr.statusText === 'abort' ) {
-					return;
-				}
-				this.fetchRequest = null;
-				this.setState( {
-					resolvingRedirect: false,
-					editingUrl: true,
-				} );
-			}
-		);
-	};
+		this.setUrl( url );
+	}
 
 	static getDerivedStateFromProps( nextProps, state ) {
 		if ( ! nextProps.isSelected && state.interactive ) {
@@ -93,6 +52,42 @@ class PinterestEdit extends Component {
 		return null;
 	}
 
+	setUrl = url => {
+		const { noticeOperations, setAttributes } = this.props;
+
+		if ( ! url || PINTEREST_EXAMPLE_URL === url ) {
+			return;
+		}
+
+		testEmbedUrl( url, this.setIsResolvingUrl )
+			.then( resolvedUrl => {
+				setAttributes( { url: resolvedUrl } );
+				this.setState( { editedUrl: resolvedUrl } );
+				noticeOperations.removeAllNotices();
+			} )
+			.catch( () => {
+				setAttributes( { url: undefined } );
+				this.setErrorNotice();
+			} );
+	};
+
+	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
+
+	setErrorNotice = () => {
+		const { noticeOperations, onReplace } = this.props;
+		const { editedUrl } = this.state;
+
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice(
+			<>
+				{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
+				<Button isLink onClick={ () => fallback( editedUrl, onReplace ) }>
+					{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
+				</Button>
+			</>
+		);
+	};
+
 	hideOverlay = () => {
 		// This is called onMouseUp on the overlay. We can't respond to the `isSelected` prop
 		// changing, because that happens on mouse down, and the overlay immediately disappears,
@@ -102,35 +97,32 @@ class PinterestEdit extends Component {
 		this.setState( { interactive: true } );
 	};
 
-	setUrl = event => {
+	submitForm = event => {
 		if ( event ) {
 			event.preventDefault();
 		}
 
-		const { editedUrl: url } = this.state;
+		const { editedUrl } = this.state;
 
-		this.props.setAttributes( { url } );
+		this.setUrl( editedUrl );
+
 		this.setState( { editingUrl: false } );
-
-		if ( PINIT_URL_REGEX.test( url ) ) {
-			// Setting the `resolvingRedirect` state here, then waiting for `componentDidUpdate()` to
-			// be called before actually resolving it ensures that the `editedUrl` state has also been
-			// updated before resolveRedirect() is called.
-			this.setState( { resolvingRedirect: true } );
-		}
 	};
 
-	/**
-	 * Render a preview of the Pinterest embed.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
-	render() {
-		const { attributes, className } = this.props;
-		const { url } = attributes;
-		const { editedUrl, interactive, editingUrl, resolvingRedirect } = this.state;
+	cannotEmbed = () => {
+		const { url } = this.props.attributes;
+		const { isResolvingUrl } = this.state;
+		const type = pinType( url );
 
-		if ( resolvingRedirect ) {
+		return ! isResolvingUrl && url && ! type;
+	};
+
+	render() {
+		const { attributes, className, noticeUI } = this.props;
+		const { url } = attributes;
+		const { editedUrl, interactive, editingUrl, isResolvingUrl } = this.state;
+
+		if ( isResolvingUrl ) {
 			return (
 				<div className="wp-block-embed is-loading">
 					<Spinner />
@@ -141,8 +133,6 @@ class PinterestEdit extends Component {
 
 		const type = pinType( url );
 		const html = `<a data-pin-do='${ type }' href='${ url }'></a>`;
-
-		const cannotEmbed = url && ! type;
 
 		const controls = (
 			<BlockControls>
@@ -157,12 +147,15 @@ class PinterestEdit extends Component {
 			</BlockControls>
 		);
 
-		if ( editingUrl || ! url || cannotEmbed ) {
+		if ( editingUrl || ! url || this.cannotEmbed() ) {
 			return (
 				<div className={ className }>
-					{ controls }
-					<Placeholder label={ __( 'Pinterest', 'jetpack' ) } icon={ <BlockIcon icon={ icon } /> }>
-						<form onSubmit={ this.setUrl }>
+					<Placeholder
+						label={ __( 'Pinterest', 'jetpack' ) }
+						icon={ <BlockIcon icon={ icon } /> }
+						notices={ noticeUI }
+					>
+						<form onSubmit={ this.submitForm }>
 							<input
 								type="url"
 								value={ editedUrl }
@@ -174,15 +167,6 @@ class PinterestEdit extends Component {
 							<Button isLarge isSecondary type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }
 							</Button>
-							{ cannotEmbed && (
-								<p className="components-placeholder__error">
-									{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }
-									<br />
-									<Button isLarge onClick={ () => fallback( editedUrl, this.props.onReplace ) }>
-										{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
-									</Button>
-								</p>
-							) }
 						</form>
 					</Placeholder>
 				</div>
@@ -214,4 +198,4 @@ class PinterestEdit extends Component {
 	}
 }
 
-export default PinterestEdit;
+export default withNotices( PinterestEdit );

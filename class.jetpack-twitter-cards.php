@@ -84,22 +84,36 @@ class Jetpack_Twitter_Cards {
 
 		// Try to give priority to featured images
 		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 240, 240 );
-			if ( ! empty( $featured ) && count( $featured ) > 0 ) {
-				if ( (int) $featured[0]['src_width'] >= 280 && (int) $featured[0]['src_height'] >= 150 ) {
-					$card_type                = 'summary_large_image';
-					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $featured[0]['src'] ) );
-				} else {
-					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 240, $featured[0]['src'] ) );
-				}
-
-				// Add the alt tag if we have one.
-				if ( ! empty( $featured[0]['alt_text'] ) ) {
-					// Shorten it if it is too long.
-					if ( strlen( $featured[0]['alt_text'] ) > $alt_length ) {
-						$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $featured[0]['alt_text'], 0, $alt_length ) . '…' );
+			$post_image = Jetpack_PostImages::get_image(
+				$post->ID,
+				array(
+					'width'  => 144,
+					'height' => 144,
+				)
+			);
+			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
+				// 4096 is the maximum size for an image per https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary .
+				if (
+					isset( $post_image['src_width'], $post_image['src_height'] )
+					&& (int) $post_image['src_width'] <= 4096
+					&& (int) $post_image['src_height'] <= 4096
+				) {
+					// 300x157 is the minimum size for a summary_large_image per https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary-card-with-large-image .
+					if ( (int) $post_image['src_width'] >= 300 && (int) $post_image['src_height'] >= 157 ) {
+						$card_type                = 'summary_large_image';
+						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $post_image['src'] ) );
 					} else {
-						$og_tags['twitter:image:alt'] = esc_attr( $featured[0]['alt_text'] );
+						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 144, $post_image['src'] ) );
+					}
+
+					// Add the alt tag if we have one.
+					if ( ! empty( $post_image['alt_text'] ) ) {
+						// Shorten it if it is too long.
+						if ( strlen( $post_image['alt_text'] ) > $alt_length ) {
+							$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $post_image['alt_text'], 0, $alt_length ) . '…' );
+						} else {
+							$og_tags['twitter:image:alt'] = esc_attr( $post_image['alt_text'] );
+						}
 					}
 				}
 			}

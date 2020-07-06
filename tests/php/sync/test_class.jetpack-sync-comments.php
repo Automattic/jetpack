@@ -4,6 +4,8 @@ use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing CRUD on Comments
+ *
+ * @group jetpack-sync
  */
 class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
@@ -79,13 +81,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	public function test_do_not_sync_comment_with_unknown_comment_type() {
 		$this->server_event_storage->reset();
 		$comment_data = array(
-			'comment_post_ID' => $this->post_id,
-			'comment_date' => date('Y-m-d H:i:s', time() ),
-			'comment_date_gmt' => date('Y-m-d H:i:s', time() ),
-			'comment_author' => 'ActionScheduler',
-			'comment_content' => 'fun!',
-			'comment_agent' => 'ActionScheduler',
-			'comment_type' => 'action_log',
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'ActionScheduler',
+			'comment_content'  => 'fun!',
+			'comment_agent'    => 'ActionScheduler',
+			'comment_type'     => 'action_log',
 		);
 		wp_insert_comment( $comment_data );
 		$this->sender->do_sync();
@@ -99,13 +101,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 
 		$comment_data = array(
-			'comment_post_ID' => $this->post_id,
-			'comment_date' => date('Y-m-d H:i:s', time() ),
-			'comment_date_gmt' => date('Y-m-d H:i:s', time() ),
-			'comment_author' => 'fun author',
-			'comment_content' => 'fun!',
-			'comment_agent' => 'fun things!',
-			'comment_type' => 'product_feedback', // This should be whitelisted in the filter.
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'fun author',
+			'comment_content'  => 'fun!',
+			'comment_agent'    => 'fun things!',
+			'comment_type'     => 'product_feedback', // This should be whitelisted in the filter.
 		);
 		wp_insert_comment( $comment_data );
 		$this->sender->do_sync();
@@ -225,6 +227,16 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_unapprove_comment() {
+		global $wp_version;
+		$comment_action_name = 'comment_unapproved_comment';
+
+		/*
+		 * Before WP 5.5, the default comment type was an empty string.
+		 * @to-do: remove when WP 5.5 is the minimum required version.
+		 */
+		if ( version_compare( $wp_version, '5.5-alpha', '<' ) ) {
+			$comment_action_name = 'comment_unapproved_';
+		}
 
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->comment->comment_approved = 0;
@@ -236,7 +248,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 		$this->assertEquals( 0, $remote_comment->comment_approved );
-		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
 		$this->assertTrue( (bool) $comment_unapproved_event );
 
 		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
@@ -249,7 +261,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		wp_update_comment( (array) $this->comment );
 		$this->sender->do_sync();
 
-		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
 		$this->assertTrue( (bool) $comment_unapproved_event );
 
 		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
@@ -313,6 +325,17 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_comment_jetpack_sync_prevent_sending_comment_data_filter() {
+		global $wp_version;
+		$comment_action_name = 'comment_approved_comment';
+
+		/*
+		 * Before WP 5.5, the default comment type was an empty string.
+		 * @to-do: remove when WP 5.5 is the minimum required version.
+		 */
+		if ( version_compare( $wp_version, '5.5-alpha', '<' ) ) {
+			$comment_action_name = 'comment_approved_';
+		}
+
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 
 		$this->server_replica_storage->reset();
@@ -327,7 +350,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
 
-		$insert_comment_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_' );
+		$insert_comment_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
 		$comment              = $insert_comment_event->args[1];
 
 		$this->assertEquals( $this->comment->comment_ID, $comment->comment_ID );
@@ -429,4 +452,230 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$comment_types[] = 'product_feedback';
 		return $comment_types;
 	}
+
+	/*
+	 * Verify Whitelist is applied to all actions.
+	 */
+
+	/**
+	 * Helper function to generate unknown comment data.
+	 *
+	 * @param string $comment_type comment_type of generated comment.
+	 *
+	 * @return false|int Comment ID or false if failure.
+	 */
+	private function generate_unknown_comment( $comment_type = 'action_log' ) {
+		$comment_data = array(
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'ActionScheduler',
+			'comment_content'  => 'fun!',
+			'comment_agent'    => 'ActionScheduler',
+			'comment_type'     => $comment_type,
+		);
+
+		$comment_id = wp_insert_comment( $comment_data );
+
+		return $comment_id;
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are sent for known comment types and meta.
+	 */
+	public function test_sync_comment_meta_known() {
+
+		add_comment_meta( $this->comment->comment_ID, 'hc_avatar', 'red' );
+		update_comment_meta( $this->comment->comment_ID, 'hc_avatar', 'blue' );
+		delete_comment_meta( $this->comment->comment_ID, 'hc_avatar' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertEquals( 'added_comment_meta', $added_comment_meta_event->action );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertEquals( 'updated_comment_meta', $updated_comment_meta_event->action );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertEquals( 'deleted_comment_meta', $deleted_comment_meta_event->action );
+
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are not sent for known comment types and unknown meta.
+	 */
+	public function test_sync_comment_meta_unknown_meta() {
+
+		add_comment_meta( $this->comment->comment_ID, 'gobble', 'red' );
+		update_comment_meta( $this->comment->comment_ID, 'gobble', 'blue' );
+		delete_comment_meta( $this->comment->comment_ID, 'gobble' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertFalse( $added_comment_meta_event );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertFalse( $updated_comment_meta_event );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertFalse( $deleted_comment_meta_event );
+
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are not sent for unknown comment types.
+	 */
+	public function test_sync_comment_meta_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		add_comment_meta( $comment_id, 'hc_avatar', 'red' );
+		update_comment_meta( $comment_id, 'hc_avatar', 'blue' );
+		delete_comment_meta( $comment_id, 'hc_avatar' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertFalse( $added_comment_meta_event );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertFalse( $updated_comment_meta_event );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertFalse( $deleted_comment_meta_event );
+	}
+
+   /**
+	 * Test that `trashed_comment` actions are not sent for unknown comment types.
+	 */
+	public function test_wp_trash_comment_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		$this->sender->do_sync();
+
+		wp_trash_comment( $comment_id );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'trashed_comment' );
+		$this->assertFalse( $event );
+	}
+
+	/**
+	 * Test that `untrashed_comment` actions are not sent for unknown comment types.
+	 */
+	public function test_wp_untrash_comment_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		wp_trash_comment( $comment_id );
+		wp_untrash_comment( $comment_id );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'untrashed_comment' );
+		$this->assertFalse( $event );
+	}
+
+	/**
+	 * Test that `spammed_comment` actions are not sent for unknown comment types.
+	 */
+	public function test_wp_spam_comment_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		$this->sender->do_sync();
+		wp_spam_comment( $comment_id );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'spammed_comment' );
+		$this->assertFalse( $event );
+	}
+
+	/**
+	 * Test that `unspammed_comment` actions are not sent for unknown comment types.
+	 */
+	public function test_wp_unspam_comment_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		wp_spam_comment( $comment_id );
+		wp_unspam_comment( $comment_id );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'unspammed_comment' );
+		$this->assertFalse( $event );
+	}
+
+	/**
+	 * Test that `deleted_comment` actions are not sent for unknown comment types.
+	 */
+	public function test_delete_comment_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		wp_delete_comment( $comment_id, true );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_comment' );
+		$this->assertFalse( $event );
+	}
+
+	/**
+	 * Test that `comment_approved_to_unapproved` and `comment_unapproved_to_approved` actions are not sent for unknown comment types.
+	 */
+	public function test_transition_comment_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		$comment    = get_comment( $comment_id );
+
+		$comment->comment_approved = 0;
+		wp_update_comment( (array) $comment );
+
+		$this->sender->do_sync();
+
+		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
+		$this->assertFalse( $comment_approved_to_unapproved_event );
+
+		$this->server_event_storage->reset();
+
+		$comment->comment_approved = 1;
+		wp_update_comment( (array) $comment );
+		$this->sender->do_sync();
+
+		$comment_unapproved_to_approved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_to_approved' );
+		$this->assertFalse( $comment_unapproved_to_approved_event );
+	}
+
+	/**
+	 * Test that `trashed_post_comments` and `untrashed_post_comments` are not sent for blacklisted post_types.
+	 */
+	public function test_post_comments_blacklisted_post_type() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Snitch',
+		);
+		register_post_type( 'snitch', $args );
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+		$this->factory->comment->create_post_comments( $post_id );
+
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		// Trash unknown post_type comments.
+		wp_trash_post_comments( $post_id );
+		$this->sender->do_sync();
+
+		$trashed_post_comments_event = $this->server_event_storage->get_most_recent_event( 'trashed_post_comments' );
+		$this->assertFalse( $trashed_post_comments_event );
+
+		// Untrash unknown post_type comments.
+		wp_untrash_post_comments( $post_id );
+		$this->sender->do_sync();
+
+		$untrash_post_comments_event = $this->server_event_storage->get_most_recent_event( 'untrash_post_comments' );
+		$this->assertFalse( $untrash_post_comments_event );
+	}
+
 }

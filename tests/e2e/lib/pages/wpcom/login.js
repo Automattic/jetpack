@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
+
+/**
  * Internal dependencies
  */
 import Page from '../page';
@@ -9,15 +14,16 @@ import {
 	waitAndType,
 	isEventuallyVisible,
 } from '../../page-helper';
+import logger from '../../logger';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
-		const url = 'https://wordpress.com/log-in';
+		const url = getRedirectUrl( 'wpcom-log-in' );
 		super( page, { expectedSelector, url, explicitWaitMS: 45000 } );
 	}
 
-	async login( wpcomUser ) {
+	async login( wpcomUser, { retry = true } = {} ) {
 		const [ username, password ] = getAccountCredentials( wpcomUser );
 
 		const usernameSelector = '#usernameOrEmail';
@@ -29,18 +35,28 @@ export default class LoginPage extends Page {
 		await waitAndClick( this.page, continueButtonSelector );
 
 		// sometimes it failing to type the whole password correctly. Trying to wait for the transition to happen
-		this.page.waitFor( 2000 );
+		this.page.waitFor( 1000 );
 		await waitAndType( this.page, passwordSelector, password );
-		this.page.waitFor( 2000 );
+		this.page.waitFor( 1000 );
 
 		await waitAndType( this.page, passwordSelector, password );
-		await waitAndClick( this.page, submitButtonSelector );
 
-		// NOTE: here we waiting for the redirect. For some reason it might take quite some time
-		await waitForSelector( this.page, passwordSelector, {
-			hidden: true,
-			timeout: 3 * 60000 /* 3 minutes */,
-		} );
+		const submitButton = await waitForSelector( this.page, submitButtonSelector );
+		await submitButton.press( 'Enter' );
+
+		try {
+			await waitForSelector( this.page, passwordSelector, {
+				hidden: true,
+				timeout: 60000 /* 1 minute */,
+			} );
+		} catch ( e ) {
+			if ( retry === true ) {
+				logger.info( `The login didn't work as expected - retrying now: '${ e }'` );
+				return await this.login( wpcomUser, { retry: false } );
+			}
+			throw e;
+		}
+
 		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
 	}
 

@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -36,7 +37,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 								'Integrates your WordPress site with Google Analytics, ' +
 									'a platform that offers insights into your traffic, visitors, and conversions.'
 							),
-							link: 'https://jetpack.com/support/google-analytics/',
+							link: getRedirectUrl( 'jetpack-support-google-analytics' ),
 						} }
 					>
 						{ __(
@@ -45,7 +46,13 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 								'normally show slightly different totals for your visits, views, etc.',
 							{
 								components: {
-									a: <a href={ 'https://wordpress.com/stats/day/' + this.props.siteRawUrl } />,
+									a: (
+										<a
+											href={ getRedirectUrl( 'calypso-stats-day', {
+												site: this.props.siteRawUrl,
+											} ) }
+										/>
+									),
 								},
 							}
 						) }

@@ -16,6 +16,7 @@ import {
 	PLAN_JETPACK_PREMIUM,
 	PLAN_JETPACK_BUSINESS,
 	PLAN_JETPACK_PERSONAL,
+	PLAN_JETPACK_SEARCH,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
@@ -27,13 +28,18 @@ import {
 } from 'lib/plans/constants';
 
 import {
-	isMultisite,
 	getSiteAdminUrl,
-	userCanManageModules,
 	getUpgradeUrl,
+	isMultisite,
+	userCanManageModules,
 } from 'state/initial-state';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData, getActiveFeatures } from 'state/site';
+import {
+	getActiveFeatures,
+	getSitePlan,
+	hasActiveSearchPurchase,
+	isFetchingSiteData,
+} from 'state/site';
 import SectionHeader from 'components/section-header';
 import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
@@ -182,7 +188,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( props.hasActiveSearchPurchase ) {
 					return '';
 				}
 
@@ -190,9 +196,9 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
-							'Add faster, more advanced searching to your site with Jetpack Professional.'
+							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.'
 						) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						plan={ PLAN_JETPACK_SEARCH }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
@@ -313,9 +319,20 @@ export const SettingsCard = props => {
 		return null;
 	}
 
+	let moduleId = '';
+	if ( props.feature ) {
+		moduleId = `jp-settings-${ props.feature }`;
+	} else if ( props.module ) {
+		moduleId = `jp-settings-${ props.module }`;
+	}
+
 	return (
 		getModuleOverridenBanner() || (
-			<form className="jp-form-settings-card" onSubmit={ ! isSaving ? props.onSubmit : undefined }>
+			<form
+				{ ...( moduleId ? { id: moduleId } : null ) }
+				className={ `jp-form-settings-card` }
+				onSubmit={ ! isSaving ? props.onSubmit : undefined }
+			>
 				<SectionHeader label={ header }>
 					{ ! props.hideButton && (
 						<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
@@ -367,8 +384,9 @@ export default connect( state => {
 		securityPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-security-premium' ),
 		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
 		seoUpgradeUrl: getUpgradeUrl( state, 'settings-seo' ),
-		searchUpgradeUrl: getUpgradeUrl( state, 'settings-search' ),
+		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
+		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
 	};
 } )( SettingsCard );

@@ -5,12 +5,14 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import SingleFeature from './single-feature';
+import Gridicon from 'components/gridicon';
 
 /**
  * Style dependencies
@@ -22,6 +24,7 @@ class JetpackTerminationDialogFeatures extends Component {
 		isDevVersion: PropTypes.bool,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array.isRequired,
+		connectedPlugins: PropTypes.array.isRequired,
 	};
 
 	renderCDNReason() {
@@ -32,7 +35,7 @@ class JetpackTerminationDialogFeatures extends Component {
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
-								href="https://jetpack.com/features/design/content-delivery-network/"
+								href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 								rel="noopener noreferrer"
 								target="_blank"
 							/>
@@ -53,7 +56,7 @@ class JetpackTerminationDialogFeatures extends Component {
 							a: (
 								<a
 									className="jetpack-termination-dialog__link"
-									href="https://jetpack.com/features/security/"
+									href={ getRedirectUrl( 'jetpack-features-security' ) }
 									rel="noopener noreferrer"
 									target="_blank"
 								/>
@@ -73,7 +76,7 @@ class JetpackTerminationDialogFeatures extends Component {
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
-								href="https://jetpack.com/support/social/"
+								href={ getRedirectUrl( 'jetpack-support-social' ) }
 								rel="noopener noreferrer"
 								target="_blank"
 							/>
@@ -84,8 +87,21 @@ class JetpackTerminationDialogFeatures extends Component {
 		);
 	}
 
+	renderConnectedPlugins( plugins ) {
+		return (
+			<ul class="jetpack-termination-dialog__active-plugins-list">
+				{ plugins.map( plugin => (
+					<li key={ plugin.slug }>
+						<Gridicon icon="notice-outline" size={ 18 } />
+						{ plugin.name }
+					</li>
+				) ) }
+			</ul>
+		);
+	}
+
 	render() {
-		const { isDevVersion, purpose, siteBenefits } = this.props;
+		const { isDevVersion, purpose, siteBenefits, connectedPlugins } = this.props;
 
 		const siteBenefitCount = siteBenefits.length;
 
@@ -131,6 +147,20 @@ class JetpackTerminationDialogFeatures extends Component {
 							{ this.renderProtectReason() }
 							{ this.renderSocialReason() }
 						</ul>
+					</div>
+				) }
+				{ connectedPlugins.length > 0 && (
+					<div className="jetpack-termination-dialog__generic-info">
+						<h2>
+							{ __(
+								'The Jetpack Connection is also used by another plugin, and it will lose connection.',
+								'The Jetpack Connection is also used by other plugins, and they will lose connection.',
+								{
+									count: connectedPlugins.length,
+								}
+							) }
+						</h2>
+						{ this.renderConnectedPlugins( connectedPlugins ) }
 					</div>
 				) }
 				<div className="jetpack-termination-dialog__get-help">

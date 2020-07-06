@@ -7,6 +7,8 @@
  * Instead, we don't register the widget if the Stats Module isn't active.
  */
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Register the widget for use in Appearance -> Widgets
  */
@@ -284,22 +286,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		if ( function_exists( 'wpl_get_blogs_most_liked_posts' ) && 'likes' == $ordering ) {
-			$posts = $this->get_by_likes( $count );
+			$posts = $this->get_by_likes( $count, $types );
 		} else {
-			$posts = $this->get_by_views( $count, $args );
-		}
-
-		// Filter the returned posts. Remove all posts that do not match the chosen Post Types.
-		if ( isset( $types ) ) {
-			foreach ( $posts as $k => $post ) {
-				if ( ! in_array( $post['post_type'], $types ) ) {
-					unset( $posts[ $k ] );
-				}
-			}
+			$posts = $this->get_by_views( $count, $args, $types );
 		}
 
 		if ( ! $posts ) {
-			$posts = $this->get_fallback_posts();
+			$posts = $this->get_fallback_posts( $count, $types );
 		}
 
 		echo $args['before_widget'];
@@ -308,7 +301,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		if ( ! $posts ) {
-			$link = 'https://jetpack.com/support/getting-more-views-and-traffic/';
+			$link = esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) );
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$link = 'https://en.support.wordpress.com/getting-more-site-traffic/';
 			}
@@ -510,21 +503,39 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		);
 	}
 
-	/*
+	/**
 	 * Get most liked posts
 	 *
 	 * ONLY TO BE USED IN WPCOM
+	 *
+	 * @since 8.4.0 Added $types param
+	 *
+	 * @param int   $count The maximum number of posts to be returned.
+	 * @param array $types The post types that should be returned. Optional. Defaults to 'post' and 'page'.
+	 *
+	 * @return array array of posts.
 	 */
-	function get_by_likes( $count ) {
+	public function get_by_likes( $count, $types = array( 'post', 'page' ) ) {
 		$post_likes = wpl_get_blogs_most_liked_posts();
 		if ( ! $post_likes ) {
 			return array();
 		}
 
-		return $this->get_posts( array_keys( $post_likes ), $count );
+		return $this->get_posts( array_keys( $post_likes ), $count, $types );
 	}
 
-	function get_by_views( $count, $args ) {
+	/**
+	 * Get the top posts based on views
+	 *
+	 * @since 8.4.0 Added $types param
+	 *
+	 * @param int   $count The maximum number of posts to be returned.
+	 * @param array $args The widget arguments.
+	 * @param array $types The post types that should be returned.
+	 *
+	 * @return array array of posts. Defaults to 'post' and 'page'.
+	 */
+	public function get_by_views( $count, $args, $types = array( 'post', 'page' ) ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			global $wpdb;
 
@@ -535,7 +546,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				wp_cache_add( "get_top_posts_$count", $post_views, 'stats', 1200 );
 			}
 
-			return $this->get_posts( array_keys( $post_views ), $count );
+			return $this->get_posts( array_keys( $post_views ), $count, $types );
 		}
 
 		/**
@@ -570,22 +581,36 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return array();
 		}
 
-		return $this->get_posts( $post_view_ids, $count );
+		return $this->get_posts( $post_view_ids, $count, $types );
 	}
 
-	function get_fallback_posts() {
+	/**
+	 * Get some posts if no posts are found in the stats API
+	 *
+	 * @since 8.4.0 Added $count and $types
+	 *
+	 * @param int   $count The maximum number of posts to be returned.
+	 * @param array $types The post types that should be returned.
+	 * @return array
+	 */
+	public function get_fallback_posts( $count = 10, $types = array( 'post', 'page' ) ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return array();
 		}
 
-		$post_query = new WP_Query;
+		$post_query = new WP_Query();
+
+		if ( ! is_array( $types ) || empty( $types ) ) {
+			$types = array( 'post', 'page' );
+		}
 
 		$posts = $post_query->query(
 			array(
-				'posts_per_page' => 1,
+				'posts_per_page' => $count,
 				'post_status'    => 'publish',
-				'post_type'      => array( 'post', 'page' ),
+				'post_type'      => $types,
 				'no_found_rows'  => true,
+				'fields'         => 'ids',
 			)
 		);
 
@@ -593,13 +618,25 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return array();
 		}
 
-		$post = array_pop( $posts );
-
-		return $this->get_posts( $post->ID, 1 );
+		return $this->get_posts( $posts, $count, $types );
 	}
 
-	function get_posts( $post_ids, $count ) {
+	/**
+	 * Get posts from an array of IDs
+	 *
+	 * @since 8.4.0 Added $types parameters
+	 *
+	 * @param array $post_ids The post IDs.
+	 * @param int   $count The maximum number of posts to return.
+	 * @param array $types The post types that should be returned. Optional. Defaults to 'post', 'page'.
+	 * @return array
+	 */
+	public function get_posts( $post_ids, $count, $types = array( 'post', 'page' ) ) {
 		$counter = 0;
+
+		if ( ! is_array( $types ) || empty( $types ) ) {
+			$types = array( 'post', 'page' );
+		}
 
 		$posts = array();
 		foreach ( (array) $post_ids as $post_id ) {
@@ -620,6 +657,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 			// hide private and password protected posts
 			if ( 'publish' != $post->post_status || ! empty( $post->post_password ) ) {
+				continue;
+			}
+
+			// Filter by chosen Post Types.
+			if ( ! in_array( $post->post_type, $types, true ) ) {
 				continue;
 			}
 

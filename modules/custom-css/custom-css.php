@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 class Jetpack_Custom_CSS {
 	static function init() {
@@ -23,7 +25,7 @@ class Jetpack_Custom_CSS {
 		define(
 			'SAFECSS_USE_ACE',
 			! jetpack_is_mobile() &&
-			! Jetpack_User_Agent_Info::is_ipad() &&
+			! User_Agent_Info::is_ipad() &&
 			/**
 			 * Should the Custom CSS module use ACE to process CSS.
 			 * @see https://ace.c9.io/
@@ -1066,7 +1068,9 @@ class Jetpack_Custom_CSS {
 						 *
 						 * @param string $url Custom CSS limited width's support doc URL.
 						 */
-						apply_filters( 'safecss_limit_width_link', 'https://jetpack.com/support/custom-css/#limited-width' )
+						esc_url(
+							apply_filters( 'safecss_limit_width_link', Redirect::get_url( 'jetpack-support-custom-css', array( 'anchor' => 'limited-width' ) ) )
+						)
 					);
 
 					?>

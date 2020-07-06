@@ -53,7 +53,7 @@
 		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">php/sync</directory>
-			<exclude>tests/php/sync/test_class.jetpack-sync-full.php</exclude>
+			<exclude>php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
 		<testsuite name="theme-tools">
 			<directory prefix="test_" suffix=".php">php/modules/theme-tools</directory>

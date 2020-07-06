@@ -30,8 +30,8 @@ export default class EventbriteBlock {
 
 		await waitAndClick( this.page, inputSelector );
 		await waitAndType( this.page, inputSelector, this.embedUrl() );
-
 		await waitAndClick( this.page, descriptionSelector );
+		await waitForSelector( this.page, '.wp-block-jetpack-eventbrite .components-sandbox' );
 	}
 
 	getSelector( selector ) {

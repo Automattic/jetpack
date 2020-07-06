@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -81,7 +81,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -150,22 +150,6 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 			$shortcode_content
 		);
 		$this->assertTrue( wp_script_is( 'crowdsignal-survey', 'enqueued' ) );
-
-		// Test AMP version. On AMP views, we only show a link.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
-		}
-
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf(
-				'<a href="https://survey.fm/%1$s" target="_blank" rel="noopener noreferrer">Take Our Survey</a>',
-				$id
-			),
-			$shortcode_content
-		);
 	}
 
 	/**

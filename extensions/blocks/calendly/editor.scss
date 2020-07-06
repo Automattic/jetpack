@@ -28,10 +28,8 @@
 	&-color-notice {
 		margin: 0;
 	}
-}
 
-.is-calendly {
-	.is-active {
-		font-weight: bold;
+	div[data-align=center] > & {
+		text-align: center;
 	}
 }

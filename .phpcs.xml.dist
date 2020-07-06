@@ -18,11 +18,21 @@
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
 		</properties>
+
+		<!-- Template files use extracted variables. -->
+		<exclude-pattern>/extensions/blocks/podcast-player/templates/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array" value="jetpack" />
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="jetpack" />
 		</properties>
 	</rule>
 

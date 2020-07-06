@@ -3,7 +3,7 @@
  */
 import { danger, warn, markdown, results, schedule, fail } from 'danger';
 const moment = require( 'moment' );
-const phpWhitelist = require( './bin/phpcs-whitelist' );
+const phpRequirelist = require( './bin/phpcs-requirelist' );
 
 const github = danger.github;
 const pr = github.pr;
@@ -42,25 +42,32 @@ if ( ! pr.body.includes( 'Proposed changelog entry' ) ) {
 	);
 }
 
-// Check if newly added .php files were added to phpcs linter whitelist
+// Privacy section filled in
+if ( ! pr.body.includes( 'data or activity we track or use' ) ) {
+	warn(
+		'The Privacy section is missing for this PR. Please specify whether this PR includes any changes to data or privacy.'
+	);
+}
+
+// Check if newly added .php files were added to phpcs linter require list.
 if ( newFiles.length > 0 ) {
 	const newPHPFiles = newFiles.filter(
 		fileName => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
 	);
 
-	const notWhitelistedFiles = [];
+	const notRequireListedFiles = [];
 
 	newPHPFiles.forEach( file => {
-		const whitelistedPath = phpWhitelist.find( path => file.includes( path ) );
-		if ( ! whitelistedPath ) {
-			notWhitelistedFiles.push( file );
+		const requireListedPath = phpRequirelist.find( path => file.includes( path ) );
+		if ( ! requireListedPath ) {
+			notRequireListedFiles.push( file );
 		}
 	} );
 
-	if ( notWhitelistedFiles.length > 0 ) {
-		const stringifiedFilesList = '\n' + notWhitelistedFiles.join( '\n' );
+	if ( notRequireListedFiles.length > 0 ) {
+		const stringifiedFilesList = '\n' + notRequireListedFiles.join( '\n' );
 		fail(
-			'Please add these new PHP files to PHPCS whitelist for automatic linting:' +
+			'Please add these new PHP files to PHPCS required list in bin/phpcs-requirelist.js for automatic linting:' +
 				stringifiedFilesList
 		);
 	}
@@ -80,7 +87,16 @@ When this PR is ready for review, please apply the \`[Status] Needs Review\` lab
 	setReleaseDates();
 }
 
-// Adds release and code freeze dates according to x.x milestone due date
+// Add note about E2E dashboard
+if ( process.env.TRAVIS_PULL_REQUEST ) {
+	const dashboardUrl = `https://jetpack-e2e-dashboard.herokuapp.com/pr-${ process.env.TRAVIS_PULL_REQUEST }`;
+	const msg = `E2E results is available here (for debugging purposes): [${ dashboardUrl }](${ dashboardUrl })`;
+	markdown( '\n\n' + msg );
+}
+
+/**
+ * Adds release and code freeze dates according to x.x milestone due date
+ */
 function setReleaseDates() {
 	schedule( async () => {
 		let jetpackReleaseDate;

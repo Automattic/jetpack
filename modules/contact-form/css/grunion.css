@@ -17,29 +17,27 @@
 .contact-form input[type='tel'],
 .contact-form input[type='url'] {
 	box-sizing: border-box;
-	margin-bottom: 0.75em;
+	margin-bottom: 1.5em;
 	width: 100%;
 }
 
 .contact-form select {
-	margin-bottom: 0.75em;
+	margin-bottom: 1.5em;
 }
 
 .contact-form textarea {
 	box-sizing: border-box;
 	float: none;
 	height: 200px;
-	margin-bottom: 0.75em;
+	margin-bottom: 1.5em;
 	width: 100%;
 }
 
 .contact-form input[type='radio'],
 .contact-form input[type='checkbox'] {
 	float: none;
-	margin-bottom: 0.75em;
-	vertical-align: bottom;
-	vertical-align: -webkit-baseline-middle;
-	vertical-align: -moz-middle-with-baseline;
+	margin-bottom: 1em;
+	vertical-align: middle;
 }
 
 .contact-form label {
@@ -61,11 +59,11 @@
 .contact-form .grunion-field-checkbox-wrap,
 .contact-form .grunion-field-checkbox-multiple-wrap,
 .contact-form .grunion-field-radio-wrap {
-	margin-bottom: 0.5em;
+	margin-bottom: 1em;
 }
 
 .contact-form label span {
-	color: #AAA;
+	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: normal;
 }
@@ -106,6 +104,43 @@
 	margin-top: 7px;
 }
 
+.wp-block-jetpack-contact-form {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-wrap, .wp-block-jetpack-button {
+	flex: 0 0 100%;
+}
+
+.wp-block-jetpack-button.alignright button {
+	float: right;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-wrap {
+	/* Use transparent border to maintain consistent
+	 * space between elements with flexbox */
+	border-right: 15px solid transparent;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
+	flex: 0 0 25%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
+	flex: 0 0 50%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
+	flex: 0 0 75%;
+}
+
+.grunion-field-checkbox-wrap {
+	align-self: center;
+}
+
 @media only screen and (min-width: 600px) {
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
@@ -113,4 +148,28 @@
 	.contact-form input[type='url'] {
 		width: 50%;
 	}
+
+	/****
+	 * Older users keep the 50% width to avoid breaking
+	 * designs, but newer users using the contact
+	 * form block get 100% width.
+	 */
+	.wp-block-jetpack-contact-form input[type='text'],
+	.wp-block-jetpack-contact-form input[type='email'],
+	.wp-block-jetpack-contact-form input[type='tel'],
+	.wp-block-jetpack-contact-form input[type='url'] {
+		width: 100%;
+	}
+}
+
+/** For the "Empty Spam" button on /wp-admin/edit.php?post_status=spam&post_type=feedback **/
+.jetpack-empty-spam-container {
+	display: inline-block;
+}
+.jetpack-empty-spam {
+	display: inline-block;
+}
+.jetpack-empty-spam-spinner {
+	display: inline-block;
+	margin-top: 7px;
 }

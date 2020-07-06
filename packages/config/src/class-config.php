@@ -8,10 +8,11 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
+use Automattic\Jetpack\JITM as JITM;
+use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
-use Automattic\Jetpack\Terms_Of_Service;
 
 /**
  * The configuration class.
@@ -36,26 +37,36 @@ class Config {
 	);
 
 	/**
+	 * Initialization options stored here.
+	 *
+	 * @var array
+	 */
+	protected $feature_options = array();
+
+	/**
 	 * Creates the configuration class instance.
 	 */
 	public function __construct() {
-
 		/**
 		 * Adding the config handler to run on priority 2 because the class itself is
 		 * being constructed on priority 1.
 		 */
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 2 );
+
 	}
 
 	/**
 	 * Require a feature to be initialized. It's up to the package consumer to actually add
 	 * the package to their composer project. Declaring a requirement using this method
-	 * instructs the class to initalize it.
+	 * instructs the class to initialize it.
 	 *
 	 * @param String $feature the feature slug.
+	 * @param array  $options Additional options, optional.
 	 */
-	public function ensure( $feature ) {
+	public function ensure( $feature, array $options = array() ) {
 		$this->config[ $feature ] = true;
+
+		$this->set_feature_options( $feature, $options );
 	}
 
 	/**
@@ -81,8 +92,10 @@ class Config {
 		}
 
 		if ( $this->config['jitm'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\JITM' )
-				&& $this->ensure_feature( 'jitm' );
+			// Check for the JITM class in both namespaces. The namespace was changed in jetpack-jitm v1.6.
+			( $this->ensure_class( 'Automattic\Jetpack\JITMS\JITM', false )
+				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
+			&& $this->ensure_feature( 'jitm' );
 		}
 	}
 
@@ -90,13 +103,15 @@ class Config {
 	 * Returns true if the required class is available and alerts the user if it's not available
 	 * in case the site is in debug mode.
 	 *
-	 * @param String $classname a fully qualified class name.
+	 * @param String  $classname a fully qualified class name.
+	 * @param Boolean $log_notice whether the E_USER_NOTICE should be generated if the class is not found.
+	 *
 	 * @return Boolean whether the class is available.
 	 */
-	protected function ensure_class( $classname ) {
+	protected function ensure_class( $classname, $log_notice = true ) {
 		$available = class_exists( $classname );
 
-		if ( ! $available && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( $log_notice && ! $available && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				sprintf(
 					/* translators: %1$s is a PHP class name. */
@@ -115,6 +130,7 @@ class Config {
 
 	/**
 	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
+	 * Run the options method (if exists) every time the method is called.
 	 *
 	 * @param String $feature slug of the feature.
 	 * @return Integer either FEATURE_ENSURED, FEATURE_ALREADY_ENSURED or FEATURE_NOT_AVAILABLE constants.
@@ -123,6 +139,11 @@ class Config {
 		$method = 'enable_' . $feature;
 		if ( ! method_exists( $this, $method ) ) {
 			return self::FEATURE_NOT_AVAILABLE;
+		}
+
+		$method_options = 'ensure_options_' . $feature;
+		if ( method_exists( $this, $method_options ) ) {
+			$this->{ $method_options }();
 		}
 
 		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
@@ -174,7 +195,12 @@ class Config {
 	 * Enables the JITM feature.
 	 */
 	protected function enable_jitm() {
-		JITM::configure();
+		if ( class_exists( 'Automattic\Jetpack\JITMS\JITM' ) ) {
+			JITMS_JITM::configure();
+		} else {
+			// Provides compatibility with jetpack-jitm <v1.6.
+			JITM::configure();
+		}
 
 		return true;
 	}
@@ -195,6 +221,56 @@ class Config {
 		Manager::configure();
 
 		return true;
+	}
+
+	/**
+	 * Setup the Connection options.
+	 */
+	protected function ensure_options_connection() {
+		$options = $this->get_feature_options( 'connection' );
+
+		if ( ! empty( $options['slug'] ) ) {
+			// The `slug` and `name` are removed from the options because they need to be passed as arguments.
+			$slug = $options['slug'];
+			unset( $options['slug'] );
+
+			$name = $slug;
+			if ( ! empty( $options['name'] ) ) {
+				$name = $options['name'];
+				unset( $options['name'] );
+			}
+
+			( new Plugin( $slug ) )->add( $name, $options );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Temporary save initialization options for a feature.
+	 *
+	 * @param string $feature The feature slug.
+	 * @param array  $options The options.
+	 *
+	 * @return bool
+	 */
+	protected function set_feature_options( $feature, array $options ) {
+		if ( $options ) {
+			$this->feature_options[ $feature ] = $options;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get initialization options for a feature from the temporary storage.
+	 *
+	 * @param string $feature The feature slug.
+	 *
+	 * @return array
+	 */
+	protected function get_feature_options( $feature ) {
+		return empty( $this->feature_options[ $feature ] ) ? array() : $this->feature_options[ $feature ];
 	}
 
 }

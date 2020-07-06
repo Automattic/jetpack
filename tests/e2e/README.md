@@ -46,6 +46,14 @@ The tests require a WP installation with installed Jetpack, and which could be c
 
 By default, tests expect that your site is accessible on `localhost`, and its admin credentials are `wordpress` / `wordpress`. All these values could be overridden by environment variables that could be passed along with the test execution command. The default values are defined in default (non-encrypted) config file: [`./config/default.js`](./config/default.js)
 
+##### Disposable Docker WP installation
+
+You can run tests locally inside disposable docker container. It will provide you a clean WP installation which is ready to run the tests. To launch the site:
+
+1. Make sure that docker and ngrok is installed locally
+1. run `./tests/e2e/bin/docker-e2e-cli.sh setup` to start a Docker container
+1. run the tests: `yarn test-e2e --runInBand --verbose`. With above flags, the tests will be run sequentially, which will eliminate any racing conditions with reusing single docker instance.
+
 #### Environment variables
 
 These environmental variables could be used to re-define default WP site related values:
@@ -121,4 +129,4 @@ The heart of CI infrastructure is a [`setup-e2e-travis.sh`](./bin/setup-e2e-trav
 - Installs and sets-up WordPress installation
 - Activates Jetpack plugin
 
-You disable e2e tests in Travis by setting Travis env variable `RUN_E2E` to false (or just removing it completely) in on project's [settings page](https://travis-ci.org/Automattic/jetpack/settings). To re-enable them - just set it to `true`
+You can disable e2e tests in Travis by setting Travis env variable `RUN_E2E` to false (or just removing it completely) in project's [settings page](https://travis-ci.org/Automattic/jetpack/settings). To re-enable them - just set it to `true`

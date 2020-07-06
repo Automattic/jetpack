@@ -9,12 +9,14 @@ import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { get, includes } from 'lodash';
 import Banner from 'components/banner';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
 import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import QueryRewindStatus from 'components/data/query-rewind-status';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
@@ -38,7 +40,7 @@ class LoadingCard extends Component {
 							'Backs up your site to the global WordPress.com servers, ' +
 								'allowing you to restore your content in the event of an emergency or error.'
 						),
-						link: 'https://help.vaultpress.com/get-to-know/',
+						link: getRedirectUrl( 'vaultpress-help-get-to-know' ),
 					} }
 				>
 					{ __( 'Checking site status…' ) }
@@ -79,7 +81,7 @@ class BackupsScanRewind extends Component {
 					description: __(
 						'You need to enter your server credentials to finish configuring Backups and Scan.'
 					),
-					url: 'https://wordpress.com/settings/security/' + siteRawUrl,
+					url: getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 				};
 			case 'active':
 				return {
@@ -88,7 +90,16 @@ class BackupsScanRewind extends Component {
 					description: __(
 						'Your site is being backed up in real time and regularly scanned for security threats.'
 					),
-					url: 'https://wordpress.com/activity-log/' + siteRawUrl,
+					url: getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
+				};
+			default:
+				return {
+					title: __( 'Oops!' ),
+					icon: 'info',
+					description: __(
+						'The Jetpack Backup and Scan status could not be retrieved at this time.'
+					),
+					url: '',
 				};
 		}
 	}
@@ -169,11 +180,11 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 							<br />
 							<br />
 							{ __( '{{a}}View details{{/a}}', {
-								components: { a: <a href="https://dashboard.vaultpress.com/" /> },
+								components: { a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } /> },
 							} ) }
 							<br />
 							{ __( '{{a}}Contact Support{{/a}}', {
-								components: { a: <a href="https://jetpack.com/support" /> },
+								components: { a: <a href={ getRedirectUrl( 'jetpack-support' ) } /> },
 							} ) }
 						</div>
 					);
@@ -227,7 +238,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				this.props.vaultPressData !== 'N/A' &&
 				false !== get( this.props.vaultPressData, [ 'data' ], false );
 
-			if ( ! hasRewindData && ( this.props.vaultPressActive && ! hasVpData ) ) {
+			if ( ! hasRewindData && this.props.vaultPressActive && ! hasVpData ) {
 				return <LoadingCard />;
 			}
 
@@ -244,6 +255,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					action="scan"
 					hideButton
 				>
+					<QueryRewindStatus />
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'backups' } }
@@ -252,7 +264,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 								'Backs up your site to the global WordPress.com servers, ' +
 									'allowing you to restore your content in the event of an emergency or error.'
 							),
-							link: 'https://help.vaultpress.com/get-to-know/',
+							link: getRedirectUrl( 'vaultpress-help-get-to-know' ),
 						} }
 					>
 						{ this.getCardText() }
@@ -263,7 +275,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
 							target="_blank"
-							href="https://dashboard.vaultpress.com/"
+							href={ getRedirectUrl( 'vaultpress-dashboard' ) }
 						>
 							{ __( 'Configure your Security Scans' ) }
 						</Card>

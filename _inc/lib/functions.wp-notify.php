@@ -1,4 +1,11 @@
 <?php
+/** phpcs:disable Squiz.Commenting.FileComment.MissingPackageTag,Generic.Commenting.DocComment.MissingShort
+ * Register two plugabble functions to handle notification emails to authors and moderators.
+ */
+
+use Automattic\Jetpack\Redirect;
+
+// phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
 
 if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 	/**
@@ -6,8 +13,8 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int|WP_Comment  $comment_id Comment ID or WP_Comment object.
-	 * @param string          $deprecated Not used
+	 * @param int|WP_Comment $comment_id Comment ID or WP_Comment object.
+	 * @param string         $deprecated Not used.
 	 * @return bool True on completion. False if no email addresses were specified.
 	 */
 	function wp_notify_postauthor( $comment_id, $deprecated = null ) {
@@ -45,22 +52,22 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
 		$notify_author = apply_filters( 'comment_notification_notify_author', false, $comment->comment_ID );
 
-		// The comment was left by the author
+		// The comment was left by the author.
 		if ( $author && ! $notify_author && $comment->user_id == $post->post_author ) {
 			unset( $emails[ $author->user_email ] );
 		}
 
-		// The author moderated a comment on their own post
-		if ( $author && ! $notify_author && $post->post_author == get_current_user_id() ) {
+		// The author moderated a comment on their own post.
+		if ( $author && ! $notify_author && get_current_user_id() == $post->post_author ) {
 			unset( $emails[ $author->user_email ] );
 		}
 
-		// The post author is no longer a member of the blog
+		// The post author is no longer a member of the blog.
 		if ( $author && ! $notify_author && ! user_can( $post->post_author, 'read_post', $post->ID ) ) {
 			unset( $emails[ $author->user_email ] );
 		}
 
-		// If there's no email to send the comment to, bail, otherwise flip array back around for use below
+		// If there's no email to send the comment to, bail, otherwise flip array back around for use below.
 		if ( ! count( $emails ) ) {
 			return false;
 		} else {
@@ -76,6 +83,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		$blogname        = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 		$comment_content = wp_specialchars_decode( $comment->comment_content );
 
+		// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		function is_user_connected( $email ) {
 			$user = get_user_by( 'email', $email );
 			return Jetpack::is_user_connected( $user->ID );
@@ -83,15 +91,15 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 
 		$moderate_on_wpcom = ! in_array( false, array_map( 'is_user_connected', $emails ) );
 
-		$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
-
 		switch ( $comment->comment_type ) {
 			case 'trackback':
 				/* translators: 1: Post title */
 				$notify_message = sprintf( __( 'New trackback on your post "%s"' ), $post->post_title ) . "\r\n";
 				/* translators: 1: Trackback/pingback website name, 2: website IP address, 3: website hostname */
-				$notify_message     .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
-				$notify_message     .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
+				$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+				/* translators: %s: Site URL */
+				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
+				/* translators: %s: Comment Content */
 				$notify_message     .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
 					$notify_message .= __( 'You can see all trackbacks on this post here:' ) . "\r\n";
 					/* translators: 1: blog name, 2: post title */
@@ -102,18 +110,24 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 				$notify_message = sprintf( __( 'New pingback on your post "%s"' ), $post->post_title ) . "\r\n";
 				/* translators: 1: Trackback/pingback website name, 2: website IP address, 3: website hostname */
 				$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+				/* translators: %s: Site URL */
 				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
+				/* translators: %s: Comment Content */
 				$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
 				$notify_message .= __( 'You can see all pingbacks on this post here:' ) . "\r\n";
 				/* translators: 1: blog name, 2: post title */
 				$subject = sprintf( __( '[%1$s] Pingback: "%2$s"' ), $blogname, $post->post_title );
 				break;
-			default: // Comments
+			default: // Comments.
+				/* translators: 1: Post title */
 				$notify_message = sprintf( __( 'New comment on your post "%s"' ), $post->post_title ) . "\r\n";
 				/* translators: 1: comment author, 2: comment author's IP address, 3: comment author's hostname */
 				$notify_message .= sprintf( __( 'Author: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+				/* translators: %s: Email address */
 				$notify_message .= sprintf( __( 'Email: %s' ), $comment->comment_author_email ) . "\r\n";
+				/* translators: %s: Site URL */
 				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
+				/* translators: %s: Comment Content */
 				$notify_message .= sprintf( __( 'Comment: %s' ), "\r\n" . $comment_content ) . "\r\n\r\n";
 				$notify_message .= __( 'You can see all comments on this post here:' ) . "\r\n";
 				/* translators: 1: blog name, 2: post title */
@@ -122,28 +136,48 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		}
 
 		$notify_message .= $moderate_on_wpcom
-			? "https://wordpress.com/comments/all/{$primary_site_slug}/{$comment->comment_post_ID}/\r\n\r\n"
+			? Redirect::get_url(
+				'calypso-comments-all',
+				array(
+					'path' => $comment->comment_post_ID,
+				)
+			) . "/\r\n\r\n"
 			: get_permalink( $comment->comment_post_ID ) . "#comments\r\n\r\n";
 
+		/* translators: %s: URL */
 		$notify_message .= sprintf( __( 'Permalink: %s' ), get_comment_link( $comment ) ) . "\r\n";
+
+		$base_wpcom_edit_comment_url = Redirect::get_url(
+			'calypso-edit-comment',
+			array(
+				'path'  => $comment_id,
+				'query' => 'action=__action__', // __action__ will be replaced by the actual action.
+			)
+		);
 
 		if ( user_can( $post->post_author, 'edit_comment', $comment->comment_ID ) ) {
 			if ( EMPTY_TRASH_DAYS ) {
 				$notify_message .= sprintf(
-					__( 'Trash it: %s' ), $moderate_on_wpcom
-					? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash"
+					/* translators: Placeholder is the edit URL */
+					__( 'Trash it: %s' ),
+					$moderate_on_wpcom
+					? str_replace( '__action__', 'trash', $base_wpcom_edit_comment_url )
 					: admin_url( "comment.php?action=trash&c={$comment->comment_ID}#wpbody-content" )
 				) . "\r\n";
 			} else {
 				$notify_message .= sprintf(
-					__( 'Delete it: %s' ), $moderate_on_wpcom
-					? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete"
+					/* translators: Placeholder is the edit URL */
+					__( 'Delete it: %s' ),
+					$moderate_on_wpcom
+					? str_replace( '__action__', 'delete', $base_wpcom_edit_comment_url )
 					: admin_url( "comment.php?action=delete&c={$comment->comment_ID}#wpbody-content" )
 				) . "\r\n";
 			}
 			$notify_message .= sprintf(
-				__( 'Spam it: %s' ), $moderate_on_wpcom ?
-				"https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam"
+				/* translators: Placeholder is the edit URL */
+				__( 'Spam it: %s' ),
+				$moderate_on_wpcom
+				? str_replace( '__action__', 'spam', $base_wpcom_edit_comment_url )
 				: admin_url( "comment.php?action=spam&c={$comment->comment_ID}#wpbody-content" )
 			) . "\r\n";
 		}
@@ -258,7 +292,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 				$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 				$notify_message .= __( 'Pingback excerpt: ' ) . "\r\n" . $comment_content . "\r\n\r\n";
 				break;
-			default: // Comments
+			default: // Comments.
 				/* translators: 1: Post title */
 				$notify_message  = sprintf( __( 'A new comment on the post "%s" is waiting for your approval' ), $post->post_title ) . "\r\n";
 				$notify_message .= get_permalink( $comment->comment_post_ID ) . "\r\n\r\n";
@@ -276,6 +310,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
 		$emails = apply_filters( 'comment_moderation_recipients', $emails, $comment_id );
 
+		// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		function is_user_connected( $email ) {
 			$user = get_user_by( 'email', $email );
 			return Jetpack::is_user_connected( $user->ID );
@@ -283,48 +318,60 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 
 		$moderate_on_wpcom = ! in_array( false, array_map( 'is_user_connected', $emails ) );
 
-		$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
+		$base_wpcom_edit_comment_url = Redirect::get_url(
+			'calypso-edit-comment',
+			array(
+				'path'  => $comment_id,
+				'query' => 'action=__action__', // __action__ will be replaced by the actual action.
+			)
+		);
 
-		/* translators: Comment moderation. 1: Comment action URL */
 		$notify_message .= sprintf(
-			__( 'Approve it: %s' ), $moderate_on_wpcom
-			? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=approve"
+			/* translators: Comment moderation. 1: Comment action URL */
+			__( 'Approve it: %s' ),
+			$moderate_on_wpcom
+			? str_replace( '__action__', 'approve', $base_wpcom_edit_comment_url )
 			: admin_url( "comment.php?action=approve&c={$comment_id}#wpbody-content" )
 		) . "\r\n";
 
 		if ( EMPTY_TRASH_DAYS ) {
-			/* translators: Comment moderation. 1: Comment action URL */
 			$notify_message .= sprintf(
-				__( 'Trash it: %s' ), $moderate_on_wpcom
-				? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash"
+				/* translators: Comment moderation. 1: Comment action URL */
+				__( 'Trash it: %s' ),
+				$moderate_on_wpcom
+				? str_replace( '__action__', 'trash', $base_wpcom_edit_comment_url )
 				: admin_url( "comment.php?action=trash&c={$comment_id}#wpbody-content" )
 			) . "\r\n";
 		} else {
-			/* translators: Comment moderation. 1: Comment action URL */
 			$notify_message .= sprintf(
-				__( 'Delete it: %s' ), $moderate_on_wpcom
-				? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete"
+				/* translators: Comment moderation. 1: Comment action URL */
+				__( 'Delete it: %s' ),
+				$moderate_on_wpcom
+				? str_replace( '__action__', 'delete', $base_wpcom_edit_comment_url )
 				: admin_url( "comment.php?action=delete&c={$comment_id}#wpbody-content" )
 			) . "\r\n";
 		}
 
-		/* translators: Comment moderation. 1: Comment action URL */
 		$notify_message .= sprintf(
-			__( 'Spam it: %s' ), $moderate_on_wpcom
-			? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam"
+			/* translators: Comment moderation. 1: Comment action URL */
+			__( 'Spam it: %s' ),
+			$moderate_on_wpcom
+			? str_replace( '__action__', 'spam', $base_wpcom_edit_comment_url )
 			: admin_url( "comment.php?action=spam&c={$comment_id}#wpbody-content" )
 		) . "\r\n";
 
-		/* translators: Comment moderation. 1: Number of comments awaiting approval */
 		$notify_message .= sprintf(
+			/* translators: Comment moderation. 1: Number of comments awaiting approval */
 			_n(
 				'Currently %s comment is waiting for approval. Please visit the moderation panel:',
-				'Currently %s comments are waiting for approval. Please visit the moderation panel:', $comments_waiting
-			), number_format_i18n( $comments_waiting )
+				'Currently %s comments are waiting for approval. Please visit the moderation panel:',
+				$comments_waiting
+			),
+			number_format_i18n( $comments_waiting )
 		) . "\r\n";
 
 		$notify_message .= $moderate_on_wpcom
-			? "https://wordpress.com/comments/pending/{$primary_site_slug}/"
+			? Redirect::get_url( 'calypso-comments-pending' )
 			: admin_url( 'edit-comments.php?comment_status=moderated#wpbody-content' ) . "\r\n";
 
 		/* translators: Comment moderation notification email subject. 1: Site name, 2: Post title */

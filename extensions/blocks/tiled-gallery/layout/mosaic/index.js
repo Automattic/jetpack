@@ -42,7 +42,13 @@ export default class Mosaic extends Component {
 		this.pendingRaf = requestAnimationFrame( () => {
 			for ( const { contentRect, target } of entries ) {
 				const { width } = contentRect;
-				getGalleryRows( target ).forEach( row => handleRowResize( row, width ) );
+				const colWidths = [];
+				getGalleryRows( target ).forEach( row => {
+					colWidths.push( handleRowResize( row, width ) );
+				} );
+				if ( 'undefined' !== typeof this.props.onResize ) {
+					this.props.onResize( colWidths );
+				}
 			}
 		} );
 	};
@@ -78,7 +84,7 @@ export default class Mosaic extends Component {
 	}
 
 	render() {
-		const { align, columns, images, layoutStyle, renderedImages } = this.props;
+		const { align, columns, images, layoutStyle, renderedImages, columnWidths } = this.props;
 
 		const ratios = imagesToRatios( images );
 		const rows =
@@ -94,7 +100,14 @@ export default class Mosaic extends Component {
 						{ row.map( ( colSize, colIndex ) => {
 							const columnImages = renderedImages.slice( cursor, cursor + colSize );
 							cursor += colSize;
-							return <Column key={ colIndex }>{ columnImages }</Column>;
+							return (
+								<Column
+									key={ colIndex }
+									width={ columnWidths ? columnWidths[ rowIndex ][ colIndex ] : undefined }
+								>
+									{ columnImages }
+								</Column>
+							);
 						} ) }
 					</Row>
 				) ) }

@@ -234,8 +234,8 @@ class Jetpack_Carousel {
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
-				array( 'jquery.spin' ),
-				$this->asset_version( '20190102' ),
+				array(),
+				$this->asset_version( JETPACK__VERSION ),
 				true
 			);
 
@@ -252,6 +252,7 @@ class Jetpack_Carousel {
 				'ajaxurl'                         => set_url_scheme( admin_url( 'admin-ajax.php' ) ),
 				'nonce'                           => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'                    => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) ),
+				'display_comments'                => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_comments', true ) ),
 				'display_geo'                     => $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_geo', true ) ),
 				'single_image_gallery'            => $this->single_image_gallery_enabled,
 				'single_image_gallery_media_file' => $this->single_image_gallery_enabled_media_file,
@@ -340,7 +341,7 @@ class Jetpack_Carousel {
 			 */
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
-			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );
+			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
 			/**
@@ -386,7 +387,7 @@ class Jetpack_Carousel {
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
 		) {
-			return $content;
+			return $this->maybe_add_amp_lightbox( $content );
 		}
 
 		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) ) {
@@ -551,6 +552,43 @@ class Jetpack_Carousel {
 		return $html;
 	}
 
+	/**
+	 * Conditionally adds amp-lightbox to galleries and images.
+	 *
+	 * This applies to gallery blocks and shortcodes,
+	 * in addition to images that are wrapped in a link to the page.
+	 * Images wrapped in a link to the media file shouldn't get an amp-lightbox.
+	 *
+	 * @param string $content The content to possibly add amp-lightbox to.
+	 * @return string The content, with amp-lightbox possibly added.
+	 */
+	public function maybe_add_amp_lightbox( $content ) {
+		$content = preg_replace(
+			array(
+				'#(<figure)[^>]*(?=class=(["\']?)[^>]*wp-block-gallery[^>]*\2)#is', // Gallery block.
+				'#(\[gallery)(?=\s+)#', // Gallery shortcode.
+			),
+			array(
+				'\1 data-amp-lightbox="true" ', // https://github.com/ampproject/amp-wp/blob/1094ea03bd5dc92889405a47a8c41de1a88908de/includes/sanitizers/class-amp-gallery-block-sanitizer.php#L84.
+				'\1 amp-lightbox="true"', // https://github.com/ampproject/amp-wp/blob/1094ea03bd5dc92889405a47a8c41de1a88908de/includes/embeds/class-amp-gallery-embed.php#L64.
+			),
+			$content
+		);
+
+		return preg_replace_callback(
+			'#(<a[^>]* href=(["\']?)(\S+)\2>)\s*(<img[^>]*)(class=(["\']?)[^>]*wp-image-[0-9]+[^>]*\6.*>)\s*</a>#is',
+			static function( $matches ) {
+				if ( ! preg_match( '#\.\w+$#', $matches[3] ) ) {
+					// The a[href] doesn't end in a file extension like .jpeg, so this is not a link to the media file, and should get a lightbox.
+					return $matches[4] . ' data-amp-lightbox="true" lightbox="true" ' . $matches[5]; // https://github.com/ampproject/amp-wp/blob/1094ea03bd5dc92889405a47a8c41de1a88908de/includes/sanitizers/class-amp-img-sanitizer.php#L419.
+				}
+
+				return $matches[0];
+			},
+			$content
+		);
+	}
+
 	function get_attachment_comments() {
 		if ( ! headers_sent() ) {
 			header( 'Content-type: text/javascript' );
@@ -687,7 +725,7 @@ class Jetpack_Carousel {
 			'comment_author_email' => $email,
 			'comment_author_url'   => $url,
 			'comment_approved'     => 0,
-			'comment_type'         => '',
+			'comment_type'         => 'comment',
 		);
 
 		if ( ! empty( $user_id ) ) {
@@ -734,6 +772,9 @@ class Jetpack_Carousel {
 
 		add_settings_field( 'carousel_display_exif', __( 'Metadata', 'jetpack' ), array( $this, 'carousel_display_exif_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_exif', array( $this, 'carousel_display_exif_sanitize' ) );
+
+		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
+		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
 
 		// No geo setting yet, need to "fuzzify" data first, for privacy
 		// add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
@@ -797,7 +838,25 @@ class Jetpack_Carousel {
 		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" rel="noopener noreferrer" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) );
 	}
 
+	/**
+	 * Callback for checkbox and label of field that allows to toggle comments.
+	 */
+	public function carousel_display_comments_callback() {
+		$this->settings_checkbox( 'carousel_display_comments', esc_html__( 'Show comments area in carousel', 'jetpack' ) );
+	}
+
 	function carousel_display_exif_sanitize( $value ) {
+		return $this->sanitize_1or0_option( $value );
+	}
+
+	/**
+	 * Return sanitized option for value that controls whether comments will be hidden or not.
+	 *
+	 * @param number $value Value to sanitize.
+	 *
+	 * @return number Sanitized value, only 1 or 0.
+	 */
+	public function carousel_display_comments_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 

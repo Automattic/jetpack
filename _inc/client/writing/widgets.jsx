@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 /**
  * Internal dependencies
  */
@@ -35,7 +36,7 @@ class Widgets extends Component {
 						module={ { module: 'widgets' } }
 						support={ {
 							text: this.props.widgetsModule.description,
-							link: 'https://jetpack.com/support/extra-sidebar-widgets/',
+							link: getRedirectUrl( 'jetpack-support-extra-sidebar-widgets' ),
 						} }
 					>
 						<ModuleToggle
@@ -57,7 +58,7 @@ class Widgets extends Component {
 							text: __(
 								'Widget visibility lets you decide which widgets appear on which pages, so you can finely tailor widget content.'
 							),
-							link: 'https://jetpack.com/support/widget-visibility/',
+							link: getRedirectUrl( 'jetpack-support-widget-visibility' ),
 						} }
 					>
 						<ModuleToggle

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import 'url-polyfill';
-import { decode, encode } from 'qss';
+import { encode } from 'qss';
 
 /**
  * Internal dependencies
@@ -10,17 +10,17 @@ import { decode, encode } from 'qss';
 import {
 	SERVER_OBJECT_NAME,
 	SORT_DIRECTION_ASC,
-	SORT_DIRECTION_DESC,
 	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_PRODUCT,
+	VALID_SORT_KEYS,
 } from './constants';
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
-import { getSortOption } from './sort';
+import { decode } from './query-string-decode';
 
 const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 
 function getQuery() {
-	return decode( window.location.search.substring( 1 ) );
+	return decode( window.location.search.substring( 1 ), false, false );
 }
 
 function pushQueryString( queryString, shouldEmitEvent = true ) {
@@ -48,96 +48,61 @@ export function setSearchQuery( searchValue ) {
 	} else {
 		query.s = searchValue;
 	}
+
 	pushQueryString( encode( query ) );
 }
 
-const DEFAULT_SORT_MAP = {
-	'date|DESC': 'date_desc',
-	'date|ASC': 'date_asc',
-	'relevance|DESC': 'score_default',
-};
-
-// Convert a sort option like date|DESC to a sort key like date_desc
-export function getSortKeyFromSortOption( sortOption ) {
-	if ( ! Object.keys( DEFAULT_SORT_MAP ).includes( sortOption ) ) {
-		return null;
+export function determineDefaultSort( initialSort ) {
+	const sortFromQuery = getSortQuery();
+	if ( sortFromQuery ) {
+		return sortFromQuery;
 	}
 
-	return DEFAULT_SORT_MAP[ sortOption ];
-}
-
-// Convert a sort key like date_desc to a sort option like date|DESC
-export function getSortOptionFromSortKey( sortKey ) {
-	const sortKeyValues = Object.values( DEFAULT_SORT_MAP );
-
-	if ( ! sortKeyValues.includes( sortKey ) ) {
-		return null;
+	const sortFromLegacyValues = getSortFromOrderBy();
+	if ( sortFromLegacyValues ) {
+		return sortFromLegacyValues;
 	}
 
-	return Object.keys( DEFAULT_SORT_MAP )[ sortKeyValues.indexOf( sortKey ) ];
+	if ( VALID_SORT_KEYS.includes( initialSort ) ) {
+		return initialSort;
+	}
+
+	return 'relevance';
 }
 
-export function determineDefaultSort( initialSort, initialSearchString ) {
+// This maps legacy order/orderby qs values into sort qs values.
+function getSortFromOrderBy( query = getQuery() ) {
+	const { order, orderby } = query;
+
+	if ( 'date' === orderby ) {
+		return typeof order === 'string' && order.toUpperCase() === SORT_DIRECTION_ASC
+			? 'oldest'
+			: 'newest';
+	} else if ( 'relevance' === orderby ) {
+		return 'relevance';
+	}
+	return null;
+}
+
+export function getSortQuery( initialSort = null ) {
 	const query = getQuery();
-	if ( 'orderby' in query ) {
-		return getSortQuery();
+	if ( VALID_SORT_KEYS.includes( query.sort ) ) {
+		return query.sort;
+	} else if ( VALID_SORT_KEYS.includes( initialSort ) ) {
+		return initialSort;
 	}
-
-	// NOTE: Force descending date sorting when no initial search string is provided
-	if ( initialSearchString === '' ) {
-		return 'date_desc';
-	}
-
-	const sortKeyFromSortOption = getSortKeyFromSortOption( initialSort );
-	if ( sortKeyFromSortOption ) {
-		return sortKeyFromSortOption;
-	}
-
-	return 'score_default';
+	return null;
 }
 
-const ORDERED_SORT_TYPES = [ 'date', 'price', 'rating' ];
-const SORT_QUERY_MAP = {
-	date: {
-		[ SORT_DIRECTION_ASC ]: 'date_asc',
-		[ SORT_DIRECTION_DESC ]: 'date_desc',
-	},
-	price: {
-		[ SORT_DIRECTION_ASC ]: 'price_asc',
-		[ SORT_DIRECTION_DESC ]: 'price_desc',
-	},
-	rating: {
-		[ SORT_DIRECTION_ASC ]: 'rating_asc',
-		[ SORT_DIRECTION_DESC ]: 'rating_desc',
-	},
-	recency: 'score_recency',
-	keyword: 'score_keyword',
-	popularity: 'score_popularity',
-};
-
-export function getSortQuery() {
-	const query = getQuery();
-	const order = 'order' in query ? query.order : 'DESC';
-	const orderby = 'orderby' in query ? query.orderby : 'relevance';
-	let sort = 'score_default';
-	if ( ORDERED_SORT_TYPES.includes( orderby ) ) {
-		sort = SORT_QUERY_MAP[ orderby ][ order ];
-	} else if ( Object.keys( SORT_QUERY_MAP ).includes( orderby ) ) {
-		sort = SORT_QUERY_MAP[ orderby ];
-	}
-	return sort;
-}
-
-export function setSortQuery( sortKey ) {
-	const query = getQuery();
-	const sortOption = getSortOption( sortKey );
-
-	if ( ! sortOption ) {
+export function setSortQuery( sort ) {
+	if ( ! VALID_SORT_KEYS.includes( sort ) ) {
 		return false;
 	}
 
-	query.orderby = sortOption.field;
-	query.order = sortOption.direction;
+	const query = getQuery();
+	query.sort = sort;
+	delete query.order;
+	delete query.orderby;
 	pushQueryString( encode( query ) );
 }
 
@@ -198,16 +163,6 @@ export function setFilterQuery( filterKey, filterValue ) {
 	const query = getQuery();
 	query[ filterKey ] = filterValue;
 	pushQueryString( encode( query ) );
-}
-
-export function getResultFormatQuery() {
-	const query = getQuery();
-
-	if ( knownResultFormats.includes( query.result_format ) ) {
-		return query.result_format;
-	}
-
-	return RESULT_FORMAT_MINIMAL;
 }
 
 export function restorePreviousHref( initialHref, callback ) {

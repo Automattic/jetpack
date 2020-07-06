@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+
 abstract class Sharing_Source {
 	public	  $button_style;
 	public	  $smart;
@@ -244,6 +246,42 @@ abstract class Sharing_Source {
 		return false;
 	}
 
+	/**
+	 * Get the AMP specific markup for a sharing button.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		// Only display markup if we're on a post.
+		if ( empty( $post ) ) {
+			return false;
+		}
+
+		return $this->build_amp_markup();
+	}
+
+	/**
+	 * Generates and returns the markup for an AMP sharing button.
+	 *
+	 * @param array $attrs Custom attributes for rendering the social icon.
+	 */
+	protected function build_amp_markup( $attrs = array() ) {
+		$attrs        = array_merge(
+			array(
+				'type'   => $this->get_id(),
+				'height' => '32px',
+				'width'  => '32px',
+			),
+			$attrs
+		);
+		$sharing_link = '<amp-social-share';
+		foreach ( $attrs as $key => $value ) {
+			$sharing_link .= sprintf( ' %s="%s"', sanitize_key( $key ), esc_attr( $value ) );
+		}
+		$sharing_link .= '></amp-social-share>';
+		return $sharing_link;
+	}
+
 	public function display_preview( $echo = true, $force_smart = false, $button_style = null ) {
 		$text = '&nbsp;';
 		$button_style = ( ! empty( $button_style ) ) ? $button_style : $this->button_style;
@@ -274,11 +312,13 @@ abstract class Sharing_Source {
 			implode( ' ', $klasses ),
 			esc_attr(
 				$is_deprecated
+					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 					? sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 					: $this->get_name()
 			),
 			esc_html(
 				$is_deprecated
+					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 					? sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() )
 					: $text
 			)
@@ -395,6 +435,15 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 		return get_permalink( $post_id );
 	}
 
+	/**
+	 * No AMP display for deprecated sources.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	final public function get_amp_display( $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false;
+	}
+
 	final public function display_preview( $echo = true, $force_smart = false, $button_style = null ) {
 		return parent::display_preview( $echo, false, $button_style );
 	}
@@ -422,7 +471,9 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	public function display_deprecated( $post ) {
 		return $this->get_link(
 			$this->get_share_url( $post->ID ),
+			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 			sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() ),
+			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 			sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 		);
 	}
@@ -558,6 +609,15 @@ class Share_Email extends Sharing_Source {
 
 	public function get_display( $post ) {
 		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Email', 'share to', 'jetpack' ), __( 'Click to email this to a friend', 'jetpack' ), 'share=email' );
+	}
+
+	/**
+	 * No AMP display for email.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) { // phpcs:ignore
+		return false;
 	}
 
 	/**
@@ -864,6 +924,19 @@ class Share_Reddit extends Sharing_Source {
 		}
 	}
 
+	/**
+	 * AMP display for Reddit.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		$attrs = array(
+			'data-share-endpoint' => esc_url_raw( 'https://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) ),
+		);
+
+		return $this->build_amp_markup( $attrs );
+	}
+
 	public function process_request( $post, array $post_data ) {
 		$reddit_url = $this->http() . '://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
@@ -1042,6 +1115,20 @@ class Share_Facebook extends Sharing_Source {
 		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Facebook', 'share to', 'jetpack' ), __( 'Click to share on Facebook', 'jetpack' ), 'share=facebook', 'sharing-facebook-' . $post->ID );
 	}
 
+	/**
+	 * AMP display for Facebook.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		$attrs = array(
+			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+			'data-param-app_id' => apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ),
+		);
+
+		return $this->build_amp_markup( $attrs );
+	}
+
 	public function process_request( $post, array $post_data ) {
 		$fb_url = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
@@ -1076,7 +1163,7 @@ class Share_Facebook extends Sharing_Source {
 			?><div id="fb-root"></div>
 			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 			<script>
-			jQuery( document.body ).on( 'post-load', function() {
+			document.body.addEventListener( 'post-load', function() {
 				if ( 'undefined' !== typeof FB ) {
 					FB.XFBML.parse();
 				}
@@ -1106,6 +1193,19 @@ class Share_Print extends Sharing_Source {
 
 	public function get_display( $post ) {
 		return $this->get_link( $this->get_process_request_url( $post->ID ) . ( ( is_single() || is_page() ) ? '#print': '' ), _x( 'Print', 'share to', 'jetpack' ), __( 'Click to print', 'jetpack' ) );
+	}
+
+	/**
+	 * AMP display for Print.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		if ( empty( $post ) ) {
+			return false;
+		}
+
+		return '<button class="amp-social-share print" on="tap:AMP.print">Print</button>';
 	}
 }
 
@@ -1175,6 +1275,15 @@ class Share_PressThis extends Sharing_Source {
 	public function get_display( $post ) {
 		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Press This', 'share to', 'jetpack' ), __( 'Click to Press This!', 'jetpack' ), 'share=press-this' );
 	}
+
+	/**
+	 * No AMP display for PressThis.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) { // phpcs:ignore
+		return false;
+	}
 }
 
 class Share_Custom extends Sharing_Advanced_Source {
@@ -1227,6 +1336,15 @@ class Share_Custom extends Sharing_Advanced_Source {
 	public function get_display( $post ) {
 		$str = $this->get_link( $this->get_process_request_url( $post->ID ), esc_html( $this->name ), sprintf( __( 'Click to share on %s', 'jetpack' ), esc_attr( $this->name ) ), 'share=' . $this->id );
 		return str_replace( '<span>', '<span style="' . esc_attr( 'background-image:url("' . addcslashes( esc_url_raw( $this->icon ), '"' ) . '");' ) . '">', $str );
+	}
+
+	/**
+	 * No AMP display for custom elements.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) { // phpcs:ignore
+		return false;
 	}
 
 	public function process_request( $post, array $post_data ) {
@@ -1636,6 +1754,19 @@ class Share_Pocket extends Sharing_Source {
 
 	}
 
+	/**
+	 * AMP display for Pocket.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		$attrs = array(
+			'data-share-endpoint' => esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) ),
+		);
+
+		return $this->build_amp_markup( $attrs );
+	}
+
 	function display_footer() {
 		if ( $this->smart ) :
 		?>
@@ -1678,6 +1809,19 @@ class Share_Telegram extends Sharing_Source {
 		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
 	}
 
+	/**
+	 * AMP display for Telegram.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		$attrs = array(
+			'data-share-endpoint' => esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) ),
+		);
+
+		return $this->build_amp_markup( $attrs );
+	}
+
 	function display_footer() {
 		$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 	}
@@ -1698,12 +1842,25 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ), 'share=jetpack-whatsapp' );
 	}
 
+	/**
+	 * AMP display for Whatsapp.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		$attrs = array(
+			'type' => 'whatsapp',
+		);
+
+		return $this->build_amp_markup( $attrs );
+	}
+
 	public function process_request( $post, array $post_data ) {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
 		// Firefox for desktop doesn't handle the "api.whatsapp.com" URL properly, so use "web.whatsapp.com"
-		if ( Jetpack_User_Agent_Info::is_firefox_desktop() ) {
+		if ( User_Agent_Info::is_firefox_desktop() ) {
 			$url = 'https://web.whatsapp.com/send?text=';
 		} else {
 			$url = 'https://api.whatsapp.com/send?text=';
@@ -1755,6 +1912,23 @@ class Share_Skype extends Sharing_Source {
 		}
 		return $this->get_link(
 			$this->get_process_request_url( $post->ID ), _x( 'Skype', 'share to', 'jetpack' ), __( 'Click to share on Skype', 'jetpack' ), 'share=skype', 'sharing-skype-' . $post->ID );
+	}
+
+	/**
+	 * AMP display for Skype.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		$attrs = array(
+			'data-share-endpoint' => sprintf(
+				'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
+				rawurlencode( $this->get_share_url( $post->ID ) ),
+				'en-US'
+			),
+		);
+
+		return $this->build_amp_markup( $attrs );
 	}
 
 	public function process_request( $post, array $post_data ) {

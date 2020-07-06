@@ -36,6 +36,9 @@
 		<testsuite name="publicize">
 			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
 		</testsuite>
+		<testsuite name="post-by-email">
+			<directory prefix="test" suffix=".php">tests/php/modules/post-by-email</directory>
+		</testsuite>
 		<testsuite name="related-posts">
 			<directory prefix="test_" suffix=".php">tests/php/modules/related-posts</directory>
 		</testsuite>
@@ -74,6 +77,7 @@
 			<exclude>tests/php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
 		<testsuite name="legacy-full-sync">
+			<file>tests/php/sync/test_class.jetpack-sync-base.php</file>
 			<file>tests/php/sync/test_class.jetpack-sync-full.php</file>
 		</testsuite>
 		<testsuite name="theme-tools">
@@ -91,6 +95,9 @@
 		<testsuite name="3rd-party">
 			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>
 		</testsuite>
+		<testsuite name="carousel">
+			<directory prefix="test-" suffix=".php">tests/php/modules/carousel</directory>
+		</testsuite>
 		<testsuite name="lazy-images">
 			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
 		</testsuite>
@@ -100,8 +107,14 @@
 		<testsuite name="geo-location">
 			<directory prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
 		</testsuite>
+		<testsuite name="google-analytics">
+			<directory prefix="test" suffix=".php">tests/php/modules/google-analytics</directory>
+		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
+		</testsuite>
+		<testsuite name="extensions">
+			<directory prefix="test" suffix=".php">tests/php/extensions</directory>
 		</testsuite>
 	</testsuites>
 	<groups>

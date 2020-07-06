@@ -14,13 +14,13 @@ import {
 	TextControl,
 	withNotices,
 } from '@wordpress/components';
-import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { icon } from '.';
+import { icon, innerButtonBlock } from '.';
 import MailchimpGroups from './mailchimp-groups';
 
 const API_STATE_LOADING = 0;
@@ -142,7 +142,7 @@ class MailchimpSubscribeEdit extends Component {
 			signupFieldTag,
 			signupFieldValue,
 		} = attributes;
-		const classPrefix = 'wp-block-jetpack-mailchimp_';
+		const classPrefix = 'wp-block-jetpack-mailchimp';
 		const waiting = (
 			<Placeholder icon={ icon } notices={ notices }>
 				<Spinner />
@@ -159,14 +159,14 @@ class MailchimpSubscribeEdit extends Component {
 					'jetpack'
 				) }
 			>
-				<div>
-					<Button isDefault isLarge href={ connectURL } target="_blank">
-						{ __( 'Set up Mailchimp form', 'jetpack' ) }
+				<Button isDefault isLarge href={ connectURL } target="_blank">
+					{ __( 'Set up Mailchimp form', 'jetpack' ) }
+				</Button>
+				<div className={ `${ classPrefix }-recheck` }>
+					<Button isLink onClick={ this.apiCall }>
+						{ __( 'Re-check Connection', 'jetpack' ) }
 					</Button>
 				</div>
-				<Button isLink onClick={ this.apiCall }>
-					{ __( 'Re-check Connection', 'jetpack' ) }
-				</Button>
 			</Placeholder>
 		);
 		const inspectorControls = (
@@ -237,7 +237,7 @@ class MailchimpSubscribeEdit extends Component {
 			</InspectorControls>
 		);
 		const blockClasses = classnames( className, {
-			[ `${ classPrefix }notication-audition` ]: audition,
+			[ `${ classPrefix }_notication-audition` ]: audition,
 		} );
 		const blockContent = (
 			<div className={ blockClasses }>
@@ -250,7 +250,10 @@ class MailchimpSubscribeEdit extends Component {
 					title={ __( 'You can edit the email placeholder in the sidebar.', 'jetpack' ) }
 					type="email"
 				/>
-				<SubmitButton { ...this.props } />
+				<InnerBlocks
+					template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }
+					templateLock="all"
+				/>
 				<RichText
 					tagName="p"
 					placeholder={ __( 'Write consent text', 'jetpack' ) }
@@ -260,7 +263,7 @@ class MailchimpSubscribeEdit extends Component {
 				/>
 				{ audition && (
 					<div
-						className={ `${ classPrefix }notification ${ classPrefix }${ audition }` }
+						className={ `${ classPrefix }_notification ${ classPrefix }_${ audition }` }
 						role={ this.roleForAuditionType( audition ) }
 					>
 						{ this.labelForAuditionType( audition ) }

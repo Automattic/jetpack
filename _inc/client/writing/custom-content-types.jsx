@@ -8,6 +8,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -71,7 +72,7 @@ export class CustomContentTypes extends React.Component {
 					hasChild
 					module={ module }
 					support={ {
-						link: 'https://jetpack.com/support/custom-content-types/',
+						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
 					} }
 				>
 					<p>
@@ -113,7 +114,7 @@ export class CustomContentTypes extends React.Component {
 					hasChild
 					module={ module }
 					support={ {
-						link: 'https://jetpack.com/support/custom-content-types/',
+						link: getRedirectUrl( 'jetpack-support-custom-content-types' ),
 					} }
 				>
 					<p>

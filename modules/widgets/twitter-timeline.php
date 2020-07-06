@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -46,7 +47,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * Enqueue scripts.
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_script( 'jetpack-twitter-timeline' );
+		if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
+			wp_enqueue_script( 'jetpack-twitter-timeline' );
+		}
 	}
 
 	/**
@@ -84,42 +87,36 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
+		$output = '';
+
 		// Twitter deprecated `data-widget-id` on 2018-05-25,
 		// with cease support deadline on 2018-07-27.
 		if ( isset( $instance['type'] ) && 'widget-id' === $instance['type'] ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo $args['before_widget'];
-				echo $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title'];
-				echo '<p>' . esc_html__( "The Twitter Timeline widget can't display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username. Otherwise, delete this widget.", 'jetpack' ) . '</p>';
-				echo '<p>' . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . '</p>';
-				echo $args['after_widget'];
+				$output .= $args['before_widget']
+				. $args['before_title'] . esc_html__( 'Twitter Timeline', 'jetpack' ) . $args['after_title']
+				. '<p>' . esc_html__( "The Twitter Timeline widget can't display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username. Otherwise, delete this widget.", 'jetpack' ) . '</p>'
+				. '<p>' . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . '</p>'
+				. $args['after_widget'];
 			}
+
+			echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
 		$instance['lang'] = substr( strtoupper( get_locale() ), 0, 2 );
 
-		echo $args['before_widget'];
+		$output .= $args['before_widget'];
 
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . $title . $args['after_title'];
+			$output .= $args['before_title'] . $title . $args['after_title'];
 		}
 
-		if ( isset( $instance['type'] ) && 'widget-id' === $instance['type'] && current_user_can( 'edit_theme_options' ) ) {
-			echo '<p>' . esc_html__( 'As of July 27, 2018, the Twitter Timeline widget will no longer display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username.', 'jetpack' ) . '</p>';
-			echo '<p>' . esc_html__( '(Only administrators will see this message.)', 'jetpack' ) . '</p>';
-		}
-
-		// Start tag output
-		// This tag is transformed into the widget markup by Twitter's
-		// widgets.js code
-		echo '<a class="twitter-timeline"';
-
-		$data_attribs = array(
+		$possible_data_attribs = array(
 			'width',
 			'height',
 			'theme',
@@ -127,16 +124,17 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'tweet-limit',
 			'lang',
 		);
-		foreach ( $data_attribs as $att ) {
+		$data_attrs            = '';
+		foreach ( $possible_data_attribs as $att ) {
 			if ( ! empty( $instance[ $att ] ) && ! is_array( $instance[ $att ] ) ) {
-				echo ' data-' . esc_attr( $att ) . '="' . esc_attr( $instance[ $att ] ) . '"';
+				$data_attrs .= ' data-' . esc_attr( $att ) . '="' . esc_attr( $instance[ $att ] ) . '"';
 			}
 		}
 
 		/** This filter is documented in modules/shortcodes/tweet.php */
 		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
 		if ( ! empty( $partner ) ) {
-			echo ' data-partner="' . esc_attr( $partner ) . '"';
+			$data_attrs .= ' data-partner="' . esc_attr( $partner ) . '"';
 		}
 
 		/**
@@ -152,28 +150,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		 */
 		$dnt = apply_filters( 'jetpack_twitter_timeline_default_dnt', false );
 		if ( true === $dnt ) {
-			echo ' data-dnt="true"';
+			$data_attrs .= ' data-dnt="true"';
 		}
 
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
-			echo ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
+			$data_attrs .= ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 		}
-
-		$type      = ( isset( $instance['type'] ) ? $instance['type'] : '' );
-		$widget_id = ( isset( $instance['widget-id'] ) ? $instance['widget-id'] : '' );
-		switch ( $type ) {
-			case 'profile':
-				echo ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
-				break;
-			case 'widget-id':
-			default:
-				echo ' data-widget-id="' . esc_attr( $widget_id ) . '"';
-				break;
-		}
-		echo ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
-
-		// End tag output
-		echo '>';
 
 		$timeline_placeholder = __( 'My Tweets', 'jetpack' );
 
@@ -188,11 +170,42 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		 */
 		$timeline_placeholder = apply_filters( 'jetpack_twitter_timeline_placeholder', $timeline_placeholder );
 
-		echo esc_html( $timeline_placeholder ) . '</a>';
+		$type      = ( isset( $instance['type'] ) ? $instance['type'] : '' );
+		$widget_id = ( isset( $instance['widget-id'] ) ? $instance['widget-id'] : '' );
+
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			$width   = ! empty( $instance['width'] ) ? $instance['width'] : 600;
+			$height  = ! empty( $instance['height'] ) ? $instance['height'] : 480;
+			$output .= '<amp-twitter' . $data_attrs . ' layout="responsive" data-timeline-source-type="profile" data-timeline-screen-name="' . esc_attr( $widget_id ) . '" width="' . absint( $width ) . '" height="' . absint( $height ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$output .= esc_html( $timeline_placeholder ) . '</amp-twitter>';
+
+			echo $output . $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			return;
+		}
+
+		// Start tag output
+		// This tag is transformed into the widget markup by Twitter's
+		// widgets.js code.
+		$output .= '<a class="twitter-timeline"' . $data_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		switch ( $type ) {
+			case 'profile':
+				$output .= ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
+				break;
+			case 'widget-id':
+			default:
+				$output .= ' data-widget-id="' . esc_attr( $widget_id ) . '"';
+				break;
+		}
+		$output .= ' href="https://twitter.com/' . esc_attr( $widget_id ) . '"';
+
+		// End tag output.
+		$output .= '>';
+
+		$output .= esc_html( $timeline_placeholder ) . '</a>';
 
 		// End tag output
 
-		echo $args['after_widget'];
+		echo $output . $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'twitter_timeline' );
@@ -294,9 +307,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 */
 	public function get_docs_link( $hash = '' ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$base_url = 'https://support.wordpress.com/widgets/twitter-timeline-widget/';
+			$base_url = 'https://wordpress.com/support/widgets/twitter-timeline-widget/';
 		} else {
-			$base_url = 'https://jetpack.com/support/extra-sidebar-widgets/twitter-timeline-widget/';
+			$base_url = esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-twitter-timeline-widget' ) );
 		}
 		return '<a href="' . $base_url . $hash . '" target="_blank">( ? )</a>';
 	}

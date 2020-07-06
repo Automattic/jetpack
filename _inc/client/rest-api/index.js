@@ -31,7 +31,7 @@ function JetpackRestApiClient( root, nonce ) {
 		},
 		getParams = {
 			credentials: 'same-origin',
-			headers: headers,
+			headers,
 		},
 		postParams = {
 			method: 'post',
@@ -101,6 +101,11 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
 				body: JSON.stringify( { linked: false } ),
 			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchConnectedPlugins: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/plugins`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -219,6 +224,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSiteProducts: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/products`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchSitePurchases: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site/purchases`, getParams )
 				.then( checkStatus )
@@ -231,6 +241,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSetupQuestionnaire: () =>
+			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchProducts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )
 				.then( checkStatus )
@@ -238,6 +253,12 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchRewindStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
+
+		fetchScanStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/scan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
@@ -278,6 +299,13 @@ function JetpackRestApiClient( root, nonce ) {
 		submitSurvey: surveyResponse =>
 			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
 				body: JSON.stringify( surveyResponse ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		saveSetupQuestionnaire: props =>
+			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
+				body: JSON.stringify( props ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),

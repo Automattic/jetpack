@@ -7,12 +7,25 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/eventbrite',
-	array(
-		'render_callback' => 'jetpack_render_eventbrite_block',
-	)
-);
+namespace Automattic\Jetpack\Extensions\Eventbrite;
+
+use Jetpack_Gutenberg;
+
+const FEATURE_NAME = 'eventbrite';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Eventbrite block registration/dependency delclaration.
@@ -22,7 +35,7 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_render_eventbrite_block( $attr, $content ) {
+function render_block( $attr, $content ) {
 	if ( is_admin() || empty( $attr['eventId'] ) || empty( $attr['url'] ) ) {
 		return '';
 	}
@@ -38,10 +51,10 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
 	// Add CSS to hide direct link.
-	Jetpack_Gutenberg::load_assets_as_required( 'eventbrite' );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	// Show the embedded version.
-	if ( empty( $attr['useModal'] ) ) {
+	if ( empty( $attr['useModal'] ) && ( empty( $attr['style'] ) || 'modal' !== $attr['style'] ) ) {
 		wp_add_inline_script(
 			'eventbrite-widget',
 			"window.EBWidgets.createWidget( {
@@ -53,7 +66,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 
 		// $content contains a fallback link to the event that's saved in the post_content.
 		// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
-		$classes = \Jetpack_Gutenberg::block_classes( 'eventbrite', $attr );
+		$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
 
 		$content .= sprintf(
 			'<div id="%1$s" class="%2$s"></div>',
@@ -104,7 +117,10 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	);
 
 	// Replace the placeholder id saved in the post_content with a unique id used by widget.js.
-	$content = preg_replace( '/eventbrite-widget-\d+/', $widget_id, $content );
+	$content = str_replace( 'eventbrite-widget-id', esc_attr( $widget_id ), $content );
+
+	// Fallback for block version deprecated/v2.
+	$content = preg_replace( '/eventbrite-widget-\d+/', esc_attr( $widget_id ), $content );
 
 	return $content;
 }
