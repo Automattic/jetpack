@@ -15,8 +15,11 @@ module.exports = {
 			jsx: true,
 		},
 	},
-	plugins: [ 'jquery' ],
+	plugins: [ 'jquery', 'no-jquery' ],
 	rules: {
+		// eliminate $ and jQuery entirely
+		'no-jquery/no-jquery': 2,
+
 		// Disable noisy built in rules
 		'jsdoc/require-jsdoc': 'off',
 		'jsdoc/no-undefined-types': 'off',
