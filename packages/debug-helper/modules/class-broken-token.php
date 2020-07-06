@@ -70,7 +70,7 @@ class Broken_Token {
 	 *
 	 * @var string
 	 */
-	public $invalid_user_token = 'broken.token.1';
+	public $invalid_user_token = 'broken.token.%d';
 
 	/**
 	 * Broken_Token constructor.
@@ -290,7 +290,7 @@ class Broken_Token {
 		check_admin_referer( 'set-invalid-user-tokens' );
 		$this->notice_type = 'jetpack-broken';
 		foreach ( Jetpack_Options::get_option( 'user_tokens', array() ) as $id => $token ) {
-			Jetpack_Options::update_option( 'user_tokens', array( $id => $this->invalid_user_token ) );
+			Jetpack_Options::update_option( 'user_tokens', array( $id => sprintf( $this->invalid_user_token, $id ) ) );
 		}
 
 		$this->admin_post_redirect_referrer();
