@@ -19,7 +19,6 @@
 		cursor: pointer;
 	}
 
-	// High specifity to override theme styles
 	.wp-story-wrapper,
 	.wp-story-slide {
 		padding: 0;
@@ -72,52 +71,6 @@
 		display: none;
 	}
 
-	.wp-story-button-fullscreen-prev,
-	.wp-story-button-fullscreen-next,
-	.wp-story-button-fullscreen-pause,
-	.wp-story-button-fullscreen-play {
-		background-color: rgba( 0, 0, 0, 0.5 );
-		background-position: center;
-		background-repeat: no-repeat;
-		background-size: 24px;
-		border: 0;
-		border-radius: 4px;
-		box-shadow: none;
-		height: 48px;
-		margin: -24px 0 0;
-		padding: 0;
-		transition: background-color 250ms;
-		width: 48px;
-
-		&:focus,
-		&:hover {
-			background-color: rgba( 0, 0, 0, 0.75 );
-		}
-
-		&:focus {
-			outline: thin dotted $white;
-			outline-offset: -4px;
-		}
-	}
-
-	.amp-carousel-button {
-		margin: 0;
-	}
-
-	&.player-container-rtl .player-button-prev.player-button-white,
-	&.player-container-rtl .wp-block-jetpack-story_button-prev,
-	.player-button-next.player-button-white,
-	.wp-block-jetpack-story_button-next {
-		background-image: url( "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M5.88%204.12L13.76%2012l-7.88%207.88L8%2022l10-10L8%202z'%20fill='white'/%3E%3Cpath%20fill='none'%20d='M0 0h24v24H0z'/%3E%3C/svg%3E" );
-	}
-
-	&.player-container-rtl .player-button-next.player-button-white,
-	&.player-container-rtl .wp-block-jetpack-story_button-next,
-	.player-button-prev.player-button-white,
-	.wp-block-jetpack-story_button-prev {
-		background-image: url( "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M18%204.12L10.12%2012%2018%2019.88%2015.88%2022l-10-10%2010-10z'%20fill='white'/%3E%3Cpath%20fill='none'%20d='M0 0h24v24H0z'/%3E%3C/svg%3E" );
-	}
-
 	.wp-story-overlay {
 		width: 100%;
 		position: absolute;
@@ -134,11 +87,10 @@
 		.wp-story-button-replay {
 			cursor: pointer;
 		}
-
-
 	}
 
-	&.wp-story-ended {
+	&.wp-story-ended,
+	&.wp-story-disabled {
 		.wp-story-overlay {
 			background-color: rgba(0, 0, 0, 0.4);
 		}

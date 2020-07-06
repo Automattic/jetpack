@@ -14,9 +14,6 @@ import save from './save';
  * Example Images
  */
 import storyExample1 from './story_example-1.png';
-import storyExample2 from './story_example-2.png';
-import storyExample3 from './story_example-3.png';
-import storyExample4 from './story_example-4.png';
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -26,14 +23,6 @@ export const icon = (
 );
 
 const attributes = {
-	align: {
-		default: 'center',
-		type: 'string',
-	},
-	ids: {
-		default: [],
-		type: 'array',
-	},
 	mediaFiles: {
 		type: 'array',
 		default: [],
@@ -42,7 +31,6 @@ const attributes = {
 
 const exampleAttributes = {
 	align: 'center',
-	ids: [ 22, 23, 24, 25 ],
 	mediaFiles: [
 		{
 			alt: '',
@@ -51,30 +39,6 @@ const exampleAttributes = {
 			type: 'image',
 			id: 22,
 			url: storyExample1,
-		},
-		{
-			alt: '',
-			caption: '',
-			mime: 'image/jpg',
-			type: 'image',
-			id: 23,
-			url: storyExample2,
-		},
-		{
-			alt: '',
-			caption: '',
-			mime: 'image/jpg',
-			type: 'image',
-			id: 24,
-			url: storyExample3,
-		},
-		{
-			alt: '',
-			caption: '',
-			mime: 'image/jpg',
-			type: 'image',
-			id: 25,
-			url: storyExample4,
 		},
 	],
 };

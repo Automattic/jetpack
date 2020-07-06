@@ -13,19 +13,24 @@ import { DecoratedButton } from './button';
 export default function Overlay( {
 	playing,
 	ended,
+	disabled,
 	onClick,
 	onNextSlide,
 	onPreviousSlide,
 	tapToPlayPause,
 } ) {
 	const onOverlayPressed = useCallback( () => {
-		tapToPlayPause && onClick( event );
+		! disabled && tapToPlayPause && onClick();
 	}, [ tapToPlayPause, onClick ] );
 
 	const onPlayPressed = useCallback(
 		event => {
+			if ( tapToPlayPause || disabled ) {
+				// let the event bubble
+				return;
+			}
 			event.stopPropagation();
-			! tapToPlayPause && onClick();
+			onClick();
 		},
 		[ tapToPlayPause, onClick ]
 	);
