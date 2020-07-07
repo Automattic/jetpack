@@ -1,5 +1,6 @@
 <?php
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
 
@@ -237,36 +238,31 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		$current_user_data = jetpack_current_user_data();
 
-		$status = new Status();
+		/**
+		 * Adds information to the `connectionStatus` API field that is unique to the Jetpack React dashboard.
+		 */
+		$connection_status = array(
+			'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
+			'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
+
+			/**
+			 * Filter to add connection errors
+			 * Format: array( array( 'code' => '...', 'message' => '...', 'action' => '...' ), ... )
+			 *
+			 * @since 8.7.0
+			 *
+			 * @param array $errors Connection errors.
+			 */
+			'errors'             => apply_filters( 'react_connection_errors_initial_state', array() ),
+		);
+
+		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectionStatus'            => array(
-				'isActive'           => Jetpack::is_active(),
-				'isStaging'          => $status->is_staging_site(),
-				'offlineMode'        => array(
-					'isActive' => $status->is_offline_mode(),
-					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-					'url'      => site_url() && false === strpos( site_url(), '.' ),
-					/** This filter is documented in packages/status/src/class-status.php */
-					'filter'   => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
-				),
-				'isPublic'           => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
-				'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
-
-				/**
-				 * Filter to add connection errors
-				 * Format: array( array( 'code' => '...', 'message' => '...', 'action' => '...' ), ... )
-				 *
-				 * @since 8.7.0
-				 *
-				 * @param array $errors Connection errors.
-				 */
-				'errors'             => apply_filters( 'react_connection_errors_initial_state', array() ),
-			),
+			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
