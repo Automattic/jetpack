@@ -11,8 +11,9 @@ describe( 'Connection', () => {
 	catchBeforeAll( async () => {
 		await execWpCommand( 'wp option delete jetpack_private_options' );
 		await page.reload();
+		await execWpCommand( 'wp config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false' );
 		// For some reason it need 2 reloads to make constant actually work.
-		// await page.reload();
+		await page.reload();
 	} );
 
 	afterAll( async () => {
@@ -20,6 +21,7 @@ describe( 'Connection', () => {
 			'wp option update jetpack_private_options --format=json',
 			'< jetpack_private_options.txt'
 		);
+		await execWpCommand( 'wp config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
 	} );
 
 	it( 'In-place', async () => {
