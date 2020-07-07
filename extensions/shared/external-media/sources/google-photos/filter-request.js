@@ -2,7 +2,6 @@
  * External dependencies
  */
 import moment from 'moment';
-import { isNumber } from 'lodash';
 
 /**
  * Internal dependencies
