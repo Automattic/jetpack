@@ -1,12 +1,12 @@
 // a few helpers to replace jQuery functions
 ( function() {
-	function ready( fn ) {
+	var ready = function( fn ) {
 		if ( document.readyState != 'loading' ) {
-			fn();
+			fn( this );
 		} else {
-			document.addEventListener( 'DOMContentLoaded', fn );
+			document.addEventListener( 'DOMContentLoaded', fn.bind( null, this ) );
 		}
-	}
+	};
 
 	var data = {
 		_storage: new WeakMap(),
@@ -31,6 +31,17 @@
 		},
 	};
 
+	var matches = function( el, selector ) {
+		return (
+			el.matches ||
+			el.matchesSelector ||
+			el.msMatchesSelector ||
+			el.mozMatchesSelector ||
+			el.webkitMatchesSelector ||
+			el.oMatchesSelector
+		).call( el, selector );
+	};
+
 	/**
 	 * Usage:
 	 *
@@ -40,13 +51,15 @@
 	 * @param {string} selector
 	 * @param {function} callback
 	 */
-	function on( eventName, selector, callback ) {
+	var on = function( eventName, selector, callback ) {
 		document.addEventListener(
 			eventName,
 			function( e ) {
 				// loop parent nodes from the target to the delegation node
 				for ( var target = e.target; target && target != this; target = target.parentNode ) {
 					if ( target.matches( selector ) ) {
+						console.log( 'got click on ', selector, target );
+						e.currentTarget = target; // pass along the element that the selector actually matches, not just the element that was clicked
 						callback.call( target, e );
 						break;
 					}
@@ -54,7 +67,7 @@
 			},
 			false
 		);
-	}
+	};
 
 	/**
 	 * Usage:
@@ -64,12 +77,12 @@
 	 * @param {string} selector
 	 * @param {function} callback
 	 */
-	function each( selector, callback ) {
+	var each = function( selector, callback ) {
 		var elements = document.querySelectorAll( selector );
 		Array.prototype.forEach.call( elements, callback );
-	}
+	};
 
-	function trigger( el, eventName, data ) {
+	var trigger = function( el, eventName, data ) {
 		if ( window.CustomEvent && typeof window.CustomEvent === 'function' ) {
 			var event = new CustomEvent( eventName, { detail: data } );
 		} else {
@@ -78,7 +91,7 @@
 		}
 
 		el.dispatchEvent( event );
-	}
+	};
 
 	window.jpQuery = {
 		ready: ready,
@@ -87,5 +100,6 @@
 		on: on,
 		each: each,
 		trigger: trigger,
+		matches: matches,
 	};
 } )();

@@ -38,13 +38,6 @@ jpQuery.ready( function( $ ) {
 		}
 	}
 
-	// Adding a polyfill for browsers that do not have Date.now
-	if ( 'undefined' === typeof Date.now ) {
-		Date.now = function now() {
-			return new Date().getTime();
-		};
-	}
-
 	var keyListener = function( e ) {
 		switch ( e.which ) {
 			case 38: // up
@@ -84,6 +77,7 @@ jpQuery.ready( function( $ ) {
 	};
 
 	var prepareGallery = function(/*dataCarouselExtra*/) {
+		console.log( 'preparing gallery' );
 		if ( ! overlay ) {
 			overlay = $( '<div></div>' )
 				.addClass( 'jp-carousel-overlay' )
@@ -584,9 +578,7 @@ jpQuery.ready( function( $ ) {
 
 	var methods = {
 		testForData: function( gallery ) {
-			gallery = $( gallery ); // make sure we have it as a jQuery object.
-			return jpQuery.data.get( 'carousel-extra' );
-			// return ! ( ! gallery.length || ! gallery.data( 'carousel-extra' ) );
+			return gallery.dataset.carouselExtra;
 		},
 
 		testIfOpened: function() {
@@ -1672,57 +1664,46 @@ jpQuery.ready( function( $ ) {
 		} else if ( typeof method === 'object' || ! method ) {
 			return methods.open.apply( this, arguments );
 		} else {
-			$.error( 'Method ' + method + ' does not exist on jQuery.jp_carousel' );
+			console.error( 'Method ' + method + ' does not exist on jpQuery.jp_carousel' );
 		}
 	};
 
 	// register the event listener for starting the gallery
-	document.body.addEventListener;
-
 	jpQuery.on(
 		'click',
-		'.jp-carousel',
 		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
 		function( e ) {
-			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
+			if ( ! jpQuery.fn.jp_carousel( 'testForData', this ) ) {
 				return;
 			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-			if (
-				$( e.target )
-					.parent()
-					.hasClass( 'gallery-caption' )
-			) {
+			if ( e.target.parentNode.classList.contains( 'gallery-caption' ) ) {
 				return;
 			}
 
 			// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
-			if (
-				$( e.target )
-					.parent()
-					.is( 'figcaption' )
-			) {
+			if ( jpQuery.matches( e.target.parentNode, 'figcaption' ) ) {
 				return;
 			}
 
 			// Set height to auto
 			// Fix some themes where closing carousel brings view back to top
-			$( 'html' ).css( 'height', 'auto' );
+			Object.assign( document.getElementsByTagName( 'html' )[ 0 ].style, { height: 'auto' } );
 
 			e.preventDefault();
 
 			// Stopping propagation in case there are parent elements
 			// with .gallery or .tiled-gallery class
 			e.stopPropagation();
-			$( this ).jp_carousel( 'open', {
-				start_index: $( this )
-					.find( '.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item' )
-					.index(
-						$( e.target ).parents(
-							'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
-						)
-					),
+			jpQuery.fn.jp_carousel( 'open', {
+				start_index: this.find(
+					'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
+				).index(
+					$( e.target ).parents(
+						'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
+					)
+				),
 			} );
 		}
 	);
