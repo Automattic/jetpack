@@ -142,9 +142,6 @@ __( "VideoPress", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-fe
 __( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1047
 __( "Widget Visibility", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1068
 __( "Control your widgets at the post or page level.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1069
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:30
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:40
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:53
 __( "Testing Jetpack Connection", "jetpack" ), // _inc/client/state/connection/actions.js:42
 __( "There was an error testing Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:67
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:129
@@ -152,6 +149,9 @@ __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), /
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:173
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:184
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:199
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:30
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:40
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:53
 __( "Sending login email…", "jetpack" ), // _inc/client/state/mobile/actions.js:22
 __( "Login email sent", "jetpack" ), // _inc/client/state/mobile/actions.js:34
 __( "Failed to send login email", "jetpack" ), // _inc/client/state/mobile/actions.js:49
@@ -747,7 +747,7 @@ __( "Jetpack is powering your site, but to access all of its features you’ll n
 __( "Create account", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:173
 __( "This site is not connected to WordPress.com. Please ask the site administrator to connect.", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:233
 __( "Connection Error, please reconnect.", "jetpack" ), // _inc/client/components/jetpack-notices/jetpack-connection-errors.jsx:18
-__( "Reconnect", "jetpack" ), // _inc/client/components/jetpack-notices/jetpack-connection-errors.jsx:33
+__( "Reconnect", "jetpack" ), // _inc/client/components/jetpack-notices/jetpack-connection-errors.jsx:35
 __( "daily backups", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:64
 __( "real-time backups", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:66
 __( "Your %(planName)s Plan includes %(featureName)s. Looks like you also purchased the %(productName)s product. Consider removing %(productName)s.", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:73
