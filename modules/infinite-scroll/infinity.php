@@ -1343,39 +1343,49 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'success';
 
 			/**
-			 * Gather renderer callbacks. These will be called in order and allow multiple callbacks to be queued. Once content is found, no futher callbacks will run.
+			 * Fires when rendering Infinite Scroll posts.
 			 *
 			 * @module infinite-scroll
 			 *
-			 * @since 6.0.0
+			 * @since 2.0.0
 			 */
-			$callbacks = apply_filters( 'infinite_scroll_render_callbacks', array(
-				self::get_settings()->render, // This is the setting callback e.g. from add theme support.
-			) );
+			do_action( 'infinite_scroll_render' );
+			$results['html'] = ob_get_clean();
+			if ( empty( $results['html'] ) ) {
+				/**
+				 * Gather renderer callbacks. These will be called in order and allow multiple callbacks to be queued. Once content is found, no futher callbacks will run.
+				 *
+				 * @module infinite-scroll
+				 *
+				 * @since 6.0.0
+				 */
+				$callbacks = apply_filters(
+					'infinite_scroll_render_callbacks',
+					array( self::get_settings()->render ) // This is the setting callback e.g. from add theme support.
+				);
 
-			// Append fallback callback. That rhymes.
-			$callbacks[] = array( $this, 'render' );
+				// Append fallback callback. That rhymes.
+				$callbacks[] = array( $this, 'render' );
 
-			foreach ( $callbacks as $callback ) {
-				if ( false !== $callback && is_callable( $callback ) ) {
-					rewind_posts();
-					ob_start();
-					add_action( 'infinite_scroll_render', $callback );
+				foreach ( $callbacks as $callback ) {
+					if ( false !== $callback && is_callable( $callback ) ) {
+						rewind_posts();
+						ob_start();
+						add_action( 'infinite_scroll_render', $callback );
 
-					/**
-					 * Fires when rendering Infinite Scroll posts.
-					 *
-					 * @module infinite-scroll
-					 *
-					 * @since 2.0.0
-					 */
-					do_action( 'infinite_scroll_render' );
+						/**
+						 * This action is already documented above.
+						 * See https://github.com/Automattic/jetpack/pull/16317/
+						 * for more details as to why it was introduced.
+						 */
+						do_action( 'infinite_scroll_render' );
 
-					$results['html'] = ob_get_clean();
-					remove_action( 'infinite_scroll_render', $callback );
-				}
-				if ( ! empty( $results['html'] ) ) {
-					break;
+						$results['html'] = ob_get_clean();
+						remove_action( 'infinite_scroll_render', $callback );
+					}
+					if ( ! empty( $results['html'] ) ) {
+						break;
+					}
 				}
 			}
 
