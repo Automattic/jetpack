@@ -438,11 +438,11 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertNotContains( 'product_feedback', $comments_sync_module->get_allowed_comment_types() );
 
-		add_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		add_filter( 'jetpack_sync_allowed_comment_types', array( $this, 'add_custom_comment_type' ) );
 
 		$this->assertContains( 'product_feedback', $comments_sync_module->get_allowed_comment_types() );
 
-		remove_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		remove_filter( 'jetpack_sync_allowed_comment_types', array( $this, 'add_custom_comment_type' ) );
 	}
 
 	public function add_custom_comment_type( $comment_types ) {
