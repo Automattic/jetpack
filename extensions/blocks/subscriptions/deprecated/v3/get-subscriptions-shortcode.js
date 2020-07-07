@@ -12,6 +12,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import definedAttributes from './attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
 	DEFAULT_BORDER_WEIGHT_VALUE,
@@ -20,7 +21,7 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from '../../constants';
 
-export default function Save( { className, attributes } ) {
+export default function getSubscriptionsShortcode( className, attributes, checkTextDefaults = null ) {
 	const {
 		subscribePlaceholder,
 		showSubscribersTotal,
@@ -102,15 +103,27 @@ export default function Save( { className, attributes } ) {
 		);
 	};
 
+	let placeholderText = subscribePlaceholder;
+	let buttonText = submitButtonText;
+
+	if ( 'check-text-defaults' === checkTextDefaults ) {
+		placeholderText = subscribePlaceholder === definedAttributes.subscribePlaceholder.default
+			? 'Enter your email address'
+			: subscribePlaceholder;
+		buttonText = submitButtonText === definedAttributes.submitButtonText.default
+			? 'Sign Up'
+			: submitButtonText;
+	}
+
 	return (
 		<div className={ getBlockClassName() }>
 			<RawHTML>
 				{ `
 			[jetpack_subscription_form
-				subscribe_placeholder="${ subscribePlaceholder }"
+				subscribe_placeholder="${ placeholderText }"
 				show_subscribers_total="${ showSubscribersTotal }"
 				button_on_newline="${ buttonOnNewLine }"
-				submit_button_text="${ submitButtonText }"
+				submit_button_text="${ buttonText }"
 				custom_background_emailfield_color="${ emailFieldBackgroundStyle }"
 				custom_background_button_color="${ buttonBackgroundStyle }"
 				custom_text_button_color="${ customTextColor }"

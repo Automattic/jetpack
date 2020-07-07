@@ -2,9 +2,9 @@
  * Internal dependencies
  */
 import attributes from './attributes';
-import save from './save';
+import getSubscriptionsShortcode from './get-subscriptions-shortcode';
 
 export default {
 	attributes,
-	save,
+	save: ( { className, attrs } ) => getSubscriptionsShortcode( className, attrs ),
 };
