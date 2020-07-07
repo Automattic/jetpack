@@ -192,7 +192,7 @@ class Comments extends Module {
 		$list = apply_filters_deprecated(
 			'jetpack_sync_whitelisted_comment_types',
 			array( array( '', 'comment', 'trackback', 'pingback' ) ),
-			'Jetpack 8.7.0',
+			'jetpack-8.8.0',
 			'jetpack_sync_allowed_comment_types'
 		);
 

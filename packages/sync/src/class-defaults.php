@@ -185,7 +185,7 @@ class Defaults {
 		 *
 		 * @param array The default list of options.
 		 */
-		$options_allowlist = apply_filters_deprecated( 'jetpack_sync_options_whitelist', array( $options_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_options_allowlist' );
+		$options_allowlist = apply_filters_deprecated( 'jetpack_sync_options_whitelist', array( $options_allowlist ), 'jetpack-8.8.0', 'jetpack_sync_options_allowlist' );
 
 		/**
 		 * Filter the list of WordPress options that are manageable via the JSON API.
@@ -275,7 +275,7 @@ class Defaults {
 		 *
 		 * @param array The default list of constants options.
 		 */
-		$allowlist = apply_filters_deprecated( 'jetpack_sync_constants_whitelist', array( self::$default_constants_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_constants_allowlist' );
+		$allowlist = apply_filters_deprecated( 'jetpack_sync_constants_whitelist', array( self::$default_constants_allowlist ), 'jetpack-8.8.0', 'jetpack_sync_constants_allowlist' );
 
 		/**
 		 * Filter the list of PHP constants that are manageable via the JSON API.
@@ -393,7 +393,7 @@ class Defaults {
 		 *
 		 * @param array The default list of callables.
 		 */
-		$default = apply_filters_deprecated( 'jetpack_sync_callable_whitelist', array( $default ), 'Jetpack 8.7.0', 'jetpack_sync_callable_allowlist' );
+		$default = apply_filters_deprecated( 'jetpack_sync_callable_whitelist', array( $default ), 'jetpack-8.8.0', 'jetpack_sync_callable_allowlist' );
 
 		/**
 		 * Filter the list of callables that are manageable via the JSON API.
@@ -726,7 +726,7 @@ class Defaults {
 		 *
 		 * @param array The default list of multisite callables.
 		 */
-		$list = apply_filters_deprecated( 'jetpack_sync_multisite_callable_whitelist', array( self::$default_multisite_callable_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_multisite_callable_allowlist' );
+		$list = apply_filters_deprecated( 'jetpack_sync_multisite_callable_whitelist', array( self::$default_multisite_callable_allowlist ), 'jetpack-8.8.0', 'jetpack_sync_multisite_callable_allowlist' );
 
 		/**
 		 * Filter the list of multisite callables that are manageable via the JSON API.
@@ -801,7 +801,7 @@ class Defaults {
 		 *
 		 * @param array The default list of meta data keys.
 		 */
-		$list = apply_filters_deprecated( 'jetpack_sync_post_meta_whitelist', array( self::$post_meta_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_post_meta_allowlist' );
+		$list = apply_filters_deprecated( 'jetpack_sync_post_meta_whitelist', array( self::$post_meta_allowlist ), 'jetpack-8.8.0', 'jetpack_sync_post_meta_allowlist' );
 
 		/**
 		 * Filter the list of post meta data that are manageable via the JSON API.
@@ -843,7 +843,7 @@ class Defaults {
 		 *
 		 * @param array The default list of comment meta data keys.
 		 */
-		$list = apply_filters_deprecated( 'jetpack_sync_comment_meta_whitelist', array( self::$comment_meta_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_comment_meta_allowlist' );
+		$list = apply_filters_deprecated( 'jetpack_sync_comment_meta_whitelist', array( self::$comment_meta_allowlist ), 'jetpack-8.8.0', 'jetpack_sync_comment_meta_allowlist' );
 
 		/**
 		 * Filter the list of comment meta data that are manageable via the JSON API.
@@ -984,7 +984,7 @@ class Defaults {
 		 *
 		 * @param array The default list of capabilities.
 		 */
-		$list = apply_filters_deprecated( 'jetpack_sync_capabilities_whitelist', array( self::$default_capabilities_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_capabilities_allowlist' );
+		$list = apply_filters_deprecated( 'jetpack_sync_capabilities_whitelist', array( self::$default_capabilities_allowlist ), 'jetpack-8.8.0', 'jetpack_sync_capabilities_allowlist' );
 
 		/**
 		 * Filter the list of capabilities that we care about
