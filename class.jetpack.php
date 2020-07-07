@@ -7328,9 +7328,28 @@ endif;
 	 *
 	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_offline_mode`.
 	 *
-	 * @return bool True if Jetpack is active and not in development.
+	 * @deprecated 8.8.0
+	 *
+	 * @return bool True if Jetpack is active and not in offline mode.
 	 */
 	public static function is_active_and_not_development_mode() {
+		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Jetpack::is_active_and_not_offline_mode' );
+		if ( ! self::is_active() || ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if a Jetpack site is both active and not in offline mode.
+	 *
+	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_offline_mode`.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool True if Jetpack is active and not in offline mode.
+	 */
+	public static function is_active_and_not_offline_mode() {
 		if ( ! self::is_active() || ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
