@@ -747,7 +747,7 @@ __( "Jetpack is powering your site, but to access all of its features you’ll n
 __( "Create account", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:173
 __( "This site is not connected to WordPress.com. Please ask the site administrator to connect.", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:233
 __( "Connection Error, please reconnect.", "jetpack" ), // _inc/client/components/jetpack-notices/jetpack-connection-errors.jsx:18
-__( "Reconnect", "jetpack" ), // _inc/client/components/jetpack-notices/jetpack-connection-errors.jsx:33
+__( "Reconnect", "jetpack" ), // _inc/client/components/jetpack-notices/jetpack-connection-errors.jsx:35
 __( "daily backups", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:64
 __( "real-time backups", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:66
 __( "Your %(planName)s Plan includes %(featureName)s. Looks like you also purchased the %(productName)s product. Consider removing %(productName)s.", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:73
