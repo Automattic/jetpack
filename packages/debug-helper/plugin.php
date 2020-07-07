@@ -23,14 +23,19 @@ define( 'JETPACK_DEBUG_HELPER_VERSION', '1.0' );
  * Include file names from the modules directory here.
  */
 $jetpack_dev_debug_modules = array(
-	'broken-token' => array(
+	'broken-token'    => array(
 		'file'        => 'class-broken-token.php',
 		'name'        => 'Broken token Utilities',
 		'description' => '',
 	),
-	'sync-debug'   => array(
+	'sync-debug'      => array(
 		'file'        => 'class-jetpack-sync-debug-helper.php',
 		'name'        => 'Sync Debug Utilities',
+		'description' => '',
+	),
+	'rest-api-tester' => array(
+		'file'        => 'class-rest-api-tester.php',
+		'name'        => 'REST API Tester',
 		'description' => '',
 	),
 );
