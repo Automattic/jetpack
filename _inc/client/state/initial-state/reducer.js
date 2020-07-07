@@ -407,3 +407,14 @@ export function getConnectionErrors( state ) {
 		error.hasOwnProperty( 'action' )
 	);
 }
+
+/**
+ * Check if the user is on Safari browser.
+ *
+ * @param {Object} state   Global state tree.
+ *
+ * @return {boolean} True the user is on Safari browser.
+ */
+export function isSafari( state ) {
+	return !! state.jetpack.initialState.isSafari;
+}

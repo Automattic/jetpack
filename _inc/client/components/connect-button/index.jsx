@@ -8,7 +8,6 @@ import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
-import UAParser from 'ua-parser-js';
 
 /**
  * Internal dependencies
@@ -25,7 +24,7 @@ import {
 	isUnlinkingUser as _isUnlinkingUser,
 	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
 } from 'state/connection';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, isSafari } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 
@@ -113,10 +112,9 @@ export class ConnectButton extends React.Component {
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile,
 		// thus ignore the 'connectInPlace' property value.
-		const UA = UAParser();
-		const isSafari = -1 !== UA.browser.name.indexOf( 'Safari' ); // can be 'Safari' or 'Safari Mobile'
+
 		// Secondary users in-place connection flow
-		if ( this.props.connectInPlace && ! isSafari ) {
+		if ( this.props.connectInPlace && ! this.props.isSafari ) {
 			buttonProps.onClick = this.loadIframe;
 		}
 
@@ -216,6 +214,7 @@ export default connect(
 			isLinked: _isCurrentUserLinked( state ),
 			isUnlinking: _isUnlinkingUser( state ),
 			isAuthorizing: _isAuthorizingUserInPlace( state ),
+			isSafari: isSafari( state ),
 		};
 	},
 	dispatch => {
