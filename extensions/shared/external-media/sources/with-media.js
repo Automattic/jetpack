@@ -197,6 +197,17 @@ export default function withMedia() {
 						const { value, addToGallery, multiple } = this.props;
 						const media = multiple ? result : result[ 0 ];
 
+						const itemWithErrors = result.find( item => item.errors );
+						if ( itemWithErrors ) {
+							const { errors } = itemWithErrors;
+							const firstErrorKey = Object.keys( errors )[ 0 ];
+							this.handleApiError( {
+								code: firstErrorKey,
+								message: errors[ firstErrorKey ],
+							} );
+							return;
+						}
+
 						this.props.onClose();
 
 						// Select the image(s). This will close the modal
