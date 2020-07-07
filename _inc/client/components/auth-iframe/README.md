@@ -1,4 +1,5 @@
-# Authorization Iframe
+Authorization Iframe
+=========
 
 This component renders a customizable iframe serving in-place authorization flow. Currently this iframe doesn't need to be explicitly rendered from any other component, as it is already included in `main`.
 In order to display the authorization iframe, just dispatch the `authorizeUserInPlace` action.
@@ -34,5 +35,5 @@ render() {
 ```js
 import authorizeUserInPlace from 'state/connection';
 
-dispatch( authorizeUserInPlaceSuccess() );
+dispatch( authorizeUserInPlace() );
 ```
