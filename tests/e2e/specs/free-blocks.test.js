@@ -41,7 +41,7 @@ describe( 'Free blocks', () => {
 	} );
 
 	it( 'Eventbrite block', async () => {
-		const eventId = 'eventbrite-event-test-tickets-112691417062';
+		const eventId = '112691417062';
 		let blockEditor;
 
 		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
