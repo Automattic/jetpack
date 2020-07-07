@@ -98,7 +98,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_do_sync_comments_with_known_comment_types() {
 		$this->server_event_storage->reset();
-		add_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		add_filter( 'jetpack_sync_allowed_comment_types', array( $this, 'add_custom_comment_type' ) );
 
 		$comment_data = array(
 			'comment_post_ID'  => $this->post_id,
@@ -111,7 +111,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		);
 		wp_insert_comment( $comment_data );
 		$this->sender->do_sync();
-		remove_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		remove_filter( 'jetpack_sync_allowed_comment_types', array( $this, 'add_custom_comment_type' ) );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
 		$this->assertNotFalse( $event ); // This should be something other then false.
