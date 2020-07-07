@@ -57,8 +57,15 @@ export default function getFilterRequest( filters ) {
 				const month = parseInt( date.month );
 				const year = parseInt( date.year );
 				if ( ! isNaN( month ) && ! isNaN( year ) ) {
-					startDate = moment( [ year, month ] );
-					endDate = moment( startDate ).endOf( 'month' );
+					if ( month === -1 ) {
+						// Whole year.
+						startDate = moment( [ year, 0 ] );
+						endDate = moment( startDate ).endOf( 'year' );
+					} else {
+						// Specific month.
+						startDate = moment( [ year, month ] );
+						endDate = moment( startDate ).endOf( 'month' );
+					}
 				}
 				break;
 		}

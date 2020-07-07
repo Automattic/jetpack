@@ -20,6 +20,7 @@ import {
 	DATE_RANGE_ANY,
 	DATE_RANGE_CUSTOM,
 	MONTH_SELECT_OPTIONS,
+	CURRENT_YEAR,
 } from '../../constants';
 
 /**
@@ -46,8 +47,8 @@ function CategoryOption( { value, updateFilter } ) {
 function DateOption( { value, updateFilter } ) {
 	const selectedRange = value?.range || DATE_RANGE_ANY;
 
-	const [ month, setMonth ] = useState( 0 );
-	const [ year, setYear ] = useState( 2020 );
+	const [ month, setMonth ] = useState( -1 );
+	const [ year, setYear ] = useState( CURRENT_YEAR );
 
 	return (
 		<div className="jetpack-external-media-date-filter">
@@ -73,6 +74,7 @@ function DateOption( { value, updateFilter } ) {
 					/>
 					<Button
 						isSecondary
+						disabled={ value?.month === month && value?.year === year }
 						onClick={ () => {
 							updateFilter( { range: selectedRange, month, year } );
 						} }
