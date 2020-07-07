@@ -130,6 +130,9 @@ class ManagerTest extends TestCase {
 		$this->apply_filters->enable();
 		$this->constants_apply_filters->enable();
 
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
+
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.something/1/',
 			$this->manager->api_url( 'something' )
@@ -150,6 +153,7 @@ class ManagerTest extends TestCase {
 		$this->constants_apply_filters->enable();
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
+		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
 		$this->assertEquals(
 			'https://example.com/api/base.something/1/',
 			$this->manager->api_url( 'something' )

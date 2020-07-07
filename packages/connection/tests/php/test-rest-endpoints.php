@@ -5,6 +5,7 @@ require_once ABSPATH . WPINC . '/class-IXR.php';
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Connection\Manager;
@@ -69,6 +70,18 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/connection` endpoint.
 	 */
 	public function test_connection() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( 'Automattic\Jetpack' )
+				->setName( 'apply_filters' )
+				->setFunction(
+					function( $hook, $value ) {
+						return 'jetpack_development_mode' === $hook ? true : $value;
+					}
+				);
+
+		$mock = $builder->build();
+		$mock->enable();
+
 		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
 
 		$response = $this->server->dispatch( $this->request );
@@ -76,6 +89,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertFalse( $data['isActive'] );
 		$this->assertFalse( $data['isRegistered'] );
+		$this->assertTrue( $data['devMode']['isActive'] );
 	}
 
 	/**
