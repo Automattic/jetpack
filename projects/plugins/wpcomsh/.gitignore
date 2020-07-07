@@ -1,4 +1,5 @@
 .idea
+*.swp
 .env
 .DS_Store
 /private-constants.php
