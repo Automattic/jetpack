@@ -112,7 +112,7 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 	}
 }
 
-async function loginToWpSite( mockPlanData ) {
+export async function loginToWpSite( mockPlanData ) {
 	const siteUrl = getNgrokSiteUrl();
 	const host = new URL( siteUrl ).host;
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
@@ -121,7 +121,7 @@ async function loginToWpSite( mockPlanData ) {
 	}
 }
 
-async function loginToWpcomIfNeeded( wpcomUser, mockPlanData ) {
+export async function loginToWpcomIfNeeded( wpcomUser, mockPlanData ) {
 	// Logs in to WPCOM
 	const login = await LoginPage.visit( page );
 	if ( ! mockPlanData ) {

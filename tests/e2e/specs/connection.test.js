@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { catchBeforeAll, step } from '../lib/setup-env';
-import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
+import { doInPlaceConnection, loginToWpcomIfNeeded, loginToWpSite } from '../lib/flows/jetpack-connect';
 import { execWpCommand, resetWordpressInstall } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
@@ -28,7 +28,17 @@ describe( 'Connection', () => {
 	} );
 
 	it( 'In-place', async () => {
+		await step( 'Can login', async () => {
+			await loginToWpcomIfNeeded( 'defaultUser' );
+			await loginToWpSite();
+
+		} );
+
 		await step( 'Can start in-place connection', async () => {
+			await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
+
+			await loginToWpSite( mockPlanData );
+
 			await ( await Sidebar.init( page ) ).selectJetpack();
 			await doInPlaceConnection();
 		} );
