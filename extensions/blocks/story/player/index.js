@@ -21,9 +21,9 @@ const defaultSettings = {
 	imageTime: 5000,
 	renderInterval: 50,
 	startMuted: false,
-	playInFullScreen: true,
-	exitFullScreenOnEnd: true,
-	loadInFullScreen: false,
+	playInFullscreen: true,
+	exitFullscreenOnEnd: true,
+	loadInFullscreen: false,
 	tapToPlayPause: false, // embed feature
 	blurredBackground: true,
 	renderers: defaultRenderers,
@@ -59,9 +59,9 @@ export default function player( rootElement, params ) {
 
 	const registerListeners = playerEvents => {
 		playerEvents.on( 'go-fullscreen', () => {
-			if ( settings.playInFullScreen ) {
+			if ( settings.playInFullscreen ) {
 				rootElement.classList.add( 'wp-story-fullscreen' );
-				if ( isMobile && fullscreen.enabled() && ! settings.loadInFullScreen ) {
+				if ( isMobile && fullscreen.enabled() && ! settings.loadInFullscreen ) {
 					fullscreen.launch( rootElement );
 				} else {
 					document.body.classList.add( 'wp-story-in-fullscreen' );

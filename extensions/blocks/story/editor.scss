@@ -30,3 +30,26 @@
 		}
 	}
 }
+
+.wp-story-container {
+
+	.wp-story-prev-slide,
+	.wp-story-next-slide {
+		button {
+			width: 36px !important;
+			height: 36px !important;
+			color: #555d66;
+			border: 1px solid #555d66;
+			outline: 0;
+			background-color: transparent;
+
+			&:hover {
+				border: 1px solid #555d66;
+				background-color: transparent;
+				i {
+					color: rgb(51, 129, 184);
+				}
+			}
+		}
+	}
+}
