@@ -10,8 +10,8 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 describe( 'Connection', () => {
 	catchBeforeAll( async () => {
 		await execWpCommand( 'wp option delete jetpack_private_options' );
-		await page.reload();
 		await execWpCommand( 'wp config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false' );
+		await page.reload();
 		// For some reason it need 2 reloads to make constant actually work.
 		await page.reload();
 	} );
