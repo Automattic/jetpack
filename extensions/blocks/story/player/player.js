@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { html } from 'htm/preact';
-import { useState, useEffect, useCallback } from 'preact/hooks';
+import { useState, useEffect, useLayoutEffect, useCallback } from 'preact/hooks';
 import { render } from 'preact';
 import { EventEmitter } from 'events';
 import classNames from 'classnames';
@@ -69,18 +69,18 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	}, [ slides ] );
 
 	// track play/pause state and check ending
-	useEffect( () => {
+	useLayoutEffect( () => {
 		playerEvents.emit( playing ? 'play' : 'pause' );
 		if ( playing ) {
 			setEnded( false );
 		}
 	}, [ playing ] );
 
-	useEffect( () => {
+	useLayoutEffect( () => {
 		playerEvents.emit( muted ? 'mute' : 'unmute' );
 	}, [ muted ] );
 
-	useEffect( () => {
+	useLayoutEffect( () => {
 		playerEvents.emit( fullscreen ? 'go-fullscreen' : 'exit-fullscreen' );
 	}, [ fullscreen ] );
 
