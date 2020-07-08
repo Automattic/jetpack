@@ -229,17 +229,18 @@ $grid-size: 8px;
 	margin-bottom: 48px;
 	flex-direction: column;
 
+	@media only screen and ( min-width: 600px ) {
+		flex-direction: row;
+		align-items: center;
+	}
+
 	select {
 		max-width: 200px !important;
 	}
+
 	.components-base-control__field {
 		display: flex;
 		flex-direction: column;
-	}
-
-	input[type='number'] {
-		// this input holds only years, so 4 digits width is enough
-		width: 70px;
 	}
 }
 
@@ -261,6 +262,47 @@ $grid-size: 8px;
 	align-items: center;
 	flex-grow: 1;
 	justify-content: flex-start;
+
+	@media only screen and ( min-width: 600px ) {
+		border-left: 1px solid $light-gray-secondary;
+		margin-left: $grid-size * 2;
+		padding-left: $grid-size * 2;
+	}
+
+	.jetpack-external-media-date-filter {
+		display: flex;
+		flex-wrap: wrap;
+
+		button {
+			// Adjust button to match the size and position of inputs.
+			margin-top: 27px;
+			height: 40px;
+
+			@media only screen and ( min-width: 783px ) {
+				height: 30px;
+			}
+		}
+
+		.components-base-control {
+			.components-input-control__label {
+				margin-bottom: 3px;
+			}
+
+			.components-input-control__backdrop {
+				border-color: $dark-gray-200;
+				border-radius: 3px;
+			}
+
+			.components-input-control__input {
+				height: 40px;
+				width: 70px; // This input holds only years, so 4 digits width is enough.
+
+				@media only screen and ( min-width: 783px ) {
+					height: 30px;
+				}
+			}
+		}
+	}
 }
 
 .jetpack-external-media-header__pexels {
@@ -343,39 +385,5 @@ $grid-size: 8px;
 .editor-post-featured-image {
 	.components-dropdown .jetpack-external-media-button-menu {
 		margin-right: 8px;
-	}
-}
-
-.jetpack-external-media-date-filter {
-	display: flex;
-	flex-wrap: wrap;
-
-	button {
-		// Adjust button to match the size and position of inputs.
-		margin-top: 23px;
-		height: 40px;
-	}
-
-	.components-text-control__input {
-		margin: 1px;
-	}
-}
-
-@media only screen and ( min-width: 600px ) {
-	.jetpack-external-media-header__filter {
-		border-left: 1px solid $light-gray-secondary;
-		margin-left: $grid-size * 2;
-		padding-left: $grid-size * 2;
-	}
-
-	.jetpack-external-media-header__view {
-		flex-direction: row;
-		align-items: center;
-	}
-}
-
-@media only screen and ( min-width: 783px ) {
-	.jetpack-external-media-date-filter button {
-		height: 30px;
 	}
 }

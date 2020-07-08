@@ -23,8 +23,6 @@ import {
 	CURRENT_YEAR,
 } from '../../constants';
 
-console.log( { BlockEditorNumberControl } );
-
 /**
  * This uses the experimental NumberControl from the block editor where available,
  * otherwise it falls back to a standard TextControl, limited to numbers.
