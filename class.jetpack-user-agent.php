@@ -4,6 +4,8 @@
  *
  * @package Jetpack
  *
+ * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+ *
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
  * @phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
@@ -16,7 +18,7 @@ use \Automattic\Jetpack\Device_Detection\User_Agent_Info;
 /**
  * A class providing device properties detection.
  *
- * Deprecated. Use Automattic\Jetpack\Device_Detection\User_Agent_Info instead.
+ * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
  */
 class Jetpack_User_Agent_Info {
 
@@ -31,6 +33,8 @@ class Jetpack_User_Agent_Info {
 	 * The constructor.
 	 *
 	 * @param string $ua (Optional) User agent.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public function __construct( $ua = '' ) {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info from the `automattic/jetpack-device-detection` package' );
@@ -39,6 +43,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * This method detects the mobile User Agent name.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 *
 	 * @return string The matched User Agent name, false otherwise.
 	 */
@@ -52,6 +58,8 @@ class Jetpack_User_Agent_Info {
 	 * Note that this function returns the platform name, not the UA name/type. You should use a different function
 	 * if you need to test the UA capabilites.
 	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+	 *
 	 * @return string Name of the platform, false otherwise.
 	 */
 	public function get_platform() {
@@ -62,6 +70,8 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * This method detects for UA which can display iPhone-optimized web content.
 	 * Includes iPhone, iPod Touch, Android, WebOS, Fennec (Firefox mobile), etc.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public function isTierIphone() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info->isTierIphone from the `automattic/jetpack-device-detection` package' );
@@ -72,6 +82,8 @@ class Jetpack_User_Agent_Info {
 	 * This method detects for UA which are likely to be capable
 	 * but may not necessarily support JavaScript.
 	 * Excludes all iPhone Tier UA.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public function isTierRichCss() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info->isTierRichCss from the `automattic/jetpack-device-detection` package' );
@@ -82,21 +94,23 @@ class Jetpack_User_Agent_Info {
 	 * Detects if the user is using a tablet.
 	 * props Corey Gilmore, BGR.com
 	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+	 *
 	 * @return bool
 	 */
-	public function is_tablet() {
+	public static function is_tablet() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info->is_tablet from the `automattic/jetpack-device-detection` package' );
-		return $this->ua_info->is_tablet();
+		return ( new User_Agent_Info() )->is_tablet();
 	}
 
 	/**
 	 *  Detects if the current UA is the default iPhone or iPod Touch Browser.
 	 *
-	 *  DEPRECATED: use is_iphone_or_ipod
+	 *  @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
-	public function is_iphoneOrIpod() {
+	public static function is_iphoneOrIpod() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info->is_iphone_or_ipod from the `automattic/jetpack-device-detection` package' );
-		return $this->ua_info->is_iphoneOrIpod();
+		return ( new User_Agent_Info() )->is_iphoneOrIpod();
 	}
 
 
@@ -110,6 +124,8 @@ class Jetpack_User_Agent_Info {
 	 *  Otherwise those browsers will be 'catched' by the iphone string.
 	 *
 	 * @param string $type Type of iPhone detection.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_iphone_or_ipod( $type = 'iphone-any' ) {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_iphone_or_ipod from the `automattic/jetpack-device-detection` package' );
@@ -121,6 +137,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 *  The User-Agent string in Chrome for iOS is the same as the Mobile Safari User-Agent, with CriOS/<ChromeRevision> instead of Version/<VersionNum>.
 	 *  - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_chrome_for_iOS() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_chrome_for_iOS from the `automattic/jetpack-device-detection` package' );
@@ -132,6 +150,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 * Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_5 like Mac OS X; nb-no) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPhone
 	 * Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_twitter_for_iphone() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_twitter_for_iphone from the `automattic/jetpack-device-detection` package' );
@@ -143,6 +163,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 * Old version 4.X - Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPad
 	 * Ver 5.0 or Higher - Mozilla/5.0 (iPad; CPU OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_twitter_for_ipad() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_twitter_for_ipad from the `automattic/jetpack-device-detection` package' );
@@ -154,6 +176,8 @@ class Jetpack_User_Agent_Info {
 	 * - Facebook 4020.0 (iPhone; iPhone OS 5.0.1; fr_FR)
 	 * - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.0;FBSS/2; FBCR/O2;FBID/phone;FBLC/en_US;FBSF/2.0]
 	 * - Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.1.1;FBSS/2; FBCR/3ITA;FBID/phone;FBLC/en_US]
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_facebook_for_iphone() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_facebook_for_iphone from the `automattic/jetpack-device-detection` package' );
@@ -165,6 +189,8 @@ class Jetpack_User_Agent_Info {
 	 * - Facebook 4020.0 (iPad; iPhone OS 5.0.1; en_US)
 	 * - Mozilla/5.0 (iPad; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/5.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US;FBSF/1.0]
 	 * - Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10A403 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/6.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US]
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_facebook_for_ipad() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_facebook_for_ipad from the `automattic/jetpack-device-detection` package' );
@@ -172,7 +198,9 @@ class Jetpack_User_Agent_Info {
 	}
 
 	/**
-	 *  Detects if the current UA is WordPress for iOS
+	 *  Detects if the current UA is WordPress for iOS.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_wordpress_for_ios() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_wordpress_for_ios from the `automattic/jetpack-device-detection` package' );
@@ -188,6 +216,8 @@ class Jetpack_User_Agent_Info {
 	 * Otherwise those browsers will be 'catched' by the ipad string.
 	 *
 	 * @param string $type iPad type.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_ipad( $type = 'ipad-any' ) {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_ipad from the `automattic/jetpack-device-detection` package' );
@@ -200,6 +230,8 @@ class Jetpack_User_Agent_Info {
 	 * See http://www.useragentstring.com/pages/Fennec/
 	 * Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.1.1) Gecko/20110415 Firefox/4.0.2pre Fennec/4.0.1
 	 * Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1b2pre) Gecko/20081015 Fennec/1.0a1
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_firefox_mobile() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_firefox_mobile from the `automattic/jetpack-device-detection` package' );
@@ -212,6 +244,8 @@ class Jetpack_User_Agent_Info {
 	 * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent/Firefox
 	 * Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion
 	 * The platform section will include 'Mobile' for phones and 'Tablet' for tablets.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_firefox_desktop() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_firefox_desktop from the `automattic/jetpack-device-detection` package' );
@@ -222,6 +256,8 @@ class Jetpack_User_Agent_Info {
 	 * Detects if the current browser is FirefoxOS Native browser
 	 *
 	 * Mozilla/5.0 (Mobile; rv:14.0) Gecko/14.0 Firefox/14.0
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_firefox_os() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_firefox_os from the `automattic/jetpack-device-detection` package' );
@@ -239,6 +275,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 * Opera/9.80 (Windows NT 6.1; Opera Mobi/14316; U; en) Presto/2.7.81 Version/11.00"
 	 * Opera/9.50 (Nintendo DSi; Opera/507; U; en-US)
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_opera_mobile() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_opera_mobile from the `automattic/jetpack-device-detection` package' );
@@ -256,6 +294,8 @@ class Jetpack_User_Agent_Info {
 	 * Opera/9.80 (J2ME/iPhone;Opera Mini/5.0.019802/886; U; ja) Presto/2.4.15
 	 * Opera/9.80 (Series 60; Opera Mini/5.1.22783/23.334; U; en) Presto/2.5.25 Version/10.54
 	 * Opera/9.80 (BlackBerry; Opera Mini/5.1.22303/22.387; U; en) Presto/2.5.25 Version/10.54
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_opera_mini() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_opera_mini from the `automattic/jetpack-device-detection` package' );
@@ -265,6 +305,8 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * Detects if the current browser is Opera Mini, but not on a smart device OS(Android, iOS, etc)
 	 * Used to send users on dumb devices to m.wor
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_opera_mini_dumb() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_opera_mini_dumb from the `automattic/jetpack-device-detection` package' );
@@ -273,10 +315,11 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detects if the current browser is Opera Mobile or Mini.
-	 * DEPRECATED: use is_opera_mobile or is_opera_mini
 	 *
 	 * Opera Mini 5 Beta: Opera/9.80 (J2ME/MIDP; Opera Mini/5.0.15650/756; U; en) Presto/2.2.0
 	 * Opera Mini 8: Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_OperaMobile() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_opera_mini() or \Automattic\Jetpack\Device_Detection\User_Agent_Info::is_opera_mobile() from the `automattic/jetpack-device-detection` package' );
@@ -286,6 +329,8 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * Detects if the current browser is a Windows Phone 7 device.
 	 * ex: Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0; LG; GW910)
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_WindowsPhone7() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_WindowsPhone7 from the `automattic/jetpack-device-detection` package' );
@@ -295,6 +340,8 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * Detects if the current browser is a Windows Phone 8 device.
 	 * ex: Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; ARM; Touch; IEMobile/10.0; <Manufacturer>; <Device> [;<Operator>])
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_windows_phone_8() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_windows_phone_8 from the `automattic/jetpack-device-detection` package' );
@@ -307,6 +354,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 * Ex1: Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pre/1.1
 	 * Ex2: Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pixi/1.1
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_PalmWebOS() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_PalmWebOS from the `automattic/jetpack-device-detection` package' );
@@ -318,6 +367,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 * TouchPad Emulator: Mozilla/5.0 (hp-desktop; Linux; hpwOS/2.0; U; it-IT) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 Desktop/1.0
 	 * TouchPad: Mozilla/5.0 (hp-tablet; Linux; hpwOS/3.0.0; U; en-US) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 TouchPad/1.0
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_TouchPad() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_TouchPad from the `automattic/jetpack-device-detection` package' );
@@ -333,6 +384,8 @@ class Jetpack_User_Agent_Info {
 	 * 7.0 Browser (Nokia 5800 XpressMusic (v21.0.025)) : Mozilla/5.0 (SymbianOS/9.4; U; Series60/5.0 Nokia5800d-1/21.0.025; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413
 	 *
 	 * Browser 7.1 (Nokia N97 (v12.0.024)) : Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/12.0.024; Profile/MIDP-2.1 Configuration/CLDC-1.1; en-us) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.12344
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_S60_OSSBrowser() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_S60_OSSBrowser from the `automattic/jetpack-device-detection` package' );
@@ -341,6 +394,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detects if the device platform is the Symbian Series 60.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_symbian_platform() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_symbian_platform from the `automattic/jetpack-device-detection` package' );
@@ -351,6 +406,8 @@ class Jetpack_User_Agent_Info {
 	 * Detects if the device platform is the Symbian Series 40.
 	 * Nokia Browser for Series 40 is a proxy based browser, previously known as Ovi Browser.
 	 * This browser will report 'NokiaBrowser' in the header, however some older version will also report 'OviBrowser'.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_symbian_s40_platform() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_symbian_s40_platform from the `automattic/jetpack-device-detection` package' );
@@ -359,6 +416,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Returns if the device belongs to J2ME capable family.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 *
 	 * @return bool
 	 */
@@ -370,6 +429,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detects if the current UA is on one of the Maemo-based Nokia Internet Tablets.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_MaemoTablet() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_MaemoTablet from the `automattic/jetpack-device-detection` package' );
@@ -378,6 +439,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detects if the current UA is a MeeGo device (Nokia Smartphone).
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_MeeGo() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_MeeGo from the `automattic/jetpack-device-detection` package' );
@@ -387,6 +450,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * The is_webkit() method can be used to check the User Agent for an webkit generic browser.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_webkit() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_webkit from the `automattic/jetpack-device-detection` package' );
@@ -395,6 +460,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detects if the current browser is the Native Android browser.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 *
 	 * @return boolean true if the browser is Android otherwise false
 	 */
@@ -407,6 +474,8 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * Detects if the current browser is the Native Android Tablet browser.
 	 * Assumes 'Android' should be in the user agent, but not 'mobile'
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 *
 	 * @return boolean true if the browser is Android and not 'mobile' otherwise false
 	 */
@@ -421,6 +490,8 @@ class Jetpack_User_Agent_Info {
 	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true
 	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=false
 	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+	 *
 	 * @return boolean true if the browser is Kindle Fire Native browser otherwise false
 	 */
 	public static function is_kindle_fire() {
@@ -433,6 +504,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 * Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+
 	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+	 *
 	 * @return boolean true if the browser is Kindle monochrome Native browser otherwise false
 	 */
 	public static function is_kindle_touch() {
@@ -443,6 +516,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detect if user agent is the WordPress.com Windows 8 app (used ONLY on the custom oauth stylesheet)
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_windows8_auth() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_windows8_auth from the `automattic/jetpack-device-detection` package' );
@@ -451,6 +526,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detect if user agent is the WordPress.com Windows 8 app.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_wordpress_for_win8() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_wordpress_for_win8 from the `automattic/jetpack-device-detection` package' );
@@ -459,6 +536,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Detect if user agent is the WordPress.com Desktop app.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_wordpress_desktop_app() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_wordpress_desktop_app from the `automattic/jetpack-device-detection` package' );
@@ -469,6 +548,8 @@ class Jetpack_User_Agent_Info {
 	 * The is_blackberry_tablet() method can be used to check the User Agent for a RIM blackberry tablet.
 	 * The user agent of the BlackBerry® Tablet OS follows a format similar to the following:
 	 * Mozilla/5.0 (PlayBook; U; RIM Tablet OS 1.0.0; en-US) AppleWebKit/534.8+ (KHTML, like Gecko) Version/0.0.1 Safari/534.8+
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_blackberry_tablet() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_blackberry_tablet from the `automattic/jetpack-device-detection` package' );
@@ -478,6 +559,8 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * The is_blackbeberry() method can be used to check the User Agent for a blackberry device.
 	 * Note that opera mini on BB matches this rule.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_blackbeberry() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_blackbeberry from the `automattic/jetpack-device-detection` package' );
@@ -486,6 +569,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * The is_blackberry_10() method can be used to check the User Agent for a BlackBerry 10 device.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_blackberry_10() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_blackberry_10 from the `automattic/jetpack-device-detection` package' );
@@ -505,8 +590,9 @@ class Jetpack_User_Agent_Info {
 	 * - blackberry-4.6
 	 * - blackberry-4.5
 	 *
-	 * @return string Version of the BB OS.
-	 * If version is not found, get_blackbeberry_OS_version will return boolean false.
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+	 *
+	 * @return string Version of the BB OS. If version is not found, get_blackbeberry_OS_version will return boolean false.
 	 */
 	public static function get_blackbeberry_OS_version() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::get_blackbeberry_OS_version from the `automattic/jetpack-device-detection` package' );
@@ -523,8 +609,9 @@ class Jetpack_User_Agent_Info {
 	 * - blackberry-4.7
 	 * - blackberry-4.6
 	 *
-	 * @return string Type of the BB browser.
-	 * If browser's version is not found, detect_blackbeberry_browser_version will return boolean false.
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+	 *
+	 * @return string Type of the BB browser. If browser's version is not found, detect_blackbeberry_browser_version will return boolean false.
 	 */
 	public static function detect_blackberry_browser_version() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::detect_blackberry_browser_version from the `automattic/jetpack-device-detection` package' );
@@ -533,6 +620,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Checks if a visitor is coming from one of the WordPress mobile apps.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 *
 	 * @return bool
 	 */
@@ -546,6 +635,8 @@ class Jetpack_User_Agent_Info {
 	 *
 	 * Example: Mozilla/5.0 (Nintendo 3DS; U; ; en) Version/1.7498.US
 	 * can differ in language, version and region
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
 	public static function is_Nintendo_3DS() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_Nintendo_3DS from the `automattic/jetpack-device-detection` package' );
@@ -554,6 +645,8 @@ class Jetpack_User_Agent_Info {
 
 	/**
 	 * Was the current request made by a known bot?
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 *
 	 * @return boolean
 	 */
@@ -567,6 +660,8 @@ class Jetpack_User_Agent_Info {
 	 * If you want an is_bot check for the current request's UA, use is_bot() instead of passing a user-agent to this method.
 	 *
 	 * @param string $ua A user-agent string.
+	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 *
 	 * @return boolean
 	 */
