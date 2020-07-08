@@ -82,21 +82,23 @@ class Jetpack_User_Agent_Info {
 	 * Detects if the user is using a tablet.
 	 * props Corey Gilmore, BGR.com
 	 *
+	 * @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
+	 *
 	 * @return bool
 	 */
-	public function is_tablet() {
+	public static function is_tablet() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info->is_tablet from the `automattic/jetpack-device-detection` package' );
-		return $this->ua_info->is_tablet();
+		return ( new User_Agent_Info() )->is_tablet();
 	}
 
 	/**
 	 *  Detects if the current UA is the default iPhone or iPod Touch Browser.
 	 *
-	 *  DEPRECATED: use is_iphone_or_ipod
+	 *  @deprecated 8.7.0 Use Automattic\Jetpack\Device_Detection\User_Agent_Info
 	 */
-	public function is_iphoneOrIpod() {
+	public static function is_iphoneOrIpod() {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info->is_iphone_or_ipod from the `automattic/jetpack-device-detection` package' );
-		return $this->ua_info->is_iphoneOrIpod();
+		return ( new User_Agent_Info() )->is_iphoneOrIpod();
 	}
 
 
