@@ -137,7 +137,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
-			do_action( 'wpcomsh_log', 'Instagram widget: failed token status check: API returned code ' . $response_code );
 			return [
 				//We assume the token is valid if the response_code is anything but the invalid
 				//token codes we send back. This is to make sure it's not reset, if the API is down
@@ -160,7 +159,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 */
 	public function get_data( $instance ) {
 		if ( empty( $instance['token_id'] ) ) {
-			do_action( 'wpcomsh_log', 'Instagram widget: failed to get images: no token_id present' );
 			return 'ERROR';
 		}
 
@@ -177,14 +175,12 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
-			do_action( 'wpcomsh_log', 'Instagram widget: failed to get images: API returned code ' . $response_code );
 			set_transient( $transient_key, 'ERROR', $cache_time );
 			return 'ERROR';
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $result ), true );
 		if ( ! isset( $data['images'] ) || ! is_array( $data['images'] ) ) {
-			do_action( 'wpcomsh_log', 'Instagram widget: failed to get images: API returned no images; got this instead: ' . json_encode( $data ) );
 			set_transient( $transient_key, 'ERROR', $cache_time );
 			return 'ERROR';
 		}
@@ -296,8 +292,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				do_action( 'wpcomsh_log', 'Instagram widget: failed to connect to API via wpcom api.' );
-
 				return $response;
 			}
 
@@ -348,7 +342,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 				$response_code = wp_remote_retrieve_response_code( $result );
 
 				if ( 200 !== $response_code ) {
-					do_action( 'wpcomsh_log', 'Instagram widget: failed to remove keyring token: API returned code ' . $response_code );
 					return 'ERROR';
 				}
 			}
