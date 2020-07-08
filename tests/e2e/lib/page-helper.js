@@ -57,7 +57,16 @@ export async function waitForSelector( page, selector, options = {} ) {
  */
 export async function waitAndClick( page, selector, options = { visible: true } ) {
 	await waitForSelector( page, selector, options );
-	return await page.click( selector, options );
+
+	try {
+		await page.click( selector, options );
+		logger.info( `Clicked on element by locator: ${ selector }.` );
+	} catch ( e ) {
+		logger.info(
+			`Failed to click on element by locator: ${ selector }. URL: ${ page.url() }`
+		);
+		throw e;
+	}
 }
 
 /**
@@ -70,11 +79,20 @@ export async function waitAndClick( page, selector, options = { visible: true } 
  */
 export async function waitAndType( page, selector, value, options = { visible: true } ) {
 	const el = await waitForSelector( page, selector, options );
-	await page.focus( selector );
-	await pressKeyWithModifier( 'primary', 'a' );
-	// await el.click( { clickCount: 3 } );
-	await page.waitFor( 300 );
-	await el.type( value, options );
+
+	try {
+		await page.focus( selector );
+		await pressKeyWithModifier( 'primary', 'a' );
+		// await el.click( { clickCount: 3 } );
+		await page.waitFor( 300 );
+		await el.type( value, options );
+		logger.info( `Typed into element with locator: ${ selector }.` );
+	} catch ( e ) {
+		logger.info(
+			`Failed to type into element with locator: ${ selector }. URL: ${ page.url() }`
+		);
+		throw e;
+	}
 }
 
 /**

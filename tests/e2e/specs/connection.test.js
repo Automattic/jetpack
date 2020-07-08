@@ -9,31 +9,22 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
 describe( 'Connection', () => {
 	catchBeforeAll( async () => {
-		// await execWpCommand( 'wp option delete jetpack_private_options' );
-		// await execWpCommand( 'wp config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false' );
-		// await page.reload();
-		// // For some reason it need 2 reloads to make constant actually work.
-		// await page.reload();
-		await resetWordpressInstall();
-
+		await execWpCommand( 'wp option delete jetpack_private_options' );
+		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false' );
+		// For some reason it need 2 reloads to make constant actually work.
+		await page.reload();
+		await page.reload();
 	} );
 
 	afterAll( async () => {
-		// await execWpCommand(
-		// 	'wp option update jetpack_private_options --format=json',
-		// 	'< jetpack_private_options.txt'
-		// );
-		// await execWpCommand( 'wp config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
-		// await resetWordpressInstall();
+		await execWpCommand(
+			'wp option update jetpack_private_options --format=json',
+			'< jetpack_private_options.txt'
+		);
+		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
 	} );
 
 	it( 'In-place', async () => {
-		await step( 'Can login', async () => {
-			await loginToWpcomIfNeeded( 'defaultUser' );
-			await loginToWpSite();
-
-		} );
-
 		await step( 'Can start in-place connection', async () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
 			await doInPlaceConnection();
