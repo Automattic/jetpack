@@ -11,6 +11,7 @@ import './style.scss';
 import { supportsShadow, toShadow } from './shadow-dom';
 import { renderPlayer } from './player';
 import defaultRenderers from './default-renderers';
+import { fullscreen } from './utils';
 
 const defaultSettings = {
 	slides: [],
@@ -60,8 +61,8 @@ export default function player( rootElement, params ) {
 		playerEvents.on( 'go-fullscreen', () => {
 			if ( settings.playInFullScreen ) {
 				rootElement.classList.add( 'wp-story-fullscreen' );
-				if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
-					rootElement.requestFullscreen();
+				if ( isMobile && fullscreen.enabled() && ! settings.loadInFullScreen ) {
+					fullscreen.launch( rootElement );
 				} else {
 					document.body.classList.add( 'wp-story-in-fullscreen' );
 					document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
@@ -70,8 +71,8 @@ export default function player( rootElement, params ) {
 		} );
 
 		playerEvents.on( 'exit-fullscreen', async () => {
-			if ( document.fullscreenElement ) {
-				await document.exitFullscreen();
+			if ( fullscreen.element() ) {
+				await fullscreen.exit();
 			} else {
 				document.body.classList.remove( 'wp-story-in-fullscreen' );
 				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
