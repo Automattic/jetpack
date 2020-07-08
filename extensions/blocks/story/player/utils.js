@@ -17,3 +17,33 @@ export async function waitMediaReady( mediaElement ) {
 		} );
 	}
 }
+
+export const fullscreen = {
+	enabled() {
+		return (
+			document.fullscreenEnabled ||
+			document.mozFullScreenEnabled ||
+			document.webkitFullscreenEnabled
+		);
+	},
+	element() {
+		return (
+			document.fullscreenElement ||
+			document.mozFullScreenElement ||
+			document.webkitFullscreenElement
+		);
+	},
+	launch( element ) {
+		const requestFullscreen =
+			element.requestFullscreen ||
+			element.webkitRequestFullScreen ||
+			element.mozRequestFullScreen ||
+			element.msRequestFullscreen;
+		return requestFullscreen.call( element );
+	},
+	exit() {
+		const exitFullscreen =
+			document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen;
+		return exitFullscreen.call( document );
+	},
+};

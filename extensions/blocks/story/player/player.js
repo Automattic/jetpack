@@ -107,6 +107,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	return html`
 		<div
 			class=${classNames( 'wp-story-container', {
+				'wp-story-with-controls': fullscreen || ! settings.playInFullscreen,
 				'wp-story-fullscreen': fullscreen,
 				'wp-story-ended': ended,
 				'wp-story-disabled': disabled,

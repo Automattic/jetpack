@@ -58,7 +58,7 @@ export const settings = {
 	attributes,
 	supports: {
 		html: false,
-		inserter: false,
+		inserter: true, // toggle to false before merging to BETA blocks
 	},
 	icon,
 	edit,
