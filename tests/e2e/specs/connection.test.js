@@ -35,10 +35,6 @@ describe( 'Connection', () => {
 		} );
 
 		await step( 'Can start in-place connection', async () => {
-			await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
-
-			await loginToWpSite( mockPlanData );
-
 			await ( await Sidebar.init( page ) ).selectJetpack();
 			await doInPlaceConnection();
 		} );
