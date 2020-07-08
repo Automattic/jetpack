@@ -82,7 +82,8 @@ export default function player( rootElement, params ) {
 
 		const resize = () => {
 			const slidesMaxHeight = container.querySelector( '.wp-story-wrapper' ).offsetHeight;
-			container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
+			const width = Math.round( settings.defaultAspectRatio * slidesMaxHeight );
+			container.style.width = `${ width }px`;
 		};
 
 		playerEvents.on( 'ready', () => {
