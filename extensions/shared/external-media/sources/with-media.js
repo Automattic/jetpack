@@ -202,7 +202,7 @@ export default function withMedia() {
 								alt: image.alt,
 								caption: image.caption,
 								id: image.ID,
-								type: image.mime_type,
+								type: 'image',
 								url: image.URL,
 							} ) );
 						}
