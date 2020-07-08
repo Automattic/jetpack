@@ -12,7 +12,7 @@ import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
-import { execWpCommand } from './utils-helper';
+import { execWpCommand, getNgrokSiteUrl } from './utils-helper';
 import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
 
 const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
@@ -191,6 +191,13 @@ jasmine.getEnv().addReporter( {
 // each other's side-effects.
 catchBeforeAll( async () => {
 	await setupBrowser();
+
+	const siteUrl = getNgrokSiteUrl();
+
+	console.log('1111111');
+	console.log(siteUrl);
+
+	await page.waitFor(9999999999);
 
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
