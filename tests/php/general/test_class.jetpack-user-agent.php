@@ -9,7 +9,7 @@
  * Class WP_Test_Jetpack_User_Agent
  */
 class WP_Test_Jetpack_User_Agent extends WP_UnitTestCase {
-		/**
+	/**
 	 * Confirm an old improper static use of Jetpack_User_Agent_Info still functions.
 	 */
 	public function test_jetpack_user_agent_is_tablet() {
