@@ -11,7 +11,7 @@ export const ProgressBar = ( {
 	currentSlideProgress,
 	onSlideSeek,
 } ) => {
-	if ( settings.playInFullScreen && ! fullscreen ) {
+	if ( settings.playInFullscreen && ! fullscreen ) {
 		return null;
 	}
 

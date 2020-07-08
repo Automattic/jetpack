@@ -10,9 +10,6 @@
 	list-style: none;
 	padding: 0;
 	z-index: 1;
-	background-color: $wp-story-background-color;
-	border-radius: 8px;
-	overflow: hidden;
 
 	&.wp-story-initialized {
 		opacity: 1;
@@ -39,6 +36,9 @@
 		left: 0;
 		right: 0;
 		z-index: -1;
+		border-radius: 8px;
+		overflow: hidden;
+		background-color: $wp-story-background-color;
 	}
 
 	.wp-story-slide {
@@ -169,35 +169,21 @@
 }
 
 .wp-story-with-controls {
+	overflow: visible;
+
 	.wp-story-prev-slide,
 	.wp-story-next-slide {
 		display: block;
-
-		@media ( min-width: $break-medium ) {
-			display:block;
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			height: 100%;
-
-			button {
-				display: none;
-			}
-		}
 	}
 
 	.wp-story-prev-slide {
-		@media ( min-width: $break-medium ) {
-			left: 0;
-			width: 33.33%;
-		}
+		margin: auto;
+		left: -48px;
 	}
 
 	.wp-story-next-slide {
-		@media ( min-width: $break-medium ) {
-			right: 0;
-			width: 66.66%;
-		}
+		margin: auto;
+		right: -48px;
 	}
 
 	.wp-story-controls {
@@ -211,7 +197,7 @@
 		bottom: 20px;
 		top: auto;
 
-		@media ( min-width: $break-medium ) {
+		@media ( max-width: $break-medium ) {
 			bottom: 50px;
 			margin: 0 16px;
 		}
@@ -236,7 +222,7 @@
 			}
 		}
 
-		@media ( min-width: $break-medium ) {
+		@media ( max-width: $break-medium ) {
 			bottom: 16px;
 			padding: 10px 16px;
 		}
@@ -262,14 +248,13 @@
 		height: 100%;
 		max-width: 100%;
 		max-height: 100%;
-		border-radius: 0;
-		overflow: initial;
 
 		.wp-story-wrapper {
 			margin-top: 84px;
 			margin-bottom: 84px;
+			border-radius: 0;
 
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				margin-top: 0;
 				margin-bottom: 0;
 			}
@@ -289,7 +274,7 @@
 			line-height: 20px;
 			align-items: center;
 
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				padding: 16px;
 				background: rgb(0,0,0);
 				background: linear-gradient(180deg, rgba(0,0,0,0.63) 0%, rgba(0,0,0,0) 100%);
@@ -331,7 +316,7 @@
 			margin-bottom: 84px;
 			border-radius: 0;
 
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				margin-top: 0;
 				margin-bottom: 0;
 				top: 76px;
@@ -343,7 +328,7 @@
 		.wp-story-next-slide {
 			display: block;
 
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				display:block;
 				position: absolute;
 				top: 0;
@@ -357,14 +342,14 @@
 		}
 
 		.wp-story-prev-slide {
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				left: 0;
 				width: 33.33%;
 			}
 		}
 
 		.wp-story-next-slide {
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				right: 0;
 				width: 66.66%;
 			}
@@ -381,7 +366,7 @@
 			bottom: 20px;
 			top: auto;
 
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				bottom: 50px;
 				margin: 0 16px;
 			}
@@ -406,7 +391,7 @@
 				}
 			}
 
-			@media ( min-width: $break-medium ) {
+			@media ( max-width: $break-medium ) {
 				bottom: 16px;
 				padding: 10px 16px;
 			}

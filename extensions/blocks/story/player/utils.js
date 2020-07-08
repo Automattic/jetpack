@@ -22,15 +22,17 @@ export const fullscreen = {
 	enabled() {
 		return (
 			document.fullscreenEnabled ||
+			document.webkitFullscreenEnabled ||
 			document.mozFullScreenEnabled ||
-			document.webkitFullscreenEnabled
+			document.msFullscreenEnabled
 		);
 	},
 	element() {
 		return (
 			document.fullscreenElement ||
+			document.webkitFullscreenElement ||
 			document.mozFullScreenElement ||
-			document.webkitFullscreenElement
+			document.msFullScreenElement
 		);
 	},
 	launch( element ) {
@@ -43,7 +45,10 @@ export const fullscreen = {
 	},
 	exit() {
 		const exitFullscreen =
-			document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen;
+			document.exitFullscreen ||
+			document.webkitExitFullscreen ||
+			document.mozCancelFullScreen ||
+			document.msExitFullscreen;
 		return exitFullscreen.call( document );
 	},
 };

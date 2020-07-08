@@ -98,7 +98,7 @@ function render( $attributes ) {
 		);
 	};
 	$settings           = array(
-		'loadInFullScreen' => ! is_page() && is_singular(),
+		'loadInFullscreen' => ! is_page() && is_singular(),
 	);
 
 	$media_files = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();

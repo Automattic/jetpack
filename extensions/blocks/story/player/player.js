@@ -43,7 +43,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 			setEnded( true );
 			setCurrentSlideProgress( 100 );
 			playerEvents.emit( 'end' );
-			if ( settings.exitFullScreenOnEnd ) {
+			if ( settings.exitFullscreenOnEnd ) {
 				setFullscreen( false );
 			}
 		}
@@ -51,7 +51,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 
 	const onExitFullscreen = useCallback( () => {
 		setFullscreen( false );
-		if ( settings.playInFullScreen ) {
+		if ( settings.playInFullscreen ) {
 			setPlaying( false );
 		}
 	}, [ fullscreen ] );
@@ -85,7 +85,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	}, [ fullscreen ] );
 
 	useEffect( () => {
-		if ( settings.loadInFullScreen ) {
+		if ( settings.loadInFullscreen ) {
 			setFullscreen( true );
 		}
 	}, [] );
@@ -107,7 +107,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	return html`
 		<div
 			class=${classNames( 'wp-story-container', {
-				'wp-story-with-controls': fullscreen || ! settings.playInFullscreen,
+				'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
 				'wp-story-fullscreen': fullscreen,
 				'wp-story-ended': ended,
 				'wp-story-disabled': disabled,
@@ -142,7 +142,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 				disabled: settings.disabled,
 				tapToPlayPause: ! fullscreen && settings.tapToPlayPause,
 				onClick: () => {
-					if ( ! fullscreen && ! playing && settings.playInFullScreen ) {
+					if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
 						setFullscreen( true );
 					}
 					if ( ended && ! playing ) {

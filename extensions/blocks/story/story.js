@@ -12,7 +12,7 @@ import player from './player';
 const storyPlayerSettings = {
 	slides: [],
 	shadowDOM: { enabled: false },
-	playInFullScreen: false,
+	playInFullscreen: false,
 	tapToPlayPause: true,
 };
 
