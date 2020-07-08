@@ -1252,12 +1252,11 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
 		$request->set_query_params( array( 'context' => 'view' ) );
 		$response = rest_get_server()->dispatch( $request );
-		$data     = ( array ) $response->get_data();
+		$data     = json_decode( wp_json_encode( $response->get_data() ) );
 
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
-		// print_r( $data['media_details']['sizes'] );
-		// $this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
