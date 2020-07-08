@@ -1252,19 +1252,18 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
 		$request->set_query_params( array( 'context' => 'view' ) );
 		$response = rest_get_server()->dispatch( $request );
-		$data     = $response->get_data();
+		$data     = ( array ) $response->get_data();
 
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
-		$sizes = $data['media_details'];
-		//print_r( $data['media_details']['sizes'] );
-		$this->assertArrayHasKey( 'full', $sizes );
-		$this->assertArrayHasKey( 'medium_large', $sizes );
-		$this->assertArrayHasKey( 'source_url', $sizes['full'] );
-		$this->assertArrayHasKey( 'source_url', $sizes['medium_large'] );
+		// print_r( $data['media_details']['sizes'] );
+		// $this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
-		$this->assertContains( '?', $sizes['full']['source_url'] );
-		$this->assertContains( '?', $sizes['medium_large']['source_url'] );
+		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 
 	/**
