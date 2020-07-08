@@ -6645,7 +6645,9 @@ endif;
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
-			apply_filters_deprecated( $tag, null, $args['version'], $args['replacement'] );
+			if ( has_filter( $tag ) ) {
+				apply_filters_deprecated( $tag, array(), $args['version'], $args['replacement'] );
+			}
 		}
 
 		$action_deprecated_list = array(
@@ -6656,7 +6658,9 @@ endif;
 		);
 
 		foreach ( $action_deprecated_list as $tag => $args ) {
-			do_action_deprecated( $tag, null, $args['version'], $args['replacement'] );
+			if ( has_action( $tag ) ) {
+				do_action_deprecated( $tag, array(), $args['version'], $args['replacement'] );
+			}
 		}
 	}
 
