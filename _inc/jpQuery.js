@@ -8,6 +8,7 @@
 		}
 	};
 
+	// @todo - not needed?
 	var data = {
 		_storage: new WeakMap(),
 		put: function( element, key, obj ) {
@@ -69,6 +70,18 @@
 		);
 	};
 
+	var indexOf = function( nodeList, el ) {
+		var count = 0;
+		var index = -1;
+		nodeList.forEach( function( node ) {
+			if ( el === node && index === -1 ) {
+				index = count;
+			}
+			count += 1;
+		} );
+		return index;
+	};
+
 	/**
 	 * Usage:
 	 *
@@ -93,6 +106,20 @@
 		el.dispatchEvent( event );
 	};
 
+	var elFromString = function( str ) {
+		var div = document.createElement('div');
+		div.innerHTML = str.trim();
+		return div.firstChild;
+	}
+
+	var viewportWidth = function() {
+		return window.innerWidth   || document.documentElement.clientWidth  || document.body.clientWidth;
+	}
+
+	var viewportHeight = function() {
+		return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	}
+
 	window.jpQuery = {
 		ready: ready,
 		data: data,
@@ -101,5 +128,9 @@
 		each: each,
 		trigger: trigger,
 		matches: matches,
+		indexOf: indexOf,
+		elFromString: elFromString,
+		viewportWidth: viewportWidth,
+		viewportHeight: viewportHeight,
 	};
 } )();

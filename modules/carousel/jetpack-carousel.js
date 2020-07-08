@@ -79,15 +79,15 @@ jpQuery.ready( function( $ ) {
 	var prepareGallery = function(/*dataCarouselExtra*/) {
 		console.log( 'preparing gallery' );
 		if ( ! overlay ) {
-			overlay = $( '<div></div>' )
-				.addClass( 'jp-carousel-overlay' )
-				.css( {
-					position: 'fixed',
-					top: 0,
-					right: 0,
-					bottom: 0,
-					left: 0,
-				} );
+			overlay = document.createElement( 'div' ); //$( '<div></div>' )
+			overlay.classList.add('jp-carousel-overlay');//.addClass( 'jp-carousel-overlay' )
+			Object.assign(overlay.style, {
+				position: 'fixed',
+				top: 0,
+				right: 0,
+				bottom: 0,
+				left: 0,
+			} );
 
 			var displayComments = 1 === +jetpackCarouselStrings.display_comments;
 			var buttons = displayComments
@@ -96,44 +96,44 @@ jpQuery.ready( function( $ ) {
 			if ( 1 === Number( jetpackCarouselStrings.is_logged_in ) ) {
 			}
 
-			buttons = $( '<div class="jp-carousel-buttons">' + buttons + '</div>' );
+			buttons = jpQuery.elFromString( '<div class="jp-carousel-buttons">' + buttons + '</div>' );
 
-			caption = $( '<h2 itemprop="caption description"></h2>' );
-			photo_info = $( '<div class="jp-carousel-photo-info"></div>' ).append( caption );
+			caption = jpQuery.elFromString( '<h2 itemprop="caption description"></h2>' );
+			photo_info = jpQuery.elFromString( '<div class="jp-carousel-photo-info"></div>' ).append( caption );
 
-			imageMeta = $( '<div></div>' )
-				.addClass( 'jp-carousel-image-meta' )
-				.css( {
-					float: 'right',
-					'margin-top': '20px',
-					width: '250px',
-				} );
+			imageMeta = document.createElement( 'div' );
+			imageMeta.classList.add( 'jp-carousel-image-meta' );
+			Object.assign(imageMeta.style, {
+				float: 'right',
+				'margin-top': '20px',
+				width: '250px',
+			} );
 
-			if ( 0 < buttons.children().length ) {
+			if ( 0 < buttons.children.length ) {
 				imageMeta.append( buttons );
 			}
 
-			imageMeta
-				.append( "<ul class='jp-carousel-image-exif' style='display:none;'></ul>" )
-				.append( "<a class='jp-carousel-image-download' style='display:none;'></a>" )
-				.append( "<div class='jp-carousel-image-map' style='display:none;'></div>" );
+			imageMeta.append( jpQuery.elFromString(  "<ul class='jp-carousel-image-exif' style='display:none;'></ul>" ) );
+			imageMeta.append( jpQuery.elFromString(  "<a class='jp-carousel-image-download' style='display:none;'></a>" ) );
+			imageMeta.append( jpQuery.elFromString(  "<div class='jp-carousel-image-map' style='display:none;'></div>" ) );
 
-			titleAndDescription = $( '<div></div>' )
-				.addClass( 'jp-carousel-titleanddesc' )
-				.css( {
-					width: '100%',
-					'margin-top': imageMeta.css( 'margin-top' ),
-				} );
+			titleAndDescription = document.createElement( 'div' );
+			titleAndDescription.classList.add( 'jp-carousel-titleanddesc' );
 
-			var leftWidth = $( window ).width() - screenPadding * 2 - ( imageMeta.width() + 40 );
+			Object.assign(titleAndDescription.style, {
+				width: '100%',
+				'margin-top': '20px',
+			} );
+
+			var leftWidth = jpQuery.viewportWidth() - screenPadding * 2 - ( window.getComputedStyle(imageMeta, null).width + 40 );
 			leftWidth += 'px';
 
-			leftColWrapper = $( '<div></div>' )
-				.addClass( 'jp-carousel-left-column-wrapper' )
-				.css( {
-					width: Math.floor( leftWidth ),
-				} )
-				.append( titleAndDescription );
+			leftColWrapper = document.createElement('div');
+			leftColWrapper.classList.add('jp-carousel-left-column-wrapper');
+			Object.assign(leftColWrapper.style, {
+				width: Math.floor( leftWidth ),
+			} );
+			leftColWrapper.append( titleAndDescription );
 
 			if ( displayComments ) {
 				var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
@@ -175,47 +175,52 @@ jpQuery.ready( function( $ ) {
 				}
 				commentFormMarkup += '</div>';
 
-				commentForm = $( commentFormMarkup ).css( {
+				commentForm = jpQuery.elFromString( commentFormMarkup );
+
+				Object.assign(commentForm.style, {
 					width: '100%',
 					'margin-top': '20px',
 					color: '#999',
 				} );
 
-				comments = $( '<div></div>' )
-					.addClass( 'jp-carousel-comments' )
-					.css( {
-						width: '100%',
-						bottom: '10px',
-						'margin-top': '20px',
-					} );
+				comments = document.createElement( 'div' );
+				comments.classList.add( 'jp-carousel-comments' );
 
-				var commentsLoading = $(
-					'<div id="jp-carousel-comments-loading"><span>' +
-						jetpackCarouselStrings.loading_comments +
-						'</span></div>'
-				).css( {
+				Object.assign(comments.style, {
 					width: '100%',
 					bottom: '10px',
 					'margin-top': '20px',
 				} );
 
-				leftColWrapper
-					.append( commentForm )
-					.append( comments )
-					.append( commentsLoading );
+				var commentsLoading = jpQuery.elFromString(
+					'<div id="jp-carousel-comments-loading"><span>' +
+						jetpackCarouselStrings.loading_comments +
+						'</span></div>'
+				);
+
+				Object.assign(commentsLoading.style, {
+					width: '100%',
+					bottom: '10px',
+					'margin-top': '20px',
+				} );
+
+				leftColWrapper.append( commentForm );
+				leftColWrapper.append( comments );
+				leftColWrapper.append( commentsLoading );
 			}
 
-			var fadeaway = $( '<div></div>' ).addClass( 'jp-carousel-fadeaway' );
+			var fadeaway = document.createElement( 'div' );
+			fadeaway.classList.add( 'jp-carousel-fadeaway' );
 
-			info = $( '<div></div>' )
-				.addClass( 'jp-carousel-info' )
-				.css( {
-					top: Math.floor( ( $( window ).height() / 100 ) * proportion ),
-					left: screenPadding,
-					right: screenPadding,
-				} )
-				.append( photo_info )
-				.append( imageMeta );
+			info = document.createElement( 'div' );
+			info.classList.add( 'jp-carousel-info' );
+			Object.assign(info.style, {
+				top: Math.floor( ( jpQuery.viewportHeight() / 100 ) * proportion ),
+				left: screenPadding,
+				right: screenPadding,
+			} );
+			info.append( photo_info );
+			info.append( imageMeta );
 
 			if ( window.innerWidth <= 760 ) {
 				photo_info.remove().insertAfter( titleAndDescription );
@@ -224,76 +229,80 @@ jpQuery.ready( function( $ ) {
 				info.append( leftColWrapper );
 			}
 
-			var targetBottomPos = $( window ).height() - parseInt( info.css( 'top' ), 10 ) + 'px';
+			var targetBottomPos = jpQuery.viewportHeight - parseInt( info.style.top, 10 ) + 'px';
 
-			nextButton = $( '<div><span></span></div>' )
-				.addClass( 'jp-carousel-next-button' )
-				.css( {
-					right: '15px',
-				} )
-				.hide();
-
-			previousButton = $( '<div><span></span></div>' )
-				.addClass( 'jp-carousel-previous-button' )
-				.css( {
-					left: 0,
-				} )
-				.hide();
-
-			nextButton.add( previousButton ).css( {
+			var nextPreviousButtonStyle = {
 				position: 'fixed',
 				top: '40px',
 				bottom: targetBottomPos,
 				width: screenPadding,
+			};
+
+			nextButton = jpQuery.elFromString( '<div><span></span></div>' );
+			nextButton.classList.add( 'jp-carousel-next-button' );
+			Object.assign(nextButton.style, {
+				right: '15px',
+				display: 'none'
+			}, nextPreviousButtonStyle );
+
+			previousButton = jpQuery.elFromString( '<div><span></span></div>' );
+			previousButton.classList.add( 'jp-carousel-previous-button' );
+			Object.assign(previousButton.style, {
+				left: 0,
+				display: 'none',
+			}, nextPreviousButtonStyle );
+
+			gallery = document.createElement( 'div' );
+			gallery.classList.add( 'jp-carousel' );
+			Object.assign(gallery.style, {
+				position: 'absolute',
+				top: 0,
+				bottom: targetBottomPos,
+				left: 0,
+				right: 0,
 			} );
 
-			gallery = $( '<div></div>' )
-				.addClass( 'jp-carousel' )
-				.css( {
-					position: 'absolute',
-					top: 0,
-					bottom: targetBottomPos,
-					left: 0,
-					right: 0,
-				} );
-
-			close_hint = $( '<div class="jp-carousel-close-hint"><span>&times;</span></div>' ).css( {
-				position: 'fixed',
+			close_hint = jpQuery.elFromString( '<div class="jp-carousel-close-hint"><span>&times;</span></div>' );
+			Object.assign(close_hint.style, {
+				position: 'fixed'
 			} );
 
-			container = $( '<div></div>' )
-				.addClass( 'jp-carousel-wrap' )
-				.addClass( 'jp-carousel-transitions' );
+			container = document.createElement( 'div' )
+			container.classList.add( 'jp-carousel-wrap' );
+			container.classList.add( 'jp-carousel-transitions' );
 			if ( 'white' === jetpackCarouselStrings.background_color ) {
-				container.addClass( 'jp-carousel-light' );
+				container.classList.add( 'jp-carousel-light' );
 			}
 
-			container.attr( 'itemscope', '' );
+			container.setAttribute( 'itemscope', '' );
 
-			container.attr( 'itemtype', 'https://schema.org/ImageGallery' );
+			container.setAttribute( 'itemtype', 'https://schema.org/ImageGallery' );
 
-			container
-				.css( {
-					position: 'fixed',
-					top: 0,
-					right: 0,
-					bottom: 0,
-					left: 0,
-					'z-index': 2147483647,
-					'overflow-x': 'hidden',
-					'overflow-y': 'auto',
-					direction: 'ltr',
-				} )
-				.hide()
-				.append( overlay )
-				.append( gallery )
-				.append( fadeaway )
-				.append( info )
-				.append( nextButton )
-				.append( previousButton )
-				.append( close_hint )
-				.appendTo( $( 'body' ) )
-				.click( function( e ) {
+			Object.assign(container.style, {
+				position: 'fixed',
+				top: 0,
+				right: 0,
+				bottom: 0,
+				left: 0,
+				'z-index': 2147483647,
+				'overflow-x': 'hidden',
+				'overflow-y': 'auto',
+				direction: 'ltr',
+				display: 'none',
+			} );
+
+			container.append( overlay );
+			container.append( gallery );
+			container.append( fadeaway );
+			container.append( info );
+			container.append( nextButton );
+			container.append( previousButton );
+			container.append( close_hint );
+			document.body.append( container );
+
+
+			// @todo
+				container.click( function( e ) {
 					var target = $( e.target ),
 						wrap = target.parents( 'div.jp-carousel-wrap' ),
 						data = wrap.data( 'carousel-extra' ),
@@ -603,13 +612,14 @@ jpQuery.ready( function( $ ) {
 			}
 		},
 
-		open: function( options ) {
+		open: function( options, galleryEl ) {
+			console.log("open", options, galleryEl)
 			var settings = {
 					items_selector:
 						'.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id]',
 					start_index: 0,
 				},
-				data = $( this ).data( 'carousel-extra' );
+				data = galleryEl.dataset.carouselExtra;
 
 			if ( ! data ) {
 				return; // don't run if the default gallery functions weren't used
@@ -1696,15 +1706,18 @@ jpQuery.ready( function( $ ) {
 			// Stopping propagation in case there are parent elements
 			// with .gallery or .tiled-gallery class
 			e.stopPropagation();
+
+			var galleryItems = this.querySelectorAll(
+				'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
+			);
+
+			var targetGalleryItemParent = e.target.closest( '.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item' );
+
+			var startIndex = jpQuery.indexOf(galleryItems, targetGalleryItemParent);
+
 			jpQuery.fn.jp_carousel( 'open', {
-				start_index: this.find(
-					'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
-				).index(
-					$( e.target ).parents(
-						'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
-					)
-				),
-			} );
+				start_index: startIndex,
+			}, this );
 		}
 	);
 
