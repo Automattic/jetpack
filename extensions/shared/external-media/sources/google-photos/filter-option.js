@@ -59,7 +59,7 @@ function DateOption( { value, updateFilter } ) {
 				onChange={ range => updateFilter( { range } ) }
 			/>
 			{ selectedRange === DATE_RANGE_CUSTOM && (
-				<Fragment className="jetpack-external-media-custom-date-filter">
+				<Fragment>
 					<SelectControl
 						label={ __( 'Month', 'jetpack' ) }
 						value={ month }
