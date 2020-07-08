@@ -292,23 +292,24 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
 
-		$user = $this->create_and_get_user();
+		$user1 = $this->create_and_get_user();
 
 		// Add Jetpack capability
-		$user->add_cap( 'jetpack_admin_page' );
+		$user1->add_cap( 'jetpack_admin_page' );
 
 		// Setup global variables so this is the current user
-		wp_set_current_user( $user->ID );
+		wp_set_current_user( $user1->ID );
 
 		// Should fail because requires more capabilities
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
 
 		// Add Jetpack capability
-		$user->add_cap( 'activate_plugins' );
+		$user2 = $this->create_and_get_user();
+		$user2->add_cap( 'jetpack_admin_page' );
+		$user2->add_cap( 'activate_plugins' );
 
 		// Reset current user and setup global variables to refresh the capability we just added.
-		wp_set_current_user( 0 );
-		wp_set_current_user( $user->ID );
+		wp_set_current_user( $user2->ID );
 
 		// User has capability so this should work this time
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
