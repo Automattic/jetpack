@@ -131,13 +131,16 @@
 
 	.wp-story-pagination-bullets {
 		display: flex;
-		padding: 6px 10px 0;
-		top: 0;
+		position: absolute;
+		padding: 14px 10px;
+		top: auto;
 		right: 0;
 		left: 0;
+		bottom: 0;
 
 		.wp-story-pagination-bullet {
 			flex: 1;
+			justify-content: space-between;
 			background-color: transparent;
 			opacity: 1;
 			margin: 0 2px;
@@ -204,15 +207,10 @@
 	}
 
 	.wp-story-pagination-bullets {
-		display: flex;
-		position: absolute;
 		bottom: 42px;
-		top: auto;
 		padding: 14px 0;
 
 		.wp-story-pagination-bullet {
-			justify-content: space-between;
-
 			&:first-child {
 				margin-left: 0;
 			}
