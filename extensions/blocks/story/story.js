@@ -26,6 +26,9 @@ export default function Story( { className, isSelected, mediaFiles, mountPlayer 
 			// render player asynchronously to avoid interacting with its UI
 			// when focusing on the block
 			setTimeout( () => {
+				if ( ! mountRef.current ) {
+					return;
+				}
 				player( mountRef.current, {
 					...storyPlayerSettings,
 					slides: mediaFiles,
