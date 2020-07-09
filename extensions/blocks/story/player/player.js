@@ -26,7 +26,10 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	const showSlide = ( slideIndex, play = true ) => {
 		setCurrentSlideProgress( 0 );
 		updateSlideIndex( slideIndex );
-		setPlaying( play );
+
+		if ( play ) {
+			setPlaying( play );
+		}
 	};
 
 	const tryPreviousSlide = useCallback( () => {
@@ -66,6 +69,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	// reset player on slide change
 	useEffect( () => {
 		setLoading( true );
+		setPlaying( false );
 		showSlide( 0, false );
 	}, [ slides ] );
 
@@ -150,8 +154,9 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 					}
 					if ( ended && ! playing ) {
 						showSlide( 0 );
+					} else {
+						setPlaying( ! playing );
 					}
-					setPlaying( ! playing );
 				},
 				onPreviousSlide: tryPreviousSlide,
 				onNextSlide: tryNextSlide,
