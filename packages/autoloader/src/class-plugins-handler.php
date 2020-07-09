@@ -68,7 +68,7 @@ class Plugins_Handler {
 	 * @return bool
 	 */
 	public function is_directory_plugin( $plugin ) {
-		return false !== strpos( $plugin, '/', 1 );
+		return strlen( $plugin ) > 1 && false !== strpos( $plugin, '/', 1 );
 	}
 
 	/**
