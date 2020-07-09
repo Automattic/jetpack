@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	return 'a test';
+	return;
 }
 
 // Add here, after the condition above, any code that should only run when WordPress is running.
