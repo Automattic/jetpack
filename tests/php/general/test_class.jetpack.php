@@ -228,32 +228,6 @@ EXPECTED;
 		$this->assertTrue( $seen_orig );
 	}
 
-	/**
-	 * @author georgestephanis
-	 * @covers Jetpack::dns_prefetch
-	 * @since 3.3.0
-	 */
-	public function test_dns_prefetch() {
-		// Save URLs that are already in to remove them later and perform a clean test.
-		ob_start();
-		Jetpack::dns_prefetch();
-		$remove_this = ob_get_clean();
-
-		Jetpack::dns_prefetch( 'http://example1.com/' );
-		Jetpack::dns_prefetch( array(
-			'http://example2.com/',
-			'https://example3.com',
-		) );
-		Jetpack::dns_prefetch( 'https://example2.com' );
-
-		$expected = "\r\n" .
-		            "<link rel='dns-prefetch' href='//example1.com'/>\r\n" .
-		            "<link rel='dns-prefetch' href='//example2.com'/>\r\n" .
-		            "<link rel='dns-prefetch' href='//example3.com'/>\r\n";
-
-		$this->assertEquals( $expected, str_replace( $remove_this, "\r\n", get_echo( array( 'Jetpack', 'dns_prefetch' ) ) ) );
-	}
-
 	public function test_activating_deactivating_modules_fires_actions() {
 		self::reset_tracking_of_module_activation();
 

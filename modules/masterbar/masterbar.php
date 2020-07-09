@@ -113,7 +113,7 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		Jetpack::dns_prefetch(
+		Assets::add_resource_hint(
 			array(
 				'//s0.wp.com',
 				'//s1.wp.com',
@@ -121,7 +121,8 @@ class A8C_WPCOM_Masterbar {
 				'//0.gravatar.com',
 				'//1.gravatar.com',
 				'//2.gravatar.com',
-			)
+			),
+			'dns-prefetch'
 		);
 
 		// Atomic only.
