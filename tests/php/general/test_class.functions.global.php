@@ -29,7 +29,7 @@ class WP_Test_Functions_Global extends WP_UnitTestCase {
 		return array(
 			'no_version_number'                          => array(
 				'jetpack',
-				'',
+				false,
 			),
 			'only_major_number'                          => array(
 				'8.8',
@@ -42,6 +42,18 @@ class WP_Test_Functions_Global extends WP_UnitTestCase {
 			'full_version_number_with_jetpack_prepended' => array(
 				'jetpack-8.8.0',
 				'9.4',
+			),
+			'full_zero_version_number_with_jetpack'      => array(
+				'jetpack-8.0.0',
+				'8.6',
+			),
+			'semver_number_above_10'                     => array(
+				'9.15.0',
+				false,
+			),
+			'full_version_number_above_10'               => array(
+				'10.5',
+				'11.1',
 			),
 		);
 	}

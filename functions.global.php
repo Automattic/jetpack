@@ -104,23 +104,37 @@ add_action( 'deprecated_file_included', 'jetpack_deprecated_file', 10, 4 );
  *
  * @param string $version The version of WordPress that deprecated the function.
  *
- * @return string|float Return a Jetpack Major version number, or an empty string.
+ * @return bool|float Return a Jetpack Major version number, or false.
  */
 function jetpack_get_future_removed_version( $version ) {
 	/*
 	 * Extract the version number from a deprecation notice.
 	 * (let's only keep the first decimal, e.g. 8.8 and not 8.8.0)
 	 */
-	preg_match( '#(([0-9]+\.[0-9]+)(?:\.[0-9]+)*)#', $version, $matches );
+	preg_match( '#(([0-9]+\.([0-9]+))(?:\.[0-9]+)*)#', $version, $matches );
 
-	if ( ! empty( $matches[2] ) ) {
+	if ( isset( $matches[2], $matches[3] ) ) {
+		$deprecated_version = (float) $matches[2];
+		$deprecated_minor   = (float) $matches[3];
+
+		/*
+		 * If the detected minor version number
+		 * (e.g. "7" in "8.7")
+		 * is higher than 9, we know the version number is malformed.
+		 * Jetpack does not use semver yet.
+		 * Bail.
+		 */
+		if ( 10 <= $deprecated_minor ) {
+			return false;
+		}
+
 		// We'll remove the function from the code 6 months later, thus 6 major versions later.
-		$removed_version = $matches[2] + 0.6;
+		$removed_version = $deprecated_version + 0.6;
 
 		return (float) $removed_version;
 	}
 
-	return '';
+	return false;
 }
 
 /**
