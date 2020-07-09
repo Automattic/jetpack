@@ -12,9 +12,8 @@
 		margin-bottom: 1em;
 	}
 
-	input[name='email'] {
-		&.error:focus,
-		&.error {
+	.error,
+	.error:focus {
 			outline: 1px;
 			outline-offset: -2px;
 			outline-style: auto;
