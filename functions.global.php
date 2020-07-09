@@ -44,6 +44,8 @@ function jetpack_deprecated_function( $function, $replacement, $version ) { // p
 	if (
 		! empty( $removed_version )
 		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+		/** This filter is documented in core/src/wp-includes/functions.php */
+		&& apply_filters( 'deprecated_function_trigger_error', true )
 	) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
@@ -82,6 +84,8 @@ function jetpack_deprecated_file( $file, $replacement, $version, $message ) { //
 	if (
 		! empty( $removed_version )
 		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+		/** This filter is documented in core/src/wp-includes/functions.php */
+		&& apply_filters( 'deprecated_file_trigger_error', true )
 	) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
