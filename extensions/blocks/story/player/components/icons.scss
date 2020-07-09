@@ -11,17 +11,17 @@
 }
 
 .jetpack-material-icons {
-	font-family: 'Material Icons for WP Stories';
-	font-weight: normal;
-	font-style: normal;
-	font-size: 24px;  /* Preferred icon size */
 	display: inline-block;
-	line-height: 1;
-	text-transform: none;
-	letter-spacing: normal;
-	word-wrap: normal;
-	white-space: nowrap;
-	direction: ltr;
+	font-family: 'Material Icons for WP Stories';
+	font-size: 24px;  /* Preferred icon size */
+	font-weight: normal !important;
+	font-style: normal !important;
+	line-height: 1  !important;
+	text-transform: none !important;
+	letter-spacing: normal !important;
+	word-wrap: normal !important;
+	white-space: nowrap !important;
+	direction: ltr !important;
 
 	/* Support for all WebKit browsers. */
 	-webkit-font-smoothing: antialiased;
