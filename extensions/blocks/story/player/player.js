@@ -139,6 +139,8 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 			${settings.renderers.renderOverlay( html, {
 				playing,
 				ended,
+				hasPrevious: currentSlideIndex > 0,
+				hasNext: currentSlideIndex < slides.length - 1,
 				disabled: settings.disabled,
 				tapToPlayPause: ! fullscreen && settings.tapToPlayPause,
 				onClick: () => {
