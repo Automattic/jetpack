@@ -6,13 +6,20 @@
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
 }
 
+.jp-carousel-wrap .fade-in {
+	transition: opacity 400ms;
+}
+
+.jp-carousel-wrap .fade-out {
+	opacity: 0;
+}
+
 .jp-carousel-overlay {
 	background: #000;
 }
 
 div.jp-carousel-fadeaway {
-	background: -moz-linear-gradient(bottom, rgba(0,0,0,0.5), rgba(0,0,0,0));
-	background: -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,0.5)), to(rgba(0,0,0,0)));
+	background: linear-gradient(bottom, rgba(0,0,0,0.5), rgba(0,0,0,0));
 	position: fixed;
 	bottom: 0;
 	z-index: 2147483647;
@@ -37,7 +44,6 @@ div.jp-carousel-fadeaway {
 	margin: 25px 20px 0 2px;
 	background-color: #fff;
 	border-left: 4px solid #ffba00;
-	-webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,0.1);
 	box-shadow: 0 1px 1px 0 rgba(0,0,0,0.1);
 }
 
@@ -80,9 +86,6 @@ only screen and (min-device-pixel-ratio: 1.5) {
 }
 
 .jp-carousel-transitions .jp-carousel-photo-info {
-	-webkit-transition: 400ms ease-out;
-	-moz-transition: 400ms ease-out;
-	-o-transition: 400ms ease-out;
 	transition: 400ms ease-out;
 }
 
@@ -122,9 +125,6 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 .jp-carousel-transitions .jp-carousel-next-button span,
 .jp-carousel-transitions .jp-carousel-previous-button span {
-	-webkit-transition: 500ms opacity ease-out;
-	-moz-transition: 500ms opacity ease-out;
-	-o-transition: 500ms opacity ease-out;
 	transition: 500ms opacity ease-out;
 }
 
@@ -169,18 +169,12 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-transitions div.jp-carousel-buttons a:hover {
-	-webkit-transition: none !important;
-	-moz-transition: none !important;
-	-o-transition: none !important;
 	transition: none !important;
 }
 
 .jp-carousel-slide, .jp-carousel-slide img, .jp-carousel-next-button,
 .jp-carousel-previous-button {
-	-webkit-transform:translate3d(0, 0, 0);
-	-moz-transform:translate3d(0, 0, 0);
-	-o-transform:translate3d(0, 0, 0);
-	-ms-transform:translate3d(0, 0, 0);
+	transform:translate3d(0, 0, 0);
 }
 
 .jp-carousel-slide {
@@ -189,16 +183,9 @@ div.jp-carousel-buttons a:hover {
 	bottom:0;
 	background-color:#000;
 	border-radius:2px;
-	-webkit-border-radius:2px;
-	-moz-border-radius:2px;
-	-ms-border-radius:2px;
-	-o-border-radius:2px;
 }
 
 .jp-carousel-transitions .jp-carousel-slide {
-	-webkit-transition: 300ms ease-out;
-	-moz-transition: 300ms ease-out;
-	-o-transition: 300ms ease-out;
 	transition: 300ms ease-out;
 }
 
@@ -222,16 +209,11 @@ div.jp-carousel-buttons a:hover {
 	background: none !important;
 	border: none !important;
 	padding: 0 !important;
-	-webkit-box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-	-moz-box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 	zoom: 1;
 }
 
 .jp-carousel-transitions .jp-carousel-slide {
-	-webkit-transition: opacity 400ms linear;
-	-moz-transition: opacity 400ms linear;
-	-o-transition: opacity 400ms linear;
 	transition: opacity 400ms linear;
 }
 
@@ -246,9 +228,6 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
-	-webkit-transition: color 200ms linear;
-	-moz-transition: color 200ms linear;
-	-o-transition: color 200ms linear;
 	transition: color 200ms linear;
 }
 
@@ -264,15 +243,10 @@ div.jp-carousel-buttons a:hover {
 	text-align: center;
 	vertical-align: middle;
 	width: 22px;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
 	border-radius: 4px;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint span {
-	-webkit-transition: border-color 200ms linear;
-	-moz-transition: border-color 200ms linear;
-	-o-transition: border-color 200ms linear;
 	transition: border-color 200ms linear;
 }
 
@@ -301,11 +275,6 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
 	background-color: #303030;
 	padding-right: 8px !important;
 	border-radius: 2px;
-	border-radius: 2px;
-	-webkit-border-radius:2px;
-	-moz-border-radius:2px;
-	-ms-border-radius:2px;
-	-o-border-radius:2px;
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
@@ -349,16 +318,11 @@ only screen and (min-device-pixel-ratio: 1.5) {
 /* reblog */
 div#carousel-reblog-box {
 	background: #222;
-	background: -moz-linear-gradient(bottom,  #222,  #333);
-	background: -webkit-gradient(linear, left bottom, left top, from(#222), to(#333));
+	background: linear-gradient(bottom,  #222,  #333);
 	padding: 3px 0 0;
 	display: none;
 	margin: 5px auto 0;
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
 	border-radius: 2px;
-	-webkit-box-shadow: 0 0 20px rgba(0,0,0,0.9);
-	-moz-box-shadow: 0 0 20px rgba(0,0,0,0.9);
 	box-shadow: 0 0 20px rgba(0,0,0,0.9);
 	height: 74px;
 	width: 565px;
@@ -374,10 +338,7 @@ div#carousel-reblog-box {
 	float: left;
 	margin: 6px 9px 0 9px;
 	border: 1px solid #666;
-	-webkit-box-shadow: inset 2px 2px 2px rgba(0,0,0,0.2);
 	box-shadow: inset 2px 2px 2px rgba(0,0,0,0.2);
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
 	border-radius: 2px;
 }
 
@@ -435,15 +396,13 @@ div#carousel-reblog-box {
 	cursor:pointer;
 	font-weight: normal;
 	background: #aaa;
-	background: -moz-linear-gradient(bottom,  #aaa,  #ccc);
-	background: -webkit-gradient(linear, left bottom, left top, from(#aaa), to(#ccc));
+	background: linear-gradient(bottom,  #aaa,  #ccc);
 	border: 1px solid #444;
 }
 
 #carousel-reblog-box input#carousel-reblog-submit:hover, #jp-carousel-comment-form-button-submit:hover {
 	background: #ccc;
-	background: -moz-linear-gradient(bottom,  #ccc,  #eee);
-	background: -webkit-gradient(linear, left bottom, left top, from(#ccc), to(#eee));
+	background: linear-gradient(bottom,  #ccc,  #eee);
 }
 
 #carousel-reblog-box .canceltext {
@@ -611,7 +570,6 @@ a.jp-carousel-image-download:hover {
 }
 
 .jp-carousel-image-map img.gmap-main {
-	-moz-border-radius-topleft: 6px;
 	border-top-left-radius: 6px;
 	border-right: 1px solid rgba( 255, 255, 255, 0.17 );
 }
@@ -624,7 +582,6 @@ a.jp-carousel-image-download:hover {
 }
 .jp-carousel-image-map div.imgclip {
 	overflow: hidden;
-	-moz-border-radius-topright: 6px;
 	border-top-right-radius: 6px;
 }
 .jp-carousel-image-map div.gmap-topright img {
@@ -687,8 +644,6 @@ a.jp-carousel-image-download:hover {
 
 .jp-carousel-comment .avatar {
 	margin:0 20px 0 0;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
 	border-radius: 4px;
 	border: none !important;
 	padding: 0 !important;
@@ -720,14 +675,9 @@ textarea#jp-carousel-comment-form-comment-field {
 	margin: 0;
 	float: none;
 	height: 147px;
-	-webkit-box-shadow: inset 2px 2px 2px rgba(0,0,0,0.2);
 	box-shadow: inset 2px 2px 2px rgba(0,0,0,0.2);
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	overflow: hidden;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
@@ -761,30 +711,23 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-right: 4px solid rgba(255, 255, 255, 0.2);
 	border-bottom: 4px solid rgba(255, 255, 255, 0.2);
 	border-left: 4px solid #ffffff;
-	-webkit-transform: translateZ(0);
-	-ms-transform: translateZ(0);
 	transform: translateZ(0);
-	-webkit-animation: load8 1.1s infinite linear;
 	animation: load8 1.1s infinite linear;
 }
 
 @-webkit-keyframes load8 {
 	0% {
-		-webkit-transform: rotate(0deg);
 		transform: rotate(0deg);
 	}
 	100% {
-		-webkit-transform: rotate(360deg);
 		transform: rotate(360deg);
 	}
 }
 @keyframes load8 {
   0% {
-    -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
   }
   100% {
-    -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }
@@ -806,10 +749,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font: 13px/1.4 "Helvetica Neue", sans-serif !important;
 	padding: 3px 6px;
 	float: left;
-	-webkit-box-shadow: inset 2px 2px 2px rgba(0,0,0,0.2);
 	box-shadow: inset 2px 2px 2px rgba(0,0,0,0.2);
-	-moz-border-radius: 2px;
-	-webkit-border-radius: 2px;
 	border-radius: 2px;
 	width:285px;
 }
@@ -878,8 +818,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 2px;
 	font: 13px/1.4 "Helvetica Neue", sans-serif !important;
 	border: 1px solid rgba( 255, 255, 255, 0.17 );
-	-webkit-box-shadow: inset 0px 0px 5px 5px rgba(0, 0, 0, 1);
-	        box-shadow: inset 0px 0px 5px 5px rgba(0, 0, 0, 1);
+	box-shadow: inset 0px 0px 5px 5px rgba(0, 0, 0, 1);
 }
 
 .jp-carousel-comment-post-error {
@@ -982,10 +921,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 .jp-carousel-light div#carousel-reblog-box {
 	background: #eee;
-	background: -moz-linear-gradient(bottom,  #ececec,  #f7f7f7);
-	background: -webkit-gradient(linear, left bottom, left top, from(#ececec), to(#f7f7f7));
-	-webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-	-moz-box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+	background: linear-gradient(bottom,  #ececec,  #f7f7f7);
 	box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 	border:1px solid #ddd;
 }
@@ -1014,8 +950,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light #carousel-reblog-box input#carousel-reblog-submit, #jp-carousel-comment-form-button-submit {
 	color: #333;
 	background: #fff;
-	background: -moz-linear-gradient(bottom,  #ddd,  #fff);
-	background: -webkit-gradient(linear, left bottom, left top, from(#ddd), to(#fff));
+	background: linear-gradient(bottom,  #ddd,  #fff);
 	border: 1px solid #aaa;
 }
 
@@ -1065,7 +1000,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: #fbfbfb;
 	color: #333;
 	border: 1px solid #dfdfdf;
-	-webkit-box-shadow: inset 2px 2px 2px rgba(0,0,0,0.1);
 	box-shadow: inset 2px 2px 2px rgba(0,0,0,0.1);
 }
 
@@ -1073,7 +1007,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: #fbfbfb;
 	border: 1px solid #dfdfdf;
 	color: #333;
-	-webkit-box-shadow: inset 2px 2px 2px rgba(0,0,0,0.1);
 	box-shadow: inset 2px 2px 2px rgba(0,0,0,0.1);
 }
 
@@ -1085,8 +1018,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light  #jp-carousel-comment-post-results span {
 	background: #f7f7f7;
 	border:1px solid #dfdfdf;
-	-webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
-	        box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
+	box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
 }
 
 .jp-carousel-light .jp-carousel-slide {
@@ -1098,8 +1030,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light .jp-carousel-fadeaway {
-	background: -moz-linear-gradient(bottom, rgba(255,255,255,0.75), rgba(255,255,255,0));
-	background: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
+	background: linear-gradient(bottom, rgba(255,255,255,0.75), rgba(255,255,255,0));
 }
 
 /* Small screens */
@@ -1120,8 +1051,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	.jp-carousel-image-meta {
 		float: none !important;
 		width: 100% !important;
-		-moz-box-sizing:border-box;
-		-webkit-box-sizing:border-box;
 		box-sizing: border-box;
 	}
 
