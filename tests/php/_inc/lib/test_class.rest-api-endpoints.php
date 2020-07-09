@@ -3,7 +3,11 @@
  * Class for REST API endpoints testing.
  *
  * @since 4.4.0
+ * @package Jetpack
  */
+
+use Automattic\Jetpack\Connection\REST_Connector;
+
 require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
 
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
@@ -60,7 +64,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return array
 	 */
 	protected function get_jetpack_connection_status() {
-		$status = Jetpack_Core_Json_Api_Endpoints::jetpack_connection_status();
+		$status = REST_Connector::connection_status();
 		return isset( $status->data ) ? $status->data : array();
 	}
 

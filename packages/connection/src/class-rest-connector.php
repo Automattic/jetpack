@@ -76,7 +76,7 @@ class REST_Connector {
 			'/connection',
 			array(
 				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'connection_status' ),
+				'callback' => __CLASS__ . '::connection_status',
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -135,14 +135,15 @@ class REST_Connector {
 	 *
 	 * @return WP_REST_Response Connection information.
 	 */
-	public function connection_status() {
-		$status = new Status();
+	public static function connection_status() {
+		$status     = new Status();
+		$connection = new Manager();
 
 		return rest_ensure_response(
 			array(
-				'isActive'     => $this->connection->is_active(),
+				'isActive'     => $connection->is_active(),
 				'isStaging'    => $status->is_staging_site(),
-				'isRegistered' => $this->connection->is_registered(),
+				'isRegistered' => $connection->is_registered(),
 				'devMode'      => array(
 					'isActive' => $status->is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,

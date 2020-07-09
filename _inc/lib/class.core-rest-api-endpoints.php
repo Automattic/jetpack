@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Status;
@@ -38,7 +39,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * @var string Generic error message when user is not allowed to perform an action.
 	 *
-	 * @deprecated 8.8.0 Use `\Automattic\Jetpack\Connection\REST_Connector::get_user_permissions_error_msg()` instead.
+	 * @deprecated 8.8.0 Use `REST_Connector::get_user_permissions_error_msg()` instead.
 	 */
 	public static $user_permissions_error_msg;
 
@@ -824,6 +825,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Handles verification that a site is registered
+	 *
+	 * @since 5.4.0
+	 * @deprecated 8.8.0 The method is moved to the `REST_Connector` class.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	public static function remote_authorize( $request ) {
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::remote_authorize' );
+		return REST_Connector::remote_authorize( $request );
+	}
+
+	/**
 	 * Handles dismissing of Jetpack Notices
 	 *
 	 * @since 4.3.0
@@ -1018,9 +1034,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Verify that user can view Jetpack admin page and can activate plugins.
 	 *
 	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
-	 * @deprecated 8.8.0 The method is moved to the `\Automattic\Jetpack\Connection\REST_Connector` class.
+	 * @deprecated 8.8.0 The method is moved to the `REST_Connector` class.
 	 *
-	 * @see \Automattic\Jetpack\Connection\REST_Connector::activate_plugins_permission_check()
+	 * @see REST_Connector::activate_plugins_permission_check()
 	 *
 	 * @since 4.3.0
 	 */
@@ -1060,6 +1076,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function rest_authorization_required_code() {
 		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'rest_authorization_required_code' );
 		return rest_authorization_required_code();
+	}
+
+	/**
+	 * Get connection status for this Jetpack site.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return WP_REST_Response Connection information.
+	 */
+	public static function jetpack_connection_status() {
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::rest_authorization_required_code' );
+
+		return REST_Connector::connection_status();
 	}
 
 	/**
