@@ -22,6 +22,126 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Hook into Core's _deprecated_function
+ * Add more details about when a deprecated function will be removed.
+ *
+ * @since 8.8.0
+ *
+ * @param string $function    The function that was called.
+ * @param string $replacement Optional. The function that should have been called. Default null.
+ * @param string $version     The version of Jetpack that deprecated the function.
+ */
+function jetpack_deprecated_function( $function, $replacement, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Bail early for non-Jetpack deprecations.
+	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+		return;
+	}
+
+	// Look for when a function will be removed based on when it was deprecated.
+	$removed_version = jetpack_get_future_removed_version( $version );
+
+	// If we could find a version, let's log a message about when removal will happen.
+	if (
+		! empty( $removed_version )
+		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+		/** This filter is documented in core/src/wp-includes/functions.php */
+		&& apply_filters( 'deprecated_function_trigger_error', true )
+	) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+				/* Translators: 1. Function name. 2. Jetpack version number. */
+				__( 'The %1$s function will be removed from the Jetpack plugin in version %2$s.', 'jetpack' ),
+				$function,
+				$removed_version
+			)
+		);
+
+	}
+}
+add_action( 'deprecated_function_run', 'jetpack_deprecated_function', 10, 3 );
+
+/**
+ * Hook into Core's _deprecated_file
+ * Add more details about when a deprecated file will be removed.
+ *
+ * @since 8.8.0
+ *
+ * @param string $file        The file that was called.
+ * @param string $replacement The file that should have been included based on ABSPATH.
+ * @param string $version     The version of WordPress that deprecated the file.
+ * @param string $message     A message regarding the change.
+ */
+function jetpack_deprecated_file( $file, $replacement, $version, $message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Bail early for non-Jetpack deprecations.
+	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+		return;
+	}
+
+	// Look for when a file will be removed based on when it was deprecated.
+	$removed_version = jetpack_get_future_removed_version( $version );
+
+	// If we could find a version, let's log a message about when removal will happen.
+	if (
+		! empty( $removed_version )
+		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+		/** This filter is documented in core/src/wp-includes/functions.php */
+		&& apply_filters( 'deprecated_file_trigger_error', true )
+	) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+				/* Translators: 1. File name. 2. Jetpack version number. */
+				__( 'The %1$s file will be removed from the Jetpack plugin in version %2$s.', 'jetpack' ),
+				$file,
+				$removed_version
+			)
+		);
+
+	}
+}
+add_action( 'deprecated_file_included', 'jetpack_deprecated_file', 10, 4 );
+
+/**
+ * Get the major version number of Jetpack 6 months after provided version.
+ * Useful to indicate when a deprecated function will be removed from Jetpack.
+ *
+ * @since 8.8.0
+ *
+ * @param string $version The version of WordPress that deprecated the function.
+ *
+ * @return bool|float Return a Jetpack Major version number, or false.
+ */
+function jetpack_get_future_removed_version( $version ) {
+	/*
+	 * Extract the version number from a deprecation notice.
+	 * (let's only keep the first decimal, e.g. 8.8 and not 8.8.0)
+	 */
+	preg_match( '#(([0-9]+\.([0-9]+))(?:\.[0-9]+)*)#', $version, $matches );
+
+	if ( isset( $matches[2], $matches[3] ) ) {
+		$deprecated_version = (float) $matches[2];
+		$deprecated_minor   = (float) $matches[3];
+
+		/*
+		 * If the detected minor version number
+		 * (e.g. "7" in "8.7")
+		 * is higher than 9, we know the version number is malformed.
+		 * Jetpack does not use semver yet.
+		 * Bail.
+		 */
+		if ( 10 <= $deprecated_minor ) {
+			return false;
+		}
+
+		// We'll remove the function from the code 6 months later, thus 6 major versions later.
+		$removed_version = $deprecated_version + 0.6;
+
+		return (float) $removed_version;
+	}
+
+	return false;
+}
+
+/**
  * Set the admin language, based on user language.
  *
  * @since 4.5.0
