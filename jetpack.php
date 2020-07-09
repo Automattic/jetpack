@@ -9,13 +9,13 @@
  * License: GPL2+
  * Text Domain: jetpack
  * Domain Path: /languages/
- * Requires at least: 5.3
+ * Requires at least: 5.4
  * Requires PHP: 5.6
  *
  * @package Jetpack
  */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '5.3' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '5.4' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
 define( 'JETPACK__VERSION', '8.8-alpha' );
 define( 'JETPACK_MASTER_USER', true );
