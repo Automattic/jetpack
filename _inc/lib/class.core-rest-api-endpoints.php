@@ -63,11 +63,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php';
 
-		self::$user_permissions_error_msg = esc_html__(
-			'You do not have the correct user permissions to perform this action.
-			Please contact your site admin if you think this is a mistake.',
-			'jetpack'
-		);
+		self::$user_permissions_error_msg = REST_Connector::get_user_permissions_error_msg();
 
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
@@ -1041,11 +1037,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @since 4.3.0
 	 */
 	public static function activate_plugins_permission_check() {
-		if ( current_user_can( 'jetpack_admin_page' ) && current_user_can( 'activate_plugins' ) ) {
-			return true;
-		}
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'REST_Connector::activate_plugins_permission_check' );
 
-		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+		return REST_Connector::activate_plugins_permission_check();
 	}
 
 	/**
