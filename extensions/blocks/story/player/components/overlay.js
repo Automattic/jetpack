@@ -15,6 +15,8 @@ export default function Overlay( {
 	ended,
 	disabled,
 	onClick,
+	hasPrevious,
+	hasNext,
 	onNextSlide,
 	onPreviousSlide,
 	tapToPlayPause,
@@ -44,22 +46,28 @@ export default function Overlay( {
 			onClick=${onOverlayPressed}
 		>
 			<div class="wp-story-prev-slide" onClick=${onPreviousSlide}>
-				<${DecoratedButton}
-					size=${44}
-					iconSize=${24}
-					label="Previous Slide"
-					icon="navigate_before"
-					className="outlined-w"
-				/>
+				${hasPrevious &&
+					html`
+						<${DecoratedButton}
+							size=${44}
+							iconSize=${24}
+							label="Previous Slide"
+							icon="navigate_before"
+							className="outlined-w"
+						/>
+					`}
 			</div>
 			<div class="wp-story-next-slide" onClick=${onNextSlide}>
-				<${DecoratedButton}
-					size=${44}
-					iconSize=${24}
-					label="Next Slide"
-					icon="navigate_next"
-					className="outlined-w"
-				/>
+				${hasNext &&
+					html`
+						<${DecoratedButton}
+							size=${44}
+							iconSize=${24}
+							label="Next Slide"
+							icon="navigate_next"
+							className="outlined-w"
+						/>
+					`}
 			</div>
 			${! playing &&
 				! ended &&
