@@ -14,11 +14,10 @@
 
 	.error,
 	.error:focus {
-			outline: 1px;
-			outline-offset: -2px;
-			outline-style: auto;
-			outline-color: var( --color-error );
-		}
+		outline: 1px;
+		outline-offset: -2px;
+		outline-style: auto;
+		outline-color: var( --color-error );
 	}
 
 	.wp-block-jetpack-mailchimp_notification {
