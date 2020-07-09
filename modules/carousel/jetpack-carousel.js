@@ -252,7 +252,8 @@ jpQuery.ready( function( $ ) {
 				display: 'none',
 			}, nextPreviousButtonStyle );
 
-			gallery = document.createElement( 'div' );
+			// using jpQuery as a function assigns jpQuery.fn.some_method methods automatically bound to the element
+			gallery = jpQuery( document.createElement( 'div' ) );
 			gallery.classList.add( 'jp-carousel' );
 			Object.assign(gallery.style, {
 				position: 'absolute',
@@ -302,201 +303,205 @@ jpQuery.ready( function( $ ) {
 
 
 			// @todo
-				container.click( function( e ) {
-					var target = $( e.target ),
-						wrap = target.parents( 'div.jp-carousel-wrap' ),
-						data = wrap.data( 'carousel-extra' ),
-						slide = wrap.find( 'div.selected' ),
-						attachment_id = slide.data( 'attachment-id' );
-					data = data || [];
+			container.addEventListener( 'click', function( e ) {
+				var target = e.target,
+					wrap = target.closest( 'div.jp-carousel-wrap' ),
+					data = wrap.dataset.carouselExtra,
+					slide = wrap.querySelector( 'div.selected' ),
+					attachment_id = slide.dataset.attachmentId;
+				data = data || [];
 
-					if (
-						target.is( gallery ) ||
-						target
-							.parents()
-							.add( target )
-							.is( close_hint )
-					) {
-						container.jp_carousel( 'close' );
-					} else if ( target.hasClass( 'jp-carousel-commentlink' ) ) {
+				if (
+					target.is( gallery ) ||
+					target
+						.parents()
+						.add( target )
+						.is( close_hint )
+				) {
+					container.jp_carousel( 'close' );
+				} else if ( target.hasClass( 'jp-carousel-commentlink' ) ) {
+					e.preventDefault();
+					e.stopPropagation();
+					$( window ).unbind( 'keydown', keyListener );
+					container.animate( { scrollTop: parseInt( info.position()[ 'top' ], 10 ) }, 'fast' );
+					$( '#jp-carousel-comment-form-submit-and-info-wrapper' ).slideDown( 'fast' );
+					$( '#jp-carousel-comment-form-comment-field' ).focus();
+				} else if ( target.hasClass( 'jp-carousel-comment-login' ) ) {
+					var url = jetpackCarouselStrings.login_url + '%23jp-carousel-' + attachment_id;
+
+					window.location.href = url;
+				} else if ( target.parents( '#jp-carousel-comment-form-container' ).length ) {
+					var textarea = $( '#jp-carousel-comment-form-comment-field' )
+						.blur( function() {
+							$( window ).bind( 'keydown', keyListener );
+						} )
+						.focus( function() {
+							$( window ).unbind( 'keydown', keyListener );
+						} );
+
+					var emailField = $( '#jp-carousel-comment-form-email-field' )
+						.blur( function() {
+							$( window ).bind( 'keydown', keyListener );
+						} )
+						.focus( function() {
+							$( window ).unbind( 'keydown', keyListener );
+						} );
+
+					var authorField = $( '#jp-carousel-comment-form-author-field' )
+						.blur( function() {
+							$( window ).bind( 'keydown', keyListener );
+						} )
+						.focus( function() {
+							$( window ).unbind( 'keydown', keyListener );
+						} );
+
+					var urlField = $( '#jp-carousel-comment-form-url-field' )
+						.blur( function() {
+							$( window ).bind( 'keydown', keyListener );
+						} )
+						.focus( function() {
+							$( window ).unbind( 'keydown', keyListener );
+						} );
+
+					if ( textarea && textarea.attr( 'id' ) === target.attr( 'id' ) ) {
+						// For first page load
+						$( window ).unbind( 'keydown', keyListener );
+						$( '#jp-carousel-comment-form-submit-and-info-wrapper' ).slideDown( 'fast' );
+					} else if ( target.is( 'input[type="submit"]' ) ) {
 						e.preventDefault();
 						e.stopPropagation();
-						$( window ).unbind( 'keydown', keyListener );
-						container.animate( { scrollTop: parseInt( info.position()[ 'top' ], 10 ) }, 'fast' );
-						$( '#jp-carousel-comment-form-submit-and-info-wrapper' ).slideDown( 'fast' );
-						$( '#jp-carousel-comment-form-comment-field' ).focus();
-					} else if ( target.hasClass( 'jp-carousel-comment-login' ) ) {
-						var url = jetpackCarouselStrings.login_url + '%23jp-carousel-' + attachment_id;
 
-						window.location.href = url;
-					} else if ( target.parents( '#jp-carousel-comment-form-container' ).length ) {
-						var textarea = $( '#jp-carousel-comment-form-comment-field' )
-							.blur( function() {
-								$( window ).bind( 'keydown', keyListener );
-							} )
-							.focus( function() {
-								$( window ).unbind( 'keydown', keyListener );
+						$( '#jp-carousel-comment-form-spinner' ).show();
+
+						var ajaxData = {
+							action: 'post_attachment_comment',
+							nonce: jetpackCarouselStrings.nonce,
+							blog_id: data[ 'blog_id' ],
+							id: attachment_id,
+							comment: textarea.val(),
+						};
+
+						if ( ! ajaxData[ 'comment' ].length ) {
+							gallery.jp_carousel( 'postCommentError', {
+								field: 'jp-carousel-comment-form-comment-field',
+								error: jetpackCarouselStrings.no_comment_text,
 							} );
+							return;
+						}
 
-						var emailField = $( '#jp-carousel-comment-form-email-field' )
-							.blur( function() {
-								$( window ).bind( 'keydown', keyListener );
-							} )
-							.focus( function() {
-								$( window ).unbind( 'keydown', keyListener );
-							} );
+						if ( 1 !== Number( jetpackCarouselStrings.is_logged_in ) ) {
+							ajaxData[ 'email' ] = emailField.val();
+							ajaxData[ 'author' ] = authorField.val();
+							ajaxData[ 'url' ] = urlField.val();
 
-						var authorField = $( '#jp-carousel-comment-form-author-field' )
-							.blur( function() {
-								$( window ).bind( 'keydown', keyListener );
-							} )
-							.focus( function() {
-								$( window ).unbind( 'keydown', keyListener );
-							} );
-
-						var urlField = $( '#jp-carousel-comment-form-url-field' )
-							.blur( function() {
-								$( window ).bind( 'keydown', keyListener );
-							} )
-							.focus( function() {
-								$( window ).unbind( 'keydown', keyListener );
-							} );
-
-						if ( textarea && textarea.attr( 'id' ) === target.attr( 'id' ) ) {
-							// For first page load
-							$( window ).unbind( 'keydown', keyListener );
-							$( '#jp-carousel-comment-form-submit-and-info-wrapper' ).slideDown( 'fast' );
-						} else if ( target.is( 'input[type="submit"]' ) ) {
-							e.preventDefault();
-							e.stopPropagation();
-
-							$( '#jp-carousel-comment-form-spinner' ).show();
-
-							var ajaxData = {
-								action: 'post_attachment_comment',
-								nonce: jetpackCarouselStrings.nonce,
-								blog_id: data[ 'blog_id' ],
-								id: attachment_id,
-								comment: textarea.val(),
-							};
-
-							if ( ! ajaxData[ 'comment' ].length ) {
-								gallery.jp_carousel( 'postCommentError', {
-									field: 'jp-carousel-comment-form-comment-field',
-									error: jetpackCarouselStrings.no_comment_text,
-								} );
-								return;
-							}
-
-							if ( 1 !== Number( jetpackCarouselStrings.is_logged_in ) ) {
-								ajaxData[ 'email' ] = emailField.val();
-								ajaxData[ 'author' ] = authorField.val();
-								ajaxData[ 'url' ] = urlField.val();
-
-								if ( 1 === Number( jetpackCarouselStrings.require_name_email ) ) {
-									if ( ! ajaxData[ 'email' ].length || ! ajaxData[ 'email' ].match( '@' ) ) {
-										gallery.jp_carousel( 'postCommentError', {
-											field: 'jp-carousel-comment-form-email-field',
-											error: jetpackCarouselStrings.no_comment_email,
-										} );
-										return;
-									} else if ( ! ajaxData[ 'author' ].length ) {
-										gallery.jp_carousel( 'postCommentError', {
-											field: 'jp-carousel-comment-form-author-field',
-											error: jetpackCarouselStrings.no_comment_author,
-										} );
-										return;
-									}
-								}
-							}
-
-							$.ajax( {
-								type: 'POST',
-								url: jetpackCarouselStrings.ajaxurl,
-								data: ajaxData,
-								dataType: 'json',
-								success: function( response /*, status, xhr*/ ) {
-									if ( 'approved' === response.comment_status ) {
-										$( '#jp-carousel-comment-post-results' )
-											.slideUp( 'fast' )
-											.html(
-												'<span class="jp-carousel-comment-post-success">' +
-													jetpackCarouselStrings.comment_approved +
-													'</span>'
-											)
-											.slideDown( 'fast' );
-									} else if ( 'unapproved' === response.comment_status ) {
-										$( '#jp-carousel-comment-post-results' )
-											.slideUp( 'fast' )
-											.html(
-												'<span class="jp-carousel-comment-post-success">' +
-													jetpackCarouselStrings.comment_unapproved +
-													'</span>'
-											)
-											.slideDown( 'fast' );
-									} else {
-										// 'deleted', 'spam', false
-										$( '#jp-carousel-comment-post-results' )
-											.slideUp( 'fast' )
-											.html(
-												'<span class="jp-carousel-comment-post-error">' +
-													jetpackCarouselStrings.comment_post_error +
-													'</span>'
-											)
-											.slideDown( 'fast' );
-									}
-									gallery.jp_carousel( 'clearCommentTextAreaValue' );
-									gallery.jp_carousel( 'getComments', {
-										attachment_id: attachment_id,
-										offset: 0,
-										clear: true,
-									} );
-									$( '#jp-carousel-comment-form-button-submit' ).val(
-										jetpackCarouselStrings.post_comment
-									);
-									$( '#jp-carousel-comment-form-spinner' ).hide();
-								},
-								error: function(/*xhr, status, error*/) {
-									// TODO: Add error handling and display here
+							if ( 1 === Number( jetpackCarouselStrings.require_name_email ) ) {
+								if ( ! ajaxData[ 'email' ].length || ! ajaxData[ 'email' ].match( '@' ) ) {
 									gallery.jp_carousel( 'postCommentError', {
-										field: 'jp-carousel-comment-form-comment-field',
-										error: jetpackCarouselStrings.comment_post_error,
+										field: 'jp-carousel-comment-form-email-field',
+										error: jetpackCarouselStrings.no_comment_email,
 									} );
 									return;
-								},
-							} );
+								} else if ( ! ajaxData[ 'author' ].length ) {
+									gallery.jp_carousel( 'postCommentError', {
+										field: 'jp-carousel-comment-form-author-field',
+										error: jetpackCarouselStrings.no_comment_author,
+									} );
+									return;
+								}
+							}
 						}
-					} else if ( ! target.parents( '.jp-carousel-info' ).length ) {
-						container.jp_carousel( 'next' );
-					}
-				} )
-				.bind( 'jp_carousel.afterOpen', function() {
-					$( window ).bind( 'keydown', keyListener );
-					$( window ).bind( 'resize', resizeListener );
-					gallery.opened = true;
 
-					resizeListener();
-				} )
-				.bind( 'jp_carousel.beforeClose', function() {
-					var scroll = $( window ).scrollTop();
-
-					$( window ).unbind( 'keydown', keyListener );
-					$( window ).unbind( 'resize', resizeListener );
-					$( window ).scrollTop( scroll );
-					$( '.jp-carousel-previous-button' ).hide();
-					$( '.jp-carousel-next-button' ).hide();
-					// Set height to original value
-					// Fix some themes where closing carousel brings view back to top
-					$( 'html' ).css( 'height', '' );
-				} )
-				.bind( 'jp_carousel.afterClose', function() {
-					if ( window.location.hash && history.back ) {
-						history.back();
+						$.ajax( {
+							type: 'POST',
+							url: jetpackCarouselStrings.ajaxurl,
+							data: ajaxData,
+							dataType: 'json',
+							success: function( response /*, status, xhr*/ ) {
+								if ( 'approved' === response.comment_status ) {
+									$( '#jp-carousel-comment-post-results' )
+										.slideUp( 'fast' )
+										.html(
+											'<span class="jp-carousel-comment-post-success">' +
+												jetpackCarouselStrings.comment_approved +
+												'</span>'
+										)
+										.slideDown( 'fast' );
+								} else if ( 'unapproved' === response.comment_status ) {
+									$( '#jp-carousel-comment-post-results' )
+										.slideUp( 'fast' )
+										.html(
+											'<span class="jp-carousel-comment-post-success">' +
+												jetpackCarouselStrings.comment_unapproved +
+												'</span>'
+										)
+										.slideDown( 'fast' );
+								} else {
+									// 'deleted', 'spam', false
+									$( '#jp-carousel-comment-post-results' )
+										.slideUp( 'fast' )
+										.html(
+											'<span class="jp-carousel-comment-post-error">' +
+												jetpackCarouselStrings.comment_post_error +
+												'</span>'
+										)
+										.slideDown( 'fast' );
+								}
+								gallery.jp_carousel( 'clearCommentTextAreaValue' );
+								gallery.jp_carousel( 'getComments', {
+									attachment_id: attachment_id,
+									offset: 0,
+									clear: true,
+								} );
+								$( '#jp-carousel-comment-form-button-submit' ).val(
+									jetpackCarouselStrings.post_comment
+								);
+								$( '#jp-carousel-comment-form-spinner' ).hide();
+							},
+							error: function(/*xhr, status, error*/) {
+								// TODO: Add error handling and display here
+								gallery.jp_carousel( 'postCommentError', {
+									field: 'jp-carousel-comment-form-comment-field',
+									error: jetpackCarouselStrings.comment_post_error,
+								} );
+								return;
+							},
+						} );
 					}
-					last_known_location_hash = '';
-					gallery.opened = false;
-				} )
-				.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function( e ) {
+				} else if ( ! target.parents( '.jp-carousel-info' ).length ) {
+					container.jp_carousel( 'next' );
+				}
+			} );
+
+			jpQuery.on( 'jp_carousel.afterOpen', container, function() {
+				window.addEventListener( 'keydown', keyListener );
+				window.addEventListener( 'resize', resizeListener );
+				gallery.opened = true;
+
+				resizeListener();
+			} );
+
+			jpQuery.on( 'jp_carousel.beforeClose', container, function() {
+				var scroll = $( window ).scrollTop();
+
+				$( window ).unbind( 'keydown', keyListener );
+				$( window ).unbind( 'resize', resizeListener );
+				$( window ).scrollTop( scroll );
+				$( '.jp-carousel-previous-button' ).hide();
+				$( '.jp-carousel-next-button' ).hide();
+				// Set height to original value
+				// Fix some themes where closing carousel brings view back to top
+				$( 'html' ).css( 'height', '' );
+			} )
+
+			jpQuery.on( 'jp_carousel.afterClose', container, function() {
+				if ( window.location.hash && history.back ) {
+					history.back();
+				}
+				last_known_location_hash = '';
+				gallery.opened = false;
+			} )
+
+			jpQuery.on( 'transitionend.jp-carousel ', '.jp-carousel-slide', function( e ) {
 					// If the movement transitions take more than twice the allotted time, disable them.
 					// There is some wiggle room in the 2x, since some of that time is taken up in
 					// JavaScript, setting up the transition and calling the events.
@@ -512,6 +517,8 @@ jpQuery.ready( function( $ ) {
 					}
 				} );
 
+			/*
+			// @todo
 			$( '.jp-carousel-wrap' ).touchwipe( {
 				wipeLeft: function( e ) {
 					e.preventDefault();
@@ -523,15 +530,18 @@ jpQuery.ready( function( $ ) {
 				},
 				preventDefaultEvents: false,
 			} );
+			*/
 
-			nextButton.add( previousButton ).click( function( e ) {
+			nextButton.addEventListener( 'click', function( e ) {
 				e.preventDefault();
 				e.stopPropagation();
-				if ( nextButton.is( this ) ) {
-					gallery.jp_carousel( 'next' );
-				} else {
-					gallery.jp_carousel( 'previous' );
-				}
+				gallery.jp_carousel( 'next' );
+			} );
+
+			previousButton.addEventListener( 'click', function( e ) {
+				e.preventDefault();
+				e.stopPropagation();
+				gallery.jp_carousel( 'previous' );
 			} );
 		}
 	};
@@ -586,15 +596,12 @@ jpQuery.ready( function( $ ) {
 	};
 
 	var methods = {
-		testForData: function( gallery ) {
-			return gallery.dataset.carouselExtra;
-		},
 
 		testIfOpened: function() {
 			return !! (
-				'undefined' !== typeof gallery &&
-				'undefined' !== typeof gallery.opened &&
-				gallery.opened
+				'undefined' !== typeof this &&
+				'undefined' !== typeof this.opened &&
+				this.opened
 			);
 		},
 
@@ -612,14 +619,14 @@ jpQuery.ready( function( $ ) {
 			}
 		},
 
-		open: function( options, galleryEl ) {
-			console.log("open", options, galleryEl)
+		open: function( options ) {
+			console.log("open", options, this)
 			var settings = {
 					items_selector:
 						'.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id]',
 					start_index: 0,
 				},
-				data = galleryEl.dataset.carouselExtra;
+				data = this.dataset.carouselExtra;
 
 			if ( ! data ) {
 				return; // don't run if the default gallery functions weren't used
@@ -633,47 +640,47 @@ jpQuery.ready( function( $ ) {
 
 			// make sure to stop the page from scrolling behind the carousel overlay, so we don't trigger
 			// infiniscroll for it when enabled (Reader, theme infiniscroll, etc).
-			originalOverflow = $( 'body' ).css( 'overflow' );
-			$( 'body' ).css( 'overflow', 'hidden' );
+			originalOverflow = document.body.style.overflow;
+			document.body.style.overflow = 'hidden';
+
 			// prevent html from overflowing on some of the new themes.
-			originalHOverflow = $( 'html' ).css( 'overflow' );
-			$( 'html' ).css( 'overflow', 'hidden' );
-			scrollPos = $( window ).scrollTop();
+			originalHOverflow = document.querySelector( 'html' ).style.overflow;
+			document.querySelector( 'html' ).style.overflow = 'hidden';
+			scrollPos = document.body.scrollTop;
 
-			container.data( 'carousel-extra', data );
+			container.dataset.carouselExtra = data;
 
-			return this.each( function() {
-				// If options exist, lets merge them
-				// with our default settings
-				var $this = $( this );
 
-				if ( options ) {
-					$.extend( settings, options );
-				}
-				if ( -1 === settings.start_index ) {
-					settings.start_index = 0; //-1 returned if can't find index, so start from beginning
-				}
+			// If options exist, lets merge them
+			// with our default settings
 
-				container.trigger( 'jp_carousel.beforeOpen' ).fadeIn( 'fast', function() {
-					container.trigger( 'jp_carousel.afterOpen' );
-					gallery
-						.jp_carousel(
-							'initSlides',
-							$this.find( settings.items_selector ),
-							settings.start_index
-						)
-						.jp_carousel( 'selectSlideAtIndex', settings.start_index );
-				} );
-				gallery.html( '' );
-			} );
+			if ( options ) {
+				Object.assign( settings, options );
+			}
+
+			if ( -1 === settings.start_index ) {
+				settings.start_index = 0; //-1 returned if can't find index, so start from beginning
+			}
+
+			jpQuery.trigger( container, 'jp_carousel.beforeOpen' );
+			container.classList.add( 'fade-in' );
+			container.classList.remove( 'fade-out' );
+			jpQuery.trigger( container, 'jp_carousel.afterOpen' );
+			gallery.jp_carousel(
+					'initSlides',
+					this.querySelectorAll( settings.items_selector ),
+					settings.start_index
+				);
+			gallery.jp_carousel( 'selectSlideAtIndex', settings.start_index );
+			gallery.html( '' );
 		},
 
 		selectSlideAtIndex: function( index ) {
 			var slides = this.jp_carousel( 'slides' ),
-				selected = slides.eq( index );
+				selected = slides[index];
 
 			if ( 0 === selected.length ) {
-				selected = slides.eq( 0 );
+				selected = slides[0];
 			}
 
 			gallery.jp_carousel( 'selectSlide', selected, false );
@@ -687,7 +694,7 @@ jpQuery.ready( function( $ ) {
 			this.jp_carousel( 'clearCommentTextAreaValue' );
 			return container.trigger( 'jp_carousel.beforeClose' ).fadeOut( 'fast', function() {
 				container.trigger( 'jp_carousel.afterClose' );
-				$( window ).scrollTop( scrollPos );
+				window.scrollTop = scrollPos;
 			} );
 		},
 
@@ -780,14 +787,21 @@ jpQuery.ready( function( $ ) {
 				.show();
 		},
 
-		selectSlide: function( slide, animate ) {
-			lastSelectedSlide = this.find( '.selected' ).removeClass( 'selected' );
+		selectSlide: function( selectedSlide, animate ) {
+			lastSelectedSlide = this.querySelector( '.selected' );
+			if ( lastSelectedSlide ) {
+				lastSelectedSlide.classList.remove( 'selected' );
+			}
 
-			var slides = gallery.jp_carousel( 'slides' ).css( { position: 'fixed' } ),
-				current = $( slide )
-					.addClass( 'selected' )
-					.css( { position: 'relative' } ),
-				attachmentId = current.data( 'attachment-id' ),
+			var slides = gallery.jp_carousel( 'slides' );
+			slides.forEach( function( slide ) {
+				slide.style.position = 'fixed';
+			} );
+
+			selectedSlide.classList.add( 'selected' );
+			selectedSlide.style.position = 'relative';
+
+			var attachmentId = current.dataset.attachmentId,
 				previous = gallery.jp_carousel( 'prevSlide' ),
 				next = gallery.jp_carousel( 'nextSlide' ),
 				previousPrevious = previous.prev(),
@@ -903,13 +917,13 @@ jpQuery.ready( function( $ ) {
 		},
 
 		slides: function() {
-			return this.find( '.jp-carousel-slide' );
+			return this.querySelectorAll( '.jp-carousel-slide' );
 		},
 
 		slideDimensions: function() {
 			return {
-				width: $( window ).width() - screenPadding * 2,
-				height: Math.floor( ( $( window ).height() / 100 ) * proportion - 60 ),
+				width: jpQuery.viewportWidth() - screenPadding * 2,
+				height: Math.floor( ( jpQuery.viewportHeight() / 100 ) * proportion - 60 ),
 			};
 		},
 
@@ -984,16 +998,11 @@ jpQuery.ready( function( $ ) {
 		},
 
 		fitSlide: function(/*animated*/) {
-			return this.each( function() {
-				var $this = $( this ),
-					dimensions = $this.jp_carousel( 'bestFit' ),
-					method = 'css',
-					max = gallery.jp_carousel( 'slideDimensions' );
+			var dimensions = this.jp_carousel( 'bestFit' ),
+				max = gallery.jp_carousel( 'slideDimensions' );
 
-				dimensions.left = 0;
-				dimensions.top = Math.floor( ( max.height - dimensions.height ) * 0.5 ) + 40;
-				$this[ method ]( dimensions );
-			} );
+			this.style.left = 0;
+			this.style.top = Math.floor( ( max.height - dimensions.height ) * 0.5 ) + 40;
 		},
 
 		texturize: function( text ) {
@@ -1008,28 +1017,31 @@ jpQuery.ready( function( $ ) {
 				.replace( /&quot;/g, '&#8221;' )
 				.replace( /[\u201D]/g, '&#8221;' );
 			text = text.replace( /([\w]+)=&#[\d]+;(.+?)&#[\d]+;/g, '$1="$2"' ); // untexturize allowed HTML tags params double-quotes
-			return $.trim( text );
+			return text.trim();
 		},
 
 		initSlides: function( items, start_index ) {
 			if ( items.length < 2 ) {
-				$( '.jp-carousel-next-button, .jp-carousel-previous-button' ).hide();
+				document.querySelectorAll( '.jp-carousel-next-button, .jp-carousel-previous-button' ).forEach( function( button ) {
+					button.style.display = 'none';
+				} );
 			} else {
-				$( '.jp-carousel-next-button, .jp-carousel-previous-button' ).show();
+				document.querySelectorAll( '.jp-carousel-next-button, .jp-carousel-previous-button' ).forEach( function( button ) {
+					button.style.display = 'block';
+				} );
 			}
 
 			// Calculate the new src.
-			items.each( function(/*i*/) {
-				var src_item = $( this ),
-					orig_size = src_item.data( 'orig-size' ) || '',
+			Array.prototype.forEach.call( items, function( src_item, i ) {
+				var orig_size = src_item.dataset.origSize || '',
 					max = gallery.jp_carousel( 'slideDimensions' ),
 					parts = orig_size.split( ',' ),
-					medium_file = src_item.data( 'medium-file' ) || '',
-					large_file = src_item.data( 'large-file' ) || '',
+					medium_file = src_item.dataset.mediumFile || '',
+					large_file = src_item.dataset.largeFile || '',
 					src;
 				orig_size = { width: parseInt( parts[ 0 ], 10 ), height: parseInt( parts[ 1 ], 10 ) };
 
-				src = src_item.data( 'orig-file' );
+				src = src_item.dataset.origFile;
 
 				src = gallery.jp_carousel( 'selectBestImageSize', {
 					orig_file: src,
@@ -1042,43 +1054,43 @@ jpQuery.ready( function( $ ) {
 				} );
 
 				// Set the final src
-				$( this ).data( 'gallery-src', src );
+				src_item.dataset.gallerySrc = src;
 			} );
 
 			// If the start_index is not 0 then preload the clicked image first.
 			if ( 0 !== start_index ) {
+				// @todo
 				$( '<img/>' )[ 0 ].src = $( items[ start_index ] ).data( 'gallery-src' );
 			}
 
-			var useInPageThumbnails =
-				items.first().closest( '.tiled-gallery.type-rectangular' ).length > 0;
+			var rectangularGalleryParent = items[0].closest( '.tiled-gallery.type-rectangular' );
+			var useInPageThumbnails = rectangularGalleryParent && rectangularGalleryParent.length > 0;
 
 			// create the 'slide'
-			items.each( function( i ) {
-				var src_item = $( this ),
-					attachment_id = src_item.data( 'attachment-id' ) || 0,
-					comments_opened = src_item.data( 'comments-opened' ) || 0,
-					image_meta = src_item.data( 'image-meta' ) || {},
-					orig_size = src_item.data( 'orig-size' ) || '',
-					thumb_size = { width: src_item[ 0 ].naturalWidth, height: src_item[ 0 ].naturalHeight },
-					title = src_item.data( 'image-title' ) || '',
-					description = src_item.data( 'image-description' ) || '',
-					caption =
-						src_item
-							.parents( '.gallery-item' )
-							.find( '.gallery-caption' )
-							.html() || '',
-					src = src_item.data( 'gallery-src' ) || '',
-					medium_file = src_item.data( 'medium-file' ) || '',
-					large_file = src_item.data( 'large-file' ) || '',
-					orig_file = src_item.data( 'orig-file' ) || '';
+			Array.prototype.forEach.call( items, function( src_item, i ) {
+				console.log("creating slide for element", src_item);
+				var attachment_id = src_item.dataset.attachmentId || 0,
+					comments_opened = src_item.dataset.commentsOpened || 0,
+					image_meta = src_item.dataset.imageMeta || {},
+					orig_size = src_item.dataset.origSize || '',
+					thumb_size = { width: src_item.naturalWidth, height: src_item.naturalHeight },
+					title = src_item.dataset.imageTitle || '',
+					description = src_item.dataset.imageDescription || '',
+					captionEl = src_item
+						.closest( '.gallery-item, .tiled-gallery-item, .blocks-gallery-item' )
+						.querySelector( '.gallery-caption' ),
+					caption = captionEl ? captionEl.innerHTML : '',
+					src = src_item.dataset.gallerySrc || '',
+					medium_file = src_item.dataset.mediumFile || '',
+					large_file = src_item.dataset.largeFile || '',
+					orig_file = src_item.dataset.origFile || '';
 
-				var tiledCaption = src_item
-					.parents( 'div.tiled-gallery-item' )
-					.find( 'div.tiled-gallery-caption' )
-					.html();
-				if ( tiledCaption ) {
-					caption = tiledCaption;
+				var tiledCaptionEl = src_item
+					.closest( '.gallery-item, .tiled-gallery-item, .blocks-gallery-item' )
+					.querySelector( 'div.tiled-gallery-caption' );
+
+				if ( tiledCaptionEl ) {
+					caption = tiledCaptionEl.innerHTML;
 				}
 
 				if ( attachment_id && orig_size.length ) {
@@ -1087,37 +1099,37 @@ jpQuery.ready( function( $ ) {
 					caption = gallery.jp_carousel( 'texturize', caption );
 
 					// Initially, the image is a 1x1 transparent gif.  The preview is shown as a background image on the slide itself.
-					var image = $( '<img/>' )
-						.attr(
+					var image = document.createElement( 'img' );
+					image
+						.setAttribute(
 							'src',
 							'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-						)
-						.css( 'width', '100%' )
-						.css( 'height', '100%' );
+						);
+					image.style.width = '100%';
+					image.style.height = '100%';
 
-					var slide = $(
+					var slide = jpQuery.elFromString(
 						'<div class="jp-carousel-slide" itemprop="associatedMedia" itemscope itemtype="https://schema.org/ImageObject"></div>'
-					)
-						.hide()
-						.css( {
-							//'position' : 'fixed',
-							left: i < start_index ? -1000 : gallery.width(),
-						} )
-						.append( image )
-						.appendTo( gallery )
-						.data( 'src', src )
-						.data( 'title', title )
-						.data( 'desc', description )
-						.data( 'caption', caption )
-						.data( 'attachment-id', attachment_id )
-						.data( 'permalink', src_item.parents( 'a' ).attr( 'href' ) )
-						.data( 'orig-size', orig_size )
-						.data( 'comments-opened', comments_opened )
-						.data( 'image-meta', image_meta )
-						.data( 'medium-file', medium_file )
-						.data( 'large-file', large_file )
-						.data( 'orig-file', orig_file )
-						.data( 'thumb-size', thumb_size );
+					);
+					slide.style.display = 'none';
+					slide.style.left = i < start_index ? -1000 : jpQuery.width( gallery );
+					slide.append( image );
+					gallery.append( slide );
+					slide.dataset.src = src;
+					slide.dataset.title = title;
+					slide.dataset.desc = description;
+
+					slide.dataset.caption = caption;
+					slide.dataset.attachmentId = attachment_id;
+					var parentLink = src_item.closest( 'a' );
+					slide.dataset.permalink = parentLink ? parentLink.getAttribute( 'href' ) : null;
+					slide.dataset.origSize = orig_size;
+					slide.dataset.commentsOpened = comments_opened;
+					slide.dataset.imageMeta = image_meta;
+					slide.dataset.mediumFile = medium_file;
+					slide.dataset.largeFile = large_file;
+					slide.dataset.origFile = orig_file;
+					slide.dataset.thumbSize = thumb_size ;
 					if ( useInPageThumbnails ) {
 						// Use the image already loaded in the gallery as a preview.
 						slide.data( 'preview-image', src_item.attr( 'src' ) ).css( {
@@ -1127,7 +1139,7 @@ jpQuery.ready( function( $ ) {
 						} );
 					}
 
-					slide.jp_carousel( 'fitSlide', false );
+					jpQuery(slide).jp_carousel( 'fitSlide', false );
 				}
 			} );
 			return this;
@@ -1238,8 +1250,8 @@ jpQuery.ready( function( $ ) {
 		},
 
 		originalDimensions: function() {
-			var splitted = $( this )
-				.data( 'orig-size' )
+			var splitted = this
+				.dataset.origSize
 				.split( ',' );
 			return { width: parseInt( splitted[ 0 ], 10 ), height: parseInt( splitted[ 1 ], 10 ) };
 		},
@@ -1683,7 +1695,8 @@ jpQuery.ready( function( $ ) {
 		'click',
 		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
 		function( e ) {
-			if ( ! jpQuery.fn.jp_carousel( 'testForData', this ) ) {
+			// If we have the carousel data, then initialize
+			if ( ! this.dataset.carouselExtra ) {
 				return;
 			}
 
@@ -1715,9 +1728,9 @@ jpQuery.ready( function( $ ) {
 
 			var startIndex = jpQuery.indexOf(galleryItems, targetGalleryItemParent);
 
-			jpQuery.fn.jp_carousel( 'open', {
+			jpQuery(this).jp_carousel( 'open', {
 				start_index: startIndex,
-			}, this );
+			} );
 		}
 	);
 
@@ -1792,73 +1805,4 @@ jpQuery.ready( function( $ ) {
  * @author Andreas Waltl, netCU Internetagentur (http://www.netcu.de)
  * Version 1.1.1, modified to pass the touchmove event to the callbacks.
  */
-( function( $ ) {
-	$.fn.touchwipe = function( settings ) {
-		var config = {
-			min_move_x: 20,
-			min_move_y: 20,
-			wipeLeft: function(/*e*/) {},
-			wipeRight: function(/*e*/) {},
-			wipeUp: function(/*e*/) {},
-			wipeDown: function(/*e*/) {},
-			preventDefaultEvents: true,
-		};
-
-		if ( settings ) {
-			$.extend( config, settings );
-		}
-
-		this.each( function() {
-			var startX;
-			var startY;
-			var isMoving = false;
-
-			function cancelTouch() {
-				this.removeEventListener( 'touchmove', onTouchMove );
-				startX = null;
-				isMoving = false;
-			}
-
-			function onTouchMove( e ) {
-				if ( config.preventDefaultEvents ) {
-					e.preventDefault();
-				}
-				if ( isMoving ) {
-					var x = e.touches[ 0 ].pageX;
-					var y = e.touches[ 0 ].pageY;
-					var dx = startX - x;
-					var dy = startY - y;
-					if ( Math.abs( dx ) >= config.min_move_x ) {
-						cancelTouch();
-						if ( dx > 0 ) {
-							config.wipeLeft( e );
-						} else {
-							config.wipeRight( e );
-						}
-					} else if ( Math.abs( dy ) >= config.min_move_y ) {
-						cancelTouch();
-						if ( dy > 0 ) {
-							config.wipeDown( e );
-						} else {
-							config.wipeUp( e );
-						}
-					}
-				}
-			}
-
-			function onTouchStart( e ) {
-				if ( e.touches.length === 1 ) {
-					startX = e.touches[ 0 ].pageX;
-					startY = e.touches[ 0 ].pageY;
-					isMoving = true;
-					this.addEventListener( 'touchmove', onTouchMove, false );
-				}
-			}
-			if ( 'ontouchstart' in document.documentElement ) {
-				this.addEventListener( 'touchstart', onTouchStart, false );
-			}
-		} );
-
-		return this;
-	};
-} )( jQuery );
+/** @todo - restore touchwipe */

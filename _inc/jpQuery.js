@@ -32,6 +32,12 @@
 		},
 	};
 
+	/**
+	 * Returns true if the element matches the selector
+	 *
+	 * @param {HTMLElement} el
+	 * @param {string} selector
+	 */
 	var matches = function( el, selector ) {
 		return (
 			el.matches ||
@@ -43,33 +49,50 @@
 		).call( el, selector );
 	};
 
+	function isElement(o){
+		return (
+			typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+			o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
+		);
+	}
+
 	/**
 	 * Usage:
 	 *
 	 * jpQuery.on( 'click', '.mything', function( el, event ) { // do something } )
 	 *
 	 * @param {string} eventName
-	 * @param {string} selector
+	 * @param {*} selectorOrElement
 	 * @param {function} callback
 	 */
-	var on = function( eventName, selector, callback ) {
-		document.addEventListener(
+	var on = function( eventName, selectorOrElement, callback ) {
+		var selector = typeof(selectorOrElement) === 'string' ? selectorOrElement : null;
+		var listenEl = isElement(selectorOrElement) ? selectorOrElement : document;
+		listenEl.addEventListener(
 			eventName,
 			function( e ) {
-				// loop parent nodes from the target to the delegation node
-				for ( var target = e.target; target && target != this; target = target.parentNode ) {
-					if ( target.matches( selector ) ) {
-						console.log( 'got click on ', selector, target );
-						e.currentTarget = target; // pass along the element that the selector actually matches, not just the element that was clicked
-						callback.call( target, e );
-						break;
+				if ( selector ) {
+					// loop parent nodes from the target to the delegation node
+					for ( var target = e.target; target && target != this; target = target.parentNode ) {
+						if ( target.matches( selector ) ) {
+							callback.call( target, e );
+							break;
+						}
 					}
+				} else {
+					callback.call( e.target, e );
 				}
 			},
 			false
 		);
 	};
 
+	/**
+	 * Returns the index of a HTML element in a NodeList
+	 *
+	 * @param {NodeList} nodeList
+	 * @param {HTMLElement} el
+	 */
 	var indexOf = function( nodeList, el ) {
 		var count = 0;
 		var index = -1;
@@ -95,6 +118,12 @@
 		Array.prototype.forEach.call( elements, callback );
 	};
 
+	/**
+	 * Trigger a custom event
+	 * @param {HTMLElement} el
+	 * @param {string} eventName
+	 * @param {*} data
+	 */
 	var trigger = function( el, eventName, data ) {
 		if ( window.CustomEvent && typeof window.CustomEvent === 'function' ) {
 			var event = new CustomEvent( eventName, { detail: data } );
@@ -106,6 +135,17 @@
 		el.dispatchEvent( event );
 	};
 
+	var width = function( el ) {
+		return parseFloat(getComputedStyle(el, null).width.replace("px", ""))
+	}
+
+	/**
+	 * Usage:
+	 *
+	 * var myEl = jpQuery.elFromString( '<div class="foo">hi there</div>' );
+	 *
+	 * @param {string} str The HTML string
+	 */
 	var elFromString = function( str ) {
 		var div = document.createElement('div');
 		div.innerHTML = str.trim();
@@ -120,10 +160,27 @@
 		return window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	}
 
-	window.jpQuery = {
+	var fn = {};
+
+	// quick a dirty wrapper so that jpQuery.fn.blah(el, arg1, arg2) can be bound to jpQuery(myElement).blah(arg1, arg2)
+	// note that unlike
+	var wrap = function( el ) {
+		for ( var pluginName in this ) {
+			el[pluginName] = this[pluginName].bind( el );
+		}
+		// other functions that take an element
+		el.trigger = trigger.bind( el, el );
+		return el;
+	}
+
+	// ensure that `this` gives wrap access to the props assigned below
+	var jpQuery = wrap.bind(fn);
+
+	Object.assign( jpQuery, {
+		wrap: wrap,
 		ready: ready,
 		data: data,
-		fn: {},
+		fn: fn,
 		on: on,
 		each: each,
 		trigger: trigger,
@@ -132,5 +189,10 @@
 		elFromString: elFromString,
 		viewportWidth: viewportWidth,
 		viewportHeight: viewportHeight,
-	};
+		width: width,
+	} );
+
+	console.log("functions are ", jpQuery.fn);
+
+	window.jpQuery = jpQuery;
 } )();
