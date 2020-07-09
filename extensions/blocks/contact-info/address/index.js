@@ -11,7 +11,6 @@ import { Path, Circle } from '@wordpress/components';
 import edit from './edit';
 import save from './save';
 import renderMaterialIcon from '../../../shared/render-material-icon';
-import { supportsCollections } from '../../../shared/block-category';
 
 const attributes = {
 	address: {
@@ -64,7 +63,7 @@ export const settings = {
 			<Circle cx="12" cy="9" r="2.5" />
 		</Fragment>
 	),
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	attributes,
 	parent: [ 'jetpack/contact-info' ],
 	edit,

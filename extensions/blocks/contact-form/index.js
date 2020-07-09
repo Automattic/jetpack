@@ -20,7 +20,6 @@ import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'contact-form';
 export const settings = {
@@ -41,12 +40,12 @@ export const settings = {
 	edit,
 	save: InnerBlocks.Content,
 	variations,
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	deprecated,
 };
 
 const FieldDefaults = {
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,

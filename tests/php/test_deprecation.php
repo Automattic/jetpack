@@ -150,7 +150,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	/**
 	 * Provides deprecated files and expected relacements.
 	 *
-	 * @todo Remove error version check when WordPress 5.4 is the minimum.
 	 * @todo Remove replacement version check when WordPress 5.5 is the minimum.
 	 *
 	 * @return array
@@ -158,7 +157,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	function provider_deprecated_file_paths() {
 		global $wp_version;
 
-		$error       = ( version_compare( $wp_version, '5.4-alpha', '>=' ) ) ? E_USER_DEPRECATED : E_USER_NOTICE;
 		$replacement = ( version_compare( $wp_version, '5.5-alpha', '>=' ) ) ? '' : null;
 
 		return array(
@@ -166,12 +164,12 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array(
 				'class.jetpack-ixr-client.php',
 				$replacement,
-				$error,
+				E_USER_DEPRECATED,
 			),
 			array(
 				'class.jetpack-xmlrpc-server.php',
 				$replacement,
-				$error,
+				E_USER_DEPRECATED,
 			),
 		);
 	}
