@@ -244,7 +244,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$query['tax_query'] = array();
 			foreach ( $args['term'] as $taxonomy => $slug ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
-				if ( false === $taxonomy_object || ( ! $taxonomy_object->public && 
+				if ( false === $taxonomy_object || ( ! $taxonomy_object->public &&
 						! current_user_can( $taxonomy_object->cap->assign_terms ) ) ) {
 					continue;
 				}
@@ -253,7 +253,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 					'taxonomy' => $taxonomy,
 					'field' => 'slug',
 					'terms' => explode( ',', $slug )
-				);				
+				);
 			}
 		}
 
@@ -382,7 +382,9 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 						if ( ! isset( $return[$key] ) ) {
 							$return[$key] = (object) array();
 						}
-						$return[$key]->next_page = $this->build_page_handle( $last_post, $query );
+							if ( isset( $last_post['ID'] ) ) {
+								$return[ $key ]->next_page = $this->build_page_handle( $last_post, $query );
+							}
 					}
 				}
 
