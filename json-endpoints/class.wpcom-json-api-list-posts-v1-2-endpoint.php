@@ -375,7 +375,10 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 						if ( ! isset( $return[$key] ) ) {
 							$return[$key] = (object) array();
 						}
-						$return[$key]->next_page = $this->build_page_handle( $last_post, $query );
+
+							if ( isset( $last_post['ID'] ) ) {
+								$return[ $key ]->next_page = $this->build_page_handle( $last_post, $query );
+							}
 					}
 				}
 
