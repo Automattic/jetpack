@@ -37,6 +37,22 @@ export default function Overlay( {
 		[ tapToPlayPause, onClick ]
 	);
 
+	const onPreviousSlideHandler = useCallback(
+		event => {
+			event.stopPropagation();
+			onPreviousSlide();
+		},
+		[ onPreviousSlide ]
+	);
+
+	const onNextSlideHandler = useCallback(
+		event => {
+			event.stopPropagation();
+			onNextSlide();
+		},
+		[ onNextSlide ]
+	);
+
 	return html`
 		<div
 			class=${classNames( {
@@ -45,7 +61,7 @@ export default function Overlay( {
 			} )}
 			onClick=${onOverlayPressed}
 		>
-			<div class="wp-story-prev-slide" onClick=${onPreviousSlide}>
+			<div class="wp-story-prev-slide" onClick=${onPreviousSlideHandler}>
 				${hasPrevious &&
 					html`
 						<${DecoratedButton}
@@ -57,7 +73,7 @@ export default function Overlay( {
 						/>
 					`}
 			</div>
-			<div class="wp-story-next-slide" onClick=${onNextSlide}>
+			<div class="wp-story-next-slide" onClick=${onNextSlideHandler}>
 				${hasNext &&
 					html`
 						<${DecoratedButton}

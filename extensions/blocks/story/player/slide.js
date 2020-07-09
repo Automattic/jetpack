@@ -27,6 +27,8 @@ export const Slide = ( {
 		timeout: null,
 	} );
 
+	const slideEnded = () => progressState.currentTime >= progressState.duration;
+
 	// Sync playing state with underlying HTMLMediaElement
 	useEffect( () => {
 		if ( isVideo() ) {
@@ -55,7 +57,7 @@ export const Slide = ( {
 		}
 	}, [ muted ] );
 
-	// reset progress state for slides that aren't being displayed
+	// Reset progress state for slides that aren't being displayed
 	useEffect( () => {
 		if ( ! visible ) {
 			updateProgressState( {
@@ -69,6 +71,20 @@ export const Slide = ( {
 			}
 		}
 	}, [ visible ] );
+
+	// Reset progress on replay for stories with one slide
+	useEffect( () => {
+		if ( playing && ended && currentSlideIndex === index ) {
+			updateProgressState( {
+				currentTime: 0,
+				duration: null,
+				timeout: null,
+			} );
+			if ( isVideo() ) {
+				mediaRef.current.currentTime = 0;
+			}
+		}
+	}, [ playing, ended, currentSlideIndex ] );
 
 	// Sync progressState with underlying media playback progress
 	useEffect( () => {
@@ -94,7 +110,7 @@ export const Slide = ( {
 
 	// Watch progressState and trigger events using onProgress and onEnd callbacks
 	useEffect( () => {
-		if ( ! playing || progressState.duration === null ) {
+		if ( ! playing || ended || progressState.duration === null ) {
 			return;
 		}
 		const percentage = Math.round( ( 100 * progressState.currentTime ) / progressState.duration );
