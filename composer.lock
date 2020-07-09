@@ -78,16 +78,16 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-autoloader.git",
-                "reference": "415269dbc7bf4771372c28b1ea866efa4f2501bf"
+                "reference": "4502da4b2443fc1b61389cacc94c34876aca2b3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/415269dbc7bf4771372c28b1ea866efa4f2501bf",
-                "reference": "415269dbc7bf4771372c28b1ea866efa4f2501bf",
+                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/4502da4b2443fc1b61389cacc94c34876aca2b3d",
+                "reference": "4502da4b2443fc1b61389cacc94c34876aca2b3d",
                 "shasum": ""
             },
             "require": {
@@ -110,7 +110,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
-            "time": "2020-07-02T09:39:59+00:00"
+            "time": "2020-07-09T13:18:38+00:00"
         },
         {
             "name": "automattic/jetpack-backup",
