@@ -32,6 +32,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $version     The version of Jetpack that deprecated the function.
  */
 function jetpack_deprecated_function( $function, $replacement, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Bail early for non-Jetpack deprecations.
+	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+		return;
+	}
+
 	// Look for when a function will be removed based on when it was deprecated.
 	$removed_version = jetpack_get_future_removed_version( $version );
 
@@ -65,6 +70,11 @@ add_action( 'deprecated_function_run', 'jetpack_deprecated_function', 10, 3 );
  * @param string $message     A message regarding the change.
  */
 function jetpack_deprecated_file( $file, $replacement, $version, $message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Bail early for non-Jetpack deprecations.
+	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+		return;
+	}
+
 	// Look for when a file will be removed based on when it was deprecated.
 	$removed_version = jetpack_get_future_removed_version( $version );
 
