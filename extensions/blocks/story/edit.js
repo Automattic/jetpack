@@ -20,11 +20,13 @@ import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
 
-export const pickRelevantMediaFiles = ( media, sizeSlug = 'full' ) => {
+export const pickRelevantMediaFiles = ( media, sizeSlug = 'large' ) => {
 	const mediaProps = pick( media, [ 'alt', 'id', 'link', 'type', 'mime', 'caption' ] );
 	mediaProps.url =
 		get( media, [ 'sizes', sizeSlug, 'url' ] ) ||
 		get( media, [ 'media_details', 'sizes', sizeSlug, 'source_url' ] ) ||
+		get( media, [ 'media_details', 'videopress', 'original' ] ) ||
+		get( media, [ 'media_details', 'original', 'url' ] ) ||
 		media.url;
 	mediaProps.type = media.media_type || media.type;
 	mediaProps.mime = media.mime_type || media.mime;
