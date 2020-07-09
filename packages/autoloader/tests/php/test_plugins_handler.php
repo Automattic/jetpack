@@ -78,7 +78,7 @@ class PluginsHandlerTest extends TestCase {
 	 *
 	 * @covers Plugins_Handler::is_directory_plugin
 	 */
-	public function test_is_directory_plugin_single_file_with_slash() {
+	public function test_is_directory_plugin_single_file_with_empty_string() {
 		$this->assertFalse( $this->plugins_handler->is_directory_plugin( '' ) );
 	}
 
