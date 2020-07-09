@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useCallback, Fragment } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { get, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';

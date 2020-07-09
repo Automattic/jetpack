@@ -5,6 +5,7 @@ import { BlockControls, MediaUpload } from '@wordpress/block-editor';
 import { Toolbar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+import EditButton from '../../shared/edit-button';
 
 export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia } ) => (
 	<Fragment>
@@ -17,6 +18,9 @@ export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia 
 						allowedTypes={ allowedMediaTypes }
 						multiple
 						value={ mediaFiles.map( file => file.id ) }
+						render={ ( { open } ) => (
+							<EditButton label={ __( 'Edit Story', 'jetpack' ) } onClick={ open } />
+						) }
 					/>
 				</Toolbar>
 			) }
