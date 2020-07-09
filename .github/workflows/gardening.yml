@@ -10,7 +10,7 @@ jobs:
   triage:
     name: "Label PRs"
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/labeler@v2
         with:
@@ -34,6 +34,7 @@ jobs:
   repo-gardening:
     name: "Manage labels and assignees"
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout
         uses: actions/checkout@v2
