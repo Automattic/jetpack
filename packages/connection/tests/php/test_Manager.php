@@ -128,10 +128,8 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_api_url_defaults() {
 		$this->apply_filters->enable();
-		$this->constants_apply_filters->enable();
 
-		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
-		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
+		add_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
 
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.something/1/',
@@ -141,6 +139,8 @@ class ManagerTest extends TestCase {
 			'https://jetpack.wordpress.com/jetpack.another_thing/1/',
 			$this->manager->api_url( 'another_thing/' )
 		);
+
+		remove_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
 	}
 
 	/**
@@ -440,6 +440,21 @@ class ManagerTest extends TestCase {
 		$mock->enable();
 
 		return $mock;
+	}
+
+	/**
+	 * Filter to set the default constant values.
+	 *
+	 * @param string $value Existing value (empty and ignored).
+	 * @param string $name Constant name.
+	 *
+	 * @see Utils::DEFAULT_JETPACK__API_BASE
+	 * @see Utils::DEFAULT_JETPACK__API_VERSION
+	 *
+	 * @return string
+	 */
+	public function filter_api_constant( $value, $name ) {
+		return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
 	}
 
 }
