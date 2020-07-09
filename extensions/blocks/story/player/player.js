@@ -65,6 +65,7 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 
 	// reset player on slide change
 	useEffect( () => {
+		setLoading( true );
 		showSlide( 0, false );
 	}, [ slides ] );
 
