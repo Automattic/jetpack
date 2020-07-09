@@ -34,24 +34,37 @@ export default function getFilterRequest( filters ) {
 
 	if ( date ) {
 		let startDate = null;
-		let endDate = TODAY;
+		let endDate = null;
 		switch ( date.range ) {
 			case DATE_RANGE_LAST_7_DAYS:
 				startDate = moment( TODAY ).subtract( 7, 'days' );
+				endDate = TODAY;
 				break;
 			case DATE_RANGE_LAST_30_DAYS:
 				startDate = moment( TODAY ).subtract( 30, 'days' );
+				endDate = TODAY;
 				break;
 			case DATE_RANGE_LAST_6_MONTHS:
 				startDate = moment( TODAY ).subtract( 6, 'months' );
+				endDate = TODAY;
 				break;
 			case DATE_RANGE_LAST_12_MONTHS:
 				startDate = moment( TODAY ).subtract( 1, 'year' );
+				endDate = TODAY;
 				break;
 			case DATE_RANGE_CUSTOM:
-				if ( date.year && date.month ) {
-					startDate = moment( [ date.year, date.month - 1 ] );
-					endDate = moment( startDate ).endOf( 'month' );
+				const month = parseInt( date.month );
+				const year = parseInt( date.year );
+				if ( ! isNaN( month ) && ! isNaN( year ) ) {
+					if ( month === -1 ) {
+						// Whole year.
+						startDate = moment( [ year, 0 ] );
+						endDate = moment( startDate ).endOf( 'year' );
+					} else {
+						// Specific month.
+						startDate = moment( [ year, month ] );
+						endDate = moment( startDate ).endOf( 'month' );
+					}
 				}
 				break;
 		}

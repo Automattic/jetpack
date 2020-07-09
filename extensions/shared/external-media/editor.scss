@@ -221,12 +221,23 @@ $grid-size: 8px;
 
 .jetpack-external-media-header__view {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: flex-start;
 	margin-bottom: 48px;
+	flex-direction: column;
+
+	@media only screen and ( min-width: 600px ) {
+		flex-direction: row;
+		align-items: center;
+	}
 
 	select {
 		max-width: 200px !important;
+	}
+
+	.components-base-control__field {
+		display: flex;
+		flex-direction: column;
 	}
 }
 
@@ -240,31 +251,54 @@ $grid-size: 8px;
 		padding-right: $grid-size;
 		margin-bottom: 0;
 	}
-
-	.components-base-control__label {
-		margin-bottom: 0;
-	}
-
-	.components-base-control__field {
-		display: flex;
-		align-items: center;
-		margin-bottom: 0;
-	}
-
-	.components-base-control + .components-base-control {
-		padding-left: $grid-size * 2;
-	}
 }
 
 .jetpack-external-media-header__filter {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	flex-grow: 1;
+	justify-content: flex-start;
 
-	.jetpack-external-media-googlephotos-filter {
+	@media only screen and ( min-width: 600px ) {
+		border-left: 1px solid $light-gray-secondary;
+		margin-left: $grid-size * 2;
+		padding-left: $grid-size * 2;
+	}
+
+	.jetpack-external-media-date-filter {
 		display: flex;
-		align-items: center;
-		margin-right: 7px;
+		flex-wrap: wrap;
+
+		button {
+			// Adjust button to match the size and position of inputs.
+			margin-top: 27px;
+			height: 40px;
+
+			@media only screen and ( min-width: 783px ) {
+				height: 30px;
+			}
+		}
+
+		.components-base-control {
+			.components-input-control__label {
+				margin-bottom: 3px;
+			}
+
+			.components-input-control__backdrop {
+				border-color: $dark-gray-200;
+				border-radius: 3px;
+			}
+
+			.components-input-control__input {
+				height: 40px;
+				width: 70px; // This input holds only years, so 4 digits width is enough.
+
+				@media only screen and ( min-width: 783px ) {
+					height: 30px;
+				}
+			}
+		}
 	}
 }
 
