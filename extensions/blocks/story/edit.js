@@ -102,6 +102,7 @@ export default withNotices( function StoryEdit( {
 	return (
 		<Fragment>
 			{ controls }
+			{ noticeUI }
 			<Story className={ className } mediaFiles={ mediaFiles } isSelected={ isSelected } />
 			<DropZone onFilesDrop={ addFiles } />
 			{ isSelected && (

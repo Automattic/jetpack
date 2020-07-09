@@ -112,7 +112,7 @@ export const Slide = ( {
 	// Calls onLoaded when underlying media is ready to be played
 	useEffect( () => {
 		waitMediaReady( mediaRef.current ).then( onLoaded );
-	}, [] );
+	}, [ media ] );
 
 	return html`
 		<li class="wp-story-slide" style=${{ display: visible ? 'block' : 'none' }}>
