@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { get, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';
@@ -44,10 +44,10 @@ export default withNotices( function StoryEdit( {
 	const { mediaFiles } = attributes;
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 
+	const mediaReadyFilter = files =>
+		files.map( pickRelevantMediaFiles ).filter( media => ! isBlobURL( media.url ) );
 	const onSelectMedia = newMediaFiles =>
-		setAttributes( {
-			mediaFiles: newMediaFiles.map( pickRelevantMediaFiles ),
-		} );
+		setAttributes( { mediaFiles: mediaReadyFilter( newMediaFiles ) } );
 
 	const addFiles = files => {
 		const lockName = 'storyBlockLock';
@@ -56,8 +56,10 @@ export default withNotices( function StoryEdit( {
 			allowedTypes: ALLOWED_MEDIA_TYPES,
 			filesList: files,
 			onFileChange: newMediaFiles => {
-				const mediaUploaded = newMediaFiles.filter( media => ! isBlobURL( media.url ) );
-				onSelectMedia( [ ...mediaFiles, ...mediaUploaded ] );
+				const mediaUploaded = mediaReadyFilter( newMediaFiles );
+				setAttributes( {
+					mediaFiles: [ ...mediaFiles, ...mediaUploaded ],
+				} );
 				if ( newMediaFiles.length === mediaUploaded.length ) {
 					unlockPostSaving( lockName );
 				}
