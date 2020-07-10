@@ -113,7 +113,7 @@ class Broken_Token {
 	 */
 	public function enqueue_scripts( $hook ) {
 		if ( strpos( $hook, 'jetpack_page_broken-token' ) === 0 ) {
-			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . '/css/style.css', array(), JETPACK_DEBUG_HELPER_VERSION );
+			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/style.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 		}
 	}
 
