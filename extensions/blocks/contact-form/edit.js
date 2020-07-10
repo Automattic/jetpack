@@ -138,6 +138,7 @@ function JetpackContactFormEdit( {
 			if ( emailErrors.length === 1 ) {
 				if ( emailErrors[ 0 ] && emailErrors[ 0 ].email ) {
 					return sprintf(
+						/* translators: placeholder is an email address. */
 						__( '%s is not a valid email address.', 'jetpack' ),
 						emailErrors[ 0 ].email
 					);
@@ -147,7 +148,8 @@ function JetpackContactFormEdit( {
 
 			if ( emailErrors.length === 2 ) {
 				return sprintf(
-					__( '%s and %s are not a valid email address.', 'jetpack' ),
+					/* translators: placeholders are email addresses. */
+					__( '%1$s and %2$s are not a valid email address.', 'jetpack' ),
 					emailErrors[ 0 ].email,
 					emailErrors[ 1 ].email
 				);
@@ -156,6 +158,7 @@ function JetpackContactFormEdit( {
 			const inValidEmails = emailErrors.map( error => error.email );
 
 			return sprintf(
+				/* translators: placeholder is a list of email addresses. */
 				__( '%s are not a valid email address.', 'jetpack' ),
 				inValidEmails.join( ', ' )
 			);

@@ -23,8 +23,8 @@ export default class Layout extends Component {
 	renderImage( img, i ) {
 		const { columns, imageFilter, images, linkTo, layoutStyle, selectedImage } = this.props;
 
-		/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
 		const ariaLabel = sprintf(
+			/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
 			__( 'image %1$d of %2$d in gallery', 'jetpack' ),
 			i + 1,
 			images.length

@@ -41,8 +41,11 @@ class RepeatVisitorEdit extends Component {
 	};
 
 	getNoticeLabel() {
+		/* eslint-disable @wordpress/valid-sprintf */
+		/* This can be removed if this issue is solved: https://github.com/WordPress/gutenberg/issues/23875 */
 		if ( this.props.attributes.criteria === CRITERIA_AFTER ) {
 			return sprintf(
+				/* translators: placeholder is a number. */
 				_n(
 					'This block will only appear to people who have visited this page more than once.',
 					'This block will only appear to people who have visited this page more than %d times.',
@@ -54,6 +57,7 @@ class RepeatVisitorEdit extends Component {
 		}
 
 		return sprintf(
+			/* translators: placeholder is a number. */
 			_n(
 				'This block will only appear to people who are visiting this page for the first time.',
 				'This block will only appear to people who have visited this page at most %d times.',
@@ -62,6 +66,7 @@ class RepeatVisitorEdit extends Component {
 			),
 			this.props.attributes.threshold
 		);
+		/* eslint-enable @wordpress/valid-sprintf */
 	}
 
 	render() {

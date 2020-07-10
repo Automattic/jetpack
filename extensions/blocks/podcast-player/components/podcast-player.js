@@ -92,8 +92,7 @@ export class PodcastPlayer extends Component {
 		 * dismissible via ctrl on VoiceOver.
 		 */
 		speak(
-			/* translators: %s is the track title. It describes the current state of
-			the track as "Loading: [track title]". */
+			/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]". */
 			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
 			'assertive'
 		);
