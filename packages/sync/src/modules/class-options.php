@@ -368,7 +368,7 @@ class Options extends Module {
 	 *
 	 * @return int total
 	 */
-	public function total( $config ) {
+	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return count( Defaults::get_options_whitelist() );
 	}
 

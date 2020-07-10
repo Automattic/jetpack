@@ -76,7 +76,16 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		return ( Jetpack::is_active() && ! ( new Status() )->is_development_mode() );
+		return Jetpack::is_active() && ! ( new Status() )->is_development_mode();
+	}
+
+	/**
+	 * Retrieve the `blog_token` if it exists.
+	 *
+	 * @return object|false
+	 */
+	protected function helper_get_blog_token() {
+		return Jetpack::connection()->get_access_token();
 	}
 
 	/**
@@ -127,10 +136,44 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * The test verifies the blog token exists.
+	 *
+	 * @return array
+	 */
+	protected function test__blog_token_if_exists() {
+		$blog_token = $this->helper_get_blog_token();
+
+		if ( $blog_token ) {
+			$result = self::passing_test( array( 'name' => __FUNCTION__ ) );
+		} else {
+			$result = self::failing_test(
+				array(
+					'name'              => __FUNCTION__,
+					'short_description' => __( 'Blog token is missing.', 'jetpack' ),
+					'action'            => admin_url( 'admin.php?page=jetpack#/dashboard' ),
+					'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
+				)
+			);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Test if Jetpack is connected.
 	 */
 	protected function test__check_if_connected() {
 		$name = __FUNCTION__;
+
+		if ( ! $this->helper_get_blog_token() ) {
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => __( 'Blog token is missing.', 'jetpack' ),
+				)
+			);
+		}
+
 		if ( $this->helper_is_jetpack_connected() ) {
 			$result = self::passing_test(
 				array(
@@ -411,7 +454,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		}
 
 		$result       = json_decode( $body );
-		$is_connected = (bool) $result->connected;
+		$is_connected = ! empty( $result->connected );
 		$message      = $result->message . ': ' . wp_remote_retrieve_response_code( $response );
 
 		if ( $is_connected ) {

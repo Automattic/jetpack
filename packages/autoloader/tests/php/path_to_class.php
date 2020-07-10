@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 /**
  * This is a very much a dummy class that is used for a test.
  * To see if we are able to load it via the autoloader.
@@ -9,16 +9,16 @@
 namespace Jetpack\TestCase_ABC;
 
 /**
- * Class className_ABC.
+ * Class ClassName_ABC.
  */
-class className_ABC {
+class ClassName_ABC {
 
 	/**
 	 * Returns True.
 	 *
 	 * @return bool
 	 */
-	function return_true() {
+	public function return_true() {
 		return true;
 	}
 }

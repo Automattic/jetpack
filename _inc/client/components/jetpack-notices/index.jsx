@@ -22,11 +22,18 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl as _getConnectUrl,
 } from 'state/connection';
-import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
+import {
+	isDevVersion,
+	userCanConnectSite,
+	userIsSubscriber,
+	getConnectionErrors,
+} from 'state/initial-state';
+import { getSiteDataErrors } from 'state/site';
 import DismissableNotices from './dismissable';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import PlanConflictWarning from './plan-conflict-warning';
+import JetpackConnectionErrors from './jetpack-connection-errors';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -185,9 +192,20 @@ class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
 	render() {
+		const siteDataErrors = this.props.siteDataErrors.filter( error =>
+			error.hasOwnProperty( 'action' )
+		);
+
 		return (
 			<div aria-live="polite">
 				<NoticesList />
+				{ this.props.siteConnectionStatus &&
+					this.props.userCanConnectSite &&
+					( this.props.connectionErrors.length > 0 || siteDataErrors.length > 0 ) && (
+						<JetpackConnectionErrors
+							errors={ this.props.connectionErrors.concat( siteDataErrors ) }
+						/>
+					) }
 				<JetpackStateNotices />
 				<DevVersionNotice
 					isDevVersion={ this.props.isDevVersion }
@@ -233,5 +251,7 @@ export default connect( state => {
 		siteDevMode: getSiteDevMode( state ),
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
+		connectionErrors: getConnectionErrors( state ),
+		siteDataErrors: getSiteDataErrors( state ),
 	};
 } )( JetpackNotices );

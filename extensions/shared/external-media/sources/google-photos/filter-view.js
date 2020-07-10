@@ -7,8 +7,7 @@ import { SelectControl, Button } from '@wordpress/components';
 
 const FILTERS = [
 	{ label: __( 'Category', 'jetpack' ), value: 'category' },
-	{ label: __( 'After date', 'jetpack' ), value: 'startDate' },
-	{ label: __( 'Before date', 'jetpack' ), value: 'endDate' },
+	{ label: __( 'Date', 'jetpack' ), value: 'date' },
 	{ label: __( 'Favorites', 'jetpack' ), value: 'favorite' },
 	{ label: __( 'Media Type', 'jetpack' ), value: 'mediaType' },
 ];
@@ -44,7 +43,7 @@ function addFilter( existing, newFilter ) {
 
 function GoogleFilterView( props ) {
 	const [ currentFilter, setCurrentFilter ] = useState( getFirstFilter( [] ) );
-	const { isLoading, filters, canChangeMedia } = props;
+	const { isLoading, isCopying, filters, canChangeMedia } = props;
 	const remainingFilters = removeMediaType( getFilterOptions( filters ), canChangeMedia );
 	const setFilter = () => {
 		const newFilters = addFilter( filters, currentFilter );
@@ -62,12 +61,12 @@ function GoogleFilterView( props ) {
 			<SelectControl
 				label={ __( 'Filters', 'jetpack' ) }
 				value={ currentFilter }
-				disabled={ isLoading }
+				disabled={ isLoading || isCopying }
 				options={ remainingFilters }
 				onChange={ setCurrentFilter }
 			/>
 
-			<Button disabled={ isLoading } isSecondary isSmall onClick={ setFilter }>
+			<Button disabled={ isLoading || isCopying } isSecondary isSmall onClick={ setFilter }>
 				{ __( 'Add Filter', 'jetpack' ) }
 			</Button>
 		</Fragment>

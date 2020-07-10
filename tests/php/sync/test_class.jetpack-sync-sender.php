@@ -2,8 +2,9 @@
 
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules\Callables;
-use Automattic\Jetpack\Sync\Settings;
+
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;
@@ -464,6 +465,98 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $decoded_object->user_pass ) );
 
 		$this->assertEquals( $user_id, $decoded_object->ID );
+	}
+
+	/**
+	 * Verify that do_full_sync does not return true for default settings.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_full_sync_return_default_settings() {
+
+		// delete existing options.
+		delete_option( 'jetpack_sync_full_status' );
+
+		$result = $this->sender->do_full_sync();
+
+		// False or WP_Error is expected.
+		$this->assertNotTrue( $result );
+
+	}
+
+	/**
+	 * Verify that do_full_sync returns WP_Error when Full Sync is in progress.
+	 *
+	 * Note Highlights existing behavior which is broken, correct value should be True.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_full_sync_return_in_progress() {
+
+		// udpate settings to In Progress.
+		$settings = array(
+			'started'  => true,
+			'finished' => false,
+			'progress' => array(),
+			'config'   => array(),
+		);
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+
+		$result = $this->sender->do_full_sync();
+
+		// WP_Error is expected.
+		$this->assertInstanceOf( 'WP_Error', $result );
+		// Correct state would be "True".
+	}
+
+	/**
+	 * Verify that do_full_sync returns WP_Error when Full Sync is complete.
+	 *
+	 * Note Highlights existing behavior which is broken, correct value should be False.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_full_sync_return_complete() {
+
+		// udpate settings to In Progress.
+		$settings = array(
+			'started'  => true,
+			'finished' => true,
+			'progress' => array(),
+			'config'   => array(),
+		);
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+
+		$result = $this->sender->do_full_sync();
+
+		// WP_Error is expected.
+		$this->assertInstanceOf( 'WP_Error', $result );
+		// Correct state would be "False".
+	}
+
+	/**
+	 * Verify that do_full_sync returns WP_Error when Full Sync has a send lock.
+	 *
+	 * Note Highlights existing behavior which is broken, correct value should be False.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_full_sync_return_send_lock() {
+
+		// udpate settings to In Progress.
+		$settings = array(
+			'started'  => true,
+			'finished' => false,
+			'progress' => array(),
+			'config'   => array(),
+		);
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+
+		// establish lock.
+		$this->assertTrue( ( new Lock() )->attempt( 'full_sync' ) );
+
+		$result = $this->sender->do_full_sync();
+
+		// WP_Error is expected.
+		$this->assertInstanceOf( 'WP_Error', $result );
+		// Correct state would be "False".
+		( new Lock() )->remove( 'full_sync' );
 	}
 
 	function run_filter( $data ) {

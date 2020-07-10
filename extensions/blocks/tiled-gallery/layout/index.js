@@ -76,7 +76,18 @@ export default class Layout extends Component {
 	}
 
 	render() {
-		const { align, children, className, columns, images, layoutStyle, roundedCorners } = this.props;
+		const {
+			align,
+			children,
+			className,
+			columns,
+			images,
+			layoutStyle,
+			roundedCorners,
+			onResize,
+			isSave,
+			columnWidths,
+		} = this.props;
 		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
 		const renderedImages = this.props.images.map( this.renderImage, this );
 		const roundedCornersValue =
@@ -91,9 +102,11 @@ export default class Layout extends Component {
 				<LayoutRenderer
 					align={ align }
 					columns={ columns }
+					columnWidths={ isSave ? columnWidths : undefined }
 					images={ images }
 					layoutStyle={ layoutStyle }
 					renderedImages={ renderedImages }
+					onResize={ isSave ? undefined : onResize }
 				/>
 				{ children }
 			</div>

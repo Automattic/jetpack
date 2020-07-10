@@ -8,6 +8,11 @@ import classnames from 'classnames';
  */
 import { memo } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import { default as linkIcon } from '../icons/link';
+
 const Header = memo(
 	( {
 		playerId,
@@ -80,6 +85,14 @@ const Title = memo(
 					style={ { color: colors.primary.custom } }
 				>
 					{ track.title }
+					<a
+						className="jetpack-podcast-player__track-title-link"
+						href={ track.link || track.src }
+						target="_blank"
+						rel="noopener noreferrer nofollow"
+					>
+						{ linkIcon }
+					</a>
 				</span>
 			) }
 

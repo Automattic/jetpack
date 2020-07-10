@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76b0cce3e2c32a81a3cce4d8d3ed0665",
+    "content-hash": "59de22549dd7a17d42508cac667d9108",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
-                "reference": "b873be98786907a49ac5cd21836167f662212aa0"
+                "reference": "c3681b3eac3d0e5625de758218fd1e8994e06302"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -24,9 +24,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -41,24 +41,25 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9"
+                "reference": "b97ce83f38d0ccf58be9eefd2d676973279ad066"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
+                "brain/monkey": "2.4.0",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -73,7 +74,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -107,20 +108,20 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
-                "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7"
+                "reference": "0ae8bfd8b87d9140066915c643fc6a00783d0032"
             },
             "type": "library",
             "autoload": {
                 "files": [
                     "actions.php"
                 ],
-                "psr-4": {
-                    "Automattic\\Jetpack\\Backup\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -129,7 +130,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -161,7 +162,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-add/deterministic-init",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/config",
@@ -180,15 +181,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510"
+                "reference": "ac53d3e65b1be0a24206dc32ef2d17a17e387fcd"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-options": "@dev"
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-roles": "@dev"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -196,14 +198,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Connection\\": "src"
-                },
                 "files": [
                     "legacy/load-ixr.php"
                 ],
                 "classmap": [
-                    "legacy"
+                    "legacy",
+                    "src/"
                 ]
             },
             "scripts": {
@@ -219,20 +219,21 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
+                "reference": "9401a1595eba4aaa79711851ca810d497575317c"
             },
             "require-dev": {
+                "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -246,21 +247,50 @@
             "description": "A wrapper for defining constants in a more testable way."
         },
         {
+            "name": "automattic/jetpack-device-detection",
+            "version": "dev-add/jetpack-mobile-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/device-detection",
+                "reference": "4d838c69f4869dbba9ee2752ff7c1f13b79a7d76"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A way to detect device types based on User-Agent header."
+        },
+        {
             "name": "automattic/jetpack-error",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
-                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4"
+                "reference": "2f35acfb871c772dd3a81755d093b1cb295b8830"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -275,11 +305,11 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca"
+                "reference": "0b6037dafd9d0c92b6f1106e5a468065c6d2c7c5"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -287,6 +317,9 @@
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-partner": "@dev",
+                "automattic/jetpack-redirect": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
@@ -296,9 +329,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\JITMS\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -313,11 +346,11 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
+                "reference": "f2b7828deb34f7bb6da24380f2a88ab98d3733df"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -325,9 +358,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Assets\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -342,7 +375,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -368,14 +401,14 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-add/upgrade-url-subsidiary-id",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
-                "reference": "d0174e06e76927cefcedcded30c38405357ddea6"
+                "reference": "b2726c079aec6821a02cb44829841ee01ee17c91"
             },
             "require-dev": {
-                "brain/monkey": "^2.4",
+                "brain/monkey": "2.4.0",
                 "mockery/mockery": "^1.2",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -399,11 +432,11 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-add/redirect-everything-dependency",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
-                "reference": "3f0328ec369ca80af8eba39d9bc452e1bf9f222c"
+                "reference": "1ca7f6fe907efa8c7cc4a9e961d4a7d2e08fa5ce"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -423,15 +456,15 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities to build URLs to the jetpack.com/redirect service"
+            "description": "Utilities to build URLs to the jetpack.com/redirect/ service"
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
-                "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7"
+                "reference": "22dd28b575dc20f2a8e7d44f024223033c66517a"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -439,9 +472,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -456,21 +489,22 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
-                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9"
+                "reference": "3844d803985e418e51e32bf7cc9c0a00b038a9f4"
             },
             "require-dev": {
+                "brain/monkey": "2.4.0",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -485,11 +519,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a"
+                "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -500,10 +534,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Sync\\": "src/",
-                    "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -512,11 +545,11 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "6f53f2987be1c025edcd7820759df50c134065e6"
+                "reference": "f97742a361eb772f8bc6f13ae9437b3e8233cb0e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -529,9 +562,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -546,11 +579,11 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-add/jetpack-mobile-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "fd194dfc4f01a66de9c5b9caf239cdd806a8d3eb"
+                "reference": "f4e52837194537e90f9fa10ac7b48f25519765bd"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -562,11 +595,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                },
                 "classmap": [
-                    "legacy"
+                    "legacy",
+                    "src/"
                 ]
             },
             "scripts": {
@@ -584,22 +615,22 @@
     "packages-dev": [
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
-            "version": "v0.6.2",
+            "version": "v0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer.git",
-                "reference": "8001af8eb107fbfcedc31a8b51e20b07d85b457a"
+                "reference": "e8d808670b8f882188368faaf1144448c169c0b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/8001af8eb107fbfcedc31a8b51e20b07d85b457a",
-                "reference": "8001af8eb107fbfcedc31a8b51e20b07d85b457a",
+                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/e8d808670b8f882188368faaf1144448c169c0b7",
+                "reference": "e8d808670b8f882188368faaf1144448c169c0b7",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "^1.0",
-                "php": "^5.3|^7",
-                "squizlabs/php_codesniffer": "^2|^3"
+                "composer-plugin-api": "^1.0 || ^2.0",
+                "php": ">=5.3",
+                "squizlabs/php_codesniffer": "^2 || ^3 || 4.0.x-dev"
             },
             "require-dev": {
                 "composer/composer": "*",
@@ -646,7 +677,7 @@
                 "stylecheck",
                 "tests"
             ],
-            "time": "2020-01-29T20:22:20+00:00"
+            "time": "2020-06-25T14:57:39+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -810,16 +841,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.4.0",
+            "version": "v2.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "ef63e225de330bdd928288e6c6bbcb79289202d5"
+                "reference": "735133374065f7541e9201c06893eec5ebbf53d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/ef63e225de330bdd928288e6c6bbcb79289202d5",
-                "reference": "ef63e225de330bdd928288e6c6bbcb79289202d5",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/735133374065f7541e9201c06893eec5ebbf53d3",
+                "reference": "735133374065f7541e9201c06893eec5ebbf53d3",
                 "shasum": ""
             },
             "require": {
@@ -860,20 +891,20 @@
                 }
             ],
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
-            "time": "2020-04-16T14:54:42+00:00"
+            "time": "2020-06-24T15:36:36+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.8.1",
+            "version": "v2.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "5be26b4d719acaf7a433d1cad469159cbf034f2a"
+                "reference": "4a60e8bc9eebdb054a8a4ad41e4518d43d458c47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/5be26b4d719acaf7a433d1cad469159cbf034f2a",
-                "reference": "5be26b4d719acaf7a433d1cad469159cbf034f2a",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/4a60e8bc9eebdb054a8a4ad41e4518d43d458c47",
+                "reference": "4a60e8bc9eebdb054a8a4ad41e4518d43d458c47",
                 "shasum": ""
             },
             "require": {
@@ -882,9 +913,9 @@
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4 || ^0.5 || ^0.6",
-                "limedeck/phpunit-detailed-printer": "^3.1",
+                "limedeck/phpunit-detailed-printer": "^3.1 || ^4.0 || ^5.0",
                 "phpstan/phpstan": "^0.11.8",
-                "phpunit/phpunit": "^5.0 || ^6.5",
+                "phpunit/phpunit": "^5.0 || ^6.5 || ^7.0 || ^8.0",
                 "sirbrillig/phpcs-import-detection": "^1.1"
             },
             "type": "phpcodesniffer-standard",
@@ -908,20 +939,20 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2020-02-11T22:18:48+00:00"
+            "time": "2020-05-25T17:00:12+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.4",
+            "version": "3.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "dceec07328401de6211037abbb18bda423677e26"
+                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/dceec07328401de6211037abbb18bda423677e26",
-                "reference": "dceec07328401de6211037abbb18bda423677e26",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
+                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
                 "shasum": ""
             },
             "require": {
@@ -959,20 +990,20 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2020-01-30T22:20:29+00:00"
+            "time": "2020-04-17T01:09:41+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "2.2.1",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
-                "reference": "b5a453203114cc2284b1a614c4953456fbe4f546"
+                "reference": "7da1894633f168fe244afc6de00d141f27517b62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/b5a453203114cc2284b1a614c4953456fbe4f546",
-                "reference": "b5a453203114cc2284b1a614c4953456fbe4f546",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/7da1894633f168fe244afc6de00d141f27517b62",
+                "reference": "7da1894633f168fe244afc6de00d141f27517b62",
                 "shasum": ""
             },
             "require": {
@@ -982,6 +1013,7 @@
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.5 || ^0.6",
                 "phpcompatibility/php-compatibility": "^9.0",
+                "phpcsstandards/phpcsdevtools": "^1.0",
                 "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "suggest": {
@@ -1004,7 +1036,7 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2020-02-04T02:52:06+00:00"
+            "time": "2020-05-13T23:57:56+00:00"
         }
     ],
     "aliases": [],
@@ -1018,6 +1050,7 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-logo": 20,

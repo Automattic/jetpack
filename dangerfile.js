@@ -3,7 +3,7 @@
  */
 import { danger, warn, markdown, results, schedule, fail } from 'danger';
 const moment = require( 'moment' );
-const phpWhitelist = require( './bin/phpcs-whitelist' );
+const phpRequirelist = require( './bin/phpcs-requirelist' );
 
 const github = danger.github;
 const pr = github.pr;
@@ -49,25 +49,25 @@ if ( ! pr.body.includes( 'data or activity we track or use' ) ) {
 	);
 }
 
-// Check if newly added .php files were added to phpcs linter whitelist
+// Check if newly added .php files were added to phpcs linter require list.
 if ( newFiles.length > 0 ) {
 	const newPHPFiles = newFiles.filter(
 		fileName => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
 	);
 
-	const notWhitelistedFiles = [];
+	const notRequireListedFiles = [];
 
 	newPHPFiles.forEach( file => {
-		const whitelistedPath = phpWhitelist.find( path => file.includes( path ) );
-		if ( ! whitelistedPath ) {
-			notWhitelistedFiles.push( file );
+		const requireListedPath = phpRequirelist.find( path => file.includes( path ) );
+		if ( ! requireListedPath ) {
+			notRequireListedFiles.push( file );
 		}
 	} );
 
-	if ( notWhitelistedFiles.length > 0 ) {
-		const stringifiedFilesList = '\n' + notWhitelistedFiles.join( '\n' );
+	if ( notRequireListedFiles.length > 0 ) {
+		const stringifiedFilesList = '\n' + notRequireListedFiles.join( '\n' );
 		fail(
-			'Please add these new PHP files to PHPCS whitelist in bin/phpcs-whitelist.js for automatic linting:' +
+			'Please add these new PHP files to PHPCS required list in bin/phpcs-requirelist.js for automatic linting:' +
 				stringifiedFilesList
 		);
 	}

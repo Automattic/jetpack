@@ -1,8 +1,9 @@
 <?php
 
 use Automattic\Jetpack\Sync\Actions;
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Health;
+use Automattic\Jetpack\Sync\Lock;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
@@ -96,4 +97,84 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		Actions::cleanup_on_upgrade();
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 	}
+
+	/**
+	 * Verify that cron does not loop when a site has not done a Full Sync previously.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_cron_sync_by_type_full_sync_default_settings() {
+
+		// delete existing options.
+		delete_option( 'jetpack_sync_full_status' );
+
+		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
+		$this->assertEquals( $executions, 1 );
+	}
+
+	/**
+	 * Verify that cron does not loop when a Full Sync is in progres
+	 *
+	 * Note Highlights existing behavior which is broken, needs to be revised.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_cron_sync_by_type_full_sync_in_progress() {
+
+		// udpate settings to In Progress.
+		$settings = array(
+			'started'  => true,
+			'finished' => false,
+			'progress' => array(),
+			'config'   => array(),
+		);
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+
+		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
+		$this->assertEquals( $executions, 1 );
+	}
+
+	/**
+	 * Verify that cron does not loop when a Full Sync is complete.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_cron_sync_by_type_full_sync_complete() {
+
+		// udpate settings to Complete.
+		$settings = array(
+			'started'  => true,
+			'finished' => true,
+			'progress' => array(),
+			'config'   => array(),
+		);
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+
+		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
+		$this->assertEquals( $executions, 1 );
+	}
+
+	/**
+	 * Verify that that cron does not loop when a Full Sync has a send lock.
+	 *
+	 * Note Highlights existing behavior which may need to be revised.
+	 * For more context see p1HpG7-9pe-p2.
+	 */
+	public function test_do_cron_sync_by_type_full_sync_send_lock() {
+
+		// udpate settings to In Progress.
+		$settings = array(
+			'started'  => true,
+			'finished' => false,
+			'progress' => array(),
+			'config'   => array(),
+		);
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+
+		// establish lock.
+		$this->assertTrue( ( new Lock() )->attempt( 'full_sync' ) );
+
+		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
+		$this->assertEquals( $executions, 1 );
+
+		( new Lock() )->remove( 'full_sync' );
+	}
+
 }

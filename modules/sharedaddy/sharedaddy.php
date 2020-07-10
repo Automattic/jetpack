@@ -33,7 +33,7 @@ function sharing_email_send_post( $data ) {
 			']/';
 
 		$needs_encoding =
-			// If it contains any blacklisted chars,
+			// If it contains any blocked chars.
 			preg_match( $name_needs_encoding_regex, $s_name ) ||
 			// Or if we can't use `mb_convert_encoding`
 			! function_exists( 'mb_convert_encoding' ) ||

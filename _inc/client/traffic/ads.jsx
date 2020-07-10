@@ -7,6 +7,7 @@ import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
+import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -18,6 +19,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import TextInput from '../components/text-input';
 
 export const Ads = withModuleSettingsFormHelpers(
 	class extends React.Component {
@@ -60,7 +62,16 @@ export const Ads = withModuleSettingsFormHelpers(
 				'wordads_display_archive',
 				'wordads'
 			);
+			const wordads_custom_adstxt_enabled = this.props.getOptionValue(
+				'wordads_custom_adstxt_enabled',
+				'wordads'
+			);
 			const wordads_custom_adstxt = this.props.getOptionValue( 'wordads_custom_adstxt', 'wordads' );
+			const wordads_ccpa_enabled = this.props.getOptionValue( 'wordads_ccpa_enabled', 'wordads' );
+			const wordads_ccpa_privacy_policy_url = this.props.getOptionValue(
+				'wordads_ccpa_privacy_policy_url',
+				'wordads'
+			);
 			const isSubDirSite = this.props.siteRawUrl.indexOf( '::' ) !== -1;
 			return (
 				<SettingsCard
@@ -201,13 +212,134 @@ export const Ads = withModuleSettingsFormHelpers(
 									) }
 							</small>
 						</FormFieldset>
-						{ ! isSubDirSite && (
+					</SettingsGroup>
+					<SettingsGroup
+						hasChild
+						support={ {
+							text: __(
+								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).'
+							),
+							link: this.props.isAtomicSite
+								? getRedirectUrl( 'wpcom-support-ccpa' )
+								: getRedirectUrl( 'jetpack-support-ads' ),
+						} }
+					>
+						<CompactFormToggle
+							checked={ wordads_ccpa_enabled }
+							disabled={
+								! isAdsActive ||
+								unavailableInDevMode ||
+								this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_enabled' ] )
+							}
+							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable targeted advertising to California site visitors (CCPA)' ) }
+							</span>
+						</CompactFormToggle>
+						{ wordads_ccpa_enabled && (
 							<FormFieldset>
-								<FormLegend>{ __( 'Custom ads.txt entries' ) }</FormLegend>
+								<p>
+									<small className="jp-form-setting-explanation">
+										{ __(
+											'For more information about the California Consumer Privacy Act (CCPA) {{br/}}and how it pertains to your site, please consult our {{link}}CCPA guide for site owners{{/link}}.',
+											{
+												components: {
+													br: <br />,
+													link: (
+														<ExternalLink
+															icon={ true }
+															href={
+																this.props.isAtomicSite
+																	? getRedirectUrl( 'wpcom-support-ccpa' )
+																	: getRedirectUrl( 'jetpack-support-ads' )
+															}
+															target="_blank"
+															rel="noopener noreferrer"
+														/>
+													),
+												},
+											}
+										) }
+									</small>
+								</p>
+								<p>
+									<FormLegend>{ __( 'Do Not Sell Link' ) }</FormLegend>
+									{ __(
+										'CCPA requires that you place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. {{br/}}You can use the {{widgetLink}}Do Not Sell Link (CCPA) Widget{{/widgetLink}}, or the {{code}}[ccpa-do-not-sell-link]{{/code}} shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
+										{
+											components: {
+												br: <br />,
+												code: <code />,
+												widgetLink: (
+													<a
+														className="jp-module-settings__external-link"
+														href="customize.php?autofocus[panel]=widgets"
+													/>
+												),
+											},
+										}
+									) }
+									<span className="jp-form-setting-explanation">
+										{ __( 'Failure to add this link will result in non-compliance with CCPA.' ) }
+									</span>
+								</p>
+							</FormFieldset>
+						) }
+						{ wordads_ccpa_enabled && (
+							<FormFieldset>
+								<FormLegend>{ __( 'Privacy Policy URL' ) }</FormLegend>
+								<TextInput
+									name={ 'wordads_ccpa_privacy_policy_url' }
+									placeholder={ 'https://' }
+									value={ wordads_ccpa_privacy_policy_url }
+									disabled={
+										! isAdsActive ||
+										unavailableInDevMode ||
+										! wordads_ccpa_enabled ||
+										this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_privacy_policy_url' ] )
+									}
+									onChange={ this.props.onOptionChange }
+								/>
+								<span className="jp-form-setting-explanation">
+									{ __(
+										'Adds a link to your privacy policy to the bottom of the CCPA notice popup (optional).'
+									) }
+								</span>
+							</FormFieldset>
+						) }
+					</SettingsGroup>
+					<SettingsGroup
+						hasChild
+						support={ {
+							text: __(
+								'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.'
+							),
+							link: 'https://jetpack.com/support/ads/',
+						} }
+					>
+						{ ! isSubDirSite && (
+							<CompactFormToggle
+								checked={ wordads_custom_adstxt_enabled }
+								disabled={
+									! isAdsActive ||
+									unavailableInDevMode ||
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+								}
+								onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Customize your ads.txt file' ) }
+								</span>
+							</CompactFormToggle>
+						) }
+						{ ! isSubDirSite && wordads_custom_adstxt_enabled && (
+							<FormFieldset>
+								<br />
 								<p>
 									{ isAdsActive &&
 										__(
-											'Jetpack automatically generates a custom {{link1}}ads.txt{{/link1}} tailored for your site. ' +
+											'Jetpack Ads automatically generates a custom {{link1}}ads.txt{{/link1}} tailored for your site. ' +
 												'If you need to add additional entries for other networks please add them in the space below, one per line. ' +
 												'{{link2}}Check here for more details{{/link2}}.',
 											{

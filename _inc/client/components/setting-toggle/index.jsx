@@ -35,7 +35,7 @@ export class SettingToggle extends React.Component {
 				disabled={ this.props.disabled }
 				id={ this.props.id }
 			>
-				{' '}
+				{ ' ' }
 				{ this.props.children }
 			</CompactFormToggle>
 		);

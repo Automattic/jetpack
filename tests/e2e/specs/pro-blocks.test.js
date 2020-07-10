@@ -47,11 +47,11 @@ describe( 'Paid blocks', () => {
 		} );
 	} );
 
-	it( 'Simple Payment block', async () => {
+	it( 'Pay with PayPal', async () => {
 		let blockEditor;
 		let blockInfo;
 
-		await step( 'Can visit the block editor and add a Simple Payment block', async () => {
+		await step( 'Can visit the block editor and add a Pay with PayPal block', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
 
@@ -61,19 +61,22 @@ describe( 'Paid blocks', () => {
 			);
 		} );
 
-		await step( 'Can fill details of Simple Payment block', async () => {
+		await step( 'Can fill details of Pay with PayPal block', async () => {
 			const spBlock = new SimplePaymentBlock( blockInfo, page );
 			await spBlock.fillDetails();
 		} );
 
-		await step( 'Can publish a post and assert that Simple Payment block is rendered', async () => {
-			await blockEditor.focus();
-			await blockEditor.publishPost();
-			await blockEditor.viewPost();
+		await step(
+			'Can publish a post and assert that Pay with PayPal block is rendered',
+			async () => {
+				await blockEditor.focus();
+				await blockEditor.publishPost();
+				await blockEditor.viewPost();
 
-			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( SimplePaymentBlock );
-		} );
+				const frontend = await PostFrontendPage.init( page );
+				await frontend.isRenderedBlockPresent( SimplePaymentBlock );
+			}
+		);
 	} );
 
 	it( 'WordAds block', async () => {
@@ -90,7 +93,7 @@ describe( 'Paid blocks', () => {
 		await step( 'Can switch to Wide Skyscraper ad format', async () => {
 			const adBlock = new WordAdsBlock( blockInfo, page );
 			await adBlock.focus();
-			await adBlock.switchFormat( 3 ); // switch to Wide Skyscraper ad format
+			await adBlock.switchFormat( 4 ); // switch to Wide Skyscraper ad format
 		} );
 
 		await step( 'Can publish a post and assert that WordAds block is rendered', async () => {

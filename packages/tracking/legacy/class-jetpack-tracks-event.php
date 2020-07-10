@@ -105,7 +105,7 @@ class Jetpack_Tracks_Event {
 
 		$_event = (object) array_merge( (array) $event, $validated );
 
-		// If you want to blacklist property names, do it here.
+		// If you want to block property names, do it here.
 
 		// Make sure we have an event timestamp.
 		if ( ! isset( $_event->_ts ) ) {

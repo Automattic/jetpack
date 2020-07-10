@@ -87,7 +87,7 @@ class WordAds {
 	public static function gutenblock_render( $attr ) {
 		global $wordads;
 
-		/** This filter is already documented in modules/wordads/wordads.php `insert_ad()` */
+		/** This filter is already documented in modules/wordads/class-wordads.php `insert_ad()` */
 		if (
 			empty( $wordads )
 			|| empty( $wordads->params )

@@ -134,12 +134,15 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
 
 		$connections = array();
-		foreach ( $body->connections as $connection ) {
-			if ( 'instagram-basic-display' === $connection->service && 'ok' === $connection->status ) {
-				$connections[] = array(
-					'token'    => (string) $connection->ID,
-					'username' => $connection->external_name,
-				);
+
+		if ( isset( $body->connections ) && is_array( $body->connections ) ) {
+			foreach ( $body->connections as $connection ) {
+				if ( 'instagram-basic-display' === $connection->service && 'ok' === $connection->status ) {
+					$connections[] = array(
+						'token'    => (string) $connection->ID,
+						'username' => $connection->external_name,
+					);
+				}
 			}
 		}
 		return $connections;

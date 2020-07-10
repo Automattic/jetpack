@@ -159,7 +159,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'shortlinks' => array(
 				'name' => _x( 'WP.me Shortlinks', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Generates shorter links so you can have more space to write on social media sites.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Generates shorter links using the wp.me domain.', 'Module Description', 'jetpack' ),
 			),
 
 			'sitemaps' => array(

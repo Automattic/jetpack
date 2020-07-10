@@ -90,14 +90,7 @@ setup_nginx() {
 
 
 	# Figure out domain name and replace the value in config
-	# DOMAIN_NAME=$(echo $WP_SITE_URL | awk -F/ '{print $3}')
-	# DOMAIN_NAME="localhost"
 	DOMAIN_NAME="*.ngrok.io"
-	if [ -z "$DOMAIN_NAME" ]; then
-		echo "DOMAIN_NAME is empty! Does ngrok started correctly?"
-		exit 1
-	fi
-
 	SED_ARG="s+%WP_DOMAIN%+$DOMAIN_NAME+g"
 	sed -i $SED_ARG $CONFIG_DIR/travis_default-site.conf
 
@@ -142,7 +135,7 @@ PHP
 
 	# NOTE: Force classic connection flow
 	# https://github.com/Automattic/jetpack/pull/13288
-	wp --allow-root config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false --raw --type=constant
+	wp --allow-root config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true --raw --type=constant
 
 	wp db create
 
@@ -186,6 +179,10 @@ else
 
 	install_wp
 	prepare_jetpack
+fi
+
+if [ -n $LATEST_GUTENBERG ]; then
+	wp --path=$WP_CORE_DIR plugin install gutenberg --activate
 fi
 
 echo $WP_SITE_URL

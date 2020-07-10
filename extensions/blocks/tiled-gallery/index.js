@@ -25,7 +25,7 @@ import { isSimpleSite } from '../../shared/site-type-utils';
  */
 import './editor.scss';
 
-import * as deprecatedV1 from './deprecated/v1';
+import { default as deprecated } from './deprecated';
 
 /**
  * Example Images
@@ -36,7 +36,6 @@ import tiledGalleryExample3 from './tiled-gallery_example-3.jpg';
 import tiledGalleryExample4 from './tiled-gallery_example-4.jpg';
 import tiledGalleryExample5 from './tiled-gallery_example-5.jpg';
 import tiledGalleryExample6 from './tiled-gallery_example-6.jpg';
-import { supportsCollections } from '../../shared/block-category';
 
 // Style names are translated. Avoid introducing an i18n dependency elsewhere (view)
 // by only including the labels here, the only place they're needed.
@@ -76,6 +75,10 @@ const blockAttributes = {
 	},
 	columns: {
 		type: 'number',
+	},
+	columnWidths: {
+		default: [],
+		type: 'array',
 	},
 	ids: {
 		default: [],
@@ -198,7 +201,7 @@ export const icon = (
 
 export const settings = {
 	attributes: blockAttributes,
-	category: supportsCollections() ? 'layout' : 'jetpack',
+	category: 'layout',
 	description:
 		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
 		( ! isSimpleSite()
@@ -282,7 +285,7 @@ export const settings = {
 	},
 	edit,
 	save,
-	deprecated: [ deprecatedV1 ],
+	deprecated,
 	example: {
 		attributes: exampleAttributes,
 	},

@@ -26,9 +26,10 @@ export default class WordAdsBlock {
 	async switchFormat( buttonNumber ) {
 		await clickBlockToolbarButton( 'Pick an ad format' );
 
-		const formatButtonsSelector = '.wp-block-jetpack-wordads__format-picker button';
-		await waitForSelector( this.page, formatButtonsSelector );
-		return await waitAndClick( this.page, formatButtonsSelector + `:nth-child(${ buttonNumber })` );
+		const formatButtonSelector = `.wp-block-jetpack-wordads__format-picker button:nth-child(${ buttonNumber })`;
+		await waitForSelector( this.page, formatButtonSelector );
+		await this.page.waitFor( 500 );
+		return await waitAndClick( this.page, formatButtonSelector );
 	}
 
 	getSelector( selector ) {

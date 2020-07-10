@@ -7,6 +7,7 @@
  * Version: 1.0
  * Author URI: https://wordpress.com
  * License: GPL2 or later
+ * Text Domain: jetpack
  *
  * @package Jetpack.
  */

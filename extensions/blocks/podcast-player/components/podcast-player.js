@@ -300,14 +300,16 @@ export class PodcastPlayer extends Component {
 				>
 					{ __( 'Select an episode to play it in the audio player.', 'jetpack' ) }
 				</p>
-				<Playlist
-					playerId={ playerId }
-					playerState={ playerState }
-					currentTrack={ currentTrack }
-					tracks={ tracksToDisplay }
-					selectTrack={ this.selectTrack }
-					colors={ colors }
-				/>
+				{ tracksToDisplay.length > 1 && (
+					<Playlist
+						playerId={ playerId }
+						playerState={ playerState }
+						currentTrack={ currentTrack }
+						tracks={ tracksToDisplay }
+						selectTrack={ this.selectTrack }
+						colors={ colors }
+					/>
+				) }
 			</section>
 		);
 	}

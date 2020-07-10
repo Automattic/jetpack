@@ -24,8 +24,6 @@ import {
 	hasFilter,
 	setSearchQuery,
 	setSortQuery,
-	getSortKeyFromSortOption,
-	getSortOptionFromSortKey,
 	setFilterQuery,
 	restorePreviousHref,
 } from '../lib/query-string';
@@ -73,10 +71,6 @@ class SearchApp extends Component {
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		this.updateEventListeners( this.state.overlayOptions.overlayTrigger );
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.addEventListener( 'change', this.handleSortChange );
-		} );
-
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
@@ -90,10 +84,6 @@ class SearchApp extends Component {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'input', this.handleInput );
 			input.removeEventListener( 'focus', this.handleInputFocus );
-		} );
-
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.removeEventListener( 'change', this.handleSortChange );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
@@ -128,6 +118,8 @@ class SearchApp extends Component {
 		document.body.style.overflowY = null;
 	}
 
+	getSort = () => getSortQuery( this.props.initialSort );
+
 	hasActiveQuery() {
 		return getSearchQuery() !== '' || hasFilter();
 	}
@@ -150,10 +142,6 @@ class SearchApp extends Component {
 	}, 200 );
 
 	handleInputFocus = () => this.showResults();
-
-	handleSortChange = event => {
-		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
-	};
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
@@ -206,13 +194,11 @@ class SearchApp extends Component {
 			input.value = getSearchQuery();
 		} );
 
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.value = getSortOptionFromSortKey( getSortQuery() );
-		} );
-
 		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
 		this.forceUpdate();
 	};
+
+	onChangeSort = sort => setSortQuery( sort );
 
 	loadNextPage = () => {
 		this.hasNextPage() && this.getResults( { pageHandle: this.state.response.page_handle } );
@@ -221,8 +207,7 @@ class SearchApp extends Component {
 	getResults = ( {
 		query = getSearchQuery(),
 		filter = getFilterQuery(),
-		sort = getSortQuery(),
-		resultFormat = getResultFormatQuery(),
+		sort = this.getSort(),
 		pageHandle,
 	} = {} ) => {
 		const requestId = this.state.requestId + 1;
@@ -234,7 +219,6 @@ class SearchApp extends Component {
 			filter,
 			pageHandle,
 			query,
-			resultFormat,
 			siteId: this.props.options.siteId,
 			sort,
 			postsPerPage: this.props.options.postsPerPage,
@@ -275,25 +259,29 @@ class SearchApp extends Component {
 				closeColor={ this.state.overlayOptions.closeColor }
 				closeOverlay={ this.hideResults }
 				colorTheme={ this.state.overlayOptions.colorTheme }
+				hasOverlayWidgets={ this.props.hasOverlayWidgets }
 				isVisible={ this.state.showResults }
 				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
 					closeOverlay={ this.hideResults }
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
+					enableSort={ this.state.overlayOptions.enableSort }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.state.isLoading }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
+					onChangeSort={ this.onChangeSort }
 					onLoadNextPage={ this.loadNextPage }
 					overlayTrigger={ this.state.overlayOptions.overlayTrigger }
 					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
-					resultFormat={ getResultFormatQuery() }
+					resultFormat={ this.state.overlayOptions.resultFormat }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
+					sort={ this.getSort() }
 					widgets={ this.props.options.widgets }
 					widgetsOutsideOverlay={ this.props.options.widgetsOutsideOverlay }
 				/>

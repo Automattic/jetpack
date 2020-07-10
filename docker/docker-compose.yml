@@ -73,6 +73,7 @@ services:
       - ./logs/apache2/:/var/log/apache2
       - ./logs/php:/var/log/php
       - ./bin:/var/scripts
+      - ../packages/debug-helper:/var/www/html/wp-content/plugins/jetpack-debug-helper
     ports:
       - "${PORT_WORDPRESS:-80}:80"
     restart: always

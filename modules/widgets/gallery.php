@@ -328,7 +328,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * Sanitize the $instance's values to the set of allowed values. If a value is not acceptable,
 	 * it is set to its default.
 	 *
-	 * Helps keep things nice and secure by whitelisting only allowed values
+	 * Helps keep things nice and secure by listing only allowed values.
 	 *
 	 * @param array $instance The Widget instance to sanitize values for
 	 * @return array $instance The Widget instance with values sanitized

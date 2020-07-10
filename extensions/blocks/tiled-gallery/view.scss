@@ -78,6 +78,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	overflow: hidden;
 	padding: 0;
 	position: relative;
+	flex-grow: 1;
 
 	&.filter__black-and-white {
 		filter: grayscale( 100% );

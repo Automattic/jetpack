@@ -1,0 +1,16 @@
+.wp-block-jetpack-send-a-message {
+	.block-editor-block-list__layout {
+		display: inline-flex;
+
+		.wp-block {
+			margin-top: 0px;
+			margin-bottom: 0px;
+			margin-right: 10px;
+		}
+	}
+
+	.block-list-appender, .block-editor-inserter {
+		/* Until we have more service buttons available */
+		display: none;
+	}
+}

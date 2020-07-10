@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: WP.me Shortlinks
- * Module Description: Generates shorter links so you can have more space to write on social media sites.
+ * Module Description: Generates shorter links using the wp.me domain.
  * Sort Order: 8
  * First Introduced: 1.1
  * Requires Connection: Yes

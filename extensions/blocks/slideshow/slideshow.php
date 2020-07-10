@@ -52,10 +52,14 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_amp( $attr ) {
+	if ( empty( $attr['ids'] ) ) {
+		return '';
+	}
+
 	static $wp_block_jetpack_slideshow_id = 0;
 	$wp_block_jetpack_slideshow_id++;
 
-	$ids      = empty( $attr['ids'] ) ? array() : $attr['ids'];
+	$ids      = $attr['ids'];
 	$autoplay = empty( $attr['autoplay'] ) ? false : true;
 	$extras   = array(
 		'wp-amp-block',

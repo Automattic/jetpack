@@ -56,7 +56,7 @@ const initializeMembershipButtonBlocks = () => {
 			activateSubscription( block, checkoutURL );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem activating Recurring Payments ' + checkoutURL, err );
+			console.error( 'Problem activating Payments ' + checkoutURL, err );
 		}
 
 		block.setAttribute( 'data-jetpack-block-initialized', 'true' );

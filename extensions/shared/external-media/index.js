@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { addFilter } from '@wordpress/hooks';
+import { useBlockEditContext } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -22,17 +23,35 @@ function insertExternalMediaBlocks( settings, name ) {
 	};
 }
 
-if ( isCurrentUserConnected() ) {
+if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
+	const isFeaturedImage = props =>
+		props.unstableFeaturedImageFlow ||
+		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
+
 	// Register the new 'browse media' button.
 	addFilter(
 		'editor.MediaUpload',
 		'external-media/replace-media-upload',
 		OriginalComponent => props => {
+			const allowedBlocks = [
+				'core/image',
+				'core/gallery',
+				'core/media-text',
+				'jetpack/image-compare',
+				'jetpack/slideshow',
+				'jetpack/tiled-gallery',
+			];
+
+			const { name } = useBlockEditContext();
 			let { render } = props;
 
-			// Only replace button for components that expect images.
-			if ( props.allowedTypes.indexOf( 'image' ) > -1 ) {
-				render = button => <MediaButton { ...button } mediaProps={ props } />;
+			if ( allowedBlocks.indexOf( name ) > -1 || isFeaturedImage( props ) ) {
+				const { allowedTypes, gallery = false, value = [] } = props;
+
+				// Only replace button for components that expect images, except existing galleries.
+				if ( allowedTypes.indexOf( 'image' ) > -1 && ! ( gallery && value.length > 0 ) ) {
+					render = button => <MediaButton { ...button } mediaProps={ props } />;
+				}
 			}
 
 			return <OriginalComponent { ...props } render={ render } />;

@@ -108,6 +108,8 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		// Normal WPCOM upload processing
 		if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
+			add_filter( 'wp_handle_upload_prefilter', array( $this, 'check_upload_size' ), 9 );
+
 			$create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
 			$media_ids = $create_media['media_ids'];
 			$errors = $create_media['errors'];
@@ -119,7 +121,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		if ( count( $media_items ) <= 0 ) {
-			return $this->api->output_early( 400, array( 'errors' => $errors ) );
+			return $this->api->output_early( 400, array( 'errors' => $this->rewrite_generic_upload_error( $errors ) ) );
 		}
 
 		$results = array();
@@ -135,12 +137,73 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$response = array( 'media' => $results );
 
 		if ( count( $errors ) > 0 ) {
-			$response['errors'] = $errors;
+			$response['errors'] = $this->rewrite_generic_upload_error( $errors );
 		}
 
 		return $response;
 	}
 
+	/**
+	 * This changes the generic "upload_error" code to something more meaningful if possible
+	 *
+	 * @param  array $errors Errors for the uploaded file.
+	 * @return array         The same array with an improved error message.
+	 */
+	function rewrite_generic_upload_error( $errors ) {
+		foreach ( $errors as $k => $error ) {
+			if ( 'upload_error' === $error['error'] && false !== strpos( $error['message'], '|' ) ) {
+				list( $errors[ $k ]['error'], $errors[ $k ]['message'] ) = explode( '|', $error['message'], 2 );
+			}
+		}
+		return $errors;
+	}
+
+	/**
+	 * Determine if uploaded file exceeds space quota on multisite.
+	 *
+	 * This is a copy of the core function with added functionality, synced
+	 * with this with WP_REST_Attachments_Controller::check_upload_size()
+	 * to allow for specifying a better error message.
+	 *
+	 * @param array $file $_FILES array for a given file.
+	 * @return array Maybe extended with an error message.
+	 */
+	function check_upload_size( $file ) {
+		if ( get_site_option( 'upload_space_check_disabled' ) ) {
+			return $file;
+		}
+
+		if ( '0' != $file['error'] ) { // There's already an error.
+			return $file;
+		}
+
+		if ( defined( 'WP_IMPORTING' ) ) {
+			return $file;
+		}
+
+		$space_left = get_upload_space_available();
+
+		$file_size = filesize( $file['tmp_name'] );
+		if ( $space_left < $file_size ) {
+			/* translators: %s: Required disk space in kilobytes. */
+			$file['error'] = 'rest_upload_limited_space|' . sprintf( __( 'Not enough space to upload. %s KB needed.', 'default' ), number_format( ( $file_size - $space_left ) / KB_IN_BYTES ) );
+		}
+
+		if ( $file_size > ( KB_IN_BYTES * get_site_option( 'fileupload_maxk', 1500 ) ) ) {
+			/* translators: %s: Maximum allowed file size in kilobytes. */
+			$file['error'] = 'rest_upload_file_too_big|' . sprintf( __( 'This file is too big. Files must be less than %s KB in size.', 'default' ), get_site_option( 'fileupload_maxk', 1500 ) );
+		}
+
+		if ( upload_is_user_over_quota( false ) ) {
+			$file['error'] = 'rest_upload_user_quota_exceeded|' . __( 'You have used your space quota. Please delete files before uploading.', 'default' );
+		}
+
+		if ( '0' != $file['error'] && ! isset( $_POST['html-upload'] ) && ! wp_doing_ajax() ) {
+			wp_die( $file['error'] . ' <a href="javascript:history.go(-1)">' . __( 'Back', 'default' ) . '</a>' );
+		}
+
+		return $file;
+	}
 	/**
 	 * Force to use the WPCOM API instead of proxy back to the Jetpack API if the blog is a paid Jetpack
 	 * blog w/ the VideoPress module enabled AND the uploaded file is a video.

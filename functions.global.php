@@ -12,12 +12,133 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Device_Detection;
 
 /**
  * Disable direct access.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
+}
+
+/**
+ * Hook into Core's _deprecated_function
+ * Add more details about when a deprecated function will be removed.
+ *
+ * @since 8.8.0
+ *
+ * @param string $function    The function that was called.
+ * @param string $replacement Optional. The function that should have been called. Default null.
+ * @param string $version     The version of Jetpack that deprecated the function.
+ */
+function jetpack_deprecated_function( $function, $replacement, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Bail early for non-Jetpack deprecations.
+	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+		return;
+	}
+
+	// Look for when a function will be removed based on when it was deprecated.
+	$removed_version = jetpack_get_future_removed_version( $version );
+
+	// If we could find a version, let's log a message about when removal will happen.
+	if (
+		! empty( $removed_version )
+		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+		/** This filter is documented in core/src/wp-includes/functions.php */
+		&& apply_filters( 'deprecated_function_trigger_error', true )
+	) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+				/* Translators: 1. Function name. 2. Jetpack version number. */
+				__( 'The %1$s function will be removed from the Jetpack plugin in version %2$s.', 'jetpack' ),
+				$function,
+				$removed_version
+			)
+		);
+
+	}
+}
+add_action( 'deprecated_function_run', 'jetpack_deprecated_function', 10, 3 );
+
+/**
+ * Hook into Core's _deprecated_file
+ * Add more details about when a deprecated file will be removed.
+ *
+ * @since 8.8.0
+ *
+ * @param string $file        The file that was called.
+ * @param string $replacement The file that should have been included based on ABSPATH.
+ * @param string $version     The version of WordPress that deprecated the file.
+ * @param string $message     A message regarding the change.
+ */
+function jetpack_deprecated_file( $file, $replacement, $version, $message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Bail early for non-Jetpack deprecations.
+	if ( 0 !== strpos( $version, 'jetpack-' ) ) {
+		return;
+	}
+
+	// Look for when a file will be removed based on when it was deprecated.
+	$removed_version = jetpack_get_future_removed_version( $version );
+
+	// If we could find a version, let's log a message about when removal will happen.
+	if (
+		! empty( $removed_version )
+		&& ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+		/** This filter is documented in core/src/wp-includes/functions.php */
+		&& apply_filters( 'deprecated_file_trigger_error', true )
+	) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+				/* Translators: 1. File name. 2. Jetpack version number. */
+				__( 'The %1$s file will be removed from the Jetpack plugin in version %2$s.', 'jetpack' ),
+				$file,
+				$removed_version
+			)
+		);
+
+	}
+}
+add_action( 'deprecated_file_included', 'jetpack_deprecated_file', 10, 4 );
+
+/**
+ * Get the major version number of Jetpack 6 months after provided version.
+ * Useful to indicate when a deprecated function will be removed from Jetpack.
+ *
+ * @since 8.8.0
+ *
+ * @param string $version The version of WordPress that deprecated the function.
+ *
+ * @return bool|float Return a Jetpack Major version number, or false.
+ */
+function jetpack_get_future_removed_version( $version ) {
+	/*
+	 * Extract the version number from a deprecation notice.
+	 * (let's only keep the first decimal, e.g. 8.8 and not 8.8.0)
+	 */
+	preg_match( '#(([0-9]+\.([0-9]+))(?:\.[0-9]+)*)#', $version, $matches );
+
+	if ( isset( $matches[2], $matches[3] ) ) {
+		$deprecated_version = (float) $matches[2];
+		$deprecated_minor   = (float) $matches[3];
+
+		/*
+		 * If the detected minor version number
+		 * (e.g. "7" in "8.7")
+		 * is higher than 9, we know the version number is malformed.
+		 * Jetpack does not use semver yet.
+		 * Bail.
+		 */
+		if ( 10 <= $deprecated_minor ) {
+			return false;
+		}
+
+		// We'll remove the function from the code 6 months later, thus 6 major versions later.
+		$removed_version = $deprecated_version + 0.6;
+
+		return (float) $removed_version;
+	}
+
+	return false;
 }
 
 /**
@@ -304,4 +425,62 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 	}
 
 	return in_array( $type, $supported_mime_types, true );
+}
+
+/**
+ * Determine if the current User Agent matches the passed $kind
+ *
+ * @param string $kind Category of mobile device to check for.
+ *                         Either: any, dumb, smart.
+ * @param bool   $return_matched_agent Boolean indicating if the UA should be returned.
+ *
+ * @return bool|string Boolean indicating if current UA matches $kind. If
+ *                              $return_matched_agent is true, returns the UA string
+ */
+function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
+
+	/**
+	 * Filter the value of jetpack_is_mobile before it is calculated.
+	 *
+	 * Passing a truthy value to the filter will short-circuit determining the
+	 * mobile type, returning the passed value instead.
+	 *
+	 * @since  4.2.0
+	 *
+	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
+	 *                             $return_matched_agent is true, should return the UA string
+	 * @param string      $kind Category of mobile device being checked
+	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
+	 */
+	$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
+	if ( $pre ) {
+		return $pre;
+	}
+
+	$return      = false;
+	$device_info = Device_Detection::get_info();
+
+	if ( 'any' === $kind ) {
+		$return = $device_info['is_phone'];
+	} elseif ( 'smart' === $kind ) {
+		$return = $device_info['is_smartphone'];
+	} elseif ( 'dumb' === $kind ) {
+		$return = $device_info['is_phone'] && ! $device_info['is_smartphone'];
+	}
+
+	if ( $return_matched_agent && true === $return ) {
+		$return = $device_info['is_phone_matched_ua'];
+	}
+
+	/**
+	 * Filter the value of jetpack_is_mobile
+	 *
+	 * @since  4.2.0
+	 *
+	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
+	 *                             $return_matched_agent is true, should return the UA string
+	 * @param string      $kind Category of mobile device being checked
+	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
+	 */
+	return apply_filters( 'jetpack_is_mobile', $return, $kind, $return_matched_agent );
 }

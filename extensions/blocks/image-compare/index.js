@@ -11,17 +11,19 @@ import icon from './icon';
 import save from './save';
 import imgExampleAfter from './img-example-after.png';
 import imgExampleBefore from './img-example-before.png';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'image-compare';
 
 export const settings = {
 	title: __( 'Image Compare', 'jetpack' ),
-	description: __( 'Compare two images with a slider. Works best with images of the same size.', 'jetpack' ),
+	description: __(
+		'Compare two images with a slider. Works best with images of the same size.',
+		'jetpack'
+	),
 
 	icon,
 
-	category: supportsCollections() ? 'layout' : 'jetpack',
+	category: 'layout',
 	keywords: [
 		_x( 'juxtapose', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),

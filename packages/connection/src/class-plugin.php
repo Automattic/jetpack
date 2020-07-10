@@ -74,9 +74,36 @@ class Plugin {
 	 * @return bool
 	 */
 	public function is_only() {
-		$plugins = Plugin_Storage::get_all();
+		$plugins = Plugin_Storage::get_all( true );
 
 		return ! $plugins || ( array_key_exists( $this->slug, $plugins ) && 1 === count( $plugins ) );
+	}
+
+	/**
+	 * Add the plugin to the set of disconnected ones.
+	 *
+	 * @return bool
+	 */
+	public function disable() {
+		return Plugin_Storage::disable_plugin( $this->slug );
+	}
+
+	/**
+	 * Remove the plugin from the set of disconnected ones.
+	 *
+	 * @return bool
+	 */
+	public function enable() {
+		return Plugin_Storage::enable_plugin( $this->slug );
+	}
+
+	/**
+	 * Whether this plugin is allowed to use the connection.
+	 *
+	 * @return bool
+	 */
+	public function is_enabled() {
+		return ! in_array( $this->slug, Plugin_Storage::get_all_disabled_plugins(), true );
 	}
 
 }

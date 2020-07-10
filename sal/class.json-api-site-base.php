@@ -149,6 +149,14 @@ abstract class SAL_Site {
 		return false;
 	}
 
+	public function is_cloud_eligible() {
+		return false;
+	}
+
+	public function get_products() {
+		return array();
+	}
+
 	public function get_post_by_id( $post_id, $context ) {
 		$post = get_post( $post_id, OBJECT, $context );
 

@@ -58,10 +58,6 @@
 
 		getAnchor: function( post, classNames ) {
 			var anchor_title = post.title;
-			if ( '' !== '' + post.excerpt ) {
-				anchor_title += '\n\n' + post.excerpt;
-			}
-
 			var anchor = $( '<a>' );
 
 			anchor.attr( {
@@ -161,7 +157,7 @@
 						'" width="' +
 						post.img.width +
 						'" alt="' +
-						post.title +
+						post.img.alt_text +
 						'" />' +
 						anchor[ 1 ];
 				} else {

@@ -515,7 +515,7 @@ class Callables extends Module {
 	 *
 	 * @return int total
 	 */
-	public function total( $config ) {
+	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return count( $this->get_callable_whitelist() );
 	}
 

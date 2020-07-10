@@ -115,6 +115,11 @@ class Slideshow extends Component {
 	};
 
 	render() {
+		// If user has not selected any images, don't print any markup.
+		if ( ! this.props?.images?.length ) {
+			return null;
+		}
+
 		const { autoplay, className, delay, effect, images } = this.props;
 		// Note: React omits the data attribute if the value is null, but NOT if it is false.
 		// This is the reason for the unusual logic related to autoplay below.

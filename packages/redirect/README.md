@@ -1,6 +1,6 @@
 # Jetpack Redirect package
 
-A package containing functionality to generate URLs to the jetpack.com/redirect service
+A package containing functionality to generate URLs to the jetpack.com/redirect/ service
 
 ### Usage TODO
 

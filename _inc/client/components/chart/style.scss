@@ -151,6 +151,10 @@
 		background-color: rgba( lighten( $gray, 30% ), .5 );
 	}
 
+	&:focus {
+		background-color: rgba( $orange-jazzy, .1 );
+	}
+
 	&:hover {
 		cursor: pointer;
 		background-color: rgba( lighten( $gray, 30% ), .3 );

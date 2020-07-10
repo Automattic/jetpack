@@ -89,7 +89,7 @@ class Assets {
 	 * Given a minified path, and a non-minified path, will return
 	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
 	 *
-	 * Both `$min_base` and `$non_min_base` are expected to be relative to the
+	 * Both `$min_base` and `$non_min_base` can be either full URLs, or are expected to be relative to the
 	 * root Jetpack directory.
 	 *
 	 * @since 5.6.0
@@ -103,7 +103,16 @@ class Assets {
 			? $non_min_path
 			: $min_path;
 
-		$url = plugins_url( $path, Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) );
+		/*
+		 * If the path is actually a full URL, keep that.
+		 * We look for a host value, since enqueues are sometimes without a scheme.
+		 */
+		$file_parts = wp_parse_url( $path );
+		if ( ! empty( $file_parts['host'] ) ) {
+				$url = $path;
+		} else {
+			$url = plugins_url( $path, Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) );
+		}
 
 		/**
 		 * Filters the URL for a file passed through the get_file_url_for_environment function.
@@ -133,6 +142,31 @@ class Assets {
 		$assets_instance = self::instance();
 		$assets_instance->add_async_script( $handle );
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
+	}
+
+	/**
+	 * Passes an array of URLs to wp_resource_hints.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @param string|array $urls URLs to hint.
+	 * @param string       $type One of the supported resource types: dns-prefetch (default), preconnect, prefetch, or prerender.
+	 */
+	public static function add_resource_hint( $urls, $type = 'dns-prefetch' ) {
+		add_filter(
+			'wp_resource_hints',
+			function( $hints, $resource_type ) use ( $urls, $type ) {
+				if ( $resource_type === $type ) {
+					// Type casting to array required since the function accepts a single string.
+					foreach ( (array) $urls as $url ) {
+						$hints[] = $url;
+					}
+				}
+				return $hints;
+			},
+			10,
+			2
+		);
 	}
 
 }

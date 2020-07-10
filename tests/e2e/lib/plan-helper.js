@@ -5,7 +5,7 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
+import { getNgrokSiteUrl, execWpCommand } from './utils-helper';
 import logger from './logger';
 
 export async function persistPlanData( planType = 'jetpack_business' ) {
@@ -18,12 +18,6 @@ export async function persistPlanData( planType = 'jetpack_business' ) {
 
 	const cmd = `wp option update ${ planDataOption }`;
 	await execWpCommand( cmd, ' < plan-data.txt' );
-}
-
-export async function movePluginToPluginsDirectory() {
-	const cmd =
-		'mkdir ../jetpack-test-plugins && cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../jetpack-test-plugins/e2e-plan-data-interceptor.php';
-	await execShellCommand( cmd );
 }
 
 export async function activatePlanDataInterceptor() {

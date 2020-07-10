@@ -5,7 +5,7 @@
 
 $grid-size: 8px;
 
-@keyframes loading-fade {
+@keyframes jetpack-external-media-loading-fade {
 	0% {
 		opacity: 0.5;
 	}
@@ -17,44 +17,33 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media-browser--visually-hidden {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect( 1px, 1px, 1px, 1px );
+	white-space: nowrap; /* added line */
+}
+
+/**
+ * Media button menu
+ */
+
+/**
+ * Hide the menu when the modal is open. Hacky, but necessary to allow the focus
+ * to return to selected option when modal is closed. This is how it's currenly
+ * also implemented in Gutenberg's MediaReplaceFlow.
+ */
+.modal-open .jetpack-external-media-button-menu__options {
+	display: none;
+}
+
 /**
  * Media item container
  */
 
-.jetpack-external-media-browser__is-copying {
-	max-height: 20%;
-	max-width: 20%;
-	min-width: 480px;
-	min-height: 360px + 56px;
-
-	.jetpack-external-media-browser__single {
-		height: 300px;
-	}
-
-	.jetpack-external-media-browser__media {
-		height: 100%;
-	}
-
-	.is-transient {
-		border: 0;
-		background: 0;
-		padding: 0;
-		height: 100%;
-
-		&.jetpack-external-media-browser__media__item__selected {
-			box-shadow: none;
-			border-radius: 0;
-		}
-
-		img {
-			width: 100%;
-			height: 100%;
-			object-fit: contain;
-		}
-	}
-}
-
-.jetpack-external-media-browser:not( .jetpack-external-media-browser__is-copying ) {
+.jetpack-external-media-browser {
 	.is-error {
 		margin-bottom: 1em;
 		margin-left: 0;
@@ -68,33 +57,17 @@ $grid-size: 8px;
 	.components-modal__content {
 		overflow: auto;
 		padding-bottom: 0;
+		width: 100%;
+
+		@media ( min-width: 600px ) {
+			width: 90vw;
+			height: 90vh;
+		}
 	}
 }
 
-@media ( min-width: 600px ) {
-	.components-modal__content {
-		width: 90vw;
-		height: 90vh;
-	}
-}
-
-.jetpack-external-media-browser__single {
-	position: relative;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-
-	.is-transient img {
-		opacity: 0.3;
-	}
-
-	.components-spinner {
-		position: absolute;
-		top: 50%;
-		right: 50%;
-		margin-top: -9px;
-		margin-right: -9px;
-	}
+.jetpack-external-media-browser--is-copying {
+	pointer-events: none;
 }
 
 .jetpack-external-media-browser {
@@ -132,14 +105,27 @@ $grid-size: 8px;
 		&.is-transient img {
 			opacity: 0.3;
 		}
+	}
+
+	.jetpack-external-media-browser__media__copying_indicator {
+		display: flex;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
 
 		.components-spinner {
-			position: absolute;
-			top: 50%;
-			right: 50%;
-			margin-top: -9px;
-			margin-right: -9px;
+			margin-bottom: $grid-size;
 		}
+	}
+
+	.jetpack-external-media-browser__media__copying_indicator__label {
+		font-size: 12px;
 	}
 
 	.jetpack-external-media-browser__media__folder {
@@ -196,7 +182,7 @@ $grid-size: 8px;
 		width: 100px;
 		height: 100px;
 		margin: $grid-size * 2;
-		animation: loading-fade 1.6s ease-in-out infinite;
+		animation: jetpack-external-media-loading-fade 1.6s ease-in-out infinite;
 		background-color: $light-gray-secondary;
 		border: 0;
 	}
@@ -235,12 +221,23 @@ $grid-size: 8px;
 
 .jetpack-external-media-header__view {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: flex-start;
 	margin-bottom: 48px;
+	flex-direction: column;
+
+	@media only screen and ( min-width: 600px ) {
+		flex-direction: row;
+		align-items: center;
+	}
 
 	select {
 		max-width: 200px !important;
+	}
+
+	.components-base-control__field {
+		display: flex;
+		flex-direction: column;
 	}
 }
 
@@ -254,31 +251,54 @@ $grid-size: 8px;
 		padding-right: $grid-size;
 		margin-bottom: 0;
 	}
-
-	.components-base-control__label {
-		margin-bottom: 0;
-	}
-
-	.components-base-control__field {
-		display: flex;
-		align-items: center;
-		margin-bottom: 0;
-	}
-
-	.components-base-control + .components-base-control {
-		padding-left: $grid-size * 2;
-	}
 }
 
 .jetpack-external-media-header__filter {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	flex-grow: 1;
+	justify-content: flex-start;
 
-	.jetpack-external-media-googlephotos-filter {
+	@media only screen and ( min-width: 600px ) {
+		border-left: 1px solid $light-gray-secondary;
+		margin-left: $grid-size * 2;
+		padding-left: $grid-size * 2;
+	}
+
+	.jetpack-external-media-date-filter {
 		display: flex;
-		align-items: center;
-		margin-right: 7px;
+		flex-wrap: wrap;
+
+		button {
+			// Adjust button to match the size and position of inputs.
+			margin-top: 27px;
+			height: 40px;
+
+			@media only screen and ( min-width: 783px ) {
+				height: 30px;
+			}
+		}
+
+		.components-base-control {
+			.components-input-control__label {
+				margin-bottom: 3px;
+			}
+
+			.components-input-control__backdrop {
+				border-color: $dark-gray-200;
+				border-radius: 3px;
+			}
+
+			.components-input-control__input {
+				height: 40px;
+				width: 70px; // This input holds only years, so 4 digits width is enough.
+
+				@media only screen and ( min-width: 783px ) {
+					height: 30px;
+				}
+			}
+		}
 	}
 }
 
@@ -358,6 +378,9 @@ $grid-size: 8px;
 }
 
 // Reset placeholder button margin.
-.components-placeholder__fieldset .components-dropdown .components-button {
-	margin-right: 8px;
+.components-placeholder__fieldset,
+.editor-post-featured-image {
+	.components-dropdown .jetpack-external-media-button-menu {
+		margin-right: 8px;
+	}
 }

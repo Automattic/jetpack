@@ -8,8 +8,9 @@ Fixes #
 <!--- Explain what functional changes your PR includes -->
 *
 
-#### Is this a new feature or does it add/remove features to an existing part of Jetpack?
-* If you're an Automattician, include a shortlink to the p2 discussion with Jetpack Product here.
+#### Jetpack product discussion
+<!-- If you're an Automattician, include a shortlink to the p2 discussion with Jetpack Product here. -->
+<!-- Make sure any changes to existing products have been discussed and agreed upon -->
 
 #### Does this pull request change what data or activity we track or use?
 <!--- If so, please add the "[Status] Needs Privacy Updates" label and explain what changes there are. -->

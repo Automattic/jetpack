@@ -444,7 +444,7 @@ class WPCom_Markdown {
 
 	/**
 	 * TinyMCE needs to know not to strip the 'markdown' attribute. Unfortunately, it doesn't
-	 * really offer a nice API for whitelisting attributes, so we have to manually add it
+	 * really offer a nice API for allowed attributes, so we have to manually add it
 	 * to the schema instead.
 	 */
 	public function after_wp_tiny_mce() {

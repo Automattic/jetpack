@@ -790,8 +790,8 @@ class Jetpack_SSO {
 		 *
 		 * @since 2.6.0
 		 *
-		 * @param array  $user      Local User information.
-		 * @param object $user_data WordPress.com User Login information.
+		 * @param WP_User|false|null $user      Local User information.
+		 * @param object             $user_data WordPress.com User Login information.
 		 */
 		do_action( 'jetpack_sso_handle_login', $user, $user_data );
 

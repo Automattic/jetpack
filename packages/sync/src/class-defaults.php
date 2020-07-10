@@ -155,6 +155,9 @@ class Defaults {
 		'wordads_display_page',
 		'wordads_display_archive',
 		'wordads_custom_adstxt',
+		'wordads_custom_adstxt_enabled',
+		'wordads_ccpa_enabled',
+		'wordads_ccpa_privacy_policy_url',
 		'site_segment',
 		'site_user_type',
 		'site_vertical',
@@ -382,6 +385,9 @@ class Defaults {
 		'bwg_gallery',
 		'customize_changeset', // WP built-in post type for Customizer changesets.
 		'dn_wp_yt_log',
+		'flamingo_contact', // https://wordpress.org/plugins/flamingo/.
+		'flamingo_inbound',
+		'flamingo_outbound',
 		'http',
 		'idx_page',
 		'jetpack_migration',

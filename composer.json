@@ -19,6 +19,7 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-logo": "@dev",
@@ -32,11 +33,11 @@
 		"automattic/jetpack-tracking": "@dev"
 	},
 	"require-dev": {
-		"dealerdirect/phpcodesniffer-composer-installer": "0.6.2",
+		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
-		"sirbrillig/phpcs-changed": "2.4.0",
-		"sirbrillig/phpcs-variable-analysis": "2.8.1",
-		"wp-coding-standards/wpcs": "2.2.1"
+		"sirbrillig/phpcs-changed": "2.5.1",
+		"sirbrillig/phpcs-variable-analysis": "2.8.2",
+		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"scripts": {
 		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",

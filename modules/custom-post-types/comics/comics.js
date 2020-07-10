@@ -97,8 +97,6 @@ jQuery( function( $ ) {
 				formData.append( 'image_' + i, files[ i ] ); // won't work as image[]
 			}
 
-			$( '#jetpack-comic-drop-zone .uploading .spinner' ).spin();
-
 			$.ajax( {
 				url: Jetpack_Comics_Options.writeURL + '&nonce=' + Jetpack_Comics_Options.nonce,
 				data: formData,

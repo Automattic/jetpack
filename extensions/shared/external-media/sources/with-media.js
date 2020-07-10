@@ -11,34 +11,18 @@ import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
+import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
  */
 import { PATH_RECENT } from '../constants';
-import MediaItem from '../media-browser/media-item';
-
-const CopyingMedia = ( { items } ) => {
-	const classname =
-		items.length === 1
-			? 'jetpack-external-media-browser__single'
-			: 'jetpack-external-media-browser';
-
-	return (
-		<div className={ classname }>
-			<div className="jetpack-external-media-browser__media">
-				{ items.map( item => (
-					<MediaItem item={ item } key={ item.ID } isSelected isCopying />
-				) ) }
-			</div>
-		</div>
-	);
-};
 
 export default function withMedia() {
 	return createHigherOrderComponent( OriginalComponent => {
-		// Grandfathered class as it was ported from an older codebase.
+		// Legacy class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
 			constructor( props ) {
 				super( props );
@@ -48,10 +32,48 @@ export default function withMedia() {
 					nextHandle: false,
 					isLoading: false,
 					isCopying: null,
-					requiresAuth: false,
+					isAuthenticated: true,
 					path: { ID: PATH_RECENT },
 				};
 			}
+
+			modalRef = el => {
+				if ( el ) {
+					// Find the modal wrapper.
+					this.modalElement = el.closest( '.jetpack-external-media-browser' );
+
+					// Attach the listener if found.
+					if ( this.modalElement ) {
+						this.modalElement.addEventListener( 'keydown', this.stopArrowKeysPropagation );
+					}
+				} else if ( this.modalElement ) {
+					// Remove listeners when unmounting.
+					this.modalElement.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
+					this.modalElement = null;
+				}
+			};
+
+			stopArrowKeysPropagation = event => {
+				/**
+				 * When the External Media modal is open, pressing any arrow key causes
+				 * it to close immediately. This is happening because the keydown event
+				 * propagates outside the modal, triggering a re-render and a blur event
+				 * eventually. We could avoid that by isolating the modal from the Image
+				 * block render scope, but it is not possible in current implementation.
+				 *
+				 * This handler makes sure that the keydown event doesn't propagate further,
+				 * which fixes the issue described above while still keeping arrow keys
+				 * functional inside the modal.
+				 *
+				 * This can be removed once
+				 * https://github.com/WordPress/gutenberg/issues/22940 is fixed.
+				 */
+				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
+					event.stopPropagation();
+				}
+			};
+
+			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
 
 			mergeMedia( initial, media ) {
 				return uniqBy( initial.concat( media ), 'ID' );
@@ -88,7 +110,7 @@ export default function withMedia() {
 
 			handleApiError = error => {
 				if ( error.code === 'authorization_required' ) {
-					this.setState( { requiresAuth: true, isLoading: false, isCopying: false } );
+					this.setState( { isAuthenticated: false, isLoading: false, isCopying: false } );
 					return;
 				}
 
@@ -121,7 +143,7 @@ export default function withMedia() {
 				const path = this.getRequestUrl( url );
 				const method = 'GET';
 
-				this.setState( { requiresAuth: false } );
+				this.setAuthenticated( true );
 
 				apiFetch( {
 					path,
@@ -142,6 +164,24 @@ export default function withMedia() {
 				this.setState( { isCopying: items } );
 				this.props.noticeOperations.removeAllNotices();
 
+				// If we have a modal element set, focus it.
+				// Otherwise focus is reset to the body instead of staying within the Modal.
+				if ( this.modalElement ) {
+					this.modalElement.focus();
+				}
+
+				// Announce the action with appended string of all the images' alt text.
+				speak(
+					sprintf(
+						__( 'Inserting: %s', 'jetpack' ),
+						items
+							.map( item => item.title )
+							.filter( item => item )
+							.join( ', ' )
+					),
+					'polite'
+				);
+
 				apiFetch( {
 					path: apiUrl,
 					method: 'POST',
@@ -157,6 +197,17 @@ export default function withMedia() {
 						const { value, addToGallery, multiple } = this.props;
 						const media = multiple ? result : result[ 0 ];
 
+						const itemWithErrors = result.find( item => item.errors );
+						if ( itemWithErrors ) {
+							const { errors } = itemWithErrors;
+							const firstErrorKey = Object.keys( errors )[ 0 ];
+							this.handleApiError( {
+								code: firstErrorKey,
+								message: errors[ firstErrorKey ],
+							} );
+							return;
+						}
+
 						this.props.onClose();
 
 						// Select the image(s). This will close the modal
@@ -169,51 +220,55 @@ export default function withMedia() {
 				this.setState( { path }, cb );
 			};
 
-			stopPropagation( event ) {
-				event.stopPropagation();
-			}
-
-			renderContent() {
-				const { media, isLoading, nextHandle, requiresAuth, path } = this.state;
-				const { noticeUI, allowedTypes, multiple = false } = this.props;
-
-				return (
-					// eslint-disable-next-line jsx-a11y/no-static-element-interactions
-					<div onMouseDown={ this.stopPropagation }>
-						{ noticeUI }
-
-						<OriginalComponent
-							getMedia={ this.getMedia }
-							copyMedia={ this.copyMedia }
-							isLoading={ isLoading }
-							media={ media }
-							pageHandle={ nextHandle }
-							allowedTypes={ allowedTypes }
-							requiresAuth={ requiresAuth }
-							multiple={ multiple }
-							path={ path }
-							onChangePath={ this.onChangePath }
-						/>
-					</div>
-				);
-			}
-
 			render() {
-				const { isCopying } = this.state;
-				const { onClose } = this.props;
+				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
+				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
+				const title = isCopying
+					? __( 'Inserting media', 'jetpack' )
+					: __( 'Select media', 'jetpack' );
+				const description = isCopying
+					? __(
+							'When the media is finished copying and inserting, you will be returned to the editor.',
+							'jetpack'
+					  )
+					: __( 'Select the media you would like to insert into the editor.', 'jetpack' );
+
+				const describedby = 'jetpack-external-media-browser__description';
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
-					'jetpack-external-media-browser__is-copying': isCopying,
+					'jetpack-external-media-browser--is-copying': isCopying,
 				} );
 
 				return (
 					<Modal
 						onRequestClose={ onClose }
-						title={ isCopying ? __( 'Copying Media', 'jetpack' ) : __( 'Select Media', 'jetpack' ) }
+						title={ title }
+						aria={ { describedby } }
 						className={ classes }
 					>
-						{ isCopying ? <CopyingMedia items={ isCopying } /> : this.renderContent() }
+						<div ref={ this.modalRef }>
+							{ noticeUI }
+
+							<p id={ describedby } className="jetpack-external-media-browser--visually-hidden">
+								{ description }
+							</p>
+
+							<OriginalComponent
+								getMedia={ this.getMedia }
+								copyMedia={ this.copyMedia }
+								isCopying={ isCopying }
+								isLoading={ isLoading }
+								media={ media }
+								pageHandle={ nextHandle }
+								allowedTypes={ allowedTypes }
+								isAuthenticated={ isAuthenticated }
+								setAuthenticated={ this.setAuthenticated }
+								multiple={ multiple }
+								path={ path }
+								onChangePath={ this.onChangePath }
+							/>
+						</div>
 					</Modal>
 				);
 			}

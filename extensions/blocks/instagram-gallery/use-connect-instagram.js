@@ -2,6 +2,7 @@
  * External dependencies
  */
 import PopupMonitor from '@automattic/popup-monitor';
+import { find } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -10,9 +11,15 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
+import { NEW_INSTAGRAM_CONNECTION } from './constants';
+
 export default function useConnectInstagram( {
 	accessToken,
 	noticeOperations,
+	selectedAccount,
 	setAttributes,
 	setImages,
 	setSelectedAccount,
@@ -37,6 +44,15 @@ export default function useConnectInstagram( {
 				setUserConnections( [] );
 			} );
 	}, [ accessToken ] );
+
+	useEffect( () => {
+		if (
+			NEW_INSTAGRAM_CONNECTION !== selectedAccount &&
+			! find( userConnections, { token: selectedAccount } )
+		) {
+			setSelectedAccount( undefined );
+		}
+	}, [ selectedAccount, setSelectedAccount, userConnections ] );
 
 	const connectToService = () => {
 		noticeOperations.removeAllNotices();

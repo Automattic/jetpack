@@ -200,8 +200,8 @@ yarn distclean
 
 Jetpack contains several extensions that have a separate build process. You can find information how to build them below: 
 
-* Jetpack Instant Search - [build instructions](../extensions/README.md)
-* Jetpack Block Editor Extensions - [build instructions](../modules/search/instant-search/README.md)
+* Jetpack Instant Search - [build instructions](../modules/search/instant-search/README.md)
+* Jetpack Block Editor Extensions - [build instructions](../extensions/README.md)
 
 ---
 
@@ -375,7 +375,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	* `wp jetpack status [<full>]`
 	* `wp jetpack module <list|activate|deactivate|toggle> [<module_name>]`
 	* `wp jetpack options <list|get|delete|update> [<option_name>] [<option_value>]`
-	* `wp jetpack protect <whitelist> [<ip|ip_low-ip_high|list|clear>]`
+	* `wp jetpack protect <allow> [<ip|ip_low-ip_high|list|clear>]`
 	* `wp jetpack reset <modules|options>`
 	* `wp jetpack disconnect <blog|user> [<user_identifier>]`
 	* `wp jetpack status`

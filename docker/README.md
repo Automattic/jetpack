@@ -368,6 +368,17 @@ Emails don’t leave your WordPress and are caught by [MailDev](http://danfarrel
 
 To debug emails via web-interface, open [http://localhost:1080](http://localhost:1080)
 
+
+### Debugging different WordPress versions
+
+You can use the [WP CLI](https://make.wordpress.org/cli/) to update the version of WordPress running inside the Docker container. Example command:
+
+```
+yarn docker:wp core update --version=5.3.4 --force
+```
+
+This is useful if you want to check your code is compatible with the minimum version of WP Jetpack supports, which can be found in the [readme.txt](../readme.txt). We always support the latest patched version of the branch we specify as "Requires at least" in the readme file. You can match it with the exact version on the [WordPress Releases page](https://wordpress.org/download/releases/).
+
 ### Debugging PHP with Xdebug
 
 The WordPress image is leveraged with Xdebug present as a PHP Extension.

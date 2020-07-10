@@ -21,34 +21,32 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @var array
 	 */
 	public $media_schema = array(
-		'items' => array(
-			'type'       => 'object',
-			'required'   => true,
-			'properties' => array(
-				'caption' => array(
-					'type' => 'string',
-				),
-				'guid'    => array(
-					'items' => array(
-						'caption' => array(
-							'type' => 'string',
-						),
-						'name'    => array(
-							'type' => 'string',
-						),
-						'title'   => array(
-							'type' => 'string',
-						),
-						'url'     => array(
-							'format' => 'uri',
-							'type'   => 'string',
-						),
+		'type'       => 'object',
+		'required'   => true,
+		'properties' => array(
+			'caption' => array(
+				'type' => 'string',
+			),
+			'guid'    => array(
+				'items' => array(
+					'caption' => array(
+						'type' => 'string',
 					),
-					'type'  => 'array',
+					'name'    => array(
+						'type' => 'string',
+					),
+					'title'   => array(
+						'type' => 'string',
+					),
+					'url'     => array(
+						'format' => 'uri',
+						'type'   => 'string',
+					),
 				),
-				'title'   => array(
-					'type' => 'string',
-				),
+				'type'  => 'array',
+			),
+			'title'   => array(
+				'type' => 'string',
 			),
 		),
 	);
@@ -116,11 +114,11 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'copy_external_media' ),
-				'permission_callback' => array( $this, 'permission_callback' ),
+				'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				'args'                => array(
 					'media' => array(
 						'description'       => __( 'Media data to copy.', 'jetpack' ),
-						'items'             => array_values( $this->media_schema ),
+						'items'             => $this->media_schema,
 						'required'          => true,
 						'type'              => 'array',
 						'sanitize_callback' => array( $this, 'sanitize_media' ),
@@ -146,6 +144,42 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 */
 	public function permission_callback() {
 		return current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Checks if a given request has access to create an attachment.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+	 */
+	public function create_item_permissions_check( $request ) {
+		if ( ! empty( $request['id'] ) ) {
+			return new WP_Error(
+				'rest_post_exists',
+				__( 'Cannot create existing post.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$post_type = get_post_type_object( 'attachment' );
+
+		if ( ! current_user_can( $post_type->cap->create_posts ) ) {
+			return new WP_Error(
+				'rest_cannot_create',
+				__( 'Sorry, you are not allowed to create posts as this user.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new WP_Error(
+				'rest_cannot_create',
+				__( 'Sorry, you are not allowed to upload media on this site.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -229,6 +263,14 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		switch ( wp_remote_retrieve_response_code( $response ) ) {
 			case 200:
 				$response = json_decode( wp_remote_retrieve_body( $response ) );
+				break;
+
+			case 401:
+				$response = new WP_Error(
+					'authorization_required',
+					__( 'You are not connected to that service.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
 				break;
 
 			case 403:

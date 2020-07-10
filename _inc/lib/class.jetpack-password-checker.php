@@ -47,7 +47,7 @@ class Jetpack_Password_Checker {
 	public $multiplier = 4;
 
 	/**
-	 * A common password blacklist, which on match will immediately disqualify the password.
+	 * A common password disallow list, which on match will immediately disqualify the password.
 	 *
 	 * @var Array
 	 */

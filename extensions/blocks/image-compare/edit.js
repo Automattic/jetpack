@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { PanelBody, Placeholder, RadioControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { useLayoutEffect, useState } from '@wordpress/element';
+import { useLayoutEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**

@@ -40,67 +40,25 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Mailchimp block registration/dependency declaration.
  *
- * @param array $attr - Array containing the map block attributes.
+ * @param array  $attr - Array containing the Mailchimp block attributes.
+ * @param string $content - Mailchimp block content.
  *
  * @return string
  */
-function load_assets( $attr ) {
+function load_assets( $attr, $content ) {
 
 	if ( ! verify_connection() ) {
 		return null;
 	}
 
-	$values  = array();
+	$values  = get_attributes_with_defaults( $attr );
 	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		? get_current_blog_id()
 		: Jetpack_Options::get_option( 'id' );
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	$defaults = array(
-		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
-		'submitButtonText' => esc_html__( 'Join my email list', 'jetpack' ),
-		'consentText'      => esc_html__( 'By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
-		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
-		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
-		'errorLabel'       => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
-		'interests'        => array(),
-		'signupFieldTag'   => '',
-		'signupFieldValue' => '',
-	);
-	foreach ( $defaults as $id => $default ) {
-		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
-	}
-
-	$values['submitButtonText'] = empty( $values['submitButtonText'] ) ? $defaults['submitButtonText'] : $values['submitButtonText'];
-
-	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
-
-	$button_styles = array();
-	if ( ! empty( $attr['customBackgroundButtonColor'] ) ) {
-		array_push(
-			$button_styles,
-			sprintf(
-				'background-color: %s',
-				sanitize_hex_color( $attr['customBackgroundButtonColor'] )
-			)
-		);
-	}
-	if ( ! empty( $attr['customTextButtonColor'] ) ) {
-		array_push(
-			$button_styles,
-			sprintf(
-				'color: %s',
-				sanitize_hex_color( $attr['customTextButtonColor'] )
-			)
-		);
-	}
-	$button_styles   = implode( ';', $button_styles );
+	$classes         = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
 	$amp_form_action = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
 	$is_amp_request  = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
-
-	$button_classes = 'components-button is-button is-primary ';
-	if ( ! empty( $attr['submitButtonClasses'] ) ) {
-		$button_classes .= $attr['submitButtonClasses'];
-	}
 
 	ob_start();
 	?>
@@ -114,9 +72,7 @@ function load_assets( $attr ) {
 					method="post"
 					id="mailchimp_form"
 					target="_top"
-					<?php if ( $is_amp_request ) : ?>
 					on="submit-success:AMP.setState( { mailing_list_status: 'subscribed', mailing_list_email: event.response.email } )"
-					<?php endif; ?>
 				<?php endif; ?>
 			>
 				<p>
@@ -150,11 +106,7 @@ function load_assets( $attr ) {
 						value="<?php echo esc_attr( $values['signupFieldValue'] ); ?>"
 					/>
 				<?php endif; ?>
-				<p>
-					<button type="submit" class="<?php echo esc_attr( $button_classes ); ?>" style="<?php echo esc_attr( $button_styles ); ?>">
-						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
-					</button>
-				</p>
+				<?php echo render_button( $attr, $content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<p id="wp-block-jetpack-mailchimp_consent-text">
 					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
@@ -221,4 +173,94 @@ function verify_connection() {
 		return false;
 	}
 	return isset( $data['follower_list_id'], $data['keyring_id'] );
+}
+
+/**
+ * Builds complete set of attributes using default values where needed.
+ *
+ * @param array $attr Saved set of attributes for the Mailchimp block.
+ * @return array
+ */
+function get_attributes_with_defaults( $attr ) {
+	$values   = array();
+	$defaults = array(
+		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
+		'consentText'      => esc_html__( 'By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time.', 'jetpack' ),
+		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
+		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
+		'errorLabel'       => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
+		'interests'        => array(),
+		'signupFieldTag'   => '',
+		'signupFieldValue' => '',
+	);
+
+	foreach ( $defaults as $id => $default ) {
+		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
+	}
+
+	return $values;
+}
+
+/**
+ * Renders the Mailchimp block button using inner block content if available
+ * otherwise generating the HTML button from deprecated attributes.
+ *
+ * @param array  $attr Attributes for the Mailchimp block.
+ * @param string $content Mailchimp block content.
+ *
+ * @return string
+ */
+function render_button( $attr, $content ) {
+	if ( ! empty( $content ) ) {
+		$block_id = wp_unique_id( 'mailchimp-button-block-' );
+		return str_replace( 'mailchimp-widget-id', $block_id, $content );
+	}
+
+	return render_deprecated_button( $attr );
+}
+
+/**
+ * Renders HTML button from deprecated Mailchimp block attributes.
+ *
+ * @param array $attr Mailchimp block attributes.
+ * @return string
+ */
+function render_deprecated_button( $attr ) {
+	$default       = esc_html__( 'Join my email list', 'jetpack' );
+	$text          = empty( $attr['submitButtonText'] ) ? $default : $attr['submitButtonText'];
+	$button_styles = array();
+
+	if ( ! empty( $attr['customBackgroundButtonColor'] ) ) {
+		array_push(
+			$button_styles,
+			sprintf(
+				'background-color: %s',
+				sanitize_hex_color( $attr['customBackgroundButtonColor'] )
+			)
+		);
+	}
+
+	if ( ! empty( $attr['customTextButtonColor'] ) ) {
+		array_push(
+			$button_styles,
+			sprintf(
+				'color: %s',
+				sanitize_hex_color( $attr['customTextButtonColor'] )
+			)
+		);
+	}
+
+	$button_styles  = implode( ';', $button_styles );
+	$button_classes = 'components-button is-button is-primary ';
+
+	if ( ! empty( $attr['submitButtonClasses'] ) ) {
+		$button_classes .= $attr['submitButtonClasses'];
+	}
+
+	return sprintf(
+		'<p><button type="submit" class="%s" style="%s">%s</button></p>',
+		esc_attr( $button_classes ),
+		esc_attr( $button_styles ),
+		wp_kses_post( $text )
+	);
 }

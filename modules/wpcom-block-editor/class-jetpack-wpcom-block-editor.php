@@ -44,7 +44,6 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
-		add_action( 'admin_init', array( $this, 'activate_classic_editor' ) );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -62,7 +61,7 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Prevents frame options header from firing if this is a whitelisted iframe request.
+	 * Prevents frame options header from firing if this is a allowed iframe request.
 	 */
 	public function disable_send_frame_options_header() {
 		// phpcs:ignore WordPress.Security.NonceVerification
@@ -72,7 +71,7 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Adds custom admin body class if this is a whitelisted iframe request.
+	 * Adds custom admin body class if this is a allowed iframe request.
 	 *
 	 * @param string $classes Admin body classes.
 	 * @return string
@@ -87,6 +86,25 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
+	 * Checks to see if cookie can be set in current context. If 3rd party cookie blocking
+	 * is enabled the editor can't load in iFrame, so emiting X-Frame-Options: DENY will
+	 * force the editor to break out of the iFrame.
+	 */
+	private function check_iframe_cookie_setting() {
+		if ( ! isset( $_SERVER['QUERY_STRING'] ) || ! strpos( $_SERVER['QUERY_STRING'], 'calypsoify%3D1%26block-editor' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
+			return;
+		}
+
+		if ( ! $_GET['calypsoify_cookie_check'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			header( 'Location: ' . esc_url_raw( $_SERVER['REQUEST_URI'] . '&calypsoify_cookie_check=true' ) );
+			exit;
+		}
+
+		header( 'X-Frame-Options: DENY' );
+		exit;
+	}
+
+	/**
 	 * Allows to iframe the login page if a user is logged out
 	 * while trying to access the block editor from wordpress.com.
 	 */
@@ -95,6 +113,8 @@ class Jetpack_WPCOM_Block_Editor {
 		if ( empty( $_REQUEST['redirect_to'] ) ) {
 			return;
 		}
+
+		$this->check_iframe_cookie_setting();
 
 		// phpcs:ignore WordPress.Security.NonceVerification
 		$query = wp_parse_url( urldecode( $_REQUEST['redirect_to'] ), PHP_URL_QUERY );
@@ -160,7 +180,7 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Checks whether this is a whitelisted iframe request.
+	 * Checks whether this is an allowed iframe request.
 	 *
 	 * @param string $nonce Nonce to verify.
 	 * @return bool
@@ -280,36 +300,12 @@ class Jetpack_WPCOM_Block_Editor {
 			true
 		);
 
-		/**
-		 * Offer an option to switch to the classic editor when the following
-		 * criteria are met:
-		 * - The editor/after-deprecation query string param is present (Temporary requirement).
-		 * - In the iFramed block editor.
-		 * - The classic editor plugin is installed but not active.
-		 * - User has permission to activate plugins e.g. admins.
-		 */
-		$switch_visible = $this->is_iframed_block_editor()
-			&& isset( $_GET['editor/after-deprecation'] ) // phpcs:ignore WordPress.Security.NonceVerification
-			&& file_exists( WP_PLUGIN_DIR . 'classic-editor/classic-editor.php' )
-			&& is_plugin_inactive( 'classic-editor/classic-editor.php' )
-			&& current_user_can( 'activate_plugin' );
-
-		/**
-		 * Due to difficulties in being able test with an iFramed editor, the
-		 * following has been added so that requirement can be worked around.
-		 */
-		if ( isset( $_GET['editor/after-deprecation'] ) && 'show' === $_GET['editor/after-deprecation'] ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$switch_visible = file_exists( WP_PLUGIN_DIR . '/classic-editor/classic-editor.php' )
-				&& is_plugin_inactive( 'classic-editor/classic-editor.php' )
-				&& current_user_can( 'activate_plugin' );
-		}
-
 		wp_localize_script(
 			'wpcom-block-editor-default-editor-script',
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
-					'isVisible' => $switch_visible,
+					'isVisible' => $this->is_iframed_block_editor() && ! isset( $_GET['in-editor-deprecation-group'] ), // phpcs:ignore WordPress.Security.NonceVerification
 					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
 					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
@@ -596,32 +592,6 @@ class Jetpack_WPCOM_Block_Editor {
 
 		// Post password cookie.
 		setcookie( 'wp-postpass_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-	}
-
-	/**
-	 * Activates the Classic Editor plugin and reloads the page so it can initialize.
-	 *
-	 * This will only work if the Classic Editor plugin is already installed.
-	 */
-	public function activate_classic_editor() {
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( ! empty( $_GET['set-editor'] ) && 'classic' === $_GET['set-editor'] && current_user_can( 'activate_plugin' ) ) {
-			if ( is_plugin_inactive( 'classic-editor/classic-editor.php' ) ) {
-				activate_plugin( 'classic-editor/classic-editor.php' );
-				update_network_option( null, 'classic-editor-replace', 'classic' );
-				update_user_option( get_current_user_id(), 'classic-editor-settings', 'classic' );
-
-				$classic_url = add_query_arg(
-					array(
-						'classic-editor'         => '',
-						'classic-editor__forget' => '',
-					),
-					remove_query_arg( 'set-editor', $_SERVER['REQUEST_URI'] )
-				);
-
-				wp_safe_redirect( $classic_url );
-			}
-		}
 	}
 }
 

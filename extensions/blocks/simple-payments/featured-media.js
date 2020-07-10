@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BlockControls, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { get } from 'lodash';
 import { Toolbar, ToolbarButton } from '@wordpress/components';
@@ -23,7 +23,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 	if ( ! featuredMediaId ) {
 		return (
 			<MediaPlaceholder
-				icon="format-image"
+				icon={ <BlockIcon icon={ 'format-image' } /> }
 				labels={ {
 					title: __( 'Product Image', 'jetpack' ),
 				} }

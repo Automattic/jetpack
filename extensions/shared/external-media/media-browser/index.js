@@ -25,7 +25,17 @@ const EmptyResults = memo( () => (
 ) );
 
 function MediaBrowser( props ) {
-	const { media, isLoading, pageHandle, className, multiple, setPath, nextPage, onCopy } = props;
+	const {
+		media,
+		isCopying,
+		isLoading,
+		pageHandle,
+		className,
+		multiple,
+		setPath,
+		nextPage,
+		onCopy,
+	} = props;
 	const [ selected, setSelected ] = useState( [] );
 
 	const onSelectImage = useCallback(
@@ -70,6 +80,19 @@ function MediaBrowser( props ) {
 		nextPage();
 	};
 
+	const SelectButton = () => {
+		const disabled = selected.length === 0 || isCopying;
+		const label = isCopying ? __( 'Inserting…', 'jetpack' ) : __( 'Select', 'jetpack' );
+
+		return (
+			<div className="jetpack-external-media-browser__media__toolbar">
+				<Button isPrimary isBusy={ isCopying } disabled={ disabled } onClick={ onCopyAndInsert }>
+					{ label }
+				</Button>
+			</div>
+		);
+	};
+
 	return (
 		<div className={ wrapper }>
 			<ul className={ classes }>
@@ -80,6 +103,7 @@ function MediaBrowser( props ) {
 						onClick={ onSelectImage }
 						focusOnMount={ !! prevMediaCount.current && index === prevMediaCount.current }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
+						isCopying={ isCopying }
 					/>
 				) ) }
 
@@ -88,10 +112,9 @@ function MediaBrowser( props ) {
 
 				{ pageHandle && ! isLoading && (
 					<Button
-						isLarge
 						isSecondary
 						className="jetpack-external-media-browser__loadmore"
-						disabled={ isLoading }
+						disabled={ isLoading || isCopying }
 						onClick={ onLoadMoreClick }
 					>
 						{ __( 'Load More', 'jetpack' ) }
@@ -99,13 +122,7 @@ function MediaBrowser( props ) {
 				) }
 			</ul>
 
-			{ hasMediaItems && (
-				<div className="jetpack-external-media-browser__media__toolbar">
-					<Button isPrimary isLarge disabled={ selected.length === 0 } onClick={ onCopyAndInsert }>
-						{ __( 'Copy & Insert', 'jetpack' ) }
-					</Button>
-				</div>
-			) }
+			{ hasMediaItems && <SelectButton /> }
 		</div>
 	);
 }

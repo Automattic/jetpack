@@ -12,11 +12,11 @@
  * Additional Search Queries: site accelerator, accelerate, static, assets, javascript, css, files, performance, cdn, bandwidth, content delivery network, pagespeed, combine js, optimize css
  */
 
+use Automattic\Jetpack\Assets;
+
 $GLOBALS['concatenate_scripts'] = false;
 
-Jetpack::dns_prefetch( array(
-	'//c0.wp.com',
-) );
+Assets::add_resource_hint( '//c0.wp.com', 'dns-prefetch' );
 
 class Jetpack_Photon_Static_Assets_CDN {
 	const CDN = 'https://c0.wp.com/';
