@@ -12,7 +12,6 @@ import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
-import { supportsCollections } from '../../shared/block-category';
 
 export const innerButtonBlock = {
 	name: 'jetpack/button',
@@ -53,7 +52,7 @@ export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 	keywords: [
 		_x( 'events', 'block search term', 'jetpack' ),
 		_x( 'tickets', 'block search term', 'jetpack' ),

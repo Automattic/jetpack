@@ -13,7 +13,6 @@ import defaultTheme from './map-theme_default.jpg';
 import blackAndWhiteTheme from './map-theme_black_and_white.jpg';
 import satelliteTheme from './map-theme_satellite.jpg';
 import terrainTheme from './map-theme_terrain.jpg';
-import { supportsCollections } from '../../shared/block-category';
 
 export const settings = {
 	name: 'map',
@@ -34,7 +33,7 @@ export const settings = {
 			<path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM10 5.47l4 1.4v11.66l-4-1.4V5.47zm-5 .99l3-1.01v11.7l-3 1.16V6.46zm14 11.08l-3 1.01V6.86l3-1.16v11.84z" />
 		</svg>
 	),
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 	keywords: [
 		_x( 'maps', 'block search term', 'jetpack' ),
 		_x( 'location', 'block search term', 'jetpack' ),

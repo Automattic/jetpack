@@ -11,7 +11,6 @@ import edit from './edit';
 import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';
 import icon from './icon';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
@@ -26,7 +25,7 @@ export const settings = {
 		_x( 'appointments', 'block search term', 'jetpack' ),
 	],
 	icon,
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 	supports: {
 		align: true,
 		alignWide: true,

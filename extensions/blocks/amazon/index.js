@@ -14,7 +14,6 @@ import edit from './edit';
  * Style dependencies
  */
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'amazon';
 export const title = __( 'Amazon', 'jetpack' );
@@ -23,7 +22,7 @@ export const settings = {
 	title,
 	description: __( 'Promote Amazon products and earn a commission from sales.', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	category: 'earn',
 	keywords: [ __( 'amazon', 'jetpack' ), __( 'affiliate', 'jetpack' ) ],
 	supports: {
 		align: true,

@@ -11,7 +11,6 @@ import './editor.scss';
 import './style.scss';
 import BusinessHours from './edit';
 import renderMaterialIcon from '../../shared/render-material-icon';
-import { supportsCollections } from '../../shared/block-category';
 
 /**
  * Block Registrations:
@@ -83,7 +82,7 @@ export const settings = {
 	title: __( 'Business Hours', 'jetpack' ),
 	description: __( 'Display opening hours for your business.', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	supports: {
 		html: true,
 	},

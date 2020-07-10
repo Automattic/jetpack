@@ -11,7 +11,6 @@ import { trimEnd } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import edit from './edit';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'recurring-payments';
 
@@ -28,7 +27,7 @@ export const settings = {
 	title: __( 'Payments', 'jetpack' ),
 	icon,
 	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	category: 'earn',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscriptions', 'block search term', 'jetpack' ),
