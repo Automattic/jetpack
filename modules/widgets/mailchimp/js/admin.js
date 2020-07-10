@@ -294,7 +294,7 @@
 		} else {
 			$( '.widgets-holder-wrap #jetpack-mailchimp-new-form' ).change( function() {
 				if ( $( this ).is( ':checked' ) ) {
-					var answer = confirm( 'Are you sure?' );
+					var answer = confirm( mailchimpAdmin.question );
 
 					if ( answer ) {
 						$( '.mailchimp-code' ).remove();

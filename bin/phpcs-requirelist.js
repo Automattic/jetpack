@@ -64,6 +64,7 @@ module.exports = [
 	'modules/widgets/contact-info.php',
 	'modules/widgets/eu-cookie-law/widget-amp.php',
 	'modules/widgets/social-icons.php',
+	'modules/widgets/mailchimp.php',
 	'modules/woocommerce-analytics/',
 	'modules/woocommerce-analytics.php',
 	'modules/wordads/',

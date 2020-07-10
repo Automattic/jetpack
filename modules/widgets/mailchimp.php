@@ -10,7 +10,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		include_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/mailchimp.php';
 	}
 
-	//register MailChimp Subscriber Popup widget
+	/**
+	 * Register MailChimp Subscriber Popup widget.
+	 */
 	function jetpack_mailchimp_subscriber_popup_widget_init() {
 		register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
 	}
@@ -57,7 +59,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'customize_selective_refresh' => true,
 				)
 			);
-
+			// These are the same attributes as the Mailchimp form (extensions/blocks/mailchimp/mailchimp.php), so if the block attributes are changed the these need to be changed accordingly.
 			$this->defaults = array(
 				'code'                        => '',
 				'emailPlaceholder'            => __( 'Enter your email', 'jetpack' ),
@@ -103,7 +105,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 				$popup_mode = 'on' === $instance['popupMode'];
 				// Use the same output as the block.
-				$output       = render_block( $instance );
+				$output       = render_block( $instance, '' );
 				$form_classes = 'jetpack-mailchimp-widget-form';
 
 				if ( ! empty( $instance['cssClass'] ) ) {
@@ -127,7 +129,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 								'modules/widgets/mailchimp/css/popup-amp.css'
 							),
 							array(),
-							'20200618'
+							JETPACK__VERSION
 						);
 
 						$output = sprintf(
@@ -149,7 +151,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 								'modules/widgets/mailchimp/js/popup.js'
 							),
 							array( 'jquery' ),
-							'20200615',
+							JETPACK__VERSION,
 							true
 						);
 
@@ -157,7 +159,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'jetpack-mailchimp-popup',
 							'jetpackMailchimpPopup',
 							array(
-								'delay' => $instance['delay'],
+								'delay' => esc_html( $instance['delay'] ),
 							)
 						);
 
@@ -168,9 +170,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 								'modules/widgets/mailchimp/css/popup.css'
 							),
 							array(),
-							'20200615'
+							JETPACK__VERSION
 						);
-
+						// Add style="display:none;" to the div containing the form.
 						$output = preg_replace( '/(class=".+")\s*(>)/', '$1 style="display:none;"$2', $output, 1 );
 					}
 				}
@@ -187,11 +189,10 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 * Deals with the settings when they are saved by the admin.
 		 *
 		 * @param array $new_instance New configuration values.
-		 * @param array $old_instance Old configuration values.
 		 *
 		 * @return array
 		 */
-		public function update( $new_instance, $old_instance ) {
+		public function update( $new_instance ) {
 			$instance = array();
 
 			$new_instance = wp_parse_args(
@@ -357,7 +358,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					),
 					'extra_content' => array(
 						array(
-							'text' => __( 'Learn about signup location tracking(opens in a new tab)', 'jetpack' ),
+							'text' => __( 'Learn about signup location tracking (opens in a new tab)', 'jetpack' ),
 							'link' => 'https://mailchimp.com/help/determine-webpage-signup-location/',
 							'type' => 'link',
 						),
@@ -441,8 +442,10 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					<p class="mailchimp-code">
 					<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>">
 						<?php
+							// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 							/* translators: %1$s is replaced mailchimp suppoert link */
 							echo sprintf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' );
+							// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 						?>
 					</label>
 					<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
@@ -463,7 +466,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					oldForm: <?php echo ! empty( $instance['code'] ) ? 'true' : 'false'; ?>,
 					interests: '<?php echo esc_html( $instance['interests'] ); ?>',
 					interestsFieldName: '<?php echo esc_attr( $this->get_field_name( 'interests' ) ); ?>',
-					nonce: '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ); ?>'
+					nonce: '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ); ?>',
+					question: '<?php echo esc_html__( 'Are you sure?', 'jetpack' ); ?>'
 				};
 				jQuery( window ).trigger( 'jetpack_mailchimp_load_form' );
 			</script>
