@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 8.7
+Stable tag: 8.7.1
 Requires at least: 5.4
 Requires PHP: 5.6
 Tested up to: 5.5
@@ -96,79 +96,26 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 8.7.1 =
+= 8.8 =
 
-* Release date: July 14, 2020
-
-**Bug fixes**
-
-* Autoloader: avoid PHP warning on sites with an invalid `active_plugins` option.
-* Backwards Compatibility: Prevent fatal errors on themes relying on a deprecated static method.
-* Blocks: show a loading spinner when unrolling Twitter threads on WordPress 5.3.
-* General: prevent PHP notices with the Contact Form feature, Sharing feature, and the Latest Instagram Galleries block.
-* Sharing: create proper Open Graph Description tag when a post starts with an image.
-
-= 8.7 =
-
-* Release date: July 7, 2020
-* Release post: https://wp.me/p1moTy-qiH
+* Release date: August 74, 2020
+* Release post: https://wp.me/p1moTy-rs2
 
 **Major Enhancements**
 
-* When inserting images into your posts, you can now choose images from your Google Photos account, or from the Pexels Free Photos library.
-* WhatsApp block: this new block adds a button so your site's visitors can contact you via WhatsApp with the tap of a button.
-* You can now import Twitter threads into a post with the click of a button.
-* Jetpack Search now includes more options to customize the look of the Search overlay: you can choose between minimal and expanded results, you can hide the Sort option, or change the default sorting option.
-* Jetpack Ads: you can now enable a "Do Not Sell My Personal Information" link as specified in the California Consumer Privacy Act (CCPA) for California site visitors to opt-out of targeted advertising.
+*
 
 **Enhancements**
 
-* Blocks: add more options to customize the look of the Payments block.
-* Blocks: allowing playing a Jetpack video in the block editor.
-* Blocks: add episode link and improve the look of the Podcast player when displaying only one episode.
-* Blocks: add more customization options to the buttons offered by the following blocks: Calendly, Mailchimp, Eventbrite.
-* Blocks: rename "Earn" blocks: "Simple Payments" becomes "Pay with Paypal"; "Recurring Payments" becomes "Payments".
-* Connection Flow: improve the display of connection errors when a site cannot be connected to WordPress.com.
-* Contact Form: improve the "Empty Spam" process to better handle large amount of Spam.
-* Jetpack Search: use the full width of the browser when the site does not use any Jetpack Search Sidebar.
-* Performance: switch from JavaScript library to CSS animations to display loading spinners.
-* Related Posts: improve accessibility of the titles of each Related Post.
-* Site Stats: improve accessibility of the Stats dashboard.
-* Social Logos: update Facebook Logo design.
-* Widgets: improve accessibility of the Contact Info Widget as well as the Blog Stats Widget.
-* Widgets: improve performance of the Display Posts widget by fetching less data.
+*
 
 **Improved compatibility**
 
-* Autoloader: improve the way Jetpack librairies are loaded when used in multiple plugins.
-* Blocks: improve the display of the Tiled Gallery block when used with the AMP plugin.
-* Custom Content Types: ensure that the Comic Post Type is compatible with the AMP plugin.
-* Custom Content Types: allow third-party themes to enqueue their own Portfolio styles.
-* Gravatar Hovercards: avoid validation errors when used with the AMP plugin.
-* Open Graph Meta Tags: avoid displaying Jetpack's Tags when the Rank Math plugin is active.
-* Shortcodes / Embeds: ensure better compatibility of multiple embeds with the AMP plugin.
-* Sharing: ensure that all button styles can be used with the AMP plugin.
-* Sitemaps: avoid conflicts with the Sitemap option that will be available in the upcoming version of WordPress.
-* WordPress.com Toolbar: ensure it is accessible when using the Twenty Twenty theme.
-* WooCommerce: avoid broken resources when using the WooCommerce plugin alongside Jetpack.
+*
 
 **Bug fixes**
 
-* Blocks: avoid layout issues when using the Image Compare block alongside older themes.
-* Blocks: ensure the Eventbrite button can be centered.
-* Blocks: ensure the Podcast block can be loaded when the page is loaded via Infinite Scroll.
-* Blocks: do not render the Slideshow block's markup when no images have been added to the block.
-* Blocks: avoid errors when one adds and edits 2 Image Compare Blocks in a single post.
-* Blocks: fix Form block issues with checkbox fields not being checked by default when the option is selected.
-* Blocks: add missing "Required" option to the Form block's Checkbox field settings.
-* Blocks: avoid caching results from the Latest Instagram Posts block when there are errors with the fetched data.
-* Forms: improve accessibility of the "Required" text used in form fields.
-* Image CDN: avoid using CDN image URL when inserting an image using the image block.
-* Jetpack Search: load translations in the Search overlay on International sites.
-* Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
-* Sharing: avoid relying on jQuery for the official Facebook button.
-* Shortcodes / Embeds: fix the Twitch embed according to new Twitch embed requirements.
-* SEO Tools / Open Graph: improve cleaning up of description meta tags.
+*
 
 --------
 
