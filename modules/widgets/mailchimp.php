@@ -443,8 +443,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>">
 						<?php
 							// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-							/* translators: %1$s is replaced mailchimp suppoert link */
-							echo sprintf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' );
+							/* translators: %1$s is replaced mailchimp support link */
+							echo sprintf( __( 'Code: <a rel="noopener noreferrer" href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' );
 							// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 						?>
 					</label>
