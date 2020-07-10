@@ -22,7 +22,11 @@ usage () {
 	[--ssh-user=user_name] \
 	[--ssh-pass=user_pass] \
 	[--ssh-private-key=/path/to/private_key] \
-	[--ssh-port=22] '
+	[--ssh-port=22] \
+	[--ftp-host=example.com] \
+	[--ftp-user=user_name] \
+	[--ftp-pass=user_pass] \
+	[--ftp-port=21] '
 }
 
 # Note: this script should always be designed to keep wp-cli OPTIONAL
@@ -106,6 +110,22 @@ for i in "$@"; do
 			;;
 		--ssh-port=* )
 			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_port=${i#*=}"
+			shift
+			;;
+		--ftp-host=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ftp_host=${i#*=}"
+			shift
+			;;
+		--ftp-user=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ftp_user=${i#*=}"
+			shift
+			;;
+		--ftp-pass=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ftp_pass=${i#*=}"
+			shift
+			;;
+		--ftp-port=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ftp_port=${i#*=}"
 			shift
 			;;
 		--allow-root )
