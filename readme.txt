@@ -96,6 +96,17 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.7.1 =
+
+* Release date: July 14, 2020
+
+**Bug fixes**
+
+* Autoloader: avoid PHP warning on sites with an invalid `active_plugins` option.
+* Backwards Compatibility: Prevent fatal errors on themes relying on a deprecated static method.
+* Blocks: show a loading spinner when unrolling Twitter threads on WordPress 5.3 as well.
+* General: prevent PHP notice with the Sharing feature and the Latest Instagram Galleries block.
+
 = 8.7 =
 
 * Release date: July 7, 2020
