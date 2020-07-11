@@ -139,7 +139,7 @@
 		"gulp-tap": "2.0.0",
 		"i18n-calypso": "4.0.0",
 		"i18n-calypso-cli": "1.0.0",
-		"jsdom": "16.2.2",
+		"jsdom": "16.3.0",
 		"jsdom-global": "3.0.2",
 		"json-loader": "0.5.7",
 		"mapbox-gl": "1.11.0",
