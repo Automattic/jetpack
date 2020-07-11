@@ -137,7 +137,7 @@
 		"gulp-sass": "4.1.0",
 		"gulp-sourcemaps": "2.6.5",
 		"gulp-tap": "2.0.0",
-		"i18n-calypso": "4.0.0",
+		"i18n-calypso": "4.1.0",
 		"i18n-calypso-cli": "1.0.0",
 		"jsdom": "16.2.2",
 		"jsdom-global": "3.0.2",
