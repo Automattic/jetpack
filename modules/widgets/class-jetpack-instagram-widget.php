@@ -88,7 +88,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		if ( empty( $number ) ) {
 			$number = $this->number;
 		}
-		if ( ! is_array( $widget_options[ $number ] ) ) {
+
+		if ( ! isset( $widget_options[ $number ] ) || ! is_array( $widget_options[ $number ] ) ) {
 			$widget_options[ $number ] = $this->defaults;
 		}
 
@@ -346,14 +347,14 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
 		// If coming back to the widgets page from an action, expand this widget.
-		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] === $this->number ) {
+		if ( isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number ) {
 			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . esc_js( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
 		}
 
 		$status = $this->get_token_status( $instance['token_id'] );
 
 		// If removing the widget's stored token ID.
-		if ( $status['valid'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] === $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
+		if ( $status['valid'] && isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
 			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) ) {
 				wp_die( esc_html__( 'Missing or invalid security nonce.', 'jetpack' ) );
 			}
