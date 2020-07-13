@@ -25,6 +25,9 @@ import {
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
 	MOCK_SWITCH_USER_PERMISSIONS,
+	SITE_RECONNECT,
+	SITE_RECONNECT_FAIL,
+	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
 import { getModulesThatRequireConnection } from 'state/modules';
 
@@ -93,6 +96,8 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, { fetchingConnectUrl: true } );
 		case USER_CONNECTION_DATA_FETCH:
 			return assign( {}, state, { fetchingUserData: true } );
+		case SITE_RECONNECT:
+			return assign( {}, state, { reconnectingSite: true } );
 
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
@@ -105,10 +110,13 @@ export const requests = ( state = connectionRequests, action ) => {
 		case CONNECT_URL_FETCH_FAIL:
 		case CONNECT_URL_FETCH_SUCCESS:
 			return assign( {}, state, { fetchingConnectUrl: false } );
-
 		case USER_CONNECTION_DATA_FETCH_FAIL:
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, { fetchingUserData: false } );
+
+		case SITE_RECONNECT_FAIL:
+		case SITE_RECONNECT_SUCCESS:
+			return assign( {}, state, { reconnectingSite: false } );
 
 		default:
 			return state;
@@ -307,4 +315,14 @@ export function isUnavailableInDevMode( state, module ) {
  */
 export function getSandboxDomain( state ) {
 	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
+}
+
+/**
+ * Check if the reconnect requested.
+ *
+ * @param  {Object} state Global state tree.
+ * @return {boolean} True if the reconnecting is required, false otherwise.
+ */
+export function isReconnectingSite( state ) {
+	return !! state.jetpack.connection.requests.reconnectingSite;
 }

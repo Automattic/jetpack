@@ -2,42 +2,15 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import NoticeActionDisconnect from './notice-action-disconnect';
-import SimpleNotice from 'components/notice';
+import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 
-export class ErrorNoticeCycleConnection extends React.Component {
-	static defaultProps = {
-		text: __( 'Connection Error, please reconnect.', 'jetpack' ),
-	};
-
-	static propTypes = {
-		text: PropTypes.string.isRequired,
-		errorCode: PropTypes.string,
-	};
-
-	render() {
-		return (
-			<SimpleNotice
-				showDismiss={ false }
-				text={ this.props.text }
-				status={ 'is-error' }
-				icon={ 'link-break' }
-			>
-				<NoticeActionDisconnect errorCode={ this.props.errorCode }>
-					{ __( 'Reconnect', 'jetpack' ) }
-				</NoticeActionDisconnect>
-			</SimpleNotice>
-		);
-	}
-}
-
-export default class JetpackConnectionErrors extends React.Component {
+class JetpackConnectionErrors extends React.Component {
 	static propTypes = {
 		errors: PropTypes.array.isRequired,
 	};
@@ -78,3 +51,5 @@ export default class JetpackConnectionErrors extends React.Component {
 		return Object.values( errorsToDisplay ).map( error => this.renderOne( error ) );
 	}
 }
+
+export default connect( null, null )( JetpackConnectionErrors );

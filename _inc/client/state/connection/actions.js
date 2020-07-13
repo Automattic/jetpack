@@ -24,6 +24,9 @@ import {
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
+	SITE_RECONNECT,
+	SITE_RECONNECT_FAIL,
+	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -122,7 +125,7 @@ export const fetchUserConnectionData = () => {
 	};
 };
 
-export const disconnectSite = ( reloadAfter = false ) => {
+export const disconnectSite = ( reloadAfter = false, reconnectAfter = null ) => {
 	return dispatch => {
 		dispatch( {
 			type: DISCONNECT_SITE,
@@ -143,6 +146,13 @@ export const disconnectSite = ( reloadAfter = false ) => {
 			} )
 			.then( () => {
 				dispatch( fetchConnectUrl() );
+
+				if ( reconnectAfter ) {
+					dispatch( {
+						type: SITE_RECONNECT,
+					} );
+				}
+
 				if ( reloadAfter ) {
 					window.location.reload();
 				}
@@ -234,5 +244,21 @@ export const authorizeUserInPlaceSuccess = () => {
 				duration: 2000,
 			} )
 		);
+	};
+};
+
+export const reconnectSite = () => {
+	return dispatch => {
+		dispatch( {
+			type: SITE_RECONNECT,
+		} );
+	};
+};
+
+export const reconnectSiteSuccess = () => {
+	return dispatch => {
+		dispatch( {
+			type: SITE_RECONNECT_SUCCESS,
+		} );
 	};
 };

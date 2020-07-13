@@ -44,8 +44,6 @@ class NoticeActionDisconnect extends React.Component {
 
 export default connect( null, dispatch => {
 	return {
-		disconnectSite: () => {
-			return dispatch( disconnectSite( true ) );
-		},
+		disconnectSite: () => dispatch( disconnectSite( false, true ) ),
 	};
 } )( NoticeActionDisconnect );
