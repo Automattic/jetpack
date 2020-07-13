@@ -2,7 +2,7 @@
  * External dependencies
  */
 const { setFailed, getInput } = require( '@actions/core' );
-const { context, GitHub } = require( '@actions/github' );
+const { context, getOctokit } = require( '@actions/github' );
 
 /**
  * Internal dependencies
@@ -31,7 +31,7 @@ const automations = [
 		return;
 	}
 
-	const octokit = new GitHub( token );
+	const octokit = new getOctokit( token );
 
 	// Get info about the event.
 	const eventPayload = context.payload;
