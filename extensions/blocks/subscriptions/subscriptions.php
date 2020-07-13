@@ -20,8 +20,8 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	if (
-		( Jetpack::is_active() && Jetpack::is_module_active( 'subscriptions' ) )
-		|| ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		|| ( Jetpack::is_active() && Jetpack::is_module_active( 'subscriptions' ) )
 	) {
 		jetpack_register_block(
 			BLOCK_NAME,
