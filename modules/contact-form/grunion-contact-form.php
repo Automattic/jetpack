@@ -1987,10 +1987,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( isset( $_GET['contact-form-id'] )
-		     && $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
-		     && isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
-		     && hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
-			// The contact form was submitted.  Show the success message/results
+			&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
+			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+			&& is_string( $_GET['contact-form-hash'] )
+			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// The contact form was submitted.  Show the success message/results.
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
