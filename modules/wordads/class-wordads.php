@@ -635,7 +635,7 @@ HTML;
 	 * @since 5.7
 	 */
 	public function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			return $this->get_amp_snippet( $height, $width );
 		}
 
@@ -655,6 +655,7 @@ HTML;
 				$loc_id = self::$ad_location_ids[ $location ];
 			}
 
+			$loc_id = esc_js( $loc_id );
 			return <<<HTML
 			<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 				<div id="atatags-{$ad_number}">
@@ -710,6 +711,7 @@ HTML;
 			$loc_id = self::$ad_location_ids[ $location ];
 		}
 
+		$form_factor_id        = esc_js( $form_factor_id );
 		$advertisements_text   = esc_js( __( 'Advertisements', 'jetpack' ) );
 		$report_ad_text        = esc_js( __( 'Report this ad', 'jetpack' ) );
 		$privacy_settings_text = esc_js( __( 'Privacy settings', 'jetpack' ) );
