@@ -863,7 +863,7 @@ add_action( 'jetpack_module_more_info_photon-cdn', 'jetpack_assetcdn_more_info' 
  * Copy Post support link.
  */
 function jetpack_copy_post_more_link() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-copy-post-2' ) );
+	echo esc_url( Redirect::get_url( 'jetpack-support-copy-post' ) );
 }
 add_action( 'jetpack_learn_more_button_copy-post', 'jetpack_copy_post_more_link' );
 
