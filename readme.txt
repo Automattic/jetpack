@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Backwards Compatibility: Prevent fatal errors on themes relying on a deprecated static method.
 * Blocks: show a loading spinner when unrolling Twitter threads on WordPress 5.3 as well.
 * General: prevent PHP notice with the Sharing feature and the Latest Instagram Galleries block.
+* Sharing: create proper Open Graph Description tag when a post starts with an image.
 
 = 8.7 =
 
