@@ -4,6 +4,9 @@
  * Description:  Display some Instagram photos via a widget.
  * Author:       Automattic Inc.
  * Author URI:   http://automattic.com/
+ * Text Domain:   jetpack
+ *
+ * @package Jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -13,15 +16,30 @@ use Automattic\Jetpack\Connection\Client;
  */
 class Jetpack_Instagram_Widget extends WP_Widget {
 
-	const ID_BASE = 'wpcom_instagram_widget'; // Don't change this as Atomic widgets will break
+	const ID_BASE = 'wpcom_instagram_widget'; // Don't change this as Atomic widgets will break.
 
+	/**
+	 * Options for the widget.
+	 *
+	 * @access public
+	 *
+	 * @var array
+	 */
 	public $valid_options;
+
+	/**
+	 * Default settings for the widgets.
+	 *
+	 * @access public
+	 *
+	 * @var array
+	 */
 	public $defaults;
 
 	/**
 	 * Sets the widget properties in WordPress, hooks a few functions, and sets some widget options.
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct(
 			self::ID_BASE,
 			__( 'Instagram', 'jetpack' ),
@@ -50,10 +68,11 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * Enqueues the widget's frontend CSS but only if the widget is currently in use.
 	 */
 	public function enqueue_css() {
-		if ( ! is_active_widget( false, false, self::ID_BASE ) )
+		if ( ! is_active_widget( false, false, self::ID_BASE ) ) {
 			return;
+		}
 
-		wp_enqueue_style( self::ID_BASE, plugins_url( 'instagram/instagram.css', __FILE__ ) );
+		wp_enqueue_style( self::ID_BASE, plugins_url( 'instagram/instagram.css', __FILE__ ), array(), JETPACK__VERSION );
 	}
 
 	/**
@@ -61,6 +80,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * This is so the user doesn't have to click the "Save" button when we want to set it.
 	 *
 	 * @param int $token_id A Keyring token ID.
+	 * @param int $number The widget ID.
 	 */
 	public function update_widget_token_id( $token_id, $number = null ) {
 		$widget_options = $this->get_settings();
@@ -68,8 +88,9 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		if ( empty( $number ) ) {
 			$number = $this->number;
 		}
-		if ( ! is_array( $widget_options[ $number ] ) )
+		if ( ! is_array( $widget_options[ $number ] ) ) {
 			$widget_options[ $number ] = $this->defaults;
+		}
 
 		$widget_options[ $number ]['token_id'] = (int) $token_id;
 
@@ -84,13 +105,17 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function ajax_update_widget_token_id() {
 		check_ajax_referer( 'instagram-widget-save-token', 'savetoken' );
 
-		$token_id = (int) $_POST['keyring_id'];
+		$token_id  = (int) $_POST['keyring_id'];
 		$widget_id = (int) $_POST['instagram_widget_id'];
 
 		// From Atomic sites, this check is done via the api: wpcom/v2/instagram/<token_id>.
-		// https://wpcom.trac.automattic.com/browser/trunk/wp-content/rest-api-plugins/endpoints/sites-instagram.php?rev=204654#L88
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$token = Keyring::init()->get_token_store()->get_token( array( 'type' => 'access', 'id' => $token_id ) );
+			$token = Keyring::init()->get_token_store()->get_token(
+				array(
+					'type' => 'access',
+					'id'   => $token_id,
+				)
+			);
 			if ( get_current_user_id() !== (int) $token->meta['user_id'] ) {
 				return wp_send_json_error( array( 'message' => 'not_authorized' ), 403 );
 			}
@@ -110,8 +135,9 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function update_widget_token_legacy_status( $is_legacy_token ) {
 		$widget_options = $this->get_settings();
 
-		if ( ! is_array( $widget_options[ $this->number ] ) )
+		if ( ! is_array( $widget_options[ $this->number ] ) ) {
 			$widget_options[ $this->number ] = $this->defaults;
+		}
 
 		$widget_options[ $this->number ]['is_legacy_token'] = $is_legacy_token;
 		$this->save_settings( $widget_options );
@@ -119,31 +145,42 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		return $is_legacy_token;
 	}
 
+	/**
+	 * Get's the status of the token from the API
+	 *
+	 * @param int $token_id A Keyring token ID.
+	 * @return array The status of the token's connection.
+	 */
 	private function get_token_status( $token_id ) {
 		if ( empty( $token_id ) ) {
-			return [ 'valid' => false ];
+			return array( 'valid' => false );
 		}
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$token = Keyring::init()->get_token_store()->get_token( array( 'type' => 'access', 'id' => $token_id ) );
+			$token = Keyring::init()->get_token_store()->get_token(
+				array(
+					'type' => 'access',
+					'id'   => $token_id,
+				)
+			);
 
-			return [
-				'valid' => ! empty( $token ),
+			return array(
+				'valid'  => ! empty( $token ),
 				'legacy' => $token && 'instagram' === $token->name,
-			];
+			);
 		}
 
-		$site = Jetpack_Options::get_option( 'id' );
-		$path = sprintf( '/sites/%s/instagram/%s/check-token', $site, $token_id );
-		$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
+		$site          = Jetpack_Options::get_option( 'id' );
+		$path          = sprintf( '/sites/%s/instagram/%s/check-token', $site, $token_id );
+		$result        = Client::wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
-			return [
-				//We assume the token is valid if the response_code is anything but the invalid
-				//token codes we send back. This is to make sure it's not reset, if the API is down
-				//or something
-				'valid' => ! ( 403 == $response_code || 401 === $response_code ),
+			return array(
+				// We assume the token is valid if the response_code is anything but the invalid
+				// token codes we send back. This is to make sure it's not reset, if the API is down
+				// or something.
+				'valid'  => ! ( 403 === $response_code || 401 === $response_code ),
 				'legacy' => 'ERROR',
-			];
+			);
 		}
 		$status = json_decode( $result['body'], true );
 		return $status;
@@ -162,16 +199,16 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			return 'ERROR';
 		}
 
-		$cache_time = MINUTE_IN_SECONDS;
+		$cache_time    = MINUTE_IN_SECONDS;
 		$transient_key = implode( '|', array( 'instagram-widget', $instance['token_id'], $instance['count'] ) );
 		$cached_images = get_transient( $transient_key );
 		if ( $cached_images ) {
 			return $cached_images;
 		}
 
-		$site = Jetpack_Options::get_option( 'id' );
-		$path = sprintf( '/sites/%s/instagram/%s?count=%s', $site, $instance['token_id'], $instance['count'] );
-		$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
+		$site   = Jetpack_Options::get_option( 'id' );
+		$path   = sprintf( '/sites/%s/instagram/%s?count=%s', $site, $instance['token_id'], $instance['count'] );
+		$result = Client::wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
 
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
@@ -190,39 +227,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		return $data;
 	}
 
-	private function wpcom_json_api_request_as_blog( $path, $version = 1, $args = array(), $body = null, $base_api_path = 'rest' ) {
-		if ( ! class_exists( 'Automattic\Jetpack\Connection\Client' ) ) {
-			return new WP_Error( 'missing_jetpack', 'The `Automattic\Jetpack\Connection\Client` class is missing' );
-		}
-		$filtered_args = array_intersect_key( $args, array(
-			'headers'     => 'array',
-			'method'      => 'string',
-			'timeout'     => 'int',
-			'redirection' => 'int',
-			'stream'      => 'boolean',
-			'filename'    => 'string',
-			'sslverify'   => 'boolean',
-		) );
-		/**
-		 * Determines whether Jetpack can send outbound https requests to the WPCOM api.
-		 *
-		 * @since 3.6.0
-		 *
-		 * @param bool $proto Defaults to true.
-		 */
-		$proto = apply_filters( 'jetpack_can_make_outbound_https', true ) ? 'https' : 'http';
-		// unprecedingslashit
-		$_path = preg_replace( '/^\//', '', $path );
-		// Use GET by default whereas `remote_request` uses POST
-		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
-		$validated_args = array_merge( $filtered_args, array(
-			'url'     => sprintf( '%s://%s/%s/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $_path ),
-			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
-			'method'  => $request_method,
-		) );
-		return Client::remote_request( $validated_args, $body );
-	}
-
 	/**
 	 * Outputs the contents of the widget on the front end.
 	 *
@@ -234,39 +238,61 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
-		$data   = $this->get_data( $instance );
-		$images = $data['images'];
+		$data     = $this->get_data( $instance );
+		$images   = $data['images'];
 
 		$status = $this->get_token_status( $instance['token_id'] );
-		// Don't display anything to non-blog admins if the widgets is unconfigured or API call fails
+		// Don't display anything to non-blog admins if the widgets is unconfigured or API call fails.
 		if ( ( ! $status['valid'] || ! is_array( $images ) ) && ! current_user_can( 'edit_theme_options' ) ) {
 			return;
 		}
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		// Always show a title on an unconfigured widget
-		if ( ! $status['valid'] && empty( $instance['title'] ) )
+		// Always show a title on an unconfigured widget.
+		if ( ! $status['valid'] && empty( $instance['title'] ) ) {
 			$instance['title'] = $this->defaults['title'];
+		}
 
-		if ( ! empty( $instance['title'] ) )
-			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+		if ( ! empty( $instance['title'] ) ) {
+			echo $args['before_title']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo esc_html( $instance['title'] );
+			echo $args['after_title']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 
 		if ( $status['valid'] && current_user_can( 'edit_theme_options' ) && $status['legacy'] ) {
 			echo '<p><em>' . sprintf(
-				__( 'In order to continue using this widget you must <a href="%s">reconnect to Instagram</a>.', 'jetpack' ),
-				add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) )
+				wp_kses(
+					/* translators: %s is a link to reconnect the Instagram widget */
+					__( 'In order to continue using this widget you must <a href="%s">reconnect to Instagram</a>.', 'jetpack' ),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				),
+				esc_attr( add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) )
 			) . '</em></p>';
 		}
 
 		if ( ! $status['valid'] ) {
-			echo '<p><em>' . sprintf( __( 'In order to use this Instagram widget, you must <a href="%s">configure it</a> first.', 'jetpack' ), add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) ) . '</em></p>';
+			echo '<p><em>' . sprintf(
+				wp_kses(
+					/* translators: %s is a link to configure the Instagram widget */
+					__( 'In order to use this Instagram widget, you must <a href="%s">configure it</a> first.', 'jetpack' ),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				),
+				esc_attr( add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) )
+			) . '</em></p>';
 		} else {
 			if ( ! is_array( $images ) ) {
-				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'jetpack' ) . '</p>';
-			}
-			elseif ( ! $images ) {
-				echo '<p>' . __( 'No Instagram images were found.', 'jetpack' ) . '</p>';
+				echo '<p>' . esc_html__( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'jetpack' ) . '</p>';
+			} elseif ( ! $images ) {
+				echo '<p>' . esc_html__( 'No Instagram images were found.', 'jetpack' ) . '</p>';
 			} else {
 
 				echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
@@ -277,9 +303,14 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			}
 		}
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
+	/**
+	 * Get the URL to connect the widget to Instagram
+	 *
+	 * @return string the conneciton URL.
+	 */
 	private function get_connect_url() {
 		$connect_url = '';
 
@@ -287,7 +318,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			$connect_url = wpcom_keyring_get_connect_URL( 'instagram-basic-display', 'instagram-widget' );
 		} else {
 			$jetpack_blog_id = Jetpack_Options::get_option( 'id' );
-			$response = Client::wpcom_json_api_request_as_user(
+			$response        = Client::wpcom_json_api_request_as_user(
 				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
 			);
 
@@ -295,12 +326,11 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 				return $response;
 			}
 
-			$body = json_decode( $response['body'] );
-			$connect_url = new WP_Error( 'connect_url_not_found', "Connect URL not found" );
+			$body        = json_decode( $response['body'] );
+			$connect_url = new WP_Error( 'connect_url_not_found', 'Connect URL not found' );
 			if ( ! empty( $body->services->{'instagram-basic-display'}->connect_URL ) ) {
 				$connect_url = $body->services->{'instagram-basic-display'}->connect_URL;
 			}
-
 		}
 
 		return $connect_url;
@@ -315,43 +345,47 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
-		// If coming back to the widgets page from an action, expand this widget
-		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number ) {
+		// If coming back to the widgets page from an action, expand this widget.
+		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] === $this->number ) {
 			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . esc_js( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
 		}
 
 		$status = $this->get_token_status( $instance['token_id'] );
 
-		// If removing the widget's stored token ID
-		if ( $status['valid'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
+		// If removing the widget's stored token ID.
+		if ( $status['valid'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] === $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
 			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) ) {
-				wp_die( __( 'Missing or invalid security nonce.', 'jetpack' ) );
+				wp_die( esc_html__( 'Missing or invalid security nonce.', 'jetpack' ) );
 			}
 
 			$instance['token_id'] = $this->defaults['token_id'];
 
 			$this->update_widget_token_id( $instance['token_id'] );
 			$this->update_widget_token_legacy_status( false );
-		}
-		// If a token ID is stored, check if we know if it is a legacy API token or not
-		elseif ( $status['valid'] && ( ! isset( $instance['is_legacy_token'] ) || 'ERROR' === $instance['is_legacy_token'] ) ) {
+		} elseif ( $status['valid'] && ( ! isset( $instance['is_legacy_token'] ) || 'ERROR' === $instance['is_legacy_token'] ) ) { // If a token ID is stored, check if we know if it is a legacy API token or not.
 			$instance['is_legacy_token'] = $this->update_widget_token_legacy_status( $status['legacy'] );
-		}
-		// If the token isn't valid reset it
-		elseif ( ! $status['valid'] ) {
+		} elseif ( ! $status['valid'] ) { // If the token isn't valid reset it.
 			$instance['token_id'] = $this->defaults['token_id'];
 			$this->update_widget_token_id( $instance['token_id'] );
 		}
 
 		// No connection, or a legacy API token? Display a connection link.
-		$is_legacy_token = ( isset( $instance['is_legacy_token'] ) && $instance['is_legacy_token'] === true );
+		$is_legacy_token = ( isset( $instance['is_legacy_token'] ) && true === $instance['is_legacy_token'] );
 
 		if ( $is_legacy_token ) {
-			echo '<p><strong>' . __( 'In order to continue using this widget you must reconnect to Instagram.', 'jetpack' ) . '</strong></p>';
+			echo '<p><strong>' . esc_html__( 'In order to continue using this widget you must reconnect to Instagram.', 'jetpack' ) . '</strong></p>';
 		}
 
 		if ( is_customize_preview() && ! $instance['token_id'] ) {
-			echo '<p>' . __( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account.', 'jetpack' ) . '</p>';
+			echo '<p>';
+			echo wp_kses(
+				__( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account.', 'jetpack' ),
+				array(
+					'strong' => array(),
+					'em'     => array(),
+				)
+			);
+			echo '</p>';
 		}
 
 		if ( ! $instance['token_id'] || $is_legacy_token ) {
@@ -369,7 +403,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 					].join();
 				};
 				function openWindow( button ) {
-					// let's just double check that we aren't getting an unknown random domain injected in here somehow
+					// let's just double check that we aren't getting an unknown random domain injected in here somehow.
 					if (! /^https:\/\/public-api.wordpress.com\/connect\//.test(button.dataset.connecturl) ) {
 						return;
 					}
@@ -403,24 +437,37 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			<?php
 			$connect_url = $this->get_connect_url();
 			if ( is_wp_error( $connect_url ) ) {
-				echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.', 'jetpack' ) . '</p>';
+				echo '<p>' . esc_html__( 'Instagram is currently experiencing connectivity issues, please try again later to connect.', 'jetpack' ) . '</p>';
 				return;
 			}
 			?>
-			<p style="text-align:center"><button class="button-primary" onclick="openWindow(this); return false;" data-widgetid="<?php echo esc_attr( $this->number ) ?>" data-connecturl="<?php echo esc_attr( $connect_url ); ?>"><?php echo esc_html( __( 'Connect Instagram Account', 'jetpack' ) ); ?></button></p>
+			<p style="text-align:center"><button class="button-primary" onclick="openWindow(this); return false;" data-widgetid="<?php echo esc_attr( $this->number ); ?>" data-connecturl="<?php echo esc_attr( $connect_url ); ?>"><?php echo esc_html( __( 'Connect Instagram Account', 'jetpack' ) ); ?></button></p>
 
-			<?php // Include hidden fields for the widget settings before a connection is made, otherwise the default settings are lost after connecting ?>
+			<?php // Include hidden fields for the widget settings before a connection is made, otherwise the default settings are lost after connecting. ?>
 			<input type="hidden" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			<input type="hidden" id="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>" value="<?php echo esc_attr( $instance['count'] ); ?>" />
 			<input type="hidden" id="<?php echo esc_attr( $this->get_field_id( 'columns' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'columns' ) ); ?>" value="<?php echo esc_attr( $instance['columns'] ); ?>" />
 
 			<?php
-			echo '<p><small>' . sprintf( __( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'jetpack' ), 'https://instagram.com/accounts/login/' ) . '</small></p>';
+			echo '<p><small>' . sprintf(
+				wp_kses(
+					/* translators: %s is a link to log in to Instagram */
+					__( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'jetpack' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				),
+				'https://instagram.com/accounts/login/'
+			) . '</small></p>';
 			return;
 		}
 
-		// Connected account
+		// Connected account.
 		$page = ( is_customize_preview() ) ? 'customize.php' : 'widgets.php';
+
 		$query_args = array(
 			'instagram_widget_id' => $this->number,
 			'instagram_widget'    => 'remove_token',
@@ -435,39 +482,57 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		$data = $this->get_data( $instance );
 		// TODO: Revisit the error handling. I think we should be using WP_Error here and
-		// Jetpack::Client is the legacy check
+		// Jetpack::Client is the legacy check.
 		if ( 'ERROR' === $data || 'ERROR' === $instance['is_legacy_token'] ) {
-			echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.', 'jetpack' ) . '</p>';
+			echo '<p>' . esc_html__( 'Instagram is currently experiencing connectivity issues, please try again later to connect.', 'jetpack' ) . '</p>';
 			return;
 		}
-		echo '<p>' . sprintf( __( '<strong>Connected Instagram Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'jetpack' ), esc_url( 'http://instagram.com/' . $data['external_name'] ), esc_html( $data['external_name'] ), esc_url( $remove_token_id_url ) ) . '</p>';
+		echo '<p>';
+		echo sprintf(
+			wp_kses(
+				/* translators: %1$s is the URL of the connected Instagram account, %2$s is the username of the connected Instagram account, %3$s is the URL to disconnect the account. */
+				__( '<strong>Connected Instagram Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'jetpack' ),
+				array(
+					'a'      => array(
+						'href' => array(),
+					),
+					'strong' => array(),
+					'br'     => array(),
+				)
+			),
+			esc_url( 'http://instagram.com/' . $data['external_name'] ),
+			esc_html( $data['external_name'] ),
+			esc_url( $remove_token_id_url )
+		);
+		echo '</p>';
 
-		// Title
-		echo '<p><label><strong>' . __( 'Widget Title', 'jetpack' ) . '</strong> <input type="text" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" class="widefat" /></label></p>';
+		// Title.
+		echo '<p><label><strong>' . esc_html__( 'Widget Title', 'jetpack' ) . '</strong> <input type="text" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" class="widefat" /></label></p>';
 
-		// Number of images to show
+		// Number of images to show.
 		echo '<p><label>';
-		echo '<strong>' . __( 'Images', 'jetpack' ) . '</strong><br />';
-		echo __( 'Number to display:', 'jetpack' ) . ' ';
+		echo '<strong>' . esc_html__( 'Images', 'jetpack' ) . '</strong><br />';
+		echo esc_html__( 'Number to display:', 'jetpack' ) . ' ';
 		echo '<select name="' . esc_attr( $this->get_field_name( 'count' ) ) . '">';
 		for ( $i = 1; $i <= $this->valid_options['max_count']; $i++ ) {
-			echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['count'], false ) . '>' . $i . '</option>';
+			echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['count'], false ) . '>' . esc_attr( $i ) . '</option>';
 		}
 		echo '</select>';
 		echo '</label></p>';
 
-		// Columns
+		// Columns.
 		echo '<p><label>';
-		echo '<strong>' . __( 'Layout', 'jetpack' ) . '</strong><br />';
-		echo __( 'Number of columns:', 'jetpack' ) . ' ';
+		echo '<strong>' . esc_html__( 'Layout', 'jetpack' ) . '</strong><br />';
+		echo esc_html__( 'Number of columns:', 'jetpack' ) . ' ';
 		echo '<select name="' . esc_attr( $this->get_field_name( 'columns' ) ) . '">';
 		for ( $i = 1; $i <= $this->valid_options['max_columns']; $i++ ) {
-			echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['columns'], false ) . '>' . $i . '</option>';
+			echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['columns'], false ) . '>' . esc_attr( $i ) . '</option>';
 		}
 		echo '</select>';
 		echo '</label></p>';
 
-		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'jetpack' ), 15 ) . '</small></p>';
+		/* translators: %d is an integer number of minutes */
+		echo '<p><small>' . sprintf( esc_html__( 'New images may take up to %d minutes to show up on your site.', 'jetpack' ), 15 ) . '</small></p>';
 	}
 
 	/**
@@ -482,7 +547,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		$instance['token_id'] = $old_instance['token_id'];
 
-		$instance['title'] = strip_tags( $new_instance['title'] );
+		$instance['title'] = wp_strip_all_tags( $new_instance['title'] );
 
 		$instance['columns'] = max( 1, min( $this->valid_options['max_columns'], (int) $new_instance['columns'] ) );
 
@@ -492,6 +557,9 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	}
 }
 
-add_action( 'widgets_init', function() {
-	register_widget( 'Jetpack_Instagram_Widget' );
-} );
+add_action(
+	'widgets_init',
+	function() {
+		register_widget( 'Jetpack_Instagram_Widget' );
+	}
+);
