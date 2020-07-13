@@ -24,7 +24,7 @@ import {
 	isUnlinkingUser as _isUnlinkingUser,
 	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
 } from 'state/connection';
-import { getSiteRawUrl, isSafari } from 'state/initial-state';
+import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 
@@ -109,12 +109,20 @@ export class ConnectButton extends React.Component {
 			},
 			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com' );
 
+		// Secondary users in-place connection flow
+
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile,
 		// thus ignore the 'connectInPlace' property value.
 
-		// Secondary users in-place connection flow
-		if ( this.props.connectInPlace && ! this.props.isSafari ) {
+		// We also check the `doNotUseConnectionIframe` initial global state property.
+		// This will override the button's `connectInPlace` property.
+
+		if (
+			this.props.connectInPlace &&
+			! this.props.isSafari &&
+			! this.props.doNotUseConnectionIframe
+		) {
 			buttonProps.onClick = this.loadIframe;
 		}
 
@@ -215,6 +223,7 @@ export default connect(
 			isUnlinking: _isUnlinkingUser( state ),
 			isAuthorizing: _isAuthorizingUserInPlace( state ),
 			isSafari: isSafari( state ),
+			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
 		};
 	},
 	dispatch => {

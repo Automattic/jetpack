@@ -333,6 +333,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
 			'isSafari'                    => $is_safari,
+			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 		);
 	}
 

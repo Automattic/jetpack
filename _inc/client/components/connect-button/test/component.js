@@ -14,16 +14,17 @@ import { ConnectButton } from '../index';
 describe( 'ConnectButton', () => {
 
 	let testProps = {
-		fetchingConnectUrl: true,
-		connectUrl        : 'https://jetpack.wordpress.com/jetpack.authorize/1/',
-		connectUser       : true,
-		from              : '',
-		isSiteConnected   : false,
-		isDisconnecting   : false,
-		isLinked          : false,
-		isUnlinking       : false,
-		asLink			  :	false,
-		connectInPlace    : false,
+		fetchingConnectUrl      : true,
+		connectUrl              : 'https://jetpack.wordpress.com/jetpack.authorize/1/',
+		connectUser             : true,
+		from                    : '',
+		isSiteConnected         : false,
+		isDisconnecting         : false,
+		isLinked                : false,
+		isUnlinking             : false,
+		asLink			        : false,
+		connectInPlace          : false,
+		doNotUseConnectionIframe: false,
 	};
 
 	describe( 'Initially', () => {
