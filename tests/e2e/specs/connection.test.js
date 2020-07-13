@@ -2,8 +2,8 @@
  * Internal dependencies
  */
 import { catchBeforeAll, step } from '../lib/setup-env';
-import { doInPlaceConnection, loginToWpcomIfNeeded, loginToWpSite } from '../lib/flows/jetpack-connect';
-import { execWpCommand, resetWordpressInstall } from '../lib/utils-helper';
+import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
+import { execWpCommand } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
