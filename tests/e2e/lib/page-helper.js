@@ -62,9 +62,7 @@ export async function waitAndClick( page, selector, options = { visible: true } 
 		await page.click( selector, options );
 		logger.info( `Clicked on element by locator: ${ selector }.` );
 	} catch ( e ) {
-		logger.info(
-			`Failed to click on element by locator: ${ selector }. URL: ${ page.url() }`
-		);
+		logger.info( `Failed to click on element by locator: ${ selector }. URL: ${ page.url() }` );
 		throw e;
 	}
 }
@@ -88,9 +86,7 @@ export async function waitAndType( page, selector, value, options = { visible: t
 		await el.type( value, options );
 		logger.info( `Typed into element with locator: ${ selector }.` );
 	} catch ( e ) {
-		logger.info(
-			`Failed to type into element with locator: ${ selector }. URL: ${ page.url() }`
-		);
+		logger.info( `Failed to type into element with locator: ${ selector }. URL: ${ page.url() }` );
 		throw e;
 	}
 }
