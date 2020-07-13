@@ -867,6 +867,13 @@ function sharing_display( $text = '', $echo = false ) {
 			$sharing_content .= implode( '', $parts );
 			$sharing_content .= '<li class="share-end"></li></ul>';
 
+			// Link to customization options if user can manage them.
+			if ( current_user_can( 'manage_options' ) ) {
+				$link_text        = esc_html__( 'Customize buttons', 'jetpack' );
+				$link_url         = 'https://jetpack.com/redirect/?source=calypso-marketing-sharing-buttons&site=' . Jetpack::build_raw_urls( get_home_url() );
+				$sharing_content .= '<p class="share-customize-link"><a href="' . $link_url . '" target="_blank" rel="noopener noreferrer">' . $link_text . '</a></p>';
+			}
+
 			if ( count( $enabled['hidden'] ) > 0 ) {
 				$sharing_content .= '<div class="sharing-hidden"><div class="inner" style="display: none;';
 
