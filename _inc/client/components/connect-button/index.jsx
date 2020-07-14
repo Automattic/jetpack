@@ -73,6 +73,8 @@ export class ConnectButton extends React.Component {
 		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
 			return;
 		}
+		// Track click
+		analytics.tracks.recordJetpackClick( 'link_account_in_place' );
 		// Dispatch user in place authorization.
 		this.props.authorizeUserInPlace();
 	};
