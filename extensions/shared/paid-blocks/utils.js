@@ -73,7 +73,8 @@ export function isUpgradable( name ) {
 	// Split up the block name to get blockNamespace/blockName.
 	const [ blockNamespace, blockName ] = /\//.test( name ) ? name.split( '/' ) : [ null, name ];
 
-	if ( blockNamespace && blockNamespace !== 'jetpack' ) {
+	// Check only fow known namespaces.
+	if ( blockNamespace && ! [ 'jetpack', 'premium-content' ].includes( blockNamespace ) ) {
 		return false;
 	}
 
@@ -81,7 +82,6 @@ export function isUpgradable( name ) {
 
 	return (
 		name &&
-		blockNamespace === 'jetpack' &&
 		isSimpleSite() &&
 		[ 'missing_plan', 'unknown' ].includes( unavailableReason )
 	);
