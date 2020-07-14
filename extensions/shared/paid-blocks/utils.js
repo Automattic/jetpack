@@ -64,18 +64,24 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 }
 
 /**
- * Check if the cover block should show the upgrade nudge.
+ * Check if the block should is upgradable.
  *
  * @param {string} name - Block name.
  * @returns {boolean} True if it should show the nudge. Otherwise, False.
  */
 export function isUpgradable( name ) {
-	// Remove the namespace form the block name.
-	const blockName = name.replace( /[a-zA-Z_-]+\//, '' );
+	// Split up the block name to get blockNamespace/blockName.
+	const [ blockNamespace, blockName ] = /\//.test( name ) ? name.split( '/' ) : [ null, name ];
+
+	if ( blockNamespace && blockNamespace !== 'jetpack' ) {
+		return false;
+	}
+
 	const { unavailableReason } = getJetpackExtensionAvailability( blockName );
 
 	return (
 		name &&
+		blockNamespace === 'jetpack' &&
 		isSimpleSite() &&
 		[ 'missing_plan', 'unknown' ].includes( unavailableReason )
 	);
