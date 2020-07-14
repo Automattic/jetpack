@@ -4,17 +4,19 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
-import { numberFormat, translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { createInterpolateElement } from '@wordpress/element';
+import { numberFormat } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import QueryProtectCount from 'components/data/query-dash-protect';
-import { isModuleAvailable } from 'state/modules';
+import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
+import getRedirectUrl from 'lib/jp-redirect';
 import { isDevMode } from 'state/connection';
+import { isModuleAvailable } from 'state/modules';
+import QueryProtectCount from 'components/data/query-dash-protect';
 
 class DashProtect extends Component {
 	static propTypes = {
@@ -26,9 +28,12 @@ class DashProtect extends Component {
 	activateProtect = () => this.props.updateOptions( { protect: true } );
 
 	getContent() {
-		const labelName = __( 'Protect' );
+		const labelName = __( 'Protect', 'jetpack' );
 		const support = {
-			text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
+			text: __(
+				'Protects your site from traditional and distributed brute force login attacks.',
+				'jetpack'
+			),
 			link: getRedirectUrl( 'jetpack-support-protect' ),
 		};
 
@@ -48,7 +53,8 @@ class DashProtect extends Component {
 							<QueryProtectCount />
 							<p className="jp-dash-item__description">
 								{ __(
-									'Jetpack is actively blocking malicious login attempts. Data will display here soon!'
+									'Jetpack is actively blocking malicious login attempts. Data will display here soon!',
+									'jetpack'
 								) }
 							</p>
 						</div>
@@ -59,7 +65,7 @@ class DashProtect extends Component {
 				<DashItem label={ labelName } module="protect" support={ support } status="is-working">
 					<h2 className="jp-dash-item__count">{ numberFormat( protectCount ) }</h2>
 					<p className="jp-dash-item__description">
-						{ __( 'Total malicious attacks blocked on your site.' ) }
+						{ __( 'Total malicious attacks blocked on your site.', 'jetpack' ) }
 					</p>
 				</DashItem>
 			);
@@ -74,13 +80,14 @@ class DashProtect extends Component {
 			>
 				<p className="jp-dash-item__description">
 					{ this.props.isDevMode
-						? __( 'Unavailable in Dev Mode' )
-						: __(
-								'{{a}}Activate Protect{{/a}} to keep your site protected from malicious sign in attempts.',
+						? __( 'Unavailable in Dev Mode', 'jetpack' )
+						: createInterpolateElement(
+								__(
+									'<a>Activate Protect</a> to keep your site protected from malicious sign in attempts.',
+									'jetpack'
+								),
 								{
-									components: {
-										a: <a href="javascript:void(0)" onClick={ this.activateProtect } />,
-									},
+									a: <a href="javascript:void(0)" onClick={ this.activateProtect } />,
 								}
 						  ) }
 				</p>

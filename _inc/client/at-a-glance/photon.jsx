@@ -4,13 +4,14 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import DashItem from 'components/dash-item';
+import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
@@ -23,11 +24,12 @@ class DashPhoton extends Component {
 	activatePhoton = () => this.props.updateOptions( { photon: true } );
 
 	getContent() {
-		const labelName = __( 'Image Accelerator' );
+		const labelName = __( 'Image Accelerator', 'jetpack' );
 
 		const support = {
 			text: __(
-				'Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.'
+				'Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.',
+				'jetpack'
 			),
 			link: getRedirectUrl( 'jetpack-support-photon' ),
 		};
@@ -37,7 +39,8 @@ class DashPhoton extends Component {
 				<DashItem label={ labelName } module="photon" support={ support } status="is-working">
 					<p className="jp-dash-item__description">
 						{ __(
-							"Jetpack is optimizing your image sizes and download speed using our fast global network of servers. This improves your site's performance on desktop and mobile devices."
+							"Jetpack is optimizing your image sizes and download speed using our fast global network of servers. This improves your site's performance on desktop and mobile devices.",
+							'jetpack'
 						) }
 					</p>
 				</DashItem>
@@ -53,13 +56,14 @@ class DashPhoton extends Component {
 			>
 				<p className="jp-dash-item__description">
 					{ this.props.isDevMode
-						? __( 'Unavailable in Dev Mode' )
-						: __(
-								"{{a}}Activate{{/a}} to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
+						? __( 'Unavailable in Dev Mode', 'jetpack' )
+						: createInterpolateElement(
+								__(
+									"<a>Activate</a> to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
+									'jetpack'
+								),
 								{
-									components: {
-										a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />,
-									},
+									a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />,
 								}
 						  ) }
 				</p>
