@@ -62,7 +62,7 @@ function validateEmail( form, emailField ) {
 }
 
 const handleEmailValidation = ( form, emailField ) => {
-	debounce( () => {
+	return debounce( () => {
 		validateEmail( form, emailField );
 	}, 1000 );
 };
