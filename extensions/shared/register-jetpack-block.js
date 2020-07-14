@@ -4,6 +4,8 @@
 import { __, _x } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockType } from '@wordpress/blocks';
+import { isFunction } from 'lodash';
+import { Circle } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -70,6 +72,23 @@ function buildBlockTitle( blockTitle, blockTags = [] ) {
 }
 
 /**
+ * Modifies block settings for blocks that require a premium plan.
+ * Currently, adds a star to the icon if the icon supports it.
+ * Icons should be a callback of form: ({svgExtra}) => (<SVG> <G> .. </G> {svgExtra} </SVG>)
+ *
+ * @param {object} settings - The block's settings.
+ * @returns {object} Possibly modified settings.
+ */
+function modifySettingsForPremium( settings ) {
+	const starIcon = <Circle fill="red" cx="20" cy="3" r="4" />; // Possibly extract
+
+	if ( settings.icon && isFunction( settings.icon ) ) {
+		settings.icon = settings.icon( { svgExtra: starIcon } );
+	}
+	return settings;
+}
+
+/**
  * Registers a gutenberg block if the availability requirements are met.
  *
  * @param {string} name The block's name.
@@ -90,6 +109,13 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 			);
 		}
 		return false;
+	}
+
+	// Modify settings if block requires plan
+	// XXX Debug, all blocks are showing requiredPlan=false for me
+	// eslint-disable-next-line no-constant-condition
+	if ( true || requiredPlan ) {
+		settings = modifySettingsForPremium( settings );
 	}
 
 	const result = registerBlockType( `jetpack/${ name }`, {
