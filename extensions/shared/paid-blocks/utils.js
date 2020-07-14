@@ -15,6 +15,14 @@ import { isSimpleSite } from '../site-type-utils';
 import getJetpackExtensionAvailability from '../get-jetpack-extension-availability';
 import getSiteFragment from "../get-site-fragment";
 
+/*
+ * Blocks list that require a paid plan.
+ */
+export const PAID_BLOCKS_LIST = [
+	'core/cover',
+	'core/video',
+];
+
 /**
  * Return the checkout URL to upgrade the site plan,
  * depending on the plan, postId, and postType site values.
@@ -73,8 +81,10 @@ export function isUpgradable( name ) {
 	// Split up the block name to get blockNamespace/blockName.
 	const [ blockNamespace, blockName ] = /\//.test( name ) ? name.split( '/' ) : [ null, name ];
 
-	// Check only fow known namespaces.
-	if ( blockNamespace && ! [ 'jetpack', 'premium-content' ].includes( blockNamespace ) ) {
+	if (
+		blockNamespace && ! [ 'jetpack', 'premium-content' ].includes( blockNamespace ) && // known namespaces.
+		! ( PAID_BLOCKS_LIST.includes( name ) )
+	) {
 		return false;
 	}
 
