@@ -260,19 +260,23 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 ### i18n
 
-As of 04/2019, `wp.i18n` [doesn't support React elements in strings](https://github.com/WordPress/gutenberg/issues/9846). You will have to structure your copy so that links and other HTML can be translated separately.
-
-Not possible:
-
-```js
-__( 'Still confused? Check out <a>documentation</a> for more!' )
-```
-
-Possible:
+`@wordpress/i18n` doesn't support React elements in strings, but you can use `__experimentalCreateInterpolateElement` from `@wordpress/element`:
 
 ```jsx
-{ __( 'Still confused?' ) } <a>{ __( 'Check out documentation for more!' ) }</a>
+import { BlockIcon } from '@wordpress/block-editor';
+import { __experimentalCreateInterpolateElement as createInterpolateElement } from '@wordpress/element';
+const getDocumentationLink = () => {
+	return createInterpolateElement(
+		__( '<FlagIcon /> Still confused? <a>Check out documentation for more!</a>', 'jetpack' ),
+		{
+			FlagIcon: <BlockIcon icon={ 'flag' } />,
+			a: <a href={ 'https://jetpack.com' } />,
+		}
+	);
+};
 ```
+
+Once Jetpack will require WordPress 5.5+, you will be able to use `createInterpolateElement`.
 
 ### Colors
 
