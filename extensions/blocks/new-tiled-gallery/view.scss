@@ -1,0 +1,48 @@
+.is-style-tiled {
+	.blocks-gallery-grid {
+		display: grid;
+		grid-gap: 4px;
+		grid-template-columns: repeat( 6, 1fr );
+		grid-auto-rows: 200px;
+
+		.blocks-gallery-item {
+			width: 100%;
+			margin: 0;
+		}
+
+		.blocks-gallery-item figure {
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
+		.blocks-gallery-item {
+			grid-column: auto / span 2;
+		}
+		.blocks-gallery-item img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.blocks-gallery-item:nth-child( 30n + 1 ),
+		.blocks-gallery-item:nth-child( 30n + 5 ),
+		.blocks-gallery-item:nth-child( 30n + 7 ),
+		.blocks-gallery-item:nth-child( 30n + 14 ),
+		.blocks-gallery-item:nth-child( 30n + 17 ),
+		.blocks-gallery-item:nth-child( 30n + 23 ),
+		.blocks-gallery-item:nth-child( 30n + 25 ) {
+			grid-column: auto / span 4;
+			grid-row: auto / span 2;
+		}
+		.blocks-gallery-item:nth-child( 30n + 8 ),
+		.blocks-gallery-item:nth-child( 30n + 9 ),
+		.blocks-gallery-item:nth-child( 30n + 10 ),
+		.blocks-gallery-item:nth-child( 30n + 11 ),
+		.blocks-gallery-item:nth-child( 30n + 18 ) {
+			grid-row: auto / span 2;
+		}
+		.blocks-gallery-item:nth-child( 30n + 12 ),
+		.blocks-gallery-item:nth-child( 30n + 13 ) {
+			grid-column: auto / span 3;
+		}
+	}
+}
