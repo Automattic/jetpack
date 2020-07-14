@@ -61,18 +61,19 @@ function validateEmail( form, emailField ) {
 	return true;
 }
 
+const handleEmailValidation = ( form, emailField ) => {
+	debounce( () => {
+		validateEmail( form, emailField );
+	}, 1000 );
+};
+
 function activateSubscription( block, blogId ) {
 	const form = block.querySelector( 'form' );
 	const emailField = block.querySelector( 'input[name=email]' );
 	const processingEl = block.querySelector( '.' + blockClassName + '_processing' );
 	const errorEl = block.querySelector( '.' + blockClassName + '_error' );
 	const successEl = block.querySelector( '.' + blockClassName + '_success' );
-	emailField.addEventListener(
-		'input',
-		debounce( () => {
-			validateEmail( form, emailField );
-		}, 1000 )
-	);
+	emailField.addEventListener( 'input', handleEmailValidation( form, emailField ) );
 	form.addEventListener( 'submit', e => {
 		e.preventDefault();
 		const email = emailField.value;
@@ -83,6 +84,7 @@ function activateSubscription( block, blogId ) {
 			return;
 		}
 		block.classList.add( 'is-processing' );
+		emailField.removeEventListener( 'input', handleEmailValidation( form, emailField ) );
 		processingEl.classList.add( 'is-visible' );
 		fetchSubscription( blogId, email, params ).then(
 			response => {
