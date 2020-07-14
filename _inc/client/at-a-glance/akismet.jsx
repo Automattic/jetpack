@@ -3,10 +3,10 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { createInterpolateElement } from '@wordpress/element';
 import { connect } from 'react-redux';
 import { numberFormat } from 'i18n-calypso';
 import { __, _x } from '@wordpress/i18n';
-import interpolateComponents from 'interpolate-components';
 import { get } from 'lodash';
 import getRedirectUrl from 'lib/jp-redirect';
 
@@ -77,12 +77,12 @@ class DashAkismet extends Component {
 		};
 
 		const getAkismetUpgradeBanner = () => {
-			const description = interpolateComponents( {
-				mixedString: __( 'Already have a key? {{a}}Activate Akismet{{/a}}', 'jetpack' ),
-				components: {
+			const description = createInterpolateElement(
+				__( 'Already have a key? <a>Activate Akismet</a>', 'jetpack' ),
+				{
 					a: <a href="javascript:void(0)" onClick={ this.onActivateClick } />,
-				},
-			} );
+				}
+			);
 
 			return (
 				<JetpackBanner
