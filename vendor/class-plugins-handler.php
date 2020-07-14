@@ -5,7 +5,7 @@
  * @package automattic/jetpack-autoloader
  */
 
-namespace Automattic\Jetpack\Autoloader\jpc33fbc22fca911ea89dadf99e0672be8;
+namespace Automattic\Jetpack\Autoloader\jp706c584b40c416b3678eb907f297053b;
 
  // phpcs:ignore
 
@@ -76,7 +76,7 @@ class Plugins_Handler {
 	 * @return bool
 	 */
 	public function is_directory_plugin( $plugin ) {
-		return false !== strpos( $plugin, '/', 1 );
+		return strlen( $plugin ) > 1 && false !== strpos( $plugin, '/', 1 );
 	}
 
 	/**

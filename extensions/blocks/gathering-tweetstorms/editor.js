@@ -61,6 +61,7 @@ const addTweetstormToTweets = blockSettings => {
 							</ToolbarGroup>
 						) : (
 							<Toolbar
+								className="gathering-tweetstorms__embed-toolbar"
 								controls={ [
 									{
 										title: __(
@@ -71,10 +72,13 @@ const addTweetstormToTweets = blockSettings => {
 										extraProps: {
 											className: 'gathering-tweetstorms__embed-toolbar-button',
 											children: __( 'Unroll', 'jetpack' ),
+											disabled: isGatheringStorm,
 										},
 									},
 								] }
-							/>
+							>
+								{ isGatheringStorm && <Spinner /> }
+							</Toolbar>
 						) }
 					</BlockControls>
 					<CoreTweetEdit { ...props } />
