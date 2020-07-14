@@ -269,8 +269,8 @@ const getDocumentationLink = () => {
 	return createInterpolateElement(
 		__( '<FlagIcon /> Still confused? <a>Check out documentation for more!</a>', 'jetpack' ),
 		{
-			FlagIcon: <BlockIcon icon={ 'flag' } />,
-			a: <a href={ 'https://jetpack.com' } />,
+			FlagIcon: <BlockIcon icon="flag" />,
+			a: <a href="https://jetpack.com" />,
 		}
 	);
 };
