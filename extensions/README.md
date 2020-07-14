@@ -260,11 +260,11 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 ### i18n
 
-`@wordpress/i18n` doesn't support React elements in strings, but you can use `__experimentalCreateInterpolateElement` from `@wordpress/element`:
+`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`:
 
 ```jsx
 import { BlockIcon } from '@wordpress/block-editor';
-import { __experimentalCreateInterpolateElement as createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 const getDocumentationLink = () => {
 	return createInterpolateElement(
 		__( '<FlagIcon /> Still confused? <a>Check out documentation for more!</a>', 'jetpack' ),
@@ -276,7 +276,7 @@ const getDocumentationLink = () => {
 };
 ```
 
-Once Jetpack will require WordPress 5.5+, you will be able to use `createInterpolateElement`.
+**Since `createInterpolateElement` is only available in WordPress 5.5+, you will need to check for it before you use it, and support a fallback until Jetpack stops supporting WordPress 5.4.**
 
 ### Colors
 
