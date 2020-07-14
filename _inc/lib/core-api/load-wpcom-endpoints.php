@@ -8,6 +8,13 @@
  *  - wp-content/rest-api-plugins/jetpack-endpoints/
  */
 
+/**
+ * Disable direct access.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 function wpcom_rest_api_v2_load_plugin_files( $file_pattern ) {
 	$plugins = glob( dirname( __FILE__ ) . '/' . $file_pattern );
 
