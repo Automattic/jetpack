@@ -51,7 +51,7 @@ const addTweetstormToTweets = blockSettings => {
 									'jetpack'
 								) }
 								showTooltip={ true }
-								disabled={ isGatheringStorm }
+								disabled={ isGatheringStorm || ! url }
 							>
 								{ __( 'Unroll', 'jetpack' ) }
 							</Button>
