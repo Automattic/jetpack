@@ -128,7 +128,6 @@ class DashStatsBottom extends Component {
 				{ ! this.props.isLinked && (
 					<Card compact className="jp-settings-card__configure-link">
 						<ConnectButton
-							asLink
 							connectUser={ true }
 							from="unlinked-user-connect"
 							connectLegend={ __( 'Connect your account to WordPress.com to view more stats' ) }
