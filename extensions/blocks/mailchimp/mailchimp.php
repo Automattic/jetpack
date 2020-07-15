@@ -40,6 +40,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Mailchimp block registration/dependency declaration.
  *
+ * Note: The attributes in the $attr variable are also being used in the
+ * Mailchimp Widget (modules/widgets/mailchimp.php) so if a change is made for these
+ * attributes here, consider to apply the changes in the widget as well.
+ *
  * @param array  $attr - Array containing the Mailchimp block attributes.
  * @param string $content - Mailchimp block content.
  *
