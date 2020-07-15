@@ -193,11 +193,11 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * Keyring is not loaded nor is a remote request is not made in the event of a cache hit.
 	 *
 	 * @param array $instance A widget $instance, as passed to a widget's widget() method.
-	 * @return string|array A string on error, an array of images on success.
+	 * @return WP_Error|array A WP_Error on error, an array of images on success.
 	 */
 	public function get_data( $instance ) {
 		if ( empty( $instance['token_id'] ) ) {
-			return 'ERROR';
+			return new WP_Error( 'empty_token', 'The token id was empty', 403 );
 		}
 
 		$cache_time    = MINUTE_IN_SECONDS;
@@ -214,13 +214,13 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
 			set_transient( $transient_key, 'ERROR', $cache_time );
-			return 'ERROR';
+			return new WP_Error( 'invalid_response', 'The response was invalid', $response_code );
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $result ), true );
 		if ( ! isset( $data['images'] ) || ! is_array( $data['images'] ) ) {
 			set_transient( $transient_key, 'ERROR', $cache_time );
-			return 'ERROR';
+			return new WP_Error( 'missing_images', 'The images were missing', $response_code );
 		}
 
 		$cache_time = 20 * MINUTE_IN_SECONDS;
@@ -484,7 +484,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		$data = $this->get_data( $instance );
 		// TODO: Revisit the error handling. I think we should be using WP_Error here and
 		// Jetpack::Client is the legacy check.
-		if ( 'ERROR' === $data || 'ERROR' === $instance['is_legacy_token'] ) {
+		if ( is_wp_error( $data ) || 'ERROR' === $instance['is_legacy_token'] ) {
 			echo '<p>' . esc_html__( 'Instagram is currently experiencing connectivity issues, please try again later to connect.', 'jetpack' ) . '</p>';
 			return;
 		}
