@@ -25,7 +25,7 @@ async function getNextValidMilestone( octokit, owner, repo ) {
 		direction: 'asc',
 	};
 
-	const options = octokit.issues.listMilestonesForRepo.endpoint.merge( {
+	const options = octokit.issues.listMilestones.endpoint.merge( {
 		owner,
 		repo,
 		...params,

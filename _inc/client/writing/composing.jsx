@@ -58,7 +58,7 @@ export class Composing extends React.Component {
 							'Duplicate existing posts, pages, Testimonials, and Portfolios. ' +
 								'All the content will be copied including text, featured images, sharing settings, and more.'
 						),
-						link: getRedirectUrl( 'jetpack-support-copy-post-2' ),
+						link: getRedirectUrl( 'jetpack-support-copy-post' ),
 					} }
 				>
 					<FormFieldset>
