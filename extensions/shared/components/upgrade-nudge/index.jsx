@@ -13,7 +13,7 @@ import { useEffect } from '@wordpress/element';
  */
 import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
-import { getUpgradeUrl } from "../../paid-blocks/utils";
+import { getPlanPathSlug, getUpgradeUrl } from "../../paid-blocks/utils";
 
 import './store';
 import './style.scss';
@@ -95,13 +95,8 @@ export default compose( [
 		const postId = select( 'core/editor' ).getCurrentPostId();
 		const postType = select( 'core/editor' ).getCurrentPostType();
 
-		const upgradeUrl = getUpgradeUrl( { plan, planSlug, postId, postType } );
-
-		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
-		// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
-		const planPathSlug = startsWith( planSlug, 'jetpack_' )
-			? planSlug.substr( 'jetpack_'.length )
-			: get( plan, [ 'path_slug' ] );
+		const upgradeUrl = getUpgradeUrl( { planSlug, plan, postId, postType } );
+		const planPathSlug = getPlanPathSlug( { planSlug, plan } );
 
 		const planName = get( plan, [ 'product_name' ] );
 		return {

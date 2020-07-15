@@ -24,6 +24,22 @@ export const PAID_BLOCKS_LIST = [
 ];
 
 /**
+ * WP.com plan objects have a dedicated `path_slug` field,
+ * Jetpack plan objects don't.
+ * For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
+ *
+ * @param {object} PlanData -          Plan data object.
+ * @param {string} PlanData.planSlug - Plan slug.
+ * @param {object} PlanData.plan -     Object with details about the plan.
+ * @returns {string}                   Plan path slug.
+ */
+export function getPlanPathSlug( { planSlug, plan } ) {
+	return startsWith( planSlug, 'jetpack_' )
+		? planSlug.substr( 'jetpack_'.length )
+		: get( plan, [ 'path_slug' ] );
+}
+
+/**
  * Return the checkout URL to upgrade the site plan,
  * depending on the plan, postId, and postType site values.
  *
@@ -35,11 +51,7 @@ export const PAID_BLOCKS_LIST = [
  * @returns {string}                     Upgrade URL.
  */
 export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
-	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
-	// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
-	const planPathSlug = startsWith( planSlug, 'jetpack_' )
-		? planSlug.substr( 'jetpack_'.length )
-		: get( plan, [ 'path_slug' ] );
+	const planPathSlug = getPlanPathSlug( { planSlug, plan } );
 
 	// The editor for CPTs has an `edit/` route fragment prefixed
 	const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
