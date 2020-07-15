@@ -96,14 +96,18 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
 		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
-		example: requiredPlan ? undefined : settings.example,
+		getEditWrapperProps() {
+			if ( requiredPlan ) {
+				return { 'data-upgrade-title': __( 'Upgrade required', 'jetpack' ) };
+			}
+		},
 	} );
 
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
 			`jetpack/${ name }-with-custom-class-names`,
-			withCustomClassNames( `jetpack/${ name }`, 'has-warning is-interactive' )
+			withCustomClassNames( `jetpack/${ name }`, 'has-warning is-interactive is-premium' )
 		);
 	}
 

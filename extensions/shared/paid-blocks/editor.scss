@@ -1,0 +1,38 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+// Add an upgrade notice to the block inserter preview
+.block-editor-inserter__preview,
+.block-editor-inserter__preview-container {
+	.is-premium {
+
+		$banner-height: 42px;
+		padding-bottom: $banner-height;
+
+		&:before {
+			content: attr(data-upgrade-title);
+			position: absolute;
+				bottom: 0;
+				right: 0;
+				left: 0;
+			height: $banner-height;
+			z-index: 11;
+			background: $black;
+			color: $white;
+			font-family: $default-font;
+			font-size: 24px;
+			line-height: 37px;
+			text-align: center;
+			overflow: hidden;
+		}
+
+		// Hide notice in child blocks
+		.is-premium:before {
+			display: none;
+		}
+
+		// Hide upgrade nudge
+		.jetpack-block-nudge {
+			display: none;
+		}
+	}
+}
