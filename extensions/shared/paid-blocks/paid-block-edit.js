@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getUpgradeUrl } from './utils';
+import { getUpgradeUrl } from '../plan-utils';
 
 const JetpackPaidBlockEdit = OriginalBlockEdit => props => {
 	const {

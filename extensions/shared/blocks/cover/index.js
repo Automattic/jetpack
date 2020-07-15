@@ -14,7 +14,7 @@ import coverEditMediaPlaceholder from './cover-media-placeholder';
 import coverMediaReplaceFlow from './cover-replace-control-button';
 import jetpackCoverBlockEdit from './edit';
 import './editor.scss';
-import { isUpgradable } from "../../paid-blocks/utils";
+import { isUpgradable } from "../../plan-utils";
 
 // Take control of Replace button.
 addFilter( 'editor.MediaReplaceFlow', 'jetpack/cover-media-replace-flow', coverMediaReplaceFlow );
