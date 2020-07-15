@@ -2,11 +2,11 @@
 /**
  * WordPress dependencies
  */
-import { Fragment } from '@wordpress/element';
+import { Fragment, useEffect, useState } from '@wordpress/element';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarGroup, Button } from '@wordpress/components';
-import { withSelect } from '@wordpress/data';
+import { withSelect, withDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -15,15 +15,47 @@ import { __ } from '@wordpress/i18n';
 import { getUpgradeUrl } from './utils';
 
 const JetpackPaidBlockEdit = OriginalBlockEdit => props => {
-	const { plan, postId, postType, planSlug } = props;
+	const {
+		plan,
+		postId,
+		postType,
+		planSlug,
+		isSavingPost,
+		savePost,
+		isEditedPostAutosaveable,
+	} = props;
+
+	const [ shouldRedirectToCheckoutPage, setShouldRedirect ] = useState( false );
+
+	const checkoutUrl = getUpgradeUrl( { plan, planSlug, postId, postType } );
+
+	useEffect( () => {
+		if ( isSavingPost ) {
+			return;
+		}
+
+	    if ( ! shouldRedirectToCheckoutPage ) {
+		    return;
+	    }
+
+	    window.location.href = checkoutUrl;
+	}, [ isSavingPost, shouldRedirectToCheckoutPage, checkoutUrl ] );
 
 	const goToCheckoutPage = () => {
 		if ( ! window?.location?.href ) {
 			return;
 		}
 
-		// Redirect to checkout page.
-		window.location.href = getUpgradeUrl( { plan, planSlug, postId, postType } );
+		// If the post is not autosaveable, redirect.
+		if ( ! isEditedPostAutosaveable ) {
+			return window.location.href = checkoutUrl;
+		}
+
+		// Save the post before to perform redirection.
+		savePost();
+
+		// Hack to ensuring getting the saving post status.
+		setTimeout( () => setShouldRedirect( true ), 0 );
 	};
 
 	return (
@@ -62,6 +94,13 @@ export default createHigherOrderComponent(
 				postId: post.id,
 				postType: post.type,
 				postStatus: post.status,
+				isSavingPost: editorSelector.isSavingPost(),
+				isEditedPostAutosaveable: editorSelector.isEditedPostAutosaveable(),
+			};
+		} ),
+		withDispatch( dispatch => {
+			return {
+				savePost: dispatch( 'core/editor' ).savePost,
 			};
 		} ),
 		JetpackPaidBlockEdit,
