@@ -26,6 +26,7 @@ const UpgradePlanBanner = ( {
     isDirtyPost,
 	savePost,
 	onRedirect,
+	align,
 	className = 'jetpack-upgrade-plan-banner',
 	title = __( 'Premium Block' ),
 	description = __( 'Upgrade your plan to use premium tools' ),
@@ -50,7 +51,7 @@ const UpgradePlanBanner = ( {
 	};
 
 	return (
-		<div className={ `${ className } wp-block` }>
+		<div className={ `${ className } wp-block` } data-align={ align }>
 			{ icon }
 			<strong className={ `${ className }__title` }>
 				{ title }

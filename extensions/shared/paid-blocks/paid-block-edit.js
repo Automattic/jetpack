@@ -12,7 +12,7 @@ import UpgradePlanBanner from './upgrade-plan-banner';
 export default OriginalBlockEdit => props => {
 	return (
 		<Fragment>
-			<UpgradePlanBanner />
+			<UpgradePlanBanner align={ props?.attributes?.align } />
 			<OriginalBlockEdit { ...props } />
 		</Fragment>
 	);
