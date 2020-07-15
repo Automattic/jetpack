@@ -50,22 +50,19 @@ const UpgradePlanBanner = ( {
 	};
 
 	return (
-		<div className={ className }>
+		<div className={ `${ className } wp-block` }>
 			{ icon }
-			<span className={ `${ className }__container` }>
-				<span className={ `${ className }__title` }>
-					{ title }
-				</span>
-				<span className={ `${ className }__description` }>
-					{ description }
-				</span>
-				<Button
-					// href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
-					onClick={ goToCheckoutPage }
-					isSecondary
-					icon="arrow-right-alt2"
-				/>
+			<strong className={ `${ className }__title` }>
+				{ title }
+			</strong>
+			<span className={ `${ className }__description` }>
+				{ description }
 			</span>
+			<Button
+				// href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
+				onClick={ goToCheckoutPage }
+				icon="arrow-right-alt2"
+			/>
 		</div>
 	);
 };
