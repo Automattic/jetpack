@@ -15,33 +15,21 @@ class JetpackConnectionErrors extends React.Component {
 		errors: PropTypes.array.isRequired,
 	};
 
-	actions = {
-		reconnect: ( message, code ) => (
-			<ErrorNoticeCycleConnection text={ message } errorCode={ code } action="reconnect" />
-		),
-		refresh_blog_token: ( message, code ) => (
-			<ErrorNoticeCycleConnection text={ message } errorCode={ code } action="refresh_blog_token" />
-		),
-		refresh_user_token: ( message, code ) => (
-			<ErrorNoticeCycleConnection text={ message } errorCode={ code } action="refresh_user_token" />
-		),
-	};
+	getAction( action, message, code ) {
+		switch ( action ) {
+			case 'reconnect':
+			case 'refresh_blog_token':
+			case 'refresh_user_token':
+				return <ErrorNoticeCycleConnection text={ message } errorCode={ code } action={ action } />;
+		}
 
-	isActionSupported( action ) {
-		return (
-			this.actions.hasOwnProperty( action ) &&
-			{}.toString.call( this.actions[ action ] ) === '[object Function]'
-		);
+		return null;
 	}
 
 	renderOne( error ) {
-		if ( ! this.isActionSupported( error.action ) ) {
-			return '';
-		}
+		const action = this.getAction( error.action, error.message, error.code );
 
-		return (
-			<React.Fragment>{ this.actions[ error.action ]( error.message, error.code ) }</React.Fragment>
-		);
+		return null === action ? '' : <React.Fragment>{ action }</React.Fragment>;
 	}
 
 	render() {
