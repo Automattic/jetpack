@@ -19,6 +19,7 @@ import {
 	isCurrentUserLinked,
 	isSiteConnected,
 	isAuthorizingUserInPlace,
+	isReconnectingSite,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -267,7 +268,7 @@ class Main extends React.Component {
 		window.wpNavMenuClassChange( pageOrder );
 
 		return (
-			<div aria-live="assertive">
+			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
 				{ navComponent }
 				{ pageComponent }
 			</div>
@@ -315,6 +316,10 @@ class Main extends React.Component {
 		return this.props.isAuthorizingInPlace;
 	}
 
+	shouldBlurMainContent() {
+		return this.props.isReconnectingSite;
+	}
+
 	render() {
 		return (
 			<div>
@@ -355,6 +360,7 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
+			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showSetupWizard: showSetupWizard( state ),
