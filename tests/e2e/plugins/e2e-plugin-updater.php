@@ -14,10 +14,8 @@ add_filter( 'upgrader_post_install', 'e2e_move_jetpack_dev_dir', 10, 3 );
 
 
 function e2e_set_jetpack_update( $value ) {
-	// $update_version = get_option( 'e2e_jetpack_upgrader_update_version' );
-	// $update_package = get_option( 'e2e_jetpack_upgrader_plugin_url' );
-	$update_version = '8.9';
-	$update_package = 'https://ed2aad5ac207.ngrok.io/wp-content/jetpack-dev.zip';
+	$update_version = get_option( 'e2e_jetpack_upgrader_update_version' );
+	$update_package = get_option( 'e2e_jetpack_upgrader_plugin_url' );
 
 	if ( ! isset( $update_package ) || ! isset( $update_version ) ) {
 		return $value;
@@ -58,7 +56,7 @@ function e2e_set_jetpack_update( $value ) {
 
 function e2e_move_jetpack_dev_dir( $response, $hook_extra, $result ) {
 	if ( 'jetpack-dev' === $result['destination_name'] ) {
-		// rename( WP_PLUGIN_DIR . '/jetpack-dev', WP_PLUGIN_DIR . '/jetpack' );
+		rename( WP_PLUGIN_DIR . '/jetpack-dev', WP_PLUGIN_DIR . '/jetpack' );
 	}
 
 	error_log( print_r( '@@@@@@@@@@@@@', 1 ) );
