@@ -68,7 +68,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * Enqueues the widget's frontend CSS but only if the widget is currently in use.
 	 */
 	public function enqueue_css() {
-		if ( ! is_active_widget( false, false, self::ID_BASE ) ) {
+		if ( ! is_active_widget( false, false, self::ID_BASE ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
 			return;
 		}
 
