@@ -11,9 +11,9 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { isSimpleSite } from '../site-type-utils';
-import getJetpackExtensionAvailability from '../get-jetpack-extension-availability';
-import getSiteFragment from '../get-site-fragment';
+import { isSimpleSite } from './site-type-utils';
+import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import getSiteFragment from './get-site-fragment';
 
 /*
  * Blocks list that require a paid plan.
