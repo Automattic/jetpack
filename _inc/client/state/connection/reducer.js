@@ -80,6 +80,7 @@ export const connectionRequests = {
 	unlinkingUser: false,
 	fetchingConnectUrl: false,
 	fetchingUserData: false,
+	reconnectingSite: false,
 };
 
 export const requests = ( state = connectionRequests, action ) => {

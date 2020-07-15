@@ -29,6 +29,7 @@ import {
 	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
 import restApi from 'rest-api';
+import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 
 export const fetchSiteConnectionStatus = () => {
 	return dispatch => {
@@ -125,7 +126,7 @@ export const fetchUserConnectionData = () => {
 	};
 };
 
-export const disconnectSite = ( reloadAfter = false, reconnectAfter = null ) => {
+export const disconnectSite = ( reloadAfter = false ) => {
 	return dispatch => {
 		dispatch( {
 			type: DISCONNECT_SITE,
@@ -146,12 +147,6 @@ export const disconnectSite = ( reloadAfter = false, reconnectAfter = null ) => 
 			} )
 			.then( () => {
 				dispatch( fetchConnectUrl() );
-
-				if ( reconnectAfter ) {
-					dispatch( {
-						type: SITE_RECONNECT,
-					} );
-				}
 
 				if ( reloadAfter ) {
 					window.location.reload();
@@ -247,18 +242,55 @@ export const authorizeUserInPlaceSuccess = () => {
 	};
 };
 
-export const reconnectSite = () => {
+export const reconnectSite = ( action = 'reconnect' ) => {
 	return dispatch => {
 		dispatch( {
 			type: SITE_RECONNECT,
 		} );
-	};
-};
-
-export const reconnectSiteSuccess = () => {
-	return dispatch => {
-		dispatch( {
-			type: SITE_RECONNECT_SUCCESS,
-		} );
+		dispatch(
+			createNotice( 'is-info', __( 'Reconnecting Jetpack' ), { id: 'reconnect-jetpack' } )
+		);
+		return restApi
+			.reconnect( action )
+			.then( connectionStatusData => {
+				const status = connectionStatusData.status;
+				const connectUrl = connectionStatusData.authorize_url;
+				// status: in_progress, aka user needs to re-connect their WP.com account.
+				if ( 'in_progress' === status ) {
+					// Redirect user to authorize WP.com if in-place connection is restricted.
+					if ( isSafari || doNotUseConnectionIframe ) {
+						window.location.replace( connectUrl );
+					}
+					// Set connectUrl and initiate in-place auth flow.
+					dispatch( {
+						type: CONNECT_URL_FETCH_SUCCESS,
+						connectUrl: connectUrl,
+					} ).then( () => {
+						dispatch( authorizeUserInPlace() );
+					} );
+				}
+				dispatch( {
+					type: SITE_RECONNECT_SUCCESS,
+				} );
+				dispatch( removeNotice( 'reconnect-jetpack' ) );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: SITE_RECONNECT_FAIL,
+					error: error,
+				} );
+				dispatch( removeNotice( 'reconnect-jetpack' ) );
+				dispatch(
+					createNotice(
+						'is-error',
+						__( 'There was an error reconnecting Jetpack. Error: %(error)s', {
+							args: {
+								error: error,
+							},
+						} ),
+						{ id: 'reconnect-jetpack' }
+					)
+				);
+			} );
 	};
 };
