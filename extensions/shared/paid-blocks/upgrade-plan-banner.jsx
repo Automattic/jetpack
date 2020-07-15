@@ -6,6 +6,7 @@ import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { BlockIcon } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -25,6 +26,10 @@ const UpgradePlanBanner = ( {
     isDirtyPost,
 	savePost,
 	onRedirect,
+	className = 'jetpack-upgrade-plan-banner',
+	title = __( 'Premium Block' ),
+	description = __( 'Upgrade your plan to use premium tools' ),
+	icon = <BlockIcon icon="star-filled" />
 } ) => {
 	const goToCheckoutPage = ( event ) => {
 		if ( ! window?.top?.location?.href ) {
@@ -45,16 +50,22 @@ const UpgradePlanBanner = ( {
 	};
 
 	return (
-		<div className="upgrade-block-banner">
-			<Button
-				// href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
-				onClick={ goToCheckoutPage }
-				target="_top"
-				isSecondary
-				isLarge
-			>
-				{ __( 'Upgrade' ) }
-			</Button>
+		<div className={ className }>
+			{ icon }
+			<span className={ `${ className }__container` }>
+				<span className={ `${ className }__title` }>
+					{ title }
+				</span>
+				<span className={ `${ className }__description` }>
+					{ description }
+				</span>
+				<Button
+					// href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
+					onClick={ goToCheckoutPage }
+					isSecondary
+					icon="arrow-right-alt2"
+				/>
+			</span>
 		</div>
 	);
 };
