@@ -30,7 +30,11 @@ export default createHigherOrderComponent(
 		}
 
 		const goToCheckoutPage = () => {
-			window.location = getUpgradeUrl( { plan, planSlug, postId, postType } );
+			if ( ! window?.location?.href ) {
+				return;
+			}
+			// Redirect to checkout page.
+			window.location.href = getUpgradeUrl( { plan, planSlug, postId, postType } );
 		};
 
 		return (
