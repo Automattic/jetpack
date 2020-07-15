@@ -11,6 +11,18 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import jetpackPaidBlockEdit from './paid-block-edit';
+import { isUpgradable } from './utils';
+
+const jetpackPaidBlock = ( settings, name ) => {
+	if ( ! isUpgradable( name ) ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		edit: jetpackPaidBlockEdit( settings.edit ),
+	};
+};
 
 // Extend all blocks that required a paid plan.
-addFilter( 'editor.BlockEdit', 'jetpack/paid-block-edit', jetpackPaidBlockEdit );
+addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
