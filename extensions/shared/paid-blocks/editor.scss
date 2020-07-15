@@ -33,6 +33,10 @@ $icon-size: 10px;
 		min-width: $icon-size;
 		min-height: $icon-size;
 	}
+
+	.components-button:hover {
+		box-shadow: 0 0 0 1.5px var(--wp-admin-theme-color);
+	}
 }
 
 .block-editor-block-list__block.is-upgradable {
