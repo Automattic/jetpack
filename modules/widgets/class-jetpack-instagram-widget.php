@@ -561,6 +561,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 add_action(
 	'widgets_init',
 	function() {
-		register_widget( 'Jetpack_Instagram_Widget' );
+		if ( Jetpack::is_active() ) {
+			register_widget( 'Jetpack_Instagram_Widget' );
+		}
 	}
 );
