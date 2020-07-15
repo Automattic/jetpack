@@ -10,7 +10,7 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
-import withHasWarningIsInteractiveClassNames from './with-has-warning-is-interactive-class-names';
+import withCustomClassNames from './with-custom-class-names';
 import wrapPaidBlock from './wrap-paid-block';
 
 const availableBlockTags = {
@@ -102,8 +102,8 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
-			`jetpack/${ name }-with-has-warning-is-interactive-class-names`,
-			withHasWarningIsInteractiveClassNames( `jetpack/${ name }` )
+			`jetpack/${ name }-with-custom-class-names`,
+			withCustomClassNames( `jetpack/${ name }`, 'has-warning is-interactive' )
 		);
 	}
 
