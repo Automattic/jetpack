@@ -36,8 +36,12 @@
 .contact-form input[type='radio'],
 .contact-form input[type='checkbox'] {
 	float: none;
-	margin-bottom: 1em;
-	vertical-align: middle;
+	margin: 0 0.75rem 0 5px;
+}
+
+.contact-form input[type='checkbox'] {
+	top: 0;
+	margin-left: 0;
 }
 
 .contact-form label {
@@ -53,7 +57,8 @@
 	margin-bottom: 0.25em;
 	float: none;
 	font-weight: normal;
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 }
 
 .contact-form .grunion-field-checkbox-wrap,
