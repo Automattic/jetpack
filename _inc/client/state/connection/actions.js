@@ -30,6 +30,7 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
+import { isReconnectingSite } from 'state/connection/reducer';
 
 export const fetchSiteConnectionStatus = () => {
 	return dispatch => {
@@ -229,21 +230,30 @@ export const authorizeUserInPlace = () => {
 };
 
 export const authorizeUserInPlaceSuccess = () => {
-	return dispatch => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: AUTH_USER_IN_PLACE_SUCCESS,
 		} );
+
 		dispatch(
 			createNotice( 'is-success', __( 'Linked to WordPress.com.', 'jetpack' ), {
 				id: 'link-user-in-place',
 				duration: 2000,
 			} )
 		);
+
+		// part of the reconnection flow
+		if ( isReconnectingSite( getState() ) ) {
+			dispatch( {
+				type: SITE_RECONNECT_SUCCESS,
+			} );
+			dispatch( removeNotice( 'reconnect-jetpack' ) );
+		}
 	};
 };
 
 export const reconnectSite = ( action = 'reconnect' ) => {
-	return dispatch => {
+	return ( dispatch, getState ) => {
 		dispatch( {
 			type: SITE_RECONNECT,
 		} );
@@ -254,24 +264,25 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 			.reconnect( action )
 			.then( connectionStatusData => {
 				const status = connectionStatusData.status;
-				const connectUrl = connectionStatusData.authorizeUrl;
+				const authorizeUrl = connectionStatusData.authorizeUrl;
 				// status: in_progress, aka user needs to re-connect their WP.com account.
 				if ( 'in_progress' === status ) {
 					// Redirect user to authorize WP.com if in-place connection is restricted.
-					if ( isSafari || doNotUseConnectionIframe ) {
-						window.location.replace( connectUrl );
+					if ( isSafari( getState() ) || doNotUseConnectionIframe( getState() ) ) {
+						return window.location.replace( authorizeUrl );
 					}
 					// Set connectUrl and initiate in-place auth flow.
 					dispatch( {
 						type: CONNECT_URL_FETCH_SUCCESS,
-						connectUrl: connectUrl,
+						connectUrl: authorizeUrl,
 					} );
 					dispatch( authorizeUserInPlace() );
+				} else {
+					dispatch( {
+						type: SITE_RECONNECT_SUCCESS,
+					} );
+					dispatch( removeNotice( 'reconnect-jetpack' ) );
 				}
-				dispatch( {
-					type: SITE_RECONNECT_SUCCESS,
-				} );
-				dispatch( removeNotice( 'reconnect-jetpack' ) );
 			} )
 			.catch( error => {
 				dispatch( {
