@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
  */
 
 import SimpleNotice from 'components/notice';
-import NoticeActionDisconnect from './notice-action-disconnect';
+import NoticeActionReconnect from './notice-action-reconnect';
 
 export default class ErrorNoticeCycleConnection extends React.Component {
 	static defaultProps = {
@@ -20,6 +20,7 @@ export default class ErrorNoticeCycleConnection extends React.Component {
 	static propTypes = {
 		text: PropTypes.string.isRequired,
 		errorCode: PropTypes.string,
+		action: PropTypes.string,
 	};
 
 	render() {
@@ -30,9 +31,9 @@ export default class ErrorNoticeCycleConnection extends React.Component {
 				status={ 'is-error' }
 				icon={ 'link-break' }
 			>
-				<NoticeActionDisconnect errorCode={ this.props.errorCode }>
+				<NoticeActionReconnect errorCode={ this.props.errorCode } action={ this.props.action }>
 					{ __( 'Reconnect' ) }
-				</NoticeActionDisconnect>
+				</NoticeActionReconnect>
 			</SimpleNotice>
 		);
 	}

@@ -9,13 +9,14 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import NoticeAction from 'components/notice/notice-action';
-import { disconnectSite } from 'state/connection';
+import { reconnectSite } from 'state/connection';
 import analytics from 'lib/analytics';
 
-class NoticeActionDisconnect extends React.Component {
+class NoticeActionReconnect extends React.Component {
 	static propTypes = {
 		icon: PropTypes.string,
 		errorCode: PropTypes.string,
+		action: PropTypes.string,
 	};
 
 	handleDisconnectClick = () => {
@@ -30,7 +31,7 @@ class NoticeActionDisconnect extends React.Component {
 
 		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_click', eventProps );
 
-		this.props.disconnectSite();
+		this.props.reconnectSite( this.props.action );
 	};
 
 	render() {
@@ -44,6 +45,6 @@ class NoticeActionDisconnect extends React.Component {
 
 export default connect( null, dispatch => {
 	return {
-		disconnectSite: () => dispatch( disconnectSite( false, true ) ),
+		reconnectSite: action => dispatch( reconnectSite( action ) ),
 	};
-} )( NoticeActionDisconnect );
+} )( NoticeActionReconnect );

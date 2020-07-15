@@ -17,7 +17,13 @@ class JetpackConnectionErrors extends React.Component {
 
 	actions = {
 		reconnect: ( message, code ) => (
-			<ErrorNoticeCycleConnection text={ message } errorCode={ code } />
+			<ErrorNoticeCycleConnection text={ message } errorCode={ code } action="reconnect" />
+		),
+		refresh_blog_token: ( message, code ) => (
+			<ErrorNoticeCycleConnection text={ message } errorCode={ code } action="refresh_blog_token" />
+		),
+		refresh_user_token: ( message, code ) => (
+			<ErrorNoticeCycleConnection text={ message } errorCode={ code } action="refresh_user_token" />
 		),
 	};
 
