@@ -48,7 +48,7 @@ const JetpackPaidBlockEdit = OriginalBlockEdit => props => {
 		}
 
 		/*
-		 * If there are not unsaved values, redirect.
+		 * If there are not unsaved values, redirect, or
 		 * If the post is not autosaveable, redirect.
 		 */
 		if ( ! isEditedPostDirty || ! isEditedPostAutosaveable ) {
