@@ -91,6 +91,23 @@ class REST_Connector {
 				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 			)
 		);
+
+		// Full or partial reconnect in case of connection issues.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/reconnect',
+			array(
+				'methods'  => WP_REST_Server::EDITABLE,
+				'callback' => array( $this, 'connection_reconnect' ),
+				'args'     => array(
+					'action' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	/**
@@ -98,11 +115,11 @@ class REST_Connector {
 	 *
 	 * @since 5.4.0
 	 *
-	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return string|WP_Error
 	 */
-	public function verify_registration( \WP_REST_Request $request ) {
+	public function verify_registration( WP_REST_Request $request ) {
 		$registration_data = array( $request['secret_1'], $request['state'] );
 
 		return $this->connection->handle_registration( $registration_data );
@@ -201,6 +218,38 @@ class REST_Connector {
 	 */
 	public static function get_user_permissions_error_msg() {
 		return self::$user_permissions_error_msg;
+	}
+
+	/**
+	 * The endpoint tried to partially or fully reconnect the website to WP.com.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function connection_reconnect( WP_REST_Request $request ) {
+		$params = $request->get_json_params();
+
+		$response = array(
+			'status' => 'failure',
+		);
+
+		switch ( $params['action'] ) {
+			case 'reconnect':
+				$result = $this->connection->reconnect();
+
+				if ( true === $result ) {
+					$response['status']       = 'in_progress';
+					$response['authorizeUrl'] = $this->connection->get_authorization_url();
+				} elseif ( is_wp_error( $result ) ) {
+					$response['error'] = $result->get_error_code();
+				}
+				break;
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 }
