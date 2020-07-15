@@ -254,7 +254,7 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 			.reconnect( action )
 			.then( connectionStatusData => {
 				const status = connectionStatusData.status;
-				const connectUrl = connectionStatusData.authorize_url;
+				const connectUrl = connectionStatusData.authorizeUrl;
 				// status: in_progress, aka user needs to re-connect their WP.com account.
 				if ( 'in_progress' === status ) {
 					// Redirect user to authorize WP.com if in-place connection is restricted.
@@ -265,9 +265,8 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 					dispatch( {
 						type: CONNECT_URL_FETCH_SUCCESS,
 						connectUrl: connectUrl,
-					} ).then( () => {
-						dispatch( authorizeUserInPlace() );
 					} );
+					dispatch( authorizeUserInPlace() );
 				}
 				dispatch( {
 					type: SITE_RECONNECT_SUCCESS,
