@@ -20,7 +20,7 @@ import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-
 import deprecatedV1 from './deprecated/v1';
 import wrapPaidBlock from '../../shared/wrap-paid-block';
 import { isSimpleSite } from '../../shared/site-type-utils';
-import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
+import withCustomClassNames from '../../shared/with-custom-class-names';
 import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
@@ -71,8 +71,8 @@ const addVideoPressSupport = ( settings, name ) => {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
 		addFilter(
 			'editor.BlockListBlock',
-			`jetpack/videopress-with-has-warning-is-interactive-class-names`,
-			withHasWarningIsInteractiveClassNames( `core/video` )
+			`jetpack/videopress-with-custom-class-names`,
+			withCustomClassNames( `core/video`, 'has-warning is-interactive' )
 		);
 	}
 
