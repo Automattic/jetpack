@@ -1,0 +1,40 @@
+$banner-height: 50px;
+$icon-size: 10px;
+
+.jetpack-upgrade-plan-banner {
+	display: flex;
+	font-size: 14px;
+	height: 50px;
+	line-height: $banner-height;
+	background: black;
+	color: white;
+	padding: 0 20px;
+	border-radius: 5px 5px 0 0;
+
+	.jetpack-upgrade-plan-banner__title,
+	.jetpack-upgrade-plan-banner__description {
+		margin-left: 10px;
+	}
+
+	.jetpack-upgrade-plan-banner__description {
+		flex-grow: 2;
+	}
+
+	.block-editor-block-icon,
+	.components-button {
+		align-self: center;
+		color: white;
+	}
+
+	.block-editor-block-icon,
+	.block-editor-block-icon svg {
+		width: $icon-size;
+		height: $icon-size;
+		min-width: $icon-size;
+		min-height: $icon-size;
+	}
+}
+
+.block-editor-block-list__block.is-upgradable {
+	margin-top: 0;
+}
