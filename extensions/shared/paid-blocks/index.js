@@ -11,7 +11,7 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import jetpackPaidBlockEdit from './paid-block-edit';
-import { isUpgradable } from './utils';
+import { isUpgradable } from '../plan-utils';
 
 const jetpackPaidBlock = ( settings, name ) => {
 	if ( ! isUpgradable( name ) ) {

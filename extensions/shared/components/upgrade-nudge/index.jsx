@@ -3,7 +3,7 @@
  */
 import GridiconStar from 'gridicons/dist/star';
 import { __, sprintf } from '@wordpress/i18n';
-import { get, startsWith } from 'lodash';
+import { get } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
@@ -13,7 +13,7 @@ import { useEffect } from '@wordpress/element';
  */
 import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
-import { getPlanPathSlug, getUpgradeUrl } from "../../paid-blocks/utils";
+import { getPlanPathSlug, getUpgradeUrl } from "../../plan-utils";
 import './store';
 import './style.scss';
 

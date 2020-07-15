@@ -14,7 +14,7 @@ import coverEditMediaPlaceholder from './cover-media-placeholder';
 import coverMediaReplaceFlow from './cover-replace-control-button';
 import jetpackCoverBlockEdit from './edit';
 import './editor.scss';
-import { isUpgradable } from "../../paid-blocks/utils";
+import { isUpgradable } from "../../plan-utils";
 
 const addVideoUploadPlanCheck = ( settings, name ) => {
 	if ( ! settings.isDeprecation && isUpgradable( name ) ) {
