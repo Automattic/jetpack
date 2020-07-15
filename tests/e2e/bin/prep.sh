@@ -1,38 +1,30 @@
 #!/bin/bash
-
 # Exit if any command fails.
 set -e
 
 WP_CORE_DIR="/var/www/html"
-WORKING_DIR="/var/www/html/wp-content/jetpack"
-JP_DIR="wp-content/plugins/jetpack"
+WORKING_DIR="/var/www/html/wp-content/jetpack-dev"
+JP_DIR="wp-content/jetpack"
 
-rm -rf $JP_DIR
+rm -rf $JP_DIR $JP_DIR.zip wp-content/plugins/jetpack/
+# removing symlink
+rm wp-content/plugins/jetpack-dev || true
 mkdir -p $JP_DIR
 
 FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|docker|docs|extensions|.git")
 cp -r $FILES $JP_DIR
 
-
 echo "Zipping jetpack bundle"
 
-apt update
-apt install zip -y
+apt update > /dev/null
+apt install zip -y > /dev/null
 
-find $JP_DIR -type d -print0 | xargs -0 chmod 755
-find $JP_DIR -type f -print0 | xargs -0 chmod 644
-chown www-data:www-data -R $JP_DIR
+cd /var/www/html/wp-content
 
-cd /var/www/html/wp-content/plugins
-
-zip -qr ../jetpack-dev.zip jetpack
-
-cd ..
-
-chown www-data:www-data -R jetpack-dev.zip
-chmod 777 -R jetpack-dev.zip
+zip -qr jetpack.zip jetpack/
+rm -rf jetpack/
 
 echo "Done!"
 
 # Symlink Jetpack into plugins directory
-# ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/
+ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/
