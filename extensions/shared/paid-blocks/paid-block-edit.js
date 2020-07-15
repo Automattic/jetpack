@@ -86,11 +86,11 @@ export default createHigherOrderComponent(
 		withSelect( select => {
 			const editorSelector = select( 'core/editor' );
 			const post = editorSelector.getCurrentPost();
-			const planSlug = 'value_bundle';
+			const PLAN_SLUG = 'value_bundle';
 
 			return {
-				plan: select( 'wordpress-com/plans' ).getPlan( planSlug ),
-				planSlug,
+				plan: select( 'wordpress-com/plans' ).getPlan( PLAN_SLUG ),
+				PLAN_SLUG,
 				postId: post.id,
 				postType: post.type,
 				postStatus: post.status,
