@@ -4,10 +4,7 @@
  */
 import { Fragment, useEffect, useState } from '@wordpress/element';
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
-import { BlockControls } from '@wordpress/block-editor';
-import { ToolbarGroup, Button } from '@wordpress/components';
 import { withSelect, withDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -64,22 +61,6 @@ const JetpackPaidBlockEdit = OriginalBlockEdit => props => {
 
 	return (
 		<Fragment>
-			<BlockControls>
-				<ToolbarGroup>
-					<Button
-						aria-label={ __( 'Upgrade to Premium to use this block', 'jetpack' ) }
-						onClick={ goToCheckoutPage }
-						label={ __(
-							'Upgrade to Premium to use this block.',
-							'jetpack'
-						) }
-						showTooltip={ true }
-					>
-						{ __( 'Upgrade', 'jetpack' ) }
-					</Button>
-				</ToolbarGroup>
-			</BlockControls>
-
 			<OriginalBlockEdit { ...props } />
 		</Fragment>
 	);
