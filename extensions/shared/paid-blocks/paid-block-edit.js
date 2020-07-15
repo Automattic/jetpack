@@ -23,6 +23,7 @@ const JetpackPaidBlockEdit = OriginalBlockEdit => props => {
 		isSavingPost,
 		savePost,
 		isEditedPostAutosaveable,
+		isEditedPostDirty,
 	} = props;
 
 	const [ shouldRedirectToCheckoutPage, setShouldRedirect ] = useState( false );
@@ -46,8 +47,11 @@ const JetpackPaidBlockEdit = OriginalBlockEdit => props => {
 			return;
 		}
 
-		// If the post is not autosaveable, redirect.
-		if ( ! isEditedPostAutosaveable ) {
+		/*
+		 * If there are not unsaved values, redirect.
+		 * If the post is not autosaveable, redirect.
+		 */
+		if ( ! isEditedPostDirty || ! isEditedPostAutosaveable ) {
 			return window.location.href = checkoutUrl;
 		}
 
@@ -96,6 +100,7 @@ export default createHigherOrderComponent(
 				postStatus: post.status,
 				isSavingPost: editorSelector.isSavingPost(),
 				isEditedPostAutosaveable: editorSelector.isEditedPostAutosaveable(),
+				isEditedPostDirty: editorSelector.isEditedPostDirty(),
 			};
 		} ),
 		withDispatch( dispatch => {
