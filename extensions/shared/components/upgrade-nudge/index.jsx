@@ -15,7 +15,6 @@ import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
 import { getPlanPathSlug, getUpgradeUrl } from "../../paid-blocks/utils";
 
-import './store';
 import './style.scss';
 
 const getTitle = ( customTitle, planName ) => {

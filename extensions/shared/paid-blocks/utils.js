@@ -57,7 +57,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
 	// Post-checkout: redirect back here
-	const redirect_to = isSimpleSite()
+	const redirectTo = isSimpleSite()
 		? addQueryArgs(
 			'/' +
 			compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
@@ -79,7 +79,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 
 	return planPathSlug &&
 		addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
-			redirect_to,
+			redirect_to: redirectTo,
 		} );
 }
 
