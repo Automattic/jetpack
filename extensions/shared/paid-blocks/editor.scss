@@ -3,7 +3,6 @@ $banner-height: 48px;
 .jetpack-upgrade-plan-banner {
 	display: flex;
 	justify-content: space-between;
-	flex-wrap: wrap;
 	align-items: center;
 	font-size: 14px;
 	height: $banner-height;
@@ -19,6 +18,7 @@ $banner-height: 48px;
 	}
 
 	.components-button {
+		flex-shrink: 0;
 		margin-left: auto;
 		height: 32px;
 	}
