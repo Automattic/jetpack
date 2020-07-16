@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
 import React, { useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -56,22 +56,27 @@ let IntroPage = props => {
 				width="200px"
 				height="200px"
 				src={ imagePath + '/jetpack-powering-up.svg' }
-				alt={ __( 'A jetpack site powering up' ) }
+				alt={ __( 'A jetpack site powering up', 'jetpack' ) }
 			/>
 			<h1 className="jp-setup-wizard-header">
-				{ __( 'Set up Jetpack for better site security, performance, and more.' ) }
+				{ __( 'Set up Jetpack for better site security, performance, and more.', 'jetpack' ) }
 			</h1>
 			<p className="jp-setup-wizard-paragraph">
-				{ __( 'Jetpack is a cloud-powered tool built by Automattic.' ) }
+				{ __( 'Jetpack is a cloud-powered tool built by Automattic.', 'jetpack' ) }
 			</p>
 			<p className="jp-setup-wizard-paragraph">
 				{ __(
-					'Answer a few questions and we’ll help you secure, speed up, customize, and grow your WordPress website.'
+					'Answer a few questions and we’ll help you secure, speed up, customize, and grow your WordPress website.',
+					'jetpack'
 				) }
 			</p>
 			<div className="jp-setup-wizard-intro-question">
 				<h2>
-					{ __( 'What will %(siteTitle)s be used for?', { args: { siteTitle: props.siteTitle } } ) }
+					{ sprintf(
+						/* translators: placeholder is the site title. */
+						__( 'What will %s be used for?', 'jetpack' ),
+						props.siteTitle
+					) }
 				</h2>
 				<div className="jp-setup-wizard-answer-buttons">
 					<Button
@@ -80,7 +85,7 @@ let IntroPage = props => {
 						className="jp-setup-wizard-button"
 						onClick={ onPersonalButtonClick }
 					>
-						{ __( 'Personal Use' ) }
+						{ __( 'Personal Use', 'jetpack' ) }
 					</Button>
 					<Button
 						href="#/setup/income"
@@ -88,7 +93,7 @@ let IntroPage = props => {
 						className="jp-setup-wizard-button"
 						onClick={ onBusinessButtonClick }
 					>
-						{ __( 'Business Use' ) }
+						{ __( 'Business Use', 'jetpack' ) }
 					</Button>
 				</div>
 				<a
@@ -96,7 +101,7 @@ let IntroPage = props => {
 					href="#/setup/features"
 					onClick={ onSkipLinkClick }
 				>
-					{ __( 'Skip to recommended features' ) }
+					{ __( 'Skip to recommended features', 'jetpack' ) }
 				</a>
 			</div>
 		</div>

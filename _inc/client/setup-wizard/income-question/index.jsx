@@ -2,10 +2,10 @@
  * External dependencies
  */
 import React, { useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -67,39 +67,47 @@ let IncomeQuestion = props => {
 				width="200px"
 				height="200px"
 				src={ imagePath + 'generating-cash.svg' }
-				alt={ __( 'A jetpack site generating revenue' ) }
+				alt={ __( 'A jetpack site generating revenue', 'jetpack' ) }
 			/>
 			<h1>
-				{ __( 'Do you intend to make money directly from %(siteUrl)s?', {
-					args: { siteUrl: props.siteTitle },
-				} ) }
+				{ sprintf(
+					/* translators: placeholder is the site title. */
+					__( 'Do you intend to make money directly from %s?', 'jetpack' ),
+					props.siteTitle
+				) }
 			</h1>
-			<h2 className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</h2>
+			<h2 className="jp-setup-wizard-subtitle">{ __( 'Check all that apply', 'jetpack' ) }</h2>
 			<div className="jp-setup-wizard-income-answer-container">
 				<ChecklistAnswer
 					answerKey="advertising-revenue"
-					title={ __( 'Advertising or affiliate marketing' ) }
-					details={ __( "You're planning on putting ads and or affiliate links on your website." ) }
+					title={ __( 'Advertising or affiliate marketing', 'jetpack' ) }
+					details={ __(
+						"You're planning on putting ads and or affiliate links on your website.",
+						'jetpack'
+					) }
 				/>
 				<ChecklistAnswer
 					answerKey="store-revenue"
-					title={ __( 'Online store' ) }
+					title={ __( 'Online store', 'jetpack' ) }
 					details={ __(
-						"You're planning on selling physical goods, digital downloads, or services directly to your customers."
+						"You're planning on selling physical goods, digital downloads, or services directly to your customers.",
+						'jetpack'
 					) }
 				/>
 				<ChecklistAnswer
 					answerKey="appointments-revenue"
-					title={ __( 'Appointments / bookings' ) }
+					title={ __( 'Appointments / bookings', 'jetpack' ) }
 					details={ __(
-						'Your services require booking appointments online, for example a hair salon or accountant.'
+						'Your services require booking appointments online, for example a hair salon or accountant.',
+						'jetpack'
 					) }
 				/>
 				<ChecklistAnswer
 					answerKey="location-revenue"
-					title={ __( 'Physical location' ) }
+					title={ __( 'Physical location', 'jetpack' ) }
 					details={ __(
-						'You have a physical store or business and this website will help drive foot traffic to your location.'
+						'You have a physical store or business and this website will help drive foot traffic to your location.',
+						'jetpack'
 					) }
 				/>
 			</div>
@@ -110,14 +118,14 @@ let IncomeQuestion = props => {
 					className="jp-setup-wizard-button"
 					onClick={ onContinueClick }
 				>
-					{ __( 'Continue' ) }
+					{ __( 'Continue', 'jetpack' ) }
 				</Button>
 				<a
 					className="jp-setup-wizard-skip-link"
 					href="#/setup/updates"
 					onClick={ onNoneApplyClick }
 				>
-					{ __( 'None of these apply' ) }
+					{ __( 'None of these apply', 'jetpack' ) }
 				</a>
 			</div>
 		</div>
