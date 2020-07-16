@@ -198,7 +198,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 */
 	public function get_data( $instance ) {
 		if ( empty( $instance['token_id'] ) ) {
-			return new WP_Error( 'empty_token', 'The token id was empty', 403 );
+			return new WP_Error( 'empty_token', esc_html__( 'The token id was empty', 'jetpack' ), 403 );
 		}
 
 		$cache_time    = MINUTE_IN_SECONDS;
