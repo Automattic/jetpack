@@ -276,7 +276,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 						),
 					)
 				),
-				esc_attr( add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) )
+				esc_url( add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) )
 			) . '</em></p>';
 		}
 
