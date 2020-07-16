@@ -10,6 +10,7 @@ module.exports = [
 	'class.jetpack-bbpress-json-api.compat.php',
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
+	'class.jetpack-twitter-cards.php',
 	'class-jetpack-wizard-banner.php',
 	'docker',
 	'extensions/',
