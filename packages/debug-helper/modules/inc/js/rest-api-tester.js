@@ -82,7 +82,12 @@ class Jetpack_Debug_REST_API_Tester {
 		let responseText = request.responseText;
 
 		if ( request.getResponseHeader( 'content-type' ).indexOf( 'application/json' ) === 0 ) {
-			responseText = JSON.stringify( JSON.parse( responseText ), null, 4 );
+			try {
+				const parsedResponse = JSON.parse( responseText );
+				responseText = JSON.stringify( parsedResponse, null, 4 );
+			} catch ( e ) {
+				responseText = 'Invalid JSON:\n' + responseText;
+			}
 		}
 
 		this.responseElement.innerHTML = `<h2>Response:</h2>
