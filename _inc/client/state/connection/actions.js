@@ -237,16 +237,28 @@ export const authorizeUserInPlaceSuccess = () => {
 
 		// part of the reconnection flow
 		if ( isReconnectingSite( getState() ) ) {
-			dispatch( {
-				type: SITE_RECONNECT_SUCCESS,
-			} );
-			dispatch( removeNotice( 'reconnect-jetpack' ) );
-			dispatch(
-				createNotice( 'is-success', __( 'Connection restored' ), {
-					id: 'reconnect-jetpack',
-					duration: 2000,
-				} )
-			);
+			// dispatch( {
+			// 	type: SITE_RECONNECT_SUCCESS,
+			// } );
+			// dispatch( removeNotice( 'reconnect-jetpack' ) );
+			// dispatch(
+			// 	createNotice( 'is-success', __( 'Connection restored' ), {
+			// 		id: 'reconnect-jetpack',
+			// 		duration: 2000,
+			// 	} )
+			// );
+
+			// @todo Some context on what is happening here:
+			// Normally, we would dispatch the above actions but there is an issue.
+			// Currently the following are bound to the initial state:
+			// - connection errors
+			// - whether the user is master (will become after reconnection)
+			// - wpcom user data etc
+			// In order to present the correct data after a reconnection we would need
+			// to either reload the page or proceed with a refactoring of the initial state
+			// and move all connection related functionality here.
+			// As a first step we are reloading the current page.
+			window.location.reload();
 		} else {
 			dispatch(
 				createNotice( 'is-success', __( 'Linked to WordPress.com.' ), {
