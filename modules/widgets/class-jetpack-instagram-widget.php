@@ -1,10 +1,6 @@
 <?php
 /**
- * Plugin Name:  Instagram Widget
- * Description:  Display some Instagram photos via a widget.
- * Author:       Automattic Inc.
- * Author URI:   http://automattic.com/
- * Text Domain:   jetpack
+ * Instagram Widget. Display some Instagram photos via a widget.
  *
  * @package Jetpack
  */
