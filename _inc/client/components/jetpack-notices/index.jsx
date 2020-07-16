@@ -30,7 +30,7 @@ import {
 } from 'state/initial-state';
 import { getSiteDataErrors } from 'state/site';
 import DismissableNotices from './dismissable';
-import JetpackBanner from 'components/jetpack-banner';
+import ConnectionBanner from 'components/connection-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import PlanConflictWarning from './plan-conflict-warning';
 import JetpackConnectionErrors from './jetpack-connection-errors';
@@ -166,14 +166,14 @@ export class UserUnlinked extends React.Component {
 		if ( ! this.props.isLinked && this.props.connectUrl && this.props.siteConnected ) {
 			return (
 				<div className="jp-unlinked-notice">
-					<JetpackBanner
+					<ConnectionBanner
 						title={ __(
-							'Jetpack is powering your site, but to access all of its features you’ll need to create an account.'
+							'Jetpack is powering your site, but to access all of its features you’ll need to connect your account to WordPress.com.'
 						) }
-						callToAction={ __( 'Create account' ) }
-						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
 						icon="my-sites"
 						className="is-jetpack-info"
+						from="unlinked-user-connect"
+						connectUser={ true }
 					/>
 				</div>
 			);

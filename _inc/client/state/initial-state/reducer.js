@@ -407,3 +407,25 @@ export function getConnectionErrors( state ) {
 		error.hasOwnProperty( 'action' )
 	);
 }
+
+/**
+ * Check if the user is on Safari browser.
+ *
+ * @param {Object} state   Global state tree.
+ *
+ * @return {boolean} True the user is on Safari browser.
+ */
+export function isSafari( state ) {
+	return !! state.jetpack.initialState.isSafari;
+}
+
+/**
+ * Check if the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
+ *
+ * @param {Object} state   Global state tree.
+ *
+ * @return {boolean} True, the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
+ */
+export function doNotUseConnectionIframe( state ) {
+	return !! state.jetpack.initialState.doNotUseConnectionIframe;
+}

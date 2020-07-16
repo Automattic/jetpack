@@ -12,6 +12,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  * Internal dependencies
  */
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
+import ConnectButton from 'components/connect-button';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -125,12 +126,12 @@ class DashStatsBottom extends Component {
 					</div>
 				</div>
 				{ ! this.props.isLinked && (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-					>
-						{ __( 'Connect your account to WordPress.com to view more stats' ) }
+					<Card compact className="jp-settings-card__configure-link">
+						<ConnectButton
+							connectUser={ true }
+							from="unlinked-user-connect"
+							connectLegend={ __( 'Connect your account to WordPress.com to view more stats' ) }
+						/>
 					</Card>
 				) }
 			</div>

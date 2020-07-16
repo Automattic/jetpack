@@ -702,6 +702,30 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	}
 
+	/** Test unlinking a user will also remove related cached data.
+	 *
+	 * @since 8.8.0
+	 */
+	public function test_unlink_user_cache_data_removal() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		$user->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( $user->ID );
+
+		// Mock site already registered.
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+		// Add a dummy transient.
+		$transient_key = "jetpack_connected_user_data_$user->ID";
+		set_transient( $transient_key, 'dummy', DAY_IN_SECONDS );
+
+		// Create REST request in JSON format and dispatch.
+		$this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
+
+		// Transient should be deleted after unlinking user.
+		$this->assertFalse( get_transient( $transient_key ) );
+	}
+
 	/**
 	 * Test that a setting using 'enum' property is saved correctly.
 	 *

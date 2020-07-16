@@ -11,13 +11,16 @@ import DashItem from 'components/dash-item';
 /**
  * Internal dependencies
  */
-import { getSiteConnectionStatus, isCurrentUserLinked, isDevMode } from 'state/connection';
+import {
+	getSiteConnectionStatus,
+	isCurrentUserLinked,
+	isDevMode,
+	isFetchingUserData as _isFetchingUserData,
+	getConnectedWpComUser as _getConnectedWpComUser,
+} from 'state/connection';
 import {
 	userCanDisconnectSite,
 	userIsMaster,
-	getUserWpComLogin,
-	getUserWpComEmail,
-	getUserWpComAvatar,
 	getUserGravatar,
 	getUsername,
 	getSiteIcon,
@@ -109,7 +112,7 @@ export class DashConnections extends Component {
 
 		if ( this.props.isDevMode ) {
 			// return nothing if this is an account connection card
-			cardContent = (
+			return (
 				<div className="jp-connection-settings__info">
 					{ this.props.userGravatar ? (
 						<img
@@ -127,8 +130,21 @@ export class DashConnections extends Component {
 					</div>
 				</div>
 			);
+		}
+
+		if ( ! this.props.isLinked ) {
+			cardContent = (
+				<div>
+					<div className="jp-connection-settings__info">
+						{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
+					</div>
+					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+				</div>
+			);
+		} else if ( this.props.isFetchingUserData ) {
+			cardContent = __( 'Loading…' );
 		} else {
-			cardContent = this.props.isLinked ? (
+			cardContent = (
 				<div>
 					<div className="jp-connection-settings__info">
 						<img
@@ -136,30 +152,25 @@ export class DashConnections extends Component {
 							width="64"
 							height="64"
 							className="jp-connection-settings__gravatar"
-							src={ this.props.userWpComAvatar }
+							src={ this.props.wpComConnectedUser.avatar }
 						/>
 						<div className="jp-connection-settings__text">
 							{ __( 'Connected as {{span}}%(username)s{{/span}}', {
 								args: {
-									username: this.props.userWpComLogin,
+									username: this.props.wpComConnectedUser.login,
 								},
 								components: {
 									span: <span className="jp-connection-settings__username" />,
 								},
 								comment: '%(username) is the WordPress user login name.',
 							} ) }
-							<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
+							<div className="jp-connection-settings__email">
+								{ this.props.wpComConnectedUser.email }
+							</div>
 						</div>
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 					<MobileMagicLink />
-				</div>
-			) : (
-				<div>
-					<div className="jp-connection-settings__info">
-						{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
-					</div>
-					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 				</div>
 			);
 		}
@@ -204,9 +215,6 @@ DashConnections.propTypes = {
 	userCanDisconnectSite: PropTypes.bool.isRequired,
 	userIsMaster: PropTypes.bool.isRequired,
 	isLinked: PropTypes.bool.isRequired,
-	userWpComLogin: PropTypes.any.isRequired,
-	userWpComEmail: PropTypes.any.isRequired,
-	userWpComAvatar: PropTypes.any.isRequired,
 	userGravatar: PropTypes.any.isRequired,
 	username: PropTypes.any.isRequired,
 };
@@ -217,12 +225,11 @@ export default connect( state => {
 		isDevMode: isDevMode( state ),
 		userCanDisconnectSite: userCanDisconnectSite( state ),
 		userIsMaster: userIsMaster( state ),
-		userWpComLogin: getUserWpComLogin( state ),
-		userWpComEmail: getUserWpComEmail( state ),
-		userWpComAvatar: getUserWpComAvatar( state ),
 		userGravatar: getUserGravatar( state ),
 		username: getUsername( state ),
 		isLinked: isCurrentUserLinked( state ),
 		siteIcon: getSiteIcon( state ),
+		isFetchingUserData: _isFetchingUserData( state ),
+		wpComConnectedUser: _getConnectedWpComUser( state ),
 	};
 } )( DashConnections );

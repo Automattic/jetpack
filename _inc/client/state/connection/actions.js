@@ -19,6 +19,8 @@ import {
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
+	AUTH_USER_IN_PLACE,
+	AUTH_USER_IN_PLACE_SUCCESS,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
@@ -179,6 +181,7 @@ export const unlinkUser = () => {
 					type: UNLINK_USER_SUCCESS,
 					userUnlinked: userUnlinked,
 				} );
+				dispatch( fetchConnectUrl() );
 				dispatch( removeNotice( 'unlink-user' ) );
 				dispatch(
 					createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), {
@@ -205,5 +208,27 @@ export const unlinkUser = () => {
 					)
 				);
 			} );
+	};
+};
+
+export const authorizeUserInPlace = () => {
+	return dispatch => {
+		dispatch( {
+			type: AUTH_USER_IN_PLACE,
+		} );
+	};
+};
+
+export const authorizeUserInPlaceSuccess = () => {
+	return dispatch => {
+		dispatch( {
+			type: AUTH_USER_IN_PLACE_SUCCESS,
+		} );
+		dispatch(
+			createNotice( 'is-success', __( 'Linked to WordPress.com.' ), {
+				id: 'link-user-in-place',
+				duration: 2000,
+			} )
+		);
 	};
 };

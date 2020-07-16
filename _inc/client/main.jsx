@@ -9,11 +9,17 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import AuthIframe from 'components/auth-iframe';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
-import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
+import {
+	getSiteConnectionStatus,
+	isCurrentUserLinked,
+	isSiteConnected,
+	isAuthorizingUserInPlace,
+} from 'state/connection';
 import {
 	setInitialState,
 	getSiteRawUrl,
@@ -130,6 +136,7 @@ class Main extends React.Component {
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
+			nextProps.isAuthorizingInPlace !== this.props.isAuthorizingInPlace ||
 			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
@@ -303,6 +310,10 @@ class Main extends React.Component {
 		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.location.pathname );
 	}
 
+	shouldShowAuthIframe() {
+		return this.props.isAuthorizingInPlace;
+	}
+
 	render() {
 		return (
 			<div>
@@ -311,6 +322,7 @@ class Main extends React.Component {
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
+					{ this.shouldShowAuthIframe() && <AuthIframe /> }
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
@@ -331,6 +343,7 @@ export default connect(
 		return {
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
+			isAuthorizingInPlace: isAuthorizingUserInPlace( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),

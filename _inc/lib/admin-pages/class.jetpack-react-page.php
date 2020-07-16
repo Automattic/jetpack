@@ -186,6 +186,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function get_initial_state() {
+		global $is_safari;
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
@@ -331,6 +332,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
+			'isSafari'                    => $is_safari,
+			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 		);
 	}
 

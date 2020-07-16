@@ -728,6 +728,10 @@ class Manager {
 
 		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 
+		// Delete cached connected user data.
+		$transient_key = "jetpack_connected_user_data_$user_id";
+		delete_transient( $transient_key );
+
 		/**
 		 * Fires after the current user has been unlinked from WordPress.com.
 		 *
