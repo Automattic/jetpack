@@ -201,8 +201,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			return new WP_Error( 'empty_token', esc_html__( 'The token id was empty', 'jetpack' ), 403 );
 		}
 
-		$cache_time    = MINUTE_IN_SECONDS;
-		$transient_key = implode( '|', array( 'instagram-widget', $instance['token_id'], $instance['count'] ) );
+		$transient_key = implode( '|', array( 'jetpack_instagram_widget', $instance['token_id'], $instance['count'] ) );
 		$cached_images = get_transient( $transient_key );
 		if ( $cached_images ) {
 			return $cached_images;
@@ -214,18 +213,15 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
-			set_transient( $transient_key, 'ERROR', $cache_time );
-			return new WP_Error( 'invalid_response', 'The response was invalid', $response_code );
+			return new WP_Error( 'invalid_response', esc_html__( 'The response was invalid', 'jetpack' ), $response_code );
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $result ), true );
 		if ( ! isset( $data['images'] ) || ! is_array( $data['images'] ) ) {
-			set_transient( $transient_key, 'ERROR', $cache_time );
-			return new WP_Error( 'missing_images', 'The images were missing', $response_code );
+			return new WP_Error( 'missing_images', esc_html__( 'The images were missing', 'jetpack' ), $response_code );
 		}
 
-		$cache_time = 20 * MINUTE_IN_SECONDS;
-		set_transient( $transient_key, $data, $cache_time );
+		set_transient( $transient_key, $data, HOUR_IN_SECONDS );
 		return $data;
 	}
 
