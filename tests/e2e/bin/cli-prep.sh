@@ -8,10 +8,15 @@ WP_SITE_URL=${1}
 WP_CORE_DIR=${2-$PWD}
 
 # . "$(dirname "$0")/includes.sh"
-ls -la
+
+echo "#############"
+
 pwd
+echo $0
 echo "$(dirname "$0")/includes.sh"
-. includes.sh
+QQQ=dirname "$(readlink -f "$0")"
+echo $QQQ
+. $QQQ/includes.sh
 
 # Reset the database so no posts/comments/etc.
 echo -e $(status_message "Resetting test database...")
