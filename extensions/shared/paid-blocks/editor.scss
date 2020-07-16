@@ -1,11 +1,13 @@
-$banner-height: 50px;
-$icon-size: 10px;
+$banner-height: 48px;
 
 .jetpack-upgrade-plan-banner {
 	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	align-items: center;
 	font-size: 14px;
-	height: 50px;
-	line-height: $banner-height;
+	height: $banner-height;
+	line-height: 14px;
 	background: black;
 	color: white;
 	padding: 0 20px;
@@ -13,29 +15,12 @@ $icon-size: 10px;
 
 	.jetpack-upgrade-plan-banner__title,
 	.jetpack-upgrade-plan-banner__description {
-		margin-left: 10px;
+		margin-right: 10px;
 	}
 
-	.jetpack-upgrade-plan-banner__description {
-		flex-grow: 2;
-	}
-
-	.block-editor-block-icon,
 	.components-button {
-		align-self: center;
-		color: white;
-	}
-
-	.block-editor-block-icon,
-	.block-editor-block-icon svg {
-		width: $icon-size;
-		height: $icon-size;
-		min-width: $icon-size;
-		min-height: $icon-size;
-	}
-
-	.components-button:hover {
-		box-shadow: 0 0 0 1.5px var(--wp-admin-theme-color);
+		margin-left: auto;
+		height: 32px;
 	}
 }
 
@@ -45,6 +30,5 @@ $icon-size: 10px;
 
 // Adjust banner in the InspectorControl
 .block-editor-block-inspector .jetpack-upgrade-plan-banner {
-	margin: -16px;
 	border-radius: 0;
 }
