@@ -57,7 +57,7 @@ class Jetpack_Media_Summary {
 			),
 		);
 
-		if ( empty( $post->post_password ) ) {
+		if ( $post instanceof WP_Post && empty( $post->post_password ) ) {
 			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'] , $post);
 			$return['count']['word'] = self::get_word_count( $post->post_content );
 			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
