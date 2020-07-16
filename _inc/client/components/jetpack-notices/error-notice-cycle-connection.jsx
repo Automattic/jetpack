@@ -32,7 +32,7 @@ export default class ErrorNoticeCycleConnection extends React.Component {
 				icon={ 'link-break' }
 			>
 				<NoticeActionReconnect errorCode={ this.props.errorCode } action={ this.props.action }>
-					{ __( 'Reconnect' ) }
+					{ __( 'Restore Connection' ) }
 				</NoticeActionReconnect>
 			</SimpleNotice>
 		);
