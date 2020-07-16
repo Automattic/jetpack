@@ -102,17 +102,18 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 */
 	public function ajax_update_widget_token_id() {
 		if ( ! check_ajax_referer( 'instagram-widget-save-token', 'savetoken', false ) ) {
-			wp_send_json_error( array( 'message' => 'bad_nonce' ), 403 )
+			wp_send_json_error( array( 'message' => 'bad_nonce' ), 403 );
 		}
 
 		if ( ! current_user_can( 'customize' ) ) {
-			wp_send_json_error( array( 'message' => 'not_authorized' ), 403 )
+			wp_send_json_error( array( 'message' => 'not_authorized' ), 403 );
 		}
 
 		$token_id  = (int) $_POST['keyring_id'];
 		$widget_id = (int) $_POST['instagram_widget_id'];
 
-		// From Atomic sites, this check is done via the api: wpcom/v2/instagram/<token_id>.
+		// For Simple sites check if the token is valid.
+		// (For Atomic sites, this check is done via the api: wpcom/v2/instagram/<token_id>).
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$token = Keyring::init()->get_token_store()->get_token(
 				array(
