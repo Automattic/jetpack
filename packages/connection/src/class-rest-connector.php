@@ -232,9 +232,7 @@ class REST_Connector {
 	public function connection_reconnect( WP_REST_Request $request ) {
 		$params = $request->get_json_params();
 
-		$response = array(
-			'status' => 'failure',
-		);
+		$response = array();
 
 		switch ( $params['action'] ) {
 			case 'reconnect':
@@ -244,8 +242,11 @@ class REST_Connector {
 					$response['status']       = 'in_progress';
 					$response['authorizeUrl'] = $this->connection->get_authorization_url();
 				} elseif ( is_wp_error( $result ) ) {
-					$response['error'] = $result->get_error_code();
+					$response = $result;
 				}
+				break;
+			default:
+				$response = new WP_Error( 'Unknown action' );
 				break;
 		}
 

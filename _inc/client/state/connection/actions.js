@@ -313,7 +313,7 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 						'is-error',
 						__( 'There was an error reconnecting Jetpack. Error: %(error)s', {
 							args: {
-								error: error,
+								error: error.response.message || error.response.code,
 							},
 						} ),
 						{ id: 'reconnect-jetpack' }
