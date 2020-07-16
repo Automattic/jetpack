@@ -7,17 +7,6 @@ SITE_TITLE='E2E Testing'
 WP_SITE_URL=${1}
 WP_CORE_DIR=${2-$PWD}
 
-# . "$(dirname "$0")/includes.sh"
-
-# echo "#############"
-
-# pwd
-# echo $0
-# echo "$(dirname "$0")/includes.sh"
-# QQQ=dirname "$(readlink -f "$0")"
-# echo $QQQ
-# . $QQQ/includes.sh
-
 # Reset the database so no posts/comments/etc.
 echo -e  "Resetting test database..."
 wp db reset --yes --quiet

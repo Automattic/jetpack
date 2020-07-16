@@ -21,8 +21,9 @@ mkdir -p $JP_DIR
 FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|docker|docs|extensions|.git")
 cp -r $FILES $JP_DIR
 
-apt update > /dev/null 2>&1
-apt install zip -y > /dev/null 2>&1
+# /dev/null 2>&1
+apt update
+apt install zip -y
 
 cd $(dirname "$JP_DIR")
 
