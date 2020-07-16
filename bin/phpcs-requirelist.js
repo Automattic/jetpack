@@ -18,6 +18,7 @@ module.exports = [
 	'functions.opengraph.php',
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
 	'_inc/lib/class.media-extractor.php',
+	'_inc/lib/class.media-summary.php',
 	'_inc/lib/class-jetpack-instagram-gallery-helper.php',
 	'_inc/lib/class-jetpack-tweetstorm-helper.php',
 	'_inc/lib/class-jetpack-mapbox-helper.php',
