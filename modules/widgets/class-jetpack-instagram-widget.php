@@ -42,7 +42,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			self::ID_BASE,
-			apply_filters( 'jetpack_widget_name', __( 'Instagram', 'jetpack' ) ),
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Instagram', 'jetpack' ) ),
 			array(
 				'description' => __( 'Display your latest Instagram photos.', 'jetpack' ),
 			)
