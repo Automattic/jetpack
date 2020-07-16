@@ -49,7 +49,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		add_action( 'wp_ajax_wpcom_instagram_widget_update_widget_token_id', array( $this, 'ajax_update_widget_token_id' ) );
 
 		$this->valid_options = array(
-			'max_columns' => 3,
+			'max_columns' => apply_filters( 'wpcom_instagram_widget_max_columns', 3 ),
 			'max_count'   => 20,
 		);
 
