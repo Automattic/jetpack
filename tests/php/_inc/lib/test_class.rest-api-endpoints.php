@@ -305,6 +305,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Add Jetpack capability
 		$user->add_cap( 'activate_plugins' );
+		// Multisite's require additional primitive capabilities.
+		if ( is_multisite() ) {
+			$user->add_cap( 'manage_network_plugins' );
+		}
 
 		// Reset current user and setup global variables to refresh the capability we just added.
 		wp_set_current_user( 0 );
