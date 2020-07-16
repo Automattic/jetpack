@@ -338,6 +338,16 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Is this request trying to remove the widgets stored id?
+	 *
+	 * @param array $status The status of the token's connection.
+	 * @return bool if this request trying to remove the widgets stored id.
+	 */
+	public function removing_widgets_stored_id( $status ) {
+		return $status['valid'] && isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'];
+	}
+
+	/**
 	 * Outputs the widget configuration form for the widget administration page.
 	 * Allows the user to add new Instagram Keyring tokens and more.
 	 *
@@ -354,7 +364,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		$status = $this->get_token_status( $instance['token_id'] );
 
 		// If removing the widget's stored token ID.
-		if ( $status['valid'] && isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
+		if ( $this->removing_widgets_stored_id( $status ) ) {
 			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) ) {
 				wp_die( esc_html__( 'Missing or invalid security nonce.', 'jetpack' ) );
 			}
