@@ -235,19 +235,25 @@ export const authorizeUserInPlaceSuccess = () => {
 			type: AUTH_USER_IN_PLACE_SUCCESS,
 		} );
 
-		dispatch(
-			createNotice( 'is-success', __( 'Linked to WordPress.com.', 'jetpack' ), {
-				id: 'link-user-in-place',
-				duration: 2000,
-			} )
-		);
-
 		// part of the reconnection flow
 		if ( isReconnectingSite( getState() ) ) {
 			dispatch( {
 				type: SITE_RECONNECT_SUCCESS,
 			} );
 			dispatch( removeNotice( 'reconnect-jetpack' ) );
+			dispatch(
+				createNotice( 'is-success', __( 'Connection restored' ), {
+					id: 'reconnect-jetpack',
+					duration: 2000,
+				} )
+			);
+		} else {
+			dispatch(
+				createNotice( 'is-success', __( 'Linked to WordPress.com.' ), {
+					id: 'link-user-in-place',
+					duration: 2000,
+				} )
+			);
 		}
 	};
 };
