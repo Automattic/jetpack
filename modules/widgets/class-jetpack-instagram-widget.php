@@ -496,7 +496,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 					'br'     => array(),
 				)
 			),
-			esc_url( 'http://instagram.com/' . $data['external_name'] ),
+			esc_url( 'https://instagram.com/' . $data['external_name'] ),
 			esc_html( $data['external_name'] ),
 			esc_url( $remove_token_id_url )
 		);
