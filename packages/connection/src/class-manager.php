@@ -2139,7 +2139,7 @@ class Manager {
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens' );
+				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', 'No user tokens found' );
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
@@ -2185,7 +2185,8 @@ class Manager {
 		}
 
 		if ( ! $possible_tokens ) {
-			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens' );
+			// If no user tokens were found, it would have failed earlier, so this is about blog token.
+			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens', 'No blog token found' );
 		}
 
 		$valid_token = false;
@@ -2210,7 +2211,7 @@ class Manager {
 		}
 
 		if ( ! $valid_token ) {
-			return $suppress_errors ? false : new \WP_Error( 'no_valid_token' );
+			return $suppress_errors ? false : new \WP_Error( 'no_valid_token', $user_id ? 'Invalid token for user ' . $user_id : 'Invalid blog token' );
 		}
 
 		return (object) array(
