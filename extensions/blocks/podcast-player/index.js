@@ -12,6 +12,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import edit from './edit';
+import save from './save';
 import { queueMusic } from './icons/';
 
 /**
@@ -73,8 +74,7 @@ export const settings = {
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	attributes,
 	example: {
 		attributes: {
