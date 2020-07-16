@@ -379,7 +379,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		if ( is_customize_preview() && ! $instance['token_id'] ) {
 			echo '<p>';
 			echo wp_kses(
-				__( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account.', 'jetpack' ),
+				__( '<strong>Important: You must first click Publish to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account.', 'jetpack' ),
 				array(
 					'strong' => array(),
 					'em'     => array(),
