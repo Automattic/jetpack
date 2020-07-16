@@ -329,7 +329,12 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldShowAuthIframe() && (
-						<AuthIframe scrollToIframe={ ! this.props.isReconnectingSite } />
+						<AuthIframe
+							{ ...( this.props.isReconnectingSite && {
+								scrollToIframe: false,
+								title: __( 'Reconnect to WordPress.com by approving the connection' ),
+							} ) }
+						/>
 					) }
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }

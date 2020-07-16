@@ -32,7 +32,7 @@ export class AuthIframe extends React.Component {
 	};
 
 	static defaultProps = {
-		title: 'Link to WordPress',
+		title: __( 'Connect your WordPress.com account' ),
 		height: '220',
 		width: '100%',
 		scrollToIframe: true,
@@ -66,7 +66,8 @@ export class AuthIframe extends React.Component {
 		const src = this.props.connectUrl.replace( 'authorize', 'authorize_iframe' );
 
 		return (
-			<div ref="iframeWrap" className="dops-card fade-in">
+			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
+				<h1>{ this.props.title }</h1>
 				{ this.props.fetchingConnectUrl ? (
 					<p>{ __( 'Loading…', 'jetpack' ) }</p>
 				) : (
