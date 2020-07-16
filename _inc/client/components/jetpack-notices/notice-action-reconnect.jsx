@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import NoticeAction from 'components/notice/notice-action';
-import { reconnectSite } from 'state/connection';
+import { reconnectSite, isReconnectingSite } from 'state/connection';
 import analytics from 'lib/analytics';
 
 class NoticeActionReconnect extends React.Component {
@@ -20,6 +20,10 @@ class NoticeActionReconnect extends React.Component {
 	};
 
 	handleDisconnectClick = () => {
+		// Reconnection already in progress
+		if ( this.props.isReconnectingSite ) {
+			return;
+		}
 		const eventProps = {
 			location: 'dashboard',
 			purpose: 'reconnect',
@@ -43,8 +47,15 @@ class NoticeActionReconnect extends React.Component {
 	}
 }
 
-export default connect( null, dispatch => {
-	return {
-		reconnectSite: action => dispatch( reconnectSite( action ) ),
-	};
-} )( NoticeActionReconnect );
+export default connect(
+	state => {
+		return {
+			isReconnectingSite: isReconnectingSite( state ),
+		};
+	},
+	dispatch => {
+		return {
+			reconnectSite: action => dispatch( reconnectSite( action ) ),
+		};
+	}
+)( NoticeActionReconnect );
