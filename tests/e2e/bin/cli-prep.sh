@@ -10,6 +10,7 @@ WP_CORE_DIR=${2-$PWD}
 # . "$(dirname "$0")/includes.sh"
 ls -la
 pwd
+echo "$(dirname "$0")/includes.sh"
 . includes.sh
 
 # Reset the database so no posts/comments/etc.
