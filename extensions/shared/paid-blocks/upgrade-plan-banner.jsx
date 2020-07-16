@@ -1,4 +1,3 @@
-
 /**
  * WordPress dependencies
  */
@@ -6,7 +5,6 @@ import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { BlockIcon } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -22,17 +20,17 @@ function redirect( url, callback ) {
 
 const UpgradePlanBanner = ( {
 	checkoutUrl,
-    isAutosaveablePost,
-    isDirtyPost,
+	isAutosaveablePost,
+	isDirtyPost,
 	savePost,
 	onRedirect,
 	align,
 	className = 'jetpack-upgrade-plan-banner',
 	title = __( 'Premium Block' ),
-	description = __( 'Upgrade your plan to use premium tools' ),
-	icon = <BlockIcon icon="star-filled" />
+	description = __( 'Upgrade your plan to use this premium block' ),
+	buttonText = __( 'Upgrade' ),
 } ) => {
-	const goToCheckoutPage = ( event ) => {
+	const goToCheckoutPage = event => {
 		if ( ! window?.top?.location?.href ) {
 			return;
 		}
@@ -52,18 +50,19 @@ const UpgradePlanBanner = ( {
 
 	return (
 		<div className={ `${ className } wp-block` } data-align={ align }>
-			{ icon }
-			<strong className={ `${ className }__title` }>
-				{ title }
-			</strong>
-			<span className={ `${ className }__description` }>
-				{ description }
-			</span>
+			{ title ? <strong className={ `${ className }__title` }>{ title }</strong> : null }
+			{ description ? (
+				<span className={ `${ className }__description` }>{ description }</span>
+			) : null }
 			<Button
 				// href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 				onClick={ goToCheckoutPage }
-				icon="arrow-right-alt2"
-			/>
+				className="is-primary"
+				label={ buttonText }
+				title={ buttonText }
+			>
+				{ buttonText }
+			</Button>
 		</div>
 	);
 };
@@ -81,7 +80,7 @@ export default compose( [
 			isDirtyPost: editorSelector.isEditedPostDirty(),
 		};
 	} ),
-	withDispatch( ( dispatch ) => ( {
+	withDispatch( dispatch => ( {
 		savePost: dispatch( 'core/editor' ).savePost,
-	} ) )
+	} ) ),
 ] )( UpgradePlanBanner );

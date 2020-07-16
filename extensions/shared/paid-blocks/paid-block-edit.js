@@ -1,10 +1,8 @@
-
 /**
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -20,12 +18,10 @@ export default OriginalBlockEdit => props => {
 	return (
 		<Fragment>
 			<InspectorControls>
-				<PanelBody>
-					<UpgradePlanBanner description={ null } />
-				</PanelBody>
+				<UpgradePlanBanner description={ null } align={ props?.attributes?.align } />
 			</InspectorControls>
 
-			<UpgradePlanBanner align={ props?.attributes?.align } />
+			<UpgradePlanBanner title={ null } align={ props?.attributes?.align } />
 			<OriginalBlockEdit { ...props } />
 		</Fragment>
 	);
