@@ -42,3 +42,9 @@ $icon-size: 10px;
 .block-editor-block-list__block.is-upgradable {
 	margin-top: 0;
 }
+
+// Adjust banner in the InspectorControl
+.block-editor-block-inspector .jetpack-upgrade-plan-banner {
+	margin: -16px;
+	border-radius: 0;
+}
