@@ -3,9 +3,8 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import SimpleNotice from 'components/notice';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -17,7 +16,9 @@ import {
 	getJetpackStateNoticesErrorDescription,
 	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
+import getRedirectUrl from 'lib/jp-redirect';
 import NoticeAction from 'components/notice/notice-action.jsx';
+import SimpleNotice from 'components/notice';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
 
 class JetpackStateNotices extends React.Component {
@@ -37,76 +38,73 @@ class JetpackStateNotices extends React.Component {
 
 		switch ( key ) {
 			case 'cheatin':
-				message = __( "Cheatin' uh?" );
+				message = __( "Cheatin' uh?", 'jetpack' );
 				break;
 			case 'access_denied':
-				message = __(
-					'{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}' +
-						'{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}',
+				message = jetpackCreateInterpolateElement(
+					__(
+						'<p>Would you mind telling us why you did not complete the Jetpack connection in this <a>2 question survey</a>?</p><p>A Jetpack connection is required for our free security and traffic features to work.</p>',
+						'jetpack'
+					),
 					{
-						components: {
-							a: (
-								<a
-									href={ getRedirectUrl( 'jetpack-cancelled-connection' ) }
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
-							),
-							p: <p />,
-						},
+						a: (
+							<a
+								href={ getRedirectUrl( 'jetpack-cancelled-connection' ) }
+								target="_blank"
+								rel="noopener noreferrer"
+							/>
+						),
+						p: <p />,
 					}
 				);
 				break;
 			case 'wrong_state':
 				message = __(
-					'You need to stay logged in to your WordPress blog while you authorize Jetpack.'
+					'You need to stay logged in to your WordPress blog while you authorize Jetpack.',
+					'jetpack'
 				);
 				break;
 			case 'invalid_client':
 				message = __(
-					'We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.'
+					'We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.',
+					'jetpack'
 				);
 				break;
 			case 'invalid_grant':
 				message = __(
-					'There was an issue connecting your Jetpack. Please click "Connect to WordPress.com" again.'
+					'There was an issue connecting your Jetpack. Please click "Connect to WordPress.com" again.',
+					'jetpack'
 				);
 				break;
 			case 'site_inaccessible':
 			case 'site_requires_authorization':
-				message = __(
-					'Your website needs to be publicly accessible to use Jetpack: %(error_key)s',
-					{
-						args: {
-							error_key: key,
-						},
-					}
+				message = sprintf(
+					/* translators: placeholder is an error code and message. */
+					__( 'Your website needs to be publicly accessible to use Jetpack: %s', 'jetpack' ),
+					key
 				);
 				break;
 			case 'site_blacklisted':
-				message = __(
-					"This site can't be connected to WordPress.com because it violates our {{a}}Terms of Service{{/a}}.",
+				message = jetpackCreateInterpolateElement(
+					__(
+						"This site can't be connected to WordPress.com because it violates our <a>Terms of Service</a>.",
+						'jetpack'
+					),
 					{
-						components: {
-							a: (
-								<a
-									href={ getRedirectUrl( 'wpcom-tos' ) }
-									rel="noopener noreferrer"
-									target="_blank"
-								/>
-							),
-						},
+						a: (
+							<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
+						),
 					}
 				);
 				break;
 			case 'not_public':
-				message = __(
-					'{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. ' +
-						'This usually means your site is not publicly accessible (localhost).',
+				message = jetpackCreateInterpolateElement(
+					__(
+						'<s>Your Jetpack has a glitch.</s> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).',
+						'jetpack'
+					),
 					{
-						components: {
-							s: <strong />,
-						},
+						s: <strong />,
 					}
 				);
 				break;
@@ -115,18 +113,19 @@ class JetpackStateNotices extends React.Component {
 			case 'wpcom_bad_response':
 			case 'wpcom_outage':
 				message = __(
-					'WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.'
+					'WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.',
+					'jetpack'
 				);
 				break;
 			case 'register_http_request_failed':
 			case 'token_http_request_failed':
-				message = __(
-					'Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host.',
-					{
-						args: {
-							error_key: key,
-						},
-					}
+				message = sprintf(
+					/* translators: placeholder is an error code and message. */
+					__(
+						'Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host.',
+						'jetpack'
+					),
+					key
 				);
 				break;
 			case 'no_role':
@@ -160,16 +159,17 @@ class JetpackStateNotices extends React.Component {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-				message = __(
-					"{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. " +
-						'Please try again later, if the issue continues please contact support with this message: %(error_key)s',
+				message = jetpackCreateInterpolateElement(
+					sprintf(
+						/* translators: placeholder is an error code and message. */
+						__(
+							'<s>Your Jetpack has a glitch.</s>  We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
+							'jetpack'
+						),
+						key
+					),
 					{
-						components: {
-							s: <strong />,
-						},
-						args: {
-							error_key: key,
-						},
+						s: <strong />,
 					}
 				);
 				break;
@@ -198,37 +198,40 @@ class JetpackStateNotices extends React.Component {
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated':
-				message = __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!', {
-					args: {
-						jetpack_version: this.props.currentVersion,
-					},
-					components: {
+				message = jetpackCreateInterpolateElement(
+					sprintf(
+						/* translators: placeholder is a version number, like 8.8. */
+						__( 'Welcome to <s>Jetpack %s</s>!', 'jetpack' ),
+						this.props.currentVersion
+					),
+					{
 						s: <strong />,
-					},
-				} );
+					}
+				);
 				break;
 			case 'already_authorized':
-				message = __( 'Your Jetpack is already connected.' );
+				message = __( 'Your Jetpack is already connected.', 'jetpack' );
 				status = 'is-success';
 				break;
 			case 'authorized':
-				message = __( "You're fueled up and ready to go, Jetpack is now active." );
+				message = __( "You're fueled up and ready to go, Jetpack is now active.", 'jetpack' );
 				status = 'is-success';
 				break;
 			case 'linked':
-				message = __( "You're fueled up and ready to go." );
+				message = __( "You're fueled up and ready to go.", 'jetpack' );
 				status = 'is-success';
 				break;
 			case 'protect_misconfigured_ip':
 				message = __(
-					'Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.'
+					'Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.',
+					'jetpack'
 				);
 				status = 'is-info';
 				action = (
 					<NoticeAction
 						href={ getRedirectUrl( 'jetpack-support-security-troubleshooting-protect' ) }
 					>
-						{ __( 'Learn More' ) }
+						{ __( 'Learn More', 'jetpack' ) }
 					</NoticeAction>
 				);
 				break;

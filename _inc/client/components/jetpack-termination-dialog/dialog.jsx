@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -161,11 +161,11 @@ class JetpackTerminationDialog extends Component {
 		const { step } = this.state;
 		return showSurvey && step === JetpackTerminationDialog.FEATURE_STEP ? (
 			<Button primary onClick={ this.handleContinueClick }>
-				{ __( 'Continue' ) }
+				{ __( 'Continue', 'jetpack' ) }
 			</Button>
 		) : (
 			<Button scary primary onClick={ this.handleTerminationClick }>
-				{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
+				{ purpose === 'disconnect' ? __( 'Disconnect', 'jetpack' ) : __( 'Disable', 'jetpack' ) }
 			</Button>
 		);
 	}
@@ -182,7 +182,9 @@ class JetpackTerminationDialog extends Component {
 				<Card>
 					<div className="jetpack-termination-dialog__header">
 						<h2>
-							{ purpose === 'disconnect' ? __( 'Disconnect Jetpack' ) : __( 'Disable Jetpack' ) }
+							{ purpose === 'disconnect'
+								? __( 'Disconnect Jetpack', 'jetpack' )
+								: __( 'Disable Jetpack', 'jetpack' ) }
 						</h2>
 						{ location === 'dashboard' && (
 							<Gridicon
@@ -200,11 +202,11 @@ class JetpackTerminationDialog extends Component {
 					<div className="jetpack-termination-dialog__button-row">
 						<p>
 							{ purpose === 'disconnect'
-								? __( 'Are you sure you want to disconnect?' )
-								: __( 'Are you sure you want to disconnect and deactivate?' ) }
+								? __( 'Are you sure you want to disconnect?', 'jetpack' )
+								: __( 'Are you sure you want to disconnect and deactivate?', 'jetpack' ) }
 						</p>
 						<div className="jetpack-termination-dialog__button-row-buttons">
-							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Cancel' ) }</Button>
+							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Cancel', 'jetpack' ) }</Button>
 							{ this.renderPrimaryButton() }
 						</div>
 					</div>

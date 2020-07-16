@@ -4,7 +4,11 @@
 import React from 'react';
 import classNames from 'classnames';
 import { isEmpty, forOwn, omit } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
 
@@ -153,7 +157,7 @@ export class FormButton extends React.Component {
 	};
 
 	getDefaultButtonAction = () => {
-		return this.props.isSubmitting ? __( 'Saving…' ) : __( 'Save Settings' );
+		return this.props.isSubmitting ? __( 'Saving…', 'jetpack' ) : __( 'Save Settings', 'jetpack' );
 	};
 
 	render() {
