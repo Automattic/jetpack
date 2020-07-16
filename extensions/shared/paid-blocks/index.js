@@ -16,21 +16,17 @@ import { isUpgradable } from '../plan-utils';
 import './editor.scss';
 
 const jetpackPaidBlock = ( settings, name ) => {
-	if ( ! isUpgradable( name ) ) {
-		return settings;
+	if ( isUpgradable( name ) ) {
+		addFilter(
+			'editor.BlockListBlock',
+			`jetpack/videopress-with-has-warning-is-interactive-class-names`,
+			withCustomClassNames( name, 'has-warning is-interactive is-upgradable' )
+		);
 	}
 
-	addFilter(
-		'editor.BlockListBlock',
-		`jetpack/videopress-with-has-warning-is-interactive-class-names`,
-		withCustomClassNames( name, 'has-warning is-interactive is-upgradable' )
-	);
-
-	return {
-		...settings,
-		edit: jetpackPaidBlockEdit( settings.edit ),
-	};
+	return settings;
 };
 
-// Extend all blocks that required a paid plan.
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
+
+addFilter( 'editor.BlockEdit', 'jetpack/paid-block', jetpackPaidBlockEdit, 20 );
