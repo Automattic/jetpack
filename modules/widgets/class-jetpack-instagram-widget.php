@@ -533,7 +533,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		echo '</label></p>';
 
 		/* translators: %d is an integer number of minutes */
-		echo '<p><small>' . sprintf( esc_html__( 'New images may take up to %d minutes to show up on your site.', 'jetpack' ), 15 ) . '</small></p>';
+		echo '<p><small>' . esc_html__( 'New images may take up to 15 minutes to show up on your site.', 'jetpack' ) . '</small></p>';
 	}
 
 	/**
