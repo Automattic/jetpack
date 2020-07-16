@@ -1,10 +1,6 @@
 <?php
 /**
- * Plugin Name:  Instagram Widget
- * Description:  Display some Instagram photos via a widget.
- * Author:       Automattic Inc.
- * Author URI:   http://automattic.com/
- * Text Domain:   jetpack
+ * Instagram Widget. Display some Instagram photos via a widget.
  *
  * @package Jetpack
  */
@@ -42,7 +38,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			self::ID_BASE,
-			apply_filters( 'jetpack_widget_name', __( 'Instagram', 'jetpack' ) ),
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Instagram', 'jetpack' ) ),
 			array(
 				'description' => __( 'Display your latest Instagram photos.', 'jetpack' ),
 			)
@@ -104,7 +101,13 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * Sends a json success or error response.
 	 */
 	public function ajax_update_widget_token_id() {
-		check_ajax_referer( 'instagram-widget-save-token', 'savetoken' );
+		if ( ! check_ajax_referer( 'instagram-widget-save-token', 'savetoken', false ) ) {
+			wp_send_json_error( array( 'message' => 'bad_nonce' ), 403 )
+		}
+
+		if ( ! current_user_can( 'customize' ) ) {
+			wp_send_json_error( array( 'message' => 'not_authorized' ), 403 )
+		}
 
 		$token_id  = (int) $_POST['keyring_id'];
 		$widget_id = (int) $_POST['instagram_widget_id'];
@@ -197,11 +200,10 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 */
 	public function get_data( $instance ) {
 		if ( empty( $instance['token_id'] ) ) {
-			return new WP_Error( 'empty_token', 'The token id was empty', 403 );
+			return new WP_Error( 'empty_token', esc_html__( 'The token id was empty', 'jetpack' ), 403 );
 		}
 
-		$cache_time    = MINUTE_IN_SECONDS;
-		$transient_key = implode( '|', array( 'instagram-widget', $instance['token_id'], $instance['count'] ) );
+		$transient_key = implode( '|', array( 'jetpack_instagram_widget', $instance['token_id'], $instance['count'] ) );
 		$cached_images = get_transient( $transient_key );
 		if ( $cached_images ) {
 			return $cached_images;
@@ -213,18 +215,15 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
-			set_transient( $transient_key, 'ERROR', $cache_time );
-			return new WP_Error( 'invalid_response', 'The response was invalid', $response_code );
+			return new WP_Error( 'invalid_response', esc_html__( 'The response was invalid', 'jetpack' ), $response_code );
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $result ), true );
 		if ( ! isset( $data['images'] ) || ! is_array( $data['images'] ) ) {
-			set_transient( $transient_key, 'ERROR', $cache_time );
-			return new WP_Error( 'missing_images', 'The images were missing', $response_code );
+			return new WP_Error( 'missing_images', esc_html__( 'The images were missing', 'jetpack' ), $response_code );
 		}
 
-		$cache_time = 20 * MINUTE_IN_SECONDS;
-		set_transient( $transient_key, $data, $cache_time );
+		set_transient( $transient_key, $data, HOUR_IN_SECONDS );
 		return $data;
 	}
 
@@ -240,7 +239,11 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 		$data     = $this->get_data( $instance );
-		$images   = $data['images'];
+		if ( is_wp_error( $data ) ) {
+			return;
+		}
+
+		$images = $data['images'];
 
 		$status = $this->get_token_status( $instance['token_id'] );
 		// Don't display anything to non-blog admins if the widgets is unconfigured or API call fails.
@@ -390,7 +393,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		if ( is_customize_preview() && ! $instance['token_id'] ) {
 			echo '<p>';
 			echo wp_kses(
-				__( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account.', 'jetpack' ),
+				__( '<strong>Important: You must first click Publish to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account.', 'jetpack' ),
 				array(
 					'strong' => array(),
 					'em'     => array(),
@@ -502,16 +505,18 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		echo sprintf(
 			wp_kses(
 				/* translators: %1$s is the URL of the connected Instagram account, %2$s is the username of the connected Instagram account, %3$s is the URL to disconnect the account. */
-				__( '<strong>Connected Instagram Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'jetpack' ),
+				__( '<strong>Connected Instagram Account</strong><br /> <a target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'jetpack' ),
 				array(
 					'a'      => array(
-						'href' => array(),
+						'href'   => array(),
+						'rel'    => array(),
+						'target' => array(),
 					),
 					'strong' => array(),
 					'br'     => array(),
 				)
 			),
-			esc_url( 'http://instagram.com/' . $data['external_name'] ),
+			esc_url( 'https://instagram.com/' . $data['external_name'] ),
 			esc_html( $data['external_name'] ),
 			esc_url( $remove_token_id_url )
 		);
