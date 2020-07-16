@@ -328,7 +328,9 @@ class Main extends React.Component {
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
-					{ this.shouldShowAuthIframe() && <AuthIframe /> }
+					{ this.shouldShowAuthIframe() && (
+						<AuthIframe scrollToIframe={ ! this.props.isReconnectingSite } />
+					) }
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
