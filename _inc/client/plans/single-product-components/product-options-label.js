@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-import { numberFormat, translate as __ } from 'i18n-calypso';
+import { numberFormat } from 'i18n-calypso';
+import { _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -10,10 +11,15 @@ import { numberFormat, translate as __ } from 'i18n-calypso';
 import InfoPopover from 'components/info-popover';
 
 function getSearchLabel( recordCount ) {
-	return __(
-		'Your current site record size: %s record',
-		'Your current site record size: %s records',
-		{ args: numberFormat( recordCount ), count: recordCount }
+	return sprintf(
+		/* translators: placeholder is a number of records (posts, pages, ...) on your site. */
+		_n(
+			'Your current site record size: %s record',
+			'Your current site record size: %s records',
+			recordCount,
+			'jetpack'
+		),
+		numberFormat( recordCount )
 	);
 }
 

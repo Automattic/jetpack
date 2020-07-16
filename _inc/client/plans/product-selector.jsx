@@ -3,8 +3,7 @@
  */
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import { get } from 'lodash';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -39,9 +38,9 @@ class ProductSelector extends Component {
 	renderTitleSection() {
 		return (
 			<Fragment>
-				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
+				<h1 className="plans-section__header">{ __( 'Solutions', 'jetpack' ) }</h1>
 				<h2 className="plans-section__subheader">
-					{ __( "Looking for specific features? We've got you covered." ) }
+					{ __( "Looking for specific features? We've got you covered.", 'jetpack' ) }
 				</h2>
 			</Fragment>
 		);

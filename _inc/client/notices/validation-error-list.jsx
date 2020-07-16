@@ -1,11 +1,10 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
-
 import React from 'react';
+import PropTypes from 'prop-types';
 import { map } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { _n } from '@wordpress/i18n';
 
 export default class ValidationErrorList extends React.Component {
 	static displayName = 'ValidationErrorList';
@@ -18,12 +17,11 @@ export default class ValidationErrorList extends React.Component {
 		return (
 			<div>
 				<p>
-					{ __(
+					{ _n(
 						'Please correct the issue below and try again.',
 						'Please correct the issues listed below and try again.',
-						{
-							count: this.props.messages.length,
-						}
+						this.props.messages.length,
+						'jetpack'
 					) }
 				</p>
 				<ul>

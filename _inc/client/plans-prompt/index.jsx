@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -10,7 +11,6 @@ import { connect } from 'react-redux';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Plans from '../plans';
-import { translate as __ } from 'i18n-calypso';
 import Gridicon from '../components/gridicon';
 import JetpackLogo from '../components/jetpack-logo';
 import { getAvailablePlans } from 'state/site/reducer';
@@ -27,9 +27,9 @@ export class PlansPrompt extends React.Component {
 		return (
 			<div className="plans-prompt__banner">
 				<JetpackLogo className="plans-prompt__logo" />
-				<h2 className="plans-prompt__heading">{ __( 'Explore our Jetpack plans' ) }</h2>
+				<h2 className="plans-prompt__heading">{ __( 'Explore our Jetpack plans', 'jetpack' ) }</h2>
 				<p className="plans-prompt__intro">
-					{ __( "Now that you're set up, pick a plan that fits your needs." ) }
+					{ __( "Now that you're set up, pick a plan that fits your needs.", 'jetpack' ) }
 				</p>
 			</div>
 		);
@@ -45,7 +45,7 @@ export class PlansPrompt extends React.Component {
 					href={ this.props.siteAdminUrl + 'admin.php?page=jetpack' }
 					onClick={ this.trackStartWithFreeClick }
 				>
-					{ __( 'Start with free' ) }
+					{ __( 'Start with free', 'jetpack' ) }
 					<Gridicon icon={ 'arrow-right' } size={ 18 } />
 				</Button>
 			</div>

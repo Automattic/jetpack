@@ -3,15 +3,15 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
 import { includes } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { FEATURE_VIDEO_HOSTING_JETPACK, getPlanClass } from 'lib/plans/constants';
 import { FormLegend } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -40,13 +40,12 @@ class Media extends React.Component {
 					link: getRedirectUrl( 'jetpack-support-videopress' ),
 				} }
 			>
-				<FormLegend className="jp-form-label-wide">{ __( 'Video' ) }</FormLegend>
+				<FormLegend className="jp-form-label-wide">{ __( 'Video', 'jetpack' ) }</FormLegend>
 				<p>
 					{ ' ' }
 					{ __(
-						'Make the content you publish more engaging with high-resolution video. ' +
-							'With Jetpack Video you can customize your media player and deliver ' +
-							'high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!'
+						'Make the content you publish more engaging with high-resolution video. With Jetpack Video you can customize your media player and deliver high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!',
+						'jetpack'
 					) }{ ' ' }
 				</p>
 				<ModuleToggle
@@ -57,7 +56,7 @@ class Media extends React.Component {
 					toggleModule={ this.props.toggleModuleNow }
 				>
 					<span className="jp-form-toggle-explanation">
-						{ __( 'Enable high-speed, ad-free video player' ) }
+						{ __( 'Enable high-speed, ad-free video player', 'jetpack' ) }
 					</span>
 				</ModuleToggle>
 			</SettingsGroup>
@@ -68,7 +67,7 @@ class Media extends React.Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Media' ) }
+				header={ __( 'Media', 'jetpack' ) }
 				feature={ ! videoPressForcedInactive && FEATURE_VIDEO_HOSTING_JETPACK }
 				hideButton
 			>

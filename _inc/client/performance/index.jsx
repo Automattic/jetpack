@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -47,8 +47,11 @@ class Performance extends Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Performance' )
-							: __( 'Load pages faster, optimize images, and speed up your visitors’ experience.' )
+							? __( 'Performance', 'jetpack' )
+							: __(
+									'Load pages faster, optimize images, and speed up your visitors’ experience.',
+									'jetpack'
+							  )
 					}
 					className="jp-settings-description"
 				/>
