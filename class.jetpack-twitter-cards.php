@@ -13,6 +13,7 @@ class Jetpack_Twitter_Cards {
 
 	static function twitter_cards_tags( $og_tags ) {
 		global $post;
+		$post_id = ( $post instanceof WP_Post ) ? $post->ID : null;
 
 		/**
 		 * Maximum alt text length.
@@ -37,7 +38,7 @@ class Jetpack_Twitter_Cards {
 		// If we have information on the author/creator, then include that as well
 		if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
 			/** This action is documented in modules/sharedaddy/sharing-sources.php */
-			$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
+			$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post_id );
 			if ( ! empty( $handle ) && ! self::is_default_site_tag( $handle ) ) {
 				$og_tags['twitter:creator'] = self::sanitize_twitter_user( $handle );
 			}
@@ -45,7 +46,7 @@ class Jetpack_Twitter_Cards {
 
 		$site_tag = self::site_tag();
 		/** This action is documented in modules/sharedaddy/sharing-sources.php */
-		$site_tag = apply_filters( 'jetpack_sharing_twitter_via', $site_tag, ( is_singular() ? $post->ID : null ) );
+		$site_tag = apply_filters( 'jetpack_sharing_twitter_via', $site_tag, ( is_singular() ? $post_id : null ) );
 		/** This action is documented in modules/sharedaddy/sharing-sources.php */
 		$site_tag = apply_filters( 'jetpack_twitter_cards_site_tag', $site_tag, $og_tags );
 		if ( ! empty( $site_tag ) ) {
@@ -83,9 +84,9 @@ class Jetpack_Twitter_Cards {
 		$card_type = 'summary';
 
 		// Try to give priority to featured images
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
+		if ( class_exists( 'Jetpack_PostImages' ) && ! empty( $post_id ) ) {
 			$post_image = Jetpack_PostImages::get_image(
-				$post->ID,
+				$post_id,
 				array(
 					'width'  => 144,
 					'height' => 144,
@@ -131,8 +132,8 @@ class Jetpack_Twitter_Cards {
 
 			// Test again, class should already be auto-loaded in Jetpack.
 			// If not, skip extra media analysis and stick with a summary card
-			if ( class_exists( 'Jetpack_Media_Summary' ) ) {
-				$extract = Jetpack_Media_Summary::get( $post->ID );
+			if ( class_exists( 'Jetpack_Media_Summary' ) && ! empty( $post_id ) ) {
+				$extract = Jetpack_Media_Summary::get( $post_id );
 
 				if ( 'gallery' == $extract['type'] ) {
 					list( $og_tags, $card_type ) = self::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
