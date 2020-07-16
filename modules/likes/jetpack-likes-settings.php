@@ -305,7 +305,7 @@ class Jetpack_Likes_Settings {
 
 			// Single post including custom post types
 			if ( is_single() ) {
-				if ( ! $this->is_single_post_enabled( $post->post_type ) ) {
+				if ( ! $this->is_single_post_enabled( ( $post instanceof WP_Post ) ? $post->post_type : 'post' ) ) {
 					$enabled = false;
 				}
 
