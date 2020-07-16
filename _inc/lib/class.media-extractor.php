@@ -31,18 +31,23 @@ class Jetpack_Media_Meta_Extractor {
 	 * Gets the specified media and meta info from the given post.
 	 * NOTE: If you have the post's HTML content already and don't need image data, use extract_from_content() instead.
 	 *
-	 * @param $blog_id The ID of the blog
-	 * @param $post_id The ID of the post
-	 * @param $what_to_extract (int) A mask of things to extract, e.g. Jetpack_Media_Meta_Extractor::IMAGES | Jetpack_Media_Meta_Extractor::MENTIONS
-	 * @returns a structure containing metadata about the embedded things, or empty array if nothing found, or WP_Error on error
+	 * @param int $blog_id The ID of the blog.
+	 * @param int $post_id The ID of the post.
+	 * @param int $what_to_extract A mask of things to extract, e.g. Jetpack_Media_Meta_Extractor::IMAGES | Jetpack_Media_Meta_Extractor::MENTIONS.
+	 *
+	 * @return array|WP_Error a structure containing metadata about the embedded things, or empty array if nothing found, or WP_Error on error.
 	 */
 	static public function extract( $blog_id, $post_id, $what_to_extract = self::ALL ) {
 
 		// multisite?
-		if ( function_exists( 'switch_to_blog') )
+		if ( function_exists( 'switch_to_blog' ) ) {
 			switch_to_blog( $blog_id );
+		}
 
 		$post = get_post( $post_id );
+		if ( ! $post instanceof WP_Post ) {
+			return array();
+		}
 		$content = $post->post_title . "\n\n" . $post->post_content;
 		$char_cnt = strlen( $content );
 
@@ -60,8 +65,9 @@ class Jetpack_Media_Meta_Extractor {
 			$what_to_extract = $what_to_extract - self::IMAGES;
 		}
 
-		if ( function_exists( 'switch_to_blog') )
+		if ( function_exists( 'switch_to_blog' ) ) {
 			restore_current_blog();
+		}
 
 		// All of the other things besides images can be extracted from just the content
 		$extracted = self::extract_from_content( $content, $what_to_extract, $extracted );
@@ -325,13 +331,20 @@ class Jetpack_Media_Meta_Extractor {
 	}
 
 	/**
-	 * @param $post A post object
-	 * @param $args (array) Optional args, see defaults list for details
-	 * @returns array Returns an array of all images meeting the specified criteria in $args
+	 * Get image fields for matching images.
 	 *
-	 * Uses Jetpack Post Images
+	 * @uses Jetpack_PostImages
+	 *
+	 * @param WP_Post $post A post object.
+	 * @param array   $args Optional args, see defaults list for details.
+	 *
+	 * @return array Returns an array of all images meeting the specified criteria in $args.
 	 */
 	private static function get_image_fields( $post, $args = array() ) {
+
+		if ( ! $post instanceof WP_Post ) {
+			return array();
+		}
 
 		$defaults = array(
 			'width'               => 200, // Required minimum width (if possible to determine)
