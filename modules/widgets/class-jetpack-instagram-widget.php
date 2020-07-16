@@ -239,7 +239,11 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 		$data     = $this->get_data( $instance );
-		$images   = $data['images'];
+		if ( is_wp_error( $data ) ) {
+			return;
+		}
+
+		$images = $data['images'];
 
 		$status = $this->get_token_status( $instance['token_id'] );
 		// Don't display anything to non-blog admins if the widgets is unconfigured or API call fails.
