@@ -1,6 +1,5 @@
 {
 	"production": [
-		"business-hours",
 		"button",
 		"calendly",
 		"contact-form",
@@ -63,5 +62,6 @@
 		"tiled-gallery",
 		"videopress",
 		"wordads"
-	]
+	],
+	"ad-hoc": [ "business-hours" ]
 }

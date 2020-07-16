@@ -35,11 +35,16 @@ const presetPath = path.join( __dirname, 'extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = _.get( presetIndex, [ 'production' ], [] );
 const presetNoPostEditorBlocks = _.get( presetIndex, [ 'no-post-editor' ], [] );
+const presetAdHocBlocks = _.get( presetIndex, [ 'ad-hoc' ], [] );
+
+// As a temporary measure, all ad-hoc blocks are still part of the bundle.
+const presetProductionBundledBlocks = [ ...presetProductionBlocks, ...presetAdHocBlocks ];
 
 const presetExperimentalBlocks = [
-	...presetProductionBlocks,
+	...presetProductionBundledBlocks,
 	..._.get( presetIndex, [ 'experimental' ], [] ),
 ];
+
 // Beta Blocks include all blocks: beta, experimental, and production blocks.
 const presetBetaBlocks = [ ...presetExperimentalBlocks, ..._.get( presetIndex, [ 'beta' ], [] ) ];
 
@@ -52,10 +57,19 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 	return viewBlocks;
 }, {} );
 
+// Helps split up each ad-hoc block into its own folder edit script
+const editorAdHocScripts = presetAdHocBlocks.reduce( ( adHocBlocks, block ) => {
+	const editScriptPath = path.join( __dirname, 'extensions', 'blocks', block, 'edit.js' );
+	if ( fs.existsSync( editScriptPath ) ) {
+		adHocBlocks[ block + '/edit' ] = [ editorSetup, ...[ editScriptPath ] ];
+	}
+	return adHocBlocks;
+}, {} );
+
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetProductionBlocks ),
+	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetProductionBundledBlocks ),
 ];
 
 // Combines all the different Experimental blocks into one editor.js script
@@ -84,6 +98,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
+			...editorAdHocScripts,
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( __dirname, '_inc', 'blocks' ),
