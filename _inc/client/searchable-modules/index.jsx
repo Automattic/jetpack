@@ -5,12 +5,12 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { includes, forEach } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
-import Banner from 'components/banner';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Banner from 'components/banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModules } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -58,7 +58,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 							<Banner
 								className="jp-searchable-banner"
 								key={ slug }
-								callToAction={ __( 'Activate' ) }
+								callToAction={ __( 'Activate', 'jetpack' ) }
 								description={ moduleData.description }
 								href="javascript:void( 0 )"
 								icon="cog"
