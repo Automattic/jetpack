@@ -319,6 +319,9 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		}
 
 		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'instagram' );
 	}
 
 	/**
