@@ -14,8 +14,7 @@ import { __ } from '@wordpress/i18n';
 import withCustomClassNames from '../with-custom-class-names';
 import jetpackPaidBlockEdit from './paid-block-edit';
 import { isUpgradable } from '../plan-utils';
-import { PremiumIcon } from './components';
-
+import { getPaidIcon } from './paid-icons';
 import './editor.scss';
 
 const jetpackPaidBlock = ( settings, name ) => {
@@ -28,9 +27,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 			withCustomClassNames( name, 'has-warning is-interactive is-upgradable' )
 		);
 
-		settings.icon = {
-			src: <PremiumIcon icon={ settings.icon } />,
-		};
+		settings.icon = getPaidIcon( settings, name );
 
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );

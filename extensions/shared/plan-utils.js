@@ -18,10 +18,7 @@ import getSiteFragment from './get-site-fragment';
 /*
  * Blocks list that require a paid plan.
  */
-export const PAID_BLOCKS_LIST = [
-	'core/cover',
-	'core/video',
-];
+export const PAID_BLOCKS_LIST = [ 'core/cover', 'core/video' ];
 
 /**
  * WP.com plan objects have a dedicated `path_slug` field,
@@ -59,28 +56,28 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// Post-checkout: redirect back here
 	const redirectTo = isSimpleSite()
 		? addQueryArgs(
-			'/' +
-			compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
-				'/'
-			),
-			{
-				plan_upgraded: 1,
-			}
-		)
+				'/' +
+					compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' ),
+				{
+					plan_upgraded: 1,
+				}
+		  )
 		: addQueryArgs(
-			window.location.protocol +
-			`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
-			{
-				action: 'edit',
-				post: postId,
-				plan_upgraded: 1,
-			}
-		);
+				window.location.protocol +
+					`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
+				{
+					action: 'edit',
+					post: postId,
+					plan_upgraded: 1,
+				}
+		  );
 
-	return planPathSlug &&
+	return (
+		planPathSlug &&
 		addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
 			redirect_to: redirectTo,
-		} );
+		} )
+	);
 }
 
 /**
@@ -94,18 +91,14 @@ export function isUpgradable( name ) {
 	const [ blockNamespace, blockName ] = /\//.test( name ) ? name.split( '/' ) : [ null, name ];
 
 	if (
-		blockNamespace && ! [ 'jetpack', 'premium-content' ].includes( blockNamespace ) && // known namespaces.
-		! ( PAID_BLOCKS_LIST.includes( name ) )
+		blockNamespace &&
+		! [ 'jetpack', 'premium-content' ].includes( blockNamespace ) && // known namespaces.
+		! PAID_BLOCKS_LIST.includes( name )
 	) {
 		return false;
 	}
 
 	const { unavailableReason } = getJetpackExtensionAvailability( blockName );
 
-	return (
-		name &&
-		isSimpleSite() &&
-		[ 'missing_plan', 'unknown' ].includes( unavailableReason )
-	);
+	return name && isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason );
 }
-

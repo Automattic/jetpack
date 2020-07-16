@@ -91,3 +91,8 @@ $icon-background-color: #fff;
 		box-sizing: border-box;
 	}
 }
+
+// Allow the paid symbol to break out of the icon area so it doesn't get cutoff
+.jetpack-paid-block-icon {
+	overflow: visible;
+}
