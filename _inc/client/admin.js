@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { assign, get } from 'lodash';
 import i18n from 'i18n-calypso';
+import moment from 'moment';
 import { _x } from '@wordpress/i18n';
 
 /**
@@ -42,6 +43,7 @@ if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 }
 
 i18n.setLocale( Initial_State.locale );
+moment.locale( Initial_State.locale );
 
 // Add dispatch and actionTypes to the window object so we can use it from the browser's console
 if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
