@@ -2639,37 +2639,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Get i18n strings as a JSON-encoded string
-	 *
-	 * @return string The locale as JSON
-	 */
-	public static function get_i18n_data_json() {
-
-		// WordPress 5.0 uses md5 hashes of file paths to associate translation
-		// JSON files with the file they should be included for. This is an md5
-		// of '_inc/build/admin.js'.
-		$path_md5 = '1bac79e646a8bf4081a5011ab72d5807';
-
-		$i18n_json =
-				   JETPACK__PLUGIN_DIR
-				   . 'languages/json/jetpack-'
-				   . get_user_locale()
-				   . '-'
-				   . $path_md5
-				   . '.json';
-
-		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
-			$locale_data = @file_get_contents( $i18n_json );
-			if ( $locale_data ) {
-				return $locale_data;
-			}
-		}
-
-		// Return valid empty Jed locale
-		return '{ "locale_data": { "messages": { "": {} } } }';
-	}
-
-	/**
 	 * Return module name translation. Uses matching string created in modules/module-headings.php.
 	 *
 	 * @since 3.9.2
