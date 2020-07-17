@@ -3,7 +3,6 @@
 		"button",
 		"calendly",
 		"contact-form",
-		"contact-info",
 		"eventbrite",
 		"gathering-tweetstorms",
 		"gif",
@@ -63,5 +62,5 @@
 		"videopress",
 		"wordads"
 	],
-	"ad-hoc": [ "business-hours" ]
+	"ad-hoc": [ "business-hours", "contact-info" ]
 }

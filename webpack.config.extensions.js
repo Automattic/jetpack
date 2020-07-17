@@ -143,6 +143,14 @@ module.exports = [
 					from: presetPath,
 					to: 'index.json',
 				},
+				{
+					from:
+						path.join( __dirname, 'extensions', 'blocks' ) +
+						'/{' +
+						presetAdHocBlocks.join() +
+						'}/{block.json,readme.txt,*.php}',
+					to: '[folder]/[name].[ext]',
+				},
 			] ),
 		],
 	},
