@@ -3,16 +3,18 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
-import Card from 'components/card';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { numberFormat, moment } from 'i18n-calypso';
+import { __, _x, _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { numberFormat, moment, translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
+import getRedirectUrl from 'lib/jp-redirect';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -55,23 +57,21 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-summary">
 					<div className="jp-at-a-glance__stats-summary-today">
 						<p className="jp-at-a-glance__stat-details">
-							{ __( 'Views today', { comment: 'Referring to a number of page views' } ) }
+							{ _x( 'Views today', 'Referring to a number of page views', 'jetpack' ) }
 						</p>
 						<h3 className="jp-at-a-glance__stat-number">{ s.viewsToday }</h3>
 					</div>
 					<div className="jp-at-a-glance__stats-summary-bestday">
 						<p className="jp-at-a-glance__stat-details">
-							{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }
+							{ _x( 'Best overall day', 'Referring to a number of page views', 'jetpack' ) }
 						</p>
 						<h3 className="jp-at-a-glance__stat-number">
 							{ '-' === s.bestDay.count
 								? '-'
-								: __( '%(number)s View', '%(number)s Views', {
-										count: s.bestDay.count,
-										args: {
-											number: numberFormat( s.bestDay.count ),
-										},
-								  } ) }
+								: sprintf(
+										_n( '%s View', '%s Views', s.bestDay.count, 'jetpack' ),
+										numberFormat( s.bestDay.count )
+								  ) }
 						</h3>
 						<p className="jp-at-a-glance__stat-details">
 							{ '-' === s.bestDay.day ? '-' : moment( s.bestDay.day ).format( 'MMMM Do, YYYY' ) }
@@ -80,7 +80,7 @@ class DashStatsBottom extends Component {
 					<div className="jp-at-a-glance__stats-summary-alltime">
 						<div className="jp-at-a-glance__stats-alltime-views">
 							<p className="jp-at-a-glance__stat-details">
-								{ __( 'All-time views', { comment: 'Referring to a number of page views' } ) }
+								{ _x( 'All-time views', 'Referring to a number of page views', 'jetpack' ) }
 							</p>
 							<h3 className="jp-at-a-glance__stat-number">
 								{ '-' === s.allTime.views ? '-' : numberFormat( s.allTime.views ) }
@@ -88,7 +88,7 @@ class DashStatsBottom extends Component {
 						</div>
 						<div className="jp-at-a-glance__stats-alltime-comments">
 							<p className="jp-at-a-glance__stat-details">
-								{ __( 'All-time comments', { comment: 'Referring to a number of comments' } ) }
+								{ _x( 'All-time comments', 'Referring to a number of comments', 'jetpack' ) }
 							</p>
 							<h3 className="jp-at-a-glance__stat-number">
 								{ '-' === s.allTime.comments ? '-' : numberFormat( s.allTime.comments ) }
@@ -99,19 +99,21 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
 					<div className="jp-at-a-glance__stats-cta-buttons">
-						{ __( '{{button}}View detailed stats{{/button}}', {
-							components: {
+						{ jetpackCreateInterpolateElement(
+							__( '<button>View detailed stats</button>', 'jetpack' ),
+							{
 								button: (
 									<Button
 										onClick={ this.trackViewDetailedStats }
 										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
 									/>
 								),
-							},
-						} ) }
+							}
+						) }
 						{ this.props.isLinked &&
-							__( '{{button}}View more stats on WordPress.com {{/button}}', {
-								components: {
+							jetpackCreateInterpolateElement(
+								__( '<button>View more stats on WordPress.com </button>', 'jetpack' ),
+								{
 									button: (
 										<Button
 											onClick={ this.trackViewWpcomStats }
@@ -121,8 +123,8 @@ class DashStatsBottom extends Component {
 											} ) }
 										/>
 									),
-								},
-							} ) }
+								}
+							) }
 					</div>
 				</div>
 				{ ! this.props.isLinked && (
@@ -130,7 +132,10 @@ class DashStatsBottom extends Component {
 						<ConnectButton
 							connectUser={ true }
 							from="unlinked-user-connect"
-							connectLegend={ __( 'Connect your account to WordPress.com to view more stats' ) }
+							connectLegend={ __(
+								'Connect your account to WordPress.com to view more stats',
+								'jetpack'
+							) }
 						/>
 					</Card>
 				) }

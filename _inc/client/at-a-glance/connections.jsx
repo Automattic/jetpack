@@ -4,9 +4,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Gridicon from 'components/gridicon';
-import DashItem from 'components/dash-item';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, sprintf, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -27,6 +26,8 @@ import {
 } from 'state/initial-state';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
+import DashItem from 'components/dash-item';
+import Gridicon from 'components/gridicon';
 import MobileMagicLink from 'components/mobile-magic-link';
 
 export class DashConnections extends Component {
@@ -55,7 +56,8 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'Your site is in Development Mode, so it can not be connected to WordPress.com.'
+							'Your site is in Development Mode, so it can not be connected to WordPress.com.',
+							'jetpack'
 						) }
 					</div>
 				</div>
@@ -76,11 +78,11 @@ export class DashConnections extends Component {
 							<Gridicon icon="globe" size={ 64 } />
 						) }
 						<div className="jp-connection-settings__text">
-							{ __( 'Your site is connected to WordPress.com.' ) }
+							{ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
 							{ this.props.userIsMaster && (
 								<span className="jp-connection-settings__is-owner">
 									<br />
-									<em>{ __( 'You are the Jetpack owner.' ) }</em>
+									<em>{ __( 'You are the Jetpack owner.', 'jetpack' ) }</em>
 								</span>
 							) }
 						</div>
@@ -126,7 +128,10 @@ export class DashConnections extends Component {
 						<Gridicon icon="user" size={ 64 } />
 					) }
 					<div className="jp-connection-settings__text">
-						{ __( 'The site is in Development Mode, so you can not connect to WordPress.com.' ) }
+						{ __(
+							'The site is in Development Mode, so you can not connect to WordPress.com.',
+							'jetpack'
+						) }
 					</div>
 				</div>
 			);
@@ -136,13 +141,16 @@ export class DashConnections extends Component {
 			cardContent = (
 				<div>
 					<div className="jp-connection-settings__info">
-						{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
+						{ __(
+							'Link your account to WordPress.com to get the most out of Jetpack.',
+							'jetpack'
+						) }
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 				</div>
 			);
 		} else if ( this.props.isFetchingUserData ) {
-			cardContent = __( 'Loading…' );
+			cardContent = __( 'Loading…', 'jetpack' );
 		} else {
 			cardContent = (
 				<div>
@@ -155,15 +163,16 @@ export class DashConnections extends Component {
 							src={ this.props.wpComConnectedUser.avatar }
 						/>
 						<div className="jp-connection-settings__text">
-							{ __( 'Connected as {{span}}%(username)s{{/span}}', {
-								args: {
-									username: this.props.wpComConnectedUser.login,
-								},
-								components: {
+							{ jetpackCreateInterpolateElement(
+								sprintf(
+									/* translators: Placeholder is the WordPress user login name. */
+									__( 'Connected as <span>%s</span>', 'jetpack' ),
+									this.props.wpComConnectedUser.login
+								),
+								{
 									span: <span className="jp-connection-settings__username" />,
-								},
-								comment: '%(username) is the WordPress user login name.',
-							} ) }
+								}
+							) }
 							<div className="jp-connection-settings__email">
 								{ this.props.wpComConnectedUser.email }
 							</div>
@@ -187,7 +196,7 @@ export class DashConnections extends Component {
 						<div className="jp-dash-item__interior">
 							<DashItem
 								className="jp-connection-type"
-								label={ __( 'Site connection', { context: 'Dashboard widget header' } ) }
+								label={ _x( 'Site connection', 'Dashboard widget header', 'jetpack' ) }
 							>
 								{ this.siteConnection() }
 							</DashItem>
@@ -197,7 +206,7 @@ export class DashConnections extends Component {
 						<div className="jp-dash-item__interior">
 							<DashItem
 								className="jp-connection-type"
-								label={ __( 'Account connection', { context: 'Dashboard widget header' } ) }
+								label={ _x( 'Account connection', 'Dashboard widget header', 'jetpack' ) }
 							>
 								{ this.userConnection() }
 							</DashItem>

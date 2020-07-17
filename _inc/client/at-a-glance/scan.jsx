@@ -4,7 +4,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { numberFormat, translate as __ } from 'i18n-calypso';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { numberFormat } from 'i18n-calypso';
+import { __, _n } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -32,11 +34,12 @@ import getRedirectUrl from 'lib/jp-redirect';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Scan' ) }
+		label={ __( 'Scan', 'jetpack' ) }
 		module={ props.feature || 'scan' }
 		support={ {
 			text: __(
-				'Your site’s files are regularly scanned for unauthorized or suspicious modifications that could compromise your security and data.'
+				'Your site’s files are regularly scanned for unauthorized or suspicious modifications that could compromise your security and data.',
+				'jetpack'
 			),
 			link: getRedirectUrl( 'jetpack-support-security' ),
 		} }
@@ -108,7 +111,7 @@ class DashScan extends Component {
 			if ( 'N/A' === vpData ) {
 				return renderCard( {
 					status: '',
-					content: __( 'Loading…' ),
+					content: __( 'Loading…', 'jetpack' ),
 				} );
 			}
 
@@ -123,7 +126,7 @@ class DashScan extends Component {
 				if ( vpData.code === 'success' ) {
 					return renderCard( {
 						status: 'is-working',
-						content: __( "No threats found, you're good to go!" ),
+						content: __( "No threats found, you're good to go!", 'jetpack' ),
 					} );
 				}
 			}
@@ -132,7 +135,7 @@ class DashScan extends Component {
 		if ( fetchingSiteData ) {
 			return renderCard( {
 				status: '',
-				content: __( 'Loading…' ),
+				content: __( 'Loading…', 'jetpack' ),
 			} );
 		}
 
@@ -145,18 +148,19 @@ class DashScan extends Component {
 		const scanContent =
 			hasPremium || hasBusiness || scanEnabled ? (
 				<p className="jp-dash-item__description" key="inactive-scanning">
-					{ __(
-						'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
+					{ jetpackCreateInterpolateElement(
+						__(
+							'For automated, comprehensive scanning of security threats, please <a>install and activate</a> VaultPress.',
+							'jetpack'
+						),
 						{
-							components: {
-								a: (
-									<a
-										href={ getRedirectUrl( 'calypso-plugins-vaultpress' ) }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
+							a: (
+								<a
+									href={ getRedirectUrl( 'calypso-plugins-vaultpress' ) }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
 						}
 					) }
 				</p>
@@ -175,8 +179,8 @@ class DashScan extends Component {
 	getUpgradeBanner() {
 		return (
 			<JetpackBanner
-				callToAction={ __( 'Upgrade' ) }
-				title={ __( 'Find threats early so we can help fix them fast.' ) }
+				callToAction={ __( 'Upgrade', 'jetpack' ) }
+				title={ __( 'Find threats early so we can help fix them fast.', 'jetpack' ) }
 				disableHref="false"
 				href={ this.props.upgradeUrl }
 				eventFeature="scan"
@@ -188,25 +192,25 @@ class DashScan extends Component {
 	}
 
 	renderThreatsFound( numberOfThreats, dashboardUrl ) {
-		const { siteRawUrl } = this.props;
 		return (
 			<>
 				{ renderActiveCard( [
 					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
 					<p className="jp-dash-item__description">
-						{ __(
-							'Security threat found. Please {{a}}fix it{{/a}} as soon as possible.',
-							'Security threats found. Please {{a}}fix these{{/a}} as soon as possible.',
+						{ jetpackCreateInterpolateElement(
+							_n(
+								'Security threat found. Please <a>fix it</a> as soon as possible.',
+								'Security threats found. Please <a>fix these</a> as soon as possible.',
+								numberOfThreats,
+								'jetpack'
+							),
 							{
-								count: numberOfThreats,
-								components: {
-									a: <a href={ dashboardUrl } target="_blank" rel="noopener noreferrer" />,
-								},
+								a: <a href={ dashboardUrl } target="_blank" rel="noopener noreferrer" />,
 							}
 						) }
 					</p>,
 				] ) }
-				{ renderAction( dashboardUrl, __( 'View security scan details' ) ) }
+				{ renderAction( dashboardUrl, __( 'View security scan details', 'jetpack' ) ) }
 			</>
 		);
 	}
@@ -226,11 +230,11 @@ class DashScan extends Component {
 			return (
 				<>
 					{ renderActiveCard(
-						__( "You need to enter your server's credentials to finish the setup." )
+						__( "You need to enter your server's credentials to finish the setup.", 'jetpack' )
 					) }
 					{ renderAction(
 						getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
-						__( 'Enter credentials' )
+						__( 'Enter credentials', 'jetpack' )
 					) }
 				</>
 			);
@@ -238,20 +242,22 @@ class DashScan extends Component {
 
 		switch ( scanStatus.state ) {
 			case 'provisioning':
-				return <>{ renderActiveCard( __( 'We are configuring your site protection.' ) ) }</>;
+				return (
+					<>{ renderActiveCard( __( 'We are configuring your site protection.', 'jetpack' ) ) }</>
+				);
 			case 'idle':
 			case 'scanning':
 				return (
 					<>
 						{ renderActiveCard(
 							__(
-								'We are making sure your site stays free of security threats. ' +
-									'You will be notified if we find one.'
+								'We are making sure your site stays free of security threats. You will be notified if we find one.',
+								'jetpack'
 							)
 						) }
 						{ renderAction(
 							getRedirectUrl( 'calypso-scanner', { site: siteRawUrl } ),
-							__( 'View security scan details' )
+							__( 'View security scan details', 'jetpack' )
 						) }
 					</>
 				);
@@ -275,14 +281,14 @@ class DashScan extends Component {
 		if ( this.props.isDevMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				content: __( 'Unavailable in Dev Mode.' ),
+				content: __( 'Unavailable in Dev Mode.', 'jetpack' ),
 			} );
 		}
 
 		// Show loading while we're getting props.
 		// Once we get them, test the Scan system and then VaultPress in order.
 		const { scanStatus, vaultPressData, fetchingScanStatus } = this.props;
-		let content = renderCard( { content: __( 'Loading…' ) } );
+		let content = renderCard( { content: __( 'Loading…', 'jetpack' ) } );
 		if ( ! fetchingScanStatus && scanStatus.state && 'unavailable' !== scanStatus.state ) {
 			content = <div className="jp-dash-item">{ this.getRewindContent() }</div>;
 		} else if ( get( vaultPressData, [ 'data', 'features', 'security' ], false ) ) {
