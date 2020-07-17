@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -57,7 +57,7 @@ class DashPhoton extends Component {
 				<p className="jp-dash-item__description">
 					{ this.props.isDevMode
 						? __( 'Unavailable in Dev Mode', 'jetpack' )
-						: createInterpolateElement(
+						: jetpackCreateInterpolateElement(
 								__(
 									"<a>Activate</a> to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
 									'jetpack'

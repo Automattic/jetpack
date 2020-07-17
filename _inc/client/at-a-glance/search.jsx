@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
 
@@ -153,7 +153,7 @@ class DashSearch extends Component {
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
-			content: createInterpolateElement(
+			content: jetpackCreateInterpolateElement(
 				__(
 					'<a>Activate</a> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 					'jetpack'

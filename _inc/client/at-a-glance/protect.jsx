@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat } from 'i18n-calypso';
 import { __ } from '@wordpress/i18n';
 
@@ -81,7 +81,7 @@ class DashProtect extends Component {
 				<p className="jp-dash-item__description">
 					{ this.props.isDevMode
 						? __( 'Unavailable in Dev Mode', 'jetpack' )
-						: createInterpolateElement(
+						: jetpackCreateInterpolateElement(
 								__(
 									'<a>Activate Protect</a> to keep your site protected from malicious sign in attempts.',
 									'jetpack'

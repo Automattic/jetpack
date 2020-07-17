@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -65,7 +65,7 @@ class DashMonitor extends Component {
 				<p className="jp-dash-item__description">
 					{ this.props.isDevMode
 						? __( 'Unavailable in Dev Mode.', 'jetpack' )
-						: createInterpolateElement(
+						: jetpackCreateInterpolateElement(
 								__(
 									'<a>Activate Monitor</a> to receive email notifications if your site goes down.',
 									'jetpack'

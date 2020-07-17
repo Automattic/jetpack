@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import DashItem from 'components/dash-item';
 import { get, isEmpty, noop } from 'lodash';
 import { __ } from '@wordpress/i18n';
@@ -90,7 +90,7 @@ class DashBackups extends Component {
 					<span>
 						{ get( vaultPressData, 'message', '' ) }
 						&nbsp;
-						{ createInterpolateElement( __( '<a>View backup details</a>.', 'jetpack' ), {
+						{ jetpackCreateInterpolateElement( __( '<a>View backup details</a>.', 'jetpack' ), {
 							a: (
 								<a
 									href={ getRedirectUrl( 'vaultpress-dashboard' ) }
@@ -110,7 +110,7 @@ class DashBackups extends Component {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
-					content: createInterpolateElement(
+					content: jetpackCreateInterpolateElement(
 						__(
 							'To automatically back up your entire site, please <a>install and activate</a> VaultPress.',
 							'jetpack'

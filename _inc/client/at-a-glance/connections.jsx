@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { __, sprintf, _x } from '@wordpress/i18n';
 
 /**
@@ -141,7 +141,10 @@ export class DashConnections extends Component {
 			cardContent = (
 				<div>
 					<div className="jp-connection-settings__info">
-						{ __( 'Link your account to WordPress.com to get the most out of Jetpack.', 'jetpack' ) }
+						{ __(
+							'Link your account to WordPress.com to get the most out of Jetpack.',
+							'jetpack'
+						) }
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 				</div>
@@ -160,7 +163,7 @@ export class DashConnections extends Component {
 							src={ this.props.wpComConnectedUser.avatar }
 						/>
 						<div className="jp-connection-settings__text">
-							{ createInterpolateElement(
+							{ jetpackCreateInterpolateElement(
 								sprintf(
 									/* translators: Placeholder is the WordPress user login name. */
 									__( 'Connected as <span>%s</span>', 'jetpack' ),

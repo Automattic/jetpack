@@ -3,7 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { connect } from 'react-redux';
 import { numberFormat } from 'i18n-calypso';
 import { __, _x } from '@wordpress/i18n';
@@ -77,7 +77,7 @@ class DashAkismet extends Component {
 		};
 
 		const getAkismetUpgradeBanner = () => {
-			const description = createInterpolateElement(
+			const description = jetpackCreateInterpolateElement(
 				__( 'Already have a key? <a>Activate Akismet</a>', 'jetpack' ),
 				{
 					a: <a href="javascript:void(0)" onClick={ this.onActivateClick } />,

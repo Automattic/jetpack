@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat } from 'i18n-calypso';
 import { __, _n } from '@wordpress/i18n';
 
@@ -148,7 +148,7 @@ class DashScan extends Component {
 		const scanContent =
 			hasPremium || hasBusiness || scanEnabled ? (
 				<p className="jp-dash-item__description" key="inactive-scanning">
-					{ createInterpolateElement(
+					{ jetpackCreateInterpolateElement(
 						__(
 							'For automated, comprehensive scanning of security threats, please <a>install and activate</a> VaultPress.',
 							'jetpack'
@@ -197,7 +197,7 @@ class DashScan extends Component {
 				{ renderActiveCard( [
 					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
 					<p className="jp-dash-item__description">
-						{ createInterpolateElement(
+						{ jetpackCreateInterpolateElement(
 							_n(
 								'Security threat found. Please <a>fix it</a> as soon as possible.',
 								'Security threats found. Please <a>fix these</a> as soon as possible.',

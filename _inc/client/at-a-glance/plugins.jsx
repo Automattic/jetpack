@@ -7,7 +7,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { __, _n } from '@wordpress/i18n';
 
 /**
@@ -83,9 +83,12 @@ class DashPluginUpdates extends Component {
 									'jetpack'
 								) + ' ',
 								! this.props.isDevMode &&
-									createInterpolateElement( __( '<a>Turn on plugin autoupdates.</a>', 'jetpack' ), {
-										a: <a href={ managePluginsUrl } />,
-									} ),
+									jetpackCreateInterpolateElement(
+										__( '<a>Turn on plugin autoupdates.</a>', 'jetpack' ),
+										{
+											a: <a href={ managePluginsUrl } />,
+										}
+									),
 						  ]
 						: __( 'All plugins are up-to-date. Awesome work!', 'jetpack' ) }
 				</p>

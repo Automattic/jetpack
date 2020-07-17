@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { forEach, get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat, moment } from 'i18n-calypso';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -183,7 +183,7 @@ export class DashStats extends Component {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>
-							{ createInterpolateElement(
+							{ jetpackCreateInterpolateElement(
 								__(
 									'Something happened while loading stats. Please try again later or <a>view your stats now on WordPress.com</a>',
 									'jetpack'
@@ -233,7 +233,7 @@ export class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-inactive-text">
 					{ this.props.isDevMode
 						? __( 'Unavailable in Dev Mode', 'jetpack' )
-						: createInterpolateElement(
+						: jetpackCreateInterpolateElement(
 								__(
 									'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'

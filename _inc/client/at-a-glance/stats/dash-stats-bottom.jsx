@@ -3,7 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { createInterpolateElement } from '@wordpress/element';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat, moment } from 'i18n-calypso';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 
@@ -99,16 +99,19 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
 					<div className="jp-at-a-glance__stats-cta-buttons">
-						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-							button: (
-								<Button
-									onClick={ this.trackViewDetailedStats }
-									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-								/>
-							),
-						} ) }
+						{ jetpackCreateInterpolateElement(
+							__( '<button>View detailed stats</button>', 'jetpack' ),
+							{
+								button: (
+									<Button
+										onClick={ this.trackViewDetailedStats }
+										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+									/>
+								),
+							}
+						) }
 						{ this.props.isLinked &&
-							createInterpolateElement(
+							jetpackCreateInterpolateElement(
 								__( '<button>View more stats on WordPress.com </button>', 'jetpack' ),
 								{
 									button: (
@@ -129,7 +132,10 @@ class DashStatsBottom extends Component {
 						<ConnectButton
 							connectUser={ true }
 							from="unlinked-user-connect"
-							connectLegend={ __( 'Connect your account to WordPress.com to view more stats', 'jetpack' ) }
+							connectLegend={ __(
+								'Connect your account to WordPress.com to view more stats',
+								'jetpack'
+							) }
 						/>
 					</Card>
 				) }
