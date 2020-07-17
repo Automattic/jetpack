@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { moment } from 'i18n-calypso';
+import moment from 'moment';
 import { __, sprintf } from '@wordpress/i18n';
 
 class ProductExpiration extends React.PureComponent {

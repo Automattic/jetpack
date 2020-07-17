@@ -6,7 +6,8 @@ import React, { Component } from 'react';
 import { forEach, get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { numberFormat, moment } from 'i18n-calypso';
+import { numberFormat } from 'i18n-calypso';
+import moment from 'moment';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**

@@ -4,7 +4,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { numberFormat, moment } from 'i18n-calypso';
+import { numberFormat } from 'i18n-calypso';
+import moment from 'moment';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 
 /**
