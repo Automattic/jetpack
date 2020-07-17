@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-
+import { uniq } from 'lodash';
 /**
  * WordPress dependencies
  */
 import { addFilter } from '@wordpress/hooks';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -29,6 +30,9 @@ const jetpackPaidBlock = ( settings, name ) => {
 
 		// Set premium icon.
 		settings.icon = <PremiumIcon icon={ settings.icon } name={ name.split( '/' )[ 1 ] } />;
+
+		// Populate block keywords.
+		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
 	}
 
 	return settings;
