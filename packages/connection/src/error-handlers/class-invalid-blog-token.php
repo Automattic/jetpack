@@ -12,7 +12,7 @@ use Automattic\Jetpack\Connection\Error_Handler;
 
 /**
  * This class handles all the error codes that indicates a broken blog token and
- * suggests the user to reconnect.
+ * tries to self-heal and display an error message to the suer suggesting to reconnect.
  *
  * @since 8.7.0
  */
@@ -23,7 +23,7 @@ class Invalid_Blog_Token {
 	 *
 	 * @var integer
 	 */
-	private $max_heal_attempts = 1000;
+	private $max_heal_attempts = 3;
 
 	/**
 	 * Name of the option where we store the number of attempts to self heal
@@ -63,8 +63,8 @@ class Invalid_Blog_Token {
 
 		$this->attempts = (int) get_option( $this->attempts_option_name );
 
-		if ( $this->should_self_heal() ) {
-			$this->refresh_blog_token();
+		if ( is_admin() && $this->should_self_heal() ) {
+			add_action( 'plugins_loaded', array( $this, 'refresh_blog_token' ) );
 		}
 
 		add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
@@ -120,7 +120,7 @@ class Invalid_Blog_Token {
 	 * @return boolean
 	 */
 	public function should_self_heal() {
-		return $this->attempts > 0 && $this->attempts < $this->max_heal_attempts;
+		return $this->attempts >= 0 && $this->attempts <= $this->max_heal_attempts;
 	}
 
 	/**
@@ -152,17 +152,29 @@ class Invalid_Blog_Token {
 
 		$manager = new Manager();
 
+		// If a blog token is present, jetpack will think it's registered and will not register the required
+		// XML-RPC endpoints, so we need to delete it.
+		$current_token = \Jetpack_Options::get_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+
 		$heal = $manager->register();
-		l( $heal );
 
 		$this->attempts ++;
 
 		if ( true === $heal ) {
+
 			Error_Handler::get_instance()->delete_all_errors();
 			delete_option( $this->attempts_option_name );
+
 		} else {
+
 			$this->unlock_attempts();
+
+			if ( $current_token ) {
+				\Jetpack_Options::update_option( 'blog_token', $current_token );
+			}
 		}
+
 	}
 
 }

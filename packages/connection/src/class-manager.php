@@ -86,7 +86,9 @@ class Manager {
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$manager->is_active(),
-			$manager->verify_xml_rpc_signature()
+			$manager->verify_xml_rpc_signature(),
+			null,
+			$manager->is_registered()
 		);
 
 		$manager->error_handler = Error_Handler::get_instance();
@@ -114,12 +116,14 @@ class Manager {
 	 * @param Boolean                $is_active whether the connection is currently active.
 	 * @param Boolean                $is_signed whether the signature check has been successful.
 	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
+	 * @param Boolean                $is_registered whether the connection is currently registered (has a blog token).
 	 */
 	public function setup_xmlrpc_handlers(
 		$request_params,
 		$is_active,
 		$is_signed,
-		\Jetpack_XMLRPC_Server $xmlrpc_server = null
+		\Jetpack_XMLRPC_Server $xmlrpc_server = null,
+		$is_registered = false
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 
@@ -159,7 +163,7 @@ class Manager {
 
 		$this->require_jetpack_authentication();
 
-		if ( $is_active ) {
+		if ( $is_active && $is_registered ) {
 			// Hack to preserve $HTTP_RAW_POST_DATA.
 			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
