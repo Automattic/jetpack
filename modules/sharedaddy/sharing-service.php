@@ -679,6 +679,24 @@ function sharing_process_requests() {
 add_action( 'template_redirect', 'sharing_process_requests', 9 );
 
 /**
+ * Gets the url to customise the sharing buttons in Calypso.
+ *
+ * @return string the customisation URL or null if it couldn't be determinde.
+ */
+function get_sharing_buttons_customisation_url() {
+	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+		$site_suffix = Jetpack::build_raw_urls( home_url() );
+	} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+		$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+	}
+
+	if ( $site_suffix ) {
+		return Automattic\Jetpack\Redirect::get_url( 'calypso-marketing-sharing-buttons', array( 'site' => $site_suffix ) );
+	}
+	return null;
+}
+
+/**
  * Append sharing links to text.
  *
  * @param string $text The original text to append sharing links onto.
@@ -869,9 +887,11 @@ function sharing_display( $text = '', $echo = false ) {
 
 			// Link to customization options if user can manage them.
 			if ( current_user_can( 'manage_options' ) ) {
-				$link_text        = __( 'Customize buttons', 'jetpack' );
-				$link_url         = 'https://jetpack.com/redirect/?source=calypso-marketing-sharing-buttons&site=' . Jetpack::build_raw_urls( get_home_url() );
-				$sharing_content .= '<p class="share-customize-link"><a href="' . esc_url( $link_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $link_text ) . '</a></p>';
+				$link_url = get_sharing_buttons_customisation_url();
+				if ( ! empty( $link_url ) ) {
+					$link_text        = __( 'Customize buttons', 'jetpack' );
+					$sharing_content .= '<p class="share-customize-link"><a href="' . esc_url( $link_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $link_text ) . '</a></p>';
+				}
 			}
 
 			if ( count( $enabled['hidden'] ) > 0 ) {
