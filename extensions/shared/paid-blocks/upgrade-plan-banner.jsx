@@ -35,6 +35,8 @@ const UpgradePlanBanner = ( {
 			return;
 		}
 
+		event.preventDefault();
+
 		/*
 		 * If there are not unsaved values, redirect.
 		 * If the post is not autosaveable, redirect.
@@ -55,7 +57,7 @@ const UpgradePlanBanner = ( {
 				<span className={ `${ className }__description` }>{ description }</span>
 			) : null }
 			<Button
-				// href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
+				href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 				onClick={ goToCheckoutPage }
 				className="is-primary"
 				label={ buttonText }
