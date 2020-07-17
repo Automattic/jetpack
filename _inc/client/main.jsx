@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -107,7 +107,8 @@ class Main extends React.Component {
 	 */
 	handleRouterWillLeave = () => {
 		const question = __(
-			'There are unsaved settings in this tab that will be lost if you leave it. Proceed?'
+			'There are unsaved settings in this tab that will be lost if you leave it. Proceed?',
+			'jetpack'
 		);
 
 		if ( confirm( question ) ) {

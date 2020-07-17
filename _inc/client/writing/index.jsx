@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -75,9 +75,10 @@ export class Writing extends React.Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Writing' )
+							? __( 'Writing', 'jetpack' )
 							: __(
-									'Compose content the way you want to and streamline your publishing experience.'
+									'Compose content the way you want to and streamline your publishing experience.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"
@@ -105,7 +106,8 @@ export class Writing extends React.Component {
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
-							'Writing tools available to you will be shown here when an administrator enables them.'
+							'Writing tools available to you will be shown here when an administrator enables them.',
+							'jetpack'
 						) }
 					</Card>
 				) }

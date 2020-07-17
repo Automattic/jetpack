@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	RESET_OPTIONS,
 	RESET_OPTIONS_FAIL,
@@ -27,7 +27,9 @@ export const resetOptions = options => {
 			type: RESET_OPTIONS,
 		} );
 		dispatch(
-			createNotice( 'is-info', __( 'Resetting Jetpack options…' ), { id: 'reset-options' } )
+			createNotice( 'is-info', __( 'Resetting Jetpack options…', 'jetpack' ), {
+				id: 'reset-options',
+			} )
 		);
 		return restApi
 			.resetOptions( options )
@@ -37,7 +39,7 @@ export const resetOptions = options => {
 				} );
 				dispatch( removeNotice( 'reset-options' ) );
 				dispatch(
-					createNotice( 'is-success', __( 'Options reset.' ), {
+					createNotice( 'is-success', __( 'Options reset.', 'jetpack' ), {
 						id: 'reset-options',
 						duration: 2000,
 					} )
@@ -50,7 +52,9 @@ export const resetOptions = options => {
 				} );
 				dispatch( removeNotice( 'reset-options' ) );
 				dispatch(
-					createNotice( 'is-error', __( 'Options failed to reset.' ), { id: 'reset-options' } )
+					createNotice( 'is-error', __( 'Options failed to reset.', 'jetpack' ), {
+						id: 'reset-options',
+					} )
 				);
 			} );
 	};

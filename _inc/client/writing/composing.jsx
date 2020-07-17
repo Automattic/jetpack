@@ -3,13 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { FormFieldset } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -55,8 +55,8 @@ export class Composing extends React.Component {
 					module={ copyPost }
 					support={ {
 						text: __(
-							'Duplicate existing posts, pages, Testimonials, and Portfolios. ' +
-								'All the content will be copied including text, featured images, sharing settings, and more.'
+							'Duplicate existing posts, pages, Testimonials, and Portfolios. All the content will be copied including text, featured images, sharing settings, and more.',
+							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-copy-post' ),
 					} }
@@ -79,9 +79,8 @@ export class Composing extends React.Component {
 					module={ markdown }
 					support={ {
 						text: __(
-							'Use Markdown syntax to compose content with links, lists, and other styles. ' +
-								'This setting enables Markdown in the Classic Editor ' +
-								'as well as within a Classic Editor block.'
+							'Use Markdown syntax to compose content with links, lists, and other styles. This setting enables Markdown in the Classic Editor as well as within a Classic Editor block.',
+							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-markdown' ),
 					} }
@@ -112,7 +111,8 @@ export class Composing extends React.Component {
 					module={ latex }
 					support={ {
 						text: __(
-							'LaTeX is a powerful markup language for writing complex mathematical equations and formulas.'
+							'LaTeX is a powerful markup language for writing complex mathematical equations and formulas.',
+							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-beautiful-math-with-latex' ),
 					} }
@@ -147,7 +147,7 @@ export class Composing extends React.Component {
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __( 'Compose using shortcodes to embed media from popular sites' ) }
+								{ __( 'Compose using shortcodes to embed media from popular sites', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
 					</FormFieldset>
@@ -157,7 +157,7 @@ export class Composing extends React.Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Composing', { context: 'Settings header' } ) }
+				header={ _x( 'Composing', 'Settings header', 'jetpack' ) }
 				module="composing"
 				saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
 			>

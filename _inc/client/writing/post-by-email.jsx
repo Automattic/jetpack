@@ -3,17 +3,17 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import ClipboardButtonInput from 'components/clipboard-button-input';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import ClipboardButtonInput from 'components/clipboard-button-input';
+import Card from 'components/card';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -57,13 +57,17 @@ class PostByEmail extends React.Component {
 					disableInDevMode
 					module={ postByEmail }
 					support={ {
-						text: __( 'Allows you to publish new posts by sending an email to a special address.' ),
+						text: __(
+							'Allows you to publish new posts by sending an email to a special address.',
+							'jetpack'
+						),
 						link: getRedirectUrl( 'jetpack-support-post-by-email' ),
 					} }
 				>
 					<p>
 						{ __(
-							'Post by email is a quick way to publish new posts without visiting your site. We’ll generate a unique email address for you to send your content to, which will then appear on your site just like any other post.'
+							'Post by email is a quick way to publish new posts without visiting your site. We’ll generate a unique email address for you to send your content to, which will then appear on your site just like any other post.',
+							'jetpack'
 						) }
 					</p>
 					{ this.props.userCanManageModules ? (
@@ -86,20 +90,27 @@ class PostByEmail extends React.Component {
 					) }
 					<FormFieldset>
 						<FormLabel>
-							<FormLegend>{ __( 'Send your new posts to this email address:' ) }</FormLegend>
+							<FormLegend>
+								{ __( 'Send your new posts to this email address:', 'jetpack' ) }
+							</FormLegend>
 							<ClipboardButtonInput
 								value={ emailAddress }
 								disabled={ ! isPbeActive || disabledControls }
-								copy={ __( 'Copy', { context: 'verb' } ) }
-								copied={ __( 'Copied!' ) }
-								prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+								copy={ _x( 'Copy', 'verb', 'jetpack' ) }
+								copied={ __( 'Copied!', 'jetpack' ) }
+								prompt={ __(
+									'Highlight and copy the following text to your clipboard:',
+									'jetpack'
+								) }
 							/>
 						</FormLabel>
 						<Button
 							disabled={ ! isPbeActive || disabledControls }
 							onClick={ this.regeneratePostByEmailAddress }
 						>
-							{ emailAddress ? __( 'Regenerate address' ) : __( 'Create address' ) }
+							{ emailAddress
+								? __( 'Regenerate address', 'jetpack' )
+								: __( 'Create address', 'jetpack' ) }
 						</Button>
 					</FormFieldset>
 				</SettingsGroup>
@@ -109,7 +120,7 @@ class PostByEmail extends React.Component {
 						className="jp-settings-card__configure-link"
 						href={ `${ this.props.connectUrl }&from=unlinked-user-pbe` }
 					>
-						{ __( 'Create a Jetpack account to use this feature' ) }
+						{ __( 'Create a Jetpack account to use this feature', 'jetpack' ) }
 					</Card>
 				) }
 			</SettingsCard>
