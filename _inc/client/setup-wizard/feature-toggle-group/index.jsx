@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { translate as __ } from 'i18n-calypso';
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies

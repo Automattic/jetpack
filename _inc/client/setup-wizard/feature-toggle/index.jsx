@@ -3,7 +3,7 @@
  */
 import { Disabled, FormToggle } from '@wordpress/components';
 import classnames from 'classnames';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -88,7 +88,7 @@ let FeatureToggle = props => {
 				target={ isButtonLinkExternal ? '_blank' : '' }
 				onClick={ onUpgradeButtonClick }
 			>
-				{ __( 'Upgrade now' ) }
+				{ __( 'Upgrade now', 'jetpack' ) }
 				{ isButtonLinkExternal && (
 					<span>
 						<Gridicon icon="external" />
@@ -103,7 +103,7 @@ let FeatureToggle = props => {
 				target={ isButtonLinkExternal ? '_blank' : '' }
 				onClick={ onConfigureButtonClick }
 			>
-				{ __( 'Configure' ) }
+				{ __( 'Configure', 'jetpack' ) }
 				{ isButtonLinkExternal && (
 					<span>
 						<Gridicon icon="external" />
@@ -134,7 +134,7 @@ let FeatureToggle = props => {
 				{ ...externalLinkProps }
 				onClick={ onViewOptionsClick }
 			>
-				{ __( 'View options' ) }
+				{ __( 'View options', 'jetpack' ) }
 				{ isOptionsLinkExternal && <Gridicon icon="external" size="18" /> }
 			</a>
 		);

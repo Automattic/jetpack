@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 import { get } from 'lodash';
 
 /**
@@ -23,7 +23,11 @@ import {
 } from 'state/site';
 
 function getInfoString( productName ) {
-	return __( 'Included with %(productName)s', { args: { productName } } );
+	return sprintf(
+		/* translators: placeholder is a product name, such as Jetpack Backups. */
+		__( 'Included with %s', 'jetpack' ),
+		productName
+	);
 }
 
 const features = {
@@ -48,8 +52,8 @@ const features = {
 
 			return {
 				feature: 'ads',
-				title: __( 'Ads' ),
-				details: __( 'Generate income with high-quality ads.' ),
+				title: __( 'Ads', 'jetpack' ),
+				details: __( 'Generate income with high-quality ads.', 'jetpack' ),
 				checked: getSetting( state, 'wordads' ),
 				isPaid: true,
 				configureLink,
@@ -94,8 +98,8 @@ const features = {
 
 			return {
 				feature: 'anti-spam',
-				title: __( 'Anti-spam' ),
-				details: __( 'No more approving or vetting.' ),
+				title: __( 'Anti-spam', 'jetpack' ),
+				details: __( 'No more approving or vetting.', 'jetpack' ),
 				checked: true === isAkismetKeyValid( state ),
 				isDisabled: inCurrentPlan,
 				isPaid: true,
@@ -140,8 +144,8 @@ const features = {
 
 			return {
 				feature: 'backups',
-				title: __( 'Daily or Real-time backups' ),
-				details: __( 'Get time travel for your site with Jetpack Backup.' ),
+				title: __( 'Daily or Real-time backups', 'jetpack' ),
+				details: __( 'Get time travel for your site with Jetpack Backup.', 'jetpack' ),
 				checked: isBackupsPurchased,
 				isDisabled: isBackupsPurchased,
 				optionsLink,
@@ -156,8 +160,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'beautiful-math',
-				title: __( 'Beautiful math' ),
-				details: __( 'Display math and formulas beautifully.' ),
+				title: __( 'Beautiful math', 'jetpack' ),
+				details: __( 'Display math and formulas beautifully.', 'jetpack' ),
 				checked: getSetting( state, 'latex' ),
 				optionsLink: '#/settings?term=latex',
 			};
@@ -175,8 +179,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'brute-force-protect',
-				title: __( 'Brute force protection' ),
-				details: __( 'Stop malicious login attempts.' ),
+				title: __( 'Brute force protection', 'jetpack' ),
+				details: __( 'Stop malicious login attempts.', 'jetpack' ),
 				checked: getSetting( state, 'protect' ),
 				optionsLink: '#/settings?term=brute%20force',
 			};
@@ -194,9 +198,10 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'carousel',
-				title: __( 'Carousel' ),
+				title: __( 'Carousel', 'jetpack' ),
 				details: __(
-					'Create full-screen carousel slideshows for the images in your posts and pages.'
+					'Create full-screen carousel slideshows for the images in your posts and pages.',
+					'jetpack'
 				),
 				checked: getSetting( state, 'carousel' ),
 				optionsLink: '#/settings?term=carousel',
@@ -215,8 +220,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'comment-likes',
-				title: __( 'Comment Likes' ),
-				details: __( 'Increase engagement with liking on comments.' ),
+				title: __( 'Comment Likes', 'jetpack' ),
+				details: __( 'Increase engagement with liking on comments.', 'jetpack' ),
 				checked: getSetting( state, 'comment-likes' ),
 				optionsLink: '#/settings?term=comment%20likes',
 			};
@@ -235,8 +240,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'comments',
-				title: __( 'Comments' ),
-				details: __( 'An enhanced comments section with better verfiication.' ),
+				title: __( 'Comments', 'jetpack' ),
+				details: __( 'An enhanced comments section with better verfiication.', 'jetpack' ),
 				checked: getSetting( state, 'comments' ),
 				optionsLink: '#/settings?term=comments',
 			};
@@ -254,8 +259,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'contact-form',
-				title: __( 'Contact Form' ),
-				details: __( 'Add contact forms using the block editor.' ),
+				title: __( 'Contact Form', 'jetpack' ),
+				details: __( 'Add contact forms using the block editor.', 'jetpack' ),
 				checked: getSetting( state, 'contact-form' ),
 				optionsLink: '#/settings?term=contact%20form',
 			};
@@ -273,8 +278,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'copy-post',
-				title: __( 'Copy Post' ),
-				details: __( 'Simply duplicate content.' ),
+				title: __( 'Copy Post', 'jetpack' ),
+				details: __( 'Simply duplicate content.', 'jetpack' ),
 				checked: getSetting( state, 'copy-post' ),
 				optionsLink: '#/settings?term=copy%20post',
 			};
@@ -292,8 +297,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'custom-css',
-				title: __( 'Custom CSS' ),
-				details: __( 'Enable an enhanced CSS customization panel.' ),
+				title: __( 'Custom CSS', 'jetpack' ),
+				details: __( 'Enable an enhanced CSS customization panel.', 'jetpack' ),
 				checked: getSetting( state, 'custom-css' ),
 				optionsLink: '#/settings?term=custom%20css',
 			};
@@ -311,8 +316,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'enhanced-distribution',
-				title: __( 'Enhanced Distribution' ),
-				details: __( 'Increase reach and traffic.' ),
+				title: __( 'Enhanced Distribution', 'jetpack' ),
+				details: __( 'Increase reach and traffic.', 'jetpack' ),
 				checked: getSetting( state, 'enhanced-distribution' ),
 				optionsLink: '#/traffic?term=enhanced',
 			};
@@ -330,8 +335,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'extra-sidebar-widgets',
-				title: __( 'Extra Sidebar Widgets' ),
-				details: __( 'Add more widgets.' ),
+				title: __( 'Extra Sidebar Widgets', 'jetpack' ),
+				details: __( 'Add more widgets.', 'jetpack' ),
 				checked: getSetting( state, 'widgets' ),
 				optionsLink: '#/traffic?term=extra',
 			};
@@ -366,8 +371,8 @@ const features = {
 
 			return {
 				feature: 'google-analytics',
-				title: __( 'Google Analytics' ),
-				details: __( 'Add your Google Analytics account.' ),
+				title: __( 'Google Analytics', 'jetpack' ),
+				details: __( 'Add your Google Analytics account.', 'jetpack' ),
 				checked: getSetting( state, 'google-analytics' ),
 				isPaid: true,
 				configureLink,
@@ -388,8 +393,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'gravatar-hovercards',
-				title: __( 'Gravatar Hovercards' ),
-				details: __( 'Give comments life.' ),
+				title: __( 'Gravatar Hovercards', 'jetpack' ),
+				details: __( 'Give comments life.', 'jetpack' ),
 				checked: getSetting( state, 'gravatar-hovercards' ),
 				optionsLink: '#/traffic?term=hovercards',
 			};
@@ -407,9 +412,10 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'infinite-scroll',
-				title: __( 'Infinite Scroll' ),
+				title: __( 'Infinite Scroll', 'jetpack' ),
 				details: __(
-					'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.'
+					'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.',
+					'jetpack'
 				),
 				checked: !! getSetting( state, 'infinite-scroll' ),
 				optionsLink: '#/settings?term=infinite',
@@ -431,8 +437,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'json-api',
-				title: __( 'JSON API' ),
-				details: __( 'JSON API access for developers.' ),
+				title: __( 'JSON API', 'jetpack' ),
+				details: __( 'JSON API access for developers.', 'jetpack' ),
 				checked: getSetting( state, 'json-api' ),
 				optionsLink: '/wp-admin/admin.php?page=jetpack#/traffic?term=json',
 			};
@@ -450,8 +456,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'lazy-images',
-				title: __( 'Lazy Loading Images' ),
-				details: __( 'Further improve site speed and only load images visitors need.' ),
+				title: __( 'Lazy Loading Images', 'jetpack' ),
+				details: __( 'Further improve site speed and only load images visitors need.', 'jetpack' ),
 				checked: getSetting( state, 'lazy-images' ),
 				optionsLink: '#/settings?term=lazy',
 			};
@@ -469,8 +475,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'likes',
-				title: __( 'Likes' ),
-				details: __( 'Add a like button to your posts.' ),
+				title: __( 'Likes', 'jetpack' ),
+				details: __( 'Add a like button to your posts.', 'jetpack' ),
 				checked: getSetting( state, 'likes' ),
 				optionsLink: '#/settings?term=likes',
 			};
@@ -488,8 +494,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'markdown',
-				title: __( 'Markdown' ),
-				details: __( 'Write faster rich-text.' ),
+				title: __( 'Markdown', 'jetpack' ),
+				details: __( 'Write faster rich-text.', 'jetpack' ),
 				checked: getSetting( state, 'markdown' ),
 				optionsLink: '#/traffic?term=markdown',
 			};
@@ -507,8 +513,11 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'masterbar',
-				title: __( 'WordPress.com Toolbar' ),
-				details: __( 'The WordPress.com toolbar replaces the default WordPress admin toolbar.' ),
+				title: __( 'WordPress.com Toolbar', 'jetpack' ),
+				details: __(
+					'The WordPress.com toolbar replaces the default WordPress admin toolbar.',
+					'jetpack'
+				),
 				checked: getSetting( state, 'masterbar' ),
 				optionsLink: '#/settings?term=toolbar',
 			};
@@ -526,8 +535,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'monitor',
-				title: __( 'Downtime Monitoring' ),
-				details: __( 'Get an alert immediately if your site goes down.' ),
+				title: __( 'Downtime Monitoring', 'jetpack' ),
+				details: __( 'Get an alert immediately if your site goes down.', 'jetpack' ),
 				checked: getSetting( state, 'monitor' ),
 				optionsLink: '#/settings?term=monitor',
 			};
@@ -545,8 +554,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'notifications',
-				title: __( 'Notifications' ),
-				details: __( 'Stay up-to-date with your site.' ),
+				title: __( 'Notifications', 'jetpack' ),
+				details: __( 'Stay up-to-date with your site.', 'jetpack' ),
 				checked: getSetting( state, 'notes' ),
 				optionsLink: '#/settings?term=push',
 			};
@@ -564,8 +573,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'portfolio',
-				title: __( 'Portfolio: Custom content types' ),
-				details: __( 'Use portfolios on your site to showcase your best work.' ),
+				title: __( 'Portfolio: Custom content types', 'jetpack' ),
+				details: __( 'Use portfolios on your site to showcase your best work.', 'jetpack' ),
 				checked: getSetting( state, 'jetpack_portfolio' ),
 				optionsLink: '/wp-admin/admin.php?page=jetpack#/settings?term=portfolios',
 			};
@@ -593,9 +602,10 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'post-by-email',
-				title: __( 'Post by email' ),
+				title: __( 'Post by email', 'jetpack' ),
 				details: __(
-					'Post by email is a quick way to publish new posts without visiting your site.'
+					'Post by email is a quick way to publish new posts without visiting your site.',
+					'jetpack'
 				),
 				checked: getSetting( state, 'post-by-email' ),
 				configureLink: '#/traffic?term=post%20by%20email',
@@ -616,8 +626,11 @@ const features = {
 
 			return {
 				feature: 'publicize',
-				title: __( 'Publicize' ),
-				details: __( 'Automaticaly share content on your favorite social media accounts.' ),
+				title: __( 'Publicize', 'jetpack' ),
+				details: __(
+					'Automaticaly share content on your favorite social media accounts.',
+					'jetpack'
+				),
 				checked: getSetting( state, 'publicize' ),
 				configureLink: getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ),
 				isButtonLinkExternal: true,
@@ -636,9 +649,10 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'related-posts',
-				title: __( 'Related posts' ),
+				title: __( 'Related posts', 'jetpack' ),
 				details: __(
-					'Keep your visitors engaged with related content at the bottom of each post.'
+					'Keep your visitors engaged with related content at the bottom of each post.',
+					'jetpack'
 				),
 				checked: getSetting( state, 'related-posts' ),
 				optionsLink: '#/settings?term=related%20posts',
@@ -680,8 +694,8 @@ const features = {
 
 			return {
 				feature: 'scan',
-				title: __( 'Security scanning' ),
-				details: __( 'Stop threats to keep your website safe.' ),
+				title: __( 'Security scanning', 'jetpack' ),
+				details: __( 'Stop threats to keep your website safe.', 'jetpack' ),
 				checked: isScanPurchased,
 				isDisabled: isScanPurchased,
 				isPaid: true,
@@ -708,9 +722,10 @@ const features = {
 
 			return {
 				feature: 'search',
-				title: __( 'Search' ),
+				title: __( 'Search', 'jetpack' ),
 				details: __(
-					'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.'
+					'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+					'jetpack'
 				),
 				checked: getSetting( state, 'search' ),
 				isPaid: true,
@@ -731,8 +746,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'sso',
-				title: __( 'Secure Sign On' ),
-				details: __( 'Add an extra layer of security.' ),
+				title: __( 'Secure Sign On', 'jetpack' ),
+				details: __( 'Add an extra layer of security.', 'jetpack' ),
 				checked: getSetting( state, 'sso' ),
 				optionsLink: '#/settings?term=secure%20sign%20on',
 			};
@@ -765,8 +780,8 @@ const features = {
 
 			return {
 				feature: 'seo',
-				title: __( 'SEO' ),
-				details: __( 'Take control of the way search engines represent your site.' ),
+				title: __( 'SEO', 'jetpack' ),
+				details: __( 'Take control of the way search engines represent your site.', 'jetpack' ),
 				checked: getSetting( state, 'seo-tools' ),
 				configureLink,
 				upgradeLink,
@@ -786,8 +801,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'sitemaps',
-				title: __( 'Sitemaps' ),
-				details: __( 'Automatically generate sitemaps for all your content.' ),
+				title: __( 'Sitemaps', 'jetpack' ),
+				details: __( 'Automatically generate sitemaps for all your content.', 'jetpack' ),
 				checked: getSetting( state, 'sitemaps' ),
 				optionsLink: '#/settings?term=sitemaps',
 			};
@@ -805,8 +820,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'sharing',
-				title: __( 'Sharing' ),
-				details: __( 'Increase sharing of your posts and pages. ' ),
+				title: __( 'Sharing', 'jetpack' ),
+				details: __( 'Increase sharing of your posts and pages.', 'jetpack' ),
 				checked: getSetting( state, 'sharedaddy' ),
 				optionsLink: '#/settings?term=sharedaddy',
 			};
@@ -824,8 +839,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'shortcodes',
-				title: __( 'Shortcode Embeds' ),
-				details: __( 'Embed YouTube videos, and other content easily.' ),
+				title: __( 'Shortcode Embeds', 'jetpack' ),
+				details: __( 'Embed YouTube videos, and other content easily.', 'jetpack' ),
 				checked: getSetting( state, 'shortcodes' ),
 				optionsLink: '#/traffic?term=embeds',
 			};
@@ -843,8 +858,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'shortlinks',
-				title: __( 'WP.me Shortlinks' ),
-				details: __( 'Build quick links for sharing.' ),
+				title: __( 'WP.me Shortlinks', 'jetpack' ),
+				details: __( 'Build quick links for sharing.', 'jetpack' ),
 				checked: getSetting( state, 'shortlinks' ),
 				optionsLink: '#/settings?term=shortlink',
 			};
@@ -881,8 +896,8 @@ const features = {
 
 			return {
 				feature: 'simple-payments-block',
-				title: __( 'Pay with PayPal' ),
-				details: __( 'A simple way to accept payments.' ),
+				title: __( 'Pay with PayPal', 'jetpack' ),
+				details: __( 'A simple way to accept payments.', 'jetpack' ),
 				checked: inCurrentPlan,
 				isDisabled: inCurrentPlan,
 				isPaid: true,
@@ -898,8 +913,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'site-accelerator',
-				title: __( 'Site Accelerator' ),
-				details: __( 'Enable for faster images and a faster site.' ),
+				title: __( 'Site Accelerator', 'jetpack' ),
+				details: __( 'Enable for faster images and a faster site.', 'jetpack' ),
 				checked: getSetting( state, 'photon' ) && getSetting( state, 'photon-cdn' ),
 				optionsLink: '#/settings?term=image%20optimize',
 			};
@@ -919,8 +934,11 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'site-stats',
-				title: __( 'Site Stats' ),
-				details: __( 'Track your site visitors and learn about your most popular content.' ),
+				title: __( 'Site Stats', 'jetpack' ),
+				details: __(
+					'Track your site visitors and learn about your most popular content.',
+					'jetpack'
+				),
 				checked: getSetting( state, 'stats' ),
 				optionsLink: '#/settings?term=site%20stats',
 			};
@@ -938,8 +956,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'site-verification',
-				title: __( 'Site verification' ),
-				details: __( 'Verify your site with Google, Bing, Yandex, and Pinterest.' ),
+				title: __( 'Site verification', 'jetpack' ),
+				details: __( 'Verify your site with Google, Bing, Yandex, and Pinterest.', 'jetpack' ),
 				checked: getSetting( state, 'verification-tools' ),
 				configureLink: '#/settings?term=verify',
 			};
@@ -957,8 +975,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'subscriptions',
-				title: __( 'Subscriptions' ),
-				details: __( 'Send post notifications to your visitors.' ),
+				title: __( 'Subscriptions', 'jetpack' ),
+				details: __( 'Send post notifications to your visitors.', 'jetpack' ),
 				checked: getSetting( state, 'subscriptions' ),
 				optionsLink: '#/settings?term=subscriptions',
 			};
@@ -976,8 +994,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'testimonials',
-				title: __( 'Testimonial: Custom content types' ),
-				details: __( 'Add testimonials to your website to attract new customers.' ),
+				title: __( 'Testimonial: Custom content types', 'jetpack' ),
+				details: __( 'Add testimonials to your website to attract new customers.', 'jetpack' ),
 				checked: getSetting( state, 'jetpack_testimonial' ),
 				optionsLink: '#/settings?term=testimonials',
 			};
@@ -1006,8 +1024,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'tiled-galleries',
-				title: __( 'Tiled Galleries' ),
-				details: 'Add beautifully laid out galleries using the block editor.',
+				title: __( 'Tiled Galleries', 'jetpack' ),
+				details: __( 'Add beautifully laid out galleries using the block editor.', 'jetpack' ),
 				checked: getSetting( state, 'tiled-gallery' ),
 				optionsLink: 'https://jetpack.com/support/jetpack-blocks/tiled-gallery-block/',
 				isOptionsLinkExternal: true,
@@ -1043,8 +1061,8 @@ const features = {
 
 			return {
 				feature: 'videopress',
-				title: __( 'VideoPress' ),
-				details: __( 'Host fast, high-quality, ad-free video.' ),
+				title: __( 'VideoPress', 'jetpack' ),
+				details: __( 'Host fast, high-quality, ad-free video.', 'jetpack' ),
 				checked: getSetting( state, 'videopress' ),
 				isPaid: true,
 				optionsLink,
@@ -1065,8 +1083,8 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'widget-visibility',
-				title: __( 'Widget Visibility' ),
-				details: __( 'Control your widgets at the post or page level.' ),
+				title: __( 'Widget Visibility', 'jetpack' ),
+				details: __( 'Control your widgets at the post or page level.', 'jetpack' ),
 				checked: getSetting( state, 'widget-visibility' ),
 				optionsLink: '#/settings?term=visibility',
 			};
