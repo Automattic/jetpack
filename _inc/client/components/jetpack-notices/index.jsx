@@ -218,11 +218,13 @@ class JetpackNotices extends React.Component {
 				/>
 				<PlanConflictWarning />
 				<DismissableNotices />
-				<UserUnlinked
-					connectUrl={ this.props.connectUrl }
-					siteConnected={ true === this.props.siteConnectionStatus }
-					isLinked={ this.props.isLinked }
-				/>
+				{ ! siteDataErrors.length && ! this.props.connectionErrors.length && (
+					<UserUnlinked
+						connectUrl={ this.props.connectUrl }
+						siteConnected={ true === this.props.siteConnectionStatus }
+						isLinked={ this.props.isLinked }
+					/>
+				) }
 				{ ! this.props.siteConnectionStatus && ! this.props.userCanConnectSite && (
 					<SimpleNotice
 						showDismiss={ false }
