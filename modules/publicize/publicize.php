@@ -810,7 +810,6 @@ abstract class Publicize_Base {
 			Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
 		} else {
 			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-
 		}
 	}
 

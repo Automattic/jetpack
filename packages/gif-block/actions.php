@@ -24,3 +24,15 @@ add_filter(
 	10,
 	2
 );
+
+add_filter(
+	'jetpack_get_extension_path',
+	function( $path, $name ) {
+		if ( 'jetpack/gif' === $name ) {
+			return __DIR__ . '/src';
+		}
+		return $path;
+	},
+	10,
+	2
+);
