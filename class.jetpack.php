@@ -832,7 +832,6 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
 		Partner::init();
@@ -1123,16 +1122,6 @@ class Jetpack {
 		}
 
 		$this->connection_manager->require_jetpack_authentication();
-	}
-
-	/**
-	 * Load language files
-	 *
-	 * @action plugins_loaded
-	 */
-	public static function plugin_textdomain() {
-		// Note to self, the third argument must not be hardcoded, to account for relocated folders.
-		load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( JETPACK__PLUGIN_FILE ) ) . '/languages/' );
 	}
 
 	/**

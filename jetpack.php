@@ -8,7 +8,6 @@
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Domain Path: /languages/
  * Requires at least: 5.4
  * Requires PHP: 5.6
  *
