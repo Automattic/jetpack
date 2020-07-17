@@ -61,7 +61,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			// Our "Plugins" :)
 			'onion',
 			'potato',
-			'tomato'
+			'tomato',
 		);
 	}
 
@@ -69,10 +69,10 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	 * This test will throw an exception/fail if blocks register twice upon repeat calls to get_availability()
 	 */
 	function test_does_calling_get_availability_twice_result_in_notice() {
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		Jetpack_Gutenberg::get_availability();
 		Jetpack_Gutenberg::get_availability();
-		$result = remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		$result = remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		$this->assertTrue( $result );
 	}
 
@@ -104,7 +104,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
 		$this->assertFalse( $availability['grape']['available'], 'Availability is not false exists' );
-		$this->assertEquals( $availability['grape']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
+		$this->assertEquals( $availability['grape']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"' );
 	}
 
 	// Plugins
@@ -133,21 +133,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
 		$this->assertFalse( $availability['tomato']['available'], 'Availability is not false exists' );
-		$this->assertEquals( $availability['tomato']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
-	}
-
-	function test_get_available_extensions() {
-		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
-		$this->assertInternalType( 'array', $extensions );
-		$this->assertNotEmpty( $extensions );
-		$this->assertContains( 'onion', $extensions );
-
-		update_option( 'jetpack_excluded_extensions', array( 'onion' ) );
-
-		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
-		$this->assertInternalType( 'array', $extensions );
-		$this->assertNotEmpty( $extensions );
-		$this->assertNotContains( 'onion', $extensions );
+		$this->assertEquals( $availability['tomato']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"' );
 	}
 
 	function test_returns_false_if_core_wp_version_less_than_minimum() {

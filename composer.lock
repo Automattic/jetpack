@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3da5ae4fbc531021e86056206a7f4d39",
+    "content-hash": "e9aa7a3c16a67ec28a354140761c25dd",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -134,11 +134,12 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/block-loader",
-                "reference": "6c462eb57ce818a9ee5b39eb75f77ab428ed57d2"
+                "reference": "9da74032f743e8abd19b0b001d410962277dd338"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
+                "roots/wordpress": "^5.4"
             },
             "type": "library",
             "autoload": {
@@ -364,6 +365,41 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Error - a wrapper around WP_Error."
+        },
+        {
+            "name": "automattic/jetpack-gif-block",
+            "version": "dev-try/package-button-block",
+            "dist": {
+                "type": "path",
+                "url": "./packages/gif-block",
+                "reference": "43cd3182ba7be13deaf4ce6b676cf119a8b8c134"
+            },
+            "require": {
+                "automattic/jetpack-block-loader": "@dev"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Show a gif"
         },
         {
             "name": "automattic/jetpack-jitm",
@@ -1115,6 +1151,7 @@
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
+        "automattic/jetpack-gif-block": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
