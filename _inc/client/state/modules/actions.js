@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import { translate as __ } from 'i18n-calypso';
 import { forEach, some } from 'lodash';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
@@ -84,11 +84,11 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 		dispatch(
 			createNotice(
 				'is-info',
-				__( 'Activating %(slug)s…', {
-					args: {
-						slug: getModule( getState(), slug ).name,
-					},
-				} ),
+				sprintf(
+					/* translators: placeholder is a feature name, such as "Image CDN". */
+					__( 'Activating %s…', 'jetpack' ),
+					getModule( getState(), slug ).name
+				),
 				{ id: 'module-toggle' }
 			)
 		);
@@ -104,11 +104,11 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 				dispatch(
 					createNotice(
 						'is-success',
-						__( '%(slug)s has been activated.', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is a feature name, such as "Image CDN". */
+							__( '%s has been activated.', 'jetpack' ),
+							getModule( getState(), slug ).name
+						),
 						{ id: 'module-toggle', duration: 2000 }
 					)
 				);
@@ -127,12 +127,12 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( '%(slug)s failed to activate. %(error)s', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-								error: error,
-							},
-						} ),
+						sprintf(
+							/* translators: %1$s: feature name, such as "Image CDN". - %2$s: error message. */
+							__( '%1$s failed to activate. %2$s', 'jetpack' ),
+							getModule( getState(), slug ).name,
+							error
+						),
 						{ id: 'module-toggle' }
 					)
 				);
@@ -150,11 +150,11 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 		dispatch(
 			createNotice(
 				'is-info',
-				__( 'Deactivating %(slug)s…', {
-					args: {
-						slug: getModule( getState(), slug ).name,
-					},
-				} ),
+				sprintf(
+					/* translators: placeholder is a feature name, such as "Image CDN". */
+					__( 'Deactivating %s…', 'jetpack' ),
+					getModule( getState(), slug ).name
+				),
 				{ id: 'module-toggle' }
 			)
 		);
@@ -170,11 +170,11 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 				dispatch(
 					createNotice(
 						'is-success',
-						__( '%(slug)s has been deactivated.', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is a feature name, such as "Image CDN". */
+							__( '%s has been deactivated.', 'jetpack' ),
+							getModule( getState(), slug ).name
+						),
 						{ id: 'module-toggle', duration: 2000 }
 					)
 				);
@@ -193,12 +193,12 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( '%(slug)s failed to deactivate. %(error)s', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-								error: error,
-							},
-						} ),
+						sprintf(
+							/* translators: %1$s: feature name, such as "Image CDN". - %2$s: error message. */
+							__( '%1$s failed to deactivate. %2$s', 'jetpack' ),
+							getModule( getState(), slug ).name,
+							error
+						),
 						{ id: 'module-toggle' }
 					)
 				);
@@ -219,11 +219,11 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 		dispatch(
 			createNotice(
 				'is-info',
-				__( 'Updating %(slug)s settings…', {
-					args: {
-						slug: getModule( getState(), slug ).name,
-					},
-				} ),
+				sprintf(
+					/* translators: placeholder is a feature name, such as "Image CDN". */
+					__( 'Updating %s settings…', 'jetpack' ),
+					getModule( getState(), slug ).name
+				),
 				{ id: `module-setting-${ slug }` }
 			)
 		);
@@ -241,11 +241,11 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 				dispatch(
 					createNotice(
 						'is-success',
-						__( 'Updated %(slug)s settings.', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is a feature name, such as "Image CDN". */
+							__( 'Updated %s settings.', 'jetpack' ),
+							getModule( getState(), slug ).name
+						),
 						{ id: `module-setting-${ slug }`, duration: 2000 }
 					)
 				);
@@ -262,12 +262,12 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( 'Error updating %(slug)s settings. %(error)s', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-								error: error,
-							},
-						} ),
+						sprintf(
+							/* translators: %1$s: feature name, such as "Image CDN". - %2$s: error message. */
+							__( 'Error updating %1$ss settings. %2$s', 'jetpack' ),
+							getModule( getState(), slug ).name,
+							error
+						),
 						{ id: `module-setting-${ slug }` }
 					)
 				);
@@ -291,11 +291,11 @@ export const regeneratePostByEmailAddress = () => {
 		dispatch(
 			createNotice(
 				'is-info',
-				__( 'Updating %(slug)s address…', {
-					args: {
-						slug: getModule( getState(), slug ).name,
-					},
-				} ),
+				sprintf(
+					/* translators: placeholder is a feature name, such as "Post By Email". */
+					__( 'Updating %s address…', 'jetpack' ),
+					getModule( getState(), slug ).name
+				),
 				{ id: `module-setting-${ slug }` }
 			)
 		);
@@ -315,11 +315,11 @@ export const regeneratePostByEmailAddress = () => {
 				dispatch(
 					createNotice(
 						'is-success',
-						__( 'Regenerated %(slug)s address .', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is a feature name, such as "Post By Email". */
+							__( 'Regenerated %s address.', 'jetpack' ),
+							getModule( getState(), slug ).name
+						),
 						{ id: `module-setting-${ slug }`, duration: 2000 }
 					)
 				);
@@ -336,12 +336,12 @@ export const regeneratePostByEmailAddress = () => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( 'Error regenerating %(slug)s address. %(error)s', {
-							args: {
-								slug: getModule( getState(), slug ).name,
-								error: error,
-							},
-						} ),
+						sprintf(
+							/* translators: %1$s: feature name, such as "Post By Email". - %2$s: error message. */
+							__( 'Error regenerating %1$s address. %2$s', 'jetpack' ),
+							getModule( getState(), slug ).name,
+							error
+						),
 						{ id: `module-setting-${ slug }` }
 					)
 				);

@@ -6,13 +6,14 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { assign, get } from 'lodash';
+import i18n from 'i18n-calypso';
+import { _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import accessibleFocus from 'lib/accessible-focus';
 import store from 'state/redux-store';
-import i18n from 'i18n-calypso';
 import Main from 'main';
 import * as actionTypes from 'state/action-types';
 
@@ -126,30 +127,30 @@ function render() {
 export function getRouteName( path ) {
 	switch ( path ) {
 		case '/dashboard':
-			return i18n.translate( 'At A Glance', { context: 'Navigation item.' } );
+			return _x( 'At A Glance', 'Navigation item.', 'jetpack' );
 		case '/setup':
-			return i18n.translate( 'Set up', { context: 'Navigation item.' } );
+			return _x( 'Set up', 'Navigation item.', 'jetpack' );
 		case '/my-plan':
-			return i18n.translate( 'My Plan', { context: 'Navigation item.' } );
+			return _x( 'My Plan', 'Navigation item.', 'jetpack' );
 		case '/plans':
-			return i18n.translate( 'Plans', { context: 'Navigation item.' } );
+			return _x( 'Plans', 'Navigation item.', 'jetpack' );
 		case '/plans-prompt':
-			return i18n.translate( 'Plans', { context: 'Navigation item.' } );
+			return _x( 'Plans', 'Navigation item.', 'jetpack' );
 		case '/settings':
-			return i18n.translate( 'Settings', { context: 'Navigation item.' } );
+			return _x( 'Settings', 'Navigation item.', 'jetpack' );
 		case '/discussion':
-			return i18n.translate( 'Discussion', { context: 'Navigation item.' } );
+			return _x( 'Discussion', 'Navigation item.', 'jetpack' );
 		case '/security':
-			return i18n.translate( 'Security', { context: 'Navigation item.' } );
+			return _x( 'Security', 'Navigation item.', 'jetpack' );
 		case '/performance':
-			return i18n.translate( 'Performance', { context: 'Navigation item.' } );
+			return _x( 'Performance', 'Navigation item.', 'jetpack' );
 		case '/traffic':
-			return i18n.translate( 'Traffic', { context: 'Navigation item.' } );
+			return _x( 'Traffic', 'Navigation item.', 'jetpack' );
 		case '/writing':
-			return i18n.translate( 'Writing', { context: 'Navigation item.' } );
+			return _x( 'Writing', 'Navigation item.', 'jetpack' );
 		case '/sharing':
-			return i18n.translate( 'Sharing', { context: 'Navigation item.' } );
+			return _x( 'Sharing', 'Navigation item.', 'jetpack' );
 		default:
-			return i18n.translate( 'At A Glance', { context: 'Navigation item.' } );
+			return _x( 'At A Glance', 'Navigation item.', 'jetpack' );
 	}
 }

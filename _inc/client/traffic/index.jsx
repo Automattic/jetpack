@@ -3,14 +3,14 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getSettings } from 'state/settings';
 import { isSiteConnected, isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
@@ -71,9 +71,10 @@ export class Traffic extends React.Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Traffic' )
+							? __( 'Traffic', 'jetpack' )
 							: __(
-									'Maximize your site’s visibility in search engines and view traffic stats in real time.'
+									'Maximize your site’s visibility in search engines and view traffic stats in real time.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"

@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
 	JETPACK_CONNECTION_TEST_FETCH,
@@ -41,7 +41,7 @@ export const fetchSiteConnectionStatus = () => {
 export const fetchSiteConnectionTest = () => {
 	return dispatch => {
 		dispatch(
-			createNotice( 'is-info', __( 'Testing Jetpack Connection' ), {
+			createNotice( 'is-info', __( 'Testing Jetpack Connection', 'jetpack' ), {
 				id: 'test-jetpack-connection',
 			} )
 		);
@@ -66,11 +66,11 @@ export const fetchSiteConnectionTest = () => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( 'There was an error testing Jetpack. Error: %(error)s', {
-							args: {
-								error: error.message,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is an error message. */
+							__( 'There was an error testing Jetpack. Error: %s', 'jetpack' ),
+							error.message
+						),
 						{ id: 'test-jetpack-connection' }
 					)
 				);
@@ -128,7 +128,9 @@ export const disconnectSite = ( reloadAfter = false ) => {
 			type: DISCONNECT_SITE,
 		} );
 		dispatch(
-			createNotice( 'is-info', __( 'Disconnecting Jetpack' ), { id: 'disconnect-jetpack' } )
+			createNotice( 'is-info', __( 'Disconnecting Jetpack', 'jetpack' ), {
+				id: 'disconnect-jetpack',
+			} )
 		);
 		return restApi
 			.disconnectSite()
@@ -154,11 +156,11 @@ export const disconnectSite = ( reloadAfter = false ) => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( 'There was an error disconnecting Jetpack. Error: %(error)s', {
-							args: {
-								error: error,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is an error message. */
+							__( 'There was an error disconnecting Jetpack. Error: %s', 'jetpack' ),
+							error
+						),
 						{ id: 'disconnect-jetpack' }
 					)
 				);
@@ -172,7 +174,9 @@ export const unlinkUser = () => {
 			type: UNLINK_USER,
 		} );
 		dispatch(
-			createNotice( 'is-info', __( 'Unlinking from WordPress.com' ), { id: 'unlink-user' } )
+			createNotice( 'is-info', __( 'Unlinking from WordPress.com', 'jetpack' ), {
+				id: 'unlink-user',
+			} )
 		);
 		return restApi
 			.unlinkUser()
@@ -184,7 +188,7 @@ export const unlinkUser = () => {
 				dispatch( fetchConnectUrl() );
 				dispatch( removeNotice( 'unlink-user' ) );
 				dispatch(
-					createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), {
+					createNotice( 'is-success', __( 'Unlinked from WordPress.com.', 'jetpack' ), {
 						id: 'unlink-user',
 						duration: 2000,
 					} )
@@ -199,11 +203,11 @@ export const unlinkUser = () => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( 'Error unlinking from WordPress.com. %(error)s', {
-							args: {
-								error: error,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is an error message. */
+							__( 'Error unlinking from WordPress.com. %s', 'jetpack' ),
+							error
+						),
 						{ id: 'unlink-user' }
 					)
 				);
@@ -225,7 +229,7 @@ export const authorizeUserInPlaceSuccess = () => {
 			type: AUTH_USER_IN_PLACE_SUCCESS,
 		} );
 		dispatch(
-			createNotice( 'is-success', __( 'Linked to WordPress.com.' ), {
+			createNotice( 'is-success', __( 'Linked to WordPress.com.', 'jetpack' ), {
 				id: 'link-user-in-place',
 				duration: 2000,
 			} )
