@@ -3,13 +3,15 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+import { __, sprintf } from '@wordpress/i18n';
+
 /**
  * Internal dependencies
  */
 import PriceGroup from './price-group';
 import './plan-radio-button.scss';
 
-import { numberFormat, translate as __ } from 'i18n-calypso';
+import { numberFormat } from 'i18n-calypso';
 
 import {
 	JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS,
@@ -23,20 +25,22 @@ import {
 function getSearchTierLabel( priceTierSlug, recordCount ) {
 	switch ( priceTierSlug ) {
 		case JETPACK_SEARCH_TIER_UP_TO_100_RECORDS:
-			return __( 'Up to 100 records' );
+			return __( 'Up to 100 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS:
-			return __( 'Up to 1,000 records' );
+			return __( 'Up to 1,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_10K_RECORDS:
-			return __( 'Up to 10,000 records' );
+			return __( 'Up to 10,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_100K_RECORDS:
-			return __( 'Up to 100,000 records' );
+			return __( 'Up to 100,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS:
-			return __( 'Up to 1,000,000 records' );
+			return __( 'Up to 1,000,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS: {
 			const tierMaximumRecords = 1000000 * Math.ceil( recordCount / 1000000 );
-			return __( 'Up to %(tierMaximumRecords)s records', {
-				args: { tierMaximumRecords: numberFormat( tierMaximumRecords ) },
-			} );
+			return sprintf(
+				/* translators: placeholder is a number. */
+				__( 'Up to %s records', 'jetpack' ),
+				numberFormat( tierMaximumRecords )
+			);
 		}
 		default:
 			return null;

@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { map } from 'lodash';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -12,7 +13,6 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import { setPlanDuration, getPlanDuration } from 'state/plans';
-import { translate as __ } from 'i18n-calypso';
 
 class DurationSwitcher extends React.Component {
 	handlePeriodChange( newPeriod ) {
@@ -33,8 +33,8 @@ class DurationSwitcher extends React.Component {
 	render() {
 		const { planDuration } = this.props;
 		const periods = {
-			monthly: __( 'Monthly' ),
-			yearly: __( 'Yearly' ),
+			monthly: __( 'Monthly', 'jetpack' ),
+			yearly: __( 'Yearly', 'jetpack' ),
 		};
 
 		return (

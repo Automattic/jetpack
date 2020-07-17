@@ -2,15 +2,12 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import ProductCard from 'components/product-card';
-import ProductExpiration from 'components/product-expiration';
-import { getPlanClass } from 'lib/plans/constants';
 import {
 	BACKUP_DESCRIPTION_REALTIME,
 	BACKUP_DESCRIPTION,
@@ -19,6 +16,10 @@ import {
 	SEARCH_DESCRIPTION,
 	SEARCH_TITLE,
 } from '../constants';
+import { getPlanClass } from 'lib/plans/constants';
+import getRedirectUrl from 'lib/jp-redirect';
+import ProductCard from 'components/product-card';
+import ProductExpiration from 'components/product-expiration';
 
 export default function PurchasedProductCard( { purchase, siteRawlUrl } ) {
 	if ( ! purchase || ! siteRawlUrl ) {
@@ -69,27 +70,36 @@ export default function PurchasedProductCard( { purchase, siteRawlUrl } ) {
 		case 'is-personal-plan':
 			productCardProps = {
 				title: DAILY_BACKUP_TITLE,
-				subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
-					components: { planLink },
-				} ),
+				subtitle: jetpackCreateInterpolateElement(
+					__( 'Included in your <planLink>Personal Plan</planLink>', 'jetpack' ),
+					{
+						planLink,
+					}
+				),
 				description: BACKUP_DESCRIPTION,
 				...productCardProps,
 			};
 		case 'is-premium-plan':
 			productCardProps = {
 				title: DAILY_BACKUP_TITLE,
-				subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
-					components: { planLink },
-				} ),
+				subtitle: jetpackCreateInterpolateElement(
+					__( 'Included in your <planLink>Premium Plan</planLink>', 'jetpack' ),
+					{
+						planLink,
+					}
+				),
 				description: BACKUP_DESCRIPTION,
 				...productCardProps,
 			};
 		case 'is-business-plan':
 			productCardProps = {
 				title: REALTIME_BACKUP_TITLE,
-				subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
-					components: { planLink },
-				} ),
+				subtitle: jetpackCreateInterpolateElement(
+					__( 'Included in your <planLink>Professional Plan</planLink>', 'jetpack' ),
+					{
+						planLink,
+					}
+				),
 				description: BACKUP_DESCRIPTION_REALTIME,
 				...productCardProps,
 			};
