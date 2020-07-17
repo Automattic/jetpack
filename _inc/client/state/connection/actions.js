@@ -231,12 +231,11 @@ export const authorizeUserInPlace = () => {
 
 export const authorizeUserInPlaceSuccess = () => {
 	return ( dispatch, getState ) => {
-		dispatch( {
-			type: AUTH_USER_IN_PLACE_SUCCESS,
-		} );
-
 		// part of the reconnection flow
 		if ( isReconnectingSite( getState() ) ) {
+			// dispatch( {
+			// type: AUTH_USER_IN_PLACE_SUCCESS,
+			// } );
 			// dispatch( {
 			// 	type: SITE_RECONNECT_SUCCESS,
 			// } );
@@ -260,6 +259,9 @@ export const authorizeUserInPlaceSuccess = () => {
 			// As a first step we are reloading the current page.
 			window.location.reload();
 		} else {
+			dispatch( {
+				type: AUTH_USER_IN_PLACE_SUCCESS,
+			} );
 			dispatch(
 				createNotice( 'is-success', __( 'Linked to WordPress.com.' ), {
 					id: 'link-user-in-place',
@@ -313,7 +315,7 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 						'is-error',
 						__( 'There was an error reconnecting Jetpack. Error: %(error)s', {
 							args: {
-								error: error.response.message || error.response.code,
+								error: error,
 							},
 						} ),
 						{ id: 'reconnect-jetpack' }
