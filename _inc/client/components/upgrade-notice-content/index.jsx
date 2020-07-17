@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -71,12 +71,11 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 			}
 
 			if ( ! title || 0 === title.length ) {
-				title = __( 'New in Jetpack %(version)s', {
-					args: {
-						version: this.props.version,
-					},
-					comment: '%(version) is a version number.',
-				} );
+				title = sprintf(
+					/* translators: Placeholder is a version number. */
+					__( 'New in Jetpack %s', 'jetpack' ),
+					this.props.version
+				);
 			}
 
 			return (

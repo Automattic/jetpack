@@ -3,14 +3,14 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import analytics from 'lib/analytics';
-import Card from 'components/card';
-import Button from 'components/button';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import Card from 'components/card';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isCurrentUserLinked as _isCurrentUserLinked,
@@ -49,10 +49,11 @@ export class MobileMagicLink extends React.Component {
 		return (
 			<Modal className="mobile-magic-link__modal" onRequestClose={ this.toggleModalVisibility }>
 				<Card className="mobile-magic-link__modal__body">
-					<h2>{ __( 'Email me a link to log in to the app' ) }</h2>
+					<h2>{ __( 'Email me a link to log in to the app', 'jetpack' ) }</h2>
 					<h4>
 						{ __(
-							"Easily log in to the WordPress app by clicking the link we'll send to the email address on your account."
+							"Easily log in to the WordPress app by clicking the link we'll send to the email address on your account.",
+							'jetpack'
 						) }
 					</h4>
 					<div className="mobile-magic-link__modal-actions">
@@ -60,14 +61,14 @@ export class MobileMagicLink extends React.Component {
 							className="mobile-magic-link__modal-cancel"
 							onClick={ this.toggleModalVisibility }
 						>
-							{ __( 'Cancel', {
-								context: 'A caption for a button to cancel an action.',
-							} ) }
+							{ _x( 'Cancel', 'A caption for a button to cancel an action.', 'jetpack' ) }
 						</Button>
 						<Button onClick={ this.clickSendLoginEmail } primary>
-							{ __( 'Send link', {
-								context: 'A caption for a button to log in to the WordPress mobile app.',
-							} ) }
+							{ _x(
+								'Send link',
+								'A caption for a button to log in to the WordPress mobile app.',
+								'jetpack'
+							) }
 						</Button>
 					</div>
 				</Card>
@@ -86,7 +87,7 @@ export class MobileMagicLink extends React.Component {
 					role="button"
 					tabIndex="0"
 				>
-					{ __( 'Log in to the WordPress mobile app' ) }
+					{ __( 'Log in to the WordPress mobile app', 'jetpack' ) }
 				</a>
 				{ showModal && this.renderModal() }
 			</div>

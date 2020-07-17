@@ -3,12 +3,12 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import InfoPopover from 'components/info-popover';
 import ExternalLink from 'components/external-link';
 
@@ -76,7 +76,7 @@ export default class SupportInfo extends Component {
 				<InfoPopover
 					position="left"
 					onClick={ this.trackInfoClick }
-					screenReaderText={ __( 'Learn more' ) }
+					screenReaderText={ __( 'Learn more', 'jetpack' ) }
 				>
 					{ text + ' ' }
 					<span className="jp-support-info__learn-more">
@@ -86,7 +86,7 @@ export default class SupportInfo extends Component {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'Learn more' ) }
+							{ __( 'Learn more', 'jetpack' ) }
 						</ExternalLink>
 					</span>
 					<span className="jp-support-info__privacy">
@@ -96,7 +96,7 @@ export default class SupportInfo extends Component {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'Privacy information' ) }
+							{ __( 'Privacy information', 'jetpack' ) }
 						</ExternalLink>
 					</span>
 				</InfoPopover>

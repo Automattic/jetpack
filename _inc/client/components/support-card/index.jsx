@@ -5,21 +5,21 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { PLAN_JETPACK_PERSONAL } from 'lib/plans/constants';
-import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
+import analytics from 'lib/analytics';
+import Card from 'components/card';
+import Button from 'components/button';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getSiteConnectionStatus } from 'state/connection';
+import getRedirectUrl from 'lib/jp-redirect';
+import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import { PLAN_JETPACK_PERSONAL } from 'lib/plans/constants';
 
 class SupportCard extends React.Component {
 	static displayName = 'SupportCard';
@@ -78,11 +78,14 @@ class SupportCard extends React.Component {
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
 					<div className="jp-support-card__happiness-contact">
-						<h3 className="jp-support-card__header">{ __( "We're here to help" ) }</h3>
+						<h3 className="jp-support-card__header">{ __( "We're here to help", 'jetpack' ) }</h3>
 						<p className="jp-support-card__description">
 							{ noPrioritySupport
-								? __( 'Jetpack comes with free, basic support for all users.' )
-								: __( 'Your paid plan gives you access to prioritized Jetpack support.' ) }
+								? __( 'Jetpack comes with free, basic support for all users.', 'jetpack' )
+								: __(
+										'Your paid plan gives you access to prioritized Jetpack support.',
+										'jetpack'
+								  ) }
 						</p>
 						<p className="jp-support-card__description">
 							<Button
@@ -93,7 +96,7 @@ class SupportCard extends React.Component {
 										: jetpackSupportURl
 								}
 							>
-								{ __( 'Ask a question' ) }
+								{ __( 'Ask a question', 'jetpack' ) }
 							</Button>
 							<Button
 								onClick={ this.trackSearchClick }
@@ -103,16 +106,16 @@ class SupportCard extends React.Component {
 										: getRedirectUrl( 'jetpack-support' )
 								}
 							>
-								{ __( 'Search our support site' ) }
+								{ __( 'Search our support site', 'jetpack' ) }
 							</Button>
 						</p>
 					</div>
 				</Card>
 				{ this.props.siteConnectionStatus && noPrioritySupport && (
 					<JetpackBanner
-						title={ __( 'Get a faster resolution to your support questions.' ) }
+						title={ __( 'Get a faster resolution to your support questions.', 'jetpack' ) }
 						plan={ PLAN_JETPACK_PERSONAL }
-						callToAction={ __( 'Upgrade' ) }
+						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						onClick={ this.trackBannerClick }
 						href={ this.props.supportUpgradeUrl }
 					/>
