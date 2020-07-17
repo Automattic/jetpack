@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Connection\Error_Handlers;
 
+use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Error_Handler;
+
 /**
  * This class handles all the error codes that indicates a broken blog token and
  * suggests the user to reconnect.
@@ -14,6 +17,20 @@ namespace Automattic\Jetpack\Connection\Error_Handlers;
  * @since 8.7.0
  */
 class Invalid_Blog_Token {
+
+	/**
+	 * Number of times we will try to regenerate the blog token
+	 *
+	 * @var integer
+	 */
+	private $max_heal_attempts = 1000;
+
+	/**
+	 * Name of the option where we store the number of attempts to self heal
+	 *
+	 * @var string
+	 */
+	private $attempts_option_name = '_jetpack_connection_blog_token_heal_attempts';
 
 	/**
 	 * Set up hooks
@@ -42,6 +59,12 @@ class Invalid_Blog_Token {
 		// In this class, we will only handle errors with the blog token, so ignoring if there are only errors with user tokens.
 		if ( ! isset( $errors[0] ) && ! isset( $errors['invalid'] ) ) {
 			return;
+		}
+
+		$this->attempts = (int) get_option( $this->attempts_option_name );
+
+		if ( $this->should_self_heal() ) {
+			$this->refresh_blog_token();
 		}
 
 		add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
@@ -90,5 +113,69 @@ class Invalid_Blog_Token {
 		return $errors;
 	}
 
+	/**
+	 * Checks the number of healing attempts and returns a boolean indicating if we should
+	 * try again or not
+	 *
+	 * @return boolean
+	 */
+	public function should_self_heal() {
+		return $this->attempts > 0 && $this->attempts < $this->max_heal_attempts;
+	}
+
+	/**
+	 * Gets the number of times this blog attempted to regenerate the blog token
+	 * and updates it in the database
+	 *
+	 * @return integer
+	 */
+	public function get_heal_attempts() {
+		$attempts = (int) get_option( $this->attempts_option_name );
+		$attempts ++;
+		update_option( $this->attempts_option_name, $attempts );
+		return $attempts;
+	}
+
+	/**
+	 * Lock attempts
+	 *
+	 * @return void
+	 */
+	private function lock_attempts() {
+		update_option( $this->attempts_option_name, -1 );
+	}
+
+	/**
+	 * Unlock attempts
+	 *
+	 * @return void
+	 */
+	private function unlock_attempts() {
+		update_option( $this->attempts_option_name, $this->attempts );
+	}
+
+	/**
+	 * Tries to register the site again and refresh the blog token
+	 *
+	 * @return void
+	 */
+	public function refresh_blog_token() {
+
+		$this->lock_attempts();
+
+		$manager = new Manager();
+
+		$heal = $manager->register();
+		l( $heal );
+
+		$this->attempts ++;
+
+		if ( true === $heal ) {
+			Error_Handler::get_instance()->delete_all_errors();
+			delete_option( $this->attempts_option_name );
+		} else {
+			$this->unlock_attempts();
+		}
+	}
 
 }
