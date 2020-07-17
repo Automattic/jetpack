@@ -1,5 +1,9 @@
 $banner-height: 48px;
 
+$icon-size: 10px;
+$premium-icon-color: #007cba;
+$icon-background-color: #fff;
+
 .jetpack-upgrade-plan-banner {
 	display: flex;
 	justify-content: space-between;
@@ -31,4 +35,24 @@ $banner-height: 48px;
 // Adjust banner in the InspectorControl
 .block-editor-block-inspector .jetpack-upgrade-plan-banner {
 	border-radius: 0;
+}
+
+// Premium Icons.
+.jetpack-premium-icon {
+	position: relative;
+
+	&::before {
+		content: ' ';
+		position: absolute;
+		top: 0;
+		right: 0;
+
+		width: $icon-size;
+		height: $icon-size;
+
+		background-color: $premium-icon-color;
+		border-radius: $icon-size / 2;
+		border: 2px solid $icon-background-color;
+		z-index: 1;
+	}
 }

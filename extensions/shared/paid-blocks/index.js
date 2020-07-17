@@ -13,15 +13,22 @@ import { addFilter } from '@wordpress/hooks';
 import withCustomClassNames from '../with-custom-class-names';
 import jetpackPaidBlockEdit from './paid-block-edit';
 import { isUpgradable } from '../plan-utils';
+import { PremiumIcon } from './components';
+
 import './editor.scss';
 
 const jetpackPaidBlock = ( settings, name ) => {
+	// Extend Premium Blocks.
 	if ( isUpgradable( name ) ) {
+		// Add custom CSS classes.
 		addFilter(
 			'editor.BlockListBlock',
 			`jetpack/videopress-with-has-warning-is-interactive-class-names`,
 			withCustomClassNames( name, 'has-warning is-interactive is-upgradable' )
 		);
+
+		// Set premium icon.
+		settings.icon = <PremiumIcon icon={ settings.icon } name={ name.split( '/' )[ 1 ] } />;
 	}
 
 	return settings;
