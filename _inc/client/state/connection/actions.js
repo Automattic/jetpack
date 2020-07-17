@@ -210,8 +210,8 @@ export const unlinkUser = () => {
 					createNotice(
 						'is-error',
 						sprintf(
-							/* translators: placeholder is an error message. */
-							__( 'Error unlinking from WordPress.com. %s', 'jetpack' ),
+							/* translators: placeholder is the error. */
+							__( 'Error unlinking from WordPress.com. Error: %s', 'jetpack' ),
 							error
 						),
 						{ id: 'unlink-user' }
@@ -241,7 +241,7 @@ export const authorizeUserInPlaceSuccess = () => {
 			// } );
 			// dispatch( removeNotice( 'reconnect-jetpack' ) );
 			// dispatch(
-			// 	createNotice( 'is-success', __( 'Connection restored' ), {
+			// 	createNotice( 'is-success', __( 'Connection restored', 'jetpack' ), {
 			// 		id: 'reconnect-jetpack',
 			// 		duration: 2000,
 			// 	} )
@@ -263,7 +263,7 @@ export const authorizeUserInPlaceSuccess = () => {
 				type: AUTH_USER_IN_PLACE_SUCCESS,
 			} );
 			dispatch(
-				createNotice( 'is-success', __( 'Linked to WordPress.com.' ), {
+				createNotice( 'is-success', __( 'Linked to WordPress.com.', 'jetpack' ), {
 					id: 'link-user-in-place',
 					duration: 2000,
 				} )
@@ -278,7 +278,9 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 			type: SITE_RECONNECT,
 		} );
 		dispatch(
-			createNotice( 'is-info', __( 'Reconnecting Jetpack' ), { id: 'reconnect-jetpack' } )
+			createNotice( 'is-info', __( 'Reconnecting Jetpack', 'jetpack' ), {
+				id: 'reconnect-jetpack',
+			} )
 		);
 		return restApi
 			.reconnect( action )
@@ -313,11 +315,11 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 				dispatch(
 					createNotice(
 						'is-error',
-						__( 'There was an error reconnecting Jetpack. Error: %(error)s', {
-							args: {
-								error: error,
-							},
-						} ),
+						sprintf(
+							/* translators: placeholder is the error. */
+							__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack' ),
+							error.response.message || error.response.code
+						),
 						{ id: 'reconnect-jetpack' }
 					)
 				);

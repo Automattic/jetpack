@@ -332,7 +332,7 @@ class Main extends React.Component {
 						<AuthIframe
 							{ ...( this.props.isReconnectingSite && {
 								scrollToIframe: false,
-								title: __( 'Reconnect to WordPress.com by approving the connection' ),
+								title: __( 'Reconnect to WordPress.com by approving the connection', 'jetpack' ),
 							} ) }
 						/>
 					) }

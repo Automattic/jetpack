@@ -32,7 +32,7 @@ export class AuthIframe extends React.Component {
 	};
 
 	static defaultProps = {
-		title: __( 'Connect your WordPress.com account' ),
+		title: __( 'Connect your WordPress.com account', 'jetpack' ),
 		height: '220',
 		width: '100%',
 		scrollToIframe: true,

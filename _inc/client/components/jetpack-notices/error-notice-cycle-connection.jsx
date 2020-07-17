@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 
 /**
@@ -14,7 +14,7 @@ import NoticeActionReconnect from './notice-action-reconnect';
 
 export default class ErrorNoticeCycleConnection extends React.Component {
 	static defaultProps = {
-		text: __( 'Connection Error, please reconnect.' ),
+		text: __( 'Connection Error, please reconnect.', 'jetpack' ),
 	};
 
 	static propTypes = {
@@ -32,7 +32,7 @@ export default class ErrorNoticeCycleConnection extends React.Component {
 				icon={ 'link-break' }
 			>
 				<NoticeActionReconnect errorCode={ this.props.errorCode } action={ this.props.action }>
-					{ __( 'Restore Connection' ) }
+					{ __( 'Restore Connection', 'jetpack' ) }
 				</NoticeActionReconnect>
 			</SimpleNotice>
 		);
