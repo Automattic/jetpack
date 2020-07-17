@@ -1,0 +1,10 @@
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true">
+	<php>
+        <env name="WP_PHPUNIT__TESTS_CONFIG" value="tests/wp-config.php" />
+    </php>
+	<testsuites>
+		<testsuite name="main">
+			<directory prefix="test" suffix=".php">tests/php</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

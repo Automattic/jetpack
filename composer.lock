@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "59de22549dd7a17d42508cac667d9108",
+    "content-hash": "3da5ae4fbc531021e86056206a7f4d39",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -127,6 +127,68 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tools to assist with backing up Jetpack sites."
+        },
+        {
+            "name": "automattic/jetpack-block-loader",
+            "version": "dev-try/package-button-block",
+            "dist": {
+                "type": "path",
+                "url": "./packages/block-loader",
+                "reference": "6c462eb57ce818a9ee5b39eb75f77ab428ed57d2"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "legacy",
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A nice button"
+        },
+        {
+            "name": "automattic/jetpack-button-block",
+            "version": "dev-try/package-button-block",
+            "dist": {
+                "type": "path",
+                "url": "./packages/button-block",
+                "reference": "fb0898b9d2582c9a3efefd5b4e8250671715396d"
+            },
+            "require": {
+                "automattic/jetpack-block-loader": "@dev"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A nice button"
         },
         {
             "name": "automattic/jetpack-compat",
@@ -1046,6 +1108,7 @@
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
+        "automattic/jetpack-button-block": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,

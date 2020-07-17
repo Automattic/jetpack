@@ -121,6 +121,7 @@ class Slideshow extends Component {
 		}
 
 		const { autoplay, className, delay, effect, images } = this.props;
+		console.log( 'got images', images );
 		// Note: React omits the data attribute if the value is null, but NOT if it is false.
 		// This is the reason for the unusual logic related to autoplay below.
 		/* eslint-disable jsx-a11y/anchor-is-valid */

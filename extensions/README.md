@@ -32,6 +32,19 @@ If your block depends on another block, place them all in extensions folder:
 └── sub-blockname/
 ```
 
+If your block lives in a package, the structure is similar:
+
+```
+packages/my-block/
+└── composer.json
+└── src/
+	├── block-or-plugin-name.php ← PHP file where the block and its assets are registered.
+	├── editor.js                ← script loaded only in the editor
+	├── editor.scss              ← styles loaded only in the editor
+	├── view.js                  ← script loaded on the frontend
+	└── view.scss                ← styles loaded on the frontend
+```
+
 ## Developing block editor extensions in Jetpack
 
 ### High-level overview of the development flow

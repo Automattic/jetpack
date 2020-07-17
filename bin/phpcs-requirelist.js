@@ -8,7 +8,6 @@ module.exports = [
 	'3rd-party/class-jetpack-bbpress-rest-api.php',
 	'3rd-party/woocommerce-services.php',
 	'class.jetpack-bbpress-json-api.compat.php',
-	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
 	'class-jetpack-wizard-banner.php',
 	'docker',
