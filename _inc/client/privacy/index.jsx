@@ -3,26 +3,27 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate as __ } from 'i18n-calypso';
 import { connect } from 'react-redux';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
 import ExternalLink from 'components/external-link';
+import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
+import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getTrackingSettings,
 	isUpdatingTrackingSettings,
 	isFetchingTrackingSettingsList,
 } from 'state/tracking/reducer';
-import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
 import { getSettings } from 'state/settings';
-import analytics from 'lib/analytics';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 const trackPrivacyPolicyView = () =>
 	analytics.tracks.recordJetpackClick( {
@@ -66,12 +67,12 @@ class Privacy extends React.Component {
 		if ( this.props.searchTerm ) {
 			return (
 				[
-					__( 'privacy', { context: 'Search term.' } ),
-					__( 'tracks', { context: 'Search term.' } ),
-					__( 'data', { context: 'Search term.' } ),
-					__( 'gdpr', { context: 'Search term.' } ),
-					__( 'tos', { context: 'Search term.' } ),
-					__( 'terms of service', { context: 'Search term.' } ),
+					_x( 'privacy', 'Search term.', 'jetpack' ),
+					_x( 'tracks', 'Search term.', 'jetpack' ),
+					_x( 'data', 'Search term.', 'jetpack' ),
+					_x( 'gdpr', 'Search term.', 'jetpack' ),
+					_x( 'tos', 'Search term.', 'jetpack' ),
+					_x( 'terms of service', 'Search term.', 'jetpack' ),
 				]
 					.join( ' ' )
 					.toLowerCase()
@@ -103,11 +104,11 @@ class Privacy extends React.Component {
 				<div>
 					<SettingsCard
 						{ ...this.props }
-						header={ __( 'Privacy Settings', { context: 'Settings header' } ) }
+						header={ _x( 'Privacy Settings', 'Settings header', 'jetpack' ) }
 						hideButton
 					>
 						<SettingsGroup hasChild>
-							<p>{ __( 'We are committed to your privacy and security. ' ) }</p>
+							<p>{ __( 'We are committed to your privacy and security.', 'jetpack' ) }</p>
 							<p>
 								<CompactFormToggle
 									compact
@@ -118,47 +119,12 @@ class Privacy extends React.Component {
 									onChange={ this.togglePrivacy }
 									id="privacy-settings"
 								>
-									{ __(
-										'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. ' +
-											'{{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.',
+									{ jetpackCreateInterpolateElement(
+										__(
+											'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. <cookiePolicyLink>Learn more</cookiePolicyLink>.',
+											'jetpack'
+										),
 										{
-											components: {
-												cookiePolicyLink: (
-													<ExternalLink
-														href={ getRedirectUrl( 'a8c-cookies' ) }
-														onClick={ trackCookiePolicyView }
-														target="_blank"
-														rel="noopener noreferrer"
-													/>
-												),
-											},
-										}
-									) }
-								</CompactFormToggle>
-							</p>
-							<p>
-								{ __(
-									'This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.',
-									{
-										components: {
-											pp: (
-												<ExternalLink
-													href={ getRedirectUrl( 'a8c-privacy' ) }
-													onClick={ trackPrivacyPolicyView }
-													target="_blank"
-													rel="noopener noreferrer"
-												/>
-											),
-										},
-									}
-								) }
-							</p>
-							<p>
-								{ __(
-									'We use other tracking tools, including some from third parties. ' +
-										'{{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.',
-									{
-										components: {
 											cookiePolicyLink: (
 												<ExternalLink
 													href={ getRedirectUrl( 'a8c-cookies' ) }
@@ -167,24 +133,61 @@ class Privacy extends React.Component {
 													rel="noopener noreferrer"
 												/>
 											),
-										},
+										}
+									) }
+								</CompactFormToggle>
+							</p>
+							<p>
+								{ jetpackCreateInterpolateElement(
+									__(
+										'This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our <pp>privacy policy</pp>.',
+										'jetpack'
+									),
+									{
+										pp: (
+											<ExternalLink
+												href={ getRedirectUrl( 'a8c-privacy' ) }
+												onClick={ trackPrivacyPolicyView }
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
 									}
 								) }
 							</p>
 							<p>
-								{ __(
-									'For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.',
+								{ jetpackCreateInterpolateElement(
+									__(
+										'We use other tracking tools, including some from third parties. <cookiePolicyLink>Read about these</cookiePolicyLink> and how to control them.',
+										'jetpack'
+									),
 									{
-										components: {
-											privacyCenterLink: (
-												<ExternalLink
-													href={ getRedirectUrl( 'jetpack-support-privacy' ) }
-													onClick={ trackPrivacyCenterView }
-													target="_blank"
-													rel="noopener noreferrer"
-												/>
-											),
-										},
+										cookiePolicyLink: (
+											<ExternalLink
+												href={ getRedirectUrl( 'a8c-cookies' ) }
+												onClick={ trackCookiePolicyView }
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+									}
+								) }
+							</p>
+							<p>
+								{ jetpackCreateInterpolateElement(
+									__(
+										'For more information on how specific Jetpack features use data and track activity, please refer to our <privacyCenterLink>Privacy Center</privacyCenterLink>.',
+										'jetpack'
+									),
+									{
+										privacyCenterLink: (
+											<ExternalLink
+												href={ getRedirectUrl( 'jetpack-support-privacy' ) }
+												onClick={ trackPrivacyCenterView }
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
 									}
 								) }
 							</p>

@@ -2,19 +2,19 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import Textarea from 'components/textarea';
 import { includes } from 'lodash';
-import FoldableCard from 'components/foldable-card';
 import classNames from 'classnames';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _x, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import Textarea from 'components/textarea';
+import FoldableCard from 'components/foldable-card';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -94,7 +94,7 @@ export const Protect = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ __( 'Brute force attack protection', { context: 'Settings header' } ) }
+					header={ _x( 'Brute force attack protection', 'Settings header', 'jetpack' ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
 				>
 					<FoldableCard
@@ -108,7 +108,8 @@ export const Protect = withModuleSettingsFormHelpers(
 							module={ this.props.getModule( 'protect' ) }
 							support={ {
 								text: __(
-									'Protects your site from traditional and distributed brute force login attacks.'
+									'Protects your site from traditional and distributed brute force login attacks.',
+									'jetpack'
 								),
 								link: getRedirectUrl( 'jetpack-support-protect' ),
 							} }
@@ -117,7 +118,11 @@ export const Protect = withModuleSettingsFormHelpers(
 								{ this.props.currentIp && (
 									<div>
 										<div className="jp-form-label-wide">
-											{ __( 'Your current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }
+											{ sprintf(
+												/* translators: placeholder is an IP address. */
+												__( 'Your current IP: %s', 'jetpack' ),
+												this.props.currentIp
+											) }
 										</div>
 										{
 											<Button
@@ -132,13 +137,13 @@ export const Protect = withModuleSettingsFormHelpers(
 												}
 												onClick={ this.addToSafelist }
 											>
-												{ __( 'Add to Always Allowed list' ) }
+												{ __( 'Add to Always Allowed list', 'jetpack' ) }
 											</Button>
 										}
 									</div>
 								) }
 								<FormLabel>
-									<FormLegend>{ __( 'Always allowed IP addresses' ) }</FormLegend>
+									<FormLegend>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLegend>
 									<Textarea
 										disabled={
 											! isProtectActive ||
@@ -157,11 +162,7 @@ export const Protect = withModuleSettingsFormHelpers(
 								<span className="jp-form-setting-explanation">
 									{ __(
 										'You may always allow an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
-										{
-											components: {
-												br: <br />,
-											},
-										}
+										'jetpack'
 									) }
 								</span>
 							</FormFieldset>

@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -34,12 +34,12 @@ class Settings extends React.Component {
 			<div className="jp-settings-container">
 				<div className="jp-no-results">
 					{ commonProps.searchTerm
-						? __( 'No search results found for %(term)s', {
-								args: {
-									term: commonProps.searchTerm,
-								},
-						  } )
-						: __( 'Enter a search term to find settings or close search.' ) }
+						? sprintf(
+								/* translators: placeholder is a searchterm entered in searchform. */
+								__( 'No search results found for %s', 'jetpack' ),
+								commonProps.searchTerm
+						  )
+						: __( 'Enter a search term to find settings or close search.', 'jetpack' ) }
 				</div>
 				<Security
 					siteAdminUrl={ this.props.siteAdminUrl }
