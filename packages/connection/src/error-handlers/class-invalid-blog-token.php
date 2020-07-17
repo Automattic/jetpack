@@ -124,19 +124,6 @@ class Invalid_Blog_Token {
 	}
 
 	/**
-	 * Gets the number of times this blog attempted to regenerate the blog token
-	 * and updates it in the database
-	 *
-	 * @return integer
-	 */
-	public function get_heal_attempts() {
-		$attempts = (int) get_option( $this->attempts_option_name );
-		$attempts ++;
-		update_option( $this->attempts_option_name, $attempts );
-		return $attempts;
-	}
-
-	/**
 	 * Lock attempts
 	 *
 	 * @return void
