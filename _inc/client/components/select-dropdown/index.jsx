@@ -196,7 +196,6 @@ class SelectDropdown extends Component {
 					tabIndex={ this.props.tabIndex || 0 }
 					role="listbox"
 					aria-labelledby={ 'select-dropdown-' + this.state.instanceId }
-					aria-haspopup="true"
 					aria-owns={ 'select-submenu-' + this.state.instanceId }
 					aria-controls={ 'select-submenu-' + this.state.instanceId }
 					aria-expanded={ this.state.isOpen }
