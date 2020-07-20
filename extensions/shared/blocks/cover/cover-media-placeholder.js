@@ -8,17 +8,26 @@ import { useContext, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isVideoFile } from './utils';
+import { isUpgradable, isVideoFile } from './utils';
 import { CoverMediaContext } from './components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
-		const { name } = useBlockEditContext();
-		if ( 'core/cover' !== name ) {
+		/*
+		 * Data provided by the cover media context could be undefined.
+		 * We need to check data exists before proceeding.
+		 */
+		const coverMediaProvidedData = useContext( CoverMediaContext );
+		if ( ! coverMediaProvidedData ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
-		const onFilesUpload = useContext( CoverMediaContext );
+		// Check if the block is upgradable before to proceeding.
+		const { onFilesUpload, blockName: name } = coverMediaProvidedData;
+		if ( ! isUpgradable( name ) ) {
+			return <CoreMediaPlaceholder { ...props } />;
+		}
+
 		const { onError } = props;
 
 		/**

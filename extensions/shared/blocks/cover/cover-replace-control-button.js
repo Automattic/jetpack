@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -6,7 +5,6 @@
 /**
  * WordPress dependencies
  */
-import { useBlockEditContext } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useRef, useContext } from '@wordpress/element';
 
@@ -14,16 +12,24 @@ import { useRef, useContext } from '@wordpress/element';
  * Internal dependencies
  */
 import { CoverMediaContext } from './components';
-import { isVideoFile } from './utils';
+import { isUpgradable, isVideoFile } from './utils';
 
 export default createHigherOrderComponent( MediaReplaceFlow => props => {
-	const { name } = useBlockEditContext();
 	const preUploadFile = useRef();
-	if ( 'core/cover' !== name ) {
+	/*
+	 * Data provided by the cover media context could be undefined.
+	 * We need to check data exists before proceeding.
+	 */
+	const coverMediaProvidedData = useContext( CoverMediaContext );
+	if ( ! coverMediaProvidedData ) {
 		return <MediaReplaceFlow { ...props } />;
 	}
 
-	const onFilesUpload = useContext( CoverMediaContext );
+	// Check if the block is upgradable before to proceeding.
+	const { onFilesUpload, blockName: name } = coverMediaProvidedData;
+	if ( ! isUpgradable( name ) ) {
+		return <MediaReplaceFlow { ...props } />;
+	}
 
 	return (
 		<MediaReplaceFlow
