@@ -12,7 +12,13 @@
 add_filter( 'site_transient_update_plugins', 'e2e_set_jetpack_update', 10, 1 );
 add_filter( 'upgrader_post_install', 'e2e_move_jetpack_dev_dir', 10, 3 );
 
-
+/**
+ * Injects new available Jetpack version and download url into core updater
+ *
+ * @param Object $value Value object.
+ *
+ * @return array
+ */
 function e2e_set_jetpack_update( $value ) {
 	$update_version = get_option( 'e2e_jetpack_upgrader_update_version' );
 	$update_package = get_option( 'e2e_jetpack_upgrader_plugin_url' );
@@ -48,21 +54,22 @@ function e2e_set_jetpack_update( $value ) {
 		$value->response['jetpack/jetpack.php'] = $jetpack;
 	}
 
-	error_log( print_r( '!!!!!!!!!!!!!', 1 ) );
-	error_log( print_r( $value, 1 ) );
-	error_log( print_r( '!!!!!!!!!!!!!', 1 ) );
 	return $value;
 }
 
+/**
+ * Plugin renamer :shrug:
+ *
+ * @param Object $response Response object.
+ * @param Object $hook_extra :shrug:.
+ * @param array  $result result array.
+ *
+ * @return array
+ */
 function e2e_move_jetpack_dev_dir( $response, $hook_extra, $result ) {
 	if ( 'jetpack-dev' === $result['destination_name'] ) {
 		rename( WP_PLUGIN_DIR . '/jetpack-dev', WP_PLUGIN_DIR . '/jetpack' );
 	}
-
-	error_log( print_r( '@@@@@@@@@@@@@', 1 ) );
-	error_log( print_r( $result, 1 ) );
-	error_log( print_r( '@@@@@@@@@@@@@', 1 ) );
-
 
 	return $response;
 }
