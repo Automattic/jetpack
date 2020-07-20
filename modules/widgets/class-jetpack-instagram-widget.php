@@ -575,7 +575,9 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance = $this->defaults;
 
-		$instance['token_id'] = $old_instance['token_id'];
+		if ( ! empty( $old_instance['token_id'] ) ) {
+			$instance['token_id'] = $old_instance['token_id'];
+		}
 
 		$instance['title'] = wp_strip_all_tags( $new_instance['title'] );
 
