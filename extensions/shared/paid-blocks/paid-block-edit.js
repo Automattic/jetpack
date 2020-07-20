@@ -12,15 +12,28 @@ import UpgradePlanBanner from './upgrade-plan-banner';
 import { isUpgradable } from '../plan-utils';
 
 export default OriginalBlockEdit => props => {
+	// Do not extend is block is not upgradable.
 	if ( ! isUpgradable( props?.name ) ) {
 		return <OriginalBlockEdit { ...props } />;
 	}
 
-	const isTopLevelBlock = ! useSelect( select => {
-		return select( 'core/block-editor' ).getBlockRootClientId( props.clientId, 'core/block-preview' );
+	const { isTopLevelBlock, isBlockSelected } = useSelect( select => {
+		const blockEditorSelector = select( 'core/block-editor' );
+		const { clientId } = props;
+
+		return {
+			isTopLevelBlock: ! blockEditorSelector.getBlockRootClientId( clientId, 'core/block-preview' ),
+			isBlockSelected: blockEditorSelector.isBlockSelected( clientId ),
+		};
 	} );
 
+	// Do not extend if block is not top-level.
 	if ( ! isTopLevelBlock ) {
+		return <OriginalBlockEdit { ...props } />;
+	}
+
+	// Do not extend if block is not currently selected.
+	if ( ! isBlockSelected ) {
 		return <OriginalBlockEdit { ...props } />;
 	}
 
