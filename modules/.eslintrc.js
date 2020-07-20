@@ -33,7 +33,6 @@ module.exports = {
 		'no-eq-null': 'error',
 		'no-irregular-whitespace': 'error',
 		'no-trailing-spaces': 'error',
-		'no-undef': 'error',
 		// 'one-var': [ 'error', 'always' ],
 		quotes: [ 'warn', 'single', { avoidEscape: true } ],
 		'wrap-iife': [ 'error', 'any' ],
