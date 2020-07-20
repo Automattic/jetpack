@@ -489,11 +489,12 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			echo '<p><small>' . sprintf(
 				wp_kses(
 					/* translators: %s is a link to log in to Instagram */
-					__( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'jetpack' ),
+					__( 'Having trouble? Try <a href="%s" target="_blank" rel="noopener noreferrer">logging into the correct account</a> on Instagram.com first.', 'jetpack' ),
 					array(
 						'a' => array(
 							'href'   => array(),
 							'target' => array(),
+							'rel'    => array(),
 						),
 					)
 				),
