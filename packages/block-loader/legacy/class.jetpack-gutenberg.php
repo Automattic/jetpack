@@ -252,7 +252,9 @@ class Jetpack_Gutenberg {
 			self::$extensions = array_diff( self::$extensions, $exclusions );
 		}
 
-		error_log( 'available blocks ' . json_encode( self::$extensions ) );
+		self::load_independent_blocks();
+
+		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
@@ -524,8 +526,9 @@ class Jetpack_Gutenberg {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$rtl              = is_rtl() ? '.rtl' : '';
-		$blocks_dir       = self::get_blocks_directory();
+		$rtl = is_rtl() ? '.rtl' : '';
+		/** This action is documented in class.jetpack-gutenberg.php */
+		$blocks_dir       = apply_filters( 'jetpack_blocks_directory', '_inc/blocks/' );
 		$blocks_variation = self::blocks_variation();
 
 		if ( 'production' !== $blocks_variation ) {
