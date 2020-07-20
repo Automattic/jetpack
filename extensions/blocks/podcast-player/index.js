@@ -11,6 +11,7 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import save from './save';
 import { queueMusic } from './icons/';
@@ -105,4 +106,5 @@ export const settings = {
 			},
 		},
 	},
+	deprecated: [ deprecatedV1 ],
 };
