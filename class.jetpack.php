@@ -7466,7 +7466,7 @@ endif;
 				),
 			),
 			'default_option'    => 'anti-spam',
-			'included_in_plans' => array( 'anti-spam-plan' ),
+			'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'anti-spam-plan' ),
 		);
 
 		return $products;
