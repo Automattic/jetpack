@@ -453,7 +453,7 @@ class Jetpack_Gutenberg {
 
 		// Enqueue styles.
 		$style_relative_path = self::get_extension_path( $type ) . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
-		if ( self::block_has_asset( $style_relative_path ) ) {
+		if ( file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
@@ -487,22 +487,11 @@ class Jetpack_Gutenberg {
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
 		}
 
-		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
+		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
 		}
-	}
-
-	/**
-	 * Check if an asset exists for a block.
-	 *
-	 * @param string $file Path of the file we are looking for.
-	 *
-	 * @return bool $block_has_asset Does the file exist.
-	 */
-	public static function block_has_asset( $file ) {
-		return file_exists( JETPACK__PLUGIN_DIR . $file );
 	}
 
 	/**
@@ -513,7 +502,7 @@ class Jetpack_Gutenberg {
 	 * @return string $script_version Version number.
 	 */
 	public static function get_asset_version( $file ) {
-		return Jetpack::is_development_version() && self::block_has_asset( $file )
+		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
 			? filemtime( JETPACK__PLUGIN_DIR . $file )
 			: JETPACK__VERSION;
 	}
@@ -616,6 +605,8 @@ class Jetpack_Gutenberg {
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
+	 *
+	 * @deprecated 8.8.0 Blocks should be Jetpack modules and manage their own initialization.
 	 */
 	public static function load_independent_blocks() {
 		if ( self::should_load() ) {

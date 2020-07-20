@@ -36,3 +36,12 @@ add_filter(
 	10,
 	2
 );
+
+add_action(
+	'plugins_loaded',
+	function() {
+		if ( Jetpack_Gutenberg::should_load() ) {
+			include_once __DIR__ . '/src/gif.php';
+		}
+	}
+);
