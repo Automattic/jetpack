@@ -179,7 +179,7 @@
 		"@automattic/color-studio": "2.3.0",
 		"@babel/plugin-transform-runtime": "7.9.0",
 		"@slack/web-api": "5.10.0",
-		"@testing-library/jest-dom": "5.11.0",
+		"@testing-library/jest-dom": "5.11.1",
 		"@testing-library/preact": "2.0.0",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/core-data": "2.12.3",
