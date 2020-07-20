@@ -23,8 +23,8 @@ const betaExtensions = extensionList.beta || [];
 /**
  * Checks whether the block requires a paid plan or not.
  *
- * @param {string} unavailableReason The reason why block is unavailable
- * @param {Object} details The block details
+ * @param {string} unavailableReason - The reason why block is unavailable
+ * @param {object} details - The block details
  * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
  */
 function requiresPaidPlan( unavailableReason, details ) {
@@ -37,9 +37,9 @@ function requiresPaidPlan( unavailableReason, details ) {
 /**
  * Builds an array of tags associated with this block, such as ["paid", "beta"].
  *
- * @param {string} name The block's name.
- * @param {string|boolean} requiredPlan  Does this block require a paid plan?
- * @returns {array} Array of tags associated with this block
+ * @param {string} name - The block's name.
+ * @param {string|boolean} requiredPlan -  Does this block require a paid plan?
+ * @returns {Array} Array of tags associated with this block
  */
 function buildBlockTags( name, requiredPlan ) {
 	const blockTags = [];
@@ -57,8 +57,8 @@ function buildBlockTags( name, requiredPlan ) {
 /**
  * Takes a block title string and optionally appends comma separated block tags in parentheses.
  *
- * @param {string} blockTitle The block's title
- * @param {array} blockTags The tags you want appended in parentheses (tags, show, here)
+ * @param {string} blockTitle - The block's title
+ * @param {Array} blockTags - The tags you want appended in parentheses (tags, show, here)
  * @returns {string} Block title
  */
 function buildBlockTitle( blockTitle, blockTags = [] ) {
@@ -72,10 +72,10 @@ function buildBlockTitle( blockTitle, blockTags = [] ) {
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} name The block's name.
- * @param {object} settings The block's settings.
- * @param {object} childBlocks The block's child blocks.
- * @returns {object|false} Either false if the block is not available, or the results of `registerBlockType`
+ * @param {string} name - The block's name.
+ * @param {object} settings - The block's settings.
+ * @param {object} childBlocks - The block's child blocks.
+ * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
