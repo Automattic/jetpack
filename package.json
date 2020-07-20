@@ -204,7 +204,7 @@
 		"eslint-plugin-jsdoc": "29.2.0",
 		"eslint-plugin-jsx-a11y": "6.3.1",
 		"eslint-plugin-lodash": "7.1.0",
-		"eslint-plugin-react": "7.20.0",
+		"eslint-plugin-react": "7.20.3",
 		"eslint-plugin-wpcalypso": "4.1.0",
 		"glob": "7.1.6",
 		"husky": "4.2.5",
