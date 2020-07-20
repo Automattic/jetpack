@@ -11,7 +11,6 @@ import { Path, SVG, G } from '@wordpress/components';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'mailchimp';
 
@@ -44,7 +43,7 @@ export const settings = {
 	title: __( 'Mailchimp', 'jetpack' ),
 	icon,
 	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),

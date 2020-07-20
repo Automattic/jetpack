@@ -3,21 +3,21 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { FormFieldset } from 'components/forms';
+import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { FormFieldset } from 'components/forms';
 import { getModule, getModuleOverride } from 'state/modules';
+import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
-import analytics from 'lib/analytics';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 const SpeedUpSite = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -57,10 +57,14 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			// If one of them is on, we turn everything off, including Tiled Galleries that depend on Photon.
 			if ( true === siteAcceleratorStatus ) {
 				const messages = {
-					progress: __( 'Disabling site accelerator…' ),
-					success: __( 'Site accelerator is no longer speeding up your site!' ),
+					progress: __( 'Disabling site accelerator…', 'jetpack' ),
+					success: __( 'Site accelerator is no longer speeding up your site!', 'jetpack' ),
 					error: error =>
-						__( 'Error disabling site accelerator. %(error)s', { args: { error: error } } ),
+						sprintf(
+							/* translators: placeholder is an error code. */
+							__( 'Error disabling site accelerator. %s', 'jetpack' ),
+							error
+						),
 				};
 				let settings = {};
 
@@ -82,10 +86,14 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				this.props.updateOptions( settings, messages );
 			} else {
 				const messages = {
-					progress: __( 'Enabling Site accelerator…' ),
-					success: __( 'Site accelerator is now speeding up your site!' ),
+					progress: __( 'Enabling Site accelerator…', 'jetpack' ),
+					success: __( 'Site accelerator is now speeding up your site!', 'jetpack' ),
 					error: error =>
-						__( 'Error enabling Site accelerator. %(error)s', { args: { error: error } } ),
+						sprintf(
+							/* translators: placeholder is an error code. */
+							__( 'Error enabling Site accelerator. %s', 'jetpack' ),
+							error
+						),
 				};
 				let settings = {};
 
@@ -221,7 +229,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Performance & speed' ) }
+					header={ __( 'Performance & speed', 'jetpack' ) }
 					hideButton
 					module="performance-speed"
 				>
@@ -234,8 +242,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 						>
 							<p>
 								{ __(
-									'Load pages faster by allowing Jetpack to optimize your images and serve your images ' +
-										'and static files (like CSS and JavaScript) from our global network of servers.'
+									'Load pages faster by allowing Jetpack to optimize your images and serve your images and static files (like CSS and JavaScript) from our global network of servers.',
+									'jetpack'
 								) }
 							</p>
 							{ canAppearInSearch && (
@@ -246,7 +254,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 									disabled={ ! canDisplaySiteAcceleratorSettings }
 								>
 									<span className="jp-form-toggle-explanation">
-										{ __( 'Enable site accelerator' ) }
+										{ __( 'Enable site accelerator', 'jetpack' ) }
 									</span>
 								</CompactFormToggle>
 							) }
@@ -260,7 +268,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 										toggleModule={ this.toggleModule }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up image load times' ) }
+											{ __( 'Speed up image load times', 'jetpack' ) }
 										</span>
 									</ModuleToggle>
 								) }
@@ -272,7 +280,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 										toggleModule={ this.toggleModule }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Speed up static file load times' ) }
+											{ __( 'Speed up static file load times', 'jetpack' ) }
 										</span>
 									</ModuleToggle>
 								) }
@@ -290,9 +298,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 						>
 							<p>
 								{ __(
-									'Lazy-loading images will improve your site’s speed and create a ' +
-										'smoother viewing experience. Images will load as visitors ' +
-										'scroll down the screen, instead of all at once.'
+									'Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.',
+									'jetpack'
 								) }
 							</p>
 							<ModuleToggle
@@ -303,7 +310,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								toggleModule={ this.toggleModule }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable Lazy Loading for images' ) }
+									{ __( 'Enable Lazy Loading for images', 'jetpack' ) }
 								</span>
 							</ModuleToggle>
 						</SettingsGroup>

@@ -18,7 +18,6 @@ import { getAttributesFromEmbedCode, REGEX } from './utils';
  * Style dependencies
  */
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-block-example';
 
@@ -38,7 +37,7 @@ export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	keywords: [
 		_x( 'calendar', 'block search term', 'jetpack' ),
 		_x( 'schedule', 'block search term', 'jetpack' ),

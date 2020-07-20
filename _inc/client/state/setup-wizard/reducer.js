@@ -3,7 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import { assign, get, intersection, reduce, union } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -102,30 +102,34 @@ function getFeatureGroupContent( featureGroupKey ) {
 	switch ( featureGroupKey ) {
 		case 'security':
 			return {
-				title: __( 'Security' ),
+				title: __( 'Security', 'jetpack' ),
 				details: __(
-					'Keep your site backed up, prevent unwanted intrusions, find issues with malware scanning, and stop spammers in their tracks.'
+					'Keep your site backed up, prevent unwanted intrusions, find issues with malware scanning, and stop spammers in their tracks.',
+					'jetpack'
 				),
 			};
 		case 'performance':
 			return {
-				title: __( 'Performance' ),
+				title: __( 'Performance', 'jetpack' ),
 				details: __(
-					'Load pages faster! Shorter load times can lead to happier readers, more page views, and — if you’re running a store — improved sales.'
+					'Load pages faster! Shorter load times can lead to happier readers, more page views, and — if you’re running a store — improved sales.',
+					'jetpack'
 				),
 			};
 		case 'marketing':
 			return {
-				title: __( 'Marketing' ),
+				title: __( 'Marketing', 'jetpack' ),
 				details: __(
-					'Increase visitors with social integrations, keep them engaged with related content, and so much more.'
+					'Increase visitors with social integrations, keep them engaged with related content, and so much more.',
+					'jetpack'
 				),
 			};
 		case 'publishing':
 			return {
-				title: __( 'Design & Publishing' ),
+				title: __( 'Design & Publishing', 'jetpack' ),
 				details: __(
-					'Customize your homepage, blog posts, sidebars, and widgets — all without touching any code.'
+					'Customize your homepage, blog posts, sidebars, and widgets — all without touching any code.',
+					'jetpack'
 				),
 			};
 	}

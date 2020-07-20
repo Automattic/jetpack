@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -56,9 +56,10 @@ class Sharing extends Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Sharing' )
+							? __( 'Sharing', 'jetpack' )
 							: __(
-									'Share your content to social media, reaching new audiences and increasing engagement.'
+									'Share your content to social media, reaching new audiences and increasing engagement.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"

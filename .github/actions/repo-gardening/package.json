@@ -13,7 +13,7 @@
 	"main": "index.js",
 	"dependencies": {
 		"@actions/core": "1.2.4",
-		"@actions/github": "2.2.0",
+		"@actions/github": "4.0.0",
 		"moment": "2.27.0"
 	},
 	"private": true

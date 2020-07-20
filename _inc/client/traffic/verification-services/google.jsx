@@ -3,15 +3,16 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
-import ExternalLink from 'components/external-link';
 import { connect } from 'react-redux';
-import analytics from 'lib/analytics';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import ExternalLink from 'components/external-link';
+import TextInput from 'components/text-input';
 import { isFetchingSiteData } from 'state/site';
 import { FormLabel } from 'components/forms';
 import Gridicon from 'components/gridicon';
@@ -76,7 +77,9 @@ class GoogleVerificationServiceComponent extends React.Component {
 	}
 
 	checkAndVerifySite( keyringId ) {
-		this.props.createNotice( 'is-info', __( 'Verifying…' ), { id: 'verifying-site-google' } );
+		this.props.createNotice( 'is-info', __( 'Verifying…', 'jetpack' ), {
+			id: 'verifying-site-google',
+		} );
 		this.props
 			.checkVerifyStatusGoogle( keyringId )
 			.then( response => {
@@ -98,11 +101,11 @@ class GoogleVerificationServiceComponent extends React.Component {
 							} );
 							this.props.createNotice(
 								'is-error',
-								__( 'Site failed to verify: %(error)s', {
-									args: {
-										error: errorMessage,
-									},
-								} ),
+								sprintf(
+									/* translators: placeholder is an error message. */
+									__( 'Site failed to verify: %s', 'jetpack' ),
+									errorMessage
+								),
 								{
 									id: 'verify-site-google-error',
 									duration: 5000,
@@ -184,7 +187,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 			return (
 				<div>
 					<FormLabel className="jp-form-input-with-prefix" key="verification_service_google">
-						<span>{ __( 'Google' ) }</span>
+						<span>{ __( 'Google', 'jetpack' ) }</span>
 						<TextInput
 							name="google"
 							value={ this.props.value }
@@ -203,7 +206,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 									disabled={ this.props.disabled }
 									onClick={ this.quickSave }
 								>
-									{ __( 'Save' ) }
+									{ __( 'Save', 'jetpack' ) }
 								</Button>
 								<Button
 									type="button"
@@ -211,7 +214,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 									disabled={ this.props.disabled }
 									onClick={ this.handleClickCancel }
 								>
-									{ __( 'Cancel' ) }
+									{ __( 'Cancel', 'jetpack' ) }
 								</Button>
 							</div>
 						) }
@@ -224,17 +227,17 @@ class GoogleVerificationServiceComponent extends React.Component {
 			return (
 				<div>
 					<div className="jp-form-input-with-prefix" key="verification_service_google">
-						<span>{ __( 'Google' ) }</span>
+						<span>{ __( 'Google', 'jetpack' ) }</span>
 						<div className="jp-form-site-verification-verified">
 							<Gridicon icon="checkmark-circle" size={ 20 } />{ ' ' }
-							<span>{ __( 'Your site is verified with Google' ) }</span>
+							<span>{ __( 'Your site is verified with Google', 'jetpack' ) }</span>
 						</div>
 						<Button
 							type="button"
 							className="jp-form-site-verification-edit-button"
 							onClick={ this.handleClickEdit }
 						>
-							{ __( 'Edit' ) }
+							{ __( 'Edit', 'jetpack' ) }
 						</Button>
 					</div>
 
@@ -242,51 +245,50 @@ class GoogleVerificationServiceComponent extends React.Component {
 						<div className="jp-form-input-with-prefix-bottom-message">
 							<div className="jp-form-setting-explanation">
 								<p>
-									{ __(
-										"Monitor your site's traffic and performance from the {{a}}Google Search Console{{/a}}.",
+									{ jetpackCreateInterpolateElement(
+										__(
+											"Monitor your site's traffic and performance from the <a>Google Search Console</a>.",
+											'jetpack'
+										),
 										{
-											components: {
-												a: (
-													<ExternalLink
-														icon
-														iconSize={ 16 }
-														target="_blank"
-														rel="noopener noreferrer"
-														href={ this.props.googleSearchConsoleUrl }
-													/>
-												),
-											},
+											a: (
+												<ExternalLink
+													icon
+													iconSize={ 16 }
+													target="_blank"
+													rel="noopener noreferrer"
+													href={ this.props.googleSearchConsoleUrl }
+												/>
+											),
 										}
 									) }{ ' ' }
-									{ __(
-										'Google will email about certain events that occur with your site, ' +
-											'including indications that your website has been {{a1}}hacked{{/a1}}, ' +
-											'or problems {{a2}}crawling or indexing{{/a2}} your site.',
+									{ jetpackCreateInterpolateElement(
+										/* translators: placeholders are links to Google support documents. */
+										__(
+											'Google will email about certain events that occur with your site, including indications that your website has been <a1>hacked</a1>, or problems <a2>crawling or indexing</a2> your site.',
+											'jetpack'
+										),
 										{
-											components: {
-												a1: (
-													<ExternalLink
-														icon
-														iconSize={ 16 }
-														target="_blank"
-														rel="noopener noreferrer"
-														href={
-															'https://developers.google.com/web/fundamentals/security/hacked/'
-														}
-													/>
-												),
-												a2: (
-													<ExternalLink
-														icon
-														iconSize={ 16 }
-														target="_blank"
-														rel="noopener noreferrer"
-														href={
-															'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'
-														}
-													/>
-												),
-											},
+											a1: (
+												<ExternalLink
+													icon
+													iconSize={ 16 }
+													target="_blank"
+													rel="noopener noreferrer"
+													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
+												/>
+											),
+											a2: (
+												<ExternalLink
+													icon
+													iconSize={ 16 }
+													target="_blank"
+													rel="noopener noreferrer"
+													href={
+														'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'
+													}
+												/>
+											),
 										}
 									) }
 								</p>
@@ -308,20 +310,32 @@ class GoogleVerificationServiceComponent extends React.Component {
 				className="jp-form-input-with-prefix jp-form-google-label-unverified"
 				key="verification_service_google"
 			>
-				<span>{ __( 'Google' ) }</span>
+				<span>{ __( 'Google', 'jetpack' ) }</span>
 				<div className="jp-form-google-label-unverified-actions">
-					<Button
-						primary
-						type="button"
-						disabled={ disabled }
-						onClick={ this.handleClickAutoVerify }
-					>
-						{ __( 'Verify with Google' ) }
-					</Button>
-					<span className="jp-form-google-separator">{ __( 'or' ) }</span>
-					<Button type="button" disabled={ disabled } onClick={ this.handleClickSetManually }>
-						{ __( 'Manually Verify ' ) }
-					</Button>
+					{ jetpackCreateInterpolateElement(
+						__(
+							'<button1>Verify with Google</button1><span>or</span><button2>Manually Verify</button2>',
+							'jetpack'
+						),
+						{
+							button1: (
+								<Button
+									primary
+									type="button"
+									disabled={ disabled }
+									onClick={ this.handleClickAutoVerify }
+								/>
+							),
+							span: <span className="jp-form-google-separator" />,
+							button2: (
+								<Button
+									type="button"
+									disabled={ disabled }
+									onClick={ this.handleClickSetManually }
+								/>
+							),
+						}
+					) }
 				</div>
 			</div>
 		);

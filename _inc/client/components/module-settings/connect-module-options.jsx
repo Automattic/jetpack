@@ -3,7 +3,7 @@
  */
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -60,10 +60,14 @@ export function connectModuleOptions( Component ) {
 			},
 			regeneratePostByEmailAddress: () => {
 				const messages = {
-					progress: __( 'Updating Post by Email address…' ),
-					success: __( 'Regenerated Post by Email address.' ),
+					progress: __( 'Updating Post by Email address…', 'jetpack' ),
+					success: __( 'Regenerated Post by Email address.', 'jetpack' ),
 					error: error =>
-						__( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } ),
+						sprintf(
+							/* translators: placeholder is an error message. */
+							__( 'Error regenerating Post by Email address. %s', 'jetpack' ),
+							error
+						),
 				};
 
 				return dispatch( updateSettings( { post_by_email_address: 'regenerate' }, messages ) );

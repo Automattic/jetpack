@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -112,9 +112,10 @@ export class Security extends Component {
 				<Card
 					title={
 						isSearchTerm
-							? __( 'Security' )
+							? __( 'Security', 'jetpack' )
 							: __(
-									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.'
+									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"

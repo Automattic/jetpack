@@ -4,15 +4,16 @@
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import ExternalLink from 'components/external-link';
 import { get } from 'lodash';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import ExternalLink from 'components/external-link';
+import getRedirectUrl from 'lib/jp-redirect';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -28,9 +29,9 @@ export class Sitemaps extends React.Component {
 			<span className="jp-sitemap-row">
 				<ClipboardButtonInput
 					value={ sitemap }
-					copy={ __( 'Copy', { context: 'verb' } ) }
-					copied={ __( 'Copied!' ) }
-					prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+					copy={ _x( 'Copy', 'verb', 'jetpack' ) }
+					copied={ __( 'Copied!', 'jetpack' ) }
+					prompt={ __( 'Highlight and copy the following text to your clipboard:', 'jetpack' ) }
 				/>
 				<ExternalLink
 					// eslint-disable-next-line react/jsx-no-bind
@@ -66,11 +67,8 @@ export class Sitemaps extends React.Component {
 				>
 					<p>
 						{ __(
-							'Sitemaps are files that search engines like Google or Bing use ' +
-								'to index your website. They can help improve your ranking in ' +
-								'search results. When you enable this feature, Jetpack will ' +
-								'create sitemaps for you and update them automatically when ' +
-								'the content on your site changes.'
+							'Sitemaps are files that search engines like Google or Bing use to index your website. They can help improve your ranking in search results. When you enable this feature, Jetpack will create sitemaps for you and update them automatically when the content on your site changes.',
+							'jetpack'
 						) }
 					</p>
 					<ModuleToggle
@@ -80,15 +78,15 @@ export class Sitemaps extends React.Component {
 						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Generate XML sitemaps' ) }
+						{ __( 'Generate XML sitemaps', 'jetpack' ) }
 					</ModuleToggle>
 					{ this.props.isSiteVisibleToSearchEngines ? (
 						this.props.getOptionValue( 'sitemaps' ) && (
 							<FormFieldset>
 								<p className="jp-form-setting-explanation">
 									{ __(
-										'Good news: Jetpack is sending your sitemap automatically ' +
-											'to all major search engines for indexing.'
+										'Good news: Jetpack is sending your sitemap automatically to all major search engines for indexing.',
+										'jetpack'
 									) }
 									{ this.renderSitemapRow( sitemap_url, 'sitemap-url-link' ) }
 									{ this.renderSitemapRow( news_sitemap_url, 'sitemap-news-url-link' ) }
@@ -98,15 +96,13 @@ export class Sitemaps extends React.Component {
 					) : (
 						<FormFieldset>
 							<p className={ searchEngineVisibilityClasses }>
-								{ __(
-									"Search engines can't access your site at the moment. " +
-										"If you'd like to make your site accessible, check " +
-										'your {{a}}Reading settings{{/a}} and switch ' +
-										'"Search Engine Visibility" on.',
+								{ jetpackCreateInterpolateElement(
+									__(
+										'Search engines can’t access your site at the moment. If you’d like to make your site accessible, check your <a>Reading settings</a> and switch "Search Engine Visibility" on.',
+										'jetpack'
+									),
 									{
-										components: {
-											a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />,
-										},
+										a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />,
 									}
 								) }
 							</p>

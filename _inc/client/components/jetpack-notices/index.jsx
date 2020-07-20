@@ -4,16 +4,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action.jsx';
-import { translate as __ } from 'i18n-calypso';
-import NoticesList from 'components/global-notices';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import JetpackStateNotices from './state-notices';
+import ConnectionBanner from 'components/connection-banner';
+import DismissableNotices from './dismissable';
+import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus,
 	getSiteDevMode,
@@ -29,11 +28,13 @@ import {
 	getConnectionErrors,
 } from 'state/initial-state';
 import { getSiteDataErrors } from 'state/site';
-import DismissableNotices from './dismissable';
-import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
-import PlanConflictWarning from './plan-conflict-warning';
+import JetpackStateNotices from './state-notices';
 import JetpackConnectionErrors from './jetpack-connection-errors';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import NoticesList from 'components/global-notices';
+import PlanConflictWarning from './plan-conflict-warning';
+import SimpleNotice from 'components/notice';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -43,10 +44,10 @@ export class DevVersionNotice extends React.Component {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
-					text={ __( 'You are currently running a development version of Jetpack.' ) }
+					text={ __( 'You are currently running a development version of Jetpack.', 'jetpack' ) }
 				>
 					<NoticeAction href={ JETPACK_CONTACT_BETA_SUPPORT }>
-						{ __( 'Submit Beta feedback' ) }
+						{ __( 'Submit Beta feedback', 'jetpack' ) }
 					</NoticeAction>
 				</SimpleNotice>
 			);
@@ -68,14 +69,16 @@ export class StagingSiteNotice extends React.Component {
 		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
 			const stagingSiteSupportLink = getRedirectUrl( 'jetpack-support-staging-sites' ),
 				props = {
-					text: __( 'You are running Jetpack on a staging server.' ),
+					text: __( 'You are running Jetpack on a staging server.', 'jetpack' ),
 					status: 'is-basic',
 					showDismiss: false,
 				};
 
 			return (
 				<SimpleNotice { ...props }>
-					<NoticeAction href={ stagingSiteSupportLink }>{ __( 'More Info' ) }</NoticeAction>
+					<NoticeAction href={ stagingSiteSupportLink }>
+						{ __( 'More Info', 'jetpack' ) }
+					</NoticeAction>
 				</SimpleNotice>
 			);
 		}
@@ -98,53 +101,43 @@ export class DevModeNotice extends React.Component {
 				reasons = [];
 
 			if ( devMode.filter ) {
-				reasons.push(
-					__( '{{li}}The jetpack_development_mode filter is active{{/li}}', {
-						components: {
-							li: <li />,
-						},
-					} )
-				);
+				reasons.push( __( 'The jetpack_development_mode filter is active', 'jetpack' ) );
 			}
 			if ( devMode.constant ) {
-				reasons.push(
-					__( '{{li}}The JETPACK_DEV_DEBUG constant is defined{{/li}}', {
-						components: {
-							li: <li />,
-						},
-					} )
-				);
+				reasons.push( __( 'The JETPACK_DEV_DEBUG constant is defined', 'jetpack' ) );
 			}
 			if ( devMode.url ) {
-				reasons.push(
-					__( '{{li}}Your site URL lacks a dot (e.g. http://localhost){{/li}}', {
-						components: {
-							li: <li />,
-						},
-					} )
-				);
+				reasons.push( __( 'Your site URL lacks a dot (e.g. http://localhost)', 'jetpack' ) );
 			}
 
-			const text = __(
-				'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because: {{reasons/}}',
+			const text = jetpackCreateInterpolateElement(
+				/* translators: reasons is an unordered list of reasons why a site may be in Development mode. */
+				__(
+					'Currently in <a>Development Mode</a> (some features are disabled) because: <reasons/>',
+					'jetpack'
+				),
 				{
-					components: {
-						a: (
-							<a
-								href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
-								target="_blank"
-								rel="noopener noreferrer"
-							/>
-						),
-						reasons: <ul>{ reasons }</ul>,
-					},
+					a: (
+						<a
+							href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+							target="_blank"
+							rel="noopener noreferrer"
+						/>
+					),
+					reasons: (
+						<ul>
+							{ reasons.map( ( reason, i ) => {
+								return <li key={ i }>{ reason }</li>;
+							} ) }
+						</ul>
+					),
 				}
 			);
 
 			return (
 				<SimpleNotice showDismiss={ false } status="is-info" text={ text }>
 					<NoticeAction href={ getRedirectUrl( 'jetpack-support-development-mode' ) }>
-						{ __( 'Learn More' ) }
+						{ __( 'Learn More', 'jetpack' ) }
 					</NoticeAction>
 				</SimpleNotice>
 			);
@@ -166,14 +159,17 @@ export class UserUnlinked extends React.Component {
 		if ( ! this.props.isLinked && this.props.connectUrl && this.props.siteConnected ) {
 			return (
 				<div className="jp-unlinked-notice">
-					<JetpackBanner
+					<ConnectionBanner
 						title={ __(
-							'Jetpack is powering your site, but to access all of its features you’ll need to create an account.'
+							'Jetpack is powering your site, but to access all of its features you’ll need to connect your account to WordPress.com.',
+							'jetpack'
 						) }
-						callToAction={ __( 'Create account' ) }
+						callToAction={ __( 'Create account', 'jetpack' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
 						icon="my-sites"
 						className="is-jetpack-info"
+						from="unlinked-user-connect"
+						connectUser={ true }
 					/>
 				</div>
 			);
@@ -231,7 +227,8 @@ class JetpackNotices extends React.Component {
 						showDismiss={ false }
 						status="is-warning"
 						text={ __(
-							'This site is not connected to WordPress.com. Please ask the site administrator to connect.'
+							'This site is not connected to WordPress.com. Please ask the site administrator to connect.',
+							'jetpack'
 						) }
 					/>
 				) }

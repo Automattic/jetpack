@@ -10,7 +10,6 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import icon from './icon';
-import { supportsCollections } from '../../../shared/block-category';
 import './editor.scss';
 
 export const name = 'whatsapp-button';
@@ -29,7 +28,7 @@ export const settings = {
 		'jetpack'
 	),
 	icon,
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	parent: [ 'jetpack/send-a-message' ],
 	keywords: [
 		_x( 'whatsapp', 'keyword', 'jetpack' ),

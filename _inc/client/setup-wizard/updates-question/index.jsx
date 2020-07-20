@@ -3,7 +3,7 @@
  */
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -53,12 +53,13 @@ let UpdatesQuestion = props => {
 		<div className="jp-setup-wizard-main jp-setup-wizard-updates-main">
 			<img
 				src={ imagePath + 'jetpack-publicize-1.svg' }
-				alt={ __( 'A jetpack site using publicize to share posts' ) }
+				alt={ __( 'A jetpack site using publicize to share posts', 'jetpack' ) }
 			/>
 			<h1>
-				{ __( 'Will %(siteTitle)s have blog posts, news, or regular updates?', {
-					args: { siteTitle: props.siteTitle },
-				} ) }
+				{ sprintf(
+					__( 'Will %s have blog posts, news, or regular updates?', 'jetpack' ),
+					props.siteTitle
+				) }
 			</h1>
 			<div className="jp-setup-wizard-updates-answer-buttons-container">
 				<Button
@@ -67,18 +68,18 @@ let UpdatesQuestion = props => {
 					className="jp-setup-wizard-updates-button"
 					onClick={ onYesButtonClick }
 				>
-					{ __( 'Yes' ) }
+					{ __( 'Yes', 'jetpack' ) }
 				</Button>
 				<Button
 					href="#/setup/features"
 					className="jp-setup-wizard-updates-button"
 					onClick={ onNoButtonClick }
 				>
-					{ __( 'No' ) }
+					{ __( 'No', 'jetpack' ) }
 				</Button>
 			</div>
 			<a className="jp-setup-wizard-skip-link" href="#/setup/features" onClick={ onSkipLinkClick }>
-				{ __( 'Skip' ) }
+				{ __( 'Skip', 'jetpack' ) }
 			</a>
 		</div>
 	);

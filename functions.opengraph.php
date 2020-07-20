@@ -456,26 +456,8 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
  * @return string $description Cleaned up description string.
  */
 function jetpack_og_get_description( $description = '', $data = null ) {
-	// Remove links.
-	$description = preg_replace(
-		'@https?://[\S]+@',
-		'',
-		$description
-	);
-
-	// Remove shortcodes.
-	$description = strip_shortcodes( $description );
-
 	// Remove tags such as <style or <script.
 	$description = wp_strip_all_tags( $description );
-
-	/*
-	 * Limit things to a small text blurb.
-	 * There isn't a hard limit set by Facebook, so let's rely on WP's own limit.
-	 * (55 words or the localized equivalent).
-	 * This limit can be customized with the wp_trim_words filter.
-	 */
-	$description = wp_trim_words( $description );
 
 	/*
 	 * Clean up any plain text entities left into formatted entities.
@@ -490,6 +472,24 @@ function jetpack_og_get_description( $description = '', $data = null ) {
 		),
 		array()
 	);
+
+	// Remove shortcodes.
+	$description = strip_shortcodes( $description );
+
+	// Remove links.
+	$description = preg_replace(
+		'@https?://[\S]+@',
+		'',
+		$description
+	);
+
+	/*
+	 * Limit things to a small text blurb.
+	 * There isn't a hard limit set by Facebook, so let's rely on WP's own limit.
+	 * (55 words or the localized equivalent).
+	 * This limit can be customized with the wp_trim_words filter.
+	 */
+	$description = wp_trim_words( $description );
 
 	// Let's set a default if we have no text by now.
 	if ( empty( $description ) ) {

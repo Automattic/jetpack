@@ -667,7 +667,7 @@ function sharing_process_requests() {
 	global $post;
 
 	// Only process if: single post and share=X defined
-	if ( ( is_page() || is_single() ) && isset( $_GET['share'] ) ) {
+	if ( ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sharer = new Sharing_Service();
 
 		$service = $sharer->get_service( $_GET['share'] );

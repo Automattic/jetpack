@@ -11,7 +11,7 @@ import icon from './icon';
 import save from './save';
 import imgExampleAfter from './img-example-after.png';
 import imgExampleBefore from './img-example-before.png';
-import { supportsCollections } from '../../shared/block-category';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 export const name = 'image-compare';
 
@@ -23,8 +23,7 @@ export const settings = {
 	),
 
 	icon,
-
-	category: supportsCollections() ? 'layout' : 'jetpack',
+	category: getCategoryWithFallbacks( 'media', 'layout' ),
 	keywords: [
 		_x( 'juxtapose', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),

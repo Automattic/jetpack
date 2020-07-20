@@ -84,6 +84,7 @@ class Jetpack {
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
+		'wpcom_instagram_widget',
 	);
 
 	/**
@@ -2676,32 +2677,6 @@ class Jetpack {
 
 		// Return valid empty Jed locale
 		return '{ "locale_data": { "messages": { "": {} } } }';
-	}
-
-	/**
-	 * Add locale data setup to wp-i18n
-	 *
-	 * Any Jetpack script that depends on wp-i18n should use this method to set up the locale.
-	 *
-	 * The locale setup depends on an adding inline script. This is error-prone and could easily
-	 * result in multiple additions of the same script when exactly 0 or 1 is desireable.
-	 *
-	 * This method provides a safe way to request the setup multiple times but add the script at
-	 * most once.
-	 *
-	 * @since 6.7.0
-	 *
-	 * @return void
-	 */
-	public static function setup_wp_i18n_locale_data() {
-		static $script_added = false;
-		if ( ! $script_added ) {
-			$script_added = true;
-			wp_add_inline_script(
-				'wp-i18n',
-				'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
-			);
-		}
 	}
 
 	/**
@@ -6925,23 +6900,14 @@ endif;
 	/**
 	 * Stores and prints out domains to prefetch for page speed optimization.
 	 *
-	 * @param mixed $new_urls
+	 * @deprecated 8.8.0 Use Jetpack::add_resource_hints.
+	 *
+	 * @param string|array $urls URLs to hint.
 	 */
-	public static function dns_prefetch( $new_urls = null ) {
-		static $prefetch_urls = array();
-		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
-			echo "\r\n";
-			foreach ( $prefetch_urls as $this_prefetch_url ) {
-				printf( "<link rel='dns-prefetch' href='%s'/>\r\n", esc_attr( $this_prefetch_url ) );
-			}
-		} elseif ( ! empty( $new_urls ) ) {
-			if ( ! has_action( 'wp_head', array( __CLASS__, __FUNCTION__ ) ) ) {
-				add_action( 'wp_head', array( __CLASS__, __FUNCTION__ ) );
-			}
-			foreach ( (array) $new_urls as $this_new_url ) {
-				$prefetch_urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_new_url ) ) );
-			}
-			$prefetch_urls = array_unique( $prefetch_urls );
+	public static function dns_prefetch( $urls = null ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Automattic\Jetpack\Assets::add_resource_hint' );
+		if ( $urls ) {
+			Assets::add_resource_hint( $urls );
 		}
 	}
 

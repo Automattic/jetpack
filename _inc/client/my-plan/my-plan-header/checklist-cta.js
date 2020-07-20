@@ -2,13 +2,13 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Button from 'components/button';
+import getRedirectUrl from 'lib/jp-redirect';
 
 export default function ChecklistCta( { onClick, siteSlug } ) {
 	return (
@@ -18,7 +18,7 @@ export default function ChecklistCta( { onClick, siteSlug } ) {
 				onClick={ onClick }
 				primary
 			>
-				{ __( 'View your setup checklist' ) }
+				{ __( 'View your setup checklist', 'jetpack' ) }
 			</Button>
 		</div>
 	);

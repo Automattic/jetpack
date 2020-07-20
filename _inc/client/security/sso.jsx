@@ -2,14 +2,14 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -60,7 +60,7 @@ export const SSO = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					hideButton
 					module="sso"
-					header={ __( 'WordPress.com login', { context: 'Settings header, noun.' } ) }
+					header={ _x( 'WordPress.com login', 'Settings header, noun.', 'jetpack' ) }
 				>
 					<SettingsGroup
 						hasChild
@@ -68,16 +68,16 @@ export const SSO = withModuleSettingsFormHelpers(
 						module={ this.props.getModule( 'sso' ) }
 						support={ {
 							text: __(
-								'Allows registered users to log in to your site with their WordPress.com accounts.'
+								'Allows registered users to log in to your site with their WordPress.com accounts.',
+								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-sso' ),
 						} }
 					>
 						<p>
 							{ __(
-								'Add an extra layer of security to your website by enabling WordPress.com login and secure ' +
-									'authentication. If you have multiple sites with this option enabled, you will be able to log in to every ' +
-									'one of them with the same credentials.'
+								'Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.',
+								'jetpack'
 							) }
 						</p>
 						<ModuleToggle
@@ -102,7 +102,7 @@ export const SSO = withModuleSettingsFormHelpers(
 								onChange={ this.handleMatchByEmailToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Match accounts using email addresses' ) }
+									{ __( 'Match accounts using email addresses', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
@@ -115,7 +115,10 @@ export const SSO = withModuleSettingsFormHelpers(
 								onChange={ this.handleTwoStepToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Require accounts to use WordPress.com Two-Step Authentication' ) }
+									{ __(
+										'Require accounts to use WordPress.com Two-Step Authentication',
+										'jetpack'
+									) }
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>

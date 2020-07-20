@@ -117,18 +117,8 @@ class REST_API_Tester {
 	public static function register_rest_api_tester() {
 		if ( class_exists( 'Jetpack' ) ) {
 			new REST_API_Tester();
-		} else {
-			add_action( 'admin_notices', array( __CLASS__, 'jetpack_not_active' ) );
 		}
 	}
-
-	/**
-	 * Jetpack is missing ¯\_(ツ)_/¯.
-	 */
-	public function jetpack_not_active() {
-		echo '<div class="notice info"><p>Jetpack needs to be active and installed for the Broken Token plugin.</p></div>';
-	}
-
 }
 
 add_action( 'plugins_loaded', array( REST_API_Tester::class, 'register_rest_api_tester' ), 1000 );

@@ -6,15 +6,16 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -65,7 +66,8 @@ export class CustomContentTypes extends React.Component {
 		const disabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'custom-content-types' );
 		const disabledReason =
-			disabledByOverride && __( 'This feature has been disabled by a site administrator.' );
+			disabledByOverride &&
+			__( 'This feature has been disabled by a site administrator.', 'jetpack' );
 		return (
 			<SettingsCard { ...this.props } module="custom-content-types" hideButton>
 				<SettingsGroup
@@ -76,15 +78,13 @@ export class CustomContentTypes extends React.Component {
 					} }
 				>
 					<p>
-						{ __(
-							'Add {{testimonialLink}}testimonials{{/testimonialLink}} to ' +
-								'your website to attract new customers. If your theme doesn’t ' +
-								'support Jetpack Testimonials, you can still use a simple ' +
-								'shortcode to display them on your site.',
+						{ jetpackCreateInterpolateElement(
+							__(
+								'Add <testimonialLink>testimonials</testimonialLink> to your website to attract new customers. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site.',
+								'jetpack'
+							),
 							{
-								components: {
-									testimonialLink: this.linkIfActiveCPT( 'testimonial' ),
-								},
+								testimonialLink: this.linkIfActiveCPT( 'testimonial' ),
 							}
 						) }
 					</p>
@@ -94,11 +94,11 @@ export class CustomContentTypes extends React.Component {
 						onChange={ this.handleTestimonialToggleChange }
 						disabledReason={ disabledReason }
 					>
-						<span className="jp-form-toggle-explanation">{ __( 'Testimonials' ) }</span>
+						<span className="jp-form-toggle-explanation">{ __( 'Testimonials', 'jetpack' ) }</span>
 					</CompactFormToggle>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
-							{ __( 'Testimonials shortcode: [testimonials]' ) }
+							{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
 						</p>
 					</FormFieldset>
 				</SettingsGroup>
@@ -107,7 +107,7 @@ export class CustomContentTypes extends React.Component {
 						className="jp-settings-card__configure-link"
 						href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-testimonial` }
 					>
-						{ __( 'Add a testimonial' ) }
+						{ __( 'Add a testimonial', 'jetpack' ) }
 					</CompactCard>
 				) }
 				<SettingsGroup
@@ -118,15 +118,13 @@ export class CustomContentTypes extends React.Component {
 					} }
 				>
 					<p>
-						{ __(
-							'Use {{portfolioLink}}portfolios{{/portfolioLink}} on your ' +
-								'site to showcase your best work. If your theme doesn’t support ' +
-								'Jetpack Portfolios, you can still use a simple shortcode to ' +
-								'display them on your site.',
+						{ jetpackCreateInterpolateElement(
+							__(
+								'Use <portfolioLink>portfolios</portfolioLink> on your site to showcase your best work. If your theme doesn’t support Jetpack Portfolios, you can still use a simple shortcode to display them on your site.',
+								'jetpack'
+							),
 							{
-								components: {
-									portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
-								},
+								portfolioLink: this.linkIfActiveCPT( 'portfolio' ),
 							}
 						) }
 					</p>
@@ -136,11 +134,11 @@ export class CustomContentTypes extends React.Component {
 						onChange={ this.handlePortfolioToggleChange }
 						disabledReason={ disabledReason }
 					>
-						<span className="jp-form-toggle-explanation">{ __( 'Portfolios' ) }</span>
+						<span className="jp-form-toggle-explanation">{ __( 'Portfolios', 'jetpack' ) }</span>
 					</CompactFormToggle>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
-							{ __( 'Portfolios shortcode: [portfolio]' ) }
+							{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
 						</p>
 					</FormFieldset>
 				</SettingsGroup>
@@ -149,7 +147,7 @@ export class CustomContentTypes extends React.Component {
 						className="jp-settings-card__configure-link"
 						href={ `${ this.props.siteAdminUrl }post-new.php?post_type=jetpack-portfolio` }
 					>
-						{ __( 'Add a portfolio item' ) }
+						{ __( 'Add a portfolio item', 'jetpack' ) }
 					</CompactCard>
 				) }
 			</SettingsCard>

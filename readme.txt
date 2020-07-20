@@ -2,9 +2,9 @@
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
 Stable tag: 8.7
-Requires at least: 5.3
+Requires at least: 5.4
 Requires PHP: 5.6
-Tested up to: 5.4
+Tested up to: 5.5
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
@@ -95,6 +95,18 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
+
+= 8.7.1 =
+
+* Release date: July 14, 2020
+
+**Bug fixes**
+
+* Autoloader: avoid PHP warning on sites with an invalid `active_plugins` option.
+* Backwards Compatibility: Prevent fatal errors on themes relying on a deprecated static method.
+* Blocks: show a loading spinner when unrolling Twitter threads on WordPress 5.3.
+* General: prevent PHP notices with the Contact Form feature, Sharing feature, and the Latest Instagram Galleries block.
+* Sharing: create proper Open Graph Description tag when a post starts with an image.
 
 = 8.7 =
 
