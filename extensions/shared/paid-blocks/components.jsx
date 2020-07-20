@@ -5,16 +5,21 @@
 /**
  * WordPress dependencies
  */
-import { Icon } from '@wordpress/components';
+import { SVG, Icon, Circle } from '@wordpress/components';
 
-export const PremiumIcon = ( { icon, name } ) =>{
-	const blockNames = name.split( '/' );
-	const iconProps = icon?.src ? { icon: icon.src } : { icon };
-	const cssClass = 'jetpack-premium-icon' + ( blockNames?.[ 1 ] ? ` jetpack-premium-${ blockNames[ 1 ] }-icon` : '' );
-
+const paidIconIndicator = ( { cx = 21, cy = 3, r = 4, fill = '#e34c84' } ) => {
 	return (
-		<div className={ cssClass }>
-			<Icon { ...iconProps } />
-		</div>
+		<SVG>
+			<Circle cx={ cx } cy={ cy } r={ r } fill="#fff" />
+			<Circle cx={ cx } cy={ cy } r={ r - 1 } fill={ fill } />
+		</SVG>
+	);
+};
+export const PremiumIcon = ( { icon } ) => {
+	return (
+		<SVG>
+			<Icon icon={ icon && icon.src ? icon.src : icon } />
+			<Icon icon={ paidIconIndicator } />
+		</SVG>
 	);
 };

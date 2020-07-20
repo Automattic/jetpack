@@ -28,8 +28,9 @@ const jetpackPaidBlock = ( settings, name ) => {
 			withCustomClassNames( name, 'has-warning is-interactive is-upgradable' )
 		);
 
-		// Set premium icon.
-		settings.icon = <PremiumIcon icon={ settings.icon } name={ name } />;
+		settings.icon = {
+			src: <PremiumIcon icon={ settings.icon } />,
+		};
 
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
