@@ -1029,17 +1029,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can view Jetpack admin page and can activate plugins.
 	 *
-	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
-	 * @deprecated 8.8.0 The method is moved to the `REST_Connector` class.
-	 *
-	 * @see REST_Connector::activate_plugins_permission_check()
-	 *
 	 * @since 4.3.0
+	 *
+	 * @return bool Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
 	 */
 	public static function activate_plugins_permission_check() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'REST_Connector::activate_plugins_permission_check' );
+		if ( current_user_can( 'jetpack_admin_page' ) && current_user_can( 'activate_plugins' ) ) {
+			return true;
+		}
 
-		return REST_Connector::activate_plugins_permission_check();
+		return new WP_Error( 'invalid_user_permission_activate_plugins', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
