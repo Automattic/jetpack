@@ -22,8 +22,17 @@ FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|docker|docs|extensions|.g
 cp -r $FILES $JP_DIR
 
 # /dev/null 2>&1
-apt update
-apt install zip -y
+APT_UPDATE="apt update"
+APT_INSTALL_ZIP="apt install zip -y"
+
+if $(type -t "sudo" > /dev/null 2>&1); then
+		APT_UPDATE="sudo $APT_UPDATE"
+		APT_INSTALL_ZIP="sudo $APT_INSTALL_ZIP"
+fi
+
+eval $APT_UPDATE > /dev/null 2>&1
+eval $APT_INSTALL_ZIP > /dev/null 2>&1
+
 
 cd $(dirname "$JP_DIR")
 
