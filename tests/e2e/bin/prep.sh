@@ -1,6 +1,6 @@
 #!/bin/bash
 # Exit if any command fails.
-set -e
+set -ex
 
 ##
 # This script creates a jetpack .zip that is accessible externaly via site/wp-content/jetpack.zip
