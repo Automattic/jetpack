@@ -29,7 +29,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 		);
 
 		// Set premium icon.
-		settings.icon = <PremiumIcon icon={ settings.icon } name={ name.split( '/' )[ 1 ] } />;
+		settings.icon = <PremiumIcon icon={ settings.icon } name={ name } />;
 
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );

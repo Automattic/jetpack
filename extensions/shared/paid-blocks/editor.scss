@@ -44,8 +44,8 @@ $icon-background-color: #fff;
 	&::before {
 		content: ' ';
 		position: absolute;
-		top: 0;
-		right: 0;
+		top: -5px;
+		right: -5px;
 
 		width: $icon-size;
 		height: $icon-size;
@@ -53,6 +53,5 @@ $icon-background-color: #fff;
 		background-color: $premium-icon-color;
 		border-radius: $icon-size / 2;
 		border: 2px solid $icon-background-color;
-		z-index: 1;
 	}
 }
