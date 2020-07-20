@@ -49,6 +49,15 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		add_action( 'wp_ajax_wpcom_instagram_widget_update_widget_token_id', array( $this, 'ajax_update_widget_token_id' ) );
 
 		$this->valid_options = array(
+			/**
+			 * Allow changing the maximum number of columns available for the Instagram widget.
+			 *
+			 * @module widgets
+			 *
+			 * @since 8.8.0
+			 *
+			 * @param int $max_columns maximum number of columns.
+			 */
 			'max_columns' => apply_filters( 'wpcom_instagram_widget_max_columns', 3 ),
 			'max_count'   => 20,
 		);
@@ -480,11 +489,12 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			echo '<p><small>' . sprintf(
 				wp_kses(
 					/* translators: %s is a link to log in to Instagram */
-					__( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'jetpack' ),
+					__( 'Having trouble? Try <a href="%s" target="_blank" rel="noopener noreferrer">logging into the correct account</a> on Instagram.com first.', 'jetpack' ),
 					array(
 						'a' => array(
 							'href'   => array(),
 							'target' => array(),
+							'rel'    => array(),
 						),
 					)
 				),
@@ -561,7 +571,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 		echo '</select>';
 		echo '</label></p>';
 
-		/* translators: %d is an integer number of minutes */
 		echo '<p><small>' . esc_html__( 'New images may take up to 15 minutes to show up on your site.', 'jetpack' ) . '</small></p>';
 	}
 
