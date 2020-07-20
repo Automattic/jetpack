@@ -12,7 +12,7 @@ import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
-import { execWpCommand, getNgrokSiteUrl } from './utils-helper';
+import { execWpCommand } from './utils-helper';
 import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
 
 const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
