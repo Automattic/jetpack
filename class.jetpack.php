@@ -1548,7 +1548,7 @@ class Jetpack {
 	 * array (
 	 *      'plugins'                       => (int) Number of plugin updates available.
 	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'wordpress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+	 *      'WordPress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 	 *      'translations'                  => (int) Number of translation updates available.
 	 *      'total'                         => (int) Total of all available updates.
 	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
@@ -7418,10 +7418,10 @@ endif;
 				'discount_percent'  => 30,
 				'options'           => array(
 					array(
-						'type'      => 'scan',
-						'slug'      => 'jetpack-scan',
-						'key'       => 'jetpack_scan',
-						'name'      => __( 'Daily Scan', 'jetpack' ),
+						'type' => 'scan',
+						'slug' => 'jetpack-scan',
+						'key'  => 'jetpack_scan',
+						'name' => __( 'Daily Scan', 'jetpack' ),
 					),
 				),
 				'default_option'    => 'scan',
@@ -7435,13 +7435,13 @@ endif;
 			'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
 			'learn_more'        => __( 'Learn More', 'jetpack' ),
 			'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
-			'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
+			'label_popup'       => __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.', 'jetpack' ),
 			'options'           => array(
 				array(
-					'type'      => 'search',
-					'slug'      => 'jetpack-search',
-					'key'       => 'jetpack_search',
-					'name'      => __( 'Search', 'jetpack' ),
+					'type' => 'search',
+					'slug' => 'jetpack-search',
+					'key'  => 'jetpack_search',
+					'name' => __( 'Search', 'jetpack' ),
 				),
 			),
 			'tears'             => array(),
