@@ -9,9 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-// Clean up expired Helper Scripts from a scheduled event.
-// add_action( 'jetpack_backup_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Backup\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
-
 error_log( 'loading actions' );
 
 add_filter(
