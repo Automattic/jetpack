@@ -142,7 +142,8 @@ class Main extends React.Component {
 			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
-			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings
+			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings ||
+			nextProps.isReconnectingSite !== this.props.isReconnectingSite
 		);
 	}
 
