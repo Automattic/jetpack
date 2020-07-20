@@ -184,15 +184,17 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			do_action( 'jetpack_stats_extra', 'widget_view', 'mailchimp_subscriber_popup' );
 		}
 
+		//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		/**
 		 * Deals with the settings when they are saved by the admin.
 		 *
 		 * @param array $new_instance New configuration values.
+		 * @param array $old_instance Old configuration values.
 		 *
 		 * @return array
 		 */
-		public function update( $new_instance ) {
+		public function update( $new_instance, $old_instance ) {
 			$instance = array();
 
 			$new_instance = wp_parse_args(
@@ -219,6 +221,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 			return $instance;
 		}
+
+		//phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		/**
 		 * Enqueue the scripts for the widget.
