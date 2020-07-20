@@ -41,7 +41,7 @@ describe( 'Jetpack updater', () => {
 		} );
 
 		await step( 'Can connect Jetpack', async () => {
-			const status = await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
+			await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
 		} );
 	} );
 } );

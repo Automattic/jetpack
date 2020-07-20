@@ -1,6 +1,6 @@
 #!/bin/bash
 # Exit if any command fails.
-set -ex
+set -e
 
 ##
 # This script creates a jetpack .zip that is accessible externaly via site/wp-content/jetpack.zip
@@ -21,19 +21,10 @@ mkdir -p $JP_DIR
 FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|docker|docs|extensions|.git")
 cp -r $FILES $JP_DIR
 
-# /dev/null 2>&1
-APT_UPDATE="apt update"
-APT_INSTALL_ZIP="apt install zip -y"
-
 if $(! type -t "zip" > /dev/null 2>&1); then
-		# APT_UPDATE="sudo $APT_UPDATE"
-		# APT_INSTALL_ZIP="sudo $APT_INSTALL_ZIP"
 		apt update > /dev/null
 		apt install zip -y > /dev/null
 fi
-
-# eval $APT_UPDATE
-# eval $APT_INSTALL_ZIP
 
 cd $(dirname "$JP_DIR")
 

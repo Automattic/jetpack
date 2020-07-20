@@ -192,13 +192,6 @@ jasmine.getEnv().addReporter( {
 catchBeforeAll( async () => {
 	await setupBrowser();
 
-	const siteUrl = getNgrokSiteUrl();
-
-	console.log('1111111');
-	console.log(siteUrl);
-
-	await page.waitFor(9999999999);
-
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
 	observeConsoleLogging();
