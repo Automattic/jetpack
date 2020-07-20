@@ -21,6 +21,7 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	afterAll( async () => {
+		await execWpCommand( 'wp plugin deactivate jetpack' );
 		await resetWordpressInstall();
 	} );
 
