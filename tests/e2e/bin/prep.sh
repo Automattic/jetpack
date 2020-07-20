@@ -30,8 +30,8 @@ if $(type -t "sudo" > /dev/null 2>&1); then
 		APT_INSTALL_ZIP="sudo $APT_INSTALL_ZIP"
 fi
 
-eval $APT_UPDATE > /dev/null 2>&1
-eval $APT_INSTALL_ZIP > /dev/null 2>&1
+eval $APT_UPDATE
+eval $APT_INSTALL_ZIP
 
 
 cd $(dirname "$JP_DIR")
