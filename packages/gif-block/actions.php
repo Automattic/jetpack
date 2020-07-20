@@ -9,8 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-error_log( 'loading actions' );
-
 add_filter(
 	'jetpack_set_available_extensions',
 	function( $list, $variation ) {
@@ -38,6 +36,8 @@ add_action(
 	'plugins_loaded',
 	function() {
 		if ( Jetpack_Gutenberg::should_load() ) {
+			// @todo this actually should be based on whether an extension is available, not just on whether jetpack gutenberg is loaded
+			// so maybe this belongs in a different part of the lifecycle?
 			include_once __DIR__ . '/src/gif.php';
 		}
 	}

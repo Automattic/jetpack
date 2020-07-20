@@ -637,6 +637,131 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'init' ) );
+		add_filter( 'jetpack_gutenberg', function( $should_load ) {
+			if ( ! Jetpack::is_active() && ! ( new Status() )->is_development_mode() ) {
+				return false;
+			}
+			return $should_load;
+		} );
+		add_filter( 'jetpack_blocks_directory', function() {
+			return JETPACK__PLUGIN_DIR . '_inc/blocks/';
+		}, 0, 1 );
+		add_action( 'jetpack_set_available_extensions', array( $this, 'set_available_extensions' ), 10, 2 );
+		add_action( 'enqueue_block_editor_assets', function() {
+			if ( ! Jetpack_Gutenberg::should_load() ) {
+				return;
+			}
+
+			// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
+			if ( ! ( new Status() )->is_development_mode() && Jetpack::is_active() ) {
+				wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+			}
+
+
+			if ( ! Jetpack_Gutenberg::should_load() ) {
+				return;
+			}
+
+			$rtl = is_rtl() ? '.rtl' : '';
+			$blocks_dir       = Jetpack_Gutenberg::get_blocks_directory();
+			$blocks_variation = Jetpack_Gutenberg::blocks_variation();
+
+			if ( 'production' !== $blocks_variation ) {
+				$blocks_env = '-' . esc_attr( $blocks_variation );
+			} else {
+				$blocks_env = '';
+			}
+
+			$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.js", JETPACK__PLUGIN_FILE );
+			$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}{$rtl}.css", JETPACK__PLUGIN_FILE );
+
+			$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.asset.php";
+			$editor_deps      = array( 'wp-polyfill' );
+			if ( file_exists( $editor_deps_path ) ) {
+				$asset_manifest = include $editor_deps_path;
+				$editor_deps    = $asset_manifest['dependencies'];
+			}
+
+			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
+				? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
+				: JETPACK__VERSION;
+
+			if ( method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+				$site_fragment = Jetpack::build_raw_urls( home_url() );
+			} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+				$site_fragment = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+			} else {
+				$site_fragment = '';
+			}
+
+			wp_enqueue_script(
+				'jetpack-blocks-editor',
+				$editor_script,
+				$editor_deps,
+				$version,
+				false
+			);
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$user                      = wp_get_current_user();
+				$user_data                 = array(
+					'userid'   => $user->ID,
+					'username' => $user->user_login,
+				);
+				$blog_id                   = get_current_blog_id();
+				$is_current_user_connected = true;
+			} else {
+				$user_data                 = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+				$blog_id                   = Jetpack_Options::get_option( 'id', 0 );
+				$is_current_user_connected = Jetpack::is_user_connected();
+			}
+
+			wp_localize_script(
+				'jetpack-blocks-editor',
+				'Jetpack_Editor_Initial_State',
+				array(
+					'available_blocks' => Jetpack_Gutenberg::get_availability(),
+					'jetpack'          => array(
+						'is_active'                 => Jetpack::is_active(),
+						'is_current_user_connected' => $is_current_user_connected,
+					),
+					'siteFragment'     => $site_fragment,
+					'tracksUserData'   => $user_data,
+					'wpcomBlogId'      => $blog_id,
+					'allowedMimeTypes' => wp_get_mime_types(),
+				)
+			);
+
+			wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
+
+			wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
+		} );
+		/**
+		 * Some blocks do not depend on a specific module,
+		 * and can consequently be loaded outside of the usual modules.
+		 * We will look for such modules in the extensions/ directory.
+		 *
+		 * @since 7.1.0
+		 *
+		 * @deprecated 8.8.0 Blocks should be Jetpack modules and manage their own initialization.
+		 */
+		add_action( 'jetpack_after_extensions_init', function() {
+			error_log("loading extensions after init");
+			if ( Jetpack_Gutenberg::should_load() ) {
+				/**
+				 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
+				 * If available, load them.
+				 */
+				foreach ( Jetpack_Gutenberg::$extensions as $extension ) {
+					error_log("loading extension $extension");
+					$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
+					if ( ! empty( $extension_file_glob ) ) {
+						error_log(json_encode($extension_file_glob));
+						include_once $extension_file_glob[0];
+					}
+				}
+			}
+		} );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -876,6 +1001,23 @@ class Jetpack {
 			$is_signed,
 			$xmlrpc_server
 		);
+	}
+
+	/**
+	 * Used to set the list of extensions for the current environment. Extracted from class.jetpack-gutenberg.php
+	 */
+	public function set_available_extensions( $list, $variation ) {
+		$preset_file = Jetpack_Gutenberg::get_blocks_directory() . 'index.json';
+		if ( file_exists( $preset_file ) ) {
+			$presets = json_decode(
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				file_get_contents( $preset_file ), true
+			);
+			if ( ! empty( $presets ) && isset( $presets[$variation] ) && is_array( $presets[$variation] ) ) {
+				$list = array_merge( $list, $presets[$variation] );
+			}
+		}
+		return $list;
 	}
 
 	/**

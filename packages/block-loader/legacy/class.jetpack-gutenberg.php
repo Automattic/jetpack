@@ -69,7 +69,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @var array Extensions allowed list.
 	 */
-	private static $extensions = array();
+	public static $extensions = array();
 
 	/**
 	 * Keeps track of the reasons why a given extension is unavailable.
@@ -252,9 +252,9 @@ class Jetpack_Gutenberg {
 			self::$extensions = array_diff( self::$extensions, $exclusions );
 		}
 
-		self::load_independent_blocks();
+		error_log(json_encode(self::$extensions));
 
-		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+		do_action( 'jetpack_after_extensions_init' );
 	}
 
 	/**
@@ -275,15 +275,19 @@ class Jetpack_Gutenberg {
 	 * @return string The Gutenberg extensions directory
 	 */
 	public static function get_extension_path( $type ) {
+		$default_extension_path = self::get_blocks_directory() . $type;
+		return apply_filters( 'jetpack_get_extension_path', $default_extension_path, $type );
+	}
+
+	public static function get_blocks_directory() {
 		/**
 		 * Filter to select Gutenberg blocks directory
 		 *
 		 * @since 6.9.0
 		 *
-		 * @param string default: '_inc/blocks/'
+		 * @param string default: false
 		 */
-		$default_directory = apply_filters( 'jetpack_blocks_directory', '_inc/blocks/' );
-		return apply_filters( 'jetpack_get_extension_path', $default_directory, $type );
+		return apply_filters( 'jetpack_blocks_directory', false );
 	}
 
 	/**
@@ -404,10 +408,6 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load() {
-		if ( ! Jetpack::is_active() && ! ( new Status() )->is_development_mode() ) {
-			return false;
-		}
-
 		/**
 		 * Filter to disable Gutenberg blocks
 		 *
@@ -454,10 +454,10 @@ class Jetpack_Gutenberg {
 		}
 
 		// Enqueue styles.
-		$style_relative_path = self::get_extension_path( $type ) . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
-		if ( file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
-			$style_version = self::get_asset_version( $style_relative_path );
-			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+		$style_path = self::get_extension_path( $type ) . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		if ( file_exists( $style_path ) ) {
+			$style_version = self::get_asset_version( $style_path );
+			$view_style    = plugins_url( $style_path );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 		}
 	}
@@ -481,17 +481,17 @@ class Jetpack_Gutenberg {
 
 		// Enqueue script.
 		$extension_path        = self::get_extension_path( $type );
-		$script_relative_path  = $extension_path . '/view.js';
-		$script_deps_path      = JETPACK__PLUGIN_DIR . $extension_path . '/view.asset.php';
+		$script_path  = $extension_path . '/view.js';
+		$script_deps_path      = $extension_path . '/view.asset.php';
 		$script_dependencies[] = 'wp-polyfill';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
 		}
 
-		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-			$script_version = self::get_asset_version( $script_relative_path );
-			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && file_exists( $script_path ) ) {
+			$script_version = self::get_asset_version( $script_path );
+			$view_script    = plugins_url( $script_path );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
 		}
 	}
@@ -504,126 +504,10 @@ class Jetpack_Gutenberg {
 	 * @return string $script_version Version number.
 	 */
 	public static function get_asset_version( $file ) {
-		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
-			? filemtime( JETPACK__PLUGIN_DIR . $file )
-			: JETPACK__VERSION;
-	}
-
-	/**
-	 * Load Gutenberg editor assets
-	 *
-	 * @since 6.7.0
-	 *
-	 * @return void
-	 */
-	public static function enqueue_block_editor_assets() {
-		if ( ! self::should_load() ) {
-			return;
-		}
-
-		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! ( new Status() )->is_development_mode() && Jetpack::is_active() ) {
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-		}
-
-		$rtl = is_rtl() ? '.rtl' : '';
-		/** This action is documented in class.jetpack-gutenberg.php */
-		$blocks_dir       = apply_filters( 'jetpack_blocks_directory', '_inc/blocks/' );
-		$blocks_variation = self::blocks_variation();
-
-		if ( 'production' !== $blocks_variation ) {
-			$blocks_env = '-' . esc_attr( $blocks_variation );
-		} else {
-			$blocks_env = '';
-		}
-
-		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}{$rtl}.css", JETPACK__PLUGIN_FILE );
-
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.asset.php";
-		$editor_deps      = array( 'wp-polyfill' );
-		if ( file_exists( $editor_deps_path ) ) {
-			$asset_manifest = include $editor_deps_path;
-			$editor_deps    = $asset_manifest['dependencies'];
-		}
-
-		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
-			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
-			: JETPACK__VERSION;
-
-		if ( method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-			$site_fragment = Jetpack::build_raw_urls( home_url() );
-		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-			$site_fragment = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-		} else {
-			$site_fragment = '';
-		}
-
-		wp_enqueue_script(
-			'jetpack-blocks-editor',
-			$editor_script,
-			$editor_deps,
-			$version,
-			false
-		);
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$user                      = wp_get_current_user();
-			$user_data                 = array(
-				'userid'   => $user->ID,
-				'username' => $user->user_login,
-			);
-			$blog_id                   = get_current_blog_id();
-			$is_current_user_connected = true;
-		} else {
-			$user_data                 = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-			$blog_id                   = Jetpack_Options::get_option( 'id', 0 );
-			$is_current_user_connected = Jetpack::is_user_connected();
-		}
-
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Editor_Initial_State',
-			array(
-				'available_blocks' => self::get_availability(),
-				'jetpack'          => array(
-					'is_active'                 => Jetpack::is_active(),
-					'is_current_user_connected' => $is_current_user_connected,
-				),
-				'siteFragment'     => $site_fragment,
-				'tracksUserData'   => $user_data,
-				'wpcomBlogId'      => $blog_id,
-				'allowedMimeTypes' => wp_get_mime_types(),
-			)
-		);
-
-		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
-
-		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-	}
-
-	/**
-	 * Some blocks do not depend on a specific module,
-	 * and can consequently be loaded outside of the usual modules.
-	 * We will look for such modules in the extensions/ directory.
-	 *
-	 * @since 7.1.0
-	 *
-	 * @deprecated 8.8.0 Blocks should be Jetpack modules and manage their own initialization.
-	 */
-	public static function load_independent_blocks() {
-		if ( self::should_load() ) {
-			/**
-			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
-			 * If available, load them.
-			 */
-			foreach ( self::$extensions as $extension ) {
-				$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
-				if ( ! empty( $extension_file_glob ) ) {
-					include_once $extension_file_glob[0];
-				}
-			}
-		}
+		// @todo - remove this reference to JETPACK__VERSION
+		return Jetpack::is_development_version() && file_exists( $file )
+			? filemtime( $file )
+			: ( defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : 0 );
 	}
 
 	/**
