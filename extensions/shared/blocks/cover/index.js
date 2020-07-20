@@ -17,6 +17,9 @@ import './editor.scss';
 
 // Take the control of the Replace block button control.
 addFilter( 'editor.MediaReplaceFlow', 'jetpack/cover-media-replace-flow', coverMediaReplaceFlow );
-addFilter( 'editor.MediaPlaceholder', 'jetpack/cover-edit-media-placeholder', coverEditMediaPlaceholder );
+addFilter(
+	'editor.MediaPlaceholder',
+	'jetpack/cover-edit-media-placeholder',
+	coverEditMediaPlaceholder
+);
 addFilter( 'blocks.registerBlockType', 'jetpack/cover-block-edit', jetpackCoverBlockEdit );
-

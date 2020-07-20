@@ -10,33 +10,34 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { isUpgradable, isVideoFile } from './utils';
 import { CoverMediaProvider, JetpackCoverUpgradeNudge } from './components';
 
-export const JetpackCoverBlockEdit = ( blockName ) => createHigherOrderComponent(
-	BlockEdit => props => {
-		const [ showNudge, setShowNudge ] = useState( false );
+export const JetpackCoverBlockEdit = blockName =>
+	createHigherOrderComponent(
+		BlockEdit => props => {
+			const [ showNudge, setShowNudge ] = useState( false );
 
-		const { attributes } = props;
+			const { attributes } = props;
 
-		// Remove Nudge if the block changes its attributes.
-		useEffect( () => setShowNudge( false ), [ attributes ] );
+			// Remove Nudge if the block changes its attributes.
+			useEffect( () => setShowNudge( false ), [ attributes ] );
 
-		const handleFilesPreUpload = useCallback( ( files ) => {
-			if ( ! files?.length || ! isVideoFile( files[ 0 ] ) ) {
-				return;
-			}
-			setShowNudge( true );
-		} );
+			const handleFilesPreUpload = useCallback( files => {
+				if ( ! files?.length || ! isVideoFile( files[ 0 ] ) ) {
+					return;
+				}
+				setShowNudge( true );
+			} );
 
-		return (
-			<Fragment>
-				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload } blockName={ blockName }>
-					<JetpackCoverUpgradeNudge show={ showNudge } name={ name } align={ attributes.align } />
-					<BlockEdit { ...props } />
-				</CoverMediaProvider>
-			</Fragment>
-		);
-	},
-	'JetpackCoverBlockEdit'
-);
+			return (
+				<Fragment>
+					<CoverMediaProvider onFilesUpload={ handleFilesPreUpload } blockName={ blockName }>
+						<JetpackCoverUpgradeNudge show={ showNudge } name={ name } align={ attributes.align } />
+						<BlockEdit { ...props } />
+					</CoverMediaProvider>
+				</Fragment>
+			);
+		},
+		'JetpackCoverBlockEdit'
+	);
 
 export default ( settings, name ) => ( {
 	...settings,
