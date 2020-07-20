@@ -25,7 +25,7 @@ cp -r $FILES $JP_DIR
 APT_UPDATE="apt update"
 APT_INSTALL_ZIP="apt install zip -y"
 
-if $(type -t "zip" > /dev/null 2>&1); then
+if $(! type -t "zip" > /dev/null 2>&1); then
 		# APT_UPDATE="sudo $APT_UPDATE"
 		# APT_INSTALL_ZIP="sudo $APT_INSTALL_ZIP"
 		apt update > /dev/null
