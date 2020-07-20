@@ -10,6 +10,7 @@ import { Path, SVG } from '@wordpress/components';
 import edit from './edit';
 import save from './save';
 import transforms from './transforms';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 /**
  * Example Images
@@ -111,7 +112,7 @@ export const name = 'slideshow';
 
 export const settings = {
 	title: __( 'Slideshow', 'jetpack' ),
-	category: 'layout',
+	category: getCategoryWithFallbacks( 'media', 'layout' ),
 	keywords: [
 		_x( 'image', 'block search term', 'jetpack' ),
 		_x( 'gallery', 'block search term', 'jetpack' ),

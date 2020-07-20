@@ -26,7 +26,7 @@ export const settings = {
 		_x( 'rating', 'block search term', 'jetpack' ),
 		_x( 'review', 'block search term', 'jetpack' ),
 	],
-	category: 'formatting',
+	category: 'widgets',
 	example: {},
 	styles: [
 		{

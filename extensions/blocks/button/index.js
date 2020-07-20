@@ -10,13 +10,14 @@ import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
 import save from './save';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 export const name = 'button';
 
 export const settings = {
 	title: __( 'Button', 'jetpack' ),
 	icon,
-	category: 'layout',
+	category: getCategoryWithFallbacks( 'design', 'layout' ),
 	keywords: [],
 	supports: {
 		html: false,
