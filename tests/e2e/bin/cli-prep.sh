@@ -15,10 +15,11 @@ wp db reset --yes --quiet
 echo -e "Installing WordPress..."
 wp core install --title="$SITE_TITLE" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=$WP_SITE_URL --path=$WP_CORE_DIR --quiet
 
-echo -e "Setting up dynamic WP_HOME & SITE_URL..."
-wp config set WP_SITEURL "'http://' . \$_SERVER['HTTP_HOST']" --raw --type=constant --quiet
-wp config set WP_HOME "'http://' . \$_SERVER['HTTP_HOST']" --raw --type=constant --quiet
-
+if $( ! $CI ); then
+	echo -e "Setting up dynamic WP_HOME & SITE_URL..."
+	wp config set WP_SITEURL "'http://' . \$_SERVER['HTTP_HOST']" --raw --type=constant --quiet
+	wp config set WP_HOME "'http://' . \$_SERVER['HTTP_HOST']" --raw --type=constant --quiet
+fi
 
 echo -e "Configuring site constants..."
 wp config set WP_DEBUG true --raw --type=constant --quiet
