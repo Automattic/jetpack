@@ -637,8 +637,6 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'init' ) );
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
-		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -1548,7 +1546,7 @@ class Jetpack {
 	 * array (
 	 *      'plugins'                       => (int) Number of plugin updates available.
 	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'WordPress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+	 *      'wordpress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 	 *      'translations'                  => (int) Number of translation updates available.
 	 *      'total'                         => (int) Total of all available updates.
 	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
