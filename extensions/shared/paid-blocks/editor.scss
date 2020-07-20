@@ -1,7 +1,7 @@
-$banner-height: 48px;
+@import 'modules/calypsoify/_studio-wpcom.scss';
 
+$banner-height: 48px;
 $icon-size: 10px;
-$premium-icon-color: #007cba;
 $icon-background-color: #fff;
 
 .jetpack-upgrade-plan-banner {
@@ -14,7 +14,8 @@ $icon-background-color: #fff;
 	background: black;
 	color: white;
 	padding: 0 20px;
-	border-radius: 5px 5px 0 0;
+	border-radius: 2px 2px 0 0;
+	margin-bottom: 10px;
 
 	.jetpack-upgrade-plan-banner__title,
 	.jetpack-upgrade-plan-banner__description {
@@ -24,7 +25,15 @@ $icon-background-color: #fff;
 	.components-button {
 		flex-shrink: 0;
 		margin-left: auto;
-		height: 32px;
+		height: 28px;
+
+		&.is-primary {
+			background: $studio-pink-40;
+
+			&:hover {
+				background: $studio-pink-30;
+			}
+		}
 	}
 }
 
@@ -35,6 +44,7 @@ $icon-background-color: #fff;
 // Adjust banner in the InspectorControl
 .block-editor-block-inspector .jetpack-upgrade-plan-banner {
 	border-radius: 0;
+	margin: 0 20px 20px;
 }
 
 // Premium Icons.
@@ -44,14 +54,16 @@ $icon-background-color: #fff;
 	&::before {
 		content: ' ';
 		position: absolute;
-		top: -5px;
-		right: -5px;
+		top: -3px;
+		right: -3px;
+		z-index: 1;
 
 		width: $icon-size;
 		height: $icon-size;
 
-		background-color: $premium-icon-color;
-		border-radius: $icon-size / 2;
+		background-color: $studio-pink-40;
+		border-radius: 50%;
 		border: 2px solid $icon-background-color;
+		box-sizing: border-box;
 	}
 }
