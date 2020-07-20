@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { useBlockEditContext } from '@wordpress/block-editor';
 import { useEffect, useState, Fragment, useCallback } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
@@ -11,7 +10,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { isUpgradable, isVideoFile } from './utils';
 import { CoverMediaProvider, JetpackCoverUpgradeNudge } from './components';
 
-export default createHigherOrderComponent(
+export const JetpackCoverBlockEdit = ( blockName ) => createHigherOrderComponent(
 	BlockEdit => props => {
 		const [ showNudge, setShowNudge ] = useState( false );
 
@@ -27,14 +26,9 @@ export default createHigherOrderComponent(
 			setShowNudge( true );
 		} );
 
-		const { name } = useBlockEditContext();
-		if ( ! isUpgradable( name ) ) {
-			return <BlockEdit { ...props } />;
-		}
-
 		return (
 			<Fragment>
-				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
+				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload } blockName={ blockName }>
 					<JetpackCoverUpgradeNudge show={ showNudge } name={ name } align={ attributes.align } />
 					<BlockEdit { ...props } />
 				</CoverMediaProvider>
@@ -43,3 +37,8 @@ export default createHigherOrderComponent(
 	},
 	'JetpackCoverBlockEdit'
 );
+
+export default ( settings, name ) => ( {
+	...settings,
+	edit: isUpgradable( name ) ? JetpackCoverBlockEdit( name )( settings.edit ) : settings.edit,
+} );
