@@ -10,8 +10,8 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 describe( 'Jetpack updater', () => {
 	catchBeforeAll( async () => {
 		await resetWordpressInstall();
-		await execWpCommand( 'wp plugin --quiet install --activate jetpack' );
-		await execWpCommand( 'wp plugin --quiet deactivate jetpack-dev' );
+		await execWpCommand( 'wp plugin install --activate jetpack' );
+		await execWpCommand( 'wp plugin deactivate jetpack-dev' );
 		await execWpCommand( 'wp plugin activate e2e-plugin-updater' );
 		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
 		const url = getNgrokSiteUrl();
