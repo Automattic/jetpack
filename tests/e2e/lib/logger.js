@@ -91,7 +91,7 @@ const logger = createLogger( {
 
 // If we're running tests locally with debug enabled then **ALSO** log to the `console`
 // with the colorized simple format.
-if ( process.env.E2E_DEBUG || ! process.env.CI ) {
+if ( process.env.E2E_DEBUG || process.env.CI ) {
 	logger.add(
 		new transports.Console( {
 			format: stringFormat,
