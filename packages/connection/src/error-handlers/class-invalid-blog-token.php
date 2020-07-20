@@ -12,7 +12,7 @@ use Automattic\Jetpack\Connection\Error_Handler;
 
 /**
  * This class handles all the error codes that indicates a broken blog token and
- * tries to self-heal and display an error message to the suer suggesting to reconnect.
+ * tries to self-heal and display an error message to the user suggesting to reconnect.
  *
  * @since 8.7.0
  */
