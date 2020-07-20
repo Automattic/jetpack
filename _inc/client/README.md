@@ -71,7 +71,7 @@ import Gridicon from 'components/gridicon';
 import { __ } from '@wordpress/i18n';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 const getDocumentationLink = () => {
-	return jetpackjetpackCreateInterpolateElement(lement(
+	return jetpackCreateInterpolateElement(
 		__( '<FlagIcon /> Still confused? <a>Check out documentation for more!</a>', 'jetpack' ),
 		{
 			FlagIcon: <Gridicon icon="flag" size={ 64 } />
