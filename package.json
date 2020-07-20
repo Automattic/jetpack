@@ -200,7 +200,7 @@
 		"eslint-config-wpcalypso": "5.0.0",
 		"eslint-loader": "4.0.2",
 		"eslint-plugin-es5": "1.5.0",
-		"eslint-plugin-jest": "22.21.0",
+		"eslint-plugin-jest": "23.18.0",
 		"eslint-plugin-jsdoc": "29.2.0",
 		"eslint-plugin-jsx-a11y": "6.3.1",
 		"eslint-plugin-lodash": "7.1.0",
