@@ -233,21 +233,7 @@ export const authorizeUserInPlaceSuccess = () => {
 	return ( dispatch, getState ) => {
 		// part of the reconnection flow
 		if ( isReconnectingSite( getState() ) ) {
-			// dispatch( {
-			// type: AUTH_USER_IN_PLACE_SUCCESS,
-			// } );
-			// dispatch( {
-			// 	type: SITE_RECONNECT_SUCCESS,
-			// } );
-			// dispatch( removeNotice( 'reconnect-jetpack' ) );
-			// dispatch(
-			// 	createNotice( 'is-success', __( 'Connection restored', 'jetpack' ), {
-			// 		id: 'reconnect-jetpack',
-			// 		duration: 2000,
-			// 	} )
-			// );
-
-			// @todo Some context on what is happening here:
+			// Some context on what is happening here:
 			// Normally, we would dispatch the above actions but there is an issue.
 			// Currently the following are bound to the initial state:
 			// - connection errors

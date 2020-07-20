@@ -35,7 +35,6 @@ import NoticeAction from 'components/notice/notice-action.jsx';
 import NoticesList from 'components/global-notices';
 import PlanConflictWarning from './plan-conflict-warning';
 import SimpleNotice from 'components/notice';
-import AuthIframe from 'components/auth-iframe';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
