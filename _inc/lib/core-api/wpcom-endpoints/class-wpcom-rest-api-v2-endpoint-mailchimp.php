@@ -29,8 +29,9 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 			$this->rest_base,
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_mailchimp_status' ),
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_mailchimp_status' ),
+					'permission_callback' => '__return_true',
 				),
 			)
 		);
@@ -39,8 +40,9 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 			$this->rest_base . '/groups',
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_mailchimp_groups' ),
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_mailchimp_groups' ),
+					'permission_callback' => '__return_true',
 				),
 			)
 		);
