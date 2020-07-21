@@ -13,12 +13,13 @@ import { useRef, useContext } from '@wordpress/element';
  * Internal dependencies
  */
 import { CoverMediaContext } from './components';
-import { isUpgradable, isVideoFile } from './utils';
+import { isVideoFile } from './utils';
+import { isUpgradable } from '../../plan-utils';
 
 export default createHigherOrderComponent( MediaReplaceFlow => props => {
 	const { name } = useBlockEditContext();
 	const preUploadFile = useRef();
-	if ( ! isUpgradable( name ) ) {
+	if ( name !== 'core/cover' || ! isUpgradable( name ) ) {
 		return <MediaReplaceFlow { ...props } />;
 	}
 
