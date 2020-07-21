@@ -40,7 +40,7 @@ export default OriginalBlockEdit => props => {
 	return (
 		<Fragment>
 			<InspectorControls>
-				<UpgradePlanBanner description={ null } align={ props?.attributes?.align } />
+				<UpgradePlanBanner description={ null } blockName={ props.name } />
 			</InspectorControls>
 
 			<UpgradePlanBanner title={ null } align={ props?.attributes?.align } />
