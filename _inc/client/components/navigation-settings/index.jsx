@@ -93,7 +93,7 @@ export const NavigationSettings = createReactClass( {
 	 * @param {string} keyword - the new search keyword
 	 * @returns {string} href the new location string
 	 */
-	buildUrl: function( href, keyword ) {
+	buildUrl: function ( href, keyword ) {
 		const splitUrl = href.split( '#' ),
 			splitHash = splitUrl[ 1 ].split( '?' );
 
@@ -105,7 +105,7 @@ export const NavigationSettings = createReactClass( {
 		return () => this.trackNavClick( target );
 	},
 
-	render: function() {
+	render: function () {
 		let navItems, sharingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (

@@ -100,7 +100,7 @@ class ProductSelector extends Component {
 
 		return (
 			<>
-				{ productsForPurchase.map( function( product ) {
+				{ productsForPurchase.map( function ( product ) {
 					return (
 						<SingleProductCard
 							product={ product }

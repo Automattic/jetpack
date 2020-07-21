@@ -1,6 +1,6 @@
 this.jetpackModules = this.jetpackModules || {};
 
-window.jetpackModules.views = ( function( window, $, _, Backbone, wp ) {
+window.jetpackModules.views = ( function ( window, $, _, Backbone, wp ) {
 	'use strict';
 
 	var views = {};
@@ -12,7 +12,7 @@ window.jetpackModules.views = ( function( window, $, _, Backbone, wp ) {
 		 * If we can, use replaceState to change the URL and indicate the new filtering.
 		 * This will be handy with redirecting back to the same state after activating/deactivating.
 		 */
-		updateUrl: function() {
+		updateUrl: function () {
 			if ( ! window.history.replaceState ) {
 				return;
 			}
@@ -46,14 +46,14 @@ window.jetpackModules.views = ( function( window, $, _, Backbone, wp ) {
 			window.history.replaceState( {}, '', url );
 		},
 
-		render: function() {
+		render: function () {
 			this.model.filter_and_sort();
 			this.$el.html( this.template( this.model.attributes ) );
 			this.updateUrl();
 			return this;
 		},
 
-		initialize: function() {
+		initialize: function () {
 			this.listenTo( this.model, 'change', this.render );
 		},
 	} );

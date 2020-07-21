@@ -28,7 +28,7 @@ export default class ModuleChartBarContainer extends React.Component {
 			width = this.props.chartWidth,
 			barWidth = width / numberBars;
 		let tooltipPosition = 'bottom right';
-		const bars = this.props.data.map( function( item, index ) {
+		const bars = this.props.data.map( function ( item, index ) {
 			const barOffset = barWidth * ( index + 1 );
 
 			if ( barOffset + 230 > width && barOffset + barWidth - 230 > 0 ) {

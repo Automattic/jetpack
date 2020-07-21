@@ -21,7 +21,11 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from '../../constants';
 
-export default function getSubscriptionsShortcode( className, attributes, checkTextDefaults = null ) {
+export default function getSubscriptionsShortcode(
+	className,
+	attributes,
+	checkTextDefaults = null
+) {
 	const {
 		subscribePlaceholder,
 		showSubscribersTotal,
@@ -107,12 +111,14 @@ export default function getSubscriptionsShortcode( className, attributes, checkT
 	let buttonText = submitButtonText;
 
 	if ( 'check-text-defaults' === checkTextDefaults ) {
-		placeholderText = subscribePlaceholder === definedAttributes.subscribePlaceholder.default
-			? 'Enter your email address'
-			: subscribePlaceholder;
-		buttonText = submitButtonText === definedAttributes.submitButtonText.default
-			? 'Sign Up'
-			: submitButtonText;
+		placeholderText =
+			subscribePlaceholder === definedAttributes.subscribePlaceholder.default
+				? 'Enter your email address'
+				: subscribePlaceholder;
+		buttonText =
+			submitButtonText === definedAttributes.submitButtonText.default
+				? 'Sign Up'
+				: submitButtonText;
 	}
 
 	return (

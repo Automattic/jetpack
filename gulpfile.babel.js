@@ -17,38 +17,38 @@ import {
 	watchPackages as sass_watch_packages,
 } from './tools/builder/sass';
 
-gulp.task( 'old-styles:watch', function() {
+gulp.task( 'old-styles:watch', function () {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
 } );
 
-gulp.task( 'blocks:watch', function() {
+gulp.task( 'blocks:watch', function () {
 	const child = require( 'child_process' ).execFile( 'yarn', [ 'build-extensions', '--watch' ] );
 
-	child.stdout.on( 'data', function( data ) {
+	child.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
 } );
 
-gulp.task( 'search:watch', function() {
+gulp.task( 'search:watch', function () {
 	const child = require( 'child_process' ).execFile( 'yarn', [
 		'build-search:scripts',
 		'--watch',
 	] );
 
-	child.stdout.on( 'data', function( data ) {
+	child.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
 } );
 
-gulp.task( 'php:module-headings', function( callback ) {
+gulp.task( 'php:module-headings', function ( callback ) {
 	const process = spawn( 'php', [ 'tools/build-module-headings-translations.php' ] );
-	process.stderr.on( 'data', function( data ) {
+	process.stderr.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.stdout.on( 'data', function( data ) {
+	process.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.on( 'exit', function( code ) {
+	process.on( 'exit', function ( code ) {
 		if ( 0 !== code ) {
 			log( 'Failed building module headings translations: process exited with code ', code );
 		}

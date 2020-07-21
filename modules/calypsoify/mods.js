@@ -1,23 +1,17 @@
 /* global pagenow, ajaxurl, CalypsoifyOpts */
-( function( $ ) {
-	$( window ).load( function() {
+( function ( $ ) {
+	$( window ).load( function () {
 		// On Plugins.php
 		if ( 'plugins' === pagenow ) {
 			// pagenow === $current_screen->id
 			// Remove | and () from the plugins filter bar
-			$.each( $( 'ul.subsubsub li' ), function( i, el ) {
+			$.each( $( 'ul.subsubsub li' ), function ( i, el ) {
 				var li = $( el );
-				li.html(
-					li
-						.html()
-						.replace( '|', '' )
-						.replace( '(', '' )
-						.replace( ')', '' )
-				);
+				li.html( li.html().replace( '|', '' ).replace( '(', '' ).replace( ')', '' ) );
 			} );
 
 			// Add in the AJAX-y goodness for toggling autoupdates.
-			$( 'input.autoupdate-toggle' ).change( function( event ) {
+			$( 'input.autoupdate-toggle' ).change( function ( event ) {
 				var el = event.target;
 
 				el.disabled = true;
@@ -32,7 +26,7 @@
 						active: el.checked,
 						_wpnonce: CalypsoifyOpts.nonces.autoupdate_plugins,
 					},
-					function() {
+					function () {
 						// Add something to test and confirm that `el.dataset.slug` is missing from `response.data` ?
 						el.disabled = false;
 						el.classList.remove( 'is-toggling' );
@@ -41,18 +35,14 @@
 			} );
 		}
 
-		$( '#wp-admin-bar-root-default' ).on( 'click', 'li', function( event ) {
-			location.href = $( event.target )
-				.closest( 'a' )
-				.attr( 'href' );
+		$( '#wp-admin-bar-root-default' ).on( 'click', 'li', function ( event ) {
+			location.href = $( event.target ).closest( 'a' ).attr( 'href' );
 		} );
 
-		$( '#wp-admin-bar-top-secondary' ).on( 'click', 'li#wp-admin-bar-my-account', function(
+		$( '#wp-admin-bar-top-secondary' ).on( 'click', 'li#wp-admin-bar-my-account', function (
 			event
 		) {
-			location.href = $( event.target )
-				.closest( 'a' )
-				.attr( 'href' );
+			location.href = $( event.target ).closest( 'a' ).attr( 'href' );
 		} );
 
 		if ( document && document.location && document.location.search ) {
@@ -79,8 +69,8 @@
 				}
 			}
 
-			body.on( 'thickbox:iframe:loaded', function() {
-				$( '#TB_window' ).on( 'click', 'button#TB_closeWindowButton', function() {
+			body.on( 'thickbox:iframe:loaded', function () {
+				$( '#TB_window' ).on( 'click', 'button#TB_closeWindowButton', function () {
 					$( '#TB_closeWindowButton' ).click();
 				} );
 			} );

@@ -4,12 +4,12 @@ const Chai = require( 'chai' ),
 	nock = require( 'nock' );
 
 module.exports = {
-	before: function() {
+	before: function () {
 		Chai.use( sinonChai );
 		sinon.assert.expose( Chai.assert, { prefix: '' } );
 		nock.disableNetConnect();
 	},
-	after: function() {
+	after: function () {
 		nock.cleanAll();
 		nock.enableNetConnect();
 		nock.restore();

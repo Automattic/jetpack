@@ -1,6 +1,6 @@
 /* global jetpack_broken_token_xmlrpc_errors */
-( function( $ ) {
-	$( '.verify-error' ).click( function( ev ) {
+( function ( $ ) {
+	$( '.verify-error' ).click( function ( ev ) {
 		const button = this;
 		$( button ).prop( 'disabled', true );
 		const orignialValue = $( button ).val();
@@ -11,7 +11,7 @@
 			{
 				nonce: $( this ).data( 'nonce' ),
 			},
-			function() {
+			function () {
 				$( button ).val( 'Updating list...' );
 
 				$.post(
@@ -20,7 +20,7 @@
 						_wpnonce: jetpack_broken_token_xmlrpc_errors.refresh_verified_errors_nonce,
 						action: 'refresh_verified_errors_list',
 					},
-					function( response ) {
+					function ( response ) {
 						$( button ).prop( 'disabled', false );
 						$( button ).val( orignialValue );
 

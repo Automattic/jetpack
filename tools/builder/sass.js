@@ -16,7 +16,7 @@ import sourcemaps from 'gulp-sourcemaps';
  */
 import { alwaysIgnoredPaths } from './util';
 
-gulp.task( 'sass:dashboard', function( done ) {
+gulp.task( 'sass:dashboard', function ( done ) {
 	log( 'Building Dashboard CSS bundle...' );
 
 	return gulp
@@ -28,13 +28,13 @@ gulp.task( 'sass:dashboard', function( done ) {
 		.pipe( autoprefixer() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( 'Dashboard CSS finished.' );
 			doRTL( 'main', done );
 		} );
 } );
 
-gulp.task( 'sass:calypsoify', function( done ) {
+gulp.task( 'sass:calypsoify', function ( done ) {
 	log( 'Building Calypsoify CSS bundle...' );
 
 	return gulp
@@ -46,13 +46,13 @@ gulp.task( 'sass:calypsoify', function( done ) {
 		.pipe( autoprefixer() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './modules/calypsoify' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( 'Calypsoify CSS finished.' );
 			doRTL( 'calypsoify', done );
 		} );
 } );
 
-gulp.task( 'sass:instant-search', function( done ) {
+gulp.task( 'sass:instant-search', function ( done ) {
 	log( 'Building Instant Search CSS bundle...' );
 
 	return gulp
@@ -64,7 +64,7 @@ gulp.task( 'sass:instant-search', function( done ) {
 		.pipe( autoprefixer() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build/instant-search' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( 'Instant Search CSS finished.' );
 			done();
 		} );
@@ -85,7 +85,7 @@ function doRTL( files, done ) {
 			path = [ './modules/calypsoify/style*.min.css', '!./modules/calypsoify/style*rtl.min.css' ];
 			dest = './modules/calypsoify';
 			success = 'Calypsoify RTL CSS finished.';
-			renameArgs = function( pathx ) {
+			renameArgs = function ( pathx ) {
 				pathx.basename = pathx.basename.replace( '.min', '' );
 				pathx.extname = '-rtl.min.css';
 			};
@@ -102,13 +102,13 @@ function doRTL( files, done ) {
 		.pipe( sourcemaps.init() )
 		.pipe( sourcemaps.write( './' ) )
 		.pipe( gulp.dest( dest ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( success );
 			done();
 		} );
 }
 
-gulp.task( 'sass:old:rtl', function() {
+gulp.task( 'sass:old:rtl', function () {
 	return (
 		gulp
 			.src( 'scss/*.scss' )
@@ -131,7 +131,7 @@ gulp.task( 'sass:old:rtl', function() {
 			.pipe( rename( { suffix: '.min' } ) )
 			.pipe( gulp.dest( './' ) )
 			// Finished
-			.on( 'end', function() {
+			.on( 'end', function () {
 				log( 'Global admin RTL CSS finished.' );
 			} )
 	);
@@ -139,7 +139,7 @@ gulp.task( 'sass:old:rtl', function() {
 
 gulp.task(
 	'sass:old',
-	gulp.series( 'sass:old:rtl', function() {
+	gulp.series( 'sass:old:rtl', function () {
 		return (
 			gulp
 				.src( 'scss/**/*.scss' )
@@ -160,14 +160,14 @@ gulp.task(
 				.pipe( rename( { suffix: '.min' } ) )
 				.pipe( gulp.dest( './' ) )
 				.pipe( sourcemaps.write( '.' ) )
-				.on( 'end', function() {
+				.on( 'end', function () {
 					log( 'Global admin CSS finished.' );
 				} )
 		);
 	} )
 );
 
-gulp.task( 'sass:packages', function() {
+gulp.task( 'sass:packages', function () {
 	return (
 		gulp
 			.src( 'packages/**/assets/*.scss', { base: '.' } )
@@ -187,7 +187,7 @@ gulp.task( 'sass:packages', function() {
 			.pipe( rename( { suffix: '.min' } ) )
 			.pipe( gulp.dest( '.' ) )
 			// Finished
-			.on( 'end', function() {
+			.on( 'end', function () {
 				log( 'Packages SCSS now compiled' );
 			} )
 	);
@@ -195,7 +195,7 @@ gulp.task( 'sass:packages', function() {
 
 gulp.task(
 	'sass:packages:rtl',
-	gulp.series( 'sass:packages', function() {
+	gulp.series( 'sass:packages', function () {
 		return (
 			gulp
 				.src(
@@ -223,7 +223,7 @@ gulp.task(
 				.pipe( rename( { suffix: '.min' } ) )
 				.pipe( gulp.dest( '.' ) )
 				// Finished
-				.on( 'end', function() {
+				.on( 'end', function () {
 					log( 'Packages CSS are now available in RTL.' );
 				} )
 		);
@@ -236,14 +236,14 @@ export const build = gulp.parallel(
 	'sass:packages'
 );
 
-export const watch = function() {
+export const watch = function () {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
 		gulp.series( 'sass:dashboard', 'sass:instant-search', 'sass:calypsoify', 'sass:old' )
 	);
 };
 
-export const watchPackages = function() {
+export const watchPackages = function () {
 	return gulp.watch(
 		[ './packages/jitm/assets/*.scss', ...alwaysIgnoredPaths ],
 		gulp.parallel( 'sass:packages:rtl' )

@@ -35,7 +35,7 @@ const Rating = ( { id, setRating, children } ) => {
 };
 
 export default Symbol =>
-	function( { className, setAttributes, attributes: { align, color, rating, maxRating } } ) {
+	function ( { className, setAttributes, attributes: { align, color, rating, maxRating } } ) {
 		const setNewMaxRating = newMaxRating => setAttributes( { maxRating: newMaxRating } );
 		const setNewColor = newColor => setAttributes( { color: newColor } );
 		const setNewRating = newRating => {

@@ -48,9 +48,7 @@ class Modal extends React.Component {
 	};
 
 	componentDidMount() {
-		jQuery( 'body' )
-			.addClass( 'dops-modal-showing' )
-			.on( 'touchmove.dopsmodal', false );
+		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
 			focusTrap.activate( ReactDOM.findDOMNode( this ), {
@@ -63,9 +61,7 @@ class Modal extends React.Component {
 	}
 
 	componentWillUnmount() {
-		jQuery( 'body' )
-			.removeClass( 'dops-modal-showing' )
-			.off( 'touchmove.dopsmodal', false );
+		jQuery( 'body' ).removeClass( 'dops-modal-showing' ).off( 'touchmove.dopsmodal', false );
 		jQuery( document ).unbind( 'keyup', this.handleEscapeKey );
 		try {
 			focusTrap.deactivate();

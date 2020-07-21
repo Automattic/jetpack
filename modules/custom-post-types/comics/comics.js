@@ -1,11 +1,11 @@
 /* global Jetpack_Comics_Options */
 
-jQuery( function( $ ) {
+jQuery( function ( $ ) {
 	/**
 	 * Enable front-end uploading of images for Comics users.
 	 */
 	var Jetpack_Comics = {
-		init: function() {
+		init: function () {
 			$( document ).on(
 				'dragover.jetpack-comics',
 				'body, #jetpack-comic-drop-zone',
@@ -40,7 +40,7 @@ jQuery( function( $ ) {
 		/**
 		 * Only upload image files.
 		 */
-		filterImageFiles: function( files ) {
+		filterImageFiles: function ( files ) {
 			var validFiles = [];
 
 			for ( var i = 0, _len = files.length; i < _len; i++ ) {
@@ -54,7 +54,7 @@ jQuery( function( $ ) {
 
 		dragTimeout: null,
 
-		onDragOver: function( event ) {
+		onDragOver: function ( event ) {
 			event.preventDefault();
 
 			clearTimeout( Jetpack_Comics.dragTimeout );
@@ -62,17 +62,17 @@ jQuery( function( $ ) {
 			$( 'body' ).addClass( 'dragging' );
 		},
 
-		onDragLeave: function(/*event*/) {
+		onDragLeave: function (/*event*/) {
 			clearTimeout( Jetpack_Comics.dragTimeout );
 
 			// In Chrome, the screen flickers because we're moving the drop zone in front of 'body'
 			// so the dragover/dragleave events happen frequently.
-			Jetpack_Comics.dragTimeout = setTimeout( function() {
+			Jetpack_Comics.dragTimeout = setTimeout( function () {
 				$( 'body' ).removeClass( 'dragging' );
 			}, 100 );
 		},
 
-		onDrop: function( event ) {
+		onDrop: function ( event ) {
 			event.preventDefault();
 			event.stopPropagation();
 
@@ -108,7 +108,7 @@ jQuery( function( $ ) {
 					withCredentials: true,
 				},
 			} )
-				.done( function( data ) {
+				.done( function ( data ) {
 					$( '#jetpack-comic-drop-zone .uploading' ).text(
 						Jetpack_Comics_Options.labels.processing
 					);
@@ -121,7 +121,7 @@ jQuery( function( $ ) {
 						$( 'body' ).removeClass( 'uploading' );
 					}
 				} )
-				.fail( function(/*req*/) {
+				.fail( function (/*req*/) {
 					alert( Jetpack_Comics_Options.labels.error );
 				} );
 		},

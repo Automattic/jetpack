@@ -15,7 +15,7 @@ export default createReactClass( {
 		name: PropTypes.string.isRequired,
 	},
 
-	render: function() {
+	render: function () {
 		return <input type="hidden" value={ this.getValue() } />;
 	},
 } );

@@ -33,20 +33,20 @@ export default createReactClass( {
 		selectAllLabel: PropTypes.string,
 	},
 
-	getDefaultProps: function() {
+	getDefaultProps: function () {
 		return {
 			showSelectAll: false,
 			defaultValue: [],
 		};
 	},
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			uniqueId: getUniqueId(),
 		};
 	},
 
-	changeValue: function( event ) {
+	changeValue: function ( event ) {
 		const value = parseInt( event.target.value );
 		let currentSelected = this.getValue();
 		let i;
@@ -65,7 +65,7 @@ export default createReactClass( {
 		}
 	},
 
-	highlightAllSites: function( event ) {
+	highlightAllSites: function ( event ) {
 		if ( event.target.checked ) {
 			this.setValue( map( this.props.choices, 'value' ) );
 		} else {
@@ -73,7 +73,7 @@ export default createReactClass( {
 		}
 	},
 
-	unHighlightAllSites: function( event ) {
+	unHighlightAllSites: function ( event ) {
 		const checked = $( ReactDOM.findDOMNode( this.refs.allItems ) ).prop( 'checked' );
 		if ( checked && ! event.target.checked ) {
 			$( ReactDOM.findDOMNode( this.refs.allItems ) ).prop( 'checked', false );
@@ -103,7 +103,7 @@ export default createReactClass( {
 		} );
 	},
 
-	render: function() {
+	render: function () {
 		const uniqueId = this.state.uniqueId;
 		let errorMessage, selectAll;
 
