@@ -144,8 +144,8 @@ class PlanGrid extends React.Component {
 		const featuredPlans = reduce(
 			this.props.plans,
 			( plans, plan, key ) => {
-				// ignore the free plan
-				if ( 'free' === key ) {
+				// ignore the free and personal plans
+				if ( [ 'free', 'personal' ].includes( key ) ) {
 					return plans;
 				}
 				const highlights = plan.highlight;
