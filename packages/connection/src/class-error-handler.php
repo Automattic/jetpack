@@ -545,9 +545,10 @@ class Error_Handler {
 			'jetpack/v4',
 			'/verify_xmlrpc_error',
 			array(
-				'methods'  => \WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'verify_xml_rpc_error' ),
-				'args'     => array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'verify_xml_rpc_error' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
 					'nonce' => array(
 						'required' => true,
 						'type'     => 'string',

@@ -31,8 +31,9 @@ class REST_Connector {
 			'jetpack/v4',
 			'/verify_registration',
 			array(
-				'methods'  => \WP_REST_Server::EDITABLE,
-				'callback' => array( $this, 'verify_registration' ),
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'verify_registration' ),
+				'permission_callback' => '__return_true',
 			)
 		);
 	}

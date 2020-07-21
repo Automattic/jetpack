@@ -17,8 +17,9 @@ class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
 		// GET /sites/<blog_id>/business-hours/localized-week - Return the localized
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/localized-week', array(
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_localized_week' ),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_localized_week' ),
+				'permission_callback' => '__return_true',
 			)
 		) );
 	}

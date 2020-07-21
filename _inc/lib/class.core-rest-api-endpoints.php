@@ -95,44 +95,48 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
-			'methods'  => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_jitm_message',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_jitm_message',
+			'permission_callback' => '__return_true',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
-			'methods'  => WP_REST_Server::CREATABLE,
-			'callback' => __CLASS__ . '::delete_jitm_message'
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => __CLASS__ . '::delete_jitm_message',
+			'permission_callback' => '__return_true',
 		) );
 
 		// Authorize a remote user
 		register_rest_route( 'jetpack/v4', '/remote_authorize', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::remote_authorize',
+			'methods'             => WP_REST_Server::EDITABLE,
+			'callback'            => __CLASS__ . '::remote_authorize',
+			'permission_callback' => '__return_true',
 		) );
 
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::jetpack_connection_status',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::jetpack_connection_status',
+			'permission_callback' => '__return_true',
 		) );
 
 		// Test current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection/test', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::jetpack_connection_test',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::jetpack_connection_test',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
 		// Endpoint specific for privileged servers to request detailed debug information.
 		register_rest_route( 'jetpack/v4', '/connection/test-wpcom/', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::jetpack_connection_test_for_external',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::jetpack_connection_test_for_external',
 			'permission_callback' => __CLASS__ . '::view_jetpack_connection_test_check',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/rewind', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_rewind_data',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_rewind_data',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
@@ -500,6 +504,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_service_api_key',
+					'permission_callback' => '__return_true',
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
