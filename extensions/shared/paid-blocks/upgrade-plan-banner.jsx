@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { compose } from '@wordpress/compose';
@@ -26,7 +31,7 @@ const UpgradePlanBanner = ( {
 	savePost,
 	onRedirect,
 	align,
-	className = 'jetpack-upgrade-plan-banner',
+	className,
 	title = __( 'Premium Block' ),
 	description = __( 'Upgrade your plan to use this premium block' ),
 	buttonText = __( 'Upgrade' ),
@@ -49,7 +54,7 @@ const UpgradePlanBanner = ( {
 		if ( ! inspectorEl ) {
 			return;
 		}
-		inspectorEl.classList = [ 'block-editor-block-inspector' ];
+
 		inspectorEl.classList.add( `is-${ blockName.replace( '/', '-' ) }-premium-block` );
 	}, [ blockName ] );
 
@@ -77,8 +82,14 @@ const UpgradePlanBanner = ( {
 		savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
 	};
 
+	const cssClasses = classNames(
+		className,
+		'jetpack-upgrade-plan-banner',
+		`wp-block`,
+	);
+
 	return (
-		<div ref={ bannerRef } className={ `${ className } wp-block` } data-align={ align }>
+		<div ref={ bannerRef } className={ cssClasses } data-align={ align }>
 			{ title && <strong className={ `${ className }__title` }>{ title }</strong> }
 			{ description && <span className={ `${ className }__description` }>{ description }</span> }
 			<Button
