@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Sync\Modules;
@@ -397,6 +398,134 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		}
 		return $result;
 	}
+
+	/**
+	 * Tests blog token health.
+	 *
+	 * @return array Test results.
+	 */
+	protected function test__blog_token_health() {
+		$name = __FUNCTION__;
+
+		$status = new Status();
+		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
+			return self::skipped_test( array( 'name' => $name ) );
+		}
+
+		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+
+		$url = sprintf(
+			'%s://%s/%s/v%s/%s',
+			Client::protocol(),
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'wpcom',
+			'2',
+			'jetpack-token-health/blog'
+		);
+
+		$method = 'GET';
+
+		$response = Client::remote_request( compact( 'url', 'method' ) );
+
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+
+		if ( is_wp_error( $response ) ) {
+			return self::failing_test(
+				array(
+					'name'              => $name,
+					/* translators: %1$s is the error code, %2$s is the error message */
+					'short_description' => sprintf( __( 'Blog token health test failed (#%1$s: %2$s)', 'jetpack' ), $response->get_error_code(), $response->get_error_message() ),
+					'action_label'      => $this->helper_get_support_text(),
+					'action'            => $this->helper_get_support_url(),
+				)
+			);
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 === $code ) {
+			return self::passing_test( array( 'name' => $name ) );
+		}
+
+		$result = json_decode( $body );
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				/* translators: %1$s is the error code, %2$s is the error message */
+				'short_description' => sprintf( __( 'Blog token health test failed (#%1$s: %2$s)', 'jetpack' ), $code, $result->message ),
+				'action_label'      => $this->helper_get_support_text(),
+				'action'            => $this->helper_get_support_url(),
+			)
+		);
+	}
+
+	/**
+	 * Tests master user token health.
+	 *
+	 * @return array Test results.
+	 */
+	protected function test__master_user_token_health() {
+		$name = __FUNCTION__;
+
+		$status = new Status();
+		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
+			return self::skipped_test( array( 'name' => $name ) );
+		}
+
+		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+
+		$url = sprintf(
+			'%s://%s/%s/v%s/%s',
+			Client::protocol(),
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'wpcom',
+			'2',
+			'jetpack-token-health/user'
+		);
+
+		$method = 'GET';
+
+		$master_user = $this->helper_retrieve_local_master_user();
+		$user_id     = $master_user->ID;
+
+		$response = Client::remote_request( compact( 'url', 'method', 'user_id' ) );
+
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+
+		if ( is_wp_error( $response ) ) {
+			return self::failing_test(
+				array(
+					'name'              => $name,
+					/* translators: %1$s is the error code, %2$s is the error message */
+					'short_description' => sprintf( __( 'Master user token health test failed (#%1$s: %2$s)', 'jetpack' ), $response->get_error_code(), $response->get_error_message() ),
+					'action_label'      => $this->helper_get_support_text(),
+					'action'            => $this->helper_get_support_url(),
+				)
+			);
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 === $code ) {
+			return self::passing_test( array( 'name' => $name ) );
+		}
+
+		$result = json_decode( $body );
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				/* translators: %1$s is the error code, %2$s is the error message */
+				'short_description' => sprintf( __( 'Master user token health test failed (#%1$s: %2$s)', 'jetpack' ), $code, $result->message ),
+				'action_label'      => $this->helper_get_support_text(),
+				'action'            => $this->helper_get_support_url(),
+			)
+		);
+	}
+
 
 	/**
 	 * Tests connection status against wp.com's test-connection endpoint.
