@@ -379,11 +379,11 @@ class Jetpack {
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
 
 	/**
-	 * Holds an instance of Automattic\Jetpack\Stats
+	 * Holds an instance of Automattic\Jetpack\A8c_Mc_Stats
 	 *
-	 * @var Automattic\Jetpack\Stats
+	 * @var Automattic\Jetpack\A8c_Mc_Stats
 	 */
-	public $stats_instance;
+	public $a8c_mc_stats_instance;
 
 	/**
 	 * Constant for login redirect key.
@@ -4545,8 +4545,8 @@ endif;
 	 * @return void
 	 */
 	private function initialize_stats() {
-		if ( is_null( $this->stats_instance ) ) {
-			$this->stats_instance = new Automattic\Jetpack\Stats();
+		if ( is_null( $this->a8c_mc_stats_instance ) ) {
+			$this->a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
 		}
 	}
 
@@ -4555,10 +4555,10 @@ endif;
 	 */
 	function stat( $group, $detail ) {
 		$this->initialize_stats();
-		$this->stats_instance->add( $group, $detail );
+		$this->a8c_mc_stats_instance->add( $group, $detail );
 
 		// Keep a local copy for backward compatibility (there are some direct checks on this).
-		$this->stats = $this->stats_instance->get_current_stats();
+		$this->stats = $this->a8c_mc_stats_instance->get_current_stats();
 	}
 
 	/**
@@ -4567,9 +4567,9 @@ endif;
 	function do_stats( $method = '' ) {
 		$this->initialize_stats();
 		if ( 'server_side' === $method ) {
-			$this->stats_instance->do_server_side_stats();
+			$this->a8c_mc_stats_instance->do_server_side_stats();
 		} else {
-			$this->stats_instance->do_stats();
+			$this->a8c_mc_stats_instance->do_stats();
 		}
 
 		// Keep a local copy for backward compatibility (there are some direct checks on this).
@@ -4584,9 +4584,9 @@ endif;
 	 * @return bool If it worked.
 	 */
 	static function do_server_side_stat( $args ) {
-		$url            = self::build_stats_url( $args );
-		$stats_instance = new Automattic\Jetpack\Stats();
-		return $stats_instance->do_server_side_stat( $url );
+		$url                   = self::build_stats_url( $args );
+		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		return $a8c_mc_stats_instance->do_server_side_stat( $url );
 	}
 
 	/**
@@ -4598,8 +4598,8 @@ endif;
 	 */
 	static function build_stats_url( $args ) {
 
-		$stats_instance = new Automattic\Jetpack\Stats();
-		return $stats_instance->build_stats_url( $args );
+		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		return $a8c_mc_stats_instance->build_stats_url( $args );
 
 	}
 
