@@ -3,17 +3,17 @@
  */
 import { catchBeforeAll, step } from '../lib/setup-env';
 import { loginToWpSite, connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { execWpCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
+import { execWpCommand, prepareUpdaterTest, getNgrokSiteUrl } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 
 describe( 'Jetpack updater', () => {
 	catchBeforeAll( async () => {
-		await resetWordpressInstall();
+		await prepareUpdaterTest();
 		await execWpCommand( 'wp plugin install --activate jetpack' );
 		await execWpCommand( 'wp plugin deactivate jetpack-dev' );
 		await execWpCommand( 'wp plugin activate e2e-plugin-updater' );
-		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
+		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 99' );
 		const url = getNgrokSiteUrl();
 		await execWpCommand(
 			`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/jetpack.zip`
@@ -24,9 +24,6 @@ describe( 'Jetpack updater', () => {
 		await execWpCommand( 'wp plugin uninstall --deactivate jetpack' );
 		await execWpCommand( 'wp plugin activate jetpack-dev' );
 		await execWpCommand( 'wp plugin deactivate e2e-plugin-updater' );
-
-		// await resetWordpressInstall();
-		// execSyncShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 	} );
 
 	it( 'Plugin updater', async () => {
@@ -41,7 +38,6 @@ describe( 'Jetpack updater', () => {
 			const versionBefore = await pluginsPage.getJetpackVersion();
 			await pluginsPage.updateJetpack();
 			const versionAfter = await pluginsPage.getJetpackVersion();
-			console.log( versionBefore, versionAfter );
 			expect( versionBefore ).not.toBe( versionAfter );
 		} );
 

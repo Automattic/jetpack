@@ -42,6 +42,14 @@ export async function resetWordpressInstall() {
 	await execShellCommand( cmd );
 }
 
+export async function prepareUpdaterTest() {
+	let cmd = './tests/e2e/bin/docker-e2e-cli.sh ct wp-content/jetpack-dev/tests/e2e/bin/prep.sh';
+	if ( process.env.CI ) {
+		cmd = './tests/e2e/bin/setup-e2e-travis.sh prep_updater';
+	}
+	await execShellCommand( cmd );
+}
+
 /**
  * Provisions Jetpack plan through Jetpack Start flow
  *

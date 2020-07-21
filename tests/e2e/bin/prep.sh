@@ -1,6 +1,6 @@
 #!/bin/bash
 # Exit if any command fails.
-set -ex
+set -e
 
 ##
 # This script creates a jetpack .zip that is accessible externaly via site/wp-content/jetpack.zip
@@ -15,7 +15,7 @@ JP_DIR="/tmp/jetpack"
 
 rm -rf $JP_DIR $ZIP_FILE wp-content/plugins/jetpack/
 # removing symlink
-rm wp-content/plugins/jetpack-dev || true
+# rm wp-content/plugins/jetpack-dev || true
 mkdir -p $JP_DIR
 
 FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|docker|docs|extensions|.git")
@@ -32,6 +32,6 @@ zip -qr $ZIP_FILE jetpack/
 rm -rf $JP_DIR
 
 # Symlink Jetpack into plugins directory
-ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/jetpack-dev
+# ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/jetpack-dev
 
 echo "Done with jetpack.zip preparation!"
