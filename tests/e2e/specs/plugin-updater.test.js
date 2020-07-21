@@ -3,7 +3,12 @@
  */
 import { catchBeforeAll, step } from '../lib/setup-env';
 import { loginToWpSite, connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { execWpCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
+import {
+	execWpCommand,
+	resetWordpressInstall,
+	getNgrokSiteUrl,
+	execSyncShellCommand,
+} from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 
@@ -21,8 +26,9 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	afterAll( async () => {
-		await execWpCommand( 'wp plugin deactivate jetpack' );
-		await resetWordpressInstall();
+		await execWpCommand( 'wp plugin uninstall --deactivate jetpack' );
+		// await resetWordpressInstall();
+		execSyncShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 	} );
 
 	it( 'Plugin updater', async () => {
