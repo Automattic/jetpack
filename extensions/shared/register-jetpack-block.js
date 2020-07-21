@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
-import { addFilter } from '@wordpress/hooks';
 import { registerBlockType } from '@wordpress/blocks';
 
 /**
@@ -10,8 +9,6 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
-import withCustomClassNames from './with-custom-class-names';
-import wrapPaidBlock from './wrap-paid-block';
 
 const availableBlockTags = {
 	paid: _x( 'paid', 'Short label appearing near a block requiring a paid plan', 'jetpack' ),
@@ -95,17 +92,8 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
-		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
 		example: requiredPlan ? undefined : settings.example,
 	} );
-
-	if ( requiredPlan ) {
-		addFilter(
-			'editor.BlockListBlock',
-			`jetpack/${ name }-with-custom-class-names`,
-			withCustomClassNames( `jetpack/${ name }`, 'has-warning is-interactive' )
-		);
-	}
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
