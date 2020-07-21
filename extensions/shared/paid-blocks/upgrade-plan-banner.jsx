@@ -41,15 +41,15 @@ const UpgradePlanBanner = ( {
 	 * It should be updated if https://github.com/WordPress/gutenberg/pull/23993 is merged.
 	 */
 	useEffect( () => {
-	    if ( ! bannerRef?.current ) {
-	    	return;
-	    }
-	    const inspectorEl = bannerRef.current.closest( '.block-editor-block-inspector' );
-	    if ( ! inspectorEl ) {
-	    	return;
-	    }
-	    inspectorEl.classList.add( 'with-upgrade-plan-banner' );
-	    inspectorEl.classList.add( `is-${ blockName }-premium-block` );
+		if ( ! bannerRef?.current ) {
+			return;
+		}
+		const inspectorEl = bannerRef.current.closest( '.block-editor-block-inspector' );
+		if ( ! inspectorEl ) {
+			return;
+		}
+		inspectorEl.classList = [ 'block-editor-block-inspector' ];
+		inspectorEl.classList.add( `is-${ blockName.replace( '/', '-' ) }-premium-block` );
 	}, [ blockName ] );
 
 	const goToCheckoutPage = event => {
@@ -74,12 +74,8 @@ const UpgradePlanBanner = ( {
 
 	return (
 		<div ref={ bannerRef } className={ `${ className } wp-block` } data-align={ align }>
-			{ title && (
-				<strong className={ `${ className }__title` }>{ title }</strong>
-			) }
-			{ description && (
-				<span className={ `${ className }__description` }>{ description }</span>
-			) }
+			{ title && <strong className={ `${ className }__title` }>{ title }</strong> }
+			{ description && <span className={ `${ className }__description` }>{ description }</span> }
 			<Button
 				href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 				onClick={ goToCheckoutPage }
