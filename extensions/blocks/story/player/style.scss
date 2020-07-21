@@ -214,6 +214,8 @@
 .wp-story-fullscreen {
 	&.wp-story {
 		position: fixed;
+		// can force redraw on mobile safari
+		transform: translate3d(0,0,0);
 		top: 0;
 		bottom: 0;
 		left: 0;
