@@ -7409,6 +7409,24 @@ endif;
 			'included_in_plans' => array( 'search-plan' ),
 		);
 
+		$products[] = array(
+			'key'               => 'anti-spam',
+			'title'             => __( 'Jetpack Anti-Spam', 'jetpack' ),
+			'short_description' => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
+			'learn_more'        => __( 'Learn More', 'jetpack' ),
+			'description'       => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
+			'options'           => array(
+				array(
+					'type'      => 'anti-spam',
+					'slug'      => 'jetpack-anti-spam',
+					'key'       => 'jetpack_anti_spam',
+					'name'      => __( 'Anti-Spam', 'jetpack' ),
+				),
+			),
+			'default_option'    => 'anti-spam',
+			'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'anti-spam-plan' ),
+		);
+
 		return $products;
 	}
 }
