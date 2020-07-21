@@ -125,6 +125,22 @@ const premiumContentPaidIcon = (
 	</SVG>
 );
 
+const donationPaidIcon = (
+	<SVG width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<Path
+			d="M12.7439 14.4271L8.64053 13.165L8.51431 13.8718L8.09208 20.7415C8.06165 21.2365 8.61087 21.5526 9.02363 21.2776L12.7439 18.799L16.7475 21.304C17.1687 21.5676 17.7094 21.2343 17.6631 20.7396L17.0212 13.8718L17.0212 13.165L12.7439 14.4271Z"
+			fill="black"
+		/>
+		<Circle cx="12.7439" cy="8.69796" r="5.94466" stroke="black" strokeWidth="1.5" fill="none" />
+		<Path
+			d="M9.71023 8.12461L11.9543 10.3687L15.7776 6.54533"
+			stroke="black"
+			strokeWidth="1.5"
+			fill="none"
+		/>
+	</SVG>
+);
+
 const coreCoverPaidIcon = (
 	<SVG className={ paidBlockClassName } xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Path d="M18.7 3H5.3C4 3 3 4 3 5.3v13.4C3 20 4 21 5.3 21h13.4c1.3 0 2.3-1 2.3-2.3V5.3C21 4 20 3 18.7 3zm.8 15.7c0 .4-.4.8-.8.8H5.3c-.4 0-.8-.4-.8-.8V5.3c0-.4.4-.8.8-.8h6.2v8.9l2.5-3.1 2.5 3.1V4.5h2.2c.4 0 .8.4.8.8v13.4z" />
@@ -146,6 +162,7 @@ export const PAID_ICONS = {
 	'jetpack/opentable': openTablePaidIcon,
 	'jetpack/send-a-message': sendAMesssagePaidIcon,
 	'jetpack/whatsapp-button': whatsappButtonPaidIcon,
+	'a8c/donations': donationPaidIcon,
 	'premium-content/container': premiumContentPaidIcon,
 	'core/cover': coreCoverPaidIcon,
 	'core/video': coreVideoPaidIcon,
