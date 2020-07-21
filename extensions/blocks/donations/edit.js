@@ -52,26 +52,32 @@ const Edit = props => {
 	const mapStatusToState = result => {
 		if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
 			setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
-		} else {
-			setShouldUpgrade( result.should_upgrade_to_access_memberships );
-			setUpgradeUrl( result.upgrade_url );
-			setStripeConnectUrl( result.connect_url );
-			setSiteSlug( result.site_slug );
+			setIsLoading( false );
+			return;
+		}
+		setShouldUpgrade( result.should_upgrade_to_access_memberships );
+		setUpgradeUrl( result.upgrade_url );
+		setStripeConnectUrl( result.connect_url );
+		setSiteSlug( result.site_slug );
 
-			const filteredProducts = filterProducts( result.products );
+		const filteredProducts = filterProducts( result.products );
 
-			if ( hasRequiredProducts( filteredProducts ) ) {
-				setProducts( filteredProducts );
-			} else if ( ! result.should_upgrade_to_access_memberships && ! result.connect_url ) {
-				//only create products if we have the correct plan and stripe connection
-				fetchDefaultProducts( currency ).then(
-					defaultProducts => setProducts( filterProducts( defaultProducts ) ),
-					apiError
-				);
-			}
+		if ( hasRequiredProducts( filteredProducts ) ) {
+			setProducts( filteredProducts );
+			setIsLoading( false );
+			return;
 		}
 
-		setIsLoading( false );
+		if ( result.should_upgrade_to_access_memberships || result.connect_url ) {
+			setIsLoading( false );
+			return;
+		}
+
+		//only create products if we have the correct plan and stripe connection
+		fetchDefaultProducts( currency ).then( defaultProducts => {
+			setIsLoading( false );
+			return setProducts( filterProducts( defaultProducts ) );
+		}, apiError );
 	};
 
 	useEffect( () => {
