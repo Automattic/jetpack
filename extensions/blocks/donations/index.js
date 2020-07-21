@@ -2,8 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -21,12 +19,7 @@ export const name = 'donations';
 export const title = __( 'Donations', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'Donations', 'jetpack' ) }</p>
-			<ExternalLink href="#">{ __( 'Learn more about Donations', 'jetpack' ) }</ExternalLink>
-		</Fragment>
-	),
+	description: __( 'Collect one-time, monthly, or annually recurring donations.', 'jetpack' ),
 	icon,
 	category: 'earn',
 	keywords: [ __( 'Donations', 'jetpack' ) ],
@@ -36,7 +29,7 @@ export const settings = {
 		// Pick which alignment options to display.
 		/*align: [ 'left', 'right', 'full' ],*/
 		// Support for wide alignment, that requires additional support in themes.
-		alignWide: true,
+		alignWide: false,
 		// When true, a new field in the block sidebar allows to define an id for the block and a button to copy the direct link.
 		anchor: false,
 		// When true, a new field in the block sidebar allows to define a custom className for the block’s wrapper.
