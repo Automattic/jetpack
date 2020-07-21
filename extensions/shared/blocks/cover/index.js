@@ -15,10 +15,10 @@ import coverMediaReplaceFlow from './cover-replace-control-button';
 import jetpackCoverBlockEdit from './edit';
 import './editor.scss';
 
-// Take the control the Replace block button control.
+// Take control of Replace button.
 addFilter( 'editor.MediaReplaceFlow', 'jetpack/cover-media-replace-flow', coverMediaReplaceFlow );
 
-// Take the control oMediaPlaceholder.
+// Take control of MediaPlaceholder.
 addFilter( 'editor.MediaPlaceholder', 'jetpack/cover-edit-media-placeholder', coverEditMediaPlaceholder );
 
 // Extend Core CoverEditBlock.
