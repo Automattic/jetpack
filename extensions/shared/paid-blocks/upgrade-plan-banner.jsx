@@ -30,6 +30,7 @@ const UpgradePlanBanner = ( {
 	title = __( 'Premium Block' ),
 	description = __( 'Upgrade your plan to use this premium block' ),
 	buttonText = __( 'Upgrade' ),
+	blockName,
 } ) => {
 	const bannerRef = useRef();
 
@@ -48,7 +49,8 @@ const UpgradePlanBanner = ( {
 	    	return;
 	    }
 	    inspectorEl.classList.add( 'with-upgrade-plan-banner' );
-	}, [] );
+	    inspectorEl.classList.add( `is-${ blockName }-premium-block` );
+	}, [ blockName ] );
 
 	const goToCheckoutPage = event => {
 		if ( ! window?.top?.location?.href ) {
