@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-mc-stats",
-	"description": "Used to bump stats using http://pixel.wp.com/g.gif.",
+	"name": "automattic/jetpack-a8c-mc-stats",
+	"description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
