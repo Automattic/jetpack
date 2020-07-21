@@ -1,6 +1,6 @@
 # Jetpack Stats
 
-Used to record stats using https://pixel.wp.com/g.gif
+Used to record internal usage stats for Automattic. Not visible to site owners.
 
 ## Usage
 
