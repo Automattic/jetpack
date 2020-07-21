@@ -294,7 +294,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', 'identity-crisis/migrate', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::migrate_stats_and_subscribers',
-			'permissison_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 		) );
 
 		// Return all modules
