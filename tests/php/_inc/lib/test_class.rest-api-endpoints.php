@@ -3,7 +3,11 @@
  * Class for REST API endpoints testing.
  *
  * @since 4.4.0
+ * @package Jetpack
  */
+
+use Automattic\Jetpack\Connection\REST_Connector;
+
 require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
 
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
@@ -60,7 +64,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return array
 	 */
 	protected function get_jetpack_connection_status() {
-		$status = Jetpack_Core_Json_Api_Endpoints::jetpack_connection_status();
+		$status = REST_Connector::connection_status();
 		return isset( $status->data ) ? $status->data : array();
 	}
 
@@ -290,7 +294,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
+		$this->assertInstanceOf( 'WP_Error', REST_Connector::activate_plugins_permission_check() );
 
 		$user = $this->create_and_get_user();
 
@@ -301,7 +305,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Should fail because requires more capabilities
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
+		$this->assertInstanceOf( 'WP_Error', REST_Connector::activate_plugins_permission_check() );
 
 		// Add Jetpack capability
 		$user->add_cap( 'activate_plugins' );
@@ -315,7 +319,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// User has capability so this should work this time
-		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
+		$this->assertTrue( REST_Connector::activate_plugins_permission_check() );
 
 	}
 
