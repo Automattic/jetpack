@@ -4,12 +4,12 @@
 import { Circle } from '@wordpress/components';
 
 export default ( {
-	cx = 21,
+	cx = 23,
 	cy = 3,
 	r = 4,
 	fill = '#e34c84',
 	stroke = '#ffffff',
-	strokeWidth = '1',
+	strokeWidth = '2',
 } ) => {
 	return (
 		<Circle
