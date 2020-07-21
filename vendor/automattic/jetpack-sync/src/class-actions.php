@@ -329,6 +329,7 @@ class Actions {
 		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,
+				'user_id' => Jetpack_Connection::JETPACK_MASTER_USER,
 				'timeout' => $query_args['timeout'],
 			)
 		);
