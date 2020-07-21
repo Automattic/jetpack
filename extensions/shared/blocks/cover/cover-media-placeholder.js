@@ -8,14 +8,13 @@ import { useContext, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isVideoFile } from './utils';
-import { isUpgradable } from '../../plan-utils';
+import { isCoverUpgradable, isVideoFile } from './utils';
 import { CoverMediaContext } from './components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( name !== 'core/cover' || ! isUpgradable( name ) ) {
+		if ( ! isCoverUpgradable( name ) ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 

@@ -10,6 +10,7 @@ import getAllowedMimeTypesBySite, {
 	getAllowedVideoTypesByType,
 	pickFileExtensionsFromMimeTypes,
 } from '../../get-allowed-mime-types';
+import { isUpgradable } from "../../plan-utils";
 
 /**
  * Check if the given file is a video.
@@ -40,4 +41,9 @@ export function isVideoFile( file ) {
 	}
 
 	return false;
+}
+
+export function isCoverUpgradable( name ) {
+	// Get upgradability relying on the `jetpack/videopress` block.
+	return name === 'core/cover' && isUpgradable( 'jetpack/videopress' );
 }

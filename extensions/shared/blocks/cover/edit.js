@@ -8,9 +8,8 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import { isVideoFile } from './utils';
+import { isCoverUpgradable, isVideoFile } from './utils';
 import { CoverMediaProvider, JetpackCoverUpgradeNudge } from './components';
-import { isUpgradable } from "../../plan-utils";
 
 export default createHigherOrderComponent(
 	BlockEdit => props => {
@@ -29,7 +28,7 @@ export default createHigherOrderComponent(
 		} );
 
 		const { name } = useBlockEditContext();
-		if ( ! isUpgradable( name ) ) {
+		if ( ! isCoverUpgradable( name ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
