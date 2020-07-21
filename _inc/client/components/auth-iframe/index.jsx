@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -68,7 +68,7 @@ export class AuthIframe extends React.Component {
 		return (
 			<div ref="iframeWrap" className="dops-card fade-in">
 				{ this.props.fetchingConnectUrl ? (
-					<p>{ __( 'Loading…' ) }</p>
+					<p>{ __( 'Loading…', 'jetpack' ) }</p>
 				) : (
 					<iframe
 						ref="iframe"

@@ -3,7 +3,7 @@
  */
 import React, { Fragment, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
