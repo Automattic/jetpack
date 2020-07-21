@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Class MC Stats, used to record stats using https://pixel.wp.com/g.gif
  */
-class Mc_Stats {
+class A8c_Mc_Stats {
 
 	/**
 	 * Holds the stats to be processed
@@ -24,14 +24,14 @@ class Mc_Stats {
 	 *
 	 * @var boolean
 	 */
-	public $use_transparent_pixel = false;
+	public $use_transparent_pixel = true;
 
 	/**
 	 * Class Constructor
 	 *
 	 * @param boolean $use_transparent_pixel Use the transparent pixel instead of the smiley.
 	 */
-	public function __construct( $use_transparent_pixel = false ) {
+	public function __construct( $use_transparent_pixel = true ) {
 		$this->use_transparent_pixel = $use_transparent_pixel;
 	}
 

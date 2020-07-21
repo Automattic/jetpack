@@ -5,7 +5,7 @@ namespace Automattic\Jetpack;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test Mc_Stats class
+ * Test A8c_Mc_Stats class
  */
 class StatsTest extends TestCase {
 
@@ -14,7 +14,7 @@ class StatsTest extends TestCase {
 	 */
 	public function test_add_get() {
 
-		$stats = new Mc_Stats();
+		$stats = new A8c_Mc_Stats();
 
 		$stats->add( 'group', 'test' );
 
@@ -61,7 +61,7 @@ class StatsTest extends TestCase {
 	 */
 	public function test_get_group_query_args() {
 
-		$stats = new Mc_Stats();
+		$stats = new A8c_Mc_Stats();
 		$stats->add( 'group', 'test' );
 		$stats->add( 'group', 'test2' );
 

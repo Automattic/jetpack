@@ -5,7 +5,7 @@ Used to record internal usage stats for Automattic. Not visible to site owners.
 ## Usage
 
 ```php
-$stats = new Automattic\Jetpack\Stats();
+$stats = new Automattic\Jetpack\A8c_Mc_Stats();
 
 $stats->add( 'group', 'name' );
 
@@ -25,13 +25,13 @@ Create an instance of the class and use the `add()` method to store stats that w
 
 ## Options
 
-By default, this uses `g.gif`, which is a tiny little smiley icon. If you want to use a transparent pixel instead, initialize the class with `true`.
+By default, this uses `b.gif`, which is a transparent pixel. If you want to use a tiny little smiley icon instead, initialize the class with `false`.
 
 ```php
-$stats = new Automattic\Jetpack\Stats( true );
+$stats = new Automattic\Jetpack\Stats( false );
 ```
 
 or set the property at any time:
 ```php
-$stats->use_transparent_pixel = true;
+$stats->use_transparent_pixel = false;
 ```
