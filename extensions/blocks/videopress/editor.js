@@ -18,9 +18,7 @@ import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
-import wrapPaidBlock from '../../shared/wrap-paid-block';
 import { isSimpleSite } from '../../shared/site-type-utils';
-import withCustomClassNames from '../../shared/with-custom-class-names';
 import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(

@@ -21,14 +21,6 @@ import './editor.scss';
 const jetpackPaidBlock = ( settings, name ) => {
 	// Extend Premium Blocks.
 	if ( isUpgradable( name ) ) {
-		// TODO
-		// Add custom CSS classes.
-		// addFilter(
-		// 	'editor.BlockListBlock',
-		// 	`jetpack/videopress-with-has-warning-is-interactive-class-names`,
-		// 	withCustomClassNames( name, 'has-warning is-interactive is-upgradable' )
-		// );
-
 		settings.icon = {
 			src: <PremiumIcon icon={ settings.icon } />,
 		};
@@ -43,4 +35,9 @@ const jetpackPaidBlock = ( settings, name ) => {
 };
 
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock, 1 );
-// addFilter( 'editor.BlockEdit', 'jetpack/paid-block', jetpackPaidBlockEdit, priority );
+
+addFilter(
+	'editor.BlockListBlock',
+	`jetpack/videopress-with-has-warning-is-interactive-class-names`,
+	withCustomClassNames( 'has-warning is-interactive is-upgradable' )
+);
