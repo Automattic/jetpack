@@ -23,32 +23,21 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		array( 'render_callback' => __NAMESPACE__ . '\render' )
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Story block registration/dependency declaration.
- *
- * @param array $attributes  Array containing the story block attributes.
- *
- * @return string
- */
-function load_assets( $attributes ) {
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-
-	return render( $attributes );
-}
-
-/**
  * Render story block
  *
- * @param array $attributes Array containing the story block attributes.
+ * @param array $attributes  Block attributes.
  *
  * @return string
  */
 function render( $attributes ) {
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
 	$get_image_template = function( $media, $index ) {
 		if ( ! isset( $media['id'] ) || ! isset( $media['url'] ) ) {
 			return 'Error retrieving media';
@@ -111,10 +100,7 @@ function render( $attributes ) {
 						<img alt="%s" src="%s" width="32" height=32>
 					</div>
 					<div>
-						<div class="wp-story-site-name">
-							%s
-						</div>
-						<div class="wp-story-site-description">
+						<div class="wp-story-title">
 							%s
 						</div>
 					</div>
@@ -135,8 +121,7 @@ function render( $attributes ) {
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
-		esc_html( get_bloginfo( 'name' ) ),
-		esc_html( get_bloginfo( 'description' ) ),
+		esc_html( get_the_title() ),
 		join( "\n", array_map( $get_slide_template, $media_files, array_keys( $media_files ) ) ),
 		__( 'Exit Fullscreen', 'jetpack' )
 	);

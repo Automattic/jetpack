@@ -8,13 +8,7 @@ import { html } from 'htm/preact';
  */
 import { SimpleButton } from './button';
 
-export default function Header( {
-	fullscreen,
-	onExitFullscreen,
-	siteDescription,
-	siteIconUrl,
-	siteName,
-} ) {
+export default function Header( { fullscreen, onExitFullscreen, siteIconUrl, storyTitle } ) {
 	if ( ! fullscreen ) {
 		return null;
 	}
@@ -28,11 +22,8 @@ export default function Header( {
 				<img alt="Site icon" src=${siteIconUrl} />
 			</div>
 			<div>
-				<div class="wp-story-site-name">
-					${siteName}
-				</div>
-				<div class="wp-story-site-description">
-					${siteDescription}
+				<div class="wp-story-title">
+					${storyTitle}
 				</div>
 			</div>
 			<${SimpleButton}
