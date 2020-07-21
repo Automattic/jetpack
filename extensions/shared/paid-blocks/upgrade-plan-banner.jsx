@@ -31,6 +31,7 @@ const UpgradePlanBanner = ( {
 	description = __( 'Upgrade your plan to use this premium block' ),
 	buttonText = __( 'Upgrade' ),
 	blockName,
+	visible = true,
 } ) => {
 	const bannerRef = useRef();
 
@@ -51,6 +52,10 @@ const UpgradePlanBanner = ( {
 		inspectorEl.classList = [ 'block-editor-block-inspector' ];
 		inspectorEl.classList.add( `is-${ blockName.replace( '/', '-' ) }-premium-block` );
 	}, [ blockName ] );
+
+	if ( ! visible ) {
+		return null;
+	}
 
 	const goToCheckoutPage = event => {
 		if ( ! window?.top?.location?.href ) {
