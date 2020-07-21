@@ -27,8 +27,6 @@ export const Slide = ( {
 		timeout: null,
 	} );
 
-	const slideEnded = () => progressState.currentTime >= progressState.duration;
-
 	// Sync playing state with underlying HTMLMediaElement
 	useEffect( () => {
 		if ( isVideo() ) {
@@ -64,6 +62,7 @@ export const Slide = ( {
 				currentTime: 0,
 				duration: null,
 				timeout: null,
+				lastUpdate: null,
 			} );
 			if ( isVideo() ) {
 				mediaRef.current.pause();
@@ -79,6 +78,7 @@ export const Slide = ( {
 				currentTime: 0,
 				duration: null,
 				timeout: null,
+				lastUpdate: null,
 			} );
 			if ( isVideo() ) {
 				mediaRef.current.currentTime = 0;
@@ -96,15 +96,24 @@ export const Slide = ( {
 				return;
 			}
 			progressState.timeout = setTimeout( () => {
-				const currentTime = video
-					? video.currentTime
-					: progressState.currentTime + settings.renderInterval;
+				const delta = progressState.lastUpdate
+					? Date.now() - progressState.lastUpdate
+					: settings.renderInterval;
+				const currentTime = video ? video.currentTime : progressState.currentTime + delta;
 				updateProgressState( {
 					...progressState,
+					lastUpdate: Date.now(),
 					duration,
 					currentTime,
 				} );
 			}, settings.renderInterval );
+		}
+		const paused = visible && ! playing;
+		if ( paused && progressState.lastUpdate ) {
+			updateProgressState( {
+				...progressState,
+				lastUpdate: null,
+			} );
 		}
 	}, [ playing, progressState ] );
 
