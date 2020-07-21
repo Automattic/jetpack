@@ -40,7 +40,7 @@ const injectSearchApp = () => {
 if ( window[ SERVER_OBJECT_NAME ] ) {
 	bindCustomizerChanges();
 }
-document.addEventListener( 'DOMContentLoaded', function() {
+document.addEventListener( 'DOMContentLoaded', function () {
 	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		initializeTracks();
 		resetTrackingCookies();

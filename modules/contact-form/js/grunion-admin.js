@@ -1,5 +1,5 @@
 /* global ajaxurl */
-jQuery( function( $ ) {
+jQuery( function ( $ ) {
 	if ( typeof jetpack_empty_spam_button_parameters !== 'undefined' ) {
 		// Create the "Empty Spam" button and add it above and below the list of spam feedbacks.
 		var jetpack_empty_spam_feedbacks_button_container = $( '<div/>' ).addClass(
@@ -29,13 +29,11 @@ jQuery( function( $ ) {
 			.append( jetpack_empty_spam_feedbacks_button_container );
 	}
 
-	$( document ).on( 'click', '#jetpack-check-feedback-spam:not(.button-disabled)', function( e ) {
+	$( document ).on( 'click', '#jetpack-check-feedback-spam:not(.button-disabled)', function ( e ) {
 		e.preventDefault();
 
 		$( '#jetpack-check-feedback-spam:not(.button-disabled)' ).addClass( 'button-disabled' );
-		$( '.jetpack-check-feedback-spam-spinner' )
-			.addClass( 'spinner' )
-			.show();
+		$( '.jetpack-check-feedback-spam-spinner' ).addClass( 'spinner' ).show();
 		grunion_check_for_spam( 0, 100 );
 	} );
 
@@ -47,7 +45,7 @@ jQuery( function( $ ) {
 				offset: offset,
 				limit: limit,
 			},
-			function( result ) {
+			function ( result ) {
 				if ( result.processed < limit ) {
 					window.location.reload();
 				} else {
@@ -60,7 +58,7 @@ jQuery( function( $ ) {
 	var initial_spam_count = 0;
 	var deleted_spam_count = 0;
 
-	$( document ).on( 'click', '.jetpack-empty-spam', function( e ) {
+	$( document ).on( 'click', '.jetpack-empty-spam', function ( e ) {
 		e.preventDefault();
 
 		if ( $( this ).hasClass( 'button-disabled' ) ) {
@@ -68,18 +66,12 @@ jQuery( function( $ ) {
 			return;
 		}
 
-		$( '.jetpack-empty-spam' )
-			.addClass( 'button-disabled' )
-			.addClass( 'emptying' );
-		$( '.jetpack-empty-spam-spinner' )
-			.addClass( 'spinner' )
-			.addClass( 'is-active' );
+		$( '.jetpack-empty-spam' ).addClass( 'button-disabled' ).addClass( 'emptying' );
+		$( '.jetpack-empty-spam-spinner' ).addClass( 'spinner' ).addClass( 'is-active' );
 
 		// Update the label on the "Empty Spam" button to use the active "Emptying Spam" language.
 		$( '.jetpack-empty-spam' ).text(
-			$( '.jetpack-empty-spam' )
-				.data( 'progress-label' )
-				.replace( '%1$s', '0' )
+			$( '.jetpack-empty-spam' ).data( 'progress-label' ).replace( '%1$s', '0' )
 		);
 
 		initial_spam_count = parseInt( $( this ).data( 'spam-feedbacks-count' ), 10 );
@@ -105,12 +97,12 @@ jQuery( function( $ ) {
 			action: 'jetpack_delete_spam_feedbacks',
 			nonce: nonce,
 		} )
-			.fail( function( result ) {
+			.fail( function ( result ) {
 				// An error is only returned in the case of a missing nonce or invalid permissions, so we don't need the actual error message.
 				window.location.href = empty_spam_buttons.data( 'failure-url' );
 				return;
 			} )
-			.done( function( result ) {
+			.done( function ( result ) {
 				deleted_spam_count += result.data.counts.deleted;
 
 				if ( result.data.counts.deleted < result.data.counts.limit ) {

@@ -18,7 +18,7 @@ const Popovers = createReactClass( {
 	displayName: 'Popovers',
 	mixins: [ PureRenderMixin ],
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			popoverPosition: 'bottom left',
 

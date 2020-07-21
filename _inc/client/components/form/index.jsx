@@ -66,8 +66,8 @@ class Form extends React.Component {
  * @author ShirtlessKirk. Copyright ( c ) 2012.
  * @license WTFPL ( http://www.wtfpl.net/txt/copying )
  */
-const luhnChk = ( function( arr ) {
-	return function( ccNum ) {
+const luhnChk = ( function ( arr ) {
+	return function ( ccNum ) {
 		let len = ccNum.length,
 			bit = 1,
 			sum = 0,
@@ -86,7 +86,7 @@ const luhnChk = ( function( arr ) {
 // To find out more about validators, see:
 // https://github.com/christianalfoni/formsy-react/blob/master/API.md#validators
 
-Formsy.addValidationRule( 'isCC', function( values, value ) {
+Formsy.addValidationRule( 'isCC', function ( values, value ) {
 	if ( value === undefined || value === null ) {
 		return false;
 	}
@@ -97,7 +97,7 @@ Formsy.addValidationRule( 'isCC', function( values, value ) {
 	return value.length > 12 && luhnChk( value );
 } );
 
-Formsy.addValidationRule( 'isArray', function( values, value ) {
+Formsy.addValidationRule( 'isArray', function ( values, value ) {
 	return isArray( value );
 } );
 

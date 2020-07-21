@@ -357,7 +357,7 @@ export function maybeHideNavMenuItem( module, values ) {
 				jQuery( '#menu-posts-jetpack-portfolio, #menu-posts-jetpack-testimonial' ).toggle();
 			}
 
-			forEach( values, function( v, key ) {
+			forEach( values, function ( v, key ) {
 				if ( 'jetpack_portfolio' === key ) {
 					jQuery( '#menu-posts-jetpack-portfolio, .jp-toggle-portfolio' ).toggle();
 				}

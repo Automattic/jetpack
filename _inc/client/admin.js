@@ -5,8 +5,7 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import { assign, get } from 'lodash';
-import i18n from 'i18n-calypso';
+import { assign } from 'lodash';
 import { _x } from '@wordpress/i18n';
 
 /**
@@ -19,29 +18,6 @@ import * as actionTypes from 'state/action-types';
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
-
-const Initial_State = window.Initial_State;
-
-Initial_State.locale = JSON.parse( Initial_State.locale );
-Initial_State.locale = get( Initial_State.locale, [ 'locale_data', 'jetpack' ], {} );
-
-if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
-	Initial_State.locale[ '' ].localeSlug = Initial_State.localeSlug;
-
-	// Overloading the toLocaleString method to use the set locale
-	Number.prototype.realToLocaleString = Number.prototype.toLocaleString;
-
-	Number.prototype.toLocaleString = function( locale, options ) {
-		locale = locale || Initial_State.localeSlug;
-		options = options || {};
-
-		return this.realToLocaleString( locale, options );
-	};
-} else {
-	Initial_State.locale = { '': { localeSlug: Initial_State.localeSlug } };
-}
-
-i18n.setLocale( Initial_State.locale );
 
 // Add dispatch and actionTypes to the window object so we can use it from the browser's console
 if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {

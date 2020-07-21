@@ -62,7 +62,7 @@ export class DashStats extends Component {
 			return { chartData: s, totalViews: false };
 		}
 
-		forEach( props.statsData[ unit ].data, function( v ) {
+		forEach( props.statsData[ unit ].data, function ( v ) {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',

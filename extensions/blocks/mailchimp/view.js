@@ -29,10 +29,10 @@ function fetchSubscription( blogId, email, params ) {
 	for ( const param in params ) {
 		url += '&' + encodeURIComponent( param ) + '=' + encodeURIComponent( params[ param ] );
 	}
-	return new Promise( function( resolve, reject ) {
+	return new Promise( function ( resolve, reject ) {
 		const xhr = new XMLHttpRequest();
 		xhr.open( 'GET', url );
-		xhr.onload = function() {
+		xhr.onload = function () {
 			if ( xhr.status === 200 ) {
 				const res = JSON.parse( xhr.responseText );
 				resolve( res );

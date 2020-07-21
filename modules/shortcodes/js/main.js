@@ -1,4 +1,4 @@
-( function( $ ) {
+( function ( $ ) {
 	var jmpressOpts = {
 		fullscreen: false,
 		hash: { use: false },
@@ -57,42 +57,42 @@
 			transition: duration,
 		};
 
-		$( '.step', _self.slideshow ).each( function( i, step ) {
+		$( '.step', _self.slideshow ).each( function ( i, step ) {
 			$( step ).css( new_css );
 		} );
 
 		// Apply attribute to allow fading individual bullets here,
 		// otherwise wp_kses will strip the attribute out
-		$( '.step.fadebullets li', _self.slideshow ).each( function( i, step ) {
+		$( '.step.fadebullets li', _self.slideshow ).each( function ( i, step ) {
 			$( step ).attr( 'data-jmpress', 'fade' );
 		} );
 
 		// Register resizing to window when fullscreen
-		$( window ).resize( function() {
+		$( window ).resize( function () {
 			if ( _self.fullscreen ) {
 				_self.resizePresentation();
 			}
 		} );
 
 		// Register the nav bars to move the slides
-		_self.navLeft.on( 'click', function() {
+		_self.navLeft.on( 'click', function () {
 			_self.slideshow.jmpress( 'prev' );
 			_self.overlay.css( 'opacity', 0 );
 			return false;
 		} );
 
-		_self.navRight.on( 'click', function() {
+		_self.navRight.on( 'click', function () {
 			_self.slideshow.jmpress( 'next' );
 			_self.overlay.css( 'opacity', 0 );
 			return false;
 		} );
 
-		_self.slideshow.on( 'click', function() {
+		_self.slideshow.on( 'click', function () {
 			_self.setAutoplay( true );
 			return false;
 		} );
 
-		_self.slideshow.on( 'focusout', function() {
+		_self.slideshow.on( 'focusout', function () {
 			_self.setAutoplay( false );
 		} );
 
@@ -104,14 +104,14 @@
 			_self.expandButton.remove();
 			_self.expandButton = null;
 		} else {
-			_self.expandButton.on( 'click', function() {
+			_self.expandButton.on( 'click', function () {
 				_self.setFullscreen( ! _self.fullscreen );
 				return false;
 			} );
 		}
 
 		// Register ESC key to exit fullscreen
-		$( window ).on( 'keydown', function( event ) {
+		$( window ).on( 'keydown', function ( event ) {
 			if ( event.which === 27 ) {
 				_self.setFullscreen( false );
 			}
@@ -134,7 +134,7 @@
 	}
 
 	$.extend( Presentation.prototype, {
-		resizePresentation: function() {
+		resizePresentation: function () {
 			var scale, duration, settings, new_css, widthScale, heightScale;
 
 			// Set the animation duration to 0 during resizing
@@ -194,7 +194,7 @@
 			this.slideshow.jmpress( 'reselect' );
 		},
 
-		setFullscreen: function( on ) {
+		setFullscreen: function ( on ) {
 			this.fullscreen = on;
 			this.setAutoplay( false );
 
@@ -214,7 +214,7 @@
 
 			this.wrapper.toggleClass( 'presentation-wrapper-fullscreen', on );
 
-			this.wrapper.parents().each( function( i, e ) {
+			this.wrapper.parents().each( function ( i, e ) {
 				$( e ).toggleClass( 'presentation-wrapper-fullscreen-parent', on );
 			} );
 
@@ -227,7 +227,7 @@
 			}
 		},
 
-		setAutoplay: function( on ) {
+		setAutoplay: function ( on ) {
 			var _self = this,
 				newAutoplayTime;
 
@@ -250,8 +250,8 @@
 		},
 	} );
 
-	$( document ).ready( function() {
-		$( '.presentation-wrapper' ).map( function() {
+	$( document ).ready( function () {
+		$( '.presentation-wrapper' ).map( function () {
 			new Presentation( this );
 		} );
 	} );

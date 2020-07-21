@@ -375,18 +375,18 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
+window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
 
 	// Clear currently highlighted sub-nav item
-	jQuery( '.current' ).each( function( i, obj ) {
+	jQuery( '.current' ).each( function ( i, obj ) {
 		jQuery( obj ).removeClass( 'current' );
 	} );
 
 	const getJetpackSubNavItem = subNavItemIndex => {
 		return jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
-			.filter( function( index ) {
+			.filter( function ( index ) {
 				return index === subNavItemIndex;
 			} )[ 0 ];
 	};
@@ -406,12 +406,12 @@ window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, s
 	$body.on(
 		'click',
 		'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/my-plan"], .dops-button[href="#/plans"], .jp-dash-section-header__external-link[href="#/security"]',
-		function() {
+		function () {
 			window.scrollTo( 0, 0 );
 		}
 	);
 
-	$body.on( 'click', '.jetpack-js-stop-propagation', function( e ) {
+	$body.on( 'click', '.jetpack-js-stop-propagation', function ( e ) {
 		e.stopPropagation();
 	} );
 };

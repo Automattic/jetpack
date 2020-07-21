@@ -319,8 +319,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 				),
 			),
-			'locale'                      => Jetpack::get_i18n_data_json(),
-			'localeSlug'                  => join( '-', explode( '_', get_user_locale() ) ),
 			'jetpackStateNotices'         => array(
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),
