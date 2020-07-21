@@ -69,11 +69,6 @@ const addVideoPressSupport = ( settings, name ) => {
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
 	if ( isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason ) ) {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
-		addFilter(
-			'editor.BlockListBlock',
-			`jetpack/videopress-with-custom-class-names`,
-			withCustomClassNames( `core/video`, 'has-warning is-interactive' )
-		);
 	}
 
 	// We customize the video block even if VideoPress it not available so we can support videos that were uploaded to
@@ -160,22 +155,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				reusable: false,
 			},
 
-			edit:
-				isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason )
-					? wrapPaidBlock( {
-							requiredPlan: 'value_bundle',
-							customTitle: {
-								knownPlan: __( 'Upgrade to %(planName)s to upload videos.', 'jetpack' ),
-								unknownPlan: __( 'Upgrade to a paid plan to upload videos.', 'jetpack' ),
-							},
-							customSubTitle: __(
-								'Upload unlimited videos to your website and \
-						display them using a fast, unbranded, \
-						customizable player.',
-								'jetpack'
-							),
-					  } )( withVideoPressEdit( edit ) )
-					: withVideoPressEdit( edit ),
+			edit: withVideoPressEdit( edit ),
 
 			save: withVideoPressSave( save ),
 
