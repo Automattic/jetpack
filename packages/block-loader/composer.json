@@ -13,8 +13,7 @@
 	},
 	"autoload": {
 		"classmap": [
-			"legacy",
-			"src/"
+			"legacy"
 		]
 	},
 	"repositories": [
