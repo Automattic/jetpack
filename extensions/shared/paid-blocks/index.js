@@ -19,7 +19,6 @@ import { PremiumIcon } from './components';
 import './editor.scss';
 
 const jetpackPaidBlock = ( settings, name ) => {
-	// Extend Premium Blocks.
 	if ( isUpgradable( name ) ) {
 		settings.icon = {
 			src: <PremiumIcon icon={ settings.icon } />,
@@ -37,7 +36,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock, 1 );
 
 addFilter(
-	'editor.BlockListBlock',
-	`jetpack/videopress-with-has-warning-is-interactive-class-names`,
+	'blocks.getBlockDefaultClassName',
+	`jetpack/set-upgradable-classnames`,
 	withCustomClassNames( 'has-warning is-interactive is-upgradable' )
 );
