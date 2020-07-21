@@ -15,7 +15,7 @@ import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 
 const Edit = props => {
-	const { attributes } = props;
+	const { attributes, className } = props;
 	const { currency } = attributes;
 
 	const [ isLoading, setIsLoading ] = useState( true );
@@ -62,7 +62,8 @@ const Edit = props => {
 
 			if ( hasRequiredProducts( filteredProducts ) ) {
 				setProducts( filteredProducts );
-			} else {
+			} else if ( ! result.should_upgrade_to_access_memberships && ! result.connect_url ) {
+				//only create products if we have the correct plan and stripe connection
 				fetchDefaultProducts( currency ).then(
 					defaultProducts => setProducts( filterProducts( defaultProducts ) ),
 					apiError
@@ -93,6 +94,7 @@ const Edit = props => {
 	return (
 		<Tabs
 			{ ...props }
+			className={ className }
 			products={ products }
 			stripeConnectUrl={ stripeConnectUrl }
 			siteSlug={ siteSlug }

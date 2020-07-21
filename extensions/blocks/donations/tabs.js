@@ -20,7 +20,7 @@ import Tab from './tab';
 import StripeNudge from './stripe-nudge';
 
 const Tabs = props => {
-	const { attributes, products, setAttributes, stripeConnectUrl } = props;
+	const { attributes, products, setAttributes, stripeConnectUrl, className } = props;
 	const { oneTimePlanId, monthlyPlanId, annuallyPlanId } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 
@@ -59,7 +59,7 @@ const Tabs = props => {
 	return (
 		<Block.div>
 			{ stripeConnectUrl && <StripeNudge stripeConnectUrl={ stripeConnectUrl } /> }
-			<div className="donations__container">
+			<div className={ `${ className } donations__container` }>
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__tabs">
 						{ Object.entries( tabs ).map( ( [ interval, { title } ] ) => (
