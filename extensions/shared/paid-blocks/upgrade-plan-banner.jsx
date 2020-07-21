@@ -5,6 +5,7 @@ import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -30,6 +31,25 @@ const UpgradePlanBanner = ( {
 	description = __( 'Upgrade your plan to use this premium block' ),
 	buttonText = __( 'Upgrade' ),
 } ) => {
+	const bannerRef = useRef();
+
+	/*
+	 * Hack: Add CSS class to inspector control.
+	 * It's used to move the position of the upgrade plan banner
+	 * just below of the block card.
+	 * It should be updated if https://github.com/WordPress/gutenberg/pull/23993 is merged.
+	 */
+	useEffect( () => {
+	    if ( ! bannerRef?.current ) {
+	    	return;
+	    }
+	    const inspectorEl = bannerRef.current.closest( '.block-editor-block-inspector' );
+	    if ( ! inspectorEl ) {
+	    	return;
+	    }
+	    inspectorEl.classList.add( 'with-upgrade-plan-banner' );
+	}, [] );
+
 	const goToCheckoutPage = event => {
 		if ( ! window?.top?.location?.href ) {
 			return;
@@ -51,11 +71,13 @@ const UpgradePlanBanner = ( {
 	};
 
 	return (
-		<div className={ `${ className } wp-block` } data-align={ align }>
-			{ title ? <strong className={ `${ className }__title` }>{ title }</strong> : null }
-			{ description ? (
+		<div ref={ bannerRef } className={ `${ className } wp-block` } data-align={ align }>
+			{ title && (
+				<strong className={ `${ className }__title` }>{ title }</strong>
+			) }
+			{ description && (
 				<span className={ `${ className }__description` }>{ description }</span>
-			) : null }
+			) }
 			<Button
 				href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 				onClick={ goToCheckoutPage }
