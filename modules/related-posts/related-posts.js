@@ -3,7 +3,7 @@
 /**
  * Load related posts
  */
-( function( $ ) {
+( function ( $ ) {
 	var jprp = {
 		response: null,
 
@@ -13,7 +13,7 @@
 		 * @param  {string} URL (optional)
 		 * @return {string} Endpoint URL
 		 */
-		getEndpointURL: function( URL ) {
+		getEndpointURL: function ( URL ) {
 			var locationObject,
 				is_customizer =
 					'undefined' !== typeof wp &&
@@ -56,7 +56,7 @@
 			}
 		},
 
-		getAnchor: function( post, classNames ) {
+		getAnchor: function ( post, classNames ) {
 			var anchor_title = post.title;
 			var anchor = $( '<a>' );
 
@@ -74,17 +74,15 @@
 				} );
 			}
 
-			var anchor_html = $( '<div>' )
-				.append( anchor )
-				.html();
+			var anchor_html = $( '<div>' ).append( anchor ).html();
 			return [ anchor_html.substring( 0, anchor_html.length - 4 ), '</a>' ];
 		},
 
-		generateMinimalHtml: function( posts, options ) {
+		generateMinimalHtml: function ( posts, options ) {
 			var self = this;
 			var html = '';
 
-			$.each( posts, function( index, post ) {
+			$.each( posts, function ( index, post ) {
 				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
 				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
 
@@ -123,11 +121,11 @@
 			);
 		},
 
-		generateVisualHtml: function( posts, options ) {
+		generateVisualHtml: function ( posts, options ) {
 			var self = this;
 			var html = '';
 
-			$.each( posts, function( index, post ) {
+			$.each( posts, function ( index, post ) {
 				var anchor = self.getAnchor( post, 'jp-relatedposts-post-a' );
 				var classes = 'jp-relatedposts-post jp-relatedposts-post' + index;
 
@@ -179,9 +177,7 @@
 					'>';
 				html +=
 					'<p class="jp-relatedposts-post-excerpt">' +
-					$( '<p>' )
-						.text( post.excerpt )
-						.html() +
+					$( '<p>' ).text( post.excerpt ).html() +
 					'</p>';
 				if ( options.showDate ) {
 					html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
@@ -206,7 +202,7 @@
 		 * cut off a line of text in the middle so we need to do some detective
 		 * work.
 		 */
-		setVisualExcerptHeights: function() {
+		setVisualExcerptHeights: function () {
 			var elements = $(
 				'#jp-relatedposts .jp-relatedposts-post-nothumbs .jp-relatedposts-post-excerpt'
 			);
@@ -222,7 +218,7 @@
 			elements.css( 'max-height', ( 5 * lineHeight ) / fontSize + 'em' );
 		},
 
-		getTrackedUrl: function( anchor ) {
+		getTrackedUrl: function ( anchor ) {
 			var args = 'relatedposts_hit=1';
 			args += '&relatedposts_origin=' + $( anchor ).data( 'origin' );
 			args += '&relatedposts_position=' + $( anchor ).data( 'position' );
@@ -239,7 +235,7 @@
 			}
 		},
 
-		cleanupTrackedUrl: function() {
+		cleanupTrackedUrl: function () {
 			if ( 'function' !== typeof history.replaceState ) {
 				return;
 			}
@@ -259,7 +255,7 @@
 
 	function afterPostsHaveLoaded() {
 		jprp.setVisualExcerptHeights();
-		$( '#jp-relatedposts a.jp-relatedposts-post-a' ).click( function() {
+		$( '#jp-relatedposts a.jp-relatedposts-post-a' ).click( function () {
 			this.href = jprp.getTrackedUrl( this );
 		} );
 	}
@@ -278,7 +274,7 @@
 			return;
 		}
 
-		$.getJSON( endpointURL, function( response ) {
+		$.getJSON( endpointURL, function ( response ) {
 			if ( 0 === response.items.length || 0 === $relatedPosts.length ) {
 				return;
 			}
@@ -314,10 +310,10 @@
 		} );
 	}
 
-	$( function() {
+	$( function () {
 		if ( 'undefined' !== typeof wp && wp.customize ) {
 			if ( wp.customize.selectiveRefresh ) {
-				wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
+				wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function ( placement ) {
 					if ( 'jetpack_relatedposts' === placement.partial.id ) {
 						startRelatedPosts();
 					}

@@ -1,6 +1,6 @@
 /* global FB, jpfbembed */
-( function( window ) {
-	var facebookEmbed = function() {
+( function ( window ) {
+	var facebookEmbed = function () {
 		var fbroot, src, newScript, firstScript;
 
 		if ( 'undefined' !== typeof FB && FB.XFBML ) {
@@ -23,7 +23,7 @@
 		}
 	};
 
-	window.fbAsyncInit = function() {
+	window.fbAsyncInit = function () {
 		FB.init( {
 			appId: jpfbembed.appid,
 			version: 'v2.3',

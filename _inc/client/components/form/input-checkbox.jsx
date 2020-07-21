@@ -32,21 +32,21 @@ export default createReactClass( {
 		validationError: PropTypes.string,
 	},
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			uniqueId: getUniqueId(),
 		};
 	},
 
-	getDefaultProps: function() {
+	getDefaultProps: function () {
 		return { required: false };
 	},
 
-	changeValue: function( event ) {
+	changeValue: function ( event ) {
 		this.setValue( event.target.checked );
 	},
 
-	render: function() {
+	render: function () {
 		const { style, labelSuffix, label, ...other } = this.props;
 		const uniqueId = this.state.uniqueId;
 		let errorMessage;

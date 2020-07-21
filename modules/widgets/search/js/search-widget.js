@@ -1,11 +1,11 @@
-var jetpackSearchModule = function() {
+var jetpackSearchModule = function () {
 	var i,
 		j,
 		checkboxes,
 		filter_list = document.querySelectorAll( '.jetpack-search-filters-widget__filter-list' );
 
 	for ( i = 0; i < filter_list.length; i++ ) {
-		filter_list[ i ].addEventListener( 'click', function( event ) {
+		filter_list[ i ].addEventListener( 'click', function ( event ) {
 			var target = event.target;
 			var precedingCheckbox;
 			var nextAnchor;

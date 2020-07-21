@@ -8,7 +8,7 @@ function JetpackSlideshow( element, transition, autostart ) {
 	this.autostart = autostart;
 }
 
-JetpackSlideshow.prototype.showLoadingImage = function( toggle ) {
+JetpackSlideshow.prototype.showLoadingImage = function ( toggle ) {
 	if ( toggle ) {
 		this.loadingImage_ = document.createElement( 'div' );
 		this.loadingImage_.className = 'slideshow-loading';
@@ -23,7 +23,7 @@ JetpackSlideshow.prototype.showLoadingImage = function( toggle ) {
 	}
 };
 
-JetpackSlideshow.prototype.init = function() {
+JetpackSlideshow.prototype.init = function () {
 	this.showLoadingImage( true );
 
 	var self = this;
@@ -51,11 +51,11 @@ JetpackSlideshow.prototype.init = function() {
 		if ( i === 0 ) {
 			if ( img.complete ) {
 				// IE, image in cache
-				setTimeout( function() {
+				setTimeout( function () {
 					self.finishInit_();
 				}, 1 );
 			} else {
-				jQuery( img ).load( function() {
+				jQuery( img ).load( function () {
 					self.finishInit_();
 				} );
 			}
@@ -71,7 +71,7 @@ JetpackSlideshow.prototype.init = function() {
 	}
 };
 
-JetpackSlideshow.prototype.makeZeroWidthSpan = function() {
+JetpackSlideshow.prototype.makeZeroWidthSpan = function () {
 	var emptySpan = document.createElement( 'span' );
 	emptySpan.className = 'slideshow-line-height-hack';
 	// Having a NBSP makes IE act weird during transitions, but other
@@ -84,7 +84,7 @@ JetpackSlideshow.prototype.makeZeroWidthSpan = function() {
 	return emptySpan;
 };
 
-JetpackSlideshow.prototype.finishInit_ = function() {
+JetpackSlideshow.prototype.finishInit_ = function () {
 	this.showLoadingImage( false );
 	this.renderControls_();
 
@@ -97,7 +97,7 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			next: this.controls.next,
 			timeout: jetpackSlideshowSettings.speed,
 			slideExpr: '.slideshow-slide',
-			onPrevNextEvent: function() {
+			onPrevNextEvent: function () {
 				return self.onCyclePrevNextClick_.apply( self, arguments );
 			},
 		} );
@@ -110,7 +110,7 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			jQuery( this.controls.stop ).addClass( 'paused' );
 		}
 
-		jQuery( this.controls.stop ).click( function() {
+		jQuery( this.controls.stop ).click( function () {
 			var button = jQuery( this );
 			if ( ! button.hasClass( 'paused' ) ) {
 				slideshow.cycle( 'pause' );
@@ -130,7 +130,7 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 	this.initialized_ = true;
 };
 
-JetpackSlideshow.prototype.renderControls_ = function() {
+JetpackSlideshow.prototype.renderControls_ = function () {
 	if ( this.controlsDiv_ ) {
 		return;
 	}
@@ -156,7 +156,7 @@ JetpackSlideshow.prototype.renderControls_ = function() {
 	this.controlsDiv_ = controlsDiv;
 };
 
-JetpackSlideshow.prototype.onCyclePrevNextClick_ = function( isNext, i /*, slideElement*/ ) {
+JetpackSlideshow.prototype.onCyclePrevNextClick_ = function ( isNext, i /*, slideElement*/ ) {
 	// If blog_id not present don't track page views
 	if ( ! jetpackSlideshowSettings.blog_id ) {
 		return;
@@ -182,11 +182,11 @@ JetpackSlideshow.prototype.onCyclePrevNextClick_ = function( isNext, i /*, slide
 		escape( document.location );
 };
 
-( function( $ ) {
+( function ( $ ) {
 	function jetpack_slideshow_init() {
 		$( '.jetpack-slideshow-noscript' ).remove();
 
-		$( '.jetpack-slideshow' ).each( function() {
+		$( '.jetpack-slideshow' ).each( function () {
 			var container = $( this );
 
 			if ( container.data( 'processed' ) ) {

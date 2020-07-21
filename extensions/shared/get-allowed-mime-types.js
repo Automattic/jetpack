@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -21,7 +20,7 @@ export function getAllowedVideoTypesByType( mimeType ) {
 	if ( ! mimeType ) {
 		return {};
 	}
-	return pickBy( getAllowedMimeTypesBySite(), ( type ) => startsWith( type, `${ mimeType }/` ) );
+	return pickBy( getAllowedMimeTypesBySite(), type => startsWith( type, `${ mimeType }/` ) );
 }
 
 /**
@@ -38,7 +37,7 @@ export function pickFileExtensionsFromMimeTypes( mimeTypesObject ) {
 	if ( ! mimeTypesObject ) {
 		return [];
 	}
-	return flatten( map( keys( mimeTypesObject ), ( ext ) => ext.split( '|' ) ) );
+	return flatten( map( keys( mimeTypesObject ), ext => ext.split( '|' ) ) );
 }
 
 /**
@@ -49,4 +48,3 @@ export function pickFileExtensionsFromMimeTypes( mimeTypesObject ) {
 export default function getAllowedMimeTypesBySite() {
 	return get( getJetpackData(), [ 'allowedMimeTypes' ], [] );
 }
-

@@ -13,7 +13,7 @@
  * core.js
  * The core of jmpress.js
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	/**
@@ -22,11 +22,11 @@
 	 * @access protected
 	 * @return Function to get prefixed property
 	 */
-	var pfx = ( function() {
+	var pfx = ( function () {
 		var style = document.createElement( 'dummy' ).style,
 			prefixes = 'Webkit Moz O ms Khtml'.split( ' ' ),
 			memory = {};
-		return function( prop ) {
+		return function ( prop ) {
 			if ( typeof memory[ prop ] === 'undefined' ) {
 				var ucProp = prop.charAt( 0 ).toUpperCase() + prop.substr( 1 ),
 					props = ( prop + ' ' + prefixes.join( ucProp + ' ' ) + ucProp ).split( ' ' );
@@ -239,7 +239,7 @@
 
 			callCallback.call( this, 'beforeDeinit', $( this ), {} );
 
-			$( settings.stepSelector, jmpress ).each( function( idx ) {
+			$( settings.stepSelector, jmpress ).each( function ( idx ) {
 				doStepDeinit.call( jmpress, this );
 			} );
 
@@ -250,7 +250,7 @@
 			area.attr( 'style', oldStyle.area );
 			$( canvas )
 				.children()
-				.each( function() {
+				.each( function () {
 					jmpress.append( $( this ) );
 				} );
 			if ( settings.fullscreen ) {
@@ -279,7 +279,7 @@
 			eventData.current = current;
 			eventData.jmpress = this;
 			var result = {};
-			$.each( settings[ callbackName ], function( idx, callback ) {
+			$.each( settings[ callbackName ], function ( idx, callback ) {
 				result.value = callback.call( jmpress, element, eventData ) || result.value;
 			} );
 			return result.value;
@@ -288,10 +288,7 @@
 		 *
 		 */
 		function getStepParents( el ) {
-			return $( el )
-				.parentsUntil( jmpress )
-				.not( jmpress )
-				.filter( settings.stepSelector );
+			return $( el ).parentsUntil( jmpress ).not( jmpress ).filter( settings.stepSelector );
 		}
 		/**
 		 * Reselect the active step
@@ -329,7 +326,7 @@
 			callCallback.call( this, 'beforeChange', el, {
 				stepData: step,
 				reason: type,
-				cancel: function() {
+				cancel: function () {
 					cancelSelect = true;
 				},
 			} );
@@ -343,10 +340,7 @@
 			if ( $( el ).data( 'stepData' ).delegate ) {
 				delegated =
 					ifNotEmpty(
-						$( el )
-							.parentsUntil( jmpress )
-							.filter( settings.stepSelector )
-							.filter( step.delegate )
+						$( el ).parentsUntil( jmpress ).filter( settings.stepSelector ).filter( step.delegate )
 					) ||
 					ifNotEmpty( $( el ).near( step.delegate ) ) ||
 					ifNotEmpty( $( el ).near( step.delegate, true ) ) ||
@@ -415,7 +409,7 @@
 			if ( current.idleTimeout ) {
 				clearTimeout( current.idleTimeout );
 			}
-			current.idleTimeout = setTimeout( function() {
+			current.idleTimeout = setTimeout( function () {
 				callCallback.call( this, 'idle', delegated, callbackData );
 			}, Math.max( 1, settings.transitionDuration - 100 ) );
 
@@ -556,21 +550,21 @@
 			home: home,
 			end: end,
 			canvas: canvasMod,
-			container: function() {
+			container: function () {
 				return container;
 			},
-			settings: function() {
+			settings: function () {
 				return settings;
 			},
 			active: getActive,
-			current: function() {
+			current: function () {
 				return current;
 			},
 			fire: fire,
-			init: function( step ) {
+			init: function ( step ) {
 				doStepInit.call( this, $( step ), current.nextIdNumber++ );
 			},
-			deinit: function( step ) {
+			deinit: function ( step ) {
 				if ( step ) {
 					doStepDeinit.call( this, $( step ) );
 				} else {
@@ -616,7 +610,7 @@
 		$( jmpress )
 			.children()
 			.filter( steps )
-			.each( function() {
+			.each( function () {
 				canvas.append( $( this ) );
 			} );
 		if ( settings.fullscreen ) {
@@ -668,7 +662,7 @@
 		callCallback.call( this, 'beforeInit', null, {} );
 
 		// INITIALIZE EACH STEP
-		steps.each( function( idx ) {
+		steps.each( function ( idx ) {
 			doStepInit.call( jmpress, this, idx );
 		} );
 		current.nextIdNumber = steps.length;
@@ -755,7 +749,7 @@
 		}
 		var returnDataset = {};
 		var attrs = $( el )[ 0 ].attributes;
-		$.each( attrs, function( idx, attr ) {
+		$.each( attrs, function ( idx, attr ) {
 			if ( attr.nodeName.substr( 0, 5 ) === 'data-' ) {
 				returnDataset[ toCamelcase( attr.nodeName.substr( 5 ) ) ] = attr.nodeValue;
 			}
@@ -777,7 +771,7 @@
 	var methods = {
 		init: init,
 		initialized: initialized,
-		deinit: function() {},
+		deinit: function () {},
 		css: css,
 		pfx: pfx,
 		defaults: getDefaults,
@@ -788,7 +782,7 @@
 	/**
 	 * $.jmpress()
 	 */
-	$.fn.jmpress = function( method ) {
+	$.fn.jmpress = function ( method ) {
 		function f() {
 			var jmpressmethods = $( this ).data( 'jmpressmethods' );
 			if ( jmpressmethods && jmpressmethods[ method ] ) {
@@ -812,13 +806,13 @@
 		}
 		var args = arguments;
 		var result;
-		$( this ).each( function( idx, element ) {
+		$( this ).each( function ( idx, element ) {
 			result = f.apply( element, args );
 		} );
 		return result;
 	};
 	$.extend( {
-		jmpress: function( method ) {
+		jmpress: function ( method ) {
 			if ( methods[ method ] ) {
 				return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
 			} else if ( callbacks[ method ] ) {
@@ -842,14 +836,14 @@
  * near.js
  * Find steps near each other
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	// add near( selector, backwards = false) to jquery
 
 	function checkAndGo( elements, func, selector, backwards ) {
 		var next;
-		elements.each( function( idx, element ) {
+		elements.each( function ( idx, element ) {
 			if ( backwards ) {
 				next = func( element, selector, backwards );
 				if ( next ) {
@@ -888,7 +882,7 @@
 		var next;
 		var parents = $( item ).parents();
 		parents = $( parents.get() );
-		$.each( parents.get(), function( idx, element ) {
+		$.each( parents.get(), function ( idx, element ) {
 			if ( backwards && $( element ).is( selector ) ) {
 				next = element;
 				return false;
@@ -901,9 +895,9 @@
 		return next;
 	}
 
-	$.fn.near = function( selector, backwards ) {
+	$.fn.near = function ( selector, backwards ) {
 		var array = [];
-		$( this ).each( function( idx, element ) {
+		$( this ).each( function ( idx, element ) {
 			var near =
 				( backwards ? false : findNextInChildren( element, selector, backwards ) ) ||
 				findNextInSiblings( element, selector, backwards ) ||
@@ -919,7 +913,7 @@
  * transform.js
  * The engine that powers the transforms or falls back to other methods
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	/* FUNCTIONS */
@@ -932,9 +926,9 @@
 	 */
 	var engines = {
 		3: {
-			transform: function( el, data ) {
+			transform: function ( el, data ) {
 				var transform = 'translate(-50%,-50%)';
-				$.each( data, function( idx, item ) {
+				$.each( data, function ( idx, item ) {
 					var coord = [ 'X', 'Y', 'Z' ];
 					var i;
 					if ( item[ 0 ] === 'translate' ) {
@@ -967,9 +961,9 @@
 			},
 		},
 		2: {
-			transform: function( el, data ) {
+			transform: function ( el, data ) {
 				var transform = 'translate(-50%,-50%)';
-				$.each( data, function( idx, item ) {
+				$.each( data, function ( idx, item ) {
 					var coord = [ 'X', 'Y' ];
 					if ( item[ 0 ] === 'translate' ) {
 						// ["translate", x, y, z]
@@ -994,9 +988,9 @@
 			// CHECK IF SUPPORT IS REALLY NEEDED?
 			// this not even work without scaling...
 			// it may better to display the normal view
-			transform: function( el, data ) {
+			transform: function ( el, data ) {
 				var anitarget = { top: 0, left: 0 };
-				$.each( data, function( idx, item ) {
+				$.each( data, function ( idx, item ) {
 					var coord = [ 'X', 'Y' ];
 					if ( item[ 0 ] === 'translate' ) {
 						// ["translate", x, y, z]
@@ -1012,7 +1006,7 @@
 	/**
 	 * Engine to power cross-browser translate, scale and rotate.
 	 */
-	var engine = ( function() {
+	var engine = ( function () {
 		if ( $.jmpress( 'pfx', 'perspective' ) ) {
 			return engines[ 3 ];
 		} else if ( $.jmpress( 'pfx', 'transform' ) ) {
@@ -1024,7 +1018,7 @@
 	} )();
 
 	$.jmpress( 'defaults' ).reasonableAnimation = {};
-	$.jmpress( 'initStep', function( step, eventData ) {
+	$.jmpress( 'initStep', function ( step, eventData ) {
 		var data = eventData.data;
 		var stepData = eventData.stepData;
 		var pf = parseFloat;
@@ -1045,20 +1039,18 @@
 			scaleZ: pf( data.scaleZ ) || 1,
 		} );
 	} );
-	$.jmpress( 'afterInit', function( nil, eventData ) {
+	$.jmpress( 'afterInit', function ( nil, eventData ) {
 		var stepSelector = eventData.settings.stepSelector,
 			current = eventData.current;
 		current.perspectiveScale = 1;
 		current.maxNestedDepth = 0;
-		var nestedSteps = $( eventData.jmpress )
-			.find( stepSelector )
-			.children( stepSelector );
+		var nestedSteps = $( eventData.jmpress ).find( stepSelector ).children( stepSelector );
 		while ( nestedSteps.length ) {
 			current.maxNestedDepth++;
 			nestedSteps = nestedSteps.children( stepSelector );
 		}
 	} );
-	$.jmpress( 'applyStep', function( step, eventData ) {
+	$.jmpress( 'applyStep', function ( step, eventData ) {
 		$.jmpress( 'css', $( step ), {
 			position: 'absolute',
 			transformStyle: 'preserve-3d',
@@ -1082,7 +1074,7 @@
 		];
 		engine.transform( step, transform );
 	} );
-	$.jmpress( 'setActive', function( element, eventData ) {
+	$.jmpress( 'setActive', function ( element, eventData ) {
 		var target = eventData.target;
 		var step = eventData.stepData;
 		var tf = ( target.transform = [] );
@@ -1107,7 +1099,7 @@
 		] );
 		target.perspectiveScale *= step.scaleX || step.scale;
 
-		$.each( eventData.parents, function( idx, element ) {
+		$.each( eventData.parents, function ( idx, element ) {
 			var step = $( element ).data( 'stepData' );
 			tf.push( [
 				'scale',
@@ -1125,7 +1117,7 @@
 			target.perspectiveScale *= step.scaleX || step.scale;
 		} );
 
-		$.each( tf, function( idx, item ) {
+		$.each( tf, function ( idx, item ) {
 			if ( item[ 0 ] !== 'rotate' ) {
 				return;
 			}
@@ -1156,7 +1148,7 @@
 			lowRotate( 3 );
 		} );
 	} );
-	$.jmpress( 'applyTarget', function( active, eventData ) {
+	$.jmpress( 'applyTarget', function ( active, eventData ) {
 		var target = eventData.target,
 			props,
 			step = eventData.stepData,
@@ -1166,7 +1158,7 @@
 
 		// extract first scale from transform
 		var lastScale = -1;
-		$.each( target.transform, function( idx, item ) {
+		$.each( target.transform, function ( idx, item ) {
 			if ( item.length <= 1 ) {
 				return;
 			}
@@ -1241,7 +1233,7 @@
  * active.js
  * Set the active classes on steps
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress;
 
@@ -1255,7 +1247,7 @@
 	defaults[ activeClass ] = 'active';
 
 	/* HOOKS */
-	$jmpress( 'setInactive', function( step, eventData ) {
+	$jmpress( 'setInactive', function ( step, eventData ) {
 		var settings = eventData.settings,
 			activeClassSetting = settings[ activeClass ],
 			nestedActiveClassSettings = settings[ nestedActiveClass ];
@@ -1263,12 +1255,12 @@
 			$( step ).removeClass( activeClassSetting );
 		}
 		if ( nestedActiveClassSettings ) {
-			$.each( eventData.parents, function( idx, element ) {
+			$.each( eventData.parents, function ( idx, element ) {
 				$( element ).removeClass( nestedActiveClassSettings );
 			} );
 		}
 	} );
-	$jmpress( 'setActive', function( step, eventData ) {
+	$jmpress( 'setActive', function ( step, eventData ) {
 		var settings = eventData.settings,
 			activeClassSetting = settings[ activeClass ],
 			nestedActiveClassSettings = settings[ nestedActiveClass ];
@@ -1276,7 +1268,7 @@
 			$( step ).addClass( activeClassSetting );
 		}
 		if ( nestedActiveClassSettings ) {
-			$.each( eventData.parents, function( idx, element ) {
+			$.each( eventData.parents, function ( idx, element ) {
 				$( element ).addClass( nestedActiveClassSettings );
 			} );
 		}
@@ -1286,15 +1278,13 @@
  * circular.js
  * Repeat from start after end
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress;
 
 	/* FUNCTIONS */
 	function firstSlide( step, eventData ) {
-		return $( this )
-			.find( eventData.settings.stepSelector )
-			.first();
+		return $( this ).find( eventData.settings.stepSelector ).first();
 	}
 	function prevOrNext( jmpress, step, eventData, prev ) {
 		if ( ! step ) {
@@ -1305,9 +1295,7 @@
 		do {
 			var item = step.near( stepSelector, prev );
 			if ( item.length === 0 || item.closest( jmpress ).length === 0 ) {
-				item = $( jmpress )
-					.find( stepSelector )
-					[ prev ? 'last' : 'first' ](); // eslint-disable-line no-unexpected-multiline
+				item = $( jmpress ).find( stepSelector )[ prev ? 'last' : 'first' ](); // eslint-disable-line no-unexpected-multiline
 			}
 			if ( ! item.length ) {
 				return false;
@@ -1318,21 +1306,19 @@
 	}
 
 	/* HOOKS */
-	$jmpress( 'initStep', function( step, eventData ) {
+	$jmpress( 'initStep', function ( step, eventData ) {
 		eventData.stepData.exclude =
 			eventData.data.exclude && [ 'false', 'no' ].indexOf( eventData.data.exclude ) === -1;
 	} );
 	$jmpress( 'selectInitialStep', firstSlide );
 	$jmpress( 'selectHome', firstSlide );
-	$jmpress( 'selectEnd', function( step, eventData ) {
-		return $( this )
-			.find( eventData.settings.stepSelector )
-			.last();
+	$jmpress( 'selectEnd', function ( step, eventData ) {
+		return $( this ).find( eventData.settings.stepSelector ).last();
 	} );
-	$jmpress( 'selectPrev', function( step, eventData ) {
+	$jmpress( 'selectPrev', function ( step, eventData ) {
 		return prevOrNext( this, step, eventData, true );
 	} );
-	$jmpress( 'selectNext', function( step, eventData ) {
+	$jmpress( 'selectNext', function ( step, eventData ) {
 		return prevOrNext( this, step, eventData );
 	} );
 } )( jQuery, document, window );
@@ -1340,11 +1326,11 @@
  * start.js
  * Set the first step to start on
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	/* HOOKS */
-	$.jmpress( 'selectInitialStep', function( nil, eventData ) {
+	$.jmpress( 'selectInitialStep', function ( nil, eventData ) {
 		return eventData.settings.start;
 	} );
 } )( jQuery, document, window );
@@ -1352,7 +1338,7 @@
  * ways.js
  * Control the flow of the steps
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress;
 
@@ -1383,7 +1369,7 @@
 	}
 
 	/* EXPORTED FUNCTIONS */
-	$jmpress( 'register', 'route', function( route, unidirectional, reversedRoute ) {
+	$jmpress( 'register', 'route', function ( route, unidirectional, reversedRoute ) {
 		if ( typeof route === 'string' ) {
 			route = [ route, route ];
 		}
@@ -1394,15 +1380,15 @@
 	} );
 
 	/* HOOKS */
-	$jmpress( 'initStep', function( step, eventData ) {
+	$jmpress( 'initStep', function ( step, eventData ) {
 		for ( var attr in { next: 1, prev: 1 } ) {
 			eventData.stepData[ attr ] = eventData.data[ attr ];
 		}
 	} );
-	$jmpress( 'selectNext', function( step, eventData ) {
+	$jmpress( 'selectNext', function ( step, eventData ) {
 		return selectPrevOrNext.call( this, step, eventData, 'next' );
 	} );
-	$jmpress( 'selectPrev', function( step, eventData ) {
+	$jmpress( 'selectPrev', function ( step, eventData ) {
 		return selectPrevOrNext.call( this, step, eventData, 'prev', true );
 	} );
 } )( jQuery, document, window );
@@ -1410,7 +1396,7 @@
  * ajax.js
  * Load steps via ajax
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress;
 
@@ -1426,18 +1412,18 @@
 	$jmpress( 'defaults' ).ajaxLoadedClass = 'loaded';
 
 	/* HOOKS */
-	$jmpress( 'initStep', function( step, eventData ) {
+	$jmpress( 'initStep', function ( step, eventData ) {
 		eventData.stepData.src = $( step ).attr( 'href' ) || eventData.data.src || false;
 		eventData.stepData.srcLoaded = false;
 	} );
-	$jmpress( loadStep, function( step, eventData ) {
+	$jmpress( loadStep, function ( step, eventData ) {
 		var stepData = eventData.stepData,
 			href = stepData && stepData.src,
 			settings = eventData.settings;
 		if ( href ) {
 			$( step ).addClass( settings.ajaxLoadedClass );
 			stepData.srcLoaded = true;
-			$( step ).load( href, function( response, status, xhr ) {
+			$( step ).load( href, function ( response, status, xhr ) {
 				$( eventData.jmpress ).jmpress(
 					'fire',
 					afterStepLoaded,
@@ -1451,7 +1437,7 @@
 			} );
 		}
 	} );
-	$jmpress( 'idle', function( step, eventData ) {
+	$jmpress( 'idle', function ( step, eventData ) {
 		if ( ! step ) {
 			return;
 		}
@@ -1471,7 +1457,7 @@
 					stepData: $( step ).data( 'stepData' ),
 				} )
 			);
-		siblings.each( function() {
+		siblings.each( function () {
 			var step = this,
 				stepData = $( step ).data( 'stepData' );
 			if ( ! stepData.src || stepData.srcLoaded ) {
@@ -1482,7 +1468,7 @@
 			} );
 		} );
 	} );
-	$jmpress( 'setActive', function( step, eventData ) {
+	$jmpress( 'setActive', function ( step, eventData ) {
 		var stepData = $( step ).data( 'stepData' );
 		if ( ! stepData.src || stepData.srcLoaded ) {
 			return;
@@ -1496,7 +1482,7 @@
  * hash.js
  * Detect and set the URL hash
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress,
 		hashLink = "a[href^='#']";
@@ -1545,7 +1531,7 @@
 	};
 
 	/* HOOKS */
-	$jmpress( 'selectInitialStep', function( step, eventData ) {
+	$jmpress( 'selectInitialStep', function ( step, eventData ) {
 		var settings = eventData.settings,
 			hashSettings = settings.hash,
 			current = eventData.current,
@@ -1554,7 +1540,7 @@
 		// HASH CHANGE EVENT
 		if ( hashSettings.use ) {
 			if ( hashSettings.bindChange ) {
-				$( window ).bind( 'hashchange' + current.hashNamespace, function( event ) {
+				$( window ).bind( 'hashchange' + current.hashNamespace, function ( event ) {
 					var urlItem = getElementFromUrl( settings );
 					if ( jmpress.jmpress( 'initialized' ) ) {
 						jmpress.jmpress( 'scrollFix' );
@@ -1567,7 +1553,7 @@
 					}
 					event.preventDefault();
 				} );
-				$( hashLink ).on( 'click' + current.hashNamespace, function( event ) {
+				$( hashLink ).on( 'click' + current.hashNamespace, function ( event ) {
 					var href = $( this ).attr( 'href' );
 					try {
 						if ( $( href ).is( settings.stepSelector ) ) {
@@ -1581,18 +1567,18 @@
 			return getElementFromUrl( settings );
 		}
 	} );
-	$jmpress( 'afterDeinit', function( nil, eventData ) {
+	$jmpress( 'afterDeinit', function ( nil, eventData ) {
 		$( hashLink ).off( eventData.current.hashNamespace );
 		$( window ).unbind( eventData.current.hashNamespace );
 	} );
-	$jmpress( 'setActive', function( step, eventData ) {
+	$jmpress( 'setActive', function ( step, eventData ) {
 		var settings = eventData.settings,
 			current = eventData.current;
 		// `#/step-id` is used instead of `#step-id` to prevent default browser
 		// scrolling to element in hash
 		if ( settings.hash.use && settings.hash.update ) {
 			clearTimeout( current.hashtimeout );
-			current.hashtimeout = setTimeout( function() {
+			current.hashtimeout = setTimeout( function () {
 				setHash( $( eventData.delegatedFrom ).attr( 'id' ) );
 			}, settings.transitionDuration + 200 );
 		}
@@ -1602,7 +1588,7 @@
  * keyboard.js
  * Keyboard event mapping and default keyboard actions
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress,
 		jmpressNext = 'next',
@@ -1659,7 +1645,7 @@
 	};
 
 	/* HOOKS */
-	$jmpress( 'afterInit', function( nil, eventData ) {
+	$jmpress( 'afterInit', function ( nil, eventData ) {
 		var settings = eventData.settings,
 			keyboardSettings = settings.keyboard,
 			ignoreKeyboardSettings = keyboardSettings.ignore,
@@ -1676,7 +1662,7 @@
 		// KEYPRESS EVENT: this fixes a Opera bug
 		$( settings.fullscreen ? document : jmpress ).bind(
 			'keypress' + current.keyboardNamespace,
-			function( event ) {
+			function ( event ) {
 				for ( var nodeName in ignoreKeyboardSettings ) {
 					if (
 						event.target.nodeName === nodeName &&
@@ -1693,7 +1679,7 @@
 		// KEYDOWN EVENT
 		$( settings.fullscreen ? document : jmpress ).bind(
 			'keydown' + current.keyboardNamespace,
-			function( event ) {
+			function ( event ) {
 				var eventTarget = $( event.target );
 
 				if (
@@ -1729,9 +1715,7 @@
 					} else {
 						nextFocus = eventTarget.near( keyboardSettings.tabSelector, event.shiftKey );
 						if (
-							! $( nextFocus )
-								.closest( settings.stepSelector )
-								.is( jmpress.jmpress( 'active' ) )
+							! $( nextFocus ).closest( settings.stepSelector ).is( jmpress.jmpress( 'active' ) )
 						) {
 							nextFocus = undefined;
 						}
@@ -1776,7 +1760,7 @@
 			}
 		);
 	} );
-	$jmpress( 'afterDeinit', function( nil, eventData ) {
+	$jmpress( 'afterDeinit', function ( nil, eventData ) {
 		$( document ).unbind( eventData.current.keyboardNamespace );
 	} );
 } )( jQuery, document, window );
@@ -1784,14 +1768,14 @@
  * viewport.js
  * Scale to fit a given viewport
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	function randomString() {
 		return '' + Math.round( Math.random() * 100000, 0 );
 	}
 
-	var browser = ( function() {
+	var browser = ( function () {
 		var ua = navigator.userAgent.toLowerCase();
 		var match =
 			/(chrome)[ \/]([\w.]+)/.exec( ua ) ||
@@ -1824,7 +1808,7 @@
 		transitionDuration: '0s',
 		transitionDelay: '0ms',
 	};
-	$.jmpress( 'initStep', function( step, eventData ) {
+	$.jmpress( 'initStep', function ( step, eventData ) {
 		for ( var variable in {
 			viewPortHeight: 1,
 			viewPortWidth: 1,
@@ -1836,10 +1820,10 @@
 				eventData.data[ variable ] && parseFloat( eventData.data[ variable ] );
 		}
 	} );
-	$.jmpress( 'afterInit', function( nil, eventData ) {
+	$.jmpress( 'afterInit', function ( nil, eventData ) {
 		var jmpress = this;
 		eventData.current.viewPortNamespace = '.jmpress-' + randomString();
-		$( window ).bind( 'resize' + eventData.current.viewPortNamespace, function( event ) {
+		$( window ).bind( 'resize' + eventData.current.viewPortNamespace, function ( event ) {
 			$( jmpress ).jmpress( 'reselect', 'resize' );
 		} );
 		eventData.current.userZoom = 0;
@@ -1851,7 +1835,7 @@
 					eventData.current.viewPortNamespace +
 					' DOMMouseScroll' +
 					eventData.current.viewPortNamespace,
-				function( event, delta ) {
+				function ( event, delta ) {
 					delta =
 						delta || event.originalEvent.wheelDelta || -event.originalEvent.detail /* mozilla */;
 					var direction = delta / Math.abs( delta );
@@ -1874,14 +1858,14 @@
 		}
 		if ( eventData.settings.viewPort.zoomBindMove ) {
 			$( eventData.settings.fullscreen ? document : this )
-				.bind( 'mousedown' + eventData.current.viewPortNamespace, function( event ) {
+				.bind( 'mousedown' + eventData.current.viewPortNamespace, function ( event ) {
 					if ( eventData.current.userZoom ) {
 						eventData.current.userTranslating = { x: event.clientX, y: event.clientY };
 						event.preventDefault();
 						event.stopImmediatePropagation();
 					}
 				} )
-				.bind( 'mousemove' + eventData.current.viewPortNamespace, function( event ) {
+				.bind( 'mousemove' + eventData.current.viewPortNamespace, function ( event ) {
 					var userTranslating = eventData.current.userTranslating;
 					if ( userTranslating ) {
 						$( jmpress ).jmpress(
@@ -1895,7 +1879,7 @@
 						event.stopImmediatePropagation();
 					}
 				} )
-				.bind( 'mouseup' + eventData.current.viewPortNamespace, function( event ) {
+				.bind( 'mouseup' + eventData.current.viewPortNamespace, function ( event ) {
 					if ( eventData.current.userTranslating ) {
 						eventData.current.userTranslating = undefined;
 						event.preventDefault();
@@ -1910,9 +1894,7 @@
 	function zoom( x, y, direction ) {
 		var current = $( this ).jmpress( 'current' ),
 			settings = $( this ).jmpress( 'settings' ),
-			stepData = $( this )
-				.jmpress( 'active' )
-				.data( 'stepData' ),
+			stepData = $( this ).jmpress( 'active' ).data( 'stepData' ),
 			container = $( this ).jmpress( 'container' );
 		if ( current.userZoom === 0 && direction < 0 ) {
 			return;
@@ -1941,18 +1923,16 @@
 
 		$( this ).jmpress( 'reselect', 'zoom' );
 	}
-	$.jmpress( 'register', 'zoomIn', function( x, y ) {
+	$.jmpress( 'register', 'zoomIn', function ( x, y ) {
 		zoom.call( this, x || 0, y || 0, 1 );
 	} );
-	$.jmpress( 'register', 'zoomOut', function( x, y ) {
+	$.jmpress( 'register', 'zoomOut', function ( x, y ) {
 		zoom.call( this, x || 0, y || 0, -1 );
 	} );
-	$.jmpress( 'register', 'zoomTranslate', function( x, y ) {
+	$.jmpress( 'register', 'zoomTranslate', function ( x, y ) {
 		var current = $( this ).jmpress( 'current' ),
 			settings = $( this ).jmpress( 'settings' ),
-			stepData = $( this )
-				.jmpress( 'active' )
-				.data( 'stepData' ),
+			stepData = $( this ).jmpress( 'active' ).data( 'stepData' ),
 			container = $( this ).jmpress( 'container' );
 		var zoomableSteps = stepData.viewPortZoomable || settings.viewPort.zoomable;
 		var halfWidth = $( container ).innerWidth(),
@@ -1967,13 +1947,13 @@
 		);
 		$( this ).jmpress( 'reselect', 'zoom' );
 	} );
-	$.jmpress( 'afterDeinit', function( nil, eventData ) {
+	$.jmpress( 'afterDeinit', function ( nil, eventData ) {
 		$( eventData.settings.fullscreen ? document : this ).unbind(
 			eventData.current.viewPortNamespace
 		);
 		$( window ).unbind( eventData.current.viewPortNamespace );
 	} );
-	$.jmpress( 'setActive', function( step, eventData ) {
+	$.jmpress( 'setActive', function ( step, eventData ) {
 		var viewPort = eventData.settings.viewPort;
 		var viewPortHeight = eventData.stepData.viewPortHeight || viewPort.height;
 		var viewPortWidth = eventData.stepData.viewPortWidth || viewPort.width;
@@ -2020,7 +2000,7 @@
 		}
 		eventData.current.zoomOriginWindowScale = windowScale;
 	} );
-	$.jmpress( 'setInactive', function( step, eventData ) {
+	$.jmpress( 'setInactive', function ( step, eventData ) {
 		if (
 			! eventData.nextStep ||
 			! step ||
@@ -2037,7 +2017,7 @@
  * mouse.js
  * Clicking to select a step
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress;
 
@@ -2052,13 +2032,13 @@
 	};
 
 	/* HOOKS */
-	$jmpress( 'afterInit', function( nil, eventData ) {
+	$jmpress( 'afterInit', function ( nil, eventData ) {
 		var settings = eventData.settings,
 			stepSelector = settings.stepSelector,
 			current = eventData.current,
 			jmpress = $( this );
 		current.clickableStepsNamespace = '.jmpress-' + randomString();
-		jmpress.bind( 'click' + current.clickableStepsNamespace, function( event ) {
+		jmpress.bind( 'click' + current.clickableStepsNamespace, function ( event ) {
 			if ( ! settings.mouse.clickSelects || current.userZoom ) {
 				return;
 			}
@@ -2079,7 +2059,7 @@
 			}
 		} );
 	} );
-	$jmpress( 'afterDeinit', function( nil, eventData ) {
+	$jmpress( 'afterDeinit', function ( nil, eventData ) {
 		$( this ).unbind( eventData.current.clickableStepsNamespace );
 	} );
 } )( jQuery, document, window );
@@ -2087,7 +2067,7 @@
  * mobile.js
  * Adds support for swipe on touch supported browsers
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress;
 
@@ -2097,7 +2077,7 @@
 	}
 
 	/* HOOKS */
-	$jmpress( 'afterInit', function( step, eventData ) {
+	$jmpress( 'afterInit', function ( step, eventData ) {
 		var settings = eventData.settings,
 			current = eventData.current,
 			jmpress = eventData.jmpress;
@@ -2105,16 +2085,16 @@
 		var data,
 			start = [ 0, 0 ];
 		$( settings.fullscreen ? document : jmpress )
-			.bind( 'touchstart' + current.mobileNamespace, function( event ) {
+			.bind( 'touchstart' + current.mobileNamespace, function ( event ) {
 				data = event.originalEvent.touches[ 0 ];
 				start = [ data.pageX, data.pageY ];
 			} )
-			.bind( 'touchmove' + current.mobileNamespace, function( event ) {
+			.bind( 'touchmove' + current.mobileNamespace, function ( event ) {
 				data = event.originalEvent.touches[ 0 ];
 				event.preventDefault();
 				return false;
 			} )
-			.bind( 'touchend' + current.mobileNamespace, function( event ) {
+			.bind( 'touchend' + current.mobileNamespace, function ( event ) {
 				var end = [ data.pageX, data.pageY ],
 					diff = [ end[ 0 ] - start[ 0 ], end[ 1 ] - start[ 1 ] ];
 
@@ -2126,7 +2106,7 @@
 				}
 			} );
 	} );
-	$jmpress( 'afterDeinit', function( nil, eventData ) {
+	$jmpress( 'afterDeinit', function ( nil, eventData ) {
 		var settings = eventData.settings,
 			current = eventData.current,
 			jmpress = eventData.jmpress;
@@ -2137,7 +2117,7 @@
  * templates.js
  * The amazing template engine
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress,
 		templateFromParentIdent = '_template_',
@@ -2165,7 +2145,7 @@
 			if ( templateChildren.length < children.length ) {
 				$.error( 'more nested steps than children in template' );
 			} else {
-				children.each( function( idx, child ) {
+				children.each( function ( idx, child ) {
 					child = $( child );
 					var tmpl = child.data( templateFromParentIdent ) || {};
 					addUndefined( tmpl, templateChildren[ idx ] );
@@ -2173,7 +2153,7 @@
 				} );
 			}
 		} else if ( $.isFunction( templateChildren ) ) {
-			children.each( function( idx, child ) {
+			children.each( function ( idx, child ) {
 				child = $( child );
 				var tmpl = child.data( templateFromParentIdent ) || {};
 				addUndefined( tmpl, templateChildren( idx, child, children ) );
@@ -2193,14 +2173,14 @@
 	}
 
 	/* HOOKS */
-	$jmpress( 'beforeInitStep', function( step, eventData ) {
+	$jmpress( 'beforeInitStep', function ( step, eventData ) {
 		step = $( step );
 		var data = eventData.data,
 			templateFromAttr = data.template,
 			templateFromApply = step.data( templateFromApplyIdent ),
 			templateFromParent = step.data( templateFromParentIdent );
 		if ( templateFromAttr ) {
-			$.each( templateFromAttr.split( ' ' ), function( idx, tmpl ) {
+			$.each( templateFromAttr.split( ' ' ), function ( idx, tmpl ) {
 				var template = templates[ tmpl ];
 				applyTemplate( data, step, template, eventData );
 			} );
@@ -2212,14 +2192,14 @@
 			applyTemplate( data, step, templateFromParent, eventData );
 			step.data( templateFromParentIdent, null );
 			if ( templateFromParent.template ) {
-				$.each( templateFromParent.template.split( ' ' ), function( idx, tmpl ) {
+				$.each( templateFromParent.template.split( ' ' ), function ( idx, tmpl ) {
 					var template = templates[ tmpl ];
 					applyTemplate( data, step, template, eventData );
 				} );
 			}
 		}
 	} );
-	$jmpress( 'beforeInit', function( nil, eventData ) {
+	$jmpress( 'beforeInit', function ( nil, eventData ) {
 		var data = $jmpress( 'dataset', this ),
 			dataTemplate = data.template,
 			stepSelector = eventData.settings.stepSelector;
@@ -2228,10 +2208,8 @@
 			applyChildrenTemplates(
 				$( this )
 					.find( stepSelector )
-					.filter( function() {
-						return ! $( this )
-							.parent()
-							.is( stepSelector );
+					.filter( function () {
+						return ! $( this ).parent().is( stepSelector );
 					} ),
 				template.children
 			);
@@ -2239,24 +2217,22 @@
 	} );
 
 	/* EXPORTED FUNCTIONS */
-	$jmpress( 'register', 'template', function( name, tmpl ) {
+	$jmpress( 'register', 'template', function ( name, tmpl ) {
 		if ( templates[ name ] ) {
 			templates[ name ] = $.extend( true, {}, templates[ name ], tmpl );
 		} else {
 			templates[ name ] = $.extend( true, {}, tmpl );
 		}
 	} );
-	$jmpress( 'register', 'apply', function( selector, tmpl ) {
+	$jmpress( 'register', 'apply', function ( selector, tmpl ) {
 		if ( ! tmpl ) {
 			// TODO ERROR because settings not found
 			var stepSelector = $( this ).jmpress( 'settings' ).stepSelector;
 			applyChildrenTemplates(
 				$( this )
 					.find( stepSelector )
-					.filter( function() {
-						return ! $( this )
-							.parent()
-							.is( stepSelector );
+					.filter( function () {
+						return ! $( this ).parent().is( stepSelector );
 					} ),
 				selector
 			);
@@ -2269,7 +2245,7 @@
 			} else {
 				template = $.extend( true, {}, tmpl );
 			}
-			$( selector ).each( function( idx, element ) {
+			$( selector ).each( function ( idx, element ) {
 				element = $( element );
 				var tmpl = element.data( templateFromApplyIdent ) || {};
 				addUndefined( tmpl, template );
@@ -2282,18 +2258,18 @@
  * jqevents.js
  * Fires jQuery events
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	/* HOOKS */
 	// the events should not bubble up the tree
 	// elsewise nested jmpress would cause buggy behavior
-	$.jmpress( 'setActive', function( step, eventData ) {
+	$.jmpress( 'setActive', function ( step, eventData ) {
 		if ( eventData.prevStep !== step ) {
 			$( step ).triggerHandler( 'enterStep' );
 		}
 	} );
-	$.jmpress( 'setInactive', function( step, eventData ) {
+	$.jmpress( 'setInactive', function ( step, eventData ) {
 		if ( eventData.nextStep !== step ) {
 			$( step ).triggerHandler( 'leaveStep' );
 		}
@@ -2303,7 +2279,7 @@
  * animation.js
  * Apply custom animations to steps
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	function parseSubstepInfo( str ) {
@@ -2354,35 +2330,31 @@
 		}
 	}
 	function addOn( list, substep, delay ) {
-		$.each( substep._on, function( idx, child ) {
+		$.each( substep._on, function ( idx, child ) {
 			list.push( { substep: child.substep, delay: child.delay + delay } );
 			addOn( list, child.substep, child.delay + delay );
 		} );
 	}
 	$.jmpress( 'defaults' ).customAnimationDataAttribute = 'jmpress';
-	$.jmpress( 'afterInit', function( nil, eventData ) {
+	$.jmpress( 'afterInit', function ( nil, eventData ) {
 		eventData.current.animationTimeouts = [];
 		eventData.current.animationCleanupWaiting = [];
 	} );
-	$.jmpress( 'applyStep', function( step, eventData ) {
+	$.jmpress( 'applyStep', function ( step, eventData ) {
 		// read custom animation from elements
 		var substepsData = {};
 		var listOfSubsteps = [];
 		$( step )
 			.find( '[data-' + eventData.settings.customAnimationDataAttribute + ']' )
-			.each( function( idx, element ) {
-				if (
-					$( element )
-						.closest( eventData.settings.stepSelector )
-						.is( step )
-				) {
+			.each( function ( idx, element ) {
+				if ( $( element ).closest( eventData.settings.stepSelector ).is( step ) ) {
 					listOfSubsteps.push( { element: element } );
 				}
 			} );
 		if ( listOfSubsteps.length === 0 ) {
 			return;
 		}
-		$.each( listOfSubsteps, function( idx, substep ) {
+		$.each( listOfSubsteps, function ( idx, substep ) {
 			substep.info = parseSubstepInfo(
 				$( substep.element ).data( eventData.settings.customAnimationDataAttribute )
 			);
@@ -2391,7 +2363,7 @@
 			substep._after = null;
 		} );
 		var current = { _after: undefined, _on: [], info: {} }; // virtual zero step
-		$.each( listOfSubsteps, function( idx, substep ) {
+		$.each( listOfSubsteps, function ( idx, substep ) {
 			var other = substep.info.after;
 			if ( other ) {
 				if ( other === 'step' ) {
@@ -2443,11 +2415,11 @@
 		substepsData.list = substepsInOrder;
 		$( step ).data( 'substepsData', substepsData );
 	} );
-	$.jmpress( 'unapplyStep', function( step, eventData ) {
+	$.jmpress( 'unapplyStep', function ( step, eventData ) {
 		var substepsData = $( step ).data( 'substepsData' );
 		if ( substepsData ) {
-			$.each( substepsData.list, function( idx, activeSubsteps ) {
-				$.each( activeSubsteps, function( idx, substep ) {
+			$.each( substepsData.list, function ( idx, activeSubsteps ) {
+				$.each( activeSubsteps, function ( idx, substep ) {
 					if ( substep.substep.info.willClass ) {
 						$( substep.substep.element ).removeClass( substep.substep.info.willClass );
 					}
@@ -2461,7 +2433,7 @@
 			} );
 		}
 	} );
-	$.jmpress( 'setActive', function( step, eventData ) {
+	$.jmpress( 'setActive', function ( step, eventData ) {
 		var substepsData = $( step ).data( 'substepsData' );
 		if ( ! substepsData ) {
 			return;
@@ -2470,14 +2442,14 @@
 			eventData.substep = eventData.reason === 'prev' ? substepsData.list.length - 1 : 0;
 		}
 		var substep = eventData.substep;
-		$.each( eventData.current.animationTimeouts, function( idx, timeout ) {
+		$.each( eventData.current.animationTimeouts, function ( idx, timeout ) {
 			clearTimeout( timeout );
 		} );
 		eventData.current.animationTimeouts = [];
-		$.each( substepsData.list, function( idx, activeSubsteps ) {
+		$.each( substepsData.list, function ( idx, activeSubsteps ) {
 			var applyHas = idx < substep;
 			var applyDo = idx <= substep;
-			$.each( activeSubsteps, function( idx, substep ) {
+			$.each( activeSubsteps, function ( idx, substep ) {
 				if ( substep.substep.info.hasClass ) {
 					$( substep.substep.element )[ ( applyHas ? 'add' : 'remove' ) + 'Class' ](
 						substep.substep.info.hasClass
@@ -2501,13 +2473,13 @@
 			} );
 		} );
 	} );
-	$.jmpress( 'setInactive', function( step, eventData ) {
+	$.jmpress( 'setInactive', function ( step, eventData ) {
 		if ( eventData.nextStep === step ) {
 			return;
 		}
 		function cleanupAnimation( substepsData ) {
-			$.each( substepsData.list, function( idx, activeSubsteps ) {
-				$.each( activeSubsteps, function( idx, substep ) {
+			$.each( substepsData.list, function ( idx, activeSubsteps ) {
+				$.each( activeSubsteps, function ( idx, substep ) {
 					if ( substep.substep.info.hasClass ) {
 						$( substep.substep.element ).removeClass( substep.substep.info.hasClass );
 					}
@@ -2517,7 +2489,7 @@
 				} );
 			} );
 		}
-		$.each( eventData.current.animationCleanupWaiting, function( idx, item ) {
+		$.each( eventData.current.animationCleanupWaiting, function ( idx, item ) {
 			cleanupAnimation( item );
 		} );
 		eventData.current.animationCleanupWaiting = [];
@@ -2526,7 +2498,7 @@
 			eventData.current.animationCleanupWaiting.push( substepsData );
 		}
 	} );
-	$.jmpress( 'selectNext', function( step, eventData ) {
+	$.jmpress( 'selectNext', function ( step, eventData ) {
 		if ( eventData.substep === undefined ) {
 			return;
 		}
@@ -2538,7 +2510,7 @@
 			return { step: step, substep: eventData.substep + 1 };
 		}
 	} );
-	$.jmpress( 'selectPrev', function( step, eventData ) {
+	$.jmpress( 'selectPrev', function ( step, eventData ) {
 		if ( eventData.substep === undefined ) {
 			return;
 		}
@@ -2561,11 +2533,11 @@
  * Copyright 2013 Kyle Robinson Young @shama & Tobias Koppers @sokra
  * Licensed MIT
  * http://www.opensource.org/licenses/mit-license.php
- */ ( function( $, document, window, undefined ) {
+ */ ( function ( $, document, window, undefined ) {
 	'use strict';
-	$.jmpress( 'register', 'toggle', function( key, config, initial ) {
+	$.jmpress( 'register', 'toggle', function ( key, config, initial ) {
 		var jmpress = this;
-		$( document ).bind( 'keydown', function( event ) {
+		$( document ).bind( 'keydown', function ( event ) {
 			if ( event.keyCode === key ) {
 				if ( $( jmpress ).jmpress( 'initialized' ) ) {
 					$( jmpress ).jmpress( 'deinit' );
@@ -2584,9 +2556,9 @@
  * jmpress.secondary plugin
  * Apply a secondary animation when step is selected.
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
-	$.jmpress( 'initStep', function( step, eventData ) {
+	$.jmpress( 'initStep', function ( step, eventData ) {
 		for ( var name in eventData.data ) {
 			if ( name.indexOf( 'secondary' ) === 0 ) {
 				eventData.stepData[ name ] = eventData.data[ name ];
@@ -2610,12 +2582,12 @@
 			$( this ).jmpress( 'reapply', $( step ) );
 		}
 	}
-	$.jmpress( 'beforeActive', function( step, eventData ) {
+	$.jmpress( 'beforeActive', function ( step, eventData ) {
 		exchangeIf.call( eventData.jmpress, $( step ).data( 'stepData' ), 'self', step );
 		var parent = $( step ).parent();
 		$( parent )
 			.children( eventData.settings.stepSelector )
-			.each( function( idx, child ) {
+			.each( function ( idx, child ) {
 				var childStepData = $( child ).data( 'stepData' );
 				exchangeIf.call( eventData.jmpress, childStepData, 'siblings', child );
 			} );
@@ -2624,17 +2596,15 @@
 			exchangeIf.call( eventData.jmpress, childStepData, 'grandchildren', child );
 		}
 		for ( var i = 1; i < eventData.parents.length; i++ ) {
-			$( eventData.parents[ i ] )
-				.children( eventData.settings.stepSelector )
-				.each();
+			$( eventData.parents[ i ] ).children( eventData.settings.stepSelector ).each();
 		}
 	} );
-	$.jmpress( 'setInactive', function( step, eventData ) {
+	$.jmpress( 'setInactive', function ( step, eventData ) {
 		exchangeIf.call( eventData.jmpress, $( step ).data( 'stepData' ), 'self', step );
 		var parent = $( step ).parent();
 		$( parent )
 			.children( eventData.settings.stepSelector )
-			.each( function( idx, child ) {
+			.each( function ( idx, child ) {
 				var childStepData = $( child ).data( 'stepData' );
 				exchangeIf.call( eventData.jmpress, childStepData, 'siblings', child );
 			} );
@@ -2655,7 +2625,7 @@
  * For auto advancing steps after a given duration and optionally displaying a
  * progress bar.
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 
 	$.jmpress( 'defaults' ).duration = {
@@ -2666,12 +2636,12 @@
 		barPropertyStart: '0',
 		barPropertyEnd: '100%',
 	};
-	$.jmpress( 'initStep', function( step, eventData ) {
+	$.jmpress( 'initStep', function ( step, eventData ) {
 		eventData.stepData.duration =
 			eventData.data.duration && parseInt( eventData.data.duration, 10 );
 		eventData.stepData.durationAction = eventData.data.durationAction;
 	} );
-	$.jmpress( 'setInactive', function( step, eventData ) {
+	$.jmpress( 'setInactive', function ( step, eventData ) {
 		var settings = eventData.settings,
 			durationSettings = settings.duration,
 			current = eventData.current;
@@ -2687,7 +2657,7 @@
 				css[ durationSettings.barProperty ] = durationSettings.barPropertyStart;
 				var bars = $( durationSettings.barSelector );
 				$.jmpress( 'css', bars, css );
-				bars.each( function( idx, element ) {
+				bars.each( function ( idx, element ) {
 					var next = $( element ).next();
 					var parent = $( element ).parent();
 					$( element ).detach();
@@ -2702,7 +2672,7 @@
 			delete current.durationTimeout;
 		}
 	} );
-	$.jmpress( 'setActive', function( step, eventData ) {
+	$.jmpress( 'setActive', function ( step, eventData ) {
 		var settings = eventData.settings,
 			durationSettings = settings.duration,
 			current = eventData.current;
@@ -2723,7 +2693,7 @@
 				clearTimeout( current.durationTimeout );
 				current.durationTimeout = undefined;
 			}
-			current.durationTimeout = setTimeout( function() {
+			current.durationTimeout = setTimeout( function () {
 				var action = eventData.stepData.durationAction || durationSettings.defaultAction;
 				$( jmpress ).jmpress( action );
 			}, dur );
@@ -2736,7 +2706,7 @@
  * Display a window for the presenter with notes and a control and view of the
  * presentation
  */
-( function( $, document, window, undefined ) {
+( function ( $, document, window, undefined ) {
 	'use strict';
 	var $jmpress = $.jmpress;
 
@@ -2757,13 +2727,13 @@
 	$jmpress( 'defaults' ).keyboard.keys[ 80 ] = 'presentationPopup'; // p key
 
 	/* HOOKS */
-	$jmpress( 'afterInit', function( nil, eventData ) {
+	$jmpress( 'afterInit', function ( nil, eventData ) {
 		var current = eventData.current;
 
 		current.selectMessageListeners = [];
 
 		if ( eventData.settings.presentationMode.use ) {
-			window.addEventListener( 'message', function( event ) {
+			window.addEventListener( 'message', function ( event ) {
 				// We do not test orgin, because we want to accept messages
 				// from all orgins
 				try {
@@ -2773,7 +2743,10 @@
 					var json = JSON.parse( event.data.slice( PREFIX.length ) );
 					switch ( json.type ) {
 						case 'select':
-							$.each( eventData.settings.presentationMode.transferredValues, function( idx, name ) {
+							$.each( eventData.settings.presentationMode.transferredValues, function (
+								idx,
+								name
+							) {
 								eventData.current[ name ] = json[ name ];
 							} );
 							if (
@@ -2834,7 +2807,7 @@
 			}
 		}
 	} );
-	$jmpress( 'afterDeinit', function( nil, eventData ) {
+	$jmpress( 'afterDeinit', function ( nil, eventData ) {
 		if ( eventData.settings.presentationMode.use ) {
 			try {
 				if ( window.parent && window.parent !== window ) {
@@ -2851,11 +2824,11 @@
 			}
 		}
 	} );
-	$jmpress( 'setActive', function( step, eventData ) {
+	$jmpress( 'setActive', function ( step, eventData ) {
 		var stepId = $( eventData.delegatedFrom ).attr( 'id' ),
 			substep = eventData.substep,
 			reason = eventData.reason;
-		$.each( eventData.current.selectMessageListeners, function( idx, listener ) {
+		$.each( eventData.current.selectMessageListeners, function ( idx, listener ) {
 			try {
 				var msg = {
 					type: 'select',
@@ -2863,7 +2836,7 @@
 					substep: substep,
 					reason: reason,
 				};
-				$.each( eventData.settings.presentationMode.transferredValues, function( idx, name ) {
+				$.each( eventData.settings.presentationMode.transferredValues, function ( idx, name ) {
 					msg[ name ] = eventData.current[ name ];
 				} );
 				listener.postMessage( PREFIX + JSON.stringify( msg ), '*' );
@@ -2872,7 +2845,7 @@
 			}
 		} );
 	} );
-	$jmpress( 'register', 'presentationPopup', function() {
+	$jmpress( 'register', 'presentationPopup', function () {
 		function trySend() {
 			jmpress.jmpress( 'current' ).presentationPopupTimeout = setTimeout( trySend, 100 );
 			try {

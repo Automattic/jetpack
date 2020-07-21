@@ -1,6 +1,6 @@
 /* global idcL10n, jQuery, analytics, history, wpCookies */
 
-( function( $ ) {
+( function ( $ ) {
 	var restNonce = idcL10n.nonce,
 		currentUrl = idcL10n.currentUrl,
 		restRoot = idcL10n.apiRoot,
@@ -29,13 +29,13 @@
 	clearConfirmationArgsFromUrl();
 
 	// If the user dismisses the notice, set a cookie for one week so we don't display it for that time.
-	notice.on( 'click', '.notice-dismiss', function() {
+	notice.on( 'click', '.notice-dismiss', function () {
 		var secure = 'https:' === window.location.protocol;
 		wpCookies.set( 'jetpack_idc_dismiss_notice', '1', 7 * 24 * 60 * 60, false, false, secure );
 		trackAndBumpMCStats( 'non_admin_notice_dismiss', { page: tracksEvent.currentScreen } );
 	} );
 
-	notice.on( 'click', '#jp-idc-error__action', function() {
+	notice.on( 'click', '#jp-idc-error__action', function () {
 		errorNotice.hide();
 		switch ( erroredAction ) {
 			case 'confirm':
@@ -103,12 +103,12 @@
 		disableDopsButtons();
 		$.ajax( {
 			method: 'POST',
-			beforeSend: function( xhr ) {
+			beforeSend: function ( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
 			},
 			url: route,
 			data: {},
-			success: function() {
+			success: function () {
 				notice.hide();
 				adminBarMenu.removeClass( 'hide' );
 
@@ -117,7 +117,7 @@
 					window.location.reload();
 				}
 			},
-			error: function( error ) {
+			error: function ( error ) {
 				erroredAction = 'confirm';
 				displayErrorNotice( error );
 				enableDopsButtons();
@@ -133,12 +133,12 @@
 		disableDopsButtons();
 		$.ajax( {
 			method: 'POST',
-			beforeSend: function( xhr ) {
+			beforeSend: function ( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
 			},
 			url: route,
 			data: {},
-			success: function() {
+			success: function () {
 				notice.hide();
 				if ( $( 'body' ).hasClass( 'toplevel_page_jetpack' ) ) {
 					// On the main Jetpack page, sites in IDC will not see Jetpack's interface.
@@ -146,7 +146,7 @@
 					window.location.reload( true );
 				}
 			},
-			error: function( error ) {
+			error: function ( error ) {
 				erroredAction = 'migrate';
 				displayErrorNotice( error );
 				enableDopsButtons();
@@ -172,16 +172,16 @@
 		disableDopsButtons();
 		$.ajax( {
 			method: 'POST',
-			beforeSend: function( xhr ) {
+			beforeSend: function ( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
 			},
 			url: route,
 			data: {},
-			success: function( connectUrl ) {
+			success: function ( connectUrl ) {
 				// Add a from param and take them to connect.
 				window.location = connectUrl + '&from=idc-notice';
 			},
-			error: function( error ) {
+			error: function ( error ) {
 				erroredAction = 'start-fresh';
 				displayErrorNotice( error );
 				enableDopsButtons();

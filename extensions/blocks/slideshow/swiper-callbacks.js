@@ -14,7 +14,7 @@ function swiperInit( swiper ) {
 	swiperApplyAria( swiper );
 	swiper.el
 		.querySelector( '.wp-block-jetpack-slideshow_button-pause' )
-		.addEventListener( 'click', function() {
+		.addEventListener( 'click', function () {
 			// Handle destroyed Swiper instances
 			if ( ! swiper.el ) {
 				return;

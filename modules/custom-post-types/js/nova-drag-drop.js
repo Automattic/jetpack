@@ -1,6 +1,6 @@
 /* global _novaDragDrop */
 
-( function( $ ) {
+( function ( $ ) {
 	var list;
 
 	function init() {
@@ -14,7 +14,7 @@
 	function dragMenus() {
 		list.sortable( {
 			cancel: '.no-items',
-			stop: function( event, ui ) {
+			stop: function ( event, ui ) {
 				if ( ui.item.is( ':first-child' ) ) {
 					return list.sortable( 'cancel' );
 				}
@@ -25,11 +25,11 @@
 	}
 
 	function reOrder() {
-		list.find( '.menu-label-row' ).each( function() {
+		list.find( '.menu-label-row' ).each( function () {
 			var term_id = $( this ).data( 'term_id' );
 			$( this )
 				.nextUntil( '.menu-label-row' )
-				.each( function( i ) {
+				.each( function ( i ) {
 					var row = $( this );
 					row.find( '.menu-order-value' ).val( i );
 					row.find( '.nova-menu-term' ).val( term_id );

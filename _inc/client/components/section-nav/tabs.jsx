@@ -53,7 +53,7 @@ class NavTabs extends React.Component {
 	}
 
 	render() {
-		const tabs = React.Children.map( this.props.children, function( child, index ) {
+		const tabs = React.Children.map( this.props.children, function ( child, index ) {
 			return child && React.cloneElement( child, { ref: 'tab-' + index } );
 		} );
 
@@ -87,7 +87,7 @@ class NavTabs extends React.Component {
 
 		React.Children.forEach(
 			this.props.children,
-			function( child, index ) {
+			function ( child, index ) {
 				if ( ! child ) {
 					return;
 				}
@@ -100,7 +100,7 @@ class NavTabs extends React.Component {
 	};
 
 	getDropdown = () => {
-		const dropdownOptions = React.Children.map( this.props.children, function( child, index ) {
+		const dropdownOptions = React.Children.map( this.props.children, function ( child, index ) {
 			if ( ! child ) {
 				return null;
 			}

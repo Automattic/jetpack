@@ -1,4 +1,4 @@
-( function() {
+( function () {
 	var cookieValue = document.cookie.replace(
 			/(?:(?:^|.*;\s*)eucookielaw\s*\=\s*([^;]*).*$)|^.*$/,
 			'$1'
@@ -14,7 +14,7 @@
 	 *
 	 * @return int The distance from the top of the document.
 	 */
-	getScrollTop = function() {
+	getScrollTop = function () {
 		return Math.abs( document.body.getBoundingClientRect().y );
 	};
 
@@ -39,7 +39,7 @@
 
 	if ( overlay.classList.contains( 'hide-on-scroll' ) ) {
 		initialScrollPosition = getScrollTop();
-		scrollFunction = function() {
+		scrollFunction = function () {
 			if ( Math.abs( getScrollTop() - initialScrollPosition ) > 50 ) {
 				accept();
 			}
@@ -83,7 +83,7 @@
 		}
 
 		overlay.classList.add( 'hide' );
-		setTimeout( function() {
+		setTimeout( function () {
 			overlay.parentNode.removeChild( overlay );
 			var widgetSection = document.querySelector( '.widget.widget_eu_cookie_law_widget' );
 			widgetSection.parentNode.removeChild( widgetSection );

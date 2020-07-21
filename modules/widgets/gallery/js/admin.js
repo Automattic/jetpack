@@ -1,11 +1,11 @@
 /* global _wpMediaViewsL10n, _wpGalleryWidgetAdminSettings */
 
-( function( $ ) {
+( function ( $ ) {
 	var $ids;
 	var $thumbs;
 
-	$( function() {
-		$( document.body ).on( 'click', '.gallery-widget-choose-images', function( event ) {
+	$( function () {
+		$( document.body ).on( 'click', '.gallery-widget-choose-images', function ( event ) {
 			event.preventDefault();
 
 			var widget_form = $( this ).closest( 'form, .form' );
@@ -63,7 +63,7 @@
 	 * which is necessary to disable the sidebar gallery settings in the media browser)
 	 */
 	media.view.MediaFrame.GalleryWidget = media.view.MediaFrame.Post.extend( {
-		createStates: function() {
+		createStates: function () {
 			var options = this.options;
 
 			// `CollectionEdit` and `CollectionAdd` were only introduced in r27214-core,
@@ -91,7 +91,7 @@
 				if ( ! ( 'WidgetGalleryEdit' in media.controller ) ) {
 					// Remove the gallery settings sidebar when editing widgets.
 					media.controller.WidgetGalleryEdit = media.controller.GalleryEdit.extend( {
-						gallerySettings: function(/*browser*/) {
+						gallerySettings: function (/*browser*/) {
 							return;
 						},
 					} );
@@ -110,7 +110,7 @@
 	} );
 
 	function setupStyleOptions() {
-		$( '.widget-inside .gallery-widget-style' ).each( function(/*i*/) {
+		$( '.widget-inside .gallery-widget-style' ).each( function (/*i*/) {
 			var style = $( this ).val();
 
 			var form = $( this ).parents( 'form' );
@@ -138,7 +138,7 @@
 
 		var imageSize = _wpGalleryWidgetAdminSettings.thumbSize;
 
-		selection.each( function( model ) {
+		selection.each( function ( model ) {
 			var sizedUrl = model.get( 'url' ) + '?w=' + imageSize + '&h=' + imageSize + '&crop=true';
 
 			var thumb = jQuery( '<img>', {
@@ -187,7 +187,7 @@
 
 		// Fetch the query's attachments, and then break ties from the
 		// query to allow for sorting.
-		selection.more().done( function() {
+		selection.more().done( function () {
 			// Break ties with the query.
 			selection.props.set( { query: false } );
 			selection.unmirror();
@@ -205,7 +205,7 @@
 
 		workflow.on(
 			'update',
-			function( selection ) {
+			function ( selection ) {
 				var state = workflow.state();
 
 				selection = selection || state.get( 'selection' );
@@ -215,7 +215,7 @@
 				}
 
 				// Map the Models down into a simple array of ids that can be easily imploded to a csv string
-				var ids = selection.map( function( model ) {
+				var ids = selection.map( function ( model ) {
 					return model.get( 'id' );
 				} );
 

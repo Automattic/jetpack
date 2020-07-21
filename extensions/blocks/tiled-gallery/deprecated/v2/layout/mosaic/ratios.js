@@ -233,7 +233,7 @@ function isThreeValidCandidate( processed, toProcess, isWide ) {
 			( ratio < 5 &&
 				/* nextAreSymettric */
 				toProcess.length >= 3 &&
-					/* @FIXME floating point equality?? */ toProcess[ 0 ] === toProcess[ 2 ] ) ||
+				/* @FIXME floating point equality?? */ toProcess[ 0 ] === toProcess[ 2 ] ) ||
 			isWide )
 	);
 }

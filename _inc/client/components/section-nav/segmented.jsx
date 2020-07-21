@@ -54,7 +54,7 @@ class NavSegmented extends React.Component {
 	getControlItems = () => {
 		return React.Children.map(
 			this.props.children,
-			function( child, index ) {
+			function ( child, index ) {
 				return (
 					<ControlItem { ...child.props } key={ 'navSegmented-' + this.id + '-' + index }>
 						{ child.props.children }
