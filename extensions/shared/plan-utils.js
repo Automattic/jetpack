@@ -19,7 +19,7 @@ import getSiteFragment from './get-site-fragment';
  * Blocks list that require a paid plan.
  */
 export const PAID_BLOCKS_LIST = [
-	'core/cover',
+	// 'core/cover',
 	'core/video',
 ];
 
