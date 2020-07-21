@@ -10,27 +10,7 @@
 	"require": {
 		"ext-fileinfo": "*",
 		"ext-json": "*",
-		"ext-openssl": "*",
-		"automattic/jetpack-abtest": "@dev",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-backup": "@dev",
-		"automattic/jetpack-compat": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-device-detection": "@dev",
-		"automattic/jetpack-error": "@dev",
-		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-partner": "@dev",
-		"automattic/jetpack-redirect": "@dev",
-		"automattic/jetpack-roles": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-terms-of-service": "@dev",
-		"automattic/jetpack-tracking": "@dev"
+		"ext-openssl": "*"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",

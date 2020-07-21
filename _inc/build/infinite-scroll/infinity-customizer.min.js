@@ -1,0 +1,3 @@
+/* Do not modify this file directly. It is compiled from other files. */
+/* globals wp */
+!function(e){e(document).ready(function(){"undefined"!=typeof wp&&wp.customize&&wp.customize.selectiveRefresh&&(wp.customize.selectiveRefresh.bind("partial-content-rendered",function(t){var n;"string"==typeof t.addedContent?n=t.addedContent:t.container&&(n=e(t.container).html()),n&&e(document.body).trigger("post-load",{html:n})}),"undefined"==typeof MutationObserver&&e(document.body).on("post-load",function(t,n){var i=null;n.html&&-1!==n.html.indexOf("data-customize-partial")&&(window.infiniteScroll.settings.id&&(i=e("#"+window.infiniteScroll.settings.id)),wp.customize.selectiveRefresh.addPartials(i))}))})}(jQuery);
