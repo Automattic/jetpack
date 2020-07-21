@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { html } from 'htm/preact';
+import { useCallback } from 'preact/hooks';
 
 export const ProgressBar = ( {
 	slides,
@@ -11,10 +12,6 @@ export const ProgressBar = ( {
 	currentSlideProgress,
 	onSlideSeek,
 } ) => {
-	if ( settings.playInFullscreen && ! fullscreen ) {
-		return null;
-	}
-
 	return html`
 		<div class="wp-story-pagination wp-story-pagination-bullets">
 			${slides.map( ( slide, index ) => {
@@ -26,10 +23,16 @@ export const ProgressBar = ( {
 				} else {
 					progress = currentSlideProgress;
 				}
+				const onClick = () => {
+					if ( ! fullscreen ) {
+						return null;
+					}
+					onSlideSeek( index );
+				};
 				return settings.renderers.renderBullet( html, {
 					index,
 					progress,
-					onClick: () => onSlideSeek( index ),
+					onClick,
 				} );
 			} )}
 		</div>
