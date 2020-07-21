@@ -11,7 +11,6 @@ import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 
 const availableBlockTags = {
-	paid: _x( 'paid', 'Short label appearing near a block requiring a paid plan', 'jetpack' ),
 	beta: __( 'beta', 'jetpack' ),
 };
 
@@ -35,15 +34,11 @@ function requiresPaidPlan( unavailableReason, details ) {
  * Builds an array of tags associated with this block, such as ["paid", "beta"].
  *
  * @param {string} name - The block's name.
- * @param {string|boolean} requiredPlan -  Does this block require a paid plan?
  * @returns {Array} Array of tags associated with this block
  */
-function buildBlockTags( name, requiredPlan ) {
+function buildBlockTags( name ) {
 	const blockTags = [];
 
-	if ( requiredPlan ) {
-		blockTags.push( availableBlockTags.paid );
-	}
 	if ( betaExtensions.includes( name ) ) {
 		blockTags.push( availableBlockTags.beta );
 	}
@@ -91,7 +86,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
-		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
+		title: buildBlockTitle( settings.title, buildBlockTags( name ) ),
 		example: requiredPlan ? undefined : settings.example,
 	} );
 
