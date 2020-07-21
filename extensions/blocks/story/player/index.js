@@ -160,15 +160,12 @@ function parseSlides( slidesWrapper ) {
 
 function parseMeta( metaWrapper ) {
 	const siteIconElement = metaWrapper.querySelector( 'div:first-child > img' );
-	const siteNameElement = metaWrapper.querySelector( '.wp-story-site-name' );
-	const siteDescriptionElement = metaWrapper.querySelector( '.wp-story-site-description' );
+	const storyTitleElement = metaWrapper.querySelector( '.wp-story-title' );
 	const siteIconUrl = siteIconElement && siteIconElement.src;
-	const siteName = siteNameElement && siteNameElement.innerText;
-	const siteDescription = siteDescriptionElement && siteDescriptionElement.innerText;
+	const storyTitle = storyTitleElement && storyTitleElement.innerText;
 
 	return {
-		siteDescription,
+		storyTitle,
 		siteIconUrl,
-		siteName,
 	};
 }
