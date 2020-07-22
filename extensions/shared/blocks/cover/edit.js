@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { InspectorControls } from '@wordpress/editor';
@@ -43,8 +48,12 @@ export default createHigherOrderComponent(
 				</InspectorControls>
 
 				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
-					<UpgradePlanBanner blockName={ props.name } visible={ isVisible } />
-					<BlockEdit { ...props } />
+					<UpgradePlanBanner className="is-core-cover-premium-block" blockName={ props.name } visible={ isVisible } />
+					<div className={ classNames( 'wp-block-cover__wrapper', {
+						'has-warning is-interactive is-upgradable': isVisible,
+					} ) }>
+						<BlockEdit { ...props } />
+					</div>
 				</CoverMediaProvider>
 			</Fragment>
 		);
