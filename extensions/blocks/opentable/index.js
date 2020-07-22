@@ -10,7 +10,7 @@ import { createBlock } from '@wordpress/blocks';
 import { defaultAttributes } from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
-import icon from './icon';
+import OpenTableIcon from './icon';
 
 /**
  * Style dependencies
@@ -25,7 +25,7 @@ import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
-	icon,
+	icon: <OpenTableIcon />,
 	category: 'earn',
 	keywords: [
 		_x( 'booking', 'block search term', 'jetpack' ),
