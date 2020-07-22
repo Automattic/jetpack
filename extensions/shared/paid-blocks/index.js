@@ -14,7 +14,6 @@ import { __ } from '@wordpress/i18n';
 import withCustomClassNames from '../with-custom-class-names';
 import jetpackPaidBlockEdit from './paid-block-edit';
 import { isUpgradable } from '../plan-utils';
-import { PremiumIcon } from './components';
 
 import './editor.scss';
 
