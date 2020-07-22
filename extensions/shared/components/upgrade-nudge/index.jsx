@@ -27,10 +27,8 @@ const getTitle = ( customTitle, planName ) => {
 	return planName
 		? sprintf(
 				/* translators: Placeholder is the plan name, such as Jetpack Premium. */
-				__( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ),
-				{
-					planName,
-				}
+				__( 'Upgrade to %s to use this block on your site.', 'jetpack' ),
+				planName
 		  )
 		: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' );
 };

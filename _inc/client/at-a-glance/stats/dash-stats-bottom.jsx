@@ -114,7 +114,7 @@ class DashStatsBottom extends Component {
 						} ) }
 						{ this.props.isLinked &&
 							createInterpolateElement(
-								__( '<button>View more stats on WordPress.com </button>', 'jetpack' ),
+								__( '<button>View more stats on WordPress.com</button>', 'jetpack' ),
 								{
 									button: (
 										<Button

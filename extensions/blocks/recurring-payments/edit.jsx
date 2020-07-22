@@ -357,10 +357,17 @@ class MembershipsButtonEdit extends Component {
 	setMembershipAmount = id => {
 		const { innerButtons, updateBlockAttributes, setAttributes } = this.props;
 		const currentPlanId = this.props.attributes.planId;
-		const defaultTextForNewPlan =
-			this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' );
+		const defaultTextForNewPlan = sprintf(
+			/* translators: placeholder is an amount of money. */
+			__( '%s contribution', 'jetpack' ),
+			this.getFormattedPriceByProductId( id )
+		);
 		const defaultTextForCurrentPlan = currentPlanId
-			? this.getFormattedPriceByProductId( currentPlanId ) + __( ' Contribution', 'jetpack' )
+			? sprintf(
+					/* translators: placeholder is an amount of money. */
+					__( '%s contribution', 'jetpack' ),
+					this.getFormattedPriceByProductId( currentPlanId )
+			  )
 			: undefined;
 
 		if ( innerButtons && innerButtons.length ) {
