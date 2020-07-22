@@ -18,7 +18,7 @@ import { execSyncShellCommand } from './utils-helper';
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
  * More details at: https://pptr.dev/#?product=Puppeteer&show=api-pagewaitforselectorselector-options
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
@@ -51,7 +51,7 @@ export async function waitForSelector( page, selector, options = {} ) {
  * Waits for element to be present and visible in DOM, and then clicks on it. @param options could be used to modify click behavior.
  * More: https://pptr.dev/#?product=Puppeteer&version=v1.17.0&show=api-elementhandleclickoptions
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
@@ -70,7 +70,7 @@ export async function waitAndClick( page, selector, options = { visible: true } 
 /**
  * Waits for element to be present in DOM, removes all the previous content and types @param value into the element.
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {string} value Value to type into
  * @param {Object} options Custom options to modify function behavior. The same object passes in two different functions. Use with caution!
@@ -94,14 +94,17 @@ export async function waitAndType( page, selector, value, options = { visible: t
 /**
  * Waits for element to be visible, returns false if element was not found after timeout.
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {number} timeout Amount of time to wait for element
  *
  * @return {boolean} true if visible, false if not
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
-	const isVisible = await isEventuallyPresent( page, selector, { visible: true, timeout } );
+	const isVisible = await isEventuallyPresent( page, selector, {
+		visible: true,
+		timeout,
+	} );
 	if ( ! isVisible ) {
 		logger.info( `Element is not visible by locator: ${ selector }` );
 	}
@@ -112,7 +115,7 @@ export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
  * Waits for element to be present, returns false if element was not found after timeout.
  * A bit low level than `isEventuallyVisible`, which allows to wait for an element to appear in DOM but not visible yet,
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify wait behavior.
  *
@@ -147,11 +150,11 @@ export function getAccountCredentials( accountName ) {
 /**
  * Clicks on the element which will open up a new page, waits for that page to open and returns a new page
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {number} timeout Wait timeout
  *
- * @return {Puppeteer.Page} New instance of the opened page.
+ * @return {page} New instance of the opened page.
  */
 export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) {
 	// Create a promise that rejects in <ms> milliseconds
@@ -180,7 +183,7 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 /**
  * Scroll the element into view
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  */
 export async function scrollIntoView( page, selector ) {

@@ -388,8 +388,9 @@ export async function syncPlanData( page ) {
 	do {
 		await page.reload( { waitFor: 'networkidle0' } );
 
-		// eslint-disable-next-line no-undef
+		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		/* eslint-enable no-undef */
 		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 

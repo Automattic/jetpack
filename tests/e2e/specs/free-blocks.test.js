@@ -63,7 +63,9 @@ describe( 'Free blocks', () => {
 
 		await step( 'Can assert that Eventbrite block is rendered', async () => {
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( EventbriteBlock, { eventId } );
+			await frontend.isRenderedBlockPresent( EventbriteBlock, {
+				eventId,
+			} );
 		} );
 	} );
 } );

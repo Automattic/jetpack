@@ -28,7 +28,10 @@ const defaultErrorHandler = async ( error, name ) => {
 			'image/png'
 		);
 
-		logger.slack( { type: 'failure', message: { block: currentBlock, name, error } } );
+		logger.slack( {
+			type: 'failure',
+			message: { block: currentBlock, name, error },
+		} );
 		logger.slack( { type: 'file', message: filePath } );
 		await logDebugLog();
 	}
@@ -193,7 +196,10 @@ catchBeforeAll( async () => {
 	await enablePageDialogAccept();
 	observeConsoleLogging();
 
-	const status = await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
+	const status = await connectThroughWPAdminIfNeeded( {
+		mockPlanData: true,
+		plan: 'free',
+	} );
 
 	if ( status !== 'already_connected' ) {
 		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );

@@ -34,6 +34,9 @@ const cardCredentials = config.get( 'testCardCredentials' );
  * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
  *
  * @param {Object} o Optional object with params such as `wpcomUser` and expected Jetpack plan
+ * @param {string} o.wpcomUser
+ * @param {string} o.plan
+ * @param {boolean} o.mockPlanData
  */
 export async function connectThroughWPAdminIfNeeded( {
 	wpcomUser = 'defaultUser',
@@ -148,7 +151,10 @@ export async function connectThroughJetpackStart( {
 	plan = 'pro',
 } = {} ) {
 	// remove Sandbox cookie
-	await page.deleteCookie( { name: 'store_sandbox', domain: '.wordpress.com' } );
+	await page.deleteCookie( {
+		name: 'store_sandbox',
+		domain: '.wordpress.com',
+	} );
 
 	// Logs in to WPCOM
 	const login = await LoginPage.visit( page );

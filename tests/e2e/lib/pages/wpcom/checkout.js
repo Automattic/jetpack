@@ -31,14 +31,18 @@ export default class CheckoutPage extends Page {
 		await this.waitAndTypeInIframe( '.expiration-date', "input[name='exp-date']", cardExpiry );
 
 		await this.page.select( `div.country select`, cardCountryCode );
-		return await waitAndType( this.page, '#postal-code', cardPostCode, { delay: 10 } );
+		return await waitAndType( this.page, '#postal-code', cardPostCode, {
+			delay: 10,
+		} );
 	}
 
 	async submitPaymentDetails() {
 		const disabledPaymentButton = '.credit-card-payment-box button[disabled]';
 		const paymentButtonSelector = '.credit-card-payment-box button.is-primary:not([disabled])';
 
-		await waitForSelector( this.page, disabledPaymentButton, { hidden: true } );
+		await waitForSelector( this.page, disabledPaymentButton, {
+			hidden: true,
+		} );
 		await waitAndClick( this.page, paymentButtonSelector );
 		return await this.waitForPaymentProcessing();
 	}
@@ -46,7 +50,10 @@ export default class CheckoutPage extends Page {
 	async waitForPaymentProcessing() {
 		const progressBarSelector = '.checkout__credit-card-payment-box-progress-bar';
 		await waitForSelector( this.page, progressBarSelector );
-		await waitForSelector( this.page, progressBarSelector, { hidden: true, timeout: 3 * 30000 } );
+		await waitForSelector( this.page, progressBarSelector, {
+			hidden: true,
+			timeout: 3 * 30000,
+		} );
 	}
 
 	async waitToDisappear() {
