@@ -14,25 +14,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { isSimpleSite } from './site-type-utils';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import getSiteFragment from './get-site-fragment';
-
-/*
- * Blocks list that require a paid plan.
- */
-export const PAID_BLOCKS_LIST = [
-	// 'core/cover',
-	'core/video',
-];
-
-/*
- * Blocks list that are free through FSE
- */
-export const FREE_FSE_BLOCKS_LIST = [
-	'jetpack/layout-grid',
-	'jetpack/event-countdown',
-	'jetpack/timeline',
-	'jetpack/timeline-item',
-	'jetpack/field-email',
-];
+import { requiresPaidPlan } from './register-jetpack-block';
 
 /**
  * WP.com plan objects have a dedicated `path_slug` field,
@@ -101,22 +83,16 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
  * @returns {boolean} True if it should show the nudge. Otherwise, False.
  */
 export function isUpgradable( name ) {
-	// Split up the block name to get blockNamespace/blockName.
-	const [ blockNamespace, blockName ] = /\//.test( name ) ? name.split( '/' ) : [ null, name ];
-
-	if (
-		blockNamespace &&
-		! [ 'jetpack', 'premium-content' ].includes( blockNamespace ) && // known namespaces.
-		! PAID_BLOCKS_LIST.includes( name )
-	) {
+	if ( ! name ) {
 		return false;
 	}
 
-	if ( FREE_FSE_BLOCKS_LIST.includes( name ) ) {
-		return false;
+	// Hardcoding/temporary solution for core/cover block.
+	if ( isSimpleSite() && name === 'core/video' ) {
+		return true;
 	}
 
-	const { unavailableReason } = getJetpackExtensionAvailability( blockName );
-
-	return name && isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason );
+	const [ , blockName ] = /\//.test( name ) ? name.split( '/' ) : [ null, name ];
+	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
+	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }
