@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { includes, map, reduce } from 'lodash';
+import { includes, map, pick, reduce } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -141,11 +141,11 @@ class PlanGrid extends React.Component {
 			return this.featuredPlans;
 		}
 		// reduce the .features member to only the highlighted features.
-		const featuredPlans = reduce(
+		const plansWithHighlightedFeatures = reduce(
 			this.props.plans,
 			( plans, plan, key ) => {
-				// ignore the free and personal plans
-				if ( [ 'free', 'personal' ].includes( key ) ) {
+				// ignore the free plan
+				if ( 'free' === key ) {
 					return plans;
 				}
 				const highlights = plan.highlight;
@@ -165,8 +165,23 @@ class PlanGrid extends React.Component {
 			{}
 		);
 
-		this.featuredPlans = featuredPlans;
-		return featuredPlans;
+		// Users on the personal plan should still see the personal plan, otherwise
+		// they should see a modified premium and professional plan.
+		if ( 'is-personal-plan' === getPlanClass( this.props.sitePlan.product_slug ) ) {
+			this.featuredPlans = plansWithHighlightedFeatures;
+		} else {
+			const personalFeatures = plansWithHighlightedFeatures.personal.features;
+			const premiumFeatures = plansWithHighlightedFeatures.premium.features;
+			plansWithHighlightedFeatures.premium.features = [
+				personalFeatures.find( feature => 'backups' === feature.id ),
+				personalFeatures.find( feature => 'spam' === feature.id ),
+				...premiumFeatures.filter( feature => 'all-from-previous' !== feature.id ),
+				personalFeatures.find( feature => 'all-from-previous' === feature.id ),
+			];
+			this.featuredPlans = pick( plansWithHighlightedFeatures, [ 'premium', 'business' ] );
+		}
+
+		return this.featuredPlans;
 	}
 
 	/**
