@@ -9,8 +9,7 @@ import classNames from 'classnames';
 import './style.scss';
 import { isUpgradable } from '../plan-utils';
 
-export default ( customClassNames ) => ( className, blockName ) => (
+export default customClassNames => ( className, blockName ) =>
 	classNames( className, {
 		[ customClassNames ]: isUpgradable( blockName ),
-	} )
-);
+	} );

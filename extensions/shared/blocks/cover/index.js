@@ -19,7 +19,11 @@ import './editor.scss';
 addFilter( 'editor.MediaReplaceFlow', 'jetpack/cover-media-replace-flow', coverMediaReplaceFlow );
 
 // Take control of MediaPlaceholder.
-addFilter( 'editor.MediaPlaceholder', 'jetpack/cover-edit-media-placeholder', coverEditMediaPlaceholder );
+addFilter(
+	'editor.MediaPlaceholder',
+	'jetpack/cover-edit-media-placeholder',
+	coverEditMediaPlaceholder
+);
 
 // Extend Core CoverEditBlock.
 addFilter( 'editor.BlockEdit', 'jetpack/cover-block-edit', jetpackCoverBlockEdit );
