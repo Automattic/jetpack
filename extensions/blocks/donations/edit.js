@@ -86,15 +86,15 @@ const Edit = props => {
 	}, [] );
 
 	if ( isLoading ) {
-		return <LoadingStatus />;
+		return <LoadingStatus className={ className } />;
 	}
 
 	if ( loadingError ) {
-		return <LoadingError error={ loadingError } />;
+		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
 	if ( shouldUpgrade ) {
-		return <UpgradePlan upgradeUrl={ upgradeUrl } />;
+		return <UpgradePlan className={ className } upgradeUrl={ upgradeUrl } />;
 	}
 
 	return (

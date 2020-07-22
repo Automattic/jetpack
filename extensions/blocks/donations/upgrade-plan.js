@@ -5,9 +5,9 @@
 import { __ } from '@wordpress/i18n';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 
-const UpgradePlan = ( { upgradeUrl } ) => {
+const UpgradePlan = ( { className = '', upgradeUrl } ) => {
 	return (
-		<div className={ 'donations__upgrade-plan' }>
+		<div className={ `${ className } donations__upgrade-plan` }>
 			<Placeholder
 				icon="lock"
 				label={ __( 'Donations', 'jetpack' ) }

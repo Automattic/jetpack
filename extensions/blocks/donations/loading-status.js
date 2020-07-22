@@ -5,9 +5,9 @@
 import { __ } from '@wordpress/i18n';
 import { Placeholder, Spinner } from '@wordpress/components';
 
-const LoadingStatus = () => {
+const LoadingStatus = ( { className = '' } ) => {
 	return (
-		<div className="donations__loading-status">
+		<div className={ `${ className } donations__loading-status` }>
 			<Placeholder
 				icon="lock"
 				label={ __( 'Donations', 'jetpack' ) }

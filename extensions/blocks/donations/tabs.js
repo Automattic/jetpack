@@ -57,9 +57,9 @@ const Tabs = props => {
 	}, [ monthlyPlanId, annuallyPlanId ] );
 
 	return (
-		<Block.div>
+		<Block.div className={ className }>
 			{ stripeConnectUrl && <StripeNudge stripeConnectUrl={ stripeConnectUrl } /> }
-			<div className={ `${ className } donations__container` }>
+			<div className={ 'donations__container' }>
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__tabs">
 						{ Object.entries( tabs ).map( ( [ interval, { title } ] ) => (
