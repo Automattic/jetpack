@@ -24,6 +24,9 @@ const jetpackPaidBlock = ( settings, name ) => {
 			src: <PremiumIcon icon={ settings.icon } />,
 		};
 
+		// Populate block keywords.
+		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
+
 		settings.edit = jetpackPaidBlockEdit( settings.edit );
 	}
 
