@@ -28,9 +28,9 @@ export default createHigherOrderComponent(
 			setShowBanner( true );
 		} );
 
-		const isVisible = useSelect( select => (
-			select( 'core/block-editor' ).isBlockSelected( clientId )
-		) ) && showBanner;
+		const isVisible =
+			useSelect( select => select( 'core/block-editor' ).isBlockSelected( clientId ) ) &&
+			showBanner;
 
 		if ( ! isCoverUpgradable( name ) ) {
 			return <BlockEdit { ...props } />;

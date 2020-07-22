@@ -82,11 +82,7 @@ const UpgradePlanBanner = ( {
 		savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
 	};
 
-	const cssClasses = classNames(
-		className,
-		'jetpack-upgrade-plan-banner',
-		`wp-block`,
-	);
+	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', `wp-block` );
 
 	return (
 		<div ref={ bannerRef } className={ cssClasses } data-align={ align }>
