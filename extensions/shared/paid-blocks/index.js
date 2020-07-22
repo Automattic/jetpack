@@ -20,6 +20,9 @@ import './editor.scss';
 
 const jetpackPaidBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
+		// Populate block keywords.
+		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
+
 		settings.edit = jetpackPaidBlockEdit( settings.edit );
 	}
 

@@ -72,13 +72,11 @@ $icon-background-color: #fff;
 }
 
 // Adjust blocks
-.is-core-cover-premium-block,
 .is-core-video-premium-block {
 	margin-bottom: -$banner-height;
 }
 
-.wp-block-cover.is-upgradable,
-.wp-block-video.is-upgradable {
+.wp-block-video.is-upgradable.is-selected {
 	padding-top: $banner-height + 10px;
 }
 
