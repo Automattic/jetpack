@@ -141,7 +141,7 @@ class PlanGrid extends React.Component {
 			return this.featuredPlans;
 		}
 		// reduce the .features member to only the highlighted features.
-		const plansWithHighlightedFeatures = reduce(
+		const featuredPlans = reduce(
 			this.props.plans,
 			( plans, plan, key ) => {
 				// ignore the free plan
@@ -168,17 +168,17 @@ class PlanGrid extends React.Component {
 		// Users on the personal plan should still see the personal plan, otherwise
 		// they should see a modified premium and professional plan.
 		if ( 'is-personal-plan' === getPlanClass( this.props.sitePlan.product_slug ) ) {
-			this.featuredPlans = plansWithHighlightedFeatures;
+			this.featuredPlans = featuredPlans;
 		} else {
-			const personalFeatures = plansWithHighlightedFeatures.personal.features;
-			const premiumFeatures = plansWithHighlightedFeatures.premium.features;
-			plansWithHighlightedFeatures.premium.features = [
+			const personalFeatures = featuredPlans.personal.features;
+			const premiumFeatures = featuredPlans.premium.features;
+			featuredPlans.premium.features = [
 				personalFeatures.find( feature => 'backups' === feature.id ),
 				personalFeatures.find( feature => 'spam' === feature.id ),
 				...premiumFeatures.filter( feature => 'all-from-previous' !== feature.id ),
 				personalFeatures.find( feature => 'all-from-previous' === feature.id ),
 			];
-			this.featuredPlans = pick( plansWithHighlightedFeatures, [ 'premium', 'business' ] );
+			this.featuredPlans = pick( featuredPlans, [ 'premium', 'business' ] );
 		}
 
 		return this.featuredPlans;
