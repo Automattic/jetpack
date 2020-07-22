@@ -81,22 +81,22 @@ $icon-background-color: #fff;
 }
 
 // Premium Icons.
-.jetpack-premium-icon {
-	position: relative;
+// Hide by default.
+.jetpack-paid-block-symbol {
+	display: none;
+}
 
-	&::before {
-		content: ' ';
-		position: absolute;
-		top: -3px;
-		right: -3px;
-		z-index: 1;
+// Only show if upgrade is possible.
+.jetpack-enable-upgrade-nudge {
+	.block-editor-block-icon > svg {
+		overflow: visible;
+	}
 
-		width: $icon-size;
-		height: $icon-size;
+	.jetpack-paid-block-symbol {
+		display: block;
+	}
 
-		background-color: $studio-pink-40;
-		border-radius: 50%;
-		border: 2px solid $icon-background-color;
-		box-sizing: border-box;
+	.components-placeholder__label .jetpack-paid-block-symbol {
+		display: none;
 	}
 }

@@ -7,23 +7,19 @@ import { uniq } from 'lodash';
  */
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import domReady from '@wordpress/dom-ready';
 
 /**
  * Internal dependencies
  */
 import withCustomClassNames from '../with-custom-class-names';
 import jetpackPaidBlockEdit from './paid-block-edit';
-import { isUpgradable } from '../plan-utils';
-import { PremiumIcon } from './components';
+import { isUpgradable, isUpgradeNudgeEnabled } from '../plan-utils';
 
 import './editor.scss';
 
 const jetpackPaidBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
-		settings.icon = {
-			src: <PremiumIcon icon={ settings.icon } />,
-		};
-
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
 
@@ -40,3 +36,9 @@ addFilter(
 	`jetpack/set-upgradable-classnames`,
 	withCustomClassNames( 'has-warning is-interactive is-upgradable' )
 );
+
+domReady( function() {
+	if ( isUpgradeNudgeEnabled() ) {
+		document.body.classList.add( 'jetpack-enable-upgrade-nudge' );
+	}
+} );

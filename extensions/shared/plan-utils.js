@@ -13,6 +13,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { isSimpleSite } from './site-type-utils';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import getJetpackData from './get-jetpack-data';
 import getSiteFragment from './get-site-fragment';
 import { requiresPaidPlan } from './register-jetpack-block';
 
@@ -96,4 +97,13 @@ export function isUpgradable( name ) {
 
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
 	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
+}
+
+/**
+ * Return whether upgrade nudges are enabled or not
+ *
+ * @returns {boolean}
+ */
+export function isUpgradeNudgeEnabled() {
+	return get( getJetpackData(), 'jetpack.enable_upgrade_nudge', false );
 }
