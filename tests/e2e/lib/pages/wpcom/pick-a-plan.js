@@ -30,7 +30,9 @@ export default class PickAPlanPage extends Page {
 
 		if (
 			level === 'free' &&
-			! ( await waitForSelector( this.page, planSelector, { timeout: 10000 } ) )
+			! ( await waitForSelector( this.page, planSelector, {
+				timeout: 10000,
+			} ) )
 		) {
 			planSelector = '.plans-features-main__banner-content button';
 		}

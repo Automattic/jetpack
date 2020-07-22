@@ -82,7 +82,7 @@ export default class MailchimpBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {Page} page Puppeteer page instance
+	 * @param {page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.wp-block-jetpack-mailchimp';
