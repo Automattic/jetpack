@@ -32,7 +32,7 @@ const addPaidBlockFlags = async () => {
 		const paidFlag = _x(
 			'paid',
 			'Short label appearing near a block requiring a paid plan',
-			'full-site-editing'
+			'jetpack'
 		);
 
 		unregisterBlockType( name );
