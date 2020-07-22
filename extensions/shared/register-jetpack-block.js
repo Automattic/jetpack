@@ -24,7 +24,7 @@ const betaExtensions = extensionList.beta || [];
  * @param {object} details - The block details
  * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
  */
-function requiresPaidPlan( unavailableReason, details ) {
+export function requiresPaidPlan( unavailableReason, details ) {
 	if ( unavailableReason === 'missing_plan' ) {
 		return details.required_plan;
 	}
