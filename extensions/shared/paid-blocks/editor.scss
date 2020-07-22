@@ -93,8 +93,12 @@ $icon-background-color: #fff;
 	.block-editor-block-icon > svg {
 		overflow: visible;
 	}
-	
+
 	.jetpack-paid-block-symbol {
 		display: block;
-	}	
+	}
+
+	.components-placeholder__label .jetpack-paid-block-symbol {
+		display: none;
+	}
 }

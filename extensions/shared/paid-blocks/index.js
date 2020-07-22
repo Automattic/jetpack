@@ -13,9 +13,8 @@ import domReady from '@wordpress/dom-ready';
  * Internal dependencies
  */
 import withCustomClassNames from '../with-custom-class-names';
-import isUpgradeNudgeEnabled from '../is-upgrade-nudge-enabled';
 import jetpackPaidBlockEdit from './paid-block-edit';
-import { isUpgradable } from '../plan-utils';
+import { isUpgradable, isUpgradeNudgeEnabled } from '../plan-utils';
 
 import './editor.scss';
 
