@@ -10,7 +10,6 @@ import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -35,35 +34,8 @@ const UpgradePlanBanner = ( {
 	title = __( 'Premium Block' ),
 	description = __( 'Upgrade your plan to use this premium block' ),
 	buttonText = __( 'Upgrade' ),
-	blockName,
 	visible = true,
 } ) => {
-	const bannerRef = useRef();
-
-	/*
-	 * Hack: Add CSS class to inspector control.
-	 * It's used to move the position of the upgrade plan banner
-	 * just below of the block card.
-	 * It should be updated if https://github.com/WordPress/gutenberg/pull/23993 is merged.
-	 */
-	useEffect( () => {
-		if ( ! bannerRef?.current ) {
-			return;
-		}
-		const inspectorEl = bannerRef.current.closest( '.block-editor-block-inspector' );
-		if ( ! inspectorEl ) {
-			return;
-		}
-
-		// Remove previously added classes first
-		inspectorEl.classList.forEach( el => {
-			if ( /-premium-block$/.test( el ) ) {
-				inspectorEl.classList.remove( el );
-			}
-		} );
-		inspectorEl.classList.add( `is-${ blockName.replace( '/', '-' ) }-premium-block` );
-	}, [ blockName ] );
-
 	if ( ! visible ) {
 		return null;
 	}
@@ -91,7 +63,7 @@ const UpgradePlanBanner = ( {
 	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', `wp-block` );
 
 	return (
-		<div ref={ bannerRef } className={ cssClasses } data-align={ align }>
+		<div className={ cssClasses } data-align={ align }>
 			{ title && <strong className={ `${ className }__title` }>{ title }</strong> }
 			{ description && <span className={ `${ className }__description` }>{ description }</span> }
 			<Button
