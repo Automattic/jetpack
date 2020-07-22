@@ -10,7 +10,7 @@ import getAllowedMimeTypesBySite, {
 	getAllowedVideoTypesByType,
 	pickFileExtensionsFromMimeTypes,
 } from '../../get-allowed-mime-types';
-import { isUpgradable } from "../../plan-utils";
+import { isUpgradable } from '../../plan-utils';
 
 /**
  * Check if the given file is a video.

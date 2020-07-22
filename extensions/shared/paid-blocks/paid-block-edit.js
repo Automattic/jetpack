@@ -16,10 +16,11 @@ export default OriginalBlockEdit => props => {
 		return <OriginalBlockEdit { ...props } />;
 	}
 
-	const isVisible = useSelect( select => (
-		! select( 'core/block-editor' ).getBlockRootClientId( props.clientId ) && // is top level block.
-		 select( 'core/block-editor' ).isBlockSelected( props.clientId ) // is selected.
-	) );
+	const isVisible = useSelect(
+		select =>
+			! select( 'core/block-editor' ).getBlockRootClientId( props.clientId ) && // is top level block.
+			select( 'core/block-editor' ).isBlockSelected( props.clientId ) // is selected.
+	);
 
 	return (
 		<Fragment>

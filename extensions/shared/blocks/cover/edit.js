@@ -21,16 +21,16 @@ export default createHigherOrderComponent(
 		// Remove Banner when the block changes its attributes.
 		useEffect( () => setShowBanner( false ), [ attributes ] );
 
-		const handleFilesPreUpload = useCallback( ( files ) => {
+		const handleFilesPreUpload = useCallback( files => {
 			if ( ! files?.length || ! isVideoFile( files[ 0 ] ) ) {
 				return;
 			}
 			setShowBanner( true );
 		} );
 
-		const isVisible = useSelect( select => (
-			select( 'core/block-editor' ).isBlockSelected( clientId )
-		) ) && showBanner;
+		const isVisible =
+			useSelect( select => select( 'core/block-editor' ).isBlockSelected( clientId ) ) &&
+			showBanner;
 
 		if ( ! isCoverUpgradable( name ) ) {
 			return <BlockEdit { ...props } />;
