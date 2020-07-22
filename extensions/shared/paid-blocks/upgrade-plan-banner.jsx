@@ -55,6 +55,12 @@ const UpgradePlanBanner = ( {
 			return;
 		}
 
+		// Remove previously added classes first
+		inspectorEl.classList.forEach( el => {
+			if ( /-premium-block$/.test( el ) ) {
+				inspectorEl.classList.remove( el );
+			}
+		} );
 		inspectorEl.classList.add( `is-${ blockName.replace( '/', '-' ) }-premium-block` );
 	}, [ blockName ] );
 
