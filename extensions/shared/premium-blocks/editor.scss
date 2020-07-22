@@ -1,0 +1,19 @@
+// Premium Icons. Hide by default.
+.jetpack-paid-block-symbol {
+	display: none;
+}
+
+// Only show if upgrade is possible.
+.jetpack-enable-upgrade-nudge {
+	.block-editor-block-icon > svg {
+		overflow: visible;
+	}
+
+	.jetpack-paid-block-symbol {
+		display: block;
+	}
+
+	.components-placeholder__label .jetpack-paid-block-symbol {
+		display: none;
+	}
+}
