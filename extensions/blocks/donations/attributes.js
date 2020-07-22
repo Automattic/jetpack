@@ -27,38 +27,38 @@ export default {
 	},
 	oneTimeHeading: {
 		type: 'string',
-		default: __( 'Make a one-time donation', 'full-site-editing' ),
+		default: __( 'Make a one-time donation', 'jetpack' ),
 	},
 	monthlyHeading: {
 		type: 'string',
-		default: __( 'Make a monthly donation', 'full-site-editing' ),
+		default: __( 'Make a monthly donation', 'jetpack' ),
 	},
 	annualHeading: {
 		type: 'string',
-		default: __( 'Make a yearly donation', 'full-site-editing' ),
+		default: __( 'Make a yearly donation', 'jetpack' ),
 	},
 	chooseAmountText: {
 		type: 'string',
-		default: __( 'Choose an amount (USD)', 'full-site-editing' ),
+		default: __( 'Choose an amount (USD)', 'jetpack' ),
 	},
 	customAmountText: {
 		type: 'string',
-		default: __( 'Or enter a custom amount', 'full-site-editing' ),
+		default: __( 'Or enter a custom amount', 'jetpack' ),
 	},
 	extraText: {
 		type: 'string',
-		default: __( 'Your contribution is appreciated.', 'full-site-editing' ),
+		default: __( 'Your contribution is appreciated.', 'jetpack' ),
 	},
 	oneTimeButtonText: {
 		type: 'string',
-		default: __( 'Donate', 'full-site-editing' ),
+		default: __( 'Donate', 'jetpack' ),
 	},
 	monthlyButtonText: {
 		type: 'string',
-		default: __( 'Donate monthly', 'full-site-editing' ),
+		default: __( 'Donate monthly', 'jetpack' ),
 	},
 	annualButtonText: {
 		type: 'string',
-		default: __( 'Donate yearly', 'full-site-editing' ),
+		default: __( 'Donate yearly', 'jetpack' ),
 	},
 };

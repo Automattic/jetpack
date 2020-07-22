@@ -10,10 +10,10 @@ const UpgradePlan = ( { upgradeUrl } ) => {
 		<div className={ 'donations__upgrade-plan' }>
 			<Placeholder
 				icon="lock"
-				label={ __( 'Donations', 'full-site-editing' ) }
+				label={ __( 'Donations', 'jetpack' ) }
 				instructions={ __(
 					"You'll need to upgrade your plan to use the Donations block.",
-					'full-site-editing'
+					'jetpack'
 				) }
 			>
 				<Button
@@ -23,11 +23,11 @@ const UpgradePlan = ( { upgradeUrl } ) => {
 					target="_blank"
 					className="donations__button plan-nudge__button"
 				>
-					{ __( 'Upgrade Your Plan', 'full-site-editing' ) }
+					{ __( 'Upgrade Your Plan', 'jetpack' ) }
 				</Button>
 				<div className="donations__disclaimer membership-button__disclaimer">
 					<ExternalLink href="https://wordpress.com/support/donations-block/">
-						{ __( 'Read more about Donations and related fees.', 'full-site-editing' ) }
+						{ __( 'Read more about Donations and related fees.', 'jetpack' ) }
 					</ExternalLink>
 				</div>
 			</Placeholder>
