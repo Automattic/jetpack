@@ -55,6 +55,12 @@ const UpgradePlanBanner = ( {
 			return;
 		}
 
+		// Remove previously added classes first
+		inspectorEl.classList.forEach( el => {
+			if ( /-premium-block$/.test( el ) ) {
+				inspectorEl.classList.remove( el );
+			}
+		} );
 		inspectorEl.classList.add( `is-${ blockName.replace( '/', '-' ) }-premium-block` );
 	}, [ blockName ] );
 
@@ -82,11 +88,7 @@ const UpgradePlanBanner = ( {
 		savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
 	};
 
-	const cssClasses = classNames(
-		className,
-		'jetpack-upgrade-plan-banner',
-		`wp-block`,
-	);
+	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', `wp-block` );
 
 	return (
 		<div ref={ bannerRef } className={ cssClasses } data-align={ align }>
