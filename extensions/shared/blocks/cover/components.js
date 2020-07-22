@@ -1,4 +1,3 @@
-
 /**
  * WordPress dependencies
  */
@@ -25,8 +24,8 @@ import UpgradeNudge from '../../components/upgrade-nudge';
  * @returns {*} Nudge component or Null.
  */
 export const JetpackCoverUpgradeNudge = ( { name, show, align } ) =>
-	show
-		? <div className="jetpack-upgrade-nudge-wrapper wp-block" data-align={ align }>
+	show ? (
+		<div className="jetpack-upgrade-nudge-wrapper wp-block" data-align={ align }>
 			<UpgradeNudge
 				plan="value_bundle"
 				blockName={ name }
@@ -37,7 +36,7 @@ export const JetpackCoverUpgradeNudge = ( { name, show, align } ) =>
 				subtitle={ false }
 			/>
 		</div>
-		: null;
+	) : null;
 
 /**
  * Cover Media context
@@ -57,8 +56,6 @@ export const CoverMediaContext = createContext();
  */
 export const CoverMediaProvider = ( { onFilesUpload, children } ) => {
 	return (
-		<CoverMediaContext.Provider value={ onFilesUpload }>
-			{ children }
-		</CoverMediaContext.Provider>
+		<CoverMediaContext.Provider value={ onFilesUpload }>{ children }</CoverMediaContext.Provider>
 	);
 };

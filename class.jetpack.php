@@ -84,6 +84,7 @@ class Jetpack {
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
+		'wpcom_instagram_widget',
 	);
 
 	/**
@@ -831,7 +832,6 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
 		Partner::init();
@@ -1122,16 +1122,6 @@ class Jetpack {
 		}
 
 		$this->connection_manager->require_jetpack_authentication();
-	}
-
-	/**
-	 * Load language files
-	 *
-	 * @action plugins_loaded
-	 */
-	public static function plugin_textdomain() {
-		// Note to self, the third argument must not be hardcoded, to account for relocated folders.
-		load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( JETPACK__PLUGIN_FILE ) ) . '/languages/' );
 	}
 
 	/**
@@ -2646,63 +2636,6 @@ class Jetpack {
 	 */
 	public static function translate_module_tag( $tag ) {
 		return jetpack_get_module_i18n_tag( $tag );
-	}
-
-	/**
-	 * Get i18n strings as a JSON-encoded string
-	 *
-	 * @return string The locale as JSON
-	 */
-	public static function get_i18n_data_json() {
-
-		// WordPress 5.0 uses md5 hashes of file paths to associate translation
-		// JSON files with the file they should be included for. This is an md5
-		// of '_inc/build/admin.js'.
-		$path_md5 = '1bac79e646a8bf4081a5011ab72d5807';
-
-		$i18n_json =
-				   JETPACK__PLUGIN_DIR
-				   . 'languages/json/jetpack-'
-				   . get_user_locale()
-				   . '-'
-				   . $path_md5
-				   . '.json';
-
-		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
-			$locale_data = @file_get_contents( $i18n_json );
-			if ( $locale_data ) {
-				return $locale_data;
-			}
-		}
-
-		// Return valid empty Jed locale
-		return '{ "locale_data": { "messages": { "": {} } } }';
-	}
-
-	/**
-	 * Add locale data setup to wp-i18n
-	 *
-	 * Any Jetpack script that depends on wp-i18n should use this method to set up the locale.
-	 *
-	 * The locale setup depends on an adding inline script. This is error-prone and could easily
-	 * result in multiple additions of the same script when exactly 0 or 1 is desireable.
-	 *
-	 * This method provides a safe way to request the setup multiple times but add the script at
-	 * most once.
-	 *
-	 * @since 6.7.0
-	 *
-	 * @return void
-	 */
-	public static function setup_wp_i18n_locale_data() {
-		static $script_added = false;
-		if ( ! $script_added ) {
-			$script_added = true;
-			wp_add_inline_script(
-				'wp-i18n',
-				'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
-			);
-		}
 	}
 
 	/**
@@ -6538,7 +6471,9 @@ endif;
 	}
 
 	/**
-	 * Throws warnings for deprecated hooks to be removed from Jetpack
+	 * Throws warnings for deprecated hooks to be removed from Jetpack that cannot remain in the original place in the code.
+	 *
+	 * @todo Convert these to use apply_filters_deprecated and do_action_deprecated and remove custom code.
 	 */
 	public function deprecated_hooks() {
 		global $wp_filter;
@@ -6584,12 +6519,7 @@ endif;
 			'jetpack_updated_theme'                        => 'jetpack_updated_themes',
 			'jetpack_lazy_images_skip_image_with_atttributes' => 'jetpack_lazy_images_skip_image_with_attributes',
 			'jetpack_enable_site_verification'             => null,
-			'can_display_jetpack_manage_notice'            => null,
 			// Removed in Jetpack 7.3.0
-			'atd_load_scripts'                             => null,
-			'atd_http_post_timeout'                        => null,
-			'atd_http_post_error'                          => null,
-			'atd_service_domain'                           => null,
 			'jetpack_widget_authors_exclude'               => 'jetpack_widget_authors_params',
 			// Removed in Jetpack 7.9.0
 			'jetpack_pwa_manifest'                         => null,
@@ -6625,6 +6555,44 @@ endif;
 						_deprecated_function( $hook . ' used for ' . $function_name, null, $hook_alt );
 					}
 				}
+			}
+		}
+
+		$filter_deprecated_list = array(
+			'can_display_jetpack_manage_notice' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.3.0',
+			),
+			'atd_http_post_timeout'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.3.0',
+			),
+			'atd_service_domain'                => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.3.0',
+			),
+			'atd_load_scripts'                  => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.3.0',
+			),
+		);
+
+		foreach ( $filter_deprecated_list as $tag => $args ) {
+			if ( has_filter( $tag ) ) {
+				apply_filters_deprecated( $tag, array(), $args['version'], $args['replacement'] );
+			}
+		}
+
+		$action_deprecated_list = array(
+			'atd_http_post_error' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.3.0',
+			),
+		);
+
+		foreach ( $action_deprecated_list as $tag => $args ) {
+			if ( has_action( $tag ) ) {
+				do_action_deprecated( $tag, array(), $args['version'], $args['replacement'] );
 			}
 		}
 	}
@@ -6891,23 +6859,14 @@ endif;
 	/**
 	 * Stores and prints out domains to prefetch for page speed optimization.
 	 *
-	 * @param mixed $new_urls
+	 * @deprecated 8.8.0 Use Jetpack::add_resource_hints.
+	 *
+	 * @param string|array $urls URLs to hint.
 	 */
-	public static function dns_prefetch( $new_urls = null ) {
-		static $prefetch_urls = array();
-		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
-			echo "\r\n";
-			foreach ( $prefetch_urls as $this_prefetch_url ) {
-				printf( "<link rel='dns-prefetch' href='%s'/>\r\n", esc_attr( $this_prefetch_url ) );
-			}
-		} elseif ( ! empty( $new_urls ) ) {
-			if ( ! has_action( 'wp_head', array( __CLASS__, __FUNCTION__ ) ) ) {
-				add_action( 'wp_head', array( __CLASS__, __FUNCTION__ ) );
-			}
-			foreach ( (array) $new_urls as $this_new_url ) {
-				$prefetch_urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_new_url ) ) );
-			}
-			$prefetch_urls = array_unique( $prefetch_urls );
+	public static function dns_prefetch( $urls = null ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Automattic\Jetpack\Assets::add_resource_hint' );
+		if ( $urls ) {
+			Assets::add_resource_hint( $urls );
 		}
 	}
 
@@ -7448,6 +7407,24 @@ endif;
 			'default_option'    => 'search',
 			'show_promotion'    => false,
 			'included_in_plans' => array( 'search-plan' ),
+		);
+
+		$products[] = array(
+			'key'               => 'anti-spam',
+			'title'             => __( 'Jetpack Anti-Spam', 'jetpack' ),
+			'short_description' => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
+			'learn_more'        => __( 'Learn More', 'jetpack' ),
+			'description'       => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
+			'options'           => array(
+				array(
+					'type'      => 'anti-spam',
+					'slug'      => 'jetpack-anti-spam',
+					'key'       => 'jetpack_anti_spam',
+					'name'      => __( 'Anti-Spam', 'jetpack' ),
+				),
+			),
+			'default_option'    => 'anti-spam',
+			'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'anti-spam-plan' ),
 		);
 
 		return $products;

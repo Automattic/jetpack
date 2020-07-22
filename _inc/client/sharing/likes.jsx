@@ -2,12 +2,12 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -22,7 +22,7 @@ export const Likes = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Like buttons', { context: 'Settings header' } ) }
+					header={ _x( 'Like buttons', 'Settings header', 'jetpack' ) }
 					module="likes"
 					hideButton
 				>
@@ -31,12 +31,15 @@ export const Likes = withModuleSettingsFormHelpers(
 						module={ { module: 'likes' } }
 						support={ {
 							text: __(
-								'Adds like buttons to your content so that visitors can show their appreciation or enjoyment.'
+								'Adds like buttons to your content so that visitors can show their appreciation or enjoyment.',
+								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-likes' ),
 						} }
 					>
-						<p>{ __( 'When visitors enjoy your content, let them show it with a Like.' ) }</p>
+						<p>
+							{ __( 'When visitors enjoy your content, let them show it with a Like.', 'jetpack' ) }
+						</p>
 						<ModuleToggle
 							slug="likes"
 							disabled={ unavailableInDevMode }
@@ -44,7 +47,7 @@ export const Likes = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'likes' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Add Like buttons to your posts and pages' ) }
+							{ __( 'Add Like buttons to your posts and pages', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 				</SettingsCard>

@@ -43,7 +43,7 @@ export default class WordAdsBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {Page} page Puppeteer page instance
+	 * @param {page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = ".entry-content iframe[src*='wordads']";

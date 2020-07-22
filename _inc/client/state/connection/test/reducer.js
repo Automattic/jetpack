@@ -185,4 +185,24 @@ describe( 'requests reducer', () => {
 			expect( stateOut.fetchingUserData ).to.be.false;
 		} );
 	} );
+
+	describe( '#authorizeUserInPlace', () => {
+		it( 'should set isAuthorizingUserInPlace to true when authorization iframe is loaded', () => {
+			const stateIn = {};
+			const action = {
+				type: 'AUTH_USER_IN_PLACE'
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.authorizingUserInPlace ).to.be.true;
+		} );
+
+		it( 'should set isAuthorizingUserInPlace to false when when in-place authorization has completed', () => {
+			const stateIn = {};
+			const action = {
+				type: 'AUTH_USER_IN_PLACE_SUCCESS'
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.authorizingUserInPlace ).to.be.false;
+		} );
+	} );
 } );

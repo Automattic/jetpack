@@ -11,9 +11,9 @@ import getJetpackExtensionAvailability from './get-jetpack-extension-availabilit
 /**
  * Registers a Gutenberg block if the availability requirements are met.
  *
- * @param {string} name The plugin's name
- * @param {object} settings The plugin's settings.
- * @returns {object|false} Either false if the plugin is not available, or the results of `registerPlugin`
+ * @param {string} name - The plugin's name
+ * @param {object} settings - The plugin's settings.
+ * @returns {object|boolean} Either false if the plugin is not available, or the results of `registerPlugin`
  */
 export default function registerJetpackPlugin( name, settings ) {
 	const { available, unavailableReason } = getJetpackExtensionAvailability( name );

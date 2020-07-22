@@ -19,6 +19,8 @@ import {
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
+	AUTH_USER_IN_PLACE,
+	AUTH_USER_IN_PLACE_SUCCESS,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
@@ -71,6 +73,7 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 
 export const connectionRequests = {
 	disconnectingSite: false,
+	authorizingUserInPlace: false,
 	unlinkingUser: false,
 	fetchingConnectUrl: false,
 	fetchingUserData: false,
@@ -82,6 +85,10 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, { disconnectingSite: true } );
 		case UNLINK_USER:
 			return assign( {}, state, { unlinkingUser: true } );
+		case AUTH_USER_IN_PLACE:
+			return assign( {}, state, { authorizingUserInPlace: true } );
+		case AUTH_USER_IN_PLACE_SUCCESS:
+			return assign( {}, state, { authorizingUserInPlace: false } );
 		case CONNECT_URL_FETCH:
 			return assign( {}, state, { fetchingConnectUrl: true } );
 		case USER_CONNECTION_DATA_FETCH:
@@ -171,6 +178,16 @@ export function getConnectUrl( state ) {
 }
 
 /**
+ * Returns an object with information about the WP.com connected user
+ *
+ * @param  {Object} state Global state tree
+ * @return {object}       Returns an object with information about the connected user
+ */
+export function getConnectedWpComUser( state ) {
+	return state.jetpack.connection.user.currentUser.wpcomUser;
+}
+
+/**
  * Returns true if currently disconnecting the site
  *
  * @param  {Object} state Global state tree
@@ -198,6 +215,16 @@ export function isFetchingConnectUrl( state ) {
  */
 export function isUnlinkingUser( state ) {
 	return !! state.jetpack.connection.requests.unlinkingUser;
+}
+
+/**
+ * Returns true if currently linking the user
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool} true if currently linking a user, false otherwise
+ */
+export function isAuthorizingUserInPlace( state ) {
+	return !! state.jetpack.connection.requests.authorizingUserInPlace;
 }
 
 /**

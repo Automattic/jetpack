@@ -2,7 +2,9 @@
  * External dependencies
  */
 import React from 'react';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { withRouter } from 'react-router-dom';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,7 +22,6 @@ import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import { DAILY_BACKUP_TITLE, REALTIME_BACKUP_TITLE } from 'plans/constants';
-import { translate as __ } from 'i18n-calypso';
 import ProductExpiration from 'components/product-expiration';
 
 import './style.scss';
@@ -102,7 +103,7 @@ function renderPurchase( product, purchase ) {
 	} );
 	return (
 		<div className="single-product__purchase">
-			<Button href={ purchaseUrl }>{ __( 'Manage Subscription' ) }</Button>
+			<Button href={ purchaseUrl }>{ __( 'Manage Subscription', 'jetpack' ) }</Button>
 			<div className="single-product__purchase-description">{ product.description }</div>
 		</div>
 	);
@@ -143,23 +144,32 @@ function getProduct( product, purchase, siteRawlUrl ) {
 
 		case 'is-personal-plan':
 			product.title = product.key === 'backup' ? DAILY_BACKUP_TITLE : product.title;
-			product.description = __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
-				components: { planLink },
-			} );
+			product.description = jetpackCreateInterpolateElement(
+				__( 'Included in your <planLink>Personal Plan</planLink>', 'jetpack' ),
+				{
+					planLink,
+				}
+			);
 			break;
 
 		case 'is-premium-plan':
 			product.title = product.key === 'backup' ? DAILY_BACKUP_TITLE : product.title;
-			product.description = __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
-				components: { planLink },
-			} );
+			product.description = jetpackCreateInterpolateElement(
+				__( 'Included in your <planLink>Premium Plan</planLink>', 'jetpack' ),
+				{
+					planLink,
+				}
+			);
 			break;
 
 		case 'is-business-plan':
 			product.title = product.key === 'backup' ? REALTIME_BACKUP_TITLE : product.title;
-			product.description = __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
-				components: { planLink },
-			} );
+			product.description = jetpackCreateInterpolateElement(
+				__( 'Included in your <planLink>Professional Plan</planLink>', 'jetpack' ),
+				{
+					planLink,
+				}
+			);
 			break;
 		default:
 			product.description = description;

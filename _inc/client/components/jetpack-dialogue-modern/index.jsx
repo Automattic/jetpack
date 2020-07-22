@@ -3,7 +3,6 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
 import { noop } from 'lodash';
 import classNames from 'classnames';
 

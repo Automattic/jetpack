@@ -21,7 +21,6 @@ vendor/automattic/jetpack-autoloader
 /docker/compose-extras.yml
 # File for personal customiziations, if desired.
 /docker/mu-plugins/0-sandbox.php
-languages/messages.pot
 .idea
 *.iml
 npm-debug.log

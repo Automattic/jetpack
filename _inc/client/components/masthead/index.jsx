@@ -3,15 +3,15 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
 import { includes } from 'lodash';
-import ButtonGroup from 'components/button-group';
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import ButtonGroup from 'components/button-group';
 import {
 	getSiteConnectionStatus,
 	getSandboxDomain,
@@ -94,7 +94,7 @@ export class Masthead extends React.Component {
 										primary={ isDashboardView && ! isStatic }
 										onClick={ this.trackDashClick }
 									>
-										{ __( 'Dashboard' ) }
+										{ __( 'Dashboard', 'jetpack' ) }
 									</Button>
 									<Button
 										compact={ true }
@@ -102,7 +102,7 @@ export class Masthead extends React.Component {
 										primary={ ! isDashboardView && ! isStatic }
 										onClick={ this.trackSettingsClick }
 									>
-										{ __( 'Settings' ) }
+										{ __( 'Settings', 'jetpack' ) }
 									</Button>
 								</ButtonGroup>
 							) }

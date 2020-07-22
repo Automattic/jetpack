@@ -46,15 +46,17 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 			$this->namespace,
 			$this->rest_base,
 			array(
-				'args'     => array(
+				'args'                                  => array(
 					'url' => array(
 						'description' => __( 'The tweet URL to gather from.', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
 				),
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'gather_tweetstorm' ),
+				'methods'                               => WP_REST_Server::READABLE,
+				'callback'                              => array( $this, 'gather_tweetstorm' ),
+				'allow_blog_token_when_site_is_private' => true,
+				'permission_callback'                   => '__return_true',
 			)
 		);
 	}

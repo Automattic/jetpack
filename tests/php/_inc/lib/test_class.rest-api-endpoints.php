@@ -3,7 +3,11 @@
  * Class for REST API endpoints testing.
  *
  * @since 4.4.0
+ * @package Jetpack
  */
+
+use Automattic\Jetpack\Connection\REST_Connector;
+
 require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
 
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
@@ -60,7 +64,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return array
 	 */
 	protected function get_jetpack_connection_status() {
-		$status = Jetpack_Core_Json_Api_Endpoints::jetpack_connection_status();
+		$status = REST_Connector::connection_status();
 		return isset( $status->data ) ? $status->data : array();
 	}
 
@@ -290,7 +294,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
+		$this->assertInstanceOf( 'WP_Error', REST_Connector::activate_plugins_permission_check() );
 
 		$user = $this->create_and_get_user();
 
@@ -301,17 +305,21 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Should fail because requires more capabilities
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
+		$this->assertInstanceOf( 'WP_Error', REST_Connector::activate_plugins_permission_check() );
 
 		// Add Jetpack capability
 		$user->add_cap( 'activate_plugins' );
+		// Multisite's require additional primitive capabilities.
+		if ( is_multisite() ) {
+			$user->add_cap( 'manage_network_plugins' );
+		}
 
 		// Reset current user and setup global variables to refresh the capability we just added.
 		wp_set_current_user( 0 );
 		wp_set_current_user( $user->ID );
 
 		// User has capability so this should work this time
-		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::activate_plugins_permission_check() );
+		$this->assertTrue( REST_Connector::activate_plugins_permission_check() );
 
 	}
 
@@ -696,6 +704,30 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
 
+	}
+
+	/** Test unlinking a user will also remove related cached data.
+	 *
+	 * @since 8.8.0
+	 */
+	public function test_unlink_user_cache_data_removal() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		$user->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( $user->ID );
+
+		// Mock site already registered.
+		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+		// Add a dummy transient.
+		$transient_key = "jetpack_connected_user_data_$user->ID";
+		set_transient( $transient_key, 'dummy', DAY_IN_SECONDS );
+
+		// Create REST request in JSON format and dispatch.
+		$this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
+
+		// Transient should be deleted after unlinking user.
+		$this->assertFalse( get_transient( $transient_key ) );
 	}
 
 	/**

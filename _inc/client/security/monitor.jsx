@@ -2,14 +2,14 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -29,7 +29,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					hideButton
 					module="monitor"
-					header={ __( 'Downtime monitoring', { context: 'Settings header' } ) }
+					header={ _x( 'Downtime monitoring', 'Settings header', 'jetpack' ) }
 				>
 					<SettingsGroup
 						hasChild
@@ -37,7 +37,8 @@ export const Monitor = withModuleSettingsFormHelpers(
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
 							text: __(
-								'Jetpack will continuously monitor your site, and alert you the moment downtime is detected.'
+								'Jetpack will continuously monitor your site, and alert you the moment downtime is detected.',
+								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-monitor' ),
 						} }
@@ -51,7 +52,8 @@ export const Monitor = withModuleSettingsFormHelpers(
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __(
-									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.'
+									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.',
+									'jetpack'
 								) }
 							</span>
 						</ModuleToggle>
@@ -66,7 +68,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 								site: this.props.siteRawUrl,
 							} ) }
 						>
-							{ __( 'Configure your notification settings' ) }
+							{ __( 'Configure your notification settings', 'jetpack' ) }
 						</Card>
 					}
 				</SettingsCard>

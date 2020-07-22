@@ -6,12 +6,17 @@ import { getCurrencyDefaults } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
 
 /**
+ * WordPress dependencies
+ */
+import { InnerBlocks } from '@wordpress/block-editor';
+
+/**
  * Internal dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'recurring-payments';
 
@@ -28,7 +33,7 @@ export const settings = {
 	title: __( 'Payments', 'jetpack' ),
 	icon,
 	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	category: 'earn',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscriptions', 'block search term', 'jetpack' ),
@@ -40,34 +45,21 @@ export const settings = {
 		planId: {
 			type: 'integer',
 		},
-		submitButtonText: {
-			type: 'string',
-		},
-		submitButtonClasses: {
-			type: 'string',
-		},
-		backgroundButtonColor: {
-			type: 'string',
-		},
-		textButtonColor: {
-			type: 'string',
-		},
-		customBackgroundButtonColor: {
-			type: 'string',
-		},
-		customTextButtonColor: {
-			type: 'string',
-		},
 		align: {
 			type: 'string',
 		},
 	},
 	edit,
-	save: () => null,
+	save: ( { className } ) => (
+		<div className={ className }>
+			<InnerBlocks.Content />
+		</div>
+	),
 	supports: {
 		html: false,
 		align: true,
 	},
+	deprecated: [ deprecatedV1 ],
 };
 
 /**

@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -30,8 +31,20 @@ export default function ProductSavings( {
 	return (
 		<p className="single-product__savings">
 			{ billingTimeframe === 'monthly'
-				? __( 'You would save {{savings /}} by paying yearly', { components: { savings } } )
-				: __( 'You are saving {{savings /}} by paying yearly', { components: { savings } } ) }
+				? jetpackCreateInterpolateElement(
+						/* translators: placeholder is an amount of money. */
+						__( 'You would save <savings /> by paying yearly', 'jetpack' ),
+						{
+							savings,
+						}
+				  )
+				: jetpackCreateInterpolateElement(
+						/* translators: placeholder is an amount of money. */
+						__( 'You are saving <savings /> by paying yearly', 'jetpack' ),
+						{
+							savings,
+						}
+				  ) }
 		</p>
 	);
 }

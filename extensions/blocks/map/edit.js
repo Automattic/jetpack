@@ -422,11 +422,6 @@ class MapEdit extends Component {
 				{ inspectorControls }
 				<div className={ className }>
 					<ResizableBox
-						className={
-							// @TODO: This can be removed when WP 5.4 is the minimum version, it's a fallback
-							// for prior to when the `showHandle` property was added.
-							classnames( { 'is-selected': isSelected } )
-						}
 						size={ {
 							height: mapHeight || 'auto',
 							width: '100%',

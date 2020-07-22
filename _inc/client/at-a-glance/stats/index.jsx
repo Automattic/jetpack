@@ -4,28 +4,30 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { forEach, get, isEmpty } from 'lodash';
-import Card from 'components/card';
-import Chart from 'components/chart';
 import { connect } from 'react-redux';
-import DashSectionHeader from 'components/dash-section-header';
-import Button from 'components/button';
-import Spinner from 'components/spinner';
-import { numberFormat, moment, translate as __ } from 'i18n-calypso';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { numberFormat, moment } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import Card from 'components/card';
+import Chart from 'components/chart';
+import DashSectionHeader from 'components/dash-section-header';
+import DashStatsBottom from './dash-stats-bottom';
+import { emptyStatsCardDismissed } from 'state/settings';
+import { getInitialStateStatsData } from 'state/initial-state';
+import getRedirectUrl from 'lib/jp-redirect';
+import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { imagePath } from 'constants/urls';
 import { isDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
-import { getInitialStateStatsData } from 'state/initial-state';
-import QueryStatsData from 'components/data/query-stats-data';
-import DashStatsBottom from './dash-stats-bottom';
-import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
-import { emptyStatsCardDismissed } from 'state/settings';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import QueryStatsData from 'components/data/query-stats-data';
+import Spinner from 'components/spinner';
 
 export class DashStats extends Component {
 	static propTypes = {
@@ -60,7 +62,7 @@ export class DashStats extends Component {
 			return { chartData: s, totalViews: false };
 		}
 
-		forEach( props.statsData[ unit ].data, function( v ) {
+		forEach( props.statsData[ unit ].data, function ( v ) {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -75,9 +77,11 @@ export class DashStats extends Component {
 			} else if ( 'week' === unit ) {
 				date = date.replace( /W/g, '-' );
 				chartLabel = moment( date ).format( 'MMM D' );
-				tooltipLabel = __( 'Week of %(date)s', {
-					args: { date: moment( date ).format( 'MMMM Do' ) },
-				} );
+				tooltipLabel = sprintf(
+					/* translators: placeholder is a date. */
+					__( 'Week of %s', 'jetpack' ),
+					moment( date ).format( 'MMMM Do' )
+				);
 			} else if ( 'month' === unit ) {
 				chartLabel = moment( date ).format( 'MMM' );
 				tooltipLabel = moment( date ).format( 'MMMM, YYYY' );
@@ -97,12 +101,14 @@ export class DashStats extends Component {
 				tooltipData: [
 					{
 						label: tooltipLabel,
-						value: __( 'Views: %(numberOfViews)s', {
-							args: { numberOfViews: numberFormat( views ) },
-						} ),
+						value: sprintf(
+							/* translators: placeholder is a number */
+							__( 'Views: %s', 'jetpack' ),
+							numberFormat( views )
+						),
 						className: 'tooltip class',
 					},
-					{ label: __( 'Click to view detailed stats.' ) },
+					{ label: __( 'Click to view detailed stats.', 'jetpack' ) },
 				],
 			} );
 		} );
@@ -151,16 +157,19 @@ export class DashStats extends Component {
 					src={ imagePath + 'stats-people.svg' }
 					width="272"
 					height="144"
-					alt={ __( 'Jetpack Stats People' ) }
+					alt={ __( 'Jetpack Stats People', 'jetpack' ) }
 					className="jp-at-a-glance__stats-icon"
 				/>
 				<p>
-					{ __( 'Hello there! Your stats have been activated.' ) }
+					{ __( 'Hello there! Your stats have been activated.', 'jetpack' ) }
 					<br />
-					{ __( 'Just give us a little time to collect data so we can display it for you here.' ) }
+					{ __(
+						'Just give us a little time to collect data so we can display it for you here.',
+						'jetpack'
+					) }
 				</p>
 				<Button onClick={ this.dismissCard } primary>
-					{ __( 'Okay, got it!' ) }
+					{ __( 'Okay, got it!', 'jetpack' ) }
 				</Button>
 			</Card>
 		);
@@ -174,18 +183,19 @@ export class DashStats extends Component {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>
-							{ __(
-								'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}',
+							{ jetpackCreateInterpolateElement(
+								__(
+									'Something happened while loading stats. Please try again later or <a>view your stats now on WordPress.com</a>',
+									'jetpack'
+								),
 								{
-									components: {
-										a: (
-											<a
-												href={ getRedirectUrl( 'calypso-stats-insights', {
-													site: this.props.siteRawUrl,
-												} ) }
-											/>
-										),
-									},
+									a: (
+										<a
+											href={ getRedirectUrl( 'calypso-stats-insights', {
+												site: this.props.siteRawUrl,
+											} ) }
+										/>
+									),
 								}
 							) }
 						</span>
@@ -216,33 +226,34 @@ export class DashStats extends Component {
 						src={ imagePath + 'stats.svg' }
 						width="60"
 						height="60"
-						alt={ __( 'Jetpack Stats Icon' ) }
+						alt={ __( 'Jetpack Stats Icon', 'jetpack' ) }
 						className="jp-at-a-glance__stats-icon"
 					/>
 				</div>
 				<div className="jp-at-a-glance__stats-inactive-text">
 					{ this.props.isDevMode
-						? __( 'Unavailable in Dev Mode' )
-						: __(
-								'{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}',
+						? __( 'Unavailable in Dev Mode', 'jetpack' )
+						: jetpackCreateInterpolateElement(
+								__(
+									'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+									'jetpack'
+								),
 								{
-									components: {
-										a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
-										a1: (
-											<a
-												href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-									},
+									a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
+									a1: (
+										<a
+											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
+											target="_blank"
+											rel="noopener noreferrer"
+										/>
+									),
 								}
 						  ) }
 				</div>
 				{ ! this.props.isDevMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
 						<Button onClick={ this.activateStats } primary>
-							{ __( 'Activate Site Stats' ) }
+							{ __( 'Activate Site Stats', 'jetpack' ) }
 						</Button>
 					</div>
 				) }
@@ -281,7 +292,7 @@ export class DashStats extends Component {
 							onClick={ this.switchToDay }
 							className={ this.getClass( 'day' ) }
 						>
-							{ __( 'Days' ) }
+							{ __( 'Days', 'jetpack' ) }
 						</a>
 					</li>
 					<li className="jp-at-a-glance__stats-view">
@@ -291,7 +302,7 @@ export class DashStats extends Component {
 							onClick={ this.switchToWeek }
 							className={ this.getClass( 'week' ) }
 						>
-							{ __( 'Weeks' ) }
+							{ __( 'Weeks', 'jetpack' ) }
 						</a>
 					</li>
 					<li className="jp-at-a-glance__stats-view">
@@ -301,7 +312,7 @@ export class DashStats extends Component {
 							onClick={ this.switchToMonth }
 							className={ this.getClass( 'month' ) }
 						>
-							{ __( 'Months' ) }
+							{ __( 'Months', 'jetpack' ) }
 						</a>
 					</li>
 				</ul>
@@ -319,7 +330,7 @@ export class DashStats extends Component {
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return (
 				<div>
-					<ModuleOverriddenBanner moduleName={ __( 'Site Stats' ) } />
+					<ModuleOverriddenBanner moduleName={ __( 'Site Stats', 'jetpack' ) } />
 				</div>
 			);
 		}
@@ -327,7 +338,7 @@ export class DashStats extends Component {
 			this.props.isModuleAvailable && (
 				<div>
 					<QueryStatsData range={ this.props.activeTab } />
-					<DashSectionHeader label={ __( 'Site Stats' ) }>
+					<DashSectionHeader label={ __( 'Site Stats', 'jetpack' ) }>
 						{ this.maybeShowStatsTabs() }
 					</DashSectionHeader>
 					<Card

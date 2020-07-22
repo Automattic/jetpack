@@ -22,7 +22,7 @@ function PexelsMedia( props ) {
 
 	const onCopy = useCallback(
 		items => {
-			copyMedia( items, getApiUrl( 'copy', SOURCE_PEXELS ) );
+			copyMedia( items, getApiUrl( 'copy', SOURCE_PEXELS ), SOURCE_PEXELS );
 		},
 		[ copyMedia ]
 	);

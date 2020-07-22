@@ -753,3 +753,13 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 	height: 123px;
 	margin: 0 0 1em 0;
 }
+
+.sd-content .share-customize-link {
+	margin-top: 0em;
+	line-height: 11px;
+}
+
+.sd-content .share-customize-link a {
+	font-size: 11px;
+	font-family: "Open Sans", sans-serif;
+}

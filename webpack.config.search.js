@@ -45,8 +45,8 @@ module.exports = [
 					hints: 'error',
 			  }
 			: {
-					maxAssetSize: 122880,
-					maxEntrypointSize: 122880,
+					maxAssetSize: 153600,
+					maxEntrypointSize: 153600,
 					hints: 'error',
 			  },
 		plugins: [

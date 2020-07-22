@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Status;
@@ -37,6 +38,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * @var string Generic error message when user is not allowed to perform an action.
+	 *
+	 * @deprecated 8.8.0 Use `REST_Connector::get_user_permissions_error_msg()` instead.
 	 */
 	public static $user_permissions_error_msg;
 
@@ -60,11 +63,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php';
 
-		self::$user_permissions_error_msg = esc_html__(
-			'You do not have the correct user permissions to perform this action.
-			Please contact your site admin if you think this is a mistake.',
-			'jetpack'
-		);
+		self::$user_permissions_error_msg = REST_Connector::get_user_permissions_error_msg();
 
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
@@ -95,44 +94,34 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
-			'methods'  => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_jitm_message',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_jitm_message',
+			'permission_callback' => '__return_true',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
-			'methods'  => WP_REST_Server::CREATABLE,
-			'callback' => __CLASS__ . '::delete_jitm_message'
-		) );
-
-		// Authorize a remote user
-		register_rest_route( 'jetpack/v4', '/remote_authorize', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::remote_authorize',
-		) );
-
-		// Get current connection status of Jetpack
-		register_rest_route( 'jetpack/v4', '/connection', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::jetpack_connection_status',
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => __CLASS__ . '::delete_jitm_message',
+			'permission_callback' => '__return_true',
 		) );
 
 		// Test current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection/test', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::jetpack_connection_test',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::jetpack_connection_test',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
 		// Endpoint specific for privileged servers to request detailed debug information.
 		register_rest_route( 'jetpack/v4', '/connection/test-wpcom/', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::jetpack_connection_test_for_external',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::jetpack_connection_test_for_external',
 			'permission_callback' => __CLASS__ . '::view_jetpack_connection_test_check',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/rewind', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::get_rewind_data',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_rewind_data',
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
@@ -163,17 +152,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_user_connection_data',
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
-
-		// Get list of plugins that use the Jetpack connection.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/plugins',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_connection_plugins',
-				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
-			)
-		);
 
 		// Start the connection process by registering the site on WordPress.com servers.
 		register_rest_route( 'jetpack/v4', '/connection/register', array(
@@ -290,7 +268,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', 'identity-crisis/migrate', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::migrate_stats_and_subscribers',
-			'permissison_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+			'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 		) );
 
 		// Return all modules
@@ -500,6 +478,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_service_api_key',
+					'permission_callback' => '__return_true',
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
@@ -845,21 +824,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Handles verification that a site is registered
 	 *
 	 * @since 5.4.0
+	 * @deprecated 8.8.0 The method is moved to the `REST_Connector` class.
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return array|wp-error
 	 */
-	 public static function remote_authorize( $request ) {
-		$xmlrpc_server = new Jetpack_XMLRPC_Server();
-		$result = $xmlrpc_server->remote_authorize( $request );
-
-		if ( is_a( $result, 'IXR_Error' ) ) {
-			$result = new WP_Error( $result->code, $result->message );
-		}
-
-		return $result;
-	 }
+	public static function remote_authorize( $request ) {
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::remote_authorize' );
+		return REST_Connector::remote_authorize( $request );
+	}
 
 	/**
 	 * Handles dismissing of Jetpack Notices
@@ -1064,7 +1038,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_activate_plugins', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1102,22 +1076,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return bool True if site is connected
+	 * @return WP_REST_Response Connection information.
 	 */
 	public static function jetpack_connection_status() {
-		$status = new Status();
-		return rest_ensure_response( array(
-			'isActive'     => Jetpack::is_active(),
-			'isStaging'    => $status->is_staging_site(),
-			'isRegistered' => Jetpack::connection()->is_registered(),
-			'devMode'      => array(
-				'isActive' => $status->is_development_mode(),
-				'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-				'url'      => site_url() && false === strpos( site_url(), '.' ),
-				'filter'   => apply_filters( 'jetpack_development_mode', false ),
-			),
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::rest_authorization_required_code' );
+
+		return REST_Connector::connection_status();
 	}
 
 	/**
@@ -1141,28 +1105,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		} else {
 			return $cxntests->output_fails_as_wp_error();
 		}
-	}
-
-	/**
-	 * Get plugins connected to the Jetpack.
-	 *
-	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
-	 */
-	public static function get_connection_plugins() {
-		$plugins = ( new Connection_Manager() )->get_connected_plugins();
-
-		if ( is_wp_error( $plugins ) ) {
-			return $plugins;
-		}
-
-		array_walk(
-			$plugins,
-			function( &$data, $slug ) {
-				$data['slug'] = $slug;
-			}
-		);
-
-		return rest_ensure_response( array_values( $plugins ) );
 	}
 
 	/**
@@ -1502,8 +1444,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
 
 		$response = array(
-//			'othersLinked' => Jetpack::get_other_linked_admins(),
-			'currentUser'  => jetpack_current_user_data(),
+//			'othersLinked'    => Jetpack::get_other_linked_admins(),
+			'currentUser'     => jetpack_current_user_data(),
+			'connectionOwner' => ( new Connection_Manager() )->get_connection_owner()->data->display_name,
 		);
 		return rest_ensure_response( $response );
 	}
@@ -1723,6 +1666,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_data = self::site_data();
 
 		if ( ! is_wp_error( $site_data ) ) {
+			/**
+			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
+			 *
+			 * @since 8.7.0
+			 */
+			do_action( 'jetpack_get_site_data_success' );
 			return rest_ensure_response( array(
 					'code' => 'success',
 					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),

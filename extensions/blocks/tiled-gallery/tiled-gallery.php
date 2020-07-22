@@ -10,6 +10,7 @@
 
 namespace Automattic\Jetpack\Extensions;
 
+use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Plan;
 
@@ -31,12 +32,17 @@ class Tiled_Gallery {
 	 * Register the block
 	 */
 	public static function register() {
-		jetpack_register_block(
-			self::BLOCK_NAME,
-			array(
-				'render_callback' => array( __CLASS__, 'render' ),
-			)
-		);
+		if (
+			( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			|| Jetpack::is_active()
+		) {
+			jetpack_register_block(
+				self::BLOCK_NAME,
+				array(
+					'render_callback' => array( __CLASS__, 'render' ),
+				)
+			);
+		}
 	}
 
 	/**

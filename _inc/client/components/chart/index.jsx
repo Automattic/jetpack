@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { noop, throttle } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -94,7 +94,7 @@ export default class ModuleChart extends React.Component {
 	getValues = () => {
 		let data = this.getData();
 
-		data = data.map( function( item ) {
+		data = data.map( function ( item ) {
 			return item.value;
 		}, this );
 
@@ -102,7 +102,7 @@ export default class ModuleChart extends React.Component {
 	};
 
 	isEmptyChart = values => {
-		values = values.filter( function( value ) {
+		values = values.filter( function ( value ) {
 			return value > 0;
 		}, this );
 
@@ -121,9 +121,7 @@ export default class ModuleChart extends React.Component {
 			emptyChart = (
 				<div className="dops-chart__empty">
 					<span className="dops-chart__empty_notice">
-						{ __( 'No activity this period', {
-							context: 'Notice in the empty statistics chart',
-						} ) }
+						{ _x( 'No activity this period', 'Notice in the empty statistics chart', 'jetpack' ) }
 					</span>
 				</div>
 			);

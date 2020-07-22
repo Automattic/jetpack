@@ -310,17 +310,19 @@ const VideoPressEdit = CoreVideoEdit =>
 							<SandBox html={ html } scripts={ scripts } />
 						</div>
 
-						{ /*
+						{
+							/*
 							Disable the video player when the block isn't selected,
 							so the user clicking on it won't play the
 							video when the controls are enabled.
 						*/
-						! interactive && (
-							<div
-								className="block-library-embed__interactive-overlay"
-								onMouseUp={ this.hideOverlay }
-							/>
-						) }
+							! interactive && (
+								<div
+									className="block-library-embed__interactive-overlay"
+									onMouseUp={ this.hideOverlay }
+								/>
+							)
+						}
 						{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
 							<RichText
 								tagName="figcaption"

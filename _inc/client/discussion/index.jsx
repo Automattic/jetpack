@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -59,9 +59,10 @@ export class Discussion extends React.Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Discussion' )
+							? __( 'Discussion', 'jetpack' )
 							: __(
-									'Manage advanced comment settings and grow your audience with email subscriptions.'
+									'Manage advanced comment settings and grow your audience with email subscriptions.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"

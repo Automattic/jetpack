@@ -74,6 +74,15 @@ class PluginsHandlerTest extends TestCase {
 	}
 
 	/**
+	 * Tests is_directory_plugin() with an empty string.
+	 *
+	 * @covers Plugins_Handler::is_directory_plugin
+	 */
+	public function test_is_directory_plugin_single_file_with_empty_string() {
+		$this->assertFalse( $this->plugins_handler->is_directory_plugin( '' ) );
+	}
+
+	/**
 	 * Tests is_directory_plugin() with a single-file plugin that begins with '/'.
 	 *
 	 * @covers Plugins_Handler::is_directory_plugin

@@ -129,6 +129,7 @@ class Error_Handler {
 
 		// If the site gets reconnected, clear errors.
 		add_action( 'jetpack_site_registered', array( $this, 'delete_all_errors' ) );
+		add_action( 'jetpack_get_site_data_success', array( $this, 'delete_all_errors' ) );
 	}
 
 	/**
@@ -544,9 +545,10 @@ class Error_Handler {
 			'jetpack/v4',
 			'/verify_xmlrpc_error',
 			array(
-				'methods'  => \WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'verify_xml_rpc_error' ),
-				'args'     => array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'verify_xml_rpc_error' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
 					'nonce' => array(
 						'required' => true,
 						'type'     => 'string',

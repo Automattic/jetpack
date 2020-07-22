@@ -17,11 +17,14 @@ describe( 'Connections', () => {
 		userCanDisconnectSite: true,
 		userIsMaster: true,
 		isLinked: true,
-		userWpComLogin: 'jetpack',
-		userWpComEmail: 'jetpack',
-		userWpComAvatar: 'https://example.org/avatar.png',
+		userGravatar:'https://example.org/avatar.png',
 		username: 'jetpack',
-		siteIcon: 'https://example.org/site-icon.png'
+		siteIcon: 'https://example.org/site-icon.png',
+		wpComConnectedUser: {
+			logiv: 'jetpack',
+			email: 'jetpack',
+			avatar: 'https://example.org/avatar.png',
+		},
 	};
 
 	describe( 'Initially', () => {

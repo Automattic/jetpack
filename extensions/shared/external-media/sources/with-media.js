@@ -160,7 +160,7 @@ export default function withMedia() {
 					.catch( this.handleApiError );
 			};
 
-			copyMedia = ( items, apiUrl ) => {
+			copyMedia = ( items, apiUrl, source ) => {
 				this.setState( { isCopying: items } );
 				this.props.noticeOperations.removeAllNotices();
 
@@ -186,16 +186,40 @@ export default function withMedia() {
 					path: apiUrl,
 					method: 'POST',
 					data: {
+						external_ids: items.map( item => item.guid ), // WPCOM.
 						media: items.map( item => ( {
 							guid: item.guid,
 							caption: item.caption,
 							title: item.title,
 						} ) ),
+						service: source, // WPCOM.
 					},
 				} )
 					.then( result => {
+						// Convert response on Simple Sites.
+						if ( result.media ) {
+							result = result.media.map( image => ( {
+								alt: image.alt,
+								caption: image.caption,
+								id: image.ID,
+								type: 'image',
+								url: image.URL,
+							} ) );
+						}
+
 						const { value, addToGallery, multiple } = this.props;
 						const media = multiple ? result : result[ 0 ];
+
+						const itemWithErrors = result.find( item => item.errors );
+						if ( itemWithErrors ) {
+							const { errors } = itemWithErrors;
+							const firstErrorKey = Object.keys( errors )[ 0 ];
+							this.handleApiError( {
+								code: firstErrorKey,
+								message: errors[ firstErrorKey ],
+							} );
+							return;
+						}
 
 						this.props.onClose();
 

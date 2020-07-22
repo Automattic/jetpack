@@ -1,0 +1,20 @@
+{
+	"name": "repo-gardening",
+	"version": "1.0.0",
+	"description": "Assign, manage milestones, for issues and PRs.",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"jetpack",
+		"github",
+		"action"
+	],
+	"main": "index.js",
+	"dependencies": {
+		"@actions/core": "1.2.4",
+		"@actions/github": "4.0.0",
+		"moment": "2.27.0"
+	},
+	"private": true
+}

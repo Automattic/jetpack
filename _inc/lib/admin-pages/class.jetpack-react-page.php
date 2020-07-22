@@ -180,12 +180,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
+		wp_set_script_translations( 'react-plugin', 'jetpack' );
+
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_initial_state() ) ) . '"));', 'before' );
 	}
 
 	function get_initial_state() {
+		global $is_safari;
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
@@ -316,8 +319,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 				),
 			),
-			'locale'                      => Jetpack::get_i18n_data_json(),
-			'localeSlug'                  => join( '-', explode( '_', get_user_locale() ) ),
 			'jetpackStateNotices'         => array(
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),
@@ -331,6 +332,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
+			'isSafari'                    => $is_safari,
+			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 		);
 	}
 

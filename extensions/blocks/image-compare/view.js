@@ -20,7 +20,7 @@ import domReady from '@wordpress/dom-ready';
  */
 import './view.scss';
 
-domReady( function() {
+domReady( function () {
 	const juxtapose = {
 		sliders: [],
 		OPTIMIZATION_ACCEPTED: 1,
@@ -32,7 +32,7 @@ domReady( function() {
 		this.image = new Image();
 
 		this.loaded = false;
-		this.image.onload = function() {
+		this.image.onload = function () {
 			self.loaded = true;
 			slider._onLoaded();
 		};
@@ -46,7 +46,7 @@ domReady( function() {
 		const dimensions = {
 			width: img.naturalWidth,
 			height: img.naturalHeight,
-			aspect: function() {
+			aspect: function () {
 				return this.width / this.height;
 			},
 		};
@@ -186,7 +186,7 @@ domReady( function() {
 	}
 
 	JXSlider.prototype = {
-		updateSlider: function( input, animate ) {
+		updateSlider: function ( input, animate ) {
 			let leftPercent;
 
 			if ( this.options.mode === 'vertical' ) {
@@ -223,11 +223,11 @@ domReady( function() {
 			}
 		},
 
-		getPosition: function() {
+		getPosition: function () {
 			return this.sliderPosition;
 		},
 
-		displayLabel: function( element, labelText ) {
+		displayLabel: function ( element, labelText ) {
 			const label = document.createElement( 'div' );
 			label.className = 'jx-label';
 			label.setAttribute( 'tabindex', 0 ); //put the controller in the natural tab order of the document
@@ -236,11 +236,11 @@ domReady( function() {
 			element.appendChild( label );
 		},
 
-		setStartingPosition: function( s ) {
+		setStartingPosition: function ( s ) {
 			this.options.startingPosition = s;
 		},
 
-		calculateDims: function( width, height ) {
+		calculateDims: function ( width, height ) {
 			const ratio = getImageDimensions( this.imgBefore.image ).aspect();
 			if ( width ) {
 				height = width / ratio;
@@ -254,7 +254,7 @@ domReady( function() {
 			};
 		},
 
-		responsivizeIframe: function( dims ) {
+		responsivizeIframe: function ( dims ) {
 			//Check the slider dimensions against the iframe (window) dimensions
 			if ( dims.height < window.innerHeight ) {
 				//If the aspect ratio is greater than 1, imgs are landscape, so letterbox top and bottom
@@ -271,7 +271,7 @@ domReady( function() {
 			return dims;
 		},
 
-		setWrapperDimensions: function() {
+		setWrapperDimensions: function () {
 			const wrapperWidth = getComputedWidthAndHeight( this.wrapper ).width;
 			const wrapperHeight = getComputedWidthAndHeight( this.wrapper ).height;
 			let dims = this.calculateDims( wrapperWidth, wrapperHeight );
@@ -284,7 +284,7 @@ domReady( function() {
 			this.wrapper.style.width = parseInt( dims.width ) + 'px';
 		},
 
-		optimizeWrapper: function( maxWidth ) {
+		optimizeWrapper: function ( maxWidth ) {
 			let result = juxtapose.OPTIMIZATION_ACCEPTED;
 			if (
 				this.imgBefore.image.naturalWidth >= maxWidth &&
@@ -301,7 +301,7 @@ domReady( function() {
 			return result;
 		},
 
-		_onLoaded: function() {
+		_onLoaded: function () {
 			if (
 				this.imgBefore &&
 				this.imgBefore.loaded === true &&
@@ -365,7 +365,7 @@ domReady( function() {
 			}
 		},
 
-		_init: function() {
+		_init: function () {
 			this.updateSlider( this.options.startingPosition, false );
 
 			if ( this.options.showLabels === true ) {
@@ -378,7 +378,7 @@ domReady( function() {
 			}
 
 			const self = this;
-			window.addEventListener( 'resize', function() {
+			window.addEventListener( 'resize', function () {
 				self.setWrapperDimensions();
 			} );
 
@@ -386,31 +386,31 @@ domReady( function() {
 			// On mousedown, call updateSlider then set animate to false
 			// (if animate is true, adds css transition when updating).
 
-			this.slider.addEventListener( 'mousedown', function( e ) {
+			this.slider.addEventListener( 'mousedown', function ( e ) {
 				e.preventDefault();
 				self.updateSlider( e, true );
 				let animate = true;
 
-				this.addEventListener( 'mousemove', function( evt ) {
+				this.addEventListener( 'mousemove', function ( evt ) {
 					evt.preventDefault();
 					if ( animate ) {
 						self.updateSlider( evt, false );
 					}
 				} );
 
-				this.addEventListener( 'mouseup', function( evt ) {
+				this.addEventListener( 'mouseup', function ( evt ) {
 					evt.preventDefault();
 					evt.stopPropagation();
 					animate = false;
 				} );
 			} );
 
-			this.slider.addEventListener( 'touchstart', function( e ) {
+			this.slider.addEventListener( 'touchstart', function ( e ) {
 				e.preventDefault();
 				e.stopPropagation();
 				self.updateSlider( e, true );
 
-				this.addEventListener( 'touchmove', function( evt ) {
+				this.addEventListener( 'touchmove', function ( evt ) {
 					evt.preventDefault();
 					evt.stopPropagation();
 					self.updateSlider( evt, false );
@@ -419,7 +419,7 @@ domReady( function() {
 
 			/* keyboard accessibility */
 
-			this.handle.addEventListener( 'keydown', function( e ) {
+			this.handle.addEventListener( 'keydown', function ( e ) {
 				const key = e.which || e.keyCode;
 				let ariaValue = parseFloat( this.style.left );
 
@@ -441,7 +441,7 @@ domReady( function() {
 			} );
 
 			//toggle right-hand image visibility
-			this.leftImage.addEventListener( 'keydown', function( event ) {
+			this.leftImage.addEventListener( 'keydown', function ( event ) {
 				const key = event.which || event.keyCode;
 				if ( key === 13 || key === 32 ) {
 					self.updateSlider( '90%', true );
@@ -450,7 +450,7 @@ domReady( function() {
 			} );
 
 			//toggle left-hand image visibility
-			this.rightImage.addEventListener( 'keydown', function( event ) {
+			this.rightImage.addEventListener( 'keydown', function ( event ) {
 				const key = event.which || event.keyCode;
 				if ( key === 13 || key === 32 ) {
 					self.updateSlider( '10%', true );
@@ -470,7 +470,7 @@ domReady( function() {
 	Given an element that is configured with the proper data elements, make a slider out of it.
 	Normally this will just be used by scanPage.
 	*/
-	juxtapose.makeSlider = function( element, idx ) {
+	juxtapose.makeSlider = function ( element, idx ) {
 		if ( typeof idx === 'undefined' ) {
 			idx = juxtapose.sliders.length; // not super threadsafe...
 		}
@@ -532,7 +532,7 @@ domReady( function() {
 	};
 
 	// Scan page and add juxtapose sliders.
-	juxtapose.scanPage = function() {
+	juxtapose.scanPage = function () {
 		const elements = document.querySelectorAll( '.juxtapose' );
 		for ( let i = 0; i < elements.length; i++ ) {
 			juxtapose.makeSlider( elements[ i ], i );

@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { get, some } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
@@ -88,15 +88,17 @@ export const updateSetting = updatedOption => {
 export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 	return dispatch => {
 		const messages = {
-			progress: __( 'Updating settings…' ),
-			success: __( 'Updated settings.' ),
+			progress: __( 'Updating settings…', 'jetpack' ),
+			success: __( 'Updated settings.', 'jetpack' ),
 			// We try to get a message or an error code if this is an unexpected WP_Error coming from the API.
 			// Otherwise we try to show error.name (coming from the custom errors defined in rest-api/index.js and if that's not useful
 			// then we try to let Javascript stringify the error object.
 			error: error =>
-				__( 'Error updating settings. %(error)s', {
-					args: { error: error.message || error.code || error.name || error },
-				} ),
+				sprintf(
+					/* translators: placeholder is an error code or an error message. */
+					__( 'Error updating settings. %s', 'jetpack' ),
+					error.message || error.code || error.name || error
+				),
 			...noticeMessages,
 		};
 
@@ -109,7 +111,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 			'object' === typeof newOptionValues &&
 			some( reloadForOptionValues, optionValue => optionValue in newOptionValues )
 		) {
-			messages.success = __( 'Updated settings. Refreshing page…' );
+			messages.success = __( 'Updated settings. Refreshing page…', 'jetpack' );
 		}
 
 		dispatch( removeNotice( 'module-setting-update' ) );

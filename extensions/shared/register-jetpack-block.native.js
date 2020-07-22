@@ -21,10 +21,10 @@ function requiresPlan( unavailableReason, details ) {
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} name The block's name.
- * @param {object} settings The block's settings.
- * @param {object} childBlocks The block's child blocks.
- * @returns {object|false} Either false if the block is not available, or the results of `registerBlockType`
+ * @param {string} name - The block's name.
+ * @param {object} settings - The block's settings.
+ * @param {object} childBlocks - The block's child blocks.
+ * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );

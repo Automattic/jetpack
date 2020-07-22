@@ -58,10 +58,10 @@ export class LocationSearch extends Component {
 			encodeURI( value ) +
 			'.json?access_token=' +
 			apiKey;
-		return new Promise( function( resolve, reject ) {
+		return new Promise( function ( resolve, reject ) {
 			const xhr = new XMLHttpRequest();
 			xhr.open( 'GET', url );
-			xhr.onload = function() {
+			xhr.onload = function () {
 				if ( xhr.status === 200 ) {
 					const res = JSON.parse( xhr.responseText );
 					resolve( res.features );

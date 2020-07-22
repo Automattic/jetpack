@@ -5,14 +5,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import Card from 'components/card';
 import { imagePath } from 'constants/urls';
 import { updateSettings, appsCardDismissed } from 'state/settings';
 import { arePromotionsActive, userCanManageOptions } from 'state/initial-state';
@@ -64,12 +64,13 @@ class AppsCard extends React.Component {
 
 					<div className="jp-apps-card__description">
 						<h3 className="jp-apps-card__header">
-							{ __( 'Get WordPress Apps for every device' ) }
+							{ __( 'Get WordPress Apps for every device', 'jetpack' ) }
 						</h3>
 
 						<p className="jp-apps-card__paragraph">
 							{ __(
-								'Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.'
+								'Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.',
+								'jetpack'
 							) }
 						</p>
 
@@ -78,7 +79,7 @@ class AppsCard extends React.Component {
 							onClick={ this.trackDownloadClick }
 							href="https://apps.wordpress.com/get?utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
 						>
-							{ __( 'Download the free apps' ) }
+							{ __( 'Download the free apps', 'jetpack' ) }
 						</Button>
 					</div>
 				</Card>

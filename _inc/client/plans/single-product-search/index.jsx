@@ -3,8 +3,9 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __, numberFormat } from 'i18n-calypso';
 import { get } from 'lodash';
+import { numberFormat } from 'i18n-calypso';
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -30,20 +31,22 @@ import ProductSavings from '../single-product-components/product-savings';
 function getTierLabel( priceTierSlug, recordCount ) {
 	switch ( priceTierSlug ) {
 		case JETPACK_SEARCH_TIER_UP_TO_100_RECORDS:
-			return __( 'Up to 100 records' );
+			return __( 'Up to 100 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS:
-			return __( 'Up to 1,000 records' );
+			return __( 'Up to 1,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_10K_RECORDS:
-			return __( 'Up to 10,000 records' );
+			return __( 'Up to 10,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_100K_RECORDS:
-			return __( 'Up to 100,000 records' );
+			return __( 'Up to 100,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS:
-			return __( 'Up to 1,000,000 records' );
+			return __( 'Up to 1,000,000 records', 'jetpack' );
 		case JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS: {
 			const tierMaximumRecords = 1000000 * Math.ceil( recordCount / 1000000 );
-			return __( 'Up to %(tierMaximumRecords)s records', {
-				args: { tierMaximumRecords: numberFormat( tierMaximumRecords ) },
-			} );
+			return sprintf(
+				/* translators: placehodler is a number of records (posts, pages, ...). */
+				__( 'Up to %s records', 'jetpack' ),
+				numberFormat( tierMaximumRecords )
+			);
 		}
 		default:
 			return null;
@@ -85,18 +88,23 @@ export function SingleProductSearchCard( props ) {
 						iconSize={ 12 }
 						onClick={ handleLandingPageLinkClick }
 					>
-						{ __( 'Learn more' ) }
+						{ __( 'Learn more', 'jetpack' ) }
 					</ExternalLink>
 				</div>
 				<h4 className="single-product-backup__options-header">
-					{ __(
-						'Your current site record size: %s record',
-						'Your current site record size: %s records',
-						{ args: numberFormat( recordCount ), count: recordCount }
+					{ sprintf(
+						_n(
+							'Your current site record size: %s record',
+							'Your current site record size: %s records',
+							recordCount,
+							'jetpack'
+						),
+						numberFormat( recordCount )
 					) }
 					<InfoPopover position="right">
 						{ __(
-							'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.'
+							'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.',
+							'jetpack'
 						) }
 					</InfoPopover>
 				</h4>
@@ -126,7 +134,7 @@ export function SingleProductSearchCard( props ) {
 						}
 						primary
 					>
-						{ __( 'Upgrade to Jetpack Search' ) }
+						{ __( 'Upgrade to Jetpack Search', 'jetpack' ) }
 					</Button>
 				</div>
 			</div>

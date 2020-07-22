@@ -2,9 +2,9 @@
 
 For every release, we will have a milestone that contains everything that is slated for that release.  <strong>Issues/PRs should not be mass-punted from one release to the next.</strong>  When getting punted from a release, issues/PRs should either have their milestone removed completely (from which they will need to be triaged), or they should be put into the "Not Currently Planned" milestone, which is any issue/PR that is valid, but not currently scheduled for inclusion in the point release or the next two major releases.
 
-Any new feature/major bug fix going in gets tagged with "Master Issue" and either "[Type] Bug Fix", "[Type] Enhancement", "[Type] Janitorial" or "[Type] Feature".  Initially, it should be tagged as "[Status] Proposal". If it's something that's absolutely required for this release, it gets tagged "[Priority] Blocker" so we know at a glance that it can't be moved to a future release.  It's also tagged with its' area of the plugin as usual.  The text of the master issue should be the proposed implementation, and that text should ALSO be posted as the first comment (more on this in a second)
+Any new feature/major bug fix going in gets tagged with "Primary Issue" and either "[Type] Bug Fix", "[Type] Enhancement", "[Type] Janitorial" or "[Type] Feature".  Initially, it should be tagged as "[Status] Proposal". If it's something that's absolutely required for this release, it gets tagged "[Priority] Blocker" so we know at a glance that it can't be moved to a future release.  It's also tagged with its' area of the plugin as usual.  The text of the master issue should be the proposed implementation, and that text should ALSO be posted as the first comment (more on this in a second)
 
-If an issue is fairly involved, it may also make sense to create a GitHub project for it, and that project should be linked to from the “Master Issue”.  Any sub-issues created to track portions of a master issue should be tagged “Subissue” and refer back to the master issue # as the first line in the issue body so that they can easily be filtered.  Sub-issues should start at "[Status] In Progress".
+If an issue is fairly involved, it may also make sense to create a GitHub project for it, and that project should be linked to from the “Primary Issue”.  Any sub-issues created to track portions of a master issue should be tagged “Subissue” and refer back to the master issue # as the first line in the issue body so that they can easily be filtered.  Sub-issues should start at "[Status] In Progress".
 
 Any PRs would then get connected to that master issue, and conversation should take place within the master issue, with the <em>original post being regularly updated with the current state of things</em>, so that anyone can see, at a glance, where the issue stands, but they can read through the comments for more context.  The Jetpack Lead and Release Lead should review any master issues for the upcoming release weekly (as part of their call) to make sure that the main post body is up to date.  The last line of the main post body should always be “Last Updated: DATE"
 
@@ -38,12 +38,12 @@ The issue then gets updated as it moves through the process, from proposal to in
 - <em>Low</em>
 
 
-## Example Master Issue and Subissue formatting
+## Example Primary Issue and Subissue formatting
 
-### Master Issue
+### Primary Issue
 
 ```
-Synopsis: One or two sentences about what this Master Issue is aiming to achieve.
+Synopsis: One or two sentences about what this Primary Issue is aiming to achieve.
 
 Project: (Optional, if you are using a GitHub project to track the components of this MI, link to it here)
 

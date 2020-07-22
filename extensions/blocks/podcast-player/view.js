@@ -25,7 +25,7 @@ const playerInstances = {};
  *
  * @param {Element} block - The root element of the block.
  */
-const downgradeBlockToStatic = function( block ) {
+const downgradeBlockToStatic = function ( block ) {
 	block.classList.add( 'is-default' );
 	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
@@ -35,7 +35,7 @@ const downgradeBlockToStatic = function( block ) {
  *
  * @param {string} id - The id of the block element in document.
  */
-const initializeBlock = function( id ) {
+const initializeBlock = function ( id ) {
 	// Find DOM node.
 	const block = document.getElementById( id );
 	debug( 'initializing', id, block );
@@ -79,7 +79,7 @@ const initializeBlock = function( id ) {
 		// Prepare component.
 		const component = createElement( PodcastPlayer, {
 			...data,
-			onError: function() {
+			onError: function () {
 				// Unmount React version and bring back the static HTML.
 				unmountComponentAtNode( block );
 				block.innerHTML = fallbackHTML;
