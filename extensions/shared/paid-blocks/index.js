@@ -20,10 +20,6 @@ import './editor.scss';
 
 const jetpackPaidBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
-		settings.icon = {
-			src: <PremiumIcon icon={ settings.icon } />,
-		};
-
 		settings.edit = jetpackPaidBlockEdit( settings.edit );
 	}
 
