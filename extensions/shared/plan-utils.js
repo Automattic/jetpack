@@ -87,12 +87,13 @@ export function isUpgradable( name ) {
 		return false;
 	}
 
-	// Hardcoding/temporary solution for core/cover block.
-	if ( isSimpleSite() && name === 'core/video' ) {
-		return true;
-	}
+	let blockName = /^jetpack\//.test( name )
+		? name.substr( 8, name.length )
+		: name;
 
-	const [ , blockName ] = /\//.test( name ) ? name.split( '/' ) : [ null, name ];
+	// hardcode core/video block;
+	blockName = ( blockName === 'core/video' ? 'video' : blockName );
+
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
 	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }
