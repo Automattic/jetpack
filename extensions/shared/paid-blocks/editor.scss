@@ -89,7 +89,7 @@ $icon-background-color: #fff;
 }
 
 // Only show if upgrade is possible.
-body {
+.jetpack-enable-upgrade-nudge {
 	.block-editor-block-icon > svg {
 		overflow: visible;
 	}
