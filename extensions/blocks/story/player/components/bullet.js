@@ -1,22 +1,30 @@
 /**
  * External dependencies
  */
-import { html } from 'htm/preact';
+
+/**
+ * WordPress dependencies
+ */
+import { createElement } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
 
 export default function Bullet( { index, progress, onClick } ) {
-	return html`
+	return (
 		<button
-			class="wp-story-pagination-bullet"
-			role="button"
-			aria-label="Go to slide ${index}"
-			onClick=${onClick}
+			key={ index }
+			className="wp-story-pagination-bullet"
+			aria-label={ `Go to slide ${ index }` }
+			onClick={ onClick }
 		>
-			<div class="wp-story-pagination-bullet-bar">
+			<div className="wp-story-pagination-bullet-bar">
 				<div
-					class="wp-story-pagination-bullet-bar-progress"
-					style="${{ width: `${ progress }%` }}"
+					className="wp-story-pagination-bullet-bar-progress"
+					style={ { width: `${ progress }%` } }
 				></div>
 			</div>
 		</button>
-	`;
+	);
 }

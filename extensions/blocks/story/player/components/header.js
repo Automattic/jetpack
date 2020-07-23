@@ -1,7 +1,7 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import { html } from 'htm/preact';
+import { createElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -13,25 +13,23 @@ export default function Header( { fullscreen, onExitFullscreen, siteIconUrl, sto
 		return null;
 	}
 
-	// TODO: replace this monstruosity (url relative to story/view.js)
+	// default WP logo url relative to story/view.js
 	siteIconUrl = siteIconUrl || '../../../../../../wp-includes/images/w-logo-blue.png';
 
-	return html`
-		<div class="wp-story-meta">
-			<div class="wp-story-icon">
-				<img alt="Site icon" src=${siteIconUrl} />
+	return (
+		<div className="wp-story-meta">
+			<div className="wp-story-icon">
+				<img alt="Site icon" src={ siteIconUrl } />
 			</div>
 			<div>
-				<div class="wp-story-title">
-					${storyTitle}
-				</div>
+				<div className="wp-story-title">{ storyTitle }</div>
 			</div>
-			<${SimpleButton}
+			<SimpleButton
 				className="wp-story-exit-fullscreen"
 				label="Exit Fullscreen"
 				icon="close"
-				onClick=${onExitFullscreen}
+				onClick={ onExitFullscreen }
 			/>
 		</div>
-	`;
+	);
 }

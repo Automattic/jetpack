@@ -2,8 +2,11 @@
  * External dependencies
  */
 import classNames from 'classnames';
-import { html } from 'htm/preact';
-import { useCallback } from 'preact/hooks';
+
+/**
+ * WordPress dependencies
+ */
+import { createElement, useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -21,9 +24,9 @@ export default function Overlay( {
 	onPreviousSlide,
 	tapToPlayPause,
 } ) {
-	const onOverlayPressed = useCallback( () => {
+	const onOverlayPressed = () => {
 		! disabled && tapToPlayPause && onClick();
-	}, [ tapToPlayPause, onClick ] );
+	};
 
 	const onPlayPressed = useCallback(
 		event => {
@@ -53,59 +56,60 @@ export default function Overlay( {
 		[ onNextSlide ]
 	);
 
-	return html`
+	return (
+		/* eslint-disable jsx-a11y/click-events-have-key-events */
+		/* eslint-disable jsx-a11y/no-static-element-interactions */
 		<div
-			class=${classNames( {
+			className={ classNames( {
 				'wp-story-overlay': true,
 				'wp-story-clickable': tapToPlayPause,
-			} )}
-			onClick=${onOverlayPressed}
+			} ) }
+			onClick={ onOverlayPressed }
 		>
-			<div class="wp-story-prev-slide" onClick=${onPreviousSlideHandler}>
-				${hasPrevious &&
-					html`
-						<${DecoratedButton}
-							size=${44}
-							iconSize=${24}
-							label="Previous Slide"
-							icon="navigate_before"
-							className="outlined-w"
-						/>
-					`}
-			</div>
-			<div class="wp-story-next-slide" onClick=${onNextSlideHandler}>
-				${hasNext &&
-					html`
-						<${DecoratedButton}
-							size=${44}
-							iconSize=${24}
-							label="Next Slide"
-							icon="navigate_next"
-							className="outlined-w"
-						/>
-					`}
-			</div>
-			${! playing &&
-				! ended &&
-				html`
-					<${DecoratedButton}
-						size=${80}
-						iconSize=${56}
-						label="Play Story"
-						icon="play_arrow"
-						onClick=${onPlayPressed}
+			// eslint-disable-next-line jsx-a11y/click-events-have-key-events // eslint-disable-next-line
+			jsx-a11y/no-static-element-interactions
+			<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
+				{ hasPrevious && (
+					<DecoratedButton
+						size={ 44 }
+						iconSize={ 24 }
+						label="Previous Slide"
+						icon="navigate_before"
+						className="outlined-w"
 					/>
-				`}
-			${ended &&
-				html`
-					<${DecoratedButton}
-						size=${80}
-						iconSize=${56}
-						label="Replay Story"
-						icon="replay"
-						onClick=${onPlayPressed}
+				) }
+			</div>
+			<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
+				{ hasNext && (
+					<DecoratedButton
+						size={ 44 }
+						iconSize={ 24 }
+						label="Next Slide"
+						icon="navigate_next"
+						className="outlined-w"
 					/>
-				`}
+				) }
+			</div>
+			{ ! playing && ! ended && (
+				<DecoratedButton
+					size={ 80 }
+					iconSize={ 56 }
+					label="Play Story"
+					icon="play_arrow"
+					onClick={ onPlayPressed }
+				/>
+			) }
+			{ ended && (
+				<DecoratedButton
+					size={ 80 }
+					iconSize={ 56 }
+					label="Replay Story"
+					icon="replay"
+					onClick={ onPlayPressed }
+				/>
+			) }
 		</div>
-	`;
+		/* eslint-enable jsx-a11y/click-events-have-key-events */
+		/* eslint-enable jsx-a11y/no-static-element-interactions */
+	);
 }
