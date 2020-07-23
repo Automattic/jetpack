@@ -10,7 +10,10 @@ import getAllowedMimeTypesBySite, {
 	getAllowedVideoTypesByType,
 	pickFileExtensionsFromMimeTypes,
 } from '../../get-allowed-mime-types';
-import { isUpgradable } from '../../plan-utils';
+
+import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
+import { isSimpleSite } from '../../site-type-utils';
+import { requiresPaidPlan } from '../../register-jetpack-block';
 
 /**
  * Check if the given file is a video.
@@ -44,6 +47,10 @@ export function isVideoFile( file ) {
 }
 
 export function isCoverUpgradable( name ) {
-	// Get upgradability relying on the `jetpack/videopress` block.
-	return name === 'core/cover' && isUpgradable( 'jetpack/videopress' );
+	if ( name !== 'core/cover' ) {
+		return false;
+	}
+
+	const { details, unavailableReason } = getJetpackExtensionAvailability( name );
+	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }

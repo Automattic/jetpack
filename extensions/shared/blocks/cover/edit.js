@@ -1,60 +1,33 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
 import { InspectorControls } from '@wordpress/editor';
-import { useEffect, useState, Fragment, useCallback } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { isCoverUpgradable, isVideoFile } from './utils';
-import { CoverMediaProvider } from './components';
+import { isCoverUpgradable } from './utils';
 import UpgradePlanBanner from '../../paid-blocks/upgrade-plan-banner';
 
 export default createHigherOrderComponent(
 	BlockEdit => props => {
-		const [ showBanner, setShowBanner ] = useState( false );
-		const { attributes, clientId, name } = props;
-
-		// Remove Banner when the block changes its attributes.
-		useEffect( () => setShowBanner( false ), [ attributes ] );
-
-		const handleFilesPreUpload = useCallback( files => {
-			if ( ! files?.length || ! isVideoFile( files[ 0 ] ) ) {
-				return;
-			}
-			setShowBanner( true );
-		} );
-
-		const isVisible =
-			useSelect( select => select( 'core/block-editor' ).isBlockSelected( clientId ) ) &&
-			showBanner;
-
-		if ( ! isCoverUpgradable( name ) ) {
+		if ( ! isCoverUpgradable( props?.name ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
 		return (
 			<Fragment>
 				<InspectorControls>
-					<UpgradePlanBanner description={ null } blockName={ name } />
+					<UpgradePlanBanner description={ null } blockName={ props?.name } />
 				</InspectorControls>
 
-				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
-					<UpgradePlanBanner className="is-core-cover-premium-block" blockName={ props.name } visible={ isVisible } />
-					<div className={ classNames( 'wp-block-cover__wrapper', {
-						'has-warning is-interactive is-upgradable': isVisible,
-					} ) }>
-						<BlockEdit { ...props } />
-					</div>
-				</CoverMediaProvider>
+				<BlockEdit { ...props } />
 			</Fragment>
 		);
 	},

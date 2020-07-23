@@ -7,15 +7,4 @@ $banner-height: 48px;
 
 .wp-block-cover__wrapper.is-upgradable .jetpack-cover-media-placeholder {
 	padding-top: $banner-height - 10px;
-	.block-editor-block-list__layout .block-editor-block-list__block:not([contenteditable]):focus:after {
-		outline: none;
-	}
-}
-
-.block-editor-block-list__layout .block-editor-block-list__block:not([contenteditable]):focus:after {
-	outline: none;
-}
-
-.jetpack-upgrade-plan-banner.is-core-cover-premium-block {
-	margin-bottom: -$banner-height;
 }

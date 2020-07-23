@@ -13,6 +13,8 @@ import { addFilter } from '@wordpress/hooks';
 import coverEditMediaPlaceholder from './cover-media-placeholder';
 import coverMediaReplaceFlow from './cover-replace-control-button';
 import jetpackCoverBlockEdit from './edit';
+import JetpackCoverListBlock from './cover-list-block';
+
 import './editor.scss';
 
 // Take control of Replace button.
@@ -27,3 +29,5 @@ addFilter(
 
 // Extend Core CoverEditBlock.
 addFilter( 'editor.BlockEdit', 'jetpack/cover-block-edit', jetpackCoverBlockEdit );
+
+addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', JetpackCoverListBlock );
