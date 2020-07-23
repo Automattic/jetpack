@@ -666,9 +666,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$this->site = $this->get_platform()->get_site( $response->ID );
 		switch_to_blog( $this->site->get_id() );
 
-		// ensure the response is marked as being from Jetpack
-		$response->jetpack = true;
-
 		$wpcom_response = $this->render_response_keys( self::$jetpack_response_field_additions );
 
 		foreach( $wpcom_response as $key => $value ) {
