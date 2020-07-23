@@ -3,6 +3,7 @@
  */
 import Page from '../page';
 import { waitAndClick, isEventuallyVisible, waitForSelector } from '../../page-helper';
+import { execShellCommand } from '../../utils-helper';
 
 export default class PluginsPage extends Page {
 	constructor( page ) {
@@ -55,6 +56,8 @@ export default class PluginsPage extends Page {
 			await waitForSelector( this.page, updatedMessage, { timeout: 3 * 30000 } );
 		} catch ( error ) {
 			console.log( error );
+			await execShellCommand( 'ls -la $HOME/wordpress' );
+			await execShellCommand( 'rm $HOME/wordpress/.maintenance' );
 			await this.reload();
 			await this.updateJetpack();
 		}
