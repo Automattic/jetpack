@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { includes, map, reduce } from 'lodash';
+import { includes, map, pick, reduce } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -165,8 +165,23 @@ class PlanGrid extends React.Component {
 			{}
 		);
 
-		this.featuredPlans = featuredPlans;
-		return featuredPlans;
+		// Users on the personal plan should still see the personal plan, otherwise
+		// they should see a modified premium and professional plan.
+		if ( 'is-personal-plan' === getPlanClass( this.props.sitePlan.product_slug ) ) {
+			this.featuredPlans = featuredPlans;
+		} else {
+			const personalFeatures = featuredPlans.personal.features;
+			const premiumFeatures = featuredPlans.premium.features;
+			featuredPlans.premium.features = [
+				personalFeatures.find( feature => 'backups' === feature.id ),
+				personalFeatures.find( feature => 'spam' === feature.id ),
+				...premiumFeatures.filter( feature => 'all-from-previous' !== feature.id ),
+				personalFeatures.find( feature => 'all-from-previous' === feature.id ),
+			];
+			this.featuredPlans = pick( featuredPlans, [ 'premium', 'business' ] );
+		}
+
+		return this.featuredPlans;
 	}
 
 	/**

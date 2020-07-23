@@ -7,7 +7,8 @@ $plan-features-sidebar-width: 272px;
 /* Breakpoints 1150px, */
 
 .plan-features__content {
-	margin: 0 -16px 16px;
+	max-width: 840px;
+	margin: auto;
 	padding-top: $plan-features-header-banner-height;
 }
 
