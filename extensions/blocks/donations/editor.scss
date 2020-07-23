@@ -18,21 +18,23 @@
 				height: auto;
 				border-radius: 0;
 				border-left: 1px solid $light-gray-700;
-				background-color: transparent;
+				background-color: $white;
 				color: $dark-gray-800;
+				box-shadow: none;
 
 				&:first-child {
 					border-left: none;
 				}
 
-				&:hover,
-				&:not(:disabled):not([aria-disabled=true]):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover { // Needed for higher specificity.
-					background-color: $white;
+				// Complex selector needed to override specificity.
+				&:not(:disabled):not([aria-disabled=true]):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover {
+					background-color: $light-gray-100;
 					box-shadow: none;
 				}
 
+				// Complex selector needed to override specificity.
 				&.is-active,
-				&.is-active:hover {
+				&.is-active:not(:disabled):not([aria-disabled=true]):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover {
 					background-color: $blue-wordpress-700;
 					box-shadow: none;
 					color: $white;
