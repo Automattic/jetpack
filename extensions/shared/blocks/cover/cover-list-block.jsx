@@ -19,7 +19,7 @@ import UpgradePlanBanner from '../../paid-blocks/upgrade-plan-banner';
 export default createHigherOrderComponent(
 	CoverBlockList => props => {
 		const [ showBanner, setShowBanner ] = useState( false );
-		const { attributes, clientId, name } = props;
+		const { attributes, name } = props;
 
 		// Remove Banner when the block changes its attributes.
 		useEffect( () => setShowBanner( false ), [ attributes ] );
@@ -31,9 +31,7 @@ export default createHigherOrderComponent(
 			setShowBanner( true );
 		} );
 
-		const isVisible =
-			useSelect( select => select( 'core/block-editor' ).isBlockSelected( clientId ) ) &&
-			showBanner;
+		const isVisible = props?.isSelected && showBanner;
 
 		if ( ! isCoverUpgradable( name ) ) {
 			return <CoverBlockList { ...props } />;

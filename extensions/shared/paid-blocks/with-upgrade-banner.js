@@ -18,12 +18,12 @@ export default createHigherOrderComponent(
 			return <BlockListBlock { ...props } />;
 		}
 
-		const isVisible = useSelect(
-			select =>
-				select( 'core/block-editor' ).isBlockSelected( props.clientId ) ||
-				select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId ),
+		const hasChildrenSelected = useSelect(
+			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId ),
 			[]
 		);
+
+		const isVisible = props?.isSelected || hasChildrenSelected;
 
 		return (
 			<Fragment>
