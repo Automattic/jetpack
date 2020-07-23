@@ -16,13 +16,6 @@ export default OriginalBlockEdit => props => {
 		return <OriginalBlockEdit { ...props } />;
 	}
 
-	const isVisible = useSelect(
-		select => (
-			select( 'core/block-editor' ).isBlockSelected( props.clientId ) ||
-			select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId )
-		)
-	);
-
 	return (
 		<Fragment>
 			<InspectorControls>
