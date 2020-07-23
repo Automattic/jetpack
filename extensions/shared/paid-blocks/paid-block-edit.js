@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/block-editor';
 
 /**

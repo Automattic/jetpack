@@ -105,7 +105,7 @@ export function isUpgradable( name ) {
 /**
  * Return whether upgrade nudges are enabled or not
  *
- * @returns {boolean}
+ * @returns {boolean} - Are upgrade nudgles enabled
  */
 export function isUpgradeNudgeEnabled() {
 	return get( getJetpackData(), 'jetpack.enable_upgrade_nudge', false );
