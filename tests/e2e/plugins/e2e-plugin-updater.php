@@ -67,9 +67,9 @@ function e2e_set_jetpack_update( $value ) {
  * @return array
  */
 function e2e_move_jetpack_dev_dir( $response, $hook_extra, $result ) {
-	if ( 'jetpack-dev' === $result['destination_name'] ) {
-		rename( WP_PLUGIN_DIR . '/jetpack-dev', WP_PLUGIN_DIR . '/jetpack' );
-	}
+	// if ( 'jetpack-dev' === $result['destination_name'] ) {
+	// 	rename( WP_PLUGIN_DIR . '/jetpack-dev', WP_PLUGIN_DIR . '/jetpack' );
+	// }
 
 	return $response;
 }
