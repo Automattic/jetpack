@@ -10,7 +10,6 @@
  */
 
 add_filter( 'site_transient_update_plugins', 'e2e_set_jetpack_update', 10, 1 );
-add_filter( 'upgrader_post_install', 'e2e_move_jetpack_dev_dir', 10, 3 );
 
 /**
  * Injects new available Jetpack version and download url into core updater
@@ -55,21 +54,4 @@ function e2e_set_jetpack_update( $value ) {
 	}
 
 	return $value;
-}
-
-/**
- * Plugin renamer :shrug:
- *
- * @param Object $response Response object.
- * @param Object $hook_extra :shrug:.
- * @param array  $result result array.
- *
- * @return array
- */
-function e2e_move_jetpack_dev_dir( $response, $hook_extra, $result ) {
-	// if ( 'jetpack-dev' === $result['destination_name'] ) {
-	// 	rename( WP_PLUGIN_DIR . '/jetpack-dev', WP_PLUGIN_DIR . '/jetpack' );
-	// }
-
-	return $response;
 }
