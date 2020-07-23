@@ -12,7 +12,7 @@ import domReady from '@wordpress/dom-ready';
 /**
  * Internal dependencies
  */
-import withCustomClassNames from '../with-custom-class-names';
+import withUpgradeBanner from './with-upgrade-banner';
 import jetpackPaidBlockEdit from './paid-block-edit';
 import { isUpgradable, isUpgradeNudgeEnabled } from '../plan-utils';
 
@@ -32,9 +32,9 @@ const jetpackPaidBlock = ( settings, name ) => {
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock, 1 );
 
 addFilter(
-	'blocks.getBlockDefaultClassName',
-	`jetpack/set-upgradable-classnames`,
-	withCustomClassNames( 'has-warning is-interactive is-upgradable' )
+	'editor.BlockListBlock',
+	'jetpack/premium-block-with-warning',
+	withUpgradeBanner
 );
 
 domReady( function() {

@@ -29,12 +29,6 @@ export default OriginalBlockEdit => props => {
 				<UpgradePlanBanner description={ null } blockName={ props.name } />
 			</InspectorControls>
 
-			<UpgradePlanBanner
-				className={ `is-${ props.name.replace( /\//, '-' ) }-premium-block` }
-				title={ null }
-				align={ props?.attributes?.align }
-				visible={ isVisible }
-			/>
 			<OriginalBlockEdit { ...props } />
 		</Fragment>
 	);
