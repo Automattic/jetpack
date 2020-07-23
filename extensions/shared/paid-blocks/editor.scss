@@ -49,15 +49,6 @@ $icon-background-color: #fff;
 	}
 }
 
-// Adjust blocks
-.is-core-video-premium-block {
-	margin-bottom: -$banner-height;
-}
-
-.wp-block-video.is-upgradable.is-selected {
-	padding-top: $banner-height + 10px;
-}
-
 // Premium Icons.
 // Hide by default.
 .jetpack-paid-block-symbol {
@@ -66,6 +57,11 @@ $icon-background-color: #fff;
 
 // Only show if upgrade is possible.
 .jetpack-enable-upgrade-nudge {
+	// hide contextual toolbar
+	.block-editor-block-contextual-toolbar-wrapper {
+		display: none;
+	}
+
 	.block-editor-block-icon > svg {
 		overflow: visible;
 	}
