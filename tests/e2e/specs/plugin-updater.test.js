@@ -15,8 +15,7 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 describe( 'Jetpack updater', () => {
 	catchBeforeAll( async () => {
 		await prepareUpdaterTest();
-		// await execWpCommand( 'wp plugin deactivate jetpack-dev' );
-		await execWpCommand( 'wp plugin uninstall --deactivate jetpack-dev' );
+		await execWpCommand( 'wp plugin deactivate jetpack-dev' );
 		await execWpCommand( 'wp plugin activate e2e-plugin-updater' );
 		await execWpCommand( 'wp plugin install --activate jetpack' );
 		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
@@ -27,11 +26,7 @@ describe( 'Jetpack updater', () => {
 	} );
 
 	afterAll( async () => {
-		await execWpCommand( 'wp plugin list' );
 		await resetWordpressInstall();
-		// await execWpCommand( 'wp plugin uninstall --deactivate jetpack' );
-		// await execWpCommand( 'wp plugin activate jetpack-dev' );
-		// await execWpCommand( 'wp plugin deactivate e2e-plugin-updater' );
 	} );
 
 	it( 'Plugin updater', async () => {
