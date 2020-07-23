@@ -1,7 +1,7 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import { html } from 'htm/preact';
+import { createElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -9,18 +9,18 @@ import { html } from 'htm/preact';
 import { SimpleButton } from './button';
 
 export default function Controls( { playing, muted, setPlaying, setMuted } ) {
-	return html`
-		<div class="wp-story-controls">
-			<${SimpleButton}
+	return (
+		<div className="wp-story-controls">
+			<SimpleButton
 				label="Play"
-				onClick=${() => setPlaying( ! playing )}
-				icon=${playing ? 'pause' : 'play_arrow'}
+				onClick={ () => setPlaying( ! playing ) }
+				icon={ playing ? 'pause' : 'play_arrow' }
 			/>
-			<${SimpleButton}
+			<SimpleButton
 				label="Mute"
-				onClick=${() => setMuted( ! muted )}
-				icon=${muted ? 'volume_off' : 'volume_up'}
+				onClick={ () => setMuted( ! muted ) }
+				icon={ muted ? 'volume_off' : 'volume_up' }
 			/>
 		</div>
-	`;
+	);
 }

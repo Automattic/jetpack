@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { merge } from 'lodash';
-import ResizeObserver from 'resize-observer-polyfill';
+import retargetEvents from 'react-shadow-dom-retarget-events';
 
 /**
  * Internal dependencies
@@ -10,7 +10,6 @@ import ResizeObserver from 'resize-observer-polyfill';
 import './style.scss';
 import { supportsShadow, toShadow } from './shadow-dom';
 import { renderPlayer } from './player';
-import defaultRenderers from './default-renderers';
 import { fullscreen } from './utils';
 
 const defaultSettings = {
@@ -26,7 +25,6 @@ const defaultSettings = {
 	loadInFullscreen: false,
 	tapToPlayPause: true, // embed feature
 	blurredBackground: true,
-	renderers: defaultRenderers,
 	shadowDOM: {
 		enabled: true,
 		mode: 'open', // closed not supported right now
@@ -42,17 +40,18 @@ export default function player( rootElement, params ) {
 		rootElement = document.querySelectorAll( rootElement );
 	}
 
-	const root =
-		supportsShadow() && settings.shadowDOM.enabled
-			? toShadow( rootElement, settings.shadowDOM )
-			: rootElement;
+	const useShadowDom = supportsShadow() && settings.shadowDOM.enabled;
 
-	let container = root.querySelector( '.wp-story-container' );
-	if ( ! container ) {
-		container = document.createElement( 'div' );
-		container.classList.add( 'wp-story-container' );
-		root.appendChild( container );
+	const root = useShadowDom ? toShadow( rootElement, settings.shadowDOM ) : rootElement;
+
+	let appMountElement = root.querySelector( 'div' );
+	if ( ! appMountElement ) {
+		appMountElement = document.createElement( 'div' );
+		appMountElement.className = '';
+		appMountElement.style.display = 'contents';
+		root.appendChild( appMountElement );
 	}
+
 	const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 		navigator.userAgent
 	);
@@ -90,42 +89,24 @@ export default function player( rootElement, params ) {
 			}
 			rootElement.classList.remove( 'wp-story-fullscreen' );
 		} );
-
-		const resize = () => {
-			const slidesMaxHeight = container.querySelector( '.wp-story-wrapper' ).offsetHeight;
-			const width = Math.round( settings.defaultAspectRatio * slidesMaxHeight );
-			container.style.width = `${ width }px`;
-		};
-
-		playerEvents.on( 'ready', () => {
-			resize();
-			let pendingRequestAnimationFrame = null;
-			new ResizeObserver( () => {
-				if ( pendingRequestAnimationFrame ) {
-					cancelAnimationFrame( pendingRequestAnimationFrame );
-					pendingRequestAnimationFrame = null;
-				}
-				pendingRequestAnimationFrame = requestAnimationFrame( () => {
-					resize();
-				} );
-			} ).observe( container.querySelector( '.wp-story-wrapper' ) );
-		} );
 	};
 
 	let playerEvents = null;
 	const initPlayer = ( newSettings = settings ) => {
 		if ( playerEvents ) {
-			playerEvents.removeAllListeners( 'ready' );
 			playerEvents.removeAllListeners( 'exit-fullscreen' );
 			playerEvents.removeAllListeners( 'go-fullscreen' );
 		}
-		playerEvents = renderPlayer( root, newSettings );
+		playerEvents = renderPlayer( appMountElement, newSettings );
 		registerListeners( playerEvents );
+		if ( useShadowDom ) {
+			retargetEvents( root );
+		}
 	};
 
 	if ( settings.autoload ) {
-		const slidesWrapper = container.querySelector( '.wp-story-wrapper' );
-		const metaWrapper = container.querySelector( '.wp-story-meta' );
+		const slidesWrapper = root.querySelector( '.wp-story-wrapper' );
+		const metaWrapper = root.querySelector( '.wp-story-meta' );
 
 		settings.slides = settings.slides || [];
 		if ( settings.slides.length === 0 && slidesWrapper && slidesWrapper.children.length > 0 ) {

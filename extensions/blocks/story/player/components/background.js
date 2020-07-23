@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { html } from 'htm/preact';
+
+/**
+ * WordPress dependencies
+ */
+import { createElement } from '@wordpress/element';
+import { SVG } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -10,15 +15,15 @@ import { html } from 'htm/preact';
 export default function Background( { currentMedia } ) {
 	const url = currentMedia.type === 'image' ? currentMedia.url : null;
 
-	return html`
-		<div class="wp-story-background">
-			<svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+	return (
+		<div className="wp-story-background">
+			<SVG version="1.1" xmlns="http://www.w3.org/2000/svg">
 				<filter id="gaussian-blur-10">
 					<feGaussianBlur stdDeviation="10" />
 				</filter>
-			</svg>
-			<img src=${url} alt="" />
-			<div class="wp-story-background-blur"></div>
+			</SVG>
+			<img src={ url } alt="" />
+			<div className="wp-story-background-blur"></div>
 		</div>
-	`;
+	);
 }

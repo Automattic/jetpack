@@ -1,17 +1,21 @@
 /**
  * External dependencies
  */
-import { html } from 'htm/preact';
 import classnames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
+import { createElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import './icons.scss';
 
-export const MaterialIcon = ( { icon, size = 24 } ) => html`
-	<i class="jetpack-material-icons ${icon}" style=${{ fontSize: size }}></i>
-`;
+export const MaterialIcon = ( { icon, size = 24 } ) => (
+	<i className={ `jetpack-material-icons ${ icon }` } style={ { fontSize: size } }></i>
+);
 
 export const Button = ( {
 	label,
@@ -24,38 +28,36 @@ export const Button = ( {
 	outlined = false,
 	bordered = false,
 } ) => {
-	return html`
+	return (
 		<button
-			class=${classnames( {
+			className={ classnames( {
 				'jetpack-mdc-icon-button': true,
 				'circle-icon': circled,
 				outlined: outlined,
 				bordered: bordered,
 				[ className ]: !! className,
-			} )}
-			style=${{
+			} ) }
+			style={ {
 				width: `${ size }px`,
 				height: `${ size }px`,
-			}}
-			aria-label="${label}"
+			} }
+			aria-label={ label }
 			aria-pressed="false"
-			onClick=${onClick}
+			onClick={ onClick }
 		>
-			${typeof icon === 'function'
-				? html`
-						<${icon} size=${iconSize} />
-				  `
-				: html`
-						<${MaterialIcon} icon=${icon} size=${iconSize} />
-				  `}
+			{ typeof icon === 'function' ? (
+				<icon size={ iconSize } />
+			) : (
+				<MaterialIcon icon={ icon } size={ iconSize } />
+			) }
 		</button>
-	`;
+	);
 };
 
-export const DecoratedButton = props => html`
-	<${Button} circled outlined bordered size=${64} iconSize=${36} ...${props} />
-`;
+export const DecoratedButton = props => (
+	<Button circled outlined bordered size={ 64 } iconSize={ 36 } { ...props } />
+);
 
-export const SimpleButton = ( { size = 24, ...props } ) => html`
-	<${Button} size=${size} iconSize=${size} ...${props} />
-`;
+export const SimpleButton = ( { size = 24, ...props } ) => (
+	<Button size={ size } iconSize={ size } { ...props } />
+);

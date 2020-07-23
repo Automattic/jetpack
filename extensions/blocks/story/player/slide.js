@@ -1,9 +1,17 @@
 /**
  * External dependencies
  */
-import { useEffect, useState, useRef } from 'preact/hooks';
-import { html } from 'htm/preact';
 import { waitMediaReady } from './utils';
+
+/**
+ * WordPress dependencies
+ */
+import { createElement, useEffect, useState, useRef } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import { Media } from './components';
 
 export const Slide = ( {
 	media,
@@ -124,13 +132,10 @@ export const Slide = ( {
 		}
 		const percentage = Math.round( ( 100 * progressState.currentTime ) / progressState.duration );
 		if ( percentage >= 100 ) {
-			onProgress( 100, {
-				...progressState,
-				currentTime: progressState.duration,
-			} );
+			onProgress( 100 );
 			onEnd();
 		} else {
-			onProgress( percentage, progressState );
+			onProgress( percentage );
 		}
 	}, [ playing, progressState ] );
 
@@ -139,15 +144,11 @@ export const Slide = ( {
 		waitMediaReady( mediaRef.current ).then( onLoaded );
 	}, [ media ] );
 
-	return html`
-		<li class="wp-story-slide" style=${{ display: visible ? 'block' : 'none' }}>
-			${settings.renderers.renderMedia( html, {
-				...media,
-				index,
-				mediaRef,
-			} )}
+	return (
+		<li className="wp-story-slide" style={ { display: visible ? 'block' : 'none' } }>
+			<Media { ...media } index={ index } mediaRef={ mediaRef } />
 		</li>
-	`;
+	);
 };
 
 export default Slide;

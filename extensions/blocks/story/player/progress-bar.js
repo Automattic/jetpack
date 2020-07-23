@@ -1,20 +1,23 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import { html } from 'htm/preact';
-import { useCallback } from 'preact/hooks';
+import { createElement } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import { Bullet } from './components';
 
 export const ProgressBar = ( {
 	slides,
-	settings,
 	fullscreen,
 	currentSlideIndex,
 	currentSlideProgress,
 	onSlideSeek,
 } ) => {
-	return html`
-		<div class="wp-story-pagination wp-story-pagination-bullets">
-			${slides.map( ( slide, index ) => {
+	return (
+		<div className="wp-story-pagination wp-story-pagination-bullets">
+			{ slides.map( ( slide, index ) => {
 				let progress;
 				if ( index < currentSlideIndex ) {
 					progress = 100;
@@ -29,14 +32,10 @@ export const ProgressBar = ( {
 					}
 					onSlideSeek( index );
 				};
-				return settings.renderers.renderBullet( html, {
-					index,
-					progress,
-					onClick,
-				} );
-			} )}
+				return <Bullet key={ index } index={ index } progress={ progress } onClick={ onClick } />;
+			} ) }
 		</div>
-	`;
+	);
 };
 
 export default ProgressBar;

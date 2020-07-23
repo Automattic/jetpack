@@ -10,10 +10,10 @@ import domReady from '@wordpress/dom-ready';
 import player from './player';
 
 if ( typeof window !== 'undefined' ) {
-	domReady( function() {
-		const storyBlocks = document.getElementsByClassName( 'wp-block-jetpack-story' );
+	domReady( function () {
+		const storyBlocks = document.getElementsByClassName( 'wp-story' );
 		forEach( storyBlocks, storyBlock => {
-			if ( storyBlock.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+			if ( storyBlock.getAttribute( 'data-block-initialized' ) === 'true' ) {
 				return;
 			}
 
