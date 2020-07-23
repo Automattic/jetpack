@@ -44,6 +44,7 @@ class Jetpack_Plan {
 			),
 			'supports' => array(
 				'akismet',
+				'donations',
 				'recurring-payments',
 			),
 		),

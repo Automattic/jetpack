@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { __experimentalBlock as Block, RichText } from '@wordpress/block-editor';
+import { RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import Context from './context';
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
-import { minimumTransactionAmountForCurrency } from '../recurring-payments';
+import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 const attributesPerInterval = {
 	heading: {
@@ -58,14 +58,14 @@ const Tab = props => {
 			{ ( { activeTab } ) => (
 				<div hidden={ activeTab !== interval }>
 					<RichText
-						tagName={ Block.h4 }
+						tagName="h4"
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
 						value={ getAttribute( 'heading' ) }
 						onChange={ value => setAttribute( 'heading', value ) }
 						inlineToolbar
 					/>
 					<RichText
-						tagName={ Block.p }
+						tagName="p"
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
 						value={ getAttribute( 'chooseAmountText' ) }
 						onChange={ value => setAttribute( 'chooseAmountText', value ) }
@@ -81,7 +81,7 @@ const Tab = props => {
 					{ getAttribute( 'showCustomAmount' ) && (
 						<>
 							<RichText
-								tagName={ Block.p }
+								tagName="p"
 								placeholder={ __( 'Write a message…', 'jetpack' ) }
 								value={ getAttribute( 'customAmountText' ) }
 								onChange={ value => setAttribute( 'customAmountText', value ) }
@@ -99,14 +99,14 @@ const Tab = props => {
 					) }
 					<div className="donations__separator">——</div>
 					<RichText
-						tagName={ Block.p }
+						tagName="p"
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
 						value={ getAttribute( 'extraText' ) }
 						onChange={ value => setAttribute( 'extraText', value ) }
 						inlineToolbar
 					/>
 					<RichText
-						wrapperClassName="wp-block-button"
+						wrapperClassName="wp-block-button donations__donate-button"
 						className="wp-block-button__link"
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
 						value={ getAttribute( 'buttonText' ) }

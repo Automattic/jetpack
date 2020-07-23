@@ -5,15 +5,14 @@
 import { __ } from '@wordpress/i18n';
 import { Placeholder } from '@wordpress/components';
 
-const LoadingError = ( { error } ) => {
+const LoadingError = ( { className, error } ) => {
 	return (
-		<div className="donations__loading-status">
-			<Placeholder
-				icon="lock"
-				label={ __( 'Donations', 'jetpack' ) }
-				instructions={ error }
-			></Placeholder>
-		</div>
+		<Placeholder
+			icon="lock"
+			label={ __( 'Donations', 'jetpack' ) }
+			instructions={ error }
+			className={ className }
+		></Placeholder>
 	);
 };
 

@@ -22,7 +22,10 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'plan_check'      => true,
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -36,14 +39,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-
-	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr ) ),
-		$content
-	);
+	return $content;
 }

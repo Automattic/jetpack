@@ -6,7 +6,6 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { __experimentalBlock as Block } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -17,10 +16,10 @@ import { __ } from '@wordpress/i18n';
 import Context from './context';
 import Controls from './controls';
 import Tab from './tab';
-import StripeNudge from './stripe-nudge';
+import StripeNudge from '../../shared/components/stripe-nudge';
 
 const Tabs = props => {
-	const { attributes, products, setAttributes, stripeConnectUrl, className } = props;
+	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
 	const { oneTimePlanId, monthlyPlanId, annuallyPlanId } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 
@@ -57,14 +56,18 @@ const Tabs = props => {
 	}, [ monthlyPlanId, annuallyPlanId ] );
 
 	return (
-		<Block.div className={ className }>
-			{ stripeConnectUrl && <StripeNudge stripeConnectUrl={ stripeConnectUrl } /> }
-			<div className={ 'donations__container' }>
+		<div className={ className }>
+			{ ! shouldUpgrade && stripeConnectUrl && (
+				<StripeNudge blockName="donations" stripeConnectUrl={ stripeConnectUrl } />
+			) }
+			<div className="donations__container">
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__tabs">
 						{ Object.entries( tabs ).map( ( [ interval, { title } ] ) => (
 							<Button
-								className={ classNames( { 'is-active': isTabActive( interval ) } ) }
+								className={ classNames( 'donations__tab', {
+									'is-active': isTabActive( interval ),
+								} ) }
 								onClick={ () => setActiveTab( interval ) }
 							>
 								{ title }
@@ -81,7 +84,7 @@ const Tabs = props => {
 				</div>
 			</div>
 			<Controls { ...props } />
-		</Block.div>
+		</div>
 	);
 };
 

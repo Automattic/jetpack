@@ -10,7 +10,6 @@ import { __ } from '@wordpress/i18n';
 import Tabs from './tabs';
 import LoadingError from './loading-error';
 import LoadingStatus from './loading-status';
-import UpgradePlan from './upgrade-plan';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 
@@ -23,7 +22,6 @@ const Edit = props => {
 	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
 	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
 	const [ products, setProducts ] = useState( [] );
-	const [ upgradeUrl, setUpgradeUrl ] = useState( '' );
 	const [ siteSlug, setSiteSlug ] = useState( '' );
 
 	const apiError = message => {
@@ -56,7 +54,6 @@ const Edit = props => {
 			return;
 		}
 		setShouldUpgrade( result.should_upgrade_to_access_memberships );
-		setUpgradeUrl( result.upgrade_url );
 		setStripeConnectUrl( result.connect_url );
 		setSiteSlug( result.site_slug );
 
@@ -68,12 +65,19 @@ const Edit = props => {
 			return;
 		}
 
+		// Set fake products when plan should be upgraded or there is no connection to Stripe so users can still try the
+		// block in the editor.
 		if ( result.should_upgrade_to_access_memberships || result.connect_url ) {
 			setIsLoading( false );
+			setProducts( {
+				'one-time': -1,
+				'1 month': -1,
+				'1 year': -1,
+			} );
 			return;
 		}
 
-		//only create products if we have the correct plan and stripe connection
+		// Only create products if we have the correct plan and stripe connection.
 		fetchDefaultProducts( currency ).then( defaultProducts => {
 			setIsLoading( false );
 			return setProducts( filterProducts( defaultProducts ) );
@@ -93,17 +97,14 @@ const Edit = props => {
 		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
-	if ( shouldUpgrade ) {
-		return <UpgradePlan className={ className } upgradeUrl={ upgradeUrl } />;
-	}
-
 	return (
 		<Tabs
 			{ ...props }
 			className={ className }
 			products={ products }
-			stripeConnectUrl={ stripeConnectUrl }
+			shouldUpgrade={ shouldUpgrade }
 			siteSlug={ siteSlug }
+			stripeConnectUrl={ stripeConnectUrl }
 		/>
 	);
 };
