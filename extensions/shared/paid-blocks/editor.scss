@@ -4,6 +4,14 @@ $banner-height: 48px;
 $icon-size: 10px;
 $icon-background-color: #fff;
 
+.block-editor-block-list__layout{
+	.jetpack-upgrade-plan-banner {
+		position: relative;
+		top: $banner-height + 5px;
+		z-index: 1000;
+	}
+}
+
 .jetpack-upgrade-plan-banner {
 	display: flex;
 	justify-content: space-between;
@@ -39,6 +47,7 @@ $icon-background-color: #fff;
 
 .block-editor-block-list__block.is-upgradable {
 	margin-top: 0;
+	padding-top: $banner-height;
 }
 
 // Adjust banner in the InspectorControl

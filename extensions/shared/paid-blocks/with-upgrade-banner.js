@@ -37,7 +37,7 @@ export default createHigherOrderComponent(
 
 				<BlockListBlock
 					{ ...props }
-					className="has-warning is-interactive is-upgradable"
+					className="is-interactive is-upgradable"
 				/>
 			</Fragment>
 		);
