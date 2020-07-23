@@ -91,6 +91,7 @@ class Broken_Token {
 		add_action( 'admin_post_clear_blog_token', array( $this, 'admin_post_clear_blog_token' ) );
 		add_action( 'admin_post_clear_user_tokens', array( $this, 'admin_post_clear_user_tokens' ) );
 		add_action( 'admin_post_randomize_master_user', array( $this, 'admin_post_randomize_master_user' ) );
+		add_action( 'admin_post_randomize_master_user_and_token', array( $this, 'admin_post_randomize_master_user_and_token' ) );
 		add_action( 'admin_post_clear_master_user', array( $this, 'admin_post_clear_master_user' ) );
 		add_action( 'admin_post_randomize_blog_id', array( $this, 'admin_post_randomize_blog_id' ) );
 		add_action( 'admin_post_clear_blog_id', array( $this, 'admin_post_clear_blog_id' ) );
@@ -215,6 +216,12 @@ class Broken_Token {
 		</form>
 		<br>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<input type="hidden" name="action" value="randomize_master_user_and_token">
+			<?php wp_nonce_field( 'randomize-master-user-and-token' ); ?>
+			<input type="submit" value="Randomize Primary User ID and move the user token together" class="button button-primary button-break-it">
+		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="clear_master_user">
 			<?php wp_nonce_field( 'clear-master-user' ); ?>
 			<input type="submit" value="Clear the Primary User" class="button button-primary button-break-it">
@@ -324,6 +331,24 @@ class Broken_Token {
 		$this->notice_type = 'jetpack-broken';
 		$current_id        = Jetpack_Options::get_option( 'master_user' );
 		Jetpack_Options::update_option( 'master_user', wp_rand( $current_id + 1, $current_id + 100 ) );
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Randomize master user and its token.
+	 */
+	public function admin_post_randomize_master_user_and_token() {
+		check_admin_referer( 'randomize-master-user-and-token' );
+		$this->notice_type = 'jetpack-broken';
+		$current_id        = Jetpack_Options::get_option( 'master_user' );
+		$random_id         = wp_rand( $current_id + 1, $current_id + 100 );
+		Jetpack_Options::update_option( 'master_user', $random_id );
+		$user_tokens = Jetpack_Options::get_option( 'user_tokens', array() );
+		if ( isset( $user_tokens[ $current_id ] ) ) {
+			$user_tokens[ $random_id ] = substr( $user_tokens[ $current_id ], 0, strrpos( $user_tokens[ $current_id ], '.' ) ) . ".$random_id";
+			unset( $user_tokens[ $current_id ] );
+		}
+		Jetpack_Options::update_option( 'user_tokens', $user_tokens );
 		$this->admin_post_redirect_referrer();
 	}
 
