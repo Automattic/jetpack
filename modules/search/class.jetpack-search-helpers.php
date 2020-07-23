@@ -718,7 +718,7 @@ class Jetpack_Search_Helpers {
 	/**
 	 * Generates a customizer settings ID for a given post type.
 	 *
-	 * @since 8.7.0
+	 * @since 8.8.0
 	 * @param object $post_type Post type object returned from get_post_types.
 	 * @return string $customizer_id Customizer setting ID.
 	 */
@@ -729,7 +729,7 @@ class Jetpack_Search_Helpers {
 	/**
 	 * Generates an array of post types associated with their customizer IDs.
 	 *
-	 * @since 8.7.0
+	 * @since 8.8.0
 	 * @return array $ids Post type => post type customizer ID object.
 	 */
 	public static function generate_post_type_customizer_ids() {

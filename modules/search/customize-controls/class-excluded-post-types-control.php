@@ -3,7 +3,7 @@
  * A multi-checkbox Customizer control for use with Jetpack Search configuration
  *
  * @package jetpack
- * @since 8.7.0
+ * @since 8.8.0
  */
 
 /**
@@ -13,7 +13,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	/**
 	 * Control type.
 	 *
-	 * @since 8.7.0
+	 * @since 8.8.0
 	 * @var string
 	 */
 	public $type = 'excluded-post-types';
@@ -37,7 +37,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	/**
 	 * Checks if the post type has been selected.
 	 *
-	 * @since 8.7.0
+	 * @since 8.8.0
 	 * @return array $post_types An array of strings representing post type names.
 	 */
 	public function get_arrayed_value() {
@@ -48,7 +48,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	/**
 	 * Generates a customizer settings ID for a given post type.
 	 *
-	 * @since 8.7.0
+	 * @since 8.8.0
 	 * @param object $post_type Post type object returned from get_post_types.
 	 * @return string $customizer_id Customizer setting ID.
 	 */
@@ -59,7 +59,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	/**
 	 * Checks if the post type has been selected.
 	 *
-	 * @since 8.7.0
+	 * @since 8.8.0
 	 * @param object $post_type Post type object returned from get_post_types.
 	 * @return array $ids Post type => post type customizer ID object.
 	 */
