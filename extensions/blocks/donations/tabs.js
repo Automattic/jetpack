@@ -44,6 +44,17 @@ const Tabs = props => {
 		}
 	}, [ oneTimePlanId ] );
 
+	// Sets the plans when Stripe has been connected (we use fake plans while Stripe is not connected so user can still try the block).
+	useEffect( () => {
+		if ( oneTimePlanId === -1 ) {
+			setAttributes( {
+				oneTimePlanId: products[ 'one-time' ],
+				...( monthlyPlanId && { monthlyPlanId: products[ '1 month' ] } ),
+				...( annuallyPlanId && { annuallyPlanId: products[ '1 year' ] } ),
+			} );
+		}
+	}, [ oneTimePlanId, monthlyPlanId, annuallyPlanId ] );
+
 	// Activates the one-time tab if the interval of the current active tab is disabled.
 	useEffect( () => {
 		if ( ! monthlyPlanId && isTabActive( '1 month' ) ) {
