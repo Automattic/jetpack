@@ -41,7 +41,7 @@ export default class PluginsPage extends Page {
 	}
 
 	async updateJetpack() {
-		await this.page.waitFor( 4000 );
+		await this.page.waitFor( 5000 );
 		const updateCard = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"]';
 		const updateLink = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .update-link';
 		const isUpdatingMessage =
@@ -52,14 +52,6 @@ export default class PluginsPage extends Page {
 		await waitForSelector( this.page, updateCard );
 		await waitAndClick( this.page, updateLink );
 		await waitForSelector( this.page, isUpdatingMessage );
-		try {
-			await waitForSelector( this.page, updatedMessage, { timeout: 3 * 30000 } );
-		} catch ( error ) {
-			console.log( error );
-			await execShellCommand( 'ls -la $HOME/wordpress' );
-			await execShellCommand( 'rm $HOME/wordpress/.maintenance' );
-			await this.reload();
-			await this.updateJetpack();
-		}
+		await waitForSelector( this.page, updatedMessage, { timeout: 3 * 30000 } );
 	}
 }

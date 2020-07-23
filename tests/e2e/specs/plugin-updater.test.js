@@ -19,7 +19,7 @@ describe( 'Jetpack updater', () => {
 		await execWpCommand( 'wp plugin uninstall --deactivate jetpack-dev' );
 		await execWpCommand( 'wp plugin activate e2e-plugin-updater' );
 		await execWpCommand( 'wp plugin install --activate jetpack' );
-		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 99' );
+		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
 		const url = getNgrokSiteUrl();
 		await execWpCommand(
 			`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/jetpack.zip`
