@@ -11,7 +11,7 @@ import getAllowedMimeTypesBySite, {
 	pickFileExtensionsFromMimeTypes,
 } from '../../get-allowed-mime-types';
 
-import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
+import getJetpackExtensionAvailability from '../../get-jetpack-extension-availability';
 import { isSimpleSite } from '../../site-type-utils';
 import { requiresPaidPlan } from '../../register-jetpack-block';
 

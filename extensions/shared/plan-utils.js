@@ -93,12 +93,10 @@ export function isUpgradable( name ) {
 		return false;
 	}
 
-	let blockName = /^jetpack\//.test( name )
-		? name.substr( 8, name.length )
-		: name;
+	let blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
 
 	// hardcode core/video block;
-	blockName = ( blockName === 'core/video' ? 'video' : blockName );
+	blockName = blockName === 'core/video' ? 'video' : blockName;
 
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
 	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );

@@ -31,13 +31,9 @@ const jetpackPaidBlock = ( settings, name ) => {
 
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock, 1 );
 
-addFilter(
-	'editor.BlockListBlock',
-	'jetpack/premium-block-with-warning',
-	withUpgradeBanner
-);
+addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', withUpgradeBanner );
 
-domReady( function() {
+domReady( function () {
 	if ( isUpgradeNudgeEnabled() ) {
 		document.body.classList.add( 'jetpack-enable-upgrade-nudge' );
 	}

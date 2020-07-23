@@ -15,7 +15,7 @@ import { useSelect } from '@wordpress/data';
  */
 import { isCoverUpgradable, isVideoFile } from './utils';
 import { CoverMediaProvider } from './components';
-import UpgradePlanBanner from "../../paid-blocks/upgrade-plan-banner";
+import UpgradePlanBanner from '../../paid-blocks/upgrade-plan-banner';
 
 export default createHigherOrderComponent(
 	CoverBlockList => props => {

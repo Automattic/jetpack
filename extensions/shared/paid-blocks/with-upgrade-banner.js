@@ -10,7 +10,7 @@ import { useSelect } from '@wordpress/data';
  */
 // import './style.scss';
 import { isUpgradable } from '../plan-utils';
-import UpgradePlanBanner from "./upgrade-plan-banner";
+import UpgradePlanBanner from './upgrade-plan-banner';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
@@ -19,10 +19,9 @@ export default createHigherOrderComponent(
 		}
 
 		const isVisible = useSelect(
-			select => (
+			select =>
 				select( 'core/block-editor' ).isBlockSelected( props.clientId ) ||
-				select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId )
-			),
+				select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId ),
 			[]
 		);
 
@@ -35,10 +34,7 @@ export default createHigherOrderComponent(
 					visible={ isVisible }
 				/>
 
-				<BlockListBlock
-					{ ...props }
-					className="is-interactive is-upgradable"
-				/>
+				<BlockListBlock { ...props } className="is-interactive is-upgradable" />
 			</Fragment>
 		);
 	},
