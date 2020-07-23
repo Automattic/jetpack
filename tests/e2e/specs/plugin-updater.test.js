@@ -17,8 +17,9 @@ describe( 'Jetpack updater', () => {
 		await prepareUpdaterTest();
 		await execWpCommand( 'wp plugin uninstall --deactivate jetpack-dev' );
 		// await execWpCommand( 'wp plugin deactivate jetpack-dev' );
+		await execWpCommand( 'wp plugin install jetpack' );
+		// await execWpCommand( 'wp plugin install --activate jetpack' );
 		await execWpCommand( 'wp plugin activate e2e-plugin-updater' );
-		await execWpCommand( 'wp plugin install --activate jetpack' );
 		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
 		const url = getNgrokSiteUrl();
 		await execWpCommand(
@@ -43,6 +44,7 @@ describe( 'Jetpack updater', () => {
 			await pluginsPage.updateJetpack();
 			const versionAfter = await pluginsPage.getJetpackVersion();
 			expect( versionBefore ).not.toBe( versionAfter );
+			await execWpCommand( 'wp plugin activate jetpack' );
 		} );
 
 		await step( 'Can connect Jetpack', async () => {
