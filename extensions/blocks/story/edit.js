@@ -107,11 +107,15 @@ export default withNotices( function StoryEdit( {
 			{ noticeUI }
 			<div className="wp-block-jetpack-story wp-story">
 				<StoryPlayer
-					shadowDOM={ { enabled: false } }
-					playInFullscreen={ false }
-					tapToPlayPause={ true }
 					slides={ mediaFiles }
 					disabled={ ! isSelected }
+					settings={ {
+						shadowDOM: {
+							enabled: false,
+						},
+						playInFullscreen: false,
+						tapToPlayPause: true,
+					} }
 				/>
 			</div>
 			<DropZone onFilesDrop={ addFiles } />
