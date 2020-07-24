@@ -1,7 +1,7 @@
 # Travis CI Configuration File
 
 # Tell Travis CI which distro to use
-# dist: trusty
+dist: trusty
 
 # Tell Travis CI we're using PHP
 language: php
@@ -16,13 +16,6 @@ php:
 - "7.2"
 - "7.3"
 - "7.4snapshot"
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libstdc++-4.9-dev
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -92,8 +85,8 @@ matrix:
     # - sudo apt-get update
     # - sudo apt-get -y install gcc-5 gcc-multilib libstdc++-4.9-dev
     - yarn
-    - ./tests/e2e/bin/wp-env.sh
     - yarn build-production
+    - ./tests/e2e/bin/wp-env.sh
     - yarn test-decrypt-config
     script:
     - yarn test-e2e --runInBand --verbose
@@ -200,3 +193,8 @@ notifications:
 addons:
   code_climate:
     repo_token: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
+  # apt:
+  #   sources:
+  #     - ubuntu-toolchain-r-test
+  #   packages:
+  #     - libstdc++-4.9-dev
