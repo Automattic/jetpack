@@ -80,8 +80,9 @@ matrix:
     # Enable user namespace cloning
     - "sysctl kernel.unprivileged_userns_clone=1"
     - nvm install
-    - yarn && yarn build-production
-    - ./tests/e2e/bin/setup-e2e-travis.sh
+    - yarn
+    - ./tests/e2e/bin/wp-env.sh
+    - yarn build-production
     - yarn test-decrypt-config
     script:
     - yarn test-e2e --runInBand --verbose
