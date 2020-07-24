@@ -651,11 +651,35 @@ class Grunion_Contact_Form_Plugin {
 	 * @return bool TRUE => spam, FALSE => not spam
 	 */
 	public function is_spam_blocklist( $is_spam, $form = array() ) {
+		global $wp_version;
+
 		if ( $is_spam ) {
 			return $is_spam;
 		}
 
-		if ( wp_blacklist_check( $form['comment_author'], $form['comment_author_email'], $form['comment_author_url'], $form['comment_content'], $form['user_ip'], $form['user_agent'] ) ) {
+		/*
+		 * wp_blacklist_check was deprecated in WP 5.5.
+		 * @todo: remove when WordPress 5.5 is the minimum required version.
+		 */
+		if ( version_compare( $wp_version, '5.5-alpha', '>=' ) ) {
+			$check_comment_disallowed_list = 'wp_check_comment_disallowed_list';
+		} else {
+			$check_comment_disallowed_list = 'wp_blacklist_check';
+		}
+
+		if (
+			call_user_func_array(
+				$check_comment_disallowed_list,
+				array(
+					$form['comment_author'],
+					$form['comment_author_email'],
+					$form['comment_author_url'],
+					$form['comment_content'],
+					$form['user_ip'],
+					$form['user_agent'],
+				)
+			)
+		) {
 			return true;
 		}
 
