@@ -92,10 +92,12 @@ export async function activateModule( page, module ) {
 
 export async function execWpCommand( wpCmd, suffix = null ) {
 	// NOTE: Uncommited cli for dockerized local dev environment. Will update once dockerized PR is merged.
-	let cmd = `./tests/e2e/bin/docker-e2e-cli.sh cli "${ wpCmd }"`;
-	if ( process.env.CI ) {
-		cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
-	}
+	// let cmd = `./tests/e2e/bin/docker-e2e-cli.sh cli "${ wpCmd }"`;
+	let cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
+
+	// if ( process.env.CI ) {
+	// 	cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
+	// }
 
 	if ( suffix ) {
 		cmd = cmd + suffix;
@@ -103,5 +105,13 @@ export async function execWpCommand( wpCmd, suffix = null ) {
 
 	logger.info( cmd );
 
-	return await execShellCommand( cmd );
+	const result = await execShellCommand( cmd );
+
+	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
+	// Here we cleaning this up.
+	if ( result.length > 0 ) {
+		return result.trim().split( '\n' ).slice( 1 ).join( '\n' );
+	}
+
+	return result;
 }

@@ -205,7 +205,8 @@ export async function logHTML() {
 export async function logDebugLog() {
 	let log;
 	if ( process.env.CI ) {
-		log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+		// log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+		log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
 	} else {
 		const cmd = './tests/e2e/bin/docker-e2e-cli.sh ct "cat wp-content/debug.log"';
 		log = execSyncShellCommand( cmd );

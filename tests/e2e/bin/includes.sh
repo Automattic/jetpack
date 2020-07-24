@@ -130,7 +130,7 @@ action_format() {
 # @return {bool} Whether the command exists or not.
 ##
 command_exists() {
-	type -t "$1" >/dev/null 2>&1
+	type "$1" >/dev/null 2>&1
 }
 
 check_for_jq() {

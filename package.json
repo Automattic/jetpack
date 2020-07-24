@@ -179,6 +179,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "2.4.0",
 		"@wordpress/e2e-test-utils": "4.3.1",
 		"@wordpress/editor": "9.12.7",
+		"@wordpress/env": "1.6.0",
 		"@wordpress/eslint-plugin": "4.0.0",
 		"@wordpress/server-side-render": "1.8.6",
 		"babel-eslint": "10.0.2",
