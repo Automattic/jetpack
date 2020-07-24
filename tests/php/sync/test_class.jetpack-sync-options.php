@@ -214,6 +214,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_sync_non_blocking'                => false,
 		);
 
+		// Options Deprecated in WP 5.5.
 		if ( version_compare( $wp_version, '5.5-alpha', '<=' ) ) {
 			$options['blacklist_keys']    = '';
 			$options['comment_whitelist'] = 'pineapple';
