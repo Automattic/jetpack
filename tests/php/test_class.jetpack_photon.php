@@ -1315,8 +1315,13 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$response = rest_get_server()->dispatch( $request );
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_mocked_download_url' ), 10, 2 );
 
+		$this->assertEquals( 200, $response->get_status() );
+
 		$data = $response->get_data();
 
+		$this->assertNotEmpty( $data );
+		$this->assertInternalType( 'array', $data[0] );
+		$this->assertArrayHasKey( 'url', $data[0] );
 		$this->assertStringNotContainsString( 'wp.com', $data[0]['url'] );
 	}
 
