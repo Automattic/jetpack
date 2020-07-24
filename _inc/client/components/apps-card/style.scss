@@ -50,12 +50,13 @@
 }
 
 .jp-apps-card__paragraph {
-	font-size: rem( 15px );
+	font-size: $font-body;
 }
 
 .jp-apps-card__header {
 	margin-top: 0;
 	margin-bottom: rem( 5px );
+	font-size: $font-title-small;
 	font-weight: 500;
 }
 

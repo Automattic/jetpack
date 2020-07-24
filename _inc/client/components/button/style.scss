@@ -1,5 +1,7 @@
 @import "../../scss/calypso-colors";
 @import "../../scss/color-functions";
+@import "../../scss/functions/rem";
+@import "../../scss/typography";
 
 // ==========================================================================
 // Buttons
@@ -16,12 +18,11 @@
 	margin: 0;
 	outline: 0;
 	overflow: hidden;
-	font-size: 14px;
+	font-size: $font-body-small;
 	text-overflow: ellipsis;
 	text-decoration: none;
 	vertical-align: top;
 	box-sizing: border-box;
-	font-size: 13px;
 	border-radius: 3px;
 	padding: 7px 14px 9px;
 	-webkit-appearance: none;
