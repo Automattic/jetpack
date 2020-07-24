@@ -1296,6 +1296,64 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
+	 * Verifies that the REST API external-media/copy endpoint does not return
+	 * Photonized URLs.
+	 *
+	 * @author ebinnion
+	 * @requires PHPUnit 7.5
+	 * @covers Jetpack_Photon::should_rest_photon_image_downsize_insert_attachment
+	 * @group rest-api
+	 */
+	public function test_photon_cdn_in_rest_response_external_media() {
+		wp_set_current_user( self::$author_id );
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/external-media/copy/pexels' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{"media":[{"guid":"{\\"url\\":\\"https:\\\\\\/\\\\\\/images.pexels.com\\\\\\/photos\\\\\\/1693095\\\\\\/pexels-photo-1693095.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940\\",\\"name\\":\\"pexels-photo-1693095.jpeg\\",\\"title\\":\\"aurora lights\\",\\"caption\\":\\"Photo by Tobias Bj\\\\u00f8rkli on <a href=\\\\\\\\\\\\\\"https:\\\\\\/\\\\\\/www.pexels.com\\\\\\/photo\\\\\\/aurora-lights-1693095\\\\\\/\\\\\\\\\\\\\\" rel=\\\\\\\\\\\\\\"nofollow\\\\\\\\\\\\\\">Pexels.com<\\\\\\/a>\\"}","caption":"Photo by Tobias Bj\\u00f8rkli on <a href=\\"https:\\/\\/www.pexels.com\\/photo\\/aurora-lights-1693095\\/\\" rel=\\"nofollow\\">Pexels.com<\\/a>","title":"aurora lights"}]}' );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_mocked_download_url' ), 10, 2 );
+		$response = rest_get_server()->dispatch( $request );
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_mocked_download_url' ), 10, 2 );
+
+		$data = $response->get_data();
+
+		$this->assertStringNotContainsString( 'wp.com', $data[0]['url'] );
+	}
+
+	/**
+	 * This function copies a file to an expected location and then returns a successful request to support mocking download_url().
+	 *
+	 * @param mixed $pre  By default, this is false. We can set it to any truthy value to pre-empty the request.
+	 * @param array $args An array of arguments for the request.
+	 * @return array
+	 */
+	public function pre_http_request_mocked_download_url( $pre, $args ) {
+		if ( empty( $args['filename'] ) ) {
+			return $pre;
+		}
+
+		$filename = $args['filename'];
+
+		// Delete the original file.
+		unlink( $filename );
+
+		// Copy our test image over where the file is expected.
+		copy( dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-large.png', $filename );
+
+		// This is just a mocked response with a 200 code.
+		return array(
+			'headers'       => array(),
+			'body'          => '',
+			'response'      => array(
+				'code'    => 200,
+				'message' => '',
+			),
+			'cookies'       => array(),
+			'http_response' => null,
+		);
+	}
+
+	/**
 	 * Tests that Photon will not strip the dimensions from an external URL.
 	 *
 	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
