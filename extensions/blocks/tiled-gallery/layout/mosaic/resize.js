@@ -95,7 +95,7 @@ function applyColRatio( row, { rawHeight, rowWidth } ) {
 	} );
 
 	const colWidthPercentages = adjustedWidths.map( adjustedWidth =>
-		( ( adjustedWidth / rowWidth ) * 100 ).toFixed( 5 )
+		parseFloat( ( ( adjustedWidth / rowWidth ) * 100 ).toFixed( 5 ) )
 	);
 
 	return colWidthPercentages;
