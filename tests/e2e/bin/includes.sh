@@ -130,8 +130,7 @@ action_format() {
 # @return {bool} Whether the command exists or not.
 ##
 command_exists() {
-	# command -v "$1"
-	type "$1" >/dev/null 2>&1
+	type "$1" > /dev/null 2>&1
 }
 
 check_for_jq() {
@@ -171,8 +170,7 @@ start_ngrok() {
 			$NGROK_CMD authtoken $NGROK_KEY
 	fi
 
-	echo $NGROK_CMD http -log=stdout 8889 &
-	$NGROK_CMD http -log=stdout 8889 &
+	$NGROK_CMD http -log=stdout 8889 > /dev/null &
 	sleep 5
 	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output)
 	WP_SITE_URL=$(get_ngrok_url)

@@ -97,6 +97,7 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
+          - libstdc++6
   - php: "7.0"
     name: "Legacy full sync"
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
@@ -127,6 +128,7 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
+          - libstdc++6
 
   allow_failures:
     - name: "PHP Nightly"
