@@ -145,9 +145,9 @@ export const Slide = ( {
 	}, [ media ] );
 
 	return (
-		<li className="wp-story-slide" style={ { display: visible ? 'block' : 'none' } }>
+		<div className="wp-story-slide" style={ { display: visible ? 'block' : 'none' } }>
 			<Media { ...media } index={ index } mediaRef={ mediaRef } />
-		</li>
+		</div>
 	);
 };
 
