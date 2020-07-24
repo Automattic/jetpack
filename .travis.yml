@@ -1,7 +1,7 @@
 # Travis CI Configuration File
 
 # Tell Travis CI which distro to use
-dist: trusty
+# dist: trusty
 
 # Tell Travis CI we're using PHP
 language: php
@@ -16,6 +16,13 @@ php:
 - "7.2"
 - "7.3"
 - "7.4snapshot"
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libstdc++-4.9-dev
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -72,7 +79,9 @@ matrix:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
   - name: "E2E tests"
-    language: node_js
+    # language: node_js
+    language: generic
+
     # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
     # so we just skip the E2E job all together
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
