@@ -78,9 +78,11 @@ matrix:
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
     # Enable user namespace cloning
-    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get update
-    - sudo apt-get install libstdc++-4.9-dev
+    - sudo apt-get -y install build-essential
+    - sudo apt-get -y install aptitude
+    - sudo apt-get -y install libstdc++6
     - nvm install
     - yarn
     - ./tests/e2e/bin/wp-env.sh
@@ -133,7 +135,6 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
-          - libstdc++6
 
   allow_failures:
     - name: "PHP Nightly"
