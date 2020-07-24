@@ -22,10 +22,6 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 );
 
 const defaultSettings = {
-	slides: [],
-	metadata: {},
-	autoload: true,
-	disabled: false,
 	imageTime: 5000,
 	renderInterval: 50,
 	startMuted: false,
@@ -43,8 +39,8 @@ const defaultSettings = {
 	volume: 0.5,
 };
 
-export default function StoryPlayer( props ) {
-	const settings = merge( {}, defaultSettings, props );
+export default function StoryPlayer( { slides, metadata, disabled, settings } ) {
+	const playerSettings = merge( {}, defaultSettings, settings );
 
 	const rootElementRef = useRef();
 	const [ fullscreen, setFullscreen ] = useState( false );
@@ -52,7 +48,7 @@ export default function StoryPlayer( props ) {
 
 	useEffect( () => {
 		if ( fullscreen ) {
-			if ( isMobile && fullscreenAPI.enabled() && ! settings.loadInFullscreen ) {
+			if ( isMobile && fullscreenAPI.enabled() && ! playerSettings.loadInFullscreen ) {
 				fullscreenAPI.launch( rootElementRef.current );
 			} else {
 				// position: fixed does not work as expected on mobile safari
@@ -80,12 +76,19 @@ export default function StoryPlayer( props ) {
 	}, [ fullscreen ] );
 
 	return (
-		<ShadowRoot { ...settings.shadowDOM }>
+		<ShadowRoot { ...playerSettings.shadowDOM }>
 			<div
 				className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
 				ref={ rootElementRef }
 			>
-				<Player fullscreen={ fullscreen } setFullscreen={ setFullscreen } { ...settings } />
+				<Player
+					fullscreen={ fullscreen }
+					setFullscreen={ setFullscreen }
+					slides={ slides }
+					metadata={ metadata }
+					disabled={ disabled }
+					{ ...playerSettings }
+				/>
 			</div>
 		</ShadowRoot>
 	);

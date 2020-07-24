@@ -13,37 +13,33 @@ import { render } from '@wordpress/element';
  */
 import StoryPlayer from './player';
 
-function player( rootElement, settings ) {
+function renderPlayer( rootElement, settings ) {
 	if ( typeof rootElement === 'string' ) {
 		rootElement = document.querySelectorAll( rootElement );
 	}
 
-	const initPlayer = ( newSettings = settings ) => {
-		render( <StoryPlayer { ...newSettings } />, rootElement );
-	};
+	const slidesWrapper = rootElement.querySelector( '.wp-story-wrapper' );
+	const metaWrapper = rootElement.querySelector( '.wp-story-meta' );
 
-	if ( settings.autoload ) {
-		const slidesWrapper = rootElement.querySelector( '.wp-story-wrapper' );
-		const metaWrapper = rootElement.querySelector( '.wp-story-meta' );
-
-		settings.slides = settings.slides || [];
-		if ( settings.slides.length === 0 && slidesWrapper && slidesWrapper.children.length > 0 ) {
-			settings.slides = parseSlides( slidesWrapper );
-		}
-
-		settings.metadata = settings.metadata || {};
-		if (
-			Object.keys( settings.metadata ).length === 0 &&
-			metaWrapper &&
-			metaWrapper.children.length > 0
-		) {
-			settings.metadata = parseMeta( metaWrapper );
-		}
-
-		initPlayer( settings );
+	let slides = [];
+	if ( slidesWrapper && slidesWrapper.children.length > 0 ) {
+		slides = parseSlides( slidesWrapper );
 	}
 
-	return initPlayer;
+	let metadata = {};
+	if ( metaWrapper && metaWrapper.children.length > 0 ) {
+		metadata = parseMeta( metaWrapper );
+	}
+
+	render(
+		<StoryPlayer
+			slides={ slides }
+			metadata={ metadata }
+			disabled={ false }
+			settings={ settings }
+		/>,
+		rootElement
+	);
 }
 
 function parseSlides( slidesWrapper ) {
@@ -87,7 +83,7 @@ if ( typeof window !== 'undefined' ) {
 				}
 			}
 
-			player( storyBlock, settings );
+			renderPlayer( storyBlock, settings );
 		} );
 	} );
 }
