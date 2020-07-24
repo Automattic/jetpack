@@ -9,6 +9,7 @@ import { Path, SVG } from '@wordpress/components';
  */
 import edit from './edit';
 import save from './save';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 /**
  * Example Images
@@ -47,7 +48,7 @@ export const name = 'story';
 
 export const settings = {
 	title: __( 'Story', 'jetpack' ),
-	category: 'media',
+	category: getCategoryWithFallbacks( 'media', 'layout' ),
 	keywords: [
 		_x( 'story', 'block search term', 'jetpack' ),
 		_x( 'image', 'block search term', 'jetpack' ),

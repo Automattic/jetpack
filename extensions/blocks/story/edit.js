@@ -15,7 +15,7 @@ import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
  */
 import { icon } from '.';
 import Controls from './controls';
-import Story from './story';
+import StoryPlayer from './player';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
@@ -105,7 +105,15 @@ export default withNotices( function StoryEdit( {
 		<Fragment>
 			{ controls }
 			{ noticeUI }
-			<Story className={ className } mediaFiles={ mediaFiles } isSelected={ isSelected } />
+			<div className="wp-block-jetpack-story wp-story">
+				<StoryPlayer
+					shadowDOM={ { enabled: false } }
+					playInFullscreen={ false }
+					tapToPlayPause={ true }
+					slides={ mediaFiles }
+					disabled={ ! isSelected }
+				/>
+			</div>
 			<DropZone onFilesDrop={ addFiles } />
 			{ isSelected && (
 				<div className="wp-block-jetpack-story__add-item">
