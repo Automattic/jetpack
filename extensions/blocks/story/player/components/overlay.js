@@ -89,7 +89,7 @@ export default function Overlay( {
 					/>
 				) }
 			</div>
-			{ ! playing && ! ended && (
+			{ tapToPlayPause && ! playing && ! ended && (
 				<DecoratedButton
 					size={ 80 }
 					iconSize={ 56 }
