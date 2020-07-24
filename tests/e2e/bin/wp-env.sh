@@ -16,5 +16,8 @@ start_ngrok
 
 URL=$(get_ngrok_url)
 
+yarn wp-env run tests-wordpress ls -la
+yarn wp-env run tests-wordpress touch wp-content/debug.log
+
 yarn wp-env run tests-cli wp option set siteurl "$URL"
 yarn wp-env run tests-cli wp option set home "$URL"

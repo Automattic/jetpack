@@ -87,10 +87,10 @@ matrix:
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
     # Enable user namespace cloning
-    - nvm install 12
-    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    - sudo apt-get update
-    - sudo apt-get -y install gcc-5 gcc-multilib libstdc++-4.9-dev
+    # - nvm install 12
+    # - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    # - sudo apt-get update
+    # - sudo apt-get -y install gcc-5 gcc-multilib libstdc++-4.9-dev
     - yarn
     - ./tests/e2e/bin/wp-env.sh
     - yarn build-production
