@@ -80,10 +80,10 @@ matrix:
     # Enable user namespace cloning
     - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get update
-    - sudo apt-get -y install build-essential
-    - sudo apt-get -y install aptitude
-    - sudo apt-get -y install libstdc++6
-    - sudo apt-get -y install libstdc++-4.9-dev
+    - sudo apt-get -y install gcc-5
+    - sudo apt-get -y upgrade libstdc++6
+    # - sudo apt-get -y install libstdc++6
+    # - sudo apt-get -y install libstdc++-4.9-dev
     - nvm install
     - yarn
     - ./tests/e2e/bin/wp-env.sh
