@@ -54,6 +54,7 @@ matrix:
 
   - php: "nightly"
     name: "PHP Nightly"
+    dist: xenial
 
   # Code Climate code coverage.
   - php: "7.3"
