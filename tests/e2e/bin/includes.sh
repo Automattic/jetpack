@@ -163,6 +163,11 @@ check_for_ngrok() {
 		echo -e $(error_message "Please install ngrok on your machine. Instructions: https://ngrok.com/download")
 		exit 1
 	fi
+
+	echo -e $(status_message "Installing ngrok in CI...")
+	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
+	unzip -o ngrok.zip
+	NGROK_CMD="./ngrok"
 }
 
 # Starts ngrok tunnel. Uses ngrok auth key if available as `$NGROK_KEY`
