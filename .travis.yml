@@ -91,7 +91,7 @@ matrix:
     - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get update
     - sudo apt-get -y install gcc-5 gcc-multilib libstdc++-4.9-dev
-    # - yarn
+    - yarn
     - ./tests/e2e/bin/wp-env.sh
     - yarn build-production
     - yarn test-decrypt-config
