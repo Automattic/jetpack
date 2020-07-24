@@ -78,7 +78,9 @@ matrix:
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
     # Enable user namespace cloning
-    - "sysctl kernel.unprivileged_userns_clone=1"
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    - sudo apt-get update
+    - sudo apt-get install libstdc++-4.9-dev
     - nvm install
     - yarn
     - ./tests/e2e/bin/wp-env.sh
