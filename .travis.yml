@@ -71,8 +71,8 @@ matrix:
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
-  - php: "7.0"
-    name: "E2E tests"
+  - name: "E2E tests"
+    language: node_js
     # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
     # so we just skip the E2E job all together
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
@@ -80,11 +80,11 @@ matrix:
     # Enable user namespace cloning
     - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get update
-    - sudo apt-get -y install gcc-5
-    - sudo apt-get -y --allow-unauthenticated upgrade libstdc++6
+    - sudo apt-get -y install gcc-5 gcc-multilib
+    # - sudo apt-get -y --allow-unauthenticated upgrade libstdc++6
     # - sudo apt-get -y install libstdc++6
     # - sudo apt-get -y install libstdc++-4.9-dev
-    - nvm install
+    # - nvm install
     - yarn
     - ./tests/e2e/bin/wp-env.sh
     - yarn build-production
