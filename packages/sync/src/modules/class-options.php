@@ -60,6 +60,9 @@ class Options extends Module {
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 
+		// Handle deprecated options.
+		add_filter( 'jetpack_options_whitelist', array( $this, 'add_deprecated_options' ) );
+
 		$whitelist_option_handler = array( $this, 'whitelist_options' );
 		add_filter( 'jetpack_sync_before_enqueue_deleted_option', $whitelist_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_added_option', $whitelist_option_handler );
@@ -109,6 +112,32 @@ class Options extends Module {
 		if ( ! empty( $late_options ) && is_array( $late_options ) ) {
 			$this->options_whitelist = array_merge( $this->options_whitelist, $late_options );
 		}
+	}
+
+	/**
+	 * Add old deprecated options to the list of options to keep in sync.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @access public
+	 *
+	 * @param array $options The default list of site options.
+	 */
+	public function add_deprecated_options( $options ) {
+		global $wp_version;
+
+		$deprecated_options = array(
+			'blacklist_keys'    => '5.5-alpha', // Replaced by disallowed_keys.
+			'comment_whitelist' => '5.5-alpha', // Replaced by comment_previously_approved.
+		);
+
+		foreach ( $deprecated_options as $option => $version ) {
+			if ( version_compare( $wp_version, $version, '<=' ) ) {
+				$options[] = $option;
+			}
+		}
+
+		return $options;
 	}
 
 	/**
