@@ -172,7 +172,7 @@ start_ngrok() {
 
 	$NGROK_CMD http -log=stdout 8889 > /dev/null &
 	sleep 5
-	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output)
+	echo $(curl -s -v localhost:4040/api/tunnels/command_line)
 	WP_SITE_URL=$(get_ngrok_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
