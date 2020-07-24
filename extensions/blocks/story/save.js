@@ -1,8 +1,6 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Story from './story';
+import classNames from 'classnames';
 
-export default ( { attributes: { mediaFiles }, className } ) => (
-	<Story mountPlayer={ false } className={ className } mediaFiles={ mediaFiles } />
-);
+export default ( { className } ) => <div className={ classNames( 'wp-story', className ) }></div>;

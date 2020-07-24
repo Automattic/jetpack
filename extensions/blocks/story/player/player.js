@@ -58,7 +58,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 			setEnded( true );
 			setCurrentSlideProgress( 100 );
 			if ( settings.exitFullscreenOnEnd ) {
-				setFullscreen( false );
+				//setFullscreen( false );
 			}
 		}
 	}, [ currentSlideIndex ] );
