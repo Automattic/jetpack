@@ -17,13 +17,16 @@ export default function Background( { currentMedia } ) {
 
 	return (
 		<div className="wp-story-background">
+			<div
+				className="wp-story-background-image"
+				style={ { backgroundImage: `url("${ url }")` } }
+			></div>
+			<div className="wp-story-background-blur"></div>
 			<SVG version="1.1" xmlns="http://www.w3.org/2000/svg">
-				<filter id="gaussian-blur-10">
-					<feGaussianBlur stdDeviation="10" />
+				<filter id="gaussian-blur-18">
+					<feGaussianBlur stdDeviation="18" />
 				</filter>
 			</SVG>
-			<img src={ url } alt="" />
-			<div className="wp-story-background-blur"></div>
 		</div>
 	);
 }
