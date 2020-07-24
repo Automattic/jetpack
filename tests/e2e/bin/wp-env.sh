@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit if any command fails.
-set -e
+set -ex
 # yarn wp-env run cli wp config set WP_HOME '"http://".\$_SERVER["HTTP_HOST"]'
 # yarn wp-env run cli wp config set WP_SITEURL '"http://".\$_SERVER["HTTP_HOST"]'
 

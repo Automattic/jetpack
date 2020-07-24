@@ -130,7 +130,8 @@ action_format() {
 # @return {bool} Whether the command exists or not.
 ##
 command_exists() {
-	type "$1" >/dev/null 2>&1
+	type "$1"
+	# type "$1" >/dev/null 2>&1
 }
 
 check_for_jq() {
@@ -144,8 +145,12 @@ check_for_jq() {
 
 # check if ngrok is installed
 check_for_ngrok() {
+			echo '1!!!!!!!!!'
+
 	if $(command_exists "ngrok"); then
 			NGROK_CMD="ngrok"
+			echo '2!!!!!!!!!'
+			echo $NGROK_CMD
 			return
 	fi
 
