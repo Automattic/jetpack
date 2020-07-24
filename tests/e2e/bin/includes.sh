@@ -135,11 +135,6 @@ command_exists() {
 }
 
 check_for_jq() {
-			echo '1!!!!!!!!!'
-			echo $(command_exists "jq")
-			echo '1!!!!!!!!!'
-
-
 	if $(command_exists "jq"); then
 			return
 	fi
@@ -150,12 +145,8 @@ check_for_jq() {
 
 # check if ngrok is installed
 check_for_ngrok() {
-			echo '1!!!!!!!!!'
-
 	if $(command_exists "ngrok"); then
 			NGROK_CMD="ngrok"
-			echo '2!!!!!!!!!'
-			echo $NGROK_CMD
 			return
 	fi
 
@@ -181,7 +172,8 @@ start_ngrok() {
 	fi
 
 	$NGROK_CMD http -log=stdout 8889 > /dev/null &
-	sleep 3
+	sleep 5
+	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output)
 	WP_SITE_URL=$(get_ngrok_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
