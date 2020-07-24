@@ -54,7 +54,6 @@ matrix:
 
   - php: "nightly"
     name: "PHP Nightly"
-    dist: xenial
 
   # Code Climate code coverage.
   - php: "7.3"
@@ -75,6 +74,7 @@ matrix:
   - name: "E2E tests"
     # language: node_js
     language: generic
+    dist: xenial
 
     # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
     # so we just skip the E2E job all together
