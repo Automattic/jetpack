@@ -135,11 +135,16 @@ command_exists() {
 }
 
 check_for_jq() {
+			echo '1!!!!!!!!!'
+			echo $(command_exists "jq")
+			echo '1!!!!!!!!!'
+
+
 	if $(command_exists "jq"); then
 			return
 	fi
 
-	echo -e $(error_message "`jq` is not installed. Please install it before moving forward. Instructions: https://stedolan.github.io/jq/download/")
+	echo -e $(error_message " jq is not installed. Please install it before moving forward. Instructions: https://stedolan.github.io/jq/download/")
 	exit 1
 }
 
