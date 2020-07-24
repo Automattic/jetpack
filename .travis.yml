@@ -80,12 +80,8 @@ matrix:
     # Enable user namespace cloning
     - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     - sudo apt-get update
-    - sudo apt-get -y install gcc-5 gcc-multilib
-    # - sudo apt-get -y --allow-unauthenticated upgrade libstdc++6
-    # - sudo apt-get -y install libstdc++6
-    # - sudo apt-get -y install libstdc++-4.9-dev
-    # - nvm install
-    - yarn
+    - sudo apt-get -y install gcc-5 gcc-multilib libstdc++-4.9-dev
+    # - yarn
     - ./tests/e2e/bin/wp-env.sh
     - yarn build-production
     - yarn test-decrypt-config
@@ -98,14 +94,14 @@ matrix:
     - ./tests/e2e/bin/push-allure-artifacts.sh
     addons:
       apt:
-        sources:
-          - ubuntu-toolchain-r-test
+        # sources:
+          # - ubuntu-toolchain-r-test
         packages:
           - nginx
           # This is required to run new chrome on old trusty
-          - libnss3
+          # - libnss3
           # Required by wp-env see https://github.com/WordPress/gutenberg/pull/18986#discussion_r358740927
-          - libstdc++-4.9-dev
+          # - libstdc++-4.9-dev
   - php: "7.0"
     name: "Legacy full sync"
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
