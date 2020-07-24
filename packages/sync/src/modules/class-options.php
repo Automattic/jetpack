@@ -126,18 +126,13 @@ class Options extends Module {
 	public function add_deprecated_options( $options ) {
 		global $wp_version;
 
-		/*
-		 * Deprecated Options in WordPress 5.5.
-		 *
-		 * Those options are still valid for sync (if they're on the site we want to sync them), but not in use anymore.
-		 * @todo: remove when mininum WP required is WordPress 5.5.
-		 */
-		if ( version_compare( $wp_version, '5.5-alpha', '<=' ) ) {
-			$deprecated_options = array(
-				'blacklist_keys', // Replaced by disallowed_keys.
-				'comment_whitelist', // Replaced by comment_previously_approved.
-			);
-			foreach ( $deprecated_options as $option ) {
+		$deprecated_options = array(
+			'blacklist_keys'    => '5.5-alpha', // Replaced by disallowed_keys.
+			'comment_whitelist' => '5.5-alpha', // Replaced by comment_previously_approved.
+		);
+
+		foreach ( $deprecated_options as $option => $version ) {
+			if ( version_compare( $wp_version, $version, '<=' ) ) {
 				$options[] = $option;
 			}
 		}
