@@ -31,7 +31,6 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const [ loading, setLoading ] = useState( true );
 	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
 
-	const slidesWrapperRef = useRef();
 	const [ slideWidth, setSlideWidth ] = useState( 279 );
 	const [ resizeListener, { height } ] = useResizeObserver();
 
@@ -115,13 +114,13 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 				} ) }
 				style={ { width: `${ slideWidth }px` } }
 			>
-				{ resizeListener }
 				<Header
 					{ ...settings.metadata }
 					fullscreen={ fullscreen }
 					onExitFullscreen={ onExitFullscreen }
 				/>
-				<ul className="wp-story-wrapper" ref={ slidesWrapperRef }>
+				<div className="wp-story-wrapper">
+					{ resizeListener }
 					{ slides.map( ( media, index ) => (
 						<Slide
 							key={ index }
@@ -137,7 +136,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							settings={ settings }
 						/>
 					) ) }
-				</ul>
+				</div>
 				<Overlay
 					playing={ playing }
 					ended={ ended }
