@@ -1,14 +1,12 @@
 /**
  * External dependencies
  */
-import { EventEmitter } from 'events';
 import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
 import {
-	render,
 	createElement,
 	useRef,
 	useState,
@@ -25,10 +23,9 @@ import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
 import useResizeObserver from './use-resize-observer';
 
-export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
+export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settings } ) => {
 	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
 	const [ playing, setPlaying ] = useState( false );
-	const [ fullscreen, setFullscreen ] = useState( false );
 	const [ ended, setEnded ] = useState( false );
 	const [ muted, setMuted ] = useState( settings.startMuted );
 	const [ loading, setLoading ] = useState( true );
@@ -60,7 +57,6 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 			setPlaying( false );
 			setEnded( true );
 			setCurrentSlideProgress( 100 );
-			playerEvents.emit( 'end' );
 			if ( settings.exitFullscreenOnEnd ) {
 				setFullscreen( false );
 			}
@@ -90,19 +86,10 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 
 	// track play/pause state and check ending
 	useLayoutEffect( () => {
-		playerEvents.emit( playing ? 'play' : 'pause' );
 		if ( playing ) {
 			setEnded( false );
 		}
 	}, [ playing ] );
-
-	useLayoutEffect( () => {
-		playerEvents.emit( muted ? 'mute' : 'unmute' );
-	}, [ muted ] );
-
-	useLayoutEffect( () => {
-		playerEvents.emit( fullscreen ? 'go-fullscreen' : 'exit-fullscreen' );
-	}, [ fullscreen ] );
 
 	useEffect( () => {
 		if ( settings.loadInFullscreen ) {
@@ -111,22 +98,10 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	}, [] );
 
 	useEffect( () => {
-		playerEvents.emit( 'seek', currentSlideIndex );
-	}, [ currentSlideIndex ] );
-
-	useEffect( () => {
-		if ( ! loading ) {
-			playerEvents.emit( 'ready' );
+		if ( height ) {
+			const width = Math.round( settings.defaultAspectRatio * height );
+			setSlideWidth( width );
 		}
-	}, [ loading ] );
-
-	useEffect( () => {
-		playerEvents.emit( 'slide-progress', currentSlideProgress, currentSlideIndex );
-	}, [ currentSlideProgress ] );
-
-	useEffect( () => {
-		const width = Math.round( settings.defaultAspectRatio * height );
-		setSlideWidth( width );
 	}, [ height ] );
 
 	return (
@@ -202,12 +177,4 @@ export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 			) }
 		</>
 	);
-};
-
-export const renderPlayer = ( container, settings ) => {
-	const playerEvents = new EventEmitter();
-
-	render( <Player playerEvents={ playerEvents } { ...settings } />, container );
-
-	return playerEvents;
 };
