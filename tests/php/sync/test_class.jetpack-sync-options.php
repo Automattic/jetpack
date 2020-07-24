@@ -57,6 +57,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_default_options() {
+		global $wp_version;
+
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
 		$options = array(
@@ -211,6 +213,11 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_connection_active_plugins'        => array( 'jetpack' ),
 			'jetpack_sync_non_blocking'                => false,
 		);
+
+		if ( version_compare( $wp_version, '5.5-alpha', '<=' ) ) {
+			$options['blacklist_keys']    = '';
+			$options['comment_whitelist'] = 'pineapple';
+		}
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
 		$options[ $theme_mod_key ] = 'pineapple';
