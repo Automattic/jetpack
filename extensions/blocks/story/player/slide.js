@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { waitMediaReady } from './utils';
+import waitMediaReady from './lib/wait-media-ready';
 
 /**
  * WordPress dependencies

@@ -2,15 +2,24 @@
  * External dependencies
  */
 import { merge } from 'lodash';
-import retargetEvents from 'react-shadow-dom-retarget-events';
+import classNames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
+import { createElement, render, useEffect, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
-import { supportsShadow, toShadow } from './shadow-dom';
-import { renderPlayer } from './player';
-import { fullscreen } from './utils';
+import { Player } from './player';
+import ReactShadowRoot from './lib/react-shadow-root';
+import * as fullscreenAPI from './lib/fullscreen-api';
+
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+	window.navigator.userAgent
+);
 
 const defaultSettings = {
 	slides: [],
@@ -40,73 +49,13 @@ export default function player( rootElement, params ) {
 		rootElement = document.querySelectorAll( rootElement );
 	}
 
-	const useShadowDom = supportsShadow() && settings.shadowDOM.enabled;
-
-	const root = useShadowDom ? toShadow( rootElement, settings.shadowDOM ) : rootElement;
-
-	let appMountElement = root.querySelector( 'div' );
-	if ( ! appMountElement ) {
-		appMountElement = document.createElement( 'div' );
-		appMountElement.className = '';
-		appMountElement.style.display = 'contents';
-		root.appendChild( appMountElement );
-	}
-
-	const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-		navigator.userAgent
-	);
-
-	const registerListeners = playerEvents => {
-		let lastScrollPosition = null;
-		playerEvents.on( 'go-fullscreen', () => {
-			if ( settings.playInFullscreen ) {
-				rootElement.classList.add( 'wp-story-fullscreen' );
-				if ( isMobile && fullscreen.enabled() && ! settings.loadInFullscreen ) {
-					fullscreen.launch( rootElement );
-				} else {
-					// position: fixed does not work as expected on mobile safari
-					// To fix that we need to add a fixed positioning to body,
-					// retain the current scroll position and restore it when we exit fullscreen
-					lastScrollPosition = [
-						document.documentElement.scrollLeft,
-						document.documentElement.scrollTop,
-					];
-					document.body.classList.add( 'wp-story-in-fullscreen' );
-					document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
-				}
-			}
-		} );
-
-		playerEvents.on( 'exit-fullscreen', async () => {
-			if ( fullscreen.element() ) {
-				await fullscreen.exit();
-			} else {
-				document.body.classList.remove( 'wp-story-in-fullscreen' );
-				if ( lastScrollPosition ) {
-					window.scrollTo( ...lastScrollPosition );
-				}
-				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
-			}
-			rootElement.classList.remove( 'wp-story-fullscreen' );
-		} );
-	};
-
-	let playerEvents = null;
 	const initPlayer = ( newSettings = settings ) => {
-		if ( playerEvents ) {
-			playerEvents.removeAllListeners( 'exit-fullscreen' );
-			playerEvents.removeAllListeners( 'go-fullscreen' );
-		}
-		playerEvents = renderPlayer( appMountElement, newSettings );
-		registerListeners( playerEvents );
-		if ( useShadowDom ) {
-			retargetEvents( root );
-		}
+		render( <App { ...newSettings } />, rootElement );
 	};
 
 	if ( settings.autoload ) {
-		const slidesWrapper = root.querySelector( '.wp-story-wrapper' );
-		const metaWrapper = root.querySelector( '.wp-story-meta' );
+		const slidesWrapper = rootElement.querySelector( '.wp-story-wrapper' );
+		const metaWrapper = rootElement.querySelector( '.wp-story-meta' );
 
 		settings.slides = settings.slides || [];
 		if ( settings.slides.length === 0 && slidesWrapper && slidesWrapper.children.length > 0 ) {
@@ -149,4 +98,81 @@ function parseMeta( metaWrapper ) {
 		storyTitle,
 		siteIconUrl,
 	};
+}
+
+function Styles( { globalStyleElements } ) {
+	const styleElements =
+		typeof globalStyleElements === 'string'
+			? [ ...document.querySelectorAll( globalStyleElements ) ]
+			: globalStyleElements;
+
+	return (
+		<>
+			{ styleElements.map( ( { id, tagName, attributes, innerHTML }, index ) => {
+				if ( tagName === 'LINK' ) {
+					return (
+						<link
+							key={ id || index }
+							id={ id }
+							rel={ attributes.rel.value }
+							href={ attributes.href.value }
+						/>
+					);
+				} else if ( tagName === 'STYLE' ) {
+					return (
+						<style key={ id || index } id={ id }>
+							{ innerHTML }
+						</style>
+					);
+				}
+			} ) }
+		</>
+	);
+}
+
+function App( props ) {
+	const rootElementRef = useRef();
+	const [ fullscreen, setFullscreen ] = useState( false );
+	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
+
+	useEffect( () => {
+		if ( fullscreen ) {
+			if ( isMobile && fullscreenAPI.enabled() && ! props.loadInFullscreen ) {
+				fullscreenAPI.launch( rootElementRef.current );
+			} else {
+				// position: fixed does not work as expected on mobile safari
+				// To fix that we need to add a fixed positioning to body,
+				// retain the current scroll position and restore it when we exit fullscreen
+				setLastScrollPosition( [
+					document.documentElement.scrollLeft,
+					document.documentElement.scrollTop,
+				] );
+				document.body.classList.add( 'wp-story-in-fullscreen' );
+				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
+			}
+		} else {
+			// eslint-disable-next-line no-lonely-if
+			if ( fullscreenAPI.element() ) {
+				fullscreenAPI.exit();
+			} else {
+				document.body.classList.remove( 'wp-story-in-fullscreen' );
+				if ( lastScrollPosition ) {
+					window.scrollTo( ...lastScrollPosition );
+				}
+				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
+			}
+		}
+	}, [ fullscreen ] );
+
+	return (
+		<div
+			className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
+			ref={ rootElementRef }
+		>
+			<ReactShadowRoot>
+				<Styles globalStyleElements={ props.shadowDOM.styles } />
+				<Player fullscreen={ fullscreen } setFullscreen={ setFullscreen } { ...props } />
+			</ReactShadowRoot>
+		</div>
+	);
 }

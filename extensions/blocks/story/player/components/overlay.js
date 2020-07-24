@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
 /**
  * External dependencies
  */
@@ -57,8 +60,6 @@ export default function Overlay( {
 	);
 
 	return (
-		/* eslint-disable jsx-a11y/click-events-have-key-events */
-		/* eslint-disable jsx-a11y/no-static-element-interactions */
 		<div
 			className={ classNames( {
 				'wp-story-overlay': true,
@@ -66,8 +67,6 @@ export default function Overlay( {
 			} ) }
 			onClick={ onOverlayPressed }
 		>
-			// eslint-disable-next-line jsx-a11y/click-events-have-key-events // eslint-disable-next-line
-			jsx-a11y/no-static-element-interactions
 			<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
 				{ hasPrevious && (
 					<DecoratedButton
@@ -109,7 +108,5 @@ export default function Overlay( {
 				/>
 			) }
 		</div>
-		/* eslint-enable jsx-a11y/click-events-have-key-events */
-		/* eslint-enable jsx-a11y/no-static-element-interactions */
 	);
 }
