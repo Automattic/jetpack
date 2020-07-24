@@ -245,6 +245,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return array
 	 */
 	public function get_settings_response() {
+		global $wp_version;
 
 		// Allow update in later versions
 		/**
@@ -362,10 +363,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'social_notifications_reblog' => ( "on" == get_option( 'social_notifications_reblog' ) ),
 					'social_notifications_subscribe' => ( "on" == get_option( 'social_notifications_subscribe' ) ),
 					'comment_moderation'      => (bool) get_option( 'comment_moderation' ),
-					'comment_whitelist'       => (bool) get_option( 'comment_whitelist' ),
+					'comment_whitelist'                => ( version_compare( $wp_version, '5.5-alpha', '>=' ) )
+						? (bool) get_option( 'comment_previously_approved' )
+						: (bool) get_option( 'comment_whitelist' ),
+					'comment_previously_approved'       => (bool) get_option( 'comment_previously_approved' ),
 					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
 					'moderation_keys'         => get_option( 'moderation_keys' ),
-					'blacklist_keys'          => get_option( 'blacklist_keys' ),
+					'blacklist_keys'                   => ( version_compare( $wp_version, '5.5-alpha', '>=' ) )
+						? get_option( 'disallowed_keys' )
+						: get_option( 'blacklist_keys' ),
+					'disallowed_keys'          => get_option( 'disallowed_keys' ),
 					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_option( 'lang_id' ),
