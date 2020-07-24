@@ -25,6 +25,7 @@ class Test_Jetpack_JITM extends TestCase {
 		$this->mock_empty_function( 'esc_url_raw' );
 		$this->mock_empty_function( 'rest_url' );
 		$this->mock_empty_function( 'esc_html__' );
+		$this->mock_empty_function( 'wp_create_nonce' );
 	}
 
 	public function tearDown() {

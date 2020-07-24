@@ -130,6 +130,7 @@ class JITM {
 				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
 				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+				'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}

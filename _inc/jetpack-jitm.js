@@ -116,6 +116,9 @@ jQuery( document ).ready( function ( $ ) {
 				$.ajax( {
 					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
 					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
+					beforeSend: function( xhr ) {
+						xhr.setRequestHeader( 'X-WP-Nonce', window.jitm_config.nonce );
+					},
 					data: {
 						id: response.id,
 						feature_class: response.feature_class,
