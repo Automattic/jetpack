@@ -59,11 +59,7 @@ class Jetpack_Google_Analytics {
 			$analytics = new Jetpack_Google_Analytics_Legacy();
 		}
 
-		$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
-		if ( $is_amp_request && class_exists( 'WooCommerce' ) ) {
-			$amp_analytics = new Jetpack_Google_AMP_Analytics();
-			$amp_analytics->init();
-		}
+		new Jetpack_Google_AMP_Analytics();
 	}
 
 	/**
