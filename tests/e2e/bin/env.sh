@@ -14,7 +14,7 @@ function usage {
 }
 
 if [ "${1}" == "start" ]; then
-	setup_env
+	start_env
 elif [ "${1}" == "reset" ]; then
 	reset_env
 elif [ "${1}" == "usage" ]; then
