@@ -15,9 +15,10 @@ export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
-				logger.warn( error );
+				logger.warn( error.toString() );
+				return resolve( error );
 			}
-			return resolve( stdout ? stdout : error );
+			return resolve( stdout );
 		} );
 		cmdExec.stdout.on( 'data', data => logger.info( data ) );
 	} );
@@ -106,13 +107,15 @@ export async function execWpCommand( wpCmd, suffix = null ) {
 	logger.info( cmd );
 
 	const result = await execShellCommand( cmd );
-	console.log( result );
 
 	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
 	// Here we cleaning this up.
-	if ( result.length > 0 ) {
+	if ( typeof result !== 'object' && result.length > 0 ) {
+		console.log( 'Not an object' );
 		return result.trim().split( '\n' ).slice( 1 ).join( '\n' );
 	}
+
+	console.log( 'is object' );
 
 	return result;
 }
