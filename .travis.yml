@@ -93,7 +93,7 @@ matrix:
     addons:
       apt:
         sources:
-          - ppa:qameta/allure
+          - sourceline: ppa:qameta/allure
         packages:
           - allure
 
