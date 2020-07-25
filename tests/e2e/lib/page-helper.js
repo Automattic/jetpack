@@ -6,7 +6,6 @@ import config from 'config';
  * WordPress dependencies
  */
 import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
-import { readFileSync } from 'fs';
 /**
  * Internal dependencies
  */
