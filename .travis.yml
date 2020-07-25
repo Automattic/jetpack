@@ -84,7 +84,7 @@ matrix:
     before_script:
     - nvm install
     - yarn build-production
-    - ./tests/e2e/bin/wp-env.sh
+    - ./tests/e2e/bin/env.sh start
     - yarn test-decrypt-config
     script:
     - yarn test-e2e --runInBand --verbose
@@ -105,7 +105,7 @@ matrix:
     before_script:
     - nvm install
     - yarn build-production
-    - ./tests/e2e/bin/wp-env.sh
+    - ./tests/e2e/bin/env.sh start
     - yarn test-decrypt-config
     script:
     - yarn test-e2e --runInBand --verbose
@@ -167,8 +167,3 @@ notifications:
 addons:
   code_climate:
     repo_token: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
-  # apt:
-  #   sources:
-  #     - ubuntu-toolchain-r-test
-  #   packages:
-  #     - libstdc++-4.9-dev

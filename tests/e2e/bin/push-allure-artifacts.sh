@@ -58,5 +58,5 @@ chmod 755 cleanup.sh
 
 # Push the changes
 git add .
-git commit -q --message "Build for $ARTIFACT. Travis build# $TRAVIS_BUILD_NUMBER."
+git commit -q --message "Build for $ARTIFACT. Travis build #$TRAVIS_BUILD_NUMBER."
 git push

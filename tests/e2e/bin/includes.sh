@@ -1,90 +1,6 @@
 #!/bin/bash
 
 ##
-# Ask a Yes/No question, and way for a reply.
-#
-# This is a general-purpose function to ask Yes/No questions in Bash, either with or without a default
-# answer. It keeps repeating the question until it gets a valid answer.
-#
-# @param {string} prompt    The question to ask the user.
-# @param {string} [default] Optional. "Y" or "N", for the default option to use if none is entered.
-# @param {int}    [timeout] Optional. The number of seconds to wait before using the default option.
-#
-# @returns {bool} true if the user replies Yes, false if the user replies No.
-##
-ask() {
-    # Source: https://djm.me/ask
-    local timeout endtime timediff prompt default reply
-
-    while true; do
-
-		timeout="${3:-}"
-
-        if [ "${2:-}" = "Y" ]; then
-            prompt="Y/n"
-            default=Y
-        elif [ "${2:-}" = "N" ]; then
-            prompt="y/N"
-            default=N
-        else
-            prompt="y/n"
-            default=
-			timeout=
-        fi
-
-		if [ -z "$timeout" ]; then
-        	# Ask the question (not using "read -p" as it uses stderr not stdout)
-        	echo -en "$1 [$prompt] "
-
-        	# Read the answer (use /dev/tty in case stdin is redirected from somewhere else)
-        	read reply </dev/tty
-		else
-			endtime=$((`date +%s` + $timeout));
-			while [ "$endtime" -ge `date +%s` ]; do
-				timediff=$(($endtime - `date +%s`))
-
-				echo -en "\r$1 [$prompt] (Default $default in ${timediff}s) "
-				read -t 1 reply </dev/tty
-
-				if [ -n "$reply" ]; then
-					break
-				fi
-			done
-		fi
-
-        # Default?
-        if [ -z "$reply" ]; then
-            reply=$default
-        fi
-
-        # Check if the reply is valid
-        case "$reply" in
-            Y*|y*) return 0 ;;
-            N*|n*) return 1 ;;
-        esac
-
-    done
-}
-
-##
-# Download from a remote source.
-#
-# Checks for the existence of curl and wget, then downloads the remote file using the first available option.
-#
-# @param {string} remote  The remote file to download.
-# @param {string} [local] Optional. The local filename to use. If it isn't passed, STDOUT is used.
-#
-# @return {bool} Whether the download succeeded or not.
-##
-download() {
-    if command_exists "curl"; then
-        curl -s -o "${2:--}" "$1"
-    elif command_exists "wget"; then
-		wget -nv -O "${2:--}" "$1"
-    fi
-}
-
-##
 # Add error message formatting to a string, and echo it.
 #
 # @param {string} message The string to add formatting to.
@@ -109,15 +25,6 @@ warning_message() {
 ##
 status_message() {
 	echo -en "\033[32mSTATUS\033[0m: $1"
-}
-
-##
-# Add formatting to an action string.
-#
-# @param {string} message The string to add formatting to.
-##
-action_format() {
-	echo -en "\033[32m$1\033[0m"
 }
 
 ##
@@ -171,8 +78,7 @@ start_ngrok() {
 	fi
 
 	$NGROK_CMD http -log=stdout 8889 > /dev/null &
-	sleep 5
-	echo $(curl -s -v localhost:4040/api/tunnels/command_line)
+	sleep 3
 	WP_SITE_URL=$(get_ngrok_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
@@ -202,21 +108,32 @@ kill_ngrok() {
 	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
 }
 
-setup_env() {
-	echo -e $(status_message "Setting up docker environment...")
+start_env() {
+	yarn wp-env start
+
 	check_for_ngrok
 	check_for_jq
-
 	start_ngrok
-	. "$(dirname "$0")/setup-docker-env.sh"
+
+	configure_wp_env
 }
 
 reset_env() {
-	echo -e $(status_message "Resetting docker environment...")
+	yarn wp-env clean
 	restart_ngrok
-	. "$(dirname "$0")/setup-docker-env.sh"
+
+	configure_wp_env
 }
 
-stop_docker() {
-	$DC stop
+configure_wp_env() {
+	yarn wp-env run tests-wordpress touch wp-content/debug.log
+
+	yarn wp-env run tests-cli wp option set siteurl "$WP_SITE_URL"
+	yarn wp-env run tests-cli wp option set home "$WP_SITE_URL"
+
+	if [ -n $LATEST_GUTENBERG ]; then
+		yarn wp-env run tests-cli wp plugin install gutenberg --activate
+	fi
 }
+
+
