@@ -106,6 +106,7 @@ export async function execWpCommand( wpCmd, suffix = null ) {
 	logger.info( cmd );
 
 	const result = await execShellCommand( cmd );
+	console.log( result );
 
 	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
 	// Here we cleaning this up.

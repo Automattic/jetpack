@@ -85,7 +85,7 @@ matrix:
     # - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
     # - sudo apt-get update
     # - sudo apt-get -y install gcc-5 gcc-multilib libstdc++-4.9-dev
-    - yarn
+    # - yarn
     - yarn build-production
     - ./tests/e2e/bin/wp-env.sh
     - yarn test-decrypt-config
@@ -101,7 +101,7 @@ matrix:
         # sources:
           # - ubuntu-toolchain-r-test
         packages:
-          - nginx
+          # - nginx
           # This is required to run new chrome on old trusty
           # - libnss3
           # Required by wp-env see https://github.com/WordPress/gutenberg/pull/18986#discussion_r358740927
