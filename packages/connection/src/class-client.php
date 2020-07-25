@@ -168,6 +168,57 @@ class Client {
 	}
 
 	/**
+	 * Fetches a signed token.
+	 *
+	 * @param string $token the token.
+	 * @return string a signed token
+	 */
+	public static function get_signed_token( $token ) {
+		list( $token_key, $token_secret ) = explode( '.', $token->secret );
+
+		$token_key = sprintf(
+			'%s:%d:%d',
+			$token_key,
+			Constants::get_constant( 'JETPACK__API_VERSION' ),
+			$token->external_user_id
+		);
+
+		$timestamp = time();
+
+		if ( function_exists( 'wp_generate_password' ) ) {
+			$nonce = wp_generate_password( 10, false );
+		} else {
+			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
+		}
+
+		$normalized_request_string = join(
+			"\n",
+			array(
+				$token_key,
+				$timestamp,
+				$nonce,
+			)
+		) . "\n";
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$signature = base64_encode( hash_hmac( 'sha1', $normalized_request_string, $token_secret, true ) );
+
+		$auth = array(
+			'token'     => $token_key,
+			'timestamp' => $timestamp,
+			'nonce'     => $nonce,
+			'signature' => $signature,
+		);
+
+		$header_pieces = array();
+		foreach ( $auth as $key => $value ) {
+			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
+		}
+
+		return join( ' ', $header_pieces );
+	}
+
+	/**
 	 * Wrapper for wp_remote_request().  Turns off SSL verification for certain SSL errors.
 	 * This is lame, but many, many, many hosts have misconfigured SSL.
 	 *
@@ -435,7 +486,7 @@ class Client {
 			return (string) $data;
 		}
 
-		foreach ( $data as $key => &$value ) {
+		foreach ( $data as &$value ) {
 			$value = self::_stringify_data( $value );
 		}
 

@@ -11,7 +11,9 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
+use Jetpack_Options;
 use WP_Error;
+use WP_User;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -703,17 +705,18 @@ class Manager {
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
 	 * @param Integer $user_id the user identifier.
+	 * @param bool    $can_overwrite_primary_user Allow for the primary user to be disconnected.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
-	public static function disconnect_user( $user_id = null ) {
-		$tokens = \Jetpack_Options::get_option( 'user_tokens' );
+	public static function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
+		$tokens = Jetpack_Options::get_option( 'user_tokens' );
 		if ( ! $tokens ) {
 			return false;
 		}
 
 		$user_id = empty( $user_id ) ? get_current_user_id() : intval( $user_id );
 
-		if ( \Jetpack_Options::get_option( 'master_user' ) === $user_id ) {
+		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
 			return false;
 		}
 
@@ -726,7 +729,7 @@ class Manager {
 
 		unset( $tokens[ $user_id ] );
 
-		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+		Jetpack_Options::update_option( 'user_tokens', $tokens );
 
 		// Delete cached connected user data.
 		$transient_key = "jetpack_connected_user_data_$user_id";
@@ -1471,6 +1474,95 @@ class Manager {
 		$this->delete_all_connection_tokens( true );
 
 		return $this->register();
+	}
+
+	/**
+	 * Validate the tokens, and refresh the invalid ones.
+	 *
+	 * @return string|true True if connection restored, otherwise string indicating what's to be done next.
+	 */
+	public function restore() {
+		$invalid_tokens = array();
+		$can_restore    = $this->can_restore( $invalid_tokens );
+
+		// Tokens are valid. We can't fix the problem we don't see, so the full reconnection is needed.
+		if ( ! $can_restore ) {
+			$this->reconnect();
+			return 'authorize';
+		}
+
+		if ( in_array( 'user', $invalid_tokens, true ) ) {
+			self::disconnect_user( null, true );
+			return 'authorize';
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determine whether we can restore the connection, or the full reconnect is needed.
+	 *
+	 * @param array $invalid_tokens The array the invalid tokens are stored in, provided by reference.
+	 *
+	 * @return bool `True` if the connection can be restored, `false` otherwise.
+	 */
+	public function can_restore( &$invalid_tokens ) {
+		$invalid_tokens = array();
+
+		$validated_tokens = $this->validate_tokens();
+
+		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token_is_healthy', 'user_token_is_healthy' ) ), $validated_tokens ) ) ) {
+			return false;
+		}
+
+		if ( true !== $validated_tokens['blog_token_is_healthy'] ) {
+			$invalid_tokens[] = 'blog';
+		}
+
+		if ( true !== $validated_tokens['user_token_is_healthy'] ) {
+			$invalid_tokens[] = 'user';
+		}
+
+		return (bool) count( $invalid_tokens );
+	}
+
+	/**
+	 * Perform the API request to validate the blog and user tokens.
+	 *
+	 * @return array|false The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
+	 */
+	private function validate_tokens() {
+		$master_user_id = Jetpack_Options::get_option( 'master_user' );
+
+		if ( ! $master_user_id ) {
+			return false;
+		}
+
+		$url = sprintf(
+			'%s://%s/%s/v%s/%s',
+			Client::protocol(),
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'wpcom',
+			'2',
+			'jetpack-token-health'
+		);
+
+		$user_token = $this->get_access_token( $master_user_id );
+		$blog_token = $this->get_access_token();
+		$method     = 'POST';
+		$body       = array(
+			'user_token' => Client::get_signed_token( $user_token ),
+			'blog_token' => Client::get_signed_token( $blog_token ),
+		);
+		$response   = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
+
+		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return $body ? $body : false;
 	}
 
 	/**

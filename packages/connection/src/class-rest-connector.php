@@ -260,19 +260,30 @@ class REST_Connector {
 
 		$response = array();
 
+		$next = null;
+
 		switch ( $params['action'] ) {
 			case 'reconnect':
+				$next = $this->connection->restore();
+				break;
+			case 'reconnect_force':
 				$result = $this->connection->reconnect();
 
 				if ( true === $result ) {
-					$response['status']       = 'in_progress';
-					$response['authorizeUrl'] = $this->connection->get_authorization_url();
+					$next = 'authorize';
 				} elseif ( is_wp_error( $result ) ) {
 					$response = $result;
 				}
 				break;
 			default:
 				$response = new WP_Error( 'Unknown action' );
+				break;
+		}
+
+		switch ( $next ) {
+			case 'authorize':
+				$response['status']       = 'in_progress';
+				$response['authorizeUrl'] = $this->connection->get_authorization_url();
 				break;
 		}
 
