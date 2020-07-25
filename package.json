@@ -65,7 +65,7 @@
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./tests/e2e/config/encrypted.enc -out ./tests/e2e/config/local-test.js",
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./tests/e2e/config/local-test.js -out ./tests/e2e/config/encrypted.enc",
 		"test-extensions": "jest extensions",
-		"test-e2e": "NODE_CONFIG_DIR='./tests/e2e/config' NODE_CONFIG_ENV=test JEST_PUPPETEER_CONFIG=tests/e2e/jest-puppeteer.config.js jest --config tests/e2e/jest.config.js",
+		"test-e2e": "NODE_CONFIG_DIR='./tests/e2e/config' NODE_CONFIG_ENV=test JEST_PUPPETEER_CONFIG=tests/e2e/jest-puppeteer.config.js jest --config tests/e2e/jest.config.js --runInBand --verbose",
 		"test-spelling": "mdspell -n -a -x --en-us **/*.md",
 		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='!(docker|node_modules|tests|tools|vendor){*.php,**/*.php}'",
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
