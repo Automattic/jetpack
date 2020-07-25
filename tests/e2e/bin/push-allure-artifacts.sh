@@ -53,14 +53,10 @@ fi
 
 cd $REPO_DIR
 
+chmod 755 cleanup.sh
+. ./cleanup.sh
+
 # Push the changes
 git add .
 git commit -q --message "Build for $ARTIFACT. Travis build# $TRAVIS_BUILD_NUMBER."
 git push
-
-# TODO move it before push, once it we can confirm it's doing the right thing
-# Remove folders older then 30 days
-# find . -type d -mtime +30 -maxdepth 1 | xargs rm -rf
-find . -type d -mtime +30 -maxdepth 1
-find ./docs -type d -mtime +30 -maxdepth 1
-

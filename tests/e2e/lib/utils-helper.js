@@ -91,17 +91,8 @@ export async function activateModule( page, module ) {
 	return true;
 }
 
-export async function execWpCommand( wpCmd, suffix = null ) {
-	// let cmd = `./tests/e2e/bin/docker-e2e-cli.sh cli "${ wpCmd }"`;
-	let cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
-
-	// if ( process.env.CI ) {
-	// 	cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
-	// }
-
-	if ( suffix ) {
-		cmd = cmd + suffix;
-	}
+export async function execWpCommand( wpCmd ) {
+	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
 
 	logger.info( cmd );
 	const result = await execShellCommand( cmd );
