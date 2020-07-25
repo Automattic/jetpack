@@ -19,7 +19,7 @@ class Jetpack_Google_AMP_Analytics {
 	/**
 	 * Add hooks.
 	 */
-	public function init() {
+	public function __construct() {
 		add_action( 'woocommerce_add_to_cart', array( $this, 'amp_add_to_cart' ), 10, 6 );
 		add_action( 'woocommerce_thankyou', array( $this, 'amp_after_purchase' ), 10, 1 );
 		add_action( 'wp_footer', array( $this, 'amp_send_ga_events' ) );
