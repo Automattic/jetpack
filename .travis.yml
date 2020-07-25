@@ -71,78 +71,51 @@ matrix:
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
-  - name: "E2E tests"
-    # language: node_js
-    language: generic
-    dist: xenial
+  - php: "7.0"
+    name: "Legacy full sync"
+    env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
 
+  - name: "E2E tests"
+    language: generic
+    dist: xenial # kinda workaround for wp-env dependencies
     # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
     # so we just skip the E2E job all together
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
-    # Enable user namespace cloning
     - nvm install
-    # - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    # - sudo apt-get update
-    # - sudo apt-get -y install gcc-5 gcc-multilib libstdc++-4.9-dev
-    # - yarn
     - yarn build-production
     - ./tests/e2e/bin/wp-env.sh
     - yarn test-decrypt-config
     script:
     - yarn test-e2e --runInBand --verbose
     after_script:
-    - sudo apt-add-repository -y ppa:qameta/allure
-    - sudo apt-get update
-    - sudo apt-get -y install allure
     - ./tests/e2e/bin/push-allure-artifacts.sh
     addons:
       apt:
-        # sources:
-          # - ubuntu-toolchain-r-test
+        sources:
+          - ppa:qameta/allure
         packages:
-          # - nginx
-          # This is required to run new chrome on old trusty
-          # - libnss3
-          # Required by wp-env see https://github.com/WordPress/gutenberg/pull/18986#discussion_r358740927
-          # - libstdc++-4.9-dev
-  - php: "7.0"
-    name: "Legacy full sync"
-    env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
+          - allure
 
-  - php: "7.4"
-    name: "E2E tests latest Gutenberg"
+  - name: "E2E tests with latest Gutenberg"
+    language: generic
+    dist: xenial
     env: LATEST_GUTENBERG=1
-    # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
-    # so we just skip the E2E job all together
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
-    # Enable user namespace cloning
-    - "sysctl kernel.unprivileged_userns_clone=1"
     - nvm install
-    - yarn && yarn build-production
-    - ./tests/e2e/bin/setup-e2e-travis.sh
+    - yarn build-production
+    - ./tests/e2e/bin/wp-env.sh
     - yarn test-decrypt-config
     script:
     - yarn test-e2e --runInBand --verbose
-    after_script:
-    - sudo apt-add-repository -y ppa:qameta/allure
-    - sudo apt-get update
-    - sudo apt-get -y install allure
-    - ./tests/e2e/bin/push-allure-artifacts.sh
-    addons:
-      apt:
-        packages:
-          - nginx
-          # This is required to run new chrome on old trusty
-          - libnss3
 
   allow_failures:
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
     - name: "Code Coverage"
     - name: "E2E tests"
-    - name: "E2E tests latest Gutenberg"
+    - name: "E2E tests with latest Gutenberg"
 
 cache:
   directories:
@@ -194,8 +167,8 @@ notifications:
 addons:
   code_climate:
     repo_token: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libstdc++-4.9-dev
+  # apt:
+  #   sources:
+  #     - ubuntu-toolchain-r-test
+  #   packages:
+  #     - libstdc++-4.9-dev
