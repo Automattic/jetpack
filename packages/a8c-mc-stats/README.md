@@ -28,7 +28,7 @@ Create an instance of the class and use the `add()` method to store stats that w
 By default, this uses `b.gif`, which is a transparent pixel. If you want to use a tiny little smiley icon instead, initialize the class with `false`.
 
 ```php
-$stats = new Automattic\Jetpack\Stats( false );
+$stats = new Automattic\Jetpack\A8c_Mc_Stats( false );
 ```
 
 or set the property at any time:
