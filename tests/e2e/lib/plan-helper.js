@@ -16,8 +16,8 @@ export async function persistPlanData( planType = 'jetpack_business' ) {
 
 	fs.writeFileSync( 'plan-data.txt', JSON.stringify( planData ) );
 
-	const cmd = `wp option update ${ planDataOption }`;
-	await execWpCommand( cmd, ' < plan-data.txt' );
+	const cmd = `wp option update ${ planDataOption } < plan-data.txt`;
+	await execWpCommand( cmd );
 }
 
 export async function activatePlanDataInterceptor() {
