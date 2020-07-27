@@ -379,6 +379,13 @@ class Jetpack {
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
 
 	/**
+	 * Holds an instance of Automattic\Jetpack\A8c_Mc_Stats
+	 *
+	 * @var Automattic\Jetpack\A8c_Mc_Stats
+	 */
+	public $a8c_mc_stats_instance;
+
+	/**
 	 * Constant for login redirect key.
 	 *
 	 * @var string
@@ -4533,32 +4540,40 @@ endif;
 	}
 
 	/**
+	 * Initialize the jetpack stats instance only when needed
+	 *
+	 * @return void
+	 */
+	private function initialize_stats() {
+		if ( is_null( $this->a8c_mc_stats_instance ) ) {
+			$this->a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		}
+	}
+
+	/**
 	 * Record a stat for later output.  This will only currently output in the admin_footer.
 	 */
 	function stat( $group, $detail ) {
-		if ( ! isset( $this->stats[ $group ] ) ) {
-			$this->stats[ $group ] = array();
-		}
-		$this->stats[ $group ][] = $detail;
+		$this->initialize_stats();
+		$this->a8c_mc_stats_instance->add( $group, $detail );
+
+		// Keep a local copy for backward compatibility (there are some direct checks on this).
+		$this->stats = $this->a8c_mc_stats_instance->get_current_stats();
 	}
 
 	/**
 	 * Load stats pixels. $group is auto-prefixed with "x_jetpack-"
 	 */
 	function do_stats( $method = '' ) {
-		if ( is_array( $this->stats ) && count( $this->stats ) ) {
-			foreach ( $this->stats as $group => $stats ) {
-				if ( is_array( $stats ) && count( $stats ) ) {
-					$args = array( "x_jetpack-{$group}" => implode( ',', $stats ) );
-					if ( 'server_side' === $method ) {
-						self::do_server_side_stat( $args );
-					} else {
-						echo '<img src="' . esc_url( self::build_stats_url( $args ) ) . '" width="1" height="1" style="display:none;" />';
-					}
-				}
-				unset( $this->stats[ $group ] );
-			}
+		$this->initialize_stats();
+		if ( 'server_side' === $method ) {
+			$this->a8c_mc_stats_instance->do_server_side_stats();
+		} else {
+			$this->a8c_mc_stats_instance->do_stats();
 		}
+
+		// Keep a local copy for backward compatibility (there are some direct checks on this).
+		$this->stats = array();
 	}
 
 	/**
@@ -4569,16 +4584,9 @@ endif;
 	 * @return bool If it worked.
 	 */
 	static function do_server_side_stat( $args ) {
-		$response = wp_remote_get( esc_url_raw( self::build_stats_url( $args ) ) );
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
-		}
-
-		return true;
+		$url                   = self::build_stats_url( $args );
+		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		return $a8c_mc_stats_instance->do_server_side_stat( $url );
 	}
 
 	/**
@@ -4589,24 +4597,10 @@ endif;
 	 * @return string The URL to be pinged.
 	 */
 	static function build_stats_url( $args ) {
-		$defaults = array(
-			'v'    => 'wpcom2',
-			'rand' => md5( mt_rand( 0, 999 ) . time() ),
-		);
-		$args     = wp_parse_args( $args, $defaults );
-		/**
-		 * Filter the URL used as the Stats tracking pixel.
-		 *
-		 * @since 2.3.2
-		 *
-		 * @param string $url Base URL used as the Stats tracking pixel.
-		 */
-		$base_url = apply_filters(
-			'jetpack_stats_base_url',
-			'https://pixel.wp.com/g.gif'
-		);
-		$url      = add_query_arg( $args, $base_url );
-		return $url;
+
+		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		return $a8c_mc_stats_instance->build_stats_url( $args );
+
 	}
 
 	/**
