@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
 import waitMediaReady from './lib/wait-media-ready';
 
 /**
@@ -151,10 +150,24 @@ export const Slide = ( {
 	}, [ mediaRef.current ] );
 
 	return (
-		<div className="wp-story-slide" style={ { display: visible ? 'block' : 'none' } }>
-			{ loading && <div className="wp-story-slide-loading"></div> }
-			<Media { ...media } index={ index } mediaRef={ mediaRef } />
-		</div>
+		<>
+			{ /* spinner from wp-calypso components */ }
+			{ visible && loading && (
+				<div className="wp-story-slide is-loading">
+					<div className="spinner">
+						<div className="spinner__outer">
+							<div className="spinner__inner" />
+						</div>
+					</div>
+				</div>
+			) }
+			<div
+				className="wp-story-slide"
+				style={ { display: visible && ! loading ? 'block' : 'none' } }
+			>
+				<Media { ...media } index={ index } mediaRef={ mediaRef } />
+			</div>
+		</>
 	);
 };
 
