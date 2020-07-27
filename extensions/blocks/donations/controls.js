@@ -1,16 +1,79 @@
 /**
  * WordPress dependencies
  */
-import { ExternalLink, PanelBody, ToggleControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { InspectorControls } from '@wordpress/block-editor';
+import {
+	ExternalLink,
+	TextControl,
+	PanelBody,
+	SelectControl,
+	ToggleControl,
+} from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import { SUPPORTED_CURRENCIES, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 const Controls = props => {
 	const { attributes, setAttributes, products, siteSlug } = props;
-	const { monthlyPlanId, annuallyPlanId, showCustomAmount } = attributes;
+	const { currency, amounts, monthlyPlanId, annuallyPlanId, showCustomAmount } = attributes;
+	const [ editedAmounts, setEditedAmounts ] = useState( amounts );
+
+	const minAmount = minimumTransactionAmountForCurrency( currency );
+
+	const setAmount = ( amount, tier ) => {
+		let isValidAmount = true;
+		if ( ! amount ) {
+			isValidAmount = false;
+		}
+		amount = parseFloat( amount );
+		if ( amount < minAmount ) {
+			isValidAmount = false;
+		}
+		const newAmounts = [ ...amounts ];
+		newAmounts[ tier ] = amount;
+		setEditedAmounts( newAmounts );
+		if ( isValidAmount ) {
+			setAttributes( { amounts: newAmounts } );
+		}
+	};
+
+	// Updates the inputs handling the amount when the amounts attribute changes.
+	useEffect( () => {
+		setEditedAmounts( amounts );
+	}, [ amounts ] );
+
 	return (
 		<InspectorControls>
 			<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+				<SelectControl
+					label={ __( 'Currency', 'jetpack' ) }
+					value={ currency }
+					options={ Object.keys( SUPPORTED_CURRENCIES ).map( ccy => ( {
+						label: ccy,
+						value: ccy,
+					} ) ) }
+					onChange={ ccy => setAttributes( { currency: ccy } ) }
+				/>
+				<div className="donations__controls-amounts">
+					{ editedAmounts.map( ( amount, index ) => (
+						<TextControl
+							type="number"
+							min={ minAmount }
+							step="1"
+							value={ amount }
+							label={ sprintf(
+								// translators: %d: Tier level e.g: "1", "2", "3"
+								__( 'Tier %d', 'jetpack' ),
+								index + 1
+							) }
+							onChange={ value => setAmount( value, index ) }
+						/>
+					) ) }
+				</div>
 				<ToggleControl
 					checked={ !! monthlyPlanId }
 					onChange={ value =>

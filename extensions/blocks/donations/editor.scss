@@ -90,3 +90,11 @@
 		max-width: none;
 	}
 }
+
+.donations__controls-amounts {
+	display: flex;
+
+	.components-base-control:not( :last-child ) {
+		margin-right: 8px;
+	}
+}

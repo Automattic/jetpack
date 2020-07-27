@@ -1,14 +1,19 @@
 /**
+ * External dependencies
+ */
+import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+
+/**
  * WordPress dependencies
  */
 import { RichText } from '@wordpress/block-editor';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Context from './context';
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 const attributesPerInterval = {
@@ -26,6 +31,7 @@ const attributesPerInterval = {
 
 const Tab = props => {
 	const { attributes, interval, setAttributes } = props;
+	const [ customAmountPlaceholder, setCustomAmountPlaceholder ] = useState( null );
 
 	const getAttribute = attributeName => {
 		if ( attributeName in attributesPerInterval ) {
@@ -43,15 +49,23 @@ const Tab = props => {
 		return setAttributes( { [ attributeName ]: value } );
 	};
 	const currency = getAttribute( 'currency' );
+	const amounts = getAttribute( 'amounts' );
+	const showCustomAmount = getAttribute( 'showCustomAmount' );
 
-	const minAmount = minimumTransactionAmountForCurrency( currency );
-	// TODO: This generates good amounts for USD, but let's revisit once we support more currencies.
-	const tiers = [
-		minAmount * 10, // USD 5
-		minAmount * 30, // USD 15
-		minAmount * 200, // USD 100
-	];
-	const customAmountPlaceholder = minAmount * 100; // USD 50
+	// Updates the custom amount placeholder whenever the currency changes.
+	useEffect( () => {
+		if ( ! showCustomAmount ) {
+			setCustomAmountPlaceholder( null );
+			return;
+		}
+
+		const minAmount = minimumTransactionAmountForCurrency( currency );
+		setCustomAmountPlaceholder( minAmount * 100 ); // USD 50
+	}, [ currency, showCustomAmount ] );
+
+	if ( ! amounts ) {
+		return null;
+	}
 
 	return (
 		<Context.Consumer>
@@ -72,13 +86,13 @@ const Tab = props => {
 						inlineToolbar
 					/>
 					<div className="wp-block-buttons donations__amounts">
-						{ tiers.map( amount => (
+						{ amounts.map( amount => (
 							<div className="wp-block-button donations__amount">
 								<div className="wp-block-button__link">{ formatCurrency( amount, currency ) }</div>
 							</div>
 						) ) }
 					</div>
-					{ getAttribute( 'showCustomAmount' ) && (
+					{ customAmountPlaceholder && (
 						<>
 							<RichText
 								tagName="p"

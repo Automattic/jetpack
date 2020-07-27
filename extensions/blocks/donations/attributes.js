@@ -8,6 +8,13 @@ export default {
 		type: 'string',
 		default: 'USD',
 	},
+	amounts: {
+		type: 'array',
+		items: {
+			type: 'number',
+		},
+		default: [ 5, 15, 100 ],
+	},
 	oneTimePlanId: {
 		type: 'number',
 		default: null,
@@ -38,7 +45,7 @@ export default {
 	},
 	chooseAmountText: {
 		type: 'string',
-		default: __( 'Choose an amount (USD)', 'jetpack' ),
+		default: __( 'Choose an amount', 'jetpack' ) + ' (USD)',
 	},
 	customAmountText: {
 		type: 'string',

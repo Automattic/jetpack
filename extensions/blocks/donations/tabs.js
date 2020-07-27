@@ -17,13 +17,16 @@ import Context from './context';
 import Controls from './controls';
 import Tab from './tab';
 import StripeNudge from '../../shared/components/stripe-nudge';
+import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 const Tabs = props => {
 	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
-	const { oneTimePlanId, monthlyPlanId, annuallyPlanId } = attributes;
+	const { currency, oneTimePlanId, monthlyPlanId, annuallyPlanId, chooseAmountText } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
+	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
 
 	const isTabActive = tab => activeTab === tab;
+	const minAmount = minimumTransactionAmountForCurrency( currency );
 
 	const tabs = {
 		'one-time': { title: __( 'One-Time', 'jetpack' ) },
@@ -35,14 +38,16 @@ const Tabs = props => {
 	useEffect( () => {
 		// Since there is no setting for disabling the one-time option, we can assume that the block has been just
 		// inserted if the attribute `oneTimePlanId` is not set.
-		if ( ! oneTimePlanId ) {
-			setAttributes( {
-				oneTimePlanId: products[ 'one-time' ],
-				monthlyPlanId: products[ '1 month' ],
-				annuallyPlanId: products[ '1 year' ],
-			} );
+		if ( oneTimePlanId ) {
+			return;
 		}
-	}, [ oneTimePlanId ] );
+
+		setAttributes( {
+			oneTimePlanId: products[ 'one-time' ],
+			monthlyPlanId: products[ '1 month' ],
+			annuallyPlanId: products[ '1 year' ],
+		} );
+	}, [ oneTimePlanId, products, setAttributes ] );
 
 	// Sets the plans when Stripe has been connected (we use fake plans while Stripe is not connected so user can still try the block).
 	useEffect( () => {
@@ -53,7 +58,7 @@ const Tabs = props => {
 				...( annuallyPlanId && { annuallyPlanId: products[ '1 year' ] } ),
 			} );
 		}
-	}, [ oneTimePlanId, monthlyPlanId, annuallyPlanId ] );
+	}, [ oneTimePlanId, monthlyPlanId, annuallyPlanId, setAttributes, products ] );
 
 	// Activates the one-time tab if the interval of the current active tab is disabled.
 	useEffect( () => {
@@ -64,7 +69,23 @@ const Tabs = props => {
 		if ( ! annuallyPlanId && isTabActive( '1 year' ) ) {
 			setActiveTab( 'one-time' );
 		}
-	}, [ monthlyPlanId, annuallyPlanId ] );
+	}, [ monthlyPlanId, annuallyPlanId, setActiveTab, isTabActive ] );
+
+	// Updates the amounts and choose amount text attributes when the currency changes.
+	useEffect( () => {
+		if ( previousCurrency === currency ) {
+			return;
+		}
+		setPreviousCurrency( currency );
+		setAttributes( {
+			amounts: [
+				minAmount * 10, // 1st tier (USD 5)
+				minAmount * 30, // 2nd tier (USD 15)
+				minAmount * 200, // 3rd tier (USD 100)
+			],
+			chooseAmountText: chooseAmountText.replace( `(${ previousCurrency })`, `(${ currency })` ),
+		} );
+	}, [ currency, previousCurrency, minAmount, chooseAmountText, setAttributes ] );
 
 	return (
 		<div className={ className }>
