@@ -334,4 +334,60 @@ class Test_Status extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * Tests known local development sites.
+	 *
+	 * @dataProvider get_is_local_site_known_tld
+	 *
+	 * @param string $site_url Site URL.
+	 * @param bool   $expected_response Expected response.
+	 */
+	public function test_is_local_site_for_known_tld( $site_url, $expected_response ) {
+		Functions\when( 'site_url' )->justReturn( $site_url );
+		$result = $this->status->is_local_site();
+		$this->assertEquals(
+			$expected_response,
+			$result,
+			sprintf(
+				'Expected %1$s to return %2$s for is_local_site()',
+				$site_url,
+				$expected_response
+			)
+		);
+	}
+
+	/**
+	 * Known hosting providers.
+	 *
+	 * @return array
+	 */
+	public function get_is_local_site_known_tld() {
+		return array(
+			'vvv'            => array(
+				'http://jetpack.test',
+				true,
+			),
+			'docksal'        => array(
+				'http://jetpack.docksal',
+				true,
+			),
+			'serverpress'    => array(
+				'http://jetpack.dev.cc',
+				true,
+			),
+			'lando'          => array(
+				'http://jetpack.lndo.site',
+				true,
+			),
+			'test_subdomain' => array(
+				'https://test.jetpack.com',
+				false,
+			),
+			'test_in_domain' => array(
+				'https://jetpack.test.jetpack.com',
+				false,
+			),
+		);
+	}
 }

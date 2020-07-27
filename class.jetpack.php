@@ -1659,7 +1659,9 @@ class Jetpack {
 	 * Determines reason for Jetpack offline mode.
 	 */
 	public static function development_mode_trigger_text() {
-		if ( ! ( new Status() )->is_offline_mode() ) {
+		$status = new Status();
+
+		if ( ! $status->is_offline_mode() ) {
 			return __( 'Jetpack is not in Offline Mode.', 'jetpack' );
 		}
 
@@ -1667,8 +1669,8 @@ class Jetpack {
 			$notice = __( 'The JETPACK_DEV_DEBUG constant is defined in wp-config.php or elsewhere.', 'jetpack' );
 		} elseif ( defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV ) {
 			$notice = __( 'The WP_LOCAL_DEV constant is defined in wp-config.php or elsewhere.', 'jetpack' );
-		} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-			$notice = __( 'The site URL lacking a dot (e.g. http://localhost).', 'jetpack' );
+		} elseif ( $status->is_local_site() ) {
+			$notice = __( 'The site URL is a known local development environment URL (e.g. http://localhost).', 'jetpack' );
 			/** This filter is documented in packages/status/src/class-status.php */
 		} elseif ( has_filter( 'jetpack_development_mode' ) && apply_filters( 'jetpack_development_mode', false ) ) { // This is a deprecated filter name.
 			$notice = __( 'The jetpack_development_mode filter is set to true.', 'jetpack' );

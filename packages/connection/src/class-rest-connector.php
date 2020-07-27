@@ -148,7 +148,7 @@ class REST_Connector {
 			'offlineMode'  => array(
 				'isActive'        => $status->is_offline_mode(),
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-				'url'             => site_url() && false === strpos( site_url(), '.' ),
+				'url'             => $status->is_local_site(),
 				/** This filter is documented in packages/status/src/class-status.php */
 				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,

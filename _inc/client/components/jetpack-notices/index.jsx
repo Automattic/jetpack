@@ -122,7 +122,9 @@ export class OfflineModeNotice extends React.Component {
 				);
 			}
 			if ( offlineMode.url ) {
-				reasons.push( __( 'Your site URL lacks a dot (e.g. http://localhost)', 'jetpack' ) );
+				reasons.push(
+					__( 'Your site URL is a known local development environment URL', 'jetpack' )
+				);
 			}
 
 			const text = jetpackCreateInterpolateElement(
