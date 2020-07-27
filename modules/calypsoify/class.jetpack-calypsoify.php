@@ -96,7 +96,7 @@ class Jetpack_Calypsoify {
 			$repo_plugins = self::get_dotorg_repo_plugins();
 		}
 
-		$autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$autoupdating_plugins = (array) get_site_option( 'auto_update_plugins', array() );
 		// $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
 		if ( 'autoupdate' === $column_name ) {
 			if ( ! in_array( $slug, $repo_plugins ) ) {
@@ -140,7 +140,7 @@ class Jetpack_Calypsoify {
 	public function handle_bulk_actions_plugins( $redirect_to, $action, $slugs ) {
 		$redirect_to = remove_query_arg( array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ), $redirect_to );
 		if ( in_array( $action, array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ) ) ) {
-			$list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+			$list        = (array) get_site_option( 'auto_update_plugins', array() );
 			$initial_qty = sizeof( $list );
 
 			if ( 'jetpack_enable_plugin_autoupdates' === $action ) {
@@ -149,7 +149,7 @@ class Jetpack_Calypsoify {
 				$list = array_diff( $list, $slugs );
 			}
 
-			Jetpack_Options::update_option( 'autoupdate_plugins', $list );
+			update_site_option( 'auto_update_plugins', $list );
 			$redirect_to = add_query_arg( $action, absint( sizeof( $list ) - $initial_qty ), $redirect_to );
 		}
 		return $redirect_to;
