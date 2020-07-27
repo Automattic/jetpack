@@ -415,10 +415,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			'isActive'    => true,
 			'isStaging'   => false,
 			'offlineMode' => array(
-				'isActive' => false,
-				'constant' => false,
-				'url'      => false,
-				'filter'   => false,
+				'isActive'        => false,
+				'constant'        => false,
+				'url'             => false,
+				'filter'          => false,
+				'wpLocalConstant' => false,
 			),
 		), $response );
 	}
@@ -449,10 +450,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			'isActive'    => true,
 			'isStaging'   => true,
 			'offlineMode' => array(
-				'isActive' => false,
-				'constant' => false,
-				'url'      => false,
-				'filter'   => false,
+				'isActive'        => false,
+				'constant'        => false,
+				'url'             => false,
+				'filter'          => false,
+				'wpLocalConstant' => false,
 			),
 		), $response );
 
@@ -481,10 +483,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			'isActive'    => false,
 			'isStaging'   => false,
 			'offlineMode' => array(
-				'isActive' => true,
-				'constant' => false,
-				'url'      => false,
-				'filter'   => true,
+				'isActive'        => true,
+				'constant'        => false,
+				'url'             => false,
+				'filter'          => true,
+				'wpLocalConstant' => false,
 			),
 		), $response );
 
