@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
@@ -70,6 +71,14 @@ class Jetpack_Admin {
 					add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 				}
 			);
+
+			// This is a workaround to replace Akismet logo for Jetpacks without having to touch Akismet codebase. It
+			// should be removed once we have a Jetpack Anti-Spam setting page.
+			$logo            = new Jetpack_Logo();
+			$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
+			$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
+			$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
+			wp_add_inline_style( 'admin-bar', $style );
 		}
 	}
 
