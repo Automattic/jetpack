@@ -149,7 +149,6 @@
 		"react-pure-render": "1.0.2",
 		"react-redux": "6.0.1",
 		"react-router-dom": "5.2.0",
-		"react-shadow-dom-retarget-events": "1.0.11",
 		"react-tagsinput": "3.19.0",
 		"redux": "4.0.5",
 		"redux-thunk": "2.3.0",
