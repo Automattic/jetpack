@@ -1712,7 +1712,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Fetch site data from .com including the site's current plan.
+	 * Fetch site data from .com including the site's current plan and the site's products.
 	 *
 	 * @since 5.5.0
 	 *
@@ -1740,6 +1740,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		Jetpack_Plan::update_from_sites_response( $response );
+		Jetpack_Site_Products::update_from_sites_response( $response );
 
 		$body = wp_remote_retrieve_body( $response );
 
