@@ -48,7 +48,7 @@ describe( 'Connection', () => {
 		} );
 	} );
 
-	it( 'In-place upgrading a plan from personal to premium', async () => {
+	it( 'In-place upgrading a plan from premium to professional', async () => {
 		await step( 'Can set a sandbox cookie', async () => {
 			const siteUrl = getNgrokSiteUrl();
 			const host = '.' + new URL( siteUrl ).host;
@@ -59,10 +59,10 @@ describe( 'Connection', () => {
 
 		await step( 'Can start in-place connection', async () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
-			await doInPlaceConnection( 'personal' );
+			await doInPlaceConnection( 'premium' );
 		} );
 
-		await step( 'Can process payment for Personal plan', async () => {
+		await step( 'Can process payment for Premium plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			const myPlanPage = await MyPlanPage.init( page );
@@ -72,12 +72,12 @@ describe( 'Connection', () => {
 			// await myPlanPage.reload( { waitFor: 'networkidle0' } );
 
 			await myPlanPage.returnToWPAdmin();
-			await syncJetpackPlanData( 'personal', false );
+			await syncJetpackPlanData( 'premium', false );
 		} );
 
-		await step( 'Can assert that site has a Personal plan', async () => {
+		await step( 'Can assert that site has a Premium plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isPlan( 'personal' ) ).toBeTruthy();
+			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
 		} );
 
 		await step( 'Can re-login to WP admin', async () => {
@@ -86,25 +86,25 @@ describe( 'Connection', () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
 		} );
 
-		await step( 'Can visit plans page and select a Premium plan', async () => {
+		await step( 'Can visit plans page and select a Professional plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
 
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
-			await plansPage.select( 'premium' );
+			await plansPage.select( 'pro' );
 		} );
 
-		await step( 'Can process payment for Premium plan', async () => {
+		await step( 'Can process payment for Professional plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
-			await syncJetpackPlanData( 'premium', false );
+			await syncJetpackPlanData( 'pro', false );
 		} );
 
-		await step( 'Can assert that site has a Premium plan', async () => {
+		await step( 'Can assert that site has a Professional plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
+			expect( await jetpackPage.isPlan( 'pro' ) ).toBeTruthy();
 		} );
 	} );
 } );
