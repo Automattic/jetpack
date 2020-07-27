@@ -6476,10 +6476,10 @@ eslint-plugin-react@^7.14.3:
     string.prototype.matchall "^4.0.2"
     xregexp "^4.3.0"
 
-eslint-plugin-wpcalypso@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-wpcalypso/-/eslint-plugin-wpcalypso-4.1.0.tgz#a18e881805fdc7a70be7db8c62d2c92a2923355c"
-  integrity sha512-2gZdaaX5rS7vve5FfIBTANPFXfQstxMppUFR8KzrY5cJPt7hIhpg9lOb4y0hVYNdJkhZxkvEWw8yoJhaUc1OYQ==
+eslint-plugin-wpcalypso@5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-wpcalypso/-/eslint-plugin-wpcalypso-5.0.0.tgz#df20425c5a5ba127a7fa5bda8875b1cbde75101e"
+  integrity sha512-pcghYspmOv+KzBr+jlDMaazKc8ZKs4vm/dbZWpqCm26wbgCfCpe4276gZJRfUv7Zs+puy3+7h1i/Bd5zfiKBnA==
 
 eslint-scope@3.7.1:
   version "3.7.1"
