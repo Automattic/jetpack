@@ -114,6 +114,45 @@ class Status {
 	}
 
 	/**
+	 * If the site is a local site.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool
+	 */
+	public function is_local_site() {
+		// Check for localhost and sites using an IP only first.
+		$is_local = site_url() && false === strpos( site_url(), '.' );
+
+		// Then check for usual usual domains used by local dev tools.
+		$known_local = array(
+			'#\.local$#i',
+			'#\.localhost$#i',
+			'#\.test$#i',
+			'#\.docksal$#i',      // Docksal.
+			'#\.docksal\.site$#i', // Docksal.
+			'#\.dev\.cc$#i',       // ServerPress.
+			'#\.lndo\.site$#i',    // Lando.
+		);
+
+		foreach ( $known_local as $url ) {
+			if ( preg_match( $url, site_url() ) ) {
+				$is_local = true;
+				break;
+			}
+		}
+
+		/**
+		 * Filters is_local_site check.
+		 *
+		 * @since 8.8.0
+		 *
+		 * @param bool $is_local If the current site is a local site.
+		 */
+		return apply_filters( 'jetpack_is_local_site', $is_local );
+	}
+
+	/**
 	 * If is a staging site.
 	 *
 	 * @todo Add IDC detection to a package.
@@ -129,9 +168,16 @@ class Status {
 			'urls'      => array(
 				'#\.staging\.wpengine\.com$#i', // WP Engine.
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
+				'#\.kinsta\.cloud$#i',          // Kinsta.com.
 				'#\.stage\.site$#i',            // DreamPress.
 				'#\.newspackstaging\.com$#i',   // Newspack.
+				'#\.pantheonsite\.io$#i',       // Pantheon.
+				'#\.flywheelsites\.com$#i',     // Flywheel.
 				'#\.flywheelstaging\.com$#i',   // Flywheel.
+				'#\.cloudwaysapps\.com$#i',     // Cloudways.
+				'#\.azurewebsites\.net$#i',     // Azure.
+				'#\.wpserveur\.net$#i',         // WPServeur.
+				'#\-liquidwebsites\.com$#i',    // Liquidweb.
 			),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine.
