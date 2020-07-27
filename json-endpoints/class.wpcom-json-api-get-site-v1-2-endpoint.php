@@ -53,7 +53,6 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'is_fse_active'               => '(bool) If the site has Full Site Editing active or not.',
 		'is_fse_eligible'             => '(bool) If the site is capable of Full Site Editing or not',
 		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
-		'is_white_glove'              => '(bool) If this is a white glove offer, as part of the ab test defined in pau2Xa-13X-p2',
 	);
 
 

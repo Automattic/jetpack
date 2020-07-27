@@ -56,7 +56,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_fse_active'               => '(bool) If the site has Full Site Editing active or not.',
 		'is_fse_eligible'             => '(bool) If the site is capable of Full Site Editing or not',
 		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
-		'is_white_glove'              => '(bool) If the product being purchased is coming from the white glove offer, check pau2Xa-13X-p2',
 	);
 
 	protected static $no_member_fields = array(
@@ -412,9 +411,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_core_site_editor_enabled':
 				$response[ $key ] = $this->site->is_core_site_editor_enabled();
-				break;
-			case 'is_white_glove':
-				$response[ $key ] = $this->site->is_white_glove();
 				break;
 		}
 
