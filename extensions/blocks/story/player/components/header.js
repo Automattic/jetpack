@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { createElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -13,9 +14,6 @@ export default function Header( { fullscreen, onExitFullscreen, siteIconUrl, sto
 		return null;
 	}
 
-	// default WP logo url relative to story/view.js
-	siteIconUrl = siteIconUrl || '../../../../../../wp-includes/images/w-logo-blue.png';
-
 	return (
 		<div className="wp-story-meta">
 			<div className="wp-story-icon">
@@ -26,7 +24,7 @@ export default function Header( { fullscreen, onExitFullscreen, siteIconUrl, sto
 			</div>
 			<SimpleButton
 				className="wp-story-exit-fullscreen"
-				label="Exit Fullscreen"
+				label={ __( 'Exit Fullscreen', 'jetpack' ) }
 				icon="close"
 				onClick={ onExitFullscreen }
 			/>

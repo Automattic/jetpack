@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 import waitMediaReady from './lib/wait-media-ready';
 
 /**
@@ -22,11 +23,11 @@ export const Slide = ( {
 	muted,
 	onEnd,
 	onProgress,
-	onLoaded,
 	settings,
 } ) => {
 	const visible = index === currentSlideIndex;
 	const mediaRef = useRef( null );
+	const [ loading, setLoading ] = useState( true );
 	const isVideo = () => mediaRef.current.tagName.toLowerCase() === 'video';
 
 	const [ progressState, updateProgressState ] = useState( {
@@ -97,6 +98,9 @@ export const Slide = ( {
 	// Sync progressState with underlying media playback progress
 	useEffect( () => {
 		clearTimeout( progressState.timeout );
+		if ( loading ) {
+			return;
+		}
 		if ( playing ) {
 			const video = isVideo() ? mediaRef.current : null;
 			const duration = video ? video.duration : settings.imageTime;
@@ -123,7 +127,7 @@ export const Slide = ( {
 				lastUpdate: null,
 			} );
 		}
-	}, [ playing, progressState ] );
+	}, [ loading, playing, progressState ] );
 
 	// Watch progressState and trigger events using onProgress and onEnd callbacks
 	useEffect( () => {
@@ -139,13 +143,16 @@ export const Slide = ( {
 		}
 	}, [ playing, progressState ] );
 
-	// Calls onLoaded when underlying media is ready to be played
+	// Sync media loading
 	useEffect( () => {
-		waitMediaReady( mediaRef.current ).then( onLoaded );
-	}, [ media ] );
+		waitMediaReady( mediaRef.current ).then( () => {
+			setLoading( false );
+		} );
+	}, [ mediaRef.current ] );
 
 	return (
 		<div className="wp-story-slide" style={ { display: visible ? 'block' : 'none' } }>
+			{ loading && <div className="wp-story-slide-loading"></div> }
 			<Media { ...media } index={ index } mediaRef={ mediaRef } />
 		</div>
 	);

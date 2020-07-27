@@ -28,7 +28,6 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const [ playing, setPlaying ] = useState( false );
 	const [ ended, setEnded ] = useState( false );
 	const [ muted, setMuted ] = useState( settings.startMuted );
-	const [ loading, setLoading ] = useState( true );
 	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
 
 	const [ slideWidth, setSlideWidth ] = useState( 279 );
@@ -78,7 +77,6 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 
 	// reset player on slide change
 	useEffect( () => {
-		setLoading( true );
 		setPlaying( false );
 		showSlide( 0, false );
 	}, [ slides ] );
@@ -131,7 +129,6 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							muted={ muted }
 							ended={ ended }
 							onProgress={ setCurrentSlideProgress }
-							onLoaded={ () => index === 0 && setLoading( false ) }
 							onEnd={ tryNextSlide }
 							settings={ settings }
 						/>
