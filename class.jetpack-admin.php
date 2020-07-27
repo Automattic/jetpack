@@ -51,6 +51,26 @@ class Jetpack_Admin {
 
 		// Add module bulk actions handler
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
+
+		// If the site has Jetpack Anti-Spam, change the Akismet menu label accordingly.
+		$site_products = Jetpack_Site_Products::get();
+		if ( false !== array_search( 'jetpack_anti_spam', array_column( $site_products, 'product_slug' ), true ) ) {
+			// Prevent Akismet from adding a menu item.
+			add_action(
+				'init',
+				function () {
+					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+				},
+				99
+			);
+			// Add an Anti-spam menu item for Jetpack.
+			add_action(
+				'jetpack_admin_menu',
+				function () {
+					add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+				}
+			);
+		}
 	}
 
 	static function sort_requires_connection_last( $module1, $module2 ) {
