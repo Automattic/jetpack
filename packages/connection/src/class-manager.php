@@ -2142,9 +2142,26 @@ class Manager {
 				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
-				$user_id = \Jetpack_Options::get_option( 'master_user' );
+				$user_id      = \Jetpack_Options::get_option( 'master_user' );
+				$return_error = false;
+				$error_code   = false;
 				if ( ! $user_id ) {
-					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
+					$return_error  = true;
+					$error_code    = 'empty_master_user_option';
+					$error_message = __( 'No primary user defined', 'jetpack' );
+				} else {
+					// Verify if the user actually exists. Calling get_current_id first might save us one query to the DB.
+					if ( get_current_user_id() !== (int) $user_id && ! get_userdata( (int) $user_id ) instanceof \WP_User ) {
+						// In this case we are not returning an error. Let's keep it that way. (leave $return_error false).
+						$error_code    = 'user_not_found';
+						$error_message = __( 'Primary user defined but not found', 'jetpack' );
+					}
+				}
+				if ( $error_code ) {
+					\Jetpack_Options::update_option( 'get_master_user_error', $error_code );
+					if ( $return_error ) {
+						return $suppress_errors ? false : new \WP_Error( $error_code, $error_message );
+					}
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {

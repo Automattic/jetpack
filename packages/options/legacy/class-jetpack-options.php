@@ -72,6 +72,7 @@ class Jetpack_Options {
 					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 					'xmlrpc_errors',               // (array) Keys are XML-RPC signature error codes. Values are truthy.
 					'dismissed_wizard_banner',     // (int) True if the Wizard banner has been dismissed.
+					'get_master_user_error',       // (string) error triggered when master user is missing, used to send data via heartbeat.
 				);
 
 			case 'private':

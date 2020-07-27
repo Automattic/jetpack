@@ -137,6 +137,12 @@ class Jetpack_Heartbeat {
 			Jetpack_Options::delete_option( 'xmlrpc_errors' );
 		}
 
+		$master_user_error = Jetpack_Options::get_option( 'get_master_user_error', '' );
+		if ( $master_user_error ) {
+			$return[ "{$prefix}master-user-error" ] = $master_user_error;
+			Jetpack_Options::delete_option( 'get_master_user_error' );
+		}
+
 		// Missing the connection owner?
 		$connection_manager                 = new Manager();
 		$return[ "{$prefix}missing-owner" ] = $connection_manager->is_missing_connection_owner();
