@@ -296,9 +296,14 @@ class Broken_Token {
 	public function admin_post_set_invalid_user_tokens() {
 		check_admin_referer( 'set-invalid-user-tokens' );
 		$this->notice_type = 'jetpack-broken';
-		foreach ( Jetpack_Options::get_option( 'user_tokens', array() ) as $id => $token ) {
-			Jetpack_Options::update_option( 'user_tokens', array( $id => sprintf( $this->invalid_user_token, $id ) ) );
+
+		$new_tokens = array();
+
+		foreach ( Jetpack_Options::get_option( 'user_tokens' ) as $id => $token ) {
+			$new_tokens[ $id ] = sprintf( $this->invalid_user_token, $id );
 		}
+
+		Jetpack_Options::update_option( 'user_tokens', $new_tokens );
 
 		$this->admin_post_redirect_referrer();
 	}
