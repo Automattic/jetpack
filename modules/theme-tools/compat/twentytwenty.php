@@ -264,7 +264,9 @@ function twentytwenty_amp_infinite_older_posts() {
 <div id="infinite-handle" class="read-more-button-wrap">
 	<span>
 		<a href="{{url}}" class="more-link" rel="amphtml">
-			<span class="faux-button">{{title}}</span>
+			<span class="faux-button">
+				<?php esc_html_e( 'Older posts', 'jetpack' ); ?>
+			</span>
 		</a>
 	</span>
 </div>

@@ -200,7 +200,7 @@ function twentynineteen_amp_infinite_older_posts() {
 	<span>
 		<a href="{{url}}">
 			<button>
-				{{title}}
+				<?php esc_html_e( 'Older posts', 'jetpack' ); ?>
 			</button>
 		</a>
 	</span>
