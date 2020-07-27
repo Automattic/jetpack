@@ -134,6 +134,10 @@ configure_wp_env() {
 	if [ -n $LATEST_GUTENBERG ]; then
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
 	fi
+
+	echo
+	status_message "Open ${WP_SITE_URL} to see your site!"
+	echo
 }
 
 
