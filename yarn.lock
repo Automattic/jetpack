@@ -93,6 +93,16 @@
   dependencies:
     "@automattic/popup-monitor" "^1.0.0"
 
+"@automattic/social-previews@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@automattic/social-previews/-/social-previews-1.0.1.tgz#88654b49c599cc1f9fe4590a93094a1c167e6604"
+  integrity sha512-+cXlAA0jGjltCkXEP6VoL38FQwuVWkKxfooy4JaPK3IaOzvBJ+fgGUTOKypSa0qJQ3aBxSj0Ci1p37kgxE09UA==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    i18n-calypso "^5.0.0"
+    lodash "^4.17.15"
+    prop-types "^15.7.2"
+
 "@automattic/viewport@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/viewport/-/viewport-1.0.0.tgz#66cf793007058f9e63f89c50134d02287d6b5261"
@@ -1120,6 +1130,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.8.4":
+  version "7.10.5"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.10.5.tgz#303d8bd440ecd5a491eae6117fd3367698674c5c"
+  integrity sha512-otddXKhdNn7d0ptoFRHtMLa8LqDxLYwTjB4nYgM1yy5N6gU/MUf8zqyyLltCH3yAVitBzmwK4us+DD0l/MauAg==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/template@^7.1.0", "@babel/template@^7.4.0", "@babel/template@^7.4.4":
   version "7.4.4"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.4.4.tgz#f4b88d1225689a08f5bc3a17483545be9e4ed237"
@@ -1860,10 +1877,23 @@
     "@tannin/evaluate" "^1.1.1"
     "@tannin/postfix" "^1.0.2"
 
+"@tannin/compile@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@tannin/compile/-/compile-1.1.0.tgz#1e4d1c5364cbfeffa1c20352c053e19ef20ffe93"
+  integrity sha512-n8m9eNDfoNZoxdvWiTfW/hSPhehzLJ3zW7f8E7oT6mCROoMNWCB4TYtv041+2FMAxweiE0j7i1jubQU4MEC/Gg==
+  dependencies:
+    "@tannin/evaluate" "^1.2.0"
+    "@tannin/postfix" "^1.1.0"
+
 "@tannin/evaluate@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@tannin/evaluate/-/evaluate-1.1.1.tgz#de25595d2c8cee5e5c654515bd1b789189048073"
   integrity sha512-ALuSZHjrLHGnw0WxsHDHde74FJ2WW0Ck4rg3QBxFBCmxd6Wsac+e0HXfJ++Qion15LIOCmFhyVpWzawMgeBA8Q==
+
+"@tannin/evaluate@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@tannin/evaluate/-/evaluate-1.2.0.tgz#468a13c45eff45340108836fc46c708457199c3f"
+  integrity sha512-3ioXvNowbO/wSrxsDG5DKIMxC81P0QrQTYai8zFNY+umuoHWRPbQ/TuuDEOju9E+jQDXmj6yI5GyejNuh8I+eg==
 
 "@tannin/plural-forms@^1.0.3":
   version "1.0.3"
@@ -1872,10 +1902,27 @@
   dependencies:
     "@tannin/compile" "^1.0.3"
 
+"@tannin/plural-forms@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@tannin/plural-forms/-/plural-forms-1.1.0.tgz#cffbb060d2640a56a314e3c77cbf6ea6072b51d5"
+  integrity sha512-xl9R2mDZO/qiHam1AgMnAES6IKIg7OBhcXqy6eDsRCdXuxAFPcjrej9HMjyCLE0DJ/8cHf0i5OQTstuBRhpbHw==
+  dependencies:
+    "@tannin/compile" "^1.1.0"
+
 "@tannin/postfix@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@tannin/postfix/-/postfix-1.0.2.tgz#fbb723e79603add30f5d8a08a626c2970d984857"
   integrity sha512-Nggtk7/ljfNPpAX8CjxxLkMKuO6u2gH1ozmTvGclWF2pNcxTf6YGghYNYNWZRKrimXGhQ8yZqvAHep7h80K04g==
+
+"@tannin/postfix@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@tannin/postfix/-/postfix-1.1.0.tgz#6071f4204ae26c2e885cf3a3f1203a9f71e3f291"
+  integrity sha512-oocsqY7g0cR+Gur5jRQLSrX2OtpMLMse1I10JQBm8CdGMrDkh1Mg2gjsiquMHRtBs4Qwu5wgEp5GgIYHk4SNPw==
+
+"@tannin/sprintf@^1.1.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@tannin/sprintf/-/sprintf-1.2.0.tgz#44f813f0de7696a0772d61844d1c97f4eb189044"
+  integrity sha512-T0ORaQrH6kNFGzTg285RVPK+NCYZxOoA+r0QfKgHqK+yk5RuYPSKDa18XCLtycCNq+VWKpfyDpzGUGhYgCV+kw==
 
 "@testing-library/dom@^7.16.2":
   version "7.20.0"
@@ -2648,6 +2695,20 @@
     lodash "^4.17.15"
     mousetrap "^1.6.2"
 
+"@wordpress/compose@^3.7.2":
+  version "3.19.2"
+  resolved "https://registry.yarnpkg.com/@wordpress/compose/-/compose-3.19.2.tgz#e32f69caa3836fd1a3d1fa1c778024bf42b6d51b"
+  integrity sha512-hBtgJc5YJ5Vr5QMU5lNKNby5uMvbF+/LjI/x3pV/0D6lWUrmrCxA2fNj9qOVmSUnrx35ltaYDUDpPUUqVysurA==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@wordpress/element" "^2.16.0"
+    "@wordpress/is-shallow-equal" "^2.1.0"
+    "@wordpress/priority-queue" "^1.7.0"
+    clipboard "^2.0.1"
+    lodash "^4.17.15"
+    mousetrap "^1.6.5"
+    react-resize-aware "^3.0.1"
+
 "@wordpress/core-data@2.12.3", "@wordpress/core-data@^2.12.3":
   version "2.12.3"
   resolved "https://registry.yarnpkg.com/@wordpress/core-data/-/core-data-2.12.3.tgz#d7f39892c725fa7297dc23df7a8fba99b559b917"
@@ -2797,7 +2858,7 @@
     refx "^3.0.0"
     rememo "^3.0.0"
 
-"@wordpress/element@2.16.0":
+"@wordpress/element@2.16.0", "@wordpress/element@^2.16.0":
   version "2.16.0"
   resolved "https://registry.yarnpkg.com/@wordpress/element/-/element-2.16.0.tgz#8196a74a6a9049eed2a5b7a51eb696fd553bbf4c"
   integrity sha512-1ijo/GR/uBfL4teCQ3oFdUTqkeV2EZ32SCvXl30iPbqYmaNSzT1ZI1dlW8GO5o5UBja9BG11hnaOwm93pE2y2A==
@@ -2910,6 +2971,13 @@
   dependencies:
     "@babel/runtime" "^7.8.3"
 
+"@wordpress/is-shallow-equal@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/is-shallow-equal/-/is-shallow-equal-2.1.0.tgz#aa95356e66f13e49f9fd339e416c08412e2c29e1"
+  integrity sha512-xCphAZG60mnLhn+LitwfoercNxsPMvc0Yo96kBY7HAZgrPt+jNQ5Rv4M+FTlVnyLrkyxVxNdtGyuyR+Hpgi8Pg==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+
 "@wordpress/keyboard-shortcuts@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@wordpress/keyboard-shortcuts/-/keyboard-shortcuts-1.1.2.tgz#1dede552545e77c5711c225ba1694530786f5538"
@@ -2980,6 +3048,13 @@
   integrity sha512-zVT9rHhIRa6JJWu7SwXkzk4S/5DbErJYFAm+1M90yE+X4vsZW12xG3mtA5Vw5CgWY1Ie24pevcZLkmFRKpP6og==
   dependencies:
     "@babel/runtime" "^7.8.3"
+
+"@wordpress/priority-queue@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/priority-queue/-/priority-queue-1.7.0.tgz#d9359a28da14c82cde538d7a56f9c221d089cada"
+  integrity sha512-fwHOW48lYRV2CpP43LwET+ZQrNDK325V9fFMMpc0tgJfdSfgT9gwztOEx5vbbfkwzJXIdxTW+ILhoH20CuiSug==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
 
 "@wordpress/redux-routine@^3.7.0":
   version "3.7.0"
@@ -5706,7 +5781,7 @@ debug@3.2.6, debug@3.X, debug@^3.1.0, debug@^3.2.6:
   dependencies:
     ms "^2.1.1"
 
-debug@4, debug@4.1.1, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
+debug@4, debug@4.1.1, debug@^4.0.0, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
   integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
@@ -8482,6 +8557,23 @@ i18n-calypso@4.0.0, i18n-calypso@^4.0.0-alpha.1:
     lru "^3.1.0"
     moment "^2.24.0"
     react "^16.8.3"
+
+i18n-calypso@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/i18n-calypso/-/i18n-calypso-5.0.0.tgz#7cf7e1ca72f387cef1269a827826853bbb8d532c"
+  integrity sha512-YgqLgshNiBOiifWxr4s33ODWQ4JIaHoBPWtgFyqcRy0+WGMX2CmTDbXaeZHkHxuIjzsGP+YrVTPNp7lfbiot4g==
+  dependencies:
+    "@babel/runtime" "^7.8.4"
+    "@tannin/sprintf" "^1.1.0"
+    "@wordpress/compose" "^3.7.2"
+    debug "^4.0.0"
+    events "^3.0.0"
+    hash.js "^1.1.5"
+    interpolate-components "^1.1.1"
+    lodash "^4.17.11"
+    lru "^3.1.0"
+    tannin "^1.1.1"
+    use-subscription "^1.2.0"
 
 iconv-lite@0.4.24, iconv-lite@^0.4.24, iconv-lite@^0.4.4, iconv-lite@~0.4.13:
   version "0.4.24"
@@ -13467,6 +13559,11 @@ react-resize-aware@^3.0.0:
   resolved "https://registry.yarnpkg.com/react-resize-aware/-/react-resize-aware-3.0.0.tgz#fee9e1c61ac5bb2dd87c59e03703070d01601269"
   integrity sha512-UyLk1KNbFHDye9AFLyr7HBGmzkRDGz2mYp6LDS+LCxM6DXGpviwS5Q4JRzXWdw0tk+n46UE/Kotku/cb8HCh0Q==
 
+react-resize-aware@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/react-resize-aware/-/react-resize-aware-3.0.1.tgz#39d6f264ad3b85dec461a5e04d9760860d14f44c"
+  integrity sha512-HdPzwdcAv+BMFQEgyacFB40G4IxNMO7tSqaMjbnAouot8LXi5/Rx3/Fv+LU2cQekqiivE1LF4sGnwQ7SnoHrpg==
+
 react-router-dom@5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.2.0.tgz#9e65a4d0c45e13289e66c7b17c7e175d0ea15662"
@@ -15368,6 +15465,13 @@ tannin@^1.1.0:
   dependencies:
     "@tannin/plural-forms" "^1.0.3"
 
+tannin@^1.1.1:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/tannin/-/tannin-1.2.0.tgz#1da6fe65280dca4c3d84efb075b077b1b94362a6"
+  integrity sha512-U7GgX/RcSeUETbV7gYgoz8PD7Ni4y95pgIP/Z6ayI3CfhSujwKEBlGFTCRN+Aqnuyf4AN2yHL+L8x+TCGjb9uA==
+  dependencies:
+    "@tannin/plural-forms" "^1.1.0"
+
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
@@ -16076,6 +16180,13 @@ use-memo-one@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/use-memo-one/-/use-memo-one-1.1.1.tgz#39e6f08fe27e422a7d7b234b5f9056af313bd22c"
   integrity sha512-oFfsyun+bP7RX8X2AskHNTxu+R3QdE/RC5IefMbqptmACAA/gfol1KDD5KRzPsGMa62sWxGZw+Ui43u6x4ddoQ==
+
+use-subscription@^1.2.0:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/use-subscription/-/use-subscription-1.4.1.tgz#edcbcc220f1adb2dd4fa0b2f61b6cc308e620069"
+  integrity sha512-7+IIwDG/4JICrWHL/Q/ZPK5yozEnvRm6vHImu0LKwQlmWGKeiF7mbAenLlK/cTNXrTtXHU/SFASQHzB6+oSJMQ==
+  dependencies:
+    object-assign "^4.1.1"
 
 use@^3.1.0:
   version "3.1.1"
