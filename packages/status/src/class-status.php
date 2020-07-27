@@ -36,14 +36,13 @@ class Status {
 	 */
 	public function is_offline_mode() {
 		$offline_mode = false;
-		$site_url     = site_url();
 
 		if ( defined( '\\JETPACK_DEV_DEBUG' ) ) {
 			$offline_mode = constant( '\\JETPACK_DEV_DEBUG' );
 		} elseif ( defined( '\\WP_LOCAL_DEV' ) ) {
 			$offline_mode = constant( '\\WP_LOCAL_DEV' );
-		} elseif ( $site_url ) {
-			$offline_mode = false === strpos( $site_url, '.' );
+		} elseif ( $this->is_local_site() ) {
+			$offline_mode = true;
 		}
 
 		/**
