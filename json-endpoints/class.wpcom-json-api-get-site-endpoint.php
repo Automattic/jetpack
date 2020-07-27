@@ -32,7 +32,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'URL'                         => '(string) Full URL to the site',
 		'user_can_manage'             => '(bool) The current user can manage this site', // deprecated.
 		'capabilities'                => '(array) Array of capabilities for the current user on this site.',
-		'jetpack'                     => '(bool)  Whether the site is a Jetpack site or not',
+		'jetpack'                     => '(bool) Whether the site is a Jetpack site or not',
+		'jetpack_connection'          => '(bool) Whether the site is connected to WP.com via `jetpack-connection`',
 		'is_multisite'                => '(bool) Whether the site is a Multisite site or not. Always true for WP.com sites.',
 		'post_count'                  => '(int) The number of posts the site has',
 		'subscribers_count'           => '(int) The number of subscribers the site has',
@@ -64,6 +65,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'description',
 		'URL',
 		'jetpack',
+		'jetpack_connection',
 		'post_count',
 		'subscribers_count',
 		'lang',
@@ -371,8 +373,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'locale' :
 				$response[ $key ] = $is_user_logged_in ? $this->site->get_locale() : false;
 				break;
-			case 'jetpack' :
+			case 'jetpack':
 				$response[ $key ] = $this->site->is_jetpack();
+				break;
+			case 'jetpack_connection':
+				$response[ $key ] = $this->site->is_jetpack_connection();
 				break;
 			case 'single_user_site' :
 				$response[ $key ] = $this->site->is_single_user_site();
@@ -656,9 +661,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function decorate_jetpack_response( &$response ) {
 		$this->site = $this->get_platform()->get_site( $response->ID );
 		switch_to_blog( $this->site->get_id() );
-
-		// ensure the response is marked as being from Jetpack
-		$response->jetpack = true;
 
 		$wpcom_response = $this->render_response_keys( self::$jetpack_response_field_additions );
 

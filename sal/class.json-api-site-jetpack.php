@@ -199,7 +199,21 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_bloginfo( 'language' );
 	}
 
-	function is_jetpack() {
+	/**
+	 * The flag indicates that the site has Jetpack installed
+	 *
+	 * @return bool
+	 */
+	public function is_jetpack() {
+		return true;
+	}
+
+	/**
+	 * The flag indicates that the site is connected to WP.com via Jetpack Connection
+	 *
+	 * @return bool
+	 */
+	public function is_jetpack_connection() {
 		return true;
 	}
 
