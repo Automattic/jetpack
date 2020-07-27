@@ -99,7 +99,6 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	public function test_connection_plugins() {
 		$user = wp_get_current_user();
-		$user->add_cap( 'jetpack_admin_page' );
 		$user->add_cap( 'activate_plugins' );
 
 		$plugins = array(
@@ -129,13 +128,15 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertEquals( $plugins, $response->get_data() );
 
 		$user->remove_cap( 'activate_plugins' );
-		$user->remove_cap( 'jetpack_admin_page' );
 	}
 
 	/**
 	 * Testing the `connection/reconnect` endpoint.
 	 */
 	public function test_connection_reconnect() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/reconnect' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
 		$this->request->set_body( wp_json_encode( array( 'action' => 'reconnect' ) ) );
@@ -152,6 +153,8 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
 		delete_transient( 'jetpack_assumed_site_creation_date' );
+
+		$user->remove_cap( 'jetpack_disconnect' );
 	}
 
 	/**
