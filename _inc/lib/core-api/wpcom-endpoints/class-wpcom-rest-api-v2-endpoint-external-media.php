@@ -116,13 +116,18 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'callback'            => array( $this, 'copy_external_media' ),
 				'permission_callback' => array( $this, 'create_item_permissions_check' ),
 				'args'                => array(
-					'media' => array(
+					'media'   => array(
 						'description'       => __( 'Media data to copy.', 'jetpack' ),
 						'items'             => $this->media_schema,
 						'required'          => true,
 						'type'              => 'array',
 						'sanitize_callback' => array( $this, 'sanitize_media' ),
 						'validate_callback' => array( $this, 'validate_media' ),
+					),
+					'post_id' => array(
+						'description' => __( 'The post ID to attach the upload to.', 'jetpack' ),
+						'type'        => 'number',
+						'minimum'     => 0,
 					),
 				),
 			)
@@ -304,6 +309,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
+		$post_id = $request->get_param( 'post_id' );
+
 		$responses = array();
 		foreach ( $request->get_param( 'media' ) as $item ) {
 			// Download file to temp dir.
@@ -313,7 +320,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				continue;
 			}
 
-			$id = $this->sideload_media( $item['guid']['name'], $download_url );
+			$id = $this->sideload_media( $item['guid']['name'], $download_url, $post_id );
 			if ( is_wp_error( $id ) ) {
 				$responses[] = $id;
 				continue;
@@ -389,16 +396,17 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 *
 	 * @param string $file_name    Name of media file.
 	 * @param string $download_url Download URL.
+	 * @param int    $post_id      The ID of the post to attach the image to.
 	 *
 	 * @return int|\WP_Error
 	 */
-	public function sideload_media( $file_name, $download_url ) {
+	public function sideload_media( $file_name, $download_url, $post_id = 0 ) {
 		$file = array(
 			'name'     => wp_basename( $file_name ),
 			'tmp_name' => $download_url,
 		);
 
-		$id = media_handle_sideload( $file, 0, null );
+		$id = media_handle_sideload( $file, $post_id, null );
 		if ( is_wp_error( $id ) ) {
 			@unlink( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			$id->add_data( array( 'status' => 400 ) );

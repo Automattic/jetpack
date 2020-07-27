@@ -14,6 +14,7 @@ import { withNotices, Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -193,6 +194,7 @@ export default function withMedia() {
 							title: item.title,
 						} ) ),
 						service: source, // WPCOM.
+						post_id: this.props.postId ?? 0,
 					},
 				} )
 					.then( result => {
@@ -287,6 +289,10 @@ export default function withMedia() {
 			}
 		}
 
-		return withNotices( WithMediaComponent );
+		return withSelect( select => {
+			return {
+				postId: select( 'core/editor' ).getCurrentPostId(),
+			};
+		} )( withNotices( WithMediaComponent ) );
 	} );
 }
