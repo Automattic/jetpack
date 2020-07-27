@@ -83,7 +83,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// each time Jetpack_Photon::instance() is called, since it's gated by a
 		// static variable.
 		// l337 h4X0Ring required:
-		$instance = new ReflectionProperty( 'Jetpack_Photon', '__instance' );
+		$instance = new ReflectionProperty( 'Jetpack_Photon', 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 

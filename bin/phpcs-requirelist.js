@@ -12,6 +12,7 @@ module.exports = [
 	'class.jetpack-plan.php',
 	'class.jetpack-twitter-cards.php',
 	'class-jetpack-wizard-banner.php',
+	'class.photon.php',
 	'docker',
 	'extensions/',
 	'functions.cookies.php',
