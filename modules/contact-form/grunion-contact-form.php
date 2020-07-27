@@ -1844,7 +1844,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$this->hash                 = sha1( json_encode( $attributes ) . $content );
 		self::$forms[ $this->hash ] = $this;
 
-		// Set up the default subject and recipient for this form
+		// Set up the default subject and recipient for this form.
 		$default_to      = '';
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
 
@@ -1863,7 +1863,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$default_to      .= $post_author->user_email;
 		}
 
-		// Keep reference to $this for parsing form fields
+		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
 
 		$this->defaults = array(
@@ -1877,18 +1877,19 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
+			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
 
-		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode
+		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
 		Grunion_Contact_Form_Plugin::$using_contact_form_field = true;
 
 		parent::__construct( $attributes, $content );
 
 		// There were no fields in the contact form. The form was probably just [contact-form /]. Build a default form.
 		if ( empty( $this->fields ) ) {
-			// same as the original Grunion v1 form
+			// same as the original Grunion v1 form.
 			$default_form = '
 				[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]
 				[contact-field label="' . __( 'Email', 'jetpack' ) . '" type="email" required="true" /]
@@ -1904,10 +1905,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			$this->parse_content( $default_form );
 
-			// Store the shortcode
+			// Store the shortcode.
 			$this->store_shortcode( $default_form, $attributes, $this->hash );
 		} else {
-			// Store the shortcode
+			// Store the shortcode.
 			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 

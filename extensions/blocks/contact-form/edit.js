@@ -34,6 +34,7 @@ import {
  */
 import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
+import CRMConnectionSettings from './components/jetpack-crm-connection-settings';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -71,7 +72,14 @@ function JetpackContactFormEdit( {
 	variations,
 	defaultVariation,
 } ) {
-	const { to, subject, customThankyou, customThankyouMessage, customThankyouRedirect } = attributes;
+	const {
+		to,
+		subject,
+		customThankyou,
+		customThankyouMessage,
+		customThankyouRedirect,
+		jetpackCRM,
+	} = attributes;
 
 	const [ emailErrors, setEmailErrors ] = useState( false );
 	const formClassnames = classnames( className, 'jetpack-contact-form' );
@@ -311,6 +319,9 @@ function JetpackContactFormEdit( {
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
+				<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+					<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+				</PanelBody>
 			</InspectorControls>
 
 			<div className={ formClassnames }>
