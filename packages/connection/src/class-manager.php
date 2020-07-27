@@ -2139,23 +2139,26 @@ class Manager {
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens' );
+				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
-					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option' );
+					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( 'No token for user %d', $user_id ) );
+				// translators: %s is the user ID.
+				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( __( 'No token for user %d', 'jetpack' ), $user_id ) );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( 'Token for user %d is malformed', $user_id ) );
+				// translators: %s is the user ID.
+				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( __( 'Token for user %d is malformed', 'jetpack' ), $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
-				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
+				// translators: %1$d is the ID of the requested user. %2$d is the user ID found in the token.
+				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( __( 'Requesting user_id %1$d does not match token user_id %2$d', 'jetpack' ), $user_id, $user_token_chunks[2] ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
@@ -2185,7 +2188,8 @@ class Manager {
 		}
 
 		if ( ! $possible_tokens ) {
-			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens' );
+			// If no user tokens were found, it would have failed earlier, so this is about blog token.
+			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens', __( 'No blog token found', 'jetpack' ) );
 		}
 
 		$valid_token = false;
@@ -2210,7 +2214,12 @@ class Manager {
 		}
 
 		if ( ! $valid_token ) {
-			return $suppress_errors ? false : new \WP_Error( 'no_valid_token' );
+			if ( $user_id ) {
+				// translators: %d is the user ID.
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
+			} else {
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', __( 'Invalid blog token', 'jetpack' ) );
+			}
 		}
 
 		return (object) array(
