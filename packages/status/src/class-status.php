@@ -134,10 +134,12 @@ class Status {
 			'#\.lndo\.site$#i',    // Lando.
 		);
 
-		foreach ( $known_local as $url ) {
-			if ( preg_match( $url, site_url() ) ) {
-				$is_local = true;
-				break;
+		if ( ! $is_local ) {
+			foreach ( $known_local as $url ) {
+				if ( preg_match( $url, site_url() ) ) {
+					$is_local = true;
+					break;
+				}
 			}
 		}
 
