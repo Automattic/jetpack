@@ -1529,15 +1529,11 @@ class Manager {
 	/**
 	 * Perform the API request to validate the blog and user tokens.
 	 *
+	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
+	 *
 	 * @return array|false The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
 	 */
-	private function validate_tokens() {
-		$master_user_id = Jetpack_Options::get_option( 'master_user' );
-
-		if ( ! $master_user_id ) {
-			return false;
-		}
-
+	public function validate_tokens( $user_id = null ) {
 		$url = sprintf(
 			'%s://%s/%s/v%s/%s',
 			Client::protocol(),
@@ -1547,12 +1543,12 @@ class Manager {
 			'jetpack-token-health'
 		);
 
-		$user_token = $this->get_access_token( $master_user_id );
+		$user_token = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
 		$blog_token = $this->get_access_token();
 		$method     = 'POST';
 		$body       = array(
-			'user_token' => Client::get_signed_token( $user_token ),
-			'blog_token' => Client::get_signed_token( $blog_token ),
+			'user_token' => $this->get_signed_token( $user_token ),
+			'blog_token' => $this->get_signed_token( $blog_token ),
 		);
 		$response   = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
 
@@ -2553,6 +2549,57 @@ class Manager {
 		}
 
 		return $this->plugin->is_enabled();
+	}
+
+	/**
+	 * Fetches a signed token.
+	 *
+	 * @param string $token the token.
+	 * @return string a signed token
+	 */
+	public function get_signed_token( $token ) {
+		list( $token_key, $token_secret ) = explode( '.', $token->secret );
+
+		$token_key = sprintf(
+			'%s:%d:%d',
+			$token_key,
+			Constants::get_constant( 'JETPACK__API_VERSION' ),
+			$token->external_user_id
+		);
+
+		$timestamp = time();
+
+		if ( function_exists( 'wp_generate_password' ) ) {
+			$nonce = wp_generate_password( 10, false );
+		} else {
+			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
+		}
+
+		$normalized_request_string = join(
+			"\n",
+			array(
+				$token_key,
+				$timestamp,
+				$nonce,
+			)
+		) . "\n";
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$signature = base64_encode( hash_hmac( 'sha1', $normalized_request_string, $token_secret, true ) );
+
+		$auth = array(
+			'token'     => $token_key,
+			'timestamp' => $timestamp,
+			'nonce'     => $nonce,
+			'signature' => $signature,
+		);
+
+		$header_pieces = array();
+		foreach ( $auth as $key => $value ) {
+			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
+		}
+
+		return join( ' ', $header_pieces );
 	}
 
 }
