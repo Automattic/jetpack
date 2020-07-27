@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.0'; // TODO: Keep in sync with version specified in composer.json.
+	const PACKAGE_VERSION = '1.7.3'; // TODO: Keep in sync with version specified in composer.json.
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
