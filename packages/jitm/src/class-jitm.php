@@ -21,7 +21,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.0'; // TODO: Keep in sync with version specified in composer.json.
+	const PACKAGE_VERSION = '1.7.3'; // TODO: Keep in sync with version specified in composer.json.
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -130,6 +130,7 @@ class JITM {
 				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
 				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+				'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}
