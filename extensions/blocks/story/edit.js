@@ -1,9 +1,14 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { Fragment, useState } from '@wordpress/element';
+import classNames from 'classnames';
 import { get, pick } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+import { createElement, Fragment, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
@@ -105,7 +110,7 @@ export default withNotices( function StoryEdit( {
 		<Fragment>
 			{ controls }
 			{ noticeUI }
-			<div className="wp-block-jetpack-story wp-story">
+			<div className={ classNames( 'wp-block-jetpack-story', 'wp-story', className ) }>
 				<StoryPlayer
 					slides={ mediaFiles }
 					disabled={ ! isSelected }

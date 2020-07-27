@@ -112,16 +112,16 @@ function render_block( $attributes ) {
 	$media_files = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
 
 	return sprintf(
-		'<div class="wp-story aligncenter" data-settings="%s">
+		'<div class="%1$s" data-settings="%2$s">
 			<div style="display: contents;">
 				<div class="wp-story-container">
 					<div class="wp-story-meta">
 						<div class="wp-story-icon">
-							<img alt="%s" src="%s" width="32" height=32>
+							<img alt="%3$s" src="%4$s" width="32" height=32>
 						</div>
 						<div>
 							<div class="wp-story-title">
-								%s
+								%5$s
 							</div>
 						</div>
 						<button class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
@@ -129,16 +129,17 @@ function render_block( $attributes ) {
 						</button>
 					</div>
 					<ul class="wp-story-wrapper">
-						%s
+						%6$s
 					</ul>
 					<div class="wp-story-overlay">
-						<button class="jetpack-mdc-icon-button circle-icon outlined bordered" aria-label="%s" aria-pressed="false">
+						<button class="jetpack-mdc-icon-button circle-icon outlined bordered" aria-label="%7$s" aria-pressed="false">
 							<i class="jetpack-material-icons play_arrow" style="font-size: 56px;"></i>
 						</button>
 					</div>
 				</div>
 			</div>
 		</div>',
+		esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
