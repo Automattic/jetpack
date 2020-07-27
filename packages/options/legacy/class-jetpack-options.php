@@ -176,6 +176,16 @@ class Jetpack_Options {
 	 * @return mixed
 	 */
 	public static function get_option( $name, $default = false ) {
+		/**
+		 * Filter Jetpack Options.
+		 * Can be useful in environments when Jetpack is running with a different setup
+		 *
+		 * @since 8.8.0
+		 *
+		 * @param string $value The value from the database.
+		 * @param string $name Option name, _without_ `jetpack_%` prefix.
+		 * @return string $value, unless the filters modify it.
+		 */
 		return apply_filters( 'jetpack_options', self::get_option_from_database( $name, $default ), $name );
 	}
 
