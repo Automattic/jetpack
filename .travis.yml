@@ -87,7 +87,7 @@ matrix:
     - ./tests/e2e/bin/env.sh start
     - yarn test-decrypt-config
     script:
-    - yarn test-e2e --runInBand --verbose
+    - yarn test-e2e
     after_script:
     - ./tests/e2e/bin/push-allure-artifacts.sh
     addons:
@@ -108,7 +108,7 @@ matrix:
     - ./tests/e2e/bin/env.sh start
     - yarn test-decrypt-config
     script:
-    - yarn test-e2e --runInBand --verbose
+    - yarn test-e2e
 
   allow_failures:
     - name: "PHP Nightly"
