@@ -408,6 +408,8 @@ abstract class SAL_Site {
 	}
 
 	function get_capabilities() {
+		$is_wpcom_blog_owner = wpcom_get_blog_owner() === (int) get_current_user_id();
+
 		return array(
 			'edit_pages'          => current_user_can( 'edit_pages' ),
 			'edit_posts'          => current_user_can( 'edit_posts' ),
@@ -421,12 +423,13 @@ abstract class SAL_Site {
 			'manage_categories'   => current_user_can( 'manage_categories' ),
 			'manage_options'      => current_user_can( 'manage_options' ),
 			'moderate_comments'   => current_user_can( 'moderate_comments' ),
-			'activate_wordads'    => wpcom_get_blog_owner() === (int) get_current_user_id(),
+			'activate_wordads'    => $is_wpcom_blog_owner,
 			'promote_users'       => current_user_can( 'promote_users' ),
 			'publish_posts'       => current_user_can( 'publish_posts' ),
 			'upload_files'        => current_user_can( 'upload_files' ),
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
+			'own_site'            => $is_wpcom_blog_owner,
 			/**
 		 	 * Filter whether the Hosting section in Calypso should be available for site.
 			 *
