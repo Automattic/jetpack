@@ -3,7 +3,6 @@
  */
 import Page from '../page';
 import { waitAndClick, isEventuallyVisible, waitForSelector } from '../../page-helper';
-import { execShellCommand } from '../../utils-helper';
 
 export default class PluginsPage extends Page {
 	constructor( page ) {
