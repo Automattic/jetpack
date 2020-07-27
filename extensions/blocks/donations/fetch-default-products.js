@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line wpcalypso/import-docblock
 import apiFetch from '@wordpress/api-fetch';
 
 const fetchDefaultProducts = async currency => {
