@@ -234,7 +234,7 @@ class Jetpack_Carousel {
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
-				array(),
+				array( 'jquery' ),
 				$this->asset_version( JETPACK__VERSION ),
 				true
 			);
