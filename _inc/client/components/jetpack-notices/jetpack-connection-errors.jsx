@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 /**
@@ -10,7 +9,7 @@ import PropTypes from 'prop-types';
  */
 import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 
-class JetpackConnectionErrors extends React.Component {
+export default class JetpackConnectionErrors extends React.Component {
 	static propTypes = {
 		errors: PropTypes.array.isRequired,
 	};
@@ -29,7 +28,9 @@ class JetpackConnectionErrors extends React.Component {
 	renderOne( error ) {
 		const action = this.getAction( error.action, error.message, error.code );
 
-		return null === action ? '' : <React.Fragment>{ action }</React.Fragment>;
+		return null === action ? null : (
+			<React.Fragment key={ error.action }>{ action }</React.Fragment>
+		);
 	}
 
 	render() {
@@ -45,5 +46,3 @@ class JetpackConnectionErrors extends React.Component {
 		return Object.values( errorsToDisplay ).map( error => this.renderOne( error ) );
 	}
 }
-
-export default connect( null, null )( JetpackConnectionErrors );

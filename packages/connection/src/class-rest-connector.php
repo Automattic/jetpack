@@ -64,8 +64,8 @@ class REST_Connector {
 			'jetpack/v4',
 			'/remote_authorize',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => __CLASS__ . '::remote_authorize',
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::remote_authorize',
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -75,8 +75,8 @@ class REST_Connector {
 			'jetpack/v4',
 			'/connection',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => __CLASS__ . '::connection_status',
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::connection_status',
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -97,15 +97,15 @@ class REST_Connector {
 			'jetpack/v4',
 			'/connection/reconnect',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => array( $this, 'connection_reconnect' ),
-				'args'     => array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'connection_reconnect' ),
+				'args'                => array(
 					'action' => array(
 						'type'     => 'string',
 						'required' => true,
 					),
 				),
-				'permission_callback' => '__return_true',
+				'permission_callback' => __CLASS__ . '::jetpack_disconnect_permission_check',
 			)
 		);
 	}
@@ -201,7 +201,7 @@ class REST_Connector {
 	 *
 	 * @since 8.8.0
 	 *
-	 * @return bool|WP_Error Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
+	 * @return bool|WP_Error Whether user has the capability 'activate_plugins'.
 	 */
 	public static function activate_plugins_permission_check() {
 		if ( current_user_can( 'activate_plugins' ) ) {
@@ -209,6 +209,21 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user is allowed to disconnect Jetpack.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
+	 */
+	public static function jetpack_disconnect_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
