@@ -950,7 +950,7 @@ function sharing_display( $text = '', $echo = false ) {
 					'_inc/build/sharedaddy/sharing.min.js',
 					'modules/sharedaddy/sharing.js'
 				),
-				array( 'jquery' ),
+				array(),
 				$ver,
 				false
 			);
