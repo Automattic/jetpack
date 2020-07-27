@@ -64,8 +64,8 @@ class REST_Connector {
 			'jetpack/v4',
 			'/remote_authorize',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => __CLASS__ . '::remote_authorize',
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::remote_authorize',
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -75,8 +75,8 @@ class REST_Connector {
 			'jetpack/v4',
 			'/connection',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => __CLASS__ . '::connection_status',
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::connection_status',
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -145,12 +145,13 @@ class REST_Connector {
 			'isActive'     => $connection->is_active(),
 			'isStaging'    => $status->is_staging_site(),
 			'isRegistered' => $connection->is_registered(),
-			'offlineMode'      => array(
-				'isActive' => $status->is_offline_mode(),
-				'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-				'url'      => site_url() && false === strpos( site_url(), '.' ),
+			'offlineMode'  => array(
+				'isActive'        => $status->is_offline_mode(),
+				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+				'url'             => site_url() && false === strpos( site_url(), '.' ),
 				/** This filter is documented in packages/status/src/class-status.php */
-				'filter'   => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
+				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
+				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 			),
 			'isPublic'     => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 		);

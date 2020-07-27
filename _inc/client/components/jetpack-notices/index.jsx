@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -104,7 +104,22 @@ export class OfflineModeNotice extends React.Component {
 				reasons.push( __( 'The jetpack_development_mode filter is active', 'jetpack' ) );
 			}
 			if ( offlineMode.constant ) {
-				reasons.push( __( 'The JETPACK_DEV_DEBUG constant is defined', 'jetpack' ) );
+				reasons.push(
+					sprintf(
+						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						__( 'The %s constant is defined', 'jetpack' ),
+						'JETPACK_DEV_DEBUG'
+					)
+				);
+			}
+			if ( offlineMode.wpLocalConstant ) {
+				reasons.push(
+					sprintf(
+						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						__( 'The %s constant is defined', 'jetpack' ),
+						'WP_LOCAL_DEV'
+					)
+				);
 			}
 			if ( offlineMode.url ) {
 				reasons.push( __( 'Your site URL lacks a dot (e.g. http://localhost)', 'jetpack' ) );
