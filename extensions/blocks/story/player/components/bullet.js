@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { createElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -16,7 +17,7 @@ export default function Bullet( { index, progress, onClick } ) {
 		<button
 			key={ index }
 			className="wp-story-pagination-bullet"
-			aria-label={ `Go to slide ${ index }` }
+			aria-label={ sprintf( __( 'Go to slide %d', 'jetpack' ), index ) }
 			onClick={ onClick }
 		>
 			<div className="wp-story-pagination-bullet-bar">

@@ -19,7 +19,7 @@ export default function Background( { currentMedia } ) {
 		<div className="wp-story-background">
 			<div
 				className="wp-story-background-image"
-				style={ { backgroundImage: `url("${ url }")` } }
+				style={ { backgroundImage: url ? `url("${ url }")` : 'none' } }
 			></div>
 			<div className="wp-story-background-blur"></div>
 			<SVG version="1.1" xmlns="http://www.w3.org/2000/svg" width="0" height="0">

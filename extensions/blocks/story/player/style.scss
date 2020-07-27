@@ -247,6 +247,13 @@
 		.wp-story-slide {
 			height: 100%;
 			width: auto;
+
+			.wp-story-slide-loading {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				background-color: #484542;
+			}
 		}
 
 		.wp-story-meta {
