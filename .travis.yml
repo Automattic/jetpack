@@ -87,7 +87,7 @@ matrix:
     - ./tests/e2e/bin/env.sh start
     - yarn test-decrypt-config
     script:
-    - yarn test-e2e
+    - yarn test-e2e --detectOpenHandles
     # after_script:
     # - ./tests/e2e/bin/push-allure-artifacts.sh
     # addons:
