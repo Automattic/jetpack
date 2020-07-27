@@ -1864,7 +1864,13 @@ class The_Neverending_Home_Page {
 		$image = '';
 
 		if ( ! static::amp_is_last_page() ) {
-			$title = esc_html__( 'Older posts', 'jetpack' );
+			$title = sprintf(
+				'%s - %s %d - %s',
+				wp_title( '', false ),
+				__( 'Page', 'jetpack' ),
+				max( get_query_var( 'paged', 1 ), 1 ) + 1,
+				get_bloginfo( 'name' )
+			);
 			$url   = get_next_posts_page_link();
 		}
 
