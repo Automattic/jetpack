@@ -1,0 +1,680 @@
+[
+    {
+        "name": "automattic/jetpack-a8c-mc-stats",
+        "version": "dev-add/mc-sats-dependency",
+        "version_normalized": "dev-add/mc-sats-dependency",
+        "dist": {
+            "type": "path",
+            "url": "./packages/a8c-mc-stats",
+            "reference": "72e8464c053658a730113aa3cfb6d8b292cd16e2"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
+        "transport-options": {
+            "relative": true
+        }
+    },
+    {
+        "name": "automattic/jetpack-abtest",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/abtest",
+            "reference": "c3681b3eac3d0e5625de758218fd1e8994e06302"
+        },
+        "require": {
+            "automattic/jetpack-connection": "@dev",
+            "automattic/jetpack-error": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Provides an interface to the WP.com A/B tests."
+    },
+    {
+        "name": "automattic/jetpack-assets",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/assets",
+            "reference": "b97ce83f38d0ccf58be9eefd2d676973279ad066"
+        },
+        "require": {
+            "automattic/jetpack-constants": "@dev"
+        },
+        "require-dev": {
+            "brain/monkey": "2.4.0",
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Asset management utilities for Jetpack ecosystem packages"
+    },
+    {
+        "name": "automattic/jetpack-autoloader",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/autoloader",
+            "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
+        },
+        "require": {
+            "composer-plugin-api": "^1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "composer-plugin",
+        "extra": {
+            "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\Autoloader\\": "src"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Creates a custom autoloader for a plugin or theme."
+    },
+    {
+        "name": "automattic/jetpack-backup",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/backup",
+            "reference": "0ae8bfd8b87d9140066915c643fc6a00783d0032"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "actions.php"
+            ],
+            "classmap": [
+                "src/"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Tools to assist with backing up Jetpack sites."
+    },
+    {
+        "name": "automattic/jetpack-compat",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/compat",
+            "reference": "2138cbc8b0b1aecb290608b5d82e873c7330aac5"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "functions.php"
+            ],
+            "classmap": [
+                "legacy"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Compatibility layer with previous versions of Jetpack"
+    },
+    {
+        "name": "automattic/jetpack-config",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/config",
+            "reference": "09edd078205d6fee2f8a46eaf0f736fd4ade1473"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage."
+    },
+    {
+        "name": "automattic/jetpack-connection",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/connection",
+            "reference": "ac53d3e65b1be0a24206dc32ef2d17a17e387fcd"
+        },
+        "require": {
+            "automattic/jetpack-constants": "@dev",
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-roles": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "legacy/load-ixr.php"
+            ],
+            "classmap": [
+                "legacy",
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Everything needed to connect to the Jetpack infrastructure"
+    },
+    {
+        "name": "automattic/jetpack-constants",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/constants",
+            "reference": "9401a1595eba4aaa79711851ca810d497575317c"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "A wrapper for defining constants in a more testable way."
+    },
+    {
+        "name": "automattic/jetpack-device-detection",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/device-detection",
+            "reference": "4d838c69f4869dbba9ee2752ff7c1f13b79a7d76"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "A way to detect device types based on User-Agent header."
+    },
+    {
+        "name": "automattic/jetpack-error",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/error",
+            "reference": "2f35acfb871c772dd3a81755d093b1cb295b8830"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Jetpack Error - a wrapper around WP_Error."
+    },
+    {
+        "name": "automattic/jetpack-jitm",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/jitm",
+            "reference": "0b6037dafd9d0c92b6f1106e5a468065c6d2c7c5"
+        },
+        "require": {
+            "automattic/jetpack-assets": "@dev",
+            "automattic/jetpack-connection": "@dev",
+            "automattic/jetpack-constants": "@dev",
+            "automattic/jetpack-logo": "@dev",
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-partner": "@dev",
+            "automattic/jetpack-redirect": "@dev",
+            "automattic/jetpack-status": "@dev",
+            "automattic/jetpack-tracking": "@dev"
+        },
+        "require-dev": {
+            "mockery/mockery": "^1.2",
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Just in time messages for Jetpack"
+    },
+    {
+        "name": "automattic/jetpack-logo",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/logo",
+            "reference": "f2b7828deb34f7bb6da24380f2a88ab98d3733df"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "A logo for Jetpack"
+    },
+    {
+        "name": "automattic/jetpack-options",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/options",
+            "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
+        },
+        "require": {
+            "automattic/jetpack-constants": "@dev"
+        },
+        "require-dev": {
+            "10up/wp_mock": "0.4.2",
+            "phpunit/phpunit": "7.*.*"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "legacy"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "A wrapper for wp-options to manage specific Jetpack options."
+    },
+    {
+        "name": "automattic/jetpack-partner",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/partner",
+            "reference": "b2726c079aec6821a02cb44829841ee01ee17c91"
+        },
+        "require-dev": {
+            "brain/monkey": "2.4.0",
+            "mockery/mockery": "^1.2",
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Support functions for Jetpack hosting partners."
+    },
+    {
+        "name": "automattic/jetpack-redirect",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/redirect",
+            "reference": "1ca7f6fe907efa8c7cc4a9e961d4a7d2e08fa5ce"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Utilities to build URLs to the jetpack.com/redirect/ service"
+    },
+    {
+        "name": "automattic/jetpack-roles",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/roles",
+            "reference": "22dd28b575dc20f2a8e7d44f024223033c66517a"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Utilities, related with user roles and capabilities."
+    },
+    {
+        "name": "automattic/jetpack-status",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/status",
+            "reference": "3844d803985e418e51e32bf7cc9c0a00b038a9f4"
+        },
+        "require-dev": {
+            "brain/monkey": "2.4.0",
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+    },
+    {
+        "name": "automattic/jetpack-sync",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/sync",
+            "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
+        },
+        "require": {
+            "automattic/jetpack-connection": "@dev",
+            "automattic/jetpack-constants": "@dev",
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-roles": "@dev",
+            "automattic/jetpack-status": "@dev"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Everything needed to allow syncing to the WP.com infrastructure."
+    },
+    {
+        "name": "automattic/jetpack-terms-of-service",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/terms-of-service",
+            "reference": "f97742a361eb772f8bc6f13ae9437b3e8233cb0e"
+        },
+        "require": {
+            "automattic/jetpack-connection": "@dev",
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-status": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Everything need to manage the terms of service state"
+    },
+    {
+        "name": "automattic/jetpack-tracking",
+        "version": "dev-add/jetpack-mobile-package",
+        "version_normalized": "dev-add/jetpack-mobile-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/tracking",
+            "reference": "f4e52837194537e90f9fa10ac7b48f25519765bd"
+        },
+        "require": {
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-terms-of-service": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "legacy",
+                "src/"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Tracking for Jetpack"
+    }
+]
