@@ -1,14 +1,16 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+namespace Automattic\Jetpack\Connection;
+
 require_once ABSPATH . WPINC . '/class-IXR.php';
 
-use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
-use Automattic\Jetpack\Connection\REST_Connector;
-use Automattic\Jetpack\Connection\Manager;
+use WP_REST_Request;
+use WP_REST_Server;
+use Requests_Utility_CaseInsensitiveDictionary;
 
 /**
  * Unit tests for the REST API endpoints.
@@ -97,7 +99,6 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	public function test_connection_plugins() {
 		$user = wp_get_current_user();
-		$user->add_cap( 'jetpack_admin_page' );
 		$user->add_cap( 'activate_plugins' );
 
 		$plugins = array(
@@ -127,7 +128,33 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertEquals( $plugins, $response->get_data() );
 
 		$user->remove_cap( 'activate_plugins' );
-		$user->remove_cap( 'jetpack_admin_page' );
+	}
+
+	/**
+	 * Testing the `connection/reconnect` endpoint.
+	 */
+	public function test_connection_reconnect() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/reconnect' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( wp_json_encode( array( 'action' => 'reconnect' ) ) );
+
+		set_transient( 'jetpack_assumed_site_creation_date', '2020-02-28 01:13:27' );
+		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
+
+		$response = $this->server->dispatch( $this->request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertEquals( 'in_progress', $data['status'] );
+		$this->assertEquals( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/1' ) );
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+		delete_transient( 'jetpack_assumed_site_creation_date' );
+
+		$user->remove_cap( 'jetpack_disconnect' );
 	}
 
 	/**
@@ -141,6 +168,35 @@ class Test_REST_Endpoints extends TestCase {
 		$options[ Manager::SECRETS_OPTION_NAME ] = true;
 
 		return $options;
+	}
+
+	/**
+	 * Intercept the `jetpack.register` API request sent to WP.com, and mock the response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_register_request( $response, $args, $url ) {
+		if ( false === strpos( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return array(
+			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'body'     => wp_json_encode(
+				array(
+					'jetpack_id'     => '12345',
+					'jetpack_secret' => 'sample_secret',
+				)
+			),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
 	}
 
 }

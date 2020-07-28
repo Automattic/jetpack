@@ -205,4 +205,33 @@ describe( 'requests reducer', () => {
 			expect( stateOut.authorizingUserInPlace ).to.be.false;
 		} );
 	} );
+
+	describe( '#reconnectSite', () => {
+		it( 'should set reconnectingSite to true when reconnecting site', () => {
+			const stateIn = {};
+			const action = {
+				type: 'SITE_RECONNECT'
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.reconnectingSite ).to.be.true;
+		} );
+
+		it( 'should set reconnectingSite to false when site was reconnected', () => {
+			const stateIn = {};
+			const action = {
+				type: 'SITE_RECONNECT_SUCCESS'
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.reconnectingSite ).to.be.false;
+		} );
+
+		it( 'should set reconnectingSite to false when reconnecting site failed', () => {
+			const stateIn = {};
+			const action = {
+				type: 'SITE_RECONNECT_FAIL'
+			};
+			let stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.reconnectingSite ).to.be.false;
+		} );
+	} );
 } );

@@ -79,3 +79,11 @@
 @keyframes pulse-light {
 	50% { background-color: lighten( $gray, 30% ); }
 }
+
+.blur {
+  -webkit-filter: blur(5px);
+  -moz-filter: blur(5px);
+  -o-filter: blur(5px);
+  -ms-filter: blur(5px);
+  filter: blur(5px);
+}

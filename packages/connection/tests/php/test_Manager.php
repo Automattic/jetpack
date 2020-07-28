@@ -168,19 +168,11 @@ class ManagerTest extends TestCase {
 
 		$this->apply_filters->disable();
 
-		// Getting a new special mock just for this occasion.
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-				->setName( 'apply_filters' )
-				->setFunction(
-					// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-					function( $filter_name, $return_value ) {
-						$this->arguments_stack[ $filter_name ] [] = func_get_args();
-						return 'completely overwrite';
-					}
-				);
-
-		$builder->build()->enable();
+		$overwrite_filter = function() {
+			$this->arguments_stack['jetpack_api_url'][] = array_merge( array( 'jetpack_api_url' ), func_get_args() );
+			return 'completely overwrite';
+		};
+		add_filter( 'jetpack_api_url', $overwrite_filter, 10, 4 );
 
 		$this->assertEquals(
 			'completely overwrite',
@@ -199,6 +191,8 @@ class ManagerTest extends TestCase {
 			'/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/',
 			$call_arguments[4]
 		);
+
+		remove_filter( 'jetpack_api_url', $overwrite_filter, 10 );
 	}
 
 	/**

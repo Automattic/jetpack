@@ -19,6 +19,7 @@ import {
 	isCurrentUserLinked,
 	isSiteConnected,
 	isAuthorizingUserInPlace,
+	isReconnectingSite,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -141,7 +142,8 @@ class Main extends React.Component {
 			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
-			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings
+			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings ||
+			nextProps.isReconnectingSite !== this.props.isReconnectingSite
 		);
 	}
 
@@ -267,7 +269,7 @@ class Main extends React.Component {
 		window.wpNavMenuClassChange( pageOrder );
 
 		return (
-			<div aria-live="assertive">
+			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
 				{ navComponent }
 				{ pageComponent }
 			</div>
@@ -315,6 +317,10 @@ class Main extends React.Component {
 		return this.props.isAuthorizingInPlace;
 	}
 
+	shouldBlurMainContent() {
+		return this.props.isReconnectingSite;
+	}
+
 	render() {
 		return (
 			<div>
@@ -323,7 +329,14 @@ class Main extends React.Component {
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
-					{ this.shouldShowAuthIframe() && <AuthIframe /> }
+					{ this.shouldShowAuthIframe() && (
+						<AuthIframe
+							{ ...( this.props.isReconnectingSite && {
+								scrollToIframe: false,
+								title: __( 'Reconnect to WordPress.com by approving the connection', 'jetpack' ),
+							} ) }
+						/>
+					) }
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
@@ -355,6 +368,7 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
+			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showSetupWizard: showSetupWizard( state ),
