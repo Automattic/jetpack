@@ -32,6 +32,10 @@ describe( 'Connection', () => {
 		await loginToWpSite();
 	} );
 
+	afterAll( async () => {
+		await resetWordpressInstall();
+	} );
+
 	it( 'In-place with Free plan', async () => {
 		await step( 'Can start in-place connection', async () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
