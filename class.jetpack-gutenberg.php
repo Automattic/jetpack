@@ -1132,8 +1132,6 @@ class Jetpack_Gutenberg {
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
-			} elseif ( isset( $availability[ $bare_slug ]['details']['required_plan'] ) ) {
-				return self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 			}
 
 			return null;
