@@ -2,7 +2,7 @@
 /**
  * Story Block.
  *
- * @since 8.6.1
+ * @since 8.8.0
  *
  * @package Jetpack
  */
@@ -41,11 +41,11 @@ function render_image( $media ) {
 	return sprintf(
 		'<img
 			alt="%1$s"
-			class="wp-block-jetpack-story_image wp-story-image wp-image-%2$s"
-			data-id="%2$s"
+			class="wp-block-jetpack-story_image wp-story-image wp-image-%2$d"
+			data-id="%2$d"
 			src="%3$s">',
 		esc_attr( $media['alt'] ),
-		$media['id'],
+		absint( $media['id'] ),
 		esc_attr( $media['url'] )
 	);
 }
@@ -65,13 +65,13 @@ function render_video( $media ) {
 		'<video
 			title="%1$s"
 			type="%2$s"
-			class="wp-story-video intrinsic-ignore wp-video-%3$s"
-			data-id="%3$s"
+			class="wp-story-video intrinsic-ignore wp-video-%3$d"
+			data-id="%3$d"
 			src="%4$s">
 		</video>',
 		esc_attr( $media['alt'] ),
 		esc_attr( $media['mime'] ),
-		$media['id'],
+		absint( $media['id'] ),
 		esc_attr( $media['url'] )
 	);
 }
