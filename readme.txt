@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Blocks: update categories to improve discoverability.
 * External Media: add ability to show google photos for a specific month or year.
 * Infinite Scroll: improve accessibility of the "Load More" behavior.
 * Markdown block: improve handling of long links with custom characters, as well as em- and en- dashes.
