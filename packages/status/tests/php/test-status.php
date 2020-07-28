@@ -39,8 +39,8 @@ class Test_Status extends TestCase {
 	 * Test setup.
 	 */
 	public function setUp() {
-		$this->status = new Status();
 		Monkey\setUp();
+		$this->status = new Status();
 	}
 
 	/**
@@ -52,64 +52,64 @@ class Test_Status extends TestCase {
 	}
 
 	/**
-	 * Test is_development_mode when not using any filter
+	 * Test is_offline_mode when not using any filter
 	 *
-	 * @covers Automattic\Jetpack\Status::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
-	public function test_is_development_mode_default() {
+	public function test_is_offline_mode_default() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
-		$this->assertFalse( $this->status->is_development_mode() );
+		$this->assertFalse( $this->status->is_offline_mode() );
 	}
 
 	/**
-	 * Test is_development_mode when using the jetpack_development_mode filter
+	 * Test is_offline_mode when using the jetpack_offline_mode filter
 	 *
-	 * @covers Automattic\Jetpack\Status::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
-	public function test_is_development_mode_filter_true() {
+	public function test_is_offline_mode_filter_true() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( true );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( true );
 
-		$this->assertTrue( $this->status->is_development_mode() );
+		$this->assertTrue( $this->status->is_offline_mode() );
 	}
 
 	/**
-	 * Test when using a bool value for the jetpack_development_mode filter.
+	 * Test when using a bool value for the jetpack_offline_mode filter.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
-	public function test_is_development_mode_filter_bool() {
+	public function test_is_offline_mode_filter_bool() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( 0 );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
-		$this->assertFalse( $this->status->is_development_mode() );
+		$this->assertFalse( $this->status->is_offline_mode() );
 	}
 
 	/**
 	 * Test when site url is localhost (dev mode on)
 	 *
-	 * @covers Automattic\Jetpack\Status::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
-	public function test_is_development_mode_localhost() {
+	public function test_is_offline_mode_localhost() {
 		Functions\when( 'site_url' )->justReturn( 'localhost' );
 
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
-		$this->assertTrue( $this->status->is_development_mode() );
+		$this->assertTrue( $this->status->is_offline_mode() );
 	}
 
 	/**
 	 * Test when using the constant to set dev mode
 	 *
-	 * @covers Automattic\Jetpack\Status::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 *
 	 * @runInSeparateProcess
 	 */
-	public function test_is_development_mode_constant() {
+	public function test_is_offline_mode_constant() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$constants_mocks = $this->mock_constants(
 			array(
@@ -117,7 +117,7 @@ class Test_Status extends TestCase {
 			)
 		);
 
-		$this->assertTrue( $this->status->is_development_mode() );
+		$this->assertTrue( $this->status->is_offline_mode() );
 
 		array_map(
 			function( $mock ) {
@@ -331,6 +331,62 @@ class Test_Status extends TestCase {
 			),
 			'newspack'   => array(
 				'http://test.newspackstaging.com',
+			),
+		);
+	}
+
+	/**
+	 * Tests known local development sites.
+	 *
+	 * @dataProvider get_is_local_site_known_tld
+	 *
+	 * @param string $site_url Site URL.
+	 * @param bool   $expected_response Expected response.
+	 */
+	public function test_is_local_site_for_known_tld( $site_url, $expected_response ) {
+		Functions\when( 'site_url' )->justReturn( $site_url );
+		$result = $this->status->is_local_site();
+		$this->assertEquals(
+			$expected_response,
+			$result,
+			sprintf(
+				'Expected %1$s to return %2$s for is_local_site()',
+				$site_url,
+				$expected_response
+			)
+		);
+	}
+
+	/**
+	 * Known hosting providers.
+	 *
+	 * @return array
+	 */
+	public function get_is_local_site_known_tld() {
+		return array(
+			'vvv'            => array(
+				'http://jetpack.test',
+				true,
+			),
+			'docksal'        => array(
+				'http://jetpack.docksal',
+				true,
+			),
+			'serverpress'    => array(
+				'http://jetpack.dev.cc',
+				true,
+			),
+			'lando'          => array(
+				'http://jetpack.lndo.site',
+				true,
+			),
+			'test_subdomain' => array(
+				'https://test.jetpack.com',
+				false,
+			),
+			'test_in_domain' => array(
+				'https://jetpack.test.jetpack.com',
+				false,
 			),
 		);
 	}

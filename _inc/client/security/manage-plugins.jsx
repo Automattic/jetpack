@@ -56,7 +56,7 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 					header={ _x( 'Auto-update plugins', 'Settings header', 'jetpack' ) }
 					hideButton
 				>
-					<SettingsGroup disableInDevMode module={ this.props.getModule( 'manage' ) }>
+					<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'manage' ) }>
 						<div>
 							{ __(
 								'With Jetpack you can choose to have your plugins auto-updated with each new plugin release. You’ll get the latest security and bug fixes right away, ensuring your site stays secure.',

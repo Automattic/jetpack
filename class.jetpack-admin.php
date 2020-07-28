@@ -72,7 +72,7 @@ class Jetpack_Admin {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_development_mode();
+		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -207,7 +207,7 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
 			if ( ! Jetpack::is_active() ) {

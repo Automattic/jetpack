@@ -31,7 +31,7 @@ import {
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
 const renderPairs = layout =>
@@ -65,11 +65,11 @@ class AtAGlance extends Component {
 				label={ __( 'Security', 'jetpack' ) }
 				settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 				externalLink={
-					this.props.isDevMode || ! this.props.userCanManageModules
+					this.props.isOfflineMode || ! this.props.userCanManageModules
 						? ''
 						: __( 'Manage security settings', 'jetpack' )
 				}
-				externalLinkPath={ this.props.isDevMode ? '' : '#/security' }
+				externalLinkPath={ this.props.isOfflineMode ? '' : '#/security' }
 				externalLinkClick={ this.trackSecurityClick }
 			/>
 		);
@@ -184,7 +184,7 @@ export default connect( state => {
 		userCanManageModules: userCanManageModules( state ),
 		userCanViewStats: userCanViewStats( state ),
 		userIsSubscriber: userIsSubscriber( state ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
 	};

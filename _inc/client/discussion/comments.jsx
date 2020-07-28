@@ -55,14 +55,14 @@ class CommentsComponent extends React.Component {
 			return null;
 		}
 
-		const { isUnavailableInDevMode, getOptionValue } = this.props;
+		const { isUnavailableInOfflineMode: isUnavailableInOfflineMode, getOptionValue } = this.props;
 
 		const comments = this.props.getModule( 'comments' ),
 			isCommentsActive = this.props.getOptionValue( 'comments' ),
-			commentsUnavailableInDevMode = this.props.isUnavailableInDevMode( 'comments' ),
+			commentsUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'comments' ),
 			gravatar = this.props.getModule( 'gravatar-hovercards' ),
 			markdown = this.props.getModule( 'markdown' ),
-			commentLikesUnavailable = isUnavailableInDevMode( 'comment-likes' ),
+			commentLikesUnavailable = isUnavailableInOfflineMode( 'comment-likes' ),
 			commentLikesActive = getOptionValue( 'comment-likes' );
 
 		return (
@@ -78,7 +78,7 @@ class CommentsComponent extends React.Component {
 				{ foundComments && (
 					<SettingsGroup
 						hasChild
-						disableInDevMode
+						disableInOfflineMode
 						module={ comments }
 						support={ {
 							text: __(
@@ -91,7 +91,7 @@ class CommentsComponent extends React.Component {
 						<ModuleToggle
 							slug="comments"
 							compact
-							disabled={ commentsUnavailableInDevMode }
+							disabled={ commentsUnavailableInOfflineMode }
 							activated={ this.props.getOptionValue( 'comments' ) }
 							toggling={ this.props.isSavingAnyOption( 'comments' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -108,7 +108,7 @@ class CommentsComponent extends React.Component {
 									value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
 									disabled={
 										! isCommentsActive ||
-										commentsUnavailableInDevMode ||
+										commentsUnavailableInOfflineMode ||
 										this.props.isSavingAnyOption( 'highlander_comment_form_prompt' )
 									}
 									onChange={ this.props.onOptionChange }
@@ -124,7 +124,7 @@ class CommentsComponent extends React.Component {
 									value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
 									disabled={
 										! isCommentsActive ||
-										commentsUnavailableInDevMode ||
+										commentsUnavailableInOfflineMode ||
 										this.props.isSavingAnyOption( 'jetpack_comment_form_color_scheme' )
 									}
 									onChange={ this.props.onOptionChange }

@@ -150,25 +150,36 @@ class REST_Connector {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return WP_REST_Response Connection information.
+	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
+	 *
+	 * @return WP_REST_Response|array Connection information.
 	 */
-	public static function connection_status() {
+	public static function connection_status( $rest_response = true ) {
 		$status     = new Status();
 		$connection = new Manager();
 
-		return rest_ensure_response(
-			array(
-				'isActive'     => $connection->is_active(),
-				'isStaging'    => $status->is_staging_site(),
-				'isRegistered' => $connection->is_registered(),
-				'devMode'      => array(
-					'isActive' => $status->is_development_mode(),
-					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-					'url'      => site_url() && false === strpos( site_url(), '.' ),
-					'filter'   => apply_filters( 'jetpack_development_mode', false ),
-				),
-			)
+		$connection_status = array(
+			'isActive'     => $connection->is_active(),
+			'isStaging'    => $status->is_staging_site(),
+			'isRegistered' => $connection->is_registered(),
+			'offlineMode'  => array(
+				'isActive'        => $status->is_offline_mode(),
+				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+				'url'             => $status->is_local_site(),
+				/** This filter is documented in packages/status/src/class-status.php */
+				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
+				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
+			),
+			'isPublic'     => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 		);
+
+		if ( $rest_response ) {
+			return rest_ensure_response(
+				$connection_status
+			);
+		} else {
+			return $connection_status;
+		}
 	}
 
 

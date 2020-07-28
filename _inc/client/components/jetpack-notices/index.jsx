@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -15,7 +15,7 @@ import DismissableNotices from './dismissable';
 import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus,
-	getSiteDevMode,
+	getSiteOfflineMode,
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
@@ -92,28 +92,45 @@ StagingSiteNotice.propTypes = {
 	isInIdentityCrisis: PropTypes.bool.isRequired,
 };
 
-export class DevModeNotice extends React.Component {
-	static displayName = 'DevModeNotice';
+export class OfflineModeNotice extends React.Component {
+	static displayName = 'OfflineModeNotice';
 
 	render() {
-		if ( this.props.siteConnectionStatus === 'dev' ) {
-			const devMode = this.props.siteDevMode,
+		if ( this.props.siteConnectionStatus === 'offline' ) {
+			const offlineMode = this.props.siteOfflineMode,
 				reasons = [];
 
-			if ( devMode.filter ) {
+			if ( offlineMode.filter ) {
 				reasons.push( __( 'The jetpack_development_mode filter is active', 'jetpack' ) );
 			}
-			if ( devMode.constant ) {
-				reasons.push( __( 'The JETPACK_DEV_DEBUG constant is defined', 'jetpack' ) );
+			if ( offlineMode.constant ) {
+				reasons.push(
+					sprintf(
+						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						__( 'The %s constant is defined', 'jetpack' ),
+						'JETPACK_DEV_DEBUG'
+					)
+				);
 			}
-			if ( devMode.url ) {
-				reasons.push( __( 'Your site URL lacks a dot (e.g. http://localhost)', 'jetpack' ) );
+			if ( offlineMode.wpLocalConstant ) {
+				reasons.push(
+					sprintf(
+						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						__( 'The %s constant is defined', 'jetpack' ),
+						'WP_LOCAL_DEV'
+					)
+				);
+			}
+			if ( offlineMode.url ) {
+				reasons.push(
+					__( 'Your site URL is a known local development environment URL', 'jetpack' )
+				);
 			}
 
 			const text = jetpackCreateInterpolateElement(
-				/* translators: reasons is an unordered list of reasons why a site may be in Development mode. */
+				/* translators: reasons is an unordered list of reasons why a site may be in Offline mode. */
 				__(
-					'Currently in <a>Development Mode</a> (some features are disabled) because: <reasons/>',
+					'Currently in <a>Offline Mode</a> (some features are disabled) because: <reasons/>',
 					'jetpack'
 				),
 				{
@@ -147,9 +164,9 @@ export class DevModeNotice extends React.Component {
 	}
 }
 
-DevModeNotice.propTypes = {
+OfflineModeNotice.propTypes = {
 	siteConnectionStatus: PropTypes.oneOfType( [ PropTypes.string, PropTypes.bool ] ).isRequired,
-	siteDevMode: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ).isRequired,
+	siteOfflineMode: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ).isRequired,
 };
 
 export class UserUnlinked extends React.Component {
@@ -207,9 +224,9 @@ class JetpackNotices extends React.Component {
 					isDevVersion={ this.props.isDevVersion }
 					userIsSubscriber={ this.props.userIsSubscriber }
 				/>
-				<DevModeNotice
+				<OfflineModeNotice
 					siteConnectionStatus={ this.props.siteConnectionStatus }
-					siteDevMode={ this.props.siteDevMode }
+					siteOfflineMode={ this.props.siteOfflineMode }
 				/>
 				<StagingSiteNotice
 					isStaging={ this.props.isStaging }
@@ -247,7 +264,7 @@ export default connect( state => {
 		userIsSubscriber: userIsSubscriber( state ),
 		isLinked: isCurrentUserLinked( state ),
 		isDevVersion: isDevVersion( state ),
-		siteDevMode: getSiteDevMode( state ),
+		siteOfflineMode: getSiteOfflineMode( state ),
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
 		connectionErrors: getConnectionErrors( state ),

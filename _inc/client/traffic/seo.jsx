@@ -32,7 +32,7 @@ class SeoComponent extends React.Component {
 				hideButton
 			>
 				<SettingsGroup
-					disableInDevMode
+					disableInOfflineMode
 					module={ { module: 'seo-tools' } }
 					support={ {
 						text: __(
@@ -49,7 +49,7 @@ class SeoComponent extends React.Component {
 						) }
 					</span>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInDevMode( 'seo-tools' ) &&
+				{ ! this.props.isUnavailableInOfflineMode( 'seo-tools' ) &&
 					( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
 						<Card
 							compact

@@ -59,11 +59,11 @@ describe( 'SettingsGroup', () => {
 			text: 'Help text about Protect',
 			link: getRedirectUrl( 'jetpack-support-protect' ),
 		},
-		isDevMode: false,
+		isOfflineMode: false,
 		isSitePublic: true,
 		userCanManageModules: true,
 		isLinked: true,
-		isUnavailableInDevMode: () => false
+		isUnavailableInOfflineMode: () => false
 	};
 
 	const settingsGroup = shallow( <SettingsGroup support={ testProps.info } hasChild /> );
@@ -82,10 +82,10 @@ describe( 'SettingsGroup', () => {
 
 	describe( 'has a fading layer', () => {
 
-		it( 'visible in in Dev Mode', () => {
+		it( 'visible in in Offline Mode', () => {
 			const disabled = {
-				disableInDevMode: true,
-				isUnavailableInDevMode: () => true
+				disableInOfflineMode: true,
+				isUnavailableInOfflineMode: () => true
 			};
 			expect( shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' ) ).to.have.length( 1 );
 		} );

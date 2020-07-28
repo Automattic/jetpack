@@ -5,7 +5,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Status;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -1095,8 +1094,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response Connection information.
 	 */
 	public static function jetpack_connection_status() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::rest_authorization_required_code' );
-
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_status' );
 		return REST_Connector::connection_status();
 	}
 

@@ -57,10 +57,10 @@ class SubscriptionsComponent extends React.Component {
 	render() {
 		const subscriptions = this.props.getModule( 'subscriptions' ),
 			isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
-			unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' );
+			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'subscriptions' );
 
 		const getSubClickableCard = () => {
-			if ( unavailableInDevMode || ! isSubscriptionsActive ) {
+			if ( unavailableInOfflineMode || ! isSubscriptionsActive ) {
 				return '';
 			}
 
@@ -90,7 +90,7 @@ class SubscriptionsComponent extends React.Component {
 			<SettingsCard { ...this.props } hideButton module="subscriptions">
 				<SettingsGroup
 					hasChild
-					disableInDevMode
+					disableInOfflineMode
 					module={ subscriptions }
 					support={ {
 						text: __(
@@ -102,7 +102,7 @@ class SubscriptionsComponent extends React.Component {
 				>
 					<ModuleToggle
 						slug="subscriptions"
-						disabled={ unavailableInDevMode }
+						disabled={ unavailableInOfflineMode }
 						activated={ isSubscriptionsActive }
 						toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
 						toggleModule={ this.props.toggleModuleNow }
@@ -115,7 +115,7 @@ class SubscriptionsComponent extends React.Component {
 								checked={ this.state.stb_enabled }
 								disabled={
 									! isSubscriptionsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'subscriptions', 'stb_enabled' ] )
 								}
 								onChange={ this.handleSubscribeToBlogToggleChange }
@@ -128,7 +128,7 @@ class SubscriptionsComponent extends React.Component {
 								checked={ this.state.stc_enabled }
 								disabled={
 									! isSubscriptionsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'subscriptions', 'stc_enabled' ] )
 								}
 								onChange={ this.handleSubscribeToCommentToggleChange }

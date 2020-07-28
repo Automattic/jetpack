@@ -12,7 +12,7 @@ import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getSettings } from 'state/settings';
-import { isSiteConnected, isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isSiteConnected, isOfflineMode, isUnavailableInOfflineMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
@@ -34,8 +34,8 @@ export class Traffic extends React.Component {
 			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
 			isSiteConnected: this.props.isSiteConnected,
-			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isOfflineMode: this.props.isOfflineMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			getModuleOverride: this.props.getModuleOverride,
 		};
 
@@ -132,8 +132,8 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
-		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isSiteConnected: isSiteConnected( state ),
 		lastPostUrl: getLastPostUrl( state ),

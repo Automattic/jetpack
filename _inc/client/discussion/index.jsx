@@ -12,8 +12,8 @@ import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import {
-	isDevMode,
-	isUnavailableInDevMode,
+	isOfflineMode,
+	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
@@ -29,8 +29,8 @@ export class Discussion extends React.Component {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
-			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isOfflineMode: this.props.isOfflineMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 		};
 
 		const foundComments = this.props.isModuleFound( 'comments' ),
@@ -89,8 +89,8 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
-		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		connectUrl: getConnectUrl( state ),
 		isLinked: isCurrentUserLinked( state ),

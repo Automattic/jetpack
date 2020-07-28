@@ -26,7 +26,7 @@ let state = {
 			status: {
 				siteConnected: {
 					isActive: true,
-					devMode: {
+					offlineMode: {
 						isActive: false
 					}
 				}

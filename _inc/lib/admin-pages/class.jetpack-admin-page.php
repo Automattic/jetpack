@@ -52,24 +52,27 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	function add_actions() {
-		global $pagenow;
+		$is_offline_mode = ( new Status() )->is_offline_mode();
 
-		$is_development_mode = ( new Status() )->is_development_mode();
-		// If user is not an admin and site is in Dev Mode or not connected yet then don't do anything.
-		if ( ! current_user_can( 'manage_options' ) && ( $is_development_mode || ! Jetpack::is_active() ) ) {
+		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
+		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_active() ) ) {
 			return;
 		}
 
+		// Is Jetpack not active and not offline?
+		// True means that Jetpack is NOT active and NOT in offline mode.
+		// If Jetpack is active OR in offline mode, this will be false.
+		$connectable = ! Jetpack::is_active() && ! $is_offline_mode;
+
 		// Don't add in the modules page unless modules are available!
-		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! $is_development_mode ) {
+		if ( $this->dont_show_if_not_active && $connectable ) {
 			return;
 		}
 
 		// Initialize menu item for the page in the admin
 		$hook = $this->get_page_hook();
 
-		// Attach hooks common to all Jetpack admin pages based on the created
-		// hook
+		// Attach hooks common to all Jetpack admin pages based on the created hook.
 		add_action( "load-$hook", array( $this, 'admin_help' ) );
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
@@ -78,13 +81,26 @@ abstract class Jetpack_Admin_Page {
 		if ( ! self::$block_page_rendering_for_idc ) {
 			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
 		}
+
+		// Check if the site plan changed and deactivate modules accordingly.
+		add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );
+
+		// Attach page specific actions in addition to the above.
+		$this->add_page_actions( $hook );
+
+		// If the current user can connect Jetpack, Jetpack isn't active, and is not in offline mode, let's prompt!
+		if ( current_user_can( 'jetpack_connect' ) && $connectable ) {
+			$this->add_connection_banner_actions();
+		}
+	}
+
+	/**
+	 * Hooks to add when Jetpack is not active or in offline mode for an user capable of connecting.
+	 */
+	private function add_connection_banner_actions() {
+		global $pagenow;
 		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
-		if (
-			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
-			&& ! Jetpack::is_active()
-			&& current_user_can( 'jetpack_connect' )
-			&& ! $is_development_mode
-		) {
+		if ( ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 			add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
@@ -93,20 +109,10 @@ abstract class Jetpack_Admin_Page {
 		}
 
 		// If Jetpack not yet connected, but user is viewing one of the pages with a Jetpack connection banner.
-		if (
-			( 'index.php' === $pagenow || 'plugins.php' === $pagenow )
-			&& ! Jetpack::is_active()
-			&& current_user_can( 'jetpack_connect' )
-			&& ! $is_development_mode
-		) {
+		if ( ( 'index.php' === $pagenow || 'plugins.php' === $pagenow ) ) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 		}
 
-		// Check if the site plan changed and deactivate modules accordingly.
-		add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );
-
-		// Attach page specific actions in addition to the above
-		$this->add_page_actions( $hook );
 	}
 
 	// Render the page with a common top and bottom part, and page specific content
@@ -175,7 +181,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	function check_plan_deactivate_modules( $page ) {
 		if (
-			( new Status() )->is_development_mode()
+			( new Status() )->is_offline_mode()
 			|| ! in_array(
 				$page->base,
 				array(
@@ -276,11 +282,12 @@ abstract class Jetpack_Admin_Page {
 		);
 		$args              = wp_parse_args( $args, $defaults );
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
-		$jetpack_about_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
+		$jetpack_offline   = ( new Status() )->is_offline_mode();
+		$jetpack_about_url = ( Jetpack::is_active() || $jetpack_offline )
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
 
-		$jetpack_privacy_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
+		$jetpack_privacy_url = ( Jetpack::is_active() || $jetpack_offline )
 			? $jetpack_admin_url . '#/privacy'
 			: Redirect::get_url( 'a8c-privacy' );
 
@@ -381,7 +388,7 @@ abstract class Jetpack_Admin_Page {
 					<?php } ?>
 					<?php if ( current_user_can( 'manage_options' ) ) { ?>
 						<li class="jp-footer__link-item">
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack_modules' ) ); ?>" title="<?php esc_html_e( "Access the full list of Jetpack modules available on your site.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Modules', 'Navigation item', 'jetpack' ); ?></a>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack_modules' ) ); ?>" title="<?php esc_html_e( 'Access the full list of Jetpack modules available on your site.', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Modules', 'Navigation item', 'jetpack' ); ?></a>
 						</li>
 						<li class="jp-footer__link-item">
 							<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-debugger' ) ); ?>" title="<?php esc_html_e( "Test your site's compatibility with Jetpack.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Debug', 'Navigation item', 'jetpack' ); ?></a>

@@ -135,14 +135,14 @@ export const reducer = combineReducers( {
  * Returns true if site is connected to WordPress.com
  *
  * @param  {Object}      state Global state tree
- * @return {bool|string} True if site is connected, False if it is not, 'dev' if site is in development mode.
+ * @return {bool|string} True if site is connected, False if it is not, 'offline' if site is in offline mode.
  */
 export function getSiteConnectionStatus( state ) {
 	if ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) {
 		return false;
 	}
-	if ( state.jetpack.connection.status.siteConnected.devMode.isActive ) {
-		return 'dev';
+	if ( state.jetpack.connection.status.siteConnected.offlineMode.isActive ) {
+		return 'offline';
 	}
 	return state.jetpack.connection.status.siteConnected.isActive;
 }
@@ -151,12 +151,12 @@ export function getSiteConnectionStatus( state ) {
  * Checks if the site is connected to WordPress.com. Unlike getSiteConnectionStatus, this one returns only a boolean.
  *
  * @param  {Object}  state Global state tree
- * @return {boolean} True if site is connected to WordPress.com. False if site is in Dev Mode or there's no connection data.
+ * @return {boolean} True if site is connected to WordPress.com. False if site is in Offline Mode or there's no connection data.
  */
 export function isSiteConnected( state ) {
 	if (
 		'object' !== typeof state.jetpack.connection.status.siteConnected ||
-		true === state.jetpack.connection.status.siteConnected.devMode.isActive
+		true === state.jetpack.connection.status.siteConnected.offlineMode.isActive
 	) {
 		return false;
 	}
@@ -164,14 +164,14 @@ export function isSiteConnected( state ) {
 }
 
 /**
- * Returns an object with information about the Dev Mode.
+ * Returns an object with information about the Offline Mode.
  *
  * @param  {Object}      state Global state tree
- * @return {bool|object} False if site is not in Dev Mode. If it is, returns an object with information about the Dev Mode.
+ * @return {bool|object} False if site is not in Offline Mode. If it is, returns an object with information about the Offline Mode.
  */
-export function getSiteDevMode( state ) {
-	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive' ] ) ) {
-		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode' ] );
+export function getSiteOfflineMode( state ) {
+	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'offlineMode', 'isActive' ] ) ) {
+		return get( state.jetpack.connection.status, [ 'siteConnected', 'offlineMode' ] );
 	}
 	return false;
 }
@@ -257,13 +257,13 @@ export function isCurrentUserLinked( state ) {
 }
 
 /**
- * Checks if the site is currently in development mode.
+ * Checks if the site is currently in offline mode.
  *
  * @param  {Object}  state Global state tree
- * @return {boolean} True if site is in dev mode. False otherwise.
+ * @return {boolean} True if site is in offline mode. False otherwise.
  */
-export function isDevMode( state ) {
-	return 'dev' === getSiteConnectionStatus( state );
+export function isOfflineMode( state ) {
+	return 'offline' === getSiteConnectionStatus( state );
 }
 
 /**
@@ -298,14 +298,14 @@ export function requiresConnection( state, slug ) {
 }
 
 /**
- * Checks if the current module is unavailable in development mode.
+ * Checks if the current module is unavailable in offline mode.
  *
  * @param  {Object}  state Global state tree
  * @param  {String}  module Module slug.
- * @return {boolean} True if site is in dev mode and module requires connection. False otherwise.
+ * @return {boolean} True if site is in offline mode and module requires connection. False otherwise.
  */
-export function isUnavailableInDevMode( state, module ) {
-	return isDevMode( state ) && requiresConnection( state, module );
+export function isUnavailableInOfflineMode( state, module ) {
+	return isOfflineMode( state ) && requiresConnection( state, module );
 }
 
 /**

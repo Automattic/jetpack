@@ -12,21 +12,21 @@ import {
 	fetchSetupWizardQuestionnaire,
 	isFetchingSetupWizardQuestionnaire,
 } from 'state/setup-wizard';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 
 class QuerySetupWizardQuestionnaire extends Component {
 	static propTypes = {
 		isFetchingSetupWizardQuestionnaire: PropTypes.bool,
-		isDevMode: PropTypes.bool,
+		isOfflineMode: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		isFetchingScanStatus: false,
-		isDevMode: false,
+		isOfflineMode: false,
 	};
 
 	componentDidMount() {
-		if ( ! this.props.isFetchingSetupWizardQuestionnaire && ! this.props.isDevMode ) {
+		if ( ! this.props.isFetchingSetupWizardQuestionnaire && ! this.props.isOfflineMode ) {
 			this.props.fetchSetupWizardQuestionnaire();
 		}
 	}
@@ -40,7 +40,7 @@ export default connect(
 	state => {
 		return {
 			isFetchingSetupWizardQuestionnaire: isFetchingSetupWizardQuestionnaire( state ),
-			isDevMode: isDevMode( state ),
+			isOfflineMode: isOfflineMode( state ),
 		};
 	},
 	dispatch => {

@@ -16,7 +16,7 @@ import { ModuleToggle } from 'components/module-toggle';
 export const Likes = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
-			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'likes' );
+			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'likes' );
 			const isActive = this.props.getOptionValue( 'likes' );
 
 			return (
@@ -27,7 +27,7 @@ export const Likes = withModuleSettingsFormHelpers(
 					hideButton
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ { module: 'likes' } }
 						support={ {
 							text: __(
@@ -42,7 +42,7 @@ export const Likes = withModuleSettingsFormHelpers(
 						</p>
 						<ModuleToggle
 							slug="likes"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInOfflineMode }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'likes' ) }
 							toggleModule={ this.props.toggleModuleNow }

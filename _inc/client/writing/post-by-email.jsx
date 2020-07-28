@@ -47,14 +47,14 @@ class PostByEmail extends React.Component {
 		const postByEmail = this.props.getModule( 'post-by-email' ),
 			isPbeActive = this.props.getOptionValue( 'post-by-email' ),
 			disabledControls =
-				this.props.isUnavailableInDevMode( 'post-by-email' ) || ! this.props.isLinked,
+				this.props.isUnavailableInOfflineMode( 'post-by-email' ) || ! this.props.isLinked,
 			emailAddress = this.address();
 
 		return (
 			<SettingsCard { ...this.props } module="post-by-email" hideButton>
 				<SettingsGroup
 					hasChild
-					disableInDevMode
+					disableInOfflineMode
 					module={ postByEmail }
 					support={ {
 						text: __(
@@ -114,7 +114,7 @@ class PostByEmail extends React.Component {
 						</Button>
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInDevMode( 'post-by-email' ) && ! this.props.isLinked && (
+				{ ! this.props.isUnavailableInOfflineMode( 'post-by-email' ) && ! this.props.isLinked && (
 					<Card
 						compact
 						className="jp-settings-card__configure-link"

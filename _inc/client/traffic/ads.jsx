@@ -47,7 +47,7 @@ export const Ads = withModuleSettingsFormHelpers(
 
 		render() {
 			const isAdsActive = this.props.getOptionValue( 'wordads' );
-			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
+			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'wordads' );
 			const enable_header_ad = this.props.getOptionValue( 'enable_header_ad', 'wordads' );
 			const wordads_second_belowpost = this.props.getOptionValue(
 				'wordads_second_belowpost',
@@ -82,7 +82,7 @@ export const Ads = withModuleSettingsFormHelpers(
 					saveDisabled={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt' ] ) }
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						hasChild
 						module={ { module: 'wordads' } }
 						support={ {
@@ -121,7 +121,7 @@ export const Ads = withModuleSettingsFormHelpers(
 
 						<ModuleToggle
 							slug="wordads"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInOfflineMode }
 							activated={ isAdsActive }
 							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -136,7 +136,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_front_page }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_front_page' ) }
@@ -149,7 +149,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_post }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_post' ) }
@@ -160,7 +160,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_page }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_page' ) }
@@ -171,7 +171,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_archive }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_archive' ) }
@@ -185,7 +185,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ enable_header_ad }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] )
 								}
 								onChange={ this.handleChange( 'enable_header_ad' ) }
@@ -198,7 +198,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_second_belowpost }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] )
 								}
 								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
@@ -242,7 +242,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							checked={ wordads_ccpa_enabled }
 							disabled={
 								! isAdsActive ||
-								unavailableInDevMode ||
+								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_enabled' ] )
 							}
 							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
@@ -317,7 +317,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									value={ wordads_ccpa_privacy_policy_url }
 									disabled={
 										! isAdsActive ||
-										unavailableInDevMode ||
+										unavailableInOfflineMode ||
 										! wordads_ccpa_enabled ||
 										this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_privacy_policy_url' ] )
 									}
@@ -347,7 +347,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_custom_adstxt_enabled }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
 								}
 								onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
@@ -392,7 +392,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									value={ wordads_custom_adstxt }
 									disabled={
 										! isAdsActive ||
-										unavailableInDevMode ||
+										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
 									}
 									onChange={ this.props.onOptionChange }
@@ -400,7 +400,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							</FormFieldset>
 						) }
 					</SettingsGroup>
-					{ ! unavailableInDevMode && isAdsActive && (
+					{ ! unavailableInOfflineMode && isAdsActive && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"

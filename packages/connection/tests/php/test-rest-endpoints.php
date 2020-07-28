@@ -77,7 +77,7 @@ class Test_REST_Endpoints extends TestCase {
 				->setName( 'apply_filters' )
 				->setFunction(
 					function( $hook, $value ) {
-						return 'jetpack_development_mode' === $hook ? true : $value;
+						return 'jetpack_offline_mode' === $hook ? true : $value;
 					}
 				);
 
@@ -91,7 +91,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertFalse( $data['isActive'] );
 		$this->assertFalse( $data['isRegistered'] );
-		$this->assertTrue( $data['devMode']['isActive'] );
+		$this->assertTrue( $data['offlineMode']['isActive'] );
 	}
 
 	/**

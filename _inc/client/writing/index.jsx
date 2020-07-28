@@ -12,8 +12,8 @@ import Card from 'components/card';
 import { getSettings } from 'state/settings';
 import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/initial-state';
 import {
-	isDevMode,
-	isUnavailableInDevMode,
+	isOfflineMode,
+	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
@@ -35,8 +35,8 @@ export class Writing extends React.Component {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
-			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isOfflineMode: this.props.isOfflineMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isLinked: this.props.isLinked,
 			getModuleOverride: this.props.getModuleOverride,
 		};
@@ -121,8 +121,8 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
 		masterbarIsAlwaysActive: isAtomicSite( state ),
-		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		userCanEditPosts: userCanEditPosts( state ),
 		isModuleActivated: module_name => isModuleActivated( state, module_name ),
 		isLinked: isCurrentUserLinked( state ),

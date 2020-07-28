@@ -29,11 +29,11 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
 				siteAdminUrl = this.props.siteAdminUrl,
-				isDevMode = this.props.isDevMode,
+				isOfflineMode = this.props.isOfflineMode,
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const configCard = () => {
-				if ( isDevMode ) {
+				if ( isOfflineMode ) {
 					return (
 						<Card
 							compact
@@ -81,7 +81,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					hideButton
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ { module: 'sharing' } }
 						support={ {
 							text: __(

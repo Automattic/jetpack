@@ -60,7 +60,7 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	public function has_agreed() {
-		if ( $this->is_development_mode() ) {
+		if ( $this->is_offline_mode() ) {
 			return false;
 		}
 
@@ -73,8 +73,8 @@ class Terms_Of_Service {
 	 *
 	 * @return bool
 	 */
-	protected function is_development_mode() {
-		return ( new Status() )->is_development_mode();
+	protected function is_offline_mode() {
+		return ( new Status() )->is_offline_mode();
 	}
 
 	/**
