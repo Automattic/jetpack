@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Latest Instagram Posts block: stop showing cached galleries after the Instagram connection has been deleted.
 * OpenTable block: ensure additional CSS classes are populated correctly.
+* Subscriptions block: Stop saving localized attributes defaults in the block content.
 * Tiled Gallery block: do not load the block when your site is not connected to WordPress.com.
 
 --------
