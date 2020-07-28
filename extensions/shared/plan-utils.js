@@ -75,7 +75,8 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 }
 
 /**
- * Check if the block should is upgradable.
+ * Check if the block is upgradable, based on whether
+ * the block requires a paid plan.
  *
  * @param {string} name - Block name.
  * @returns {boolean} True if it should show the nudge. Otherwise, False.
@@ -85,14 +86,14 @@ export function isUpgradable( name ) {
 		return false;
 	}
 
-	// core/cover is handled in ./extensions/shared/blocks/cover
+	// core/cover is handled in ./extensions/shared/blocks/cover.
 	if ( name === 'core/cover' ) {
 		return false;
 	}
 
 	let blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
 
-	// hardcode core/video block;
+	// hardcode core/video block.
 	blockName = blockName === 'core/video' ? 'video' : blockName;
 
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
