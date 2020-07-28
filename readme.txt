@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Connection Flow: improve the display of any connection errors, and provide more tools to help fix those connection errors.
 * Deprecated hooks: Use native WordPress functionality for deprecated hooks.
 * Deprecation Notices: provide more information about deprecated files and functions.
 * General: ensure Jetpack's full compatibility with the upcoming WordPress 5.5 release.
