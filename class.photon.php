@@ -1321,7 +1321,13 @@ class Jetpack_Photon {
 	private function should_rest_photon_image_downsize_override( WP_REST_Request $request ) {
 		$route = $request->get_route();
 
-		if ( false !== strpos( $route, 'wp/v2/media' ) && 'edit' === $request->get_param( 'context' ) ) {
+		if (
+			(
+				false !== strpos( $route, 'wp/v2/media' )
+				&& 'edit' === $request->get_param( 'context' )
+			)
+			|| false !== strpos( $route, 'wpcom/v2/external-media/copy' )
+		) {
 			// Don't use `__return_true()`: Use something unique. See ::_override_image_downsize_in_rest_edit_context()
 			// Late execution to avoid conflict with other plugins as we really don't want to run in this situation.
 			add_filter(
