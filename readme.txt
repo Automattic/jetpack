@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* General: update Jetpack's minimum required WordPress version to 5.4, in anticipation of the upcoming WordPress 5.5 release.
 * Latest Instagram Posts block: fix layout when used with the AMP plugin.
 
 **Bug fixes**
