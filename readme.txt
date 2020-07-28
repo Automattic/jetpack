@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: update categories to improve discoverability.
 * Connection Flow: improve experience of any additional users of your site that may want to link their WordPress.com account.
+* Dashboard: add Jetpack Anti-spam to the product list in the dashboard.
 * External Media: add ability to show google photos for a specific month or year.
 * Infinite Scroll: improve accessibility of the "Load More" behavior.
 * Instant Search: add support for excluding certain post types from search results.
