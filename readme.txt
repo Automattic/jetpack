@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: fix layout issue when used with the P2 theme.
 * Latest Instagram Posts block: fix layout when used with the AMP plugin.
 * Synchronization: improve stability of the connection between your site and WordPress.com.
+* WordPress.com REST API: adjust API response based on language improvements in WordPress 5.5.
 
 **Bug fixes**
 
