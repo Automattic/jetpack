@@ -14,6 +14,8 @@ import { addQueryArgs } from '@wordpress/url';
 import getJetpackData from './get-jetpack-data';
 import { isSimpleSite } from './site-type-utils';
 import getSiteFragment from './get-site-fragment';
+import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import { requiresPaidPlan } from './register-jetpack-block';
 
 /**
  * Return whether upgrade nudges are enabled or not.
@@ -70,4 +72,29 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 		addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
 			redirect_to,
 		} );
+}
+
+/**
+ * Check if the block should is upgradable.
+ *
+ * @param {string} name - Block name.
+ * @returns {boolean} True if it should show the nudge. Otherwise, False.
+ */
+export function isUpgradable( name ) {
+	if ( ! name ) {
+		return false;
+	}
+
+	// core/cover is handled in ./extensions/shared/blocks/cover
+	if ( name === 'core/cover' ) {
+		return false;
+	}
+
+	let blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
+
+	// hardcode core/video block;
+	blockName = blockName === 'core/video' ? 'video' : blockName;
+
+	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
+	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }
