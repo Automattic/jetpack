@@ -22,8 +22,14 @@ class VaultPress_IXR_SSL_Client extends IXR_Client {
 		if ( $port )
 			$this->port = $port;
 	}
-	function query() {
-		$args = func_get_args();
+	/**
+	 * Perform the IXR request.
+	 *
+	 * @param string[] ...$args IXR args.
+	 *
+	 * @return bool True if request succeeded, false otherwise.
+	 */
+	function query( ...$args ) {
 		$method = array_shift($args);
 		$request = new IXR_Request($method, $args);
 		$length = $request->getLength();
