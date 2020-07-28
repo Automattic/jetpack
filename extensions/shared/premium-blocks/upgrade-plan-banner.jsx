@@ -50,9 +50,6 @@ const UpgradePlanBanner = ( {
 
 	// Do not render banner if there is not
 	// a valid URL to redirect.
-	if ( ! checkoutUrl ) {
-		return null;
-	}
 
 	// Alias. Save post by dispatch.
 	const savePost = dispatch( 'core/editor' ).savePost;
@@ -83,15 +80,17 @@ const UpgradePlanBanner = ( {
 		<div className={ cssClasses } data-align={ align }>
 			{ title && <strong className={ `${ className }__title` }>{ title }</strong> }
 			{ description && <span className={ `${ className }__description` }>{ description }</span> }
-			<Button
-				href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
-				onClick={ goToCheckoutPage }
-				className="is-primary"
-				label={ buttonText }
-				title={ buttonText }
-			>
-				{ buttonText }
-			</Button>
+			{ checkoutUrl && (
+				<Button
+					href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
+					onClick={ goToCheckoutPage }
+					className="is-primary"
+					label={ buttonText }
+					title={ buttonText }
+				>
+					{ buttonText }
+				</Button>
+			) }
 		</div>
 	);
 };
