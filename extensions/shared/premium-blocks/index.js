@@ -1,14 +1,12 @@
 /**
  * External dependencies
  */
-import { uniq } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -27,8 +25,6 @@ const jetpackPaidBlock = ( settings, name ) => {
 };
 
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
-
-import './editor.scss';
 
 /*
  * Add the `jetpack-enable-upgrade-nudge` css Class
