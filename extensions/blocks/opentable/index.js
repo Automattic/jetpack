@@ -7,7 +7,7 @@ import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { defaultAttributes } from './attributes';
+import { defaultAttributes, getStyleOptions } from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
@@ -47,6 +47,7 @@ export const settings = {
 		</div>
 	),
 	attributes: defaultAttributes,
+	styles: getStyleOptions(),
 	example: {
 		attributes: {
 			rid: [ '1' ],

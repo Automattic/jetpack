@@ -28,7 +28,6 @@ import './editor.scss';
 import icon from './icon';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import RestaurantPicker from './restaurant-picker';
-import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
 import {
 	getStyleOptions,
@@ -38,6 +37,7 @@ import {
 	defaultAttributes,
 } from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { getActiveStyleName } from '../../shared/block-styles';
 import { getAttributesFromEmbedCode } from './utils';
 
 function OpenTableEdit( {
@@ -56,17 +56,8 @@ function OpenTableEdit( {
 		setAttributes( validatedAttributes );
 	}
 
-	const {
-		align,
-		rid,
-		style,
-		iframe,
-		domain,
-		lang,
-		newtab,
-		negativeMargin,
-		__isBlockPreview,
-	} = attributes;
+	const { align, rid, iframe, domain, lang, newtab, negativeMargin, __isBlockPreview } = attributes;
+	const style = getActiveStyleName( getStyleOptions(), attributes.className );
 	const isPlaceholder = isEmpty( rid );
 
 	useEffect( () => {
@@ -184,14 +175,6 @@ function OpenTableEdit( {
 					/>
 				) }
 			</InspectorAdvancedControls>
-			<BlockStylesSelector
-				clientId={ clientId }
-				styleOptions={ styleOptions }
-				onSelectStyle={ updateStyle }
-				activeStyle={ style }
-				attributes={ attributes }
-				viewportWidth={ 150 }
-			/>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<RestaurantPicker rids={ rid } onChange={ onPickerSubmit } />
