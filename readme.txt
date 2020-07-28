@@ -141,6 +141,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Asset CDN: avoid returning a directory when setting the local path for translation files.
 * Contact Form: fix alignment of radio and checkbox items.
 * External Media: ensure that images inserted from Pexels or Google Photos are attached to the post you're composing.
+* General: avoid issues on sites hosted on a Windows server environment.
 * Gathering Tweetstorms: don't enable the Unroll button until after a Twitter URL has been entered and verified.
 * Latest Instagram Posts block: stop showing cached galleries after the Instagram connection has been deleted.
 * Likes: resolve a potential PHP notice.
