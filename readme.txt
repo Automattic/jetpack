@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection Flow: improve experience of any additional users of your site that may want to link their WordPress.com account.
 * External Media: add ability to show google photos for a specific month or year.
 * Infinite Scroll: improve accessibility of the "Load More" behavior.
+* Instant Search: add support for excluding certain post types from search results.
 * Mailchimp Block: show error message on email validation error.
 * Markdown block: improve handling of long links with custom characters, as well as em- and en- dashes.
 * Payments block: add extra customization options to the Submit button.
