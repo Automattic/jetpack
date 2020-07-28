@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Contact Form: fix alignment of radio and checkbox items.
 * Latest Instagram Posts block: stop showing cached galleries after the Instagram connection has been deleted.
 * OpenTable block: ensure additional CSS classes are populated correctly.
 * Subscriptions block: Stop saving localized attributes defaults in the block content.
