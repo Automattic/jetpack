@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Latest Instagram Posts block: stop showing cached galleries after the Instagram connection has been deleted.
 * OpenTable block: ensure additional CSS classes are populated correctly.
 * Tiled Gallery block: do not load the block when your site is not connected to WordPress.com.
 
