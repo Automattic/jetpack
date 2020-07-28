@@ -71,7 +71,7 @@ const Tabs = props => {
 		}
 	}, [ monthlyPlanId, annuallyPlanId, setActiveTab, isTabActive ] );
 
-	// Updates the amounts and choose amount text attributes when the currency changes.
+	// Updates the amounts attribute when the currency changes.
 	useEffect( () => {
 		if ( previousCurrency === currency ) {
 			return;
@@ -83,7 +83,6 @@ const Tabs = props => {
 				minAmount * 30, // 2nd tier (USD 15)
 				minAmount * 200, // 3rd tier (USD 100)
 			],
-			chooseAmountText: chooseAmountText.replace( `(${ previousCurrency })`, `(${ currency })` ),
 		} );
 	}, [ currency, previousCurrency, minAmount, chooseAmountText, setAttributes ] );
 

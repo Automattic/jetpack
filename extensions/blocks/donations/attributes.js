@@ -45,7 +45,7 @@ export default {
 	},
 	chooseAmountText: {
 		type: 'string',
-		default: __( 'Choose an amount', 'jetpack' ) + ' (USD)',
+		default: __( 'Choose an amount', 'jetpack' ),
 	},
 	customAmountText: {
 		type: 'string',
