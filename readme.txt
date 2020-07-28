@@ -98,12 +98,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 8.8 =
 
-* Release date: August 74, 2020
+* Release date: August 4, 2020
 * Release post: https://wp.me/p1moTy-rs2
-
-**Major Enhancements**
-
-*
 
 **Enhancements**
 
