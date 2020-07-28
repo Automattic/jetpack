@@ -1479,7 +1479,7 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
-	 * @return string|true True if connection restored, otherwise string indicating what's to be done next.
+	 * @return string|true|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object otherwise.
 	 */
 	public function restore() {
 		$invalid_tokens = array();
@@ -1494,6 +1494,10 @@ class Manager {
 		if ( in_array( 'user', $invalid_tokens, true ) ) {
 			self::disconnect_user( null, true );
 			return 'authorize';
+		}
+
+		if ( in_array( 'blog', $invalid_tokens, true ) ) {
+			return self::refresh_blog_token();
 		}
 
 		return true;
@@ -2549,6 +2553,58 @@ class Manager {
 		}
 
 		return $this->plugin->is_enabled();
+	}
+
+	/**
+	 * Perform the API request to refrsh the blog token.
+	 * Note that we are making this request on behalf of the Jetpack master user,
+	 * given they were (most probably) the ones that registered the site at the first place.
+	 *
+	 * @return WP_Error|bool The result of updating the blog_token option.
+	 */
+	public static function refresh_blog_token() {
+		$url     = sprintf(
+			'%s://%s/%s/v%s/%s',
+			Client::protocol(),
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'wpcom',
+			'2',
+			'jetpack-refresh-blog-token'
+		);
+		$method  = 'GET';
+		$user_id = JETPACK_MASTER_USER;
+
+		$response = Client::remote_request( compact( 'url', 'method', 'user_id' ) );
+
+		if ( is_wp_error( $response ) ) {
+			return new \WP_Error( 'refresh_blog_token_http_request_failed', $response->get_error_message() );
+		}
+
+		$code   = wp_remote_retrieve_response_code( $response );
+		$entity = wp_remote_retrieve_body( $response );
+
+		if ( $entity ) {
+			$json = json_decode( $entity );
+		} else {
+			$json = false;
+		}
+
+		if ( 200 !== $code || ! empty( $json->error ) ) {
+			if ( empty( $json->error ) ) {
+				return new \WP_Error( 'unknown', '', $code );
+			}
+
+			/* translators: Error description string. */
+			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+
+			return new \WP_Error( (string) $json->error, $error_description, $code );
+		}
+
+		if ( empty( $json->jetpack_secret ) || ! is_scalar( $json->jetpack_secret ) ) {
+			return new \WP_Error( 'jetpack_secret', '', $code );
+		}
+
+		return \Jetpack_Options::update_option( 'blog_token', (string) $json->jetpack_secret );
 	}
 
 	/**
