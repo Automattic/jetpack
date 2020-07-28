@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* External Media: add ability to show google photos for a specific month or year.
 * Performance: use WordPress-provided wp_resource_hints for DNS prefetching.
 * Widgets: add additional options to the Twitter Timeline widget.
 
