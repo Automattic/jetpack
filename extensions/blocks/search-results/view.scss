@@ -1,5 +1,9 @@
-.wp-block-jetpack-search-filters {
+.wp-block-jetpack-search-results {
 	padding: 1em;
 	background-color: #cfc;
 	margin-bottom: 1em;
+
+	.jetpack-instant-search__search-results {
+		display: block;
+	}
 }
