@@ -942,12 +942,10 @@ class Jetpack {
 			return $default_url;
 		}
 
-		return esc_url(
-			Redirect::get_url(
-				'calypso-edit-' . $post_type,
-				array(
-					'path' => $post_id,
-				)
+		return Redirect::get_url(
+			'calypso-edit-' . $post_type,
+			array(
+				'path' => $post_id,
 			)
 		);
 	}
@@ -956,12 +954,10 @@ class Jetpack {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
 
-		return esc_url(
-			Redirect::get_url(
-				'calypso-edit-comment',
-				array(
-					'path' => $query_args['amp;c'],
-				)
+		return Redirect::get_url(
+			'calypso-edit-comment',
+			array(
+				'path' => $query_args['amp;c'],
 			)
 		);
 
