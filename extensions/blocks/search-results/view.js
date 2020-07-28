@@ -1,10 +1,16 @@
+/** @jsx h */
+
+/**
+ * External dependencies
+ */
+import { h, render } from 'preact';
+
 /**
  * Internal dependencies
  */
-import { buildFilterAggregations } from '../../../modules/search/instant-search/lib/api';
 import { SERVER_OBJECT_NAME } from '../../../modules/search/instant-search/lib/constants';
 import store from '../../../modules/search/instant-search-gutenberg/store';
-import { getSearchResults } from '../../../modules/search/instant-search-gutenberg/store/actions';
+import SearchResults from '../../../modules/search/instant-search/components/search-results-fork';
 import './view.scss';
 
 /**
@@ -13,21 +19,20 @@ import './view.scss';
  * @param {HTMLElement} block - DOM element
  */
 const initializeBlock = function ( block ) {
-	// eslint-disable-next-line no-console
-	store.subscribe( () => console.log( 'SearchResults subscription:', store.getState() ) );
-	store.dispatch(
-		getSearchResults( {
-			aggregations: buildFilterAggregations( [
-				...window[ SERVER_OBJECT_NAME ].widgets,
-				...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
-			] ),
-			query: 'hello',
-			resultFormat: window[ SERVER_OBJECT_NAME ].overlayOptions.resultFormat,
-			siteId: window[ SERVER_OBJECT_NAME ].siteId,
-		} )
+	render(
+		<SearchResults
+			enableLoadOnScroll={ false }
+			hasNextPage={ false }
+			highlightColor={ window[ SERVER_OBJECT_NAME ].overlayOptions.highlightColor }
+			isVisible
+			locale={ window[ SERVER_OBJECT_NAME ].locale }
+			onLoadNextPage={ () => null }
+			query={ 'hello' }
+			resultFormat={ window[ SERVER_OBJECT_NAME ].overlayOptions.resultFormat }
+			store={ store }
+		/>,
+		block
 	);
-	block.innerHTML = 'This is the search results block.';
-	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
 document

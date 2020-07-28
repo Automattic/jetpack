@@ -19,7 +19,7 @@ function makeSearchAPIRequest( action, store ) {
 			resultFormat: action.resultFormat,
 			siteId: action.siteId,
 		} ).then( response => {
-			store.dispatch( setSearchResults( response?.results ?? [] ) );
+			store.dispatch( setSearchResults( response ?? {} ) );
 		} );
 	} catch ( error ) {
 		// Refreshing connections failed
