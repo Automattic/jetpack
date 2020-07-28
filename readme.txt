@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Widgets: add additional options to the Twitter Timeline widget.
 
 **Improved compatibility**
 
