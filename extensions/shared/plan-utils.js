@@ -13,6 +13,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { isSimpleSite } from './site-type-utils';
 import getSiteFragment from './get-site-fragment';
+import getJetpackData from './get-jetpack-data';
 
 /**
  * Return the checkout URL to upgrade the site plan,
@@ -60,4 +61,13 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 			redirect_to,
 		} )
 	);
+}
+
+/**
+ * Return whether upgrade nudges are enabled or not.
+ *
+ * @returns {boolean} True if the Upgrade Nudge is enable. Otherwise, False.
+ */
+export function isUpgradeNudgeEnabled() {
+	return get( getJetpackData(), 'jetpack.enable_upgrade_nudge', false );
 }
