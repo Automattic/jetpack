@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: update Jetpack's minimum required WordPress version to 5.4, in anticipation of the upcoming WordPress 5.5 release.
 * Infinite Scroll: fix layout issue when used with the P2 theme.
 * Latest Instagram Posts block: fix layout when used with the AMP plugin.
+* Synchronization: improve stability of the connection between your site and WordPress.com.
 
 **Bug fixes**
 
