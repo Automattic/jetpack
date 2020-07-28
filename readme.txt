@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Deprecation Notices: provide more information about deprecated files and functions.
 * General: ensure Jetpack's full compatibility with the upcoming WordPress 5.5 release.
 * General: update Jetpack's minimum required WordPress version to 5.4, in anticipation of the upcoming WordPress 5.5 release.
+* General: update Jetpack to support new environment type features introduced in WordPress 5.5.
 * Infinite Scroll: fix layout issue when used with the P2 theme.
 * Latest Instagram Posts block: fix layout when used with the AMP plugin.
 * Synchronization: improve stability of the connection between your site and WordPress.com.
