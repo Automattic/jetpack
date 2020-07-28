@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Asset CDN: avoid returning a directory when setting the local path for translation files.
 * Contact Form: fix alignment of radio and checkbox items.
 * Gathering Tweetstorms: don't enable the Unroll button until after a Twitter URL has been entered and verified.
 * Latest Instagram Posts block: stop showing cached galleries after the Instagram connection has been deleted.
