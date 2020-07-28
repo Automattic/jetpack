@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
 require_once dirname( __FILE__ ) . '/customize-controls/class-label-control.php';
+require_once dirname( __FILE__ ) . '/customize-controls/class-excluded-post-types-control.php';
 
 /**
  * Class to customize search on the site.
@@ -115,6 +116,26 @@ class Jetpack_Search_Customize {
 					'immediate' => __( 'Open immediately', 'jetpack' ),
 					'results'   => __( 'Open when results are available', 'jetpack' ),
 				),
+			)
+		);
+
+		$id = $setting_prefix . 'excluded_post_types';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default' => '',
+				'type'    => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			new Excluded_Post_Types_Control(
+				$wp_customize,
+				$id,
+				array(
+					'description' => __( 'Choose post types to exclude from search results.', 'jetpack' ),
+					'label'       => __( 'Excluded Post Types', 'jetpack' ),
+					'section'     => $section_id,
+				)
 			)
 		);
 
