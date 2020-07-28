@@ -1,6 +1,10 @@
 ## 8.8
 
 
+### Widgets
+
+This release introduces a new Instagram widget. Give it a try by going to Jetpack > Settings in your dashboard, and searching for the Widgets feature. Once you've activated the feature, you should see the widget appear under Apperance > Customize and Appearance > Widgets. Give it a try and let us know what you think.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!

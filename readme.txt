@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Performance: use WordPress-provided wp_resource_hints for DNS prefetching.
 * Podcast Player block: start saving content in post content for better compatibility with non-WordPress tools.
 * Sharing: add direct link to share button customization for logged-in admins.
+* Widgets: introduce new Instagram Widget.
 * Widgets: add additional options to the Twitter Timeline widget.
 * Widgets: add the rel attribute to links with target=”_blank” in the Social Icons widget.
 
