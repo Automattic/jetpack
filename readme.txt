@@ -143,6 +143,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: fix alignment of radio and checkbox items.
 * External Media: ensure that images inserted from Pexels or Google Photos are attached to the post you're composing.
 * General: avoid issues on sites hosted on a Windows server environment.
+* General: avoid PHP notices when managing your site via the WordPress Desktop app.
 * Gathering Tweetstorms: don't enable the Unroll button until after a Twitter URL has been entered and verified.
 * Latest Instagram Posts block: stop showing cached galleries after the Instagram connection has been deleted.
 * Likes: resolve a potential PHP notice.
