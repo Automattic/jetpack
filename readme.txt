@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Contact Form: fix alignment of radio and checkbox items.
+* Gathering Tweetstorms: don't enable the Unroll button until after a Twitter URL has been entered and verified.
 * Latest Instagram Posts block: stop showing cached galleries after the Instagram connection has been deleted.
 * Likes: resolve a potential PHP notice.
 * Media Tools: resolve potential PHP notice.
