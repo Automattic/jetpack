@@ -98,3 +98,13 @@
 		margin-right: 8px;
 	}
 }
+
+.jetpack-donations__currency-toggle {
+	font-weight: bold;
+	line-height: 100%;
+	width: max-content;
+}
+
+.jetpack-donations__currency-popover .components-popover__content {
+	min-width: 120px;
+}
