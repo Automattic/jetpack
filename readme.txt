@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: improve accessibility of the "Load More" behavior.
 * Markdown block: improve handling of long links with custom characters, as well as em- and en- dashes.
 * Performance: use WordPress-provided wp_resource_hints for DNS prefetching.
+* Podcast Player block: start saving content in post content for better compatibility with non-WordPress tools.
 * Widgets: add additional options to the Twitter Timeline widget.
 
 **Improved compatibility**
