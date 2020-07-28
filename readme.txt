@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: add default text color to all buttons in AMP mode.
 * Connection Flow: improve the display of any connection errors, and provide more tools to help fix those connection errors.
+* Contact Form: updates based on language improvements in WordPress 5.5.
 * Deprecated hooks: Use native WordPress functionality for deprecated hooks.
 * Deprecation Notices: provide more information about deprecated files and functions.
 * General: ensure Jetpack's full compatibility with the upcoming WordPress 5.5 release.
