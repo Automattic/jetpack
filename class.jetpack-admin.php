@@ -79,7 +79,7 @@ class Jetpack_Admin {
 	 * Generate styles to replace Akismet logo for the Jetpack logo. It's a workaround until we create a proper settings page for
 	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
-	private static function akismet_logo_replacement_styles() {
+	private function akismet_logo_replacement_styles() {
 		$logo            = new Jetpack_Logo();
 		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
 		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
