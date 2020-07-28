@@ -11,20 +11,26 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
+import withUpgradeBanner from './with-upgrade-banner';
 import { isUpgradeNudgeEnabled, isUpgradable } from '../plan-utils';
 import premiumBlockEdit from './edit';
 
 import './editor.scss';
 
-const jetpackPaidBlock = ( settings, name ) => {
+const jetpackPremiumBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
+		// Extend BlockEdit function.
 		settings.edit = premiumBlockEdit( settings.edit );
 	}
 
 	return settings;
 };
 
-addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
+// Extend BlockType.
+addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPremiumBlock );
+
+// Extend BlockListBlock.
+addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', withUpgradeBanner );
 
 /*
  * Add the `jetpack-enable-upgrade-nudge` css Class
