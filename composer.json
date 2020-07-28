@@ -8,8 +8,8 @@
 		"issues": "https://github.com/Automattic/vaultpress/issues"
 	},
 	"require": {
-		"automattic/jetpack-logo": "1.2.0",
-		"automattic/jetpack-autoloader": "1.7.0"
+		"automattic/jetpack-logo": "1.3.0",
+		"automattic/jetpack-autoloader": "2.0.2"
 	},
 	"require-dev": {
 		"automattic/jetpack-standards": "master-dev"
