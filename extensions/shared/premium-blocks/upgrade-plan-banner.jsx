@@ -6,8 +6,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { compose } from '@wordpress/compose';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { useSelect, dispatch } from '@wordpress/data';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -24,10 +23,6 @@ function redirect( url, callback ) {
 }
 
 const UpgradePlanBanner = ( {
-	checkoutUrl,
-	isAutosaveablePost,
-	isDirtyPost,
-	savePost,
 	onRedirect,
 	align,
 	className,
@@ -36,9 +31,31 @@ const UpgradePlanBanner = ( {
 	buttonText = __( 'Upgrade' ),
 	visible = true,
 } ) => {
+	const { checkoutUrl, isAutosaveablePost, isDirtyPost } = useSelect( select => {
+		const editorSelector = select( 'core/editor' );
+		const { id: postId, type: postType } = editorSelector.getCurrentPost();
+		const PLAN_SLUG = 'value_bundle';
+		const plan = select( 'wordpress-com/plans' ).getPlan( PLAN_SLUG );
+
+		return {
+			checkoutUrl: getUpgradeUrl( { plan, PLAN_SLUG, postId, postType } ),
+			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
+			isDirtyPost: editorSelector.isEditedPostDirty(),
+		};
+	}, [] );
+
 	if ( ! visible ) {
 		return null;
 	}
+
+	// Do not render banner if there is not
+	// a valid URL to redirect.
+	if ( ! checkoutUrl ) {
+		return null;
+	}
+
+	// Alias. Save post by dispatch.
+	const savePost = dispatch( 'core/editor' ).savePost;
 
 	const goToCheckoutPage = event => {
 		if ( ! window?.top?.location?.href ) {
@@ -79,20 +96,4 @@ const UpgradePlanBanner = ( {
 	);
 };
 
-export default compose( [
-	withSelect( select => {
-		const editorSelector = select( 'core/editor' );
-		const { id: postId, type: postType } = editorSelector.getCurrentPost();
-		const PLAN_SLUG = 'value_bundle';
-		const plan = select( 'wordpress-com/plans' ).getPlan( PLAN_SLUG );
-
-		return {
-			checkoutUrl: getUpgradeUrl( { plan, PLAN_SLUG, postId, postType } ),
-			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
-			isDirtyPost: editorSelector.isEditedPostDirty(),
-		};
-	} ),
-	withDispatch( dispatch => ( {
-		savePost: dispatch( 'core/editor' ).savePost,
-	} ) ),
-] )( UpgradePlanBanner );
+export default UpgradePlanBanner;
