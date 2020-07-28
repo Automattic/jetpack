@@ -8,6 +8,8 @@ import domReady from '@wordpress/dom-ready';
  */
 import { isUpgradeNudgeEnabled } from '../plan-utils';
 
+import './editor.scss';
+
 /*
  * Add the `jetpack-enable-upgrade-nudge` css Class
  * to the document body if the feature is enabled.
