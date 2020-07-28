@@ -9,7 +9,6 @@ import { Path } from '@wordpress/components';
  */
 import renderMaterialIcon from '../../shared/render-material-icon';
 import edit from './components/edit';
-import save from './components/save';
 import './editor.scss';
 
 export const name = 'search-results';
@@ -18,35 +17,54 @@ export const icon = renderMaterialIcon(
 );
 export const settings = {
 	category: 'widgets',
-	description: __(
-		'Control block visibility based on how often a visitor has viewed the page.',
-		'jetpack'
-	),
+	description: __( 'Display search results from Jetpack Search.', 'jetpack' ),
 	icon,
 	// keywords: [
 	// 	_x( 'return', 'block search term', 'jetpack' ),
 	// 	_x( 'visitors', 'block search term', 'jetpack' ),
 	// 	_x( 'visibility', 'block search term', 'jetpack' ),
 	// ],
-	supports: { html: false },
+	supports: {
+		/*
+		 * Support for block's alignment (left, center, right, wide, full). When
+		 * true, it adds block controls to change block’s alignment.
+		 */
+		align: false, // [ 'left', 'right', 'full' ]
+		/*
+		 * Support for wide alignment, that requires additional support in themes.
+		 */
+		alignWide: true,
+		/*
+		 * When true, a new field in the block sidebar allows to define an id for
+		 * the block and a button to copy the direct link.
+		 */
+		anchor: false,
+		/*
+		 * When true, a new field in the block sidebar allows to define a custom
+		 * className for the block’s wrapper.
+		 */
+		customClassName: true,
+		/*
+		 * When false, Gutenberg won't add a class like .wp-block-your-block-name to
+		 * the root element of your saved markup.
+		 */
+		className: true,
+		/*
+		 * Setting this to false suppress the ability to edit a block’s markup
+		 * individually. We often set this to false in Jetpack blocks.
+		 */
+		html: false,
+		/*
+		 * When false, user will only be able to insert the block once per post.
+		 */
+		multiple: false,
+		/*
+		 * When false, the block won't be available to be converted into a reusable
+		 * block.
+		 */
+		reusable: true,
+	},
 	title: __( 'Search Results', 'jetpack' ),
 	edit,
-	save,
-	// example: {
-	// 	attributes: {
-	// 		criteria: CRITERIA_AFTER,
-	// 		threshold: DEFAULT_THRESHOLD,
-	// 	},
-	// 	innerBlocks: [
-	// 		{
-	// 			name: 'core/paragraph',
-	// 			attributes: {
-	// 				content: __(
-	// 					'This block will only appear to a visitor who visited the page three or more times.',
-	// 					'jetpack'
-	// 				),
-	// 			},
-	// 		},
-	// 	],
-	// },
+	save: () => null,
 };
