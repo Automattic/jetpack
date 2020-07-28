@@ -1,5 +1,8 @@
 ## 8.8
 
+### Connection Flow
+
+We've made some changes to the way secondary users (any users other than the first admin who connected the site to WordPress.com) can connect to their WordPress.com account. To give it a try, create a new user on your site after connecting your Jetpack site to WordPress.com. Then, log out of both your WordPress.com account and your local admin account, and log in as this new user and head over to Jetpack > Dashboard. Try to link your WordPress.com account there and let us know what you think about your experience.
 
 ### Widgets
 

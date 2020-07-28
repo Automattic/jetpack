@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Blocks: update categories to improve discoverability.
+* Connection Flow: improve experience of any additional users of your site that may want to link their WordPress.com account.
 * External Media: add ability to show google photos for a specific month or year.
 * Infinite Scroll: improve accessibility of the "Load More" behavior.
 * Mailchimp Block: show error message on email validation error.
