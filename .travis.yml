@@ -15,6 +15,7 @@ matrix:
     - php: 7.0
     - php: 7.2
     - php: 7.3
+    - php: 7.4
 
 # Git clone depth
 # By default Travis CI clones repositories to a depth of 50 commits
