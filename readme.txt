@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: introduce new Instagram Widget.
 * Widgets: add additional options to the Twitter Timeline widget.
 * Widgets: add the rel attribute to links with target=”_blank” in the Social Icons widget.
+* WordAds: update ad units to be more flexible and dynamic.
 
 **Improved compatibility**
 
