@@ -129,7 +129,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'The site is in Development Mode, so you can not connect to WordPress.com.',
+							'The site is in Offline Mode, so you can not connect to WordPress.com.',
 							'jetpack'
 						) }
 					</div>
