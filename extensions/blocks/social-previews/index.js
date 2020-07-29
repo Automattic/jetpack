@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -15,8 +14,6 @@ export const settings = {
 	render: () => <SocialPreviews />,
 };
 
-class SocialPreviews extends Component {
-	render() {
-		return <JetpackPluginSidebar>{ /* TODO: Content will go here! */ }</JetpackPluginSidebar>;
-	}
-}
+const SocialPreviews = function SocialPreviews() {
+	return <JetpackPluginSidebar>{ /* TODO: Content will go here! */ }</JetpackPluginSidebar>;
+};
