@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-08 15:57:22+0000\n"
+"PO-Revision-Date: 2020-07-22 11:39:47+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -341,7 +341,7 @@ msgstr ""
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Nepodarilo sa načítať požadované dáta."
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
@@ -408,7 +408,7 @@ msgstr "Téma"
 
 #: footer-credit/footer-credit-optimizations.php:114
 msgid "Proudly powered by WordPress"
-msgstr ""
+msgstr "Postavené na systéme WordPress"
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
@@ -689,7 +689,7 @@ msgstr ""
 
 #: widgets/gravatar.php:125
 msgid "Size:"
-msgstr ""
+msgstr "Veľkosť:"
 
 #: widgets/gravatar.php:122
 msgid "Custom Email Address:"

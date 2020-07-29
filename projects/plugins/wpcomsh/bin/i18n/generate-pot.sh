@@ -41,7 +41,7 @@ msgid "WP.com Site Helper"
 msgstr ""
 
 #. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
 msgstr ""
 ' >> languages/wpcomsh.pot
 

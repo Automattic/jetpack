@@ -13,27 +13,27 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:357
 msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr ""
+msgstr "Para poder seguir utilizando este widget, debes volver a conectarte a Instagram."
 
 #: widgets/instagram/instagram.php:265
 msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr ""
+msgstr "Para poder seguir utilizando este widget, debes <a href=\"%s\">volver a conectarte a Instagram</a>."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
-msgstr ""
+msgstr "Este sitio web es privado. Para verlo necesitas acceder a la vista previa."
 
 #: private-site/access-denied-preview-login-template.php:58
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
-msgstr ""
+msgstr "Este sitio web es privado. Para ver la vista previa necesitas acceder como usuario autorizado."
 
 #: private-site/access-denied-coming-soon-template.php:52
 msgid "Start your website"
-msgstr ""
+msgstr "Empieza a crear tu página web"
 
 #: private-site/access-denied-coming-soon-template.php:48
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr ""
+msgstr "Crea una página web. Vende lo que quieras. Escribe un blog. Y mucho más."
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
@@ -41,63 +41,63 @@ msgstr "Próximamente"
 
 #: wpcomsh.php:936
 msgid "Disk space quota"
-msgstr ""
+msgstr "Cuota de espacio del disco"
 
 #: wpcomsh.php:932
 msgid "Disk space used"
-msgstr ""
+msgstr "Espacio del disco utilizado"
 
 #: widgets/instagram/instagram.php:450
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>Cuenta de Instagram conectada</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">eliminar</a>"
 
 #: widgets/instagram/instagram.php:425
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr ""
+msgstr "¿Tienes problemas? Intenta <a href=\"%s\" target=\"_blank\">registrarte en la cuenta correcta</a> de Instagram.com primero."
 
 #: widgets/instagram/instagram.php:417
 msgid "Connect Instagram Account"
-msgstr ""
+msgstr "Autorizar acceso a Instagram"
 
 #: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
+msgstr "Instagram está teniendo problemas de conectividad ahora mismo, intenta conectarte de nuevo más tarde."
 
 #: widgets/instagram/instagram.php:388
 msgid "Connecting…"
-msgstr ""
+msgstr "Conectando…"
 
 #: widgets/instagram/instagram.php:361
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr ""
+msgstr "<strong>Importante: primero debes hacer clic en Guardar para activar el widget <em>antes</em> de poder conectar tu cuenta,</strong> Después de guardar el widget, haz clic en el botón de abajo para conectar con tu cuenta de Instagram."
 
 #: widgets/instagram/instagram.php:335
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "Falta el nonce de seguridad o no es válido."
 
 #: widgets/instagram/instagram.php:271
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr ""
+msgstr "Para poder usar este widget de Instagram, debes <a href=\"%s\">configurarlo</a> primero."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
-msgstr ""
+msgstr "Haz clic para obtener más información"
 
 #: widgets/category-cloud.php:166
 msgid "Count items in sub-categories toward parent total."
-msgstr ""
+msgstr "Incluye los elementos de las subcategorías en el recuento del total superior."
 
 #: widgets/category-cloud.php:156
 msgid "Maximum font percentage:"
-msgstr ""
+msgstr "Porcentaje Máximo de Fuente:"
 
 #: widgets/category-cloud.php:149
 msgid "Minimum font percentage:"
-msgstr ""
+msgstr "Porcentaje de fuente mínima:"
 
 #: widgets/category-cloud.php:144
 msgid "Category IDs, separated by commas"
-msgstr ""
+msgstr "Identificadores de categorías separados por comas"
 
 #: widgets/category-cloud.php:141
 msgid "Exclude:"
@@ -105,31 +105,31 @@ msgstr "Excluir:"
 
 #: widgets/category-cloud.php:134
 msgid "Maximum number of categories to show:"
-msgstr ""
+msgstr "Número máximo de categorías para mostrar:"
 
 #: widgets/category-cloud.php:108
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
-msgstr ""
+msgstr "Si usas más <a href=\"%s\">categorías</a> en tu sitio, aparecerán aquí."
 
 #: widgets/category-cloud.php:18
 msgid "Your most used categories in cloud format."
-msgstr ""
+msgstr "Las categorias más utilizado en una nube."
 
 #: widgets/category-cloud.php:16 widgets/category-cloud.php:42
 msgid "Category Cloud"
-msgstr ""
+msgstr "Nube de categorías"
 
 #: private-site/private-site.php:162
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack está desconectado y el sitio es privado. Vuelve a conectar Jetpack para gestionar la configuración de visibilidad del sitio."
 
 #: private-site/logged-in-banner.php:72
 msgid "Update visibility"
-msgstr ""
+msgstr "Actualiza la visibilidad"
 
 #: private-site/logged-in-banner.php:68
 msgid "Launch site"
-msgstr ""
+msgstr "Publicar el sitio web"
 
 #: private-site/logged-in-banner.php:63
 msgid "Dismiss"
@@ -137,71 +137,71 @@ msgstr "Rechazar"
 
 #: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
-msgstr ""
+msgstr "Se ha publicado tu sitio. Ya puedes compartirlo con todo el mundo."
 
 #: private-site/logged-in-banner.php:52
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "Tu sitio está marcado como \"Próximamente\" y permanece oculto a los visitantes hasta que esté listo."
 
 #: private-site/logged-in-banner.php:54
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
-msgstr ""
+msgstr "Aún no se ha publicado tu sitio web. Hasta que se publique, solo podrás verlo tú."
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "Actualmente estás usando <strong>%1$s</strong> de <strong>%2$s</strong> de límite de carga (%3$s%%)."
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
-msgstr ""
+msgstr "Texto para ser mostrado entre el tweet y la hora:"
 
 #: widgets/twitter.php:406
 msgid "Display Follow Button"
-msgstr ""
+msgstr "Mostrar botón siguiente"
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
-msgstr ""
+msgstr "Incluya retweets"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
-msgstr ""
+msgstr "Ocultar tweets procedentes de Publicize"
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
-msgstr ""
+msgstr "Esconder respuestas"
 
 #: widgets/twitter.php:371
 msgid "Maximum number of Tweets to show:"
-msgstr ""
+msgstr "Número máximo de tweets para mostrar:"
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
-msgstr ""
+msgstr "Nombre de usuario de Twitter:"
 
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
-msgstr ""
+msgstr "Empieza a utilizar el widget de la línea de tiempo de Twitter. Este widget se eliminará en un futuro y el nuevo te ofrece más opciones de personalización."
 
 #: widgets/twitter.php:289
 msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr ""
+msgstr "Error: Por favor, asegúrate de que la cuenta de Twitter es %1$spública%2$s."
 
 #: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr ""
+msgstr "Error: Twitter no responde. Por favor, espera unos minutos y actualiza esta página."
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
-msgstr ""
+msgstr "Actualizaciones de Twitter"
 
 #: widgets/twitter.php:51
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr ""
+msgstr "Por favor, configura tu nombre de usuario de Twitter para el <a href=\"%s\">widget Twitter</a>."
 
 #: widgets/twitter.php:29
 msgid "Display your Tweets from Twitter"
-msgstr ""
+msgstr "Mostrar tus tweets de Twitter"
 
 #: widgets/twitter.php:26
 msgid "Twitter"
@@ -221,11 +221,11 @@ msgstr "Mostrar contador de etiquetas"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "Número máximo de etiquetas que aparecen"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "Número de etiquetas:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -241,11 +241,11 @@ msgstr "Una nube para tus etiquetas más utilizadas."
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
+msgstr "Puede que las imágenes nuevas tarden hasta %d minutos en mostrarse en tu sitio."
 
 #: widgets/instagram/instagram.php:237
 msgid "Number of columns:"
-msgstr ""
+msgstr "Número de columnas:"
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
@@ -253,7 +253,7 @@ msgstr "Diseño"
 
 #: widgets/instagram/instagram.php:226
 msgid "Number to display:"
-msgstr ""
+msgstr "Número a visualizar:"
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
@@ -261,130 +261,130 @@ msgstr "Imágenes"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
-msgstr ""
+msgstr "Título de Widget"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
-msgstr ""
+msgstr "No se encontraron imágenes de Instagram."
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
-msgstr ""
+msgstr "Se ha producido un error al recuperar las imágenes de Instagram. Se volverá a intentar en unos minutos."
 
 #: widgets/instagram/instagram.php:30
 msgid "Display your latest Instagram photos."
-msgstr ""
+msgstr "Muestra tus últimas fotos Instagram."
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
+msgstr "Instagram"
 
 #: widgets/aboutme.php:148
 msgid "Apps"
-msgstr ""
+msgstr "Aplicaciones"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
-msgstr ""
+msgstr "Biografía"
 
 #: widgets/aboutme.php:134
 msgid "Headline"
-msgstr ""
+msgstr "Titular"
 
 #: widgets/aboutme.php:127
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 #: widgets/aboutme.php:123
 msgid "Don't Display Name"
-msgstr ""
+msgstr "No mostrar el nombre"
 
 #: widgets/aboutme.php:121
 msgid "Display Small"
-msgstr ""
+msgstr "Mostrar tamaño pequeño"
 
 #: widgets/aboutme.php:119
 msgid "Display Medium"
-msgstr ""
+msgstr "Mostrar tamaño mediano"
 
 #: widgets/aboutme.php:117
 msgid "Display Large"
-msgstr ""
+msgstr "Mostrar tamaño grande"
 
 #: widgets/aboutme.php:115
 msgid "Display X-Large"
-msgstr ""
+msgstr "Mostrar tamaño extra grande"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "Tu URL de about.me"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
-msgstr ""
+msgstr "Nombre de Widget"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "El widget about.me dejará de estar disponible a partir del 1 de julio de 2016. A partir del entonces, el widget mostrará un simple enlace de texto a tu perfil de about.me. Elimina este widget."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "El widget about.me ya no está disponible. Para eliminarlo, <a href=\"%s\">revisa los ajustes</a>. Este mensaje no se muestra a los visitantes de tu sitio."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "Widget de about.me"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "Mostrar tu perfil de about.me en miniatura"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "No se pueden recuperar los datos solicitados."
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
-msgstr ""
+msgstr "Crea un blog o un sitio web gratuitos con WordPress.com"
 
 #: footer-credit/theme-optimizations.php:32
 msgid "Create a free website at WordPress.com"
-msgstr ""
+msgstr "Crea un sitio web gratuito con WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
+msgstr "Ofrecido por WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:98
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
-msgstr ""
+msgstr "Blog de WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "Un sitio web WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
-msgstr ""
+msgstr "Logo de WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "Crea un sitio web o blog en WordPress.com"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr ""
+msgstr "Créditos a pie de página"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"
-msgstr ""
+msgstr "Actualiza a la versión Business"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "Ocultar (se necesita un plan Business)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -396,7 +396,7 @@ msgstr "Predeterminado"
 
 #: footer-credit/footer-credit-optimizations.php:159
 msgid "Design by"
-msgstr ""
+msgstr "Diseño de"
 
 #: footer-credit/footer-credit-optimizations.php:147
 msgid "by"
@@ -408,15 +408,15 @@ msgstr "Tema"
 
 #: footer-credit/footer-credit-optimizations.php:114
 msgid "Proudly powered by WordPress"
-msgstr ""
+msgstr "Creado con orgullo con WordPress"
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
-msgstr ""
+msgstr "Guardar ajustes"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "¿Estás seguro de que quieres deshacer los cambios no guardados?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -432,19 +432,19 @@ msgstr "Guardar"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Activar y guardar"
 
 #: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Gestiona los ajustes de visibilidad de tu sitio"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "WordPress.com instaló este plugin e incluye las funciones que se ofrecen en la suscripción de tu plan."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s se gestiona automáticamente para ti."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -456,60 +456,60 @@ msgstr "Filtrar por categoría"
 
 #: widgets/top-rated.php:131
 msgid "Show for comments"
-msgstr ""
+msgstr "Mostrar en comentarios"
 
 #: widgets/top-rated.php:125
 msgid "Show for pages"
-msgstr ""
+msgstr "Mostrar en páginas"
 
 #: widgets/top-rated.php:119
 msgid "Show for posts"
-msgstr ""
+msgstr "Mostrar en entradas"
 
 #: widgets/top-rated.php:11 widgets/top-rated.php:32
 msgid "Top Rated"
-msgstr ""
+msgstr "Mejor calificado"
 
 #: widgets/top-rated.php:10
 msgid "A list of your top rated posts, pages or comments."
-msgstr ""
+msgstr "Una lista de tus entradas, páginas y comentarios mejor calificados."
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
-msgstr ""
+msgstr "Los Top Clicks se calculan a partir de las estadísticas de las últimas 48-72 horas. Por esa razón los cambios llevan un cierto tiempo."
 
 #: widgets/top-clicks.php:53
 msgid "URLs to show:"
-msgstr ""
+msgstr "URLs a mostrar:"
 
 #: widgets/top-clicks.php:47
 msgid "Display length:"
-msgstr ""
+msgstr "Mostrar largo:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
-msgstr ""
+msgstr "Lista con los enlaces más visitados de tu blog."
 
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
 msgid "Top Clicks"
-msgstr ""
+msgstr "Top Clicks"
 
 #: widgets/tlkio/tlkio.php:59
 msgid "Height (in pixel):"
-msgstr ""
+msgstr "Altura (en píxeles):"
 
 #: widgets/tlkio/tlkio.php:55
 msgid "Channel:"
-msgstr ""
+msgstr "Canal:"
 
 #: widgets/tlkio/tlkio.php:26
 msgid "tlk.io Webchat"
-msgstr ""
+msgstr "Chat web de tlk.io"
 
 #: widgets/tlkio/tlkio.php:25
 msgid "Add a tlk.io webchat."
-msgstr ""
+msgstr "Añade un chat web de tlk.io."
 
 #: widgets/reservations.php:55
 msgid "Show:"
@@ -517,31 +517,31 @@ msgstr "Mostrar:"
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
-msgstr ""
+msgstr "Asunto del correo electrónico:"
 
 #: widgets/reservations.php:44
 msgid "Recipient E-mail Address:"
-msgstr ""
+msgstr "Dirección de correo electrónico del receptor:"
 
 #: widgets/reservations.php:29
 msgid "Departure"
-msgstr ""
+msgstr "Salida"
 
 #: widgets/reservations.php:28
 msgid "Arrival"
-msgstr ""
+msgstr "Llegada"
 
 #: widgets/reservations.php:27
 msgid "# Children"
-msgstr ""
+msgstr "# Niños"
 
 #: widgets/reservations.php:26
 msgid "# Adults"
-msgstr ""
+msgstr "# Adultos"
 
 #: widgets/reservations.php:25
 msgid "Message"
-msgstr ""
+msgstr "Mensaje"
 
 #: widgets/reservations.php:24
 msgid "Phone"
@@ -557,31 +557,31 @@ msgstr "Nombre"
 
 #: widgets/reservations.php:16
 msgid "Reservation Inquiry"
-msgstr ""
+msgstr "Consulta acerca de una reserva"
 
 #: widgets/reservations.php:10 widgets/reservations.php:15
 msgid "Reservations"
-msgstr ""
+msgstr "Reservas"
 
 #: widgets/recent-comments-widget.php:384
 msgid "Show comments from:"
-msgstr ""
+msgstr "Mostrar comentarios desde:"
 
 #: widgets/recent-comments-widget.php:379
 msgid "Text background color:"
-msgstr ""
+msgstr "Color de fondo del texto:"
 
 #: widgets/recent-comments-widget.php:373
 msgid "Avatar background color:"
-msgstr ""
+msgstr "Color de fondo del avatar:"
 
 #: widgets/recent-comments-widget.php:362
 msgid "No Avatars"
-msgstr ""
+msgstr "Sin avatares"
 
 #: widgets/recent-comments-widget.php:355
 msgid "(at most 15)"
-msgstr ""
+msgstr "(15 como máximo)"
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
@@ -589,7 +589,7 @@ msgstr "Número de comentarios a mostrar:"
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
-msgstr ""
+msgstr "No hay comentarios públicos disponibles para mostrar."
 
 #. translators: comments widget: 1: comment author, 2: post link
 #: widgets/recent-comments-widget.php:275
@@ -604,7 +604,7 @@ msgstr "Anónimo"
 
 #: widgets/recent-comments-widget.php:30
 msgid "Display your site's most recent comments"
-msgstr ""
+msgstr "Mostrar los comentarios más recientes de tu sitio web."
 
 #: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
@@ -612,20 +612,20 @@ msgstr "Comentarios recientes"
 
 #: widgets/posts-i-like.php:269
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
-msgstr ""
+msgstr "No has puesto un Me gusta en ninguna entrada en los últimos días. Cuando lo hagas, el widget <a href=\"%s\">Entradas que me gustan</a> las mostrará."
 
 #: widgets/posts-i-like.php:259
 msgid "on"
-msgstr ""
+msgstr "en"
 
 #: widgets/posts-i-like.php:236
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%1$s en %2$s"
 
 #: widgets/posts-i-like.php:113
 msgid "Author's likes to display:"
-msgstr ""
+msgstr "Los me gusta del autor para mostrar:"
 
 #: widgets/posts-i-like.php:98
 msgid "Grid"
@@ -637,67 +637,67 @@ msgstr "Lista"
 
 #: widgets/posts-i-like.php:95
 msgid "Display as:"
-msgstr ""
+msgstr "Mostrar como:"
 
 #: widgets/posts-i-like.php:90
 msgid "Number of posts to show (1 to 15):"
-msgstr ""
+msgstr "Número de entradas que se mostrarán (de 1 a 15):"
 
 #: widgets/posts-i-like.php:27
 msgid "A list of the posts I most recently liked"
-msgstr ""
+msgstr "Una lista con las publicaciones que te han gustado recientemente."
 
 #: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
 msgid "Posts I Like"
-msgstr ""
+msgstr "Entradas que me gustan"
 
 #: widgets/music-player.php:82
 msgid "Choose songs"
-msgstr ""
+msgstr "Elegir canciones"
 
 #: widgets/music-player.php:16 widgets/music-player.php:87
 msgid "Music Player"
-msgstr ""
+msgstr "Reproductor de música"
 
 #: widgets/music-player.php:15
 msgid "A multi-song music player"
-msgstr ""
+msgstr "Un reproductor de múltiples canciones"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "He votado"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Muestra a tus lectores que has votado con una pegatina \"He votado\"."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
-msgstr ""
+msgstr "Puede modificar su Gravatar desde su <a href=\"/wp-admin/profile.php\">página de perfil</a>."
 
 #: widgets/gravatar.php:143
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
-msgstr ""
+msgstr "Texto mostrado después del Gravatar. Esto es opcional y puede servir para describirte a ti mismo o la temática de tu blog."
 
 #: widgets/gravatar.php:142
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
-msgstr ""
+msgstr "Enlace Gravatar. Es una URL opcional que se usará cuando alguien haga clic en tu Gravatar:"
 
 #: widgets/gravatar.php:134
 msgid "Gravatar alignment:"
-msgstr ""
+msgstr "Alineación de Gravatar:"
 
 #: widgets/gravatar.php:125
 msgid "Size:"
-msgstr ""
+msgstr "Tamaño:"
 
 #: widgets/gravatar.php:122
 msgid "Custom Email Address:"
-msgstr ""
+msgstr "Dirección de correo electrónico personalizada:"
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
+msgstr "Selecciona un usuario o selecciona \"personalizar\" e introduce una dirección de correo personalizada."
 
 #: widgets/gravatar.php:115
 msgid "Center"
@@ -717,23 +717,23 @@ msgstr "Ninguna"
 
 #: widgets/gravatar.php:114
 msgid "Extra Large (256 pixels)"
-msgstr ""
+msgstr "Extra Grande (256 píxeles)"
 
 #: widgets/gravatar.php:114
 msgid "Large (128 pixels)"
-msgstr ""
+msgstr "Grande (128 pixels)"
 
 #: widgets/gravatar.php:114
 msgid "Medium (96 pixels)"
-msgstr ""
+msgstr "Medio (96 pixels)"
 
 #: widgets/gravatar.php:114
 msgid "Small (64 pixels)"
-msgstr ""
+msgstr "Pequeña (64 pixeles)"
 
 #: widgets/gravatar.php:84
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
-msgstr ""
+msgstr "Necesitas escoger un usuario o introducir una dirección de correo electrónico en tus ajustes del <a href=\"%s\">widget Gravatar</a>"
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
@@ -741,27 +741,27 @@ msgstr "Gravatar"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"
-msgstr ""
+msgstr "Insertar una imagen de Gravatar."
 
 #: widgets/freshly-pressed.php:60
 msgid "Choose an image to display in your sidebar:"
-msgstr ""
+msgstr "Elige una imagen para mostrar en tu barra lateral:"
 
 #: widgets/freshly-pressed.php:10
 msgid "Freshly Pressed"
-msgstr ""
+msgstr "Más recientes"
 
 #: widgets/freshly-pressed.php:8
 msgid "Display a Freshly Pressed badge in your sidebar"
-msgstr ""
+msgstr "Mostrar un distintivo para Freshly Pressed en tu barra lateral"
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
-msgstr ""
+msgstr "Tamaño del avatar (px):"
 
 #: widgets/author-grid.php:97
 msgid "Display all authors (including those who have not written any posts)"
-msgstr ""
+msgstr "Muestra todos los autores (incluidos los que no hayan escrito ninguna entrada)"
 
 #: widgets/author-grid.php:91 widgets/category-cloud.php:127
 #: widgets/freshly-pressed.php:56 widgets/gravatar.php:117
@@ -775,24 +775,24 @@ msgstr "T&iacute;tulo:"
 
 #: widgets/author-grid.php:44
 msgid "Authors"
-msgstr ""
+msgstr "Autores"
 
 #: widgets/author-grid.php:12
 msgid "Show a grid of author avatar images."
-msgstr ""
+msgstr "Mostrar una cuadrícula en las imágenes de avatar de autor."
 
 #: widgets/author-grid.php:11
 msgid "Author Grid"
-msgstr ""
+msgstr "Cuadrícula de autor"
 
 #: private-site/private-site.php:555
 msgid "Private Site"
-msgstr ""
+msgstr "Sitio privado"
 
 #: private-site/private-site.php:391 private-site/private-site.php:493
 #: private-site/private-site.php:687
 msgid "This site is private."
-msgstr ""
+msgstr "Este sitio es privado."
 
 #: private-site/access-denied-coming-soon-template.php:51
 #: private-site/access-denied-private-site-template.php:45
@@ -801,11 +801,11 @@ msgstr "Iniciar Sesión"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Cambiar de usuario"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Debes estar conectado como un usuario que tiene permiso para ver este sitio."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -814,6 +814,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Ten en cuenta que esta herramienta solo muestra información de la política de privacidad proporcionada por\n"
+"WordPress y los plugins participantes. No incluye información de la política de privacidad\n"
+"de los plugins no participantes. Eres el responsable de\n"
+"obtener la información de la política de privacidad de los plugins no participantes por separado."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -823,6 +827,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Ten en cuenta que esta herramienta solo exporta los datos personales almacenados por WordPress y\n"
+"los plugins participantes. No exporta los datos personales almacenados por\n"
+"los plugins no participantes. Eres el responsable de exportar los datos personales\n"
+"almacenados por los plugins no participantes por separado. Los datos personales exportados\n"
+"solo incluyen los siguientes elementos en estos momentos:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -833,19 +842,25 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Ten en cuenta que esta herramienta solo borra los datos personales almacenados por WordPress y\n"
+"los plugins participantes. No elimina los usuarios registrados, ni borra\n"
+"datos personales almacenados por los plugins no participantes. Eres el responsable de\n"
+"eliminar los usuarios registrados, así como los datos personales almacenados por los plugins\n"
+"no participantes. Los datos personales borrados solo incluyen los siguientes elementos\n"
+"en estos momentos:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "Crear logo"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Añade un logo para mostrarlo en tu sitio web. ¿No tienes logo? Compra uno en Looka. Haz clic en 'Crear logo' para comenzar."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "Funciones y herramientas proporcionadas por WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Asistente del sitio de WP.com"

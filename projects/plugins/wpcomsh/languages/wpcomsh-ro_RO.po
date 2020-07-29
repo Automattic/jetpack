@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-08 15:57:27+0000\n"
+"PO-Revision-Date: 2020-06-24 13:20:49+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -33,7 +33,7 @@ msgstr "Începe-ți site-ul web"
 
 #: private-site/access-denied-coming-soon-template.php:48
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr ""
+msgstr "Construiești un site web. Vinzi produse și alte lucruri. Scrii pe un blog. Și multe altele."
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"

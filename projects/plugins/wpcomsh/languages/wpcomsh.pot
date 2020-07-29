@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Automattic
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the WP.com Site Helper package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-06-22 14:35+0200\n"
+"POT-Creation-Date: 2020-07-29 11:32-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,73 +39,6 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:114
-msgid "Proudly powered by WordPress"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:130
-msgid "Theme"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:147
-msgid "by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:159
-msgid "Design by"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:41
-msgid "Default"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:52
-msgid "Hide"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:54
-msgid "Hide (Business Plan Required)"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:62
-msgid "Upgrade to Business"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:85
-msgid "Footer Credit"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
-msgid "Create a website or blog at WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:96
-msgid "WordPress.com Logo"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:97
-msgid "A WordPress.com Website"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:98
-#: footer-credit/theme-optimizations.php:30
-#: footer-credit/theme-optimizations.php:35
-msgid "Blog at WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:101
-msgid "Powered by WordPress.com"
-msgstr ""
-
-#: footer-credit/theme-optimizations.php:32
-msgid "Create a free website at WordPress.com"
-msgstr ""
-
-#: footer-credit/theme-optimizations.php:37
-msgid "Create a free website or blog at WordPress.com"
 msgstr ""
 
 #: logo-tool/logo-tool.php:60
@@ -640,8 +573,7 @@ msgid ""
 "\">Posts I Like</a> widget will display them."
 msgstr ""
 
-#: widgets/recent-comments-widget.php:29
-#: widgets/recent-comments-widget.php:146
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
 msgstr ""
 
@@ -934,6 +866,6 @@ msgid "WP.com Site Helper"
 msgstr ""
 
 #. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
 msgstr ""
 

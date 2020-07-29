@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-08 15:57:27+0000\n"
+"PO-Revision-Date: 2020-07-23 15:39:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,7 +21,7 @@ msgstr "اِیں ویجیٹ دے استعمال کُوں جاری رکھݨ کِ�
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
-msgstr ""
+msgstr "ایہ سائٹ نجی ہے۔ ایں کوں ݙیکھݨ کیتے تہاکوں پری ویو وچ لاگ ان تھیوݨ ضروی ہے۔"
 
 #: private-site/access-denied-preview-login-template.php:58
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
@@ -33,7 +33,7 @@ msgstr "آپݨی ویب سائیٹ دا آغاز کرو"
 
 #: private-site/access-denied-coming-soon-template.php:48
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr ""
+msgstr "ویب سائٹ اُسارو، آپݨاں سامان ویچو۔ بلاگ لکھو تے ٻیا ٻہوں کجھ۔"
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
@@ -149,7 +149,7 @@ msgstr "تُہاݙی ویب سائیٹ دا آغاز حالی تئیں نئیں 
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "تُساں اِیں ویلے <strong>%2$s</strong> وِچُوں <strong>%1$s</strong> استعمال کریندے پئے ہِیوے اَپ لوڈ دی حَد (%3$s%%) ہِے۔ "
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
@@ -476,7 +476,7 @@ msgstr "تُہاݙی سٻھ تُوں زیادہ پسند کِیتیاں ڳئیا
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
-msgstr ""
+msgstr "اعداد تے شُمار نال 48-72 گھنٹیاں دے وِچ کِلکس دی تعداد دا حساب لایا ویندے۔ اِنھّاں کُوں تبدیل تھیوݨ وِچ کُجھ ویلا لڳدے۔ "
 
 #: widgets/top-clicks.php:53
 msgid "URLs to show:"
@@ -612,7 +612,7 @@ msgstr "حالیہ رائے"
 
 #: widgets/posts-i-like.php:269
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
-msgstr ""
+msgstr "تُساں حال وِچ کہِیں وِی پوسٹاں اُتے پسندیدگی دا اظہار نئیں کِیتا۔ جیڑھے ویلے تُساں کریسو تاں، اِیہ <a href=\"%s\"> میݙے پسند کِیتے ڳئے پوسٹاں </a> ویجیٹ اُنھّاں کُوں ڈکھیسی۔ "
 
 #: widgets/posts-i-like.php:259
 msgid "on"
@@ -677,7 +677,7 @@ msgstr "تساں آپݨاں گراوتار  <a href=\"/wp-admin/profile.php\">پ
 
 #: widgets/gravatar.php:143
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
-msgstr ""
+msgstr "جی آر اواتار دے بعد ڈکھایا ونڄݨ آلا ٹیکسٹ۔ اِیہ اختیاری ہِے اَتّے اِیکُوں استعمال کِیتا ونڄ سڳیندا ہِے آپݨے تعارف کِیتے یا آپݨے بلاگ دے تعارف کِیتے۔ "
 
 #: widgets/gravatar.php:142
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
@@ -733,7 +733,7 @@ msgstr "چھوٹا (٦٤ پکسلاں)"
 
 #: widgets/gravatar.php:84
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
-msgstr ""
+msgstr "تُہاکُوں ہِک صارف چُݨݨ دی لوڑ ہِے یا درج کرو ہِک اِی میل پَتہ آپݨے <a href=\"%s\"> گراواتار ویجیٹ</a> ترتیبات وِچ۔ "
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
@@ -840,7 +840,7 @@ msgstr "لوگو بݨاؤ"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "آپݨی ویب سائیٹ تے ڈِکھاوݨ کِیتے ہِک مونوگرام شامل کرو۔ کوئی لوگو کائے نِیں؟ لوکا تُوں ہِک پیشہ ورانہ خرید کرو - \"مونوگرام بݨاؤ\" بٹݨ تے کِلک کر تے آغاز کرو۔ "
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"

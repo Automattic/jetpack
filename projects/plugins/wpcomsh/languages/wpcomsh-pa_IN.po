@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-16 14:25:07+0000\n"
+"PO-Revision-Date: 2020-07-20 11:40:25+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -367,7 +367,7 @@ msgstr ""
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
-msgstr ""
+msgstr "WordPress.com ਲੋਗੋ"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205

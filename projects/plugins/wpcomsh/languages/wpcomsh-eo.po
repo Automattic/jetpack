@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-08 15:57:21+0000\n"
+"PO-Revision-Date: 2020-07-22 11:25:26+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -261,7 +261,7 @@ msgstr "Bildoj"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
-msgstr ""
+msgstr "Titolo de kromprogrameto"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
@@ -341,7 +341,7 @@ msgstr ""
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Ne povis preni la petitajn informojn."
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
@@ -372,7 +372,7 @@ msgstr ""
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "Kreu retejon aŭ blogon ĉe WordPress.com"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
@@ -577,7 +577,7 @@ msgstr ""
 
 #: widgets/recent-comments-widget.php:362
 msgid "No Avatars"
-msgstr ""
+msgstr "Neniuj avataroj"
 
 #: widgets/recent-comments-widget.php:355
 msgid "(at most 15)"
@@ -637,7 +637,7 @@ msgstr "Listo"
 
 #: widgets/posts-i-like.php:95
 msgid "Display as:"
-msgstr ""
+msgstr "Montri kiel:"
 
 #: widgets/posts-i-like.php:90
 msgid "Number of posts to show (1 to 15):"
@@ -697,7 +697,7 @@ msgstr ""
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
+msgstr "Elektu uzanton aŭ elektu \"tajlora\" kaj entajpu retpoŝtadreson laŭ via difino."
 
 #: widgets/gravatar.php:115
 msgid "Center"
@@ -757,11 +757,11 @@ msgstr ""
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
-msgstr ""
+msgstr "Grando de avataro (px):"
 
 #: widgets/author-grid.php:97
 msgid "Display all authors (including those who have not written any posts)"
-msgstr ""
+msgstr "Montro de ĉiuj aŭtoroj (inkluzive tiujn kiuj ne verkis afiŝon)"
 
 #: widgets/author-grid.php:91 widgets/category-cloud.php:127
 #: widgets/freshly-pressed.php:56 widgets/gravatar.php:117

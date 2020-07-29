@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-08 15:57:25+0000\n"
+"PO-Revision-Date: 2020-07-17 12:07:36+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,19 +13,19 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:357
 msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr ""
+msgstr "Që të mund të vazhdoni të përdorni këtë <em>widget</em>, duhet të rilidheni me Instagram-in."
 
 #: widgets/instagram/instagram.php:265
 msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr ""
+msgstr "Që të mund të vazhdoni të përdorni këtë <em>widget</em>, duhet të <a href=\"%s\">rilidheni me Instagram-in</a>."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
-msgstr ""
+msgstr "Ky sajt është privat. Qa ta shihni, lypset të bëni hyrjen te paraparja."
 
 #: private-site/access-denied-preview-login-template.php:58
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
-msgstr ""
+msgstr "Ky sajt është privat. Përpara se të mund ta parashihni, duhet të bëni hyrjen si një përdorues me leje."
 
 #: private-site/access-denied-coming-soon-template.php:52
 msgid "Start your website"
@@ -33,7 +33,7 @@ msgstr "Filloni sajtin tuaj"
 
 #: private-site/access-denied-coming-soon-template.php:48
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr ""
+msgstr "Krijoni një sajt. Shitni gjërat tuaja. Shkruani një blog. Dhe plot gjëra të tjera."
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
