@@ -13,7 +13,7 @@ import { useEffect } from '@wordpress/element';
  */
 import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
-import { getUpgradeUrl } from '../../../shared/plan-utils';
+import { getUpgradeUrl } from '../../plan-utils';
 
 import './store';
 import './style.scss';
