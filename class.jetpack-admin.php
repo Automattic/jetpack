@@ -58,11 +58,11 @@ class Jetpack_Admin {
 		if ( in_array( 'jetpack_anti_spam', array_column( $site_products, 'product_slug' ), true ) ) {
 			// Prevent Akismet from adding a menu item.
 			add_action(
-				'init',
+				'admin_menu',
 				function () {
 					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
 				},
-				99
+				4
 			);
 			// Add an Anti-spam menu item for Jetpack.
 			add_action(
