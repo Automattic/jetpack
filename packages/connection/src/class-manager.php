@@ -1491,16 +1491,21 @@ class Manager {
 			return 'authorize';
 		}
 
-		if ( in_array( 'user', $invalid_tokens, true ) ) {
-			self::disconnect_user( null, true );
-			return 'authorize';
-		}
+		$result = true;
 
 		if ( in_array( 'blog', $invalid_tokens, true ) ) {
-			return self::refresh_blog_token();
+			$result = self::refresh_blog_token();
 		}
 
-		return true;
+		// If previous operation failed, no need to try anything else, just report an error.
+		if ( true === $result && in_array( 'user', $invalid_tokens, true ) ) {
+			self::disconnect_user( null, true );
+
+			// Intentionally overwriting the value.
+			$result = 'authorize';
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1515,19 +1520,20 @@ class Manager {
 
 		$validated_tokens = $this->validate_tokens();
 
-		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token_is_healthy', 'user_token_is_healthy' ) ), $validated_tokens ) ) ) {
+		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
 			return false;
 		}
 
-		if ( true !== $validated_tokens['blog_token_is_healthy'] ) {
+		if ( empty( $validated_tokens['blog_token']['is_healthy'] ) ) {
 			$invalid_tokens[] = 'blog';
 		}
 
-		if ( true !== $validated_tokens['user_token_is_healthy'] ) {
+		if ( empty( $validated_tokens['user_token']['is_healthy'] ) ) {
 			$invalid_tokens[] = 'user';
 		}
 
-		return (bool) count( $invalid_tokens );
+		// If both tokens are invalid, we can't restore the connection.
+		return 1 === count( $invalid_tokens );
 	}
 
 	/**
@@ -2556,7 +2562,7 @@ class Manager {
 	}
 
 	/**
-	 * Perform the API request to refrsh the blog token.
+	 * Perform the API request to refresh the blog token.
 	 * Note that we are making this request on behalf of the Jetpack master user,
 	 * given they were (most probably) the ones that registered the site at the first place.
 	 *
@@ -2577,7 +2583,7 @@ class Manager {
 		$response = Client::remote_request( compact( 'url', 'method', 'user_id' ) );
 
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'refresh_blog_token_http_request_failed', $response->get_error_message() );
+			return new WP_Error( 'refresh_blog_token_http_request_failed', $response->get_error_message() );
 		}
 
 		$code   = wp_remote_retrieve_response_code( $response );
@@ -2591,20 +2597,20 @@ class Manager {
 
 		if ( 200 !== $code || ! empty( $json->error ) ) {
 			if ( empty( $json->error ) ) {
-				return new \WP_Error( 'unknown', '', $code );
+				return new WP_Error( 'unknown', '', $code );
 			}
 
 			/* translators: Error description string. */
 			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
 
-			return new \WP_Error( (string) $json->error, $error_description, $code );
+			return new WP_Error( (string) $json->error, $error_description, $code );
 		}
 
 		if ( empty( $json->jetpack_secret ) || ! is_scalar( $json->jetpack_secret ) ) {
-			return new \WP_Error( 'jetpack_secret', '', $code );
+			return new WP_Error( 'jetpack_secret', '', $code );
 		}
 
-		return \Jetpack_Options::update_option( 'blog_token', (string) $json->jetpack_secret );
+		return Jetpack_Options::update_option( 'blog_token', (string) $json->jetpack_secret );
 	}
 
 	/**

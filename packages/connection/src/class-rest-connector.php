@@ -264,7 +264,16 @@ class REST_Connector {
 
 		switch ( $params['action'] ) {
 			case 'reconnect':
-				$next = $this->connection->restore();
+				$result = $this->connection->restore();
+
+				if ( is_wp_error( $result ) ) {
+					$response = $result;
+				} elseif ( is_string( $result ) ) {
+					$next = $result;
+				} else {
+					$next = true === $result ? 'completed' : 'failed';
+				}
+
 				break;
 			case 'reconnect_force':
 				$result = $this->connection->reconnect();
@@ -284,6 +293,12 @@ class REST_Connector {
 			case 'authorize':
 				$response['status']       = 'in_progress';
 				$response['authorizeUrl'] = $this->connection->get_authorization_url();
+				break;
+			case 'completed':
+				$response['status'] = 'completed';
+				break;
+			case 'failed':
+				$response = new WP_Error( 'Reconnect failed' );
 				break;
 		}
 
