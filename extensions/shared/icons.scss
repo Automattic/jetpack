@@ -1,0 +1,22 @@
+@import './styles/gutenberg-base-styles.scss';
+@import '../../_inc/client/scss/variables/colors';
+
+.jetpack-gutenberg-social-icon {
+	fill: $dark-gray-500;
+
+	&.is-facebook {
+		fill: $color-facebook;
+	}
+	&.is-twitter {
+		fill: $color-twitter;
+	}
+	&.is-linkedin {
+		fill: $color-linkedin;
+	}
+	&.is-tumblr {
+		fill: $color-tumblr;
+	}
+	&.is-google {
+		fill: $color-google;
+	}
+}
