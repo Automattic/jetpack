@@ -9,7 +9,7 @@ import { h, render } from 'preact';
  * Internal dependencies
  */
 import { SERVER_OBJECT_NAME } from '../../../modules/search/instant-search/lib/constants';
-import store from '../../../modules/search/instant-search-gutenberg/store';
+import store from '../../../modules/search/instant-search/store';
 import SearchResults from '../../../modules/search/instant-search/components/search-results-fork';
 import './view.scss';
 
