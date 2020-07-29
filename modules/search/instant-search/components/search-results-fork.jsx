@@ -67,7 +67,7 @@ class SearchResults extends Component {
 			);
 		} else if ( hasQuery ) {
 			return sprintf(
-				_n( 'Found %s result', 'Found %s results', total, 'jetpack' ),
+				_n( 'Found %s result for "%s"', 'Found %s results for "%s"', total, 'jetpack' ),
 				num,
 				this.props.query
 			);

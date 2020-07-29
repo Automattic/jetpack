@@ -1,7 +1,15 @@
+/** @jsx h */
+
+/**
+ * External dependencies
+ */
+import { h, render } from 'preact';
+
 /**
  * Internal dependencies
  */
 import store from '../../../modules/search/instant-search-gutenberg/store';
+import SearchFilters from '../../../modules/search/instant-search/components/search-filters-fork';
 import './view.scss';
 
 /**
@@ -10,9 +18,7 @@ import './view.scss';
  * @param {HTMLElement} block - DOM element
  */
 const initializeBlock = function ( block ) {
-	// eslint-disable-next-line no-console
-	store.subscribe( () => console.log( 'SearchFilters subscription:', store.getState() ) );
-	block.innerHTML = 'This is the search filters block.';
+	render( <SearchFilters store={ store } />, block );
 	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
