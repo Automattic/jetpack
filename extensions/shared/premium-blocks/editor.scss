@@ -1,3 +1,59 @@
+@import 'modules/calypsoify/_studio-wpcom.scss';
+
+$banner-height: 48px;
+$icon-size: 10px;
+$icon-background-color: #fff;
+
+// Upgrade Plan Banner.
+.block-editor-block-list__layout{
+	.jetpack-upgrade-plan-banner {
+		position: relative;
+		top: $banner-height + 5px;
+		z-index: 1000;
+	}
+}
+
+.jetpack-upgrade-plan-banner {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 14px;
+	height: $banner-height;
+	line-height: 14px;
+	background: black;
+	color: white;
+	padding: 0 20px;
+	border-radius: 2px 2px 0 0;
+	margin-bottom: 10px;
+
+	.jetpack-upgrade-plan-banner__title,
+	.jetpack-upgrade-plan-banner__description {
+		margin-right: 10px;
+	}
+
+	.components-button {
+		flex-shrink: 0;
+		margin-left: auto;
+		height: 28px;
+
+		&.is-primary {
+			background: $studio-pink-40;
+
+			&:hover {
+				background: $studio-pink-30;
+			}
+		}
+	}
+}
+
+// Adjust banner in the InspectorControls
+.block-editor-block-inspector {
+	.jetpack-upgrade-plan-banner {
+		border-radius: 0;
+		margin: 0 20px 20px;
+	}
+}
+
 // Premium Icons. Hide by default.
 .jetpack-paid-block-symbol {
 	display: none;
