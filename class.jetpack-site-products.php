@@ -12,12 +12,10 @@ use Automattic\Jetpack\Connection\Client;
  */
 class Jetpack_Site_Products {
 	/**
-	 * A cache variable to hold the site's products for the current request.
+	 * The name of the option that will store the site's products.
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private static $site_products_cache;
-
 	const SITE_PRODUCTS_OPTION = 'jetpack_site_products';
 
 	/**
@@ -55,11 +53,6 @@ class Jetpack_Site_Products {
 			$result = update_option( self::SITE_PRODUCTS_OPTION, $results['products'], true );
 		}
 
-		if ( $result ) {
-			// Reset the cache since we've just updated the site's products.
-			self::$site_products_cache = null;
-		}
-
 		return $result;
 	}
 
@@ -94,13 +87,6 @@ class Jetpack_Site_Products {
 	 * @return array Active Jetpack products
 	 */
 	public static function get() {
-		// this can be expensive to compute so we cache for the duration of a request.
-		if ( is_array( self::$site_products_cache ) && ! empty( self::$site_products_cache ) ) {
-			return self::$site_products_cache;
-		}
-
-		$site_products             = get_option( self::SITE_PRODUCTS_OPTION, array() );
-		self::$site_products_cache = $site_products;
-		return $site_products;
+		return get_option( self::SITE_PRODUCTS_OPTION, array() );
 	}
 }
