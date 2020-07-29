@@ -36,7 +36,7 @@ class SearchResults extends Component {
 					...window[ SERVER_OBJECT_NAME ].widgets,
 					...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
 				] ),
-				query: 'hello',
+				query: this.props.query,
 				resultFormat: window[ SERVER_OBJECT_NAME ].overlayOptions.resultFormat,
 				siteId: window[ SERVER_OBJECT_NAME ].siteId,
 			} )

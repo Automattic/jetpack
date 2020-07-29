@@ -19,6 +19,10 @@ import './view.scss';
  * @param {HTMLElement} block - DOM element
  */
 const initializeBlock = function ( block ) {
+	// Grab the query from ?search= (avoids conflict with existing Instant Search)
+	const urlParams = new URLSearchParams( window.location.search );
+	const query = urlParams.get( 'search' );
+
 	render(
 		<SearchResults
 			enableLoadOnScroll={ false }
@@ -27,7 +31,7 @@ const initializeBlock = function ( block ) {
 			isVisible
 			locale={ window[ SERVER_OBJECT_NAME ].locale }
 			onLoadNextPage={ () => null }
-			query={ 'hello' }
+			query={ query }
 			resultFormat={ window[ SERVER_OBJECT_NAME ].overlayOptions.resultFormat }
 			store={ store }
 		/>,
