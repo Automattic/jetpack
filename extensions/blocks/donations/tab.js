@@ -6,15 +6,16 @@ import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 /**
  * WordPress dependencies
  */
-import { RichText } from '@wordpress/block-editor';
+import { PlainText, RichText } from '@wordpress/block-editor';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Context from './context';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import AmountInput from './amount-input';
 
 const attributesPerInterval = {
 	heading: {
@@ -32,6 +33,7 @@ const attributesPerInterval = {
 const Tab = props => {
 	const { attributes, interval, setAttributes } = props;
 	const [ customAmountPlaceholder, setCustomAmountPlaceholder ] = useState( null );
+	const [ editedAmounts, setEditedAmounts ] = useState( null );
 
 	const getAttribute = attributeName => {
 		if ( attributeName in attributesPerInterval ) {
@@ -48,22 +50,30 @@ const Tab = props => {
 		}
 		return setAttributes( { [ attributeName ]: value } );
 	};
+
 	const currency = getAttribute( 'currency' );
 	const amounts = getAttribute( 'amounts' );
 	const showCustomAmount = getAttribute( 'showCustomAmount' );
 
-	// Updates the custom amount placeholder whenever the currency changes.
+	// Whenever the currency changes...
 	useEffect( () => {
-		if ( ! showCustomAmount ) {
-			setCustomAmountPlaceholder( null );
-			return;
-		}
-
+		// Updates the custom amount placeholder.
 		const minAmount = minimumTransactionAmountForCurrency( currency );
 		setCustomAmountPlaceholder( minAmount * 100 ); // USD 50
-	}, [ currency, showCustomAmount ] );
 
-	if ( ! amounts ) {
+		// Resets the state used by the inputs handling the amounts.
+		setEditedAmounts( null );
+	}, [ currency ] );
+
+	// Initializes the state used by the inputs handling the amounts.
+	useEffect( () => {
+		if ( editedAmounts || ! amounts ) {
+			return;
+		}
+		setEditedAmounts( amounts.map( amount => formatCurrency( amount, currency, { symbol: '' } ) ) );
+	}, [ amounts, editedAmounts, currency ] );
+
+	if ( ! editedAmounts ) {
 		return null;
 	}
 
@@ -76,39 +86,51 @@ const Tab = props => {
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
 						value={ getAttribute( 'heading' ) }
 						onChange={ value => setAttribute( 'heading', value ) }
-						inlineToolbar
 					/>
 					<RichText
 						tagName="p"
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
 						value={ getAttribute( 'chooseAmountText' ) }
 						onChange={ value => setAttribute( 'chooseAmountText', value ) }
-						inlineToolbar
 					/>
 					<div className="wp-block-buttons donations__amounts">
-						{ amounts.map( amount => (
-							<div className="wp-block-button donations__amount">
-								<div className="wp-block-button__link">{ formatCurrency( amount, currency ) }</div>
-							</div>
+						{ editedAmounts.map( ( amount, index ) => (
+							<AmountInput
+								amount={ amount }
+								amounts={ amounts }
+								currency={ currency }
+								editedAmounts={ editedAmounts }
+								label={ sprintf(
+									// translators: %d: Tier level e.g: "1", "2", "3"
+									__( 'Tier %d', 'jetpack' ),
+									index + 1
+								) }
+								placeholder={ sprintf(
+									// translators: %d: Tier level e.g: "1", "2", "3"
+									__( 'Tier %d', 'jetpack' ),
+									index + 1
+								) }
+								key={ `jetpack-donations-amount-input-${ index }` }
+								setAttributes={ setAttributes }
+								setEditedAmounts={ setEditedAmounts }
+								tier={ index }
+							/>
 						) ) }
 					</div>
-					{ customAmountPlaceholder && (
+					{ showCustomAmount && (
 						<>
 							<RichText
 								tagName="p"
 								placeholder={ __( 'Write a message…', 'jetpack' ) }
 								value={ getAttribute( 'customAmountText' ) }
 								onChange={ value => setAttribute( 'customAmountText', value ) }
-								inlineToolbar
 							/>
-							<div className="wp-block-button donations__amount donations__custom-amount">
-								<div className="wp-block-button__link">
-									{ CURRENCIES[ currency ].symbol }
-									<span className="donations__custom-amount-placeholder">
-										{ formatCurrency( customAmountPlaceholder, currency, { symbol: '' } ) }
-									</span>
-								</div>
-							</div>
+							<AmountInput
+								currency={ currency }
+								label={ __( 'Custom amount', 'jetpack' ) }
+								placeholder={ formatCurrency( customAmountPlaceholder, currency, { symbol: '' } ) }
+								className="donations__custom-amount"
+							/>
 						</>
 					) }
 					<div className="donations__separator">——</div>
@@ -117,16 +139,15 @@ const Tab = props => {
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
 						value={ getAttribute( 'extraText' ) }
 						onChange={ value => setAttribute( 'extraText', value ) }
-						inlineToolbar
 					/>
-					<RichText
-						wrapperClassName="wp-block-button donations__donate-button"
-						className="wp-block-button__link"
-						placeholder={ __( 'Write a message…', 'jetpack' ) }
-						value={ getAttribute( 'buttonText' ) }
-						onChange={ value => setAttribute( 'buttonText', value ) }
-						inlineToolbar
-					/>
+					<div className="wp-block-button donations__donate-button">
+						<RichText
+							className="wp-block-button__link"
+							placeholder={ __( 'Write a message…', 'jetpack' ) }
+							value={ getAttribute( 'buttonText' ) }
+							onChange={ value => setAttribute( 'buttonText', value ) }
+						/>
+					</div>
 				</div>
 			) }
 		</Context.Consumer>

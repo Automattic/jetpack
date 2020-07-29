@@ -100,7 +100,6 @@ const Edit = props => {
 	return (
 		<Tabs
 			{ ...props }
-			className={ className }
 			products={ products }
 			shouldUpgrade={ shouldUpgrade }
 			siteSlug={ siteSlug }

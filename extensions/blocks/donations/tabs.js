@@ -100,6 +100,7 @@ const Tabs = props => {
 									'is-active': isTabActive( interval ),
 								} ) }
 								onClick={ () => setActiveTab( interval ) }
+								key={ `jetpack-donations-tab-${ interval } ` }
 							>
 								{ title }
 							</Button>
@@ -109,7 +110,11 @@ const Tabs = props => {
 				<div className="donations__content">
 					<Context.Provider value={ { activeTab } }>
 						{ Object.keys( tabs ).map( interval => (
-							<Tab { ...props } interval={ interval } />
+							<Tab
+								{ ...props }
+								interval={ interval }
+								key={ `jetpack-donations-tab-content-${ interval } ` }
+							/>
 						) ) }
 					</Context.Provider>
 				</div>

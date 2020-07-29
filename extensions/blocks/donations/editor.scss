@@ -60,20 +60,32 @@
 			background-color: $white;
 			color: $dark-gray-800;
 			border: 1px solid $light-gray-700;
+			cursor: default;
+		}
+
+		.donations__amount .block-editor-rich-text__editable {
+			display: inline-block;
+			text-align: left;
+
+			&:hover {
+				box-shadow: 0 0 0 1px #fff, 0 0 0 3px $blue-wordpress-700;
+				outline: 2px solid transparent;
+				outline-offset: -2px;
+			}
+		}
+
+		.donations__amount.wp-block-button:not(.has-text-color):not(.is-style-outline) [data-rich-text-placeholder]:after {
+			color: $light-gray-700;
 		}
 
 		.donations__custom-amount {
 			margin-bottom: 30px;
 		}
 
-		.donations__custom-amount .wp-block-button__link {
-			cursor: default;
-		}
-
-		.donations__custom-amount-placeholder {
+		.donations__custom-amount .block-editor-rich-text__editable {
+			pointer-events: none;
 			margin-left: 8px;
-			color: $light-gray-700;
-			padding-right: 40px;
+			min-width: 60px;
 		}
 
 		.donations__separator {
@@ -88,14 +100,6 @@
 
 	.jetpack-block-nudge {
 		max-width: none;
-	}
-}
-
-.donations__controls-amounts {
-	display: flex;
-
-	.components-base-control:not( :last-child ) {
-		margin-right: 8px;
 	}
 }
 
