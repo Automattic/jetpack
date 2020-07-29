@@ -40,6 +40,7 @@ $icon-background-color: #fff;
 
 // Tweak Banner depending on the context.
 // Tweak Banner: Inspector Controls.
+.editor-styles-wrapper [data-block].is-upgradable,
 .block-editor-block-list__block.is-upgradable {
 	margin-top: 0;
 	padding-top: $banner-height;
