@@ -4,15 +4,7 @@ $banner-height: 48px;
 $icon-size: 10px;
 $icon-background-color: #fff;
 
-// Upgrade Plan Banner.
-.block-editor-block-list__layout{
-	.jetpack-upgrade-plan-banner {
-		position: relative;
-		top: $banner-height + 5px;
-		z-index: 1000;
-	}
-}
-
+// Upgrade Banner.
 .jetpack-upgrade-plan-banner {
 	display: flex;
 	justify-content: space-between;
@@ -46,7 +38,21 @@ $icon-background-color: #fff;
 	}
 }
 
-// Adjust banner in the InspectorControls
+// Tweak Banner depending on the context.
+// Tweak Banner: Inspector Controls.
+.editor-styles-wrapper [data-block].is-upgradable,
+.block-editor-block-list__block.is-upgradable {
+	margin-top: 0;
+	padding-top: $banner-height;
+}
+
+// Tweak Banner: Editor Canvas.
+.block-editor-block-list__layout .jetpack-upgrade-plan-banner {
+	position: relative;
+	top: $banner-height + 5px;
+	z-index: 1000;
+}
+
 .block-editor-block-inspector {
 	.jetpack-upgrade-plan-banner {
 		border-radius: 0;
@@ -54,12 +60,12 @@ $icon-background-color: #fff;
 	}
 }
 
-// Premium Icons. Hide by default.
+// Premium Icons: Hide by default.
 .jetpack-paid-block-symbol {
 	display: none;
 }
 
-// Only show if upgrade is possible.
+// Premium Icons: Only show if upgrade is possible.
 .jetpack-enable-upgrade-nudge {
 	.block-editor-block-icon > svg {
 		overflow: visible;
