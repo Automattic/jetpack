@@ -2,11 +2,14 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { PanelBody } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
+import SocialPreviewsPanel from './panel';
+import './editor.scss';
 
 export const name = 'social-previews';
 
@@ -15,5 +18,11 @@ export const settings = {
 };
 
 const SocialPreviews = function SocialPreviews() {
-	return <JetpackPluginSidebar>{ /* TODO: Content will go here! */ }</JetpackPluginSidebar>;
+	return (
+		<JetpackPluginSidebar>
+			<PanelBody title={ __( 'Social Previews', 'jetpack' ) }>
+				<SocialPreviewsPanel />
+			</PanelBody>
+		</JetpackPluginSidebar>
+	);
 };
