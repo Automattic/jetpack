@@ -21,7 +21,7 @@ describe( 'Jetpack updater', () => {
 		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
 		const url = getNgrokSiteUrl();
 		await execWpCommand(
-			`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/jetpack.zip`
+			`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/uploads/jetpack.zip`
 		);
 	} );
 
