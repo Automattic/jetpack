@@ -86,41 +86,8 @@ const addVideoPressSupport = ( settings, name ) => {
 			...settings,
 
 			attributes: {
-				autoplay: {
-					type: 'boolean',
-				},
-				caption: {
-					type: 'string',
-					source: 'html',
-					selector: 'figcaption',
-				},
-				controls: {
-					type: 'boolean',
-					default: true,
-				},
+				...settings.attributes,
 				guid: {
-					type: 'string',
-				},
-				id: {
-					type: 'number',
-				},
-				loop: {
-					type: 'boolean',
-				},
-				muted: {
-					type: 'boolean',
-				},
-				playsInline: {
-					type: 'boolean',
-				},
-				poster: {
-					type: 'string',
-				},
-				preload: {
-					type: 'string',
-					default: 'metadata',
-				},
-				src: {
 					type: 'string',
 				},
 			},
