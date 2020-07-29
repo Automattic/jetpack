@@ -3,7 +3,7 @@
 	display: inline-block;
 	position: relative;
 	height: 9px;
-	background-color: $muriel-gray-100;
+	background-color: $studio-gray-10;
 	border-radius: 4.5px;
 
 	&.is-compact {
@@ -17,7 +17,7 @@
 	top: 0;
 	left: 0;
 	height: 100%;
-	background-color: $muriel-blue-500;
+	background-color: $studio-blue-50;
 	border-radius: 4.5px;
 	transition: width 200ms;
 }
@@ -28,10 +28,10 @@
 	background-size: 50px 100%;
 	background-image: linear-gradient(
 		-45deg,
-		$muriel-blue-500 28%,
-		$muriel-blue-300 28%,
-		$muriel-blue-300 72%,
-		$muriel-blue-500 72%
+		$studio-blue-50 28%,
+		$studio-blue-30 28%,
+		$studio-blue-30 72%,
+		$studio-blue-50 72%
 	);
 }
 
