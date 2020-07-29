@@ -48,9 +48,6 @@ const UpgradePlanBanner = ( {
 		return null;
 	}
 
-	// Do not render banner if there is not
-	// a valid URL to redirect.
-
 	// Alias. Save post by dispatch.
 	const savePost = dispatch( 'core/editor' ).savePost;
 
@@ -70,11 +67,11 @@ const UpgradePlanBanner = ( {
 			return redirect( checkoutUrl, onRedirect );
 		}
 
-		// Save the post, then redirect.
+		// Save the post. Then redirect.
 		savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
 	};
 
-	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', `wp-block` );
+	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', 'wp-block' );
 
 	return (
 		<div className={ cssClasses } data-align={ align }>
