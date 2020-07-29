@@ -11,9 +11,11 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import getJetpackData from './get-jetpack-data';
 import { isSimpleSite } from './site-type-utils';
 import getSiteFragment from './get-site-fragment';
-import getJetpackData from './get-jetpack-data';
+import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import { requiresPaidPlan } from './register-jetpack-block';
 
 /**
  * Return the checkout URL to upgrade the site plan,
@@ -61,6 +63,32 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 			redirect_to,
 		} )
 	);
+}
+
+/**
+ * Check if the block is upgradable, based on whether
+ * the block requires a paid plan.
+ *
+ * @param {string} name - Block name.
+ * @returns {boolean} True if it should show the nudge. Otherwise, False.
+ */
+export function isUpgradable( name ) {
+	if ( ! name ) {
+		return false;
+	}
+
+	// core/cover is handled in ./extensions/shared/blocks/cover.
+	if ( name === 'core/cover' ) {
+		return false;
+	}
+
+	let blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
+
+	// hardcode core/video block.
+	blockName = blockName === 'core/video' ? 'video' : blockName;
+
+	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
+	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }
 
 /**
