@@ -229,16 +229,13 @@
 		font-size: rem( 20px );
 	}
 
-	p {
-		font-size: rem( 14px );
-
-		@include minbreakpoint(phablet) {
-			font-size: rem( 16px );
-		}
-	}
-
 	img {
 		max-width: 100%;
+	}
+
+	ul {
+		list-style: disc;
+		margin-left: 16px;
 	}
 
 	.illustration {
