@@ -3,7 +3,7 @@
 	margin-bottom: 0;
 
 	p {
-		font-size: rem( 14px );
+		font-size: $font-body-small;
 		margin-top: 0;
 		margin-bottom: rem( 24px );
 	}
@@ -22,7 +22,7 @@
 		color: $gray-text-min;
 		display: block;
 		margin: rem( 5px ) rem( 14px ) rem( 5px ) 0;
-		font-size: rem( 13px );
+		font-size: $font-body-small;
 		font-style: italic;
 		font-weight: 400;
 		word-break: break-word;

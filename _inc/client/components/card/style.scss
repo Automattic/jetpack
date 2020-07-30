@@ -1,7 +1,7 @@
 @import '../../scss/layout';
 @import '../../scss/typography';
 @import '../../scss/calypso-colors';
-@import '../../scss/rem';
+@import '../../scss/functions/rem';
 
 $title: #f9f9f9;
 $meta: #AAAAAA;
@@ -41,6 +41,10 @@ $section-border: #DDDDDD;
 	&.is-card-link {
 		padding-right: 48px;
 	}
+}
+
+h2.dops-card-title {
+	font-size: $font-title-small;
 }
 
 // Clickable Card
