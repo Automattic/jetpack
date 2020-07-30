@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { Fragment } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 
 /**
@@ -10,6 +10,7 @@ import { useSelect } from '@wordpress/data';
  */
 import { isUpgradable } from '../plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
+import { PremiumBlockProvider } from './components';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
@@ -17,24 +18,26 @@ export default createHigherOrderComponent(
 			return <BlockListBlock { ...props } />;
 		}
 
+		const [ isVisible, setIsVisible ] = useState( true );
+
 		const hasChildrenSelected = useSelect(
 			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId ),
 			[]
 		);
 
-		const isVisible = props?.isSelected || hasChildrenSelected;
+		const isBannerVisible = ( props?.isSelected || hasChildrenSelected ) && isVisible;
 
 		return (
-			<Fragment>
+			<PremiumBlockProvider onBannerVisibilityChange={ setIsVisible }>
 				<UpgradePlanBanner
 					className={ `is-${ props.name.replace( /\//, '-' ) }-premium-block` }
 					title={ null }
 					align={ props?.attributes?.align }
-					visible={ isVisible }
+					visible={ isBannerVisible }
 				/>
 
 				<BlockListBlock { ...props } className="is-interactive is-upgradable" />
-			</Fragment>
+			</PremiumBlockProvider>
 		);
 	},
 	'withUpgradeBanner'
