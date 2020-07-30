@@ -54,8 +54,9 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		// If the site has Jetpack Anti-Spam, change the Akismet menu label accordingly.
-		$site_products = Jetpack_Site_Products::get();
-		if ( in_array( 'jetpack_anti_spam', array_column( $site_products, 'product_slug' ), true ) ) {
+		$site_products      = Jetpack_Site_Products::get();
+		$anti_spam_products = array( 'jetpack_anti_spam_monthly', 'jetpack_anti_spam' );
+		if ( ! empty( array_intersect( $anti_spam_products, array_column( $site_products, 'product_slug' ) ) ) ) {
 			// Prevent Akismet from adding a menu item.
 			add_action(
 				'admin_menu',
