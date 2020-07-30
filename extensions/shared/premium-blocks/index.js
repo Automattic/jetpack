@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
+import { uniq } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -19,6 +21,9 @@ import './editor.scss';
 
 const jetpackPremiumBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
+		// Populate block keywords.
+		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
+
 		// Extend BlockEdit function.
 		settings.edit = premiumBlockEdit( settings.edit );
 	}
