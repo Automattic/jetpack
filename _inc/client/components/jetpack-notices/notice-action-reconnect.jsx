@@ -41,8 +41,11 @@ class NoticeActionReconnect extends React.Component {
 		this.props.reconnectSite( this.props.action );
 	};
 
-	render() {
+	componentDidMount() {
 		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_view', this.getEventProps() );
+	}
+
+	render() {
 		return (
 			<NoticeAction icon={ this.props.icon } onClick={ this.handleDisconnectClick }>
 				{ this.props.children }
