@@ -196,4 +196,11 @@ const addVideoPressSupport = ( settings, name ) => {
 	return settings;
 };
 
-addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSupport );
+/**
+ * Assign higher-than-default priority to make our modifications before the more generic
+ * Gutenberg filters are run (that e.g. inject an extra `align` attribute based on the
+ * corresponding `supports` field).
+ *
+ * @see packages/block-editor/src/hooks/align.js
+ */
+addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSupport, 5 );
