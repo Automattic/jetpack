@@ -115,11 +115,6 @@ const Tab = props => {
 							__( 'Tier %d', 'jetpack' ),
 							index + 1
 						) }
-						placeholder={ sprintf(
-							// translators: %d: Tier level e.g: "1", "2", "3"
-							__( 'Tier %d', 'jetpack' ),
-							index + 1
-						) }
 						key={ `jetpack-donations-amount-${ index }` }
 						onChange={ newAmount => setAmount( newAmount, index ) }
 						value={ amount }
