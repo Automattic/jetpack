@@ -1,0 +1,18 @@
+.publicize-twitter__paragraph {
+	.publicize-twitter__paragraph-count {
+		position: relative;
+
+		> div {
+			position: absolute;
+			right: 0;
+		}
+	}
+
+	.rich-text {
+		margin-right: 20px;
+
+		.publicize-twitter__paragraph-count-overage {
+			background-color: #d94f4f33;
+		}
+	}
+}

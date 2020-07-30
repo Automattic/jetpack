@@ -21,6 +21,7 @@ import { PostTypeSupportCheck } from '@wordpress/editor';
  */
 import './editor.scss';
 import './store';
+import './twitter';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './panel';
 
