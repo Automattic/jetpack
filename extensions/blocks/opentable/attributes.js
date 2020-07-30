@@ -29,7 +29,7 @@ export const getStyleOptions = rid =>
 		},
 	] );
 
-export const getStyleValues = rid => optionValues( getStyleOptions( rid ) );
+export const getStyleValues = rid => getStyleOptions( rid ).map( option => option.name );
 
 const { siteLocale } = select( 'core/block-editor' ).getSettings();
 const defaultLanguage =
