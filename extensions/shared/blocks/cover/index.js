@@ -12,7 +12,6 @@ import { addFilter } from '@wordpress/hooks';
  */
 import coverEditMediaPlaceholder from './cover-media-placeholder';
 import coverMediaReplaceFlow from './cover-replace-control-button';
-import jetpackCoverBlockEdit from './edit';
 import { isUpgradable } from './utils';
 import './editor.scss';
 
@@ -31,9 +30,6 @@ const addVideoUploadPlanCheck = ( settings, name ) => {
 			'jetpack/cover-media-replace-flow',
 			coverMediaReplaceFlow
 		);
-
-		// Extend Core CoverEditBlock.
-		addFilter( 'editor.BlockEdit', 'jetpack/cover-block-edit', jetpackCoverBlockEdit );
 	}
 
 	return settings;
