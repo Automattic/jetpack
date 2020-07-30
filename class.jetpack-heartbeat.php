@@ -16,7 +16,7 @@ class Jetpack_Heartbeat {
 	/**
 	 * Holds the singleton instance of the proxied class
 	 *
-	 * @since 8.7.0
+	 * @since 8.9.0
 	 * @var Automattic\Jetpack\Heartbeat
 	 */
 	private static $proxied_instance = false;
@@ -50,7 +50,7 @@ class Jetpack_Heartbeat {
 	/**
 	 * Method that gets executed on the wp-cron call
 	 *
-	 * @deprecated since 8.7.0
+	 * @deprecated since 8.9.0
 	 * @see Automattic\Jetpack\Heartbeat::cron_exec()
 	 *
 	 * @since 2.3.3
@@ -125,7 +125,7 @@ class Jetpack_Heartbeat {
 	/**
 	 * Registers jetpack.getHeartbeatData xmlrpc method
 	 *
-	 * @deprecated since 8.7.0
+	 * @deprecated since 8.9.0
 	 * @see Automattic\Jetpack\Heartbeat::jetpack_xmlrpc_methods()
 	 *
 	 * @param array $methods The list of methods to be filtered.
@@ -138,7 +138,7 @@ class Jetpack_Heartbeat {
 	/**
 	 * Handles the response for the jetpack.getHeartbeatData xmlrpc method
 	 *
-	 * @deprecated since 8.7.0
+	 * @deprecated since 8.9.0
 	 * @see Automattic\Jetpack\Heartbeat::xmlrpc_data_response()
 	 *
 	 * @param array $params The parameters received in the request.
@@ -151,7 +151,7 @@ class Jetpack_Heartbeat {
 	/**
 	 * Clear scheduled events
 	 *
-	 * @deprecated since 8.7.0
+	 * @deprecated since 8.9.0
 	 * @see Automattic\Jetpack\Heartbeat::deactivate()
 	 *
 	 * @return void
@@ -159,13 +159,13 @@ class Jetpack_Heartbeat {
 	public function deactivate() {
 		// Cronjobs are now handled by the Heartbeat package and we don't want to deactivate it here.
 		// We are adding jetpack stats to the heartbeat only if the connection is available. so we don't need to disable the cron when disconnecting.
-		_deprecated_function( __METHOD__, 'jetpack-8.7.0', 'Automattic\\Jetpack\\Heartbeat::deactivate' );
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'Automattic\\Jetpack\\Heartbeat::deactivate' );
 	}
 
 	/**
 	 * Add Jetpack Stats array to Heartbeat if Jetpack is connected
 	 *
-	 * @since 8.7.0
+	 * @since 8.9.0
 	 *
 	 * @param array $stats Jetpack Heartbeat stats.
 	 * @return array $stats
