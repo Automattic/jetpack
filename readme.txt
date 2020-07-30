@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Asset CDN: avoid returning a directory when setting the local path for translation files.
 * Carousel: ensure jQuery is loaded when using the Carousel feature.
 * Contact Form: fix alignment of radio and checkbox items.
+* Connection: ensure the connection flow can be completed when third-party cookies are disabled.
 * External Media: ensure that images inserted from Pexels or Google Photos are attached to the post you're composing.
 * General: avoid issues on sites hosted on a Windows server environment.
 * General: avoid PHP notices when managing your site via the WordPress Desktop app.
