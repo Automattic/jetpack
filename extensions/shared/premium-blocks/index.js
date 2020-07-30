@@ -14,6 +14,7 @@ import { addFilter } from '@wordpress/hooks';
 import withUpgradeBanner from './with-upgrade-banner';
 import { isUpgradeNudgeEnabled, isUpgradable } from '../plan-utils';
 import premiumBlockEdit from './edit';
+import renderPremiumIcon from './render-premium-icon.js';
 
 import './editor.scss';
 
@@ -22,6 +23,8 @@ const jetpackPremiumBlock = ( settings, name ) => {
 		// Extend BlockEdit function.
 		settings.edit = premiumBlockEdit( settings.edit );
 	}
+
+	settings.icon = renderPremiumIcon( settings.icon, name );
 
 	return settings;
 };
@@ -36,7 +39,7 @@ addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', withUp
  * Add the `jetpack-enable-upgrade-nudge` css Class
  * to the document body if the feature is enabled.
  */
-domReady( function() {
+domReady( function () {
 	if ( isUpgradeNudgeEnabled() ) {
 		document.body.classList.add( 'jetpack-enable-upgrade-nudge' );
 	}
