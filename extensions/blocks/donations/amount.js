@@ -22,7 +22,6 @@ const Amount = ( {
 	editable = false,
 	label = '',
 	onChange = null,
-	placeholder = '',
 	value = '',
 } ) => {
 	const [ editedValue, setEditedValue ] = useState(
@@ -133,14 +132,14 @@ const Amount = ( {
 						keepPlaceholderOnFocus={ true }
 						multiline={ false }
 						onChange={ amount => setAmount( amount ) }
-						placeholder={ placeholder }
+						placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
 						ref={ richTextRef }
 						value={ editedValue }
 						withoutInteractiveFormatting
 					/>
 				) : (
 					<span className="donations__amount-value">
-						{ formatCurrency( value ? value : placeholder, currency, { symbol: '' } ) }
+						{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }
 					</span>
 				) }
 			</div>

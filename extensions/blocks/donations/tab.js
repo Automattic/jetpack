@@ -55,12 +55,12 @@ const Tab = props => {
 	const showCustomAmount = getAttribute( 'showCustomAmount' );
 	const minAmount = minimumTransactionAmountForCurrency( currency );
 
-	const [ customAmountPlaceholder, setCustomAmountPlaceholder ] = useState( minAmount * 100 );
 	const [ defaultAmounts, setDefaultAmounts ] = useState( [
 		minAmount * 10, // 1st tier (USD 5)
 		minAmount * 30, // 2nd tier (USD 15)
 		minAmount * 200, // 3rd tier (USD 100)
 	] );
+	const [ defaultCustomAmount, setDefaultCustomAmount ] = useState( minAmount * 100 );
 	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
 
 	// Updates the amounts whenever the currency changes.
@@ -77,7 +77,7 @@ const Tab = props => {
 		];
 		setDefaultAmounts( newDefaultAmounts );
 		setAttributes( { amounts: newDefaultAmounts } );
-		setCustomAmountPlaceholder( minAmount * 100 ); // USD 50
+		setDefaultCustomAmount( minAmount * 100 ); // USD 50
 	}, [ currency, minAmount, previousCurrency, setAttributes ] );
 
 	const setAmount = ( amount, tier ) => {
@@ -137,7 +137,7 @@ const Tab = props => {
 					<Amount
 						currency={ currency }
 						label={ __( 'Custom amount', 'jetpack' ) }
-						placeholder={ customAmountPlaceholder }
+						defaultValue={ defaultCustomAmount }
 						className="donations__custom-amount"
 					/>
 				</>
