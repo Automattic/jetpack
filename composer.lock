@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27b56a1f08be874fd86e89bc352eeaa2",
+    "content-hash": "37a9bed819dcf7bb749284d7a6957bc4",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -333,6 +333,41 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Error - a wrapper around WP_Error."
+        },
+        {
+            "name": "automattic/jetpack-heartbeat",
+            "version": "dev-use-new-heartbeat-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/heartbeat",
+                "reference": "ad4ce7ae64a1881dea8f09a7f94c789a02956f00"
+            },
+            "require": {
+                "automattic/jetpack-a8c-mc-stats": "@dev",
+                "automattic/jetpack-options": "@dev"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-jitm",
@@ -1084,6 +1119,7 @@
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
+        "automattic/jetpack-heartbeat": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
