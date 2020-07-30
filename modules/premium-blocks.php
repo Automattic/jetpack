@@ -73,8 +73,6 @@ class Premium_Blocks {
 			if ( $availability[ 'available' ] ) {
 				Jetpack_Gutenberg::set_extension_available( $extension );
 			} else {
-				error_log( "$extension is not available!" );
-
 				Jetpack_Gutenberg::set_extension_unavailable(
 					$extension,
 					$availability['unavailable_reason'],
