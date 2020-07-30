@@ -39,8 +39,8 @@ export const settings = {
 	edit,
 	save: ( { attributes: { rid } } ) => (
 		<div>
-			{ rid.map( restaurantId => (
-				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }>
+			{ rid.map( ( restaurantId, restaurantIndex ) => (
+				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` } key={ `${ restaurantId }-${ restaurantIndex }` } >
 					{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
 				</a>
 			) ) }
