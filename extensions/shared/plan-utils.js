@@ -86,11 +86,6 @@ export function isUpgradable( name ) {
 		return false;
 	}
 
-	// core/cover is handled in ./extensions/shared/blocks/cover.
-	if ( name === 'core/cover' ) {
-		return false;
-	}
-
 	const blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
 
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
