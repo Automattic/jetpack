@@ -91,3 +91,7 @@ export function isUpgradable( name ) {
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
 	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }
+
+export const isStillUsableWithFreePlan = ( name ) => [
+	'core/cover',
+].includes( name );
