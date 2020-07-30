@@ -3,6 +3,11 @@
  */
 import { applyMiddleware, createStore } from 'redux';
 import refx from 'refx';
+import {
+	createStateSyncMiddleware,
+	initStateWithPrevTab,
+	withReduxStateSync,
+} from 'redux-state-sync';
 
 /**
  * Internal dependencies
@@ -10,8 +15,8 @@ import refx from 'refx';
 import effects from './effects';
 import reducer from './reducer';
 
-if ( ! ( 'JETPACK_SEARCH_STORE' in window ) ) {
-	window.JETPACK_SEARCH_STORE = createStore( reducer, {}, applyMiddleware( refx( effects ) ) );
-}
+const middlewares = [ refx( effects ), createStateSyncMiddleware( {} ) ];
+const store = createStore( withReduxStateSync( reducer ), {}, applyMiddleware( ...middlewares ) );
+initStateWithPrevTab( store );
 
-export default window.JETPACK_SEARCH_STORE;
+export default store;
