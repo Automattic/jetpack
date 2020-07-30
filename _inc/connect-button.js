@@ -125,12 +125,21 @@ jQuery( document ).ready( function ( $ ) {
 		},
 		receiveData: function ( event ) {
 			if (
-				event.origin === jpConnect.jetpackApiDomain &&
-				event.source === jetpackConnectIframe.get( 0 ).contentWindow &&
-				event.data === 'close'
+				event.origin !== jpConnect.jetpackApiDomain ||
+				event.source !== jetpackConnectIframe.get( 0 ).contentWindow
 			) {
-				window.removeEventListener( 'message', this.receiveData );
-				jetpackConnectButton.handleAuthorizationComplete();
+				return;
+			}
+
+			switch ( event.data ) {
+				case 'close':
+					window.removeEventListener( 'message', this.receiveData );
+					jetpackConnectButton.handleAuthorizationComplete();
+					break;
+				case 'wpcom_nocookie':
+					jetpackConnectIframe.hide();
+					jetpackConnectButton.handleConnectionError();
+					break;
 			}
 		},
 		handleAuthorizationComplete: function () {
