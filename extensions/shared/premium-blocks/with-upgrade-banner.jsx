@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { isUpgradable } from '../plan-utils';
+import { isStillUsableWithFreePlan, isUpgradable } from '../plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { PremiumBlockProvider } from './components';
 
@@ -18,10 +18,18 @@ export default createHigherOrderComponent(
 			return <BlockListBlock { ...props } />;
 		}
 
-		const [ isVisible, setIsVisible ] = useState( true );
+		const isDualMode = isStillUsableWithFreePlan( props?.name );
+
+		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
+
+		// Hide Banner when block changes its attributes (dual Mode).
+		useEffect( () =>
+			setIsVisible( ! isDualMode )
+			, [ props.attributes, setIsVisible, isDualMode ]
+		);
 
 		const hasChildrenSelected = useSelect(
-			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId ),
+			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props?.clientId ),
 			[]
 		);
 
