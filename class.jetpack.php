@@ -746,17 +746,14 @@ class Jetpack {
 		 * @deprecated 8.8.0 Blocks should be Jetpack modules and manage their own initialization.
 		 */
 		add_action( 'jetpack_after_extensions_init', function() {
-			error_log("loading extensions after init");
 			if ( Jetpack_Gutenberg::should_load() ) {
 				/**
 				 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 				 * If available, load them.
 				 */
 				foreach ( Jetpack_Gutenberg::$extensions as $extension ) {
-					error_log("loading extension $extension");
 					$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
 					if ( ! empty( $extension_file_glob ) ) {
-						error_log(json_encode($extension_file_glob));
 						include_once $extension_file_glob[0];
 					}
 				}
