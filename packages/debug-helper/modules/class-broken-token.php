@@ -124,7 +124,7 @@ class Broken_Token {
 	 */
 	public function broken_token_register_submenu_page() {
 		add_submenu_page(
-			'jetpack',
+			'jetpack-debug-tools',
 			'Broken Token',
 			'Broken Token',
 			'manage_options',
@@ -491,7 +491,7 @@ add_action( 'plugins_loaded', 'register_broken_token', 1000 );
  * Load the brokenness.
  */
 function register_broken_token() {
-	if ( class_exists( 'Jetpack' ) ) {
+	if ( class_exists( 'Jetpack_Options' ) ) {
 		new Broken_Token();
 		if ( class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
 			new Broken_Token_XmlRpc();
@@ -505,7 +505,7 @@ function register_broken_token() {
  * Notice for if Jetpack is not active.
  */
 function broken_token_jetpack_not_active() {
-	echo '<div class="notice info"><p>Jetpack needs to be active and installed for the Broken Token plugin.</p></div>';
+	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the Broken Token to work.</p></div>';
 }
 
 // phpcs:enable
