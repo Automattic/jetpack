@@ -105,7 +105,7 @@ class REST_Connector {
 						'required' => true,
 					),
 				),
-				'permission_callback' => __CLASS__ . '::jetpack_disconnect_permission_check',
+				'permission_callback' => __CLASS__ . '::jetpack_reconnect_permission_check',
 			)
 		);
 	}
@@ -229,8 +229,8 @@ class REST_Connector {
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
 	 */
-	public static function jetpack_disconnect_permission_check() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
+	public static function jetpack_reconnect_permission_check() {
+		if ( current_user_can( 'jetpack_connect' ) && current_user_can( 'jetpack_disconnect' ) ) {
 			return true;
 		}
 
