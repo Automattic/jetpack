@@ -14,7 +14,7 @@ import Notice from './notice';
 import ScrollButton from './scroll-button';
 import SearchResult from './search-result';
 import { getConstrastingColor } from '../lib/colors';
-import { getSearchResults } from '../../instant-search-gutenberg/store/actions';
+import { getSearchResults } from '../store/actions';
 import { SERVER_OBJECT_NAME } from '../lib/constants';
 import { buildFilterAggregations } from '../lib/api';
 
