@@ -134,7 +134,10 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/block-loader",
-                "reference": "9da74032f743e8abd19b0b001d410962277dd338"
+                "reference": "b807b4b001c67dca1fdc7b65e6a267759c8e9df8"
+            },
+            "require": {
+                "automattic/jetpack-status": "^1.2"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -144,8 +147,7 @@
             "type": "library",
             "autoload": {
                 "classmap": [
-                    "legacy",
-                    "src/"
+                    "legacy"
                 ]
             },
             "scripts": {
@@ -157,7 +159,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A nice button"
+            "description": "A nice button",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-button-block",
@@ -165,7 +170,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/button-block",
-                "reference": "fb0898b9d2582c9a3efefd5b4e8250671715396d"
+                "reference": "84393b9b02a63787219d2f377de9ac70ee678ee6"
             },
             "require": {
                 "automattic/jetpack-block-loader": "@dev"
@@ -189,7 +194,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A nice button"
+            "description": "A nice button",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-compat",
@@ -372,7 +380,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/gif-block",
-                "reference": "43cd3182ba7be13deaf4ce6b676cf119a8b8c134"
+                "reference": "6f13d3014bc9c436fe5c3efbfc7bcf2ee766fd58"
             },
             "require": {
                 "automattic/jetpack-block-loader": "@dev"
@@ -399,7 +407,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Show a gif"
+            "description": "Show a gif",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-jitm",
@@ -587,11 +598,17 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-status.git",
+                "reference": "c0baae6da59a8f86dfdcd28577bd959691492a96"
+            },
             "dist": {
-                "type": "path",
-                "url": "./packages/status",
-                "reference": "3844d803985e418e51e32bf7cc9c0a00b038a9f4"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/c0baae6da59a8f86dfdcd28577bd959691492a96",
+                "reference": "c0baae6da59a8f86dfdcd28577bd959691492a96",
+                "shasum": ""
             },
             "require-dev": {
                 "brain/monkey": "2.4.0",
@@ -604,16 +621,12 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+            "time": "2020-06-22T11:38:04+00:00"
         },
         {
             "name": "automattic/jetpack-sync",
