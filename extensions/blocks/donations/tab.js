@@ -1,21 +1,21 @@
 /**
  * External dependencies
  */
-import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
+import formatCurrency from '@automattic/format-currency';
 
 /**
  * WordPress dependencies
  */
-import { PlainText, RichText } from '@wordpress/block-editor';
-import { useEffect, useState } from '@wordpress/element';
+import { RichText } from '@wordpress/block-editor';
+import { useContext, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Context from './context';
+import Amount from './amount';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
-import AmountInput from './amount-input';
 
 const attributesPerInterval = {
 	heading: {
@@ -31,13 +31,12 @@ const attributesPerInterval = {
 };
 
 const Tab = props => {
-	const { attributes, interval, setAttributes } = props;
-	const [ customAmountPlaceholder, setCustomAmountPlaceholder ] = useState( null );
-	const [ editedAmounts, setEditedAmounts ] = useState( null );
+	const { attributes, setAttributes } = props;
+	const { activeTab } = useContext( Context );
 
 	const getAttribute = attributeName => {
 		if ( attributeName in attributesPerInterval ) {
-			return attributes[ attributesPerInterval[ attributeName ][ interval ] ];
+			return attributes[ attributesPerInterval[ attributeName ][ activeTab ] ];
 		}
 		return attributes[ attributeName ];
 	};
@@ -45,112 +44,120 @@ const Tab = props => {
 	const setAttribute = ( attributeName, value ) => {
 		if ( attributeName in attributesPerInterval ) {
 			return setAttributes( {
-				[ attributesPerInterval[ attributeName ][ interval ] ]: value,
+				[ attributesPerInterval[ attributeName ][ activeTab ] ]: value,
 			} );
 		}
 		return setAttributes( { [ attributeName ]: value } );
 	};
 
-	const currency = getAttribute( 'currency' );
 	const amounts = getAttribute( 'amounts' );
+	const currency = getAttribute( 'currency' );
 	const showCustomAmount = getAttribute( 'showCustomAmount' );
+	const minAmount = minimumTransactionAmountForCurrency( currency );
 
-	// Whenever the currency changes...
+	const [ customAmountPlaceholder, setCustomAmountPlaceholder ] = useState( minAmount * 100 );
+	const [ defaultAmounts, setDefaultAmounts ] = useState( [
+		minAmount * 10, // 1st tier (USD 5)
+		minAmount * 30, // 2nd tier (USD 15)
+		minAmount * 200, // 3rd tier (USD 100)
+	] );
+	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
+
+	// Updates the amounts whenever the currency changes.
 	useEffect( () => {
-		// Updates the custom amount placeholder.
-		const minAmount = minimumTransactionAmountForCurrency( currency );
-		setCustomAmountPlaceholder( minAmount * 100 ); // USD 50
-
-		// Resets the state used by the inputs handling the amounts.
-		setEditedAmounts( null );
-	}, [ currency ] );
-
-	// Initializes the state used by the inputs handling the amounts.
-	useEffect( () => {
-		if ( editedAmounts || ! amounts ) {
+		if ( previousCurrency === currency ) {
 			return;
 		}
-		setEditedAmounts( amounts.map( amount => formatCurrency( amount, currency, { symbol: '' } ) ) );
-	}, [ amounts, editedAmounts, currency ] );
+		setPreviousCurrency( currency );
 
-	if ( ! editedAmounts ) {
+		const newDefaultAmounts = [
+			minAmount * 10, // 1st tier (USD 5)
+			minAmount * 30, // 2nd tier (USD 15)
+			minAmount * 200, // 3rd tier (USD 100)
+		];
+		setDefaultAmounts( newDefaultAmounts );
+		setAttributes( { amounts: newDefaultAmounts } );
+		setCustomAmountPlaceholder( minAmount * 100 ); // USD 50
+	}, [ currency, minAmount, previousCurrency, setAttributes ] );
+
+	const setAmount = ( amount, tier ) => {
+		const newAmounts = [ ...amounts ];
+		newAmounts[ tier ] = amount;
+		setAttributes( { amounts: newAmounts } );
+	};
+
+	if ( ! amounts ) {
 		return null;
 	}
 
 	return (
-		<Context.Consumer>
-			{ ( { activeTab } ) => (
-				<div hidden={ activeTab !== interval }>
-					<RichText
-						tagName="h4"
-						placeholder={ __( 'Write a message…', 'jetpack' ) }
-						value={ getAttribute( 'heading' ) }
-						onChange={ value => setAttribute( 'heading', value ) }
+		<>
+			<RichText
+				tagName="h4"
+				placeholder={ __( 'Write a message…', 'jetpack' ) }
+				value={ getAttribute( 'heading' ) }
+				onChange={ value => setAttribute( 'heading', value ) }
+			/>
+			<RichText
+				tagName="p"
+				placeholder={ __( 'Write a message…', 'jetpack' ) }
+				value={ getAttribute( 'chooseAmountText' ) }
+				onChange={ value => setAttribute( 'chooseAmountText', value ) }
+			/>
+			<div className="wp-block-buttons donations__amounts">
+				{ amounts.map( ( amount, index ) => (
+					<Amount
+						currency={ currency }
+						defaultValue={ defaultAmounts[ index ] }
+						editable={ true }
+						label={ sprintf(
+							// translators: %d: Tier level e.g: "1", "2", "3"
+							__( 'Tier %d', 'jetpack' ),
+							index + 1
+						) }
+						placeholder={ sprintf(
+							// translators: %d: Tier level e.g: "1", "2", "3"
+							__( 'Tier %d', 'jetpack' ),
+							index + 1
+						) }
+						key={ `jetpack-donations-amount-${ index }` }
+						onChange={ newAmount => setAmount( newAmount, index ) }
+						value={ amount }
 					/>
-					<RichText
-						tagName="p"
-						placeholder={ __( 'Write a message…', 'jetpack' ) }
-						value={ getAttribute( 'chooseAmountText' ) }
-						onChange={ value => setAttribute( 'chooseAmountText', value ) }
-					/>
-					<div className="wp-block-buttons donations__amounts">
-						{ editedAmounts.map( ( amount, index ) => (
-							<AmountInput
-								amount={ amount }
-								amounts={ amounts }
-								currency={ currency }
-								editedAmounts={ editedAmounts }
-								label={ sprintf(
-									// translators: %d: Tier level e.g: "1", "2", "3"
-									__( 'Tier %d', 'jetpack' ),
-									index + 1
-								) }
-								placeholder={ sprintf(
-									// translators: %d: Tier level e.g: "1", "2", "3"
-									__( 'Tier %d', 'jetpack' ),
-									index + 1
-								) }
-								key={ `jetpack-donations-amount-input-${ index }` }
-								setAttributes={ setAttributes }
-								setEditedAmounts={ setEditedAmounts }
-								tier={ index }
-							/>
-						) ) }
-					</div>
-					{ showCustomAmount && (
-						<>
-							<RichText
-								tagName="p"
-								placeholder={ __( 'Write a message…', 'jetpack' ) }
-								value={ getAttribute( 'customAmountText' ) }
-								onChange={ value => setAttribute( 'customAmountText', value ) }
-							/>
-							<AmountInput
-								currency={ currency }
-								label={ __( 'Custom amount', 'jetpack' ) }
-								placeholder={ formatCurrency( customAmountPlaceholder, currency, { symbol: '' } ) }
-								className="donations__custom-amount"
-							/>
-						</>
-					) }
-					<div className="donations__separator">——</div>
+				) ) }
+			</div>
+			{ showCustomAmount && (
+				<>
 					<RichText
 						tagName="p"
 						placeholder={ __( 'Write a message…', 'jetpack' ) }
-						value={ getAttribute( 'extraText' ) }
-						onChange={ value => setAttribute( 'extraText', value ) }
+						value={ getAttribute( 'customAmountText' ) }
+						onChange={ value => setAttribute( 'customAmountText', value ) }
 					/>
-					<div className="wp-block-button donations__donate-button">
-						<RichText
-							className="wp-block-button__link"
-							placeholder={ __( 'Write a message…', 'jetpack' ) }
-							value={ getAttribute( 'buttonText' ) }
-							onChange={ value => setAttribute( 'buttonText', value ) }
-						/>
-					</div>
-				</div>
+					<Amount
+						currency={ currency }
+						label={ __( 'Custom amount', 'jetpack' ) }
+						placeholder={ customAmountPlaceholder }
+						className="donations__custom-amount"
+					/>
+				</>
 			) }
-		</Context.Consumer>
+			<div className="donations__separator">——</div>
+			<RichText
+				tagName="p"
+				placeholder={ __( 'Write a message…', 'jetpack' ) }
+				value={ getAttribute( 'extraText' ) }
+				onChange={ value => setAttribute( 'extraText', value ) }
+			/>
+			<div className="wp-block-button donations__donate-button">
+				<RichText
+					className="wp-block-button__link"
+					placeholder={ __( 'Write a message…', 'jetpack' ) }
+					value={ getAttribute( 'buttonText' ) }
+					onChange={ value => setAttribute( 'buttonText', value ) }
+				/>
+			</div>
+		</>
 	);
 };
 

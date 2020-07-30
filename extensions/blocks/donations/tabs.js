@@ -7,7 +7,7 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { Button } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -17,16 +17,13 @@ import Context from './context';
 import Controls from './controls';
 import Tab from './tab';
 import StripeNudge from '../../shared/components/stripe-nudge';
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 const Tabs = props => {
 	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
-	const { currency, oneTimePlanId, monthlyPlanId, annuallyPlanId, chooseAmountText } = attributes;
+	const { oneTimePlanId, monthlyPlanId, annuallyPlanId } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
-	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
 
-	const isTabActive = tab => activeTab === tab;
-	const minAmount = minimumTransactionAmountForCurrency( currency );
+	const isTabActive = useCallback( tab => activeTab === tab, [ activeTab ] );
 
 	const tabs = {
 		'one-time': { title: __( 'One-Time', 'jetpack' ) },
@@ -71,21 +68,6 @@ const Tabs = props => {
 		}
 	}, [ monthlyPlanId, annuallyPlanId, setActiveTab, isTabActive ] );
 
-	// Updates the amounts attribute when the currency changes.
-	useEffect( () => {
-		if ( previousCurrency === currency ) {
-			return;
-		}
-		setPreviousCurrency( currency );
-		setAttributes( {
-			amounts: [
-				minAmount * 10, // 1st tier (USD 5)
-				minAmount * 30, // 2nd tier (USD 15)
-				minAmount * 200, // 3rd tier (USD 100)
-			],
-		} );
-	}, [ currency, previousCurrency, minAmount, chooseAmountText, setAttributes ] );
-
 	return (
 		<div className={ className }>
 			{ ! shouldUpgrade && stripeConnectUrl && (
@@ -109,13 +91,7 @@ const Tabs = props => {
 				) }
 				<div className="donations__content">
 					<Context.Provider value={ { activeTab } }>
-						{ Object.keys( tabs ).map( interval => (
-							<Tab
-								{ ...props }
-								interval={ interval }
-								key={ `jetpack-donations-tab-content-${ interval } ` }
-							/>
-						) ) }
+						<Tab attributes={ attributes } setAttributes={ setAttributes } />
 					</Context.Provider>
 				</div>
 			</div>
