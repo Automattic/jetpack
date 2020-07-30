@@ -24,5 +24,9 @@
 	{
 		"regex": "modules/stats.php",
 		"testFile": [ "modules/stats.md" ]
+	},
+	{
+		"regex": "extensions/blocks/*",
+		"testFile": [ "extensions/blocks/checklist.md" ]
 	}
 ]
