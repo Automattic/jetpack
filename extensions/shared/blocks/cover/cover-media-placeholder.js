@@ -9,7 +9,7 @@ import { useContext, useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { isVideoFile } from './utils';
-import { CoverMediaContext } from './components';
+import { PremiumBlockContext } from '../../premium-blocks/components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
@@ -18,8 +18,12 @@ export default createHigherOrderComponent(
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
-		const onFilesUpload = useContext( CoverMediaContext );
 		const { onError } = props;
+		const onBannerVisibilityChange = useContext( PremiumBlockContext );
+
+		const checkUploadingVideoFiles = useCallback( files =>
+			onBannerVisibilityChange( files?.length && isVideoFile( files[ 0 ] ) )
+		, [ onBannerVisibilityChange ] );
 
 		/**
 		 * On Uploading error handler.
@@ -33,21 +37,20 @@ export default createHigherOrderComponent(
 		const uploadingErrorHandler = useCallback(
 			message => {
 				const filename = message?.[ 0 ]?.props?.children;
-
 				if ( isVideoFile( filename ) ) {
-					return onFilesUpload( [ filename ] );
+					return checkUploadingVideoFiles( [ filename ] );
 				}
 
 				return onError( message );
 			},
-			[ onFilesUpload, onError ]
+			[ checkUploadingVideoFiles, onError ]
 		);
 
 		return (
 			<div className="jetpack-cover-media-placeholder">
 				<CoreMediaPlaceholder
 					{ ...props }
-					onFilesPreUpload={ onFilesUpload }
+					onFilesPreUpload={ checkUploadingVideoFiles }
 					onError={ uploadingErrorHandler }
 				/>
 			</div>
