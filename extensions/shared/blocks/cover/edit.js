@@ -2,43 +2,33 @@
  * WordPress dependencies
  */
 import { useBlockEditContext } from '@wordpress/block-editor';
-import { useEffect, useState, Fragment, useCallback } from '@wordpress/element';
+import { useEffect, useContext } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
-import { isUpgradable, isVideoFile } from './utils';
-import { CoverMediaProvider, JetpackCoverUpgradeNudge } from './components';
+import { isUpgradable } from './utils';
+import { PremiumBlockContext } from '../../premium-blocks/components';
 
 export default createHigherOrderComponent(
 	BlockEdit => props => {
-		const [ showNudge, setShowNudge ] = useState( false );
-
-		const { attributes } = props;
-
-		// Remove Nudge if the block changes its attributes.
-		useEffect( () => setShowNudge( false ), [ attributes ] );
-
-		const handleFilesPreUpload = useCallback( files => {
-			if ( ! files?.length || ! isVideoFile( files[ 0 ] ) ) {
-				return;
-			}
-			setShowNudge( true );
-		} );
-
 		const { name } = useBlockEditContext();
 		if ( ! isUpgradable( name ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
+		const onBannerVisibilityChange = useContext( PremiumBlockContext );
+		const { attributes } = props;
+
+		// Hide Banner when block changes its attributes.
+		useEffect(
+			() => onBannerVisibilityChange( false )
+			, [ attributes, onBannerVisibilityChange ]
+		);
+
 		return (
-			<Fragment>
-				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
-					<JetpackCoverUpgradeNudge show={ showNudge } name={ name } align={ attributes.align } />
-					<BlockEdit { ...props } />
-				</CoverMediaProvider>
-			</Fragment>
+			<BlockEdit { ...props } />
 		);
 	},
 	'JetpackCoverBlockEdit'
