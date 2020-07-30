@@ -165,8 +165,9 @@
 
 	h2 {
 		margin: rem( 24px ) 10% 0;
-		font-size: rem( 22px );
+		font-size: rem( 32px );
 		font-weight: bold;
+		line-height: 1.2;
 		color: black;
 
 		@include breakpoint(large-phone) {
@@ -217,23 +218,34 @@
 }
 
 .jp-connect-full__slide {
-	max-width: 35%;
+	max-width: 38%;
 	margin: rem(48px) 0;
 
 	@include breakpoint(tablet) {
 		margin: rem(30px) 0;
 	}
 
+	h3 {
+		font-size: rem( 20px );
+	}
+
 	p {
-		font-size: rem(14px);
+		font-size: rem( 14px );
+
+		@include minbreakpoint(phablet) {
+			font-size: rem( 16px );
+		}
+	}
+
+	img {
+		max-width: 100%;
 	}
 
 	.illustration {
-		padding: rem(12px);
 
 		@include minbreakpoint(phablet) {
-			margin-bottom: rem(42px);
-		};
+			margin-bottom: rem( 32px );
+		}
 	}
 }
 
