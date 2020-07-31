@@ -98,9 +98,6 @@
 		<testsuite name="carousel">
 			<directory prefix="test-" suffix=".php">tests/php/modules/carousel</directory>
 		</testsuite>
-		<testsuite name="lazy-images">
-			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
-		</testsuite>
 		<testsuite name="search">
 			<directory prefix="test" suffix=".php">tests/php/modules/search</directory>
 		</testsuite>

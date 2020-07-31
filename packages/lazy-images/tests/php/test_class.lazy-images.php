@@ -1,5 +1,8 @@
-<?php
-require dirname( __FILE__ ) . '/../../../../modules/lazy-images/lazy-images.php';
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+require dirname( __FILE__ ) . '../../src/lazy-images.php';
+
+use Automattic\Jetpack\Jetpack_Lazy_Images;
 
 class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
@@ -155,10 +158,10 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	function test_wp_get_attachment_image_gets_lazy_treatment() {
-		$attachment_id = $this->factory->attachment->create_upload_object( JETPACK__PLUGIN_DIR . 'tests/php/jetpack-icon.jpg', 0 );
-		add_filter( 'wp_get_attachment_image_attributes', array( 'Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
+		$attachment_id = $this->factory->attachment->create_upload_object( dirname( __FILE__ ) .'/jetpack-icon.jpg', 0 );
+		add_filter( 'wp_get_attachment_image_attributes', array( '\Automattic\Jetpack\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 		$image = wp_get_attachment_image( $attachment_id );
-		remove_filter( 'wp_get_attachment_image_attributes', array( 'Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
+		remove_filter( 'wp_get_attachment_image_attributes', array( '\Automattic\Jetpack\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 
 		$this->assertContains( 'srcset="placeholder.jpg"', $image );
 		$this->assertContains(
@@ -168,7 +171,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	function test_wp_get_attachment_image_does_not_get_lazy_treatment_when_skip_lazy_added() {
-		$attachment_id = $this->factory->attachment->create_upload_object( JETPACK__PLUGIN_DIR . 'tests/php/jetpack-icon.jpg', 0 );
+		$attachment_id = $this->factory->attachment->create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0 );
 		$content = sprintf( '[gallery ids="%d"]', $attachment_id );
 		$instance = Jetpack_Lazy_Images::instance();
 

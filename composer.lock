@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27b56a1f08be874fd86e89bc352eeaa2",
+    "content-hash": "50980bc56fd19939a11f62506c2cfe43",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-add/mc-sats-dependency",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/a8c-mc-stats",
@@ -39,11 +39,11 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
-                "reference": "c3681b3eac3d0e5625de758218fd1e8994e06302"
+                "reference": "8295c4e5fe6e61ad3f2848f294763398f966e8e9"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -68,15 +68,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Provides an interface to the WP.com A/B tests."
+            "description": "Provides an interface to the WP.com A/B tests.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "b97ce83f38d0ccf58be9eefd2d676973279ad066"
+                "reference": "2e25ad7667693395602e6a1962357901c842b067"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -101,18 +104,21 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Asset management utilities for Jetpack ecosystem packages"
+            "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
+                "reference": "557195e755ff951fe3f8544056c5696eecc4d2cb"
             },
             "require": {
-                "composer-plugin-api": "^1.1"
+                "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -135,15 +141,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Creates a custom autoloader for a plugin or theme."
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
-                "reference": "0ae8bfd8b87d9140066915c643fc6a00783d0032"
+                "reference": "69733464fcefcb51342908dcdd6db6feb285c180"
             },
             "type": "library",
             "autoload": {
@@ -157,15 +166,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tools to assist with backing up Jetpack sites."
+            "description": "Tools to assist with backing up Jetpack sites.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
-                "reference": "2138cbc8b0b1aecb290608b5d82e873c7330aac5"
+                "reference": "68d64fff654a688bab6db5d79d1609c9ec288701"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -189,15 +201,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Compatibility layer with previous versions of Jetpack"
+            "description": "Compatibility layer with previous versions of Jetpack",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/config",
-                "reference": "09edd078205d6fee2f8a46eaf0f736fd4ade1473"
+                "reference": "2276f5efe5e29fff5c373e9b7a272d7d007005f4"
             },
             "type": "library",
             "autoload": {
@@ -208,22 +223,27 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage."
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "ac53d3e65b1be0a24206dc32ef2d17a17e387fcd"
+                "reference": "e2a99ffdf8621efdddfac8cf6cf04c1edb21f256"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-options": "@dev",
-                "automattic/jetpack-roles": "@dev"
+                "automattic/jetpack-roles": "@dev",
+                "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
+                "automattic/wordbless": "@dev",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -241,20 +261,26 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything needed to connect to the Jetpack infrastructure"
+            "description": "Everything needed to connect to the Jetpack infrastructure",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "9401a1595eba4aaa79711851ca810d497575317c"
+                "reference": "d8c1e77b35ab7d05f228ddd1bef563fabeb0628b"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -275,15 +301,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for defining constants in a more testable way."
+            "description": "A wrapper for defining constants in a more testable way.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/device-detection",
-                "reference": "4d838c69f4869dbba9ee2752ff7c1f13b79a7d76"
+                "reference": "235a1225b76554ca04daece6ca94bcf28dd23399"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -304,15 +333,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A way to detect device types based on User-Agent header."
+            "description": "A way to detect device types based on User-Agent header.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
-                "reference": "2f35acfb871c772dd3a81755d093b1cb295b8830"
+                "reference": "a4c523b50f710b69579f95b2c9de8a4f97d976d6"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -332,15 +364,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Jetpack Error - a wrapper around WP_Error."
+            "description": "Jetpack Error - a wrapper around WP_Error.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "0b6037dafd9d0c92b6f1106e5a468065c6d2c7c5"
+                "reference": "705eb87a82f661570e546e65671dddf6f80035fa"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -373,15 +408,46 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Just in time messages for Jetpack"
+            "description": "Just in time messages for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-lazy-images",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/lazy-images",
+                "reference": "6e7f36702904faa7478b295ebdb60ef2d858e856"
+            },
+            "require": {
+                "automattic/jetpack-constants": "dev-master"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "f2b7828deb34f7bb6da24380f2a88ab98d3733df"
+                "reference": "c62a9f8e0d4a881097cc7c65500badd5065f80b6"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -402,15 +468,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack"
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
+                "reference": "6602d93381bb43d69627484fb8d7af5ce939d880"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -428,15 +497,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options."
+            "description": "A wrapper for wp-options to manage specific Jetpack options.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
-                "reference": "b2726c079aec6821a02cb44829841ee01ee17c91"
+                "reference": "14332b26281567bc6691096875176862fba01300"
             },
             "require-dev": {
                 "brain/monkey": "2.4.0",
@@ -459,15 +531,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Support functions for Jetpack hosting partners."
+            "description": "Support functions for Jetpack hosting partners.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
-                "reference": "1ca7f6fe907efa8c7cc4a9e961d4a7d2e08fa5ce"
+                "reference": "84327fef3be2e9321aa99d081b71ac3013f06dc7"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -487,15 +562,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities to build URLs to the jetpack.com/redirect/ service"
+            "description": "Utilities to build URLs to the jetpack.com/redirect/ service",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
-                "reference": "22dd28b575dc20f2a8e7d44f024223033c66517a"
+                "reference": "139dfbbf05e2f6c45682a9c8bf13ef29c9f9bd83"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -516,15 +594,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities, related with user roles and capabilities."
+            "description": "Utilities, related with user roles and capabilities.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
-                "reference": "3844d803985e418e51e32bf7cc9c0a00b038a9f4"
+                "reference": "65e70cc54dc8141a328e6d43fbe9bb4286281afb"
             },
             "require-dev": {
                 "brain/monkey": "2.4.0",
@@ -546,15 +627,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
+                "reference": "c79e43785c0f1b6f0e9f8873bb6e588ecda5f61b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -572,15 +656,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything needed to allow syncing to the WP.com infrastructure."
+            "description": "Everything needed to allow syncing to the WP.com infrastructure.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "f97742a361eb772f8bc6f13ae9437b3e8233cb0e"
+                "reference": "f97241d09352c4ca44eab26520cac4c1903d08d3"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -606,15 +693,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything need to manage the terms of service state"
+            "description": "Everything need to manage the terms of service state",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-add/jetpack-mobile-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "f4e52837194537e90f9fa10ac7b48f25519765bd"
+                "reference": "b2686165f1137a485f5f923c170d9d5b00871fe0"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -640,7 +730,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tracking for Jetpack"
+            "description": "Tracking for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
         }
     ],
     "packages-dev": [
@@ -1085,6 +1178,7 @@
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
+        "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
