@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { get } from 'lodash';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, PanelRow, Spinner, ToggleControl } from '@wordpress/components';
+import { ExternalLink, PanelRow, PanelBody, Spinner, ToggleControl } from '@wordpress/components';
 import semver from 'semver';
 
 /**
@@ -119,25 +119,27 @@ function CRMConnectionSettings( props ) {
 	};
 
 	return (
-		<PanelRow>
-			{ isFetchingPlugins && <Spinner /> }
+		<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+			<PanelRow>
+				{ isFetchingPlugins && <Spinner /> }
 
-			{ shouldDisplayToggle() && (
-				<ToggleControl
-					className="jetpack-contact-form__crm_toggle"
-					label={ __( 'Jetpack CRM', 'jetpack' ) }
-					checked={ jetpackCRM }
-					onChange={ value => setAttributes( { jetpackCRM: value } ) }
-					help={ __( 'Store in CRM [toggle yes / no]', 'jetpack' ) }
-				/>
-			) }
+				{ shouldDisplayToggle() && (
+					<ToggleControl
+						className="jetpack-contact-form__crm_toggle"
+						label={ __( 'Jetpack CRM', 'jetpack' ) }
+						checked={ jetpackCRM }
+						onChange={ value => setAttributes( { jetpackCRM: value } ) }
+						help={ __( 'Store in CRM [toggle yes / no]', 'jetpack' ) }
+					/>
+				) }
 
-			{ ! isFetchingPlugins && ! error && getText() }
+				{ ! isFetchingPlugins && ! error && getText() }
 
-			{ error && (
-				<p>{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }</p>
-			) }
-		</PanelRow>
+				{ error && (
+					<p>{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }</p>
+				) }
+			</PanelRow>
+		</PanelBody>
 	);
 }
 
