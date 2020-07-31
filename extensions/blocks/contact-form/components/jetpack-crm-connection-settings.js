@@ -5,8 +5,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { get } from 'lodash';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, PanelRow, Spinner, ToggleControl } from '@wordpress/components';
+import { ExternalLink, PanelRow, PanelBody, Spinner, ToggleControl } from '@wordpress/components';
 import semver from 'semver';
+
+/**
+ * Internal dependencies
+ */
+import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
 
 function CRMConnectionSettings( props ) {
 	const pluginState = Object.freeze( {
@@ -64,18 +69,22 @@ function CRMConnectionSettings( props ) {
 				);
 			}
 
-			if ( pluginState.ACTIVE === jetpackCRMPlugin ) {
-				if ( semver.satisfies( jetpackCRMVersion, '3.0.19 - 4.0.0' ) ) {
-					return (
-						<p className="jetpack-contact-form__crm_text">
-							{ __(
-								'Contacts from this form will be stored in Jetpack CRM if the CRM Jetpack Forms extension is active.',
-								'jetpack'
-							) }
-						</p>
-					);
-				}
-
+			if (
+				pluginState.ACTIVE === jetpackCRMPlugin &&
+				semver.satisfies( jetpackCRMVersion, '3.0.19 - 4.0.0' )
+			) {
+				return (
+					<p className="jetpack-contact-form__crm_text">
+						{ __(
+							'Contacts from this form will be stored in Jetpack CRM if the CRM Jetpack Forms extension is active.',
+							'jetpack'
+						) }
+					</p>
+				);
+			} else if (
+				pluginState.ACTIVE === jetpackCRMPlugin &&
+				semver.gt( jetpackCRMVersion, '4.0.0' )
+			) {
 				return null;
 			} else if ( pluginState.INSTALLED === jetpackCRMPlugin ) {
 				return (
@@ -91,12 +100,16 @@ function CRMConnectionSettings( props ) {
 
 		// Either no valid version or Jetpack CRM is not installed.
 		return (
-			<p>
-				{ __(
-					'You can save contacts from Jetpack contact forms in Jetpack CRM. Learn more at ',
-					'jetpack'
+			<p className="jetpack-contact-form__crm_text">
+				{ jetpackCreateInterpolateElement(
+					__(
+						'You can save contacts from Jetpack contact forms in Jetpack CRM. Learn more at <a>jetpackcrm.com</a>',
+						'jetpack'
+					),
+					{
+						a: <ExternalLink href="https://jetpackcrm.com" />,
+					}
 				) }
-				<ExternalLink href="https://jetpackcrm.com">jetpackcrm.com</ExternalLink>
 			</p>
 		);
 	};
@@ -110,25 +123,27 @@ function CRMConnectionSettings( props ) {
 	};
 
 	return (
-		<PanelRow>
-			{ isFetchingPlugins && <Spinner /> }
+		<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+			<PanelRow>
+				{ isFetchingPlugins && <Spinner /> }
 
-			{ shouldDisplayToggle() && (
-				<ToggleControl
-					className="jetpack-contact-form__crm_toggle"
-					label={ __( 'Jetpack CRM', 'jetpack' ) }
-					checked={ jetpackCRM }
-					onChange={ value => setAttributes( { jetpackCRM: value } ) }
-					help={ __( 'Store in CRM [toggle yes / no]', 'jetpack' ) }
-				/>
-			) }
+				{ shouldDisplayToggle() && (
+					<ToggleControl
+						className="jetpack-contact-form__crm_toggle"
+						label={ __( 'Jetpack CRM', 'jetpack' ) }
+						checked={ jetpackCRM }
+						onChange={ value => setAttributes( { jetpackCRM: value } ) }
+						help={ __( 'Store in CRM', 'jetpack' ) }
+					/>
+				) }
 
-			{ ! isFetchingPlugins && ! error && getText() }
+				{ ! isFetchingPlugins && ! error && getText() }
 
-			{ error && (
-				<p>{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }</p>
-			) }
-		</PanelRow>
+				{ error && (
+					<p>{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }</p>
+				) }
+			</PanelRow>
+		</PanelBody>
 	);
 }
 
