@@ -20,6 +20,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import PublicizeConnectionVerify from './connection-verify';
 import PublicizeForm from './form';
 import PublicizeSettingsButton from './settings-button';
+import PublicizeTwitterOptions from './twitter/options';
 
 const PublicizePanel = ( { connections, refreshConnections } ) => (
 	<Fragment>
@@ -32,6 +33,7 @@ const PublicizePanel = ( { connections, refreshConnections } ) => (
 		{ connections && connections.length > 0 && (
 			<PublicizeForm refreshCallback={ refreshConnections } />
 		) }
+		<PublicizeTwitterOptions />
 		{ connections && 0 === connections.length && (
 			<PublicizeSettingsButton
 				className="jetpack-publicize-add-connection-wrapper"

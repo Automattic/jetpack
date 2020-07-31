@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { compose } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import Circle from 'react-circle';
 
@@ -38,13 +40,24 @@ const addTweetstormInfo = blockSettings => {
 
 	return {
 		...blockSettings,
-		edit: props => {
+		edit: compose( [
+			withSelect( select => ( {
+				showInfo:
+					select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm &&
+					select( 'jetpack/publicize' ).isTweetstormModeEnabled(),
+			} ) ),
+		] )( props => {
+			const { showInfo, ...passedProps } = props;
 			const { content } = props.attributes;
 			const count = content.length;
 			const percent = Math.round( ( count / 280 ) * 100 );
 
+			if ( ! showInfo ) {
+				return <CoreParagraphEdit { ...passedProps } />;
+			}
+
 			if ( count > 280 ) {
-				props.attributes.content =
+				passedProps.attributes.content =
 					content.substring( 0, 279 ) +
 					'<span class="publicize-twitter__paragraph-count-overage">' +
 					content.substring( 279 ) +
@@ -65,10 +78,10 @@ const addTweetstormInfo = blockSettings => {
 							/>
 						</div>
 					</div>
-					<CoreParagraphEdit { ...props } />
+					<CoreParagraphEdit { ...passedProps } />
 				</div>
 			);
-		},
+		} ),
 	};
 };
 

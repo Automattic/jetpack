@@ -726,6 +726,7 @@ class Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_mess',
+		'_wpas_is_tweetstorm',
 		'content_width',
 		'custom_css_add',
 		'custom_css_preprocessor',
