@@ -69,19 +69,18 @@ function CRMConnectionSettings( props ) {
 				);
 			}
 
-			if ( pluginState.ACTIVE === jetpackCRMPlugin ) {
-				if ( semver.satisfies( jetpackCRMVersion, '3.0.19 - 4.0.0' ) ) {
-					return (
-						<p className="jetpack-contact-form__crm_text">
-							{ __(
-								'Contacts from this form will be stored in Jetpack CRM if the CRM Jetpack Forms extension is active.',
-								'jetpack'
-							) }
-						</p>
-					);
-				}
-
-				return null;
+			if (
+				pluginState.ACTIVE === jetpackCRMPlugin &&
+				semver.satisfies( jetpackCRMVersion, '3.0.19 - 4.0.0' )
+			) {
+				return (
+					<p className="jetpack-contact-form__crm_text">
+						{ __(
+							'Contacts from this form will be stored in Jetpack CRM if the CRM Jetpack Forms extension is active.',
+							'jetpack'
+						) }
+					</p>
+				);
 			} else if ( pluginState.INSTALLED === jetpackCRMPlugin ) {
 				return (
 					<p className="jetpack-contact-form__crm_text">
