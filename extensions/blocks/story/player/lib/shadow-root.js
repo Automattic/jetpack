@@ -24,7 +24,11 @@ export default function ShadowRoot( {
 } ) {
 	const placeholder = useRef();
 	const [ shadowRoot, setShadowRoot ] = useState( false );
-	const useShadow = shadowRootSupported && enabled;
+	const styleElements =
+		typeof globalStyleElements === 'string'
+			? [ ...document.querySelectorAll( globalStyleElements ) ]
+			: globalStyleElements;
+	const useShadow = shadowRootSupported && enabled && styleElements.length > 0;
 
 	useEffect( () => {
 		if ( ! placeholder.current ) {
@@ -50,7 +54,7 @@ export default function ShadowRoot( {
 
 	const App = (
 		<>
-			{ useShadow && <Styles globalStyleElements={ globalStyleElements } /> }
+			{ useShadow && <Styles globalStyleElements={ styleElements } /> }
 			{ children }
 		</>
 	);
@@ -63,14 +67,9 @@ export default function ShadowRoot( {
 }
 
 function Styles( { globalStyleElements } ) {
-	const styleElements =
-		typeof globalStyleElements === 'string'
-			? [ ...document.querySelectorAll( globalStyleElements ) ]
-			: globalStyleElements;
-
 	return (
 		<>
-			{ styleElements.map( ( { id, tagName, attributes, innerHTML }, index ) => {
+			{ globalStyleElements.map( ( { id, tagName, attributes, innerHTML }, index ) => {
 				if ( tagName === 'LINK' ) {
 					return (
 						<link
