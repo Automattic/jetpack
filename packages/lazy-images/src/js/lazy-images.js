@@ -400,7 +400,7 @@ var jetpackLazyImagesModule = function() {
 
 	/**
 	 * Starts polling for intersection changes if the polling is not already
-	 * happening, and if the page's visibilty state is visible.
+	 * happening, and if the page's visibility state is visible.
 	 * @private
 	 */
 	IntersectionObserver.prototype._monitorIntersections = function() {
