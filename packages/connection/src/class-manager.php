@@ -2578,7 +2578,7 @@ class Manager {
 			'jetpack-refresh-blog-token'
 		);
 		$method  = 'GET';
-		$user_id = JETPACK_MASTER_USER;
+		$user_id = get_current_user_id();
 
 		$response = Client::remote_request( compact( 'url', 'method', 'user_id' ) );
 
@@ -2595,15 +2595,15 @@ class Manager {
 			$json = false;
 		}
 
-		if ( 200 !== $code || ! empty( $json->error ) ) {
-			if ( empty( $json->error ) ) {
+		if ( 200 !== $code ) {
+			if ( empty( $json->code ) ) {
 				return new WP_Error( 'unknown', '', $code );
 			}
 
 			/* translators: Error description string. */
-			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+			$error_description = isset( $json->message ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->message ) : '';
 
-			return new WP_Error( (string) $json->error, $error_description, $code );
+			return new WP_Error( (string) $json->code, $error_description, $code );
 		}
 
 		if ( empty( $json->jetpack_secret ) || ! is_scalar( $json->jetpack_secret ) ) {
