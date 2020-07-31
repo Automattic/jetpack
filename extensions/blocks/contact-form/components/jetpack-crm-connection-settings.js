@@ -81,6 +81,11 @@ function CRMConnectionSettings( props ) {
 						) }
 					</p>
 				);
+			} else if (
+				pluginState.ACTIVE === jetpackCRMPlugin &&
+				semver.gt( jetpackCRMVersion, '4.0.0' )
+			) {
+				return null;
 			} else if ( pluginState.INSTALLED === jetpackCRMPlugin ) {
 				return (
 					<p className="jetpack-contact-form__crm_text">
@@ -95,7 +100,7 @@ function CRMConnectionSettings( props ) {
 
 		// Either no valid version or Jetpack CRM is not installed.
 		return (
-			<p>
+			<p className="jetpack-contact-form__crm_text">
 				{ jetpackCreateInterpolateElement(
 					__(
 						'You can save contacts from Jetpack contact forms in Jetpack CRM. Learn more at <a>jetpackcrm.com</a>',
