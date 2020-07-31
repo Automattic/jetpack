@@ -48,7 +48,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @var null
 	 */
-	private static $__instance = null;
+	private static $instance = null;
 
 	/**
 	 * Singleton implementation.
@@ -58,11 +58,11 @@ class Jetpack_Lazy_Images {
 	 * @return object The class instance.
 	 */
 	public static function instance() {
-		if ( is_null( self::$__instance ) ) {
-			self::$__instance = new Jetpack_Lazy_Images();
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new Jetpack_Lazy_Images();
 		}
 
-		return self::$__instance;
+		return self::$instance;
 	}
 
 	/**
@@ -178,11 +178,11 @@ class Jetpack_Lazy_Images {
 	 * @return void
 	 */
 	public function setup_filters() {
-		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX ); // Run this later, so other content filters have run, including image_add_wh on WP.com
+		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX ); // Run this later, so other content filters have run, including image_add_wh on WP.com.
 		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
-		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
+		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
 	}
 
@@ -198,7 +198,7 @@ class Jetpack_Lazy_Images {
 		remove_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
-		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
+		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
 	}
 
@@ -216,11 +216,14 @@ class Jetpack_Lazy_Images {
 		}
 
 		// But, if images are allowed, ensure that our attributes are allowed!
-		$img_attributes = array_merge( $allowed_tags['img'], array(
-			'data-lazy-src' => 1,
-			'data-lazy-srcset' => 1,
-			'data-lazy-sizes' => 1,
-		) );
+		$img_attributes = array_merge(
+			$allowed_tags['img'],
+			array(
+				'data-lazy-src'    => 1,
+				'data-lazy-srcset' => 1,
+				'data-lazy-sizes'  => 1,
+			)
+		);
 
 		$allowed_tags['img'] = $img_attributes;
 
@@ -312,7 +315,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @return string The image with updated lazy attributes.
 	 */
-	static function process_image( $matches ) {
+	public static function process_image( $matches ) {
 		$old_attributes_str       = $matches[2];
 		$old_attributes_kses_hair = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
 
@@ -343,7 +346,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @return array The updated image attributes array with lazy load attributes.
 	 */
-	static function process_image_attributes( $attributes ) {
+	public static function process_image_attributes( $attributes ) {
 		if ( empty( $attributes['src'] ) ) {
 			return $attributes;
 		}
@@ -525,7 +528,7 @@ class Jetpack_Lazy_Images {
 	public function enqueue_assets() {
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			self::get_file_url_for_environment('js/lazy-images.min.js', 'js/lazy-images.js'),
+			self::get_file_url_for_environment( 'js/lazy-images.min.js', 'js/lazy-images.js' ),
 			array(),
 			self::ASSETS_VERSION,
 			true
