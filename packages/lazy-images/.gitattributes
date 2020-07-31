@@ -1,5 +1,15 @@
 # Files not needed to be distributed in the package.
 .gitattributes            export-ignore
+.dockerignore             export-ignore
+docker-compose.yml        export-ignore
+Dockerfile                export-ignore
+package.json              export-ignore
+package-lock.json         export-ignore
+yarn.lock                 export-ignore
+webpack.config.prod.js    export-ignore
 phpunit.xml.dist          export-ignore
+composer.lock             export-ignore
 tests/                    export-ignore
 vendor/                   export-ignore
+node_modules/             export-ignore
+wordpress-tests-lib/      export-ignore

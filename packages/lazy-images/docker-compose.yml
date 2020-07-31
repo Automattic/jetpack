@@ -1,0 +1,30 @@
+version: "3"
+services:
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: "db:3306"
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: admin
+      WORDPRESS_DB_PASSWORD: admin
+    volumes:
+      - ./:/var/jetpack-lazy-images
+  db:
+    image: mysql:5.7.31
+    ports:
+      - "33306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:
+    driver: local
