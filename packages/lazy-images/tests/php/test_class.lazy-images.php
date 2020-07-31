@@ -482,7 +482,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	 *
 	 * @return string
 	 */
-	private function override_image_placeholder() {
+	public function override_image_placeholder() {
 		return 'placeholder.jpg';
 	}
 
@@ -493,7 +493,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	private function set_height_attribute( $attributes ) {
+	public function set_height_attribute( $attributes ) {
 		if ( ! empty( $attributes['height'] ) ) {
 			$attributes['style'] = sprintf( 'height: %dpx;', $attributes['height'] );
 			unset( $attributes['height'] );
@@ -506,7 +506,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	 *
 	 * @return string
 	 */
-	private function get_input_content() {
+	public function get_input_content() {
 		ob_start();
 
 		require_once dirname( __FILE__ ) . '/pre-image-placeholder-content.php';
@@ -522,7 +522,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	 *
 	 * @return string
 	 */
-	private function get_output_content() {
+	public function get_output_content() {
 		ob_start();
 
 		require_once dirname( __FILE__ ) . '/post-image-placeholder-content.php';
