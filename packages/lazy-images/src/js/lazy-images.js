@@ -109,7 +109,7 @@ var jetpackLazyImagesModule = function() {
 		sizes = image.getAttribute( 'data-lazy-sizes' );
 
 		// Remove lazy attributes.
-		image.removeAttribute( 'data-lazy-srcset' ),
+		image.removeAttribute( 'data-lazy-srcset' );
 		image.removeAttribute( 'data-lazy-sizes' );
 		image.removeAttribute( 'data-lazy-src' );
 
