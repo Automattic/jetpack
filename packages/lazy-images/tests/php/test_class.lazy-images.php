@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-require dirname( __FILE__ ) . '../../src/lazy-images.php';
+require dirname( __FILE__ ) . '/../../src/lazy-images.php';
 
 use Automattic\Jetpack\Jetpack_Lazy_Images;
 
