@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { get } from 'lodash';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { BaseControl, ExternalLink, Spinner, ToggleControl } from '@wordpress/components';
+import { ExternalLink, PanelRow, Spinner, ToggleControl } from '@wordpress/components';
 import semver from 'semver';
 
 function CRMConnectionSettings( props ) {
@@ -55,7 +55,7 @@ function CRMConnectionSettings( props ) {
 		if ( jetpackCRMVersion ) {
 			if ( semver.lt( jetpackCRMVersion, '3.0.19' ) ) {
 				return (
-					<p>
+					<p className="jetpack-contact-form__crm_text">
 						{ __(
 							'The Zero BS CRM plugin is now Jetpack CRM. Update to the latest version to integrate your contact form with your CRM.',
 							'jetpack'
@@ -65,25 +65,21 @@ function CRMConnectionSettings( props ) {
 			}
 
 			if ( pluginState.ACTIVE === jetpackCRMPlugin ) {
-				return (
-					<div>
-						<p>
+				if ( semver.satisfies( jetpackCRMVersion, '3.0.19 - 4.0.0' ) ) {
+					return (
+						<p className="jetpack-contact-form__crm_text">
 							{ __(
-								'You can save contacts from this contact form in your Jetpack CRM.',
+								'Contacts from this form will be stored in Jetpack CRM if the CRM Jetpack Forms extension is active.',
 								'jetpack'
 							) }
 						</p>
-						<p>
-							{ __(
-								'Make sure the Jetpack Contact Form Extension is enabled in Jetpack CRM.',
-								'jetpack'
-							) }
-						</p>
-					</div>
-				);
+					);
+				}
+
+				return null;
 			} else if ( pluginState.INSTALLED === jetpackCRMPlugin ) {
 				return (
-					<p>
+					<p className="jetpack-contact-form__crm_text">
 						{ __(
 							'Activate Jetpack CRM to save contacts from this contact form in your Jetpack CRM.',
 							'jetpack'
@@ -114,15 +110,16 @@ function CRMConnectionSettings( props ) {
 	};
 
 	return (
-		<BaseControl>
+		<PanelRow>
 			{ isFetchingPlugins && <Spinner /> }
 
 			{ shouldDisplayToggle() && (
 				<ToggleControl
-					label={ __( 'CRM Connection', 'jetpack' ) }
+					className="jetpack-contact-form__crm_toggle"
+					label={ __( 'Jetpack CRM', 'jetpack' ) }
 					checked={ jetpackCRM }
 					onChange={ value => setAttributes( { jetpackCRM: value } ) }
-					help={ __( 'Enable and disable Jetpack CRM integration for this form.', 'jetpack' ) }
+					help={ __( 'Store in CRM [toggle yes / no]', 'jetpack' ) }
 				/>
 			) }
 
@@ -131,7 +128,7 @@ function CRMConnectionSettings( props ) {
 			{ error && (
 				<p>{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }</p>
 			) }
-		</BaseControl>
+		</PanelRow>
 	);
 }
 
