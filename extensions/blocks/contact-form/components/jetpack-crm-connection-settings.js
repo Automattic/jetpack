@@ -129,7 +129,7 @@ function CRMConnectionSettings( props ) {
 						label={ __( 'Jetpack CRM', 'jetpack' ) }
 						checked={ jetpackCRM }
 						onChange={ value => setAttributes( { jetpackCRM: value } ) }
-						help={ __( 'Store in CRM [toggle yes / no]', 'jetpack' ) }
+						help={ __( 'Store in CRM', 'jetpack' ) }
 					/>
 				) }
 
