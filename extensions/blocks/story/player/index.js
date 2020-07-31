@@ -40,7 +40,7 @@ const defaultSettings = {
 	volume: 0.5,
 };
 
-export default function StoryPlayer( { slides, metadata, disabled, settings } ) {
+export default function StoryPlayer( { slides, metadata, disabled, ...settings } ) {
 	const playerSettings = merge( {}, defaultSettings, settings );
 
 	const rootElementRef = useRef();

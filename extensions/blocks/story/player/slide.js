@@ -6,7 +6,7 @@ import waitMediaReady from './lib/wait-media-ready';
 /**
  * WordPress dependencies
  */
-import { createElement, useEffect, useState, useRef } from '@wordpress/element';
+import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -25,9 +25,11 @@ export const Slide = ( {
 	settings,
 } ) => {
 	const visible = index === currentSlideIndex;
+	const currentSlidePlaying = visible && playing;
 	const mediaRef = useRef( null );
+	const [ preload, setPreload ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
-	const isVideo = () => mediaRef.current.tagName.toLowerCase() === 'video';
+	const isVideo = () => mediaRef.current && mediaRef.current.tagName.toLowerCase() === 'video';
 
 	const [ progressState, updateProgressState ] = useState( {
 		currentTime: 0,
@@ -38,16 +40,16 @@ export const Slide = ( {
 	// Sync playing state with underlying HTMLMediaElement
 	useEffect( () => {
 		if ( isVideo() ) {
-			if ( playing ) {
+			if ( currentSlidePlaying ) {
 				mediaRef.current.play();
 			} else {
 				mediaRef.current.pause();
 			}
 		}
-	}, [ playing ] );
+	}, [ currentSlidePlaying ] );
 
 	// Display end of video on last slide when story ends
-	useEffect( () => {
+	useLayoutEffect( () => {
 		if ( isVideo() && ended && visible ) {
 			mediaRef.current.currentTime = mediaRef.current.duration;
 		}
@@ -81,7 +83,7 @@ export const Slide = ( {
 
 	// Reset progress on replay for stories with one slide
 	useEffect( () => {
-		if ( playing && ended && currentSlideIndex === index ) {
+		if ( currentSlidePlaying && ended ) {
 			updateProgressState( {
 				currentTime: 0,
 				duration: null,
@@ -92,15 +94,15 @@ export const Slide = ( {
 				mediaRef.current.currentTime = 0;
 			}
 		}
-	}, [ playing, ended, currentSlideIndex ] );
+	}, [ currentSlidePlaying, ended ] );
 
 	// Sync progressState with underlying media playback progress
-	useEffect( () => {
+	useLayoutEffect( () => {
 		clearTimeout( progressState.timeout );
 		if ( loading ) {
 			return;
 		}
-		if ( playing ) {
+		if ( playing && visible ) {
 			const video = isVideo() ? mediaRef.current : null;
 			const duration = video ? video.duration : settings.imageTime;
 			if ( progressState.currentTime >= duration ) {
@@ -126,11 +128,11 @@ export const Slide = ( {
 				lastUpdate: null,
 			} );
 		}
-	}, [ loading, playing, progressState ] );
+	}, [ loading, playing, visible, progressState ] );
 
 	// Watch progressState and trigger events using onProgress and onEnd callbacks
 	useEffect( () => {
-		if ( ! playing || ended || progressState.duration === null ) {
+		if ( ! currentSlidePlaying || ended || progressState.duration === null ) {
 			return;
 		}
 		const percentage = Math.round( ( 100 * progressState.currentTime ) / progressState.duration );
@@ -140,14 +142,23 @@ export const Slide = ( {
 		} else {
 			onProgress( percentage );
 		}
-	}, [ playing, progressState ] );
+	}, [ currentSlidePlaying, visible, progressState ] );
+
+	useEffect( () => {
+		if ( index <= currentSlideIndex + ( playing ? 1 : 0 ) ) {
+			setPreload( true );
+		}
+	}, [ playing, currentSlideIndex ] );
 
 	// Sync media loading
-	useEffect( () => {
+	useLayoutEffect( () => {
+		if ( ! mediaRef.current ) {
+			return;
+		}
 		waitMediaReady( mediaRef.current ).then( () => {
 			setLoading( false );
 		} );
-	}, [ mediaRef.current ] );
+	}, [ preload ] );
 
 	return (
 		<>
@@ -165,7 +176,7 @@ export const Slide = ( {
 				className="wp-story-slide"
 				style={ { display: visible && ! loading ? 'block' : 'none' } }
 			>
-				<Media { ...media } index={ index } mediaRef={ mediaRef } />
+				{ preload && <Media { ...media } index={ index } mediaRef={ mediaRef } /> }
 			</div>
 		</>
 	);

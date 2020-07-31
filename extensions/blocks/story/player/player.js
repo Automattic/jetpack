@@ -125,7 +125,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							media={ media }
 							index={ index }
 							currentSlideIndex={ currentSlideIndex }
-							playing={ currentSlideIndex === index && playing }
+							playing={ playing }
 							muted={ muted }
 							ended={ ended }
 							onProgress={ setCurrentSlideProgress }

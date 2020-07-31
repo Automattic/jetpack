@@ -32,12 +32,7 @@ function renderPlayer( rootElement, settings ) {
 	}
 
 	render(
-		<StoryPlayer
-			slides={ slides }
-			metadata={ metadata }
-			disabled={ false }
-			settings={ settings }
-		/>,
+		<StoryPlayer slides={ slides } metadata={ metadata } disabled={ false } { ...settings } />,
 		rootElement
 	);
 }

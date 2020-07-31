@@ -84,17 +84,24 @@ function render_video( $media ) {
  *
  * @return string
  */
-function render_slide( $media, $index ) {
+function render_slide( $media, $index = 0 ) {
+	$media_template = '';
+	switch ( ! empty( $media['type'] ) && $media['type'] ) {
+		case 'image':
+			$media_template = render_image( $media, $index );
+			break;
+		case 'video':
+			$media_template = render_video( $media, $index );
+			break;
+	}
 	return sprintf(
-		'<li class="wp-story-slide" style="display: %s;">
+		'<div class="wp-story-slide" style="display: %s;">
 			<figure>
 				%s
 			</figure>
-		</li>',
+		</div>',
 		0 === $index ? 'block' : 'none',
-		'image' === $media['type']
-			? render_image( $media, $index )
-			: render_video( $media, $index )
+		$media_template
 	);
 }
 
@@ -108,8 +115,11 @@ function render_slide( $media, $index ) {
 function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$settings    = array();
 	$media_files = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
+
+	$settings = array(
+		'slides' => $media_files,
+	);
 
 	return sprintf(
 		'<div class="%1$s" data-settings="%2$s">
@@ -128,11 +138,11 @@ function render_block( $attributes ) {
 							<i class="jetpack-material-icons close md-24"></i>
 						</button>
 					</div>
-					<ul class="wp-story-wrapper">
+					<div class="wp-story-wrapper">
 						%6$s
-					</ul>
+					</div>
 					<div class="wp-story-overlay">
-						<button class="jetpack-mdc-icon-button circle-icon outlined bordered" aria-label="%7$s" aria-pressed="false">
+						<button class="jetpack-mdc-icon-button circle-icon outlined bordered" aria-label="%7$s" aria-pressed="false" style="width: 80px; height: 80px;">
 							<i class="jetpack-material-icons play_arrow" style="font-size: 56px;"></i>
 						</button>
 					</div>
@@ -144,7 +154,7 @@ function render_block( $attributes ) {
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
-		join( "\n", array_map( __NAMESPACE__ . '\render_slide', $media_files, array_keys( $media_files ) ) ),
+		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		__( 'Exit Fullscreen', 'jetpack' )
 	);
 }
