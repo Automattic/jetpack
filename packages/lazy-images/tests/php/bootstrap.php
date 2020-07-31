@@ -1,8 +1,6 @@
 <?php
 /**
  * PHPUnit bootstrap file
- *
- * @package Your_Plugin_Slug
  */
 
 /**
