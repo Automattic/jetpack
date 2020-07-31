@@ -4,17 +4,28 @@ require dirname( __FILE__ ) . '../../src/lazy-images.php';
 
 use Automattic\Jetpack\Jetpack_Lazy_Images;
 
+/**
+ * Class WP_Test_Lazy_Images
+ */
 class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
+	/**
+	 * Setup.
+	 */
 	public function setUp() {
 		parent::setUp();
 
-		add_filter( 'lazyload_images_placeholder_image', array( $this, '__override_image_placeholder' ) );
+		add_filter( 'lazyload_images_placeholder_image', array( $this, 'override_image_placeholder' ) );
 	}
 
-	function get_process_image_test_data() {
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_process_image_test_data() {
 		return array(
-			'img_with_no_src' => array(
+			'img_with_no_src'           => array(
 				array(
 					'<img id="img" />',
 					'img',
@@ -22,8 +33,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 				),
 				'<img id="img" />',
 			),
-
-			'img_simple' => array(
+			'img_simple'                => array(
 				array(
 					'<img src="image.jpg" />',
 					'img',
@@ -31,7 +41,6 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 				),
 				'<img src="image.jpg" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" /></noscript>',
 			),
-
 			'img_with_other_attributes' => array(
 				array(
 					'<img src="image.jpg" alt="Alt!" />',
@@ -40,8 +49,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 				),
 				'<img src="image.jpg" alt="Alt!" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" alt="Alt!" /></noscript>',
 			),
-
-			'img_with_srcset' => array(
+			'img_with_srcset'           => array(
 				array(
 					'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" />',
 					'img',
@@ -50,8 +58,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 				),
 				'<img src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" /></noscript>',
 			),
-
-			'img_with_sizes' => array(
+			'img_with_sizes'            => array(
 				array(
 					'<img src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" />',
 					'img',
@@ -63,105 +70,117 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		);
 	}
 
-	function get_process_image_attributes_data() {
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_process_image_attributes_data() {
 		return array(
-			'img_with_no_src' => array(
+			'img_with_no_src'              => array(
 				array(
-					'width' => 10,
-					'height' => 10
+					'width'  => 10,
+					'height' => 10,
 				),
 				array(
-					'width' => 10,
+					'width'  => 10,
 					'height' => 10,
-				)
+				),
 			),
-			'img_simple' => array(
+			'img_simple'                   => array(
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
+					'src'    => 'image.jpg',
+					'width'  => 10,
 					'height' => 10,
 				),
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
-					'height' => 10,
+					'src'           => 'image.jpg',
+					'width'         => 10,
+					'height'        => 10,
 					'data-lazy-src' => 'http://image.jpg?is-pending-load=1',
-					'srcset' => 'placeholder.jpg',
-					'class' => ' jetpack-lazy-image',
+					'srcset'        => 'placeholder.jpg',
+					'class'         => ' jetpack-lazy-image',
 				),
 			),
-			'img_with_srcset' => array(
+			'img_with_srcset'              => array(
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
+					'src'    => 'image.jpg',
+					'width'  => 10,
 					'height' => 10,
-					'srcset' => 'medium.jpg 1000w, large.jpg 2000w'
+					'srcset' => 'medium.jpg 1000w, large.jpg 2000w',
 				),
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
-					'height' => 10,
+					'src'              => 'image.jpg',
+					'width'            => 10,
+					'height'           => 10,
 					'data-lazy-srcset' => 'medium.jpg 1000w, large.jpg 2000w',
-					'data-lazy-src' => 'http://image.jpg?is-pending-load=1',
-					'srcset' => 'placeholder.jpg',
-					'class' => ' jetpack-lazy-image',
-				)
+					'data-lazy-src'    => 'http://image.jpg?is-pending-load=1',
+					'srcset'           => 'placeholder.jpg',
+					'class'            => ' jetpack-lazy-image',
+				),
 			),
-			'img_with_sizes' => array(
+			'img_with_sizes'               => array(
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
+					'src'    => 'image.jpg',
+					'width'  => 10,
 					'height' => 10,
-					'sizes' => '(min-width: 36em) 33.3vw, 100vw'
+					'sizes'  => '(min-width: 36em) 33.3vw, 100vw',
 				),
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
-					'height' => 10,
+					'src'             => 'image.jpg',
+					'width'           => 10,
+					'height'          => 10,
 					'data-lazy-sizes' => '(min-width: 36em) 33.3vw, 100vw',
-					'data-lazy-src' => 'http://image.jpg?is-pending-load=1',
-					'srcset' => 'placeholder.jpg',
-					'class' => ' jetpack-lazy-image',
-				)
+					'data-lazy-src'   => 'http://image.jpg?is-pending-load=1',
+					'srcset'          => 'placeholder.jpg',
+					'class'           => ' jetpack-lazy-image',
+				),
 			),
 			'gazette_theme_featured_image' => array(
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
+					'src'    => 'image.jpg',
+					'width'  => 10,
 					'height' => 10,
-					'class' => 'attachment-gazette-featured-content-thumbnail wp-post-image'
+					'class'  => 'attachment-gazette-featured-content-thumbnail wp-post-image',
 				),
-				// should be unmodified
+				// Should be unmodified.
 				array(
-					'src' => 'image.jpg',
-					'width' => 10,
+					'src'    => 'image.jpg',
+					'width'  => 10,
 					'height' => 10,
-					'class' => 'attachment-gazette-featured-content-thumbnail wp-post-image'
-				)
+					'class'  => 'attachment-gazette-featured-content-thumbnail wp-post-image',
+				),
 			),
 		);
 	}
 
-	function test_process_image_attribute_filter() {
-		add_filter( 'jetpack_lazy_images_new_attributes', array( $this, '__set_height_attribute' ) );
+	/**
+	 * Test the process image attribute filter.
+	 */
+	public function test_process_image_attribute_filter() {
+		add_filter( 'jetpack_lazy_images_new_attributes', array( $this, 'set_height_attribute' ) );
 
-		$html = Jetpack_Lazy_Images::process_image( array(
-			'<img src="image.jpg" height="100px" />',
-			'img',
-			' src="image.jpg" height="100px"',
+		$html = Jetpack_Lazy_Images::process_image(
+			array(
+				'<img src="image.jpg" height="100px" />',
+				'img',
+				' src="image.jpg" height="100px"',
+			)
+		);
 
-		) );
-
-		remove_filter( 'jetpack_lazy_images_new_attributes', array( $this, '__set_height_attribute' ) );
+		remove_filter( 'jetpack_lazy_images_new_attributes', array( $this, 'set_height_attribute' ) );
 
 		$this->assertContains( 'style="height: 100px;"', $html );
 	}
 
-	function test_wp_get_attachment_image_gets_lazy_treatment() {
-		$attachment_id = $this->factory->attachment->create_upload_object( dirname( __FILE__ ) .'/jetpack-icon.jpg', 0 );
+	/**
+	 * Test that the wp_get_attachment_image function output gets the lazy treatment.
+	 */
+	public function test_wp_get_attachment_image_gets_lazy_treatment() {
+		$attachment_id = $this->factory->attachment->create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0 );
 		add_filter( 'wp_get_attachment_image_attributes', array( '\Automattic\Jetpack\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 		$image = wp_get_attachment_image( $attachment_id );
-		remove_filter( 'wp_get_attachment_image_attributes', array( '\Automattic\Jetpack\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
+		remove_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 
 		$this->assertContains( 'srcset="placeholder.jpg"', $image );
 		$this->assertContains(
@@ -170,10 +189,13 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		);
 	}
 
-	function test_wp_get_attachment_image_does_not_get_lazy_treatment_when_skip_lazy_added() {
+	/**
+	 * Test that the wp_get_attachment_image function output does not get the lazy treatment when lazy images feature is skipped.
+	 */
+	public function test_wp_get_attachment_image_does_not_get_lazy_treatment_when_skip_lazy_added() {
 		$attachment_id = $this->factory->attachment->create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0 );
-		$content = sprintf( '[gallery ids="%d"]', $attachment_id );
-		$instance = Jetpack_Lazy_Images::instance();
+		$content       = sprintf( '[gallery ids="%d"]', $attachment_id );
+		$instance      = Jetpack_Lazy_Images::instance();
 
 		$instance->setup_filters();
 		$gallery_output = do_shortcode( $content );
@@ -191,26 +213,42 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test the process_image method.
+	 *
+	 * @param array  $image_parts   Image parts.
+	 * @param string $expected_html Expected HTML.
+	 *
 	 * @dataProvider get_process_image_test_data
 	 */
-	function test_process_image( $image_parts, $expected_html ) {
+	public function test_process_image( $image_parts, $expected_html ) {
 		$actual_html = Jetpack_Lazy_Images::process_image( $image_parts );
 
 		$this->assertEquals( $expected_html, $actual_html );
 	}
 
-	function test_add_image_placeholders() {
-		$this->assertSame( $this->__get_output_content(), Jetpack_Lazy_Images::instance()->add_image_placeholders( $this->__get_input_content() ) );
+	/**
+	 * Test the add_image_placeholders method.
+	 */
+	public function test_add_image_placeholders() {
+		$this->assertSame( $this->get_output_content(), Jetpack_Lazy_Images::instance()->add_image_placeholders( $this->get_input_content() ) );
 	}
 
 	/**
+	 * Test the process_image_attributes method.
+	 *
+	 * @param array $input           Input attributes.
+	 * @param array $expected_output Expected output.
+	 *
 	 * @dataProvider get_process_image_attributes_data
 	 */
-	function test_process_image_attributes( $input, $expected_output ) {
+	public function test_process_image_attributes( $input, $expected_output ) {
 		$this->assertSame( Jetpack_Lazy_Images::process_image_attributes( $input ), $expected_output );
 	}
 
-	function test_compat_with_wp_kses_post() {
+	/**
+	 * Test compatibility with the wp_kses_post function.
+	 */
+	public function test_compat_with_wp_kses_post() {
 		global $wp_version;
 		if ( version_compare( $wp_version, 5.0, '>=' ) ) {
 			$this->markTestSkipped( 'WP 5.0 allow all data attributes' );
@@ -246,11 +284,16 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that images with classes are not processed.
+	 *
+	 * @param string $input       Input content.
+	 * @param bool   $should_skip Whether or not it lazy images treatment should be skipped.
+	 *
 	 * @dataProvider get_dont_process_images_with_classes_data
 	 */
-	function test_dont_process_images_with_classes( $input, $should_skip = true ) {
+	public function test_dont_process_images_with_classes( $input, $should_skip = true ) {
 		$instance = Jetpack_Lazy_Images::instance();
-		$output = $instance->add_image_placeholders( $input );
+		$output   = $instance->add_image_placeholders( $input );
 
 		if ( $should_skip ) {
 			$this->assertNotContains( 'srcset="placeholder.jpg"', $output );
@@ -259,15 +302,20 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		}
 	}
 
-	function get_dont_process_images_with_classes_data() {
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_dont_process_images_with_classes_data() {
 		return array(
-			'skip_lazy' => array(
+			'skip_lazy'                    => array(
 				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="skip-lazy"/>',
 			),
 			'gazette_theme_featured_image' => array(
 				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="attachment-gazette-featured-content-thumbnail wp-post-image"/>',
 			),
-			'does_not-skip' => array(
+			'does_not-skip'                => array(
 				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>',
 				false,
 			),
@@ -275,11 +323,16 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that images with the skip lazy data attribute are skipped.
+	 *
+	 * @param string $input       Input content.
+	 * @param bool   $should_skip Whether or not it lazy images treatment should be skipped.
+	 *
 	 * @dataProvider get_dont_process_images_with_skip_lazy_data_attribute_data
 	 */
-	function test_dont_process_images_with_skip_lazy_data_attribute( $input, $should_skip = true ) {
+	public function test_dont_process_images_with_skip_lazy_data_attribute( $input, $should_skip = true ) {
 		$instance = Jetpack_Lazy_Images::instance();
-		$output = $instance->add_image_placeholders( $input );
+		$output   = $instance->add_image_placeholders( $input );
 
 		if ( $should_skip ) {
 			$this->assertNotContains( 'srcset="placeholder.jpg"', $output );
@@ -288,7 +341,12 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		}
 	}
 
-	function get_dont_process_images_with_skip_lazy_data_attribute_data() {
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_dont_process_images_with_skip_lazy_data_attribute_data() {
 		return array(
 			'skip_lazy_attr_only' => array(
 				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" data-skip-lazy/>',
@@ -296,13 +354,19 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 			'skip-lazy-attr-true' => array(
 				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" data-skip-lazy="true"/>',
 			),
-			'skip-lazy-attr-1' => array(
+			'skip-lazy-attr-1'    => array(
 				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" data-skip-lazy="1"/>',
 			),
 		);
 	}
 
 	/**
+	 * Test that images with the blocked class should be skipped
+	 *
+	 * @param bool   $expected Expected result.
+	 * @param string $input  A string of space-separated classes.
+	 * @param bool   $empty_blocked_classes Empty block classes.
+	 *
 	 * @dataProvider get_should_skip_image_with_blocked_class_data
 	 */
 	public function test_should_skip_image_with_blocked_class( $expected, $input, $empty_blocked_classes = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -310,15 +374,17 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider.
+	 * Data provider for test.
+	 *
+	 * @return array
 	 */
 	public function get_should_skip_image_with_blocked_class_data() {
 		return array(
-			'wp-post-image' => array(
+			'wp-post-image'   => array(
 				false,
-				'wp-post-image'
+				'wp-post-image',
 			),
-			'skip-lazy' => array(
+			'skip-lazy'       => array(
 				true,
 				'wp-post-image skip-lazy',
 			),
@@ -330,6 +396,10 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that images with filtered empty blocklist should be skipped.
+	 *
+	 * @param string $classes A string of space-separated classes. TODO: Check type.
+	 *
 	 * @dataProvider get_should_skip_image_with_filtered_empty_blocked_data
 	 */
 	public function test_should_skip_image_with_filtered_empty_blocklist( $classes ) {
@@ -346,14 +416,16 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider.
+	 * Data provider for test.
+	 *
+	 * @return array
 	 */
 	public function get_should_skip_image_with_filtered_empty_blocked_data() {
 		return array(
-			'wp-post-image' => array(
-				'wp-post-image'
+			'wp-post-image'   => array(
+				'wp-post-image',
 			),
-			'skip-lazy' => array(
+			'skip-lazy'       => array(
 				'wp-post-image skip-lazy',
 			),
 			'gazette-feature' => array(
@@ -363,11 +435,15 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that Jetpack lazy images skip image with attributes filter.
+	 *
+	 * @param string $filter_name filter name.
+	 *
 	 * @dataProvider get_skip_image_with_attributes_data
 	 */
-	function test_jetpack_lazy_images_skip_image_with_attributes_filter( $filter_name ) {
+	public function test_jetpack_lazy_images_skip_image_with_attributes_filter( $filter_name ) {
 		$instance = Jetpack_Lazy_Images::instance();
-		$src = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+		$src      = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
 
 		$this->assertContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
 
@@ -375,19 +451,24 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		$this->assertNotContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
 		remove_filter( 'jetpack_lazy_images_skip_image_with_attributes', '__return_true' );
 
-		add_filter( 'jetpack_lazy_images_skip_image_with_attributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+		add_filter( 'jetpack_lazy_images_skip_image_with_attributes', array( $this, 'skip_if_srcset' ), 10, 2 );
 		$this->assertNotContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
 		$this->assertContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( '<img src="image.jpg" />' ) );
-		remove_filter( 'jetpack_lazy_images_skip_image_with_attributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+		remove_filter( 'jetpack_lazy_images_skip_image_with_attributes', array( $this, 'skip_if_srcset' ), 10, 2 );
 	}
 
-	function get_skip_image_with_attributes_data() {
+	/**
+	 * Data provider for test.
+	 *
+	 * @return array
+	 */
+	public function get_skip_image_with_attributes_data() {
 		return array(
 			'deprecated_filter_name_with_typo' => array(
-				'jetpack_lazy_images_skip_image_with_atttributes'
+				'jetpack_lazy_images_skip_image_with_atttributes',
 			),
-			'correct_filter_name' => array(
-				'jetpack_lazy_images_skip_image_with_attributes'
+			'correct_filter_name'              => array(
+				'jetpack_lazy_images_skip_image_with_attributes',
 			),
 		);
 	}
@@ -396,11 +477,23 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	 * Helpers
 	 */
 
-	public function __override_image_placeholder() {
+	/**
+	 * Override image placeholder.
+	 *
+	 * @return string
+	 */
+	private function override_image_placeholder() {
 		return 'placeholder.jpg';
 	}
 
-	public function __set_height_attribute( $attributes ) {
+	/**
+	 * Set height attribute.
+	 *
+	 * @param array $attributes Attributes.
+	 *
+	 * @return array
+	 */
+	private function set_height_attribute( $attributes ) {
 		if ( ! empty( $attributes['height'] ) ) {
 			$attributes['style'] = sprintf( 'height: %dpx;', $attributes['height'] );
 			unset( $attributes['height'] );
@@ -408,10 +501,15 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		return $attributes;
 	}
 
-	public function __get_input_content() {
+	/**
+	 * Get input content.
+	 *
+	 * @return string
+	 */
+	private function get_input_content() {
 		ob_start();
 
-		require_once( dirname( __FILE__ ) . '/pre-image-placeholder-content.php' );
+		require_once dirname( __FILE__ ) . '/pre-image-placeholder-content.php';
 
 		$contents = trim( ob_get_contents() );
 		ob_end_clean();
@@ -419,10 +517,15 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		return trim( $contents );
 	}
 
-	public function __get_output_content() {
+	/**
+	 * Get output content.
+	 *
+	 * @return string
+	 */
+	private function get_output_content() {
 		ob_start();
 
-		require_once( dirname( __FILE__ ) . '/post-image-placeholder-content.php' );
+		require_once dirname( __FILE__ ) . '/post-image-placeholder-content.php';
 
 		$contents = trim( ob_get_contents() );
 		ob_end_clean();
@@ -430,12 +533,27 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		return trim( $contents );
 	}
 
-	public function __skip_if_srcset( $should_skip, $attributes ) {
+	/**
+	 * Check is the srcset attribute it set.
+	 *
+	 * @param bool  $should_skip Whether or not it lazy images treatment should be skipped.
+	 * @param array $attributes  Attributes.
+	 *
+	 * @return bool
+	 */
+	public function skip_if_srcset( $should_skip, $attributes ) {
 		return isset( $attributes['srcset'] );
 	}
 
-	function add_skip_lazy_class_to_attributes( $attr ) {
-		$attr['class'] .= ' skip-lazy';
-		return $attr;
+	/**
+	 * Add skip lazy class to attributes.
+	 *
+	 * @param array $attributes attributes.
+	 *
+	 * @return mixed
+	 */
+	public function add_skip_lazy_class_to_attributes( $attributes ) {
+		$attributes['class'] .= ' skip-lazy';
+		return $attributes;
 	}
 }
