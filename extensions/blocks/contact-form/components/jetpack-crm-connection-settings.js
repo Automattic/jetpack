@@ -8,6 +8,11 @@ import { __ } from '@wordpress/i18n';
 import { ExternalLink, PanelRow, Spinner, ToggleControl } from '@wordpress/components';
 import semver from 'semver';
 
+/**
+ * Internal dependencies
+ */
+import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
+
 function CRMConnectionSettings( props ) {
 	const pluginState = Object.freeze( {
 		ACTIVE: 1,
@@ -92,11 +97,15 @@ function CRMConnectionSettings( props ) {
 		// Either no valid version or Jetpack CRM is not installed.
 		return (
 			<p>
-				{ __(
-					'You can save contacts from Jetpack contact forms in Jetpack CRM. Learn more at ',
-					'jetpack'
+				{ jetpackCreateInterpolateElement(
+					__(
+						'You can save contacts from Jetpack contact forms in Jetpack CRM. Learn more at <a>jetpackcrm.com</a>',
+						'jetpack'
+					),
+					{
+						a: <ExternalLink href="https://jetpackcrm.com" />,
+					}
 				) }
-				<ExternalLink href="https://jetpackcrm.com">jetpackcrm.com</ExternalLink>
 			</p>
 		);
 	};
