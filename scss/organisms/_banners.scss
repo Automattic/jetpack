@@ -173,6 +173,7 @@
 
 		@include breakpoint(large-phone) {
 			margin-top: rem( 16px );
+			font-size: $font-title-medium;
 		};
 	}
 
