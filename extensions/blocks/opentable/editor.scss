@@ -9,7 +9,7 @@
 	display: inline-block;
 	position: relative;
 
-	&-theme-wide,
+	&.is-style-wide,
 	&.is-placeholder {
 		display: block;
 	}
@@ -114,7 +114,7 @@
 		}
 	}
 
-	&-theme-button {
+	&.is-style-button {
 		&.has-no-margin {
 			iframe {
 				margin: -14px;
