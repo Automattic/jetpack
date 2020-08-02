@@ -3465,6 +3465,9 @@ function wpsc_get_htaccess_info() {
 
 	$gziprules =  "<IfModule mod_mime.c>\n  <FilesMatch \"\\.html\\.gz\$\">\n    ForceType text/html\n    FileETag None\n  </FilesMatch>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
 	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
+
+	$vary_header = $cache_control_header = '';
+
 	if ( defined( 'WPSC_VARY_HEADER' ) ) {
 		if ( WPSC_VARY_HEADER != '' ) {
 			$vary_header = WPSC_VARY_HEADER;
