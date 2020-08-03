@@ -78,10 +78,10 @@
 		transform: translateY( 14px );
 
 		// Use opacity to work in various editor styles.
-		background: $dark-opacity-light-200;
+		background: $dark-gray-placeholder;
 
 		.is-dark-theme & {
-			background: $light-opacity-light-200;
+			background: $light-gray-placeholder;
 		}
 	}
 

@@ -1,7 +1,7 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
 .jetpack-publicize-message-box {
-	background-color: $light-gray-300;
+	background-color: $gray-200;
 	border-radius: 4px;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .jetpack-publicize-gutenberg-social-icon {
-	fill: $dark-gray-500;
+	fill: $gray-600;
 	margin-right: 5px;
 
 	&.is-facebook {
