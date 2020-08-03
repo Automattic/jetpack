@@ -8,7 +8,10 @@ import { __ } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import edit from './edit';
+import save from './save';
 import icon from './icon';
+import editAmounts from './amounts/edit';
+import saveAmounts from './amounts/save';
 
 /**
  * Style dependencies
@@ -46,8 +49,7 @@ export const settings = {
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	attributes,
 	example: {
 		attributes: {
@@ -55,3 +57,39 @@ export const settings = {
 		},
 	},
 };
+
+export const childBlocks = [
+	{
+		name: 'donations-amounts',
+		settings: {
+			category: 'earn',
+			parent: [ 'jetpack/donations' ],
+			attributes: {
+				amounts: {
+					type: 'array',
+					items: {
+						type: 'number',
+					},
+					default: [ 5, 15, 100 ],
+				},
+				currency: {
+					type: 'string',
+					default: 'USD',
+				},
+				defaultCustomAmount: {
+					type: 'number',
+					default: 50,
+				},
+				isCustom: {
+					type: 'boolean',
+					default: false,
+				},
+			},
+			example: {},
+			title: __( 'Amounts', 'jetpack' ),
+			icon,
+			edit: editAmounts,
+			save: saveAmounts,
+		},
+	},
+];

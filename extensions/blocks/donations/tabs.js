@@ -13,13 +13,20 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Context from './context';
 import Controls from './controls';
 import Tab from './tab';
 import StripeNudge from '../../shared/components/stripe-nudge';
 
 const Tabs = props => {
-	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
+	const {
+		attributes,
+		className,
+		clientId,
+		products,
+		setAttributes,
+		shouldUpgrade,
+		stripeConnectUrl,
+	} = props;
 	const { oneTimePlanId, monthlyPlanId, annuallyPlanId } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 
@@ -75,14 +82,14 @@ const Tabs = props => {
 			) }
 			<div className="donations__container">
 				{ Object.keys( tabs ).length > 1 && (
-					<div className="donations__tabs">
+					<div className="donations__nav">
 						{ Object.entries( tabs ).map( ( [ interval, { title } ] ) => (
 							<Button
-								className={ classNames( 'donations__tab', {
+								className={ classNames( 'donations__nav-item', {
 									'is-active': isTabActive( interval ),
 								} ) }
 								onClick={ () => setActiveTab( interval ) }
-								key={ `jetpack-donations-tab-${ interval } ` }
+								key={ `jetpack-donations-nav-item-${ interval } ` }
 							>
 								{ title }
 							</Button>
@@ -90,9 +97,12 @@ const Tabs = props => {
 					</div>
 				) }
 				<div className="donations__content">
-					<Context.Provider value={ { activeTab } }>
-						<Tab attributes={ attributes } setAttributes={ setAttributes } />
-					</Context.Provider>
+					<Tab
+						activeTab={ activeTab }
+						attributes={ attributes }
+						clientId={ clientId }
+						setAttributes={ setAttributes }
+					/>
 				</div>
 			</div>
 			<Controls { ...props } />
