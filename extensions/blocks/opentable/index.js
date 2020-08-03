@@ -9,6 +9,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import { defaultAttributes, getStyleOptions } from './attributes';
 import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
 import icon from './icon';
 
@@ -74,5 +75,5 @@ export const settings = {
 			},
 		],
 	},
-	deprecated: [ deprecatedV1 ],
+	deprecated: [ deprecatedV1, deprecatedV2 ],
 };
