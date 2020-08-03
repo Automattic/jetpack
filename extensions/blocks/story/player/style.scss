@@ -295,6 +295,10 @@
 		.wp-story-slide {
 			height: 100%;
 			width: auto;
+
+			&.is-loading {
+				width: 100%;
+			}
 		}
 
 		.wp-story-meta {
