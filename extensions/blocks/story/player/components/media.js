@@ -36,6 +36,7 @@ export const Video = ( { alt, mime, url, id, mediaRef } ) => (
 	></video>
 );
 
-export const Media = props => (
-	<figure>{ 'image' === props.type ? <Image { ...props } /> : <Video { ...props } /> }</figure>
-);
+export const Media = props => {
+	const isVideo = 'video' === props.type || ( props.mime || '' ).startsWith( 'video/' );
+	return <figure>{ isVideo ? <Video { ...props } /> : <Image { ...props } /> }</figure>;
+};

@@ -26,6 +26,7 @@ export default function Overlay( {
 	onNextSlide,
 	onPreviousSlide,
 	tapToPlayPause,
+	showPlayButton,
 } ) {
 	const onOverlayPressed = () => {
 		! disabled && tapToPlayPause && onClick();
@@ -89,7 +90,7 @@ export default function Overlay( {
 					/>
 				) }
 			</div>
-			{ tapToPlayPause && ! playing && ! ended && (
+			{ showPlayButton && tapToPlayPause && ! playing && ! ended && (
 				<DecoratedButton
 					size={ 80 }
 					iconSize={ 56 }

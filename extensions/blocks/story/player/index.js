@@ -26,6 +26,7 @@ const defaultSettings = {
 	renderInterval: 50,
 	startMuted: false,
 	playInFullscreen: true,
+	playOnNextSlide: true,
 	exitFullscreenOnEnd: true,
 	loadInFullscreen: false,
 	tapToPlayPause: true, // embed feature

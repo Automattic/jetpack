@@ -33,7 +33,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const [ slideWidth, setSlideWidth ] = useState( 279 );
 	const [ resizeListener, { height } ] = useResizeObserver();
 
-	const showSlide = ( slideIndex, play = true ) => {
+	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
 		setCurrentSlideProgress( 0 );
 		updateSlideIndex( slideIndex );
 
@@ -140,6 +140,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					hasPrevious={ currentSlideIndex > 0 }
 					hasNext={ currentSlideIndex < slides.length - 1 }
 					disabled={ settings.disabled }
+					showPlayButton={ settings.playInFullscreen }
 					tapToPlayPause={ ! fullscreen && settings.tapToPlayPause }
 					onClick={ () => {
 						if ( ! fullscreen && ! playing && settings.playInFullscreen ) {

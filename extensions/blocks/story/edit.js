@@ -49,10 +49,11 @@ export default withNotices( function StoryEdit( {
 	const { mediaFiles } = attributes;
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 
-	const mediaReadyFilter = files =>
-		files.map( file => pickRelevantMediaFiles( file ) ).filter( media => ! isBlobURL( media.url ) );
+	const mediaFilter = files => files.map( file => pickRelevantMediaFiles( file ) );
 	const onSelectMedia = newMediaFiles =>
-		setAttributes( { mediaFiles: mediaReadyFilter( newMediaFiles ) } );
+		setAttributes( {
+			mediaFiles: mediaFilter( newMediaFiles ).filter( media => ! isBlobURL( media.url ) ),
+		} );
 
 	const addFiles = files => {
 		const lockName = 'storyBlockLock';
@@ -61,7 +62,7 @@ export default withNotices( function StoryEdit( {
 			allowedTypes: ALLOWED_MEDIA_TYPES,
 			filesList: files,
 			onFileChange: newMediaFiles => {
-				const mediaUploaded = mediaReadyFilter( newMediaFiles );
+				const mediaUploaded = mediaFilter( newMediaFiles );
 				setAttributes( {
 					mediaFiles: [ ...mediaFiles, ...mediaUploaded ],
 				} );
@@ -114,13 +115,12 @@ export default withNotices( function StoryEdit( {
 				<StoryPlayer
 					slides={ mediaFiles }
 					disabled={ ! isSelected }
-					settings={ {
-						shadowDOM: {
-							enabled: false,
-						},
-						playInFullscreen: false,
-						tapToPlayPause: true,
+					shadowDOM={ {
+						enabled: false,
 					} }
+					playInFullscreen={ false }
+					tapToPlayPause={ false }
+					playOnNextSlide={ false }
 				/>
 			</div>
 			<DropZone onFilesDrop={ addFiles } />

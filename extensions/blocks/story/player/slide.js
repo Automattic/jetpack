@@ -2,16 +2,18 @@
  * External dependencies
  */
 import waitMediaReady from './lib/wait-media-ready';
+import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
 import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
+import { isBlobURL } from '@wordpress/blob';
 
 /**
  * Internal dependencies
  */
-import { Media } from './components';
+import { Media, CalypsoSpinner } from './components';
 
 export const Slide = ( {
 	media,
@@ -26,6 +28,7 @@ export const Slide = ( {
 } ) => {
 	const visible = index === currentSlideIndex;
 	const currentSlidePlaying = visible && playing;
+	const uploading = isBlobURL( media.url );
 	const mediaRef = useRef( null );
 	const [ preload, setPreload ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
@@ -158,18 +161,14 @@ export const Slide = ( {
 		waitMediaReady( mediaRef.current ).then( () => {
 			setLoading( false );
 		} );
-	}, [ preload ] );
+	}, [ preload, uploading ] );
 
 	return (
 		<>
 			{ /* spinner from wp-calypso components */ }
-			{ visible && loading && (
-				<div className="wp-story-slide is-loading">
-					<div className="spinner">
-						<div className="spinner__outer">
-							<div className="spinner__inner" />
-						</div>
-					</div>
+			{ visible && ( loading || uploading ) && (
+				<div className={ classNames( 'wp-story-slide', 'is-loading', { transparent: uploading } ) }>
+					<CalypsoSpinner />
 				</div>
 			) }
 			<div
