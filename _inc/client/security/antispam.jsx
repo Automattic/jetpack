@@ -104,7 +104,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 				this.props.getSettingCurrentValue( 'wordpress_api_key' ) === '' &&
 				this.props.isAkismetKeyValid
 			) {
-				textProps.value = __( "A valid key has been set in your site's configuration." );
+				textProps.value = __( "A valid key has been set in your site's configuration.", 'jetpack' );
 				textProps.isValid = true;
 				textProps.disabled = true;
 				foldableHeader = __( 'Your site is protected from spam.', 'jetpack' );
