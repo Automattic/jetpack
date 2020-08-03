@@ -234,6 +234,9 @@
 		"**/optimist/minimist": "^0.2.1",
 		"**/mapbox-gl/minimist": "^0.2.1",
 		"**/@mapbox/geojson-rewind/minimist": "^1.2.3",
-		"**/@wordpress/compose/mousetrap": "^1.6.5"
+		"**/@wordpress/compose/mousetrap": "^1.6.5",
+		"**/browserify-sign/elliptic": "^6.5.3",
+		"**/create-ecdh/elliptic": "^6.5.3",
+		"**/postcss-selector-parser/dot-prop": "^5.1.1"
 	}
 }
