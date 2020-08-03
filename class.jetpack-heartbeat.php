@@ -159,7 +159,7 @@ class Jetpack_Heartbeat {
 	public function deactivate() {
 		// Cronjobs are now handled by the Heartbeat package and we don't want to deactivate it here.
 		// We are adding jetpack stats to the heartbeat only if the connection is available. so we don't need to disable the cron when disconnecting.
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'Automattic\\Jetpack\\Heartbeat::deactivate' );
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::deactivate' );
 	}
 
 	/**
