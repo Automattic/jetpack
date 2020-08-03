@@ -161,7 +161,7 @@
 		"uglify-save-license": "0.4.1",
 		"unfetch": "4.1.0",
 		"url-polyfill": "1.1.10",
-		"webpack": "4.44.0",
+		"webpack": "4.44.1",
 		"webpack-cli": "3.3.12"
 	},
 	"optionalDependencies": {
