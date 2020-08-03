@@ -2995,7 +2995,7 @@ JS;
 		}
 
 		// For version of Jetpack prior to 7.7.
-		if ( ! class_exists( 'Jetpack_IXR_Client' ) ) {
+		if ( defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '7.7', '<' ) && ! class_exists( 'Jetpack_IXR_Client' ) ) {
 			Jetpack::load_xml_rpc_client();
 		}
 
@@ -3014,7 +3014,7 @@ JS;
 		}
 
 		// For version of Jetpack prior to 7.7.
-		if ( ! class_exists( 'Jetpack_IXR_Client' ) ) {
+		if ( defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '7.7', '<' ) && ! class_exists( 'Jetpack_IXR_Client' ) ) {
 			Jetpack::load_xml_rpc_client();
 		}
 
