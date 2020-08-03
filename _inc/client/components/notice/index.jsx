@@ -76,6 +76,10 @@ export default class SimpleNotice extends React.Component {
 		return icon;
 	};
 
+	clearText( text ) {
+		return text.replace( /(<([^>]+)>)/gi, '' );
+	}
+
 	render() {
 		const {
 			children,
@@ -99,7 +103,7 @@ export default class SimpleNotice extends React.Component {
 					<Gridicon className="dops-notice__icon" icon={ icon || this.getIcon() } size={ 24 } />
 				</span>
 				<span className="dops-notice__content">
-					<span className="dops-notice__text">{ text ? text : children }</span>
+					<span className="dops-notice__text">{ text ? this.clearText( text ) : children }</span>
 				</span>
 				{ text ? children : null }
 				{ showDismiss && (
