@@ -5,6 +5,10 @@
  * @package Jetpack
  */
 
+namespace Automattic\Jetpack\Extensions;
+
+use Jetpack_Gutenberg;
+
 class Premium_Blocks {
 
 	public static $premium_blocks_list = array(
@@ -52,7 +56,7 @@ class Premium_Blocks {
 			return array( 'available' => true );
 		}
 
-		$features = Store_Product_List::get_site_specific_features_data();
+		$features = \Store_Product_List::get_site_specific_features_data();
 		if ( in_array( $extension_name, $features['active'], true ) ) {
 			return array( 'available' => true );
 		} else {
