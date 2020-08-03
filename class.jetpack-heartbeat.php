@@ -132,6 +132,7 @@ class Jetpack_Heartbeat {
 	 * @return array $methods
 	 */
 	public static function jetpack_xmlrpc_methods( $methods ) {
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::jetpack_xmlrpc_methods' );
 		return Heartbeat::jetpack_xmlrpc_methods( $methods );
 	}
 
@@ -145,6 +146,7 @@ class Jetpack_Heartbeat {
 	 * @return array $params all the stats that hearbeat handles.
 	 */
 	public static function xmlrpc_data_response( $params = array() ) {
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::xmlrpc_data_response' );
 		return Heartbeat::xmlrpc_data_response( $params );
 	}
 
