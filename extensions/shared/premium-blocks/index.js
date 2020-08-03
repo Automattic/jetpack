@@ -22,9 +22,8 @@ const jetpackPremiumBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
 		// Extend BlockEdit function.
 		settings.edit = premiumBlockEdit( settings.edit );
+		settings.icon = renderPremiumIcon( settings.icon, name );
 	}
-
-	settings.icon = renderPremiumIcon( settings.icon, name );
 
 	return settings;
 };
@@ -39,7 +38,7 @@ addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', withUp
  * Add the `jetpack-enable-upgrade-nudge` css Class
  * to the document body if the feature is enabled.
  */
-domReady( function () {
+domReady( function() {
 	if ( isUpgradeNudgeEnabled() ) {
 		document.body.classList.add( 'jetpack-enable-upgrade-nudge' );
 	}
