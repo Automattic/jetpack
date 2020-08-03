@@ -13,28 +13,28 @@ class Premium_Blocks {
 		'core/audio',
 		'premium-content/container',
 	);
-	
+
 	static $required_plan;
 
 	static $is_simple_site;
-	
+
 	/**
 	 * Singleton
 	 */
 	public static function init() {
 		static $instance = false;
-		
+
 		if ( ! $instance ) {
 			$instance = new Premium_Blocks();
 		}
-		
+
 		return $instance;
 	}
 
 	private function __construct() {
 		// Set if current site is Simple.
 		self::$is_simple_site = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		
+
 		// Set plan depending on site type.
 		self::$required_plan = self::$is_simple_site ? 'value_bundle' : 'jetpack_premium';
 
@@ -62,7 +62,7 @@ class Premium_Blocks {
 			);
 		}
 	}
-	
+
 	/**
 	 * Set the Jetpack Gutenberg extension availability.
 	 */
