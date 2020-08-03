@@ -28,9 +28,9 @@ export default createHigherOrderComponent(
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 
 		// Hide Banner when block changes its attributes (dual Mode).
-		useEffect( () =>
-			setIsVisible( ! isDualMode )
-			, [ props.attributes, setIsVisible, isDualMode ]
+		useEffect(
+			() => setIsVisible( ! isDualMode ),
+			[ props.attributes, setIsVisible, isDualMode ]
 		);
 
 		const hasChildrenSelected = useSelect(
