@@ -1,6 +1,11 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
@@ -35,6 +40,11 @@ export default createHigherOrderComponent(
 
 		const isBannerVisible = ( props?.isSelected || hasChildrenSelected ) && isVisible;
 
+		// Set banner CSS classes depending on its visibility.
+		const listBlockCSSClass = classNames( props?.className, {
+			'is-upgradable': isBannerVisible,
+		} );
+
 		return (
 			<PremiumBlockProvider onBannerVisibilityChange={ setIsVisible }>
 				<UpgradePlanBanner
@@ -44,7 +54,7 @@ export default createHigherOrderComponent(
 					visible={ isBannerVisible }
 				/>
 
-				<BlockListBlock { ...props } className="is-interactive is-upgradable" />
+				<BlockListBlock { ...props } className={ listBlockCSSClass } />
 			</PremiumBlockProvider>
 		);
 	},
