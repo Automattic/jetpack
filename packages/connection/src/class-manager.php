@@ -2569,13 +2569,18 @@ class Manager {
 	 * @return WP_Error|bool The result of updating the blog_token option.
 	 */
 	public static function refresh_blog_token() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
+
 		$url     = sprintf(
 			'%s://%s/%s/v%s/%s',
 			Client::protocol(),
 			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
 			'wpcom',
 			'2',
-			'jetpack-refresh-blog-token'
+			'sites/' . $blog_id . '/jetpack-refresh-blog-token'
 		);
 		$method  = 'GET';
 		$user_id = get_current_user_id();
