@@ -7,7 +7,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-define( WP_PLUGIN_DIR, '/var/www/wp-content/plugins' );
+define( 'WP_PLUGIN_DIR', '/var/www/wp-content/plugins' );
 
 /**
  * Provides unit tests for the methods in the Plugins_Handler class.
@@ -71,6 +71,15 @@ class PluginsHandlerTest extends TestCase {
 	 */
 	public function test_is_directory_plugin_single_file() {
 		$this->assertFalse( $this->plugins_handler->is_directory_plugin( 'test.php' ) );
+	}
+
+	/**
+	 * Tests is_directory_plugin() with an empty string.
+	 *
+	 * @covers Plugins_Handler::is_directory_plugin
+	 */
+	public function test_is_directory_plugin_single_file_with_empty_string() {
+		$this->assertFalse( $this->plugins_handler->is_directory_plugin( '' ) );
 	}
 
 	/**

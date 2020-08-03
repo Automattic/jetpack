@@ -117,7 +117,7 @@ export default class ModuleChartBar extends React.Component {
 
 		const { tooltipData } = this.props.data;
 
-		const listItemElements = tooltipData.map( function( options, i ) {
+		const listItemElements = tooltipData.map( function ( options, i ) {
 			const wrapperClasses = [ 'module-content-list-item' ];
 			let gridiconSpan;
 

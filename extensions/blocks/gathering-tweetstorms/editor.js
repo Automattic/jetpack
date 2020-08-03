@@ -7,7 +7,7 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import useGatherTweetstorm from './use-gather-tweetstorm';
-import { withNotices, Button, ToolbarGroup, Toolbar } from '@wordpress/components';
+import { withNotices, Button, ToolbarGroup, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 import { BlockControls } from '@wordpress/editor';
@@ -34,7 +34,7 @@ const addTweetstormToTweets = blockSettings => {
 		edit: withNotices( props => {
 			const { noticeOperations, noticeUI, onReplace } = props;
 			const { url } = props.attributes;
-			const { unleashStorm } = useGatherTweetstorm( {
+			const { isGatheringStorm, unleashStorm } = useGatherTweetstorm( {
 				onReplace,
 			} );
 
@@ -42,38 +42,21 @@ const addTweetstormToTweets = blockSettings => {
 				<>
 					{ noticeUI }
 					<BlockControls>
-						{ /* @todo Fallback can be removed when WP 5.4 is the minimum supported version. */ }
-						{ ToolbarGroup ? (
-							<ToolbarGroup>
-								<Button
-									className="gathering-tweetstorms__embed-toolbar-button"
-									onClick={ () => unleashStorm( url, noticeOperations ) }
-									label={ __(
-										'Import the entire Twitter thread directly into this post.',
-										'jetpack'
-									) }
-									showTooltip={ true }
-								>
-									{ __( 'Unroll', 'jetpack' ) }
-								</Button>
-							</ToolbarGroup>
-						) : (
-							<Toolbar
-								controls={ [
-									{
-										title: __(
-											'Import the entire Twitter thread directly into this post.',
-											'jetpack'
-										),
-										onClick: () => unleashStorm( url, noticeOperations ),
-										extraProps: {
-											className: 'gathering-tweetstorms__embed-toolbar-button',
-											children: __( 'Unroll', 'jetpack' ),
-										},
-									},
-								] }
-							/>
-						) }
+						<ToolbarGroup className="gathering-tweetstorms__embed-toolbar">
+							<Button
+								className="gathering-tweetstorms__embed-toolbar-button"
+								onClick={ () => unleashStorm( url, noticeOperations ) }
+								label={ __(
+									'Import the entire Twitter thread directly into this post.',
+									'jetpack'
+								) }
+								showTooltip={ true }
+								disabled={ isGatheringStorm || ! url }
+							>
+								{ __( 'Unroll', 'jetpack' ) }
+							</Button>
+							{ isGatheringStorm && <Spinner /> }
+						</ToolbarGroup>
 					</BlockControls>
 					<CoreTweetEdit { ...props } />
 				</>

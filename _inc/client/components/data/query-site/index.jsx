@@ -17,25 +17,25 @@ import {
 	isFetchingSiteData,
 	getSitePlan,
 } from 'state/site';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 
 class QuerySite extends Component {
 	static propTypes = {
 		isFetchingSiteData: PropTypes.bool,
-		isDevMode: PropTypes.bool,
+		isOfflineMode: PropTypes.bool,
 		sitePlan: PropTypes.object,
 	};
 
 	static defaultProps = {
 		isFetchingSiteData: false,
-		isDevMode: false,
+		isOfflineMode: false,
 		sitePlan: {},
 	};
 
 	UNSAFE_componentWillMount() {
 		if (
 			! this.props.isFetchingSiteData &&
-			! this.props.isDevMode &&
+			! this.props.isOfflineMode &&
 			isEmpty( this.props.sitePlan )
 		) {
 			this.props.fetchSiteData();
@@ -54,7 +54,7 @@ export default connect(
 	state => {
 		return {
 			isFetchingSiteData: isFetchingSiteData( state ),
-			isDevMode: isDevMode( state ),
+			isOfflineMode: isOfflineMode( state ),
 			sitePlan: getSitePlan( state ),
 		};
 	},

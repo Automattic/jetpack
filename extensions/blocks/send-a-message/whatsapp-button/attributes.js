@@ -28,4 +28,8 @@ export default {
 		type: 'string',
 		default: 'dark',
 	},
+	openInNewTab: {
+		type: 'boolean',
+		default: false,
+	},
 };

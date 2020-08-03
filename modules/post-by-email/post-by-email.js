@@ -1,6 +1,6 @@
 /* global jetpack_post_by_email:true, pbeVars */
 
-( function( $ ) {
+( function ( $ ) {
 	var $pbeDisable,
 		$pbeEmail,
 		$pbeEmailWrapper,
@@ -11,13 +11,13 @@
 		$pbeSpinner;
 
 	jetpack_post_by_email = {
-		init: function() {
+		init: function () {
 			$pbeEnable.click( jetpack_post_by_email.enable );
 			$pbeRegenerate.click( jetpack_post_by_email.regenerate );
 			$pbeDisable.click( jetpack_post_by_email.disable );
 		},
 
-		enable: function() {
+		enable: function () {
 			$pbeEnable.attr( 'disabled', 'disabled' );
 			$pbeError.fadeOut();
 			$pbeSpinner.fadeIn();
@@ -28,12 +28,12 @@
 			);
 		},
 
-		handle_enabled: function( response ) {
+		handle_enabled: function ( response ) {
 			$pbeRegenerate.removeAttr( 'disabled' );
 			$pbeDisable.removeAttr( 'disabled' );
 
 			if ( response.code === 'success' ) {
-				$pbeEnable.fadeOut( 400, function() {
+				$pbeEnable.fadeOut( 400, function () {
 					$pbeEnable.removeAttr( 'disabled' );
 					$pbeEmail.val( response.post_by_email_address );
 					$pbeInfo.fadeIn();
@@ -47,7 +47,7 @@
 			$pbeSpinner.fadeOut();
 		},
 
-		regenerate: function() {
+		regenerate: function () {
 			jetpack_post_by_email.before_request();
 
 			jetpack_post_by_email.send_request(
@@ -56,9 +56,9 @@
 			);
 		},
 
-		handle_regenerated: function( response ) {
+		handle_regenerated: function ( response ) {
 			if ( response.code === 'success' ) {
-				$pbeEmailWrapper.fadeOut( 400, function() {
+				$pbeEmailWrapper.fadeOut( 400, function () {
 					$pbeEmail.val( response.post_by_email_address );
 					$pbeEmailWrapper.fadeIn();
 				} );
@@ -72,7 +72,7 @@
 			$pbeSpinner.fadeOut();
 		},
 
-		disable: function() {
+		disable: function () {
 			jetpack_post_by_email.before_request();
 
 			jetpack_post_by_email.send_request(
@@ -81,10 +81,10 @@
 			);
 		},
 
-		handle_disabled: function( response ) {
+		handle_disabled: function ( response ) {
 			if ( response.code === 'success' ) {
 				$pbeEnable.removeAttr( 'disabled' );
-				$pbeInfo.fadeOut( 400, function() {
+				$pbeInfo.fadeOut( 400, function () {
 					$pbeRegenerate.removeAttr( 'disabled' );
 					$pbeDisable.removeAttr( 'disabled' );
 					$pbeEnable.fadeIn();
@@ -100,12 +100,12 @@
 			$pbeSpinner.fadeOut();
 		},
 
-		send_request: function( data, callback ) {
+		send_request: function ( data, callback ) {
 			var request = new XMLHttpRequest();
 			request.open( 'POST', '/wp-json/jetpack/v4/settings/' );
 			request.setRequestHeader( 'Content-Type', 'application/json' );
 			request.setRequestHeader( 'X-WP-Nonce', pbeVars.rest_nonce );
-			request.onreadystatechange = function() {
+			request.onreadystatechange = function () {
 				if ( this.readyState === XMLHttpRequest.DONE ) {
 					callback( JSON.parse( this.response ) );
 				}
@@ -113,7 +113,7 @@
 			request.send( JSON.stringify( data ) );
 		},
 
-		parse_error_message: function( data ) {
+		parse_error_message: function ( data ) {
 			if ( data.message ) {
 				return data.message.replace( /^.*?:/, '' );
 			}
@@ -121,7 +121,7 @@
 			return '';
 		},
 
-		before_request: function() {
+		before_request: function () {
 			$pbeRegenerate.attr( 'disabled', 'disabled' );
 			$pbeDisable.attr( 'disabled', 'disabled' );
 			$pbeError.fadeOut();
@@ -129,7 +129,7 @@
 		},
 	};
 
-	$( function() {
+	$( function () {
 		$pbeDisable = $( '#jp-pbe-disable' );
 		$pbeEmail = $( '#jp-pbe-email' );
 		$pbeEmailWrapper = $( '#jp-pbe-email-wrapper' );

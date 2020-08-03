@@ -103,14 +103,7 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
-function buildFilterObject( filterQuery, adminQueryFilter ) {
-	if ( ! filterQuery && ! adminQueryFilter ) {
-		return {};
-	}
-	if ( ! filterQuery ) {
-		return adminQueryFilter;
-	}
-
+function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
 	const filter = { bool: { must: [] } };
 	getFilterKeys()
 		.filter( key => isLengthyArray( filterQuery[ key ] ) )
@@ -128,6 +121,16 @@ function buildFilterObject( filterQuery, adminQueryFilter ) {
 	if ( adminQueryFilter ) {
 		filter.bool.must.push( adminQueryFilter );
 	}
+
+	if ( excludedPostTypes?.length > 0 ) {
+		filter.bool.must.push( {
+			bool: {
+				must_not: excludedPostTypes.map( postType =>
+					filterKeyToEsFilter.get( 'post_types' )( postType )
+				),
+			},
+		} );
+	}
 	return filter;
 }
 
@@ -143,6 +146,7 @@ function mapSortToApiValue( sort ) {
 
 export function search( {
 	aggregations,
+	excludedPostTypes,
 	filter,
 	pageHandle,
 	query,
@@ -189,7 +193,7 @@ export function search( {
 			aggregations,
 			fields,
 			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter ),
+			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
 			query: encodeURIComponent( query ),
 			sort: mapSortToApiValue( sort ),
 			page_handle: pageHandle,

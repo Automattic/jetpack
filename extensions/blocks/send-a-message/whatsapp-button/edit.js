@@ -14,6 +14,7 @@ import {
 	ToolbarGroup,
 	Dropdown,
 	Path,
+	ToggleControl,
 } from '@wordpress/components';
 import {
 	BlockControls,
@@ -43,6 +44,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		firstMessage,
 		colorClass,
 		backgroundColor,
+		openInNewTab,
 	} = attributes;
 
 	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( true );
@@ -153,7 +155,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 							}
 
 							if ( newPhoneNumber.length > 2 ) {
-								setIsValidPhoneNumber( validatePhoneNumber( phoneNumber ) );
+								setIsValidPhoneNumber( validatePhoneNumber( newPhoneNumber ) );
 							}
 						} }
 						value={ phoneNumber }
@@ -174,6 +176,16 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 					) }
 					value={ firstMessage }
 					onChange={ text => setAttributes( { firstMessage: text } ) }
+				/>
+
+				<ToggleControl
+					label={ __( 'Open in new tab', 'jetpack' ) }
+					checked={ openInNewTab }
+					onChange={ newValue => setAttributes( { openInNewTab: newValue } ) }
+					help={ __(
+						'When the button is tapped, should a new tab be opened if the visitor does not have WhatsApp installed?',
+						'jetpack'
+					) }
 				/>
 			</>
 		);

@@ -41,7 +41,7 @@ describe( 'Free blocks', () => {
 	} );
 
 	it( 'Eventbrite block', async () => {
-		const eventId = '96820156695';
+		const eventId = '112691417062';
 		let blockEditor;
 
 		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
@@ -63,7 +63,9 @@ describe( 'Free blocks', () => {
 
 		await step( 'Can assert that Eventbrite block is rendered', async () => {
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( EventbriteBlock, { eventId } );
+			await frontend.isRenderedBlockPresent( EventbriteBlock, {
+				eventId,
+			} );
 		} );
 	} );
 } );

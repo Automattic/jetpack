@@ -1,4 +1,4 @@
-jQuery( document ).ready( function( $ ) {
+jQuery( document ).ready( function ( $ ) {
 	var body = $( 'body' ),
 		toggleSSO = $( '.jetpack-sso-toggle' ),
 		userLogin = $( '#user_login' ),
@@ -23,7 +23,7 @@ jQuery( document ).ready( function( $ ) {
 	loginForm.append( ssoWrap );
 	body.addClass( 'jetpack-sso-repositioned' );
 
-	toggleSSO.on( 'click', function( e ) {
+	toggleSSO.on( 'click', function ( e ) {
 		e.preventDefault();
 		body.toggleClass( 'jetpack-sso-form-display' );
 		if ( ! body.hasClass( 'jetpack-sso-form-display' ) ) {

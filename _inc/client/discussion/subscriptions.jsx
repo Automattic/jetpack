@@ -2,20 +2,20 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import CompactFormToggle from 'components/form/form-toggle/compact';
+import Card from 'components/card';
 import { FormFieldset } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 class SubscriptionsComponent extends React.Component {
 	/**
@@ -57,10 +57,10 @@ class SubscriptionsComponent extends React.Component {
 	render() {
 		const subscriptions = this.props.getModule( 'subscriptions' ),
 			isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
-			unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' );
+			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'subscriptions' );
 
 		const getSubClickableCard = () => {
-			if ( unavailableInDevMode || ! isSubscriptionsActive ) {
+			if ( unavailableInOfflineMode || ! isSubscriptionsActive ) {
 				return '';
 			}
 
@@ -73,7 +73,7 @@ class SubscriptionsComponent extends React.Component {
 						site: this.props.siteRawUrl,
 					} ) }
 				>
-					{ __( 'View your Email Followers' ) }
+					{ __( 'View your Email Followers', 'jetpack' ) }
 				</Card>
 			) : (
 				<Card
@@ -81,7 +81,7 @@ class SubscriptionsComponent extends React.Component {
 					className="jp-settings-card__configure-link"
 					href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }
 				>
-					{ __( 'Create a Jetpack account to view your email followers' ) }{ ' ' }
+					{ __( 'Create a Jetpack account to view your email followers', 'jetpack' ) }{ ' ' }
 				</Card>
 			);
 		};
@@ -90,19 +90,19 @@ class SubscriptionsComponent extends React.Component {
 			<SettingsCard { ...this.props } hideButton module="subscriptions">
 				<SettingsGroup
 					hasChild
-					disableInDevMode
+					disableInOfflineMode
 					module={ subscriptions }
 					support={ {
 						text: __(
-							'Allows readers to subscribe to your posts or comments, ' +
-								'and receive notifications of new content by email.'
+							'Allows readers to subscribe to your posts or comments, and receive notifications of new content by email.',
+							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-subscriptions' ),
 					} }
 				>
 					<ModuleToggle
 						slug="subscriptions"
-						disabled={ unavailableInDevMode }
+						disabled={ unavailableInOfflineMode }
 						activated={ isSubscriptionsActive }
 						toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
 						toggleModule={ this.props.toggleModuleNow }
@@ -115,26 +115,29 @@ class SubscriptionsComponent extends React.Component {
 								checked={ this.state.stb_enabled }
 								disabled={
 									! isSubscriptionsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'subscriptions', 'stb_enabled' ] )
 								}
 								onChange={ this.handleSubscribeToBlogToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable the “subscribe to site” option on your comment form' ) }
+									{ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ this.state.stc_enabled }
 								disabled={
 									! isSubscriptionsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'subscriptions', 'stc_enabled' ] )
 								}
 								onChange={ this.handleSubscribeToCommentToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable the “subscribe to comments” option on your comment form' ) }
+									{ __(
+										'Enable the “subscribe to comments” option on your comment form',
+										'jetpack'
+									) }
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>

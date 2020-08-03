@@ -3,27 +3,27 @@
  */
 import React, { Fragment, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { ModuleToggle } from 'components/module-toggle';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
-import { FormFieldset } from 'components/forms';
+import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
-import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
-import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import { FormFieldset } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSitePlan,
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
 	isFetchingSitePurchases,
 } from 'state/site';
+import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import { ModuleToggle } from 'components/module-toggle';
+import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 function toggleModuleFactory( {
 	getOptionValue,
@@ -78,7 +78,7 @@ function Search( props ) {
 				} }
 			>
 				<p>{ SEARCH_DESCRIPTION } </p>
-				{ props.isLoading && __( 'Loading…' ) }
+				{ props.isLoading && __( 'Loading…', 'jetpack' ) }
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
 					<Fragment>
 						<ModuleToggle
@@ -88,7 +88,7 @@ function Search( props ) {
 							toggleModule={ toggleModule }
 							toggling={ props.isSavingAnyOption( 'search' ) }
 						>
-							{ __( 'Enable Search' ) }
+							{ __( 'Enable Search', 'jetpack' ) }
 						</ModuleToggle>
 
 						<FormFieldset>
@@ -99,13 +99,13 @@ function Search( props ) {
 								toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable instant search experience (recommended)' ) }
+									{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
 							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
 								{ __(
-									'Instant search will allow your visitors to get search results as soon as they start typing. ' +
-										'If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.'
+									'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
+									'jetpack'
 								) }
 							</p>
 						</FormFieldset>
@@ -121,7 +121,7 @@ function Search( props ) {
 						className="jp-settings-card__configure-link"
 						href="customize.php?autofocus[panel]=widgets"
 					>
-						{ __( 'Add Jetpack Search Widget' ) }
+						{ __( 'Add Jetpack Search Widget', 'jetpack' ) }
 					</Card>
 				) }
 			{ props.hasActiveSearchPurchase && isModuleEnabled && isInstantSearchEnabled && (

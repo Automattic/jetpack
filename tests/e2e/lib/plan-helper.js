@@ -16,8 +16,8 @@ export async function persistPlanData( planType = 'jetpack_business' ) {
 
 	fs.writeFileSync( 'plan-data.txt', JSON.stringify( planData ) );
 
-	const cmd = `wp option update ${ planDataOption }`;
-	await execWpCommand( cmd, ' < plan-data.txt' );
+	const cmd = `wp option update ${ planDataOption } < plan-data.txt`;
+	await execWpCommand( cmd );
 }
 
 export async function activatePlanDataInterceptor() {
@@ -388,8 +388,9 @@ export async function syncPlanData( page ) {
 	do {
 		await page.reload( { waitFor: 'networkidle0' } );
 
-		// eslint-disable-next-line no-undef
+		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		/* eslint-enable no-undef */
 		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 

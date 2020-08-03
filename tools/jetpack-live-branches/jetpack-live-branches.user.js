@@ -9,7 +9,7 @@
 
 /* global jQuery */
 
-( function() {
+( function () {
 	const $ = jQuery.noConflict();
 	doit();
 
@@ -17,9 +17,7 @@
 		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
 		const currentBranch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = currentBranch.includes( ':' );
-		const branchStatus = $( '.gh-header-meta .State' )
-			.text()
-			.trim();
+		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
 
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
@@ -187,9 +185,7 @@
 
 		function updateLink() {
 			const link = getLink( currentBranch );
-			$( '#jetpack-beta-branch-link' )
-				.attr( 'href', link )
-				.text( link );
+			$( '#jetpack-beta-branch-link' ).attr( 'href', link ).text( link );
 		}
 	}
 } )();

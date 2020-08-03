@@ -3,16 +3,25 @@
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
 
 class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
+	/**
+	 * Can the theme be overwritten.
+	 *
+	 * @var bool|string
+	 */
+	public $overwrite;
 
 	/**
-	 * @param array $args
+	 * Constructor
+	 *
+	 * @param array $args Options.
 	 */
 	public function __construct( $args = array() ) {
 		$defaults      = array(
-			'url'     => '',
-			'nonce'   => '',
-			'title'   => '',
-			'context' => false,
+			'url'       => '',
+			'nonce'     => '',
+			'title'     => '',
+			'context'   => false,
+			'overwrite' => '',
 		);
 		$this->options = wp_parse_args( $args, $defaults );
 	}

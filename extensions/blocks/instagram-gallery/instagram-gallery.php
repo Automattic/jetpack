@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Instagram_Gallery;
 
 use Jetpack;
+use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;
 use Jetpack_Instagram_Gallery_Helper;
 
@@ -69,13 +70,20 @@ function render_block( $attributes, $content ) {
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
 	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
-		if ( current_user_can( 'edit_post', get_the_ID() ) ) {
-			$message = esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' )
-				. '<br />'
-				. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
-			return Jetpack_Gutenberg::notice( $message, 'error', Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ) );
+		if ( ! current_user_can( 'edit_post', get_the_ID() ) ) {
+			return '';
 		}
-		return '';
+
+		$connection_unavailable = is_wp_error( $gallery ) && 'instagram_connection_unavailable' === $gallery->get_error_code();
+
+		$error_message = $connection_unavailable
+			? $gallery->get_error_message()
+			: esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' );
+
+		$message = $error_message
+			. '<br />'
+			. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
+		return Jetpack_Gutenberg::notice( $message, 'error', Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ) );
 	}
 
 	if ( empty( $gallery->images ) ) {
@@ -84,11 +92,19 @@ function render_block( $attributes, $content ) {
 
 	$images = array_slice( $gallery->images, 0, $count );
 
+	$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	ob_start();
 	?>
-
+	<?php if ( $is_amp_request ) : ?>
+		<style>
+			.wp-block-jetpack-instagram-gallery__grid .wp-block-jetpack-instagram-gallery__grid-post amp-img img {
+				object-fit: cover;
+			}
+		</style>
+	<?php endif; ?>
 	<div class="<?php echo esc_attr( $grid_classes ); ?>" style="<?php echo esc_attr( $grid_style ); ?>">
 		<?php foreach ( $images as $image ) : ?>
 			<a

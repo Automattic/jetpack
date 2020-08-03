@@ -86,13 +86,7 @@ function MediaBrowser( props ) {
 
 		return (
 			<div className="jetpack-external-media-browser__media__toolbar">
-				<Button
-					isPrimary
-					isLarge
-					isBusy={ isCopying }
-					disabled={ disabled }
-					onClick={ onCopyAndInsert }
-				>
+				<Button isPrimary isBusy={ isCopying } disabled={ disabled } onClick={ onCopyAndInsert }>
 					{ label }
 				</Button>
 			</div>
@@ -118,7 +112,6 @@ function MediaBrowser( props ) {
 
 				{ pageHandle && ! isLoading && (
 					<Button
-						isLarge
 						isSecondary
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading || isCopying }

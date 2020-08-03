@@ -651,11 +651,35 @@ class Grunion_Contact_Form_Plugin {
 	 * @return bool TRUE => spam, FALSE => not spam
 	 */
 	public function is_spam_blocklist( $is_spam, $form = array() ) {
+		global $wp_version;
+
 		if ( $is_spam ) {
 			return $is_spam;
 		}
 
-		if ( wp_blacklist_check( $form['comment_author'], $form['comment_author_email'], $form['comment_author_url'], $form['comment_content'], $form['user_ip'], $form['user_agent'] ) ) {
+		/*
+		 * wp_blacklist_check was deprecated in WP 5.5.
+		 * @todo: remove when WordPress 5.5 is the minimum required version.
+		 */
+		if ( version_compare( $wp_version, '5.5-alpha', '>=' ) ) {
+			$check_comment_disallowed_list = 'wp_check_comment_disallowed_list';
+		} else {
+			$check_comment_disallowed_list = 'wp_blacklist_check';
+		}
+
+		if (
+			call_user_func_array(
+				$check_comment_disallowed_list,
+				array(
+					$form['comment_author'],
+					$form['comment_author_email'],
+					$form['comment_author_url'],
+					$form['comment_content'],
+					$form['user_ip'],
+					$form['user_agent'],
+				)
+			)
+		) {
 			return true;
 		}
 
@@ -1820,7 +1844,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$this->hash                 = sha1( json_encode( $attributes ) . $content );
 		self::$forms[ $this->hash ] = $this;
 
-		// Set up the default subject and recipient for this form
+		// Set up the default subject and recipient for this form.
 		$default_to      = '';
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
 
@@ -1839,7 +1863,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$default_to      .= $post_author->user_email;
 		}
 
-		// Keep reference to $this for parsing form fields
+		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
 
 		$this->defaults = array(
@@ -1853,18 +1877,19 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
+			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
 
-		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode
+		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
 		Grunion_Contact_Form_Plugin::$using_contact_form_field = true;
 
 		parent::__construct( $attributes, $content );
 
 		// There were no fields in the contact form. The form was probably just [contact-form /]. Build a default form.
 		if ( empty( $this->fields ) ) {
-			// same as the original Grunion v1 form
+			// same as the original Grunion v1 form.
 			$default_form = '
 				[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]
 				[contact-field label="' . __( 'Email', 'jetpack' ) . '" type="email" required="true" /]
@@ -1880,10 +1905,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			$this->parse_content( $default_form );
 
-			// Store the shortcode
+			// Store the shortcode.
 			$this->store_shortcode( $default_form, $attributes, $this->hash );
 		} else {
-			// Store the shortcode
+			// Store the shortcode.
 			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 
@@ -1987,10 +2012,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( isset( $_GET['contact-form-id'] )
-		     && $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
-		     && isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
-		     && hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
-			// The contact form was submitted.  Show the success message/results
+			&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
+			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+			&& is_string( $_GET['contact-form-hash'] )
+			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// The contact form was submitted.  Show the success message/results.
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );

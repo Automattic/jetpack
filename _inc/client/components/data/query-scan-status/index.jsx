@@ -9,21 +9,21 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { fetchScanStatus, isFetchingScanStatus } from 'state/scan';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 
 class QueryScanStatus extends Component {
 	static propTypes = {
 		isFetchingScanStatus: PropTypes.bool,
-		isDevMode: PropTypes.bool,
+		isOfflineMode: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		isFetchingScanStatus: false,
-		isDevMode: false,
+		isOfflineMode: false,
 	};
 
 	UNSAFE_componentWillMount() {
-		if ( ! this.props.isFetchingScanStatus && ! this.props.isDevMode ) {
+		if ( ! this.props.isFetchingScanStatus && ! this.props.isOfflineMode ) {
 			this.props.fetchScan();
 		}
 	}
@@ -37,7 +37,7 @@ export default connect(
 	state => {
 		return {
 			isFetchingScanStatus: isFetchingScanStatus( state ),
-			isDevMode: isDevMode( state ),
+			isOfflineMode: isOfflineMode( state ),
 		};
 	},
 	dispatch => {

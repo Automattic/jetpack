@@ -17,6 +17,7 @@ use phpmock\Mock;
 use phpmock\MockBuilder;
 use phpmock\MockEnabledException;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
 
 /**
  * Connection Manager functionality testing.
@@ -51,7 +52,8 @@ class ManagerTest extends TestCase {
 					}
 				);
 
-		$this->apply_filters = $builder->build();
+		$this->apply_filters            = $builder->build();
+		$this->apply_filters_deprecated = $builder->build();
 
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
@@ -84,6 +86,7 @@ class ManagerTest extends TestCase {
 	 * Clean up the testing environment.
 	 */
 	public function tearDown() {
+		WorDBless_Options::init()->clear_options();
 		unset( $this->manager );
 		Constants::clear_constants();
 		Mock::disableAll();
@@ -126,7 +129,8 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_api_url_defaults() {
 		$this->apply_filters->enable();
-		$this->constants_apply_filters->enable();
+
+		add_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
 
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.something/1/',
@@ -136,6 +140,8 @@ class ManagerTest extends TestCase {
 			'https://jetpack.wordpress.com/jetpack.another_thing/1/',
 			$this->manager->api_url( 'another_thing/' )
 		);
+
+		remove_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
 	}
 
 	/**
@@ -148,6 +154,7 @@ class ManagerTest extends TestCase {
 		$this->constants_apply_filters->enable();
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
+		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
 		$this->assertEquals(
 			'https://example.com/api/base.something/1/',
 			$this->manager->api_url( 'something' )
@@ -162,19 +169,11 @@ class ManagerTest extends TestCase {
 
 		$this->apply_filters->disable();
 
-		// Getting a new special mock just for this occasion.
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-				->setName( 'apply_filters' )
-				->setFunction(
-					// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-					function( $filter_name, $return_value ) {
-						$this->arguments_stack[ $filter_name ] [] = func_get_args();
-						return 'completely overwrite';
-					}
-				);
-
-		$builder->build()->enable();
+		$overwrite_filter = function() {
+			$this->arguments_stack['jetpack_api_url'][] = array_merge( array( 'jetpack_api_url' ), func_get_args() );
+			return 'completely overwrite';
+		};
+		add_filter( 'jetpack_api_url', $overwrite_filter, 10, 4 );
 
 		$this->assertEquals(
 			'completely overwrite',
@@ -193,6 +192,8 @@ class ManagerTest extends TestCase {
 			'/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/',
 			$call_arguments[4]
 		);
+
+		remove_filter( 'jetpack_api_url', $overwrite_filter, 10 );
 	}
 
 	/**
@@ -322,45 +323,102 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::jetpack_connection_custom_caps
 	 * @dataProvider jetpack_connection_custom_caps_data_provider
 	 *
-	 * @param bool   $in_dev_mode Whether development mode is active.
+	 * @param bool   $in_offline_mode Whether offline mode is active.
 	 * @param string $custom_cap The custom capability that is being tested.
 	 * @param array  $expected_caps The expected output.
 	 */
-	public function test_jetpack_connection_custom_caps( $in_dev_mode, $custom_cap, $expected_caps ) {
-		// Mock the site_url call in Status::is_development_mode.
+	public function test_jetpack_connection_custom_caps( $in_offline_mode, $custom_cap, $expected_caps ) {
+		$this->apply_filters_deprecated->enable();
+		// Mock the site_url call in Status::is_offline_mode.
 		$this->mock_function( 'site_url', false, 'Automattic\Jetpack' );
 
-		// Mock the apply_filters( 'jetpack_development_mode', ) call in Status::is_development_mode.
-		$this->mock_function( 'apply_filters', $in_dev_mode, 'Automattic\Jetpack' );
+		// Mock the apply_filters_deprecated( 'jetpack_development_mode' ) call in Status->is_offline_mode.
+		$this->mock_function( 'apply_filters_deprecated', false, 'Automattic\Jetpack' );
+
+		$this->apply_filters->disable();
+		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
+		add_filter(
+			'jetpack_offline_mode',
+			function() use ( $in_offline_mode ) {
+				return $in_offline_mode;
+			}
+		);
 
 		// Mock the apply_filters( 'jetpack_disconnect_cap', ) call in jetpack_connection_custom_caps.
 		$this->mock_function( 'apply_filters', array( 'manage_options' ) );
 
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
+		$this->apply_filters_deprecated->disable();
 	}
 
 	/**
 	 * Data provider test_jetpack_connection_custom_caps.
 	 *
 	 * Structure of the test data arrays:
-	 *     [0] => 'in_dev_mode'   boolean Whether development mode is active.
-	 *     [1] => 'custom_cap'    string The custom capability that is being tested.
-	 *     [2] => 'expected_caps' array The expected output of the call to jetpack_connection_custom_caps.
+	 *     [0] => 'in_offline_mode'   boolean Whether offline mode is active.
+	 *     [1] => 'custom_cap'        string The custom capability that is being tested.
+	 *     [2] => 'expected_caps'     array The expected output of the call to jetpack_connection_custom_caps.
 	 */
 	public function jetpack_connection_custom_caps_data_provider() {
 
 		return array(
-			'dev mode, jetpack_connect'          => array( true, 'jetpack_connect', array( 'do_not_allow' ) ),
-			'dev mode, jetpack_reconnect'        => array( true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
-			'dev mode, jetpack_disconnect'       => array( true, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'dev mode, jetpack_connect_user'     => array( true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
-			'dev mode, unknown cap'              => array( true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
-			'not dev mode, jetpack_connect'      => array( false, 'jetpack_connect', array( 'manage_options' ) ),
-			'not dev mode, jetpack_reconnect'    => array( false, 'jetpack_reconnect', array( 'manage_options' ) ),
-			'not dev mode, jetpack_disconnect'   => array( false, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'not dev mode, jetpack_connect_user' => array( false, 'jetpack_connect_user', array( 'read' ) ),
-			'not dev mode, unknown cap'          => array( false, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'offline mode, jetpack_connect'          => array( true, 'jetpack_connect', array( 'do_not_allow' ) ),
+			'offline mode, jetpack_reconnect'        => array( true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
+			'offline mode, jetpack_disconnect'       => array( true, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'offline mode, jetpack_connect_user'     => array( true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
+			'offline mode, unknown cap'              => array( true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'not offline mode, jetpack_connect'      => array( false, 'jetpack_connect', array( 'manage_options' ) ),
+			'not offline mode, jetpack_reconnect'    => array( false, 'jetpack_reconnect', array( 'manage_options' ) ),
+			'not offline mode, jetpack_disconnect'   => array( false, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'not offline mode, jetpack_connect_user' => array( false, 'jetpack_connect_user', array( 'read' ) ),
+			'not offline mode, unknown cap'          => array( false, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+		);
+	}
+
+	/**
+	 * Test the `is_registered' method.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::is_registered
+	 * @dataProvider is_registered_data_provider
+	 *
+	 * @param object|boolean $blog_token The blog token. False if the blog token does not exist.
+	 * @param int|boolean    $blog_id The blog id. False if the blog id does not exist.
+	 * @param boolean        $expected_output The expected output.
+	 */
+	public function test_is_registered( $blog_token, $blog_id, $expected_output ) {
+		$this->manager->expects( $this->once() )
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $blog_token ) );
+
+		if ( $blog_id ) {
+			update_option( 'jetpack_options', array( 'id' => $blog_id ) );
+		} else {
+			update_option( 'jetpack_options', array() );
+		}
+
+		$this->assertEquals( $expected_output, $this->manager->is_registered() );
+	}
+
+	/**
+	 * Data provider for test_is_registered.
+	 *
+	 * Structure of the test data arrays:
+	 *     [0] => 'blog_token'      object|boolean The blog token or false if the blog token does not exist.
+	 *     [1] => 'blog_id'         int|boolean The blog id or false if the blog id does not exist.
+	 *     [2] => 'expected_output' boolean The expected output of the call to is_registered.
+	 */
+	public function is_registered_data_provider() {
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => 1,
+		);
+
+		return array(
+			'blog token, blog id'       => array( $access_token, 1234, true ),
+			'blog token, no blog id'    => array( $access_token, false, false ),
+			'no blog token, blog id'    => array( false, 1234, false ),
+			'no blog token, no blog id' => array( false, false, false ),
 		);
 	}
 
@@ -388,6 +446,21 @@ class ManagerTest extends TestCase {
 		$mock->enable();
 
 		return $mock;
+	}
+
+	/**
+	 * Filter to set the default constant values.
+	 *
+	 * @param string $value Existing value (empty and ignored).
+	 * @param string $name Constant name.
+	 *
+	 * @see Utils::DEFAULT_JETPACK__API_BASE
+	 * @see Utils::DEFAULT_JETPACK__API_VERSION
+	 *
+	 * @return string
+	 */
+	public function filter_api_constant( $value, $name ) {
+		return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
 	}
 
 }

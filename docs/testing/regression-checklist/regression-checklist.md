@@ -1,6 +1,6 @@
 # Regression checklist
-This is the "global" checklist, that might be used for beta testing. 
-NOTE: it might become outdated, so it could be a good idea to generate this file via test-suites files. 
+This is the "global" checklist, that might be used for beta testing.
+NOTE: it might become outdated, so it could be a good idea to generate this file via test-suites files.
 
 ## Global
 
@@ -39,7 +39,7 @@ NOTE: it might become outdated, so it could be a good idea to generate this file
 - [ ] In-place connection with free plan
 - [ ] In-place connection with paid plan
 - [ ] In-place connection with product purchase
-- [ ] Classic connection. Use Safari, or set a constant “JETPACK_SHOULD_USE_CONNECTION_IFRAME” to false
+- [ ] Classic connection. Use Safari, or set a constant JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME to true
 - [ ] Disconnect/reconnect connection
 - [ ] Secondary user connection
 - [ ] Connection on multisite

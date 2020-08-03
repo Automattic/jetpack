@@ -4,23 +4,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import SimpleNotice from 'components/notice';
-import analytics from 'lib/analytics';
 import { get } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _n, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import { isDevMode } from 'state/connection';
-import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -32,6 +26,12 @@ import {
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
+import { isOfflineMode } from 'state/connection';
+import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import SimpleNotice from 'components/notice';
 
 /**
  * Track click on Pro status badge.
@@ -77,17 +77,17 @@ class ProStatus extends React.Component {
 			case 'provisioning':
 				return {
 					status: 'is-info',
-					text: __( 'Setting up' ),
+					text: __( 'Setting up', 'jetpack' ),
 				};
 			case 'awaiting_credentials':
 				return {
 					status: 'is-warning',
-					text: __( 'Action needed' ),
+					text: __( 'Action needed', 'jetpack' ),
 				};
 			case 'active':
 				return {
 					status: 'is-success',
-					text: __( 'Connected' ),
+					text: __( 'Connected', 'jetpack' ),
 				};
 			default:
 				return { status: '', text: '' };
@@ -103,13 +103,17 @@ class ProStatus extends React.Component {
 			case 'threats':
 				status = 'is-error';
 				if ( this.props.isCompact ) {
-					action = __( 'Threats', {
-						context: 'A caption for a small button to fix security issues.',
-					} );
+					action = _x(
+						'Threats',
+						'A caption for a small button to fix security issues.',
+						'jetpack'
+					);
 				} else {
-					action = __( 'See threats', {
-						context: 'A caption for a small button to fix security issues.',
-					} );
+					action = _x(
+						'See threats',
+						'A caption for a small button to fix security issues.',
+						'jetpack'
+					);
 				}
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
@@ -119,9 +123,11 @@ class ProStatus extends React.Component {
 				return;
 			case 'secure':
 				status = 'is-success';
-				message = __( 'Secure', {
-					context: 'Short message informing user that the site is secure.',
-				} );
+				message = _x(
+					'Secure',
+					'Short message informing user that the site is secure.',
+					'jetpack'
+				);
 				break;
 			case 'invalid_key':
 				return;
@@ -133,7 +139,7 @@ class ProStatus extends React.Component {
 					</SimpleNotice>
 				);
 			case 'active':
-				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
+				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE', 'jetpack' ) }</span>;
 		}
 		return (
 			<SimpleNotice showDismiss={ false } status={ status } isCompact={ true }>
@@ -169,7 +175,7 @@ class ProStatus extends React.Component {
 					query: `only=${ feature }`,
 				} ) }
 			>
-				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
+				{ _x( 'Set up', 'Caption for a button to set up a feature.', 'jetpack' ) }
 			</Button>
 		);
 	};
@@ -234,9 +240,7 @@ class ProStatus extends React.Component {
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
 								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
-									{ __( 'Threat', 'Threats', {
-										count: scanStatus.threats.length,
-									} ) }
+									{ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
 								</SimpleNotice>
 							);
 						}
@@ -246,7 +250,7 @@ class ProStatus extends React.Component {
 						if ( scanStatus.credentials.length === 0 ) {
 							return (
 								<SimpleNotice showDismiss={ false } status="is-warning" isCompact>
-									{ __( 'Action needed' ) }
+									{ __( 'Action needed', 'jetpack' ) }
 								</SimpleNotice>
 							);
 						}
@@ -292,7 +296,7 @@ class ProStatus extends React.Component {
 				<QuerySitePlugins />
 				<QueryAkismetKeyCheck />
 				<QueryVaultPressData />
-				{ ! this.props.isDevMode &&
+				{ ! this.props.isOfflineMode &&
 					getStatus(
 						this.props.proFeature,
 						this.props.pluginActive( pluginSlug ),
@@ -318,7 +322,7 @@ export default connect( state => {
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		fetchingAkismetData: isFetchingAkismetData( state ),

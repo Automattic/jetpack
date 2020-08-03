@@ -1,9 +1,9 @@
 @import '../../scss/calypso-colors';
 @import '../../scss/z-index';
+@import '../../scss/functions/rem';
 @import '../../scss/mixin_breakpoint';
-@import '../../scss/rem';
-@import '../../scss/z-index';
 @import '../../scss/mixin_icons';
+@import '../../scss/typography';
 
 /**
  * Section Nav
@@ -263,7 +263,7 @@
 	box-sizing: border-box;
 	padding: 15px;
 	width: 100%;
-	font-size: 14px;
+	font-size: $font-body-small;
 	font-weight: 600;
 	line-height: 18px;
 	color: $gray-dark;

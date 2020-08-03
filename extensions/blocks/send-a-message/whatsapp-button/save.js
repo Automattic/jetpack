@@ -17,6 +17,7 @@ export default function SendAMessageSave( { attributes, className } ) {
 		buttonText,
 		backgroundColor,
 		colorClass,
+		openInNewTab,
 	} = attributes;
 
 	const fullPhoneNumber =
@@ -40,12 +41,16 @@ export default function SendAMessageSave( { attributes, className } ) {
 		! buttonText.length ? 'has-no-text' : undefined
 	);
 
+	const target = openInNewTab ? '_blank' : '_self';
+
 	return (
 		<div className={ cssClassNames }>
 			<a
 				className="whatsapp-block__button"
 				href={ getWhatsAppUrl() }
 				style={ { backgroundColor: backgroundColor } }
+				target={ target }
+				rel="noopener noreferrer"
 			>
 				<RichText.Content value={ buttonText } />
 			</a>

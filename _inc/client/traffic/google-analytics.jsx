@@ -2,14 +2,15 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -25,46 +26,45 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Google Analytics', { context: 'Settings header' } ) }
+					header={ _x( 'Google Analytics', 'Settings header', 'jetpack' ) }
 					feature={ FEATURE_GOOGLE_ANALYTICS_JETPACK }
 					hideButton
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ { module: 'google-analytics' } }
 						support={ {
 							text: __(
-								'Integrates your WordPress site with Google Analytics, ' +
-									'a platform that offers insights into your traffic, visitors, and conversions.'
+								'Integrates your WordPress site with Google Analytics, a platform that offers insights into your traffic, visitors, and conversions.',
+								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-google-analytics' ),
 						} }
 					>
-						{ __(
-							'Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic.' +
-								' WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will ' +
-								'normally show slightly different totals for your visits, views, etc.',
+						{ jetpackCreateInterpolateElement(
+							__(
+								'Google Analytics is a free service that complements our <a>built-in stats</a> with different insights into your traffic. WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will normally show slightly different totals for your visits, views, etc.',
+								'jetpack'
+							),
 							{
-								components: {
-									a: (
-										<a
-											href={ getRedirectUrl( 'calypso-stats-day', {
-												site: this.props.siteRawUrl,
-											} ) }
-										/>
-									),
-								},
+								a: (
+									<a
+										href={ getRedirectUrl( 'calypso-stats-day', {
+											site: this.props.siteRawUrl,
+										} ) }
+									/>
+								),
 							}
 						) }
 					</SettingsGroup>
-					{ ! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
+					{ ! this.props.isUnavailableInOfflineMode( 'google-analytics' ) && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
 							href={ this.props.configureUrl }
 						>
-							{ __( 'Configure your Google Analytics settings' ) }
+							{ __( 'Configure your Google Analytics settings', 'jetpack' ) }
 						</Card>
 					) }
 				</SettingsCard>

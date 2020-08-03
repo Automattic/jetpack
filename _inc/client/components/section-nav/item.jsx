@@ -33,7 +33,7 @@ const NavItem = createReactClass( {
 		count: PropTypes.number,
 	},
 
-	render: function() {
+	render: function () {
 		const itemClassPrefix = this.props.itemType ? this.props.itemType : 'tab';
 		const itemClasses = {
 			'is-selected': this.props.selected,

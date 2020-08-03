@@ -7,7 +7,9 @@ import {
 	isFetchingUserData,
 	getSiteConnectionStatus,
 	getConnectUrl,
-	isCurrentUserLinked
+	isCurrentUserLinked,
+	isAuthorizingUserInPlace,
+	isReconnectingSite,
 } from '../reducer';
 
 let state = {
@@ -18,11 +20,13 @@ let state = {
 				fetchingConnectUrl: false,
 				unlinkingUser: true,
 				fetchingUserData: true,
+				authorizingUserInPlace: true,
+				reconnectingSite: true,
 			},
 			status: {
 				siteConnected: {
 					isActive: true,
-					devMode: {
+					offlineMode: {
 						isActive: false
 					}
 				}
@@ -43,6 +47,14 @@ describe( 'requests selectors', () => {
 			const stateIn = state;
 			const output = isDisconnectingSite( stateIn );
 			expect( output ).to.be.equal( state.jetpack.connection.requests.disconnectingSite );
+		} );
+	} );
+
+	describe( '#isReconnectingSite', () => {
+		it( 'should return state.jetpack.connection.requests.reconnectingSite', () => {
+			const stateIn = state;
+			const output = isReconnectingSite( stateIn );
+			expect( output ).to.be.equal( state.jetpack.connection.requests.reconnectingSite );
 		} );
 	} );
 
@@ -67,6 +79,14 @@ describe( 'requests selectors', () => {
 			const stateIn = state;
 			const output = isFetchingUserData( stateIn );
 			expect( output ).to.be.equal( state.jetpack.connection.requests.fetchingUserData );
+		} );
+	} );
+
+	describe( '#isAuthorizingUserInPlace', () => {
+		it( 'should return state.jetpack.connection.requests.authorizingUserInPlace', () => {
+			const stateIn = state;
+			const output = isAuthorizingUserInPlace( stateIn );
+			expect( output ).to.be.equal( state.jetpack.connection.requests.authorizingUserInPlace );
 		} );
 	} );
 } );

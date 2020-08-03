@@ -8,6 +8,7 @@ use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -907,8 +908,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					$status = new Status();
 
-					if ( $status->is_development_mode() ) {
-						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in development mode.', 'jetpack' ) );
+					if ( $status->is_offline_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in offline mode.', 'jetpack' ) );
 						return;
 					}
 					if ( $status->is_staging_site() ) {
@@ -996,6 +997,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 							WP_CLI::log( __( 'Sent data to WordPress.com', 'jetpack' ) );
 						} else {
 							WP_CLI::log( __( 'Sent more data to WordPress.com', 'jetpack' ) );
+						}
+
+						// Immediate Full Sync does not wait for WP.com to process data so we need to enforce a wait.
+						if ( false !== strpos( get_class( Modules::get_module( 'full-sync' ) ), 'Full_Sync_Immediately' ) ) {
+							sleep( 15 );
 						}
 					}
 					$i++;
@@ -1614,16 +1620,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'The publicize module is not active.', 'jetpack' ) );
 		}
 
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			if (
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
 				! has_filter( 'jetpack_development_mode' ) &&
+				! has_filter( 'jetpack_offline_mode' ) &&
 				false === strpos( site_url(), '.' )
 			) {
-				WP_CLI::error( __( "Jetpack is current in development mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in development mode, the publicize module will not load.", 'jetpack' ) );
+				WP_CLI::error( __( "Jetpack is current in offline mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in offline mode, the publicize module will not load.", 'jetpack' ) );
 			}
 
-			WP_CLI::error( __( 'Jetpack is currently in development mode, so the publicize module will not load.', 'jetpack' ) );
+			WP_CLI::error( __( 'Jetpack is currently in offline mode, so the publicize module will not load.', 'jetpack' ) );
 		}
 
 		if ( ! class_exists( 'Publicize' ) ) {

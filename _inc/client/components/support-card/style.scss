@@ -4,7 +4,7 @@
 }
 
 .jp-support-card__description {
-	font-size: rem( 14px);
+	font-size: $font-body-small;
 	line-height: 1.65;
 
 	&:first-of-type {
@@ -67,7 +67,7 @@
 
 .jp-support-card__header {
 	font-weight: 400;
-	font-size: rem( 21px );
+	font-size: $font-title-small;
 	margin: 0;
 }
 

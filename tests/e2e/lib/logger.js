@@ -18,7 +18,7 @@ const myCustomLevels = {
  * @param {string} level
  */
 function filterOnly( level ) {
-	return format( function( info ) {
+	return format( function ( info ) {
 		if ( info[ LEVEL ] === level ) {
 			return info;
 		}
@@ -54,7 +54,10 @@ const logger = createLogger( {
 		// - Write all logs error (and below) to `quick-start-error.log`.
 		//
 		new transports.File( { filename: 'logs/e2e-json.log' } ),
-		new transports.File( { filename: 'logs/e2e-simple.log', format: stringFormat } ),
+		new transports.File( {
+			filename: 'logs/e2e-simple.log',
+			format: stringFormat,
+		} ),
 		// Slack specific logging transport that is used later to send a report to slack.
 		new transports.File( {
 			filename: 'logs/e2e-slack.log',

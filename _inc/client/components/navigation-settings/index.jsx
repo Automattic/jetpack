@@ -1,29 +1,19 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
-import SectionNav from 'components/section-nav';
-import NavTabs from 'components/section-nav/tabs';
-import NavItem from 'components/section-nav/item';
-import Search from 'components/search';
-import { translate as __ } from 'i18n-calypso';
 import { noop } from 'lodash';
-import UrlSearch from 'mixins/url-search';
-import analytics from 'lib/analytics';
 import { withRouter } from 'react-router-dom';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import { filterSearch, getSearchTerm } from 'state/search';
-import {
-	userCanManageModules as _userCanManageModules,
-	userIsSubscriber as _userIsSubscriber,
-	userCanPublish,
-} from 'state/initial-state';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
 import {
 	getModules,
@@ -33,7 +23,17 @@ import {
 	isModuleActivated,
 } from 'state/modules';
 import { isPluginActive } from 'state/site/plugins';
+import NavTabs from 'components/section-nav/tabs';
+import NavItem from 'components/section-nav/item';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import Search from 'components/search';
+import SectionNav from 'components/section-nav';
+import UrlSearch from 'mixins/url-search';
+import {
+	userCanManageModules as _userCanManageModules,
+	userIsSubscriber as _userIsSubscriber,
+	userCanPublish,
+} from 'state/initial-state';
 
 export const NavigationSettings = createReactClass( {
 	displayName: 'NavigationSettings',
@@ -68,7 +68,7 @@ export const NavigationSettings = createReactClass( {
 					onClick={ this.handleClickForTracking( 'search' ) }
 					pinned={ true }
 					fitsContainer={ true }
-					placeholder={ __( 'Search for a Jetpack feature.' ) }
+					placeholder={ __( 'Search for a Jetpack feature.', 'jetpack' ) }
 					delaySearch={ true }
 					delayTimeout={ 500 }
 					onSearch={ this.doSearch }
@@ -93,7 +93,7 @@ export const NavigationSettings = createReactClass( {
 	 * @param {string} keyword - the new search keyword
 	 * @returns {string} href the new location string
 	 */
-	buildUrl: function( href, keyword ) {
+	buildUrl: function ( href, keyword ) {
 		const splitUrl = href.split( '#' ),
 			splitHash = splitUrl[ 1 ].split( '?' );
 
@@ -105,7 +105,7 @@ export const NavigationSettings = createReactClass( {
 		return () => this.trackNavClick( target );
 	},
 
-	render: function() {
+	render: function () {
 		let navItems, sharingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (
@@ -119,7 +119,7 @@ export const NavigationSettings = createReactClass( {
 								this.props.location.pathname === '/settings'
 							}
 						>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
+							{ _x( 'Security', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 					{ this.props.hasAnyPerformanceFeature && (
@@ -128,7 +128,7 @@ export const NavigationSettings = createReactClass( {
 							onClick={ this.handleClickForTracking( 'performance' ) }
 							selected={ this.props.location.pathname === '/performance' }
 						>
-							{ __( 'Performance', { context: 'Navigation item.' } ) }
+							{ _x( 'Performance', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 					{ this.props.hasAnyOfTheseModules( [
@@ -144,7 +144,7 @@ export const NavigationSettings = createReactClass( {
 							onClick={ this.handleClickForTracking( 'writing' ) }
 							selected={ this.props.location.pathname === '/writing' }
 						>
-							{ __( 'Writing', { context: 'Navigation item.' } ) }
+							{ _x( 'Writing', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 					{ this.props.hasAnyOfTheseModules( [ 'publicize', 'sharedaddy', 'likes' ] ) && (
@@ -153,7 +153,7 @@ export const NavigationSettings = createReactClass( {
 							onClick={ this.handleClickForTracking( 'sharing' ) }
 							selected={ this.props.location.pathname === '/sharing' }
 						>
-							{ __( 'Sharing', { context: 'Navigation item.' } ) }
+							{ _x( 'Sharing', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 					{ this.props.hasAnyOfTheseModules( [
@@ -167,7 +167,7 @@ export const NavigationSettings = createReactClass( {
 							onClick={ this.handleClickForTracking( 'discussion' ) }
 							selected={ this.props.location.pathname === '/discussion' }
 						>
-							{ __( 'Discussion', { context: 'Navigation item.' } ) }
+							{ _x( 'Discussion', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 					{ this.props.hasAnyOfTheseModules( [
@@ -184,7 +184,7 @@ export const NavigationSettings = createReactClass( {
 							onClick={ this.handleClickForTracking( 'traffic' ) }
 							selected={ this.props.location.pathname === '/traffic' }
 						>
-							{ __( 'Traffic', { context: 'Navigation item.' } ) }
+							{ _x( 'Traffic', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 				</NavTabs>
@@ -201,7 +201,7 @@ export const NavigationSettings = createReactClass( {
 						onClick={ this.handleClickForTracking( 'sharing' ) }
 						selected={ this.props.location.pathname === '/sharing' }
 					>
-						{ __( 'Sharing', { context: 'Navigation item.' } ) }
+						{ _x( 'Sharing', 'Navigation item.', 'jetpack' ) }
 					</NavItem>
 				);
 			}
@@ -216,7 +216,7 @@ export const NavigationSettings = createReactClass( {
 								this.props.location.pathname === '/settings'
 							}
 						>
-							{ __( 'Writing', { context: 'Navigation item.' } ) }
+							{ _x( 'Writing', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 					{

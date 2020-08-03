@@ -1,5 +1,6 @@
 <?php
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
 
@@ -65,7 +66,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
-		if ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) {
+		if ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) {
 			global $submenu;
 			if ( current_user_can( 'jetpack_admin_page' ) ) {
 				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
@@ -79,7 +80,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
+		if ( ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/settings' );
 		}
@@ -159,7 +160,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 
-		$is_development_mode = ( new Status() )->is_development_mode();
+		$is_offline_mode     = ( new Status() )->is_offline_mode();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
 		$script_dependencies = array( 'wp-polyfill' );
 		if ( file_exists( $script_deps_path ) ) {
@@ -175,10 +176,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			true
 		);
 
-		if ( ! $is_development_mode && Jetpack::is_active() ) {
+		if ( ! $is_offline_mode && Jetpack::is_active() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
+
+		wp_set_script_translations( 'react-plugin', 'jetpack' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
@@ -186,6 +189,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function get_initial_state() {
+		global $is_safari;
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
@@ -234,35 +238,31 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		$current_user_data = jetpack_current_user_data();
 
-		$status = new Status();
+		/**
+		 * Adds information to the `connectionStatus` API field that is unique to the Jetpack React dashboard.
+		 */
+		$connection_status = array(
+			'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
+			'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
+
+			/**
+			 * Filter to add connection errors
+			 * Format: array( array( 'code' => '...', 'message' => '...', 'action' => '...' ), ... )
+			 *
+			 * @since 8.7.0
+			 *
+			 * @param array $errors Connection errors.
+			 */
+			'errors'             => apply_filters( 'react_connection_errors_initial_state', array() ),
+		);
+
+		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectionStatus'            => array(
-				'isActive'           => Jetpack::is_active(),
-				'isStaging'          => $status->is_staging_site(),
-				'devMode'            => array(
-					'isActive' => $status->is_development_mode(),
-					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-					'url'      => site_url() && false === strpos( site_url(), '.' ),
-					'filter'   => apply_filters( 'jetpack_development_mode', false ),
-				),
-				'isPublic'           => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
-				'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
-
-				/**
-				 * Filter to add connection errors
-				 * Format: array( array( 'code' => '...', 'message' => '...', 'action' => '...' ), ... )
-				 *
-				 * @since 8.7.0
-				 *
-				 * @param array $errors Connection errors.
-				 */
-				'errors'             => apply_filters( 'react_connection_errors_initial_state', array() ),
-			),
+			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
@@ -316,8 +316,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 				),
 			),
-			'locale'                      => Jetpack::get_i18n_data_json(),
-			'localeSlug'                  => join( '-', explode( '_', get_user_locale() ) ),
 			'jetpackStateNotices'         => array(
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),
@@ -331,6 +329,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
+			'isSafari'                    => $is_safari,
+			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 		);
 	}
 

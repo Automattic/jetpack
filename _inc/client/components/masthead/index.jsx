@@ -3,15 +3,15 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
 import { includes } from 'lodash';
-import ButtonGroup from 'components/button-group';
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import ButtonGroup from 'components/button-group';
 import {
 	getSiteConnectionStatus,
 	getSandboxDomain,
@@ -51,7 +51,8 @@ export class Masthead extends React.Component {
 	};
 
 	render() {
-		const devNotice = this.props.siteConnectionStatus === 'dev' ? <code>Dev Mode</code> : '',
+		const offlineNotice =
+				this.props.siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
 			sandboxedBadge = this.props.sandboxDomain ? (
 				<code
 					id="sandbox-domain-badge"
@@ -81,7 +82,7 @@ export class Masthead extends React.Component {
 						<a onClick={ this.trackLogoClick } className="jp-masthead__logo-link" href="#dashboard">
 							<JetpackLogo className="jetpack-logo__masthead" />
 						</a>
-						{ devNotice }
+						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
 					{ this.props.userCanEditPosts && ! hideNav && (
@@ -94,7 +95,7 @@ export class Masthead extends React.Component {
 										primary={ isDashboardView && ! isStatic }
 										onClick={ this.trackDashClick }
 									>
-										{ __( 'Dashboard' ) }
+										{ __( 'Dashboard', 'jetpack' ) }
 									</Button>
 									<Button
 										compact={ true }
@@ -102,7 +103,7 @@ export class Masthead extends React.Component {
 										primary={ ! isDashboardView && ! isStatic }
 										onClick={ this.trackSettingsClick }
 									>
-										{ __( 'Settings' ) }
+										{ __( 'Settings', 'jetpack' ) }
 									</Button>
 								</ButtonGroup>
 							) }

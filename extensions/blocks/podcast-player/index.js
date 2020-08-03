@@ -11,7 +11,9 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
+import save from './save';
 import { queueMusic } from './icons/';
 
 /**
@@ -19,7 +21,6 @@ import { queueMusic } from './icons/';
  */
 import './style.scss';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'podcast-player';
 export const namespaceName = `jetpack/${ name }`;
@@ -28,7 +29,7 @@ export const settings = {
 	title,
 	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
 	icon: queueMusic,
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 	keywords: [
 		_x( 'audio', 'block search term', 'jetpack' ),
 		_x( 'embed', 'block search term', 'jetpack' ),
@@ -74,8 +75,7 @@ export const settings = {
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	attributes,
 	example: {
 		attributes: {
@@ -106,4 +106,5 @@ export const settings = {
 			},
 		},
 	},
+	deprecated: [ deprecatedV1 ],
 };

@@ -4,39 +4,43 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Gridicon from 'components/gridicon';
-import DashItem from 'components/dash-item';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, sprintf, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { getSiteConnectionStatus, isCurrentUserLinked, isDevMode } from 'state/connection';
+import {
+	getSiteConnectionStatus,
+	isCurrentUserLinked,
+	isOfflineMode,
+	isFetchingUserData as _isFetchingUserData,
+	getConnectedWpComUser as _getConnectedWpComUser,
+} from 'state/connection';
 import {
 	userCanDisconnectSite,
 	userIsMaster,
-	getUserWpComLogin,
-	getUserWpComEmail,
-	getUserWpComAvatar,
 	getUserGravatar,
 	getUsername,
 	getSiteIcon,
 } from 'state/initial-state';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
+import DashItem from 'components/dash-item';
+import Gridicon from 'components/gridicon';
 import MobileMagicLink from 'components/mobile-magic-link';
 
 export class DashConnections extends Component {
 	/*
 	 * Render a card for site connection. If it's connected, indicate if user is the connection owner.
-	 * Show alternative message if site is in development mode.
+	 * Show alternative message if site is in offline mode.
 	 *
 	 * @returns {string}
 	 */
 	siteConnection() {
 		let cardContent = '';
 
-		if ( this.props.isDevMode ) {
+		if ( this.props.isOfflineMode ) {
 			cardContent = (
 				<div className="jp-connection-settings__info">
 					{ this.props.siteIcon ? (
@@ -52,7 +56,8 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'Your site is in Development Mode, so it can not be connected to WordPress.com.'
+							'Your site is in Offline Mode, so it can not be connected to WordPress.com.',
+							'jetpack'
 						) }
 					</div>
 				</div>
@@ -73,11 +78,11 @@ export class DashConnections extends Component {
 							<Gridicon icon="globe" size={ 64 } />
 						) }
 						<div className="jp-connection-settings__text">
-							{ __( 'Your site is connected to WordPress.com.' ) }
+							{ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
 							{ this.props.userIsMaster && (
 								<span className="jp-connection-settings__is-owner">
 									<br />
-									<em>{ __( 'You are the Jetpack owner.' ) }</em>
+									<em>{ __( 'You are the Jetpack owner.', 'jetpack' ) }</em>
 								</span>
 							) }
 						</div>
@@ -96,7 +101,7 @@ export class DashConnections extends Component {
 
 	/*
 	 * Render a card for user linking. If it's connected, show the currently linked user.
-	 * Show an alternative message if site is in Dev Mode.
+	 * Show an alternative message if site is in Offline Mode.
 	 *
 	 * @returns {string}
 	 */
@@ -107,9 +112,9 @@ export class DashConnections extends Component {
 
 		let cardContent = '';
 
-		if ( this.props.isDevMode ) {
+		if ( this.props.isOfflineMode ) {
 			// return nothing if this is an account connection card
-			cardContent = (
+			return (
 				<div className="jp-connection-settings__info">
 					{ this.props.userGravatar ? (
 						<img
@@ -123,12 +128,31 @@ export class DashConnections extends Component {
 						<Gridicon icon="user" size={ 64 } />
 					) }
 					<div className="jp-connection-settings__text">
-						{ __( 'The site is in Development Mode, so you can not connect to WordPress.com.' ) }
+						{ __(
+							'The site is in Offline Mode, so you can not connect to WordPress.com.',
+							'jetpack'
+						) }
 					</div>
 				</div>
 			);
+		}
+
+		if ( ! this.props.isLinked ) {
+			cardContent = (
+				<div>
+					<div className="jp-connection-settings__info">
+						{ __(
+							'Link your account to WordPress.com to get the most out of Jetpack.',
+							'jetpack'
+						) }
+					</div>
+					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+				</div>
+			);
+		} else if ( this.props.isFetchingUserData ) {
+			cardContent = __( 'Loading…', 'jetpack' );
 		} else {
-			cardContent = this.props.isLinked ? (
+			cardContent = (
 				<div>
 					<div className="jp-connection-settings__info">
 						<img
@@ -136,30 +160,26 @@ export class DashConnections extends Component {
 							width="64"
 							height="64"
 							className="jp-connection-settings__gravatar"
-							src={ this.props.userWpComAvatar }
+							src={ this.props.wpComConnectedUser.avatar }
 						/>
 						<div className="jp-connection-settings__text">
-							{ __( 'Connected as {{span}}%(username)s{{/span}}', {
-								args: {
-									username: this.props.userWpComLogin,
-								},
-								components: {
+							{ jetpackCreateInterpolateElement(
+								sprintf(
+									/* translators: Placeholder is the WordPress user login name. */
+									__( 'Connected as <span>%s</span>', 'jetpack' ),
+									this.props.wpComConnectedUser.login
+								),
+								{
 									span: <span className="jp-connection-settings__username" />,
-								},
-								comment: '%(username) is the WordPress user login name.',
-							} ) }
-							<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
+								}
+							) }
+							<div className="jp-connection-settings__email">
+								{ this.props.wpComConnectedUser.email }
+							</div>
 						</div>
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 					<MobileMagicLink />
-				</div>
-			) : (
-				<div>
-					<div className="jp-connection-settings__info">
-						{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
-					</div>
-					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 				</div>
 			);
 		}
@@ -176,7 +196,7 @@ export class DashConnections extends Component {
 						<div className="jp-dash-item__interior">
 							<DashItem
 								className="jp-connection-type"
-								label={ __( 'Site connection', { context: 'Dashboard widget header' } ) }
+								label={ _x( 'Site connection', 'Dashboard widget header', 'jetpack' ) }
 							>
 								{ this.siteConnection() }
 							</DashItem>
@@ -186,7 +206,7 @@ export class DashConnections extends Component {
 						<div className="jp-dash-item__interior">
 							<DashItem
 								className="jp-connection-type"
-								label={ __( 'Account connection', { context: 'Dashboard widget header' } ) }
+								label={ _x( 'Account connection', 'Dashboard widget header', 'jetpack' ) }
 							>
 								{ this.userConnection() }
 							</DashItem>
@@ -200,13 +220,10 @@ export class DashConnections extends Component {
 
 DashConnections.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,
-	isDevMode: PropTypes.bool.isRequired,
+	isOfflineMode: PropTypes.bool.isRequired,
 	userCanDisconnectSite: PropTypes.bool.isRequired,
 	userIsMaster: PropTypes.bool.isRequired,
 	isLinked: PropTypes.bool.isRequired,
-	userWpComLogin: PropTypes.any.isRequired,
-	userWpComEmail: PropTypes.any.isRequired,
-	userWpComAvatar: PropTypes.any.isRequired,
 	userGravatar: PropTypes.any.isRequired,
 	username: PropTypes.any.isRequired,
 };
@@ -214,15 +231,14 @@ DashConnections.propTypes = {
 export default connect( state => {
 	return {
 		siteConnectionStatus: getSiteConnectionStatus( state ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		userCanDisconnectSite: userCanDisconnectSite( state ),
 		userIsMaster: userIsMaster( state ),
-		userWpComLogin: getUserWpComLogin( state ),
-		userWpComEmail: getUserWpComEmail( state ),
-		userWpComAvatar: getUserWpComAvatar( state ),
 		userGravatar: getUserGravatar( state ),
 		username: getUsername( state ),
 		isLinked: isCurrentUserLinked( state ),
 		siteIcon: getSiteIcon( state ),
+		isFetchingUserData: _isFetchingUserData( state ),
+		wpComConnectedUser: _getConnectedWpComUser( state ),
 	};
 } )( DashConnections );

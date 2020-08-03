@@ -2,68 +2,34 @@
  * External dependencies
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
 import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
-
-import SimpleNotice from 'components/notice';
-import NoticeActionDisconnect from './notice-action-disconnect';
-
-export class ErrorNoticeCycleConnection extends React.Component {
-	static defaultProps = {
-		text: __( 'Connection Error, please reconnect.' ),
-	};
-
-	static propTypes = {
-		text: PropTypes.string.isRequired,
-		errorCode: PropTypes.string,
-	};
-
-	render() {
-		return (
-			<SimpleNotice
-				showDismiss={ false }
-				text={ this.props.text }
-				status={ 'is-error' }
-				icon={ 'link-break' }
-			>
-				<NoticeActionDisconnect errorCode={ this.props.errorCode }>
-					{ __( 'Reconnect' ) }
-				</NoticeActionDisconnect>
-			</SimpleNotice>
-		);
-	}
-}
+import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 
 export default class JetpackConnectionErrors extends React.Component {
 	static propTypes = {
 		errors: PropTypes.array.isRequired,
 	};
 
-	actions = {
-		reconnect: ( message, code ) => (
-			<ErrorNoticeCycleConnection text={ message } errorCode={ code } />
-		),
-	};
+	getAction( action, message, code ) {
+		switch ( action ) {
+			case 'reconnect':
+			case 'refresh_blog_token':
+			case 'refresh_user_token':
+				return <ErrorNoticeCycleConnection text={ message } errorCode={ code } action={ action } />;
+		}
 
-	isActionSupported( action ) {
-		return (
-			this.actions.hasOwnProperty( action ) &&
-			{}.toString.call( this.actions[ action ] ) === '[object Function]'
-		);
+		return null;
 	}
 
 	renderOne( error ) {
-		if ( ! this.isActionSupported( error.action ) ) {
-			return '';
-		}
+		const action = this.getAction( error.action, error.message, error.code );
 
-		return (
-			<React.Fragment>{ this.actions[ error.action ]( error.message, error.code ) }</React.Fragment>
+		return null === action ? null : (
+			<React.Fragment key={ error.action }>{ action }</React.Fragment>
 		);
 	}
 

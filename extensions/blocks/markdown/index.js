@@ -12,7 +12,7 @@ import './editor.scss';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import edit from './edit';
 import save from './save';
-import { supportsCollections } from '../../shared/block-category';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 export const name = 'markdown';
 
@@ -58,8 +58,7 @@ export const settings = {
 		</SVG>
 	),
 
-	category: supportsCollections() ? 'formatting' : 'jetpack',
-
+	category: getCategoryWithFallbacks( 'text', 'formatting' ),
 	keywords: [
 		_x( 'formatting', 'block search term', 'jetpack' ),
 		_x( 'syntax', 'block search term', 'jetpack' ),

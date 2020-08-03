@@ -2,17 +2,18 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import analytics from 'lib/analytics';
-import { translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
+import { connect } from 'react-redux';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { getModuleOverride } from 'state/modules';
+import getRedirectUrl from 'lib/jp-redirect';
 
 class ModuleToggleComponent extends Component {
 	static displayName = 'ModuleToggle';
@@ -62,32 +63,39 @@ class ModuleToggleComponent extends Component {
 		}
 		const override = this.props.getModuleOverride( this.props.slug );
 		const args = {
-			components: {
-				link: (
-					<a
-						href={ getRedirectUrl( 'jetpack-support-module-overrides' ) }
-						target="_blank"
-						rel="noopener noreferrer"
-						style={ { textDecoration: 'underline' } }
-					/>
-				),
-			},
+			link: (
+				<a
+					href={ getRedirectUrl( 'jetpack-support-module-overrides' ) }
+					target="_blank"
+					rel="noopener noreferrer"
+					style={ { textDecoration: 'underline' } }
+				/>
+			),
 		};
 
 		switch ( override ) {
 			case 'active':
-				return __(
-					'This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.',
+				return jetpackCreateInterpolateElement(
+					__(
+						'This feature has been enabled by a site administrator. <link>Learn more</link>.',
+						'jetpack'
+					),
 					args
 				);
 			case 'inactive':
-				return __(
-					'This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.',
+				return jetpackCreateInterpolateElement(
+					__(
+						'This feature has been disabled by a site administrator. <link>Learn more</link>.',
+						'jetpack'
+					),
 					args
 				);
 			default:
-				return __(
-					'This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.',
+				return jetpackCreateInterpolateElement(
+					__(
+						'This feature is being managed by a site administrator. <link>Learn more</link>.',
+						'jetpack'
+					),
 					args
 				);
 		}

@@ -234,7 +234,7 @@ class Jetpack_Carousel {
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
-				array(),
+				array( 'jquery' ),
 				$this->asset_version( JETPACK__VERSION ),
 				true
 			);
@@ -316,7 +316,7 @@ class Jetpack_Carousel {
 			 *
 			 * @param bool Enable Jetpack Carousel stat collection. Default false.
 			 */
-			if ( apply_filters( 'jetpack_enable_carousel_stats', false ) && in_array( 'stats', Jetpack::get_active_modules() ) && ! ( new Status() )->is_development_mode() ) {
+			if ( apply_filters( 'jetpack_enable_carousel_stats', false ) && in_array( 'stats', Jetpack::get_active_modules(), true ) && ! ( new Status() )->is_offline_mode() ) {
 				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.

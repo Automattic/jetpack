@@ -1,4 +1,6 @@
 @import '../scss/calypso-colors';
+@import '../scss/functions/rem';
+@import '../scss/typography';
 
 .jp-landing__plans {
 	margin-bottom: 32px;
@@ -10,7 +12,7 @@
 
 .jp-landing__card-header {
 	margin-top: 0;
-	font-size: 15px;
+	font-size: $font-body;
 	color: $gray-darken-20;
 }
 
@@ -90,10 +92,12 @@
 
 .jp-landing__plan-features-text {
 	flex: 1;
+	font-size: $font-body-small;
 }
 
 .jp-landing__plan-features-title {
 	margin: 0;
+	font-size: $font-title-small;
 }
 
 .jp-landing__plan-features {

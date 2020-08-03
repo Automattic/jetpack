@@ -104,6 +104,13 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		reconnect: action =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams, {
+				body: JSON.stringify( { action: action } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchConnectedPlugins: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection/plugins`, getParams )
 				.then( checkStatus )

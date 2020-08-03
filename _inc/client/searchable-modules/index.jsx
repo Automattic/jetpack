@@ -5,19 +5,19 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { includes, forEach } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
-import Banner from 'components/banner';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Banner from 'components/banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModules } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { userCanManageModules } from 'state/initial-state';
-import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isOfflineMode, isUnavailableInOfflineMode } from 'state/connection';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -44,10 +44,13 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				results = [];
 			forEach( allModules, ( moduleData, slug ) => {
 				if ( this.props.isModuleFound( slug ) && includes( safelist, slug ) ) {
-					// Not available in dev mode
-					if ( this.props.isDevMode && this.props.isUnavailableInDevMode( moduleData.module ) ) {
+					// Not available in offline mode.
+					if (
+						this.props.isOfflineMode &&
+						this.props.isUnavailableInOfflineMode( moduleData.module )
+					) {
 						return results.push(
-							<ActiveCard key={ slug } moduleData={ moduleData } devMode={ true } />
+							<ActiveCard key={ slug } moduleData={ moduleData } offlineMode={ true } />
 						);
 					}
 
@@ -58,7 +61,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 							<Banner
 								className="jp-searchable-banner"
 								key={ slug }
-								callToAction={ __( 'Activate' ) }
+								callToAction={ __( 'Activate', 'jetpack' ) }
 								description={ moduleData.description }
 								href="javascript:void( 0 )"
 								icon="cog"
@@ -86,12 +89,12 @@ SearchableModules.defaultProps = {
 class ActiveCard extends Component {
 	render() {
 		const m = this.props.moduleData,
-			devMode = this.props.devMode;
+			offlineMode = this.props.offlineMode;
 
 		return (
 			<SettingsCard module={ m.module } header={ m.name } action={ m.module } hideButton>
 				<SettingsGroup
-					disableInDevMode={ devMode }
+					disableInOfflineMode={ offlineMode }
 					module={ { module: m.module } }
 					support={ { link: m.learn_more_button } }
 				>
@@ -107,7 +110,7 @@ export default connect( state => {
 		modules: getModules( state ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		canManageModules: userCanManageModules( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-		isDevMode: isDevMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
 	};
 } )( SearchableModules );

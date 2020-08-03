@@ -1,18 +1,19 @@
 /**
  * External dependencies
  */
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import getRedirectUrl from 'lib/jp-redirect';
+import PropTypes from 'prop-types';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, _n } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
+import Gridicon from 'components/gridicon';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import SingleFeature from './single-feature';
-import Gridicon from 'components/gridicon';
 
 /**
  * Style dependencies
@@ -30,8 +31,9 @@ class JetpackTerminationDialogFeatures extends Component {
 	renderCDNReason() {
 		return (
 			<li key="reason-cdn">
-				{ __( 'Speed up your site and provide mobile-ready images with {{a}}our CDN{{/a}}', {
-					components: {
+				{ jetpackCreateInterpolateElement(
+					__( 'Speed up your site and provide mobile-ready images with <a>our CDN</a>', 'jetpack' ),
+					{
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
@@ -40,8 +42,8 @@ class JetpackTerminationDialogFeatures extends Component {
 								target="_blank"
 							/>
 						),
-					},
-				} ) }
+					}
+				) }
 			</li>
 		);
 	}
@@ -49,19 +51,20 @@ class JetpackTerminationDialogFeatures extends Component {
 	renderProtectReason() {
 		return (
 			<li key="reason-brute-force">
-				{ __(
-					'Block {{a}}brute force attacks{{/a}} and get immediate notifications if your site is down',
+				{ jetpackCreateInterpolateElement(
+					__(
+						'Block <a>brute force attacks</a> and get immediate notifications if your site is down',
+						'jetpack'
+					),
 					{
-						components: {
-							a: (
-								<a
-									className="jetpack-termination-dialog__link"
-									href={ getRedirectUrl( 'jetpack-features-security' ) }
-									rel="noopener noreferrer"
-									target="_blank"
-								/>
-							),
-						},
+						a: (
+							<a
+								className="jetpack-termination-dialog__link"
+								href={ getRedirectUrl( 'jetpack-features-security' ) }
+								rel="noopener noreferrer"
+								target="_blank"
+							/>
+						),
 					}
 				) }
 			</li>
@@ -71,8 +74,9 @@ class JetpackTerminationDialogFeatures extends Component {
 	renderSocialReason() {
 		return (
 			<li key="reason-social">
-				{ __( 'Grow your traffic with automated social {{a}}publishing and sharing{{/a}}', {
-					components: {
+				{ jetpackCreateInterpolateElement(
+					__( 'Grow your traffic with automated social <a>publishing and sharing</a>', 'jetpack' ),
+					{
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
@@ -81,8 +85,8 @@ class JetpackTerminationDialogFeatures extends Component {
 								target="_blank"
 							/>
 						),
-					},
-				} ) }
+					}
+				) }
 			</li>
 		);
 	}
@@ -112,13 +116,15 @@ class JetpackTerminationDialogFeatures extends Component {
 				<p className="jetpack-termination-dialog__info">
 					{ purpose === 'disconnect'
 						? __(
-								'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.'
+								'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.',
+								'jetpack'
 						  )
 						: __(
-								'Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.'
+								'Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.',
+								'jetpack'
 						  ) }
 					{ siteBenefitCount > 0 &&
-						__( ' We’ve highlighted some of the features you rely on below.' ) }
+						__( ' We’ve highlighted some of the features you rely on below.', 'jetpack' ) }
 				</p>
 				<div
 					className={
@@ -140,7 +146,10 @@ class JetpackTerminationDialogFeatures extends Component {
 				{ siteBenefitCount <= 2 && (
 					<div className="jetpack-termination-dialog__generic-info">
 						<h2>
-							{ __( 'Jetpack has many powerful tools that can help you achieve your goals' ) }
+							{ __(
+								'Jetpack has many powerful tools that can help you achieve your goals',
+								'jetpack'
+							) }
 						</h2>
 						<ul>
 							{ this.renderCDNReason() }
@@ -152,12 +161,11 @@ class JetpackTerminationDialogFeatures extends Component {
 				{ connectedPlugins.length > 0 && (
 					<div className="jetpack-termination-dialog__generic-info">
 						<h2>
-							{ __(
+							{ _n(
 								'The Jetpack Connection is also used by another plugin, and it will lose connection.',
 								'The Jetpack Connection is also used by other plugins, and they will lose connection.',
-								{
-									count: connectedPlugins.length,
-								}
+								connectedPlugins.length,
+								'jetpack'
 							) }
 						</h2>
 						{ this.renderConnectedPlugins( connectedPlugins ) }
@@ -165,19 +173,20 @@ class JetpackTerminationDialogFeatures extends Component {
 				) }
 				<div className="jetpack-termination-dialog__get-help">
 					<p>
-						{ __(
-							'Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}',
+						{ jetpackCreateInterpolateElement(
+							__(
+								'Have a question? We’d love to help! <a>Send a question to the Jetpack support team.</a>',
+								'jetpack'
+							),
 							{
-								components: {
-									a: (
-										<a
-											className="jetpack-termination-dialog__link"
-											href={ jetpackSupportURl }
-											rel="noopener noreferrer"
-											target="_blank"
-										/>
-									),
-								},
+								a: (
+									<a
+										className="jetpack-termination-dialog__link"
+										href={ jetpackSupportURl }
+										rel="noopener noreferrer"
+										target="_blank"
+									/>
+								),
 							}
 						) }
 					</p>

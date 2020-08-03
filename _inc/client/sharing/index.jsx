@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -12,8 +12,8 @@ import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import {
-	isDevMode,
-	isUnavailableInDevMode,
+	isOfflineMode,
+	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
@@ -29,8 +29,8 @@ class Sharing extends Component {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
-			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isOfflineMode: this.props.isOfflineMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isLinked: this.props.isLinked,
 			connectUrl: this.props.connectUrl,
 			siteRawUrl: this.props.siteRawUrl,
@@ -56,9 +56,10 @@ class Sharing extends Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Sharing' )
+							? __( 'Sharing', 'jetpack' )
 							: __(
-									'Share your content to social media, reaching new audiences and increasing engagement.'
+									'Share your content to social media, reaching new audiences and increasing engagement.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"
@@ -75,8 +76,8 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
-		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		isLinked: isCurrentUserLinked( state ),
 		connectUrl: getConnectUrl( state ),

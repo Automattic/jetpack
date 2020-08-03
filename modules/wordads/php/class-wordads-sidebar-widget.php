@@ -79,7 +79,8 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 
 			$snippet = $wordads->get_house_ad( $unit );
 		} else {
-			$snippet = $wordads->get_ad_snippet( $section_id, $height, $width, 'widget' );
+			echo $wordads->get_ad_snippet( $section_id, $height, $width, 'widget' );
+			return;
 		}
 
 		?>

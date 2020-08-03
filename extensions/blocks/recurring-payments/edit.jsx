@@ -2,14 +2,12 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { pick } from 'lodash';
 import formatCurrency from '@automattic/format-currency';
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { withSelect, withDispatch } from '@wordpress/data';
 import {
 	Button,
 	ExternalLink,
@@ -20,7 +18,7 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
+import { InspectorControls, InnerBlocks, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
@@ -29,13 +27,8 @@ import { applyFilters } from '@wordpress/hooks';
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import StripeNudge from '../../shared/components/stripe-nudge';
-import {
-	icon,
-	isPriceValid,
-	minimumTransactionAmountForCurrency,
-	removeInvalidProducts,
-	CURRENCY_OPTIONS,
-} from '.';
+import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { icon, isPriceValid, removeInvalidProducts, CURRENCY_OPTIONS } from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -346,18 +339,23 @@ class MembershipsButtonEdit extends Component {
 	};
 
 	setMembershipAmount = id => {
+		const { innerButtons, updateBlockAttributes, setAttributes } = this.props;
 		const currentPlanId = this.props.attributes.planId;
-		const currentText = this.props.attributes.submitButtonText;
 		const defaultTextForNewPlan =
 			this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' );
 		const defaultTextForCurrentPlan = currentPlanId
 			? this.getFormattedPriceByProductId( currentPlanId ) + __( ' Contribution', 'jetpack' )
 			: undefined;
-		const text = currentText === defaultTextForCurrentPlan ? defaultTextForNewPlan : currentText;
-		this.props.setAttributes( {
-			planId: id,
-			submitButtonText: text,
-		} );
+		if ( innerButtons.length ) {
+			innerButtons[ 0 ].innerBlocks.forEach( block => {
+				const currentText = block.attributes.text;
+				const text =
+					currentText === defaultTextForCurrentPlan ? defaultTextForNewPlan : currentText;
+				updateBlockAttributes( block.clientId, { text } );
+			} );
+		}
+
+		return setAttributes( { planId: id } );
 	};
 
 	renderMembershipAmounts = () => (
@@ -537,17 +535,17 @@ class MembershipsButtonEdit extends Component {
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
 					this.props.attributes.planId ) && (
-					<SubmitButton
-						{ ...{
-							attributes: pick( this.props.attributes, [
-								'submitButtonText',
-								'backgroundButtonColor',
-								'textButtonColor',
-								'customBackgroundButtonColor',
-								'customTextButtonColor',
-							] ),
-							setAttributes: this.props.setAttributes,
-						} }
+					<InnerBlocks
+						template={ [
+							[
+								'jetpack/button',
+								{
+									element: 'a',
+									uniqueId: 'recurring-payments-id',
+								},
+							],
+						] }
+						templateLock="all"
 					/>
 				) }
 				{ this.hasUpgradeNudge && connected === API_STATE_NOTCONNECTED && (
@@ -561,6 +559,13 @@ class MembershipsButtonEdit extends Component {
 }
 
 export default compose( [
-	withSelect( select => ( { postId: select( 'core/editor' ).getCurrentPostId() } ) ),
+	withSelect( ( select, { clientId } ) => ( {
+		postId: select( 'core/editor' ).getCurrentPostId(),
+		innerButtons: select( 'core/editor' ).getBlocksByClientId( clientId ),
+	} ) ),
+	withDispatch( dispatch => {
+		const { updateBlockAttributes } = dispatch( 'core/editor' );
+		return { updateBlockAttributes };
+	} ),
 	withNotices,
 ] )( MembershipsButtonEdit );

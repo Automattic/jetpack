@@ -21,7 +21,9 @@ export default class JetpackSiteTopicPage extends Page {
 		await siteTopicElement.click( { clickCount: 3 } );
 		await siteTopicElement.type( siteTopic );
 
-		await waitForSelector( this.page, siteTopicSpinnerSelector, { hidden: true } );
+		await waitForSelector( this.page, siteTopicSpinnerSelector, {
+			hidden: true,
+		} );
 		return await waitAndClick( this.page, siteTopicButtonSelector );
 	}
 }

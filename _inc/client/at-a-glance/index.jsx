@@ -3,13 +3,13 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 import { chunk, get } from 'lodash';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import DashSectionHeader from 'components/dash-section-header';
 import DashActivity from './activity';
@@ -31,7 +31,7 @@ import {
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
 const renderPairs = layout =>
@@ -62,21 +62,21 @@ class AtAGlance extends Component {
 		const securityHeader = (
 			<DashSectionHeader
 				key="securityHeader"
-				label={ __( 'Security' ) }
+				label={ __( 'Security', 'jetpack' ) }
 				settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 				externalLink={
-					this.props.isDevMode || ! this.props.userCanManageModules
+					this.props.isOfflineMode || ! this.props.userCanManageModules
 						? ''
-						: __( 'Manage security settings' )
+						: __( 'Manage security settings', 'jetpack' )
 				}
-				externalLinkPath={ this.props.isDevMode ? '' : '#/security' }
+				externalLinkPath={ this.props.isOfflineMode ? '' : '#/security' }
 				externalLinkClick={ this.trackSecurityClick }
 			/>
 		);
 		const connections = (
 			<div>
 				<DashSectionHeader
-					label={ __( 'Connections' ) }
+					label={ __( 'Connections', 'jetpack' ) }
 					className="jp-dash-section-header__connections"
 				/>
 				<DashConnections />
@@ -129,7 +129,9 @@ class AtAGlance extends Component {
 			}
 			if ( performanceCards.length ) {
 				pairs.push( {
-					header: <DashSectionHeader key="performanceHeader" label={ __( 'Performance' ) } />,
+					header: (
+						<DashSectionHeader key="performanceHeader" label={ __( 'Performance', 'jetpack' ) } />
+					),
 					cards: performanceCards,
 				} );
 			}
@@ -166,8 +168,10 @@ class AtAGlance extends Component {
 		) : (
 			<div>
 				{ stats }
-				{ // Site Security
-				this.props.getOptionValue( 'protect' ) && securityHeader }
+				{
+					// Site Security
+					this.props.getOptionValue( 'protect' ) && securityHeader
+				}
 				{ protect }
 				{ connections }
 			</div>
@@ -180,7 +184,7 @@ export default connect( state => {
 		userCanManageModules: userCanManageModules( state ),
 		userCanViewStats: userCanViewStats( state ),
 		userIsSubscriber: userIsSubscriber( state ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
 	};

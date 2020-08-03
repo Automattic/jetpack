@@ -76,7 +76,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		return Jetpack::is_active() && ! ( new Status() )->is_development_mode();
+		return Jetpack::is_active() && ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Returns a support url based on development mode.
+	 * Returns a support url based on using a development version.
 	 */
 	protected function helper_get_support_url() {
 		return Jetpack::is_development_version()
@@ -189,11 +189,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					),
 				)
 			);
-		} elseif ( ( new Status() )->is_development_mode() ) {
+		} elseif ( ( new Status() )->is_offline_mode() ) {
 			$result = self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(),
+					'short_description' => __( 'Jetpack is in Offline Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(),
 				)
 			);
 		} else {
@@ -409,7 +409,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = __FUNCTION__;
 
 		$status = new Status();
-		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! Jetpack::is_active() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( array( 'name' => $name ) );
 		}
 
@@ -776,7 +776,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = 'test__wpcom_self_test';
 
 		$status = new Status();
-		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! Jetpack::is_active() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( array( 'name' => $name ) );
 		}
 

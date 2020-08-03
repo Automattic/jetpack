@@ -3,14 +3,14 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import { noop } from 'lodash';
 import classNames from 'classnames';
+import { noop } from 'lodash';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
@@ -49,14 +49,14 @@ class JetpackDialogue extends Component {
 					src={ imagePath + 'stars-full.svg' }
 					width="60"
 					height="60"
-					alt={ __( 'Stars' ) }
+					alt={ __( 'Stars', 'jetpack' ) }
 					className="jp-dialogue-full__svg-stars"
 				/>
 				<img
 					src={ imagePath + 'jupiter.svg' }
 					width="50"
 					height="100"
-					alt={ __( 'Jupiter' ) }
+					alt={ __( 'Jupiter', 'jetpack' ) }
 					className="jp-dialogue-full__svg-jupiter"
 				/>
 

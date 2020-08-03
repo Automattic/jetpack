@@ -26,13 +26,13 @@ function buildQuerystring( group, name ) {
 }
 
 var analytics = {
-	initialize: function( userId, username ) {
+	initialize: function ( userId, username ) {
 		analytics.setUser( userId, username );
 		analytics.identifyUser();
 	},
 
 	mc: {
-		bumpStat: function( group, name ) {
+		bumpStat: function ( group, name ) {
 			var uriComponent = buildQuerystring( group, name ); // prints debug info
 			new Image().src =
 				document.location.protocol +
@@ -44,7 +44,7 @@ var analytics = {
 	},
 
 	tracks: {
-		recordEvent: function( eventName, eventProperties ) {
+		recordEvent: function ( eventName, eventProperties ) {
 			eventProperties = eventProperties || {};
 
 			if ( eventName.indexOf( 'jetpack_' ) !== 0 ) {
@@ -55,25 +55,25 @@ var analytics = {
 			window._tkq.push( [ 'recordEvent', eventName, eventProperties ] );
 		},
 
-		recordPageView: function( urlPath ) {
+		recordPageView: function ( urlPath ) {
 			analytics.tracks.recordEvent( 'jetpack_page_view', {
 				path: urlPath,
 			} );
 		},
 	},
 
-	setUser: function( userId, username ) {
+	setUser: function ( userId, username ) {
 		_user = { ID: userId, username: username };
 	},
 
-	identifyUser: function() {
+	identifyUser: function () {
 		// Don't identify the user if we don't have one
 		if ( _user ) {
 			window._tkq.push( [ 'identifyUser', _user.ID, _user.username ] );
 		}
 	},
 
-	clearedIdentity: function() {
+	clearedIdentity: function () {
 		window._tkq.push( [ 'clearIdentity' ] );
 	},
 };

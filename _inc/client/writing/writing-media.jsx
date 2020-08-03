@@ -4,14 +4,14 @@
 
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -69,7 +69,7 @@ function WritingMedia( props ) {
 		<SettingsCard
 			{ ...props }
 			module="media"
-			header={ __( 'Media' ) }
+			header={ __( 'Media', 'jetpack' ) }
 			hideButton={ ! foundCarousel }
 			saveDisabled={ props.isSavingAnyOption( 'carousel_background_color' ) }
 		>
@@ -82,9 +82,8 @@ function WritingMedia( props ) {
 			>
 				<p>
 					{ __(
-						'Create full-screen carousel slideshows for the images in your ' +
-							'posts and pages. Carousel galleries are mobile-friendly and ' +
-							'encourage site visitors to interact with your photos.'
+						'Create full-screen carousel slideshows for the images in your posts and pages. Carousel galleries are mobile-friendly and encourage site visitors to interact with your photos.',
+						'jetpack'
 					) }
 				</p>
 				<ModuleToggle
@@ -94,7 +93,7 @@ function WritingMedia( props ) {
 					toggleModule={ props.toggleModuleNow }
 				>
 					<span className="jp-form-toggle-explanation">
-						{ __( 'Display images in a full-screen carousel gallery' ) }
+						{ __( 'Display images in a full-screen carousel gallery', 'jetpack' ) }
 					</span>
 				</ModuleToggle>
 				<FormFieldset>
@@ -102,24 +101,25 @@ function WritingMedia( props ) {
 						displayExif,
 						'carousel_display_exif',
 						handleCarouselDisplayExifChange,
-						__( 'Show photo Exif metadata in carousel (when available)' )
+						__( 'Show photo Exif metadata in carousel (when available)', 'jetpack' )
 					) }
 					{ renderToggle(
 						displayComments,
 						'carousel_display_comments',
 						handleCarouselDisplayCommentsChange,
-						__( 'Show comments area in carousel' )
+						__( 'Show comments area in carousel', 'jetpack' )
 					) }
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{ __(
-								'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
+								'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.',
+								'jetpack'
 							) }
 						</p>
 					</FormFieldset>
 					<FormLabel>
 						<FormLegend className="jp-form-label-wide">
-							{ __( 'Carousel color scheme' ) }
+							{ __( 'Carousel color scheme', 'jetpack' ) }
 						</FormLegend>
 						<FormSelect
 							name={ 'carousel_background_color' }

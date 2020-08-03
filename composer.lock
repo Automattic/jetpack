@@ -4,8 +4,39 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "59de22549dd7a17d42508cac667d9108",
+    "content-hash": "27b56a1f08be874fd86e89bc352eeaa2",
     "packages": [
+        {
+            "name": "automattic/jetpack-a8c-mc-stats",
+            "version": "dev-add/mc-sats-dependency",
+            "dist": {
+                "type": "path",
+                "url": "./packages/a8c-mc-stats",
+                "reference": "72e8464c053658a730113aa3cfb6d8b292cd16e2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "automattic/jetpack-abtest",
             "version": "dev-add/jetpack-mobile-package",
@@ -895,20 +926,20 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.8.2",
+            "version": "v2.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "4a60e8bc9eebdb054a8a4ad41e4518d43d458c47"
+                "reference": "00b4fa3130faa26762c929989e3d958086c627f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/4a60e8bc9eebdb054a8a4ad41e4518d43d458c47",
-                "reference": "4a60e8bc9eebdb054a8a4ad41e4518d43d458c47",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/00b4fa3130faa26762c929989e3d958086c627f1",
+                "reference": "00b4fa3130faa26762c929989e3d958086c627f1",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6.0",
+                "php": ">=5.4.0",
                 "squizlabs/php_codesniffer": "^3.1"
             },
             "require-dev": {
@@ -939,7 +970,7 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2020-05-25T17:00:12+00:00"
+            "time": "2020-07-11T23:32:06+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1042,6 +1073,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-a8c-mc-stats": 20,
         "automattic/jetpack-abtest": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,

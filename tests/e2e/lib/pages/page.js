@@ -17,7 +17,7 @@ export default class Page {
 	/**
 	 * Static method which initialize a page object. Also waits for `this.expectedSelector` to become visible, which kinda simulates page loads
 	 *
-	 * @param {Puppeteer.Page} page Puppeteer representation of the page.
+	 * @param {page} page Puppeteer representation of the page.
 	 *
 	 * @return {Page} Instance of the Page Object class
 	 */
@@ -29,7 +29,7 @@ export default class Page {
 
 	/**
 	 *
-	 * @param {Puppeteer.Page} page Puppeteer representation of the page
+	 * @param {page} page Puppeteer representation of the page
 	 * @param {string} pageURL Page URL
 	 */
 	static async visit( page, pageURL = null ) {

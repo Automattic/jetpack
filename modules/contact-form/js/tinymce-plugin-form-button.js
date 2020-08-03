@@ -1,13 +1,13 @@
 /* global grunionEditorView, tinymce */
-( function() {
+( function () {
 	tinymce.create( 'tinymce.plugins.grunion_form', {
-		init: function( editor ) {
+		init: function ( editor ) {
 			editor.addButton( 'grunion', {
 				title: grunionEditorView.labels.tinymce_label,
 				cmd: 'grunion_add_form',
 				icon: 'grunion',
 			} );
-			editor.addCommand( 'grunion_add_form', function() {
+			editor.addCommand( 'grunion_add_form', function () {
 				if ( grunionEditorView.default_form ) {
 					editor.execCommand(
 						'mceInsertContent',
@@ -20,11 +20,11 @@
 			} );
 		},
 
-		createControl: function() {
+		createControl: function () {
 			return null;
 		},
 
-		getInfo: function() {
+		getInfo: function () {
 			return {
 				longname: 'Grunion Contact Form',
 				author: 'Automattic',

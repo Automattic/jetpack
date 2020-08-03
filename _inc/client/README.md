@@ -5,6 +5,10 @@ The **Jetpack Admin Page** is a Javascript app built on **React**, [redux](https
 
 It's rendered on page load when visiting Jetpack's Admin Pages and fetches data from Jetpack via a REST API.
 
+### Components
+
+It is preferred to implement all new components as [function components](https://reactjs.org/docs/components-and-props.html), using [hooks](https://reactjs.org/docs/hooks-reference.html) to manage component state and lifecycle. With the exception of [error boundaries](https://reactjs.org/docs/error-boundaries.html), you should never encounter a situation where you must use a class component. Note that the [WordPress guidance on Code Refactoring](https://make.wordpress.org/core/handbook/contribute/code-refactoring/) applies here: There needn't be a concentrated effort to update class components in bulk. Instead, consider it as a good refactoring opportunity in combination with some other change.
+
 ### Data approach on the Admin Page
 
 The **Admin Page** uses **redux**, [redux-thunk](https://github.com/gaearon/redux-thunk), and [react-redux](https://github.com/reactjs/react-redux)  for state handling trying to ressemble [Calypso's data approach, third Era](https://github.com/Automattic/wp-calypso/blob/master/docs/our-approach-to-data.md#third-era-redux-global-state-tree-december-2015---present).
@@ -57,14 +61,24 @@ Every action creator defined in the **Admin Page** returns a Promise and is buil
 
 ### Internationalization of the Admin Page
 
-The **Admin Page** takes advantage of [i18n-calypso]() for internationalization purposes.
+The **Admin Page** takes advantage of two core WordPress packages for internationalization purposes:
 
-Internally we use the `translate` function exported by `i18n-calypso` by aliasing to `__()`:
+- [`@wordpress/i18n`](https://www.npmjs.com/package/@wordpress/i18n) gives us access to internationalization functions we're used to in WordPress: `__n`, `_n`, `_x`, `_nx`, and `sprintf`.
+- [`@wordpress/element`](https://www.npmjs.com/package/@wordpress/element) and its `createInterpolateElement` function allow us to use React elements in strings. `createInterpolateElement` is available in WordPress 5.5 and in latest versions of the Gutenberg plugin, but it is not available in WordPress 5.4, which we still support. We consequently rely on a wrapper, `jetpackCreateInterpolateElement`.
 
-```
-import { translate as __ } from 'i18n-calypso';
-...
-<div> { __( 'String' ) } </div>
+```jsx
+import Gridicon from 'components/gridicon';
+import { __ } from '@wordpress/i18n';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+const getDocumentationLink = () => {
+	return jetpackCreateInterpolateElement(
+		__( '<FlagIcon /> Still confused? <a>Check out documentation for more!</a>', 'jetpack' ),
+		{
+			FlagIcon: <Gridicon icon="flag" size={ 64 } />
+			a: <a href="https://jetpack.com" />,
+		}
+	);
+};
 ```
 
 ### Browser compatibility of the Admin Page
@@ -107,7 +121,7 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getSettings( state )**
 * **getSiteAdminUrl( state )**
 * **getSiteConnectionStatus( state )**
-* **getSiteDevMode( state )**
+* **getSiteOfflineMode( state )**
 * **getSitePlan( state )**
 * **getSiteRawUrl( state )**
 * **getSiteRoles( state )**

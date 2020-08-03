@@ -2,20 +2,21 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import FoldableCard from 'components/foldable-card';
-import Button from 'components/button';
-import Card from 'components/card';
 import { filter, includes } from 'lodash';
 import classNames from 'classnames';
-import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import Card from 'components/card';
+import CompactFormToggle from 'components/form/form-toggle/compact';
+import FoldableCard from 'components/foldable-card';
+import getRedirectUrl from 'lib/jp-redirect';
+import { imagePath } from 'constants/urls';
 import { FormFieldset, FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsGroup from 'components/settings-group';
@@ -112,7 +113,7 @@ class SiteStatsComponent extends React.Component {
 	render() {
 		const stats = this.props.getModule( 'stats' ),
 			isStatsActive = this.props.getOptionValue( 'stats' ),
-			unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
+			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' ),
 			siteRoles = this.props.getSiteRoles();
 
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
@@ -123,7 +124,7 @@ class SiteStatsComponent extends React.Component {
 			return (
 				<Card
 					className={
-						'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' )
+						'jp-at-a-glance__stats-card ' + ( this.props.isOfflineMode ? 'is-inactive' : '' )
 					}
 				>
 					<div className="jp-at-a-glance__stats-inactive">
@@ -132,33 +133,34 @@ class SiteStatsComponent extends React.Component {
 								src={ imagePath + 'stats.svg' }
 								width="60"
 								height="60"
-								alt={ __( 'Jetpack Stats Icon' ) }
+								alt={ __( 'Jetpack Stats Icon', 'jetpack' ) }
 								className="jp-at-a-glance__stats-icon"
 							/>
 						</div>
 						<div className="jp-at-a-glance__stats-inactive-text">
-							{ this.props.isDevMode
-								? __( 'Unavailable in Dev Mode' )
-								: __(
-										'{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}',
+							{ this.props.isOfflineMode
+								? __( 'Unavailable in Offline Mode', 'jetpack' )
+								: jetpackCreateInterpolateElement(
+										__(
+											'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+											'jetpack'
+										),
 										{
-											components: {
-												a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
-												a1: (
-													<a
-														href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
-														target="_blank"
-														rel="noopener noreferrer"
-													/>
-												),
-											},
+											a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
+											a1: (
+												<a
+													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
+													target="_blank"
+													rel="noopener noreferrer"
+												/>
+											),
 										}
 								  ) }
 						</div>
-						{ ! this.props.isDevMode && (
+						{ ! this.props.isOfflineMode && (
 							<div className="jp-at-a-glance__stats-inactive-button">
 								<Button onClick={ this.activateStats } primary={ true }>
-									{ __( 'Activate Site Stats' ) }
+									{ __( 'Activate Site Stats', 'jetpack' ) }
 								</Button>
 							</div>
 						) }
@@ -170,26 +172,28 @@ class SiteStatsComponent extends React.Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Site stats', { context: 'Settings header' } ) }
+				header={ _x( 'Site stats', 'Settings header', 'jetpack' ) }
 				hideButton
 				module="site-stats"
 			>
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
 					header={ __(
-						'Expand to update settings for how visits are counted and manage who can view this information.'
+						'Expand to update settings for how visits are counted and manage who can view this information.',
+						'jetpack'
 					) }
 					clickableHeader={ true }
 					className={ classNames( 'jp-foldable-settings-standalone', {
-						'jp-foldable-settings-disable': unavailableInDevMode,
+						'jp-foldable-settings-disable': unavailableInOfflineMode,
 					} ) }
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ stats }
 						support={ {
 							text: __(
-								'Displays information on your site activity, including visitors and popular posts or pages.'
+								'Displays information on your site activity, including visitors and popular posts or pages.',
+								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
@@ -197,7 +201,7 @@ class SiteStatsComponent extends React.Component {
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
-								disabled={ ! isStatsActive || unavailableInDevMode }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
 								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 							>
@@ -209,26 +213,26 @@ class SiteStatsComponent extends React.Component {
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ !! this.props.getOptionValue( 'hide_smile' ) }
-								disabled={ ! isStatsActive || unavailableInDevMode }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
 								onChange={ this.handleStatsOptionToggle( 'hide_smile' ) }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Hide the stats smiley face image' ) }
+									{ __( 'Hide the stats smiley face image', 'jetpack' ) }
 								</span>
 								<span className="jp-form-setting-explanation">
-									{ __( 'The image helps collect stats, but should work when hidden.' ) }
+									{ __( 'The image helps collect stats, but should work when hidden.', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>
 						<FormFieldset>
-							<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
+							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
 								<CompactFormToggle
 									checked={ this.state[ `count_roles_${ key }` ] }
 									disabled={
 										! isStatsActive ||
-										unavailableInDevMode ||
+										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] )
 									}
 									onChange={ this.handleRoleToggleChange( key, 'count_roles' ) }
@@ -239,7 +243,7 @@ class SiteStatsComponent extends React.Component {
 							) ) }
 						</FormFieldset>
 						<FormFieldset>
-							<FormLegend>{ __( 'Allow stats reports to be viewed by' ) }</FormLegend>
+							<FormLegend>{ __( 'Allow stats reports to be viewed by', 'jetpack' ) }</FormLegend>
 							<CompactFormToggle checked={ true } disabled={ true }>
 								<span className="jp-form-toggle-explanation">{ siteRoles.administrator.name }</span>
 							</CompactFormToggle>
@@ -250,7 +254,7 @@ class SiteStatsComponent extends React.Component {
 											checked={ this.state[ `roles_${ key }` ] }
 											disabled={
 												! isStatsActive ||
-												unavailableInDevMode ||
+												unavailableInOfflineMode ||
 												this.props.isSavingAnyOption( [ 'stats', 'roles' ] )
 											}
 											onChange={ this.handleRoleToggleChange( key, 'roles' ) }

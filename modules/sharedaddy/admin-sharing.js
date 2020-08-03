@@ -1,24 +1,24 @@
 /* global sharing_loading_icon */
 
-( function( $ ) {
-	$( document ).ready( function() {
+( function ( $ ) {
+	$( document ).ready( function () {
 		function enable_share_button() {
 			$( '.preview a.sharing-anchor' )
 				.unbind( 'mouseenter mouseenter' )
 				.hover(
-					function() {
+					function () {
 						if ( $( this ).data( 'hasappeared' ) !== true ) {
 							var item = $( '.sharing-hidden .inner' );
 							var original = $( this ).parents( 'li' );
 
 							// Create a timer to make the area appear if the mouse hovers for a period
-							var timer = setTimeout( function() {
+							var timer = setTimeout( function () {
 								$( item )
 									.css( {
 										left: $( original ).position().left + 'px',
 										top: $( original ).position().top + $( original ).height() + 3 + 'px',
 									} )
-									.slideDown( 200, function() {
+									.slideDown( 200, function () {
 										// Mark the item as have being appeared by the hover
 										$( original )
 											.data( 'hasappeared', true )
@@ -26,9 +26,7 @@
 											.data( 'hasitem', false );
 
 										// Remove all special handlers
-										$( item )
-											.mouseleave( handler_item_leave )
-											.mouseenter( handler_item_enter );
+										$( item ).mouseleave( handler_item_leave ).mouseenter( handler_item_enter );
 										$( original )
 											.mouseleave( handler_original_leave )
 											.mouseenter( handler_original_enter );
@@ -38,7 +36,7 @@
 									} );
 
 								// The following handlers take care of the mouseenter/mouseleave for the share button and the share area - if both are left then we close the share area
-								var handler_item_leave = function() {
+								var handler_item_leave = function () {
 									$( original ).data( 'hasitem', false );
 
 									if ( $( original ).data( 'hasoriginal' ) === false ) {
@@ -47,12 +45,12 @@
 									}
 								};
 
-								var handler_item_enter = function() {
+								var handler_item_enter = function () {
 									$( original ).data( 'hasitem', true );
 									clearTimeout( $( original ).data( 'timer2' ) );
 								};
 
-								var handler_original_leave = function() {
+								var handler_original_leave = function () {
 									$( original ).data( 'hasoriginal', false );
 
 									if ( $( original ).data( 'hasitem' ) === false ) {
@@ -61,12 +59,12 @@
 									}
 								};
 
-								var handler_original_enter = function() {
+								var handler_original_enter = function () {
 									$( original ).data( 'hasoriginal', true );
 									clearTimeout( $( original ).data( 'timer2' ) );
 								};
 
-								var close_it = function() {
+								var close_it = function () {
 									item.slideUp( 200 );
 
 									// Clear all hooks
@@ -86,7 +84,7 @@
 							$( this ).data( 'timer', timer );
 						}
 					},
-					function() {
+					function () {
 						// Mouse out - remove any timer
 						clearTimeout( $( this ).data( 'timer' ) );
 						$( this ).data( 'timer', false );
@@ -111,7 +109,7 @@
 			}
 
 			// Re-insert all the enabled items
-			$( 'ul.services-enabled li' ).each( function() {
+			$( 'ul.services-enabled li' ).each( function () {
 				if ( $( this ).hasClass( 'service' ) ) {
 					var service = $( this ).attr( 'id' );
 					$( '#live-preview ul.preview' ).append(
@@ -124,15 +122,13 @@
 			if ( $( '#save-enabled-shares input[name=hidden]' ).val() ) {
 				// Add share button
 				$( '#live-preview ul.preview' ).append(
-					$( '#live-preview ul.archive .share-more' )
-						.parent()
-						.clone()
+					$( '#live-preview ul.archive .share-more' ).parent().clone()
 				);
 
 				$( '.sharing-hidden ul li' ).remove();
 
 				// Add hidden items into the inner panel
-				$( 'ul.services-hidden li' ).each( function(/*pos, item*/) {
+				$( 'ul.services-hidden li' ).each( function (/*pos, item*/) {
 					if ( $( this ).hasClass( 'service' ) ) {
 						var service = $( this ).attr( 'id' );
 						$( '.sharing-hidden .inner ul' ).append(
@@ -156,7 +152,7 @@
 				$( '#live-preview div.sharedaddy' ).addClass( 'sd-social-icon' );
 			} else if ( 'official' === button_style ) {
 				$( '#live-preview ul.preview .advanced, .sharing-hidden .inner ul .advanced' ).each(
-					function(/*i*/) {
+					function (/*i*/) {
 						if (
 							! $( this ).hasClass( 'preview-press-this' ) &&
 							! $( this ).hasClass( 'preview-email' ) &&
@@ -181,7 +177,7 @@
 			}
 		}
 
-		window.sharing_option_changed = function() {
+		window.sharing_option_changed = function () {
 			var item = this;
 
 			// Loading icon
@@ -192,7 +188,7 @@
 			// Save
 			$( this )
 				.parents( 'form' )
-				.ajaxSubmit( function( response ) {
+				.ajaxSubmit( function ( response ) {
 					if ( response.indexOf( '<!---' ) >= 0 ) {
 						var button = response.substring( 0, response.indexOf( '<!--->' ) );
 						var preview = response.substring( response.indexOf( '<!--->' ) + 6 );
@@ -200,17 +196,12 @@
 						if ( $( item ).is( ':submit' ) === true ) {
 							// Update the DOM using a bit of cut/paste technology
 
-							$( item )
-								.parents( 'li:first' )
-								.replaceWith( button );
+							$( item ).parents( 'li:first' ).replaceWith( button );
 						}
 
 						$(
 							'#live-preview ul.archive li.preview-' +
-								$( item )
-									.parents( 'form' )
-									.find( 'input[name=service]' )
-									.val()
+								$( item ).parents( 'form' ).find( 'input[name=service]' ).val()
 						).replaceWith( preview );
 					}
 
@@ -218,9 +209,7 @@
 					update_preview();
 
 					// Restore the icon
-					$( item )
-						.parents( 'li:first' )
-						.removeAttr( 'style' );
+					$( item ).parents( 'li:first' ).removeAttr( 'style' );
 				} );
 
 			if ( $( item ).is( ':submit' ) === true ) {
@@ -259,7 +248,7 @@
 			var visible = [],
 				hidden = [];
 
-			$( 'ul.services-enabled li' ).each( function() {
+			$( 'ul.services-enabled li' ).each( function () {
 				if ( $( this ).hasClass( 'service' ) ) {
 					// Ready for saving
 					visible[ visible.length ] = $( this ).attr( 'id' );
@@ -267,13 +256,13 @@
 				}
 			} );
 
-			$( 'ul.services-available li' ).each( function() {
+			$( 'ul.services-available li' ).each( function () {
 				if ( $( this ).hasClass( 'service' ) ) {
 					hideExtraOptions( $( this ).attr( 'id' ) );
 				}
 			} );
 
-			$( 'ul.services-hidden li' ).each( function() {
+			$( 'ul.services-hidden li' ).each( function () {
 				if ( $( this ).hasClass( 'service' ) ) {
 					// Ready for saving
 					hidden[ hidden.length ] = $( this ).attr( 'id' );
@@ -288,43 +277,39 @@
 			update_preview();
 
 			// Save it
-			$( '#save-enabled-shares' ).ajaxSubmit( function() {
+			$( '#save-enabled-shares' ).ajaxSubmit( function () {
 				$( '#enabled-services h3 img' ).hide();
 			} );
 		}
 
 		$( '#enabled-services .services ul' ).sortable( {
-			receive: function(/*event, ui*/) {
+			receive: function (/*event, ui*/) {
 				save_services();
 			},
-			stop: function() {
+			stop: function () {
 				save_services();
 				$( 'li.service' ).enableSelection(); // Fixes a problem with Chrome
 			},
-			over: function(/*event, ui*/) {
-				$( this )
-					.find( 'ul' )
-					.addClass( 'dropping' );
+			over: function (/*event, ui*/) {
+				$( this ).find( 'ul' ).addClass( 'dropping' );
 
 				// Ensure the 'end-fix' is at the end
 				$( '#enabled-services li.end-fix' ).remove();
 				$( '#enabled-services ul' ).append( '<li class="end-fix"></li>' );
 			},
-			out: function(/*event, ui*/) {
-				$( this )
-					.find( 'ul' )
-					.removeClass( 'dropping' );
+			out: function (/*event, ui*/) {
+				$( this ).find( 'ul' ).removeClass( 'dropping' );
 
 				// Ensure the 'end-fix' is at the end
 				$( '#enabled-services li.end-fix' ).remove();
 				$( '#enabled-services ul' ).append( '<li class="end-fix"></li>' );
 			},
-			helper: function( event, ui ) {
+			helper: function ( event, ui ) {
 				ui.find( '.advanced-form' ).hide();
 
 				return ui.clone();
 			},
-			start: function(/*event, ui*/) {
+			start: function (/*event, ui*/) {
 				// Make sure that the advanced section is closed
 				$( '.advanced-form' ).hide();
 				$( 'li.service' ).disableSelection(); // Fixes a problem with Chrome
@@ -345,13 +330,13 @@
 			connectWith: '#enabled-services .services ul',
 			placeholder: 'dropzone',
 			forcePlaceholderSize: true,
-			start: function() {
+			start: function () {
 				$( '.advanced-form' ).hide();
 			},
 		} );
 
 		// Accessibility keyboard shortcurts
-		$( '.service' ).on( 'keydown', function( e ) {
+		$( '.service' ).on( 'keydown', function ( e ) {
 			// Reposition if one of the directional keys is pressed
 			switch ( e.keyCode ) {
 				case 13:
@@ -452,28 +437,23 @@
 		}
 
 		// Live preview 'hidden' button
-		$( '.preview-hidden a' ).click( function() {
-			$( this )
-				.parent()
-				.find( '.preview' )
-				.toggle();
+		$( '.preview-hidden a' ).click( function () {
+			$( this ).parent().find( '.preview' ).toggle();
 			return false;
 		} );
 
 		// Add service
 		$( '#new-service form' ).ajaxForm( {
-			beforeSubmit: function() {
+			beforeSubmit: function () {
 				$( '#new-service-form .error' ).hide();
 				$( '#new-service-form img' ).show();
 				$( '#new-service-form input[type=submit]' ).prop( 'disabled', true );
 			},
-			success: function( response ) {
+			success: function ( response ) {
 				$( '#new-service-form img' ).hide();
 
 				if ( '' + response === '1' ) {
-					$( '#new-service-form .inerror' )
-						.removeClass( 'inerror' )
-						.addClass( 'error' );
+					$( '#new-service-form .inerror' ).removeClass( 'inerror' ).addClass( 'error' );
 					$( '#new-service-form .error' ).show();
 					$( '#new-service-form input[type=submit]' ).prop( 'disabled', false );
 				} else {
@@ -485,10 +465,8 @@
 		function init_handlers() {
 			$( '#services-config a.remove' )
 				.unbind( 'click' )
-				.click( function() {
-					var form = $( this )
-						.parent()
-						.next();
+				.click( function () {
+					var form = $( this ).parent().next();
 
 					// Loading icon
 					$( this )
@@ -496,9 +474,9 @@
 						.css( 'backgroundImage', 'url("' + sharing_loading_icon + '")' );
 
 					// Save
-					form.ajaxSubmit( function(/*response*/) {
+					form.ajaxSubmit( function (/*response*/) {
 						// Remove the item
-						form.parents( 'li:first' ).fadeOut( function() {
+						form.parents( 'li:first' ).fadeOut( function () {
 							$( this ).remove();
 
 							// Update preview
@@ -511,18 +489,14 @@
 		}
 
 		$( '#button_style' )
-			.change( function() {
+			.change( function () {
 				update_preview();
 				return true;
 			} )
 			.change();
 
-		$( 'input[name=sharing_label]' ).blur( function() {
-			$( '#live-preview h3.sd-title' ).text(
-				$( '<div/>' )
-					.text( $( this ).val() )
-					.html()
-			);
+		$( 'input[name=sharing_label]' ).blur( function () {
+			$( '#live-preview h3.sd-title' ).text( $( '<div/>' ).text( $( this ).val() ).html() );
 		} );
 
 		init_handlers();

@@ -62,7 +62,7 @@ module.exports = [
 						Initial_State: {
 							dismissedNotices: [],
 							connectionStatus: {
-								devMode: {
+								offlineMode: {
 									isActive: false,
 								},
 							},

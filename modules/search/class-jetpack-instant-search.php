@@ -143,6 +143,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
+			'excludedPostTypes'     => explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ),
 
 			// widget info.
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
@@ -382,7 +383,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	}
 
 	/**
-	 * Autoconfig search by adding filter widgets
+	 * Automatically configure necessary settings for instant search
 	 *
 	 * @since  8.3.0
 	 */
@@ -394,6 +395,16 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		// Set default result format to "expanded".
 		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', 'expanded' );
 
+		$this->auto_config_excluded_post_types();
+		$this->auto_config_overlay_sidebar_widgets();
+	}
+
+	/**
+	 * Automatically copy configured search widgets into the overlay sidebar
+	 *
+	 * @since  8.8.0
+	 */
+	public function auto_config_overlay_sidebar_widgets() {
 		global $wp_registered_sidebars;
 		$sidebars = get_option( 'sidebars_widgets', array() );
 		$slug     = Jetpack_Search_Helpers::FILTER_WIDGET_BASE;
@@ -481,10 +492,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	protected function get_preconfig_widget_options() {
 		$settings = array(
-			'title'              => '',
-			'search_box_enabled' => 1,
-			'user_sort_enabled'  => 0,
-			'filters'            => array(),
+			'title'   => '',
+			'filters' => array(),
 		);
 
 		$post_types = get_post_types(
@@ -539,8 +548,34 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'field'    => 'post_date',
 			'interval' => 'year',
 		);
-
 		return $settings;
 	}
+	/**
+	 * Automatically configure post types to exclude from one of the search widgets
+	 *
+	 * @since  8.8.0
+	 */
+	public function auto_config_excluded_post_types() {
+		$post_types         = get_post_types(
+			array(
+				'exclude_from_search' => false,
+				'public'              => true,
+			)
+		);
+		$enabled_post_types = array();
+		$widget_options     = get_option( Jetpack_Search_Helpers::get_widget_option_name(), array() );
 
+		// Iterate through each Jetpack Search widget configuration and append each enabled post type
+		// to $enabled_post_types.
+		foreach ( $widget_options as $widget_option ) {
+			if ( isset( $widget_option['post_types'] ) && is_array( $widget_option['post_types'] ) ) {
+				foreach ( $widget_option['post_types'] as $enabled_post_type ) {
+					$enabled_post_types[ $enabled_post_type ] = $enabled_post_type;
+				}
+			}
+		}
+
+		$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
+	}
 }

@@ -1,6 +1,6 @@
 /* global WPGroHo:true, Gravatar */
-( function() {
-	var extend = function( out ) {
+( function () {
+	var extend = function ( out ) {
 		out = out || {};
 
 		for ( var i = 1; i < arguments.length; i++ ) {
@@ -19,7 +19,7 @@
 			my_hash: '',
 			data: {},
 			renderers: {},
-			syncProfileData: function( hash, id ) {
+			syncProfileData: function ( hash, id ) {
 				var hashElements;
 
 				if ( ! WPGroHo.data[ hash ] ) {
@@ -32,7 +32,7 @@
 
 				WPGroHo.appendProfileData( WPGroHo.data[ hash ], hash, id );
 			},
-			appendProfileData: function( data, hash, id ) {
+			appendProfileData: function ( data, hash, id ) {
 				for ( var key in data ) {
 					if ( 'function' === typeof WPGroHo.renderers[ key ] ) {
 						return WPGroHo.renderers[ key ]( data[ key ], hash, id, key );
@@ -55,12 +55,12 @@
 		WPGroHo || {}
 	);
 
-	var jetpackHovercardsInit = function() {
+	var jetpackHovercardsInit = function () {
 		if ( 'undefined' === typeof Gravatar ) {
 			return;
 		}
 
-		Gravatar.profile_cb = function( h, d ) {
+		Gravatar.profile_cb = function ( h, d ) {
 			WPGroHo.syncProfileData( h, d );
 		};
 

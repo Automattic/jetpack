@@ -3,9 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action.jsx';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -16,6 +14,8 @@ import {
 	dismissJetpackNotice,
 } from 'state/jetpack-notices';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import SimpleNotice from 'components/notice';
 
 class FeedbackDashRequest extends React.Component {
 	static displayName = 'FeedbackDashRequest';
@@ -35,9 +35,9 @@ class FeedbackDashRequest extends React.Component {
 					className="jp-dash-item__feedback-request"
 					status="is-basic"
 					onDismissClick={ this.props.dismissNotice }
-					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
+					text={ __( 'What would you like to see on your Jetpack Dashboard?', 'jetpack' ) }
 				>
-					<NoticeAction href={ supportURl }>{ __( 'Let us know!' ) }</NoticeAction>
+					<NoticeAction href={ supportURl }>{ __( 'Let us know!', 'jetpack' ) }</NoticeAction>
 				</SimpleNotice>
 			</div>
 		);

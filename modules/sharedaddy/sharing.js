@@ -3,7 +3,7 @@ var sharing_js_options;
 if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {
 		done_urls: [],
-		get_counts: function() {
+		get_counts: function () {
 			var url, requests, id, service, service_request;
 
 			if ( 'undefined' === typeof WPCOM_sharing_counts ) {
@@ -51,7 +51,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		},
 
 		// get the version of the url that was stored in the dom (sharing-$service-URL)
-		get_permalink: function( url ) {
+		get_permalink: function ( url ) {
 			if ( 'https:' === window.location.protocol ) {
 				url = url.replace( /^http:\/\//i, 'https://' );
 			} else {
@@ -60,7 +60,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 			return url;
 		},
-		update_facebook_count: function( data ) {
+		update_facebook_count: function ( data ) {
 			var url, permalink;
 
 			if ( ! data ) {
@@ -88,7 +88,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				);
 			}
 		},
-		update_pinterest_count: function( data ) {
+		update_pinterest_count: function ( data ) {
 			if ( 'undefined' !== typeof data.count && data.count * 1 > 0 ) {
 				WPCOMSharing.inject_share_count(
 					'sharing-pinterest-' + WPCOM_sharing_counts[ data.url ],
@@ -96,14 +96,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				);
 			}
 		},
-		inject_share_count: function( id, count ) {
+		inject_share_count: function ( id, count ) {
 			var $share = jQuery( 'a[data-shared=' + id + '] > span' );
 			$share.find( '.share-count' ).remove();
 			$share.append(
 				'<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>'
 			);
 		},
-		format_count: function( count ) {
+		format_count: function ( count ) {
 			if ( count < 1000 ) {
 				return count;
 			}
@@ -112,7 +112,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			}
 			return '10K+';
 		},
-		bump_sharing_count_stat: function( service ) {
+		bump_sharing_count_stat: function ( service ) {
 			new Image().src =
 				document.location.protocol +
 				'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_sharing-count-request=' +
@@ -123,11 +123,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	};
 }
 
-( function( $ ) {
+( function ( $ ) {
 	var $body, $sharing_email;
 
 	$.fn.extend( {
-		share_is_email: function() {
+		share_is_email: function () {
 			return /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(
 				this.val()
 			);
@@ -135,7 +135,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 	} );
 
 	$body = $( document.body ).on( 'post-load', WPCOMSharing_do );
-	$( document ).ready( function() {
+	$( document ).ready( function () {
 		$sharing_email = $( '#sharing_email' );
 		$body.append( $sharing_email );
 		WPCOMSharing_do();
@@ -148,17 +148,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		}
 		$more_sharing_buttons = $( '.sharedaddy a.sharing-anchor' );
 
-		$more_sharing_buttons.click( function() {
+		$more_sharing_buttons.click( function () {
 			return false;
 		} );
 
-		$( '.sharedaddy a' ).each( function() {
-			if (
-				$( this ).attr( 'href' ) &&
-				$( this )
-					.attr( 'href' )
-					.indexOf( 'share=' ) !== -1
-			) {
+		$( '.sharedaddy a' ).each( function () {
+			if ( $( this ).attr( 'href' ) && $( this ).attr( 'href' ).indexOf( 'share=' ) !== -1 ) {
 				$( this ).attr( 'href', $( this ).attr( 'href' ) + '&nb=1' );
 			}
 		} );
@@ -167,7 +162,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 
 		// Touchscreen device: use click.
 		// Non-touchscreen device: use click if not already appearing due to a hover event
-		$more_sharing_buttons.on( 'click', function() {
+		$more_sharing_buttons.on( 'click', function () {
 			var $more_sharing_button = $( this ),
 				$more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
 
@@ -194,14 +189,14 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		if ( document.ontouchstart === undefined ) {
 			// Non-touchscreen device: use hover/mouseout with delay
 			$more_sharing_buttons.hover(
-				function() {
+				function () {
 					var $more_sharing_button = $( this ),
 						$more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' ),
 						timer;
 
 					if ( ! $more_sharing_pane.is( ':animated' ) ) {
 						// Create a timer to make the area appear if the mouse hovers for a period
-						timer = setTimeout( function() {
+						timer = setTimeout( function () {
 							var handler_item_leave,
 								handler_item_enter,
 								handler_original_leave,
@@ -217,11 +212,11 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 									top:
 										$more_sharing_button.position().top + $more_sharing_button.height() + 3 + 'px',
 								} )
-								.slideDown( 200, function() {
+								.slideDown( 200, function () {
 									// Mark the item as have being appeared by the hover
 									$more_sharing_button.data( 'hasoriginal', true ).data( 'hasitem', false );
 
-									setTimeout( function() {
+									setTimeout( function () {
 										$more_sharing_pane.data( 'justSlid', false );
 									}, 300 );
 
@@ -234,7 +229,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 								} );
 
 							// The following handlers take care of the mouseenter/mouseleave for the share button and the share area - if both are left then we close the share area
-							handler_item_leave = function() {
+							handler_item_leave = function () {
 								$more_sharing_button.data( 'hasitem', false );
 
 								if ( $more_sharing_button.data( 'hasoriginal' ) === false ) {
@@ -243,12 +238,12 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 								}
 							};
 
-							handler_item_enter = function() {
+							handler_item_enter = function () {
 								$more_sharing_button.data( 'hasitem', true );
 								clearTimeout( $more_sharing_button.data( 'timer2' ) );
 							};
 
-							handler_original_leave = function() {
+							handler_original_leave = function () {
 								$more_sharing_button.data( 'hasoriginal', false );
 
 								if ( $more_sharing_button.data( 'hasitem' ) === false ) {
@@ -257,15 +252,15 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 								}
 							};
 
-							handler_original_enter = function() {
+							handler_original_enter = function () {
 								$more_sharing_button.data( 'hasoriginal', true );
 								clearTimeout( $more_sharing_button.data( 'timer2' ) );
 							};
 
-							close_it = function() {
+							close_it = function () {
 								$more_sharing_pane.data( 'justSlid', true );
-								$more_sharing_pane.slideUp( 200, function() {
-									setTimeout( function() {
+								$more_sharing_pane.slideUp( 200, function () {
+									setTimeout( function () {
 										$more_sharing_pane.data( 'justSlid', false );
 									}, 300 );
 								} );
@@ -285,9 +280,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 						$more_sharing_button.data( 'timer', timer );
 					}
 				},
-				function() {
+				function () {
 					// Mouse out - remove any timer
-					$more_sharing_buttons.each( function() {
+					$more_sharing_buttons.each( function () {
 						clearTimeout( $( this ).data( 'timer' ) );
 					} );
 					$more_sharing_buttons.data( 'timer', false );
@@ -297,10 +292,10 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			$( document.body ).addClass( 'jp-sharing-input-touch' );
 		}
 
-		$( document ).click( function() {
+		$( document ).click( function () {
 			// Click outside
 			// remove any timer
-			$more_sharing_buttons.each( function() {
+			$more_sharing_buttons.each( function () {
 				clearTimeout( $( this ).data( 'timer' ) );
 			} );
 			$more_sharing_buttons.data( 'timer', false );
@@ -310,13 +305,13 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 		} );
 
 		// Add click functionality
-		$( '.sharedaddy ul' ).each( function() {
+		$( '.sharedaddy ul' ).each( function () {
 			if ( 'yep' === $( this ).data( 'has-click-events' ) ) {
 				return;
 			}
 			$( this ).data( 'has-click-events', 'yep' );
 
-			var printUrl = function( uniqueId, urlToPrint ) {
+			var printUrl = function ( uniqueId, urlToPrint ) {
 				$( 'body:first' ).append(
 					'<iframe style="position:fixed;top:100;left:100;height:1px;width:1px;border:none;" id="printFrame-' +
 						uniqueId +
@@ -335,9 +330,9 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			// Print button
 			$( this )
 				.find( 'a.share-print' )
-				.click( function() {
+				.click( function () {
 					var ref = $( this ).attr( 'href' ),
-						do_print = function() {
+						do_print = function () {
 							if ( ref.indexOf( '#print' ) === -1 ) {
 								var uid = new Date().getTime();
 								printUrl( uid, ref );
@@ -350,7 +345,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					if ( $( this ).parents( '.sharing-hidden' ).length > 0 ) {
 						$( this )
 							.parents( '.inner' )
-							.slideUp( 0, function() {
+							.slideUp( 0, function () {
 								do_print();
 							} );
 					} else {
@@ -363,7 +358,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			// Press This button
 			$( this )
 				.find( 'a.share-press-this' )
-				.click( function() {
+				.click( function () {
 					var s = '';
 
 					if ( window.getSelection ) {
@@ -392,7 +387,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				} );
 
 			// Email button
-			$( 'a.share-email', this ).on( 'click', function() {
+			$( 'a.share-email', this ).on( 'click', function () {
 				var url = $( this ).attr( 'href' );
 				var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
 				if ( url.indexOf( currentDomain ) !== 0 ) {
@@ -429,7 +424,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					// Hook up other buttons
 					$( '#sharing_email a.sharing_cancel' )
 						.unbind( 'click' )
-						.click( function() {
+						.click( function () {
 							$( '#sharing_email .errors' ).hide();
 							$sharing_email.slideUp( 200 );
 							$( '#sharing_background' ).fadeOut();
@@ -439,7 +434,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 					// Submit validation
 					$( '#sharing_email input[type=submit]' )
 						.unbind( 'click' )
-						.click( function() {
+						.click( function () {
 							var form = $( this ).parents( 'form' );
 							var source_email_input = form.find( 'input[name=source_email]' );
 							var target_email_input = form.find( 'input[name=target_email]' );
@@ -466,7 +461,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 									url: url,
 									type: 'POST',
 									data: form.serialize(),
-									success: function( response ) {
+									success: function ( response ) {
 										form.find( 'img.loading' ).hide();
 
 										if ( response === '1' || response === '2' || response === '3' ) {
@@ -483,7 +478,7 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 										} else {
 											$( '#sharing_email form' ).hide();
 											$sharing_email.append( response );
-											$( '#sharing_email a.sharing_cancel' ).click( function() {
+											$( '#sharing_email a.sharing_cancel' ).click( function () {
 												$sharing_email.slideUp( 200 );
 												$( '#sharing_background' ).fadeOut();
 												return false;

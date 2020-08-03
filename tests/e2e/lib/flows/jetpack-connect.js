@@ -34,6 +34,9 @@ const cardCredentials = config.get( 'testCardCredentials' );
  * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
  *
  * @param {Object} o Optional object with params such as `wpcomUser` and expected Jetpack plan
+ * @param {string} o.wpcomUser
+ * @param {string} o.plan
+ * @param {boolean} o.mockPlanData
  */
 export async function connectThroughWPAdminIfNeeded( {
 	wpcomUser = 'defaultUser',
@@ -112,7 +115,7 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 	}
 }
 
-async function loginToWpSite( mockPlanData ) {
+export async function loginToWpSite( mockPlanData ) {
 	const siteUrl = getNgrokSiteUrl();
 	const host = new URL( siteUrl ).host;
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
@@ -121,7 +124,7 @@ async function loginToWpSite( mockPlanData ) {
 	}
 }
 
-async function loginToWpcomIfNeeded( wpcomUser, mockPlanData ) {
+export async function loginToWpcomIfNeeded( wpcomUser, mockPlanData ) {
 	// Logs in to WPCOM
 	const login = await LoginPage.visit( page );
 	if ( ! mockPlanData ) {
@@ -148,7 +151,10 @@ export async function connectThroughJetpackStart( {
 	plan = 'pro',
 } = {} ) {
 	// remove Sandbox cookie
-	await page.deleteCookie( { name: 'store_sandbox', domain: '.wordpress.com' } );
+	await page.deleteCookie( {
+		name: 'store_sandbox',
+		domain: '.wordpress.com',
+	} );
 
 	// Logs in to WPCOM
 	const login = await LoginPage.visit( page );

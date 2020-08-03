@@ -1,31 +1,34 @@
 /**
  * External dependencies
  */
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import MultiChoiceQuestion from 'components/multiple-choice-question';
 
 // these answers should line up exactly with the options in Calypso
 // see any changes at
 // https://github.com/Automattic/wp-calypso/blob/master/client/my-sites/site-settings/disconnect-site/confirm.jsx
 const answers = [
-	{ id: 'cannot-work', answerText: __( "I can't get it to work." ) },
-	{ id: 'slow', answerText: __( 'It slowed down my site.' ) },
-	{ id: 'buggy', answerText: __( "It's buggy." ) },
-	{ id: 'no-clarity', answerText: __( "I don't know what it does." ) },
-	{ id: 'delete', answerText: __( "I'm deleting/migrating my site." ) },
-	{ id: 'troubleshooting', answerText: __( "Troubleshooting - I'll be reconnecting afterwards." ) },
+	{ id: 'cannot-work', answerText: __( "I can't get it to work.", 'jetpack' ) },
+	{ id: 'slow', answerText: __( 'It slowed down my site.', 'jetpack' ) },
+	{ id: 'buggy', answerText: __( "It's buggy.", 'jetpack' ) },
+	{ id: 'no-clarity', answerText: __( "I don't know what it does.", 'jetpack' ) },
+	{ id: 'delete', answerText: __( "I'm deleting/migrating my site.", 'jetpack' ) },
+	{
+		id: 'troubleshooting',
+		answerText: __( "Troubleshooting - I'll be reconnecting afterwards.", 'jetpack' ),
+	},
 	{
 		id: 'other',
-		answerText: __( 'Other:' ),
+		answerText: __( 'Other:', 'jetpack' ),
 		textInput: true,
-		textInputPrompt: __( 'share your experience' ),
+		textInputPrompt: __( 'share your experience', 'jetpack' ),
 		doNotShuffle: true,
 	},
 ];
@@ -41,8 +44,8 @@ class JetpackTerminationDialogSurvey extends Component {
 	getQuestion() {
 		const { purpose } = this.props;
 		return 'disconnect' === purpose
-			? __( "Please let us know why you're disconnecting Jetpack" )
-			: __( "Please let us know why you're disabling Jetpack" );
+			? __( "Please let us know why you're disconnecting Jetpack", 'jetpack' )
+			: __( "Please let us know why you're disabling Jetpack", 'jetpack' );
 	}
 
 	render() {
@@ -53,7 +56,7 @@ class JetpackTerminationDialogSurvey extends Component {
 				<MultiChoiceQuestion
 					answers={ answers }
 					question={ this.getQuestion() }
-					subHeader={ __( 'Your feedback will help us improve the product.' ) }
+					subHeader={ __( 'Your feedback will help us improve the product.', 'jetpack' ) }
 					onAnswerChange={ onSurveyAnswerChange }
 					selectedAnswerId={ surveyAnswerId }
 					selectedAnswerText={ surveyAnswerText }

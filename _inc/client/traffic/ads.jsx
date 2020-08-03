@@ -2,16 +2,17 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
-import ExternalLink from 'components/external-link';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Card from 'components/card';
+import CompactFormToggle from 'components/form/form-toggle/compact';
+import ExternalLink from 'components/external-link';
+import getRedirectUrl from 'lib/jp-redirect';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
 import Textarea from 'components/textarea';
@@ -46,7 +47,7 @@ export const Ads = withModuleSettingsFormHelpers(
 
 		render() {
 			const isAdsActive = this.props.getOptionValue( 'wordads' );
-			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
+			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'wordads' );
 			const enable_header_ad = this.props.getOptionValue( 'enable_header_ad', 'wordads' );
 			const wordads_second_belowpost = this.props.getOptionValue(
 				'wordads_second_belowpost',
@@ -76,38 +77,43 @@ export const Ads = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Ads', { context: 'Ads header' } ) }
+					header={ _x( 'Ads', 'Ads header', 'jetpack' ) }
 					feature={ FEATURE_WORDADS_JETPACK }
 					saveDisabled={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt' ] ) }
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						hasChild
 						module={ { module: 'wordads' } }
 						support={ {
-							text: __( 'Displays high-quality ads on your site that allow you to earn income.' ),
+							text: __(
+								'Displays high-quality ads on your site that allow you to earn income.',
+								'jetpack'
+							),
 							link: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
 						<p>
 							{ __(
-								'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.'
+								'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.',
+								'jetpack'
 							) }
 							<br />
 							<small className="jp-form-setting-explanation">
-								{ __(
-									'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.',
+								{ jetpackCreateInterpolateElement(
+									__(
+										'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>.',
+										'jetpack'
+									),
 									{
-										components: {
-											link: (
-												<a
-													href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
-													target="_blank"
-													rel="noopener noreferrer"
-													onClick={ this.trackConfigureWidgetClick }
-												/>
-											),
-										},
+										link: (
+											<a
+												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
+												target="_blank"
+												rel="noopener noreferrer"
+												onClick={ this.trackConfigureWidgetClick }
+											/>
+										),
 									}
 								) }
 							</small>
@@ -115,99 +121,106 @@ export const Ads = withModuleSettingsFormHelpers(
 
 						<ModuleToggle
 							slug="wordads"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInOfflineMode }
 							activated={ isAdsActive }
 							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __( 'Enable ads and display an ad below each post' ) }
+								{ __( 'Enable ads and display an ad below each post', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<FormLegend>{ __( 'Display ads below posts on' ) }</FormLegend>
+							<FormLegend>{ __( 'Display ads below posts on', 'jetpack' ) }</FormLegend>
 							<CompactFormToggle
 								checked={ wordads_display_front_page }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_front_page' ) }
 							>
-								<span className="jp-form-toggle-explanation">{ __( 'Front page' ) }</span>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Front page', 'jetpack' ) }
+								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ wordads_display_post }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_post' ) }
 							>
-								<span className="jp-form-toggle-explanation">{ __( 'Posts' ) }</span>
+								<span className="jp-form-toggle-explanation">{ __( 'Posts', 'jetpack' ) }</span>
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ wordads_display_page }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_page' ) }
 							>
-								<span className="jp-form-toggle-explanation">{ __( 'Pages' ) }</span>
+								<span className="jp-form-toggle-explanation">{ __( 'Pages', 'jetpack' ) }</span>
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ wordads_display_archive }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_archive' ) }
 							>
-								<span className="jp-form-toggle-explanation">{ __( 'Archives' ) }</span>
+								<span className="jp-form-toggle-explanation">{ __( 'Archives', 'jetpack' ) }</span>
 							</CompactFormToggle>
 						</FormFieldset>
 						<FormFieldset>
-							<FormLegend>{ __( 'Additional ad placements' ) }</FormLegend>
+							<FormLegend>{ __( 'Additional ad placements', 'jetpack' ) }</FormLegend>
 							<CompactFormToggle
 								checked={ enable_header_ad }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] )
 								}
 								onChange={ this.handleChange( 'enable_header_ad' ) }
 							>
-								<span className="jp-form-toggle-explanation">{ __( 'Top of each page' ) }</span>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Top of each page', 'jetpack' ) }
+								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ wordads_second_belowpost }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] )
 								}
 								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
 							>
-								<span className="jp-form-toggle-explanation">{ __( 'Second ad below post' ) }</span>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Second ad below post', 'jetpack' ) }
+								</span>
 							</CompactFormToggle>
 							<small className="jp-form-setting-explanation">
 								{ isAdsActive &&
-									__(
-										'You can place additional ads using the Ad widget. {{link}}Try it out!{{/link}}',
+									jetpackCreateInterpolateElement(
+										__(
+											'You can place additional ads using the Ad widget. <link>Try it out!</link>',
+											'jetpack'
+										),
 										{
-											components: {
-												link: (
-													<a
-														className="jp-module-settings__external-link"
-														href="customize.php?autofocus[panel]=widgets"
-													/>
-												),
-											},
+											link: (
+												<a
+													className="jp-module-settings__external-link"
+													href="customize.php?autofocus[panel]=widgets"
+												/>
+											),
 										}
 									) }
 							</small>
@@ -217,7 +230,8 @@ export const Ads = withModuleSettingsFormHelpers(
 						hasChild
 						support={ {
 							text: __(
-								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).'
+								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).',
+								'jetpack'
 							),
 							link: this.props.isAtomicSite
 								? getRedirectUrl( 'wpcom-support-ccpa' )
@@ -228,74 +242,82 @@ export const Ads = withModuleSettingsFormHelpers(
 							checked={ wordads_ccpa_enabled }
 							disabled={
 								! isAdsActive ||
-								unavailableInDevMode ||
+								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_enabled' ] )
 							}
 							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __( 'Enable targeted advertising to California site visitors (CCPA)' ) }
+								{ __(
+									'Enable targeted advertising to California site visitors (CCPA)',
+									'jetpack'
+								) }
 							</span>
 						</CompactFormToggle>
 						{ wordads_ccpa_enabled && (
 							<FormFieldset>
 								<p>
 									<small className="jp-form-setting-explanation">
-										{ __(
-											'For more information about the California Consumer Privacy Act (CCPA) {{br/}}and how it pertains to your site, please consult our {{link}}CCPA guide for site owners{{/link}}.',
+										{ jetpackCreateInterpolateElement(
+											__(
+												'For more information about the California Consumer Privacy Act (CCPA) <br/>and how it pertains to your site, please consult our <link>CCPA guide for site owners</link>.',
+												'jetpack'
+											),
 											{
-												components: {
-													br: <br />,
-													link: (
-														<ExternalLink
-															icon={ true }
-															href={
-																this.props.isAtomicSite
-																	? getRedirectUrl( 'wpcom-support-ccpa' )
-																	: getRedirectUrl( 'jetpack-support-ads' )
-															}
-															target="_blank"
-															rel="noopener noreferrer"
-														/>
-													),
-												},
+												br: <br />,
+												link: (
+													<ExternalLink
+														icon={ true }
+														href={
+															this.props.isAtomicSite
+																? getRedirectUrl( 'wpcom-support-ccpa' )
+																: getRedirectUrl( 'jetpack-support-ads' )
+														}
+														target="_blank"
+														rel="noopener noreferrer"
+													/>
+												),
 											}
 										) }
 									</small>
 								</p>
 								<p>
-									<FormLegend>{ __( 'Do Not Sell Link' ) }</FormLegend>
-									{ __(
-										'CCPA requires that you place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. {{br/}}You can use the {{widgetLink}}Do Not Sell Link (CCPA) Widget{{/widgetLink}}, or the {{code}}[ccpa-do-not-sell-link]{{/code}} shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
+									<FormLegend>{ __( 'Do Not Sell Link', 'jetpack' ) }</FormLegend>
+									{ jetpackCreateInterpolateElement(
+										__(
+											'CCPA requires that you place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. <br/>You can use the <widgetLink>Do Not Sell Link (CCPA) Widget</widgetLink>, or the <code>[ccpa-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
+											'jetpack'
+										),
 										{
-											components: {
-												br: <br />,
-												code: <code />,
-												widgetLink: (
-													<a
-														className="jp-module-settings__external-link"
-														href="customize.php?autofocus[panel]=widgets"
-													/>
-												),
-											},
+											br: <br />,
+											code: <code />,
+											widgetLink: (
+												<a
+													className="jp-module-settings__external-link"
+													href="customize.php?autofocus[panel]=widgets"
+												/>
+											),
 										}
 									) }
 									<span className="jp-form-setting-explanation">
-										{ __( 'Failure to add this link will result in non-compliance with CCPA.' ) }
+										{ __(
+											'Failure to add this link will result in non-compliance with CCPA.',
+											'jetpack'
+										) }
 									</span>
 								</p>
 							</FormFieldset>
 						) }
 						{ wordads_ccpa_enabled && (
 							<FormFieldset>
-								<FormLegend>{ __( 'Privacy Policy URL' ) }</FormLegend>
+								<FormLegend>{ __( 'Privacy Policy URL', 'jetpack' ) }</FormLegend>
 								<TextInput
 									name={ 'wordads_ccpa_privacy_policy_url' }
 									placeholder={ 'https://' }
 									value={ wordads_ccpa_privacy_policy_url }
 									disabled={
 										! isAdsActive ||
-										unavailableInDevMode ||
+										unavailableInOfflineMode ||
 										! wordads_ccpa_enabled ||
 										this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_privacy_policy_url' ] )
 									}
@@ -303,7 +325,8 @@ export const Ads = withModuleSettingsFormHelpers(
 								/>
 								<span className="jp-form-setting-explanation">
 									{ __(
-										'Adds a link to your privacy policy to the bottom of the CCPA notice popup (optional).'
+										'Adds a link to your privacy policy to the bottom of the CCPA notice popup (optional).',
+										'jetpack'
 									) }
 								</span>
 							</FormFieldset>
@@ -313,7 +336,8 @@ export const Ads = withModuleSettingsFormHelpers(
 						hasChild
 						support={ {
 							text: __(
-								'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.'
+								'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
+								'jetpack'
 							),
 							link: 'https://jetpack.com/support/ads/',
 						} }
@@ -323,13 +347,13 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_custom_adstxt_enabled }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
 								}
 								onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Customize your ads.txt file' ) }
+									{ __( 'Customize your ads.txt file', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
 						) }
@@ -338,29 +362,29 @@ export const Ads = withModuleSettingsFormHelpers(
 								<br />
 								<p>
 									{ isAdsActive &&
-										__(
-											'Jetpack Ads automatically generates a custom {{link1}}ads.txt{{/link1}} tailored for your site. ' +
-												'If you need to add additional entries for other networks please add them in the space below, one per line. ' +
-												'{{link2}}Check here for more details{{/link2}}.',
+										jetpackCreateInterpolateElement(
+											__(
+												'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+												'jetpack'
+											),
 											{
-												components: {
-													link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
-													link2: (
-														<a
-															href={ getRedirectUrl(
-																'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
-															) }
-															target="_blank"
-															rel="noopener noreferrer"
-														/>
-													),
-												},
+												link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
+												link2: (
+													<a
+														href={ getRedirectUrl(
+															'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
+														) }
+														target="_blank"
+														rel="noopener noreferrer"
+													/>
+												),
 											}
 										) }
 
 									{ ! isAdsActive &&
 										__(
-											'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.'
+											'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.',
+											'jetpack'
 										) }
 								</p>
 								<Textarea
@@ -368,7 +392,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									value={ wordads_custom_adstxt }
 									disabled={
 										! isAdsActive ||
-										unavailableInDevMode ||
+										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
 									}
 									onChange={ this.props.onOptionChange }
@@ -376,14 +400,14 @@ export const Ads = withModuleSettingsFormHelpers(
 							</FormFieldset>
 						) }
 					</SettingsGroup>
-					{ ! unavailableInDevMode && isAdsActive && (
+					{ ! unavailableInOfflineMode && isAdsActive && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
 							href={ this.props.configureUrl }
 						>
-							{ __( 'View your earnings' ) }
+							{ __( 'View your earnings', 'jetpack' ) }
 						</Card>
 					) }
 				</SettingsCard>

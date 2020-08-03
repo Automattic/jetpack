@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { translate as __ } from 'i18n-calypso';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -43,16 +43,17 @@ class RecommendedFeatures extends Component {
 			<div className="jp-setup-wizard-main jp-setup-wizard-recommended-features-main">
 				<img
 					src={ imagePath + 'jetpack-new-heights.svg' }
-					alt={ __( 'A rocketship using Jetpack to reach new heights' ) }
+					alt={ __( 'A rocketship using Jetpack to reach new heights', 'jetpack' ) }
 				/>
-				<h1>{ __( 'Get started with Jetpack’s powerful features' ) }</h1>
+				<h1>{ __( 'Get started with Jetpack’s powerful features', 'jetpack' ) }</h1>
 				<p className="jp-setup-wizard-recommended-features-p1">
 					{ __(
-						'Jetpack has a lot of features so we’ve made a few recommendations for you below.'
+						'Jetpack has a lot of features so we’ve made a few recommendations for you below.',
+						'jetpack'
 					) }
 				</p>
 				<p className="jp-setup-wizard-recommended-features-p2">
-					{ __( 'You can change your feature settings at any time.' ) }
+					{ __( 'You can change your feature settings at any time.', 'jetpack' ) }
 				</p>
 				<div className="jp-setup-wizard-feature-groups-container">
 					{ this.props.recommendedFeatureGroups.map( featureGroup => {
@@ -67,10 +68,10 @@ class RecommendedFeatures extends Component {
 				</div>
 				<div className="jp-setup-wizard-recommended-features-buttons-container">
 					<Button primary href="#/dashboard" onClick={ this.onDoneButtonClick }>
-						{ __( 'I’m done for now' ) }
+						{ __( 'I’m done for now', 'jetpack' ) }
 					</Button>
 					<Button href="#/settings" onClick={ this.onExploreMoreButtonClick }>
-						{ __( 'Explore more features' ) }
+						{ __( 'Explore more features', 'jetpack' ) }
 					</Button>
 				</div>
 			</div>

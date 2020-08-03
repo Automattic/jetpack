@@ -4,19 +4,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { includes, map, reduce } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
+import { includes, map, pick, reduce } from 'lodash';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
 import { getPlanDuration } from 'state/plans';
 import { getPlanClass } from 'lib/plans/constants';
-import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';
 import FeatureItem from './feture-item';
 import DurationSwitcher from './duration-switcher';
@@ -75,19 +75,21 @@ class PlanGrid extends React.Component {
 	}
 
 	renderMobileCard() {
-		const currently = __( 'You’re currently on Jetpack %(plan)s.', {
-			args: { plan: this.props.sitePlan.product_name_short },
-		} );
+		const currently = sprintf(
+			/* translators: placeholder is a plan name, like "Premium". */
+			__( 'You’re currently on Jetpack %s.', 'jetpack' ),
+			this.props.sitePlan.product_name_short
+		);
 		const myPlanUrl = getRedirectUrl( 'calypso-plans-my-plan', { site: this.props.siteRawUrl } );
 		const plansUrl = getRedirectUrl( 'calypso-plans', { site: this.props.siteRawUrl } );
 
 		return (
 			<div className="plans-mobile-notice dops-card">
-				<h2>{ __( 'Your Plan' ) }</h2>
+				<h2>{ __( 'Your Plan', 'jetpack' ) }</h2>
 				<p>{ currently }</p>
-				<Button href={ myPlanUrl }>{ __( 'Manage your plan' ) }</Button>
+				<Button href={ myPlanUrl }>{ __( 'Manage your plan', 'jetpack' ) }</Button>
 				<Button href={ plansUrl } primary>
-					{ __( 'View all Jetpack plans' ) }
+					{ __( 'View all Jetpack plans', 'jetpack' ) }
 				</Button>
 			</div>
 		);
@@ -163,8 +165,23 @@ class PlanGrid extends React.Component {
 			{}
 		);
 
-		this.featuredPlans = featuredPlans;
-		return featuredPlans;
+		// Users on the personal plan should still see the personal plan, otherwise
+		// they should see a modified premium and professional plan.
+		if ( 'is-personal-plan' === getPlanClass( this.props.sitePlan.product_slug ) ) {
+			this.featuredPlans = featuredPlans;
+		} else {
+			const personalFeatures = featuredPlans.personal.features;
+			const premiumFeatures = featuredPlans.premium.features;
+			featuredPlans.premium.features = [
+				personalFeatures.find( feature => 'backups' === feature.id ),
+				personalFeatures.find( feature => 'spam' === feature.id ),
+				...premiumFeatures.filter( feature => 'all-from-previous' !== feature.id ),
+				personalFeatures.find( feature => 'all-from-previous' === feature.id ),
+			];
+			this.featuredPlans = pick( featuredPlans, [ 'premium', 'business' ] );
+		}
+
+		return this.featuredPlans;
 	}
 
 	/**

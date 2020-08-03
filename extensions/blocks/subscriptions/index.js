@@ -11,7 +11,6 @@ import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'subscriptions';
 export const settings = {
@@ -45,7 +44,7 @@ export const settings = {
 			/>
 		</SVG>
 	),
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	keywords: [
 		_x( 'subscribe', 'block search term', 'jetpack' ),
 		_x( 'join', 'block search term', 'jetpack' ),

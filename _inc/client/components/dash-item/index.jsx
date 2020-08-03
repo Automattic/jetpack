@@ -5,25 +5,25 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import SimpleNotice from 'components/notice';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
 import { includes } from 'lodash';
-import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import analytics from 'lib/analytics';
+import Button from 'components/button';
 import Card from 'components/card';
-import SectionHeader from 'components/section-header';
-import SupportInfo from 'components/support-info';
-import { ModuleToggle } from 'components/module-toggle';
-import { isDevMode } from 'state/connection';
 import { getModule as _getModule } from 'state/modules';
-import ProStatus from 'pro-status';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import { isOfflineMode } from 'state/connection';
+import { ModuleToggle } from 'components/module-toggle';
+import ProStatus from 'pro-status';
+import SectionHeader from 'components/section-header';
+import SimpleNotice from 'components/notice';
+import SupportInfo from 'components/support-info';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 export class DashItem extends Component {
 	static propTypes = {
@@ -77,7 +77,7 @@ export class DashItem extends Component {
 					[ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ],
 					this.props.module
 				) &&
-					this.props.isDevMode ) ||
+					this.props.isOfflineMode ) ||
 				// Avoid toggle for manage as it's no longer a module
 				'manage' === this.props.module ? (
 					''
@@ -96,7 +96,7 @@ export class DashItem extends Component {
 					toggle = (
 						<a
 							href={
-								this.props.isDevMode
+								this.props.isOfflineMode
 									? this.props.siteAdminUrl + 'update-core.php'
 									: getRedirectUrl( 'calypso-plugins-manage', { site: this.props.siteRawUrl } )
 							}
@@ -108,7 +108,9 @@ export class DashItem extends Component {
 					);
 				}
 				if ( 'is-working' === this.props.status ) {
-					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
+					toggle = (
+						<span className="jp-dash-item__active-label">{ __( 'Active', 'jetpack' ) }</span>
+					);
 				}
 			}
 
@@ -117,12 +119,14 @@ export class DashItem extends Component {
 			}
 		}
 
-		if ( this.props.pro && ! this.props.isDevMode ) {
+		if ( this.props.pro && ! this.props.isOfflineMode ) {
 			proButton = (
 				<Button onClick={ this.trackPaidBtnClick } compact={ true } href="#/plans">
-					{ __( 'Paid', {
-						context: 'Short label appearing near a paid feature configuration block.',
-					} ) }
+					{ _x(
+						'Paid',
+						'Short label appearing near a paid feature configuration block.',
+						'jetpack'
+					) }
 				</Button>
 			);
 
@@ -162,7 +166,7 @@ export class DashItem extends Component {
 export default connect( state => {
 	return {
 		getModule: module_name => _getModule( state, module_name ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		userCanToggle: userCanManageModules( state ),
 		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),

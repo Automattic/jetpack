@@ -15,9 +15,10 @@ export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
-				logger.warn( error );
+				logger.warn( error.toString() );
+				return resolve( error );
 			}
-			return resolve( stdout ? stdout : error );
+			return resolve( stdout );
 		} );
 		cmdExec.stdout.on( 'data', data => logger.info( data ) );
 	} );
@@ -68,7 +69,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
  *
- * @param {Page} page Puppeteer page object
+ * @param {page} page Puppeteer page object
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
@@ -90,18 +91,17 @@ export async function activateModule( page, module ) {
 	return true;
 }
 
-export async function execWpCommand( wpCmd, suffix = null ) {
-	// NOTE: Uncommited cli for dockerized local dev environment. Will update once dockerized PR is merged.
-	let cmd = `./tests/e2e/bin/docker-e2e-cli.sh cli "${ wpCmd }"`;
-	if ( process.env.CI ) {
-		cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
-	}
-
-	if ( suffix ) {
-		cmd = cmd + suffix;
-	}
+export async function execWpCommand( wpCmd ) {
+	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
 
 	logger.info( cmd );
+	const result = await execShellCommand( cmd );
 
-	return await execShellCommand( cmd );
+	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
+	// Here we cleaning this up.
+	if ( typeof result !== 'object' && result.length > 0 ) {
+		return result.trim().split( '\n' ).slice( 1 ).join( '\n' );
+	}
+
+	return result;
 }

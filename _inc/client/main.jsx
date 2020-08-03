@@ -4,16 +4,23 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import AuthIframe from 'components/auth-iframe';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
-import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
+import {
+	getSiteConnectionStatus,
+	isCurrentUserLinked,
+	isSiteConnected,
+	isAuthorizingUserInPlace,
+	isReconnectingSite,
+} from 'state/connection';
 import {
 	setInitialState,
 	getSiteRawUrl,
@@ -101,7 +108,8 @@ class Main extends React.Component {
 	 */
 	handleRouterWillLeave = () => {
 		const question = __(
-			'There are unsaved settings in this tab that will be lost if you leave it. Proceed?'
+			'There are unsaved settings in this tab that will be lost if you leave it. Proceed?',
+			'jetpack'
 		);
 
 		if ( confirm( question ) ) {
@@ -130,10 +138,12 @@ class Main extends React.Component {
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
+			nextProps.isAuthorizingInPlace !== this.props.isAuthorizingInPlace ||
 			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
-			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings
+			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings ||
+			nextProps.isReconnectingSite !== this.props.isReconnectingSite
 		);
 	}
 
@@ -146,9 +156,9 @@ class Main extends React.Component {
 				current_version: this.props.currentVersion,
 			} );
 
-		// Not taking into account development mode here because changing the connection
+		// Not taking into account offline mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
-		// in development mode.
+		// in offline mode.
 		if ( prevProps.siteConnectionStatus !== this.props.siteConnectionStatus ) {
 			const $items = jQuery( '#toplevel_page_jetpack' ).find( 'ul.wp-submenu li' );
 			$items.find( 'a[href$="#/settings"]' ).hide();
@@ -259,7 +269,7 @@ class Main extends React.Component {
 		window.wpNavMenuClassChange( pageOrder );
 
 		return (
-			<div aria-live="assertive">
+			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
 				{ navComponent }
 				{ pageComponent }
 			</div>
@@ -303,6 +313,14 @@ class Main extends React.Component {
 		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.location.pathname );
 	}
 
+	shouldShowAuthIframe() {
+		return this.props.isAuthorizingInPlace;
+	}
+
+	shouldBlurMainContent() {
+		return this.props.isReconnectingSite;
+	}
+
 	render() {
 		return (
 			<div>
@@ -311,6 +329,14 @@ class Main extends React.Component {
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
+					{ this.shouldShowAuthIframe() && (
+						<AuthIframe
+							{ ...( this.props.isReconnectingSite && {
+								scrollToIframe: false,
+								title: __( 'Reconnect to WordPress.com by approving the connection', 'jetpack' ),
+							} ) }
+						/>
+					) }
 					<Prompt
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
@@ -331,6 +357,7 @@ export default connect(
 		return {
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
+			isAuthorizingInPlace: isAuthorizingUserInPlace( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
@@ -341,6 +368,7 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
+			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showSetupWizard: showSetupWizard( state ),
@@ -361,18 +389,18 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
+window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
 
 	// Clear currently highlighted sub-nav item
-	jQuery( '.current' ).each( function( i, obj ) {
+	jQuery( '.current' ).each( function ( i, obj ) {
 		jQuery( obj ).removeClass( 'current' );
 	} );
 
 	const getJetpackSubNavItem = subNavItemIndex => {
 		return jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
-			.filter( function( index ) {
+			.filter( function ( index ) {
 				return index === subNavItemIndex;
 			} )[ 0 ];
 	};
@@ -392,12 +420,12 @@ window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, s
 	$body.on(
 		'click',
 		'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/my-plan"], .dops-button[href="#/plans"], .jp-dash-section-header__external-link[href="#/security"]',
-		function() {
+		function () {
 			window.scrollTo( 0, 0 );
 		}
 	);
 
-	$body.on( 'click', '.jetpack-js-stop-propagation', function( e ) {
+	$body.on( 'click', '.jetpack-js-stop-propagation', function ( e ) {
 		e.stopPropagation();
 	} );
 };

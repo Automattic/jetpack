@@ -40,7 +40,8 @@ export default class PinterestBlock {
 
 	/**
 	 * Checks whether block is rendered on frontend
-	 * @param {Page} page Puppeteer page instance
+	 *
+	 * @param {page} page Puppeteer page instance
 	 * @param {Object} args An object of any additional required instance values
 	 */
 	static async isRendered( page, args ) {

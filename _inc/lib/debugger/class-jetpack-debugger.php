@@ -72,11 +72,14 @@ class Jetpack_Debugger {
 					} else {
 						$failures = $cxntests->list_fails();
 						foreach ( $failures as $fail ) {
+							$action_link  = $fail['action'];
+							$action_label = $fail['action_label'];
+							$action       = ( $action_link ) ? '<a href="' . $action_link . '">' . $action_label . '</a>' : $action_label;
 							echo '<div class="jetpack-test-error">';
-							echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['message'] );
+							echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['short_description'] );
 							echo '<span class="noticon noticon-collapse"></span></a></p>';
 							echo '<p class="jetpack-test-details">' . wp_kses(
-								$fail['resolution'],
+								$action,
 								array(
 									'a' => array(
 										'href'   => array(),
@@ -222,7 +225,7 @@ class Jetpack_Debugger {
 						printf(
 							wp_kses(
 								/* translators: Link to a Jetpack support page. */
-								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
+								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s offline mode</a>.', 'jetpack' ),
 								array( 'a' => array( 'href' => array() ) )
 							),
 							esc_url( Redirect::get_url( 'jetpack-support-development-mode' ) )
@@ -234,7 +237,7 @@ class Jetpack_Debugger {
 				<?php
 				if (
 					current_user_can( 'jetpack_manage_modules' )
-					&& ( ( new Status() )->is_development_mode() || Jetpack::is_active() )
+					&& ( ( new Status() )->is_offline_mode() || Jetpack::is_active() )
 				) {
 					printf(
 						wp_kses(

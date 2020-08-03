@@ -20,7 +20,7 @@ export default createHigherOrderComponent(
 		// Remove Nudge if the block changes its attributes.
 		useEffect( () => setShowNudge( false ), [ attributes ] );
 
-		const handleFilesPreUpload = useCallback( ( files ) => {
+		const handleFilesPreUpload = useCallback( files => {
 			if ( ! files?.length || ! isVideoFile( files[ 0 ] ) ) {
 				return;
 			}

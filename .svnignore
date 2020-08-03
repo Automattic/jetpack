@@ -45,7 +45,6 @@ postcss.config.js
 gulpfile.js
 gulpfile.babel.js
 node_modules
-languages/jetpack.pot
 LICENSE.txt
 modules/widgets/follow-button.php
 modules/calypsoify/*.css.map

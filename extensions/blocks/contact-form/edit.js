@@ -34,6 +34,8 @@ import {
  */
 import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
+import CRMConnectionSettings from './components/jetpack-crm-connection-settings';
+import { isSimpleSite } from '../../shared/site-type-utils';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -71,7 +73,14 @@ function JetpackContactFormEdit( {
 	variations,
 	defaultVariation,
 } ) {
-	const { to, subject, customThankyou, customThankyouMessage, customThankyouRedirect } = attributes;
+	const {
+		to,
+		subject,
+		customThankyou,
+		customThankyouMessage,
+		customThankyouRedirect,
+		jetpackCRM,
+	} = attributes;
 
 	const [ emailErrors, setEmailErrors ] = useState( false );
 	const formClassnames = classnames( className, 'jetpack-contact-form' );
@@ -159,10 +168,7 @@ function JetpackContactFormEdit( {
 			return;
 		}
 
-		const error = e.target.value
-			.split( ',' )
-			.map( validateEmail )
-			.filter( Boolean );
+		const error = e.target.value.split( ',' ).map( validateEmail ).filter( Boolean );
 
 		if ( error && error.length ) {
 			setEmailErrors( error );
@@ -314,6 +320,9 @@ function JetpackContactFormEdit( {
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
+				{ ! isSimpleSite() && (
+					<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+				) }
 			</InspectorControls>
 
 			<div className={ formClassnames }>

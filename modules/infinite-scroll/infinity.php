@@ -829,7 +829,11 @@ class The_Neverending_Home_Page {
 
 			// Check if the taxonomy is attached to one post type only and use its plural name.
 			// If not, use "Posts" without confusing the users.
-			if ( count( $taxonomy->object_type ) < 2 ) {
+			if (
+				is_a( $taxonomy, 'WP_Taxonomy' )
+				&& is_countable( $taxonomy->object_type )
+				&& count( $taxonomy->object_type ) < 2
+			) {
 				$post_type = $taxonomy->object_type[0];
 			}
 		}
@@ -881,6 +885,7 @@ class The_Neverending_Home_Page {
 			'query_before'    => current_time( 'mysql' ),
 			'last_post_date'  => self::get_last_post_date(),
 			'body_class'	  => self::body_class(),
+			'loading_text'	  => esc_js( __( 'Loading new page', 'jetpack' ) ),
 		);
 
 		// Optional order param
@@ -1033,7 +1038,15 @@ class The_Neverending_Home_Page {
 				extend( window.infiniteScroll.settings.scripts, <?php echo wp_json_encode( $scripts ); ?> );
 				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles ); ?> );
 			})();
-		</script><?php
+		</script>
+		<?php
+		$aria_live = 'assertive';
+		if ( 'scroll' === self::get_settings()->type ) {
+			$aria_live = 'polite';
+		}
+		?>
+		<span id="infinite-aria" aria-live="<?php echo esc_attr( $aria_live ); ?>"></span>
+		<?php
 	}
 
 	/**
@@ -1330,39 +1343,49 @@ class The_Neverending_Home_Page {
 			$results['type'] = 'success';
 
 			/**
-			 * Gather renderer callbacks. These will be called in order and allow multiple callbacks to be queued. Once content is found, no futher callbacks will run.
+			 * Fires when rendering Infinite Scroll posts.
 			 *
 			 * @module infinite-scroll
 			 *
-			 * @since 6.0.0
+			 * @since 2.0.0
 			 */
-			$callbacks = apply_filters( 'infinite_scroll_render_callbacks', array(
-				self::get_settings()->render, // This is the setting callback e.g. from add theme support.
-			) );
+			do_action( 'infinite_scroll_render' );
+			$results['html'] = ob_get_clean();
+			if ( empty( $results['html'] ) ) {
+				/**
+				 * Gather renderer callbacks. These will be called in order and allow multiple callbacks to be queued. Once content is found, no futher callbacks will run.
+				 *
+				 * @module infinite-scroll
+				 *
+				 * @since 6.0.0
+				 */
+				$callbacks = apply_filters(
+					'infinite_scroll_render_callbacks',
+					array( self::get_settings()->render ) // This is the setting callback e.g. from add theme support.
+				);
 
-			// Append fallback callback. That rhymes.
-			$callbacks[] = array( $this, 'render' );
+				// Append fallback callback. That rhymes.
+				$callbacks[] = array( $this, 'render' );
 
-			foreach ( $callbacks as $callback ) {
-				if ( false !== $callback && is_callable( $callback ) ) {
-					rewind_posts();
-					ob_start();
-					add_action( 'infinite_scroll_render', $callback );
+				foreach ( $callbacks as $callback ) {
+					if ( false !== $callback && is_callable( $callback ) ) {
+						rewind_posts();
+						ob_start();
+						add_action( 'infinite_scroll_render', $callback );
 
-					/**
-					 * Fires when rendering Infinite Scroll posts.
-					 *
-					 * @module infinite-scroll
-					 *
-					 * @since 2.0.0
-					 */
-					do_action( 'infinite_scroll_render' );
+						/**
+						 * This action is already documented above.
+						 * See https://github.com/Automattic/jetpack/pull/16317/
+						 * for more details as to why it was introduced.
+						 */
+						do_action( 'infinite_scroll_render' );
 
-					$results['html'] = ob_get_clean();
-					remove_action( 'infinite_scroll_render', $callback );
-				}
-				if ( ! empty( $results['html'] ) ) {
-					break;
+						$results['html'] = ob_get_clean();
+						remove_action( 'infinite_scroll_render', $callback );
+					}
+					if ( ! empty( $results['html'] ) ) {
+						break;
+					}
 				}
 			}
 
@@ -1382,8 +1405,13 @@ class The_Neverending_Home_Page {
 				$wrapper_classes = is_string( self::get_settings()->wrapper ) ? self::get_settings()->wrapper : 'infinite-wrap';
 				$wrapper_classes .= ' infinite-view-' . $page;
 				$wrapper_classes = trim( $wrapper_classes );
+				$aria_label = sprintf(
+					/* translators: %1$s is the page count */
+					__( 'Page: %1$d.', 'jetpack' ),
+					$page
+				);
 
-				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '">' . $results['html'] . '</div>';
+				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '" role="region" aria-label="' . esc_attr( $aria_label ) . '">' . $results['html'] . '</div>';
 			}
 
 			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
