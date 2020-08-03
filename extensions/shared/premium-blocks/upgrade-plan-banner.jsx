@@ -33,9 +33,11 @@ const UpgradePlanBanner = ( {
 } ) => {
 	const { checkoutUrl, isAutosaveablePost, isDirtyPost } = useSelect( select => {
 		const editorSelector = select( 'core/editor' );
+		const planSelector = select( 'wordpress-com/plans' );
+
 		const { id: postId, type: postType } = editorSelector.getCurrentPost();
 		const PLAN_SLUG = 'value_bundle';
-		const plan = select( 'wordpress-com/plans' ).getPlan( PLAN_SLUG );
+		const plan = planSelector && select( 'wordpress-com/plans' ).getPlan( PLAN_SLUG );
 
 		return {
 			checkoutUrl: getUpgradeUrl( { plan, PLAN_SLUG, postId, postType } ),
