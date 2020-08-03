@@ -165,7 +165,6 @@ export const Slide = ( {
 
 	return (
 		<>
-			{ /* spinner from wp-calypso components */ }
 			{ visible && ( loading || uploading ) && (
 				<div className={ classNames( 'wp-story-slide', 'is-loading', { transparent: uploading } ) }>
 					<CalypsoSpinner />
