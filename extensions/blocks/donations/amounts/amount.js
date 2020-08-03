@@ -19,7 +19,7 @@ const Amount = ( {
 	className = '',
 	currency = null,
 	defaultValue = null,
-	editable = false,
+	disabled = false,
 	label = '',
 	onChange = null,
 	value = '',
@@ -125,7 +125,7 @@ const Amount = ( {
 				tabIndex={ 0 }
 			>
 				{ CURRENCIES[ currency ].symbol }
-				{ editable ? (
+				{ ! disabled ? (
 					<RichText
 						allowedFormats={ [] }
 						aria-label={ label }

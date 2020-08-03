@@ -71,6 +71,7 @@ const Edit = ( { attributes, setAttributes } ) => {
 				label={ __( 'Custom amount', 'jetpack' ) }
 				defaultValue={ defaultCustomAmount }
 				className="donations__custom-amount"
+				disabled={ true }
 			/>
 		);
 	}
@@ -81,7 +82,6 @@ const Edit = ( { attributes, setAttributes } ) => {
 				<Amount
 					currency={ currency }
 					defaultValue={ defaultAmounts[ index ] }
-					editable={ true }
 					label={ sprintf(
 						// translators: %d: Tier level e.g: "1", "2", "3"
 						__( 'Tier %d', 'jetpack' ),
