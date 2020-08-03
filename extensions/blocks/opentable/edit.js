@@ -28,6 +28,7 @@ import './editor.scss';
 import icon from './icon';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import RestaurantPicker from './restaurant-picker';
+import usePrevious from './use-previous';
 
 import {
 	getStyleOptions,
@@ -57,8 +58,10 @@ function OpenTableEdit( {
 	}
 
 	const { align, rid, iframe, domain, lang, newtab, negativeMargin, __isBlockPreview } = attributes;
-	const style = getActiveStyleName( getStyleOptions(), attributes.className );
 	const isPlaceholder = isEmpty( rid );
+	const selectedStyle = getActiveStyleName( getStyleOptions(), attributes.className );
+	const style = getActiveStyleName( getStyleOptions( rid ), attributes.className );
+	const prevStyle = usePrevious( style );
 
 	useEffect( () => {
 		noticeOperations.removeAllNotices();
@@ -81,6 +84,29 @@ function OpenTableEdit( {
 		}
 	}, [ __isBlockPreview, align, isPlaceholder, noticeOperations, rid, style ] );
 
+	useEffect( () => {
+		if ( isPlaceholder || __isBlockPreview ) {
+			return;
+		}
+
+		// Don't allow button style with multiple restaurant IDs.
+		// Cover both where new restaurant added making style invalid or
+		// attempt to switch to button style when multiple restaurants already selected.
+		if ( ( 'button' === prevStyle || 'button' === selectedStyle ) && Array.isArray( rid ) && rid.length > 1 ) {
+			setAttributes( { className: '' } );
+		}
+
+		// If the old style was wide, reset the alignment.
+		if ( prevStyle === 'wide' && align === 'wide' ) {
+			setAttributes( { align: '' } );
+		}
+
+		// If the new style is wide, set the alignment to wide as it works better.
+		if ( style === 'wide' ) {
+			setAttributes( { align: 'wide' } );
+		}
+	}, [ __isBlockPreview, isPlaceholder, rid, style, setAttributes, align, prevStyle, selectedStyle ] );
+
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
 		if ( ! newAttributes ) {
@@ -102,24 +128,7 @@ function OpenTableEdit( {
 		noticeOperations.removeAllNotices();
 	};
 
-	const styleOptions = getStyleOptions( rid );
 	const styleValues = getStyleValues( rid );
-
-	const updateStyle = newStyle => {
-		setAttributes( newStyle );
-		// If the old style was wide
-		// then reset the alignment
-		if ( style === 'wide' && align === 'wide' ) {
-			setAttributes( { align: '' } );
-		}
-
-		// If the new style is wide
-		// then set the alignment to wide as it works much better like that
-		if ( newStyle.style === 'wide' ) {
-			setAttributes( { align: 'wide' } );
-		}
-	};
-
 	const getTypeAndTheme = fromStyle =>
 		rid.length > 1
 			? [ 'multi', 'button' !== fromStyle ? fromStyle : 'standard' ]
@@ -128,8 +137,8 @@ function OpenTableEdit( {
 					'button' === fromStyle ? 'standard' : fromStyle,
 			  ];
 
-	const blockPreview = styleOveride => {
-		const [ type, theme ] = getTypeAndTheme( styleOveride ? styleOveride : style );
+	const blockPreview = styleOverride => {
+		const [ type, theme ] = getTypeAndTheme( styleOverride ? styleOverride : style );
 		return (
 			<>
 				<div className={ `${ defaultClassName }-overlay` }></div>
@@ -220,7 +229,7 @@ function OpenTableEdit( {
 	);
 
 	const editClasses = classnames( className, {
-		[ `${ defaultClassName }-theme-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
+		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
