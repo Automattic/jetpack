@@ -1541,16 +1541,20 @@ class Manager {
 	 *
 	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
 	 *
-	 * @return array|false The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
+	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
 	 */
 	public function validate_tokens( $user_id = null ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
 		$url = sprintf(
 			'%s://%s/%s/v%s/%s',
 			Client::protocol(),
 			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
 			'wpcom',
 			'2',
-			'jetpack-token-health'
+			'sites/' . $blog_id . '/jetpack-token-health'
 		);
 
 		$user_token = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
@@ -2621,10 +2625,14 @@ class Manager {
 	/**
 	 * Fetches a signed token.
 	 *
-	 * @param string $token the token.
-	 * @return string a signed token
+	 * @param object $token the token.
+	 * @return WP_Error|string a signed token
 	 */
 	public function get_signed_token( $token ) {
+		if ( ! isset( $token->secret ) || empty( $token->secret ) ) {
+			return new WP_Error( 'invalid_token' );
+		}
+
 		list( $token_key, $token_secret ) = explode( '.', $token->secret );
 
 		$token_key = sprintf(
