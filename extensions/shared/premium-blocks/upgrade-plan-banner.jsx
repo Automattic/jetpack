@@ -15,6 +15,9 @@ import { __ } from '@wordpress/i18n';
  */
 import { getUpgradeUrl } from '../plan-utils';
 
+// Provably we should move this store to somewhere more generic.
+import '../components/upgrade-nudge/store';
+
 function redirect( url, callback ) {
 	if ( callback ) {
 		callback( url );
