@@ -1,15 +1,21 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { Fragment } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { isUpgradable } from '../plan-utils';
+import { isStillUsableWithFreePlan, isUpgradable } from '../plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
+import { PremiumBlockProvider } from './components';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
@@ -17,24 +23,39 @@ export default createHigherOrderComponent(
 			return <BlockListBlock { ...props } />;
 		}
 
+		const isDualMode = isStillUsableWithFreePlan( props?.name );
+
+		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
+
+		// Hide Banner when block changes its attributes (dual Mode).
+		useEffect(
+			() => setIsVisible( ! isDualMode ),
+			[ props.attributes, setIsVisible, isDualMode ]
+		);
+
 		const hasChildrenSelected = useSelect(
-			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props.clientId ),
+			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props?.clientId ),
 			[]
 		);
 
-		const isVisible = props?.isSelected || hasChildrenSelected;
+		const isBannerVisible = ( props?.isSelected || hasChildrenSelected ) && isVisible;
+
+		// Set banner CSS classes depending on its visibility.
+		const listBlockCSSClass = classNames( props?.className, {
+			'is-upgradable': isBannerVisible,
+		} );
 
 		return (
-			<Fragment>
+			<PremiumBlockProvider onBannerVisibilityChange={ setIsVisible }>
 				<UpgradePlanBanner
 					className={ `is-${ props.name.replace( /\//, '-' ) }-premium-block` }
 					title={ null }
 					align={ props?.attributes?.align }
-					visible={ isVisible }
+					visible={ isBannerVisible }
 				/>
 
-				<BlockListBlock { ...props } className="is-interactive is-upgradable" />
-			</Fragment>
+				<BlockListBlock { ...props } className={ listBlockCSSClass } />
+			</PremiumBlockProvider>
 		);
 	},
 	'withUpgradeBanner'
