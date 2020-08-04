@@ -32,36 +32,3 @@ export const settings = {
 	attributes,
 	example: {},
 };
-
-export const childBlocks = [
-	{
-		name: 'donations-amounts',
-		settings: {
-			category: 'earn',
-			parent: [ 'jetpack/donations' ],
-			attributes: {
-				amounts: {
-					type: 'array',
-					items: {
-						type: 'number',
-					},
-					default: [ 5, 15, 100 ],
-				},
-				currency: {
-					type: 'string',
-					default: 'USD',
-				},
-				defaultCustomAmount: {
-					type: 'number',
-				},
-				interval: {
-					type: 'string',
-					enum: [ 'one-time', '1 month', '1 year' ],
-				},
-			},
-			example: {},
-			title: __( 'Amounts', 'jetpack' ),
-			icon,
-		},
-	},
-];
