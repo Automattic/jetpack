@@ -39,17 +39,3 @@ export function fetchFromAPI( path ) {
 		path,
 	};
 }
-
-/**
- * Returns an action object used to signal that the user
- * has enabled or disabled tweestorm mode in the editor.
- *
- * @param {boolean} enabled - `true` to enable tweetstorm mode, `false` to disable it.
- * @returns {object} Action object.
- */
-export function setTweetstormModeEnabled( enabled ) {
-	return {
-		type: 'TWEETSTORM_MODE_ENABLED',
-		enabled,
-	};
-}

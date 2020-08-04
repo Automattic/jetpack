@@ -1,8 +1,3 @@
-const DEFAULT_STATE = {
-	connections: [],
-	tweetstormModeEnabled: false,
-};
-
 /**
  * Reducer managing Publicize connection test results.
  *
@@ -11,23 +6,12 @@ const DEFAULT_STATE = {
  *
  * @return {Object} Updated state.
  */
-export default function ( state = DEFAULT_STATE, action ) {
+export default function ( state = [], action ) {
 	switch ( action.type ) {
 		case 'SET_CONNECTION_TEST_RESULTS':
-			return {
-				...state,
-				connections: action.results,
-			};
+			return action.results;
 		case 'REFRESH_CONNECTION_TEST_RESULTS':
-			return {
-				...state,
-				connections: [],
-			};
-		case 'TWEETSTORM_MODE_ENABLED':
-			return {
-				...state,
-				tweetstormModeEnabled: action.enabled,
-			};
+			return [];
 	}
 
 	return state;

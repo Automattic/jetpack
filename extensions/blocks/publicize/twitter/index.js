@@ -42,9 +42,7 @@ const addTweetstormInfo = blockSettings => {
 		...blockSettings,
 		edit: compose( [
 			withSelect( select => ( {
-				showInfo:
-					select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm &&
-					select( 'jetpack/publicize' ).isTweetstormModeEnabled(),
+				showInfo: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
 			} ) ),
 		] )( props => {
 			const { showInfo, ...passedProps } = props;

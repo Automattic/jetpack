@@ -6,7 +6,7 @@
  * @return {Array} List of connections.
  */
 export function getFailedConnections( state ) {
-	return state.connections.filter( connection => false === connection.test_success );
+	return state.filter( connection => false === connection.test_success );
 }
 
 /**
@@ -18,17 +18,7 @@ export function getFailedConnections( state ) {
  * @return {Array} List of service names that need reauthentication.
  */
 export function getMustReauthConnections( state ) {
-	return state.connections
+	return state
 		.filter( connection => 'must_reauth' === connection.test_success )
 		.map( connection => connection.service_name );
-}
-
-/**
- * Returns whether or not the user has enabled tweetstorm mode for the editor.
- *
- * @param {object} state - State object.
- * @returns {boolean} Whether or not the user has enabled tweetstorm mode.
- */
-export function isTweetstormModeEnabled( state ) {
-	return !! state.tweetstormModeEnabled;
 }
