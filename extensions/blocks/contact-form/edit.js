@@ -35,6 +35,7 @@ import {
 import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
 import CRMConnectionSettings from './components/jetpack-crm-connection-settings';
+import { isSimpleSite } from '../../shared/site-type-utils';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -319,9 +320,9 @@ function JetpackContactFormEdit( {
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
-				<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+				{ ! isSimpleSite() && (
 					<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
-				</PanelBody>
+				) }
 			</InspectorControls>
 
 			<div className={ formClassnames }>

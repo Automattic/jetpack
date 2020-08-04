@@ -50,7 +50,7 @@ export default withNotices( function StoryEdit( {
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 
 	const mediaReadyFilter = files =>
-		files.map( pickRelevantMediaFiles ).filter( media => ! isBlobURL( media.url ) );
+		files.map( file => pickRelevantMediaFiles( file ) ).filter( media => ! isBlobURL( media.url ) );
 	const onSelectMedia = newMediaFiles =>
 		setAttributes( { mediaFiles: mediaReadyFilter( newMediaFiles ) } );
 
