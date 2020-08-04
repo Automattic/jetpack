@@ -10,7 +10,7 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
-import coverEditMediaPlaceholder from './cover-media-placeholder';
+import coverEditMediaPlaceholder from '../media-placeholder';
 import coverMediaReplaceFlow from './cover-replace-control-button';
 import './editor.scss';
 

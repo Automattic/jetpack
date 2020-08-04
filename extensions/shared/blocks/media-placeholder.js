@@ -8,9 +8,9 @@ import { useContext, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { checkFileType } from '../../get-allowed-mime-types';
-import { isUpgradable } from '../../plan-utils';
-import { PremiumBlockContext } from '../../premium-blocks/components';
+import { checkFileType } from '../get-allowed-mime-types';
+import { isUpgradable } from '../plan-utils';
+import { PremiumBlockContext } from '../premium-blocks/components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
@@ -23,8 +23,8 @@ export default createHigherOrderComponent(
 		const onBannerVisibilityChange = useContext( PremiumBlockContext );
 
 		const checkUploadingVideoFiles = useCallback( files =>
-			onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], 'video' ) )
-		, [ onBannerVisibilityChange ] );
+				onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], 'video' ) )
+			, [ onBannerVisibilityChange ] );
 
 		/**
 		 * On Uploading error handler.
