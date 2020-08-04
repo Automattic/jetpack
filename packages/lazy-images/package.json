@@ -6,7 +6,6 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "yarn && webpack --config webpack.config.prod.js",
     "test:php:setup": "bash bin/install-wp-tests.sh wordpress admin admin db",
     "test:php:env-start": "docker-compose up -d",
     "test:php:env-stop": "docker-compose stop",
@@ -25,9 +24,6 @@
     "url": "https://github.com/Automattic/jetpack-lazy-images/issues"
   },
   "homepage": "https://github.com/Automattic/jetpack-lazy-images#readme",
-  "devDependencies": {
-    "webpack": "^4.44.0",
-    "webpack-cli": "^3.3.12"
-  },
+  "devDependencies": {},
   "dependencies": {}
 }
