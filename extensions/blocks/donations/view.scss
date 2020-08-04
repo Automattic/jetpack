@@ -2,6 +2,20 @@
 @import './common';
 
 .wp-block-jetpack-donations {
+	.donations__one-time-item,
+	.donations__monthly-item,
+	.donations__annual-item {
+		display: none;
+	}
+
+	.donations__tab {
+		&.is-one-time .donations__one-time-item,
+		&.is-monthly .donations__monthly-item,
+		&.is-annual .donations__annual-item {
+			display: block;
+		}
+	}
+
 	.donations__amount .wp-block-button__link {
 		cursor: pointer;
 	}

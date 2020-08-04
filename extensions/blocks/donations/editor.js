@@ -2,6 +2,6 @@
  * Internal dependencies
  */
 import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings, childBlocks } from '.';
+import { name, settings } from '.';
 
-registerJetpackBlock( name, settings, childBlocks );
+registerJetpackBlock( name, settings );

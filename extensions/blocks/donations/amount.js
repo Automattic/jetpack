@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { minimumTransactionAmountForCurrency } from '../../../shared/currencies';
+import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 const Amount = ( {
 	className = '',

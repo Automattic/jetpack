@@ -24,7 +24,31 @@ import { CURRENCIES } from '@automattic/format-currency';
 
 const Controls = props => {
 	const { attributes, setAttributes, products, siteSlug } = props;
-	const { currency, monthlyPlanId, annuallyPlanId, showCustomAmount } = attributes;
+	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
+
+	const toggleDonation = ( interval, show ) => {
+		const planId = show ? products[ interval ] : null;
+		switch ( interval ) {
+			case '1 month':
+				setAttributes( {
+					monthlyDonation: {
+						...monthlyDonation,
+						show,
+						planId,
+					},
+				} );
+				break;
+			case '1 year':
+				setAttributes( {
+					annualDonation: {
+						...annualDonation,
+						show,
+						planId,
+					},
+				} );
+				break;
+		}
+	};
 
 	return (
 		<>
@@ -78,17 +102,13 @@ const Controls = props => {
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
-						checked={ !! monthlyPlanId }
-						onChange={ value =>
-							setAttributes( { monthlyPlanId: value ? products[ '1 month' ] : null } )
-						}
+						checked={ monthlyDonation.show }
+						onChange={ value => toggleDonation( '1 month', value ) }
 						label={ __( 'Show monthly donations', 'jetpack' ) }
 					/>
 					<ToggleControl
-						checked={ !! annuallyPlanId }
-						onChange={ value =>
-							setAttributes( { annuallyPlanId: value ? products[ '1 year' ] : null } )
-						}
+						checked={ annualDonation.show }
+						onChange={ value => toggleDonation( '1 year', value ) }
 						label={ __( 'Show annual donations', 'jetpack' ) }
 					/>
 					<ToggleControl

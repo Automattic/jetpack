@@ -10,8 +10,6 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import icon from './icon';
-import editAmounts from './amounts/edit';
-import saveAmounts from './amounts/save';
 
 /**
  * Style dependencies
@@ -64,8 +62,6 @@ export const childBlocks = [
 			example: {},
 			title: __( 'Amounts', 'jetpack' ),
 			icon,
-			edit: editAmounts,
-			save: saveAmounts,
 		},
 	},
 ];
