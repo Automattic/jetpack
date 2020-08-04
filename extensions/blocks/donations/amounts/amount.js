@@ -13,13 +13,13 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { minimumTransactionAmountForCurrency } from '../../../shared/currencies';
 
 const Amount = ( {
 	className = '',
 	currency = null,
 	defaultValue = null,
-	editable = false,
+	disabled = false,
 	label = '',
 	onChange = null,
 	value = '',
@@ -125,7 +125,7 @@ const Amount = ( {
 				tabIndex={ 0 }
 			>
 				{ CURRENCIES[ currency ].symbol }
-				{ editable ? (
+				{ ! disabled ? (
 					<RichText
 						allowedFormats={ [] }
 						aria-label={ label }

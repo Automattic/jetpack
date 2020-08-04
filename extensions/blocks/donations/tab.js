@@ -1,158 +1,156 @@
 /**
  * External dependencies
  */
-import formatCurrency from '@automattic/format-currency';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
  */
-import { RichText } from '@wordpress/block-editor';
-import { useContext, useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { InnerBlocks } from '@wordpress/block-editor';
+import { useDispatch } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Context from './context';
-import Amount from './amount';
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
-const attributesPerInterval = {
-	heading: {
-		'one-time': 'oneTimeHeading',
-		'1 month': 'monthlyHeading',
-		'1 year': 'annualHeading',
-	},
-	buttonText: {
-		'one-time': 'oneTimeButtonText',
-		'1 month': 'monthlyButtonText',
-		'1 year': 'annualButtonText',
-	},
-};
+// Default template for inner blocks.
+// Some items stay in sync across all tabs, where others have different values on each tab.
+// @see https://github.com/Automattic/jetpack/pull/16593#issuecomment-668060633
+const TEMPLATE = [
+	// ↓ Heading (not synced).
+	[
+		'core/heading',
+		{
+			className: 'donations__one-time-item',
+			content: __( 'Make a one-time donation', 'jetpack' ),
+			level: 4,
+		},
+	],
+	[
+		'core/heading',
+		{
+			className: 'donations__monthly-item',
+			content: __( 'Make a monthly donation', 'jetpack' ),
+			level: 4,
+		},
+	],
+	[
+		'core/heading',
+		{
+			className: 'donations__annual-item',
+			content: __( 'Make a yearly donation', 'jetpack' ),
+			level: 4,
+		},
+	],
+
+	// ↓ Choose amount label (synced).
+	[ 'core/paragraph', { content: __( 'Choose an amount', 'jetpack' ) } ],
+
+	// ↓ Buttons for choosing a prefixed amount (not synced).
+	[ 'jetpack/donations-amounts', { className: 'donations__one-time-item', interval: 'one-time' } ],
+	[ 'jetpack/donations-amounts', { className: 'donations__monthly-item', interval: '1 month' } ],
+	[ 'jetpack/donations-amounts', { className: 'donations__annual-item', interval: '1 year' } ],
+
+	// ↓ Custom amount label (synced).
+	[
+		'core/paragraph',
+		{ className: 'donations__custom-item', content: __( 'Or enter a custom amount', 'jetpack' ) },
+	],
+
+	// ↓ Input for entering a custom amount (synced).
+	[ 'jetpack/donations-amounts', { className: 'donations__custom-item' } ],
+
+	// ↓ Separator (synced).
+	[ 'core/paragraph', { content: '——' } ],
+
+	// ↓ Extra text (not synced).
+	[
+		'core/paragraph',
+		{
+			className: 'donations__one-time-item',
+			content: __( 'Your contribution is appreciated.', 'jetpack' ),
+		},
+	],
+	[
+		'core/paragraph',
+		{
+			className: 'donations__monthly-item',
+			content: __( 'Your contribution is appreciated.', 'jetpack' ),
+		},
+	],
+	[
+		'core/paragraph',
+		{
+			className: 'donations__annual-item',
+			content: __( 'Your contribution is appreciated.', 'jetpack' ),
+		},
+	],
+
+	// ↓ Donate buttons (not synced).
+	[
+		'jetpack/button',
+		{
+			className: 'donations__one-time-item',
+			element: 'a',
+			saveInPostContent: true,
+			text: __( 'Donate', 'jetpack' ),
+			uniqueId: 'donations-button-one-time',
+		},
+	],
+	[
+		'jetpack/button',
+		{
+			className: 'donations__monthly-item',
+			element: 'a',
+			saveInPostContent: true,
+			text: __( 'Donate monthly', 'jetpack' ),
+			uniqueId: 'donations-button-monthly',
+		},
+	],
+	[
+		'jetpack/button',
+		{
+			className: 'donations__annual-item',
+			element: 'a',
+			saveInPostContent: true,
+			text: __( 'Donate yearly', 'jetpack' ),
+			uniqueId: 'donations-button-annual',
+		},
+	],
+];
 
 const Tab = props => {
-	const { attributes, setAttributes } = props;
-	const { activeTab } = useContext( Context );
+	const { activeTab, attributes, clientId } = props;
+	const { currency, oneTimePlanId, showCustomAmount } = attributes;
 
-	const getAttribute = attributeName => {
-		if ( attributeName in attributesPerInterval ) {
-			return attributes[ attributesPerInterval[ attributeName ][ activeTab ] ];
-		}
-		return attributes[ attributeName ];
-	};
+	const { selectBlock } = useDispatch( 'core/block-editor' );
 
-	const setAttribute = ( attributeName, value ) => {
-		if ( attributeName in attributesPerInterval ) {
-			return setAttributes( {
-				[ attributesPerInterval[ attributeName ][ activeTab ] ]: value,
-			} );
-		}
-		return setAttributes( { [ attributeName ]: value } );
-	};
-
-	const amounts = getAttribute( 'amounts' );
-	const currency = getAttribute( 'currency' );
-	const showCustomAmount = getAttribute( 'showCustomAmount' );
-	const minAmount = minimumTransactionAmountForCurrency( currency );
-
-	const [ defaultAmounts, setDefaultAmounts ] = useState( [
-		minAmount * 10, // 1st tier (USD 5)
-		minAmount * 30, // 2nd tier (USD 15)
-		minAmount * 200, // 3rd tier (USD 100)
-	] );
-	const [ defaultCustomAmount, setDefaultCustomAmount ] = useState( minAmount * 100 );
-	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
-
-	// Updates the amounts whenever the currency changes.
+	// Keeps the parent block selected when the block is first inserted (otherwise inner blocks will be selected).
 	useEffect( () => {
-		if ( previousCurrency === currency ) {
+		// Since there is no setting for disabling the one-time option, we can assume that the block has been just
+		// inserted if the attribute `oneTimePlanId` is not set.
+		if ( oneTimePlanId ) {
 			return;
 		}
-		setPreviousCurrency( currency );
-
-		const newDefaultAmounts = [
-			minAmount * 10, // 1st tier (USD 5)
-			minAmount * 30, // 2nd tier (USD 15)
-			minAmount * 200, // 3rd tier (USD 100)
-		];
-		setDefaultAmounts( newDefaultAmounts );
-		setAttributes( { amounts: newDefaultAmounts } );
-		setDefaultCustomAmount( minAmount * 100 ); // USD 50
-	}, [ currency, minAmount, previousCurrency, setAttributes ] );
-
-	const setAmount = ( amount, tier ) => {
-		const newAmounts = [ ...amounts ];
-		newAmounts[ tier ] = amount;
-		setAttributes( { amounts: newAmounts } );
-	};
-
-	if ( ! amounts ) {
-		return null;
-	}
+		selectBlock( clientId );
+	}, [ clientId, oneTimePlanId, selectBlock ] );
 
 	return (
-		<>
-			<RichText
-				tagName="h4"
-				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getAttribute( 'heading' ) }
-				onChange={ value => setAttribute( 'heading', value ) }
-			/>
-			<RichText
-				tagName="p"
-				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getAttribute( 'chooseAmountText' ) }
-				onChange={ value => setAttribute( 'chooseAmountText', value ) }
-			/>
-			<div className="wp-block-buttons donations__amounts">
-				{ amounts.map( ( amount, index ) => (
-					<Amount
-						currency={ currency }
-						defaultValue={ defaultAmounts[ index ] }
-						editable={ true }
-						label={ sprintf(
-							// translators: %d: Tier level e.g: "1", "2", "3"
-							__( 'Tier %d', 'jetpack' ),
-							index + 1
-						) }
-						key={ `jetpack-donations-amount-${ index }` }
-						onChange={ newAmount => setAmount( newAmount, index ) }
-						value={ amount }
-					/>
-				) ) }
-			</div>
-			{ showCustomAmount && (
-				<>
-					<RichText
-						tagName="p"
-						placeholder={ __( 'Write a message…', 'jetpack' ) }
-						value={ getAttribute( 'customAmountText' ) }
-						onChange={ value => setAttribute( 'customAmountText', value ) }
-					/>
-					<Amount
-						currency={ currency }
-						label={ __( 'Custom amount', 'jetpack' ) }
-						defaultValue={ defaultCustomAmount }
-						className="donations__custom-amount"
-					/>
-				</>
-			) }
-			<div className="donations__separator">——</div>
-			<RichText
-				tagName="p"
-				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getAttribute( 'extraText' ) }
-				onChange={ value => setAttribute( 'extraText', value ) }
-			/>
-			<div className="wp-block-button donations__donate-button">
-				<RichText
-					className="wp-block-button__link"
-					placeholder={ __( 'Write a message…', 'jetpack' ) }
-					value={ getAttribute( 'buttonText' ) }
-					onChange={ value => setAttribute( 'buttonText', value ) }
-				/>
-			</div>
-		</>
+		<div
+			className={ classnames( 'donations__tab', {
+				'is-one-time': activeTab === 'one-time',
+				'is-monthly': activeTab === '1 month',
+				'is-annual': activeTab === '1 year',
+				'show-custom': showCustomAmount,
+			} ) }
+		>
+			<Context.Provider value={ { currency, showCustomAmount } }>
+				<InnerBlocks templateLock={ false } template={ TEMPLATE } />
+			</Context.Provider>
+		</div>
 	);
 };
 

@@ -4,7 +4,8 @@
 import { createContext } from '@wordpress/element';
 
 const Context = createContext( {
-	activeTab: 'one-time',
+	currency: 'USD',
+	showCustomAmount: true,
 } );
 
 export default Context;
