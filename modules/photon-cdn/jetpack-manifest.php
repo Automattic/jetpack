@@ -143,7 +143,7 @@ $assets = array (
   140 => '_inc/build/widgets/contact-info/contact-info-admin.min.js',
   141 => '_inc/build/widgets/twitter-timeline-admin.min.js',
   142 => '_inc/build/widgets/google-translate/google-translate.min.js',
-  143 => 'packages/lazy-images/src/js/lazy-images.min.js',
+  143 => '_inc/build/lazy-images/js/lazy-images.min.js',
   144 => '_inc/build/admin.rtl.css',
   145 => '_inc/jetpack-admin.js',
   146 => '_inc/jetpack-connection-banner.js',
@@ -500,6 +500,6 @@ $assets = array (
   497 => 'modules/widgets/google-translate/google-translate.js',
   498 => 'modules/widgets/wordpress-post-widget/style.css',
   499 => 'modules/widgets/gravatar-profile.css',
-  500 => 'packages/lazy-images/src/js/lazy-images.js',
+  500 => 'modules/lazy-images/js/lazy-images.js',
   501 => 'modules/wpgroho.js',
 );
