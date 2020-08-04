@@ -172,7 +172,7 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/1' ) );
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
-		$this->setup_reconnect_test( null );
+		$this->shutdown_reconnect_test( null );
 	}
 
 	/**

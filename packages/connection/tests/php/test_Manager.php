@@ -18,6 +18,7 @@ use phpmock\MockBuilder;
 use phpmock\MockEnabledException;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
+use WP_Error;
 
 /**
  * Connection Manager functionality testing.
