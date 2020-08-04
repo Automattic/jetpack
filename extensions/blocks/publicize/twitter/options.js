@@ -34,7 +34,7 @@ const PublicizeTwitterOptions = ( { connections, isTweetstorm, setTweetstorm } )
 				{ __( 'Twitter settings', 'jetpack' ) }
 			</h3>
 			<RadioControl
-				selected={ isTweetstorm ? 'tweetstorm' : 'excerpt' }
+				selected={ isTweetstorm ? 'tweetstorm' : 'single' }
 				options={ [
 					{
 						label: __( 'Share your blog post as a link in a single tweet', 'jetpack' ),
