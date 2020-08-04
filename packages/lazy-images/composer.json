@@ -17,6 +17,7 @@
 	"scripts": {
 		"phpunit": [
 			"bash bin/install-wp-tests.sh wordpress admin admin db",
+			"composer install",
 			"docker-compose up -d",
 			"./bin/wait-for-it.sh localhost:33306 -- docker-compose exec -T wordpress bash -c 'cd /var/jetpack-lazy-images; ./vendor/phpunit/phpunit/phpunit --colors=always'",
 			"docker-compose stop"
