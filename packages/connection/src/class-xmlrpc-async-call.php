@@ -79,22 +79,13 @@ class XMLRPC_Async_Call {
 	 * @return void
 	 */
 	public static function do_calls() {
-		if ( is_multisite() ) {
-			self::do_calls_multisite();
-		} else {
-			self::do_calls_single_site();
-		}
-	}
-
-	/**
-	 * Trigger the calls when in a multi-site environment
-	 *
-	 * @return void
-	 */
-	private static function do_calls_multisite() {
 		foreach ( self::$clients as $client_blog_id => $blog_clients ) {
-			if ( 0 === $client_blog_id ) {
-				continue;
+			if ( $client_blog_id > 0 ) {
+				$switch_success = switch_to_blog( $client_blog_id, true );
+
+				if ( ! $switch_success ) {
+					continue;
+				}
 			}
 
 			foreach ( $blog_clients as $client ) {
@@ -102,38 +93,13 @@ class XMLRPC_Async_Call {
 					continue;
 				}
 
-				$switch_success = switch_to_blog( $client_blog_id, true );
-
-				if ( ! $switch_success ) {
-					continue;
-				}
-
 				flush();
 				$client->query();
+			}
 
+			if ( $client_blog_id > 0 ) {
 				restore_current_blog();
 			}
-		}
-	}
-
-	/**
-	 * Trigger the calls in a single site environment
-	 *
-	 * @return void
-	 */
-	private static function do_calls_single_site() {
-		if ( ! isset( self::$clients[0] ) ) {
-			return;
-		}
-
-		foreach ( self::$clients[0] as $client ) {
-			if ( empty( $client->calls ) ) {
-				continue;
-			}
-
-			flush();
-			$client->query();
-
 		}
 	}
 }
