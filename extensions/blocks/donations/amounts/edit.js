@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { useContext, useEffect, useState } from '@wordpress/element';
@@ -11,8 +16,8 @@ import Amount from './amount';
 import Context from '../context';
 import { minimumTransactionAmountForCurrency } from '../../../shared/currencies';
 
-const Edit = ( { attributes, setAttributes } ) => {
-	const { amounts, currency, defaultCustomAmount, isCustom } = attributes;
+const Edit = ( { attributes, className, setAttributes } ) => {
+	const { amounts, currency, defaultCustomAmount, interval } = attributes;
 	const { currency: currencyFromContext, showCustomAmount } = useContext( Context );
 	const minAmount = minimumTransactionAmountForCurrency( currencyFromContext );
 
@@ -27,32 +32,32 @@ const Edit = ( { attributes, setAttributes } ) => {
 		if ( currencyFromContext === currency ) {
 			return;
 		}
+		setAttributes( { currency: currencyFromContext } );
 
-		const newDefaultAmounts = [
-			minAmount * 10, // 1st tier (USD 5)
-			minAmount * 30, // 2nd tier (USD 15)
-			minAmount * 200, // 3rd tier (USD 100)
-		];
-
-		setDefaultAmounts( newDefaultAmounts );
-		setAttributes( {
-			amounts: newDefaultAmounts,
-			currency: currencyFromContext,
-			defaultCustomAmount: minAmount * 100, // USD 50
-		} );
-	}, [ currency, currencyFromContext, minAmount, setAttributes ] );
+		if ( interval ) {
+			const newDefaultAmounts = [
+				minAmount * 10, // 1st tier (USD 5)
+				minAmount * 30, // 2nd tier (USD 15)
+				minAmount * 200, // 3rd tier (USD 100)
+			];
+			setDefaultAmounts( newDefaultAmounts );
+			setAttributes( { amounts: newDefaultAmounts } );
+		} else if ( showCustomAmount ) {
+			setAttributes( { defaultCustomAmount: minAmount * 100 } );
+		}
+	}, [ currency, currencyFromContext, interval, minAmount, setAttributes, showCustomAmount ] );
 
 	// Cleans up the attributes.
 	useEffect( () => {
-		if ( isCustom ) {
+		if ( interval ) {
+			setAttributes( { defaultCustomAmount: null } );
+		} else {
 			setAttributes( {
 				amounts: null,
 				defaultCustomAmount: showCustomAmount ? minAmount * 100 : null,
 			} );
-		} else {
-			setAttributes( { defaultCustomAmount: null } );
 		}
-	}, [ isCustom, minAmount, showCustomAmount, setAttributes ] );
+	}, [ interval, minAmount, setAttributes, showCustomAmount ] );
 
 	const setAmount = ( amount, tier ) => {
 		const newAmounts = [ ...amounts ];
@@ -60,7 +65,7 @@ const Edit = ( { attributes, setAttributes } ) => {
 		setAttributes( { amounts: newAmounts } );
 	};
 
-	if ( isCustom ) {
+	if ( ! interval ) {
 		if ( ! showCustomAmount ) {
 			return null;
 		}
@@ -70,14 +75,14 @@ const Edit = ( { attributes, setAttributes } ) => {
 				currency={ currency }
 				label={ __( 'Custom amount', 'jetpack' ) }
 				defaultValue={ defaultCustomAmount }
-				className="donations__custom-amount"
+				className={ classnames( 'donations__custom-amount', className ) }
 				disabled={ true }
 			/>
 		);
 	}
 
 	return (
-		<div className="wp-block-buttons donations__amounts">
+		<div className={ classnames( 'wp-block-buttons', 'donations__amounts', className ) }>
 			{ amounts.map( ( amount, index ) => (
 				<Amount
 					currency={ currency }
