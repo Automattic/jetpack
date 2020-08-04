@@ -1,6 +1,7 @@
 <?php
 /**
- * Block Editor functionality for Premium Blocks.
+ * Block Editor class for Premium Blocks.
+ * Sets blocks as premium depending on the site site plan and site type.
  *
  * @package Automattic\Jetpack\Extensions
  */
@@ -62,7 +63,7 @@ class Premium_Blocks {
 			$this->required_plan  = 'value_bundle';
 		}
 
-		// Add extensions.
+		// Populate the block-editor extensions available through Jetpack.
 		add_filter(
 			'jetpack_set_available_extensions',
 			function ( $extensions ) {
@@ -70,12 +71,14 @@ class Premium_Blocks {
 			}
 		);
 
-		// Set extensions availability.
+		// Set extensions availability depending on the plan site type and plan of the site.
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
 	}
 
 	/**
-	 * Returns the availability status for an extension.
+	 * Returns the availability status for an extension,
+	 * depending on the site type, plan of the site,
+	 * and the requirements of the feature/block.
 	 *
 	 * @param string $extension_name Extension name.
 	 * @return array
@@ -97,6 +100,8 @@ class Premium_Blocks {
 
 	/**
 	 * Set the Jetpack Gutenberg extension availability.
+	 * It will check if the extension/block will require an upgrade
+	 * in order to make it available for the site.
 	 */
 	public function set_extension_availability() {
 		foreach ( $this->extensions as $extension ) {
