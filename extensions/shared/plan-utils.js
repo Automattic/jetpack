@@ -103,4 +103,5 @@ export function isUpgradable( name ) {
  */
 export const isStillUsableWithFreePlan = ( name ) => [
 	'core/cover',
+	'core/audio',
 ].includes( name );
