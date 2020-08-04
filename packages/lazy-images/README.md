@@ -31,18 +31,23 @@ $ composer install --ignore-platform-reqs
 
 ### Generate minified JavaScript
 
+The JavaScript file can be minified from the root of the Jetpack repository:
+
 ```bash
-$ yarn build
+$ cd ../../
+$ yarn build-packages 
 ```
 
 ### Run PHP unit tests
 
 ```bash
-$ yarn test:phpunit
+$ composer phpunit 
 ```
 
 ### Lint PHP source code
 
+The PHP code can be linted from the root of the Jetpack repository:
 ```bash
-$ yarn php:lint
+$ cd ../../
+$ yarn php:compatibility packages/lazy-images
 ```
