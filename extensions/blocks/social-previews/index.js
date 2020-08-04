@@ -3,12 +3,14 @@
  */
 import { __ } from '@wordpress/i18n';
 import { PanelBody } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SocialPreviewsPanel from './panel';
+import SocialPreviewsModal from './modal';
 import './editor.scss';
 
 export const name = 'social-previews';
@@ -18,11 +20,19 @@ export const settings = {
 };
 
 export const SocialPreviews = function SocialPreviews( { showUpgradeNudge } ) {
+	const [ isOpened, setIsOpened ] = useState( false );
+
 	return (
-		<JetpackPluginSidebar>
-			<PanelBody title={ __( 'Social Previews', 'jetpack' ) }>
-				<SocialPreviewsPanel showUpgradeNudge={ showUpgradeNudge } />
-			</PanelBody>
-		</JetpackPluginSidebar>
+		<>
+			{ isOpened && <SocialPreviewsModal onClose={ () => setIsOpened( false ) } /> }
+			<JetpackPluginSidebar>
+				<PanelBody title={ __( 'Social Previews', 'jetpack' ) }>
+					<SocialPreviewsPanel
+						openModal={ () => setIsOpened( true ) }
+						showUpgradeNudge={ showUpgradeNudge }
+					/>
+				</PanelBody>
+			</JetpackPluginSidebar>
+		</>
 	);
 };
