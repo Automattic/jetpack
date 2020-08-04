@@ -5,18 +5,18 @@
 	fill: $dark-gray-500;
 
 	&.is-facebook {
-		fill: $color-facebook;
+		fill: var( --color-facebook );
 	}
 	&.is-twitter {
-		fill: $color-twitter;
+		fill: var( --color-twitter );
 	}
 	&.is-linkedin {
-		fill: $color-linkedin;
+		fill: var( --color-linkedin );
 	}
 	&.is-tumblr {
-		fill: $color-tumblr;
+		fill: var( --color-tumblr );
 	}
 	&.is-google {
-		fill: $color-google;
+		fill: var( --color-gplus );
 	}
 }
