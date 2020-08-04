@@ -10,21 +10,32 @@ import { useContext, useCallback } from '@wordpress/element';
  */
 import { checkFileType } from '../get-allowed-mime-types';
 import { isUpgradable } from '../plan-utils';
-import { PremiumBlockContext } from '../premium-blocks/components';
+import { PremiumBlockContext } from './components';
+
+const blocksMediaPlaceholderHandler = {
+	'core/cover': {
+		fileType: 'video',
+	},
+	'core/audio': {
+		fileType: 'audio',
+	}
+};
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( 'core/cover' !== name || ! isUpgradable( name ) ) {
+		if ( ! blocksMediaPlaceholderHandler[ name ] || ! isUpgradable( name ) ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
+		const { fileType } = blocksMediaPlaceholderHandler[ name ];
 		const { onError } = props;
+
 		const onBannerVisibilityChange = useContext( PremiumBlockContext );
 
-		const checkUploadingVideoFiles = useCallback( files =>
-				onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], 'video' ) )
-			, [ onBannerVisibilityChange ] );
+		const checkUploadingVideoFiles = useCallback(
+			files => onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], fileType ) )
+			, [ fileType, onBannerVisibilityChange] );
 
 		/**
 		 * On Uploading error handler.
@@ -38,13 +49,13 @@ export default createHigherOrderComponent(
 		const uploadingErrorHandler = useCallback(
 			message => {
 				const filename = message?.[ 0 ]?.props?.children;
-				if ( checkFileType( filename, 'video' ) ) {
+				if ( checkFileType( filename, fileType ) ) {
 					return checkUploadingVideoFiles( [ filename ] );
 				}
 
 				return onError( message );
 			},
-			[ checkUploadingVideoFiles, onError ]
+			[ checkUploadingVideoFiles, fileType, onError ]
 		);
 
 		return (
@@ -57,5 +68,5 @@ export default createHigherOrderComponent(
 			</div>
 		);
 	},
-	'JetpackCoverMediaPlaceholder'
+	'withMediaPlaceholderUpgradable'
 );
