@@ -129,4 +129,53 @@ class Jetpack_Plugins {
 
 		return $slug;
 	}
+
+	/**
+	 * Get the activation status for a plugin.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param string $plugin_file The plugin file to check.
+	 * @return string Either 'network-active', 'active' or 'inactive'.
+	 */
+	public static function get_plugin_status( $plugin_file ) {
+		if ( is_plugin_active_for_network( $plugin_file ) ) {
+			return 'network-active';
+		}
+
+		if ( is_plugin_active( $plugin_file ) ) {
+			return 'active';
+		}
+
+		return 'inactive';
+	}
+
+	/**
+	 * Returns a list of all plugins in the site.
+	 *
+	 * @since 8.9.0
+	 * @uses get_plugins()
+	 *
+	 * @return array
+	 */
+	public static function get_plugins() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
+
+		if ( is_array( $plugins ) && ! empty( $plugins ) ) {
+			foreach ( $plugins as $plugin_slug => $plugin_data ) {
+				$plugins[ $plugin_slug ]['active'] = in_array(
+					self::get_plugin_status( $plugin_slug ),
+					array( 'active', 'network-active' ),
+					true
+				);
+			}
+			return $plugins;
+		}
+
+		return array();
+	}
 }
