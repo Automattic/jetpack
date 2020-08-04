@@ -12,7 +12,7 @@ import { useRef, useContext } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isVideoFile } from './utils';
+import { checkFileType } from '../../get-allowed-mime-types';
 import { isUpgradable } from '../../plan-utils';
 import { PremiumBlockContext } from '../../premium-blocks/components';
 
@@ -31,11 +31,11 @@ export default createHigherOrderComponent(
 				{ ...props }
 				onFilesUpload={ files => {
 					preUploadFile.current = files?.length ? files[ 0 ] : null;
-					onBannerVisibilityChange( files?.length && isVideoFile( files[ 0 ] ) );
+					onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], 'video' ) );
 				} }
 				createNotice={ ( status, msg, options ) => {
 					// Detect video file from callback and reference instance.
-					if ( isVideoFile( preUploadFile.current ) ) {
+					if ( checkFileType( preUploadFile.current, 'video' ) ) {
 						preUploadFile.current = null; // clean up the file reference.
 
 						// Do not show Error notice when it's a video file.

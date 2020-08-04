@@ -8,7 +8,7 @@ import { useContext, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isVideoFile } from './utils';
+import { checkFileType } from '../../get-allowed-mime-types';
 import { isUpgradable } from '../../plan-utils';
 import { PremiumBlockContext } from '../../premium-blocks/components';
 
@@ -23,7 +23,7 @@ export default createHigherOrderComponent(
 		const onBannerVisibilityChange = useContext( PremiumBlockContext );
 
 		const checkUploadingVideoFiles = useCallback( files =>
-			onBannerVisibilityChange( files?.length && isVideoFile( files[ 0 ] ) )
+			onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], 'video' ) )
 		, [ onBannerVisibilityChange ] );
 
 		/**
@@ -38,7 +38,7 @@ export default createHigherOrderComponent(
 		const uploadingErrorHandler = useCallback(
 			message => {
 				const filename = message?.[ 0 ]?.props?.children;
-				if ( isVideoFile( filename ) ) {
+				if ( checkFileType( filename, 'video' ) ) {
 					return checkUploadingVideoFiles( [ filename ] );
 				}
 

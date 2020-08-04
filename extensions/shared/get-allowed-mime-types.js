@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { get, pickBy, startsWith, flatten, map, keys } from 'lodash';
+import { get, pickBy, startsWith, flatten, map, keys, values } from 'lodash';
 
 /**
  * Internal dependencies
@@ -47,4 +47,36 @@ export function pickFileExtensionsFromMimeTypes( mimeTypesObject ) {
  */
 export default function getAllowedMimeTypesBySite() {
 	return get( getJetpackData(), [ 'allowedMimeTypes' ], [] );
+}
+
+/**
+ * Check if the given file is a video.
+ *
+ * @param   {string|object} file - File to check.
+ * @param   {string}        type - File type used to check the file.
+ * @returns {boolean}       True if file type matches with the given type. Otherwise, False.
+ */
+export function checkFileType( file, type ) {
+	if ( ! file || ! type ) {
+		return false;
+	}
+
+	const allowedMimeTypes = getAllowedMimeTypesBySite();
+	if ( ! allowedMimeTypes ) {
+		return false;
+	}
+
+	const allowedVideoMimeTypes = getAllowedVideoTypesByType( type );
+	const allowedVideoFileExtensions = pickFileExtensionsFromMimeTypes( allowedVideoMimeTypes );
+
+	if ( typeof file === 'string' ) {
+		const fileExtension = file.split( '.' ).pop();
+		return fileExtension && allowedVideoFileExtensions.includes( fileExtension );
+	}
+
+	if ( typeof file === 'object' ) {
+		return file.type && values( allowedVideoMimeTypes ).includes( file.type );
+	}
+
+	return false;
 }
