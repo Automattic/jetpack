@@ -63,7 +63,7 @@ class Premium_Blocks {
 			$this->required_plan  = 'value_bundle';
 		}
 
-		// Populate the block-editor extensions available through Jetpack.
+		// Populate the block-editor extensions available through Jetpack filter.
 		add_filter(
 			'jetpack_set_available_extensions',
 			function ( $extensions ) {
