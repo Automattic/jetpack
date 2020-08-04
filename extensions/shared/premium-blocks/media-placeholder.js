@@ -9,26 +9,17 @@ import { useContext, useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { checkFileType } from '../get-allowed-mime-types';
-import { isUpgradable } from '../plan-utils';
+import { usableBlockWithFreePlan, isStillUsableWithFreePlan, isUpgradable } from '../plan-utils';
 import { PremiumBlockContext } from './components';
-
-const blocksMediaPlaceholderHandler = {
-	'core/cover': {
-		fileType: 'video',
-	},
-	'core/audio': {
-		fileType: 'audio',
-	}
-};
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( ! blocksMediaPlaceholderHandler[ name ] || ! isUpgradable( name ) ) {
+		if ( ! isStillUsableWithFreePlan( name ) || ! isUpgradable( name ) ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
-		const { fileType } = blocksMediaPlaceholderHandler[ name ];
+		const { fileType } = usableBlockWithFreePlan[ name ];
 		const { onError } = props;
 
 		const onBannerVisibilityChange = useContext( PremiumBlockContext );

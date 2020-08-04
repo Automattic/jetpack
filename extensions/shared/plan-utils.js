@@ -92,6 +92,15 @@ export function isUpgradable( name ) {
 	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }
 
+export const usableBlockWithFreePlan = {
+	'core/cover': {
+		fileType: 'video',
+	},
+	'core/audio': {
+		fileType: 'audio',
+	}
+};
+
 /**
  * Some blocks are still usable with a free plan.
  * We can handle their dual behavior defining specifically
@@ -101,7 +110,5 @@ export function isUpgradable( name ) {
  * @param {string} name - Block name to check.
  * @returns {boolean} True is the block is usable with a Free plan. Otherwise, False.
  */
-export const isStillUsableWithFreePlan = ( name ) => [
-	'core/cover',
-	'core/audio',
-].includes( name );
+export const isStillUsableWithFreePlan = ( name ) => Object.keys( usableBlockWithFreePlan ).includes( name );
+
