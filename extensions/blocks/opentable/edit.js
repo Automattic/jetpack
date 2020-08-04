@@ -59,11 +59,12 @@ function OpenTableEdit( {
 		setAttributes( validatedAttributes );
 	}
 
-	const { align, rid, iframe, domain, lang, newtab, negativeMargin, __isBlockPreview } = attributes;
+	const { align, rid, iframe, domain, lang, newtab, negativeMargin } = attributes;
 	const isPlaceholder = isEmpty( rid );
 	const selectedStyle = getActiveStyleName( getStyleOptions(), attributes.className );
 	const style = getActiveStyleName( getStyleOptions( rid ), attributes.className );
 	const prevStyle = usePrevious( style );
+	const __isBlockPreview = isEqual( rid, [ '1' ] );
 
 	useEffect( () => {
 		noticeOperations.removeAllNotices();
@@ -86,28 +87,12 @@ function OpenTableEdit( {
 		}
 	}, [ __isBlockPreview, align, isPlaceholder, noticeOperations, rid, style ] );
 
+	// Don't allow button style with multiple restaurant IDs.
 	useEffect( () => {
-		if ( isPlaceholder || __isBlockPreview ) {
-			return;
+		if ( 'button' === selectedStyle && Array.isArray( rid ) && rid.length > 1 ) {
+			setAttributes( { className: '', style: '' } );
 		}
-
-		// Don't allow button style with multiple restaurant IDs.
-		// Cover both where new restaurant added making style invalid or
-		// attempt to switch to button style when multiple restaurants already selected.
-		if ( ( 'button' === prevStyle || 'button' === selectedStyle ) && Array.isArray( rid ) && rid.length > 1 ) {
-			setAttributes( { className: '' } );
-		}
-
-		// If the old style was wide, reset the alignment.
-		if ( prevStyle === 'wide' && align === 'wide' ) {
-			setAttributes( { align: '' } );
-		}
-
-		// If the new style is wide, set the alignment to wide as it works better.
-		if ( style === 'wide' ) {
-			setAttributes( { align: 'wide' } );
-		}
-	}, [ __isBlockPreview, isPlaceholder, rid, style, setAttributes, align, prevStyle, selectedStyle ] );
+	}, [ rid, selectedStyle, setAttributes ] );
 
 	// Temporarily remove button block style if multiple restaurants are present.
 	useEffect( () => {
@@ -121,6 +106,22 @@ function OpenTableEdit( {
 			registerBlockStyle( 'jetpack/opentable', buttonStyle );
 		}
 	}, [ isSelected, rid ] );
+
+	useEffect( () => {
+		// Reset wide alignment if switching from wide style.
+		if ( 'wide' === prevStyle && 'wide' === align ) {
+			setAttributes( { align: '' } );
+		}
+
+		// If switching to wide style set wide alignment as well as it works better.
+		if ( 'wide' === style && prevStyle && style !== prevStyle ) {
+			setAttributes( { align: 'wide' } );
+		}
+
+		// Need to force attribute to be updated after switch to using block styles
+		// so it still meets frontend rendering expectations.
+		setAttributes( { style } );
+	}, [ style ] );
 
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
@@ -244,7 +245,7 @@ function OpenTableEdit( {
 	);
 
 	const editClasses = classnames( className, {
-		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
+		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ) && className.indexOf( 'is-style' ) === -1,
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
