@@ -1,3 +1,4 @@
+@import '../styles/gutenberg-base-styles.scss';
 @import "~@automattic/color-studio/dist/color-variables";
 
 $banner-height: 48px;
@@ -11,12 +12,10 @@ $icon-background-color: #fff;
 	align-items: center;
 	font-size: 14px;
 	height: $banner-height;
-	line-height: 14px;
 	background: black;
 	color: white;
 	padding: 0 20px;
-	border-radius: 2px 2px 0 0;
-	margin-bottom: 10px;
+	border-radius: 2px;
 
 	.jetpack-upgrade-plan-banner__title,
 	.jetpack-upgrade-plan-banner__description {
@@ -25,6 +24,7 @@ $icon-background-color: #fff;
 
 	.components-button {
 		flex-shrink: 0;
+		line-height: 1;
 		margin-left: auto;
 		height: 28px;
 
@@ -47,10 +47,10 @@ $icon-background-color: #fff;
 }
 
 // Tweak Banner: Editor Canvas.
+// Banner height minus half the toolbar padding to center it.
 .block-editor-block-list__layout .jetpack-upgrade-plan-banner {
 	position: relative;
-	top: $banner-height + 5px;
-	z-index: 1000;
+	top: $banner-height - ( $grid-unit-15 / 2 );
 }
 
 .block-editor-block-inspector {
