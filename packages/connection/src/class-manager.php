@@ -861,6 +861,7 @@ class Manager {
 				'site_created'    => $this->get_assumed_site_creation_date(),
 				'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 				'ABSPATH'         => Constants::get_constant( 'ABSPATH' ),
+				'email'           => wp_get_current_user()->user_email,
 			)
 		);
 
