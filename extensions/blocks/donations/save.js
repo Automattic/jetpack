@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { InnerBlocks } from '@wordpress/block-editor';
@@ -6,7 +11,7 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const Save = ( { attributes } ) => {
-	const { oneTimePlanId, monthlyPlanId, annuallyPlanId } = attributes;
+	const { oneTimePlanId, monthlyPlanId, annuallyPlanId, showCustomAmount } = attributes;
 
 	if ( ! oneTimePlanId || oneTimePlanId === -1 ) {
 		return null;
@@ -27,6 +32,7 @@ const Save = ( { attributes } ) => {
 							<Button
 								className="donations__nav-item"
 								key={ `jetpack-donations-nav-item-${ interval } ` }
+								data-interval={ interval }
 							>
 								{ title }
 							</Button>
@@ -34,7 +40,11 @@ const Save = ( { attributes } ) => {
 					</div>
 				) }
 				<div className="donations__content">
-					<div className="donations__tab">
+					<div
+						className={ classnames( 'donations__tab', {
+							'show-custom': showCustomAmount,
+						} ) }
+					>
 						<InnerBlocks.Content />
 					</div>
 				</div>

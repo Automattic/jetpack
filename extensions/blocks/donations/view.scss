@@ -1,0 +1,8 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+@import './common';
+
+.wp-block-jetpack-donations {
+	.donations__amount .wp-block-button__link {
+		cursor: pointer;
+	}
+}
