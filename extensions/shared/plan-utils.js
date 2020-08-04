@@ -77,11 +77,6 @@ export function isUpgradable( name ) {
 		return false;
 	}
 
-	// core/cover is handled in ./extensions/shared/blocks/cover.
-	if ( name === 'core/cover' ) {
-		return false;
-	}
-
 	const blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
 
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
@@ -96,3 +91,16 @@ export function isUpgradable( name ) {
 export function isUpgradeNudgeEnabled() {
 	return get( getJetpackData(), 'jetpack.enable_upgrade_nudge', false );
 }
+
+/*
+ * Some blocks are still usable with a free plan.
+ * We can handle their dual behavior defining specifically
+ * when to show the upgrade banner
+ * through or the Premium Block context.
+ *
+ * @param {string} name - Block name to check.
+ * @returns {boolean} True is the block is usable with a Free plan. Otherwise, False.
+ */
+export const isStillUsableWithFreePlan = ( name ) => [
+	'core/cover',
+].includes( name );

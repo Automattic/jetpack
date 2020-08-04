@@ -1,23 +1,18 @@
+$banner-height: 48px;
 
 // Stretch Cover MediaPlaceholder element.
 .jetpack-cover-media-placeholder {
 	width: 100%;
 }
 
-// tweak Upgrade nudge.
-.jetpack-upgrade-nudge-wrapper.wp-block {
-	.block-editor-warning__contents {
-		flex-wrap: initial;
+// core/cover set padding 0 with !important.
+// https://github.com/WordPress/gutenberg/blob/d348f55a33124426897448d560b46cede6ebb089/packages/block-library/src/cover/editor.scss#L6-L9
+.block-editor-block-list__block.is-upgradable.is-selected.is-placeholder {
+	padding-top: 0;
+	background-color: transparent;
 
-		.jetpack-block-nudge__text-container,
-		.block-editor-warning__actions {
-			align-self: center;
-		}
-	}
-
-	.jetpack-block-nudge {
-		width: 100%;
-		min-width: 100%;
+	.jetpack-cover-media-placeholder {
+		margin-top: $banner-height;
 	}
 }
 
