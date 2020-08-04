@@ -28,20 +28,6 @@ class Premium_Blocks {
 	);
 
 	/**
-	 * Plan level required to access premium blocks.
-	 *
-	 * @var string
-	 */
-	public $required_plan = 'jetpack_premium';
-
-	/**
-	 * Whether the current site is on WP.com.
-	 *
-	 * @var bool
-	 */
-	public $is_simple_site = false;
-
-	/**
 	 * Singleton.
 	 */
 	public static function get_instance() {
@@ -58,12 +44,11 @@ class Premium_Blocks {
 	 * Premium_Blocks constructor.
 	 */
 	private function __construct() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->is_simple_site = true;
-			$this->required_plan  = 'value_bundle';
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			return;
 		}
 
-		// Populate the block-editor extensions available through Jetpack filter.
+		// Populate the block-editor extensions available through Jetpack.
 		add_filter(
 			'jetpack_set_available_extensions',
 			function ( $extensions ) {
