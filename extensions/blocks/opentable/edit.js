@@ -18,7 +18,7 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
+import { getBlockDefaultClassName, registerBlockStyle, unregisterBlockStyle } from '@wordpress/blocks';
 import { useEffect } from '@wordpress/element';
 
 /**
@@ -31,11 +31,12 @@ import RestaurantPicker from './restaurant-picker';
 import usePrevious from './use-previous';
 
 import {
+	buttonStyle,
+	defaultAttributes,
 	getStyleOptions,
 	getStyleValues,
 	languageOptions,
 	languageValues,
-	defaultAttributes,
 } from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getActiveStyleName } from '../../shared/block-styles';
@@ -45,6 +46,7 @@ function OpenTableEdit( {
 	attributes,
 	className,
 	clientId,
+	isSelected,
 	name,
 	noticeOperations,
 	noticeUI,
@@ -106,6 +108,19 @@ function OpenTableEdit( {
 			setAttributes( { align: 'wide' } );
 		}
 	}, [ __isBlockPreview, isPlaceholder, rid, style, setAttributes, align, prevStyle, selectedStyle ] );
+
+	// Temporarily remove button block style if multiple restaurants are present.
+	useEffect( () => {
+		if ( ! isSelected ) {
+			return;
+		}
+
+		if ( Array.isArray( rid ) && rid.length > 1 ) {
+			unregisterBlockStyle( 'jetpack/opentable', [ 'button' ] );
+		} else {
+			registerBlockStyle( 'jetpack/opentable', buttonStyle );
+		}
+	}, [ isSelected, rid ] );
 
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
