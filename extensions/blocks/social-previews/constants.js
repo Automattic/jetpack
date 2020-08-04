@@ -5,15 +5,15 @@ import { __ } from '@wordpress/i18n';
 
 export const AVAILABLE_SERVICES = [
 	{
-		title: __( 'Google Search' ),
+		title: __( 'Google Search', 'jetpack' ),
 		icon: 'google',
 	},
 	{
-		title: __( 'Facebook' ),
+		title: __( 'Facebook', 'jetpack' ),
 		icon: 'facebook',
 	},
 	{
-		title: __( 'Twitter' ),
+		title: __( 'Twitter', 'jetpack' ),
 		icon: 'twitter',
 	},
 ];
