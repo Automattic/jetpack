@@ -48,27 +48,29 @@ export default withNotices( function StoryEdit( {
 } ) {
 	const { mediaFiles } = attributes;
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
+	const lockName = 'storyBlockLock';
 
-	const mediaFilter = files => files.map( file => pickRelevantMediaFiles( file ) );
-	const onSelectMedia = newMediaFiles =>
+	const onSelectMedia = newMediaFiles => {
+		const allMedia = newMediaFiles.map( file => pickRelevantMediaFiles( file ) );
+		const uploadedMedias = allMedia.filter( media => ! isBlobURL( media.url ) );
+		// prevent saving blob urls in mediaFiles block attribute
+		if ( allMedia.length !== uploadedMedias.length ) {
+			lockPostSaving( lockName );
+		} else {
+			unlockPostSaving( lockName );
+		}
 		setAttributes( {
-			mediaFiles: mediaFilter( newMediaFiles ).filter( media => ! isBlobURL( media.url ) ),
+			mediaFiles: allMedia,
 		} );
+	};
 
 	const addFiles = files => {
-		const lockName = 'storyBlockLock';
 		lockPostSaving( lockName );
 		mediaUpload( {
 			allowedTypes: ALLOWED_MEDIA_TYPES,
 			filesList: files,
 			onFileChange: newMediaFiles => {
-				const mediaUploaded = mediaFilter( newMediaFiles );
-				setAttributes( {
-					mediaFiles: [ ...mediaFiles, ...mediaUploaded ],
-				} );
-				if ( newMediaFiles.length === mediaUploaded.length ) {
-					unlockPostSaving( lockName );
-				}
+				onSelectMedia( [ ...mediaFiles, ...newMediaFiles ] );
 			},
 			onError: noticeOperations.createErrorNotice,
 		} );

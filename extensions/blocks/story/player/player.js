@@ -75,12 +75,6 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		}
 	}, [ disabled, playing ] );
 
-	// reset player on slide change
-	useEffect( () => {
-		setPlaying( false );
-		showSlide( 0, false );
-	}, [ slides ] );
-
 	// track play/pause state and check ending
 	useLayoutEffect( () => {
 		if ( playing ) {
