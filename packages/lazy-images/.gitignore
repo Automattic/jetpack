@@ -1,6 +1,3 @@
 vendor
-node_modules
 wordpress-tests-lib
-package-lock.json
 composer.lock
-yarn.lock
