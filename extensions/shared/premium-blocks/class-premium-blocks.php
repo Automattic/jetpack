@@ -76,49 +76,13 @@ class Premium_Blocks {
 	}
 
 	/**
-	 * Returns the availability status for an extension,
-	 * depending on the site type, plan of the site,
-	 * and the requirements of the feature/block.
-	 *
-	 * @param string $extension_name Extension name.
-	 * @return array
-	 */
-	public function check_extension_availability( $extension_name ) {
-		if ( $this->is_simple_site && class_exists( 'Store_Product_List' ) ) {
-			$features = \Store_Product_List::get_site_specific_features_data();
-
-			if ( ! in_array( $extension_name, $features['active'], true ) ) {
-				return array(
-					'available'          => false,
-					'unavailable_reason' => 'missing_plan',
-				);
-			}
-		}
-
-		return array( 'available' => true );
-	}
-
-	/**
 	 * Set the Jetpack Gutenberg extension availability.
 	 * It will check if the extension/block will require an upgrade
 	 * in order to make it available for the site.
 	 */
 	public function set_extension_availability() {
 		foreach ( $this->extensions as $extension ) {
-			$availability = $this->check_extension_availability( $extension );
-
-			if ( $availability['available'] ) {
-				\Jetpack_Gutenberg::set_extension_available( $extension );
-			} else {
-				\Jetpack_Gutenberg::set_extension_unavailable(
-					$extension,
-					$availability['unavailable_reason'],
-					array(
-						'required_feature' => $extension,
-						'required_plan'    => $this->required_plan,
-					)
-				);
-			}
+			\Jetpack_Gutenberg::set_availability_for_plan( $extension );
 		}
 	}
 }
