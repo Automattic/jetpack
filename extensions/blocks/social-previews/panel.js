@@ -34,7 +34,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal } ) {
 					/>
 				) ) }
 			</div>
-			<Button isTertiary onClick={ openModal }>
+			<Button isTertiary onClick={ openModal } label={ __( 'Open Social Previews', 'jetpack' ) }>
 				{ __( 'Preview', 'jetpack' ) }
 			</Button>
 		</div>
