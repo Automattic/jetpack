@@ -1,5 +1,0 @@
-/**
- * External dependencies
- */
-
-import './cover';

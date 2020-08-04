@@ -6,7 +6,6 @@ import './shared/block-category';
 import './shared/plan-upgrade-notification';
 import './shared/stripe-connection-notification';
 import './shared/external-media';
-import './shared/blocks';
 import './shared/premium-blocks';
 import analytics from '../_inc/client/lib/analytics';
 

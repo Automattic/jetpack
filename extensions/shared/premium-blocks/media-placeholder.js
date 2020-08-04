@@ -9,10 +9,7 @@ import { useContext, useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { checkFileType } from '../get-allowed-mime-types';
-import {
-	isUpgradable,
-	getUsableBlockProps,
-} from '../plan-utils';
+import { isUpgradable, getUsableBlockProps } from '../plan-utils';
 import { PremiumBlockContext } from './components';
 
 export default createHigherOrderComponent(
@@ -25,7 +22,6 @@ export default createHigherOrderComponent(
 		}
 
 		const { fileType } = usableBlocksProps;
-
 		const { onError } = props;
 
 		const onBannerVisibilityChange = useContext( PremiumBlockContext );
