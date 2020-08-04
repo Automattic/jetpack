@@ -202,21 +202,22 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 	// URL points to the entire gist, including the file name if there was one.
 	$id = ( ! empty( $file ) ? $id . '?file=' . $file : $id );
+	$return = false;
 
-	wp_enqueue_script(
-		'jetpack-gist-embed',
-		Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
-		array( 'jquery' ),
-		JETPACK__VERSION,
-		true
-	);
+	$request      = wp_remote_get( "https://gist.github.com/" . esc_attr( $id ) );
+	$request_code = wp_remote_retrieve_response_code( $request );
 
-	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables.
-	$return = sprintf(
-		'<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="%1$s" data-ts="%2$d"></div>',
-		esc_attr( $id ),
-		absint( $tab_size )
-	);
+	if ( 200 === $request_code ) {
+		$request_body = wp_remote_retrieve_body($request);
+		$request_data = json_decode($request_body);
+
+		wp_enqueue_style( 'jetpack-gist-styling', $request_data->stylesheet );
+
+		$gist = substr_replace( $request_data->div, sprintf( 'style="tab-size: %1$s"', absint( $tab_size ) ), 5, 0);
+
+		// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables.
+		$return = sprintf( '<style>.gist table { margin-bottom: 0; }</style>%1$s', $gist );
+	}
 
 	if (
 		// No need to check for a nonce here, that's already handled by Core further up.
