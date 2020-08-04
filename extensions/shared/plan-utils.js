@@ -50,28 +50,28 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// Post-checkout: redirect back here
 	const redirect_to = isSimpleSite()
 		? addQueryArgs(
-			'/' +
-			compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
-				'/'
-			),
-			{
-				plan_upgraded: 1,
-			}
-		)
+				'/' +
+					compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' ),
+				{
+					plan_upgraded: 1,
+				}
+		  )
 		: addQueryArgs(
-			window.location.protocol +
-			`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
-			{
-				action: 'edit',
-				post: postId,
-				plan_upgraded: 1,
-			}
-		);
+				window.location.protocol +
+					`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
+				{
+					action: 'edit',
+					post: postId,
+					plan_upgraded: 1,
+				}
+		  );
 
-	return planPathSlug &&
+	return (
+		planPathSlug &&
 		addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
 			redirect_to,
-		} );
+		} )
+	);
 }
 
 /**
@@ -109,7 +109,7 @@ const usableBlockWithFreePlan = [
 		name: 'core/audio',
 		mediaPlaceholder: true,
 		fileType: 'audio',
-	}
+	},
 ];
 
 /**
@@ -121,6 +121,8 @@ const usableBlockWithFreePlan = [
  * @param {string} name - Block name to check.
  * @returns {boolean} True is the block is usable with a Free plan. Otherwise, False.
  */
-export const isStillUsableWithFreePlan = ( name ) => map( usableBlockWithFreePlan, 'name' ).includes( name );
+export const isStillUsableWithFreePlan = name =>
+	map( usableBlockWithFreePlan, 'name' ).includes( name );
 
-export const getUsableBlockProps = ( blockName ) => head( filter( usableBlockWithFreePlan, ( { name } ) => name === blockName ) );
+export const getUsableBlockProps = blockName =>
+	head( filter( usableBlockWithFreePlan, ( { name } ) => name === blockName ) );

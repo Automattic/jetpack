@@ -27,8 +27,9 @@ export default createHigherOrderComponent(
 		const onBannerVisibilityChange = useContext( PremiumBlockContext );
 
 		const checkUploadingVideoFiles = useCallback(
-			files => onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], fileType ) )
-			, [ fileType, onBannerVisibilityChange] );
+			files => onBannerVisibilityChange( files?.length && checkFileType( files[ 0 ], fileType ) ),
+			[ fileType, onBannerVisibilityChange ]
+		);
 
 		/**
 		 * On Uploading error handler.

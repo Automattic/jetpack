@@ -1,4 +1,3 @@
-
 /**
  * WordPress dependencies
  */
@@ -18,8 +17,6 @@ export const PremiumBlockContext = createContext();
  * @param {boolean} props.children - Provider Children.
  * @returns {*} Provider component.
  */
-export const PremiumBlockProvider = ( { onBannerVisibilityChange, children } ) =>
-	<PremiumBlockContext.Provider
-		value={ onBannerVisibilityChange }
-		children={ children }
-	/>;
+export const PremiumBlockProvider = ( { onBannerVisibilityChange, children } ) => (
+	<PremiumBlockContext.Provider value={ onBannerVisibilityChange } children={ children } />
+);

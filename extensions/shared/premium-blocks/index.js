@@ -42,16 +42,24 @@ addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPremiumBlock
 addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', withUpgradeBanner );
 
 // Take the control of the MediaPlaceholder
-addFilter( 'editor.MediaPlaceholder', 'jetpack/premium-block-media-placeholder', premiumBlockMediaPlaceholder );
+addFilter(
+	'editor.MediaPlaceholder',
+	'jetpack/premium-block-media-placeholder',
+	premiumBlockMediaPlaceholder
+);
 
 // Take the control of the MediaReplaceFlow
-addFilter( 'editor.MediaReplaceFlow', 'jetpack/premium-block-media-placeholder', premiumBlockMediaReplaceFlow );
+addFilter(
+	'editor.MediaReplaceFlow',
+	'jetpack/premium-block-media-placeholder',
+	premiumBlockMediaReplaceFlow
+);
 
 /*
  * Add the `jetpack-enable-upgrade-nudge` css Class
  * to the document body if the feature is enabled.
  */
-domReady( function() {
+domReady( function () {
 	if ( isUpgradeNudgeEnabled() ) {
 		document.body.classList.add( 'jetpack-enable-upgrade-nudge' );
 	}
