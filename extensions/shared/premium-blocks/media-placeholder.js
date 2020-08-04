@@ -59,7 +59,7 @@ export default createHigherOrderComponent(
 		);
 
 		return (
-			<div className="jetpack-cover-media-placeholder">
+			<div className="premium-block-media-placeholder">
 				<CoreMediaPlaceholder
 					{ ...props }
 					onFilesPreUpload={ checkUploadingVideoFiles }
