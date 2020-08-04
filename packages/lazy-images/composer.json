@@ -7,10 +7,7 @@
 	  	"automattic/jetpack-constants": "@dev"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
-		"phpcompatibility/phpcompatibility-wp": "2.1.0",
-		"wp-coding-standards/wpcs": "2.3.0"
+		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
 	},
 	"autoload": {
 		"classmap": [
@@ -18,15 +15,6 @@
 		]
 	},
 	"scripts": {
-		"post-install-cmd": [
-			"@setup"
-		],
-		"post-update-cmd": [
-			"@setup"
-		],
-		"setup": [
-			"vendor/bin/phpcs --config-set installed_paths ../../squizlabs/php_codesniffer/src/Standards,../../wp-coding-standards/wpcs,../../phpcompatibility/php-compatibility,../../phpcompatibility/phpcompatibility-wp,../../phpcompatibility/phpcompatibility-paragonie"
-		]
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true

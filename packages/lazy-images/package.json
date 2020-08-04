@@ -10,9 +10,6 @@
     "test:php:env-start": "docker-compose up -d",
     "test:php:env-stop": "docker-compose stop",
     "test:phpunit": "yarn test:php:setup && yarn test:php:env-start && ./bin/wait-for-it.sh localhost:33306 -- docker-compose up -d && docker-compose exec wordpress bash -c 'cd /var/jetpack-lazy-images; ./vendor/phpunit/phpunit/phpunit --colors=always' && yarn test:php:env-stop",
-    "php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php src",
-    "php:lint": "vendor/bin/phpcs -p -s",
-    "php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1"
   },
   "repository": {
     "type": "git",
