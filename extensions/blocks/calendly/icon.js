@@ -3,11 +3,6 @@
  */
 import { SVG, G, Path, Rect } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
-import PaidSymbol from '../../../extensions/extended-blocks/paid-blocks/paid-symbol';
-
 export default (
 	<SVG height="24" viewBox="0 0 23 24" width="23" xmlns="http://www.w3.org/2000/svg">
 		<G fill="none" fillRule="evenodd">
@@ -27,6 +22,5 @@ export default (
 				stroke="#656a74"
 			/>
 		</G>
-		<PaidSymbol />
 	</SVG>
 );
