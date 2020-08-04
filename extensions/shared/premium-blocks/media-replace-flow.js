@@ -50,5 +50,5 @@ export default createHigherOrderComponent(
 			/>
 		);
 	},
-	'JetpackCoverMediaReplaceFlow'
+	'withMediaReplaceFlowUpgradable'
 );
