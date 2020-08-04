@@ -18,7 +18,6 @@ import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import { SUPPORTED_CURRENCIES, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import './editor.scss';
-import PaidSymbol from '../../../extensions/shared/premium-blocks/paid-symbol';
 
 export const name = 'recurring-payments';
 
@@ -28,7 +27,6 @@ export const icon = (
 		<G>
 			<Path d="M20 4H4c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2h16c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2zm0 2v2H4V6h16zM4 18v-6h16v6H4zm2-4h7v2H6v-2zm9 0h3v2h-3v-2z" />
 		</G>
-		<PaidSymbol />
 	</SVG>
 );
 

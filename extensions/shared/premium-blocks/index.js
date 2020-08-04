@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import withUpgradeBanner from './with-upgrade-banner';
 import { isUpgradeNudgeEnabled, isUpgradable } from '../plan-utils';
 import premiumBlockEdit from './edit';
+import renderPremiumIcon from './render-premium-icon.js';
 
 import './editor.scss';
 
@@ -26,6 +27,7 @@ const jetpackPremiumBlock = ( settings, name ) => {
 
 		// Extend BlockEdit function.
 		settings.edit = premiumBlockEdit( settings.edit );
+		settings.icon = renderPremiumIcon( settings.icon, name );
 	}
 
 	return settings;
