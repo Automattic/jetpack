@@ -1,6 +1,7 @@
 {
 	"plugins": [ "./tests/e2e/plugins/e2e-plan-data-interceptor.php" ],
 	"config": {
+		"WP_DEBUG": true,
 		"WP_DEBUG_LOG": true,
 		"WP_DEBUG_DISPLAY": false,
 		"JETPACK_BETA_BLOCKS": true,
