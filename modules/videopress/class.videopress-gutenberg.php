@@ -112,6 +112,7 @@ class VideoPress_Gutenberg {
 			'core/video',
 			array(
 				'render_callback' => array( $this, 'render_video_block_with_videopress' ),
+				'plan_check'      => true,
 			)
 		);
 	}
