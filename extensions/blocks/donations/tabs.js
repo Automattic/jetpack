@@ -18,15 +18,7 @@ import Tab from './tab';
 import StripeNudge from '../../shared/components/stripe-nudge';
 
 const Tabs = props => {
-	const {
-		attributes,
-		className,
-		clientId,
-		products,
-		setAttributes,
-		shouldUpgrade,
-		stripeConnectUrl,
-	} = props;
+	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
 	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 
@@ -55,17 +47,19 @@ const Tabs = props => {
 
 	// Sets the plans when Stripe has been connected (we use fake plans while Stripe is not connected so user can still try the block).
 	useEffect( () => {
-		if ( oneTimeDonation.planId === -1 ) {
-			setAttributes( {
-				oneTimeDonation: { ...oneTimeDonation, planId: products[ 'one-time' ] },
-				...( monthlyDonation.show && {
-					monthlyDonation: { ...monthlyDonation, planId: products[ '1 month' ] },
-				} ),
-				...( annualDonation.show && {
-					annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
-				} ),
-			} );
+		if ( products[ 'one-time' ] === -1 || oneTimeDonation.planId !== -1 ) {
+			return;
 		}
+
+		setAttributes( {
+			oneTimeDonation: { ...oneTimeDonation, planId: products[ 'one-time' ] },
+			...( monthlyDonation.show && {
+				monthlyDonation: { ...monthlyDonation, planId: products[ '1 month' ] },
+			} ),
+			...( annualDonation.show && {
+				annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
+			} ),
+		} );
 	}, [ oneTimeDonation, monthlyDonation, annualDonation, setAttributes, products ] );
 
 	// Activates the one-time tab if the interval of the current active tab is disabled.
@@ -101,12 +95,7 @@ const Tabs = props => {
 					</div>
 				) }
 				<div className="donations__content">
-					<Tab
-						activeTab={ activeTab }
-						attributes={ attributes }
-						clientId={ clientId }
-						setAttributes={ setAttributes }
-					/>
+					<Tab activeTab={ activeTab } attributes={ attributes } setAttributes={ setAttributes } />
 				</div>
 			</div>
 			<Controls { ...props } />

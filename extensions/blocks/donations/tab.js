@@ -2,17 +2,16 @@
  * WordPress dependencies
  */
 import { RichText } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import Amount from './amount';
-import Amounts from './amounts';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
-const Tab = props => {
-	const { activeTab, attributes, setAttributes } = props;
+const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	const {
 		currency,
 		oneTimeDonation,
@@ -23,63 +22,76 @@ const Tab = props => {
 		customAmountText,
 	} = attributes;
 
-	const getDonationAttribute = attributeName => {
-		let donation;
-		switch ( activeTab ) {
-			case 'one-time':
-				donation = oneTimeDonation;
-				break;
-			case '1 month':
-				donation = monthlyDonation;
-				break;
-			case '1 year':
-				donation = annualDonation;
-				break;
-		}
+	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
+	const minAmount = minimumTransactionAmountForCurrency( currency );
+	const [ defaultAmounts, setDefaultAmounts ] = useState( [
+		minAmount * 10, // 1st tier (USD 5)
+		minAmount * 30, // 2nd tier (USD 15)
+		minAmount * 200, // 3rd tier (USD 100)
+	] );
 
-		if ( ! donation ) {
-			return null;
-		}
-
-		return donation[ attributeName ];
+	const donationAttributes = {
+		'one-time': 'oneTimeDonation',
+		'1 month': 'monthlyDonation',
+		'1 year': 'annualDonation',
 	};
 
-	const setDonationAttribute = ( attributeName, attributeValue ) => {
-		switch ( activeTab ) {
-			case 'one-time':
-				setAttributes( {
-					oneTimeDonation: {
-						...oneTimeDonation,
-						[ attributeName ]: attributeValue,
-					},
-				} );
-				break;
-			case '1 month':
-				setAttributes( {
-					monthlyDonation: {
-						...monthlyDonation,
-						[ attributeName ]: attributeValue,
-					},
-				} );
-				break;
-			case '1 year':
-				setAttributes( {
-					annualDonation: {
-						...annualDonation,
-						[ attributeName ]: attributeValue,
-					},
-				} );
-				break;
-		}
+	const getDonationValue = key => attributes[ donationAttributes[ activeTab ] ][ key ];
+
+	const setDonationValue = ( key, value ) => {
+		const donationAttribute = donationAttributes[ activeTab ];
+		const donation = attributes[ donationAttribute ];
+		setAttributes( {
+			[ donationAttribute ]: {
+				...donation,
+				[ key ]: value,
+			},
+		} );
 	};
+
+	const amounts = getDonationValue( 'amounts' );
+
+	const setAmount = ( amount, tier ) => {
+		const newAmounts = [ ...amounts ];
+		newAmounts[ tier ] = amount;
+		setDonationValue( 'amounts', newAmounts );
+	};
+
+	// Updates the amounts whenever there are new defaults due to a currency change.
+	useEffect( () => {
+		if ( previousCurrency === currency ) {
+			return;
+		}
+		setPreviousCurrency( currency );
+
+		const newDefaultAmounts = [
+			minAmount * 10, // 1st tier (USD 5)
+			minAmount * 30, // 2nd tier (USD 15)
+			minAmount * 200, // 3rd tier (USD 100)
+		];
+		setDefaultAmounts( newDefaultAmounts );
+		setAttributes( {
+			oneTimeDonation: { ...oneTimeDonation, amounts: newDefaultAmounts },
+			monthlyDonation: { ...monthlyDonation, amounts: newDefaultAmounts },
+			annualDonation: { ...annualDonation, amounts: newDefaultAmounts },
+		} );
+	}, [
+		currency,
+		previousCurrency,
+		minAmount,
+		oneTimeDonation,
+		monthlyDonation,
+		annualDonation,
+		setAttributes,
+	] );
 
 	return (
 		<div className="donations__tab">
 			<RichText
 				tagName="h4"
 				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getDonationAttribute( 'heading' ) }
-				onChange={ value => setDonationAttribute( 'heading', value ) }
+				value={ getDonationValue( 'heading' ) }
+				onChange={ value => setDonationValue( 'heading', value ) }
 			/>
 			<RichText
 				tagName="p"
@@ -87,11 +99,22 @@ const Tab = props => {
 				value={ chooseAmountText }
 				onChange={ value => setAttributes( { chooseAmountText: value } ) }
 			/>
-			<Amounts
-				amounts={ getDonationAttribute( 'amounts' ) }
-				currency={ currency }
-				onChange={ amounts => setDonationAttribute( 'amounts', amounts ) }
-			/>
+			<div className="wp-block-buttons donations__amounts">
+				{ amounts.map( ( amount, index ) => (
+					<Amount
+						currency={ currency }
+						defaultValue={ defaultAmounts[ index ] }
+						label={ sprintf(
+							// translators: %d: Tier level e.g: "1", "2", "3"
+							__( 'Tier %d', 'jetpack' ),
+							index + 1
+						) }
+						key={ `jetpack-donations-amount-${ index }` }
+						onChange={ newAmount => setAmount( newAmount, index ) }
+						value={ amount }
+					/>
+				) ) }
+			</div>
 			{ showCustomAmount && (
 				<>
 					<RichText
@@ -113,15 +136,15 @@ const Tab = props => {
 			<RichText
 				tagName="p"
 				placeholder={ __( 'Write a message…', 'jetpack' ) }
-				value={ getDonationAttribute( 'extraText' ) }
-				onChange={ value => setDonationAttribute( 'extraText', value ) }
+				value={ getDonationValue( 'extraText' ) }
+				onChange={ value => setDonationValue( 'extraText', value ) }
 			/>
 			<div className="wp-block-button donations__donate-button">
 				<RichText
 					className="wp-block-button__link"
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
-					value={ getDonationAttribute( 'buttonText' ) }
-					onChange={ value => setDonationAttribute( 'buttonText', value ) }
+					value={ getDonationValue( 'buttonText' ) }
+					onChange={ value => setDonationValue( 'buttonText', value ) }
 				/>
 			</div>
 		</div>

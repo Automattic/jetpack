@@ -27,27 +27,20 @@ const Controls = props => {
 	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
 
 	const toggleDonation = ( interval, show ) => {
-		const planId = show ? products[ interval ] : null;
-		switch ( interval ) {
-			case '1 month':
-				setAttributes( {
-					monthlyDonation: {
-						...monthlyDonation,
-						show,
-						planId,
-					},
-				} );
-				break;
-			case '1 year':
-				setAttributes( {
-					annualDonation: {
-						...annualDonation,
-						show,
-						planId,
-					},
-				} );
-				break;
-		}
+		const donationAttributes = {
+			'1 month': 'monthlyDonation',
+			'1 year': 'annualDonation',
+		};
+		const donationAttribute = donationAttributes[ interval ];
+		const donation = attributes[ donationAttribute ];
+
+		setAttributes( {
+			[ donationAttribute ]: {
+				...donation,
+				show,
+				planId: show ? products[ interval ] : null,
+			},
+		} );
 	};
 
 	return (
