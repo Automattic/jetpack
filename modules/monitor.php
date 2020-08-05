@@ -151,9 +151,7 @@ class Jetpack_Monitor {
 	 * @return date in YYYY-MM-DD HH:mm:ss format
 	 */
 	public function monitor_get_last_downtime() {
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
-		) );
+		$xml = new Jetpack_IXR_Client();
 
 		$xml->query( 'jetpack.monitor.getLastDowntime' );
 
