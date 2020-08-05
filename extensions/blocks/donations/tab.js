@@ -22,14 +22,6 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		customAmountText,
 	} = attributes;
 
-	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
-	const minAmount = minimumTransactionAmountForCurrency( currency );
-	const [ defaultAmounts, setDefaultAmounts ] = useState( [
-		minAmount * 10, // 1st tier (USD 5)
-		minAmount * 30, // 2nd tier (USD 15)
-		minAmount * 200, // 3rd tier (USD 100)
-	] );
-
 	const donationAttributes = {
 		'one-time': 'oneTimeDonation',
 		'1 month': 'monthlyDonation',
@@ -49,6 +41,35 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		} );
 	};
 
+	// Updates the amounts whenever there are new defaults due to a currency change.
+	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
+	const minAmount = minimumTransactionAmountForCurrency( currency );
+	const defaultAmounts = [
+		minAmount * 10, // 1st tier (USD 5)
+		minAmount * 30, // 2nd tier (USD 15)
+		minAmount * 200, // 3rd tier (USD 100)
+	];
+	useEffect( () => {
+		if ( previousCurrency === currency ) {
+			return;
+		}
+		setPreviousCurrency( currency );
+
+		setAttributes( {
+			oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
+			monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
+			annualDonation: { ...annualDonation, amounts: defaultAmounts },
+		} );
+	}, [
+		currency,
+		previousCurrency,
+		defaultAmounts,
+		oneTimeDonation,
+		monthlyDonation,
+		annualDonation,
+		setAttributes,
+	] );
+
 	const amounts = getDonationValue( 'amounts' );
 
 	const setAmount = ( amount, tier ) => {
@@ -57,33 +78,14 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		setDonationValue( 'amounts', newAmounts );
 	};
 
-	// Updates the amounts whenever there are new defaults due to a currency change.
-	useEffect( () => {
-		if ( previousCurrency === currency ) {
-			return;
-		}
-		setPreviousCurrency( currency );
-
-		const newDefaultAmounts = [
-			minAmount * 10, // 1st tier (USD 5)
-			minAmount * 30, // 2nd tier (USD 15)
-			minAmount * 200, // 3rd tier (USD 100)
-		];
-		setDefaultAmounts( newDefaultAmounts );
+	// Keeps in sync the donate buttons labels across all intervals once the default value is overridden in one of them.
+	const setButtonText = buttonText => {
 		setAttributes( {
-			oneTimeDonation: { ...oneTimeDonation, amounts: newDefaultAmounts },
-			monthlyDonation: { ...monthlyDonation, amounts: newDefaultAmounts },
-			annualDonation: { ...annualDonation, amounts: newDefaultAmounts },
+			oneTimeDonation: { ...oneTimeDonation, buttonText: buttonText },
+			monthlyDonation: { ...monthlyDonation, buttonText: buttonText },
+			annualDonation: { ...annualDonation, buttonText: buttonText },
 		} );
-	}, [
-		currency,
-		previousCurrency,
-		minAmount,
-		oneTimeDonation,
-		monthlyDonation,
-		annualDonation,
-		setAttributes,
-	] );
+	};
 
 	return (
 		<div className="donations__tab">
@@ -144,7 +146,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 					className="wp-block-button__link"
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
 					value={ getDonationValue( 'buttonText' ) }
-					onChange={ value => setDonationValue( 'buttonText', value ) }
+					onChange={ value => setButtonText( value ) }
 				/>
 			</div>
 		</div>
