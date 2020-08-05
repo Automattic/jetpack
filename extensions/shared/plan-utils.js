@@ -108,6 +108,7 @@ const usableBlockWithFreePlan = [
 	{
 		name: 'core/audio',
 		mediaPlaceholder: true,
+		mediaReplaceFlow: true,
 		fileType: 'audio',
 	},
 ];
