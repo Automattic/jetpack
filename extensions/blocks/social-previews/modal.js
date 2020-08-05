@@ -94,7 +94,7 @@ export default withSelect( ( select, props ) => {
 		return {};
 	}
 
-	const { getMedia, getPostType, getUser } = select( 'core' );
+	const { getMedia, getUser } = select( 'core' );
 	const { getCurrentPost, getCurrentPostId, getEditedPostAttribute } = select( 'core/editor' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
@@ -105,7 +105,6 @@ export default withSelect( ( select, props ) => {
 		post: getCurrentPost(),
 		media: featuredImageId ? getMedia( featuredImageId ) : null,
 		currentPostId: getCurrentPostId(),
-		postType: getPostType( getEditedPostAttribute( 'type' ) ),
 		title: getEditedPostAttribute( 'title' ),
 		description: getEditedPostAttribute( 'excerpt' ) || getEditedPostAttribute( 'content' ),
 		url: getEditedPostAttribute( 'link' ),
