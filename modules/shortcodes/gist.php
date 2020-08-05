@@ -208,12 +208,12 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	$request_code = wp_remote_retrieve_response_code( $request );
 
 	if ( 200 === $request_code ) {
-		$request_body = wp_remote_retrieve_body($request);
-		$request_data = json_decode($request_body);
+		$request_body = wp_remote_retrieve_body( $request );
+		$request_data = json_decode( $request_body );
 
 		wp_enqueue_style( 'jetpack-gist-styling', $request_data->stylesheet );
 
-		$gist = substr_replace( $request_data->div, sprintf( 'style="tab-size: %1$s"', absint( $tab_size ) ), 5, 0);
+		$gist = substr_replace( $request_data->div, sprintf( 'style="tab-size: %1$s" ', absint( $tab_size ) ), 5, 0 );
 
 		// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables.
 		$return = sprintf( '<style>.gist table { margin-bottom: 0; }</style>%1$s', $gist );
