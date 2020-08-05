@@ -8,23 +8,28 @@ import { useContext, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isVideoFile } from './utils';
-import { isUpgradable } from '../../plan-utils';
-import { PremiumBlockContext } from '../../premium-blocks/components';
+import { isFileOfType } from '../get-allowed-mime-types';
+import { isUpgradable, getUsableBlockProps } from '../plan-utils';
+import { PremiumBlockContext } from './components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( 'core/cover' !== name || ! isUpgradable( name ) ) {
+		const usableBlocksProps = getUsableBlockProps( name );
+
+		if ( ! usableBlocksProps?.mediaPlaceholder || ! isUpgradable( name ) ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
+		const { fileType } = usableBlocksProps;
 		const { onError } = props;
+
 		const onBannerVisibilityChange = useContext( PremiumBlockContext );
 
-		const checkUploadingVideoFiles = useCallback( files =>
-			onBannerVisibilityChange( files?.length && isVideoFile( files[ 0 ] ) )
-		, [ onBannerVisibilityChange ] );
+		const checkUploadingVideoFiles = useCallback(
+			files => onBannerVisibilityChange( files?.length && isFileOfType( files[ 0 ], fileType ) ),
+			[ fileType, onBannerVisibilityChange ]
+		);
 
 		/**
 		 * On Uploading error handler.
@@ -38,17 +43,17 @@ export default createHigherOrderComponent(
 		const uploadingErrorHandler = useCallback(
 			message => {
 				const filename = message?.[ 0 ]?.props?.children;
-				if ( isVideoFile( filename ) ) {
+				if ( isFileOfType( filename, fileType ) ) {
 					return checkUploadingVideoFiles( [ filename ] );
 				}
 
 				return onError( message );
 			},
-			[ checkUploadingVideoFiles, onError ]
+			[ checkUploadingVideoFiles, fileType, onError ]
 		);
 
 		return (
-			<div className="jetpack-cover-media-placeholder">
+			<div className="premium-block-media-placeholder">
 				<CoreMediaPlaceholder
 					{ ...props }
 					onFilesPreUpload={ checkUploadingVideoFiles }
@@ -57,5 +62,5 @@ export default createHigherOrderComponent(
 			</div>
 		);
 	},
-	'JetpackCoverMediaPlaceholder'
+	'withMediaPlaceholderUpgradable'
 );

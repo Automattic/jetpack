@@ -19,6 +19,8 @@ import premiumBlockEdit from './edit';
 import renderPremiumIcon from './render-premium-icon.js';
 
 import './editor.scss';
+import premiumBlockMediaPlaceholder from './media-placeholder';
+import premiumBlockMediaReplaceFlow from './media-replace-flow';
 
 const jetpackPremiumBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
@@ -38,6 +40,20 @@ addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPremiumBlock
 
 // Extend BlockListBlock.
 addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', withUpgradeBanner );
+
+// Take the control of the MediaPlaceholder
+addFilter(
+	'editor.MediaPlaceholder',
+	'jetpack/premium-block-media-placeholder',
+	premiumBlockMediaPlaceholder
+);
+
+// Take the control of the MediaReplaceFlow
+addFilter(
+	'editor.MediaReplaceFlow',
+	'jetpack/premium-block-media-placeholder',
+	premiumBlockMediaReplaceFlow
+);
 
 /*
  * Add the `jetpack-enable-upgrade-nudge` css Class

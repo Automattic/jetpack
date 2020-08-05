@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { compact, get, startsWith } from 'lodash';
+import { compact, get, startsWith, map, filter, head } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -83,6 +83,27 @@ export function isUpgradable( name ) {
 	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
 }
 
+/*
+ * Usable blocks list with a free plan.
+ * This array contains blocks that can be usable
+ * even with a free plan, as well as properties
+ * used to handle specific behaviour.
+ */
+const usableBlockWithFreePlan = [
+	{
+		name: 'core/cover',
+		mediaPlaceholder: true,
+		mediaReplaceFlow: true,
+		fileType: 'video',
+	},
+	{
+		name: 'core/audio',
+		mediaPlaceholder: true,
+		mediaReplaceFlow: true,
+		fileType: 'audio',
+	},
+];
+
 /**
  * Return whether upgrade nudges are enabled or not.
  *
@@ -101,6 +122,8 @@ export function isUpgradeNudgeEnabled() {
  * @param {string} name - Block name to check.
  * @returns {boolean} True is the block is usable with a Free plan. Otherwise, False.
  */
-export const isStillUsableWithFreePlan = ( name ) => [
-	'core/cover',
-].includes( name );
+export const isStillUsableWithFreePlan = name =>
+	map( usableBlockWithFreePlan, 'name' ).includes( name );
+
+export const getUsableBlockProps = blockName =>
+	head( filter( usableBlockWithFreePlan, ( { name } ) => name === blockName ) );
