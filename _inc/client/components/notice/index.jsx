@@ -76,9 +76,12 @@ export default class SimpleNotice extends React.Component {
 		return icon;
 	};
 
-	clearText( text ) {
-		return text.replace( /(<([^>]+)>)/gi, '' );
-	}
+	clearText = text => {
+		if ( 'string' === typeof text ) {
+			return text.replace( /(<([^>]+)>)/gi, '' );
+		}
+		return text;
+	};
 
 	render() {
 		const {
