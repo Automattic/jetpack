@@ -16,6 +16,7 @@
 
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 
 if ( defined( 'STATS_VERSION' ) ) {
@@ -895,7 +896,7 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
  * @return void
  */
 function stats_update_blog() {
-	Jetpack::xmlrpc_async_call( 'jetpack.updateBlog', stats_get_blog() );
+	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
 /**
