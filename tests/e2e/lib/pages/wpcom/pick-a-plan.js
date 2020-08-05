@@ -6,7 +6,7 @@ import { waitAndClick, waitForSelector } from '../../page-helper';
 
 export default class PickAPlanPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.plan-features__table button.is-personal-plan:not([disabled])';
+		const expectedSelector = '.plan-features__table button.is-premium-plan:not([disabled])';
 		super( page, { expectedSelector } );
 	}
 
