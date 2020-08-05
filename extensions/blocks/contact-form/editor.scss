@@ -44,7 +44,7 @@
 				flex: 0 0 75%;
 			}
 
-			&[data-type="jetpack/field-checkbox"] {
+			&[data-type="jetpack/field-checkbox"], &[data-type="jetpack/field-consent"] {
 				align-self: center;
 			}
 		}
@@ -180,6 +180,11 @@ input.components-text-control__input {
 	margin: 3px 5px 0 0;
 }
 
+.jetpack-field-consent__checkbox.jetpack-field-consent__checkbox.jetpack-field-consent__checkbox {
+	float: left;
+	margin: 0 5px 0 0;
+}
+
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-field-multiple__list.jetpack-field-multiple__list {
 	list-style-type: none;
@@ -245,18 +250,20 @@ input.components-text-control__input {
 	display: block;
 }
 
-.jetpack-field-checkbox .components-base-control__label {
-	display: flex;
-	align-items: center;
+.jetpack-field-checkbox, .jetpack-field-consent {
+	.components-base-control__label {
+		display: flex;
+		align-items: center;
 
-	.jetpack-field-label {
-		flex-grow:1;
-	}
+  		.jetpack-field-label {
+			flex-grow:1;
+		}
 
-	.jetpack-field-label__input {
-		font-size: 13px;
-		font-weight: 400;
-		padding-left: 10px;
+		.jetpack-field-label__input {
+			font-size: 13px;
+			font-weight: 400;
+			padding-left: 10px;
+		}
 	}
 }
 
