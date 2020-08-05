@@ -38,7 +38,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 
 		$social_icons = Jetpack_AMP_Support::render_sharing_html( '<div class="sd-content"><ul><li>Facebook</li></ul></div>', $services );
 
-		$this->assertEquals( '<div class="sd-content"><amp-social-share type="facebook" height="32px" width="32px" data-param-app_id="249643311490"></amp-social-share></div>', $social_icons );
+		$this->assertEquals( '<div class="sd-content"><amp-social-share type="facebook" height="32px" width="32px" data-param-app_id="249643311490" aria-label="Click to share on Facebook" title="Click to share on Facebook"></amp-social-share></div>', $social_icons );
 
 		// Print.
 		$services = array(
@@ -60,7 +60,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 
 		$social_icons = Jetpack_AMP_Support::render_sharing_html( '<div class="sd-content"><ul><li>Whatsapp</li></ul></div>', $services );
 
-		$this->assertEquals( '<div class="sd-content"><amp-social-share type="whatsapp" height="32px" width="32px"></amp-social-share></div>', $social_icons );
+		$this->assertEquals( '<div class="sd-content"><amp-social-share type="whatsapp" height="32px" width="32px" aria-label="Click to share on WhatsApp" title="Click to share on WhatsApp"></amp-social-share></div>', $social_icons );
 
 		// Pocket.
 		$services = array(
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 
 		$social_icons = Jetpack_AMP_Support::render_sharing_html( '<div class="sd-content"><ul><li>Pocket</li></ul></div>', $services );
 
-		$this->assertEquals( '<div class="sd-content"><amp-social-share type="pocket" height="32px" width="32px" data-share-endpoint="https://getpocket.com/save/?url=http%3A%2F%2Fexample.org%2F%3Fp%3D' . $post->ID . '&amp;title=Test%20post"></amp-social-share></div>', $social_icons );
+		$this->assertEquals( '<div class="sd-content"><amp-social-share type="pocket" height="32px" width="32px" data-share-endpoint="https://getpocket.com/save/?url=http%3A%2F%2Fexample.org%2F%3Fp%3D' . $post->ID . '&amp;title=Test%20post" aria-label="Click to share on Pocket" title="Click to share on Pocket"></amp-social-share></div>', $social_icons );
 
 		// Reset global post.
 		$post = null;
