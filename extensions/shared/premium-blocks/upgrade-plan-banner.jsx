@@ -40,7 +40,7 @@ const UpgradePlanBanner = ( {
 
 		const { id: postId, type: postType } = editorSelector.getCurrentPost();
 		const PLAN_SLUG = 'value_bundle';
-		const plan = planSelector && select( 'wordpress-com/plans' ).getPlan( PLAN_SLUG );
+		const plan = planSelector && planSelector.getPlan( PLAN_SLUG );
 
 		return {
 			checkoutUrl: getUpgradeUrl( { plan, PLAN_SLUG, postId, postType } ),
