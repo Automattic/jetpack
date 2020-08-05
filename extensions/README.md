@@ -187,6 +187,14 @@ const PLAN_DATA = array(
 
 The plan data is found in `class.jetpack-plan.php` for Jetpack and an example of adding the features to WordPress.com plans is in D43206-code.
 
+Also, keep in mind it's possible that some not-register by jetpack blocks should be treated as paid blocks too.
+Blocks that allow uploading video files such as `core/cover`, `core/video`, etc. are a good example.
+In this case, the whole paid-block setting process is handled by the premium-blocks.php file and acts mostly a 
+bridge between the business logic implemented in Jetpack with WordPress.com. It means if you need to define a paid block not registered by Jetpack, then:
+
+* Add the feature like this implementation (D43206-code).
+* Populate the paid blocks list with the feature/block name.   
+
 ### Upgrades
 Paid blocks that aren't supported by a user's plan will still be registered for use in the block editor, but will not be displayed by default.
 
