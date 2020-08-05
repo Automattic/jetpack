@@ -25,7 +25,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal } ) {
 					'jetpack'
 				) }
 			</p>
-			<div>
+			<div className="jetpack-gutenberg-social-icons">
 				{ AVAILABLE_SERVICES.map( service => (
 					<SocialServiceIcon
 						key={ service.icon }
@@ -34,7 +34,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal } ) {
 					/>
 				) ) }
 			</div>
-			<Button isTertiary onClick={ openModal } label={ __( 'Open Social Previews', 'jetpack' ) }>
+			<Button isSecondary onClick={ openModal } label={ __( 'Open Social Previews', 'jetpack' ) }>
 				{ __( 'Preview', 'jetpack' ) }
 			</Button>
 		</div>
