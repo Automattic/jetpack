@@ -17,6 +17,9 @@ import { AVAILABLE_SERVICES } from './constants';
 import { SocialServiceIcon } from '../../shared/icons';
 
 const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgradeNudge } ) {
+	const buttonText = showUpgradeNudge ? __( 'Learn more', 'jetpack' ) : __( 'Preview', 'jetpack' );
+	const buttonLabel = showUpgradeNudge ? __( 'Learn more about paid plans', 'jetpack' ) : __( 'Open Social Previews', 'jetpack' );
+
 	return (
 		<div className="jetpack-social-previews__panel">
 			<p>
@@ -40,15 +43,9 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgra
 				) ) }
 			</div>
 
-			{ showUpgradeNudge ? (
-				<Button isSecondary label={ __( 'Learn more about paid plans', 'jetpack' ) }>
-					{ __( 'Learn more', 'jetpack' ) }
-				</Button>
-			) : (
-				<Button isSecondary onClick={ openModal } label={ __( 'Open Social Previews', 'jetpack' ) }>
-					{ __( 'Preview', 'jetpack' ) }
-				</Button>
-			) }
+			<Button isSecondary onClick={ openModal } label={ buttonLabel }>
+				{ buttonText }
+			</Button>
 		</div>
 	);
 };
