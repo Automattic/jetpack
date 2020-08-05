@@ -50,13 +50,13 @@ export default function getAllowedMimeTypesBySite() {
 }
 
 /**
- * Check if the given file is a video.
+ * Check if the given file matches with the file type.
  *
  * @param   {string|object} file - File to check.
  * @param   {string}        type - File type used to check the file.
  * @returns {boolean}       True if file type matches with the given type. Otherwise, False.
  */
-export function checkFileType( file, type ) {
+export function isFileOfType( file, type ) {
 	if ( ! file || ! type ) {
 		return false;
 	}
