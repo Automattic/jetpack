@@ -536,7 +536,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div style="tab-size: 1" id="gist', $shortcode_content );
+		$this->assertContains( '<div style="tab-size: 4" id="gist', $shortcode_content );
 
 		// Test AMP version *lacks* tab size.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
