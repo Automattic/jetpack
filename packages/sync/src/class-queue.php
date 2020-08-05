@@ -649,7 +649,8 @@ class Queue {
 	private function fetch_items_by_id( $items_ids ) {
 		global $wpdb;
 
-		if ( empty( $items_ids ) ) {
+		// return early if $items_ids is empty or not an array.
+		if ( empty( $items_ids ) || ! is_array( $items_ids ) ) {
 			return null;
 		}
 
