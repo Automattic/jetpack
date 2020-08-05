@@ -35,6 +35,7 @@ import {
 import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
 import CRMConnectionSettings from './components/jetpack-crm-connection-settings';
+import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import { isSimpleSite } from '../../shared/site-type-utils';
 
 const ALLOWED_BLOCKS = [
@@ -323,6 +324,9 @@ function JetpackContactFormEdit( {
 				{ ! isSimpleSite() && (
 					<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 				) }
+				<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
+					<NewsletterIntegrationSettings />
+				</PanelBody>
 			</InspectorControls>
 
 			<div className={ formClassnames }>
