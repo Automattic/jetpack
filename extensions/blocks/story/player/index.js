@@ -33,7 +33,8 @@ const defaultSettings = {
 	shadowDOM: {
 		enabled: true,
 		mode: 'open', // closed not supported right now
-		globalStyleElements: '#jetpack-block-story-css',
+		globalStyleElements:
+			'#jetpack-block-story-css, link[href*="jetpack/_inc/blocks/story/view.css"]',
 	},
 	defaultAspectRatio: 720 / 1280,
 	volume: 0.5,

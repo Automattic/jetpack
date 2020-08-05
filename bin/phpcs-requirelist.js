@@ -76,7 +76,7 @@ module.exports = [
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',
-	'tests/e2e/plugins/e2e-plan-data-interceptor.php',
+	'tests/e2e/plugins',
 	'tests/php/general/test-class.jetpack-network.php',
 	'tests/php/test_class.jetpack_photon.php',
 	'views/admin/deactivation-dialog.php',

@@ -7,7 +7,7 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { Button } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -23,7 +23,7 @@ const Tabs = props => {
 	const { oneTimePlanId, monthlyPlanId, annuallyPlanId } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 
-	const isTabActive = tab => activeTab === tab;
+	const isTabActive = useCallback( tab => activeTab === tab, [ activeTab ] );
 
 	const tabs = {
 		'one-time': { title: __( 'One-Time', 'jetpack' ) },
@@ -35,14 +35,16 @@ const Tabs = props => {
 	useEffect( () => {
 		// Since there is no setting for disabling the one-time option, we can assume that the block has been just
 		// inserted if the attribute `oneTimePlanId` is not set.
-		if ( ! oneTimePlanId ) {
-			setAttributes( {
-				oneTimePlanId: products[ 'one-time' ],
-				monthlyPlanId: products[ '1 month' ],
-				annuallyPlanId: products[ '1 year' ],
-			} );
+		if ( oneTimePlanId ) {
+			return;
 		}
-	}, [ oneTimePlanId ] );
+
+		setAttributes( {
+			oneTimePlanId: products[ 'one-time' ],
+			monthlyPlanId: products[ '1 month' ],
+			annuallyPlanId: products[ '1 year' ],
+		} );
+	}, [ oneTimePlanId, products, setAttributes ] );
 
 	// Sets the plans when Stripe has been connected (we use fake plans while Stripe is not connected so user can still try the block).
 	useEffect( () => {
@@ -53,7 +55,7 @@ const Tabs = props => {
 				...( annuallyPlanId && { annuallyPlanId: products[ '1 year' ] } ),
 			} );
 		}
-	}, [ oneTimePlanId, monthlyPlanId, annuallyPlanId ] );
+	}, [ oneTimePlanId, monthlyPlanId, annuallyPlanId, setAttributes, products ] );
 
 	// Activates the one-time tab if the interval of the current active tab is disabled.
 	useEffect( () => {
@@ -64,7 +66,7 @@ const Tabs = props => {
 		if ( ! annuallyPlanId && isTabActive( '1 year' ) ) {
 			setActiveTab( 'one-time' );
 		}
-	}, [ monthlyPlanId, annuallyPlanId ] );
+	}, [ monthlyPlanId, annuallyPlanId, setActiveTab, isTabActive ] );
 
 	return (
 		<div className={ className }>
@@ -80,6 +82,7 @@ const Tabs = props => {
 									'is-active': isTabActive( interval ),
 								} ) }
 								onClick={ () => setActiveTab( interval ) }
+								key={ `jetpack-donations-tab-${ interval } ` }
 							>
 								{ title }
 							</Button>
@@ -88,9 +91,7 @@ const Tabs = props => {
 				) }
 				<div className="donations__content">
 					<Context.Provider value={ { activeTab } }>
-						{ Object.keys( tabs ).map( interval => (
-							<Tab { ...props } interval={ interval } />
-						) ) }
+						<Tab attributes={ attributes } setAttributes={ setAttributes } />
 					</Context.Provider>
 				</div>
 			</div>

@@ -12,7 +12,7 @@
 @import 'functions/rem';
 
 // Variables
-@import '../../../node_modules/@automattic/calypso-color-schemes/src/__color-studio/color-variables.scss';
+@import '../../../node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import 'variables/colors';
 @import 'variables/layout';
 
@@ -20,6 +20,9 @@
 @import 'mixins/breakpoints';
 @import 'mixins/clear-fix';
 @import 'mixins/long-content-fade';
+
+// Typography
+@import 'typography';
 
 // General
 @import 'shared/main';

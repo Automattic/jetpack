@@ -3,11 +3,13 @@
  */
 import Page from '../page';
 import { isEventuallyVisible, waitAndClick } from '../../page-helper';
+import { getNgrokSiteUrl } from '../../utils-helper';
 
 export default class DashboardPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '#dashboard-widgets-wrap';
-		super( page, { expectedSelector } );
+		const url = getNgrokSiteUrl() + '/wp-admin';
+		super( page, { expectedSelector, url } );
 	}
 
 	async isConnectBannerVisible() {

@@ -135,6 +135,8 @@ configure_wp_env() {
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
 	fi
 
+	yarn wp-env run tests-cli wp plugin activate jetpack-dev
+
 	echo
 	status_message "Open ${WP_SITE_URL} to see your site!"
 	echo
