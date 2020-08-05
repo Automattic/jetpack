@@ -669,7 +669,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
 	$timeout = 90;
-	$user_id = JETPACK_MASTER_USER; // means send the wp.com user_id
+	$user_id = 0; // Means use the blog token.
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
@@ -1307,7 +1307,7 @@ function stats_dashboard_widget_content() {
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
 	$timeout = 90;
-	$user_id = JETPACK_MASTER_USER;
+	$user_id = 0; // Means use the blog token.
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
