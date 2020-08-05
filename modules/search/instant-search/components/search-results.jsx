@@ -75,7 +75,6 @@ class SearchResults extends Component {
 					locale={ this.props.locale }
 					postTypes={ this.props.postTypes }
 					onChangeSort={ this.props.onChangeSort }
-					overlayTrigger={ this.props.overlayTrigger }
 					response={ this.props.response }
 					sort={ this.props.sort }
 					widgets={ this.props.widgets }

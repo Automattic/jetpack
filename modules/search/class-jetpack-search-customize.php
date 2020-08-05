@@ -96,29 +96,6 @@ class Jetpack_Search_Customize {
 			)
 		);
 
-		$id = $setting_prefix . 'overlay_trigger';
-		$wp_customize->add_setting(
-			$id,
-			array(
-				'default'   => 'results',
-				'transport' => 'postMessage',
-				'type'      => 'option',
-			)
-		);
-		$wp_customize->add_control(
-			$id,
-			array(
-				'label'       => __( 'Search Overlay Trigger', 'jetpack' ),
-				'description' => __( 'Select when your overlay should appear.', 'jetpack' ),
-				'section'     => $section_id,
-				'type'        => 'select',
-				'choices'     => array(
-					'immediate' => __( 'Open immediately', 'jetpack' ),
-					'results'   => __( 'Open when results are available', 'jetpack' ),
-				),
-			)
-		);
-
 		$id = $setting_prefix . 'excluded_post_types';
 		$wp_customize->add_setting(
 			$id,
