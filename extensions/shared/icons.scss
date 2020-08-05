@@ -4,18 +4,18 @@
 	fill: $dark-gray-500;
 
 	&.is-facebook {
-		fill: var( --color-facebook );
+		fill: #39579a;
 	}
 	&.is-twitter {
-		fill: var( --color-twitter );
+		fill: #55acee;
 	}
 	&.is-linkedin {
-		fill: var( --color-linkedin );
+		fill: #0976b4;
 	}
 	&.is-tumblr {
-		fill: var( --color-tumblr );
+		fill: #35465c;
 	}
 	&.is-google {
-		fill: var( --color-gplus );
+		fill: #4285f4;
 	}
 }
