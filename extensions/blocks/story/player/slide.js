@@ -32,7 +32,8 @@ export const Slide = ( {
 	const mediaRef = useRef( null );
 	const [ preload, setPreload ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
-	const isVideo = () => mediaRef.current && mediaRef.current.tagName.toLowerCase() === 'video';
+	const isVideo = () =>
+		mediaRef.current && mediaRef.current.src && mediaRef.current.tagName.toLowerCase() === 'video';
 
 	const [ progressState, updateProgressState ] = useState( {
 		currentTime: 0,
@@ -41,6 +42,7 @@ export const Slide = ( {
 	} );
 
 	// Sync playing state with underlying HTMLMediaElement
+	// AJAX loading will pause the video when the video src attribute is modified
 	useEffect( () => {
 		if ( isVideo() ) {
 			if ( currentSlidePlaying ) {
@@ -49,7 +51,7 @@ export const Slide = ( {
 				mediaRef.current.pause();
 			}
 		}
-	}, [ currentSlidePlaying ] );
+	}, [ currentSlidePlaying, loading ] );
 
 	// Display end of video on last slide when story ends
 	useLayoutEffect( () => {
@@ -158,7 +160,7 @@ export const Slide = ( {
 		if ( ! mediaRef.current ) {
 			return;
 		}
-		waitMediaReady( mediaRef.current ).then( () => {
+		waitMediaReady( mediaRef.current, true ).then( () => {
 			setLoading( false );
 		} );
 	}, [ preload, uploading ] );
