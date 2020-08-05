@@ -66,7 +66,9 @@ const SocialPreviewsModal = function SocialPreviewsModal( props ) {
 			className="jetpack-social-previews__modal"
 		>
 			{ showUpgradeNudge ? (
-				<p>Upgrade Needed</p>
+				<div className="jetpack-social-previews__modal-upgrade">
+					{ /* TODO: Add upgrade nudge. */ }
+				</div>
 			) : (
 				<TabPanel className="jetpack-social-previews__tabs" tabs={ AVAILABLE_SERVICES }>
 					{ tab => (
