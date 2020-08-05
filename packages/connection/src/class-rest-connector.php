@@ -64,8 +64,8 @@ class REST_Connector {
 			'jetpack/v4',
 			'/remote_authorize',
 			array(
-				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => __CLASS__ . '::remote_authorize',
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::remote_authorize',
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -75,8 +75,8 @@ class REST_Connector {
 			'jetpack/v4',
 			'/connection',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => __CLASS__ . '::connection_status',
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::connection_status',
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -91,6 +91,23 @@ class REST_Connector {
 				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 			)
 		);
+
+		// Full or partial reconnect in case of connection issues.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/reconnect',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'connection_reconnect' ),
+				'args'                => array(
+					'action' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+				'permission_callback' => __CLASS__ . '::jetpack_disconnect_permission_check',
+			)
+		);
 	}
 
 	/**
@@ -98,11 +115,11 @@ class REST_Connector {
 	 *
 	 * @since 5.4.0
 	 *
-	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return string|WP_Error
 	 */
-	public function verify_registration( \WP_REST_Request $request ) {
+	public function verify_registration( WP_REST_Request $request ) {
 		$registration_data = array( $request['secret_1'], $request['state'] );
 
 		return $this->connection->handle_registration( $registration_data );
@@ -133,25 +150,36 @@ class REST_Connector {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return WP_REST_Response Connection information.
+	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
+	 *
+	 * @return WP_REST_Response|array Connection information.
 	 */
-	public static function connection_status() {
+	public static function connection_status( $rest_response = true ) {
 		$status     = new Status();
 		$connection = new Manager();
 
-		return rest_ensure_response(
-			array(
-				'isActive'     => $connection->is_active(),
-				'isStaging'    => $status->is_staging_site(),
-				'isRegistered' => $connection->is_registered(),
-				'devMode'      => array(
-					'isActive' => $status->is_development_mode(),
-					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-					'url'      => site_url() && false === strpos( site_url(), '.' ),
-					'filter'   => apply_filters( 'jetpack_development_mode', false ),
-				),
-			)
+		$connection_status = array(
+			'isActive'     => $connection->is_active(),
+			'isStaging'    => $status->is_staging_site(),
+			'isRegistered' => $connection->is_registered(),
+			'offlineMode'  => array(
+				'isActive'        => $status->is_offline_mode(),
+				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+				'url'             => $status->is_local_site(),
+				/** This filter is documented in packages/status/src/class-status.php */
+				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
+				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
+			),
+			'isPublic'     => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 		);
+
+		if ( $rest_response ) {
+			return rest_ensure_response(
+				$connection_status
+			);
+		} else {
+			return $connection_status;
+		}
 	}
 
 
@@ -184,7 +212,7 @@ class REST_Connector {
 	 *
 	 * @since 8.8.0
 	 *
-	 * @return bool|WP_Error Whether user has the capability 'jetpack_admin_page' and 'activate_plugins'.
+	 * @return bool|WP_Error Whether user has the capability 'activate_plugins'.
 	 */
 	public static function activate_plugins_permission_check() {
 		if ( current_user_can( 'activate_plugins' ) ) {
@@ -195,12 +223,60 @@ class REST_Connector {
 	}
 
 	/**
+	 * Verify that user is allowed to disconnect Jetpack.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
+	 */
+	public static function jetpack_disconnect_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
 	 * Returns generic error message when user is not allowed to perform an action.
 	 *
 	 * @return string The error message.
 	 */
 	public static function get_user_permissions_error_msg() {
 		return self::$user_permissions_error_msg;
+	}
+
+	/**
+	 * The endpoint tried to partially or fully reconnect the website to WP.com.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function connection_reconnect( WP_REST_Request $request ) {
+		$params = $request->get_json_params();
+
+		$response = array();
+
+		switch ( $params['action'] ) {
+			case 'reconnect':
+				$result = $this->connection->reconnect();
+
+				if ( true === $result ) {
+					$response['status']       = 'in_progress';
+					$response['authorizeUrl'] = $this->connection->get_authorization_url();
+				} elseif ( is_wp_error( $result ) ) {
+					$response = $result;
+				}
+				break;
+			default:
+				$response = new WP_Error( 'Unknown action' );
+				break;
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 }

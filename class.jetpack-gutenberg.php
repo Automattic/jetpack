@@ -562,7 +562,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load() {
-		if ( ! Jetpack::is_active() && ! ( new Status() )->is_development_mode() ) {
+		if ( ! Jetpack::is_active() && ! ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 
@@ -697,7 +697,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! ( new Status() )->is_development_mode() && Jetpack::is_active() ) {
+		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_active() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 

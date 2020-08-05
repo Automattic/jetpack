@@ -31,7 +31,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 					hideButton
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ { module: 'google-analytics' } }
 						support={ {
 							text: __(
@@ -57,7 +57,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							}
 						) }
 					</SettingsGroup>
-					{ ! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
+					{ ! this.props.isUnavailableInOfflineMode( 'google-analytics' ) && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"

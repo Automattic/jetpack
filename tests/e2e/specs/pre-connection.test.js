@@ -11,13 +11,12 @@ import { execWpCommand } from '../lib/utils-helper';
 describe( 'Jetpack pre-connection', () => {
 	catchBeforeAll( async () => {
 		await execWpCommand( 'wp option delete jetpack_private_options' );
-		page.reload();
+		await page.reload();
 	} );
 
 	afterAll( async () => {
 		await execWpCommand(
-			'wp option update jetpack_private_options --format=json',
-			'< jetpack_private_options.txt'
+			'wp option update jetpack_private_options --format=json < jetpack_private_options.txt'
 		);
 	} );
 

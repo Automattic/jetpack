@@ -1,6 +1,8 @@
 @import '../../scss/layout';
 @import "../../scss/variables/colors";
 @import "../../scss/color-functions";
+@import "../../scss/functions/rem";
+@import "../../scss/typography";
 
 @mixin banner-color( $color ) {
 	border-left-color: $color;
@@ -146,17 +148,17 @@
 	}
 
 	.dops-banner__title {
-		font-size: 14px;
+		font-size: $font-body-small;
 		font-weight: 500;
 	}
 
 	.dops-banner__description {
-		font-size: 12px;
+		font-size: $font-body-extra-small;
 		margin-top: 3px;
 	}
 
 	.dops-banner__list {
-		font-size: 12px;
+		font-size: $font-body-extra-small;
 		list-style: none;
 		margin: 0;
 		li {
@@ -181,7 +183,7 @@
 
 .dops-banner__action {
 	align-self: center;
-	font-size: 12px;
+	font-size: $font-body-extra-small;
 	margin: 8px 0 0 0;
 	text-align: left;
 	width: 100%;

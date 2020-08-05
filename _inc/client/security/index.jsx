@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
-import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isOfflineMode, isUnavailableInOfflineMode } from 'state/connection';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isModuleFound } from 'state/search';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
@@ -65,8 +65,8 @@ export class Security extends Component {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
-			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isOfflineMode: this.props.isOfflineMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			rewindStatus: this.props.rewindStatus,
 			siteRawUrl: this.props.siteRawUrl,
 		};
@@ -142,8 +142,8 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
 		sitePlan: getSitePlan( state ),
-		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),

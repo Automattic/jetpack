@@ -8,7 +8,8 @@ import {
 	getSiteConnectionStatus,
 	getConnectUrl,
 	isCurrentUserLinked,
-	isAuthorizingUserInPlace
+	isAuthorizingUserInPlace,
+	isReconnectingSite,
 } from '../reducer';
 
 let state = {
@@ -20,11 +21,12 @@ let state = {
 				unlinkingUser: true,
 				fetchingUserData: true,
 				authorizingUserInPlace: true,
+				reconnectingSite: true,
 			},
 			status: {
 				siteConnected: {
 					isActive: true,
-					devMode: {
+					offlineMode: {
 						isActive: false
 					}
 				}
@@ -45,6 +47,14 @@ describe( 'requests selectors', () => {
 			const stateIn = state;
 			const output = isDisconnectingSite( stateIn );
 			expect( output ).to.be.equal( state.jetpack.connection.requests.disconnectingSite );
+		} );
+	} );
+
+	describe( '#isReconnectingSite', () => {
+		it( 'should return state.jetpack.connection.requests.reconnectingSite', () => {
+			const stateIn = state;
+			const output = isReconnectingSite( stateIn );
+			expect( output ).to.be.equal( state.jetpack.connection.requests.reconnectingSite );
 		} );
 	} );
 

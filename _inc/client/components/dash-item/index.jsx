@@ -17,7 +17,7 @@ import Card from 'components/card';
 import { getModule as _getModule } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 import { ModuleToggle } from 'components/module-toggle';
 import ProStatus from 'pro-status';
 import SectionHeader from 'components/section-header';
@@ -77,7 +77,7 @@ export class DashItem extends Component {
 					[ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ],
 					this.props.module
 				) &&
-					this.props.isDevMode ) ||
+					this.props.isOfflineMode ) ||
 				// Avoid toggle for manage as it's no longer a module
 				'manage' === this.props.module ? (
 					''
@@ -96,13 +96,13 @@ export class DashItem extends Component {
 					toggle = (
 						<a
 							href={
-								this.props.isDevMode
+								this.props.isOfflineMode
 									? this.props.siteAdminUrl + 'update-core.php'
 									: getRedirectUrl( 'calypso-plugins-manage', { site: this.props.siteRawUrl } )
 							}
 						>
 							<SimpleNotice showDismiss={ false } status={ this.props.status } isCompact={ true }>
-								{ __( 'Updates needed', { context: 'Short warning message' } ) }
+								{ _x( 'Updates needed', 'Short warning message', 'jetpack' ) }
 							</SimpleNotice>
 						</a>
 					);
@@ -119,7 +119,7 @@ export class DashItem extends Component {
 			}
 		}
 
-		if ( this.props.pro && ! this.props.isDevMode ) {
+		if ( this.props.pro && ! this.props.isOfflineMode ) {
 			proButton = (
 				<Button onClick={ this.trackPaidBtnClick } compact={ true } href="#/plans">
 					{ _x(
@@ -166,7 +166,7 @@ export class DashItem extends Component {
 export default connect( state => {
 	return {
 		getModule: module_name => _getModule( state, module_name ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		userCanToggle: userCanManageModules( state ),
 		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),

@@ -50,6 +50,7 @@ class Autoloader_Handler {
 		global $jetpack_autoloader_latest_version;
 
 		$current_autoloader_path = trailingslashit( dirname( __FILE__ ) ) . 'autoload_packages.php';
+		$current_autoloader_path = str_replace( '\\', '/', $current_autoloader_path );
 
 		$selected_autoloader_version = null;
 		$selected_autoloader_path    = null;

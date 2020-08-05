@@ -16,6 +16,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { __, _x } from '@wordpress/i18n';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
+import { SUPPORTED_CURRENCIES, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import './editor.scss';
 
 export const name = 'recurring-payments';
@@ -63,36 +64,6 @@ export const settings = {
 };
 
 /**
- * Currencies we support and Stripe's minimum amount for a transaction in that currency.
- *
- * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
- *
- * List has to be in sync with the Memberships library in WP.com.
- * @see Memberships_Product::SUPPORTED_CURRENCIES
- *
- * @type { [currency: string]: number }
- */
-export const SUPPORTED_CURRENCIES = {
-	USD: 0.5,
-	AUD: 0.5,
-	BRL: 0.5,
-	CAD: 0.5,
-	CHF: 0.5,
-	DKK: 2.5,
-	EUR: 0.5,
-	GBP: 0.3,
-	HKD: 4.0,
-	INR: 0.5,
-	JPY: 50,
-	MXN: 10,
-	NOK: 3.0,
-	NZD: 0.5,
-	PLN: 2.0,
-	SEK: 3.0,
-	SGD: 0.5,
-};
-
-/**
  * Compute a list of currency value and display labels.
  *
  * - `value` is the currency's three character code
@@ -107,18 +78,6 @@ export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value =
 	const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
 	return { value, label };
 } );
-
-/**
- * Returns the minimum transaction amount for the given currency. If currency is not one of the
- * known types it returns ...
- *
- * @param {string} currency_code three character currency code to get minimum charge for
- * @return {number} Minimum charge amount for the given currency_code
- */
-export function minimumTransactionAmountForCurrency( currency_code ) {
-	const minimum = SUPPORTED_CURRENCIES[ currency_code ];
-	return minimum;
-}
 
 /**
  * True if the price is a number and at least the minimum allowed amount.

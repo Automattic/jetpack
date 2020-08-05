@@ -19,6 +19,10 @@ add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 1, 3 );
  * @param string $url request URL.
  */
 function e2e_intercept_plan_data_request( $return, $r, $url ) {
+	if ( ! class_exists( 'Jetpack_Options' ) ) {
+		return $return;
+	}
+
 	$site_id = Jetpack_Options::get_option( 'id' );
 
 	if ( empty( $site_id ) ) {

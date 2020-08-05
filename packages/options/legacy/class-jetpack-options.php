@@ -167,7 +167,8 @@ class Jetpack_Options {
 	}
 
 	/**
-	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
+	 * Filters the requested option.
+	 * This is a wrapper around `get_option_from_database` so that we can filter the option.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
 	 * @param mixed  $default (optional).
@@ -175,6 +176,28 @@ class Jetpack_Options {
 	 * @return mixed
 	 */
 	public static function get_option( $name, $default = false ) {
+		/**
+		 * Filter Jetpack Options.
+		 * Can be useful in environments when Jetpack is running with a different setup
+		 *
+		 * @since 8.8.0
+		 *
+		 * @param string $value The value from the database.
+		 * @param string $name Option name, _without_ `jetpack_%` prefix.
+		 * @return string $value, unless the filters modify it.
+		 */
+		return apply_filters( 'jetpack_options', self::get_option_from_database( $name, $default ), $name );
+	}
+
+	/**
+	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
+	 *
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
+	 * @param mixed  $default (optional).
+	 *
+	 * @return mixed
+	 */
+	private static function get_option_from_database( $name, $default = false ) {
 		if ( self::is_valid( $name, 'non_compact' ) ) {
 			if ( self::is_network_option( $name ) ) {
 				return get_site_option( "jetpack_$name", $default );

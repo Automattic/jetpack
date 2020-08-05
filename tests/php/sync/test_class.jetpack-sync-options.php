@@ -57,6 +57,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_default_options() {
+		global $wp_version;
+
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
 		$options = array(
@@ -118,7 +120,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'moderation_notify'                        => 'pineapple',
 			'social_notifications_reblog'              => 'pineapple',
 			'social_notifications_subscribe'           => 'pineapple',
-			'comment_whitelist'                        => 'pineapple',
+			'comment_previously_approved'              => 'pineapple',
 			'comment_max_links'                        => 99,
 			'moderation_keys'                          => 'pineapple',
 			'jetpack_wga'                              => 'pineapple',
@@ -174,7 +176,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_api_cache_enabled'                => '1',
 			'sidebars_widgets'                         => array( 'array_version' => 3 ),
 			'start_of_week'                            => '0',
-			'blacklist_keys'                           => '',
+			'disallowed_keys'                          => '',
 			'posts_per_page'                           => '1',
 			'posts_per_rss'                            => '1',
 			'show_on_front'                            => '0',
@@ -211,6 +213,12 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_connection_active_plugins'        => array( 'jetpack' ),
 			'jetpack_sync_non_blocking'                => false,
 		);
+
+		// Options Deprecated in WP 5.5.
+		if ( version_compare( $wp_version, '5.5-alpha', '<=' ) ) {
+			$options['blacklist_keys']    = '';
+			$options['comment_whitelist'] = 'pineapple';
+		}
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
 		$options[ $theme_mod_key ] = 'pineapple';

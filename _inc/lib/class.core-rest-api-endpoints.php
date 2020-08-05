@@ -5,7 +5,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Status;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -102,7 +101,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => __CLASS__ . '::delete_jitm_message',
-			'permission_callback' => '__return_true',
+			'permission_callback' => __CLASS__ . '::delete_jitm_message_permission_callback',
 		) );
 
 		// Test current connection status of Jetpack
@@ -702,8 +701,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Dismisses a jitm
-	 * @param $request WP_REST_Request The request
+	 * Dismisses a jitm.
+	 *
+	 * @param WP_REST_Request $request The request.
 	 *
 	 * @return bool Always True
 	 */
@@ -882,6 +882,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
+	}
+
+	/**
+	 * Verify that the user can dismiss JITM messages.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool|WP_Error True if user is able to dismiss JITM messages.
+	 */
+	public static function delete_jitm_message_permission_callback() {
+		if ( current_user_can( 'read' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_jetpack_delete_jitm_message', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1079,8 +1094,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response Connection information.
 	 */
 	public static function jetpack_connection_status() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::rest_authorization_required_code' );
-
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_status' );
 		return REST_Connector::connection_status();
 	}
 

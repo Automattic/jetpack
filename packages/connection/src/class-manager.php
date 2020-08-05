@@ -808,7 +808,7 @@ class Manager {
 	 * WordPress.com.
 	 *
 	 * @param String $api_endpoint (optional) an API endpoint to use, defaults to 'register'.
-	 * @return Integer zero on success, or a bitmask on failure.
+	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
@@ -847,20 +847,21 @@ class Manager {
 		$body = apply_filters(
 			'jetpack_register_request_body',
 			array(
-				'siteurl'         => site_url(),
-				'home'            => home_url(),
-				'gmt_offset'      => $gmt_offset,
-				'timezone_string' => (string) get_option( 'timezone_string' ),
-				'site_name'       => (string) get_option( 'blogname' ),
-				'secret_1'        => $secrets['secret_1'],
-				'secret_2'        => $secrets['secret_2'],
-				'site_lang'       => get_locale(),
-				'timeout'         => $timeout,
-				'stats_id'        => $stats_id,
-				'state'           => get_current_user_id(),
-				'site_created'    => $this->get_assumed_site_creation_date(),
-				'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
-				'ABSPATH'         => Constants::get_constant( 'ABSPATH' ),
+				'siteurl'            => site_url(),
+				'home'               => home_url(),
+				'gmt_offset'         => $gmt_offset,
+				'timezone_string'    => (string) get_option( 'timezone_string' ),
+				'site_name'          => (string) get_option( 'blogname' ),
+				'secret_1'           => $secrets['secret_1'],
+				'secret_2'           => $secrets['secret_2'],
+				'site_lang'          => get_locale(),
+				'timeout'            => $timeout,
+				'stats_id'           => $stats_id,
+				'state'              => get_current_user_id(),
+				'site_created'       => $this->get_assumed_site_creation_date(),
+				'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
+				'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
+				'current_user_email' => wp_get_current_user()->user_email,
 			)
 		);
 
@@ -1110,16 +1111,16 @@ class Manager {
 	 * @param array    $args    Adds the context to the cap. Typically the object ID.
 	 */
 	public function jetpack_connection_custom_caps( $caps, $cap, $user_id, $args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$is_development_mode = ( new Status() )->is_development_mode();
+		$is_offline_mode = ( new Status() )->is_offline_mode();
 		switch ( $cap ) {
 			case 'jetpack_connect':
 			case 'jetpack_reconnect':
-				if ( $is_development_mode ) {
+				if ( $is_offline_mode ) {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
-				// Pass through. If it's not development mode, these should match disconnect.
-				// Let users disconnect if it's development mode, just in case things glitch.
+				// Pass through. If it's not offline mode, these should match disconnect.
+				// Let users disconnect if it's offline mode, just in case things glitch.
 			case 'jetpack_disconnect':
 				/**
 				 * Filters the jetpack_disconnect capability.
@@ -1131,7 +1132,7 @@ class Manager {
 				$caps = apply_filters( 'jetpack_disconnect_cap', array( 'manage_options' ) );
 				break;
 			case 'jetpack_connect_user':
-				if ( $is_development_mode ) {
+				if ( $is_offline_mode ) {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
@@ -1459,6 +1460,18 @@ class Manager {
 		$this->delete_all_connection_tokens();
 
 		return true;
+	}
+
+	/**
+	 * Completely clearing up the connection, and initiating reconnect.
+	 *
+	 * @return true|WP_Error True if reconnected successfully, a `WP_Error` object otherwise.
+	 */
+	public function reconnect() {
+		$this->disconnect_site_wpcom( true );
+		$this->delete_all_connection_tokens( true );
+
+		return $this->register();
 	}
 
 	/**
@@ -2139,23 +2152,26 @@ class Manager {
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens' );
+				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
-					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option' );
+					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( 'No token for user %d', $user_id ) );
+				// translators: %s is the user ID.
+				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( __( 'No token for user %d', 'jetpack' ), $user_id ) );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( 'Token for user %d is malformed', $user_id ) );
+				// translators: %s is the user ID.
+				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( __( 'Token for user %d is malformed', 'jetpack' ), $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
-				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
+				// translators: %1$d is the ID of the requested user. %2$d is the user ID found in the token.
+				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( __( 'Requesting user_id %1$d does not match token user_id %2$d', 'jetpack' ), $user_id, $user_token_chunks[2] ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
@@ -2185,7 +2201,8 @@ class Manager {
 		}
 
 		if ( ! $possible_tokens ) {
-			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens' );
+			// If no user tokens were found, it would have failed earlier, so this is about blog token.
+			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens', __( 'No blog token found', 'jetpack' ) );
 		}
 
 		$valid_token = false;
@@ -2210,7 +2227,12 @@ class Manager {
 		}
 
 		if ( ! $valid_token ) {
-			return $suppress_errors ? false : new \WP_Error( 'no_valid_token' );
+			if ( $user_id ) {
+				// translators: %d is the user ID.
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
+			} else {
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', __( 'Invalid blog token', 'jetpack' ) );
+			}
 		}
 
 		return (object) array(

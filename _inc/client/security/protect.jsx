@@ -75,12 +75,12 @@ export const Protect = withModuleSettingsFormHelpers(
 
 		render() {
 			const isProtectActive = this.props.getOptionValue( 'protect' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'protect' ),
+				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'protect' ),
 				toggle = (
 					<ModuleToggle
 						slug="protect"
 						compact
-						disabled={ unavailableInDevMode }
+						disabled={ unavailableInOfflineMode }
 						activated={ isProtectActive }
 						toggling={ this.props.isSavingAnyOption( 'protect' ) }
 						toggleModule={ this.props.toggleModuleNow }
@@ -100,11 +100,11 @@ export const Protect = withModuleSettingsFormHelpers(
 					<FoldableCard
 						onOpen={ this.trackOpenCard }
 						header={ toggle }
-						className={ classNames( { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
+						className={ classNames( { 'jp-foldable-settings-disable': unavailableInOfflineMode } ) }
 					>
 						<SettingsGroup
 							hasChild
-							disableInDevMode
+							disableInOfflineMode
 							module={ this.props.getModule( 'protect' ) }
 							support={ {
 								text: __(
@@ -128,7 +128,7 @@ export const Protect = withModuleSettingsFormHelpers(
 											<Button
 												disabled={
 													! isProtectActive ||
-													unavailableInDevMode ||
+													unavailableInOfflineMode ||
 													this.currentIpIsSafelisted() ||
 													this.props.isSavingAnyOption( [
 														'protect',
@@ -147,7 +147,7 @@ export const Protect = withModuleSettingsFormHelpers(
 									<Textarea
 										disabled={
 											! isProtectActive ||
-											unavailableInDevMode ||
+											unavailableInOfflineMode ||
 											this.props.isSavingAnyOption( [
 												'protect',
 												'jetpack_protect_global_whitelist',

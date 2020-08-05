@@ -18,8 +18,7 @@ describe( 'Connection', () => {
 
 	afterAll( async () => {
 		await execWpCommand(
-			'wp option update jetpack_private_options --format=json',
-			'< jetpack_private_options.txt'
+			'wp option update jetpack_private_options --format=json < jetpack_private_options.txt'
 		);
 		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
 	} );

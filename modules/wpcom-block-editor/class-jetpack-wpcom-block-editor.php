@@ -95,7 +95,7 @@ class Jetpack_WPCOM_Block_Editor {
 			return;
 		}
 
-		if ( ! $_GET['calypsoify_cookie_check'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $_GET['calypsoify_cookie_check'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			header( 'Location: ' . esc_url_raw( $_SERVER['REQUEST_URI'] . '&calypsoify_cookie_check=true' ) );
 			exit;
 		}

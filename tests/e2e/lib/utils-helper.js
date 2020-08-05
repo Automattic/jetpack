@@ -15,9 +15,10 @@ export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
-				logger.warn( error );
+				logger.warn( error.toString() );
+				return resolve( error );
 			}
-			return resolve( stdout ? stdout : error );
+			return resolve( stdout );
 		} );
 		cmdExec.stdout.on( 'data', data => logger.info( data ) );
 	} );
@@ -34,10 +35,14 @@ export function getNgrokSiteUrl() {
 }
 
 export async function resetWordpressInstall() {
-	let cmd = './tests/e2e/bin/docker-e2e-cli.sh reset';
-	if ( process.env.CI ) {
-		cmd = './tests/e2e/bin/setup-e2e-travis.sh reset_wp';
-	}
+	const cmd = './tests/e2e/bin/env.sh reset';
+	await execShellCommand( cmd );
+}
+
+export async function prepareUpdaterTest() {
+	const cmd =
+		'yarn wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
+
 	await execShellCommand( cmd );
 }
 
@@ -90,18 +95,17 @@ export async function activateModule( page, module ) {
 	return true;
 }
 
-export async function execWpCommand( wpCmd, suffix = null ) {
-	// NOTE: Uncommited cli for dockerized local dev environment. Will update once dockerized PR is merged.
-	let cmd = `./tests/e2e/bin/docker-e2e-cli.sh cli "${ wpCmd }"`;
-	if ( process.env.CI ) {
-		cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
-	}
-
-	if ( suffix ) {
-		cmd = cmd + suffix;
-	}
+export async function execWpCommand( wpCmd ) {
+	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
 
 	logger.info( cmd );
+	const result = await execShellCommand( cmd );
 
-	return await execShellCommand( cmd );
+	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
+	// Here we cleaning this up.
+	if ( typeof result !== 'object' && result.length > 0 ) {
+		return result.trim().split( '\n' ).slice( 1 ).join( '\n' );
+	}
+
+	return result;
 }

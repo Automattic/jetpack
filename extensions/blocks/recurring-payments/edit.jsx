@@ -27,13 +27,8 @@ import { applyFilters } from '@wordpress/hooks';
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import StripeNudge from '../../shared/components/stripe-nudge';
-import {
-	icon,
-	isPriceValid,
-	minimumTransactionAmountForCurrency,
-	removeInvalidProducts,
-	CURRENCY_OPTIONS,
-} from '.';
+import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { icon, isPriceValid, removeInvalidProducts, CURRENCY_OPTIONS } from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -360,7 +355,7 @@ class MembershipsButtonEdit extends Component {
 			} );
 		}
 
-		return setAttributes( { planId: id } );
+		return setAttributes( { planId: parseInt( id ) } );
 	};
 
 	renderMembershipAmounts = () => (

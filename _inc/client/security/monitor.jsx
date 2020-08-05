@@ -23,7 +23,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 
 		render() {
 			const isMonitorActive = this.props.getOptionValue( 'monitor' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'monitor' );
+				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'monitor' );
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -33,7 +33,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						hasChild
-						disableInDevMode
+						disableInOfflineMode
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
 							text: __(
@@ -45,7 +45,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					>
 						<ModuleToggle
 							slug="monitor"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInOfflineMode }
 							activated={ isMonitorActive }
 							toggling={ this.props.isSavingAnyOption( 'monitor' ) }
 							toggleModule={ this.props.toggleModuleNow }

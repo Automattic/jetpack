@@ -25,7 +25,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		}
 
 		render() {
-			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'publicize' ),
+			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
 				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
@@ -33,7 +33,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				userCanManageModules = this.props.userCanManageModules;
 
 			const configCard = () => {
-				if ( unavailableInDevMode ) {
+				if ( unavailableInOfflineMode ) {
 					return;
 				}
 
@@ -74,7 +74,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				>
 					{ userCanManageModules && (
 						<SettingsGroup
-							disableInDevMode
+							disableInOfflineMode
 							module={ { module: 'publicize' } }
 							support={ {
 								text: __(
@@ -92,7 +92,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							</p>
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInDevMode }
+								disabled={ unavailableInOfflineMode }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }

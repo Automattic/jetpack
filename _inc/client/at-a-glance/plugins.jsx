@@ -19,11 +19,11 @@ import DashItem from 'components/dash-item';
 import getRedirectUrl from 'lib/jp-redirect';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
 import { getPluginUpdates } from 'state/at-a-glance';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 
 class DashPluginUpdates extends Component {
 	static propTypes = {
-		isDevMode: PropTypes.bool.isRequired,
+		isOfflineMode: PropTypes.bool.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
 		pluginUpdates: PropTypes.any.isRequired,
@@ -82,7 +82,7 @@ class DashPluginUpdates extends Component {
 									pluginUpdates.count,
 									'jetpack'
 								) + ' ',
-								! this.props.isDevMode &&
+								! this.props.isOfflineMode &&
 									jetpackCreateInterpolateElement(
 										__( '<a>Turn on plugin autoupdates.</a>', 'jetpack' ),
 										{
@@ -93,7 +93,7 @@ class DashPluginUpdates extends Component {
 						: __( 'All plugins are up-to-date. Awesome work!', 'jetpack' ) }
 				</p>
 			</DashItem>,
-			! this.props.isDevMode && (
+			! this.props.isOfflineMode && (
 				<Card
 					key="manage-plugins"
 					className="jp-dash-item__manage-in-wpcom"
@@ -120,5 +120,5 @@ class DashPluginUpdates extends Component {
 
 export default connect( state => ( {
 	pluginUpdates: getPluginUpdates( state ),
-	isDevMode: isDevMode( state ),
+	isOfflineMode: isOfflineMode( state ),
 } ) )( DashPluginUpdates );

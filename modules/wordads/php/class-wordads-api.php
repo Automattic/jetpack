@@ -31,7 +31,7 @@ class WordAds_API {
 	 */
 	public static function get_wordads_status() {
 		global $wordads_status_response;
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			self::$wordads_status = array(
 				'approved' => true,
 				'active'   => true,

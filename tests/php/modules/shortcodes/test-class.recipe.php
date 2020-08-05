@@ -178,7 +178,22 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe image="' . $attachment_id . '"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />', $shortcode_content );
+
+		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$this->assertContains(
+				'<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />',
+				$shortcode_content
+			);
+		} else {
+			$this->assertContains(
+				'<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />',
+				$shortcode_content
+			);
+		}
 	}
 
 	/**
@@ -190,7 +205,22 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe image="https://example.com"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+
+		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$this->assertContains(
+				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />',
+				$shortcode_content
+			);
+		} else {
+			$this->assertContains(
+				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />',
+				$shortcode_content
+			);
+		}
 	}
 
 	/**

@@ -37,7 +37,7 @@ class Broken_Token_XmlRpc {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( 'jetpack_page_broken-token-xmlrpc-errors' === $hook ) {
+		if ( 'jetpack-debug_page_broken-token-xmlrpc-errors' === $hook ) {
 			wp_enqueue_script( 'broken_token_xmlrpc_errors', plugin_dir_url( __FILE__ ) . 'js/xmlrpc-errors.js', array( 'jquery' ), JETPACK_DEBUG_HELPER_VERSION, true );
 			wp_localize_script(
 				'broken_token_xmlrpc_errors',
@@ -56,7 +56,7 @@ class Broken_Token_XmlRpc {
 	 */
 	public function register_submenu_page() {
 		add_submenu_page(
-			'jetpack',
+			'jetpack-debug-tools',
 			'XML-RPC Errors',
 			'XML-RPC Errors',
 			'manage_options',

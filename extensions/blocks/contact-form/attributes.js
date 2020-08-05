@@ -23,4 +23,8 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	jetpackCRM: {
+		type: 'boolean',
+		default: true,
+	},
 };

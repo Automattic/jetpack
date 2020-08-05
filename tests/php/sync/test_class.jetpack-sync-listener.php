@@ -9,7 +9,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
 
-		add_filter( 'jetpack_development_mode', '__return_true' );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued

@@ -135,12 +135,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			$social_icons = $this->get_supported_icons();
 			$default_icon = $this->get_svg_icon( array( 'icon' => 'chain' ) );
 
-			// Set target attribute for the link.
-			if ( true === $instance['new-tab'] ) {
-				$target = '_blank';
-			} else {
-				$target = '_self';
-			}
 			?>
 
 			<ul class="jetpack-social-widget-list size-<?php echo esc_attr( $instance['icon-size'] ); ?>">
@@ -149,33 +143,40 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 					<?php if ( ! empty( $icon['url'] ) ) : ?>
 						<li class="jetpack-social-widget-item">
-							<a href="<?php echo esc_url( $icon['url'], array( 'http', 'https', 'mailto', 'skype' ) ); ?>" target="<?php echo esc_attr( $target ); ?>">
-								<?php
-									$found_icon = false;
+							<?php
+							printf(
+								'<a href="%1$s" %2$s>',
+								esc_url( $icon['url'], array( 'http', 'https', 'mailto', 'skype' ) ),
+								true === $instance['new-tab'] ?
+									'target="_blank" rel="noopener noreferrer"' :
+									'target="_self"'
+							);
 
-								foreach ( $social_icons as $social_icon ) {
-									foreach ( $social_icon['url'] as $url_fragment ) {
-										if ( false !== stripos( $icon['url'], $url_fragment ) ) {
-											printf(
-												'<span class="screen-reader-text">%1$s</span>%2$s',
-												esc_attr( $social_icon['label'] ),
-												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-												$this->get_svg_icon(
-													array(
-														'icon' => esc_attr( $social_icon['icon'] ),
-													)
+							$found_icon = false;
+
+							foreach ( $social_icons as $social_icon ) {
+								foreach ( $social_icon['url'] as $url_fragment ) {
+									if ( false !== stripos( $icon['url'], $url_fragment ) ) {
+										printf(
+											'<span class="screen-reader-text">%1$s</span>%2$s',
+											esc_attr( $social_icon['label'] ),
+											// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+											$this->get_svg_icon(
+												array(
+													'icon' => esc_attr( $social_icon['icon'] ),
 												)
-											);
-											$found_icon = true;
-											break;
-										}
+											)
+										);
+										$found_icon = true;
+										break;
 									}
 								}
+							}
 
-								if ( ! $found_icon ) {
-									echo $default_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-								}
-								?>
+							if ( ! $found_icon ) {
+								echo $default_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							}
+							?>
 							</a>
 						</li>
 					<?php endif; ?>
@@ -203,7 +204,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 *
 	 * @return array Updated safe values to be saved.
 	 */
-	public function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
 		$instance['title']     = sanitize_text_field( $new_instance['title'] );
@@ -304,7 +305,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		?>
 
 		<p>
-			<em><a href="<?php echo esc_url( $support ); ?>" target="_blank">
+			<em><a href="<?php echo esc_url( $support ); ?>" target="_blank" rel="noopener noreferrer">
 				<?php esc_html_e( 'View available icons', 'jetpack' ); ?>
 			</a></em>
 		</p>

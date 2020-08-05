@@ -88,9 +88,11 @@ class Broken_Token {
 		// Break stuff.
 		add_action( 'admin_post_set_invalid_blog_token', array( $this, 'admin_post_set_invalid_blog_token' ) );
 		add_action( 'admin_post_set_invalid_user_tokens', array( $this, 'admin_post_set_invalid_user_tokens' ) );
+		add_action( 'admin_post_set_invalid_current_user_token', array( $this, 'admin_post_set_invalid_current_user_token' ) );
 		add_action( 'admin_post_clear_blog_token', array( $this, 'admin_post_clear_blog_token' ) );
 		add_action( 'admin_post_clear_user_tokens', array( $this, 'admin_post_clear_user_tokens' ) );
 		add_action( 'admin_post_randomize_master_user', array( $this, 'admin_post_randomize_master_user' ) );
+		add_action( 'admin_post_randomize_master_user_and_token', array( $this, 'admin_post_randomize_master_user_and_token' ) );
 		add_action( 'admin_post_clear_master_user', array( $this, 'admin_post_clear_master_user' ) );
 		add_action( 'admin_post_randomize_blog_id', array( $this, 'admin_post_randomize_blog_id' ) );
 		add_action( 'admin_post_clear_blog_id', array( $this, 'admin_post_clear_blog_id' ) );
@@ -122,7 +124,7 @@ class Broken_Token {
 	 */
 	public function broken_token_register_submenu_page() {
 		add_submenu_page(
-			'jetpack',
+			'jetpack-debug-tools',
 			'Broken Token',
 			'Broken Token',
 			'manage_options',
@@ -206,12 +208,24 @@ class Broken_Token {
 			<?php wp_nonce_field( 'set-invalid-user-tokens' ); ?>
 			<input type="submit" value="Set invalid user tokens" class="button button-primary button-break-it">
 		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<input type="hidden" name="action" value="set_invalid_current_user_token">
+			<?php wp_nonce_field( 'set-invalid-current-user-token' ); ?>
+			<input type="submit" value="Set invalid user token (current user)" class="button button-primary button-break-it">
+		</form>
 
 		<p><strong>Break the Primary User:</strong></p>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="randomize_master_user">
 			<?php wp_nonce_field( 'randomize-master-user' ); ?>
 			<input type="submit" value="Randomize Primary User ID" class="button button-primary button-break-it">
+		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<input type="hidden" name="action" value="randomize_master_user_and_token">
+			<?php wp_nonce_field( 'randomize-master-user-and-token' ); ?>
+			<input type="submit" value="Randomize Primary User ID and move the user token together" class="button button-primary button-break-it">
 		</form>
 		<br>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
@@ -289,9 +303,31 @@ class Broken_Token {
 	public function admin_post_set_invalid_user_tokens() {
 		check_admin_referer( 'set-invalid-user-tokens' );
 		$this->notice_type = 'jetpack-broken';
-		foreach ( Jetpack_Options::get_option( 'user_tokens', array() ) as $id => $token ) {
-			Jetpack_Options::update_option( 'user_tokens', array( $id => sprintf( $this->invalid_user_token, $id ) ) );
+
+		$new_tokens = array();
+
+		foreach ( Jetpack_Options::get_option( 'user_tokens' ) as $id => $token ) {
+			$new_tokens[ $id ] = sprintf( $this->invalid_user_token, $id );
 		}
+
+		Jetpack_Options::update_option( 'user_tokens', $new_tokens );
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Set invalid current user token.
+	 */
+	public function admin_post_set_invalid_current_user_token() {
+		check_admin_referer( 'set-invalid-current-user-token' );
+		$this->notice_type = 'jetpack-broken';
+
+		$tokens = Jetpack_Options::get_option( 'user_tokens' );
+
+		$id            = get_current_user_id();
+		$tokens[ $id ] = sprintf( $this->invalid_user_token, $id );
+
+		Jetpack_Options::update_option( 'user_tokens', $tokens );
 
 		$this->admin_post_redirect_referrer();
 	}
@@ -324,6 +360,24 @@ class Broken_Token {
 		$this->notice_type = 'jetpack-broken';
 		$current_id        = Jetpack_Options::get_option( 'master_user' );
 		Jetpack_Options::update_option( 'master_user', wp_rand( $current_id + 1, $current_id + 100 ) );
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Randomize master user and its token.
+	 */
+	public function admin_post_randomize_master_user_and_token() {
+		check_admin_referer( 'randomize-master-user-and-token' );
+		$this->notice_type = 'jetpack-broken';
+		$current_id        = Jetpack_Options::get_option( 'master_user' );
+		$random_id         = wp_rand( $current_id + 1, $current_id + 100 );
+		Jetpack_Options::update_option( 'master_user', $random_id );
+		$user_tokens = Jetpack_Options::get_option( 'user_tokens', array() );
+		if ( isset( $user_tokens[ $current_id ] ) ) {
+			$user_tokens[ $random_id ] = substr( $user_tokens[ $current_id ], 0, strrpos( $user_tokens[ $current_id ], '.' ) ) . ".$random_id";
+			unset( $user_tokens[ $current_id ] );
+		}
+		Jetpack_Options::update_option( 'user_tokens', $user_tokens );
 		$this->admin_post_redirect_referrer();
 	}
 
@@ -437,7 +491,7 @@ add_action( 'plugins_loaded', 'register_broken_token', 1000 );
  * Load the brokenness.
  */
 function register_broken_token() {
-	if ( class_exists( 'Jetpack' ) ) {
+	if ( class_exists( 'Jetpack_Options' ) ) {
 		new Broken_Token();
 		if ( class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
 			new Broken_Token_XmlRpc();
@@ -451,7 +505,7 @@ function register_broken_token() {
  * Notice for if Jetpack is not active.
  */
 function broken_token_jetpack_not_active() {
-	echo '<div class="notice info"><p>Jetpack needs to be active and installed for the Broken Token plugin.</p></div>';
+	echo '<div class="notice info"><p>Jetpack Debug tools: Jetpack_Options package must be present for the Broken Token to work.</p></div>';
 }
 
 // phpcs:enable

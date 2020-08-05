@@ -379,6 +379,13 @@ class Jetpack {
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
 
 	/**
+	 * Holds an instance of Automattic\Jetpack\A8c_Mc_Stats
+	 *
+	 * @var Automattic\Jetpack\A8c_Mc_Stats
+	 */
+	public $a8c_mc_stats_instance;
+
+	/**
 	 * Constant for login redirect key.
 	 *
 	 * @var string
@@ -942,12 +949,10 @@ class Jetpack {
 			return $default_url;
 		}
 
-		return esc_url(
-			Redirect::get_url(
-				'calypso-edit-' . $post_type,
-				array(
-					'path' => $post_id,
-				)
+		return Redirect::get_url(
+			'calypso-edit-' . $post_type,
+			array(
+				'path' => $post_id,
 			)
 		);
 	}
@@ -956,12 +961,10 @@ class Jetpack {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
 
-		return esc_url(
-			Redirect::get_url(
-				'calypso-edit-comment',
-				array(
-					'path' => $query_args['amp;c'],
-				)
+		return Redirect::get_url(
+			'calypso-edit-comment',
+			array(
+				'path' => $query_args['amp;c'],
 			)
 		);
 
@@ -1073,7 +1076,7 @@ class Jetpack {
 	 * @param array    $args    Adds the context to the cap. Typically the object ID.
 	 */
 	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
-		$is_development_mode = ( new Status() )->is_development_mode();
+		$is_offline_mode = ( new Status() )->is_offline_mode();
 		switch ( $cap ) {
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
@@ -1097,7 +1100,7 @@ class Jetpack {
 				$caps = array( 'manage_sites' );
 				break;
 			case 'jetpack_admin_page':
-				if ( $is_development_mode ) {
+				if ( $is_offline_mode ) {
 					$caps = array( 'manage_options' );
 					break;
 				} else {
@@ -1632,12 +1635,12 @@ class Jetpack {
 	 * This static method is being left here intentionally without the use of _deprecated_function(), as other plugins
 	 * and themes still use it, and we do not want to flood them with notices.
 	 *
-	 * Please use Automattic\Jetpack\Status()->is_development_mode() instead.
+	 * Please use Automattic\Jetpack\Status()->is_offline_mode() instead.
 	 *
 	 * @deprecated since 8.0.
 	 */
 	public static function is_development_mode() {
-		return ( new Status() )->is_development_mode();
+		return ( new Status() )->is_offline_mode();
 	}
 
 	/**
@@ -1656,34 +1659,41 @@ class Jetpack {
 	}
 
 	/**
-	 * Determines reason for Jetpack development mode.
+	 * Determines reason for Jetpack offline mode.
 	 */
 	public static function development_mode_trigger_text() {
-		if ( ! ( new Status() )->is_development_mode() ) {
-			return __( 'Jetpack is not in Development Mode.', 'jetpack' );
+		$status = new Status();
+
+		if ( ! $status->is_offline_mode() ) {
+			return __( 'Jetpack is not in Offline Mode.', 'jetpack' );
 		}
 
 		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 			$notice = __( 'The JETPACK_DEV_DEBUG constant is defined in wp-config.php or elsewhere.', 'jetpack' );
-		} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-			$notice = __( 'The site URL lacking a dot (e.g. http://localhost).', 'jetpack' );
-		} else {
+		} elseif ( defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV ) {
+			$notice = __( 'The WP_LOCAL_DEV constant is defined in wp-config.php or elsewhere.', 'jetpack' );
+		} elseif ( $status->is_local_site() ) {
+			$notice = __( 'The site URL is a known local development environment URL (e.g. http://localhost).', 'jetpack' );
+			/** This filter is documented in packages/status/src/class-status.php */
+		} elseif ( has_filter( 'jetpack_development_mode' ) && apply_filters( 'jetpack_development_mode', false ) ) { // This is a deprecated filter name.
 			$notice = __( 'The jetpack_development_mode filter is set to true.', 'jetpack' );
+		} else {
+			$notice = __( 'The jetpack_offline_mode filter is set to true.', 'jetpack' );
 		}
 
 		return $notice;
 
 	}
 	/**
-	 * Get Jetpack development mode notice text and notice class.
+	 * Get Jetpack offline mode notice text and notice class.
 	 *
-	 * Mirrors the checks made in Automattic\Jetpack\Status->is_development_mode
+	 * Mirrors the checks made in Automattic\Jetpack\Status->is_offline_mode
 	 */
 	public static function show_development_mode_notice() {
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			$notice = sprintf(
 				/* translators: %s is a URL */
-				__( 'In <a href="%s" target="_blank">Development Mode</a>:', 'jetpack' ),
+				__( 'In <a href="%s" target="_blank">Offline Mode</a>:', 'jetpack' ),
 				Redirect::get_url( 'jetpack-support-development-mode' )
 			);
 
@@ -1847,10 +1857,10 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-		$is_development_mode = ( new Status() )->is_development_mode();
+		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if (
 			! self::is_active()
-			&& ! $is_development_mode
+			&& ! $is_offline_mode
 			&& ! self::is_onboarding()
 			&& (
 				! is_multisite()
@@ -1893,8 +1903,8 @@ class Jetpack {
 		}
 
 		foreach ( $modules as $index => $module ) {
-			// If we're in dev mode, disable modules requiring a connection
-			if ( $is_development_mode ) {
+			// If we're in offline mode, disable modules requiring a connection.
+			if ( $is_offline_mode ) {
 				// Prime the pump if we need to
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = self::get_module( $module );
@@ -2232,7 +2242,7 @@ class Jetpack {
 	}
 
 	public static function activate_new_modules( $redirect = false ) {
-		if ( ! self::is_active() && ! ( new Status() )->is_development_mode() ) {
+		if ( ! self::is_active() && ! ( new Status() )->is_offline_mode() ) {
 			return;
 		}
 
@@ -2958,14 +2968,14 @@ class Jetpack {
 
 		$module_data = self::get_module( $module );
 
-		$is_development_mode = ( new Status() )->is_development_mode();
+		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if ( ! self::is_active() ) {
-			if ( ! $is_development_mode && ! self::is_onboarding() ) {
+			if ( ! $is_offline_mode && ! self::is_onboarding() ) {
 				return false;
 			}
 
-			// If we're not connected but in development mode, make sure the module doesn't require a connection
-			if ( $is_development_mode && $module_data['requires_connection'] ) {
+			// If we're not connected but in offline mode, make sure the module doesn't require a connection.
+			if ( $is_offline_mode && $module_data['requires_connection'] ) {
 				return false;
 			}
 		}
@@ -3518,8 +3528,8 @@ p {
 			self::plugin_initialize();
 		}
 
-		$is_development_mode = ( new Status() )->is_development_mode();
-		if ( ! self::is_active() && ! $is_development_mode ) {
+		$is_offline_mode = ( new Status() )->is_offline_mode();
+		if ( ! self::is_active() && ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
@@ -3544,7 +3554,7 @@ p {
 		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
-		if ( self::is_active() || $is_development_mode ) {
+		if ( self::is_active() || $is_offline_mode ) {
 			// Artificially throw errors in certain specific cases during plugin activation.
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
@@ -3937,7 +3947,7 @@ p {
 
 		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), 'Jetpack' ) );
 
-		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_active() || ( new Status() )->is_development_mode() ) ) {
+		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_active() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
 				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
@@ -4533,32 +4543,40 @@ endif;
 	}
 
 	/**
+	 * Initialize the jetpack stats instance only when needed
+	 *
+	 * @return void
+	 */
+	private function initialize_stats() {
+		if ( is_null( $this->a8c_mc_stats_instance ) ) {
+			$this->a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		}
+	}
+
+	/**
 	 * Record a stat for later output.  This will only currently output in the admin_footer.
 	 */
 	function stat( $group, $detail ) {
-		if ( ! isset( $this->stats[ $group ] ) ) {
-			$this->stats[ $group ] = array();
-		}
-		$this->stats[ $group ][] = $detail;
+		$this->initialize_stats();
+		$this->a8c_mc_stats_instance->add( $group, $detail );
+
+		// Keep a local copy for backward compatibility (there are some direct checks on this).
+		$this->stats = $this->a8c_mc_stats_instance->get_current_stats();
 	}
 
 	/**
 	 * Load stats pixels. $group is auto-prefixed with "x_jetpack-"
 	 */
 	function do_stats( $method = '' ) {
-		if ( is_array( $this->stats ) && count( $this->stats ) ) {
-			foreach ( $this->stats as $group => $stats ) {
-				if ( is_array( $stats ) && count( $stats ) ) {
-					$args = array( "x_jetpack-{$group}" => implode( ',', $stats ) );
-					if ( 'server_side' === $method ) {
-						self::do_server_side_stat( $args );
-					} else {
-						echo '<img src="' . esc_url( self::build_stats_url( $args ) ) . '" width="1" height="1" style="display:none;" />';
-					}
-				}
-				unset( $this->stats[ $group ] );
-			}
+		$this->initialize_stats();
+		if ( 'server_side' === $method ) {
+			$this->a8c_mc_stats_instance->do_server_side_stats();
+		} else {
+			$this->a8c_mc_stats_instance->do_stats();
 		}
+
+		// Keep a local copy for backward compatibility (there are some direct checks on this).
+		$this->stats = array();
 	}
 
 	/**
@@ -4569,16 +4587,9 @@ endif;
 	 * @return bool If it worked.
 	 */
 	static function do_server_side_stat( $args ) {
-		$response = wp_remote_get( esc_url_raw( self::build_stats_url( $args ) ) );
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
-		}
-
-		return true;
+		$url                   = self::build_stats_url( $args );
+		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		return $a8c_mc_stats_instance->do_server_side_stat( $url );
 	}
 
 	/**
@@ -4589,24 +4600,10 @@ endif;
 	 * @return string The URL to be pinged.
 	 */
 	static function build_stats_url( $args ) {
-		$defaults = array(
-			'v'    => 'wpcom2',
-			'rand' => md5( mt_rand( 0, 999 ) . time() ),
-		);
-		$args     = wp_parse_args( $args, $defaults );
-		/**
-		 * Filter the URL used as the Stats tracking pixel.
-		 *
-		 * @since 2.3.2
-		 *
-		 * @param string $url Base URL used as the Stats tracking pixel.
-		 */
-		$base_url = apply_filters(
-			'jetpack_stats_base_url',
-			'https://pixel.wp.com/g.gif'
-		);
-		$url      = add_query_arg( $args, $base_url );
-		return $url;
+
+		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
+		return $a8c_mc_stats_instance->build_stats_url( $args );
+
 	}
 
 	/**
@@ -6161,7 +6158,7 @@ endif;
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		if ( ! self::is_active() || ( new Status() )->is_development_mode() || ! self::validate_sync_error_idc_option() ) {
+		if ( ! self::is_active() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
 
@@ -6709,7 +6706,7 @@ endif;
 		}
 
 		// We do not want to use the imploded file in dev mode, or if not connected
-		if ( ( new Status() )->is_development_mode() || ! self::is_active() ) {
+		if ( ( new Status() )->is_offline_mode() || ! self::is_active() ) {
 			if ( ! $travis_test ) {
 				return;
 			}
@@ -6894,8 +6891,8 @@ endif;
 			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 			wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
 
-			// If we're inactive and not in development mode, sort our box to the top.
-			if ( ! self::is_active() && ! ( new Status() )->is_development_mode() ) {
+			// If we're inactive and not in offline mode, sort our box to the top.
+			if ( ! self::is_active() && ! ( new Status() )->is_offline_mode() ) {
 				global $wp_meta_boxes;
 
 				$dashboard = $wp_meta_boxes['dashboard']['normal']['core'];
@@ -6956,7 +6953,7 @@ endif;
 					<?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?>
 				</p>
 				<p><?php echo esc_html_x( 'Blocked malicious login attempts', '{#} Blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
-			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) && ! ( new Status() )->is_development_mode() ) : ?>
+			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) && ! ( new Status() )->is_offline_mode() ) : ?>
 				<a href="
 				<?php
 				echo esc_url(
@@ -7319,14 +7316,33 @@ endif;
 	}
 
 	/**
-	 * Checks if a Jetpack site is both active and not in development.
+	 * Checks if a Jetpack site is both active and not in offline mode.
 	 *
-	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_development_mode`.
+	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_offline_mode`.
 	 *
-	 * @return bool True if Jetpack is active and not in development.
+	 * @deprecated 8.8.0
+	 *
+	 * @return bool True if Jetpack is active and not in offline mode.
 	 */
 	public static function is_active_and_not_development_mode() {
-		if ( ! self::is_active() || ( new Status() )->is_development_mode() ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Jetpack::is_active_and_not_offline_mode' );
+		if ( ! self::is_active() || ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if a Jetpack site is both active and not in offline mode.
+	 *
+	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_offline_mode`.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool True if Jetpack is active and not in offline mode.
+	 */
+	public static function is_active_and_not_offline_mode() {
+		if ( ! self::is_active() || ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 		return true;

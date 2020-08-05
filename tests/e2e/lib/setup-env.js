@@ -22,18 +22,21 @@ const defaultErrorHandler = async ( error, name ) => {
 	// If running tests in CI
 	if ( CI ) {
 		const filePath = await takeScreenshot( currentBlock, name );
-		reporter.addAttachment(
-			`Test failed: ${ currentBlock } :: ${ name }`,
-			fs.readFileSync( filePath ),
-			'image/png'
-		);
-
 		logger.slack( {
 			type: 'failure',
 			message: { block: currentBlock, name, error },
 		} );
 		logger.slack( { type: 'file', message: filePath } );
 		await logDebugLog();
+		try {
+			reporter.addAttachment(
+				`Test failed: ${ currentBlock } :: ${ name }`,
+				fs.readFileSync( filePath ),
+				'image/png'
+			);
+		} catch ( e ) {
+			logger.warn( `Failed to add attachment to allure report: ${ e }` );
+		}
 	}
 
 	if ( E2E_LOG_HTML ) {

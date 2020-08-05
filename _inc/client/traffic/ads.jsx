@@ -27,7 +27,7 @@ export const Ads = withModuleSettingsFormHelpers(
 		/**
 		 * Update state so preview is updated instantly and toggle options.
 		 *
-		 * @param {string} optionName the slug of the option to update
+		 * @param {string} optionName - the slug of the option to update
 		 */
 		updateOptions = optionName => {
 			this.props.updateFormStateModuleOption( 'wordads', optionName );
@@ -45,9 +45,87 @@ export const Ads = withModuleSettingsFormHelpers(
 			return () => this.updateOptions( setting );
 		};
 
+		renderAdsTxtSection() {
+			const { getOptionValue, isUnavailableInOfflineMode } = this.props;
+			const wordads_custom_adstxt_enabled = getOptionValue(
+				'wordads_custom_adstxt_enabled',
+				'wordads'
+			);
+			const wordads_custom_adstxt = getOptionValue( 'wordads_custom_adstxt', 'wordads' );
+			const isAdsActive = getOptionValue( 'wordads' );
+			const unavailableInOfflineMode = isUnavailableInOfflineMode( 'wordads' );
+
+			return <SettingsGroup
+						hasChild
+						support={ {
+							text: __(
+								'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
+								'jetpack'
+							),
+							link: 'https://jetpack.com/support/ads/',
+						} }
+					>
+						<CompactFormToggle
+								checked={ wordads_custom_adstxt_enabled }
+								disabled={
+									! isAdsActive ||
+									unavailableInOfflineMode ||
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+								}
+								onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Customize your ads.txt file', 'jetpack' ) }
+								</span>
+							</CompactFormToggle>
+						{ wordads_custom_adstxt_enabled && (
+							<FormFieldset>
+								<br />
+								<p>
+									{ isAdsActive &&
+										jetpackCreateInterpolateElement(
+											__(
+												'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+												'jetpack'
+											),
+											{
+												link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
+												link2: (
+													<a
+														href={ getRedirectUrl(
+															'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
+														) }
+														target="_blank"
+														rel="noopener noreferrer"
+													/>
+												),
+											}
+										) }
+
+									{ ! isAdsActive &&
+										__(
+											'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.',
+											'jetpack'
+										) }
+								</p>
+								<Textarea
+									name="wordads_custom_adstxt"
+									value={ wordads_custom_adstxt }
+									disabled={
+										! isAdsActive ||
+										unavailableInOfflineMode ||
+										this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
+									}
+									onChange={ this.props.onOptionChange }
+								/>
+							</FormFieldset>
+						) }
+					</SettingsGroup>;
+		}
+
 		render() {
 			const isAdsActive = this.props.getOptionValue( 'wordads' );
-			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
+			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'wordads' );
 			const enable_header_ad = this.props.getOptionValue( 'enable_header_ad', 'wordads' );
 			const wordads_second_belowpost = this.props.getOptionValue(
 				'wordads_second_belowpost',
@@ -63,11 +141,7 @@ export const Ads = withModuleSettingsFormHelpers(
 				'wordads_display_archive',
 				'wordads'
 			);
-			const wordads_custom_adstxt_enabled = this.props.getOptionValue(
-				'wordads_custom_adstxt_enabled',
-				'wordads'
-			);
-			const wordads_custom_adstxt = this.props.getOptionValue( 'wordads_custom_adstxt', 'wordads' );
+
 			const wordads_ccpa_enabled = this.props.getOptionValue( 'wordads_ccpa_enabled', 'wordads' );
 			const wordads_ccpa_privacy_policy_url = this.props.getOptionValue(
 				'wordads_ccpa_privacy_policy_url',
@@ -82,7 +156,7 @@ export const Ads = withModuleSettingsFormHelpers(
 					saveDisabled={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt' ] ) }
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						hasChild
 						module={ { module: 'wordads' } }
 						support={ {
@@ -121,7 +195,7 @@ export const Ads = withModuleSettingsFormHelpers(
 
 						<ModuleToggle
 							slug="wordads"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInOfflineMode }
 							activated={ isAdsActive }
 							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -136,7 +210,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_front_page }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_front_page' ) }
@@ -149,7 +223,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_post }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_post' ) }
@@ -160,7 +234,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_page }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_page' ) }
@@ -171,7 +245,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_display_archive }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] )
 								}
 								onChange={ this.handleChange( 'wordads_display_archive' ) }
@@ -185,7 +259,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ enable_header_ad }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] )
 								}
 								onChange={ this.handleChange( 'enable_header_ad' ) }
@@ -198,7 +272,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								checked={ wordads_second_belowpost }
 								disabled={
 									! isAdsActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] )
 								}
 								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
@@ -242,7 +316,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							checked={ wordads_ccpa_enabled }
 							disabled={
 								! isAdsActive ||
-								unavailableInDevMode ||
+								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_enabled' ] )
 							}
 							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
@@ -317,7 +391,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									value={ wordads_ccpa_privacy_policy_url }
 									disabled={
 										! isAdsActive ||
-										unavailableInDevMode ||
+										unavailableInOfflineMode ||
 										! wordads_ccpa_enabled ||
 										this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_privacy_policy_url' ] )
 									}
@@ -332,75 +406,8 @@ export const Ads = withModuleSettingsFormHelpers(
 							</FormFieldset>
 						) }
 					</SettingsGroup>
-					<SettingsGroup
-						hasChild
-						support={ {
-							text: __(
-								'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
-								'jetpack'
-							),
-							link: 'https://jetpack.com/support/ads/',
-						} }
-					>
-						{ ! isSubDirSite && (
-							<CompactFormToggle
-								checked={ wordads_custom_adstxt_enabled }
-								disabled={
-									! isAdsActive ||
-									unavailableInDevMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
-								}
-								onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Customize your ads.txt file', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-						) }
-						{ ! isSubDirSite && wordads_custom_adstxt_enabled && (
-							<FormFieldset>
-								<br />
-								<p>
-									{ isAdsActive &&
-										jetpackCreateInterpolateElement(
-											__(
-												'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
-												'jetpack'
-											),
-											{
-												link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
-												link2: (
-													<a
-														href={ getRedirectUrl(
-															'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
-														) }
-														target="_blank"
-														rel="noopener noreferrer"
-													/>
-												),
-											}
-										) }
-
-									{ ! isAdsActive &&
-										__(
-											'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.',
-											'jetpack'
-										) }
-								</p>
-								<Textarea
-									name="wordads_custom_adstxt"
-									value={ wordads_custom_adstxt }
-									disabled={
-										! isAdsActive ||
-										unavailableInDevMode ||
-										this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
-									}
-									onChange={ this.props.onOptionChange }
-								/>
-							</FormFieldset>
-						) }
-					</SettingsGroup>
-					{ ! unavailableInDevMode && isAdsActive && (
+					{ ! isSubDirSite && this.renderAdsTxtSection() }
+					{ ! unavailableInOfflineMode && isAdsActive && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"

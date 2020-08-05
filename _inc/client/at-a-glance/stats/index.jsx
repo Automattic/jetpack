@@ -23,7 +23,7 @@ import { getInitialStateStatsData } from 'state/initial-state';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { imagePath } from 'constants/urls';
-import { isDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
+import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import QueryStatsData from 'components/data/query-stats-data';
@@ -31,7 +31,7 @@ import Spinner from 'components/spinner';
 
 export class DashStats extends Component {
 	static propTypes = {
-		isDevMode: PropTypes.bool.isRequired,
+		isOfflineMode: PropTypes.bool.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
 		statsData: PropTypes.any.isRequired,
@@ -231,8 +231,8 @@ export class DashStats extends Component {
 					/>
 				</div>
 				<div className="jp-at-a-glance__stats-inactive-text">
-					{ this.props.isDevMode
-						? __( 'Unavailable in Dev Mode', 'jetpack' )
+					{ this.props.isOfflineMode
+						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: jetpackCreateInterpolateElement(
 								__(
 									'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
@@ -250,7 +250,7 @@ export class DashStats extends Component {
 								}
 						  ) }
 				</div>
-				{ ! this.props.isDevMode && (
+				{ ! this.props.isOfflineMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
 						<Button onClick={ this.activateStats } primary>
 							{ __( 'Activate Site Stats', 'jetpack' ) }
@@ -343,7 +343,7 @@ export class DashStats extends Component {
 					</DashSectionHeader>
 					<Card
 						className={
-							'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' )
+							'jp-at-a-glance__stats-card ' + ( this.props.isOfflineMode ? 'is-inactive' : '' )
 						}
 					>
 						{ this.renderStatsArea() }
@@ -358,7 +358,7 @@ export default connect(
 	state => ( {
 		isModuleAvailable: isModuleAvailable( state, 'stats' ),
 		activeTab: getActiveStatsTab( state ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		isLinked: isCurrentUserLinked( state ),
 		connectUrl: getConnectUrl( state ),
 		statsData: isEmpty( getStatsData( state ) )

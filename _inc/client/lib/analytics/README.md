@@ -5,7 +5,8 @@ This module includes functionality for interacting with analytics packages.
 
 Turn on debugging in the JavaScript developer console to view calls being made with the analytics module:
 
-`localStorage.setItem('debug', 'calypso:analytics');`
+In Calypso: `localStorage.setItem('debug', 'calypso:analytics');`
+In Jetpack wp-admin: `localStorage.setItem('debug', 'dops:analytics');`
 
 
 ## Which analytics tool should I use?

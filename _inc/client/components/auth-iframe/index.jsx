@@ -32,7 +32,7 @@ export class AuthIframe extends React.Component {
 	};
 
 	static defaultProps = {
-		title: 'Link to WordPress',
+		title: __( 'Connect your WordPress.com account', 'jetpack' ),
 		height: '220',
 		width: '100%',
 		scrollToIframe: true,
@@ -49,16 +49,26 @@ export class AuthIframe extends React.Component {
 	};
 
 	receiveData = e => {
-		if ( e.source === this.refs.iframe.contentWindow && e.data === 'close' ) {
-			// Remove listener, our job here is done.
-			window.removeEventListener( 'message', this.receiveData );
-			// Dispatch successful authorization.
-			this.props.authorizeUserInPlaceSuccess();
-			// Fetch user connection data after successful authorization to trigger state refresh
-			// for linked user.
-			this.props.fetchUserConnectionData();
-			// Trigger 'onAuthorized' callback, if provided
-			this.props.onAuthorized();
+		if ( e.source !== this.refs.iframe.contentWindow ) {
+			return;
+		}
+
+		switch ( e.data ) {
+			case 'close':
+				// Remove listener, our job here is done.
+				window.removeEventListener( 'message', this.receiveData );
+				// Dispatch successful authorization.
+				this.props.authorizeUserInPlaceSuccess();
+				// Fetch user connection data after successful authorization to trigger state refresh
+				// for linked user.
+				this.props.fetchUserConnectionData();
+				// Trigger 'onAuthorized' callback, if provided
+				this.props.onAuthorized();
+				break;
+			case 'wpcom_nocookie':
+				// Third-party cookies blocked. Let's redirect.
+				window.location.replace( this.props.connectUrl );
+				break;
 		}
 	};
 
@@ -66,7 +76,8 @@ export class AuthIframe extends React.Component {
 		const src = this.props.connectUrl.replace( 'authorize', 'authorize_iframe' );
 
 		return (
-			<div ref="iframeWrap" className="dops-card fade-in">
+			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
+				<h1>{ this.props.title }</h1>
 				{ this.props.fetchingConnectUrl ? (
 					<p>{ __( 'Loading…', 'jetpack' ) }</p>
 				) : (

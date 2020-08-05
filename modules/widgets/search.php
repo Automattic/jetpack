@@ -276,9 +276,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 		return wp_parse_args(
 			(array) $instance,
 			array(
-				'title'      => '',
-				'filters'    => array(),
-				'post_types' => array(),
+				'title'   => '',
+				'filters' => array(),
 			)
 		);
 	}
@@ -294,12 +293,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = $this->jetpack_search_populate_defaults( $instance );
 
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
 				<div class="jetpack-search-sort-wrapper">
 					<label>
-						<?php esc_html_e( 'Jetpack Search not supported in Development Mode', 'jetpack' ); ?>
+						<?php esc_html_e( 'Jetpack Search not supported in Offline Mode', 'jetpack' ); ?>
 					</label>
 				</div>
 			</div><?php
@@ -840,22 +839,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 					type="text"
 					value="<?php echo esc_attr( wp_strip_all_tags( $instance['title'] ) ); ?>"
 				/>
-			</p>
-
-			<!-- Post types control -->
-			<p class="jetpack-search-filters-widget__post-types-select">
-				<label><?php esc_html_e( 'Post types to search (minimum of 1):', 'jetpack' ); ?></label>
-				<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
-					<label>
-						<input
-							type="checkbox"
-							value="<?php echo esc_attr( $post_type->name ); ?>"
-							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
-							<?php checked( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'], true ) ); ?>
-						/>&nbsp;
-						<?php echo esc_html( $post_type->label ); ?>
-					</label>
-				<?php endforeach; ?>
 			</p>
 
 			<!-- Filters control -->

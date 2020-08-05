@@ -22,7 +22,7 @@ class ModuleSettingsComponent extends Component {
 		const module = this.props.module( this.props.module_slug );
 		return (
 			<div className="jp-upgrade-notice__enable-module">
-				<SettingsGroup hasChild disableInDevMode module={ module }>
+				<SettingsGroup hasChild disableInOfflineMode module={ module }>
 					<ModuleToggle
 						slug={ this.props.module_slug }
 						disabled={ false }

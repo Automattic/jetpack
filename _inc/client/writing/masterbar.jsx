@@ -18,7 +18,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
 			const isActive = this.props.getOptionValue( 'masterbar' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'masterbar' ),
+				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'masterbar' ),
 				isLinked = this.props.isLinked;
 
 			return (
@@ -29,7 +29,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 					hideButton
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ { module: 'masterbar' } }
 						support={ {
 							text: __(
@@ -47,7 +47,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 						</p>
 						<ModuleToggle
 							slug="masterbar"
-							disabled={ unavailableInDevMode || ! isLinked }
+							disabled={ unavailableInOfflineMode || ! isLinked }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -55,7 +55,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 							{ __( 'Enable the WordPress.com toolbar', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
-					{ ! this.props.isUnavailableInDevMode( 'masterbar' ) && ! this.props.isLinked && (
+					{ ! this.props.isUnavailableInOfflineMode( 'masterbar' ) && ! this.props.isLinked && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"

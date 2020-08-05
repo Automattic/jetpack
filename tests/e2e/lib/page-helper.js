@@ -6,7 +6,6 @@ import config from 'config';
  * WordPress dependencies
  */
 import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
-import { readFileSync } from 'fs';
 /**
  * Internal dependencies
  */
@@ -203,13 +202,7 @@ export async function logHTML() {
 }
 
 export async function logDebugLog() {
-	let log;
-	if ( process.env.CI ) {
-		log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
-	} else {
-		const cmd = './tests/e2e/bin/docker-e2e-cli.sh ct "cat wp-content/debug.log"';
-		log = execSyncShellCommand( cmd );
-	}
+	const log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
 
 	if ( log.length > 1 ) {
 		if ( process.env.E2E_DEBUG ) {
