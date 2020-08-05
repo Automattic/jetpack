@@ -15,11 +15,13 @@ registerJetpackPlugin( name, settings );
 const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' );
 // const extensionAvailableOnPlan = false;
 
-// If the social previews extension is **not** available on this plan (WP.com only)
-// then manually register a near identical Plugin which shows the upgrade nudge.
-// Note this is necessary because the official `registerJetpackPlugin` checks the
-// extension availability so will not render the Plugin if the extension is not
-// availabile.
+/*
+ * If the social previews extension is **not** available on this plan (WP.com only)
+ * then manually register a near identical Plugin which shows the upgrade nudge.
+ * Note this is necessary because the official `registerJetpackPlugin` checks the
+ * extension availability so will not render the Plugin if the extension is not
+ * availabile.
+ */
 if ( !extensionAvailableOnPlan ) {
     registerPlugin( `jetpack-${name}-upgrade-nudge`, {
         render: () => {
