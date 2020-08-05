@@ -51,6 +51,7 @@ $icon-background-color: #fff;
 .block-editor-block-list__layout .jetpack-upgrade-plan-banner {
 	position: relative;
 	top: $banner-height - ( $grid-unit-15 / 2 );
+	z-index: 1;
 }
 
 .block-editor-block-inspector {
@@ -94,4 +95,8 @@ $icon-background-color: #fff;
 	.premium-block-media-placeholder {
 		margin-top: $banner-height;
 	}
+}
+
+.block-editor-block-list__layout .block-editor-block-list__block.is-upgradable:focus:after {
+	box-shadow: none;
 }
