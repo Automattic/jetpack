@@ -649,6 +649,10 @@ class Queue {
 	private function fetch_items_by_id( $items_ids ) {
 		global $wpdb;
 
+		if ( empty( $items_ids ) ) {
+			return null;
+		}
+
 		$ids_placeholders        = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
 		$query_with_placeholders = "SELECT option_name AS id, option_value AS value
 				FROM $wpdb->options
