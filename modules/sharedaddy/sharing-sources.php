@@ -273,8 +273,8 @@ abstract class Sharing_Source {
 				'type'   => $this->get_id(),
 				'height' => '32px',
 				'width'  => '32px',
-				'aria-label' => esc_html( $global['sharing_label'] ) .' '. ucfirst($this->shortname),
-				'title' => esc_html( $global['sharing_label'] ) .' '. ucfirst( $this->shortname),
+				'aria-label' => $global['sharing_label'] .' '. ucfirst($this->shortname),
+				'title' => $global['sharing_label'] .' '. ucfirst( $this->shortname),
 			),
 			$attrs
 		);
