@@ -2896,9 +2896,14 @@ JS;
 
 		// Usermeta
 		if ( $this->is_main_site() ) {
+			// Keeping these action hooks for backward compatibility
 			add_action( 'added_usermeta',  array( $this, 'usermeta_action_handler' ), 10, 4 );
 			add_action( 'update_usermeta', array( $this, 'usermeta_action_handler' ), 10, 4 );
 			add_action( 'delete_usermeta', array( $this, 'usermeta_action_handler' ), 10, 4 );
+
+			add_action( 'added_user_meta',  array( $this, 'usermeta_action_handler' ), 10, 4 );
+			add_action( 'update_user_meta', array( $this, 'usermeta_action_handler' ), 10, 4 );
+			add_action( 'delete_user_meta', array( $this, 'usermeta_action_handler' ), 10, 4 );
 		}
 
 		// Posts
