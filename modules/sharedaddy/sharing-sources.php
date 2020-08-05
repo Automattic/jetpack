@@ -266,11 +266,15 @@ abstract class Sharing_Source {
 	 * @param array $attrs Custom attributes for rendering the social icon.
 	 */
 	protected function build_amp_markup( $attrs = array() ) {
+		$sharer	 = new Sharing_Service();
+		$global	 = $sharer->get_global_options();
 		$attrs        = array_merge(
 			array(
 				'type'   => $this->get_id(),
 				'height' => '32px',
 				'width'  => '32px',
+				'aria-label' => esc_html( $global['sharing_label'] ) .' '. ucfirst($this->shortname),
+				'title' => esc_html( $global['sharing_label'] ) .' '. ucfirst( $this->shortname),
 			),
 			$attrs
 		);
