@@ -20,12 +20,7 @@ class Premium_Blocks {
 	 *
 	 * @var array
 	 */
-	public $extensions = array(
-		'core/audio',
-		'core/cover',
-		'core/video',
-		'premium-content/container',
-	);
+	public $extensions = array();
 
 	/**
 	 * Singleton.
@@ -44,7 +39,24 @@ class Premium_Blocks {
 	 * Premium_Blocks constructor.
 	 */
 	private function __construct() {
+		// Check if it's a Simple site. Bail if not.
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			return;
+		}
+
+		// Check if the class exists. Bail if not.
+		if ( ! class_exists( 'Store_Product_List' ) ) {
+			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+		}
+
+		// Check if the method exists in the class. Bail if not.
+		if ( ! method_exists( 'Store_Product_List', 'get_paid_blocks_list') ) {
+			return;
+		}
+
+		// Check if the are defined paid blocks
+		$this->extensions = \Store_Product_List::get_paid_blocks_list();
+		if ( empty( $this->extensions ) ) {
 			return;
 		}
 
@@ -57,15 +69,15 @@ class Premium_Blocks {
 		);
 
 		// Set extensions availability depending on the plan site type and plan of the site.
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_block_availability' ) );
 	}
 
 	/**
 	 * Set the Jetpack Gutenberg extension availability.
 	 * It will check if the extension/block will require an upgrade
-	 * in order to make it available for the site.
+	 * in order to make it completely available for the site.
 	 */
-	public function set_extension_availability() {
+	public function set_block_availability() {
 		foreach ( $this->extensions as $extension ) {
 			\Jetpack_Gutenberg::set_availability_for_plan( $extension );
 		}
