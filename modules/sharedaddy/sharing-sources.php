@@ -1781,6 +1781,8 @@ class Share_Pocket extends Sharing_Source {
 	public function get_amp_display( $post ) {
 		$attrs = array(
 			'data-share-endpoint' => esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) ),
+			'aria-label' => __( 'Click to share on Pocket', 'jetpack' ),
+			'title' => __( 'Click to share on Pocket', 'jetpack' ),
 		);
 
 		return $this->build_amp_markup( $attrs );
