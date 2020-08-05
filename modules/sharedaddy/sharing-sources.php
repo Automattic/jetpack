@@ -266,15 +266,11 @@ abstract class Sharing_Source {
 	 * @param array $attrs Custom attributes for rendering the social icon.
 	 */
 	protected function build_amp_markup( $attrs = array() ) {
-		$sharer	 = new Sharing_Service();
-		$global	 = $sharer->get_global_options();
 		$attrs        = array_merge(
 			array(
 				'type'   => $this->get_id(),
 				'height' => '32px',
 				'width'  => '32px',
-				'aria-label' => $global['sharing_label'] .' '. ucfirst($this->shortname),
-				'title' => $global['sharing_label'] .' '. ucfirst( $this->shortname),
 			),
 			$attrs
 		);
@@ -839,6 +835,21 @@ class Share_Twitter extends Sharing_Source {
 		}
 	}
 
+	/**
+	 * AMP display for Twitter.
+	 *
+	 * @param \WP_Post $post The current post being viewed.
+	 */
+	public function get_amp_display( $post ) {
+		$attrs = array(
+			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+			'aria-label' => __( 'Click to share on Twitter', 'jetpack' ),
+			'title' => __( 'Click to share on Twitter', 'jetpack' ),
+		);
+
+		return $this->build_amp_markup( $attrs );
+	}
+
 	public function process_request( $post, array $post_data ) {
 		$post_title = $this->get_share_title( $post->ID );
 		$post_link = $this->get_share_url( $post->ID );
@@ -936,6 +947,8 @@ class Share_Reddit extends Sharing_Source {
 	public function get_amp_display( $post ) {
 		$attrs = array(
 			'data-share-endpoint' => esc_url_raw( 'https://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) ),
+			'aria-label' => __( 'Click to share on Reddit', 'jetpack' ),
+			'title' => __( 'Click to share on Reddit', 'jetpack' ),
 		);
 
 		return $this->build_amp_markup( $attrs );
@@ -1128,6 +1141,8 @@ class Share_Facebook extends Sharing_Source {
 		$attrs = array(
 			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
 			'data-param-app_id' => apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ),
+			'aria-label' => __( 'Click to share on Facebook', 'jetpack' ),
+			'title' => __( 'Click to share on Facebook', 'jetpack' ),
 		);
 
 		return $this->build_amp_markup( $attrs );
@@ -1821,6 +1836,8 @@ class Share_Telegram extends Sharing_Source {
 	public function get_amp_display( $post ) {
 		$attrs = array(
 			'data-share-endpoint' => esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) ),
+			'aria-label' => __( 'Click to share on Telegram', 'jetpack' ),
+			'title' => __( 'Click to share on Telegram', 'jetpack' ),
 		);
 
 		return $this->build_amp_markup( $attrs );
@@ -1854,6 +1871,8 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 	public function get_amp_display( $post ) {
 		$attrs = array(
 			'type' => 'whatsapp',
+			'aria-label' => __( 'Click to share on WhatsApp', 'jetpack' ),
+			'title' => __( 'Click to share on WhatsApp', 'jetpack' ),
 		);
 
 		return $this->build_amp_markup( $attrs );
@@ -1930,6 +1949,8 @@ class Share_Skype extends Sharing_Source {
 				rawurlencode( $this->get_share_url( $post->ID ) ),
 				'en-US'
 			),
+			'aria-label' => __( 'Click to share on Skype', 'jetpack' ),
+			'title' => __( 'Click to share on Skype', 'jetpack' ),
 		);
 
 		return $this->build_amp_markup( $attrs );
