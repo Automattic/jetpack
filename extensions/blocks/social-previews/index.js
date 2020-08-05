@@ -24,7 +24,12 @@ export const SocialPreviews = function SocialPreviews( { showUpgradeNudge } ) {
 
 	return (
 		<>
-			{ isOpened && <SocialPreviewsModal onClose={ () => setIsOpened( false ) } /> }
+			{ isOpened && (
+				<SocialPreviewsModal
+					showUpgradeNudge={ showUpgradeNudge }
+					onClose={ () => setIsOpened( false ) }
+				/>
+			) }
 			<JetpackPluginSidebar>
 				<PanelBody title={ __( 'Social Previews', 'jetpack' ) }>
 					<SocialPreviewsPanel
