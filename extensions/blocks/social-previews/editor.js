@@ -22,7 +22,7 @@ const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previe
  * extension availability so will not render the Plugin if the extension is not
  * availabile.
  */
-if ( !extensionAvailableOnPlan ) {
+if ( ! extensionAvailableOnPlan ) {
     registerPlugin( `jetpack-${name}-upgrade-nudge`, {
         render: () => {
             return (
