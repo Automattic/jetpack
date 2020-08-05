@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { SimpleButton } from './button';
+import { CloseIcon } from './icons';
 
 export default function Header( { fullscreen, onExitFullscreen, siteIconUrl, storyTitle } ) {
 	if ( ! fullscreen ) {
@@ -25,9 +26,10 @@ export default function Header( { fullscreen, onExitFullscreen, siteIconUrl, sto
 			<SimpleButton
 				className="wp-story-exit-fullscreen"
 				label={ __( 'Exit Fullscreen', 'jetpack' ) }
-				icon="close"
 				onClick={ onExitFullscreen }
-			/>
+			>
+				<CloseIcon />
+			</SimpleButton>
 		</div>
 	);
 }

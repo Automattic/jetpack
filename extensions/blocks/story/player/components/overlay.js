@@ -15,6 +15,7 @@ import { createElement, useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { DecoratedButton } from './button';
+import { NavigateBeforeIcon, NavigateNextIcon } from './icons';
 
 export default function Overlay( {
 	ended,
@@ -62,24 +63,16 @@ export default function Overlay( {
 			) }
 			{ hasPrevious && (
 				<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
-					<DecoratedButton
-						size={ 44 }
-						iconSize={ 24 }
-						label="Previous Slide"
-						icon="navigate_before"
-						className="outlined-w"
-					/>
+					<DecoratedButton size={ 44 } label="Previous Slide" className="outlined-w">
+						<NavigateBeforeIcon size={ 24 } />
+					</DecoratedButton>
 				</div>
 			) }
 			{ hasNext && (
 				<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
-					<DecoratedButton
-						size={ 44 }
-						iconSize={ 24 }
-						label="Next Slide"
-						icon="navigate_next"
-						className="outlined-w"
-					/>
+					<DecoratedButton size={ 44 } label="Next Slide" className="outlined-w">
+						<NavigateNextIcon size={ 24 } />
+					</DecoratedButton>
 				</div>
 			) }
 		</div>

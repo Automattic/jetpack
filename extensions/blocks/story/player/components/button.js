@@ -19,10 +19,9 @@ export const MaterialIcon = ( { icon, size = 24 } ) => (
 
 export const Button = ( {
 	label,
-	icon,
-	onClick,
 	size = 24,
-	iconSize = 24,
+	onClick,
+	children,
 	className = null,
 	circled = false,
 	outlined = false,
@@ -45,11 +44,7 @@ export const Button = ( {
 			aria-pressed="false"
 			onClick={ onClick }
 		>
-			{ typeof icon === 'function' ? (
-				<icon size={ iconSize } />
-			) : (
-				<MaterialIcon icon={ icon } size={ iconSize } />
-			) }
+			{ children }
 		</button>
 	);
 };
@@ -58,6 +53,4 @@ export const DecoratedButton = props => (
 	<Button circled outlined bordered size={ 64 } iconSize={ 36 } { ...props } />
 );
 
-export const SimpleButton = ( { size = 24, ...props } ) => (
-	<Button size={ size } iconSize={ size } { ...props } />
-);
+export const SimpleButton = ( { size = 24, ...props } ) => <Button size={ size } { ...props } />;
