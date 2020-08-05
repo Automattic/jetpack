@@ -236,6 +236,7 @@
 		"**/@wordpress/compose/mousetrap": "^1.6.5",
 		"**/browserify-sign/elliptic": "^6.5.3",
 		"**/create-ecdh/elliptic": "^6.5.3",
-		"**/postcss-selector-parser/dot-prop": "^5.1.1"
+		"**/postcss-selector-parser/dot-prop": "^5.1.1",
+		"lodash": "4.17.15"
 	}
 }
