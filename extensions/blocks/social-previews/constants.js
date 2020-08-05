@@ -15,12 +15,14 @@ export const AVAILABLE_SERVICES = [
 		title: __( 'Facebook', 'jetpack' ),
 		icon: 'facebook',
 		name: 'facebook',
-		preview: FacebookPreview,
+		preview: props => <FacebookPreview type="article" { ...props } />,
 	},
 	{
 		title: __( 'Twitter', 'jetpack' ),
 		icon: 'twitter',
 		name: 'twitter',
-		preview: TwitterPreview,
+		preview: props => (
+			<TwitterPreview type={ props.image ? 'large_image_summary' : 'summary' } { ...props } />
+		),
 	},
 ];
