@@ -16,7 +16,22 @@
 		}
 	}
 
-	.donations__amount .wp-block-button__link {
+	.donations__amount:not( .donations__custom-amount ) .wp-block-button__link {
 		cursor: pointer;
+	}
+
+	.donations__amount-value {
+		white-space: pre-wrap;
+		display: inline-block;
+		text-align: left;
+
+		&:empty:after {
+			content: attr(data-placeholder);
+			color: $light-gray-700;
+		}
+
+		&:focus {
+			outline: none;
+		}
 	}
 }

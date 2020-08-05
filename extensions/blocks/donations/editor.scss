@@ -17,6 +17,14 @@
 		color: $light-gray-700;
 	}
 
+	.donations__custom-amount .wp-block-button__link {
+		cursor: default;
+	}
+
+	.donations__custom-amount .donations__amount-value {
+		color: $light-gray-700;
+	}
+
 	.jetpack-block-nudge {
 		max-width: none;
 	}

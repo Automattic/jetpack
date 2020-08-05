@@ -15,6 +15,30 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
  */
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
+const parseAmount = ( amount, currency ) => {
+	if ( ! amount ) {
+		return null;
+	}
+
+	if ( typeof amount === 'number' ) {
+		return amount;
+	}
+
+	amount = parseFloat(
+		amount
+			// Remove any thousand grouping separator.
+			.replace( new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ), '' )
+			// Replace the localized decimal separator with a dot (the standard decimal separator in float numbers).
+			.replace( new RegExp( '\\' + CURRENCIES[ currency ].decimal, 'g' ), '.' )
+	);
+
+	if ( isNaN( amount ) ) {
+		return null;
+	}
+
+	return amount;
+};
+
 const Amount = ( {
 	className = '',
 	currency = null,
@@ -30,33 +54,6 @@ const Amount = ( {
 	const [ isFocused, setIsFocused ] = useState( false );
 	const [ isInvalid, setIsInvalid ] = useState( false );
 	const richTextRef = useRef( null );
-
-	const parseAmount = useCallback(
-		amount => {
-			if ( ! amount ) {
-				return null;
-			}
-
-			if ( typeof amount === 'number' ) {
-				return amount;
-			}
-
-			amount = parseFloat(
-				amount
-					// Remove any thousand grouping separator.
-					.replace( new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ), '' )
-					// Replace the localized decimal separator with a dot (the standard decimal separator in float numbers).
-					.replace( new RegExp( '\\' + CURRENCIES[ currency ].decimal, 'g' ), '.' )
-			);
-
-			if ( isNaN( amount ) ) {
-				return null;
-			}
-
-			return amount;
-		},
-		[ currency ]
-	);
 
 	const setAmount = useCallback(
 		amount => {
@@ -74,7 +71,7 @@ const Amount = ( {
 				setIsInvalid( true );
 			}
 		},
-		[ currency, parseAmount, onChange ]
+		[ currency, onChange ]
 	);
 
 	const setFocus = () => {
@@ -148,3 +145,4 @@ const Amount = ( {
 };
 
 export default Amount;
+export { parseAmount };

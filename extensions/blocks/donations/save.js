@@ -132,13 +132,16 @@ const Save = ( { attributes } ) => {
 								<div className="wp-block-button donations__amount donations__custom-amount">
 									<div className="wp-block-button__link">
 										{ CURRENCIES[ currency ].symbol }
-										<span className="donations__amount-value">
-											{ formatCurrency(
+										<span
+											className="donations__amount-value"
+											contentEditable
+											data-currency={ currency }
+											data-placeholder={ formatCurrency(
 												minimumTransactionAmountForCurrency( currency ) * 100,
 												currency,
 												{ symbol: '' }
 											) }
-										</span>
+										/>
 									</div>
 								</div>
 							</>

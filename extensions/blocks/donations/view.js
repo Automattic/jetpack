@@ -4,9 +4,16 @@
 import domReady from '@wordpress/dom-ready';
 
 /**
+ * Internal dependencies
+ */
+import { parseAmount } from './amount';
+import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+
+/**
  * Style dependencies
  */
 import './view.scss';
+import formatCurrency from '@automattic/format-currency';
 
 const initNavigation = () => {
 	let activeTab = 'one-time';
@@ -43,6 +50,56 @@ const initNavigation = () => {
 	tabContent.classList.add( tabClasses[ activeTab ] );
 };
 
+const handleCustomAmount = () => {
+	const input = document.querySelector(
+		'.wp-block-jetpack-donations .donations__custom-amount .donations__amount-value'
+	);
+	if ( ! input ) {
+		return;
+	}
+
+	const wrapper = document.querySelector(
+		'.wp-block-jetpack-donations .donations__custom-amount .wp-block-button__link'
+	);
+
+	// Prevent new lines.
+	input.addEventListener( 'keydown', event => {
+		if ( event.keyCode === 13 ) {
+			event.preventDefault();
+		}
+	} );
+
+	// Add focus styles to wrapper element.
+	input.addEventListener( 'focus', () => wrapper.classList.add( 'has-focus' ) );
+	input.addEventListener( 'blur', () => wrapper.classList.remove( 'has-focus' ) );
+
+	// Validates the amount.
+	input.addEventListener( 'input', () => {
+		const amount = input.innerHTML;
+		const currency = input.dataset.currency;
+		const parsedAmount = parseAmount( amount, currency );
+		if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
+			wrapper.classList.remove( 'has-error' );
+			input.dataset.amount = parsedAmount;
+		} else if ( amount ) {
+			wrapper.classList.add( 'has-error' );
+			delete input.dataset.amount;
+		}
+	} );
+
+	// Formats the entered amount.
+	input.addEventListener( 'blur', () => {
+		if ( ! input.dataset.amount ) {
+			return;
+		}
+
+		input.innerHTML = formatCurrency( input.dataset.amount, input.dataset.currency, {
+			symbol: '',
+		} );
+	} );
+};
+
 domReady( () => {
 	initNavigation();
+	handleCustomAmount();
 } );
