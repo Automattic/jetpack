@@ -12,8 +12,8 @@ registerJetpackPlugin( name, settings );
 
 // TODO: remove in favour of `getJetpackExtensionAvailability()` call.
 // Testing purposes only to force reveal of upgrade nudge UI.
-const extensionAvailableOnPlan = false;
-// const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' );
+const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' );
+// const extensionAvailableOnPlan = false;
 
 // If the social previews extension is **not** available on this plan (WP.com only)
 // then manually register a near identical Plugin which shows the upgrade nudge.
