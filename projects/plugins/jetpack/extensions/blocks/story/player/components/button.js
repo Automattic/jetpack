@@ -7,12 +7,12 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { createElement } from '@wordpress/element';
+import { Button } from '@wordpress/components';
+
 import './button.scss';
 
-export const DecoratedButton = ( { className, size, isPressed, ...extraProps } ) => (
-	<button
-		type="button"
-		aria-pressed={ isPressed }
+export const DecoratedButton = ( { className, size, ...extraProps } ) => (
+	<Button
 		className={ classNames(
 			'jetpack-mdc-icon-button',
 			'circle-icon',
@@ -28,10 +28,8 @@ export const DecoratedButton = ( { className, size, isPressed, ...extraProps } )
 	/>
 );
 
-export const SimpleButton = ( { className, size = 24, isPressed, ...extraProps } ) => (
-	<button
-		type="button"
-		aria-pressed={ isPressed }
+export const SimpleButton = ( { className, size = 24, ...extraProps } ) => (
+	<Button
 		className={ classNames( 'jetpack-mdc-icon-button', className ) }
 		style={ {
 			width: `${ size }px`,
