@@ -80,7 +80,7 @@ export function isUpgradable( name ) {
 	const blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
 
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
-	return isSimpleSite() && requiresPaidPlan( unavailableReason, details );
+	return requiresPaidPlan( unavailableReason, details );
 }
 
 /*
