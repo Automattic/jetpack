@@ -144,6 +144,12 @@ const FieldDefaults = {
 				isMatch: ( { options } ) => 1 <= options.length,
 				transform: attributes => createBlock( 'jetpack/field-select', attributes ),
 			},
+			{
+				type: 'block',
+				blocks: [ 'jetpack/field-consent' ],
+				isMatch: ( { options } ) => 1 <= options.length,
+				transform: attributes => createBlock( 'jetpack/field-consent', attributes ),
+			},
 		],
 	},
 	save: () => null,
@@ -340,6 +346,10 @@ export const childBlocks = [
 			),
 			attributes: {
 				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Consent', 'jetpack' ),
+				},
 				consentType: {
 					type: 'string',
 					default: 'implicit',

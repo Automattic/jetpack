@@ -51,6 +51,10 @@
 	display: block;
 }
 
+.contact-form label.consent-implicit input {
+	display: none;
+}
+
 .contact-form label.checkbox,
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
@@ -62,6 +66,7 @@
 }
 
 .contact-form .grunion-field-checkbox-wrap,
+.contact-form .grunion-field-consent-wrap,
 .contact-form .grunion-field-checkbox-multiple-wrap,
 .contact-form .grunion-field-radio-wrap {
 	margin-bottom: 1em;
@@ -142,7 +147,7 @@
 	flex: 0 0 75%;
 }
 
-.grunion-field-checkbox-wrap {
+.grunion-field-checkbox-wrap, .grunion-field-consent-wrap {
 	align-self: center;
 }
 
