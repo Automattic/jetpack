@@ -14,7 +14,7 @@ export function getThemeOptions( searchOptions ) {
 		].join( ', ' ),
 		filterInputSelector: [ 'a.jetpack-search-filter__link' ],
 		openOverlayButtonSelector: [
-			'.jetpack-instant-search__open-overlay',
+			'.jetpack-instant-search__open-overlay-button',
 			'#site-header .header-navigation-wrapper .header-toggles .search-toggle',
 		].join( ',' ),
 	};

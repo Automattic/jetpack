@@ -77,7 +77,7 @@ class SearchApp extends Component {
 		document
 			.querySelectorAll( this.props.themeOptions.openOverlayButtonSelector )
 			.forEach( button => {
-				button.addEventListener( 'click', this.showResults );
+				button.addEventListener( 'click', this.handleOverlayTriggerClick );
 			} );
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
@@ -95,7 +95,7 @@ class SearchApp extends Component {
 		document
 			.querySelectorAll( this.props.themeOptions.openOverlayButtonSelector )
 			.forEach( button => {
-				button.removeEventListener( 'click', this.showResults );
+				button.removeEventListener( 'click', this.handleOverlayTriggerClick );
 			} );
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
@@ -145,6 +145,12 @@ class SearchApp extends Component {
 				setFilterQuery( event.target.dataset.filterType, event.target.dataset.val );
 			}
 		}
+		this.showResults();
+	};
+
+	handleOverlayTriggerClick = event => {
+		event.preventDefault();
+		event.stopImmediatePropagation();
 		this.showResults();
 	};
 
