@@ -72,7 +72,8 @@ export default withSelect( ( select, props ) => {
 		title: getEditedPostAttribute( 'title' ),
 		description: getEditedPostAttribute( 'excerpt' ) || getEditedPostAttribute( 'content' ),
 		url: getEditedPostAttribute( 'link' ),
-		author: user && user.name,
-		image: featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ), getCurrentPostId() ),
+		author: user?.name,
+		image:
+			!! featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ), getCurrentPostId() ),
 	};
 } )( SocialPreviewsModal );
