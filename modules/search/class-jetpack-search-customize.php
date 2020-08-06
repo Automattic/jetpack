@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
 require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
 require_once dirname( __FILE__ ) . '/customize-controls/class-label-control.php';
 require_once dirname( __FILE__ ) . '/customize-controls/class-excluded-post-types-control.php';
@@ -227,10 +228,11 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'           => '1',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'transport'         => 'postMessage',
-				'type'              => 'option',
+				'default'              => '1',
+				'sanitize_callback'    => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -246,10 +248,11 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'           => '1',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'transport'         => 'postMessage',
-				'type'              => 'option',
+				'default'              => '1',
+				'sanitize_callback'    => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -265,10 +268,11 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'           => '1',
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				'transport'         => 'postMessage',
-				'type'              => 'option',
+				'default'              => '1',
+				'sanitize_callback'    => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Jetpack_Search_Helpers', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
 			)
 		);
 		$wp_customize->add_control(
