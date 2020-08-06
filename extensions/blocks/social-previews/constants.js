@@ -1,42 +1,24 @@
 /**
  * External dependencies
  */
-import { Fragment } from 'react';
 import { __ } from '@wordpress/i18n';
-
 import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
-import { SocialServiceIcon } from '../../shared/icons';
 
 export const AVAILABLE_SERVICES = [
 	{
-		title: (
-			<Fragment>
-				<SocialServiceIcon serviceName="google" />
-				{ __( 'Google Search', 'jetpack' ) }
-			</Fragment>
-		),
+		title: __( 'Google Search', 'jetpack' ),
 		icon: 'google',
 		name: 'google',
 		preview: SearchPreview,
 	},
 	{
-		title: (
-			<Fragment>
-				<SocialServiceIcon serviceName="facebook" />
-				{ __( 'Facebook', 'jetpack' ) }
-			</Fragment>
-		),
+		title: __( 'Facebook', 'jetpack' ),
 		icon: 'facebook',
 		name: 'facebook',
 		preview: props => <FacebookPreview type="article" { ...props } />,
 	},
 	{
-		title: (
-			<Fragment>
-				<SocialServiceIcon serviceName="twitter" />
-				{ __( 'Twitter', 'jetpack' ) }
-			</Fragment>
-		),
+		title: __( 'Twitter', 'jetpack' ),
 		icon: 'twitter',
 		name: 'twitter',
 		preview: props => (

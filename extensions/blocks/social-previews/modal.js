@@ -9,6 +9,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Modal, TabPanel } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 import { withSelect } from '@wordpress/data';
 
 /**
@@ -16,6 +17,7 @@ import { withSelect } from '@wordpress/data';
  */
 import SocialPreviewsUpgrade from './upgrade';
 import { AVAILABLE_SERVICES } from './constants';
+import { SocialServiceIcon } from '../../shared/icons';
 import { getMediaSourceUrl } from './utils';
 import './modal.scss';
 
@@ -28,6 +30,19 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	url,
 	author,
 } ) {
+	// Inject the service icon into the title
+	const tabs = AVAILABLE_SERVICES.map( service => {
+		return {
+			...service,
+			title: (
+				<Fragment>
+					<SocialServiceIcon serviceName={ service.icon } />
+					{ service.title }
+				</Fragment>
+			),
+		};
+	} );
+
 	return (
 		<Modal
 			onRequestClose={ onClose }
@@ -37,7 +52,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 			{ showUpgradeNudge ? (
 				<SocialPreviewsUpgrade />
 			) : (
-				<TabPanel className="jetpack-social-previews__tabs" tabs={ AVAILABLE_SERVICES }>
+				<TabPanel className="jetpack-social-previews__tabs" tabs={ tabs }>
 					{ tab => (
 						<div>
 							<tab.preview
