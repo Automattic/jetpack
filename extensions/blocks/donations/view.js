@@ -26,19 +26,22 @@ const initNavigation = () => {
 	const navItems = document.querySelectorAll( '.wp-block-jetpack-donations .donations__nav-item' );
 	const tabContent = document.querySelector( '.wp-block-jetpack-donations .donations__tab' );
 
-	navItems.forEach( navItem => {
-		navItem.addEventListener( 'click', event => {
-			// Toggle nav item.
-			document
-				.querySelector( '.wp-block-jetpack-donations .donations__nav-item.is-active' )
-				.classList.remove( 'is-active' );
-			event.target.classList.add( 'is-active' );
+	const handleClick = event => {
+		// Toggle nav item.
+		document
+			.querySelector( '.wp-block-jetpack-donations .donations__nav-item.is-active' )
+			.classList.remove( 'is-active' );
+		event.target.classList.add( 'is-active' );
 
-			// Toggle tab.
-			tabContent.classList.remove( tabClasses[ activeTab ] );
-			activeTab = event.target.dataset.interval;
-			tabContent.classList.add( tabClasses[ activeTab ] );
-		} );
+		// Toggle tab.
+		tabContent.classList.remove( tabClasses[ activeTab ] );
+		activeTab = event.target.dataset.interval;
+		tabContent.classList.add( tabClasses[ activeTab ] );
+	};
+
+	navItems.forEach( navItem => {
+		navItem.addEventListener( 'click', handleClick );
+		navItem.addEventListener( 'keydown', handleClick );
 	} );
 
 	// Activates the default tab on first execution.
@@ -58,9 +61,7 @@ const handleCustomAmount = () => {
 		return;
 	}
 
-	const wrapper = document.querySelector(
-		'.wp-block-jetpack-donations .donations__custom-amount .wp-block-button__link'
-	);
+	const wrapper = document.querySelector( '.wp-block-jetpack-donations .donations__custom-amount' );
 
 	// Prevent new lines.
 	input.addEventListener( 'keydown', event => {

@@ -101,7 +101,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 				value={ chooseAmountText }
 				onChange={ value => setAttributes( { chooseAmountText: value } ) }
 			/>
-			<div className="wp-block-buttons donations__amounts">
+			<div className="donations__amounts">
 				{ amounts.map( ( amount, index ) => (
 					<Amount
 						currency={ currency }

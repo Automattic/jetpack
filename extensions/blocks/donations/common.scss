@@ -16,38 +16,30 @@
 		flex-grow: 1;
 		text-align: center;
 		font-size: 16px;
-		padding: 16px;
-		height: auto;
-		border-radius: 0;
+		padding: 16px 24px;
+		border: none;
 		border-left: 1px solid $light-gray-700;
-		background-color: $white;
+		background: $white;
 		color: $dark-gray-800;
-		box-shadow: none;
+		cursor: pointer;
+		border-radius: 0;
 		text-transform: none;
 		text-decoration: none;
 		outline: none;
-
-		&:focus,
-		&:active {
-			border-radius: 0;
-		}
 
 		&:first-child {
 			border-left: none;
 		}
 
-		// Complex selector needed to override specificity.
-		&:not(:disabled):not([aria-disabled=true]):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover {
-			background-color: $light-gray-100;
-			box-shadow: none;
+		&:hover {
+			background: $light-gray-100;
+			color: $dark-gray-800;
 		}
 
-		// Complex selector needed to override specificity.
-		&.is-active,
-		&.is-active:not(:disabled):not([aria-disabled=true]):not(.is-secondary):not(.is-primary):not(.is-tertiary):not(.is-link):hover {
-			background-color: $blue-wordpress-700;
-			box-shadow: none;
+		&.is-active {
+			background: $blue-wordpress-700;
 			color: $white;
+			cursor: default;
 		}
 	}
 
@@ -58,21 +50,18 @@
 	.donations__amounts {
 		margin-top: 30px;
 		margin-bottom: 30px;
+		display: flex;
 	}
 
 	.donations__amount {
 		display: inline-block;
-		margin-top: 0;
-		margin-bottom: 0;
-	}
-
-	.donations__amount .wp-block-button__link {
+		padding: 16px 24px;
 		background-color: $white;
 		color: $dark-gray-800;
 		border: 1px solid $light-gray-700;
-		cursor: text;
-		text-decoration: none;
-		text-transform: none;
+		margin-right: 8px;
+		font-weight: 600;
+		font-size: 16px;
 
 		&.has-focus {
 			box-shadow: 0 0 0 1px $white, 0 0 0 3px $blue-wordpress-700;
@@ -87,7 +76,7 @@
 		}
 	}
 
-	.donations__custom-amount  .donations__amount-value {
+	.donations__custom-amount .donations__amount-value {
 		margin-left: 4px;
 		min-width: 60px;
 	}

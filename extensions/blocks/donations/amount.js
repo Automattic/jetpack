@@ -110,36 +110,34 @@ const Amount = ( {
 	}, [ currency, isFocused, isInvalid, setAmount, value ] );
 
 	return (
-		<div className={ classnames( 'wp-block-button', 'donations__amount', className ) }>
-			<div
-				className={ classnames( 'wp-block-button__link', {
-					'has-focus': isFocused,
-					'has-error': isInvalid,
-				} ) }
-				onClick={ setFocus }
-				onKeyDown={ setFocus }
-				role="button"
-				tabIndex={ 0 }
-			>
-				{ CURRENCIES[ currency ].symbol }
-				{ ! disabled ? (
-					<RichText
-						allowedFormats={ [] }
-						aria-label={ label }
-						keepPlaceholderOnFocus={ true }
-						multiline={ false }
-						onChange={ amount => setAmount( amount ) }
-						placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
-						ref={ richTextRef }
-						value={ editedValue }
-						withoutInteractiveFormatting
-					/>
-				) : (
-					<span className="donations__amount-value">
-						{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }
-					</span>
-				) }
-			</div>
+		<div
+			className={ classnames( 'donations__amount', 'wp-block-button__link', className, {
+				'has-focus': isFocused,
+				'has-error': isInvalid,
+			} ) }
+			role="button"
+			tabIndex={ 0 }
+			onClick={ setFocus }
+			onKeyDown={ setFocus }
+		>
+			{ CURRENCIES[ currency ].symbol }
+			{ disabled ? (
+				<span className="donations__amount-value">
+					{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }
+				</span>
+			) : (
+				<RichText
+					allowedFormats={ [] }
+					aria-label={ label }
+					keepPlaceholderOnFocus={ true }
+					multiline={ false }
+					onChange={ amount => setAmount( amount ) }
+					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
+					ref={ richTextRef }
+					value={ editedValue }
+					withoutInteractiveFormatting
+				/>
+			) }
 		</div>
 	);
 };

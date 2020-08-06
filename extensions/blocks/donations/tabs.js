@@ -6,7 +6,6 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { Button } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -82,15 +81,18 @@ const Tabs = props => {
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__nav">
 						{ Object.entries( tabs ).map( ( [ interval, { title } ] ) => (
-							<Button
-								className={ classNames( 'donations__nav-item', {
+							<div
+								role="button"
+								tabIndex={ 0 }
+								className={ classNames( 'donations__nav-item', 'wp-block-button__link', {
 									'is-active': isTabActive( interval ),
 								} ) }
 								onClick={ () => setActiveTab( interval ) }
+								onKeyDown={ () => setActiveTab( interval ) }
 								key={ `jetpack-donations-nav-item-${ interval } ` }
 							>
 								{ title }
-							</Button>
+							</div>
 						) ) }
 					</div>
 				) }
