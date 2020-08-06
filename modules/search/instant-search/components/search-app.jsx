@@ -75,7 +75,7 @@ class SearchApp extends Component {
 			input.addEventListener( 'input', this.handleInput );
 		} );
 		document.querySelectorAll( this.props.themeOptions.overlayTriggerSelector ).forEach( button => {
-			button.addEventListener( 'click', this.handleOverlayTriggerClick );
+			button.addEventListener( 'click', this.handleOverlayTriggerClick, true );
 		} );
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
@@ -91,7 +91,7 @@ class SearchApp extends Component {
 			input.removeEventListener( 'input', this.handleInput );
 		} );
 		document.querySelectorAll( this.props.themeOptions.overlayTriggerSelector ).forEach( button => {
-			button.removeEventListener( 'click', this.handleOverlayTriggerClick );
+			button.removeEventListener( 'click', this.handleOverlayTriggerClick, true );
 		} );
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
