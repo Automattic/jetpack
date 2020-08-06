@@ -129,7 +129,7 @@ class SearchApp extends Component {
 			return;
 		}
 		this.getResults( { query: event.target.value } );
-	}, 200 );
+	}, 100 );
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
