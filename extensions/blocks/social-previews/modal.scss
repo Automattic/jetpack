@@ -1,0 +1,68 @@
+/**
+ * Modal styles for Social Previews
+ */
+
+@import '~@automattic/color-studio/dist/color-variables';
+@import '../../../scss/_utilities/mixins/_breakpoint';
+@import '../../../scss/atoms/colors/_colors';
+
+.jetpack-social-previews__modal {
+	.components-modal__content {
+		padding: 0;
+	}
+
+	.components-modal__header {
+		margin: 0;
+	}
+
+	.jetpack-social-previews__tabs {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+
+		@include minbreakpoint( desktop ) {
+			flex-direction: row;
+			min-width: 900px;
+			min-height: 500px;
+		}
+
+		.components-tab-panel__tabs {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			padding: 24px;
+			max-width: none;
+
+			.components-button {
+				outline: 0;
+
+				&.is-active {
+					box-shadow: 0px 0px 0px 2px $wpcom;
+				}
+
+				&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-secondary ):not( .is-primary ):not( .is-tertiary ):not( .is-link ):hover {
+					box-shadow: 0px 0px 0px 2px $wpcom;
+				}
+			}
+
+			.components-button:before {
+				display: none;
+			}
+
+			@include minbreakpoint( desktop ) {
+				flex-direction: column;
+				justify-content: flex-start;
+
+				.components-button:before {
+					display: block;
+				}
+			}
+		}
+
+		.components-tab-panel__tab-content {
+			padding: 40px;
+			background-color: $studio-gray-0;
+			flex: 1;
+		}
+	}
+}

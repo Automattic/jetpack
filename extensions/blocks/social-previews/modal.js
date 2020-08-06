@@ -17,6 +17,7 @@ import { withSelect } from '@wordpress/data';
 import SocialPreviewsUpgrade from './upgrade';
 import { AVAILABLE_SERVICES } from './constants';
 import { getMediaSourceUrl } from './utils';
+import './modal.scss';
 
 const SocialPreviewsModal = function SocialPreviewsModal( {
 	onClose,
