@@ -18,17 +18,16 @@ import { has } from 'lodash';
  */
 import { AVAILABLE_SERVICES } from './constants';
 
-const SocialPreviewsModal = function SocialPreviewsModal( props ) {
-	const {
-		onClose,
-		showUpgradeNudge,
-		media,
-		currentPostId,
-		title,
-		description,
-		url,
-		author,
-	} = props;
+const SocialPreviewsModal = function SocialPreviewsModal( {
+	onClose,
+	showUpgradeNudge,
+	media,
+	currentPostId,
+	title,
+	description,
+	url,
+	author,
+) {
 
 	let mediaSourceUrl;
 	if ( media ) {
