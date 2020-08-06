@@ -300,6 +300,7 @@ class Defaults {
 		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
 		'paused_themes'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
+		'jetpack_autoupdate_plugins'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_auto_update_plugins' ),
 	);
 
 
@@ -949,6 +950,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'active_sitewide_plugins',
+		'auto_update_plugins', // WordPress 5.5+ auto-updates.
 	);
 
 	/**
