@@ -18,6 +18,15 @@
 
 	.donations__amount {
 		cursor: pointer;
+
+		&:hover {
+			background-color: $light-gray-100;
+		}
+
+		&.is-active {
+			background-color: $blue-wordpress-700;
+			color: $white;
+		}
 	}
 
 	.donations__custom-amount {
@@ -37,5 +46,10 @@
 				outline: none;
 			}
 		}
+	}
+
+	.donations__donate-button.is-disabled {
+		pointer-events: none;
+		opacity: 0.2;
 	}
 }

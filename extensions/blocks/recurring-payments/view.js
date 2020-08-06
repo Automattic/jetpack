@@ -8,7 +8,12 @@ import domReady from '@wordpress/dom-ready';
 /**
  * Internal dependencies
  */
+
+/**
+ * Style dependencies
+ */
 import './view.scss';
+
 const name = 'recurring-payments';
 const blockClassName = 'wp-block-jetpack-' + name;
 
