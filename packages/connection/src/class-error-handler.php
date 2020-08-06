@@ -141,10 +141,9 @@ class Error_Handler {
 	 */
 	public function handle_verified_errors() {
 		$verified_errors = $this->get_verified_errors();
-		foreach ( $verified_errors as $error_code => $user_errors ) {
+		foreach ( array_keys( $verified_errors ) as $error_code ) {
 
-			$has_blog_token_errors = isset( $user_errors[0] ) || isset( $user_errors['invalid'] );
-			$has_user_token_errors = isset( $user_errors[ get_current_user_id() ] );
+			$error_found = false;
 
 			switch ( $error_code ) {
 				case 'malformed_token':
@@ -157,15 +156,15 @@ class Error_Handler {
 				case 'token_mismatch':
 				case 'invalid_signature':
 				case 'signature_mismatch':
-					if ( $has_blog_token_errors ) {
-						new Error_Handlers\Invalid_Blog_Token( $user_errors );
-					}
-					// Above error codes can be affecting either blog or user tokens. Errors below are specific to user tokens.
 				case 'no_user_tokens':
 				case 'no_token_for_user':
-					if ( $has_user_token_errors ) {
-						new Error_Handlers\Invalid_User_Token( $user_errors );
-					}
+					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
+					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
+					$error_found = true;
+			}
+			if ( $error_found ) {
+				// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
+				break;
 			}
 		}
 	}
@@ -588,6 +587,76 @@ class Error_Handler {
 
 		return new \WP_REST_Response( false, 200 );
 
+	}
+
+	/**
+	 * Prints a generic error notice for all connection errors
+	 *
+	 * @since 8.9.0
+	 *
+	 * @return void
+	 */
+	public function generic_admin_notice_error() {
+		// do not add admin notice to the jetpack dashboard.
+		global $pagenow;
+		if ( 'admin.php' === $pagenow || isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore
+			return;
+		}
+
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return;
+		}
+
+		/**
+		 * Filters the message to be displayed in the admin notices area when there's a xmlrpc error
+		 *
+		 * Return an empty value to disable the message.
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param string $message The error message.
+		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
+		 */
+		$message = apply_filters( 'jetpack_connection_error_notice_message', __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ), $this->get_verified_errors() );
+
+		/**
+		 * Fires inside the admin_notices hook just before displaying the error message for a broken connection.
+		 *
+		 * If you want to disable the default message from being displayed, return an emtpy value in the jetpack_connection_error_notice_message filter.
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
+		 */
+		do_action( 'jetpack_connection_error_notice', $this->get_verified_errors() );
+
+		if ( empty( $message ) ) {
+			return;
+		}
+
+		?>
+		<div class="notice notice-error is-dismissible jetpack-message jp-connect" style="display:block !important;">
+			<p><?php echo esc_html( $message ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Adds the error message to the Jetpack React Dashboard
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
+	 * @return array
+	 */
+	public function jetpack_react_dashboard_error( $errors ) {
+
+		$errors[] = array(
+			'code'    => 'invalid_blog_token',
+			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ),
+			'action'  => 'reconnect',
+		);
+		return $errors;
 	}
 
 }
