@@ -22,7 +22,7 @@
 
 		@include minbreakpoint( desktop ) {
 			flex-direction: row;
-			min-width: 900px;
+			width: 900px;
 			min-height: 500px;
 		}
 
@@ -35,6 +35,12 @@
 
 			.components-button {
 				outline: 0;
+				margin: 3px 0;
+
+				> svg {
+					display: none;
+					margin-right: 8px;
+				}
 
 				&.is-active {
 					box-shadow: 0px 0px 0px 2px $wpcom;
@@ -45,15 +51,11 @@
 				}
 			}
 
-			.components-button:before {
-				display: none;
-			}
-
 			@include minbreakpoint( desktop ) {
 				flex-direction: column;
 				justify-content: flex-start;
 
-				.components-button:before {
+				.components-button > svg {
 					display: block;
 				}
 			}
