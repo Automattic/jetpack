@@ -15,6 +15,16 @@ function wpcomsh_maybe_disable_fse() {
 add_filter( 'a8c_disable_full_site_editing', 'wpcomsh_maybe_disable_fse' );
 
 /**
+ * Enable the navigation sidebar if the user is proxied.
+ *
+ * @return bool true if the user is proxied
+ */
+function wpcomsh_maybe_enable_nav_sidebar() {
+	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+}
+add_filter( 'a8c_enable_nav_sidebar', 'wpcomsh_maybe_enable_nav_sidebar' );
+
+/**
  * Adds the tracking identity to config that is passed to Starter Page Template frontend.
  * That way we can publish our code to plugin directory sans tracking code.
  *
