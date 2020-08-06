@@ -38,7 +38,7 @@ export class JetpackBackup extends Component {
 					link: getRedirectUrl( 'jetpack-support-backup' ),
 				} }
 			>
-				{ __( 'Your site is backed up.', 'jetpack' ) }
+				{ __( 'Your site is being backed up.', 'jetpack' ) }
 			</SettingsGroup>
 		);
 	};
