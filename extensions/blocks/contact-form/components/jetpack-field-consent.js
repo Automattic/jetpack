@@ -41,7 +41,7 @@ const JetpackFieldConsent = ( {
 						}
 						setAttributes={ setAttributes }
 						labelFieldName={ `${ consentType }ConsentMessage` }
-						placeholder={ sprintf( __( 'Add %s consent message… ', '' ), consentType ) }
+						placeholder={ sprintf( __( 'Add %s consent message…', 'jetpack' ), consentType ) }
 					/>
 					<JetpackFieldControls
 						id={ id }
@@ -52,16 +52,6 @@ const JetpackFieldConsent = ( {
 					<InspectorControls>
 						<PanelBody title={ __( 'Consent Settings', 'jetpack' ) }>
 							<BaseControl>
-								<p>
-									{ __(
-										'To start sending email campaigns, install the Creative Mail plugin for WordPress. ',
-										'jetpack'
-									) }
-									<ExternalLink href="https://wordpress.org/plugins/creative-mail-by-constant-contact/">
-										Get the plugin now
-									</ExternalLink>
-								</p>
-
 								<SelectControl
 									label={ __( 'Permission to email', 'jetpack' ) }
 									value={ consentType }

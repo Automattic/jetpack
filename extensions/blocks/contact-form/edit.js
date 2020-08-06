@@ -324,9 +324,7 @@ function JetpackContactFormEdit( {
 				{ ! isSimpleSite() && (
 					<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 				) }
-				<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
-					<NewsletterIntegrationSettings />
-				</PanelBody>
+				{ ! isSimpleSite() && <NewsletterIntegrationSettings /> }
 			</InspectorControls>
 
 			<div className={ formClassnames }>
