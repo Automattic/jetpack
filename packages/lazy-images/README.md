@@ -40,8 +40,9 @@ $ yarn build-packages
 
 ### Run PHP unit tests
 
+On a local development environment run: 
 ```bash
-$ composer phpunit 
+$ composer phpunit-local
 ```
 
 ### Lint PHP source code

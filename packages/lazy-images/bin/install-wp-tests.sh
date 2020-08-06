@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
-if [ $# -lt 3 ]; then
-	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version] "
-	exit 1
-fi
-
-DB_NAME=$1
-DB_USER=$2
-DB_PASS=$3
-DB_HOST=${4-localhost}
-WP_VERSION=${5-latest}
-SKIP_DB_CREATE=${6-false}
-
 WP_TESTS_DIR="./wordpress-tests-lib"
+
 WP_CORE_DIR="/var/www/html"
+
+case $WP_BRANCH in
+master)
+    WP_CORE_DIR="/tmp/wordpress-master/src"
+    ;;
+latest)
+    WP_CORE_DIR="/tmp/wordpress-latest/src"
+    ;;
+previous)
+    WP_CORE_DIR="/tmp/wordpress-previous/src"
+    ;;
+esac
 
 download() {
     if [ `which curl` ]; then
@@ -72,10 +73,14 @@ install_test_suite() {
 		# remove all forward slashes in the end
 		WP_CORE_DIR=$(echo $WP_CORE_DIR | sed "s:/\+$::")
 		sed $ioption "s:dirname( __FILE__ ) . '/src/':'$WP_CORE_DIR/':" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/youremptytestdbnamehere/$DB_NAME/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/yourusernamehere/$DB_USER/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s/yourpasswordhere/$DB_PASS/" "$WP_TESTS_DIR"/wp-tests-config.php
-		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s/youremptytestdbnamehere/wordpress_tests/" "$WP_TESTS_DIR"/wp-tests-config.php
+		sed $ioption "s/yourusernamehere/root/" "$WP_TESTS_DIR"/wp-tests-config.php
+		if [ -z ${TRAVIS} ]; then
+		    sed $ioption "s/yourpasswordhere/root/" "$WP_TESTS_DIR"/wp-tests-config.php
+		    sed $ioption "s|localhost|db|" "$WP_TESTS_DIR"/wp-tests-config.php
+		else
+		    sed $ioption "s/yourpasswordhere//" "$WP_TESTS_DIR"/wp-tests-config.php
+	    fi
 	fi
 }
 

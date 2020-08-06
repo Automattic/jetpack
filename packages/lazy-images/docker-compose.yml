@@ -8,7 +8,7 @@ services:
       - db
     environment:
       WORDPRESS_DB_HOST: "db:3306"
-      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_NAME: wordpress_tests
       WORDPRESS_DB_USER: admin
       WORDPRESS_DB_PASSWORD: admin
     volumes:
@@ -19,7 +19,7 @@ services:
       - "33306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: wordpress
+      MYSQL_DATABASE: wordpress_tests
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
     volumes:
