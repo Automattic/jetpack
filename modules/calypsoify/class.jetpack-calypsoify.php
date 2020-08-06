@@ -50,6 +50,7 @@ class Jetpack_Calypsoify {
 	}
 
 	public function setup_admin() {
+		global $wp_version;
 		// Masterbar is currently required for this to work properly. Mock the instance of it
 		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
 			$this->mock_masterbar_activation();
@@ -67,9 +68,12 @@ class Jetpack_Calypsoify {
 
 		add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
 
-		add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
-		add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
-		add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+		// The following three add the autoupdates UI, which we aren't adding for WP 5.5.
+		if ( version_compare( '5.5-alpha', $wp_version, '>=' ) ) {
+			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
+			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
+			add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+		}
 
 		add_action( 'current_screen', array( $this, 'attach_views_filter' ) );
 
@@ -131,6 +135,11 @@ class Jetpack_Calypsoify {
 		return array_merge( array_keys( $plugins->response ), array_keys( $plugins->no_update ) );
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 *
+	 * @param array $bulk_actions Bulk actions array.
+	 */
 	public function bulk_actions_plugins( $bulk_actions ) {
 		$bulk_actions['jetpack_enable_plugin_autoupdates'] = __( 'Enable Automatic Updates', 'jetpack' );
 		$bulk_actions['jetpack_disable_plugin_autoupdates'] = __( 'Disable Automatic Updates', 'jetpack' );
@@ -155,6 +164,9 @@ class Jetpack_Calypsoify {
 		return $redirect_to;
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 */
 	public function plugins_admin_notices() {
 		if ( ! empty( $_GET['jetpack_enable_plugin_autoupdates'] ) ) {
 			$qty = (int) $_GET['jetpack_enable_plugin_autoupdates'];
@@ -165,6 +177,9 @@ class Jetpack_Calypsoify {
 		}
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 */
 	public function jetpack_toggle_autoupdate() {
 		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
 			wp_send_json_error();
