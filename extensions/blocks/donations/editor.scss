@@ -21,8 +21,9 @@
 		}
 	}
 
-	.donations__amount.wp-block-button:not(.has-text-color):not(.is-style-outline) [data-rich-text-placeholder]:after {
+	.donations__amount [data-rich-text-placeholder]:after {
 		color: $light-gray-700;
+		opacity: 1;
 	}
 
 	.donations__custom-amount .donations__amount-value {
