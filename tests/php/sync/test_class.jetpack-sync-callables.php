@@ -99,6 +99,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'paused_themes'                    => Functions::get_paused_themes(),
 			'paused_plugins'                   => Functions::get_paused_plugins(),
 			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
+			'autoupdate_plugins'               => Functions::get_auto_update_plugins(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
