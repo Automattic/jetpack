@@ -16,7 +16,10 @@ import { Button } from '@wordpress/components';
 import { AVAILABLE_SERVICES } from './constants';
 import { SocialServiceIcon } from '../../shared/icons';
 
-const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal } ) {
+const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgradeNudge } ) {
+	const buttonText = showUpgradeNudge ? __( 'Learn more', 'jetpack' ) : __( 'Preview', 'jetpack' );
+	const buttonLabel = showUpgradeNudge ? __( 'Learn more about paid plans', 'jetpack' ) : __( 'Open Social Previews', 'jetpack' );
+
 	return (
 		<div className="jetpack-social-previews__panel">
 			<p>
@@ -25,6 +28,11 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal } ) {
 					'jetpack'
 				) }
 			</p>
+
+			{ showUpgradeNudge && (
+				<p>{ __( 'Business or eCommerce plan required.', 'jetpack' ) }</p>
+			)}
+
 			<div className="jetpack-gutenberg-social-icons">
 				{ AVAILABLE_SERVICES.map( service => (
 					<SocialServiceIcon
@@ -34,8 +42,9 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal } ) {
 					/>
 				) ) }
 			</div>
-			<Button isSecondary onClick={ openModal } label={ __( 'Open Social Previews', 'jetpack' ) }>
-				{ __( 'Preview', 'jetpack' ) }
+
+			<Button isSecondary onClick={ openModal } label={ buttonLabel }>
+				{ buttonText }
 			</Button>
 		</div>
 	);
