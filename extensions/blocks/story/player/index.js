@@ -7,7 +7,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement, render, useLayoutEffect, useRef, useState } from '@wordpress/element';
+import { createElement, useLayoutEffect, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -16,6 +16,8 @@ import './style.scss';
 import { Player } from './player';
 import ShadowRoot from './lib/shadow-root';
 import * as fullscreenAPI from './lib/fullscreen-api';
+import Dialog from './dialog';
+import { __ } from '@wordpress/i18n';
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	window.navigator.userAgent
@@ -58,10 +60,10 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 				// position: fixed does not work as expected on mobile safari
 				// To fix that we need to add a fixed positioning to body,
 				// retain the current scroll position and restore it when we exit fullscreen
-				setLastScrollPosition( [
+				/*setLastScrollPosition( [
 					document.documentElement.scrollLeft,
 					document.documentElement.scrollTop,
-				] );
+				] );*/
 				document.body.classList.add( 'wp-story-in-fullscreen' );
 				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
 			}
@@ -71,9 +73,9 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 				fullscreenAPI.exit();
 			} else {
 				document.body.classList.remove( 'wp-story-in-fullscreen' );
-				if ( lastScrollPosition ) {
+				/*if ( lastScrollPosition ) {
 					window.scrollTo( ...lastScrollPosition );
-				}
+				}*/
 				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
 			}
 		}
@@ -81,19 +83,26 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 
 	return (
 		<ShadowRoot { ...playerSettings.shadowDOM }>
-			<div
-				className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
-				ref={ rootElementRef }
+			<Dialog
+				contentLabel={ __( 'Story' ) }
+				aria={ { describedby: 'hello', labelledby: 'hello world' } }
+				isOpened={ fullscreen }
+				onRequestClose={ () => setFullscreen( false ) }
 			>
-				<Player
-					fullscreen={ fullscreen }
-					setFullscreen={ setFullscreen }
-					slides={ slides }
-					metadata={ metadata }
-					disabled={ disabled }
-					{ ...playerSettings }
-				/>
-			</div>
+				<div
+					ref={ rootElementRef }
+					className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
+				>
+					<Player
+						fullscreen={ fullscreen }
+						setFullscreen={ setFullscreen }
+						slides={ slides }
+						metadata={ metadata }
+						disabled={ disabled }
+						{ ...playerSettings }
+					/>
+				</div>
+			</Dialog>
 		</ShadowRoot>
 	);
 }

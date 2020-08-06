@@ -3,6 +3,10 @@
 @import './variables.scss';
 @import '~@wordpress/components/src/spinner/style';
 
+.wp-story-display-contents {
+	display: contents;
+}
+
 .wp-story-container {
 	height: 320px;
 	width: 180px;
@@ -36,6 +40,10 @@
 		text-shadow: none;
 		background-color: transparent;
 		border: 0;
+	}
+
+	button {
+		cursor:pointer;
 	}
 
 	&.wp-story-initialized {
