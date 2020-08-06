@@ -10,55 +10,23 @@
 import { __ } from '@wordpress/i18n';
 import { Modal, TabPanel } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-import { applyFilters } from '@wordpress/hooks';
-import { has } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import SocialPreviewsUpgrade from './upgrade';
 import { AVAILABLE_SERVICES } from './constants';
+import { getMediaSourceUrl } from './utils';
 
 const SocialPreviewsModal = function SocialPreviewsModal( {
 	onClose,
 	showUpgradeNudge,
-	media,
-	currentPostId,
+	image,
 	title,
 	description,
 	url,
 	author,
-) {
-
-	let mediaSourceUrl;
-	if ( media ) {
-		const mediaSize = applyFilters(
-			'editor.PostFeaturedImage.imageSize',
-			'post-thumbnail',
-			media.id,
-			currentPostId
-		);
-		if ( has( media, [ 'media_details', 'sizes', mediaSize ] ) ) {
-			// use mediaSize when available
-			mediaSourceUrl = media.media_details.sizes[ mediaSize ].source_url;
-		} else {
-			// get fallbackMediaSize if mediaSize is not available
-			const fallbackMediaSize = applyFilters(
-				'editor.PostFeaturedImage.imageSize',
-				'thumbnail',
-				media.id,
-				currentPostId
-			);
-			if ( has( media, [ 'media_details', 'sizes', fallbackMediaSize ] ) ) {
-				// use fallbackMediaSize when mediaSize is not available
-				mediaSourceUrl = media.media_details.sizes[ fallbackMediaSize ].source_url;
-			} else {
-				// use full image size when mediaFallbackSize and mediaSize are not available
-				mediaSourceUrl = media.source_url;
-			}
-		}
-	}
-
+} ) {
 	return (
 		<Modal
 			onRequestClose={ onClose }
@@ -76,7 +44,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 								description={ description }
 								url={ url }
 								author={ author }
-								image={ mediaSourceUrl }
+								image={ image }
 							/>
 						</div>
 					) }
@@ -101,11 +69,10 @@ export default withSelect( ( select, props ) => {
 
 	return {
 		post: getCurrentPost(),
-		media: featuredImageId ? getMedia( featuredImageId ) : null,
-		currentPostId: getCurrentPostId(),
 		title: getEditedPostAttribute( 'title' ),
 		description: getEditedPostAttribute( 'excerpt' ) || getEditedPostAttribute( 'content' ),
 		url: getEditedPostAttribute( 'link' ),
 		author: user && user.name,
+		image: featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ), getCurrentPostId() ),
 	};
 } )( SocialPreviewsModal );
