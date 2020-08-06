@@ -8,7 +8,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Button, Modal, TabPanel } from '@wordpress/components';
+import { Modal, TabPanel } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { applyFilters } from '@wordpress/hooks';
 import { has } from 'lodash';
@@ -16,6 +16,7 @@ import { has } from 'lodash';
 /**
  * Internal dependencies
  */
+import SocialPreviewsUpgrade from './upgrade';
 import { AVAILABLE_SERVICES } from './constants';
 
 const SocialPreviewsModal = function SocialPreviewsModal( {
@@ -65,9 +66,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 			className="jetpack-social-previews__modal"
 		>
 			{ showUpgradeNudge ? (
-				<div className="jetpack-social-previews__modal-upgrade">
-					{ /* TODO: Add upgrade nudge. */ }
-				</div>
+				<SocialPreviewsUpgrade />
 			) : (
 				<TabPanel className="jetpack-social-previews__tabs" tabs={ AVAILABLE_SERVICES }>
 					{ tab => (
