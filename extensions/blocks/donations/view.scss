@@ -1,0 +1,37 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+@import './common';
+
+.wp-block-jetpack-donations {
+	.donations__one-time-item,
+	.donations__monthly-item,
+	.donations__annual-item {
+		display: none;
+	}
+
+	.donations__tab {
+		&.is-one-time .donations__one-time-item,
+		&.is-monthly .donations__monthly-item,
+		&.is-annual .donations__annual-item {
+			display: block;
+		}
+	}
+
+	.donations__amount:not( .donations__custom-amount ) .wp-block-button__link {
+		cursor: pointer;
+	}
+
+	.donations__amount-value {
+		white-space: pre-wrap;
+		display: inline-block;
+		text-align: left;
+
+		&:empty:after {
+			content: attr(data-placeholder);
+			color: $light-gray-700;
+		}
+
+		&:focus {
+			outline: none;
+		}
+	}
+}
