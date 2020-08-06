@@ -39,7 +39,6 @@
 
 				> svg {
 					display: none;
-					margin-right: 8px;
 				}
 
 				&.is-active {
@@ -57,6 +56,8 @@
 
 				.components-button > svg {
 					display: block;
+					margin-right: 8px;
+					fill: currentColor;
 				}
 			}
 		}
