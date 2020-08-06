@@ -143,6 +143,9 @@ class Error_Handler {
 		$verified_errors = $this->get_verified_errors();
 		foreach ( $verified_errors as $error_code => $user_errors ) {
 
+			$has_blog_token_errors = isset( $user_errors[0] ) || isset( $user_errors['invalid'] );
+			$has_user_token_errors = isset( $user_errors[ get_current_user_id() ] );
+
 			switch ( $error_code ) {
 				case 'malformed_token':
 				case 'token_malformed':
@@ -154,8 +157,15 @@ class Error_Handler {
 				case 'token_mismatch':
 				case 'invalid_signature':
 				case 'signature_mismatch':
-					new Error_Handlers\Invalid_Blog_Token( $user_errors );
-					break;
+					if ( $has_blog_token_errors ) {
+						new Error_Handlers\Invalid_Blog_Token( $user_errors );
+					}
+					// Above error codes can be affecting either blog or user tokens. Errors below are specific to user tokens.
+				case 'no_user_tokens':
+				case 'no_token_for_user':
+					if ( $has_user_token_errors ) {
+						new Error_Handlers\Invalid_User_Token( $user_errors );
+					}
 			}
 		}
 	}
