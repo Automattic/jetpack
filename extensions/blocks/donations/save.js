@@ -117,7 +117,7 @@ const Save = ( { attributes } ) => {
 								<RichText.Content tagName="p" value={ customAmountText } />
 								<div className="donations__amount donations__custom-amount wp-block-button__link">
 									{ CURRENCIES[ currency ].symbol }
-									<span
+									<div
 										className="donations__amount-value"
 										contentEditable
 										data-currency={ currency }

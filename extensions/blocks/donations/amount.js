@@ -122,9 +122,9 @@ const Amount = ( {
 		>
 			{ CURRENCIES[ currency ].symbol }
 			{ disabled ? (
-				<span className="donations__amount-value">
+				<div className="donations__amount-value">
 					{ formatCurrency( value ? value : defaultValue, currency, { symbol: '' } ) }
-				</span>
+				</div>
 			) : (
 				<RichText
 					allowedFormats={ [] }

@@ -77,6 +77,8 @@
 	}
 
 	.donations__custom-amount .donations__amount-value {
+		display: inline-block;
+		text-align: left;
 		margin-left: 4px;
 		min-width: 60px;
 	}

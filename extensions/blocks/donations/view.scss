@@ -22,20 +22,20 @@
 
 	.donations__custom-amount {
 		cursor: text;
-	}
 
-	.donations__amount-value {
-		white-space: pre-wrap;
-		display: inline-block;
-		text-align: left;
+		.donations__amount-value {
+			white-space: pre-wrap;
+			display: inline-block;
+			text-align: left;
 
-		&:empty:after {
-			content: attr(data-placeholder);
-			color: $light-gray-700;
-		}
+			&:empty:after {
+				content: attr(data-placeholder);
+				color: $light-gray-700;
+			}
 
-		&:focus {
-			outline: none;
+			&:focus {
+				outline: none;
+			}
 		}
 	}
 }
