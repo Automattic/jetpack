@@ -292,6 +292,13 @@ class Grunion_Contact_Form_Plugin {
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
 		) );
+		jetpack_register_block(
+			'jetpack/field-consent',
+			array(
+				'parent'          => array( 'jetpack/contact-form' ),
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_consent' ),
+			)
+		);
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
@@ -355,6 +362,17 @@ class Grunion_Contact_Form_Plugin {
 	}
 	public static function gutenblock_render_field_select( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the consent field.
+	 *
+	 * @param string $atts consent attributes.
+	 * @param string $content html content.
+	 */
+	public static function gutenblock_render_field_consent( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
@@ -2369,6 +2387,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				return __( 'Choose one', 'jetpack' );
 			case 'select':
 				return __( 'Select one', 'jetpack' );
+			case 'consent':
+				return __( 'Consent', 'jetpack' );
 			default:
 				return null;
 		}
@@ -3100,16 +3120,19 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	function __construct( $attributes, $content = null, $form = null ) {
 		$attributes = shortcode_atts(
 			array(
-				'label'       => null,
-				'type'        => 'text',
-				'required'    => false,
-				'options'     => array(),
-				'id'          => null,
-				'default'     => null,
-				'values'      => null,
-				'placeholder' => null,
-				'class'       => null,
-				'width'       => null,
+				'label'                  => null,
+				'type'                   => 'text',
+				'required'               => false,
+				'options'                => array(),
+				'id'                     => null,
+				'default'                => null,
+				'values'                 => null,
+				'placeholder'            => null,
+				'class'                  => null,
+				'width'                  => null,
+				'consenttype'            => null,
+				'implicitconsentmessage' => null,
+				'explicitconsentmessage' => null,
 			), $attributes, 'contact-field'
 		);
 
@@ -3434,6 +3457,23 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return $field;
 	}
 
+	/**
+	 * Render the consent field.
+	 *
+	 * @param string $id field id.
+	 * @param string $class html classes (can be set by the admin).
+	 * @param string $consent_type can be implicit or explicit.
+	 * @param string $consent_message message that needs to be displayed to the visitor.
+	 */
+	private function render_consent_field( $id, $class, $consent_type, $consent_message ) {
+		$field  = "<label class='grunion-field-label consent consent-" . $consent_type . "'>";
+		$field .= "\t\t<input type='checkbox' " . checked( 'implicit' === $consent_type, true, false ) . " name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $class . ' ' . "/> \n";
+		$field .= "\t\t" . esc_html( $consent_message );
+		$field .= "</label>\n";
+		$field .= "<div class='clear-form'></div>\n";
+		return $field;
+	}
+
 	function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text  ) {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
 		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
@@ -3553,6 +3593,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				break;
 			case 'date':
 				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				break;
+			case 'consent':
+				$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
+				$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
+
+				$field .= $this->render_consent_field( $id, $field_class, $consent_type, $consent_message );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
