@@ -19,11 +19,7 @@ class NoticeActionReconnect extends React.Component {
 		action: PropTypes.string,
 	};
 
-	handleDisconnectClick = () => {
-		// Reconnection already in progress
-		if ( this.props.isReconnectingSite ) {
-			return;
-		}
+	getEventProps = () => {
 		const eventProps = {
 			location: 'dashboard',
 			purpose: 'reconnect',
@@ -32,11 +28,22 @@ class NoticeActionReconnect extends React.Component {
 		if ( this.props.errorCode ) {
 			eventProps.error_code = this.props.errorCode;
 		}
+		return eventProps;
+	};
 
-		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_click', eventProps );
+	handleDisconnectClick = () => {
+		// Reconnection already in progress
+		if ( this.props.isReconnectingSite ) {
+			return;
+		}
 
+		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_click', this.getEventProps() );
 		this.props.reconnectSite( this.props.action );
 	};
+
+	componentDidMount() {
+		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_view', this.getEventProps() );
+	}
 
 	render() {
 		return (

@@ -35,10 +35,14 @@ export function getNgrokSiteUrl() {
 }
 
 export async function resetWordpressInstall() {
-	let cmd = './tests/e2e/bin/docker-e2e-cli.sh reset';
-	if ( process.env.CI ) {
-		cmd = './tests/e2e/bin/setup-e2e-travis.sh reset_wp';
-	}
+	const cmd = './tests/e2e/bin/env.sh reset';
+	await execShellCommand( cmd );
+}
+
+export async function prepareUpdaterTest() {
+	const cmd =
+		'yarn wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
+
 	await execShellCommand( cmd );
 }
 

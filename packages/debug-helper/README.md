@@ -2,7 +2,7 @@
 
 This is a plugin to help developers debug some Jetpack features. 
 
-Once activated, visit `Jetpack > Debug tools` to activate the modules you want.
+Once activated, you will see a new Menu item in your admin dashboard called `Jetpack Debug`. Visit this page to activate the modules you want.
 
 ## Available Modules
 

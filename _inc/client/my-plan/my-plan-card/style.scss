@@ -1,5 +1,7 @@
 @import '../../scss/mixin_breakpoint';
 @import '../../scss/calypso-colors';
+@import '../../scss/functions/rem';
+@import '../../scss/typography';
 
 // My Plan Card
 .my-plan-card {
@@ -21,17 +23,17 @@
 }
 
 .my-plan-card__title {
-	font-size: 20px;
+	font-size: $font-title-small;
 	font-weight: 600;
-	line-height: 29px;
+	line-height: 30px;
 	margin: 6px 0;
 	color: $gray-dark;
 }
 
 .my-plan-card__tag-line {
-	font-size: 14px;
+	$font-body-small: 14px;
 	font-weight: 400;
-	line-height: 17px;
+	line-height: 18px;
 	margin: 0 0 24px;
 
 	@include breakpoint( '>960px' ) {

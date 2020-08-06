@@ -1,4 +1,6 @@
 @import '../scss/calypso-colors';
+@import '../scss/functions/rem';
+@import '../scss/typography';
 // Plans Tables
 
 $plan-features-header-banner-height: 20px;
@@ -151,13 +153,12 @@ $plan-features-sidebar-width: 272px;
 }
 
 .plan-features__header-title {
-	font-size: 22px;
+	font-size: $font-title-medium;
 	line-height: 0.7;
-	font-weight: normal;
 	margin: 0;
 
 	@include breakpoint( '<960px' ) {
-		font-size: 20px;
+		font-size: $font-title-small;
 	}
 }
 
@@ -178,12 +179,12 @@ $plan-features-sidebar-width: 272px;
 .plan-features__item {
 	margin: 0 12px;
 	padding: 12px 0;
-	font-size: 13px;
+	font-size: $font-body-small;
 	color: $gray-dark;
 	text-align: center;
 
 	@include breakpoint( '<960px' ) {
-		font-size: 12px;
+		font-size: $font-body-extra-small;
 	}
 
 	@include breakpoint( '<1040px' ) {

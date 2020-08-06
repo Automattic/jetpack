@@ -29,13 +29,13 @@ class Admin {
 	 * Register's submenu.
 	 */
 	public function register_submenu_page() {
-		add_submenu_page(
-			'jetpack',
-			'Debug tools',
-			'Debug tools',
+		add_menu_page(
+			'Jetpack Debug Helper',
+			'Jetpack Debug',
 			'manage_options',
-			'debug-tools',
+			'jetpack-debug-tools',
 			array( $this, 'render_ui' ),
+			'dashicons-hammer',
 			99
 		);
 	}

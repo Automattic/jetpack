@@ -352,44 +352,38 @@ class Jetpack_Connection_Banner {
 					<div class="jp-connect-full__slide">
 						<div class="jp-connect-full__slide-card illustration">
 							<img
-									src="<?php echo plugins_url( 'images/security.svg', JETPACK__PLUGIN_FILE ); ?>"
+									src="<?php echo plugins_url( 'images/jetpack-connection-security.svg', JETPACK__PLUGIN_FILE ); ?>"
 									alt="<?php esc_attr_e( 'Security & Backups', 'jetpack' ); ?>"
 							/>
 						</div>
 						<div class="jp-connect-full__slide-card">
-							<p>
-							<?php
-								esc_html_e(
-									'Jetpack protects you against brute force attacks and unauthorized logins. ' .
-									'Basic protection is always free, while premium plans add unlimited backups of your whole site, ' .
-									'spam protection, malware scanning, and automated fixes.',
-									'jetpack'
-								);
-							?>
-								</p>
+							<h3><?php esc_html_e( 'Always-on Security', 'jetpack' ); ?></h3>
+							<ul>
+								<li><?php esc_html_e( 'Stay one step ahead of security threats with automatic scanning, one-click fixes, and spam protection.', 'jetpack' ); ?></li>
+								<li><?php esc_html_e( 'Real-time backups save every change and one-click restores get you back online quickly.', 'jetpack' ); ?></li>
+								<li><?php esc_html_e( 'Free protection against brute force attacks and instant notifications if your site goes down.', 'jetpack' ); ?></li>
+							</ul>
 						</div>
 					</div>
 					<div class="jp-connect-full__slide">
 						<div class="jp-connect-full__slide-card illustration">
 							<img
-									src="<?php echo plugins_url( 'images/jetpack-speed.svg', JETPACK__PLUGIN_FILE ); ?>"
+									src="<?php echo plugins_url( 'images/jetpack-connection-performance.svg', JETPACK__PLUGIN_FILE ); ?>"
 									alt="<?php esc_attr_e( 'Built-in Performance', 'jetpack' ); ?>"
 							/>
 						</div>
 						<div class="jp-connect-full__slide-card">
-							<p>
-							<?php
-								esc_html_e(
-									'Activate site accelerator tools and watch your page load times decrease—' .
-									"we'll optimize your images and serve them from our own powerful global network of servers, " .
-									'and speed up your mobile site to reduce bandwidth usage.',
-									'jetpack'
-								);
-							?>
-								</p>
+							<h3><?php esc_html_e( 'Built-in Performance', 'jetpack' ); ?></h3>
+							<ul>
+								<li><?php esc_html_e( 'Keep people on your site longer with lightning-fast page load times through our free global CDN.', 'jetpack' ); ?></li>
+								<li><?php esc_html_e( 'Speed up your mobile site and reduce bandwidth usage automatically.', 'jetpack' ); ?></li>
+								<li><?php esc_html_e( 'Improve visitor engagement and sales with a customized search experience.', 'jetpack' ); ?></li>
+							</ul>
 						</div>
 					</div>
 				</div>
+
+				<h2><?php esc_html_e( 'More than 5 million WordPress sites trust Jetpack for their website security and performance.', 'jetpack' ); ?></h2>
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 

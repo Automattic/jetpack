@@ -355,7 +355,7 @@ class MembershipsButtonEdit extends Component {
 			} );
 		}
 
-		return setAttributes( { planId: id } );
+		return setAttributes( { planId: parseInt( id ) } );
 	};
 
 	renderMembershipAmounts = () => (

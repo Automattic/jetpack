@@ -25,7 +25,7 @@ class REST_API_Tester {
 	 */
 	public function register_submenu_page() {
 		add_submenu_page(
-			'jetpack',
+			'jetpack-debug-tools',
 			'REST API Tester',
 			'REST API Tester',
 			'manage_options',
@@ -41,7 +41,7 @@ class REST_API_Tester {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack_page_rest-api-tester' ) === 0 ) {
+		if ( strpos( $hook, 'jetpack-debug_page_rest-api-tester' ) === 0 ) {
 			wp_enqueue_style( 'rest_api_tester_style', plugin_dir_url( __FILE__ ) . 'inc/css/rest-api-tester.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 			wp_enqueue_script( 'rest_api_tester_script', plugin_dir_url( __FILE__ ) . 'inc/js/rest-api-tester.js', array( 'wp-api' ), JETPACK_DEBUG_HELPER_VERSION, true );
 		}
@@ -115,9 +115,7 @@ class REST_API_Tester {
 	 * Load the class.
 	 */
 	public static function register_rest_api_tester() {
-		if ( class_exists( 'Jetpack' ) ) {
-			new REST_API_Tester();
-		}
+		new REST_API_Tester();
 	}
 }
 

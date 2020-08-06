@@ -8,6 +8,7 @@ import {
 	clickAndWaitForNewPage,
 	getAccountCredentials,
 	isEventuallyPresent,
+	waitForSelector,
 } from '../../page-helper';
 
 export default class ConnectionsPage extends Page {
@@ -17,11 +18,13 @@ export default class ConnectionsPage extends Page {
 	}
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
-		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand';
+		const loadingIndicatorSelector = '.foldable-card__summary button:not([disabled])';
+		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand svg[height="24"]';
 		const marketingSelectSelector = '.mailchimp select';
 		const mcOptionXpathSelector = `//option[contains(text(), '${ mailchimpList }')]`;
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
+		await waitForSelector( this.page, loadingIndicatorSelector );
 		await waitAndClick( this.page, mailchimpExpandSelector );
 
 		// If user account is already connected to Mailchimp, we don't really need to connect it once again

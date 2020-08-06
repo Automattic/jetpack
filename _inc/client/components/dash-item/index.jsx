@@ -102,7 +102,7 @@ export class DashItem extends Component {
 							}
 						>
 							<SimpleNotice showDismiss={ false } status={ this.props.status } isCompact={ true }>
-								{ __( 'Updates needed', { context: 'Short warning message' } ) }
+								{ _x( 'Updates needed', 'Short warning message', 'jetpack' ) }
 							</SimpleNotice>
 						</a>
 					);
