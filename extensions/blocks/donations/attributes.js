@@ -8,40 +8,42 @@ export default {
 		type: 'string',
 		default: 'USD',
 	},
-	amounts: {
-		type: 'array',
-		items: {
-			type: 'number',
+	oneTimeDonation: {
+		type: 'object',
+		default: {
+			show: true,
+			planId: null,
+			amounts: [ 5, 15, 100 ],
+			heading: __( 'Make a one-time donation', 'jetpack' ),
+			extraText: __( 'Your contribution is appreciated.', 'jetpack' ),
+			buttonText: __( 'Donate', 'jetpack' ),
 		},
-		default: [ 5, 15, 100 ],
 	},
-	oneTimePlanId: {
-		type: 'number',
-		default: null,
+	monthlyDonation: {
+		type: 'object',
+		default: {
+			show: true,
+			planId: null,
+			amounts: [ 5, 15, 100 ],
+			heading: __( 'Make a monthly donation', 'jetpack' ),
+			extraText: __( 'Your contribution is appreciated.', 'jetpack' ),
+			buttonText: __( 'Donate monthly', 'jetpack' ),
+		},
 	},
-	monthlyPlanId: {
-		type: 'number',
-		default: null,
-	},
-	annuallyPlanId: {
-		type: 'number',
-		default: null,
+	annualDonation: {
+		type: 'object',
+		default: {
+			show: true,
+			planId: null,
+			amounts: [ 5, 15, 100 ],
+			heading: __( 'Make a yearly donation', 'jetpack' ),
+			extraText: __( 'Your contribution is appreciated.', 'jetpack' ),
+			buttonText: __( 'Donate yearly', 'jetpack' ),
+		},
 	},
 	showCustomAmount: {
 		type: 'boolean',
 		default: true,
-	},
-	oneTimeHeading: {
-		type: 'string',
-		default: __( 'Make a one-time donation', 'jetpack' ),
-	},
-	monthlyHeading: {
-		type: 'string',
-		default: __( 'Make a monthly donation', 'jetpack' ),
-	},
-	annualHeading: {
-		type: 'string',
-		default: __( 'Make a yearly donation', 'jetpack' ),
 	},
 	chooseAmountText: {
 		type: 'string',
@@ -50,21 +52,5 @@ export default {
 	customAmountText: {
 		type: 'string',
 		default: __( 'Or enter a custom amount', 'jetpack' ),
-	},
-	extraText: {
-		type: 'string',
-		default: __( 'Your contribution is appreciated.', 'jetpack' ),
-	},
-	oneTimeButtonText: {
-		type: 'string',
-		default: __( 'Donate', 'jetpack' ),
-	},
-	monthlyButtonText: {
-		type: 'string',
-		default: __( 'Donate monthly', 'jetpack' ),
-	},
-	annualButtonText: {
-		type: 'string',
-		default: __( 'Donate yearly', 'jetpack' ),
 	},
 };
