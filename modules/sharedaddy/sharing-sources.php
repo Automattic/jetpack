@@ -842,7 +842,6 @@ class Share_Twitter extends Sharing_Source {
 	 */
 	public function get_amp_display( $post ) {
 		$attrs = array(
-			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
 			'aria-label' => __( 'Click to share on Twitter', 'jetpack' ),
 			'title' => __( 'Click to share on Twitter', 'jetpack' ),
 		);
