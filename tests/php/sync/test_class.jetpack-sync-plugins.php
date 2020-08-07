@@ -64,6 +64,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$autoupdate_plugins = (array) get_site_option( 'auto_update_plugins', array() );
 		$autoupdate_plugins = array_unique( array_merge( $autoupdate_plugins, array( 'hello' ) ) );
 		update_site_option( 'auto_update_plugins', $autoupdate_plugins );
+		do_action( 'jetpack_sync_unlock_sync_callable' );
 		$this->sender->do_sync();
 
 		$set_autoupdate_plugin = $this->server_replica_storage->get_callable( 'autoupdate_plugins' );
@@ -75,6 +76,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$autoupdate_plugins = (array) get_site_option( 'auto_update_plugins', array() );
 		$autoupdate_plugins = array_diff( $autoupdate_plugins, array( 'hello' ) );
 		update_site_option( 'auto_update_plugins', $autoupdate_plugins );
+		do_action( 'jetpack_sync_unlock_sync_callable' );
 		$this->sender->do_sync();
 
 		$set_autoupdate_plugin = $this->server_replica_storage->get_callable( 'autoupdate_plugins' );
