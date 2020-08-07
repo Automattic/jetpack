@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classNames from 'classnames';
+import { some } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -14,6 +15,7 @@ import {
 	useLayoutEffect,
 	useCallback,
 } from '@wordpress/element';
+import { isBlobURL } from '@wordpress/blob';
 
 /**
  * Internal dependencies
@@ -32,6 +34,8 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 
 	const [ slideWidth, setSlideWidth ] = useState( 279 );
 	const [ resizeListener, { height } ] = useResizeObserver();
+
+	const uploading = some( slides, media => isBlobURL( media.url ) );
 
 	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
 		setCurrentSlideProgress( 0 );
@@ -120,6 +124,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							index={ index }
 							currentSlideIndex={ currentSlideIndex }
 							playing={ playing }
+							uploading={ uploading }
 							muted={ muted }
 							ended={ ended }
 							onProgress={ setCurrentSlideProgress }

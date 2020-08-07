@@ -8,7 +8,6 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
-import { isBlobURL } from '@wordpress/blob';
 
 /**
  * Internal dependencies
@@ -20,6 +19,7 @@ export const Slide = ( {
 	index,
 	currentSlideIndex,
 	playing,
+	uploading,
 	ended,
 	muted,
 	onEnd,
@@ -28,7 +28,6 @@ export const Slide = ( {
 } ) => {
 	const visible = index === currentSlideIndex;
 	const currentSlidePlaying = visible && playing;
-	const uploading = isBlobURL( media.url );
 	const mediaRef = useRef( null );
 	const [ preload, setPreload ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
