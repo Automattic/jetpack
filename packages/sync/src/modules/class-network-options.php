@@ -34,17 +34,13 @@ class Network_Options extends Module {
 	}
 
 	/**
-	 * Initialize network options action listeners when on multisite.
+	 * Initialize network options action listeners.
 	 *
 	 * @access public
 	 *
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_listeners( $callable ) {
-		if ( ! is_multisite() ) {
-			return;
-		}
-
 		// Multi site network options.
 		add_action( 'add_site_option', $callable, 10, 2 );
 		add_action( 'update_site_option', $callable, 10, 3 );
@@ -73,10 +69,6 @@ class Network_Options extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		if ( ! is_multisite() ) {
-			return;
-		}
-
 		// Full sync.
 		add_filter(
 			'jetpack_sync_before_send_jetpack_full_sync_network_options',
@@ -108,10 +100,6 @@ class Network_Options extends Module {
 	 * @return array Number of actions enqueued, and next module state.
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! is_multisite() ) {
-			return array( null, true );
-		}
-
 		/**
 		 * Tells the client to sync all options to the server
 		 *
@@ -137,10 +125,6 @@ class Network_Options extends Module {
 	 * @return array This module Full Sync status.
 	 */
 	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! is_multisite() ) {
-			return array( null, true );
-		}
-
 		// we call this instead of do_action when sending immediately.
 		$this->send_action( 'jetpack_full_sync_network_options', array( true ) );
 
@@ -157,10 +141,6 @@ class Network_Options extends Module {
 	 * @return array Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! is_multisite() ) {
-			return null;
-		}
-
 		return 1;
 	}
 
@@ -230,7 +210,7 @@ class Network_Options extends Module {
 	}
 
 	/**
-	 * Whether the option is a whitelisted network option in a multisite system.
+	 * Whether the option is a whitelisted network option.
 	 *
 	 * @access public
 	 *
@@ -238,7 +218,7 @@ class Network_Options extends Module {
 	 * @return boolean True if this is a whitelisted network option.
 	 */
 	public function is_whitelisted_network_option( $option ) {
-		return is_multisite() && in_array( $option, $this->network_options_whitelist, true );
+		return in_array( $option, $this->network_options_whitelist, true );
 	}
 
 	/**
