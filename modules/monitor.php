@@ -36,10 +36,10 @@ class Jetpack_Monitor {
 	 *
 	 * @return mixed
 	 *
-	 * @deprecated 4.2.0 The method is not being used, to be removed.
+	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
 	 */
 	public function is_active() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2.0' );
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
 
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
@@ -105,10 +105,10 @@ class Jetpack_Monitor {
 	 *
 	 * @return bool
 	 *
-	 * @deprecated 4.2.0 The method is not being used, to be removed.
+	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
 	 */
 	public function activate_monitor() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2.0' );
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
 
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
@@ -127,10 +127,10 @@ class Jetpack_Monitor {
 	 *
 	 * @return bool
 	 *
-	 * @deprecated 4.2.0 The method is not being used, to be removed.
+	 * @deprecated 8.9.0 The method is not being used since Jetpack 4.2.0, to be removed.
 	 */
 	public function deactivate_monitor() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2.0' );
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0' );
 
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
