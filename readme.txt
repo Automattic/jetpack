@@ -3,7 +3,7 @@ Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews,
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
 Tested up to: 5.5
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 Requires PHP: 5.6
 License: GPLv2
 
@@ -49,14 +49,19 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 
 == Changelog ==
 
-= 2.1.2 =
+= 2.1.3 =
 
-* Release date: August 4, 2020
+* Release date: August 6, 2020
 
 ** Compatibility **
 
+* General: Handle new user meta actions.
 * General: Implement the spread operator for our IXR class methods to match WordPress Core behavior in 5.5.
 * General: Update some miscellaneous dependencies.
+
+= 2.1.2 =
+
+* Release date: Not publicly released, all changes shipped in subsequent version instead.
 
 = 2.1.1 =
 
