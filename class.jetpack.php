@@ -482,9 +482,11 @@ class Jetpack {
 				if ( Jetpack_Options::get_option( 'autoupdate_plugins' ) ) {
 					$updated = update_site_option(
 						'auto_update_plugins',
-						array_merge(
-							(array) Jetpack_Options::get_option( 'autoupdate_plugins', array() ),
-							(array) get_site_option( 'auto_update_plugins', array() )
+						array_unique(
+							array_merge(
+								(array) Jetpack_Options::get_option( 'autoupdate_plugins', array() ),
+								(array) get_site_option( 'auto_update_plugins', array() )
+							)
 						)
 					);
 
