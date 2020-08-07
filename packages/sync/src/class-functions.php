@@ -625,13 +625,4 @@ class Functions {
 		}
 		return false;
 	}
-
-	/**
-	 * Return auto-updated plugins.
-	 *
-	 * @return array Auto-updated plugins.
-	 */
-	public static function get_auto_update_plugins() {
-		return (array) get_site_option( 'auto_update_plugins', array() );
-	}
 }
