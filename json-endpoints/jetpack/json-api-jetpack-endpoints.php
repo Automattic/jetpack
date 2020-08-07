@@ -489,6 +489,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint(
 			'cron_size'             => '(int) Size of the current cron array',
 			'next_cron'             => '(int) The number of seconds till the next item in cron.',
 			'progress'              => '(array) Full Sync status by module',
+			'debug_details'         => '(array) Details as to why Sync is disabled.',
 		),
 		'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status',
 	)
