@@ -8,8 +8,9 @@ export default async function waitMediaReady( mediaElement, fullLoad = false ) {
 			mediaElement.addEventListener( 'load', resolve, { once: true } );
 		} );
 	} else if ( 'video' === elementTag || 'audio' === elementTag ) {
-		if ( fullLoad ) {
-			const src = mediaElement.src;
+		const src = mediaElement.src;
+		// only load the full video if it's on the same origin
+		if ( fullLoad && src && src.startsWith( window.location.origin ) ) {
 			mediaElement.src = '';
 			const videoRequest = new Request( src );
 			const requestHeaders = new Headers();
@@ -19,7 +20,7 @@ export default async function waitMediaReady( mediaElement, fullLoad = false ) {
 			return fetch( videoRequest, {
 				method: 'GET',
 				headers: requestHeaders,
-				mode: 'cors',
+				mode: 'no-cors',
 				cache: 'default',
 			} )
 				.then( response => {
