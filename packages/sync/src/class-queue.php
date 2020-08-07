@@ -84,7 +84,7 @@ class Queue {
 
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		if ( count( $items ) === $rows_added ) {
+		if ( count( $items ) !== $rows_added ) {
 			return new \WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 		return true;
