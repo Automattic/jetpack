@@ -75,6 +75,8 @@ class SearchApp extends Component {
 			input.addEventListener( 'input', this.handleInput );
 		} );
 		document.querySelectorAll( this.props.themeOptions.overlayTriggerSelector ).forEach( button => {
+			// Prevent 2020 theme's search modal from appearing.
+			button.dataset.toggleTarget && delete button.dataset.toggleTarget;
 			button.addEventListener( 'click', this.handleOverlayTriggerClick, true );
 		} );
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
