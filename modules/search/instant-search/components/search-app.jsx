@@ -147,7 +147,6 @@ class SearchApp extends Component {
 	};
 
 	handleOverlayTriggerClick = event => {
-		event.preventDefault();
 		event.stopImmediatePropagation();
 		this.showResults();
 	};
