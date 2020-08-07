@@ -15,7 +15,7 @@ export function getThemeOptions( searchOptions ) {
 		filterInputSelector: [ 'a.jetpack-search-filter__link' ],
 		overlayTriggerSelector: [
 			'.jetpack-instant-search__open-overlay-button',
-			'.search-toggle[data-toggle-target]', // TwentyTwenty theme's search button
+			'header#site-header .search-toggle[data-toggle-target]', // TwentyTwenty theme's search button
 		].join( ',' ),
 	};
 	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;
