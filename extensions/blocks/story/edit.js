@@ -123,6 +123,7 @@ export default withNotices( function StoryEdit( {
 					playInFullscreen={ false }
 					tapToPlayPause={ false }
 					playOnNextSlide={ false }
+					showSlideCount={ false }
 				/>
 			</div>
 			<DropZone onFilesDrop={ addFiles } />

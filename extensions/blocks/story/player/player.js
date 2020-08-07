@@ -21,6 +21,7 @@ import { isBlobURL } from '@wordpress/blob';
  * Internal dependencies
  */
 import Slide from './slide';
+import icon from '../icon';
 import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
 import useResizeObserver from './use-resize-observer';
@@ -36,6 +37,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const [ resizeListener, { height } ] = useResizeObserver();
 
 	const uploading = some( slides, media => isBlobURL( media.url ) );
+	const showProgressBar = fullscreen || ! settings.showSlideCount;
 
 	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
 		setCurrentSlideProgress( 0 );
@@ -134,12 +136,12 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					) ) }
 				</div>
 				<Overlay
-					playing={ playing }
+					icon={ settings.showSlideCount && icon }
+					slideCount={ slides.length }
 					ended={ ended }
 					hasPrevious={ currentSlideIndex > 0 }
 					hasNext={ currentSlideIndex < slides.length - 1 }
-					disabled={ settings.disabled }
-					showPlayButton={ settings.playInFullscreen }
+					disabled={ fullscreen || settings.disabled }
 					tapToPlayPause={ ! fullscreen && settings.tapToPlayPause }
 					onClick={ () => {
 						if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
@@ -154,13 +156,15 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					onPreviousSlide={ tryPreviousSlide }
 					onNextSlide={ tryNextSlide }
 				/>
-				<ProgressBar
-					slides={ slides }
-					fullscreen={ fullscreen }
-					currentSlideIndex={ currentSlideIndex }
-					currentSlideProgress={ currentSlideProgress }
-					onSlideSeek={ showSlide }
-				/>
+				{ showProgressBar && (
+					<ProgressBar
+						slides={ slides }
+						fullscreen={ fullscreen }
+						currentSlideIndex={ currentSlideIndex }
+						currentSlideProgress={ currentSlideProgress }
+						onSlideSeek={ showSlide }
+					/>
+				) }
 				<Controls
 					playing={ playing }
 					muted={ muted }

@@ -4,8 +4,8 @@
 @import '~@wordpress/components/src/spinner/style';
 
 .wp-story-container {
-	height: 496px;
-	width: 279px;
+	height: 320px;
+	width: 180px;
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
@@ -38,9 +38,20 @@
 		left: 0;
 		right: 0;
 		z-index: -1;
-		border-radius: 8px;
+		border-radius: 15px;
 		overflow: hidden;
 		background-color: $wp-story-background-color;
+		box-shadow: 0 3px 15px rgba(0, 0, 0, 0.25);
+
+		&:after {
+			box-shadow: 0 5px 15px rgba( 0, 0, 0, 0.5 );
+			opacity: 0;
+			transition: opacity 0.3s ease-in-out;
+		}
+
+		&:hover:after {
+			opacity: 1;
+		}
 	}
 
 	.wp-story-slide {
@@ -134,11 +145,42 @@
 		bottom: 0;
 		right: 0;
 		left: 0;
-		border-radius: 8px;
+		border-radius: 15px;
+		cursor: pointer;
 
 		.wp-story-button-play,
 		.wp-story-button-replay {
 			cursor: pointer;
+		}
+
+		.wp-story-embed-icon {
+			position: absolute;
+			top: 0;
+			right: 0;
+			margin: 15px;
+			padding: 5px 3px;
+			display: flex;
+			align-items: center;
+			background-color: rgba(0, 0, 0, 0.5);
+			border-radius: 5px;
+
+			* {
+				margin: 0 2px;
+			}
+
+			svg {
+				fill: #fff;
+				width: 20px;
+				height: 20px;
+			}
+
+			span {
+				color: #fff;
+				line-height: 20px;
+				font-size: 16px;
+				font-weight: 600;
+				font-family: sans-serif;
+			}
 		}
 	}
 
@@ -356,6 +398,10 @@
 			margin-top: 84px;
 			margin-bottom: 84px;
 			border-radius: 0;
+
+			.wp-story-embed-icon {
+				display: none;
+			}
 
 			@media ( max-width: $break-medium ) {
 				margin-top: 0;

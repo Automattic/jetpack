@@ -141,11 +141,6 @@ function render_block( $attributes ) {
 					<div class="wp-story-wrapper">
 						%6$s
 					</div>
-					<div class="wp-story-overlay">
-						<button class="jetpack-mdc-icon-button circle-icon outlined bordered" aria-label="%7$s" aria-pressed="false" style="width: 80px; height: 80px;">
-							<i class="jetpack-material-icons play_arrow" style="font-size: 56px;"></i>
-						</button>
-					</div>
 				</div>
 			</div>
 		</div>',
@@ -154,7 +149,6 @@ function render_block( $attributes ) {
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
-		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
-		__( 'Exit Fullscreen', 'jetpack' )
+		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : ''
 	);
 }

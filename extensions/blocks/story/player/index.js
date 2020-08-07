@@ -31,6 +31,7 @@ const defaultSettings = {
 	loadInFullscreen: false,
 	tapToPlayPause: true, // embed feature
 	blurredBackground: true,
+	showSlideCount: true,
 	shadowDOM: {
 		enabled: true,
 		mode: 'open', // closed not supported right now

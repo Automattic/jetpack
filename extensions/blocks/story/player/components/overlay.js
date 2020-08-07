@@ -10,6 +10,7 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { createElement, useCallback } from '@wordpress/element';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -17,7 +18,6 @@ import { createElement, useCallback } from '@wordpress/element';
 import { DecoratedButton } from './button';
 
 export default function Overlay( {
-	playing,
 	ended,
 	disabled,
 	onClick,
@@ -26,7 +26,8 @@ export default function Overlay( {
 	onNextSlide,
 	onPreviousSlide,
 	tapToPlayPause,
-	showPlayButton,
+	icon,
+	slideCount,
 } ) {
 	const onOverlayPressed = () => {
 		! disabled && tapToPlayPause && onClick();
@@ -62,12 +63,19 @@ export default function Overlay( {
 
 	return (
 		<div
+			role={ disabled ? 'presentation' : 'button' }
 			className={ classNames( {
 				'wp-story-overlay': true,
 				'wp-story-clickable': tapToPlayPause,
 			} ) }
 			onClick={ onOverlayPressed }
 		>
+			{ icon && (
+				<div className="wp-story-embed-icon">
+					{ icon }
+					<span>{ slideCount }</span>
+				</div>
+			) }
 			<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
 				{ hasPrevious && (
 					<DecoratedButton
@@ -90,15 +98,6 @@ export default function Overlay( {
 					/>
 				) }
 			</div>
-			{ showPlayButton && tapToPlayPause && ! playing && ! ended && (
-				<DecoratedButton
-					size={ 80 }
-					iconSize={ 56 }
-					label="Play Story"
-					icon="play_arrow"
-					onClick={ onPlayPressed }
-				/>
-			) }
 			{ ended && (
 				<DecoratedButton
 					size={ 80 }
