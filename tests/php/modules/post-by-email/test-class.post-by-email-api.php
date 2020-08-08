@@ -120,9 +120,6 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 		}
 
 		wp_set_current_user( 0 );
-
-		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
-		Jetpack::init()->HTTP_RAW_POST_DATA = null;
 	}
 
 	/**

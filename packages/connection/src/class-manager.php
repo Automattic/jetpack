@@ -205,19 +205,8 @@ class Manager {
 	 * @todo Tighten $wp_xmlrpc_server_class a bit to make sure it doesn't do bad things.
 	 */
 	public function alternate_xmlrpc() {
-		// phpcs:disable PHPCompatibility.Variables.RemovedPredefinedGlobalVariables.http_raw_post_dataDeprecatedRemoved
-		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
-		global $HTTP_RAW_POST_DATA;
-
 		// Some browser-embedded clients send cookies. We don't want them.
 		$_COOKIE = array();
-
-		// A fix for mozBlog and other cases where '<?xml' isn't on the very first line.
-		if ( isset( $HTTP_RAW_POST_DATA ) ) {
-			$HTTP_RAW_POST_DATA = trim( $HTTP_RAW_POST_DATA );
-		}
-
-		// phpcs:enable
 
 		include_once ABSPATH . 'wp-admin/includes/admin.php';
 		include_once ABSPATH . WPINC . '/class-IXR.php';
