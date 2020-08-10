@@ -652,7 +652,7 @@ class Error_Handler {
 	public function jetpack_react_dashboard_error( $errors ) {
 
 		$errors[] = array(
-			'code'    => 'invalid_blog_token',
+			'code'    => 'xmlrpc_error',
 			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ),
 			'action'  => 'reconnect',
 		);
