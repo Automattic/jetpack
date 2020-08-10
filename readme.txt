@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: avoid blank dashboard when some specific notices (such as Offline mode) are displayed.
+* Synchronization with WordPress.com: resolve errors triggered from not properly sanitizing/verifying inputs.
 
 = 8.8 =
 
