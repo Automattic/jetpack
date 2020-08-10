@@ -29,7 +29,6 @@ const defaultSettings = {
 	playOnNextSlide: true,
 	exitFullscreenOnEnd: true,
 	loadInFullscreen: false,
-	tapToPlayPause: true, // embed feature
 	blurredBackground: true,
 	showSlideCount: true,
 	shadowDOM: {

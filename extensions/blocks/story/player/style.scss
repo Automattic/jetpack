@@ -431,6 +431,16 @@
 			}
 		}
 
+		&.wp-story-ended,
+		&.wp-story-disabled {
+			.wp-story-overlay {
+				@media ( max-width: $break-medium ) {
+					top: 0;
+					bottom: 0;
+				}
+			}
+		}
+
 		.wp-story-prev-slide,
 		.wp-story-next-slide {
 			display: block;

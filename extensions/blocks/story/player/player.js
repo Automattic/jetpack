@@ -39,6 +39,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const showProgressBar = fullscreen || ! settings.showSlideCount;
 
 	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
+		setEnded( false );
 		setCurrentSlideProgress( 0 );
 		updateSlideIndex( slideIndex );
 
@@ -140,17 +141,15 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					ended={ ended }
 					hasPrevious={ currentSlideIndex > 0 }
 					hasNext={ currentSlideIndex < slides.length - 1 }
-					disabled={ fullscreen || settings.disabled }
-					tapToPlayPause={ ! fullscreen && settings.tapToPlayPause }
+					disabled={ settings.disabled }
 					onClick={ () => {
 						if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
 							setFullscreen( true );
 						}
 						if ( ended && ! playing ) {
 							showSlide( 0 );
-						} else {
-							setPlaying( ! playing );
 						}
+						setPlaying( ! playing );
 					} }
 					onPreviousSlide={ tryPreviousSlide }
 					onNextSlide={ tryNextSlide }

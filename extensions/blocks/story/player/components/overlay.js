@@ -10,7 +10,6 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { createElement, useCallback } from '@wordpress/element';
-import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -25,40 +24,33 @@ export default function Overlay( {
 	hasNext,
 	onNextSlide,
 	onPreviousSlide,
-	tapToPlayPause,
 	icon,
 	slideCount,
 } ) {
 	const onOverlayPressed = () => {
-		! disabled && tapToPlayPause && onClick();
+		! disabled && onClick();
 	};
-
-	const onPlayPressed = useCallback(
-		event => {
-			if ( tapToPlayPause || disabled ) {
-				// let the event bubble
-				return;
-			}
-			event.stopPropagation();
-			onClick();
-		},
-		[ tapToPlayPause, onClick ]
-	);
 
 	const onPreviousSlideHandler = useCallback(
 		event => {
+			if ( ended ) {
+				return;
+			}
 			event.stopPropagation();
 			onPreviousSlide();
 		},
-		[ onPreviousSlide ]
+		[ onPreviousSlide, ended ]
 	);
 
 	const onNextSlideHandler = useCallback(
 		event => {
+			if ( ended ) {
+				return;
+			}
 			event.stopPropagation();
 			onNextSlide();
 		},
-		[ onNextSlide ]
+		[ onNextSlide, ended ]
 	);
 
 	return (
@@ -66,7 +58,7 @@ export default function Overlay( {
 			role={ disabled ? 'presentation' : 'button' }
 			className={ classNames( {
 				'wp-story-overlay': true,
-				'wp-story-clickable': tapToPlayPause,
+				'wp-story-clickable': ! disabled,
 			} ) }
 			onClick={ onOverlayPressed }
 		>
@@ -99,13 +91,7 @@ export default function Overlay( {
 				) }
 			</div>
 			{ ended && (
-				<DecoratedButton
-					size={ 80 }
-					iconSize={ 56 }
-					label="Replay Story"
-					icon="replay"
-					onClick={ onPlayPressed }
-				/>
+				<DecoratedButton size={ 80 } iconSize={ 56 } label="Replay Story" icon="replay" />
 			) }
 		</div>
 	);
