@@ -141,6 +141,14 @@ function render_block( $attributes ) {
 					<div class="wp-story-wrapper">
 						%6$s
 					</div>
+					<div role="button" class="wp-story-overlay wp-story-clickable">
+						<div class="wp-story-embed-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+								<path d="M0 0h24v24H0z" fill="none"></path>
+								<path fill-rule="evenodd" clip-rule="evenodd" d="M6 3H14V17H6L6 3ZM4 3C4 1.89543 4.89543 1 6 1H14C15.1046 1 16 1.89543 16 3V17C16 18.1046 15.1046 19 14 19H6C4.89543 19 4 18.1046 4 17V3ZM18 5C19.1046 5 20 5.89543 20 7V21C20 22.1046 19.1046 23 18 23H10C8.89543 23 8 22.1046 8 21H18V5Z"></path>
+							</svg>
+							<span>%7$s</span>
+						</div>
 				</div>
 			</div>
 		</div>',
@@ -149,6 +157,7 @@ function render_block( $attributes ) {
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
-		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : ''
+		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
+		count( $media_files )
 	);
 }
