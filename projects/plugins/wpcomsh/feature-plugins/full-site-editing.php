@@ -20,6 +20,15 @@ add_filter( 'a8c_disable_full_site_editing', 'wpcomsh_maybe_disable_fse' );
  * @return bool true if the user is proxied
  */
 function wpcomsh_maybe_enable_nav_sidebar() {
+	// Disable for sites that are being used during demos at WordPress.com Growth Summit
+	$site_url = get_site_url( null, '', 'https' );
+	if ( in_array( $site_url, array(
+		'https://wpcombusinessdemo.blog',
+		'https://happinessbarbusinessdemo.wpcomstaging.com',
+	) ) ) {
+		return false;
+	}
+
 	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
 }
 add_filter( 'a8c_enable_nav_sidebar', 'wpcomsh_maybe_enable_nav_sidebar' );
