@@ -49,6 +49,8 @@ class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 	/**
 	 * @covers Jetpack_Heartbeat::jetpack_xmlrpc_methods
 	 * @since 3.9.0
+	 *
+	 * @expectedDeprecated Jetpack_Heartbeat::jetpack_xmlrpc_methods
 	 */
 	public function test_jetpack_xmlrpc_methods() {
 		$this->assertNotEmpty( Jetpack_Heartbeat::jetpack_xmlrpc_methods( array() ) );
