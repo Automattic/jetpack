@@ -478,6 +478,23 @@ class Jetpack {
 					Jetpack_Options::delete_option( 'ab_connect_banner_green_bar' );
 				}
 
+				// Update to 8.8.x (WordPress 5.5 Compatibility).
+				if ( Jetpack_Options::get_option( 'autoupdate_plugins' ) ) {
+					$updated = update_site_option(
+						'auto_update_plugins',
+						array_unique(
+							array_merge(
+								(array) Jetpack_Options::get_option( 'autoupdate_plugins', array() ),
+								(array) get_site_option( 'auto_update_plugins', array() )
+							)
+						)
+					);
+
+					if ( $updated ) {
+						Jetpack_Options::delete_option( 'autoupdate_plugins' );
+					} // Should we have some type of fallback if something fails here?
+				}
+
 				if ( did_action( 'wp_loaded' ) ) {
 					self::upgrade_on_load();
 				} else {
