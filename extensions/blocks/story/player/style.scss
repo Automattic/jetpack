@@ -137,6 +137,7 @@
 		border-radius: 15px;
 		cursor: pointer;
 		box-shadow: 0 3px 15px rgba( 0, 0, 0, 0.4 );
+		-webkit-tap-highlight-color: transparent;
 
 		&:before {
 			content: ' ';
