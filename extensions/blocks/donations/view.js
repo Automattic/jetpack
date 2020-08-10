@@ -2,6 +2,7 @@
  * External dependencies
  */
 import domReady from '@wordpress/dom-ready';
+import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -44,6 +45,22 @@ const getDonateButton = interval => {
 	);
 };
 
+const updateUrl = () => {
+	const donateButton = getDonateButton( jetpackDonationsInterval );
+	const url = donateButton.getAttribute( 'href' );
+	if ( jetpackDonationsAmount ) {
+		donateButton.setAttribute(
+			'href',
+			addQueryArgs( url, {
+				amount: jetpackDonationsAmount,
+				customAmount: jetpackDonationsIsCustomAmount,
+			} )
+		);
+	} else {
+		donateButton.setAttribute( 'href', removeQueryArgs( url, 'amount', 'customAmount' ) );
+	}
+};
+
 const jetpackDonationsInitNavigation = () => {
 	const navItems = document.querySelectorAll( '.wp-block-jetpack-donations .donations__nav-item' );
 	const tabContent = document.querySelector( '.wp-block-jetpack-donations .donations__tab' );
@@ -72,6 +89,7 @@ const jetpackDonationsInitNavigation = () => {
 		// Reset chosen amount.
 		jetpackDonationsAmount = null;
 		resetSelectedAmount();
+		updateUrl();
 
 		// Disable donate button.
 		const donateButton = getDonateButton( prevInterval );
@@ -162,6 +180,7 @@ const jetpackDonationsHandleCustomAmount = () => {
 			const donateButton = getDonateButton( jetpackDonationsInterval );
 			donateButton.classList.add( 'is-disabled' );
 		}
+		updateUrl();
 	} );
 };
 
@@ -182,6 +201,7 @@ const jetpackDonationsHandleChosenAmount = () => {
 			if ( customAmountWrapper ) {
 				customAmountWrapper.classList.remove( 'has-error' );
 			}
+			updateUrl();
 
 			// Enables donate button.
 			const donateButton = getDonateButton( jetpackDonationsInterval );
