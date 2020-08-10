@@ -39,7 +39,6 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const showProgressBar = fullscreen || ! settings.showSlideCount;
 
 	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
-		setEnded( false );
 		setCurrentSlideProgress( 0 );
 		updateSlideIndex( slideIndex );
 

@@ -7,7 +7,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement, render, useEffect, useRef, useState } from '@wordpress/element';
+import { createElement, render, useLayoutEffect, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -48,7 +48,7 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 	const [ fullscreen, setFullscreen ] = useState( false );
 	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
 
-	useEffect( () => {
+	useLayoutEffect( () => {
 		if ( fullscreen ) {
 			if ( isMobile && fullscreenAPI.enabled() && ! playerSettings.loadInFullscreen ) {
 				fullscreenAPI.launch( rootElementRef.current );
