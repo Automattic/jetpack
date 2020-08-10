@@ -57,7 +57,7 @@ class Jetpack_Heartbeat {
 	 * @global string $wp_version
 	 */
 	public function cron_exec() {
-
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::cron_exec' );
 		return self::$proxied_instance->cron_exec();
 
 	}
