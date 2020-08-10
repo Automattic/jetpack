@@ -149,7 +149,9 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 						if ( ended && ! playing ) {
 							showSlide( 0 );
 						}
-						setPlaying( ! playing );
+						if ( ! playing ) {
+							setPlaying( true );
+						}
 					} }
 					onPreviousSlide={ tryPreviousSlide }
 					onNextSlide={ tryNextSlide }
