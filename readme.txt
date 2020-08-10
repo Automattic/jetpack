@@ -102,6 +102,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* WordPress 5.5: ensure that Jetpack's Autoupdate feature is fully compatible with the autoupdate feature introduced in the new version of WordPress.
+
 **Bug fixes**
 
 * Admin Page: avoid blank dashboard when some specific notices (such as Offline mode) are displayed.
