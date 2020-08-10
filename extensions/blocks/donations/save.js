@@ -119,7 +119,6 @@ const Save = ( { attributes } ) => {
 									{ CURRENCIES[ currency ].symbol }
 									<div
 										className="donations__amount-value"
-										contentEditable
 										data-currency={ currency }
 										data-empty-text={ formatCurrency(
 											minimumTransactionAmountForCurrency( currency ) * 100,

@@ -63,6 +63,9 @@ const handleCustomAmount = () => {
 
 	const wrapper = document.querySelector( '.wp-block-jetpack-donations .donations__custom-amount' );
 
+	// Make input editable.
+	input.setAttribute( 'contenteditable', '' );
+
 	// Prevent new lines.
 	input.addEventListener( 'keydown', event => {
 		if ( event.keyCode === 13 ) {
