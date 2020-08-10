@@ -24,7 +24,7 @@ env:
   # Run phpunit in Travis matrix for these combinations
   matrix:
   - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
-  - WP_BRANCH=latest
+  - WP_BRANCH=latest PACKAGES=1
   - WP_BRANCH=previous PHP_LINT=1
 
 # Define a matrix of additional build configurations
@@ -59,7 +59,7 @@ matrix:
   - php: "7.3"
     name: "Code Coverage"
     env:
-      - WP_BRANCH=previous
+      - WP_BRANCH=latest
       - DO_COVERAGE=true
     before_script:
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
