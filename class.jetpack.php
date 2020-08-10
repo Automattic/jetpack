@@ -49,8 +49,6 @@ class Jetpack {
 
 	private $rest_authentication_status = null;
 
-	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
-
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 *
@@ -5532,18 +5530,6 @@ endif;
 			return null;
 		}
 
-		// Ensure that we always have the request body available.  At this
-		// point, the WP REST API code to determine the request body has not
-		// run yet.  That code may try to read from 'php://input' later, but
-		// this can only be done once per request in PHP versions prior to 5.6.
-		// So we will go ahead and perform this read now if needed, and save
-		// the request body where both the Jetpack signature verification code
-		// and the WP REST API code can see it.
-		if ( ! isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ) {
-			$GLOBALS['HTTP_RAW_POST_DATA'] = file_get_contents( 'php://input' );
-		}
-		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
-
 		// Only support specific request parameters that have been tested and
 		// are known to work with signature verification.  A different method
 		// can be passed to the WP REST API via the '?_method=' parameter if
@@ -5556,7 +5542,7 @@ endif;
 			);
 			return null;
 		}
-		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' && ! empty( $this->HTTP_RAW_POST_DATA ) ) {
+		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
 			$this->rest_authentication_status = new WP_Error(
 				'rest_invalid_request',
 				__( 'This request method does not support body parameters.', 'jetpack' ),
