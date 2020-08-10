@@ -212,6 +212,7 @@ class Jetpack {
 			'All in One SEO Pack Pro'        => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 			'The SEO Framework'              => 'autodescription/autodescription.php',
 			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
+			'Slim SEO'                       => 'slim-seo/slim-seo.php',
 		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'         => 'wordpress-seo/wp-seo.php',
@@ -220,6 +221,7 @@ class Jetpack {
 			'All in One SEO Pack Pro'        => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 			'The SEO Framework'              => 'autodescription/autodescription.php',
 			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
+			'Slim SEO'                       => 'slim-seo/slim-seo.php',
 		),
 		'widget-visibility'  => array(
 			'Widget Logic'    => 'widget-logic/widget_logic.php',
@@ -242,6 +244,7 @@ class Jetpack {
 			'XML Sitemaps'                         => 'xml-sitemaps/xml-sitemaps.php',
 			'MSM Sitemaps'                         => 'msm-sitemap/msm-sitemap.php',
 			'Rank Math'                            => 'seo-by-rank-math/rank-math.php',
+			'Slim SEO'                             => 'slim-seo/slim-seo.php',
 		),
 		'lazy-images'        => array(
 			'Lazy Load'              => 'lazy-load/lazy-load.php',
@@ -310,6 +313,7 @@ class Jetpack {
 		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button
 		'open-graph-metabox/open-graph-metabox.php',              // Open Graph Metabox
 		'seo-by-rank-math/rank-math.php',                        // Rank Math.
+		'slim-seo/slim-seo.php',                                 // Slim SEO
 	);
 
 	/**
@@ -328,6 +332,7 @@ class Jetpack {
 		'wp-to-twitter/wp-to-twitter.php',           // WP to Twitter
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
 		'seo-by-rank-math/rank-math.php',            // Rank Math.
+		'slim-seo/slim-seo.php',                     // Slim SEO
 	);
 
 	/**
