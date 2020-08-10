@@ -11,8 +11,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { speak } from '@wordpress/a11y';
+import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import { withSelect } from '@wordpress/data';
 
@@ -170,18 +169,6 @@ export default function withMedia() {
 				if ( this.modalElement ) {
 					this.modalElement.focus();
 				}
-
-				// Announce the action with appended string of all the images' alt text.
-				speak(
-					sprintf(
-						__( 'Inserting: %s', 'jetpack' ),
-						items
-							.map( item => item.title )
-							.filter( item => item )
-							.join( ', ' )
-					),
-					'polite'
-				);
 
 				apiFetch( {
 					path: apiUrl,
