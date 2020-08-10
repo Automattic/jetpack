@@ -308,6 +308,12 @@
 
 	.wp-story-controls {
 		display: flex;
+
+		// reapply initial styles
+		@media ( max-width: $break-medium ) {
+			bottom: 30px;
+			margin: 0 10px;
+		}
 	}
 }
 
