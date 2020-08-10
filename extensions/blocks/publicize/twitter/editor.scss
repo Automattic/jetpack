@@ -7,21 +7,51 @@ h3.jetpack-publicize-twitter-options__heading {
 	justify-content: center;
 }
 
-.publicize-twitter__paragraph {
-	.publicize-twitter__paragraph-count {
-		position: relative;
+.jetpack-publicize-twitter__tweet-divider {
+	position: absolute;
+	width: 100%;
+	margin-top: -28px;
 
-		> div {
+	.jetpack-publicize-twitter__tweet-divider-icon {
+		margin: 0 auto;
+		display: block;
+		background: #ddd;
+		border-radius: 12px;
+		width: 24px;
+		height: 24px;
+
+		&::before,
+		&::after {
+			content: "";
+			width: 80px;
+			height: 1px;
+			background: #ddd;
+			display: block;
 			position: absolute;
-			right: 0;
+			margin-top: 12px;
+		}
+
+		&::before {
+			margin-left: -80px;
+		}
+
+		&::after {
+			margin-left: 24px;
+		}
+
+		> svg {
+			fill: #fff;
+			position: absolute;
+			width: 16px;
+			height: 16px;
+			margin: 4px;
 		}
 	}
+}
 
-	.rich-text {
-		margin-right: 20px;
-
-		.publicize-twitter__paragraph-count-overage {
-			background-color: #d94f4f33;
-		}
-	}
+.annotation-text-jetpack-tweetstorm {
+	background: #ddd;
+	width: 3px;
+	display: inline-block;
+	margin: 1px;
 }
