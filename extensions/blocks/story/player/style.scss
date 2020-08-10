@@ -407,6 +407,16 @@
 			margin-top: 84px;
 			margin-bottom: 84px;
 			border-radius: 0;
+			box-shadow: none;
+
+			&:before {
+				box-shadow: none;
+
+				&:hover {
+					opacity: 0;
+					transition: none !important;
+				}
+			}
 
 			.wp-story-embed-icon {
 				display: none;
