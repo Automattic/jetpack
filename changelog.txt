@@ -2,6 +2,19 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 8.8.1 =
+
+* Release date: August 10, 2020
+
+**Improved compatibility**
+
+* WordPress 5.5: ensure that Jetpack's Autoupdate feature is fully compatible with the autoupdate feature introduced in the new version of WordPress.
+
+**Bug fixes**
+
+* Admin Page: avoid blank dashboard when some specific notices (such as Offline mode) are displayed.
+* Synchronization with WordPress.com: resolve errors triggered from not properly sanitizing/verifying inputs.
+
 = 8.8 =
 
 * Release date: August 4, 2020
