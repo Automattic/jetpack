@@ -77,11 +77,7 @@ const Save = ( { attributes } ) => {
 						<RichText.Content tagName="p" value={ chooseAmountText } />
 						<div className="donations__amounts donations__one-time-item">
 							{ oneTimeDonation.amounts.map( amount => (
-								<div
-									className="donations__amount wp-block-button__link"
-									data-interval="one-time"
-									data-amount={ amount }
-								>
+								<div className="donations__amount wp-block-button__link" data-amount={ amount }>
 									{ formatCurrency( amount, currency ) }
 								</div>
 							) ) }
@@ -89,11 +85,7 @@ const Save = ( { attributes } ) => {
 						{ monthlyDonation.show && (
 							<div className="donations__amounts donations__monthly-item">
 								{ monthlyDonation.amounts.map( amount => (
-									<div
-										className="donations__amount wp-block-button__link"
-										data-interval="1 month"
-										data-amount={ amount }
-									>
+									<div className="donations__amount wp-block-button__link" data-amount={ amount }>
 										{ formatCurrency( amount, currency ) }
 									</div>
 								) ) }
@@ -102,11 +94,7 @@ const Save = ( { attributes } ) => {
 						{ annualDonation.show && (
 							<div className="donations__amounts donations__annual-item">
 								{ annualDonation.amounts.map( amount => (
-									<div
-										className="donations__amount wp-block-button__link"
-										data-interval="1 year"
-										data-amount={ amount }
-									>
+									<div className="donations__amount wp-block-button__link" data-amount={ amount }>
 										{ formatCurrency( amount, currency ) }
 									</div>
 								) ) }
