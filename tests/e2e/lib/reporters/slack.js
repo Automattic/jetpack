@@ -10,6 +10,7 @@ const {
 	TRAVIS_REPO_SLUG,
 	TRAVIS_PULL_REQUEST_BRANCH,
 	TRAVIS_BUILD_WEB_URL,
+	TRAVIS_JOB_WEB_URL,
 	TRAVIS_BUILD_NUMBER,
 	E2E_SLACK_TOKEN,
 	E2E_CHANNEL_NAME,
@@ -66,6 +67,7 @@ export const getFailedTestMessage = ( { name, block, error } ) => {
 *Test case*: ${ name }
 *Failure reason:* ${ testFailure }
 *Travis build:* ${ TRAVIS_BUILD_WEB_URL }
+*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
 *Github branch:* ${ branchName }
 *Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }` ),
 	];
@@ -77,6 +79,7 @@ export const getResultMessage = failureCount => {
 
 *Total failures:* ${ failureCount }
 *Travis build:* ${ TRAVIS_BUILD_WEB_URL }
+*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
 *Github branch:* ${ branchName }`;
 
 	if ( TRAVIS_PULL_REQUEST ) {
@@ -88,8 +91,12 @@ export const getResultMessage = failureCount => {
 	const message = [
 		createSection( buildInfo ),
 		createSection( `Build details are threaded :thread:` ),
-		createSection( ccBrbrr ),
 	];
+
+	if ( TRAVIS_BRANCH === 'master' ) {
+		message.push( createSection( ccBrbrr ) );
+	}
+
 	return message;
 };
 
@@ -97,6 +104,7 @@ export const getSuccessMessage = () => {
 	let buildInfo = `*BUILD #${ TRAVIS_BUILD_NUMBER } PASSED:*
 
 *Travis build:* ${ TRAVIS_BUILD_WEB_URL }
+*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
 *Github branch:* ${ branchName }`;
 
 	if ( TRAVIS_PULL_REQUEST ) {
