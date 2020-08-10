@@ -230,7 +230,7 @@ class REST_Connector {
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
 	 */
 	public static function jetpack_reconnect_permission_check() {
-		if ( current_user_can( 'jetpack_connect' ) && current_user_can( 'jetpack_disconnect' ) ) {
+		if ( current_user_can( 'jetpack_reconnect' ) ) {
 			return true;
 		}
 

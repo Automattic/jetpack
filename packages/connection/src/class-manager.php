@@ -1470,6 +1470,8 @@ class Manager {
 	 * @return true|WP_Error True if reconnected successfully, a `WP_Error` object otherwise.
 	 */
 	public function reconnect() {
+		( new Tracking() )->record_user_event( 'restore_connection_reconnect' );
+
 		$this->disconnect_site_wpcom( true );
 		$this->delete_all_connection_tokens( true );
 
@@ -1487,25 +1489,19 @@ class Manager {
 
 		// Tokens are valid. We can't fix the problem we don't see, so the full reconnection is needed.
 		if ( ! $can_restore ) {
-			$this->reconnect();
-			return 'authorize';
+			$result = $this->reconnect();
+			return true === $result ? 'authorize' : $result;
 		}
-
-		$result = true;
 
 		if ( in_array( 'blog', $invalid_tokens, true ) ) {
-			$result = self::refresh_blog_token();
+			return self::refresh_blog_token();
 		}
 
-		// If previous operation failed, no need to try anything else, just report an error.
-		if ( true === $result && in_array( 'user', $invalid_tokens, true ) ) {
-			self::disconnect_user( null, true );
-
-			// Intentionally overwriting the value.
-			$result = 'authorize';
+		if ( in_array( 'user', $invalid_tokens, true ) ) {
+			return true === self::refresh_user_token() ? 'authorize' : false;
 		}
 
-		return $result;
+		return false;
 	}
 
 	/**
@@ -2573,6 +2569,8 @@ class Manager {
 	 * @return WP_Error|bool The result of updating the blog_token option.
 	 */
 	public static function refresh_blog_token() {
+		( new Tracking() )->record_user_event( 'restore_connection_refresh_blog_token' );
+
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
@@ -2620,6 +2618,19 @@ class Manager {
 		}
 
 		return Jetpack_Options::update_option( 'blog_token', (string) $json->jetpack_secret );
+	}
+
+	/**
+	 * Disconnect the user from WP.com, and initiate the reconnect process.
+	 *
+	 * @return bool
+	 */
+	public static function refresh_user_token() {
+		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
+
+		self::disconnect_user( null, true );
+
+		return true;
 	}
 
 	/**

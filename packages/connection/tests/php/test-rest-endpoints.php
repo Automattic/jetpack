@@ -54,8 +54,7 @@ class Test_REST_Endpoints extends TestCase {
 		add_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
 		$user = wp_get_current_user();
-		$user->add_cap( 'jetpack_connect' );
-		$user->add_cap( 'jetpack_disconnect' );
+		$user->add_cap( 'jetpack_reconnect' );
 
 		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' );
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_HOST'] = 'public-api.wordpress.com';
@@ -72,8 +71,7 @@ class Test_REST_Endpoints extends TestCase {
 		remove_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
 		$user = wp_get_current_user();
-		$user->remove_cap( 'jetpack_disconnect' );
-		$user->remove_cap( 'jetpack_connect' );
+		$user->remove_cap( 'jetpack_reconnect' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_HOST'] = $this->api_host_original;
 
