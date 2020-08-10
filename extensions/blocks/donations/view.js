@@ -9,6 +9,7 @@ import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
  */
 import { parseAmount } from './amount';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { initializeMembershipButtons } from '../../shared/memberships';
 
 /**
  * Style dependencies
@@ -219,4 +220,5 @@ domReady( () => {
 	jetpackDonationsInitNavigation();
 	jetpackDonationsHandleCustomAmount();
 	jetpackDonationsHandleChosenAmount();
+	initializeMembershipButtons( '.donations__donate-button' );
 } );
