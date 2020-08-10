@@ -192,7 +192,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 						</div>
 					);
 				}
-				return __( 'Your site is backed up and threat-free.', 'jetpack' );
+				return __( 'Your site is being backed up and monitored for threats.', 'jetpack' );
 			}
 
 			// Only return here if backups enabled and site on on free/personal plan, or if Jetpack Backup is in use.
@@ -204,7 +204,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					planClass
 				)
 			) {
-				return __( 'Your site is backed up.', 'jetpack' );
+				return __( 'Your site is being backed up.', 'jetpack' );
 			}
 
 			// Nothing is enabled. We can show upgrade/setup text now.
