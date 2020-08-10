@@ -121,7 +121,7 @@ const Save = ( { attributes } ) => {
 										className="donations__amount-value"
 										contentEditable
 										data-currency={ currency }
-										data-placeholder={ formatCurrency(
+										data-empty-text={ formatCurrency(
 											minimumTransactionAmountForCurrency( currency ) * 100,
 											currency,
 											{ symbol: '' }

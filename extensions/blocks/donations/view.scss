@@ -29,7 +29,7 @@
 			text-align: left;
 
 			&:empty:after {
-				content: attr(data-placeholder);
+				content: attr(data-empty-text);
 				color: $light-gray-700;
 			}
 
