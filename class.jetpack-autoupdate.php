@@ -74,7 +74,7 @@ class Jetpack_Autoupdate {
 
 		// Plugins
 		$autoupdate_plugin_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
-		$autoupdate_plugin_list         = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$autoupdate_plugin_list         = (array) get_site_option( 'auto_update_plugins', array() );
 		$plugin_files                   = array_unique( array_merge( $autoupdate_plugin_list, $autoupdate_plugin_translations ) );
 		$plugin_slugs                   = array_map( array( __CLASS__, 'get_plugin_slug' ), $plugin_files );
 

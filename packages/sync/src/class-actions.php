@@ -387,15 +387,12 @@ class Actions {
 		}
 
 		$initial_sync_config = array(
-			'options'   => true,
-			'functions' => true,
-			'constants' => true,
-			'users'     => array( get_current_user_id() ),
+			'options'         => true,
+			'functions'       => true,
+			'constants'       => true,
+			'users'           => array( get_current_user_id() ),
+			'network_options' => true,
 		);
-
-		if ( is_multisite() ) {
-			$initial_sync_config['network_options'] = true;
-		}
 
 		self::do_full_sync( $initial_sync_config );
 	}
