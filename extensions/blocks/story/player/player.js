@@ -9,7 +9,6 @@ import { some } from 'lodash';
  */
 import {
 	createElement,
-	useRef,
 	useState,
 	useEffect,
 	useLayoutEffect,
@@ -33,7 +32,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const [ muted, setMuted ] = useState( settings.startMuted );
 	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
 
-	const [ slideWidth, setSlideWidth ] = useState( 279 );
+	const [ slideWidth, setSlideWidth ] = useState( null );
 	const [ resizeListener, { height } ] = useResizeObserver();
 
 	const uploading = some( slides, media => isBlobURL( media.url ) );
@@ -94,7 +93,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		}
 	}, [] );
 
-	useEffect( () => {
+	useLayoutEffect( () => {
 		if ( height ) {
 			const width = Math.round( settings.defaultAspectRatio * height );
 			setSlideWidth( width );

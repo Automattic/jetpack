@@ -41,17 +41,6 @@
 		border-radius: 15px;
 		overflow: hidden;
 		background-color: $wp-story-background-color;
-		box-shadow: 0 3px 15px rgba(0, 0, 0, 0.25);
-
-		&:after {
-			box-shadow: 0 5px 15px rgba( 0, 0, 0, 0.5 );
-			opacity: 0;
-			transition: opacity 0.3s ease-in-out;
-		}
-
-		&:hover:after {
-			opacity: 1;
-		}
 	}
 
 	.wp-story-slide {
@@ -147,6 +136,26 @@
 		left: 0;
 		border-radius: 15px;
 		cursor: pointer;
+		box-shadow: 0 3px 15px rgba( 0, 0, 0, 0.4 );
+
+		&:before {
+			content: ' ';
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			border-radius: 15px;
+			box-shadow: 0 5px 15px rgba( 0, 0, 0, 0.5 );
+			opacity: 0;
+			transition: opacity 0.3s ease-in-out;
+		}
+
+		&:hover {
+			&:before {
+				opacity: 1;
+			}
+		}
 
 		.wp-story-button-play,
 		.wp-story-button-replay {
