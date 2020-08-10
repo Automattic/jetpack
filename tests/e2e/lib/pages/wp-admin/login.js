@@ -29,9 +29,6 @@ export default class WPLoginPage extends Page {
 
 		await this.page.click( '#wp-submit' );
 
-		if ( await waitForSelector( this.page, this.expectedSelector, { hidden: true } ) ) {
-		}
-
 		try {
 			await waitForSelector( this.page, this.expectedSelector, {
 				hidden: true,
