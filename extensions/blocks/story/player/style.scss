@@ -336,6 +336,7 @@
 			margin-top: 84px;
 			margin-bottom: 84px;
 			border-radius: 0;
+			overflow: initial;
 
 			@media ( max-width: $break-medium ) {
 				margin-top: 0;
@@ -547,7 +548,7 @@
 		@supports not (backdrop-filter: none) {
 			filter: blur(18px);
 			filter: url(#gaussian-blur-18);
-			filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='3');
+			filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='18');
 		}
 	}
 
