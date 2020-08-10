@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-07-22 11:26:39+0000\n"
+"PO-Revision-Date: 2020-08-08 09:09:23+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:357
 msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr ""
+msgstr "برای استفاده از این ابزارک شما باید مجددا به اینستاگرام متصل شوید."
 
 #: widgets/instagram/instagram.php:265
 msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
@@ -21,19 +21,19 @@ msgstr "برایِ ادامهٔ استفاده از این ابزارک باید
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
-msgstr ""
+msgstr "این سایت خصوصی است.برای دیدن آن نیازمند ورود به سیستم هستید."
 
 #: private-site/access-denied-preview-login-template.php:58
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
-msgstr ""
+msgstr "این سایت خصوصی است. شما به عنوان کاربری که دسترسی دارد نیازمند ورود هستید."
 
 #: private-site/access-denied-coming-soon-template.php:52
 msgid "Start your website"
-msgstr ""
+msgstr "سایت خود را بسازید"
 
 #: private-site/access-denied-coming-soon-template.php:48
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr ""
+msgstr "یک وبسایت بسازید. چیزهایی بفروشید. یک وبلاگ بنویسید و موارد بسیار بیشتر."
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
@@ -41,19 +41,19 @@ msgstr "به زودی"
 
 #: wpcomsh.php:936
 msgid "Disk space quota"
-msgstr ""
+msgstr "میزان فضای دیسک"
 
 #: wpcomsh.php:932
 msgid "Disk space used"
-msgstr ""
+msgstr "حجم فضای استفاده شده"
 
 #: widgets/instagram/instagram.php:450
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>حساب اینستاگرام متصل شده</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">حذف</a>"
 
 #: widgets/instagram/instagram.php:425
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr ""
+msgstr "مشکلی دارید؟ ابتدا  <a href=\"%s\" target=\"_blank\">ورود به حساب کاربری فعلی</a> را در instagram.com امتحان کنید."
 
 #: widgets/instagram/instagram.php:417
 msgid "Connect Instagram Account"
@@ -61,7 +61,7 @@ msgstr "مجاز دانستن دسترسی اینستاگرام"
 
 #: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
+msgstr "در حال حاضر اینستاگرام با مشکلات اتصال مواجه است، لطفا برای اتصال مجدد بعدا امتحان کنید."
 
 #: widgets/instagram/instagram.php:388
 msgid "Connecting…"
@@ -69,23 +69,23 @@ msgstr "در حال اتصال..."
 
 #: widgets/instagram/instagram.php:361
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr ""
+msgstr "<strong>نکته مهم: شما ابتدا باید روی دکمه ذخیره و فعال کردن ابزارک <em>پیش از</em> اتصال در حساب خود، کلیک کنید.</strong> پس از ذخیره کردن ابزارک، بر روی دکمه زیر برای اتصال به حساب اینستاگرام خود کلیک کنید."
 
 #: widgets/instagram/instagram.php:335
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "کد امنیتی نامعتبر یا گم شده است."
 
 #: widgets/instagram/instagram.php:271
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr ""
+msgstr "برای استفاده از ابزارک اینستاگرام، نخست باید آن را <a href=\"%s\">تایید</a> کنید."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
-msgstr ""
+msgstr "برای اطلاعات بیشتر کلیک کنید"
 
 #: widgets/category-cloud.php:166
 msgid "Count items in sub-categories toward parent total."
-msgstr ""
+msgstr "حساب کردن گزینه‌های زیردسته نسبت به کل والد."
 
 #: widgets/category-cloud.php:156
 msgid "Maximum font percentage:"
@@ -97,7 +97,7 @@ msgstr "کمینهٔ درصد قلم:"
 
 #: widgets/category-cloud.php:144
 msgid "Category IDs, separated by commas"
-msgstr ""
+msgstr "شناسه ID دسته‌بندی، جدا شده با ویرگول"
 
 #: widgets/category-cloud.php:141
 msgid "Exclude:"
@@ -105,15 +105,15 @@ msgstr "به جز:"
 
 #: widgets/category-cloud.php:134
 msgid "Maximum number of categories to show:"
-msgstr ""
+msgstr "بیشترین تعداد دسته برای نمایش:"
 
 #: widgets/category-cloud.php:108
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
-msgstr ""
+msgstr "اگر شما می‌خواهید از <a href=\"%s\">دسته‌های</a> بیشتری در سایت خود استفاده کنید، اینجا نمایش داده می‌شوند."
 
 #: widgets/category-cloud.php:18
 msgid "Your most used categories in cloud format."
-msgstr ""
+msgstr "پراستفاده‌ترین دسته‌های شما در قالب ابری."
 
 #: widgets/category-cloud.php:16 widgets/category-cloud.php:42
 msgid "Category Cloud"
@@ -121,7 +121,7 @@ msgstr "ابر دسته‌ها"
 
 #: private-site/private-site.php:162
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "اتصال Jetpack قطع شده است و سایت خصوصی است. مجددا به JetPack وصل شوید تا تنظیمات نمایش سایت را مدیریت کنید."
 
 #: private-site/logged-in-banner.php:72
 msgid "Update visibility"
@@ -129,7 +129,7 @@ msgstr "به‌روزرسانیِ رؤیت‌پذیری"
 
 #: private-site/logged-in-banner.php:68
 msgid "Launch site"
-msgstr ""
+msgstr "اجرای سایت"
 
 #: private-site/logged-in-banner.php:63
 msgid "Dismiss"
@@ -137,15 +137,15 @@ msgstr "لغو"
 
 #: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
-msgstr ""
+msgstr "سایت شما در حال حاضر منتشر شده است؛ می‌توانید آن را با دنیا به اشتراک بگذارید!"
 
 #: private-site/logged-in-banner.php:52
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "سایت شما به عنوان «به زودی»‌ نشان‌گذاری شده است و تا زمان آماده شدن برای بازدیدکنندگان مخفی می‌ماند."
 
 #: private-site/logged-in-banner.php:54
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
-msgstr ""
+msgstr "سایت شما هنوز اجرا نشده است. آن را تنها تا زمانی که در حال اجرا است می‌توانید ببینید."
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -161,7 +161,7 @@ msgstr "نمایش دکمه دنبال‌کردن"
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
-msgstr "دربرگرفتن ری‌توییت‌ها"
+msgstr "دربرگرفتن ریتوییت‌ها"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
@@ -181,11 +181,11 @@ msgstr "نام کاربری توییتر:"
 
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
-msgstr ""
+msgstr "لطفا به ابزارک «تایم‌لاین توییتر» تغییر دهید. این ابزارک به زودی از بین می‌رود و ابزارک جدید امکانات بیشتری برای شخصی‌سازی دارد."
 
 #: widgets/twitter.php:289
 msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr "خطا: لطفاُ مطمئن شوید که حساب کاربری توییتر %1$sعمومی%2$s است."
+msgstr "خطا: لطفا مطمئن شوید که حساب کاربری توییتر %1$sعمومی%2$s است."
 
 #: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
@@ -197,7 +197,7 @@ msgstr "به‌روزرسانی‌های توییتر"
 
 #: widgets/twitter.php:51
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr ""
+msgstr "لطفا نام کاربری توییتر خود را برای  <a href=\"%s\">ابزارک توییتر</a> تایید کنید."
 
 #: widgets/twitter.php:29
 msgid "Display your Tweets from Twitter"
@@ -269,7 +269,7 @@ msgstr "هیچ تصویر اینستاگرامی پیدا نشد."
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
-msgstr ""
+msgstr "یک اشکال در دریافت تصاویر از اینستاگرام رخ داده است. در طول چند دقیقه و با تلاش مجدد درست می‌شود."
 
 #: widgets/instagram/instagram.php:30
 msgid "Display your latest Instagram photos."
@@ -297,7 +297,7 @@ msgstr "عکس"
 
 #: widgets/aboutme.php:123
 msgid "Don't Display Name"
-msgstr "نمایش‌ندادن نام"
+msgstr "عدم نمایش نام"
 
 #: widgets/aboutme.php:121
 msgid "Display Small"
@@ -325,11 +325,11 @@ msgstr "عنوان ابزارک"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "ابزارک about.me پس از ۱ جولای ۲۰۱۶ دیگر در دسترس نخواهد بود. پس از این تاریخ، این ابزارک فقط یک پیوند متنی از نمایه about.me شما را نمایش می‌دهد. لطفا این ابزارک را حذف کنید."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "ابزارک about.me دیگر در دسترس نیست. برای حذف آن به <a href=\"%s\">تنظیمات سایت خود</a> مراجعه کنید. این پیام برای بینندگان سایت شما نمایش داده نمی‌شود."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
@@ -345,11 +345,11 @@ msgstr "دریافت داده‌های درخواست‌شده مقدور نبو
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
-msgstr "ساخت یک وب‌گاه یا وب‌نوشت رایگان در وردپرس.کام"
+msgstr "ساخت یک وبسایت یا وبلاگ رایگان در WordPress.com"
 
 #: footer-credit/theme-optimizations.php:32
 msgid "Create a free website at WordPress.com"
-msgstr "ساخت یک وب‌گاه رایگان در وردپرس.کام"
+msgstr "ساخت یک وبسایت رایگان در WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
@@ -359,36 +359,36 @@ msgstr "نیرو گرفته از WordPress.com"
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
-msgstr "وب‌نوشت روی وردپرس.کام"
+msgstr "وبلاگ در WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "یک سایت WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
-msgstr "نشان‌وارهٔ وردپرس.کام"
+msgstr "نماد WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "یک وبسایت یا وبلاگ در WordPress.com بسازید"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr "اعتباردهی پسایند"
+msgstr "اعتباردهی پابرگ"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"
-msgstr "ارتقا به تجاری"
+msgstr "ارتقا به کسب و کار"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr "نهفتن (طرح تجاری نیاز است)"
+msgstr "عدم نمایش (نیازمند طرح کسب و کار است)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
-msgstr "پنهانیدن"
+msgstr "عدم نمایش"
 
 #: footer-credit/footer-credit/customizer.php:41
 msgid "Default"
@@ -396,7 +396,7 @@ msgstr "پیش‌فرض"
 
 #: footer-credit/footer-credit-optimizations.php:159
 msgid "Design by"
-msgstr ""
+msgstr "طراحی توسط"
 
 #: footer-credit/footer-credit-optimizations.php:147
 msgid "by"
@@ -404,7 +404,7 @@ msgstr "توسط"
 
 #: footer-credit/footer-credit-optimizations.php:130
 msgid "Theme"
-msgstr "پوشته"
+msgstr "پوسته"
 
 #: footer-credit/footer-credit-optimizations.php:114
 msgid "Proudly powered by WordPress"
@@ -416,11 +416,11 @@ msgstr "ذخیره تنظیمات"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "آیا شما نسبت به ابطال تغییرات ذخیره نشده خود، مطمئن هستید؟"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
-msgstr "ذخیره شد."
+msgstr "ذخیره شد"
 
 #: customizer-fixes/customizer-fixes.php:10
 msgid "Save Changes"
@@ -432,19 +432,19 @@ msgstr "ذخیره"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "فعال‌سازی &amp; ذخیره"
 
 #: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "مدیریت تنظیمات نمایش سایت شما"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "این افزوده توسط WordPress.com نصب شده بود و ویژگی‌های مشخص شده در طرح اشتراکی شما را ارائه می‌کند."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s به صورت خودکار برای شما مدیریت می‌کند."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -488,7 +488,7 @@ msgstr "طول نمایش:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
-msgstr ""
+msgstr "فهرست پیوندهای بیشتر کلیک شده در وبلاگ شما."
 
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
@@ -497,7 +497,7 @@ msgstr "بیشترین کلیک شده‌ها"
 
 #: widgets/tlkio/tlkio.php:59
 msgid "Height (in pixel):"
-msgstr ""
+msgstr "ارتفاع (به پیکسل):"
 
 #: widgets/tlkio/tlkio.php:55
 msgid "Channel:"
@@ -505,11 +505,11 @@ msgstr "کانال:"
 
 #: widgets/tlkio/tlkio.php:26
 msgid "tlk.io Webchat"
-msgstr ""
+msgstr "گپ اینترنتی tlk.io"
 
 #: widgets/tlkio/tlkio.php:25
 msgid "Add a tlk.io webchat."
-msgstr ""
+msgstr "افزودن یک گپ آنلاین tlk.io."
 
 #: widgets/reservations.php:55
 msgid "Show:"
@@ -517,7 +517,7 @@ msgstr "نمایش:"
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
-msgstr ""
+msgstr "موضوع ایمیل:"
 
 #: widgets/reservations.php:44
 msgid "Recipient E-mail Address:"
@@ -525,11 +525,11 @@ msgstr "رایانشانی دریافت‌کننده:"
 
 #: widgets/reservations.php:29
 msgid "Departure"
-msgstr ""
+msgstr "شروع حرکت"
 
 #: widgets/reservations.php:28
 msgid "Arrival"
-msgstr ""
+msgstr "رسیدن"
 
 #: widgets/reservations.php:27
 msgid "# Children"
@@ -549,7 +549,7 @@ msgstr "تلفن"
 
 #: widgets/reservations.php:23
 msgid "Email"
-msgstr "رایانشانی"
+msgstr "ایمیل"
 
 #: widgets/aboutme.php:111 widgets/reservations.php:22
 msgid "Name"
@@ -557,39 +557,39 @@ msgstr "نام"
 
 #: widgets/reservations.php:16
 msgid "Reservation Inquiry"
-msgstr ""
+msgstr "استعلام رزرو"
 
 #: widgets/reservations.php:10 widgets/reservations.php:15
 msgid "Reservations"
-msgstr ""
+msgstr "رزرویشن"
 
 #: widgets/recent-comments-widget.php:384
 msgid "Show comments from:"
-msgstr "نمایش دیدگاه‌هایِ:"
+msgstr "نمایش دیدگاه‌ها از:"
 
 #: widgets/recent-comments-widget.php:379
 msgid "Text background color:"
-msgstr "رنگ پس‌زمینهٔ متن:"
+msgstr "رنگ پس‌زمینه متن:"
 
 #: widgets/recent-comments-widget.php:373
 msgid "Avatar background color:"
-msgstr "رنگ پیش‌زمینهٔ چهرک:"
+msgstr "رنگ پس‌زمینه آواتار:"
 
 #: widgets/recent-comments-widget.php:362
 msgid "No Avatars"
-msgstr "چهرکی وجود ندارد"
+msgstr "بدون آواتار"
 
 #: widgets/recent-comments-widget.php:355
 msgid "(at most 15)"
-msgstr "(بیشینه: 15)"
+msgstr "(بیشترین ۱۵)"
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
-msgstr "تعداد دیدگاه‌ها برای نمایش."
+msgstr "تعداد دیدگاه‌ها برای نمایش:"
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
-msgstr ""
+msgstr "هیچ دیدگاه عمومی برای نمایش وجود ندارد."
 
 #. translators: comments widget: 1: comment author, 2: post link
 #: widgets/recent-comments-widget.php:275
@@ -604,7 +604,7 @@ msgstr "ناشناس"
 
 #: widgets/recent-comments-widget.php:30
 msgid "Display your site's most recent comments"
-msgstr ""
+msgstr "نمایش آخرین دیدگاه‌های سایت خود"
 
 #: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
@@ -612,7 +612,7 @@ msgstr "دیدگاه‌های اخیر"
 
 #: widgets/posts-i-like.php:269
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
-msgstr ""
+msgstr "شما اخیرا هیچ نوشته‌ای را نپسندیده‌اید. به محض انجام این کار، افزوده <a href=\"%s\">نوشته‌های مورد علاقه</a> آن‌ها را نمایش می‌دهد."
 
 #: widgets/posts-i-like.php:259
 msgid "on"
@@ -645,7 +645,7 @@ msgstr "تعداد نوشته‌ها برای نمایش (۱ تا ۱۵):"
 
 #: widgets/posts-i-like.php:27
 msgid "A list of the posts I most recently liked"
-msgstr ""
+msgstr "یک فهرست از نوشته‌هایی که اخیرا پسندیده‌اید"
 
 #: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
 msgid "Posts I Like"
@@ -661,15 +661,15 @@ msgstr "پخش‌کننده موسیقی"
 
 #: widgets/music-player.php:15
 msgid "A multi-song music player"
-msgstr ""
+msgstr "یک پخش کننده موسیقی چند آهنگه"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "من رای دادم"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "به خوانندگان خود رای دادن‌تان را با استیکر «من رای دادم» نشان دهید."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -693,7 +693,7 @@ msgstr "اندازه:"
 
 #: widgets/gravatar.php:122
 msgid "Custom Email Address:"
-msgstr "رایانشانی سفارشی:"
+msgstr "آدرس ایمیل سفارشی:"
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
@@ -701,7 +701,7 @@ msgstr "کاربری را گزینش کنید و یا «سفارشی» را بر
 
 #: widgets/gravatar.php:115
 msgid "Center"
-msgstr "میان‌چین"
+msgstr "وسط"
 
 #: widgets/gravatar.php:115
 msgid "Right"
@@ -717,7 +717,7 @@ msgstr "هیچکدام"
 
 #: widgets/gravatar.php:114
 msgid "Extra Large (256 pixels)"
-msgstr "بسیار بزرگ (256 پیکسل)"
+msgstr "بسیار بزرگ (۲۵۶ پیکسل)"
 
 #: widgets/gravatar.php:114
 msgid "Large (128 pixels)"
@@ -725,15 +725,15 @@ msgstr "بزرگ (۱۲۸ پیکسل)"
 
 #: widgets/gravatar.php:114
 msgid "Medium (96 pixels)"
-msgstr "میانه (۹۶ پیکسل)"
+msgstr "متوسط (۹۶ پیکسل)"
 
 #: widgets/gravatar.php:114
 msgid "Small (64 pixels)"
-msgstr "کوچک (64 پیکسلی)"
+msgstr "کوچک (۶۴ پیکسل)"
 
 #: widgets/gravatar.php:84
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
-msgstr ""
+msgstr "شما نیازمند انتخاب یک نام کاربری یا ورود یک آدرس ایمیل در تنظیمات <a href=\"%s\">ابزارک گراواتار</a> خود هستید."
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
@@ -753,15 +753,15 @@ msgstr "به تازگی منتشر شده"
 
 #: widgets/freshly-pressed.php:8
 msgid "Display a Freshly Pressed badge in your sidebar"
-msgstr ""
+msgstr "نمایش یک بدج Freshly Pressed در نوارکناری خود"
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
-msgstr "اندازهٔ چهرک (پیکسل):"
+msgstr "اندازه آواتار (پیکسل):"
 
 #: widgets/author-grid.php:97
 msgid "Display all authors (including those who have not written any posts)"
-msgstr "نمایش همهٔ نویسنده‌ها (همراه با آن‌هایی که چیزی ننوشته‌اند)"
+msgstr "نمایش همه نویسنده‌ها (به همراه کسانی که چیزی ننوشته‌اند)"
 
 #: widgets/author-grid.php:91 widgets/category-cloud.php:127
 #: widgets/freshly-pressed.php:56 widgets/gravatar.php:117
@@ -787,12 +787,12 @@ msgstr "شبکهٔ نویسندگان"
 
 #: private-site/private-site.php:555
 msgid "Private Site"
-msgstr "وب‌گاه خصوصی"
+msgstr "سایت خصوصی"
 
 #: private-site/private-site.php:391 private-site/private-site.php:493
 #: private-site/private-site.php:687
 msgid "This site is private."
-msgstr "این وب‌گاه خصوصی است."
+msgstr "این سایت خصوصی است."
 
 #: private-site/access-denied-coming-soon-template.php:51
 #: private-site/access-denied-private-site-template.php:45
@@ -805,7 +805,7 @@ msgstr "تغییر کاربر"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "شما باید به عنوان کاربری که به تماشای این سایت دسترسی دارد، وارد شوید."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -813,7 +813,7 @@ msgid ""
 "WordPress and participating plugins. It does not include privacy policy\n"
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
-msgstr ""
+msgstr "لطفا به یاد داشته باشید - این ابزار صرفا اطلاعات سیاست حریم خصوصی ارائه شده توسط وردپرس و ابزارک‌های شرکت‌کننده را نمایش می‌دهد. این شامل اطلاعات سیاست حریم خصوصی ابزاک‌های شرکت داده نشده نمی‌شود. مسئولیت پذیرفتن اطلاعات سیاست حریم خصوصی ابزارک‌های مشارکت کننده و مشارکت نکننده به صورت جداگانه با شما است."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -822,7 +822,7 @@ msgid ""
 "non-participating plugins. It is your responsibility to export personal data\n"
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
-msgstr ""
+msgstr "لطفا به یاد داشته باشید - این ابزار صرفا اطلاعات شخصی ذخیره شده شما توسط وردپرس و ابزارک‌های مشخص شده را پاک می‌کند. اطلاعات کاربران ثبت‌نام شده و اطلاعات شخصی ذخیره شده برای ابزارک‌های انتخاب نشده را حذف نمی‌کند. مسئولیت حذف اطلاعات کاربران ثبت‌نام شده به عنوان اطلاعات شخصی ذخیره شده توسط ابزارک‌های انتخاب نشده، با شما است. اطلاعات شخصی حذف شده صرفا شامل موارد اشاره شده در زیر در زمان مشخص می‌شود:‌"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -832,20 +832,20 @@ msgid ""
 "to delete registered users as well as personal data stored by non-participating\n"
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
-msgstr ""
+msgstr "لطفا به یاد داشته باشید - این ابزار صرفا اطلاعات شخصی ذخیره شده شما توسط وردپرس و ابزارک‌های مشخص شده را پاک می‌کند. اطلاعات کاربران ثبت‌نام شده و اطلاعات شخصی ذخیره شده برای ابزارک‌های انتخاب نشده را حذف نمی‌کند. مسئولیت حذف اطلاعات کاربران ثبت‌نام شده به عنوان اطلاعات شخصی ذخیره شده توسط ابزارک‌های انتخاب نشده، با شما است. اطلاعات شخصی حذف شده صرفا شامل موارد اشاره شده در زیر در زمان مشخص می‌شود:‌"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr "ساخت نشان‌واره"
+msgstr "ساخت نماد"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "افزودن یک نماد (لوگو) برای نمایش در سایت خود. نمادی ندارید؟ یک ماد حرفه‌ای را از Looka خریداری کنید - برای شروع روی «Create Logo» کلیک کنید."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "عملکرد و ابزارها‌ ارائه شده از WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr "راهنمای وب‌گاه WP.com"
+msgstr "راهنمای سایت WP.com"

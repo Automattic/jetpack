@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-07-24 13:14:32+0000\n"
+"PO-Revision-Date: 2020-08-05 15:26:34+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -37,7 +37,7 @@ msgstr "建立網站。銷售你的商品。撰寫網誌。優點不止於此。
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
-msgstr ""
+msgstr "即將推出"
 
 #: wpcomsh.php:936
 msgid "Disk space quota"
@@ -836,7 +836,7 @@ msgstr ""
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "建立標誌"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."

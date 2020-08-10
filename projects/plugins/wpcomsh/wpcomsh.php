@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.130
+ * Version: 2.4.131
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.130' );
+define( 'WPCOMSH_VERSION', '2.4.131' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -252,6 +252,28 @@ add_action(
 	'wpcomsh_remove_vaultpress_wpadmin_notices',
 	11 // Priority 11 so it runs after VaultPress `admin_head` hook
 );
+
+// Disable core auto updates for plugins because Jetpack handles plugin updates
+add_filter( 'plugins_auto_update_enabled', '__return_false' );
+
+function wpcomsh_atomic_managed_theme_template_auto_update_label() {
+	/* translators: Message about how a managed theme is updated. */
+	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
+}
+add_filter( 'atomic_managed_theme_template_auto_update_label', 'wpcomsh_atomic_managed_theme_template_auto_update_label' );
+
+function wpcomsh_atomic_managed_plugin_auto_update_debug_label() {
+	/* translators: Information about how a managed plugin is updated, for debugging purposes. */
+	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
+}
+add_filter( 'atomic_managed_plugin_auto_update_debug_label', 'wpcomsh_atomic_managed_plugin_auto_update_debug_label' );
+
+function wpcomsh_atomic_managed_theme_auto_update_debug_label() {
+	/* translators: Information about how a managed theme is updated, for debugging purposes. */
+	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
+}
+add_filter( 'atomic_managed_theme_auto_update_debug_label', 'wpcomsh_atomic_managed_theme_auto_update_debug_label' );
+
 
 function wpcomsh_managed_plugins_action_links() {
 	foreach ( WPCOM_CORE_ATOMIC_PLUGINS as $plugin ) {

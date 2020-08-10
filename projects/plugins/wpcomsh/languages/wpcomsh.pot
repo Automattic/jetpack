@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-07-29 11:32-0500\n"
+"POT-Creation-Date: 2020-08-10 13:56-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,73 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
 msgstr ""
 
 #: logo-tool/logo-tool.php:60
@@ -834,29 +901,36 @@ msgstr ""
 msgid "Text to display between Tweet and timestamp:"
 msgstr ""
 
-#: wpcomsh.php:353
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging purposes.
+#: wpcomsh.php:261 wpcomsh.php:267 wpcomsh.php:273
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: wpcomsh.php:375
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: wpcomsh.php:356
+#: wpcomsh.php:378
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
 msgstr ""
 
-#: wpcomsh.php:904
+#: wpcomsh.php:926
 #, php-format
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
 msgstr ""
 
-#: wpcomsh.php:932
+#: wpcomsh.php:954
 msgid "Disk space used"
 msgstr ""
 
-#: wpcomsh.php:936
+#: wpcomsh.php:958
 msgid "Disk space quota"
 msgstr ""
 

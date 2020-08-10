@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-07-22 11:25:26+0000\n"
+"PO-Revision-Date: 2020-08-04 20:43:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -109,7 +109,7 @@ msgstr ""
 
 #: widgets/category-cloud.php:108
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
-msgstr ""
+msgstr "Se vi uzas pliajn <a href=\"%s\">kategoriojn</a> sur via retejo, ili aperos ĉi tie."
 
 #: widgets/category-cloud.php:18
 msgid "Your most used categories in cloud format."

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-08 15:57:26+0000\n"
+"PO-Revision-Date: 2020-08-10 09:34:38+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -133,7 +133,7 @@ msgstr "Website veröffentlichen"
 
 #: private-site/logged-in-banner.php:63
 msgid "Dismiss"
-msgstr "Verwerfen"
+msgstr "Ausblenden"
 
 #: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
@@ -209,7 +209,7 @@ msgstr "Twitter"
 
 #: widgets/tag-cloud-widget.php:177
 msgid "Taxonomy:"
-msgstr "Taxonomie:"
+msgstr "Taxonomie"
 
 #: widgets/tag-cloud-widget.php:159
 msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
@@ -233,11 +233,11 @@ msgstr "Schlagwörter"
 
 #: widgets/tag-cloud-widget.php:21
 msgid "Tag Cloud"
-msgstr "Schlagwort-Wolke"
+msgstr "Schlagwörter-Wolke"
 
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
-msgstr "Eine Wortwolke deiner meist genutzten Schlagwörter."
+msgstr "Eine Wortwolke Ihrer meistgenutzten Schlagwörter."
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
@@ -404,7 +404,7 @@ msgstr "von"
 
 #: footer-credit/footer-credit-optimizations.php:130
 msgid "Theme"
-msgstr "Vorlage"
+msgstr "Theme"
 
 #: footer-credit/footer-credit-optimizations.php:114
 msgid "Proudly powered by WordPress"
@@ -448,7 +448,7 @@ msgstr "%s wird für Sie automatisch verwaltet."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
-msgstr "Wieviele Einträge sollen angezeigt werden?"
+msgstr "Wie viele Einträge sollen angezeigt werden?"
 
 #: widgets/top-rated.php:137
 msgid "Filter by category"
@@ -549,7 +549,7 @@ msgstr "Telefon"
 
 #: widgets/reservations.php:23
 msgid "Email"
-msgstr "E-Mail-Adresse"
+msgstr "E-Mail"
 
 #: widgets/aboutme.php:111 widgets/reservations.php:22
 msgid "Name"
