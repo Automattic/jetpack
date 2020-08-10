@@ -603,16 +603,16 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v1.14.3",
+            "version": "v1.14.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "25b7a616e0133502c8147e223755cd47036e2cfa"
+                "reference": "07f8fecc4cfa6d8aee3447f9eda3e005e2056cde"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/25b7a616e0133502c8147e223755cd47036e2cfa",
-                "reference": "25b7a616e0133502c8147e223755cd47036e2cfa",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/07f8fecc4cfa6d8aee3447f9eda3e005e2056cde",
+                "reference": "07f8fecc4cfa6d8aee3447f9eda3e005e2056cde",
                 "shasum": ""
             },
             "require": {
@@ -633,7 +633,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
-            "time": "2020-08-10T15:52:56+00:00"
+            "time": "2020-08-10T16:13:13+00:00"
         },
         {
             "name": "automattic/jetpack-terms-of-service",
