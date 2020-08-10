@@ -373,6 +373,15 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_consent( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent' );
+
+		if ( ! isset( $atts['implicitconsentmessage'] ) ) {
+			$atts['implicitconsentmessage'] = __( 'By submitting your information, you are granting us permission to email you. You may unsubscribe at any time.', 'jetpack' );
+		}
+
+		if ( ! isset( $atts['explicitconsentmessage'] ) ) {
+			$atts['explicitconsentmessage'] = __( 'Can we send you an email from time to time?', 'jetpack' );
+		}
+
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
