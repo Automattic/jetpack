@@ -137,30 +137,27 @@ const Save = ( { attributes } ) => {
 								value={ annualDonation.extraText }
 							/>
 						) }
-						<div className="wp-block-button donations__donate-button donations__one-time-item">
+						<div className="wp-block-button donations__donate-button-wrapper donations__one-time-item">
 							<RichText.Content
-								tagName="div"
-								role="button"
-								className="wp-block-button__link"
+								tagName="a"
+								className="wp-block-button__link donations__donate-button donations__one-time-item"
 								value={ oneTimeDonation.buttonText }
 							/>
 						</div>
 						{ monthlyDonation.show && (
-							<div className="wp-block-button donations__donate-button donations__monthly-item">
+							<div className="wp-block-button donations__donate-button-wrapper donations__monthly-item">
 								<RichText.Content
-									tagName="div"
-									role="button"
-									className="wp-block-button__link"
+									tagName="a"
+									className="wp-block-button__link donations__donate-button donations__monthly-item"
 									value={ monthlyDonation.buttonText }
 								/>
 							</div>
 						) }
 						{ annualDonation.show && (
-							<div className="wp-block-button donations__donate-button donations__annual-item">
+							<div className="wp-block-button donations__donate-button-wrapper donations__annual-item">
 								<RichText.Content
-									tagName="div"
-									role="button"
-									className="wp-block-button__link"
+									tagName="a"
+									className="wp-block-button__link donations__donate-button donations__annual-item"
 									value={ annualDonation.buttonText }
 								/>
 							</div>

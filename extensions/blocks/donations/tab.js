@@ -141,9 +141,9 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 				value={ getDonationValue( 'extraText' ) }
 				onChange={ value => setDonationValue( 'extraText', value ) }
 			/>
-			<div className="wp-block-button donations__donate-button">
+			<div className="wp-block-button donations__donate-button-wrapper">
 				<RichText
-					className="wp-block-button__link"
+					className="wp-block-button__link donations__donate-button"
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
 					value={ getDonationValue( 'buttonText' ) }
 					onChange={ value => setButtonText( value ) }

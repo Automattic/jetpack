@@ -60,7 +60,7 @@ function render_block( $attr, $content ) {
 		}
 
 		$url     = \Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id );
-		$content = preg_replace( '/(donations__donate-button donations__' . $interval . '-item")/i', '$1 data-url="' . esc_url( $url ) . '"', $content );
+		$content = preg_replace( '/(donations__donate-button donations__' . $interval . '-item")/i', '$1 href="' . esc_url( $url ) . '"', $content );
 	}
 
 	return $content;
