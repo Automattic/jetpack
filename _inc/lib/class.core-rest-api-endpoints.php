@@ -3527,7 +3527,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *     @type string $status Plugin status. We only support active in Jetpack.
 	 * }
 	 *
-	 * @return WP_REST_Response A response indicating whether or not the activation was successful.
+	 * @return WP_REST_Response|WP_Error A response object if the activation was successful, or a WP_Error object if the activation failed.
 	 */
 	public static function activate_plugin( $request ) {
 		/*
