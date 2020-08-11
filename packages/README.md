@@ -87,6 +87,9 @@ The PHP script admits two parameters, the package name and the new target versio
 - create and push a new `v5.6.7` tag in the package repository.
 - reset the local repository to its original state and clean up.
 
+## Unit Tests
+You may run unit tests locally for any given package by running `composer phpunit` within the package directory. 
+
 ## Should my code be in a Package? 
 
 Not sure if your code should be in a Package? Here are some general guidelines we follow when deciding: 
