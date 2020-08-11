@@ -192,6 +192,7 @@ function render_block( $attributes ) {
 							</svg>
 							<span>%7$s</span>
 						</div>
+					</div>
 				</div>
 			</div>
 		</div>',
