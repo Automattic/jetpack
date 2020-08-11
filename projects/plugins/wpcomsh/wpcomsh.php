@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.133
+ * Version: 2.4.134
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.133' );
+define( 'WPCOMSH_VERSION', '2.4.134' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1107,3 +1107,85 @@ function wpcomsh_footer_rum_js() {
 	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='atomic' src='https://s0.wp.com/wp-content/js/bilmur.min.js'></script>\n";
 }
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
+
+function wpcomsh_upgrade_transferred_db() {
+	global $wp_db_version;
+
+	// Version taken from:
+	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-includes/version.php#L23
+	$db_version_5_5 = 48748;
+
+	if( $wp_db_version < $db_version_5_5 ) {
+		// WordPress isn't yet at the version for upgrade
+		return;
+	}
+
+	// We need to be in installation mode to get actual, saved DB version
+	wp_installing( true );
+	$current_db_version = get_option( 'db_version' );
+	wp_installing( false );
+
+	if ( $current_db_version >= $db_version_5_5 ) {
+		// There's nothing to do
+		return;
+	}
+
+	if ( get_option( 'wpcomsh_upgraded_db' ) ) {
+		// We only ever want to upgrade the DB once per transferred site.
+		// After that, the platform should take care of upgrades as WordPress is updated.
+		return;
+	}
+
+	// Log the upgrade immediately because we do not want to re-attempt upgrade
+	// and bring down a site if there are persistent errors
+	update_option( 'wpcomsh_upgraded_db', 1 );
+
+	//
+	// Update logic derived from:
+	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2167
+	//
+	
+	// We have to be in installation mode to work with options deprecated in WP 5.5
+	// Otherwise all gets and updates are directed to the new option names.
+	wp_installing( true );
+
+	if ( $current_db_version < 48121 && false !== get_option( 'comment_whitelist' ) && empty( get_option( 'comment_previously_approved' ) ) ) {
+		$comment_previously_approved = get_option( 'comment_whitelist', '' );
+		update_option( 'comment_previously_approved', $comment_previously_approved );
+		delete_option( 'comment_whitelist' );
+	}
+
+	if ( $current_db_version < 48575 && false !== get_option( 'blacklist_keys' ) && empty( get_option( 'disallowed_keys' ) ) ) {
+		// Use more clear and inclusive language.
+		$disallowed_list = get_option( 'blacklist_keys' );
+
+		/*
+		 * This option key was briefly renamed `blocklist_keys`.
+		 * Account for sites that have this key present when the original key does not exist.
+		 */
+		if ( false === $disallowed_list ) {
+			$disallowed_list = get_option( 'blocklist_keys' );
+		}
+
+		update_option( 'disallowed_keys', $disallowed_list );
+		delete_option( 'blacklist_keys' );
+		delete_option( 'blocklist_keys' );
+	}
+
+	// We're done updating deprecated options
+	wp_installing( false );
+
+	if ( $current_db_version < 48748 && ! get_option( 'finished_updating_comment_type' ) ) {
+		update_option( 'finished_updating_comment_type', 0 );
+		wp_schedule_single_event( time() + ( 1 * MINUTE_IN_SECONDS ), 'wp_update_comment_type_batch' );
+	}
+
+	// Update DB version to avoid applying core upgrade logic which may be destructive
+	// to things like the new `comment_previously_approved` option.
+	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2178
+	update_option( 'db_version', $db_version_5_5 );
+
+	// Preserve previous version for troubleshooting
+	update_option( 'wpcom_db_version_before_upgrade', $current_db_version, false /* do not autoload */ );
+}
+add_action( 'muplugins_loaded', 'wpcomsh_upgrade_transferred_db' );
