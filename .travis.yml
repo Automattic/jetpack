@@ -85,7 +85,7 @@ matrix:
       - ls -la coverage
     after_script:
       # - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
-      - ./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.backend.json clover.xml # Format backend coverage
+      - ./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.backend.json coverage/clover.xml # Format backend coverage
       - ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.frontend.json coverage/lcov.info  # Format frontend coverage
 
       - ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p 2                  # Sum both coverage parts into coverage/codeclimate.json
