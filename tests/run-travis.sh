@@ -10,7 +10,7 @@ function run_packages_tests {
 			cd "$PACKAGE/../.."
 
 			if [ "$DO_COVERAGE" == "true" ]; then
-				export WP_TRAVISCI_PACKAGES="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/$PACKAGE-clover.xml"
+				export WP_TRAVISCI_PACKAGES="composer install && phpdbg -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/$PACKAGE-clover.xml"
 				echo "!!!!!!!!!!!!!"
 				echo $WP_TRAVISCI
 			fi
