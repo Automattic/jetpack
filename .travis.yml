@@ -57,7 +57,7 @@ matrix:
 
   # Code Climate code coverage.
   - name: "Code Coverage"
-    language: generic
+    php: "7.3"
     env:
       - WP_BRANCH=latest
       - DO_COVERAGE=true
@@ -71,9 +71,8 @@ matrix:
 
       - ./tests/setup-travis.sh
 
-      - node -v
       - nvm install 10
-      - npm install -g yarn
+      # - npm install -g yarn
       - yarn install
 
     script:
