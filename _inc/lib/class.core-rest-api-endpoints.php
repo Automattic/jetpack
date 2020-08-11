@@ -3477,7 +3477,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *     @type string $slug Plugin slug.
 	 * }
 	 *
-	 * @return WP_REST_Response A response indicating whether or not the installation was successful.
+	 * @return WP_REST_Response|WP_Error A response object if the installation was successful, or a WP_Error object if the installation failed.
 	 */
 	public static function install_plugin( $request ) {
 		$plugin = stripslashes( $request['slug'] );
@@ -3486,18 +3486,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$result = Jetpack_Plugins::install_plugin( $plugin );
 
 		if ( is_wp_error( $result ) ) {
-			return rest_ensure_response(
-				array(
-					'code'    => 'failure',
-					'message' => esc_html(
-						sprintf(
-							/* translators: %1$s: plugin name. -- %2$s: error message. */
-							__( 'Unable to install %1$s: %2$s ', 'jetpack' ),
-							$plugin,
-							$result->get_error_message()
-						)
-					),
-				)
+			return new WP_Error(
+				'install_plugin_failed',
+				sprintf(
+					/* translators: %1$s: plugin name. -- %2$s: error message. */
+					__( 'Unable to install %1$s: %2$s ', 'jetpack' ),
+					$plugin,
+					$result->get_error_message()
+				),
+				array( 'status' => 403 )
 			);
 		} else {
 			return rest_ensure_response(
