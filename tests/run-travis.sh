@@ -10,6 +10,10 @@ function run_packages_tests {
 			cd "$PACKAGE/../.."
 			echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$PACKAGE\` "
 
+			if [ "$DO_COVERAGE" == "true" ]; then
+				export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/$PACKAGE-clover.xml"
+			fi
+
 			if $WP_TRAVISCI_PACKAGES; then
 				# Everything is fine
 				:
