@@ -19,8 +19,7 @@ registerJetpackPlugin( name, settings );
  * extension availability so will not render the Plugin if the extension is not
  * availabile.
  */
-// TODO: remove before submitting PR for a review.
-const extensionAvailableOnPlan = false && getJetpackExtensionAvailability( 'social-previews' );
+const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' );
 
 if ( ! extensionAvailableOnPlan ) {
 	registerPlugin( `jetpack-${ name }-upgrade-nudge`, {
