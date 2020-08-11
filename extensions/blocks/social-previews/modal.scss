@@ -95,7 +95,7 @@
 	}
 	
 	.jetpack-social-previews__upgrade-heading {
-		font-size: 1.9em;
+		font-size: 2em;
 		line-height: 1.15;
 	}
 	
@@ -103,6 +103,8 @@
 		list-style: none;
 		margin-bottom: 2em;
 		padding-left: 1em;
+		font-size: 1.1em;
+		line-height: 1.4;
 	
 		li {
 			position: relative;
@@ -119,7 +121,7 @@
 
 	@media ( min-width: $break-small ) {
 		width: 80vw;
-		max-width: 800px;
+		max-width: 870px;
 		display: grid;
 		grid-gap: 3em;
 		grid-template-columns: 1fr 1fr;
