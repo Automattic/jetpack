@@ -1111,7 +1111,7 @@ add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 function wpcomsh_upgrade_transferred_db() {
 	global $wp_db_version;
 
-	// Version taken from:
+	// Value taken from:
 	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-includes/version.php#L23
 	$db_version_5_5 = 48748;
 
