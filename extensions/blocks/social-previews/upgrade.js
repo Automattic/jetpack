@@ -23,7 +23,7 @@ const SocialPreviewsUpgrade = function SocialPreviewsUpgrade() {
 				<h2 className="jetpack-social-previews__upgrade-heading">
 					{ __( 'Upgrade to a Business Plan to unlock the power of our SEO tools', 'jetpack' ) }
 				</h2>
-				<ul className="jetpack-social-previews__feature-list">
+				<ul className="jetpack-social-previews__upgrade-feature-list">
 					<li>
 						{ __(
 							'Preview your site’s content as it will appear on Facebook, Twitter, and the WordPress.com Reader.',
