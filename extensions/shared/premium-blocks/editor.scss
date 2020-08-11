@@ -51,7 +51,7 @@ $icon-background-color: #fff;
 .block-editor-block-list__layout .jetpack-upgrade-plan-banner {
 	position: relative;
 	top: $banner-height - ( $grid-unit-15 / 2 );
-	z-index: 1;
+	z-index: 10;
 }
 
 .block-editor-block-inspector {
