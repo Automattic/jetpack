@@ -3,7 +3,7 @@
  */
 
 @import '~@automattic/color-studio/dist/color-variables';
-@import '../../../scss/_utilities/mixins/_breakpoint';
+@import '../../shared/styles/gutenberg-base-styles.scss';
 @import '../../../scss/atoms/colors/_colors';
 
 .jetpack-social-previews__modal {
@@ -20,7 +20,7 @@
 		flex-direction: column;
 		height: 100%;
 
-		@include minbreakpoint( desktop ) {
+		@media ( min-width: $break-medium ) {
 			flex-direction: row;
 			width: 900px;
 			min-height: 500px;
@@ -52,7 +52,7 @@
 				}
 			}
 
-			@include minbreakpoint( desktop ) {
+			@media ( min-width: $break-medium ) {
 				flex-direction: column;
 				justify-content: flex-start;
 				padding: 24px;
@@ -72,7 +72,7 @@
 			background-color: $studio-gray-0;
 			flex: 1;
 
-			@include minbreakpoint( desktop ) {
+			@media ( min-width: $break-medium ) {
 				padding: 40px;
 			}
 		}
