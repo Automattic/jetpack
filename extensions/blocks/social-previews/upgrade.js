@@ -7,6 +7,7 @@ import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -21,7 +22,8 @@ const SocialPreviewsUpgrade = function SocialPreviewsUpgrade( {
 	href,
 	trackViewEvent,
 } ) {
-	trackViewEvent();
+	// Using the effect here so the tracking is only called once on component mount.
+	useEffect( trackViewEvent, [] );
 
 	return (
 		<div className="jetpack-social-previews__modal-upgrade">
