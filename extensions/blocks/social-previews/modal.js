@@ -52,7 +52,11 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 			{ showUpgradeNudge ? (
 				<SocialPreviewsUpgrade />
 			) : (
-				<TabPanel className="jetpack-social-previews__modal-previews" tabs={ tabs }>
+				<TabPanel
+					className="jetpack-social-previews__modal-previews"
+					tabs={ tabs }
+					orientation="vertical"
+				>
 					{ tab => (
 						<div>
 							<tab.preview
