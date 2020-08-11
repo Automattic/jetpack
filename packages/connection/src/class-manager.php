@@ -2584,7 +2584,7 @@ class Manager {
 			'2',
 			'sites/' . $blog_id . '/jetpack-refresh-blog-token'
 		);
-		$method  = 'GET';
+		$method  = 'POST';
 		$user_id = get_current_user_id();
 
 		$response = Client::remote_request( compact( 'url', 'method', 'user_id' ) );
