@@ -774,7 +774,6 @@ class Jetpack_Gutenberg {
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
 				'allowedMimeTypes' => wp_get_mime_types(),
-				'pluginBaseUrl'    => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			)
 		);
 

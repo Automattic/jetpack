@@ -7,14 +7,14 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { Button } from '@wordpress/components';
-import { imagePath } from '../../shared/urls';
+import upgradeImageUrl from './upgrade-illustration.svg';
 
 const SocialPreviewsUpgrade = function SocialPreviewsUpgrade() {
 	return (
 		<div className="jetpack-social-previews__modal-upgrade">
 			<img
 				className="jetpack-social-previews__upgrade-illustration"
-				src={ imagePath + 'social-previews.svg' }
+				src={ upgradeImageUrl }
 				width="351"
 				height="264"
 				alt="" // The image is decorative.
