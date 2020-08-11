@@ -3,7 +3,6 @@
  */
 
 @import '../../shared/styles/gutenberg-base-styles.scss';
-@import '../../../scss/atoms/colors/_colors';
 
 .jetpack-social-previews__modal {
 	.components-modal__content {
@@ -43,11 +42,11 @@
 				}
 
 				&.is-active {
-					box-shadow: 0px 0px 0px 2px $wpcom;
+					box-shadow: 0px 0px 0px 2px $blue-medium-focus;
 				}
 
 				&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-secondary ):not( .is-primary ):not( .is-tertiary ):not( .is-link ):hover {
-					box-shadow: 0px 0px 0px 2px $wpcom;
+					box-shadow: 0px 0px 0px 2px $blue-medium-focus;
 				}
 			}
 
