@@ -2,7 +2,6 @@
  * Modal styles for Social Previews
  */
 
-@import '~@automattic/color-studio/dist/color-variables';
 @import '../../shared/styles/gutenberg-base-styles.scss';
 @import '../../../scss/atoms/colors/_colors';
 
@@ -69,7 +68,7 @@
 
 		.components-tab-panel__tab-content {
 			padding: 10px;
-			background-color: $studio-gray-0;
+			background-color: $light-gray-100;
 			flex: 1;
 
 			@media ( min-width: $break-medium ) {
