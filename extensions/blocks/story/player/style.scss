@@ -55,6 +55,8 @@
 			justify-content: center;
 			margin: 0;
 			position: relative;
+			overflow: hidden;
+			object-fit: contain;
 
 			video {
 				width: 100%;

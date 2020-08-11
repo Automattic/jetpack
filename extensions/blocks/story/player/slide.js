@@ -175,7 +175,15 @@ export const Slide = ( {
 				className="wp-story-slide"
 				style={ { display: visible && ! loading ? 'block' : 'none' } }
 			>
-				{ preload && <Media { ...media } index={ index } mediaRef={ mediaRef } /> }
+				{ preload && (
+					<Media
+						{ ...media }
+						targetAspectRatio={ settings.defaultAspectRatio }
+						cropUpTo={ settings.cropUpTo }
+						index={ index }
+						mediaRef={ mediaRef }
+					/>
+				) }
 			</div>
 		</>
 	);

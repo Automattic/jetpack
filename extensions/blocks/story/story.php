@@ -30,13 +30,13 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Add missing srcset and sizes properties to images in the mediaFiles block attributes
+ * Add missing `width`, `height`, `srcset` and `sizes` properties to images of the mediaFiles block attributes
  *
  * @param array $media_files  List of media, each as an array containing the media attributes.
  *
  * @return array $media_files
  */
-function with_srcset_and_sizes( $media_files ) {
+function with_width_height_srcset_and_sizes( $media_files ) {
 	return array_map(
 		function( $media_file ) {
 			if ( ! isset( $media_file['id'] ) || ! empty( $media_file['srcset'] ) ) {
@@ -56,6 +56,8 @@ function with_srcset_and_sizes( $media_files ) {
 			return array_merge(
 				$media_file,
 				array(
+					'width'  => absint( $width ),
+					'height' => absint( $height ),
 					'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
 					'sizes'  => '(max-width: 169px) 169w, (max-width: 576px) 576w, (max-width: 768px) 768w, 1080w',
 				)
@@ -159,7 +161,7 @@ function render_block( $attributes ) {
 	$media_files = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
 
 	$settings = array(
-		'slides' => with_srcset_and_sizes( $media_files ),
+		'slides' => with_width_height_srcset_and_sizes( $media_files ),
 	);
 
 	return sprintf(
