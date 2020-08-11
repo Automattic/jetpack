@@ -82,6 +82,7 @@
 
 // Modal containing the upgrade nudge
 .jetpack-social-previews__modal-upgrade {
+	padding: 2em;
 
 	.jetpack-social-previews__upgrade-illustration {
 		width: 100%;
@@ -122,7 +123,7 @@
 		display: grid;
 		grid-gap: 3em;
 		grid-template-columns: 1fr 1fr;
-		padding-top: 1em;
+		padding-top: 4em;
 	
 		.jetpack-social-previews__upgrade-illustration {
 			grid-column: 2;
