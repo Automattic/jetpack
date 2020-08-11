@@ -3467,14 +3467,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Install a specific plugin.
+	 * Install a specific plugin and optionally activates it.
 	 *
 	 * @since 8.9.0
 	 *
 	 * @param WP_REST_Request $request {
 	 *     Array of parameters received by request.
 	 *
-	 *     @type string $slug Plugin slug.
+	 *     @type string $slug   Plugin slug.
+	 *     @type string $status Plugin status.
 	 * }
 	 *
 	 * @return WP_REST_Response|WP_Error A response object if the installation was successful, or a WP_Error object if the installation failed.
@@ -3494,9 +3495,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$plugin,
 					$result->get_error_message()
 				),
-				array( 'status' => 403 )
+				array( 'status' => 500 )
 			);
-		} else {
+		}
+
+		/*
+		 * We may want to activate the plugin as well.
+		 * Let's check for the status parameter in the request to find out.
+		 * If none was passed (or something other than active), let's return now.
+		 */
+		if ( empty( $request['status'] ) || 'active' !== $request['status'] ) {
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -3510,6 +3518,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
+
+		// Proceed with plugin activation.
+		$plugin_id = Jetpack_Plugins::get_plugin_id_by_slug( $plugin );
+		if ( ! $plugin_id ) {
+			return new WP_Error(
+				'unable_to_determine_installed_plugin',
+				__( 'Unable to determine what plugin was installed.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$plugin_args = array(
+			'plugin' => $plugin_id,
+			'status' => 'active',
+		);
+		self::activate_plugin( $plugin_args );
 	}
 
 	/**
