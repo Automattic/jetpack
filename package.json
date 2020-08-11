@@ -213,6 +213,7 @@
 		"mockery": "2.1.0",
 		"nock": "13.0.3",
 		"node-wp-i18n": "1.2.3",
+		"nyc": "15.1.0",
 		"prettier": "npm:wp-prettier@2.0.5",
 		"puppeteer": "2.1.1",
 		"react-click-outside": "3.0.1",
