@@ -88,7 +88,9 @@ The PHP script admits two parameters, the package name and the new target versio
 - reset the local repository to its original state and clean up.
 
 ## Unit Tests
-You may run unit tests locally for any given package by running `composer phpunit` within the package directory. 
+You may run unit tests locally for any given package by running `composer phpunit` within the package directory or
+via Jetpack Docker with the command `yarn docker:phpunit:package` for all package unit tests or 
+`yarn docker:phpunit:package packagename` for a specific one. 
 
 ## Should my code be in a Package? 
 
