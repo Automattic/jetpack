@@ -275,11 +275,11 @@ abstract class Sharing_Source {
 
 		$attrs        = array_merge(
 			array(
-				'type'			=> $this->get_id(),
-				'height'		=> '32px',
-				'width'			=> '32px',
-				'aria-label'	=> $title,
-				'title'			=> $title,
+				'type'       => $this->get_id(),
+				'height'     => '32px',
+				'width'      => '32px',
+				'aria-label' => $title,
+				'title'      => $title,
 			),
 			$attrs
 		);
