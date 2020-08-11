@@ -9,8 +9,23 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
+
+function jetpack_registration_checks( $slug, $args = array() ) {
+	if ( isset( $args['version_requirements'] )
+		&& ! Jetpack_Gutenberg::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
+		return false;
+	}
+
+	// Checking whether block is registered to ensure it isn't registered twice.
+	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
+		return false;
+	}
+
+	return true;
+}
+
 /**
- * Wrapper function to safely register a gutenberg block type
+ * Wrapper function to safely register a gutenberg block type.
  *
  * @param string $slug Slug of the block.
  * @param array  $args Arguments that are passed into register_block_type.
@@ -22,29 +37,50 @@ use Automattic\Jetpack\Status;
  * @return WP_Block_Type|false The registered block type on success, or false on failure.
  */
 function jetpack_register_block( $slug, $args = array() ) {
+
+	// Attempt to register as Jetpack extension.
+	if ( ! jetpack_register_extension( $slug, $args ) ) {
+		return;
+	}
+
+	// Register Block with Gutenberg.
+	return register_block_type( $slug, $args );
+}
+
+/**
+ * Wrapper function to safely register a gutenberg extension (block or otherwise)
+ *
+ * @param string $slug Slug of the extension.
+ * @param array  $args Arguments that are passed into register_block_type.
+ *
+ * @since X.X.X
+ *
+ * @return Boolean Whether or not the registration was successful.
+ */
+function jetpack_register_extension( $slug, $args = array() ) {
+
 	if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
 		$slug = 'jetpack/' . $slug;
 	}
 
-	if ( isset( $args['version_requirements'] )
-		&& ! Jetpack_Gutenberg::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
-		return false;
-	}
-
-	// Checking whether block is registered to ensure it isn't registered twice.
-	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
-		return false;
+	if ( ! jetpack_registration_checks( $slug, $args ) ) {
+		return;
 	}
 
 	$feature_name = Jetpack_Gutenberg::remove_extension_prefix( $slug );
+
 	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 	if (
-		isset( $args['plan_check'], $args['render_callback'] )
+		isset( $args['plan_check'] )
 		&& true === $args['plan_check']
 	) {
-		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
-		$method_name             = 'set_availability_for_plan';
+		// Optionally check for render_callback - only extensions which are blocks should provide this.
+		if ( ! empty( $args['render_callback'] ) ) {
+			$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
+		}
+
+		$method_name = 'set_availability_for_plan';
 	} else {
 		$method_name = 'set_extension_available';
 	}
@@ -55,8 +91,6 @@ function jetpack_register_block( $slug, $args = array() ) {
 			call_user_func( array( 'Jetpack_Gutenberg', $method_name ), $feature_name );
 		}
 	);
-
-	return register_block_type( $slug, $args );
 }
 
 /**
