@@ -27,6 +27,10 @@ $min-height: 190px;
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	max-width: 40em;
+	.jetpack-instant-search__result-expanded--no-image & {
+		max-width: 46em;
+	}
 }
 
 .jetpack-instant-search__result-expanded__path-link {
