@@ -9,6 +9,7 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * Xdebug setup.
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
+* phpMyAdmin to aid in viewing the database.
 * Handy NPM/Yarn shorthand commands like `yarn docker:up` and `yarn docker:phpunit` to simplify the usage.
 
 ## To get started
@@ -203,6 +204,8 @@ Connecting to your MySQL database from outside the container, use:
 - Database: `wordpress`
 
 You can also see your database files via local file system at `./docker/data/mysql`
+
+You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
 ## SFTP access
 
