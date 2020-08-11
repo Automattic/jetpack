@@ -38,7 +38,7 @@ const SocialPreviewsUpgrade = function SocialPreviewsUpgrade() {
 					</li>
 					<li>
 						{ __(
-							'Customize your front page meta data to change hour your site appears to search engines.',
+							'Customize your front page meta data to change how your site appears to search engines.',
 							'jetpack'
 						) }
 					</li>
