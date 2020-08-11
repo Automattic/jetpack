@@ -475,11 +475,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		register_rest_route( 'jetpack/v4', '/plugins/akismet/activate', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::activate_akismet',
-			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
-		) );
+		/**
+		 * Install and Activate the Akismet plugin.
+		 *
+		 * @deprecated 8.9.0 Use the /plugins route instead.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/plugins/akismet/activate',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::activate_akismet',
+				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+			)
+		);
 
 		// Plugins: check if the plugin is active.
 		register_rest_route( 'jetpack/v4', '/plugin/(?P<plugin>[a-z\/\.\-_]+)', array(
@@ -3447,23 +3456,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 7.7
 	 *
+	 * @deprecated 8.9.0 Use install_plugin instead.
+	 *
 	 * @return WP_REST_Response A response indicating whether or not the installation was successful.
 	 */
 	public static function activate_akismet() {
-		jetpack_require_lib( 'plugins' );
-		$result = Jetpack_Plugins::install_and_activate_plugin('akismet');
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'install_plugin' );
 
-		if ( is_wp_error( $result ) ) {
-			return rest_ensure_response( array(
-				'code'    => 'failure',
-				'message' => esc_html__( 'Unable to activate Akismet', 'jetpack' )
-			) );
-		} else {
-			return rest_ensure_response( array(
-				'code'    => 'success',
-				'message' => esc_html__( 'Activated Akismet', 'jetpack' )
-			) );
-		}
+		$args = array(
+			'slug'   => 'akismet',
+			'status' => 'active',
+		);
+		return self::install_plugin( $args );
 	}
 
 	/**
@@ -3478,7 +3482,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *     @type string $status Plugin status.
 	 * }
 	 *
-	 * @return WP_REST_Response|WP_Error A response object if the installation was successful, or a WP_Error object if the installation failed.
+	 * @return WP_REST_Response|WP_Error A response object if the installation and / or activation was successful, or a WP_Error object if it failed.
 	 */
 	public static function install_plugin( $request ) {
 		$plugin = stripslashes( $request['slug'] );
@@ -3570,7 +3574,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'no_plugins_found', esc_html__( 'This site has no plugins.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		$plugin = stripslashes( $request['plugin'] );
+		if ( empty( $request['plugin'] ) ) {
+			return new WP_Error( 'no_plugin_specified', esc_html__( 'You did not specify a plugin.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		$plugin = $request['plugin'] . '.php';
 
 		// Is the plugin installed?
 		if ( ! in_array( $plugin, array_keys( $plugins ), true ) ) {
