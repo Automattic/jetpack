@@ -44,7 +44,14 @@ function run_package_test {
 if [ -f "./packages/$1/phpunit.xml.dist"  ]; then
 	run_package_test "$1"
 else
-	run_packages_tests
+	echo "You did not specify a package. Running all of them can take a good amount of time."
+	echo "Do you wish to run tests for all packages?"
+	select yn in Yes No; do
+	case $yn in
+		Yes) run_packages_tests;;
+		No) exit;;
+	esac
+	done
 fi
 
 
