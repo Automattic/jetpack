@@ -5,6 +5,7 @@
  * @package automattic/jetpack-autoloader
  */
 
+use Jetpack\TestCase_ABC\Psr4_ClassName_ABC;
 use PHPUnit\Framework\TestCase;
 use Jetpack\TestCase_ABC\ClassName_ABC;
 
@@ -40,6 +41,21 @@ class WP_Test_Autoloader extends TestCase {
 		$method->invokeArgs( $this->manifest_handler, array( __DIR__ . '/data/dummy_manifest.php', &$jetpack_packages_classmap ) );
 
 		$class = new ClassName_ABC();
+
+		$this->assertTrue( $class->return_true() );
+	}
+
+	/**
+	 * Tests whether or not the autoloader falls back to PSR-4 autoloading when a classmap is not available.
+	 */
+	public function test_autoloader_falls_back_to_psr4_namespaces() {
+		global $jetpack_packages_psr4;
+
+		$method = new ReflectionMethod( Manifest_Handler::class, 'register_manifest' );
+		$method->setAccessible( true );
+		$method->invokeArgs( $this->manifest_handler, array( __DIR__ . '/data/dummy_manifest_psr4.php', &$jetpack_packages_psr4 ) );
+
+		$class = new Psr4_ClassName_ABC();
 
 		$this->assertTrue( $class->return_true() );
 	}

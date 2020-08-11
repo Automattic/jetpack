@@ -113,7 +113,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		$repoManager         = $this->composer->getRepositoryManager();
 		$localRepo           = $repoManager->getLocalRepository();
 		$package             = $this->composer->getPackage();
-		$optimize            = true;
+		$optimize            = $event->getFlags()['optimize'];
 		$suffix              = $config->get( 'autoloader-suffix' )
 			? $config->get( 'autoloader-suffix' )
 			: md5( uniqid( '', true ) );

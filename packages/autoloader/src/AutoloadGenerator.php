@@ -64,7 +64,7 @@ AUTOLOADER_COMMENT;
 	 * @param PackageInterface             $mainPackage Main Package object.
 	 * @param InstallationManager          $installationManager Manager for installing packages.
 	 * @param string                       $targetDir Path to the current target directory.
-	 * @param bool                         $scanPsr0Packages Whether to search for packages. Currently hard coded to always be false.
+	 * @param bool                         $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
 	 * @param string                       $suffix The autoloader suffix.
 	 */
 	public function dump(
@@ -73,7 +73,7 @@ AUTOLOADER_COMMENT;
 		PackageInterface $mainPackage,
 		InstallationManager $installationManager,
 		$targetDir,
-		$scanPsr0Packages = null, // Not used we always optimize.
+		$scanPsrPackages = false,
 		$suffix = null
 	) {
 
@@ -88,13 +88,17 @@ AUTOLOADER_COMMENT;
 		$packageMap = $this->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
 		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage );
 
-		$classMap = $this->getClassMap( $autoloads, $filesystem, $vendorPath, $basePath );
+		$psr4Map  = $this->getPsr4Map( $autoloads, $scanPsrPackages, $filesystem, $vendorPath, $basePath );
+		$classMap = $this->getClassMap( $autoloads, $scanPsrPackages, $filesystem, $vendorPath, $basePath );
 		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
 		// Remove a file that was generated in versions 2.0.0 to 2.1.0.
 		$filesystem->remove( $vendorPath . '/autoload_functions.php' );
 
 		// Generate the files.
+		file_put_contents( $targetDir . '/jetpack_autoload_psr4.php', $this->getAutoloadPsr4PackagesFile( $psr4Map ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_psr4.php</info>', true );
+
 		file_put_contents( $targetDir . '/jetpack_autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
 		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_classmap.php</info>', true );
 
@@ -196,16 +200,60 @@ AUTOLOADER_COMMENT;
 	}
 
 	/**
+	 * Take the autoloads array and return the psr4Map that contains the namespace path and version for each namespace.
+	 *
+	 * @param array      $autoloads Array of autoload settings defined defined by the packages.
+	 * @param bool       $scanPsrPackages Whether or not PSR packages should be converted into a classmap.
+	 * @param Filesystem $filesystem Filesystem class instance.
+	 * @param string     $vendorPath Path to the vendor directory.
+	 * @param string     $basePath Base Path.
+	 *
+	 * @return string $psr4Map
+	 */
+	private function getPsr4Map( array $autoloads, $scanPsrPackages, Filesystem $filesystem, $vendorPath, $basePath ) {
+		if ( $scanPsrPackages ) {
+			return 'array();' . PHP_EOL;
+		}
+
+		$psr4MapString = '';
+
+		foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
+			foreach ( $packages_info as $package ) {
+				$dir       = $filesystem->normalizePath(
+					$filesystem->isAbsolutePath( $package['path'] )
+						? $package['path']
+						: $basePath . '/' . $package['path']
+				);
+				$namespace = empty( $namespace ) ? null : $namespace;
+
+				$namespaceCode  = var_export( $namespace, true );
+				$versionCode    = var_export( $package['version'], true );
+				$pathCode       = $this->getPathCode( $filesystem, $basePath, $vendorPath, $dir );
+				$psr4MapString .= <<<PSR4_CODE
+	$namespaceCode => array(
+		'version' => $versionCode,
+		'path'    => $pathCode
+	),
+PSR4_CODE;
+				$psr4MapString .= PHP_EOL;
+			}
+		}
+
+		return 'array( ' . PHP_EOL . $psr4MapString . ');' . PHP_EOL;
+	}
+
+	/**
 	 * Take the autoloads array and return the classMap that contains the path and the version for each namespace.
 	 *
 	 * @param array      $autoloads Array of autoload settings defined defined by the packages.
+	 * @param bool       $scanPsrPackages Whether or not PSR packages should be converted into a classmap.
 	 * @param Filesystem $filesystem Filesystem class instance.
 	 * @param string     $vendorPath Path to the vendor directory.
 	 * @param string     $basePath Base Path.
 	 *
 	 * @return string $classMap
 	 */
-	private function getClassMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
+	private function getClassMap( array $autoloads, $scanPsrPackages, Filesystem $filesystem, $vendorPath, $basePath ) {
 		$blacklist = null;
 
 		if ( ! empty( $autoloads['exclude-from-classmap'] ) ) {
@@ -215,27 +263,29 @@ AUTOLOADER_COMMENT;
 		$classmapString = '';
 
 		// Scan the PSR-4 and classmap directories for class files, and add them to the class map.
-		foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
-			foreach ( $packages_info as $package ) {
-				$dir       = $filesystem->normalizePath(
-					$filesystem->isAbsolutePath( $package['path'] )
-						? $package['path']
-						: $basePath . '/' . $package['path']
-				);
-				$namespace = empty( $namespace ) ? null : $namespace;
-				$map       = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, $namespace );
+		if ( $scanPsrPackages ) {
+			foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
+				foreach ( $packages_info as $package ) {
+					$dir       = $filesystem->normalizePath(
+						$filesystem->isAbsolutePath( $package['path'] )
+							? $package['path']
+							: $basePath . '/' . $package['path']
+					);
+					$namespace = empty( $namespace ) ? null : $namespace;
+					$map       = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, $namespace );
 
-				foreach ( $map as $class => $path ) {
-					$classCode       = var_export( $class, true );
-					$pathCode        = $this->getPathCode( $filesystem, $basePath, $vendorPath, $path );
-					$versionCode     = var_export( $package['version'], true );
-					$classmapString .= <<<CLASS_CODE
+					foreach ( $map as $class => $path ) {
+						$classCode       = var_export( $class, true );
+						$pathCode        = $this->getPathCode( $filesystem, $basePath, $vendorPath, $path );
+						$versionCode     = var_export( $package['version'], true );
+						$classmapString .= <<<CLASS_CODE
 	$classCode => array(
 		'version' => $versionCode,
 		'path'    => $pathCode
 	),
 CLASS_CODE;
-					$classmapString .= PHP_EOL;
+						$classmapString .= PHP_EOL;
+					}
 				}
 			}
 		}
@@ -266,7 +316,29 @@ CLASS_CODE;
 	}
 
 	/**
-	 * Generate the PHP that will be used in the autoload_classmap_package.php files.
+	 * Generate the PHP that will be used in the jetpack_autoload_psr4.php files.
+	 *
+	 * @param string $psr4Map namespace array string that is to be written out to the file.
+	 *
+	 * @return string
+	 */
+	private function getAutoloadPsr4PackagesFile( $psr4Map ) {
+
+		return <<<INCLUDE_PSR4MAP
+<?php
+
+// This file `jetpack_autoload_psr4.php` was auto generated by automattic/jetpack-autoloader.
+
+\$vendorDir = dirname(__DIR__);
+\$baseDir   = dirname(\$vendorDir);
+
+return $psr4Map
+
+INCLUDE_PSR4MAP;
+	}
+
+	/**
+	 * Generate the PHP that will be used in the jetpack_autoload_classmap.php files.
 	 *
 	 * @param string $classMap class map array string that is to be written out to the file.
 	 *

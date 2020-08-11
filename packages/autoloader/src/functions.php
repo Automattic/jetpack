@@ -1,9 +1,14 @@
 <?php
 /* HEADER */ // phpcs:ignore
 
+global $jetpack_packages_psr4;
 global $jetpack_packages_classmap;
 global $jetpack_packages_filemap;
 global $jetpack_autoloader_activating_plugins_paths;
+
+if ( ! is_array( $jetpack_packages_psr4 ) ) {
+	$jetpack_packages_psr4 = array();
+}
 
 if ( ! is_array( $jetpack_packages_classmap ) ) {
 	$jetpack_packages_classmap = array();
@@ -25,11 +30,24 @@ if ( ! is_array( $jetpack_autoloader_activating_plugins_paths ) ) {
  * @return Boolean Whether the class_name was found in the classmap.
  */
 function autoloader( $class_name ) {
+	global $jetpack_packages_psr4;
 	global $jetpack_packages_classmap;
 
+	// Try the classmap first before trying to find the file using PSR-4.
 	if ( isset( $jetpack_packages_classmap[ $class_name ] ) ) {
 		require_once $jetpack_packages_classmap[ $class_name ]['path'];
 		return true;
+	}
+
+	// We've already sorted $jetpack_packages_psr4 so we can assume that the most-specific
+	// namespace will appear in the list first and can just iterate on the array.
+	foreach ( $jetpack_packages_psr4 as $namespace => $package ) {
+		$directory = $package['path'];
+		$len       = strlen( $namespace );
+		if ( substr( $class_name, 0, $len ) === $namespace ) {
+			require_once $directory . str_replace( '\\', '/', substr( $class_name, $len ) ) . '.php';
+			return true;
+		}
 	}
 
 	return false;
@@ -45,6 +63,29 @@ function enqueue_files( $plugins_handler, $version_selector ) {
 	require_once __DIR__ . '/class-manifest-handler.php';
 
 	$manifest_handler = new Manifest_Handler( $plugins_handler, $version_selector );
+
+	global $jetpack_packages_psr4;
+	$manifest_handler->register_plugin_manifests(
+		'vendor/composer/jetpack_autoload_psr4.php',
+		$jetpack_packages_psr4
+	);
+
+	// Sort all of the namespaces longest-to-shortest so that the most-specific namespace is used for autoloading.
+	uksort(
+		$jetpack_packages_psr4,
+		function ( $a, $b ) {
+			$len_a = strlen( $a );
+			$len_b = strlen( $b );
+
+			if ( $len_a < $len_b ) {
+				return 1;
+			} elseif ( $len_b > $len_a ) {
+				return -1;
+			}
+
+			return 0;
+		}
+	);
 
 	global $jetpack_packages_classmap;
 	$manifest_handler->register_plugin_manifests(
@@ -74,6 +115,7 @@ function enqueue_files( $plugins_handler, $version_selector ) {
  */
 function set_up_autoloader() {
 	global $jetpack_autoloader_latest_version;
+	global $jetpack_packages_psr4;
 	global $jetpack_packages_classmap;
 
 	require_once __DIR__ . '/../class-plugins-handler.php';
@@ -90,6 +132,7 @@ function set_up_autoloader() {
 		 * previously unknown is detected.
 		 */
 		$jetpack_autoloader_latest_version = null;
+		$jetpack_packages_psr4             = array();
 		$jetpack_packages_classmap         = array();
 	}
 
@@ -101,7 +144,11 @@ function set_up_autoloader() {
 	$current_autoloader_version = $autoloader_handler->get_current_autoloader_version();
 
 	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
-	if ( empty( $jetpack_packages_classmap ) && $current_autoloader_version === $jetpack_autoloader_latest_version ) {
+	if (
+		empty( $jetpack_packages_psr4 ) &&
+		empty( $jetpack_packages_classmap ) &&
+		$current_autoloader_version === $jetpack_autoloader_latest_version
+	) {
 		enqueue_files( $plugins_handler, $version_selector );
 		$autoloader_handler->update_autoloader_chain();
 	}
