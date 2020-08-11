@@ -77,6 +77,5 @@ if ( ! function_exists( 'wp_unslash' ) ) {
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../src/functions.php';
 require_once __DIR__ . '/../../src/class-plugins-handler.php';
-require_once __DIR__ . '/../../src/class-classes-handler.php';
-require_once __DIR__ . '/../../src/class-files-handler.php';
 require_once __DIR__ . '/../../src/class-version-selector.php';
+require_once __DIR__ . '/../../src/class-manifest-handler.php';

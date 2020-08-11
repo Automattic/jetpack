@@ -112,11 +112,8 @@ AUTOLOADER_COMMENT;
 		file_put_contents( $vendorPath . '/class-autoloader-handler.php', $this->getAutoloadPackageFile( 'class-autoloader-handler.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-autoloader-handler.php</info>', true );
 
-		file_put_contents( $vendorPath . '/class-classes-handler.php', $this->getAutoloadPackageFile( 'class-classes-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-classes-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-files-handler.php', $this->getAutoloadPackageFile( 'class-files-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-files-handler.php</info>', true );
+		file_put_contents( $vendorPath . '/class-manifest-handler.php', $this->getAutoloadPackageFile( 'class-manifest-handler.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-manifest-handler.php</info>', true );
 
 		file_put_contents( $vendorPath . '/class-plugins-handler.php', $this->getAutoloadPackageFile( 'class-plugins-handler.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-plugins-handler.php</info>', true );
@@ -182,7 +179,7 @@ AUTOLOADER_COMMENT;
 				}
 			}
 			if ( 'files' === $type && isset( $autoload['files'] ) && is_array( $autoload['files'] ) ) {
-				foreach ( $autoload['files'] as $file_id => $paths ) {
+				foreach ( $autoload['files'] as $paths ) {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;

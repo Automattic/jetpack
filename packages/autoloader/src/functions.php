@@ -42,16 +42,30 @@ function autoloader( $class_name ) {
  * @param Version_Selector $version_selector The Version_Selector object.
  */
 function enqueue_files( $plugins_handler, $version_selector ) {
-	require_once __DIR__ . '/../class-classes-handler.php';
-	require_once __DIR__ . '/../class-files-handler.php';
+	require_once __DIR__ . '/class-manifest-handler.php';
 
-	$classes_handler = new Classes_Handler( $plugins_handler, $version_selector );
-	$classes_handler->set_class_paths();
+	$manifest_handler = new Manifest_Handler( $plugins_handler, $version_selector );
 
-	$files_handler = new Files_Handler( $plugins_handler, $version_selector );
-	$files_handler->set_file_paths();
+	global $jetpack_packages_classmap;
+	$manifest_handler->register_plugin_manifests(
+		'vendor/composer/jetpack_autoload_classmap.php',
+		$jetpack_packages_classmap
+	);
 
-	$files_handler->file_loader();
+	global $jetpack_packages_filemap;
+	$manifest_handler->register_plugin_manifests(
+		'vendor/composer/jetpack_autoload_filemap.php',
+		$jetpack_packages_filemap
+	);
+
+	// Include the latest versions of all the autoload files.
+	foreach ( $jetpack_packages_filemap as $file_identifier => $file_data ) {
+		if ( empty( $GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
+			require_once $file_data['path'];
+
+			$GLOBALS['__composer_autoload_files'][ $file_identifier ] = true;
+		}
+	}
 }
 
 /**
