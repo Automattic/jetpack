@@ -45,6 +45,8 @@ function parseSlides( slidesWrapper ) {
 		url: element.getAttribute( 'src' ),
 		id: element.getAttribute( 'data-id' ),
 		type: element.tagName.toLowerCase() === 'img' ? 'image' : 'video',
+		srcset: element.getAttribute( 'srcset' ),
+		sizes: element.getAttribute( 'sizes' ),
 	} ) );
 }
 

@@ -14,6 +14,8 @@ use Jetpack_Gutenberg;
 const FEATURE_NAME = 'story';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
+const EMBED_SIZE = array( 180, 320 );
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -28,6 +30,42 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Add missing srcset and sizes properties to images in the mediaFiles block attributes
+ *
+ * @param array $media_files  List of media, each as an array containing the media attributes.
+ *
+ * @return array $media_files
+ */
+function with_srcset_and_sizes( $media_files ) {
+	return array_map(
+		function( $media_file ) {
+			if ( ! isset( $media_file['id'] ) || ! empty( $media_file['srcset'] ) ) {
+				return $media_file;
+			}
+			$attachment_id = $media_file['id'];
+			$image         = wp_get_attachment_image_src( $attachment_id, EMBED_SIZE, false );
+			if ( ! $image ) {
+				return $media_file;
+			}
+			list( $src, $width, $height ) = $image;
+			$image_meta                   = wp_get_attachment_metadata( $attachment_id );
+			if ( ! is_array( $image_meta ) ) {
+				return $media_file;
+			}
+			$size_array = array( absint( $width ), absint( $height ) );
+			return array_merge(
+				$media_file,
+				array(
+					'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
+					'sizes'  => '(max-width: 169px) 169w, (max-width: 576px) 576w, (max-width: 768px) 768w, 1080w',
+				)
+			);
+		},
+		$media_files
+	);
+}
+
+/**
  * Render an image inside a slide
  *
  * @param array $media  Image information.
@@ -38,15 +76,18 @@ function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
-	return sprintf(
-		'<img
-			alt="%1$s"
-			class="wp-block-jetpack-story_image wp-story-image wp-image-%2$s"
-			data-id="%2$s"
-			src="%3$s">',
-		esc_attr( $media['alt'] ),
+	// need to specify the size of the embed so it picks an image that is large enough for the `src` attribute
+	// `sizes` is optimized for 1080x1920 (9:16) images
+	// Note that the Story block does not have thumbnail support, it will load the right
+	// image based on the viewport size only.
+	return wp_get_attachment_image(
 		$media['id'],
-		esc_attr( $media['url'] )
+		EMBED_SIZE,
+		false,
+		array(
+			'class' => sprintf( 'wp-story-image wp-image-%d', $media['id'] ),
+			'sizes' => '(max-width: 169px) 169w, (max-width: 576px) 576w, (max-width: 768px) 768w, 1080w',
+		)
 	);
 }
 
@@ -118,7 +159,7 @@ function render_block( $attributes ) {
 	$media_files = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
 
 	$settings = array(
-		'slides' => $media_files,
+		'slides' => with_srcset_and_sizes( $media_files ),
 	);
 
 	return sprintf(

@@ -11,7 +11,7 @@ import { createElement } from '@wordpress/element';
  * Internal dependencies
  */
 
-export const Image = ( { alt, url, id, mime, mediaRef } ) => (
+export const Image = ( { alt, url, id, mime, mediaRef, srcset, sizes } ) => (
 	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<img
 		ref={ mediaRef }
@@ -20,6 +20,8 @@ export const Image = ( { alt, url, id, mime, mediaRef } ) => (
 		alt={ alt }
 		src={ url }
 		className={ `wp-story-image wp-image-${ id }` }
+		srcSet={ srcset }
+		sizes={ sizes }
 	/>
 );
 
