@@ -12,8 +12,6 @@ import { __ } from '@wordpress/i18n';
 import { select } from '@wordpress/data';
 import { unregisterBlockStyle } from '@wordpress/blocks';
 
-console.log( { select } );
-
 /**
  * Internal dependencies
  */
