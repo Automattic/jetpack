@@ -9,7 +9,7 @@ do
 	FILENAME=$(basename -- "$PACKAGE")
 	NAME="${FILENAME%-*.*}"
 	# Format packages coverage
-	./cc-test-reporter format-coverage --prefix /tmp/wordpress-latest/src/wp-content/plugins/jetpack -t clover -o coverage/codeclimate.$NAME.json coverage/packages/$FILENAME
+	./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.$NAME.json coverage/packages/$FILENAME
 done
 
 # Sum both coverage parts into coverage/codeclimate.json
