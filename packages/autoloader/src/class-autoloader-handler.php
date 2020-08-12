@@ -16,8 +16,8 @@ class Autoloader_Handler {
 	 */
 	const V2_AUTOLOADER_BASE = 'Automattic\Jetpack\Autoloader\jp';
 
-	const AUTOLOAD_GENERATOR_NAMESPACE  = 'Automattic\Jetpack\Autoloader';
-	const AUTOLOAD_GENERATOR_CLASS_NAME = self::AUTOLOAD_GENERATOR_NAMESPACE . '\AutoloadGenerator';
+	const AUTOLOAD_GENERATOR_NAMESPACE  = 'Automattic\\Jetpack\\Autoloader\\';
+	const AUTOLOAD_GENERATOR_CLASS_NAME = self::AUTOLOAD_GENERATOR_NAMESPACE . 'AutoloadGenerator';
 
 	/**
 	 * The Plugins_Handler object.
@@ -50,7 +50,7 @@ class Autoloader_Handler {
 	public function find_latest_autoloader() {
 		global $jetpack_autoloader_latest_version;
 
-		$current_autoloader_path = trailingslashit( dirname( __FILE__ ) ) . 'autoload_packages.php';
+		$current_autoloader_path = trailingslashit( dirname( dirname( __FILE__ ) ) ) . 'autoload_packages.php';
 		$current_autoloader_path = str_replace( '\\', '/', $current_autoloader_path );
 
 		$selected_autoloader_version = null;
@@ -59,32 +59,16 @@ class Autoloader_Handler {
 		$active_plugins_paths = $this->plugins_handler->get_all_active_plugins_paths();
 
 		foreach ( $active_plugins_paths as $plugin_path ) {
-			$compare_version = null;
+			$plugin_vendor_path = trailingslashit( $plugin_path ) . '/vendor';
 
-			// Check both the PSR-4 and classmap files for our generator.
-			$psr4_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_psr4.php';
-			if ( file_exists( $psr4_path ) ) {
-				$psr4 = require $psr4_path;
-				if ( isset( $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ] ) ) {
-					$compare_version = $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ]['version'];
-				}
-			}
-
-			$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
-			if ( ! isset( $compare_version ) && file_exists( $classmap_path ) ) {
-				$classmap = require $classmap_path;
-				if ( isset( $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ] ) ) {
-					$compare_version = $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
-				}
-			}
-
+			$compare_version = $this->get_autoloader_version( $plugin_vendor_path );
 			if ( ! isset( $compare_version ) ) {
 				continue;
 			}
 
 			if ( $this->version_selector->is_version_update_required( $selected_autoloader_version, $compare_version ) ) {
 				$selected_autoloader_version = $compare_version;
-				$selected_autoloader_path    = trailingslashit( $plugin_path ) . 'vendor/autoload_packages.php';
+				$selected_autoloader_path    = $plugin_vendor_path . '/autoload_packages.php';
 			}
 		}
 
@@ -102,12 +86,38 @@ class Autoloader_Handler {
 	 * @return String The autoloader's package version.
 	 */
 	public function get_current_autoloader_version() {
-		$classmap_file       = trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_classmap.php';
-		$autoloader_packages = require $classmap_file;
-
-		return $autoloader_packages[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
+		return $this->get_autoloader_version( dirname( dirname( __FILE__ ) ) );
 	}
 
+	/**
+	 * Finds the version of the autoloader based on the vendor path.
+	 *
+	 * @param string $vendor_path The path to the plugin's vendor folder.
+	 *
+	 * @return string|null The autoloader's version.
+	 */
+	private function get_autoloader_version( $vendor_path ) {
+		$autoloader_version = null;
+
+		// Check both the PSR-4 and classmap files for our generator.
+		$psr4_path = $vendor_path . '/composer/jetpack_autoload_psr4.php';
+		if ( file_exists( $psr4_path ) ) {
+			$psr4 = require $psr4_path;
+			if ( isset( $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ] ) ) {
+				$autoloader_version = $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ]['version'];
+			}
+		}
+
+		$classmap_path = $vendor_path . '/composer/jetpack_autoload_classmap.php';
+		if ( ! isset( $autoloader_version ) && file_exists( $classmap_path ) ) {
+			$classmap = require $classmap_path;
+			if ( isset( $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ] ) ) {
+				$autoloader_version = $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
+			}
+		}
+
+		return $autoloader_version;
+	}
 
 	/**
 	 * Updates the spl autoloader chain:
