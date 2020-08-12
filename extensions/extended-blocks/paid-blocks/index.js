@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { uniq } from 'lodash';
+import { uniq, each } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -9,6 +9,10 @@ import { uniq } from 'lodash';
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { select } from '@wordpress/data';
+import { unregisterBlockStyle } from '@wordpress/blocks';
+
+console.log( { select } );
 
 /**
  * Internal dependencies
@@ -22,8 +26,14 @@ import './editor.scss';
 import paidBlockMediaPlaceholder from './media-placeholder';
 import paidBlockMediaReplaceFlow from './media-replace-flow';
 
+const stylesByPaidBlocks = [];
+
 const jetpackPaidBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
+		if ( ! stylesByPaidBlocks.includes( name ) ) {
+			stylesByPaidBlocks.push( name );
+		}
+
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium', 'jetpack' ) ] );
 
@@ -64,5 +74,13 @@ addFilter(
 domReady( function () {
 	if ( isUpgradeNudgeEnabled() ) {
 		document.body.classList.add( 'jetpack-enable-upgrade-nudge' );
+
+		// Unregister block styles for all paid blocks.
+		each( stylesByPaidBlocks, blockName => {
+			each(
+				select( 'core/blocks' ).getBlockStyles( blockName ),
+				( { name } ) => unregisterBlockStyle( blockName, name )
+			);
+		} );
 	}
 } );
