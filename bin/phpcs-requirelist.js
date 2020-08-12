@@ -6,6 +6,7 @@ module.exports = [
 	'3rd-party/bbpress.php',
 	'3rd-party/class.jetpack-amp-support.php',
 	'3rd-party/class-jetpack-bbpress-rest-api.php',
+	'3rd-party/creative-mail.php',
 	'3rd-party/woocommerce-services.php',
 	'class.jetpack-bbpress-json-api.compat.php',
 	'class.jetpack-gutenberg.php',
