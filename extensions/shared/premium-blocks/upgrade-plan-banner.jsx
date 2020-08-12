@@ -29,9 +29,9 @@ const UpgradePlanBanner = ( {
 	onRedirect,
 	align,
 	className,
-	title = __( 'Premium Block' ),
-	description = __( 'Upgrade your plan to use this premium block' ),
-	buttonText = __( 'Upgrade' ),
+	title = __( 'Premium Block', 'jetpack' ),
+	description = __( 'Upgrade your plan to use this premium block', 'jetpack' ),
+	buttonText = __( 'Upgrade', 'jetpack' ),
 	visible = true,
 } ) => {
 	const { checkoutUrl, isAutosaveablePost, isDirtyPost } = useSelect( select => {
