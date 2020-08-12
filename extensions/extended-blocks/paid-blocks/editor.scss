@@ -13,9 +13,14 @@ $icon-background-color: #fff;
 	font-size: 14px;
 	height: $banner-height;
 	background: black;
-	color: white;
 	padding: 0 20px;
 	border-radius: 2px;
+	box-shadow: 0 0 1px inset $studio-white;
+
+	.banner-title,
+	.banner-description {
+		color: $studio-white;
+	}
 
 	.jetpack-upgrade-plan-banner__title,
 	.jetpack-upgrade-plan-banner__description {
@@ -30,6 +35,7 @@ $icon-background-color: #fff;
 
 		&.is-primary {
 			background: $studio-pink-40;
+			color: $studio-white;
 
 			&:hover {
 				background: $studio-pink-30;

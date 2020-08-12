@@ -25,7 +25,7 @@ import paidBlockMediaReplaceFlow from './media-replace-flow';
 const jetpackPaidBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
 		// Populate block keywords.
-		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
+		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium', 'jetpack' ) ] );
 
 		// Extend BlockEdit function.
 		settings.edit = paidBlockEdit( settings.edit );
