@@ -266,11 +266,20 @@ abstract class Sharing_Source {
 	 * @param array $attrs Custom attributes for rendering the social icon.
 	 */
 	protected function build_amp_markup( $attrs = array() ) {
+
+		$title = sprintf(
+			/* translators: placeholder is a service name, such as "Twitter" or "Facebook". */
+			__( 'Click to share on %s', 'jetpack' ),
+			$this->get_name()
+		);
+
 		$attrs        = array_merge(
 			array(
-				'type'   => $this->get_id(),
-				'height' => '32px',
-				'width'  => '32px',
+				'type'       => $this->get_id(),
+				'height'     => '32px',
+				'width'      => '32px',
+				'aria-label' => $title,
+				'title'      => $title,
 			),
 			$attrs
 		);
