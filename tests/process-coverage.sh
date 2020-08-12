@@ -3,11 +3,6 @@
 ./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.backend.json coverage/backend-clover.xml # Format backend coverage
 ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.adminpage.json coverage/adminpage/lcov.info  # Format frontend coverage
 ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.extensions.json coverage/extensions/lcov.info  # Format frontend coverage
-
-
-ls -la coverage/packages
-ls -la coverage
-ls -la .
 export PACKAGES='./coverage/packages/*-clover.xml'
 for PACKAGE in $PACKAGES
 do
@@ -18,6 +13,7 @@ do
 done
 
 # Sum both coverage parts into coverage/codeclimate.json
+echo ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
 ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
 
 # Upload coverage/codeclimate.json
