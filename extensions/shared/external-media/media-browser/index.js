@@ -167,7 +167,9 @@ function MediaBrowser( props ) {
 			select( item );
 		}
 
-		event.stopPropagation();
+		if ( [ LEFT, RIGHT, UP, DOWN, SPACE, ENTER ].includes( event.keyCode ) ) {
+			event.stopPropagation();
+		}
 	};
 
 	const SelectButton = () => {
