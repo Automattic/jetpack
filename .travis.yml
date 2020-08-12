@@ -72,8 +72,7 @@ matrix:
       - yarn install
     script:
       - ./tests/run-travis.sh
-      - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' yarn test-client
-      - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' yarn test-gui
+      - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
       - yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
     after_script:
       - ./tests/process-coverage.sh
