@@ -67,14 +67,27 @@ matrix:
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
+      - echo "@@@@@"
+      - echo pwd
+
       - ./tests/setup-travis.sh
+      - echo "@@@@@"
+      - echo pwd
       - nvm install 10
       - yarn install
     script:
+      - echo "@@@@@"
+      - echo pwd
+
       - ./tests/run-travis.sh
+      - echo "@@@@@"
+      - echo pwd
+
       - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
       - yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
     after_script:
+      - echo "@@@@@"
+      - echo pwd
       - ./tests/process-coverage.sh
 
   - php: "7.0"
