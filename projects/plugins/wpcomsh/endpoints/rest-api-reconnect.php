@@ -114,7 +114,7 @@ function wpcomsh_rest_api_reconnect_init() {
 			array(
 				'methods' => 'POST',
 				'callback' => 'wpcomsh_rest_api_reconnect',
-				// 'permission_callback' => 'wpcomsh_rest_api_reconnect_permission_callback',
+				'permission_callback' => '__return_true',
 			)
 		)
 	);
