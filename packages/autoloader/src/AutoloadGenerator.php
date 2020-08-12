@@ -84,6 +84,8 @@ AUTOLOADER_COMMENT;
 		$vendorPath = $filesystem->normalizePath( realpath( $config->get( 'vendor-dir' ) ) );
 		$targetDir  = $vendorPath . '/' . $targetDir;
 		$filesystem->ensureDirectoryExists( $targetDir );
+		$loaderDir = $vendorPath . '/jetpack-autoloader/';
+		$filesystem->ensureDirectoryExists( $loaderDir );
 
 		$packageMap = $this->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
 		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage );
@@ -96,34 +98,33 @@ AUTOLOADER_COMMENT;
 		$filesystem->remove( $vendorPath . '/autoload_functions.php' );
 
 		// Generate the files.
-		file_put_contents( $targetDir . '/jetpack_autoload_psr4.php', $this->getAutoloadPsr4PackagesFile( $psr4Map ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_psr4.php</info>', true );
-
-		file_put_contents( $targetDir . '/jetpack_autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_classmap.php</info>', true );
-
-		file_put_contents( $targetDir . '/jetpack_autoload_filemap.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_filemap.php</info>', true );
-
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( 'autoload.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
+		$this->io->writeError( "<info>Generated autoload_packages.php ($vendorPath)</info>", true );
 
-		$jetpackAutoloaderDir = $vendorPath . '/jetpack-autoloader';
-		$filesystem->ensureDirectoryExists( $jetpackAutoloaderDir );
-		file_put_contents( $jetpackAutoloaderDir . '/autoload_functions.php', $this->getAutoloadPackageFile( 'functions.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $jetpackAutoloaderDir . '/jetpack-autoloader/autoload_functions.php</info>', true );
+		$manifestFiles = array(
+			'jetpack_autoload_psr4.php'     => $this->getAutoloadPsr4PackagesFile( $psr4Map ),
+			'jetpack_autoload_classmap.php' => $this->getAutoloadClassmapPackagesFile( $classMap ),
+			'jetpack_autoload_filemap.php'  => $this->getAutoloadFilesPackagesFile( $fileMap ),
+		);
+		$this->io->writeError( "<info>Generated Manifests ($targetDir)</info>" );
+		foreach ( $manifestFiles as $file => $content ) {
+			file_put_contents( $targetDir . '/' . $file, $content );
+			$this->io->writeError( "    <info>$file</info>", true );
+		}
 
-		file_put_contents( $vendorPath . '/class-autoloader-handler.php', $this->getAutoloadPackageFile( 'class-autoloader-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-autoloader-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-manifest-handler.php', $this->getAutoloadPackageFile( 'class-manifest-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-manifest-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-plugins-handler.php', $this->getAutoloadPackageFile( 'class-plugins-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-plugins-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-version-selector.php', $this->getAutoloadPackageFile( 'class-version-selector.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-version-selector.php</info>', true );
+		$packageFiles = array(
+			'functions.php'                => 'autoload_functions.php',
+			'class-autoloader-handler.php' => null,
+			'class-manifest-handler.php'   => null,
+			'class-plugins-handler.php'    => null,
+			'class-version-selector.php'   => null,
+		);
+		$this->io->writeError( "<info>Generated Class Files ($loaderDir)</info>" );
+		foreach ( $packageFiles as $file => $newName ) {
+			$newName = isset( $newName ) ? $newName : $file;
+			file_put_contents( $loaderDir . $newName, $this->getAutoloadPackageFile( $file, $suffix ) );
+			$this->io->writeError( "    <info>$newName</info>", true );
+		}
 	}
 
 	/**
