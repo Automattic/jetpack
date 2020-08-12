@@ -1140,8 +1140,7 @@ class Manager {
 	 * @return int
 	 **/
 	public function get_max_execution_time() {
-		$timeout = 600;
-		// $timeout = (int) ini_get( 'max_execution_time' );
+		$timeout = (int) ini_get( 'max_execution_time' );
 
 		// Ensure exec time set in php.ini.
 		if ( ! $timeout ) {
