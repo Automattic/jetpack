@@ -93,6 +93,12 @@ echo
 echo "Open http://${WP_DOMAIN}${WP_HOST_PORT}/ to see your site!"
 echo
 
+echo "[clientdocker]
+user=\"${MYSQL_USER}\"
+password=\"${MYSQL_PASSWORD}\"
+host=db
+database=\"${MYSQL_DATABASE}\"" > ~/.my.cnf
+
 # Run apache in the foreground so the container keeps running
 echo "Running Apache in the foreground"
 apachectl -D FOREGROUND
