@@ -4,11 +4,12 @@ function run_packages_tests {
 	echo "Running \`$WP_TRAVISCI\` for Packages:"
 	export WP_TRAVISCI_PACKAGES="composer phpunit"
 	export PACKAGES='./packages/**/tests/php'
-	export NAME=$(basename $(pwd))
 	for PACKAGE in $PACKAGES
 	do
 		if [ -d "$PACKAGE" ]; then
 			cd "$PACKAGE/../.."
+			export NAME=$(basename $(pwd))
+
 
 			if [ "$DO_COVERAGE" == "true" ]; then
 				composer install
