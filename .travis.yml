@@ -64,24 +64,18 @@ matrix:
     before_script:
       - export PATH="$HOME/.composer/vendor/bin:$PATH"
       - export PLUGIN_SLUG=$(basename $(pwd))
-
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
-
       - ./tests/setup-travis.sh
-
       - nvm install 10
       - yarn install
-
     script:
       - ./tests/run-travis.sh
       - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' yarn test-client
       - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' yarn test-gui
       - yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
     after_script:
-      - ls -la coverage
-      - ls -la coverage/packages
       - ./tests/process-coverage.sh
 
   - php: "7.0"

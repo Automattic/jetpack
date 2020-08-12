@@ -8,12 +8,10 @@ for PACKAGE in $PACKAGES
 do
 	FILENAME=$(basename -- "$PACKAGE")
 	NAME="${FILENAME%-*.*}"
-	echo $NAME
 	# Format packages coverage
 	./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.$NAME.json coverage/packages/$FILENAME
 done
 
-echo ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
 # Sum both coverage parts into coverage/codeclimate.json
 ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
 

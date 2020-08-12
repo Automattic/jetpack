@@ -10,7 +10,6 @@ function run_packages_tests {
 			cd "$PACKAGE/../.."
 			export NAME=$(basename $(pwd))
 
-
 			if [ "$DO_COVERAGE" == "true" ]; then
 				composer install
 				export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
