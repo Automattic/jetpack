@@ -30,6 +30,12 @@ export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
 export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
 export const PLAN_JETPACK_SEARCH = 'jetpack_search';
 export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
+export const PLAN_JETPACK_SECURITY_DAILY = 'jetpack_security_daily';
+export const PLAN_JETPACK_SECURITY_DAILY_MONTHLY = 'jetpack_security_daily_monthly';
+export const PLAN_JETPACK_SECURITY_REALTIME = 'jetpack_security_realtime';
+export const PLAN_JETPACK_SECURITY_REALTIME_MONTHLY = 'jetpack_security_realtime_monthly';
+export const PLAN_JETPACK_COMPLETE = 'jetpack_complete';
+export const PLAN_JETPACK_COMPLETE_MONTHLY = 'jetpack_complete_monthly';
 export const PLAN_WPCOM_SEARCH = 'wpcom_search';
 export const PLAN_WPCOM_SEARCH_MONTHLY = 'wpcom_search_monthly';
 export const PLAN_JETPACK_SCAN = 'jetpack_scan';
@@ -47,6 +53,9 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+	PLAN_JETPACK_COMPLETE_MONTHLY,
 ];
 
 export const JETPACK_BACKUP_PRODUCTS = [
@@ -208,6 +217,15 @@ export function getPlanClass( plan ) {
 		case PLAN_ECOMMERCE_2_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 			return 'is-business-plan';
+		case PLAN_JETPACK_SECURITY_DAILY:
+		case PLAN_JETPACK_SECURITY_DAILY_MONTHLY:
+			return 'is-daily-security-plan';
+		case PLAN_JETPACK_SECURITY_REALTIME:
+		case PLAN_JETPACK_SECURITY_REALTIME_MONTHLY:
+			return 'is-realtime-security-plan';
+		case PLAN_JETPACK_COMPLETE:
+		case PLAN_JETPACK_COMPLETE_MONTHLY:
+			return 'is-complete-plan';
 		case PLAN_JETPACK_BACKUP_DAILY:
 		case PLAN_JETPACK_BACKUP_DAILY_MONTHLY:
 			return 'is-daily-backup-plan';
@@ -238,6 +256,12 @@ export function getMonthlyPlanByYearly( plan ) {
 			return PLAN_JETPACK_BUSINESS_MONTHLY;
 		case PLAN_JETPACK_PERSONAL:
 			return PLAN_JETPACK_PERSONAL_MONTHLY;
+		case PLAN_JETPACK_SECURITY_DAILY:
+			return PLAN_JETPACK_SECURITY_DAILY_MONTHLY;
+		case PLAN_JETPACK_SECURITY_REALTIME:
+			return PLAN_JETPACK_SECURITY_REALTIME_MONTHLY;
+		case PLAN_JETPACK_COMPLETE:
+			return PLAN_JETPACK_COMPLETE_MONTHLY;
 		default:
 			return '';
 	}
