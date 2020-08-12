@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.backend.json coverage/clover.xml # Format backend coverage
+./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.backend.json coverage/backend-clover.xml # Format backend coverage
 ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.frontend.json coverage/lcov.info  # Format frontend coverage
 
 
