@@ -5,6 +5,7 @@
 /**
  * External dependencies
  */
+import { flatMap } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { RadioControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
@@ -59,8 +60,27 @@ export default compose( [
 		connections: select( 'core/editor' ).getEditedPostAttribute( 'jetpack_publicize_connections' ),
 		isTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
 	} ) ),
-	withDispatch( dispatch => ( {
-		setTweetstorm: value =>
-			dispatch( 'core/editor' ).editPost( { meta: { jetpack_is_tweetstorm: value } } ),
+	withDispatch( ( dispatch, props, { select } ) => ( {
+		setTweetstorm: value => {
+			dispatch( 'core/editor' ).editPost( { meta: { jetpack_is_tweetstorm: value } } );
+
+			const topBlocks = select( 'core/editor' ).getBlocks();
+			const selectedBlocks = select( 'core/block-editor' ).getSelectedBlockClientIds();
+
+			const SUPPORTED_BLOCKS = [ 'core/paragraph' ];
+
+			const computeTweetBlocks = ( blocks = [] ) => {
+				return flatMap( blocks, ( block = {} ) => {
+					if ( SUPPORTED_BLOCKS.includes( block.name ) ) {
+						return block;
+					}
+					return computeTweetBlocks( block.innerBlocks );
+				} );
+			};
+
+			const tweetBlocks = computeTweetBlocks( topBlocks );
+
+			dispatch( 'jetpack/publicize' ).refreshTweets( tweetBlocks, selectedBlocks );
+		},
 	} ) ),
 ] )( PublicizeTwitterOptions );

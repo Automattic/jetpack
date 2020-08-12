@@ -39,3 +39,18 @@ export function fetchFromAPI( path ) {
 		path,
 	};
 }
+
+export function refreshTweets( content, selected ) {
+	return {
+		type: 'REFRESH_TWEETS',
+		content,
+		selected,
+	};
+}
+
+export function setTweets( results ) {
+	return {
+		type: 'SET_TWEETS',
+		results,
+	};
+}

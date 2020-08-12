@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { flatMap } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
@@ -8,7 +9,6 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { getCurrentTweet, getTweetForBlock } from './utils';
 import { SocialServiceIcon } from '../../../shared/icons';
 
 import './editor.scss';
@@ -19,32 +19,32 @@ import './editor.scss';
  */
 class TweetDivider extends Component {
 	componentDidMount() {
-		this.props.updateAnnotations();
+		this.props.updateTweets();
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { childProps, updateAnnotations } = this.props;
+		const { boundaries, childProps, updateTweets, updateAnnotations } = this.props;
+
 		if ( prevProps.childProps.attributes.content !== childProps.attributes.content ) {
+			updateTweets();
+		}
+
+		if ( prevProps.boundaries !== boundaries ) {
 			updateAnnotations();
 		}
 	}
 
 	render() {
-		const {
-			ChildEdit,
-			childProps,
-			jetpackIsTweetstorm,
-			jetpackIsSelectedTweetBoundary,
-		} = this.props;
+		const { ChildEdit, childProps, isTweetstorm, isSelectedTweetBoundary } = this.props;
 
-		if ( ! jetpackIsTweetstorm ) {
+		if ( ! isTweetstorm ) {
 			return <ChildEdit { ...childProps } />;
 		}
 
 		return (
 			<>
 				<ChildEdit { ...childProps } />
-				{ jetpackIsSelectedTweetBoundary && (
+				{ isSelectedTweetBoundary && (
 					<div className="jetpack-publicize-twitter__tweet-divider">
 						<div className="jetpack-publicize-twitter__tweet-divider-icon">
 							<SocialServiceIcon serviceName="twitter" />
@@ -58,19 +58,47 @@ class TweetDivider extends Component {
 
 export default compose( [
 	withSelect( ( select, { childProps } ) => {
-		const jetpackCurrentTweet = getCurrentTweet( select );
-		const jetpackIsSelectedTweetBoundary =
-			jetpackCurrentTweet &&
-			jetpackCurrentTweet.blocks[ jetpackCurrentTweet.blocks.length - 1 ].clientId ===
-				childProps.clientId;
+		const selectedBlocks = select( 'core/block-editor' ).getSelectedBlockClientIds();
+		const tweet = select( 'jetpack/publicize' ).getTweetForBlock( childProps.clientId );
+		const selectedBlockClientId = selectedBlocks.length === 1 && selectedBlocks[ 0 ];
+		const isSelectedTweetBoundary =
+			tweet &&
+			tweet.blocks.some( block => block.clientId === selectedBlockClientId ) &&
+			tweet.blocks[ tweet.blocks.length - 1 ].clientId === childProps.clientId;
 		return {
-			jetpackIsTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' )
-				.jetpack_is_tweetstorm,
-			jetpackIsSelectedTweetBoundary,
+			isTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
+			isSelectedTweetBoundary,
+			boundaries: tweet && tweet.boundaries,
 		};
 	} ),
-	withDispatch( ( dispatch, { childProps }, { select } ) => {
+	withDispatch( ( dispatch, { isTweetstorm, childProps }, { select } ) => {
+		if ( ! isTweetstorm ) {
+			return {
+				updateTweets: () => {},
+				updateAnnotations: () => {},
+			};
+		}
+
 		return {
+			updateTweets: () => {
+				const topBlocks = select( 'core/editor' ).getBlocks();
+				const selectedBlocks = select( 'core/block-editor' ).getSelectedBlockClientIds();
+
+				const SUPPORTED_BLOCKS = [ 'core/paragraph' ];
+
+				const computeTweetBlocks = ( blocks = [] ) => {
+					return flatMap( blocks, ( block = {} ) => {
+						if ( SUPPORTED_BLOCKS.includes( block.name ) ) {
+							return block;
+						}
+						return computeTweetBlocks( block.innerBlocks );
+					} );
+				};
+
+				const tweetBlocks = computeTweetBlocks( topBlocks );
+
+				dispatch( 'jetpack/publicize' ).refreshTweets( tweetBlocks, selectedBlocks );
+			},
 			updateAnnotations: () => {
 				const annotations = select( 'core/annotations' ).__experimentalGetAllAnnotationsForBlock(
 					childProps.clientId
@@ -81,8 +109,7 @@ export default compose( [
 					}
 				} );
 
-				const tweet = getTweetForBlock( select, childProps.clientId );
-
+				const tweet = select( 'jetpack/publicize' ).getTweetForBlock( childProps.clientId );
 				if ( ! tweet ) {
 					return;
 				}
