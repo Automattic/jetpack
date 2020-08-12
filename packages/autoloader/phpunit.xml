@@ -1,10 +1,6 @@
-<phpunit
-		bootstrap="tests/php/bootstrap.php"
-		backupGlobals="false"
-		colors="true"
->
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="true" colors="true">
 	<testsuites>
-		<testsuite name="general">
+		<testsuite name="main">
 			<directory prefix="test" suffix=".php">tests/php</directory>
 		</testsuite>
 	</testsuites>
@@ -14,6 +10,7 @@
 			<exclude>
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">vendor</directory>
+				<directory suffix=".php">views</directory>
 			</exclude>
 		</whitelist>
 	</filter>
