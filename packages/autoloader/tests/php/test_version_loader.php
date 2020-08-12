@@ -62,7 +62,7 @@ class WP_Test_Version_Loader extends TestCase {
 			array(
 				'Jetpack\\TestCase_ABC\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => __DIR__ . '/data',
+					'path'    => array( __DIR__ . '/data' ),
 				),
 			)
 		);
@@ -81,11 +81,11 @@ class WP_Test_Version_Loader extends TestCase {
 			array(
 				'Jetpack\\'               => array(
 					'version' => '1.0.0.0',
-					'path'    => __DIR__ . '/data',
+					'path'    => array( __DIR__ . '/data' ),
 				),
 				'Jetpack\\TestCase_ABC\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => __DIR__ . '/data',
+					'path'    => array( __DIR__ . '/data' ),
 				),
 			)
 		);
@@ -111,7 +111,7 @@ class WP_Test_Version_Loader extends TestCase {
 			array(
 				'Jetpack\\TestCase_ABC\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => __DIR__ . '/data',
+					'path'    => array( __DIR__ . '/data' ),
 				),
 			)
 		);
@@ -137,7 +137,7 @@ class WP_Test_Version_Loader extends TestCase {
 			array(
 				'Jetpack\\TestCase_ABC\\' => array(
 					'version' => '2.0.0.0',
-					'path'    => __DIR__ . '/data',
+					'path'    => array( __DIR__ . '/data' ),
 				),
 			)
 		);

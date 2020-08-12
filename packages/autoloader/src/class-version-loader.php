@@ -109,8 +109,12 @@ class Version_Loader {
 
 		foreach ( $this->psr4_map as $namespace => $data ) {
 			$len = strlen( $namespace );
-			if ( substr( $class_name, 0, $len ) === $namespace ) {
-				$file = $data['path'] . '/' . str_replace( '\\', '/', substr( $class_name, $len ) ) . '.php';
+			if ( substr( $class_name, 0, $len ) !== $namespace ) {
+				continue;
+			}
+
+			foreach ( $data['path'] as $path ) {
+				$file = $path . '/' . str_replace( '\\', '/', substr( $class_name, $len ) ) . '.php';
 				if ( file_exists( $file ) ) {
 					return array(
 						'version' => $data['version'],

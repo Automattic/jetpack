@@ -220,25 +220,29 @@ AUTOLOADER_COMMENT;
 		$psr4MapString = '';
 
 		foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
+			$namespace = empty( $namespace ) ? null : $namespace;
+			$paths     = array();
+
 			foreach ( $packages_info as $package ) {
-				$dir       = $filesystem->normalizePath(
+				$dir = $filesystem->normalizePath(
 					$filesystem->isAbsolutePath( $package['path'] )
 						? $package['path']
 						: $basePath . '/' . $package['path']
 				);
-				$namespace = empty( $namespace ) ? null : $namespace;
 
-				$namespaceCode  = var_export( $namespace, true );
-				$versionCode    = var_export( $package['version'], true );
-				$pathCode       = $this->getPathCode( $filesystem, $basePath, $vendorPath, $dir );
-				$psr4MapString .= <<<PSR4_CODE
+				$paths[] = $this->getPathCode( $filesystem, $basePath, $vendorPath, $dir );
+			}
+
+			$namespaceCode  = var_export( $namespace, true );
+			$versionCode    = var_export( $package['version'], true );
+			$pathCode       = 'array(' . implode( ', ', $paths ) . ')';
+			$psr4MapString .= <<<PSR4_CODE
 	$namespaceCode => array(
 		'version' => $versionCode,
 		'path'    => $pathCode
 	),
 PSR4_CODE;
-				$psr4MapString .= PHP_EOL;
-			}
+			$psr4MapString .= PHP_EOL;
 		}
 
 		return 'array( ' . PHP_EOL . $psr4MapString . ');' . PHP_EOL;
