@@ -90,6 +90,7 @@ const UpgradePlanBanner = ( {
 				<Button
 					href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 					onClick={ goToCheckoutPage }
+					target="_top"
 					className="is-primary"
 				>
 					{ buttonText }
