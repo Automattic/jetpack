@@ -152,7 +152,8 @@ function MediaBrowser( props ) {
 		}
 	}, [ media ] );
 
-	const handleMediaItemClick = ( event, { item, index } ) => {
+	// Using _event to avoid eslint errors. Can change to event if it's in use again.
+	const handleMediaItemClick = ( _event, { item } ) => {
 		select( item );
 	};
 
