@@ -54,7 +54,7 @@ const updateUrl = () => {
 			'href',
 			addQueryArgs( url, {
 				amount: jetpackDonationsAmount,
-				customAmount: jetpackDonationsIsCustomAmount,
+				...( jetpackDonationsIsCustomAmount && { customAmount: true } ),
 			} )
 		);
 	} else {
@@ -221,4 +221,8 @@ domReady( () => {
 	jetpackDonationsHandleCustomAmount();
 	jetpackDonationsHandleChosenAmount();
 	initializeMembershipButtons( '.donations__donate-button' );
+	const container = document.querySelector( '.wp-block-jetpack-donations .donations__container' );
+	if ( container ) {
+		container.classList.add( 'loaded' );
+	}
 } );
