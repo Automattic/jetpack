@@ -12,11 +12,12 @@ function run_packages_tests {
 
 			if [ "$DO_COVERAGE" == "true" ]; then
 				composer install
-				export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover ../../coverage/packages/$NAME-clover.xml"
+				export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
 			fi
 			echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
 
 			if $WP_TRAVISCI_PACKAGES; then
+				ls -la $TRAVIS_BUILD_DIR/coverage/packages
 				# Everything is fine
 				:
 			else

@@ -72,7 +72,6 @@ matrix:
       - ./tests/setup-travis.sh
 
       - nvm install 10
-      # - npm install -g yarn
       - yarn install
 
     script:
@@ -81,6 +80,8 @@ matrix:
       - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' yarn test-gui
       - yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
     after_script:
+      - ls -la coverage
+      - ls -la coverage/packages
       - ./tests/process-coverage.sh
 
   - php: "7.0"
