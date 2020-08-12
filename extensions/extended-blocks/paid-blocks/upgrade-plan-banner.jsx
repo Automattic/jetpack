@@ -13,10 +13,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getUpgradeUrl } from '../plan-utils';
+import { getUpgradeUrl } from '../../shared/plan-utils';
 
 // Provably we should move this store to somewhere more generic.
-import '../components/upgrade-nudge/store';
+import '../../shared/components/upgrade-nudge/store';
 
 function redirect( url, callback ) {
 	if ( callback ) {

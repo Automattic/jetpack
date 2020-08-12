@@ -4,19 +4,19 @@
 import { createContext } from '@wordpress/element';
 
 /**
- * Premium Block context
- * Used to pass data between components of a Premium Block.
+ * Paid Block context
+ * Used to pass data between components of a Paid Block.
  */
-export const PremiumBlockContext = createContext();
+export const PaidBlockContext = createContext();
 
 /**
- * Premium Block Provider
+ * Paid Block Provider
  *
  * @param {object}  props - Provider properties.
  * @param {Function}  props.onBannerVisibilityChange - Callback to set banner visibility.
  * @param {boolean} props.children - Provider Children.
  * @returns {*} Provider component.
  */
-export const PremiumBlockProvider = ( { onBannerVisibilityChange, children } ) => (
-	<PremiumBlockContext.Provider value={ onBannerVisibilityChange } children={ children } />
+export const PaidBlockProvider = ( { onBannerVisibilityChange, children } ) => (
+	<PaidBlockContext.Provider value={ onBannerVisibilityChange } children={ children } />
 );

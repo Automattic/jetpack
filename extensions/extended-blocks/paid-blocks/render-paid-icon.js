@@ -9,12 +9,12 @@ import { cloneElement } from '@wordpress/element';
 import PaidSymbol from './paid-symbol';
 
 /**
- * Enhance the default block icon with a premium indicator
+ * Enhance the default block icon with a paid indicator
  *
  * @param {object}  icon - The block default icon.
  * @returns {object} The default icon enhanced with the PaidSymbol
  */
-const renderPremiumIcon = icon => {
+const renderPaidIcon = icon => {
 	if ( icon?.src ) {
 		icon = {
 			...icon,
@@ -30,4 +30,4 @@ const renderPremiumIcon = icon => {
 	return icon;
 };
 
-export default renderPremiumIcon;
+export default renderPaidIcon;

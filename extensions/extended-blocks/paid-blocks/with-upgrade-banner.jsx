@@ -13,9 +13,9 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { isStillUsableWithFreePlan, isUpgradable } from '../plan-utils';
+import { isStillUsableWithFreePlan, isUpgradable } from '../../shared/plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
-import { PremiumBlockProvider } from './components';
+import { PaidBlockProvider } from './components';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
@@ -43,16 +43,16 @@ export default createHigherOrderComponent(
 		} );
 
 		return (
-			<PremiumBlockProvider onBannerVisibilityChange={ setIsVisible }>
+			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible }>
 				<UpgradePlanBanner
-					className={ `is-${ props.name.replace( /\//, '-' ) }-premium-block` }
+					className={ `is-${ props.name.replace( /\//, '-' ) }-paid-block` }
 					title={ null }
 					align={ props?.attributes?.align }
 					visible={ isBannerVisible }
 				/>
 
 				<BlockListBlock { ...props } className={ listBlockCSSClass } />
-			</PremiumBlockProvider>
+			</PaidBlockProvider>
 		);
 	},
 	'withUpgradeBanner'

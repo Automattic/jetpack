@@ -12,9 +12,9 @@ import { useRef, useContext } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isFileOfType } from '../get-allowed-mime-types';
-import { isUpgradable, getUsableBlockProps } from '../plan-utils';
-import { PremiumBlockContext } from './components';
+import { isFileOfType } from '../../shared/get-allowed-mime-types';
+import { isUpgradable, getUsableBlockProps } from '../../shared/plan-utils';
+import { PaidBlockContext } from './components';
 
 export default createHigherOrderComponent(
 	MediaReplaceFlow => props => {
@@ -27,7 +27,7 @@ export default createHigherOrderComponent(
 		}
 
 		const { fileType } = usableBlocksProps;
-		const onBannerVisibilityChange = useContext( PremiumBlockContext );
+		const onBannerVisibilityChange = useContext( PaidBlockContext );
 
 		return (
 			<MediaReplaceFlow

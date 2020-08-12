@@ -14,45 +14,47 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import withUpgradeBanner from './with-upgrade-banner';
-import { isUpgradeNudgeEnabled, isUpgradable } from '../plan-utils';
-import premiumBlockEdit from './edit';
-import renderPremiumIcon from './render-premium-icon.js';
+import { isUpgradeNudgeEnabled, isUpgradable } from '../../shared/plan-utils';
+import paidBlockEdit from './edit';
+import renderPaidIcon from './render-paid-icon.js';
 
 import './editor.scss';
-import premiumBlockMediaPlaceholder from './media-placeholder';
-import premiumBlockMediaReplaceFlow from './media-replace-flow';
+import paidBlockMediaPlaceholder from './media-placeholder';
+import paidBlockMediaReplaceFlow from './media-replace-flow';
 
-const jetpackPremiumBlock = ( settings, name ) => {
+const jetpackPaidBlock = ( settings, name ) => {
 	if ( isUpgradable( name ) ) {
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium' ) ] );
 
 		// Extend BlockEdit function.
-		settings.edit = premiumBlockEdit( settings.edit );
-		settings.icon = renderPremiumIcon( settings.icon );
+		settings.edit = paidBlockEdit( settings.edit );
+
+		// Extend Icon for Paid blocks.
+		settings.icon = renderPaidIcon( settings.icon );
 	}
 
 	return settings;
 };
 
 // Extend BlockType.
-addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPremiumBlock );
+addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
 
 // Extend BlockListBlock.
-addFilter( 'editor.BlockListBlock', 'jetpack/premium-block-with-warning', withUpgradeBanner );
+addFilter( 'editor.BlockListBlock', 'jetpack/paid-block-with-warning', withUpgradeBanner );
 
 // Take the control of the MediaPlaceholder
 addFilter(
 	'editor.MediaPlaceholder',
-	'jetpack/premium-block-media-placeholder',
-	premiumBlockMediaPlaceholder
+	'jetpack/paid-block-media-placeholder',
+	paidBlockMediaPlaceholder
 );
 
 // Take the control of the MediaReplaceFlow
 addFilter(
 	'editor.MediaReplaceFlow',
-	'jetpack/premium-block-media-placeholder',
-	premiumBlockMediaReplaceFlow
+	'jetpack/paid-block-media-placeholder',
+	paidBlockMediaReplaceFlow
 );
 
 /*

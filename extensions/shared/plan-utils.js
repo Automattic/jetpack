@@ -117,7 +117,7 @@ export function isUpgradeNudgeEnabled() {
  * Some blocks are still usable with a free plan.
  * We can handle their dual behavior defining specifically
  * when to show the upgrade banner
- * through or the Premium Block context.
+ * through or the Paid Block context.
  *
  * @param {string} name - Block name to check.
  * @returns {boolean} True is the block is usable with a Free plan. Otherwise, False.

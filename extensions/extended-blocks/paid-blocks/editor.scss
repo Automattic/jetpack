@@ -1,5 +1,5 @@
-@import '../styles/gutenberg-base-styles.scss';
 @import "~@automattic/color-studio/dist/color-variables";
+@import '../../shared/styles/gutenberg-base-styles.scss';
 
 $banner-height: 48px;
 $icon-size: 10px;
@@ -61,12 +61,12 @@ $icon-background-color: #fff;
 	}
 }
 
-// Premium Icons: Hide by default.
+// Paid Icons: Hide by default.
 .jetpack-paid-block-symbol {
 	display: none;
 }
 
-// Premium Icons: Only show if upgrade is possible.
+// Paid Icons: Only show if upgrade is possible.
 .jetpack-enable-upgrade-nudge {
 	.block-editor-block-icon > svg {
 		overflow: visible;
@@ -82,7 +82,7 @@ $icon-background-color: #fff;
 }
 
 // Media Placeholder
-.premium-block-media-placeholder {
+.paid-block-media-placeholder {
 	width: 100%;
 }
 
@@ -92,7 +92,7 @@ $icon-background-color: #fff;
 	padding-top: 0;
 	background-color: transparent;
 
-	.premium-block-media-placeholder {
+	.paid-block-media-placeholder {
 		margin-top: $banner-height;
 	}
 }

@@ -10,7 +10,7 @@ import { SVG, G } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import renderPremiumIcon from '../render-premium-icon';
+import renderPaidIcon from '../render-paid-icon';
 import PaidSymbol from '../paid-symbol';
 
 const iconWithSrc = {
@@ -22,7 +22,7 @@ const iconWithSrc = {
 	foreground: '#555d66',
 };
 
-const iconWithSrcWithPremiumIcon = {
+const iconWithSrcWithPaidIcon = {
 	src: (
 		<SVG xmlns="http://www.w3.org/2000/svg">
 			<G />
@@ -38,19 +38,19 @@ const iconWithouthSrc = (
 	</SVG>
 );
 
-const iconWithouthSrcWithPremiumIcon = (
+const iconWithouthSrcWithPaidIcon = (
 	<SVG xmlns="http://www.w3.org/2000/svg">
 		<G />
 		<PaidSymbol />
 	</SVG>
 );
 
-describe( 'renderPremiumIcon enhance the default block icon', () => {
+describe( 'renderPaidIcon enhance the default block icon', () => {
 	it( 'when icon has src', () => {
-		expect( renderPremiumIcon( iconWithSrc ) ).toEqual( iconWithSrcWithPremiumIcon );
+		expect( renderPaidIcon( iconWithSrc ) ).toEqual( iconWithSrcWithPaidIcon );
 	} );
 
 	it( 'when icon does not have src', () => {
-		expect( renderPremiumIcon( iconWithouthSrc ) ).toEqual( iconWithouthSrcWithPremiumIcon );
+		expect( renderPaidIcon( iconWithouthSrc ) ).toEqual( iconWithouthSrcWithPaidIcon );
 	} );
 } );
