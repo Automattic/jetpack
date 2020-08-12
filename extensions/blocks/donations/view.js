@@ -46,6 +46,15 @@ const getDonateButton = interval => {
 	);
 };
 
+const toggleDonateButton = enable => {
+	const donateButton = getDonateButton( jetpackDonationsInterval );
+	if ( enable ) {
+		donateButton.classList.remove( 'is-disabled' );
+	} else {
+		donateButton.classList.add( 'is-disabled' );
+	}
+};
+
 const updateUrl = () => {
 	const donateButton = getDonateButton( jetpackDonationsInterval );
 	const url = donateButton.getAttribute( 'href' );
@@ -60,6 +69,34 @@ const updateUrl = () => {
 	} else {
 		donateButton.setAttribute( 'href', removeQueryArgs( url, 'amount', 'customAmount' ) );
 	}
+};
+
+const updateAmountFromCustomAmountInput = () => {
+	const input = document.querySelector(
+		'.wp-block-jetpack-donations .donations__custom-amount .donations__amount-value'
+	);
+	const wrapper = document.querySelector( '.wp-block-jetpack-donations .donations__custom-amount' );
+
+	const amount = input.innerHTML;
+	if ( ! amount ) {
+		jetpackDonationsAmount = null;
+		toggleDonateButton( false );
+		return;
+	}
+
+	// Validates the amount.
+	const currency = input.dataset.currency;
+	const parsedAmount = parseAmount( amount, currency );
+	if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
+		wrapper.classList.remove( 'has-error' );
+		jetpackDonationsAmount = parsedAmount;
+		toggleDonateButton( true );
+	} else {
+		wrapper.classList.add( 'has-error' );
+		jetpackDonationsAmount = null;
+		toggleDonateButton( false );
+	}
+	updateUrl();
 };
 
 const jetpackDonationsInitNavigation = () => {
@@ -89,12 +126,12 @@ const jetpackDonationsInitNavigation = () => {
 
 		// Reset chosen amount.
 		jetpackDonationsAmount = null;
+		jetpackDonationsIsCustomAmount = false;
 		resetSelectedAmount();
 		updateUrl();
 
 		// Disable donate button.
-		const donateButton = getDonateButton( prevInterval );
-		donateButton.classList.add( 'is-disabled' );
+		toggleDonateButton( false );
 	};
 
 	navItems.forEach( navItem => {
@@ -128,61 +165,38 @@ const jetpackDonationsHandleCustomAmount = () => {
 		}
 	} );
 
-	// Add focus styles to wrapper element.
 	input.addEventListener( 'focus', () => {
+		// Add focus styles to wrapper element.
 		wrapper.classList.add( 'has-focus' );
 		wrapper.classList.remove( 'is-selected' );
+
+		// Toggle selected amount.
+		resetSelectedAmount();
+		if ( jetpackDonationsIsCustomAmount ) {
+			return;
+		}
+		jetpackDonationsIsCustomAmount = true;
+		updateAmountFromCustomAmountInput();
 	} );
 
 	input.addEventListener( 'blur', () => {
 		// Remove focus styles to wrapper element.
 		wrapper.classList.remove( 'has-focus' );
 
-		// Mark custom amount as selected.
-		if ( ! jetpackDonationsIsCustomAmount ) {
+		if ( ! jetpackDonationsIsCustomAmount || ! jetpackDonationsAmount ) {
 			return;
 		}
+
+		// Mark custom amount as selected.
 		wrapper.classList.add( 'is-selected' );
 
 		// Formats the entered amount.
-		if ( ! jetpackDonationsAmount ) {
-			return;
-		}
 		input.innerHTML = formatCurrency( jetpackDonationsAmount, input.dataset.currency, {
 			symbol: '',
 		} );
 	} );
 
-	input.addEventListener( 'input', () => {
-		const amount = input.innerHTML;
-		if ( ! amount ) {
-			if ( jetpackDonationsIsCustomAmount ) {
-				const donateButton = getDonateButton( jetpackDonationsInterval );
-				donateButton.classList.add( 'is-disabled' );
-			}
-			return;
-		}
-
-		// Toggle selected amount.
-		resetSelectedAmount();
-		jetpackDonationsIsCustomAmount = true;
-
-		// Validates the amount.
-		const currency = input.dataset.currency;
-		const parsedAmount = parseAmount( amount, currency );
-		if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
-			wrapper.classList.remove( 'has-error' );
-			jetpackDonationsAmount = parsedAmount;
-			const donateButton = getDonateButton( jetpackDonationsInterval );
-			donateButton.classList.remove( 'is-disabled' );
-		} else {
-			wrapper.classList.add( 'has-error' );
-			jetpackDonationsAmount = null;
-			const donateButton = getDonateButton( jetpackDonationsInterval );
-			donateButton.classList.add( 'is-disabled' );
-		}
-		updateUrl();
-	} );
+	input.addEventListener( 'input', updateAmountFromCustomAmountInput );
 };
 
 const jetpackDonationsHandleChosenAmount = () => {
