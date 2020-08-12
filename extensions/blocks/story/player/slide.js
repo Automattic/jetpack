@@ -25,6 +25,7 @@ export const Slide = ( {
 	onEnd,
 	onProgress,
 	settings,
+	targetAspectRatio,
 } ) => {
 	const visible = index === currentSlideIndex;
 	const currentSlidePlaying = visible && playing;
@@ -178,7 +179,7 @@ export const Slide = ( {
 				{ preload && (
 					<Media
 						{ ...media }
-						targetAspectRatio={ settings.defaultAspectRatio }
+						targetAspectRatio={ targetAspectRatio }
 						cropUpTo={ settings.cropUpTo }
 						index={ index }
 						mediaRef={ mediaRef }

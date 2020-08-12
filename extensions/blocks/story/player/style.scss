@@ -57,10 +57,6 @@
 			position: relative;
 			overflow: hidden;
 			object-fit: contain;
-
-			video {
-				width: 100%;
-			}
 		}
 
 		&.is-loading {
@@ -338,6 +334,7 @@
 	&.wp-story-container {
 		margin: auto;
 		height: 100%;
+		width: 100%;
 		max-width: 100%;
 		max-height: 100%;
 

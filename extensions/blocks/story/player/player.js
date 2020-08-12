@@ -32,8 +32,9 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const [ muted, setMuted ] = useState( settings.startMuted );
 	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
 
-	const [ slideWidth, setSlideWidth ] = useState( null );
-	const [ resizeListener, { height } ] = useResizeObserver();
+	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
+	const [ resizeListener, { width, height } ] = useResizeObserver();
+	const [ targetAspectRatio, setTargetAspectRatio ] = useState( null );
 
 	const uploading = some( slides, media => isBlobURL( media.url ) );
 	const showProgressBar = fullscreen || ! settings.showSlideCount;
@@ -95,10 +96,16 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 
 	useLayoutEffect( () => {
 		if ( height ) {
-			const width = Math.round( settings.defaultAspectRatio * height );
-			setSlideWidth( width );
+			setMaxSlideWidth(
+				Math.round( settings.defaultAspectRatio * height * ( 1 + settings.cropUpTo ) )
+			);
 		}
 	}, [ height ] );
+
+	useEffect( () => {
+		const aspectRatio = height > 0 ? width / height : settings.defaultAspectRatio;
+		setTargetAspectRatio( aspectRatio );
+	}, [ width, height ] );
 
 	return (
 		<>
@@ -109,7 +116,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					'wp-story-ended': ended,
 					'wp-story-disabled': disabled,
 				} ) }
-				style={ { width: `${ slideWidth }px` } }
+				style={ { maxWidth: `${ maxSlideWidth }px` } }
 			>
 				<Header
 					{ ...settings.metadata }
@@ -131,6 +138,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							onProgress={ setCurrentSlideProgress }
 							onEnd={ tryNextSlide }
 							settings={ settings }
+							targetAspectRatio={ targetAspectRatio }
 						/>
 					) ) }
 				</div>

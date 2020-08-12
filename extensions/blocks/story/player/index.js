@@ -38,7 +38,7 @@ const defaultSettings = {
 			'#jetpack-block-story-css, link[href*="jetpack/_inc/blocks/story/view.css"]',
 	},
 	defaultAspectRatio: 720 / 1280,
-	cropUpTo: 0.1, // crop percentage allowed, after which media is displayed in letterbox
+	cropUpTo: 0.15, // crop percentage allowed, after which media is displayed in letterbox
 	volume: 0.5,
 };
 
