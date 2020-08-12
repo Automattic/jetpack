@@ -3476,7 +3476,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	private function render_consent_field( $id, $class, $consent_type, $consent_message ) {
 		$field  = "<label class='grunion-field-label consent consent-" . $consent_type . "'>";
-		$field .= "\t\t<input type='checkbox' " . checked( 'implicit' === $consent_type, true, false ) . " name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $class . ' ' . ( 'implicit' === $consent_type ? "style='display:none;'" : '' ) . "/> \n";
+		
+		if ( 'implicit' === $consent_type ) {
+			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' style='display:none;' /> \n";
+		} else {
+			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $class . "/> \n";
+		}
 		$field .= "\t\t" . esc_html( $consent_message );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
