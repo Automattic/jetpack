@@ -47,15 +47,23 @@ const NoConsentBlockSettings = () => {
 const NewsletterIntegrationSettings = () => {
 	const selectedBlock = useSelect( select => select( 'core/block-editor' ).getSelectedBlock(), [] );
 
-	const hasConsentBlock = useMemo(
-		() => selectedBlock.innerBlocks.some( ( { name } ) => name === 'jetpack/field-consent' ),
-		[ selectedBlock.innerBlocks ]
-	);
+	const shouldHaveConsentBlock = useMemo( () => {
+		const hasEmailBlock = selectedBlock.innerBlocks.some(
+			( { name } ) => name === 'jetpack/field-email'
+		);
+		const hasConsentBlock = selectedBlock.innerBlocks.some(
+			( { name } ) => name === 'jetpack/field-consent'
+		);
+		if ( hasEmailBlock ) {
+			return ! hasConsentBlock;
+		}
+		return false;
+	}, [ selectedBlock.innerBlocks ] );
 
 	return (
 		<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
 			<BaseControl>
-				{ ! hasConsentBlock && <NoConsentBlockSettings /> }
+				{ shouldHaveConsentBlock && <NoConsentBlockSettings /> }
 				<p>
 					<em>
 						{ __(

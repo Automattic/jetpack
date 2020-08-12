@@ -5,7 +5,7 @@ import { get, map } from 'lodash';
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -322,9 +322,11 @@ function JetpackContactFormEdit( {
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
 				{ ! isSimpleSite() && (
-					<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+					<Fragment>
+						<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+						<NewsletterIntegrationSettings />
+					</Fragment>
 				) }
-				{ ! isSimpleSite() && <NewsletterIntegrationSettings /> }
 			</InspectorControls>
 
 			<div className={ formClassnames }>
