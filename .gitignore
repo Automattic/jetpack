@@ -65,6 +65,7 @@ _inc/jetpack-strings.php
 /vendor/autoload.php
 /vendor/autoload_packages.php
 /vendor/autoload_functions.php
+/vendor/autoloader_functions.php
 /vendor/class-autoloader-handler.php
 /vendor/class-classes-handler.php
 /vendor/class-files-handler.php

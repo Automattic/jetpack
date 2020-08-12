@@ -104,7 +104,6 @@ function set_up_autoloader() {
  * @return bool The passed in $response param.
  */
 function reset_maps_after_update( $response, $hook_extra, $result ) {
-	global $jetpack_autoloader_latest_version;
 	global $jetpack_packages_classmap;
 
 	if ( isset( $hook_extra['plugin'] ) ) {
@@ -130,10 +129,9 @@ function reset_maps_after_update( $response, $hook_extra, $result ) {
 		$plugin_dir  = str_replace( '\\', '/', WP_PLUGIN_DIR );
 		$plugin_path = trailingslashit( $plugin_dir ) . trailingslashit( explode( '/', $plugin )[0] );
 
-		if ( is_readable( $plugin_path . 'vendor/autoload_functions.php' ) ) {
-			// The plugin has a v2.x autoloader, so reset it.
-			$jetpack_autoloader_latest_version = null;
-			$jetpack_packages_classmap         = array();
+		if ( is_readable( $plugin_path . 'vendor/autoloader_functions.php' ) ) {
+			// The plugin has a >=v2.3 autoloader, so reset the classmap.
+			$jetpack_packages_classmap = array();
 
 			set_up_autoloader();
 		}

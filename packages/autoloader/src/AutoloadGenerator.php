@@ -101,8 +101,8 @@ AUTOLOADER_COMMENT;
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( 'autoload.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
 
-		file_put_contents( $vendorPath . '/autoload_functions.php', $this->getAutoloadPackageFile( 'functions.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_functions.php</info>', true );
+		file_put_contents( $vendorPath . '/autoloader_functions.php', $this->getAutoloadPackageFile( 'functions.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoloader_functions.php</info>', true );
 
 		file_put_contents( $vendorPath . '/class-autoloader-handler.php', $this->getAutoloadPackageFile( 'class-autoloader-handler.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-autoloader-handler.php</info>', true );
