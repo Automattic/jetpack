@@ -56,7 +56,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 
 			return <OriginalComponent { ...props } render={ render } />;
 		},
-		11
+		100
 	);
 
 	// Register the individual external media blocks.
