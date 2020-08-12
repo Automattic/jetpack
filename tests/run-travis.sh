@@ -4,6 +4,7 @@ function run_packages_tests {
 	echo "Running \`$WP_TRAVISCI\` for Packages:"
 	export WP_TRAVISCI_PACKAGES="composer phpunit"
 	export PACKAGES='./packages/**/tests/php'
+	export NAME=$(basename $(pwd))
 	for PACKAGE in $PACKAGES
 	do
 		if [ -d "$PACKAGE" ]; then
@@ -11,11 +12,9 @@ function run_packages_tests {
 
 			if [ "$DO_COVERAGE" == "true" ]; then
 				composer install
-				export NAME=$(basename $(pwd))
 				export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover ../../coverage/packages/$NAME-clover.xml"
 			fi
-
-			echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$PACKAGE\` "
+			echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
 
 			if $WP_TRAVISCI_PACKAGES; then
 				# Everything is fine

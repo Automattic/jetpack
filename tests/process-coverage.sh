@@ -9,7 +9,7 @@ do
 	FILENAME=$(basename -- "$PACKAGE")
 	NAME="${FILENAME%-*.*}"
 	echo $NAME
-	echo ./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.$NAME.json coverage/packages/$FILENAME # Format backend coverage
+	./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.$NAME.json coverage/packages/$FILENAME # Format backend coverage
 done
 
 echo ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l) # Sum both coverage parts into coverage/codeclimate.json
