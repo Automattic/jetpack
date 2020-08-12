@@ -2,20 +2,20 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { BaseControl, ExternalLink, PanelBody, SelectControl } from '@wordpress/components';
-import { InspectorControls } from '@wordpress/block-editor';
+import { BaseControl, PanelBody, SelectControl } from '@wordpress/components';
+import { InspectorAdvancedControls, InspectorControls } from '@wordpress/block-editor';
 import { withInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
-import JetpackFieldControls from './jetpack-field-controls';
+import JetpackFieldWidth from './jetpack-field-width';
+import JetpackFieldCss from './jetpack-field-css';
 
 const JetpackFieldConsent = ( {
 	id,
 	instanceId,
-	required,
 	width,
 	consentType,
 	implicitConsentMessage,
@@ -32,7 +32,7 @@ const JetpackFieldConsent = ( {
 						<input className="jetpack-field-consent__checkbox" type="checkbox" disabled />
 					) }
 					<JetpackFieldLabel
-						required={ required }
+						required={ false }
 						label={
 							{
 								implicit: implicitConsentMessage,
@@ -43,12 +43,14 @@ const JetpackFieldConsent = ( {
 						labelFieldName={ `${ consentType }ConsentMessage` }
 						placeholder={ sprintf( __( 'Add %s consent message…', 'jetpack' ), consentType ) }
 					/>
-					<JetpackFieldControls
-						id={ id }
-						required={ required }
-						width={ width }
-						setAttributes={ setAttributes }
-					/>
+					<InspectorControls>
+						<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
+							<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
+						</PanelBody>
+					</InspectorControls>
+					<InspectorAdvancedControls>
+						<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
+					</InspectorAdvancedControls>
 					<InspectorControls>
 						<PanelBody title={ __( 'Consent Settings', 'jetpack' ) }>
 							<BaseControl>
