@@ -88,7 +88,6 @@ const UpgradePlanBanner = ( {
 					onClick={ goToCheckoutPage }
 					className="is-primary"
 					label={ buttonText }
-					title={ buttonText }
 				>
 					{ buttonText }
 				</Button>
