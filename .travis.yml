@@ -80,16 +80,8 @@ matrix:
       - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' yarn test-client
       - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' yarn test-gui
       - yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
-      - ls -la .
-      - ls -la coverage
     after_script:
-      # - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
-      - ./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.backend.json clover.xml # Format backend coverage
-      - ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.frontend.json coverage/lcov.info  # Format frontend coverage
-
-      - ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p 2                  # Sum both coverage parts into coverage/codeclimate.json
-      - if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then ./cc-test-reporter upload-coverage; fi  # Upload coverage/codeclimate.json
-
+      - ./tests/process-coverage.sh
 
   - php: "7.0"
     name: "Legacy full sync"
