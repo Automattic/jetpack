@@ -79,8 +79,6 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
-	const prevMediaCount = useRef( 0 );
-
 	const onLoadMoreClick = () => {
 		if ( media.length ) {
 			setFocused( media.length );
