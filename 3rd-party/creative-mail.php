@@ -32,7 +32,8 @@ function try_install() {
 
 	check_admin_referer( 'creative-mail-install' );
 
-	$result = false;
+	$result   = false;
+	$redirect = admin_url( 'edit.php?post_type=feedback' );
 
 	// Attempt to install and activate the plugin.
 	if ( current_user_can( 'activate_plugins' ) ) {
