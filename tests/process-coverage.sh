@@ -3,6 +3,11 @@
 ./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.backend.json coverage/clover.xml # Format backend coverage
 ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.frontend.json coverage/lcov.info  # Format frontend coverage
 
+
+ls -la coverage/packages
+ls -la coverage
+ls -la .
+cat coverage/clover.xml
 export PACKAGES='./coverage/packages/*-clover.xml'
 for PACKAGE in $PACKAGES
 do
