@@ -43,25 +43,39 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				return $media_file;
 			}
 			$attachment_id = $media_file['id'];
-			$image         = wp_get_attachment_image_src( $attachment_id, EMBED_SIZE, false );
-			if ( ! $image ) {
-				return $media_file;
+			if ( 'image' === $media_file['type'] ) {
+				$image = wp_get_attachment_image_src( $attachment_id, EMBED_SIZE, false );
+				if ( ! $image ) {
+					return $media_file;
+				}
+				list( $src, $width, $height ) = $image;
+				$image_meta                   = wp_get_attachment_metadata( $attachment_id );
+				if ( ! is_array( $image_meta ) ) {
+					return $media_file;
+				}
+				$size_array = array( absint( $width ), absint( $height ) );
+				return array_merge(
+					$media_file,
+					array(
+						'width'  => absint( $width ),
+						'height' => absint( $height ),
+						'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
+						'sizes'  => '(max-width: 169px) 169w, (max-width: 576px) 576w, (max-width: 768px) 768w, 1080w',
+					)
+				);
+			} else {
+				$video_meta = wp_get_attachment_metadata( $attachment_id );
+				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['width'] ) ) {
+					return $media_file;
+				}
+				return array_merge(
+					$media_file,
+					array(
+						'width'  => absint( $video_meta['width'] ),
+						'height' => absint( $video_meta['height'] ),
+					)
+				);
 			}
-			list( $src, $width, $height ) = $image;
-			$image_meta                   = wp_get_attachment_metadata( $attachment_id );
-			if ( ! is_array( $image_meta ) ) {
-				return $media_file;
-			}
-			$size_array = array( absint( $width ), absint( $height ) );
-			return array_merge(
-				$media_file,
-				array(
-					'width'  => absint( $width ),
-					'height' => absint( $height ),
-					'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-					'sizes'  => '(max-width: 169px) 169w, (max-width: 576px) 576w, (max-width: 768px) 768w, 1080w',
-				)
-			);
 		},
 		$media_files
 	);
