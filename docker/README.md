@@ -152,6 +152,16 @@ This command runs the tests as a multi site install
 yarn docker:phpunit:multisite --filter=Protect
 ```
 
+For all package unit tests
+```sh
+yarn docker:phpunit:package
+```
+
+For a specific package's tests
+```sh
+yarn docker:phpunit:package autoloader
+```
+
 ### Starting over
 
 To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
