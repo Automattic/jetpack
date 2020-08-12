@@ -118,6 +118,7 @@ AUTOLOADER_COMMENT;
 			'class-manifest-handler.php'   => null,
 			'class-plugins-handler.php'    => null,
 			'class-version-selector.php'   => null,
+			'class-version-loader.php'     => null,
 		);
 		$this->io->writeError( "<info>Generated Class Files ($loaderDir)</info>" );
 		foreach ( $packageFiles as $file => $newName ) {
