@@ -42,11 +42,13 @@ function autoloader( $class_name ) {
 	// We've already sorted $jetpack_packages_psr4 so we can assume that the most-specific
 	// namespace will appear in the list first and can just iterate on the array.
 	foreach ( $jetpack_packages_psr4 as $namespace => $package ) {
-		$directory = $package['path'];
-		$len       = strlen( $namespace );
+		$len = strlen( $namespace );
 		if ( substr( $class_name, 0, $len ) === $namespace ) {
-			require_once $directory . str_replace( '\\', '/', substr( $class_name, $len ) ) . '.php';
-			return true;
+			$file = $package['path'] . '/' . str_replace( '\\', '/', substr( $class_name, $len ) ) . '.php';
+			if ( file_exists( $file ) ) {
+				require_once $file;
+				return true;
+			}
 		}
 	}
 
