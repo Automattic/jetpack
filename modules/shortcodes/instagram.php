@@ -14,6 +14,8 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 
 /**
  * Embed Reversal for Instagram
@@ -161,49 +163,23 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 		$url_args['hidecaption'] = 'true';
 	}
 
-	$url = esc_url_raw( add_query_arg( $url_args, 'https://api.instagram.com/oembed/' ) );
-
-	/**
-	 * Filter Object Caching for response from Instagram.
-	 *
-	 * Allow enabling of object caching for the response sent by Instagram when querying for Instagram image HTML.
-	 *
-	 * @module shortcodes
-	 *
-	 * @since  3.3.0
-	 *
-	 * @param        bool        false Object caching is off by default.
-	 * @param array  $matches    Array of Instagram URLs found in the post.
-	 * @param array  $atts       Instagram Shortcode attributes.
-	 * @param string $passed_url Instagram API URL.
-	 */
-	$response_body_use_cache = apply_filters( 'instagram_cache_oembed_api_response_body', false, $matches, $atts, $passed_url );
-	$response_body           = false;
-	if ( $response_body_use_cache ) {
-		$cache_key     = 'oembed_response_body_' . md5( $url );
-		$response_body = wp_cache_get( $cache_key, 'instagram_embeds' );
-	}
+	$use_cache     = jetpack_instagram_use_cache( $matches, $atts, $passed_url );
+	$cache_key     = 'oembed_response_body_' . md5( add_query_arg( $url_args, 'https://api.instagram.com/oembed/' ) );
+	$response_body = $use_cache
+		? wp_cache_get( $cache_key, 'instagram_embeds' )
+		: false;
 
 	if ( ! $response_body ) {
-		// Not using cache (default case) or cache miss.
-		$instagram_response = wp_remote_get( $url, array( 'redirection' => 0 ) );
-		if (
-			is_wp_error( $instagram_response )
-			|| 200 !== $instagram_response['response']['code']
-			|| empty( $instagram_response['body'] ) ) {
-			return '<!-- instagram error: invalid instagram resource -->';
-		}
+		$response_body = jetpack_instagram_fetch_embed( $url_args );
+	}
 
-		$response_body = json_decode( $instagram_response['body'] );
-		if ( $response_body_use_cache ) {
-			// if caching it is short-lived since this is a "Cache-Control: no-cache" resource.
-			wp_cache_set(
-				$cache_key,
-				$response_body,
-				'instagram_embeds',
-				HOUR_IN_SECONDS + wp_rand( 0, HOUR_IN_SECONDS )
-			);
-		}
+	if ( $use_cache ) {
+		wp_cache_set(
+			$cache_key,
+			$response_body,
+			'instagram_embeds',
+			HOUR_IN_SECONDS + wp_rand( 0, HOUR_IN_SECONDS )
+		);
 	}
 
 	if ( ! empty( $response_body->html ) ) {
@@ -218,6 +194,76 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	}
 
 	return '<!-- instagram error: no embed found -->';
+}
+
+/**
+ * Should the request to fetch embed information be cached?
+ *
+ * @param array  $matches    Array of matches from the regex.
+ * @param array  $atts       The original unmodified attributes.
+ * @param string $passed_url The original URL that was matched by the regex.
+ *
+ * @return bool
+ */
+function jetpack_instagram_use_cache( $matches, $atts, $passed_url ) {
+	/**
+	 * Filter Object Caching for response from Instagram.
+	 *
+	 * Allow enabling of object caching for the response sent by Instagram when querying for Instagram image HTML.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since  3.3.0
+	 *
+	 * @param        bool        false Object caching is off by default.
+	 * @param array  $matches    Array of Instagram URLs found in the post.
+	 * @param array  $atts       Instagram Shortcode attributes.
+	 * @param string $passed_url Instagram API URL.
+	 */
+	return apply_filters( 'instagram_cache_oembed_api_response_body', false, $matches, $atts, $passed_url );
+}
+
+/**
+ * Handles the logic for actually fetching information for an Instagram embed, conditionally proxying the
+ * request through the WordPress.com API if this is not a WordPress.com site.
+ *
+ * @param array $args An array of arguments to pass to the embed API.
+ *
+ * @return mixed A HTML comment (string) if errored or an object.
+ */
+function jetpack_instagram_fetch_embed( $args ) {
+	if ( Constants::is_defined( 'IS_WPCOM' ) && Constants::get_constant( 'IS_WPCOM' ) ) {
+		$url      = esc_url_raw(
+			add_query_arg(
+				$args,
+				'https://api.instagram.com/oembed/'
+			)
+		);
+		$response = wp_remote_get( $url, array( 'redirection' => 0 ) );
+	} else {
+		if ( ! Jetpack::is_active() ) {
+			return '<!-- instagram error: Jetpack is not connected -->';
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			'/oembed-proxy/instagram?' . http_build_query( $args ),
+			'2',
+			array(),
+			null,
+			'wpcom'
+		);
+	}
+
+	$response_body = json_decode( wp_remote_retrieve_body( $response ) );
+	if (
+		is_wp_error( $response )
+		|| 200 !== wp_remote_retrieve_response_code( $response )
+		|| empty( $response_body )
+	) {
+		return '<!-- instagram error: invalid instagram resource -->';
+	}
+
+	return $response_body;
 }
 
 /**
