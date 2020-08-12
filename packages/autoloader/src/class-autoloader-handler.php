@@ -16,7 +16,8 @@ class Autoloader_Handler {
 	 */
 	const V2_AUTOLOADER_BASE = 'Automattic\Jetpack\Autoloader\jp';
 
-	const AUTOLOAD_GENERATOR_CLASS_NAME = 'Automattic\Jetpack\Autoloader\AutoloadGenerator';
+	const AUTOLOAD_GENERATOR_NAMESPACE  = 'Automattic\Jetpack\Autoloader';
+	const AUTOLOAD_GENERATOR_CLASS_NAME = self::AUTOLOAD_GENERATOR_NAMESPACE . '\AutoloadGenerator';
 
 	/**
 	 * The Plugins_Handler object.
@@ -58,18 +59,32 @@ class Autoloader_Handler {
 		$active_plugins_paths = $this->plugins_handler->get_all_active_plugins_paths();
 
 		foreach ( $active_plugins_paths as $plugin_path ) {
-			$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
+			$compare_version = null;
 
-			if ( file_exists( $classmap_path ) ) {
-				$packages = require $classmap_path;
-
-				$compare_version = $packages[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
-				$compare_path    = trailingslashit( $plugin_path ) . 'vendor/autoload_packages.php';
-
-				if ( $this->version_selector->is_version_update_required( $selected_autoloader_version, $compare_version ) ) {
-					$selected_autoloader_version = $compare_version;
-					$selected_autoloader_path    = $compare_path;
+			// Check both the PSR-4 and classmap files for our generator.
+			$psr4_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_psr4.php';
+			if ( file_exists( $psr4_path ) ) {
+				$psr4 = require $psr4_path;
+				if ( isset( $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ] ) ) {
+					$compare_version = $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ]['version'];
 				}
+			}
+
+			$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
+			if ( ! isset( $compare_version ) && file_exists( $classmap_path ) ) {
+				$classmap = require $classmap_path;
+				if ( isset( $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ] ) ) {
+					$compare_version = $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
+				}
+			}
+
+			if ( ! isset( $compare_version ) ) {
+				continue;
+			}
+
+			if ( $this->version_selector->is_version_update_required( $selected_autoloader_version, $compare_version ) ) {
+				$selected_autoloader_version = $compare_version;
+				$selected_autoloader_path    = trailingslashit( $plugin_path ) . 'vendor/autoload_packages.php';
 			}
 		}
 
