@@ -9,6 +9,7 @@ import { some } from 'lodash';
  */
 import {
 	createElement,
+	useRef,
 	useState,
 	useEffect,
 	useLayoutEffect,
@@ -32,9 +33,10 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	const [ muted, setMuted ] = useState( settings.startMuted );
 	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
 
+	const wrapperRef = useRef();
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
 	const [ resizeListener, { width, height } ] = useResizeObserver();
-	const [ targetAspectRatio, setTargetAspectRatio ] = useState( null );
+	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
 
 	const uploading = some( slides, media => isBlobURL( media.url ) );
 	const showProgressBar = fullscreen || ! settings.showSlideCount;
@@ -95,20 +97,26 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	}, [] );
 
 	useLayoutEffect( () => {
-		if ( height ) {
-			setMaxSlideWidth(
-				Math.round( settings.defaultAspectRatio * height * ( 1 + settings.cropUpTo ) )
-			);
+		const wrapperHeight = ( wrapperRef.current && wrapperRef.current.offsetHeight ) || height;
+		const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
+		if ( ! fullscreen ) {
+			setMaxSlideWidth( ratioBasedWidth );
+		} else {
+			const newMaxSlideWidth =
+				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
+			setMaxSlideWidth( newMaxSlideWidth );
 		}
-	}, [ height ] );
+	}, [ width, height, fullscreen ] );
 
-	useEffect( () => {
-		const aspectRatio = height > 0 ? width / height : settings.defaultAspectRatio;
-		setTargetAspectRatio( aspectRatio );
+	useLayoutEffect( () => {
+		if ( wrapperRef.current ) {
+			setTargetAspectRatio( wrapperRef.current.offsetWidth / wrapperRef.current.offsetHeight );
+		}
 	}, [ width, height ] );
 
 	return (
 		<>
+			{ resizeListener }
 			<div
 				className={ classNames( 'wp-story-container', {
 					'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
@@ -123,8 +131,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					fullscreen={ fullscreen }
 					onExitFullscreen={ onExitFullscreen }
 				/>
-				<div className="wp-story-wrapper">
-					{ resizeListener }
+				<div className="wp-story-wrapper" ref={ wrapperRef }>
 					{ slides.map( ( media, index ) => (
 						<Slide
 							key={ index }

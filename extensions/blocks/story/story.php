@@ -44,7 +44,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 			}
 			$attachment_id = $media_file['id'];
 			if ( 'image' === $media_file['type'] ) {
-				$image = wp_get_attachment_image_src( $attachment_id, EMBED_SIZE, false );
+				$image = wp_get_attachment_image_src( $attachment_id, 'full', false );
 				if ( ! $image ) {
 					return $media_file;
 				}
@@ -60,7 +60,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 						'width'  => absint( $width ),
 						'height' => absint( $height ),
 						'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-						'sizes'  => '(max-width: 169px) 169w, (max-width: 576px) 576w, (max-width: 768px) 768w, 1080w',
+						'sizes'  => '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw', // 120vw to match the 20% upToCrop ratio
 					)
 				);
 			} else {
