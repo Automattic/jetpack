@@ -3,7 +3,12 @@ Paid Blocks
 
 This shared extension takes over providing additional behavior to a block if it considered to be a paid feature.
 
-This condition can depend on a few factors: is it a simple or atomic site? have the have site a paid or free plan? However, from the perspective of paid-blocks implementation, it relies on the business-layer system.
+This condition can depend on a few factors: 
+
+* is the site a Simple or Atomic site? 
+* does the site have site a paid or free plan? 
+
+From the perspective of paid-blocks implementation however, our logic relies on the business-layer system.
 
 Ultimately, the feature defines the availability of the blocks by checking data from the Jetpack global state provide on the client-side within the global `Jetpack_Editor_Initial_State` object.
 
