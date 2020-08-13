@@ -19,6 +19,7 @@ import MediaBrowser from '../../media-browser';
 import { getApiUrl } from '../api';
 import GoogleFilterOption from './filter-option';
 import GoogleFilterView from './filter-view';
+import GooglePhotosAccount from './google-photos-account';
 import Breadcrumbs from './breadcrumbs';
 import getFilterRequest from './filter-request';
 
@@ -26,16 +27,18 @@ const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] =
 
 function GooglePhotosMedia( props ) {
 	const {
-		media,
+		account,
+		allowedTypes,
+		copyMedia,
+		getMedia,
 		isCopying,
 		isLoading,
-		pageHandle,
+		media,
 		multiple,
 		onChangePath,
-		getMedia,
-		allowedTypes,
+		pageHandle,
 		path,
-		copyMedia,
+		setAuthenticated,
 		showAdditionalFilters = false,
 	} = props;
 
@@ -124,6 +127,10 @@ function GooglePhotosMedia( props ) {
 						<Breadcrumbs path={ path } setPath={ setPath } />
 					) }
 				</div>
+
+				{ ( ! isLoading || media.length > 0 ) && (
+					<GooglePhotosAccount account={ account } setAuthenticated={ setAuthenticated } />
+				) }
 			</div>
 
 			<MediaBrowser

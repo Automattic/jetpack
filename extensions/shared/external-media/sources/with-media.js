@@ -27,7 +27,13 @@ export default function withMedia() {
 			constructor( props ) {
 				super( props );
 
+				this.defaultAccount = {
+					image: '',
+					name: '',
+				};
+
 				this.state = {
+					account: this.defaultAccount,
 					media: [],
 					nextHandle: false,
 					isLoading: false,
@@ -100,6 +106,7 @@ export default function withMedia() {
 
 				this.setState(
 					{
+						account: resetMedia ? this.defaultAccount : this.state.account,
 						isLoading: true,
 						media: resetMedia ? [] : this.state.media,
 						nextHandle: resetMedia ? false : this.state.nextHandle,
@@ -152,6 +159,7 @@ export default function withMedia() {
 				} )
 					.then( result => {
 						this.setState( {
+							account: result.meta.account,
 							media: this.mergeMedia( media, result.media ),
 							nextHandle: result.meta.next_page,
 							isLoading: false,
@@ -223,7 +231,15 @@ export default function withMedia() {
 			};
 
 			render() {
-				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
+				const {
+					account,
+					isAuthenticated,
+					isCopying,
+					isLoading,
+					media,
+					nextHandle,
+					path,
+				} = this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const title = isCopying
@@ -257,6 +273,7 @@ export default function withMedia() {
 							</p>
 
 							<OriginalComponent
+								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
 								isCopying={ isCopying }
