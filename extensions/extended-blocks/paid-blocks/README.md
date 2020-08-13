@@ -7,7 +7,7 @@ This condition can depend on a few factors: is it a simple or atomic site? have 
 
 Ultimately, the feature defines the availability of the blocks by checking data from the Jetpack global state provide on the client-side within the global `Jetpack_Editor_Initial_State` object.
 
-In short and as a generic rule, if you need to set a block as the paid, you should do it in the proper place not here.
+In short and as a general rule, if you need to set a block as paid, you should do it in the proper place not here.
 
 ### Setting blocks as paid in Jetpack
 
