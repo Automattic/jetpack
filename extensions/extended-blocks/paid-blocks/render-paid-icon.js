@@ -7,6 +7,7 @@ import { cloneElement } from '@wordpress/element';
  * Internal dependencies
  */
 import PaidSymbol from './paid-symbol';
+import { isUpgradable } from "../../shared/plan-utils";
 
 /**
  * Enhance the default block icon with a paid indicator
@@ -31,3 +32,19 @@ const renderPaidIcon = icon => {
 };
 
 export default renderPaidIcon;
+
+/**
+ * Helper function to extend the given icon.
+ * checking before if the block is upgradable.
+ *
+ * @param {string} name - Block name to check if it's upgradable.
+ * @param {object} icon - Icon to extend, or not.
+ * @returns {object} Block Icon.
+ */
+export function extendWithPaidIcon ( name, icon ) {
+	if ( ! isUpgradable( name ) ) {
+		return icon;
+	}
+
+	return renderPaidIcon( icon );
+}
