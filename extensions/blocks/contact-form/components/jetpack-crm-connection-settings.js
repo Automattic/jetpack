@@ -1,17 +1,21 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { get } from 'lodash';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, PanelRow, PanelBody, Spinner, ToggleControl } from '@wordpress/components';
+import { Button, PanelRow, PanelBody, Spinner, ToggleControl } from '@wordpress/components';
 import semver from 'semver';
 
 /**
  * Internal dependencies
  */
 import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
+import {
+	getPlugins,
+	installAndActivatePlugin,
+	activatePlugin,
+} from '../../../shared/plugin-management';
 
 function CRMConnectionSettings( props ) {
 	const pluginState = Object.freeze( {
@@ -19,6 +23,9 @@ function CRMConnectionSettings( props ) {
 		INSTALLED: 2,
 		NOT_INSTALLED: 3,
 	} );
+	const pluginSlug = 'zero-bs-crm';
+	const pluginFile = 'zero-bs-crm/ZeroBSCRM.php';
+	const pluginLongSlug = 'zero-bs-crm/ZeroBSCRM';
 
 	const { jetpackCRM, setAttributes } = props;
 
@@ -29,9 +36,7 @@ function CRMConnectionSettings( props ) {
 	useEffect( () => {
 		setIsFetchingPlugins( true );
 
-		apiFetch( {
-			path: '/jetpack/v4/plugins',
-		} )
+		getPlugins()
 			.then( result => {
 				if ( result.error ) {
 					throw result.message;
@@ -46,15 +51,37 @@ function CRMConnectionSettings( props ) {
 	let jetpackCRMPlugin = pluginState.NOT_INSTALLED;
 	let jetpackCRMVersion = null;
 
-	if ( get( plugins, [ 'zero-bs-crm/ZeroBSCRM.php' ] ) ) {
-		jetpackCRMVersion = semver.coerce( get( plugins, [ 'zero-bs-crm/ZeroBSCRM.php', 'Version' ] ) );
+	if ( get( plugins, [ pluginFile ] ) ) {
+		jetpackCRMVersion = semver.coerce( get( plugins, [ pluginFile, 'Version' ] ) );
 
-		if ( get( plugins, [ 'zero-bs-crm/ZeroBSCRM.php', 'active' ] ) ) {
+		if ( get( plugins, [ pluginFile, 'active' ] ) ) {
 			jetpackCRMPlugin = pluginState.ACTIVE;
 		} else {
 			jetpackCRMPlugin = pluginState.INSTALLED;
 		}
 	}
+
+	const installAndActivateCRM = () => {
+		installAndActivatePlugin( pluginSlug )
+			.then( result => {
+				if ( result.error ) {
+					throw result.message;
+				}
+				jetpackCRMPlugin = pluginState.ACTIVE;
+			} )
+			.catch( () => setError( true ) );
+	};
+
+	const activateCRM = () => {
+		activatePlugin( pluginLongSlug )
+			.then( result => {
+				if ( result.error ) {
+					throw result.message;
+				}
+				jetpackCRMPlugin = pluginState.ACTIVE;
+			} )
+			.catch( () => setError( true ) );
+	};
 
 	const getText = () => {
 		if ( jetpackCRMVersion ) {
@@ -88,29 +115,31 @@ function CRMConnectionSettings( props ) {
 				return null;
 			} else if ( pluginState.INSTALLED === jetpackCRMPlugin ) {
 				return (
-					<p className="jetpack-contact-form__crm_text">
-						{ __(
-							'Activate Jetpack CRM to save contacts from this contact form in your Jetpack CRM.',
-							'jetpack'
-						) }
-					</p>
+					<>
+						<p className="jetpack-contact-form__crm_text">
+							{ __(
+								'You can use Jetpack CRM to save contacts from this contact form in your Jetpack CRM.',
+								'jetpack'
+							) }
+						</p>
+						<Button isSecondary onClick={ activateCRM }>
+							{ __( 'Activate now', 'jetpack' ) }
+						</Button>
+					</>
 				);
 			}
 		}
 
 		// Either no valid version or Jetpack CRM is not installed.
 		return (
-			<p className="jetpack-contact-form__crm_text">
-				{ jetpackCreateInterpolateElement(
-					__(
-						'You can save contacts from Jetpack contact forms in Jetpack CRM. Learn more at <a>jetpackcrm.com</a>',
-						'jetpack'
-					),
-					{
-						a: <ExternalLink href="https://jetpackcrm.com" />,
-					}
-				) }
-			</p>
+			<>
+				<p className="jetpack-contact-form__crm_text">
+					{ __( 'You can save contacts from Jetpack contact forms in Jetpack CRM.', 'jetpack' ) }
+				</p>
+				<Button isSecondary onClick={ installAndActivateCRM }>
+					{ __( 'Install and activate the Jetpack CRM plugin now', 'jetpack' ) }
+				</Button>
+			</>
 		);
 	};
 
