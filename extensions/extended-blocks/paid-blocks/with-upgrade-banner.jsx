@@ -13,7 +13,11 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { isStillUsableWithFreePlan, isUpgradable } from '../../shared/plan-utils';
+import {
+	isStillUsableWithFreePlan,
+	getUsableBlockProps,
+	isUpgradable,
+} from '../../shared/plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { PaidBlockProvider } from './components';
 
@@ -24,6 +28,7 @@ export default createHigherOrderComponent(
 		}
 
 		const isDualMode = isStillUsableWithFreePlan( props?.name );
+		const usableBlocksProps = getUsableBlockProps( props?.name );
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 
@@ -49,6 +54,7 @@ export default createHigherOrderComponent(
 					title={ null }
 					align={ props?.attributes?.align }
 					visible={ isBannerVisible }
+					description={ usableBlocksProps?.description || undefined }
 				/>
 
 				<BlockListBlock { ...props } className={ listBlockCSSClass } />

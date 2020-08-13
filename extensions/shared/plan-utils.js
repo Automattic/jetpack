@@ -7,6 +7,7 @@ import { compact, get, startsWith, map, filter, head } from 'lodash';
  * WordPress dependencies
  */
 import { addQueryArgs } from '@wordpress/url';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -95,12 +96,14 @@ const usableBlockWithFreePlan = [
 		mediaPlaceholder: true,
 		mediaReplaceFlow: true,
 		fileType: 'video',
+		description: __( 'Upgrade your plan to use video covers', 'jetpack' ),
 	},
 	{
 		name: 'core/audio',
 		mediaPlaceholder: true,
 		mediaReplaceFlow: true,
 		fileType: 'audio',
+		description: __( 'Upgrade your plan to upload audio', 'jetpack' ),
 	},
 ];
 
