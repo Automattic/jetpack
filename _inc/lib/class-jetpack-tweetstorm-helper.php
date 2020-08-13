@@ -27,6 +27,11 @@ class Jetpack_Tweetstorm_Helper {
 			'content_attributes' => array( 'content' ),
 			'template'           => '{{content}}',
 		),
+		'core/list'      => array(
+			'type'               => 'multiline',
+			'content_attributes' => array( 'values' ),
+			'template'           => '- {{line}}',
+		),
 		'core/paragraph' => array(
 			'type'               => 'text',
 			'content_attributes' => array( 'content' ),
@@ -173,6 +178,7 @@ class Jetpack_Tweetstorm_Helper {
 					'blocks'     => array( $block ),
 					'boundaries' => $boundaries,
 					'current'    => $is_selected_block,
+					'content'    => $block_text,
 				);
 				continue;
 			}
@@ -182,6 +188,7 @@ class Jetpack_Tweetstorm_Helper {
 					'blocks'     => array( $block ),
 					'boundaries' => $boundaries,
 					'current'    => $is_selected_block,
+					'content'    => $block_text,
 				);
 				continue;
 			}
@@ -200,13 +207,15 @@ class Jetpack_Tweetstorm_Helper {
 				false
 			);
 
-			$tweet = $parser->parseTweet( "$last_tweet_text\n\n$block_text" );
+			$new_tweet_text = "$last_tweet_text\n\n$block_text";
+			$tweet          = $parser->parseTweet( $new_tweet_text );
 			if ( $tweet->permillage > 1000 ) {
 				$tweets[] = $last_tweet;
 				$tweets[] = array(
 					'blocks'     => array( $block ),
 					'boundaries' => $boundaries,
 					'current'    => $is_selected_block,
+					'content'    => $block_text,
 				);
 				continue;
 			}
@@ -216,6 +225,7 @@ class Jetpack_Tweetstorm_Helper {
 			}
 
 			$last_tweet['blocks'][] = $block;
+			$last_tweet['content']  = $new_tweet_text;
 			$tweets[]               = $last_tweet;
 		}
 
@@ -270,13 +280,26 @@ class Jetpack_Tweetstorm_Helper {
 
 		$block_def = self::$supported_blocks[ $block['name'] ];
 
-		$text = array_reduce(
-			$block_def['content_attributes'],
-			function( $current_text, $attribute ) use ( $block ) {
-				return str_replace( '{{' . $attribute . '}}', $block['attributes'][ $attribute ], $current_text );
-			},
-			$block_def['template']
-		);
+		if ( 'text' === $block_def['type'] ) {
+			$text = array_reduce(
+				$block_def['content_attributes'],
+				function( $current_text, $attribute ) use ( $block ) {
+					return str_replace( '{{' . $attribute . '}}', $block['attributes'][ $attribute ], $current_text );
+				},
+				$block_def['template']
+			);
+		} elseif ( 'multiline' === $block_def['type'] ) {
+			$text = array_reduce(
+				$block['splitAttributes'][ $block_def['content_attributes'][0] ],
+				function( $current_text, $line ) use ( $block_def ) {
+					if ( ! empty( $current_text ) ) {
+						$current_text .= "\n";
+					}
+					return $current_text . str_replace( '{{line}}', $line, $block_def['template'] );
+				},
+				''
+			);
+		}
 
 		return wp_strip_all_tags( $text );
 	}

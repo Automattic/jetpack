@@ -5,6 +5,7 @@ import { flatMap } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
+import { create, __UNSTABLE_LINE_SEPARATOR } from '@wordpress/rich-text';
 
 /**
  * Internal dependencies
@@ -16,6 +17,9 @@ import './editor.scss';
 const SUPPORTED_BLOCKS = {
 	'core/heading': {
 		contentAttributes: [ 'content' ],
+	},
+	'core/list': {
+		contentAttributes: [ 'values' ],
 	},
 	'core/paragraph': {
 		contentAttributes: [ 'content' ],
@@ -122,8 +126,22 @@ export default compose( [
 				const computeTweetBlocks = ( blocks = [] ) => {
 					return flatMap( blocks, ( block = {} ) => {
 						if ( SUPPORTED_BLOCKS[ block.name ] ) {
+							if ( 'core/list' === block.name ) {
+								return {
+									...block,
+									splitAttributes: {
+										values: create( {
+											html: block.attributes.values,
+											multilineTag: 'li',
+											multilineWrapperTags: [ 'ul', 'ol' ],
+										} ).text.split( __UNSTABLE_LINE_SEPARATOR ),
+									},
+								};
+							}
+
 							return block;
 						}
+
 						return computeTweetBlocks( block.innerBlocks );
 					} );
 				};
