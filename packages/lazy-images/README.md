@@ -4,8 +4,6 @@ Speed up your site and create a smoother viewing experience by loading images as
 
 ## Usage
 
-Retrieve device information.
-
 ```php
 /*
  * Initialize lazy images on the wp action so that conditional
@@ -23,7 +21,10 @@ add_action( 'wp', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'instance' 
 
 ## Development
 
-In order to develop on this code base you'll have to run the following commands. 
+Running tests requires working `svn`, `composer` and `yarn` commands.
+
+Once these are installed, you install the composer dependencies by running:
+
 ```bash
 $ yarn
 $ composer install --ignore-platform-reqs
@@ -35,12 +36,12 @@ The JavaScript file can be minified from the root of the Jetpack repository:
 
 ```bash
 $ cd ../../
-$ yarn build-packages 
+$ yarn build-packages
 ```
 
 ### Run PHP unit tests
 
-On a local development environment run: 
+On a local development environment run:
 ```bash
 $ composer phpunit-local
 ```
