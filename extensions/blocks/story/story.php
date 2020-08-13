@@ -172,10 +172,14 @@ function render_slide( $media, $index = 0 ) {
 function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$media_files = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
+	$media_files              = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
+	$settings_from_attributes = isset( $attributes['settings'] ) ? $attributes['settings'] : array();
 
-	$settings = array(
-		'slides' => with_width_height_srcset_and_sizes( $media_files ),
+	$settings = array_merge(
+		$settings_from_attributes,
+		array(
+			'slides' => with_width_height_srcset_and_sizes( $media_files ),
+		)
 	);
 
 	return sprintf(

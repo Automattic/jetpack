@@ -5,6 +5,7 @@
  * External dependencies
  */
 import classNames from 'classnames';
+import GridiconFullscreen from 'gridicons/dist/fullscreen';
 
 /**
  * WordPress dependencies
@@ -66,6 +67,11 @@ export default function Overlay( {
 				<div className="wp-story-embed-icon">
 					{ icon }
 					<span>{ slideCount }</span>
+				</div>
+			) }
+			{ ! icon && (
+				<div className="wp-story-embed-icon-expand">
+					<GridiconFullscreen />
 				</div>
 			) }
 			<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>

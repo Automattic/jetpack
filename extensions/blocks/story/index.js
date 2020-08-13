@@ -17,6 +17,9 @@ import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import storyExample1 from './story_example-1.png';
 
 const attributes = {
+	settings: {
+		type: 'object',
+	},
 	mediaFiles: {
 		type: 'array',
 		default: [],
@@ -24,7 +27,6 @@ const attributes = {
 };
 
 const exampleAttributes = {
-	align: 'center',
 	mediaFiles: [
 		{
 			alt: '',

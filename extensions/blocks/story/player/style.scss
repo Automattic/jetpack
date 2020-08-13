@@ -161,7 +161,8 @@
 			cursor: pointer;
 		}
 
-		.wp-story-embed-icon {
+		.wp-story-embed-icon,
+		.wp-story-embed-icon-expand {
 			position: absolute;
 			top: 0;
 			right: 0;
@@ -188,6 +189,14 @@
 				font-size: 16px;
 				font-weight: 600;
 				font-family: sans-serif;
+			}
+		}
+
+		.wp-story-embed-icon-expand {
+			background-color: transparent;
+
+			svg {
+				filter: drop-shadow( 0 0 2px rgba(0, 0, 0, .6) );
 			}
 		}
 	}
@@ -425,7 +434,8 @@
 				}
 			}
 
-			.wp-story-embed-icon {
+			.wp-story-embed-icon,
+			.wp-story-embed-icon-expand {
 				display: none;
 			}
 
