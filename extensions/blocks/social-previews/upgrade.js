@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { compact, get } from 'lodash';
+import { compact } from 'lodash';
 import { Button } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -16,6 +16,7 @@ import analytics from '../../../_inc/client/lib/analytics';
 import { isSimpleSite } from '../../shared/site-type-utils';
 import getSiteFragment from '../../shared/get-site-fragment';
 import upgradeImageUrl from './upgrade-illustration.svg';
+import { BUSINESS_PLAN } from '../../shared/components/upgrade-nudge/constants';
 
 const SocialPreviewsUpgrade = function SocialPreviewsUpgrade( {
 	autosaveAndRedirect,
@@ -75,11 +76,12 @@ const SocialPreviewsUpgrade = function SocialPreviewsUpgrade( {
 
 export default compose( [
 	withSelect( select => {
-		const plan = select( 'wordpress-com/plans' ).getPlan( 'business-bundle' );
-		const planPathSlug = get( plan, [ 'path_slug' ] );
-
+		const plan = select( 'wordpress-com/plans' ).getPlan( BUSINESS_PLAN );
 		const postId = select( 'core/editor' ).getCurrentPostId();
 		const postType = select( 'core/editor' ).getCurrentPostType();
+
+		const planPathSlug = plan?.path_slug;
+		const domain = getSiteFragment();
 
 		// The editor for CPTs has an `edit/` route fragment prefixed.
 		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
@@ -87,17 +89,13 @@ export default compose( [
 		// Post-checkout: redirect back here.
 		const redirect_to = isSimpleSite()
 			? addQueryArgs(
-					'/' +
-						compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
-							'/'
-						),
+					'/' + compact( [ postTypeEditorRoutePrefix, postType, domain, postId ] ).join( '/' ),
 					{
 						plan_upgraded: 1,
 					}
 			  )
 			: addQueryArgs(
-					window.location.protocol +
-						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
+					window.location.protocol + `//${ domain.replace( '::', '/' ) }/wp-admin/post.php`,
 					{
 						action: 'edit',
 						post: postId,
@@ -107,7 +105,7 @@ export default compose( [
 
 		const href =
 			planPathSlug &&
-			addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
+			addQueryArgs( `https://wordpress.com/checkout/${ domain }/${ planPathSlug }`, {
 				redirect_to,
 			} );
 
