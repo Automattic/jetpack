@@ -36,6 +36,7 @@ module.exports = [
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-search.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-tweetstorm-gather.php',
+	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-tweetstorm-parse.php',
 	'_inc/lib/core-api/wpcom-endpoints/memberships.php',
 	'_inc/lib/debugger/',
 	'_inc/lib/plans.php',
