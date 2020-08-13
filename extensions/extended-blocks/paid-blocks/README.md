@@ -1,7 +1,7 @@
 Paid Blocks
 ===========
 
-This shared extension takes over providing additional behavior to a block it's considered paid.
+This shared extension takes over providing additional behavior to a block if it considered to be a paid feature.
 
 This condition can depend on a few factors: is it a simple or atomic site? have the have site a paid or free plan? However, from the perspective of paid-blocks implementation, it relies on the business-layer system.
 
