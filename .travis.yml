@@ -52,24 +52,30 @@ matrix:
   #   language: node_js
   #   env: WP_TRAVISCI="yarn test-spelling"
 
-  - php: "nightly"
-    name: "PHP Nightly"
+  - name: "PHP Nightly"
+    php: "nightly"
 
   # Code Climate code coverage.
-  - php: "7.3"
-    name: "Code Coverage"
+  - name: "Code Coverage"
+    php: "7.3"
     env:
-      - WP_BRANCH=previous
+      - WP_BRANCH=latest
       - DO_COVERAGE=true
     before_script:
+      - export PATH="$HOME/.composer/vendor/bin:$PATH"
+      - export PLUGIN_SLUG=$(basename $(pwd))
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
-      - export PATH="$HOME/.composer/vendor/bin:$PATH"
-      - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
+      - nvm install 10
+      - yarn install
+    script:
+      - ./tests/run-travis.sh
+      - yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
+      - yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
     after_script:
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
+      - ./tests/process-coverage.sh
 
   - php: "7.0"
     name: "Legacy full sync"

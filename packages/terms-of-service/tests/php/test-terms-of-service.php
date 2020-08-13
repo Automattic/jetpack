@@ -38,7 +38,7 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * Tests the agree function.
 	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service->agree
+	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_agree() {
 		$this->mock_function( 'do_action', null, 'jetpack_agreed_to_terms_of_service' );
@@ -50,7 +50,7 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * Tests the revoke function.
 	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service->revoke
+	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_revoke() {
 		$this->mock_function( 'do_action', null, 'jetpack_reject_terms_of_service' );
@@ -62,7 +62,7 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * Tests if has_agreed returns correctly if TOS not agreed to.
 	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
+	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_returns_false_if_not_agreed() {
 		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
@@ -72,7 +72,7 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * Tests if has_agreed returns corrected if agreed but in dev mode.
 	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
+	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_returns_false_if_has_agreed_but_is_offline_mode() {
 		// is_offline_mode.
@@ -84,7 +84,7 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * Tests has_agreed if active but not agreed.
 	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
+	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_returns_true_if_active_even_if_not_agreed() {
 		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
