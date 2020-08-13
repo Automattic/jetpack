@@ -54,7 +54,7 @@ export default createHigherOrderComponent(
 					title={ null }
 					align={ props?.attributes?.align }
 					visible={ isBannerVisible }
-					description={ usableBlocksProps?.description || undefined }
+					description={ usableBlocksProps?.description }
 				/>
 
 				<BlockListBlock { ...props } className={ listBlockCSSClass } />
