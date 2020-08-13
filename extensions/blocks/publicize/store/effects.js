@@ -49,12 +49,12 @@ async function __refreshTweets( action, store ) {
 /**
  * Effect handler which will refreshing the state of the tweets..
  *
- * @param {Object} action Action which had initiated the effect handler.
- * @param {Object} store  Store instance.
+ * @param {object} action - Action which had initiated the effect handler.
+ * @param {object} store - Store instance.
  *
- * @return {Object} Refresh tweets results action.
+ * @returns {object} Refresh tweets results action.
  */
-export const refreshTweets = throttle( __refreshTweets, 2000, { leading: true, trailing: false } );
+export const refreshTweets = throttle( __refreshTweets, 2000, { leading: true, trailing: true } );
 
 export default {
 	REFRESH_CONNECTION_TEST_RESULTS: refreshConnectionTestResults,
