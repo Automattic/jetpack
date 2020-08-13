@@ -75,9 +75,8 @@ domReady( function () {
 
 		// Unregister block styles for all paid blocks.
 		each( stylesByPaidBlocks, blockName => {
-			each(
-				select( 'core/blocks' ).getBlockStyles( blockName ),
-				( { name } ) => unregisterBlockStyle( blockName, name )
+			each( select( 'core/blocks' ).getBlockStyles( blockName ), ( { name } ) =>
+				unregisterBlockStyle( blockName, name )
 			);
 		} );
 	}

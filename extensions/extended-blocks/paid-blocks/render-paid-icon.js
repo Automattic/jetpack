@@ -41,7 +41,7 @@ export default renderPaidIcon;
  * @param {object} icon - Icon to extend, or not.
  * @returns {object} Block Icon.
  */
-export function extendWithPaidIcon ( name, icon ) {
+export function extendWithPaidIcon( name, icon ) {
 	if ( ! isUpgradable( name ) ) {
 		return icon;
 	}

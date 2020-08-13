@@ -81,11 +81,15 @@ const UpgradePlanBanner = ( {
 	return (
 		<div className={ cssClasses } data-align={ align }>
 			{ title && (
-				<strong className={ classNames( 'banner-title', { [ `${ className }__title` ]: className } ) }>
+				<strong
+					className={ classNames( 'banner-title', { [ `${ className }__title` ]: className } ) }
+				>
 					{ title }
 				</strong>
 			) }
-			{ description && <span className={ `${ className }__description banner-description` }>{ description }</span> }
+			{ description && (
+				<span className={ `${ className }__description banner-description` }>{ description }</span>
+			) }
 			{ checkoutUrl && (
 				<Button
 					href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
