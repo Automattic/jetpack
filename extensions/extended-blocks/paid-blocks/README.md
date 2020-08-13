@@ -17,4 +17,4 @@ You can take a look at the Extension doc, [Paid Blocks](extensions/README.md#pai
 
 Sometimes some blocks need to be defined as paid because some of their features depend on the site plan, for instance, `core/video`. It's a core block.
 
-For these cases, set the extension in WordPress.com in the same way that a block registered by Jetpack, also add the dependency to the paid blocks list. Use D46955-code as a reference for how to do it. 
+For such cases, you will need to mark the extension as "paid" within the WordPress.com codebase (not within Jetpack). You will also need to add the dependency to the paid blocks list. Please refer to D46955-code as a reference for how to achieve this.
