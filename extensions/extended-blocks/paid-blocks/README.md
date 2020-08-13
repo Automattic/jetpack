@@ -5,7 +5,7 @@ This shared extension takes over providing additional behavior to a block if it 
 
 This condition can depend on a few factors: is it a simple or atomic site? have the have site a paid or free plan? However, from the perspective of paid-blocks implementation, it relies on the business-layer system.
 
-In the end, the feature will define the availability of the blocks, getting data from the Jetpack global state on the client-side `Jetpack_Editor_Initial_State`.
+Ultimately, the feature defines the availability of the blocks by checking data from the Jetpack global state provide on the client-side within the global `Jetpack_Editor_Initial_State` object.
 
 In short and as a generic rule, if you need to set a block as the paid, you should do it in the proper place not here.
 
