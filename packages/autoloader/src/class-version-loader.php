@@ -91,11 +91,11 @@ class Version_Loader {
 		}
 
 		// Don't bother with classes that have no namespace.
-		$class_namespace = strrpos( $class_name, '\\' );
-		if ( ! $class_namespace ) {
+		$class_index = strrpos( $class_name, '\\' );
+		if ( ! $class_index ) {
 			return null;
 		}
-		$class_namespace = substr( $class_name, 0, $class_namespace );
+		$class_namespace = substr( $class_name, 0, $class_index );
 		$class_for_path  = str_replace( '\\', '/', $class_name );
 
 		// Find the most-specific namespace for this class.

@@ -15,7 +15,7 @@
 		}
 	},
 	"extra": {
-		"class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+		"class": "Automattic\\Jetpack\\Autoloader\\Composer\\CustomAutoloaderPlugin"
 	},
 	"scripts": {
 		"phpunit": [

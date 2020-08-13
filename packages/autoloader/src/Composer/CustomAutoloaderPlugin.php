@@ -12,7 +12,7 @@
 // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-namespace Automattic\Jetpack\Autoloader;
+namespace Automattic\Jetpack\Autoloader\Composer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -99,7 +99,6 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @param Event $event Script event object.
 	 */
 	public function postAutoloadDump( Event $event ) {
-
 		$config = $this->composer->getConfig();
 
 		if ( 'vendor' !== $config->raw()['config']['vendor-dir'] ) {
