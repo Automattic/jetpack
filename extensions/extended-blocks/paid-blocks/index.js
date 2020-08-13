@@ -35,7 +35,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium', 'jetpack' ) ] );
 
-		// Extend BlockEdit function.
+		// Enhance BlockEdit function with HOC.
 		settings.edit = paidBlockEdit( settings.edit );
 
 		// Extend Icon for Paid blocks.
