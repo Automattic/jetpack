@@ -419,6 +419,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		 * @since 8.9.0
 		 *
 		 * @to-do: deprecate and switch to /wp/v2/plugins when WordPress 5.5 is the minimum required version.
+		 * Noting that the `source` parameter is Jetpack-specific (not implemented in Core).
 		 */
 		register_rest_route(
 			'jetpack/v4',
@@ -446,6 +447,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 							'enum'        => is_multisite() ? array( 'inactive', 'active', 'network-active' ) : array( 'inactive', 'active' ),
 							'default'     => 'inactive',
 						),
+						'source' => array(
+							'required'          => false,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
+						),
 					),
 				),
 			)
@@ -457,6 +463,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		 * @since 8.9.0
 		 *
 		 * @to-do: deprecate and switch to /wp/v2/plugins when WordPress 5.5 is the minimum required version.
+		 * Noting that the `source` parameter is Jetpack-specific (not implemented in Core).
 		 */
 		register_rest_route(
 			'jetpack/v4',
@@ -470,6 +477,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'required'          => true,
 						'type'              => 'string',
 						'validate_callback' => __CLASS__ . '::validate_activate_plugin',
+					),
+					'source' => array(
+						'required'          => false,
+						'type'              => 'string',
+						'validate_callback' => __CLASS__ . '::validate_string',
 					),
 				),
 			)
@@ -3480,6 +3492,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 *     @type string $slug   Plugin slug.
 	 *     @type string $status Plugin status.
+	 *     @type string $source Where did the plugin installation request originate.
 	 * }
 	 *
 	 * @return WP_REST_Response|WP_Error A response object if the installation and / or activation was successful, or a WP_Error object if it failed.
@@ -3533,9 +3546,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
+		$source      = ! empty( $request['source'] ) ? stripslashes( $request['source'] ) : 'rest_api';
 		$plugin_args = array(
 			'plugin' => $plugin_id,
 			'status' => 'active',
+			'source' => $source,
 		);
 		self::activate_plugin( $plugin_args );
 	}
@@ -3550,6 +3565,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 *     @type string $plugin Plugin long slug (slug/index-file)
 	 *     @type string $status Plugin status. We only support active in Jetpack.
+	 *     @type string $source Where did the plugin installation request originate.
 	 * }
 	 *
 	 * @return WP_REST_Response|WP_Error A response object if the activation was successful, or a WP_Error object if the activation failed.
@@ -3617,6 +3633,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( is_wp_error( $activated ) ) {
 			return $activated;
 		} else {
+			$source = ! empty( $request['source'] ) ? stripslashes( $request['source'] ) : 'rest_api';
+			/**
+			 * Fires when Jetpack installs a plugin for you.
+			 *
+			 * @since 8.9.0
+			 *
+			 * @param string $plugin_file Plugin file.
+			 * @param string $source      Where did the plugin installation originate.
+			 */
+			do_action( 'jetpack_activated_plugin', $plugin, $source );
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
