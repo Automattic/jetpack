@@ -15,7 +15,7 @@ h3.jetpack-publicize-twitter-options__heading {
 	.jetpack-publicize-twitter__tweet-divider-icon {
 		margin: 0 auto;
 		display: block;
-		background: #ddd;
+		background: #0009;
 		border-radius: 12px;
 		width: 24px;
 		height: 24px;
@@ -25,7 +25,7 @@ h3.jetpack-publicize-twitter-options__heading {
 			content: "";
 			width: 80px;
 			height: 1px;
-			background: #ddd;
+			background: #0009;
 			display: block;
 			position: absolute;
 			margin-top: 12px;
@@ -50,8 +50,25 @@ h3.jetpack-publicize-twitter-options__heading {
 }
 
 .annotation-text-jetpack-tweetstorm {
-	background: #ddd;
+	background: #0009;
 	width: 3px;
 	display: inline-block;
 	margin: 1px;
+}
+
+.is-dark-theme {
+	.jetpack-publicize-twitter__tweet-divider {
+		.jetpack-publicize-twitter__tweet-divider-icon {
+			background: #fff9;
+
+			&::before,
+			&::after {
+				background: #fff9;
+			}
+		}
+	}
+
+	.annotation-text-jetpack-tweetstorm {
+		background: #fff9;
+	}
 }
