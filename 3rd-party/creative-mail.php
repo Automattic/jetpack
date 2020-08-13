@@ -19,6 +19,7 @@ const PLUGIN_FILE = 'creative-mail-by-constant-contact/creative-mail-plugin.php'
 
 add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
 add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+add_action( 'jetpack_activated_plugin', __NAMESPACE__ . '\configure_plugin', 10, 2 );
 
 /**
  * Verify the intent to install Creative Mail, and kick off installation.
@@ -48,6 +49,8 @@ function try_install() {
 	}
 
 	if ( $result ) {
+		/** This action is already documented in _inc/lib/class.core-rest-api-endpoints.php */
+		do_action( 'jetpack_activated_plugin', PLUGIN_FILE, 'jitm' );
 		$redirect = admin_url( 'admin.php?page=creativemail' );
 	} else {
 		$redirect = add_query_arg( 'creative-mail-install-error', true, $redirect );
@@ -99,4 +102,27 @@ function error_notice() {
 		<p><?php esc_html_e( 'There was an error installing Creative Mail.', 'jetpack' ); ?></p>
 	</div>
 	<?php
+}
+
+/**
+ * Set some options when first activating the plugin via Jetpack.
+ *
+ * @since 8.9.0
+ *
+ * @param string $plugin_file Plugin file.
+ * @param string $source      Where did the plugin installation originate.
+ */
+function configure_plugin( $plugin_file, $source ) {
+	if ( PLUGIN_FILE !== $plugin_file ) {
+		return;
+	}
+
+	$plugin_info = array(
+		'plugin'  => 'jetpack',
+		'version' => JETPACK__VERSION,
+		'time'    => time(),
+		'source'  => esc_attr( $source ),
+	);
+
+	update_option( 'CE4WP_REFERRED_BY', $plugin_info );
 }
