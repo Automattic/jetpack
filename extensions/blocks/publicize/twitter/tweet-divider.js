@@ -14,6 +14,9 @@ import { SocialServiceIcon } from '../../../shared/icons';
 import './editor.scss';
 
 const SUPPORTED_BLOCKS = {
+	'core/heading': {
+		contentAttributes: [ 'content' ],
+	},
 	'core/paragraph': {
 		contentAttributes: [ 'content' ],
 	},

@@ -22,6 +22,11 @@ class Jetpack_Tweetstorm_Helper {
 	 * @var array
 	 */
 	private static $supported_blocks = array(
+		'core/heading'   => array(
+			'type'               => 'text',
+			'content_attributes' => array( 'content' ),
+			'template'           => '{{content}}',
+		),
 		'core/paragraph' => array(
 			'type'               => 'text',
 			'content_attributes' => array( 'content' ),
