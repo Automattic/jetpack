@@ -23,6 +23,9 @@ const SUPPORTED_BLOCKS = {
 	'core/quote': {
 		contentAttributes: [ 'value', 'citation' ],
 	},
+	'core/verse': {
+		contentAttributes: [ 'content' ],
+	},
 };
 
 /**

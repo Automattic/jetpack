@@ -37,6 +37,11 @@ class Jetpack_Tweetstorm_Helper {
 			'content_attributes' => array( 'value', 'citation' ),
 			'template'           => '“{{value}}” – {{citation}}',
 		),
+		'core/verse'     => array(
+			'type'               => 'text',
+			'content_attributes' => array( 'content' ),
+			'template'           => '{{content}}',
+		),
 	);
 
 	/**
