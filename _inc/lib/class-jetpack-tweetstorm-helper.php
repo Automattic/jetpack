@@ -27,6 +27,11 @@ class Jetpack_Tweetstorm_Helper {
 			'content_attributes' => array( 'content' ),
 			'template'           => '{{content}}',
 		),
+		'core/quote'     => array(
+			'type'               => 'text',
+			'content_attributes' => array( 'value', 'citation' ),
+			'template'           => '“{{value}}” – {{citation}}',
+		),
 	);
 
 	/**
@@ -118,10 +123,7 @@ class Jetpack_Tweetstorm_Helper {
 							$current_block_tweet++;
 							$split_block[ $current_block_tweet ] = '';
 
-							$boundaries[] = array(
-								'start' => $current_character_count - 1,
-								'end'   => $current_character_count,
-							);
+							$boundaries[] = self::get_boundary( $block, $current_character_count );
 						}
 
 						// Split the long sentence into words.
@@ -137,10 +139,7 @@ class Jetpack_Tweetstorm_Helper {
 								$split_block[ $current_block_tweet ] = $words[ $jj ];
 
 								// Offset one back for the extra space.
-								$boundaries[] = array(
-									'start' => $current_character_count - 2,
-									'end'   => $current_character_count - 1,
-								);
+								$boundaries[] = self::get_boundary( $block, $current_character_count - 1 );
 							} else {
 								$split_block[ $current_block_tweet ] .= " {$words[ $jj ]}";
 							}
@@ -153,10 +152,7 @@ class Jetpack_Tweetstorm_Helper {
 							$current_block_tweet++;
 							$split_block[ $current_block_tweet ] = $current_sentence;
 
-							$boundaries[] = array(
-								'start' => $current_character_count - 1,
-								'end'   => $current_character_count,
-							);
+							$boundaries[] = self::get_boundary( $block, $current_character_count );
 						} else {
 							$split_block[ $current_block_tweet ] .= $current_sentence;
 						}
@@ -217,6 +213,42 @@ class Jetpack_Tweetstorm_Helper {
 	}
 
 	/**
+	 * Given a block, and an offset of how many characters into the tweet that block generates,
+	 * this function calculates which attribute area (in the block editor, the richTextIdentifier)
+	 * that offset corresponds to, and how far into that attribute area it is.
+	 *
+	 * @param array   $block        The block being checked.
+	 * @param integer $total_offset The offset for the tweet this block generates.
+	 * @return array
+	 */
+	private static function get_boundary( $block, $total_offset ) {
+		$template_parts = preg_split( '/({{\w+}})/', self::$supported_blocks[ $block['name'] ]['template'], -1, PREG_SPLIT_DELIM_CAPTURE );
+
+		$current_character_count = 0;
+
+		foreach ( $template_parts as $part ) {
+			$matches = array();
+			if ( preg_match( '/{{(\w+)}}/', $part, $matches ) ) {
+				$attribute_name   = $matches[1];
+				$attribute_length = strlen( $block['attributes'][ $attribute_name ] );
+				if ( $current_character_count + $attribute_length >= $total_offset ) {
+					$attribute_offset = $total_offset - $current_character_count;
+					return array(
+						'start'     => $attribute_offset - 1,
+						'end'       => $attribute_offset,
+						'container' => $attribute_name,
+					);
+				} else {
+					$current_character_count += $attribute_length;
+					continue;
+				}
+			} else {
+				$current_character_count += strlen( $part );
+			}
+		}
+	}
+
+	/**
 	 * Extracts the tweetable text from a block.
 	 *
 	 * @param array $block The block, as represented in the block editor.
@@ -231,7 +263,7 @@ class Jetpack_Tweetstorm_Helper {
 		$text = array_reduce(
 			$block_def['content_attributes'],
 			function( $current_text, $attribute ) use ( $block ) {
-				return str_replace( '{{' . $attribute . '}}', $block['attributes']['content'], $current_text );
+				return str_replace( '{{' . $attribute . '}}', $block['attributes'][ $attribute ], $current_text );
 			},
 			$block_def['template']
 		);

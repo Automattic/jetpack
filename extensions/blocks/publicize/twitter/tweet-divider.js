@@ -13,19 +13,55 @@ import { SocialServiceIcon } from '../../../shared/icons';
 
 import './editor.scss';
 
+const SUPPORTED_BLOCKS = {
+	'core/paragraph': {
+		contentAttributes: [ 'content' ],
+	},
+	'core/quote': {
+		contentAttributes: [ 'value', 'citation' ],
+	},
+};
+
 /**
  * Class that wraps around the edit function for all blocks, adding various
  * enhancements to the block as they're needed.
  */
 class TweetDivider extends Component {
 	componentDidMount() {
-		this.props.updateTweets();
+		const { isTweetstorm, updateTweets } = this.props;
+		if ( isTweetstorm ) {
+			updateTweets();
+		}
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { boundaries, childProps, updateTweets, updateAnnotations } = this.props;
+		const { boundaries, childProps, isTweetstorm, updateTweets, updateAnnotations } = this.props;
 
-		if ( prevProps.childProps.attributes.content !== childProps.attributes.content ) {
+		if ( ! isTweetstorm ) {
+			return;
+		}
+
+		if ( ! SUPPORTED_BLOCKS[ childProps.name ] ) {
+			return;
+		}
+
+		// Check if any of the attributes of the child block that contain content have changed.
+		const changed = SUPPORTED_BLOCKS[ childProps.name ].contentAttributes.reduce(
+			( changeDetected, attribute ) => {
+				if ( changeDetected ) {
+					return true;
+				}
+
+				if ( childProps.attributes[ attribute ] !== prevProps.childProps.attributes[ attribute ] ) {
+					return true;
+				}
+
+				return false;
+			},
+			false
+		);
+
+		if ( changed ) {
 			updateTweets();
 		}
 
@@ -71,24 +107,15 @@ export default compose( [
 			boundaries: tweet && tweet.boundaries,
 		};
 	} ),
-	withDispatch( ( dispatch, { isTweetstorm, childProps }, { select } ) => {
-		if ( ! isTweetstorm ) {
-			return {
-				updateTweets: () => {},
-				updateAnnotations: () => {},
-			};
-		}
-
+	withDispatch( ( dispatch, { childProps }, { select } ) => {
 		return {
 			updateTweets: () => {
 				const topBlocks = select( 'core/editor' ).getBlocks();
 				const selectedBlocks = select( 'core/block-editor' ).getSelectedBlockClientIds();
 
-				const SUPPORTED_BLOCKS = [ 'core/paragraph' ];
-
 				const computeTweetBlocks = ( blocks = [] ) => {
 					return flatMap( blocks, ( block = {} ) => {
-						if ( SUPPORTED_BLOCKS.includes( block.name ) ) {
+						if ( SUPPORTED_BLOCKS[ block.name ] ) {
 							return block;
 						}
 						return computeTweetBlocks( block.innerBlocks );
@@ -115,11 +142,12 @@ export default compose( [
 				}
 
 				tweet.boundaries.forEach( boundary => {
+					const { container, ...range } = boundary;
 					dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
 						blockClientId: childProps.clientId,
 						source: 'jetpack-tweetstorm',
-						richTextIdentifier: 'content',
-						range: boundary,
+						richTextIdentifier: container,
+						range,
 					} );
 				} );
 			},
