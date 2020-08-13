@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Functions;
 
 /**
  * Class to handle sync for themes.
@@ -109,7 +110,7 @@ class Themes extends Module {
 	 * @param mixed  $old_value  Old value of the network option.
 	 * @param int    $network_id ID of the network.
 	 */
-	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
+	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$all_enabled_theme_slugs = array_keys( $value );
 
 		if ( count( $old_value ) > count( $value ) ) {
@@ -786,20 +787,11 @@ class Themes extends Module {
 	 * @return array Theme data.
 	 */
 	private function get_theme_support_info( $theme = null ) {
-		global $_wp_theme_features;
-
 		$theme_support = array();
 
 		// We are trying to get the current theme info.
 		if ( null === $theme ) {
 			$theme = wp_get_theme();
-
-			foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
-				$has_support = current_theme_supports( $theme_feature );
-				if ( $has_support ) {
-					$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
-				}
-			}
 		}
 
 		$theme_support['name']    = $theme->get( 'Name' );

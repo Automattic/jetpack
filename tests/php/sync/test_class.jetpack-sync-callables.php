@@ -99,6 +99,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'paused_themes'                    => Functions::get_paused_themes(),
 			'paused_plugins'                   => Functions::get_paused_plugins(),
 			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
+			'get_theme_support'                => Functions::get_theme_support(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -1164,7 +1165,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$functions = new Functions();
 		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 	}
-
 }
 
 function jetpack_recursive_banana() {
