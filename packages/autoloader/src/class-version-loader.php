@@ -52,23 +52,6 @@ class Version_Loader {
 	 */
 	public function set_psr4( $psr4_map ) {
 		$this->psr4_map = $psr4_map;
-
-		// Sort all of the namespaces longest-to-shortest so that the most-specific namespace is used for autoloading.
-		uksort(
-			$this->psr4_map,
-			function ( $a, $b ) {
-				$len_a = strlen( $a );
-				$len_b = strlen( $b );
-
-				if ( $len_a < $len_b ) {
-					return 1;
-				} elseif ( $len_b > $len_a ) {
-					return -1;
-				}
-
-				return 0;
-			}
-		);
 	}
 
 	/**
@@ -107,18 +90,28 @@ class Version_Loader {
 			return null;
 		}
 
-		foreach ( $this->psr4_map as $namespace => $data ) {
-			$len = strlen( $namespace );
-			if ( substr( $class_name, 0, $len ) !== $namespace ) {
+		// Don't bother with classes that have no namespace.
+		$class_namespace = strrpos( $class_name, '\\' );
+		if ( ! $class_namespace ) {
+			return null;
+		}
+		$class_namespace = substr( $class_name, 0, $class_namespace );
+		$class_for_path  = str_replace( '\\', '/', $class_name );
+
+		// Find the most-specific namespace for this class.
+		for ( ; ! empty( $class_namespace ); $class_namespace = substr( $class_namespace, 0, strrpos( $class_namespace, '\\' ) ) ) {
+			$namespace = $class_namespace . '\\';
+			if ( ! isset( $this->psr4_map[ $namespace ] ) ) {
 				continue;
 			}
+			$data = $this->psr4_map[ $namespace ];
 
 			foreach ( $data['path'] as $path ) {
-				$file = $path . '/' . str_replace( '\\', '/', substr( $class_name, $len ) ) . '.php';
-				if ( file_exists( $file ) ) {
+				$path .= '/' . substr( $class_for_path, strlen( $namespace ) ) . '.php';
+				if ( file_exists( $path ) ) {
 					return array(
 						'version' => $data['version'],
-						'path'    => $file,
+						'path'    => $path,
 					);
 				}
 			}

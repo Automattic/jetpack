@@ -5,7 +5,6 @@
  * @package automattic/jetpack-autoloader
  */
 
-use Jetpack\TestCase_ABC\Psr4_ClassName_ABC;
 use PHPUnit\Framework\TestCase;
 use Jetpack\TestCase_ABC\ClassName_ABC;
 

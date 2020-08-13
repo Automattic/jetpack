@@ -6,7 +6,7 @@
  * @package automattic/jetpack-autoloader
  */
 
-namespace Jetpack\TestCase_ABC;
+namespace Jetpack\TestCase_ABC\Psr4Folder;
 
 /**
  * Class ClassName_ABC.

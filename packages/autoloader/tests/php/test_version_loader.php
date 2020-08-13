@@ -67,9 +67,9 @@ class WP_Test_Version_Loader extends TestCase {
 			)
 		);
 
-		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4_ClassName_ABC' );
+		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
 
-		$this->assertEquals( __DIR__ . '/data/Psr4_ClassName_ABC.php', $file_path );
+		$this->assertEquals( __DIR__ . '/data/Psr4Folder/Psr4_ClassName_ABC.php', $file_path );
 	}
 
 	/**
@@ -90,9 +90,9 @@ class WP_Test_Version_Loader extends TestCase {
 			)
 		);
 
-		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4_ClassName_ABC' );
+		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
 
-		$this->assertEquals( __DIR__ . '/data/Psr4_ClassName_ABC.php', $file_path );
+		$this->assertEquals( __DIR__ . '/data/Psr4Folder/Psr4_ClassName_ABC.php', $file_path );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class WP_Test_Version_Loader extends TestCase {
 	public function test_find_class_file_returns_newer_classmap() {
 		$this->version_loader->set_class_map(
 			array(
-				'Jetpack\\TestCase_ABC\\Psr4_ClassName_ABC' => array(
+				'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' => array(
 					'version' => '2.0.0.0',
 					'path'    => 'path_to_file.php',
 				),
@@ -116,7 +116,7 @@ class WP_Test_Version_Loader extends TestCase {
 			)
 		);
 
-		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4_ClassName_ABC' );
+		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
 
 		$this->assertEquals( 'path_to_file.php', $file_path );
 	}
@@ -127,7 +127,7 @@ class WP_Test_Version_Loader extends TestCase {
 	public function test_find_class_file_returns_newer_psr4() {
 		$this->version_loader->set_class_map(
 			array(
-				'Jetpack\\TestCase_ABC\\Psr4_ClassName_ABC' => array(
+				'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' => array(
 					'version' => '1.0.0.0',
 					'path'    => 'path_to_file.php',
 				),
@@ -142,8 +142,8 @@ class WP_Test_Version_Loader extends TestCase {
 			)
 		);
 
-		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4_ClassName_ABC' );
+		$file_path = $this->version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
 
-		$this->assertEquals( __DIR__ . '/data/Psr4_ClassName_ABC.php', $file_path );
+		$this->assertEquals( __DIR__ . '/data/Psr4Folder/Psr4_ClassName_ABC.php', $file_path );
 	}
 }
