@@ -561,7 +561,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_jetpack() ) {
 			$subs_count = get_transient( 'wpcom_subscribers_total' );
 			if ( false === $subs_count || 'failed' == $subs_count['status'] ) {
-				$xml = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
+				$xml = new Jetpack_IXR_Client();
 
 				$xml->query( 'jetpack.fetchSubscriberCount' );
 
