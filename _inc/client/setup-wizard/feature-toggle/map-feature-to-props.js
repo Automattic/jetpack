@@ -293,6 +293,23 @@ const features = {
 		},
 	},
 
+	'creative-mail': {
+		mapStateToProps: state => {
+			return {
+				feature: 'creative-mail',
+				title: __( 'Creative Mail by Constant Contact', 'jetpack' ),
+				details: __( 'Send beautiful emails; grow followers.', 'jetpack' ),
+				checked: false,
+				optionsLink: '',
+			};
+		},
+		mapDispatchToProps: dispatch => {
+			return {
+				onToggleChange: currentCheckedValue => {},
+			};
+		},
+	},
+
 	'custom-css': {
 		mapStateToProps: state => {
 			return {
