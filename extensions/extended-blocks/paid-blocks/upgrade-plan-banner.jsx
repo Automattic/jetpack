@@ -22,9 +22,9 @@ const UpgradePlanBanner = ( {
 	description = __( 'Upgrade your plan to use this premium block', 'jetpack' ),
 	buttonText = __( 'Upgrade', 'jetpack' ),
 	visible = true,
+	requiredPlan,
 } ) => {
-	const [ checkoutUrl, goToCheckoutPage ] = useUpgradeFlow( 'value_bundle', onRedirect );
-
+	const [ checkoutUrl, goToCheckoutPage ] = useUpgradeFlow( requiredPlan, onRedirect );
 	if ( ! visible ) {
 		return null;
 	}

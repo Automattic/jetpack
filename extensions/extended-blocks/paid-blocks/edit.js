@@ -11,14 +11,15 @@ import UpgradePlanBanner from './upgrade-plan-banner';
 import { isUpgradable } from '../../shared/plan-utils';
 
 export default OriginalBlockEdit => props => {
-	if ( ! isUpgradable( props?.name ) ) {
+	const requiredPlan = isUpgradable( props?.name );
+	if ( ! requiredPlan ) {
 		return <OriginalBlockEdit { ...props } />;
 	}
 
 	return (
 		<Fragment>
 			<InspectorControls>
-				<UpgradePlanBanner description={ null } blockName={ props.name } />
+				<UpgradePlanBanner description={ null } requiredPlan={ requiredPlan } />
 			</InspectorControls>
 
 			<OriginalBlockEdit { ...props } />

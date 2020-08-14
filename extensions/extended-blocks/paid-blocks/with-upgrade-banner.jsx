@@ -23,12 +23,13 @@ import { PaidBlockProvider } from './components';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
-		if ( ! isUpgradable( props?.name ) ) {
+		const requiredPlan = isUpgradable( props?.name );
+		if ( ! requiredPlan ) {
 			return <BlockListBlock { ...props } />;
 		}
 
-		const isDualMode = isStillUsableWithFreePlan( props?.name );
-		const usableBlocksProps = getUsableBlockProps( props?.name );
+		const isDualMode = isStillUsableWithFreePlan( props.name );
+		const usableBlocksProps = getUsableBlockProps( props.name );
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 
@@ -55,6 +56,7 @@ export default createHigherOrderComponent(
 					align={ props?.attributes?.align }
 					visible={ isBannerVisible }
 					description={ usableBlocksProps?.description }
+					requiredPlan={ requiredPlan }
 				/>
 
 				<BlockListBlock { ...props } className={ listBlockCSSClass } />
