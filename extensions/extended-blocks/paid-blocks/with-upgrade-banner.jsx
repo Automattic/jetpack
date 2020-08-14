@@ -15,15 +15,15 @@ import { useSelect } from '@wordpress/data';
  */
 import {
 	isStillUsableWithFreePlan,
+	getRequiredPlan,
 	getUsableBlockProps,
-	isUpgradable,
 } from '../../shared/plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { PaidBlockProvider } from './components';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
-		const requiredPlan = isUpgradable( props?.name );
+		const requiredPlan = getRequiredPlan( props?.name );
 		if ( ! requiredPlan ) {
 			return <BlockListBlock { ...props } />;
 		}

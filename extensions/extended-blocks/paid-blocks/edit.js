@@ -8,10 +8,10 @@ import { InspectorControls } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import UpgradePlanBanner from './upgrade-plan-banner';
-import { isUpgradable } from '../../shared/plan-utils';
+import { getRequiredPlan } from '../../shared/plan-utils';
 
 export default OriginalBlockEdit => props => {
-	const requiredPlan = isUpgradable( props?.name );
+	const requiredPlan = getRequiredPlan( props?.name );
 	if ( ! requiredPlan ) {
 		return <OriginalBlockEdit { ...props } />;
 	}

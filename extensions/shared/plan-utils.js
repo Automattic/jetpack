@@ -71,7 +71,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
  * the block requires a paid plan.
  *
  * @param {string} name - Block name.
- * @returns {boolean} True if it should show the nudge. Otherwise, False.
+ * @returns {boolean} True if the block is upgradable, false otherwise.
  */
 export function isUpgradable( name ) {
 	if ( ! name ) {
@@ -79,8 +79,25 @@ export function isUpgradable( name ) {
 	}
 
 	const blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
+	const { available, unavailableReason } = getJetpackExtensionAvailability( blockName );
 
+	return ! available && 'missing_plan' === unavailableReason;
+}
+
+/**
+ * Returns the required plan slug for a passed block name.
+ *
+ * @param {string} name - Block name.
+ * @returns {string|boolean} Plan name if the block is upgradable, false otherwise.
+ */
+export function getRequiredPlan( name ) {
+	if ( ! name ) {
+		return false;
+	}
+
+	const blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
+
 	return requiresPaidPlan( unavailableReason, details );
 }
 
