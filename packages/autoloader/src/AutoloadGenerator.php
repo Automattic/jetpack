@@ -255,7 +255,7 @@ AUTOLOADER_COMMENT;
 		$manifestFiles = array(
 			'classmap' => 'jetpack_autoload_classmap.php',
 			'psr-4'    => 'jetpack_autoload_psr4.php',
-			'files'    => 'jetpack_autoload_files.php',
+			'files'    => 'jetpack_autoload_filemap.php',
 		);
 
 		foreach ( $manifestFiles as $key => $file ) {
