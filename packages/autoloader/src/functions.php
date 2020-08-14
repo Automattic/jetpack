@@ -130,7 +130,7 @@ function reset_maps_after_update( $response, $hook_extra, $result ) {
 		$plugin_path = trailingslashit( $plugin_dir ) . trailingslashit( explode( '/', $plugin )[0] );
 
 		if ( is_readable( $plugin_path . 'vendor/jetpack-autoloader/autoload_functions.php' ) ) {
-			// The plugin has a >=v2.3 autoloader, so reset the classmap.
+			// The plugin has a >=v2.2 autoloader, so reset the classmap.
 			$jetpack_packages_classmap = array();
 
 			set_up_autoloader();
@@ -139,4 +139,3 @@ function reset_maps_after_update( $response, $hook_extra, $result ) {
 
 	return $response;
 }
-
