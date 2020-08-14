@@ -308,4 +308,17 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 	};
 
 	add_action( 'widgets_init', 'jetpack_register_eu_cookie_law_widget' );
+
+	/**
+	 * Disable display of the EU Cookie Banner within Customizer.
+	 */
+	function jetpack_disable_eu_cookie_law_widget_for_customizer() {
+		global $wp_customize;
+
+		if ( $wp_customize ) {
+			add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true', 1 );
+		}
+	}
+
+	add_action( 'widgets_init', 'jetpack_disable_eu_cookie_law_widget_for_customizer' );
 }
