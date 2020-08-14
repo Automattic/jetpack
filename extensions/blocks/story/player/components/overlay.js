@@ -24,7 +24,6 @@ export default function Overlay( {
 	onPreviousSlide,
 	icon,
 	slideCount,
-	children,
 } ) {
 	const onPreviousSlideHandler = useCallback(
 		event => {
@@ -83,10 +82,6 @@ export default function Overlay( {
 					/>
 				) }
 			</div>
-			{ ended && (
-				<DecoratedButton size={ 80 } iconSize={ 56 } label="Replay Story" icon="replay" />
-			) }
-			{ children }
 		</div>
 	);
 }
