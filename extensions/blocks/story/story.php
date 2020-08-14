@@ -185,6 +185,79 @@ function render_slide( $media, $index = 0 ) {
 }
 
 /**
+ * Render the top right icon on top of the story embed
+ *
+ * @param array $settings The block settings.
+ *
+ * @return string
+ */
+function render_top_right_icon( $settings ) {
+	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
+	$slide_count      = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	if ( $show_slide_count ) {
+		// Render the story block icon along with the slide count.
+		return sprintf(
+			'<div class="wp-story-embed-icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M0 0h24v24H0z" fill="none"></path>
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M6 3H14V17H6L6 3ZM4 3C4 1.89543 4.89543 1 6 1H14C15.1046 1 16 1.89543 16 3V17C16 18.1046 15.1046 19 14 19H6C4.89543 19 4 18.1046 4 17V3ZM18 5C19.1046 5 20 5.89543 20 7V21C20 22.1046 19.1046 23 18 23H10C8.89543 23 8 22.1046 8 21H18V5Z"></path>
+				</svg>
+				<span>%s</span>
+			</div>',
+			$slide_count
+		);
+	} else {
+		// Render the Fullscreen Gridicon.
+		return (
+			'<div class="wp-story-embed-icon-expand">
+				<svg class="gridicon gridicons-fullscreen" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+					<g>
+						<path d="M21 3v6h-2V6.41l-3.29 3.3-1.42-1.42L17.59 5H15V3zM3 3v6h2V6.41l3.29 3.3 1.42-1.42L6.41 5H9V3zm18 18v-6h-2v2.59l-3.29-3.29-1.41 1.41L17.59 19H15v2zM9 21v-2H6.41l3.29-3.29-1.41-1.42L5 17.59V15H3v6z"></path>
+					</g>
+				</svg>
+			</div>'
+		);
+	}
+}
+
+/**
+ * Render a pagination bullet
+ *
+ * @param array $slide_index The slide index it corresponds to.
+ *
+ * @return string
+ */
+function render_pagination_bullet( $slide_index ) {
+	return sprintf(
+		'<button class="wp-story-pagination-bullet" aria-label="Go to slide %d">
+			<div class="wp-story-pagination-bullet-bar"></div>
+		</button>',
+		$slide_index
+	);
+}
+
+/**
+ * Render pagination on top of the story embed
+ *
+ * @param array $settings The block settings.
+ *
+ * @return string
+ */
+function render_pagination( $settings ) {
+	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
+	if ( $show_slide_count ) {
+		return '';
+	}
+	$slide_count = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	return sprintf(
+		'<div class="wp-story-pagination wp-story-pagination-bullets">
+			%s
+		</div>',
+		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $slide_count ) ) )
+	);
+}
+
+/**
  * Render story block
  *
  * @param array $attributes  Block attributes.
@@ -225,14 +298,9 @@ function render_block( $attributes ) {
 						%6$s
 					</div>
 					<div role="button" class="wp-story-overlay wp-story-clickable">
-						<div class="wp-story-embed-icon">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M0 0h24v24H0z" fill="none"></path>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M6 3H14V17H6L6 3ZM4 3C4 1.89543 4.89543 1 6 1H14C15.1046 1 16 1.89543 16 3V17C16 18.1046 15.1046 19 14 19H6C4.89543 19 4 18.1046 4 17V3ZM18 5C19.1046 5 20 5.89543 20 7V21C20 22.1046 19.1046 23 18 23H10C8.89543 23 8 22.1046 8 21H18V5Z"></path>
-							</svg>
-							<span>%7$s</span>
-						</div>
+						%7$s
 					</div>
+					%8$s
 				</div>
 			</div>
 		</div>',
@@ -242,6 +310,7 @@ function render_block( $attributes ) {
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
-		count( $media_files )
+		render_top_right_icon( $settings ),
+		render_pagination( $settings )
 	);
 }

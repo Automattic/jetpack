@@ -4,7 +4,6 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
 import GridiconFullscreen from 'gridicons/dist/fullscreen';
 
 /**
@@ -19,19 +18,14 @@ import { DecoratedButton } from './button';
 
 export default function Overlay( {
 	ended,
-	disabled,
-	onClick,
 	hasPrevious,
 	hasNext,
 	onNextSlide,
 	onPreviousSlide,
 	icon,
 	slideCount,
+	children,
 } ) {
-	const onOverlayPressed = () => {
-		! disabled && onClick();
-	};
-
 	const onPreviousSlideHandler = useCallback(
 		event => {
 			if ( ended ) {
@@ -55,14 +49,7 @@ export default function Overlay( {
 	);
 
 	return (
-		<div
-			role={ disabled ? 'presentation' : 'button' }
-			className={ classNames( {
-				'wp-story-overlay': true,
-				'wp-story-clickable': ! disabled,
-			} ) }
-			onClick={ onOverlayPressed }
-		>
+		<div className="wp-story-overlay">
 			{ icon && (
 				<div className="wp-story-embed-icon">
 					{ icon }
@@ -99,6 +86,7 @@ export default function Overlay( {
 			{ ended && (
 				<DecoratedButton size={ 80 } iconSize={ 56 } label="Replay Story" icon="replay" />
 			) }
+			{ children }
 		</div>
 	);
 }

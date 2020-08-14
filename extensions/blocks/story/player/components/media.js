@@ -29,7 +29,7 @@ export const Image = ( { alt, className, id, mediaRef, mime, sizes, srcset, url 
 export const Video = ( { alt, className, id, mediaRef, mime, url } ) => (
 	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<video
-		className={ classNames( 'wp-story-video', 'intrinsic-ignore'`wp-video-${ id }`, className ) }
+		className={ classNames( 'wp-story-video', 'intrinsic-ignore', `wp-video-${ id }`, className ) }
 		ref={ mediaRef }
 		data-id={ id }
 		title={ alt }

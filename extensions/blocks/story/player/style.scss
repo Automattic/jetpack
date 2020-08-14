@@ -12,12 +12,37 @@
 	list-style: none;
 	padding: 0;
 	z-index: 1;
+	border-radius: 15px;
+	overflow: hidden;
+	-webkit-tap-highlight-color: transparent;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+	transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+	&:before {
+		content: ' ';
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		border-radius: 15px;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+		opacity: 0;
+		transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+	}
+
+	&:hover {
+		transform: scale(1.03, 1.03);
+		&:before {
+			opacity: 1;
+		}
+	}
 
 	&.wp-story-initialized {
 		opacity: 1;
 	}
 
-	.wp-story-clickable {
+	&.wp-story-clickable {
 		cursor: pointer;
 	}
 
@@ -38,7 +63,6 @@
 		left: 0;
 		right: 0;
 		z-index: -1;
-		border-radius: 15px;
 		overflow: hidden;
 		background-color: $wp-story-background-color;
 	}
@@ -140,29 +164,6 @@
 		bottom: 0;
 		right: 0;
 		left: 0;
-		border-radius: 15px;
-		cursor: pointer;
-		box-shadow: 0 3px 15px rgba( 0, 0, 0, 0.4 );
-		-webkit-tap-highlight-color: transparent;
-
-		&:before {
-			content: ' ';
-			position: absolute;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
-			border-radius: 15px;
-			box-shadow: 0 5px 15px rgba( 0, 0, 0, 0.5 );
-			opacity: 0;
-			transition: opacity 0.3s ease-in-out;
-		}
-
-		&:hover {
-			&:before {
-				opacity: 1;
-			}
-		}
 
 		.wp-story-button-play,
 		.wp-story-button-replay {
@@ -354,6 +355,19 @@
 		width: 100%;
 		max-width: 100%;
 		max-height: 100%;
+		border-radius: 0;
+		box-shadow: none;
+		transform: none;
+		transition: none !important;
+
+		&:before {
+			box-shadow: none;
+
+			&:hover {
+				opacity: 0;
+				transition: none !important;
+			}
+		}
 
 		.wp-story-wrapper {
 			margin-top: 84px;
@@ -430,17 +444,6 @@
 		.wp-story-overlay {
 			margin-top: 84px;
 			margin-bottom: 84px;
-			border-radius: 0;
-			box-shadow: none;
-
-			&:before {
-				box-shadow: none;
-
-				&:hover {
-					opacity: 0;
-					transition: none !important;
-				}
-			}
 
 			.wp-story-embed-icon,
 			.wp-story-embed-icon-expand {

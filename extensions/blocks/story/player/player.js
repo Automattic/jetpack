@@ -50,6 +50,21 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		}
 	};
 
+	const onPress = useCallback( () => {
+		if ( disabled ) {
+			return;
+		}
+		if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
+			setFullscreen( true );
+		}
+		if ( ended && ! playing ) {
+			showSlide( 0 );
+		}
+		if ( ! playing ) {
+			setPlaying( true );
+		}
+	}, [ playing, ended, fullscreen, disabled ] );
+
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
 			showSlide( currentSlideIndex - 1 );
@@ -115,16 +130,20 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	}, [ width, height ] );
 
 	return (
+		/* eslint-disable jsx-a11y/click-events-have-key-events */
 		<>
 			{ resizeListener }
 			<div
+				role={ disabled ? 'presentation' : 'button' }
 				className={ classNames( 'wp-story-container', {
 					'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
 					'wp-story-fullscreen': fullscreen,
 					'wp-story-ended': ended,
 					'wp-story-disabled': disabled,
+					'wp-story-clickable': ! disabled,
 				} ) }
 				style={ { maxWidth: `${ maxSlideWidth }px` } }
+				onClick={ onPress }
 			>
 				<Header
 					{ ...settings.metadata }
@@ -155,18 +174,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					ended={ ended }
 					hasPrevious={ currentSlideIndex > 0 }
 					hasNext={ currentSlideIndex < slides.length - 1 }
-					disabled={ settings.disabled }
-					onClick={ () => {
-						if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
-							setFullscreen( true );
-						}
-						if ( ended && ! playing ) {
-							showSlide( 0 );
-						}
-						if ( ! playing ) {
-							setPlaying( true );
-						}
-					} }
+					disabled={ disabled }
 					onPreviousSlide={ tryPreviousSlide }
 					onNextSlide={ tryNextSlide }
 				/>
