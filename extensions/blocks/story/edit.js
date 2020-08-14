@@ -73,18 +73,6 @@ export default withNotices( function StoryEdit( {
 		} );
 	};
 
-	const addFiles = files => {
-		lockPostSaving( lockName );
-		mediaUpload( {
-			allowedTypes: ALLOWED_MEDIA_TYPES,
-			filesList: files,
-			onFileChange: newMediaFiles => {
-				onSelectMedia( [ ...mediaFiles, ...newMediaFiles ] );
-			},
-			onError: noticeOperations.createErrorNotice,
-		} );
-	};
-
 	const controls = (
 		<Controls
 			allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
@@ -93,27 +81,39 @@ export default withNotices( function StoryEdit( {
 		/>
 	);
 
-	if ( mediaFiles.length === 0 ) {
+	const hasImages = !! mediaFiles.length;
+
+	const mediaPlaceholder = (
+		<MediaPlaceholder
+			addToGallery={ hasImages }
+			isAppender={ hasImages }
+			className={ className }
+			disableMediaButtons={ hasImages && ! isSelected }
+			icon={ ! hasImages && <BlockIcon icon={ icon } /> }
+			labels={ {
+				title: ! hasImages && __( 'Story', 'jetpack' ),
+				instructions:
+					! hasImages &&
+					__(
+						'Drag images and videos, upload new ones or select files from your library.',
+						'jetpack'
+					),
+			} }
+			onSelect={ onSelectMedia }
+			accept={ ALLOWED_MEDIA_TYPES.map( type => type + '/*' ).join( ',' ) }
+			allowedTypes={ ALLOWED_MEDIA_TYPES }
+			multiple
+			value={ mediaFiles }
+			notices={ hasImages ? undefined : noticeUI }
+			onError={ noticeOperations.createErrorNotice }
+		/>
+	);
+
+	if ( ! hasImages ) {
 		return (
 			<Fragment>
 				{ controls }
-				<MediaPlaceholder
-					icon={ <BlockIcon icon={ icon } /> }
-					className={ className }
-					labels={ {
-						title: __( 'Story', 'jetpack' ),
-						instructions: __(
-							'Drag images and videos, upload new ones or select files from your library.',
-							'jetpack'
-						),
-					} }
-					onSelect={ onSelectMedia }
-					accept={ ALLOWED_MEDIA_TYPES.map( type => type + '/*' ).join( ',' ) }
-					allowedTypes={ ALLOWED_MEDIA_TYPES }
-					multiple
-					notices={ noticeUI }
-					onError={ noticeOperations.createErrorNotice }
-				/>
+				{ mediaPlaceholder }
 			</Fragment>
 		);
 	}
@@ -132,24 +132,9 @@ export default withNotices( function StoryEdit( {
 					playInFullscreen={ false }
 					tapToPlayPause={ false }
 					playOnNextSlide={ false }
-					showSlideCount={ ! isSelected }
 				/>
 			</div>
-			<DropZone onFilesDrop={ addFiles } />
-			{ isSelected && (
-				<div className="wp-block-jetpack-story__add-item">
-					<FormFileUpload
-						multiple
-						isLarge
-						className="wp-block-jetpack-story__add-item-button"
-						onChange={ event => addFiles( event.target.files ) }
-						accept={ ALLOWED_MEDIA_TYPES.map( type => type + '/*' ).join( ',' ) }
-						icon="insert"
-					>
-						{ __( 'Add slide', 'jetpack' ) }
-					</FormFileUpload>
-				</div>
-			) }
+			{ isSelected && mediaPlaceholder }
 		</Fragment>
 	);
 } );
