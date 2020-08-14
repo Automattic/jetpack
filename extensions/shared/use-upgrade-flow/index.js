@@ -1,0 +1,67 @@
+
+/**
+ * External dependencies
+ */
+import { noop } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+import { useSelect, dispatch } from '@wordpress/data';
+
+/**
+ * Internal dependencies
+ */
+
+// Provably we should move this store to somewhere more generic.
+import '../components/upgrade-nudge/store';
+
+function redirect( url, callback ) {
+	if ( callback ) {
+		callback( url );
+	}
+	window.top.location.href = url;
+}
+
+import { getUpgradeUrl } from "../plan-utils";
+
+export default function useUpgradeFlow ( planSlug, onRedirect = noop ) {
+	const { checkoutUrl, isAutosaveablePost, isDirtyPost } = useSelect( select => {
+		const editorSelector = select( 'core/editor' );
+		const planSelector = select( 'wordpress-com/plans' );
+
+		const { id: postId, type: postType } = editorSelector.getCurrentPost();
+		const plan = planSelector && planSelector.getPlan( planSlug );
+
+		return {
+			checkoutUrl: getUpgradeUrl( { plan, planSlug, postId, postType } ),
+			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
+			isDirtyPost: editorSelector.isEditedPostDirty(),
+		};
+	}, [] );
+
+	// Alias. Save post by dispatch.
+	const savePost = dispatch( 'core/editor' ).savePost;
+
+	const goToCheckoutPage = event => {
+		if ( ! window?.top?.location?.href ) {
+			return;
+		}
+
+		event.preventDefault();
+
+		/*
+		 * If there are not unsaved values, redirect.
+		 * If the post is not auto-savable, redirect.
+		 */
+		if ( ! isDirtyPost || ! isAutosaveablePost ) {
+			// Using window.top to escape from the editor iframe on WordPress.com
+			return redirect( checkoutUrl, onRedirect );
+		}
+
+		// Save the post. Then redirect.
+		savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
+	};
+
+	return [ checkoutUrl, goToCheckoutPage ];
+}
