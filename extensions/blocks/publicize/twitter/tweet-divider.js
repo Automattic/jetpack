@@ -112,6 +112,9 @@ class TweetDivider extends Component {
 								width: 3px;
 								display: inline-block;
 								margin: 1px;
+							}
+							.is-dark-theme ${ selector }::after {
+								background: #fff9;
 							}`
 						) }
 					</style>
