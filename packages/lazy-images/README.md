@@ -26,7 +26,6 @@ Running tests requires working `svn`, `composer` and `yarn` commands.
 Once these are installed, you install the composer dependencies by running:
 
 ```bash
-$ yarn
 $ composer install --ignore-platform-reqs
 ```
 
@@ -52,4 +51,5 @@ The PHP code can be linted from the root of the Jetpack repository:
 ```bash
 $ cd ../../
 $ yarn php:compatibility packages/lazy-images
+$ yarn php:lint packages/lazy-images
 ```
