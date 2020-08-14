@@ -16,7 +16,7 @@ In short and as a general rule, if you need to set a block as paid, you should d
 
 ### Setting blocks as paid in Jetpack
 
-You can take a look at the Extension doc, [Paid Blocks](extensions/README.md#paid-blocks) section to know more about this process.
+Please refer to the extensions documentation on [Paid Blocks](extensions/README.md#paid-blocks) to learn more about this process.
 
 ### Setting blocks as paid which are not registered by Jetpack
 
