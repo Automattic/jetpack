@@ -16,18 +16,18 @@
 	overflow: hidden;
 	-webkit-tap-highlight-color: transparent;
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-	transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+	transition: box-shadow 0.3s ease-in-out, transform 0.3s cubic-bezier(0.18, 0.14, 0.25, 1);
 
 	figure {
-		transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+		transition: transform 0.3s cubic-bezier(0.18, 0.14, 0.25, 1);
 	}
 
 	&:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		transform: scale(1.03, 1.03);
 		figure {
-			transform: scale(1.10, 1.10);
+			transform: scale(1.07, 1.07);
 		}
-		transform: scale(1.05, 1.05);
-		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 	}
 
 	&.wp-story-initialized {
@@ -353,6 +353,11 @@
 		transition: none !important;
 		overflow: initial;
 
+		figure {
+			transform: none;
+			transition: none !important;
+		}
+
 		&:before {
 			box-shadow: none;
 
@@ -367,11 +372,6 @@
 			margin-bottom: 84px;
 			border-radius: 0;
 			overflow: initial;
-
-			figure {
-				transform: none;
-				transition: none !important;
-			}
 
 			@media ( max-width: $break-medium ) {
 				margin-top: 0;
