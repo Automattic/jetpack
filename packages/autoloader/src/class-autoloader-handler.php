@@ -58,7 +58,7 @@ class Autoloader_Handler {
 		$active_plugins_paths = $this->plugins_handler->get_all_active_plugins_paths();
 
 		foreach ( $active_plugins_paths as $plugin_path ) {
-			$plugin_vendor_path = trailingslashit( $plugin_path ) . '/vendor';
+			$plugin_vendor_path = trailingslashit( $plugin_path ) . 'vendor';
 
 			$compare_version = $this->get_autoloader_version( $plugin_vendor_path );
 			if ( ! isset( $compare_version ) ) {
