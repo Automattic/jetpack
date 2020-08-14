@@ -18,6 +18,7 @@ use phpmock\MockBuilder;
 use phpmock\MockEnabledException;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
+use WP_Error;
 
 /**
  * Connection Manager functionality testing.
@@ -420,6 +421,36 @@ class ManagerTest extends TestCase {
 			'no blog token, blog id'    => array( false, 1234, false ),
 			'no blog token, no blog id' => array( false, false, false ),
 		);
+	}
+
+	/**
+	 * Test the `get_signed_token` functionality.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::get_signed_token
+	 */
+	public function test_get_signed_token() {
+		$access_token = (object) array(
+			'external_user_id' => 1,
+		);
+
+		$manager = ( new Manager() );
+		// Missing secret.
+		$invalid_token_error = new WP_Error( 'invalid_token' );
+		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		// Secret is null.
+		$access_token->secret = null;
+		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		// Secret is empty.
+		$access_token->secret = '';
+		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		// Valid secret.
+		$access_token->secret = 'abcd1234';
+
+		$signed_token = $manager->get_signed_token( $access_token );
+		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
+		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
+		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
+		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
 	}
 
 	/**

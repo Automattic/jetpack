@@ -289,7 +289,7 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 					dispatch( {
 						type: SITE_RECONNECT_SUCCESS,
 					} );
-					dispatch( removeNotice( 'reconnect-jetpack' ) );
+					window.location.reload();
 				}
 			} )
 			.catch( error => {

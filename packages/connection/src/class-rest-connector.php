@@ -105,7 +105,7 @@ class REST_Connector {
 						'required' => true,
 					),
 				),
-				'permission_callback' => __CLASS__ . '::jetpack_disconnect_permission_check',
+				'permission_callback' => __CLASS__ . '::jetpack_reconnect_permission_check',
 			)
 		);
 	}
@@ -229,8 +229,8 @@ class REST_Connector {
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
 	 */
-	public static function jetpack_disconnect_permission_check() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
+	public static function jetpack_reconnect_permission_check() {
+		if ( current_user_can( 'jetpack_reconnect' ) ) {
 			return true;
 		}
 
@@ -260,19 +260,45 @@ class REST_Connector {
 
 		$response = array();
 
+		$next = null;
+
 		switch ( $params['action'] ) {
 			case 'reconnect':
+				$result = $this->connection->restore();
+
+				if ( is_wp_error( $result ) ) {
+					$response = $result;
+				} elseif ( is_string( $result ) ) {
+					$next = $result;
+				} else {
+					$next = true === $result ? 'completed' : 'failed';
+				}
+
+				break;
+			case 'reconnect_force':
 				$result = $this->connection->reconnect();
 
 				if ( true === $result ) {
-					$response['status']       = 'in_progress';
-					$response['authorizeUrl'] = $this->connection->get_authorization_url();
+					$next = 'authorize';
 				} elseif ( is_wp_error( $result ) ) {
 					$response = $result;
 				}
 				break;
 			default:
 				$response = new WP_Error( 'Unknown action' );
+				break;
+		}
+
+		switch ( $next ) {
+			case 'authorize':
+				$response['status']       = 'in_progress';
+				$response['authorizeUrl'] = $this->connection->get_authorization_url();
+				break;
+			case 'completed':
+				$response['status'] = 'completed';
+				break;
+			case 'failed':
+				$response = new WP_Error( 'Reconnect failed' );
 				break;
 		}
 
