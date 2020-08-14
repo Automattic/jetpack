@@ -2479,6 +2479,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				case 'url':
 				case 'subject':
 				case 'textarea':
+				case 'consent':
 					$field_ids[ $type ] = $id;
 					break;
 				default:
@@ -2503,7 +2504,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$to     = $this->get_attribute( 'to' );
 		$widget = $this->get_attribute( 'widget' );
 
-		$contact_form_subject = $this->get_attribute( 'subject' );
+		$contact_form_subject    = $this->get_attribute( 'subject' );
+		$email_marketing_consent = false;
 
 		$to     = str_replace( ' ', '', $to );
 		$emails = explode( ',', $to );
@@ -2601,6 +2603,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field = $this->fields[ $field_ids['subject'] ];
 			if ( $field->value ) {
 				$contact_form_subject = Grunion_Contact_Form_Plugin::strip_tags( $field->value );
+			}
+		}
+
+		if ( isset( $field_ids['consent'] ) ) {
+			$field = $this->fields[ $field_ids['consent'] ];
+			if ( $field->value ) {
+				$email_marketing_consent = true;
 			}
 		}
 
@@ -2721,6 +2730,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$headers = 'From: "' . $comment_author . '" <' . $from_email_addr . ">\r\n" .
 		           'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
+
+		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
 		// Build feedback reference
 		$feedback_time  = current_time( 'mysql' );
