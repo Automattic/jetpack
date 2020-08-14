@@ -91,6 +91,9 @@ AUTOLOADER_COMMENT;
 		$classMap = $this->getClassMap( $autoloads, $filesystem, $vendorPath, $basePath );
 		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
+		// Remove a file that was generated in versions 2.0.0 to 2.1.0.
+		$filesystem->remove( $vendorPath . '/autoload_functions.php' );
+
 		// Generate the files.
 		file_put_contents( $targetDir . '/jetpack_autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
 		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_classmap.php</info>', true );
