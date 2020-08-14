@@ -24,7 +24,10 @@ const UpgradePlanBanner = ( {
 	visible = true,
 	requiredPlan,
 } ) => {
-	const [ checkoutUrl, goToCheckoutPage ] = useUpgradeFlow( requiredPlan, onRedirect );
+	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow(
+		requiredPlan,
+		onRedirect
+	);
 	if ( ! visible ) {
 		return null;
 	}
@@ -49,6 +52,7 @@ const UpgradePlanBanner = ( {
 					onClick={ goToCheckoutPage }
 					target="_top"
 					className="is-primary"
+					disabled={ isRedirecting }
 				>
 					{ buttonText }
 				</Button>

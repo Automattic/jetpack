@@ -40,6 +40,10 @@ $icon-background-color: #fff;
 			&:hover {
 				background: $studio-pink-30;
 			}
+			&:disabled {
+				opacity: 0.5;
+				cursor: wait;
+			}
 		}
 	}
 }
