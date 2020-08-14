@@ -44,6 +44,8 @@ export const pickRelevantMediaFiles = ( media, sizeSlug = 'large' ) => {
 		media.url;
 	mediaProps.type = media.media_type || media.type;
 	mediaProps.mime = media.mime_type || media.mime;
+	mediaProps.width = mediaProps.width || get( media, [ 'media_details', 'width' ] );
+	mediaProps.height = mediaProps.height || get( media, [ 'media_details', 'height' ] );
 	return mediaProps;
 };
 
