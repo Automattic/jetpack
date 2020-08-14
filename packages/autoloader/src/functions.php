@@ -30,8 +30,6 @@ function autoloader( $class_name ) {
 function set_up_autoloader() {
 	global $jetpack_autoloader_latest_version;
 	global $jetpack_autoloader_loader;
-	global $jetpack_packages_psr4;
-	global $jetpack_packages_classmap;
 
 	require_once __DIR__ . '/class-plugins-handler.php';
 	require_once __DIR__ . '/class-version-selector.php';
@@ -54,8 +52,6 @@ function set_up_autoloader() {
 		 */
 		$jetpack_autoloader_latest_version = null;
 		$jetpack_autoloader_loader         = null;
-		$jetpack_packages_psr4             = array();
-		$jetpack_packages_classmap         = array();
 	}
 
 	if ( ! $autoloader_handler->is_latest_autoloader() || isset( $jetpack_autoloader_loader ) ) {
@@ -67,4 +63,7 @@ function set_up_autoloader() {
 
 	$jetpack_autoloader_loader = $autoloader_handler->build_autoloader();
 	$autoloader_handler->update_autoloader_chain();
+
+	// Now that the autoloader is ready we can load the files in the filemap safely.
+	$jetpack_autoloader_loader->load_filemap();
 }

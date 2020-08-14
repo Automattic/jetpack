@@ -121,31 +121,24 @@ class Autoloader_Handler {
 		$manifest_handler = new Manifest_Handler( $this->active_plugin_paths, $this->version_selector );
 
 		global $jetpack_packages_psr4;
+		$jetpack_packages_psr4 = array();
 		$manifest_handler->register_plugin_manifests( 'vendor/composer/jetpack_autoload_psr4.php', $jetpack_packages_psr4 );
 
 		global $jetpack_packages_classmap;
+		$jetpack_packages_classmap = array();
 		$manifest_handler->register_plugin_manifests( 'vendor/composer/jetpack_autoload_classmap.php', $jetpack_packages_classmap );
 
 		global $jetpack_packages_filemap;
+		$jetpack_packages_filemap = array();
 		$manifest_handler->register_plugin_manifests( 'vendor/composer/jetpack_autoload_filemap.php', $jetpack_packages_filemap );
 
 		// Store the generated autoloader data in the loader so we can use it.
-		$loader = new Version_Loader( $this->version_selector );
-		$loader->set_class_map( $jetpack_packages_classmap );
-		$loader->set_psr4( $jetpack_packages_psr4 );
-
-		// Include the latest versions of all the autoload files.
-		if ( isset( $jetpack_packages_filemap ) ) {
-			foreach ( $jetpack_packages_filemap as $file_identifier => $file_data ) {
-				if ( empty( $GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
-					require_once $file_data['path'];
-
-					$GLOBALS['__composer_autoload_files'][ $file_identifier ] = true;
-				}
-			}
-		}
-
-		return $loader;
+		return new Version_Loader(
+			$this->version_selector,
+			$jetpack_packages_classmap,
+			$jetpack_packages_psr4,
+			$jetpack_packages_filemap
+		);
 	}
 
 	/**

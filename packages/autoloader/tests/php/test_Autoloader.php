@@ -26,14 +26,16 @@ class WP_Test_Autoloader extends TestCase {
 	 */
 	public function test_autoloader_works() {
 		global $jetpack_autoloader_loader;
-		$jetpack_autoloader_loader = new Version_Loader( new Version_Selector() );
-		$jetpack_autoloader_loader->set_class_map(
+		$jetpack_autoloader_loader = new Version_Loader(
+			new Version_Selector(),
 			array(
 				'Jetpack\TestCase_ABC\ClassName_ABC' => array(
 					'version' => '1.0.0.0',
 					'path'    => __DIR__ . '/data/path_to_class.php',
 				),
-			)
+			),
+			null,
+			null
 		);
 
 		$class = new ClassName_ABC();

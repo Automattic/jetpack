@@ -37,31 +37,30 @@ class ManifestGenerator {
 
 		switch ( $autoloaderType ) {
 			case 'classmap':
-				return self::buildClassmapManifest( $fileName, $content );
+			case 'files':
+				return self::buildStandardManifest( $fileName, $content );
 			case 'psr-4':
 				return self::buildPsr4Manifest( $fileName, $content );
-			case 'files':
-				return self::buildFilesManifest( $fileName, $content );
 		}
 
 		throw new \InvalidArgumentException( 'An invalid manifest type of ' . $autoloaderType . ' was passed!' );
 	}
 
 	/**
-	 * Builds the contents for the classmap manifest file.
+	 * Builds the contents for the standard manifest file.
 	 *
 	 * @param string $fileName The filename we are building.
-	 * @param array  $classmap The formatted classmap data for the manifest.
+	 * @param array  $manifestData The formatted data for the manifest.
 	 *
 	 * @return string|null $manifestFile
 	 */
-	private static function buildClassmapManifest( $fileName, $classmap ) {
+	private static function buildStandardManifest( $fileName, $manifestData ) {
 		$fileContent = PHP_EOL;
-		foreach ( $classmap as $class => $data ) {
-			$classCode    = var_export( $class, true );
+		foreach ( $manifestData as $key => $data ) {
+			$key          = var_export( $key, true );
 			$versionCode  = var_export( $data['version'], true );
 			$fileContent .= <<<MANIFEST_CODE
-	$classCode => array(
+	$key => array(
 		'version' => $versionCode,
 		'path'    => {$data['path']}
 	),
@@ -93,31 +92,6 @@ MANIFEST_CODE;
 	),
 MANIFEST_CODE;
 			$fileContent  .= PHP_EOL;
-		}
-
-		return self::buildFile( $fileName, $fileContent );
-	}
-
-	/**
-	 * Builds the contents for the files manifest file.
-	 *
-	 * @param string $fileName The filename we are building.
-	 * @param array  $files The formatted files data for the manifest.
-	 *
-	 * @return string|null $manifestFile
-	 */
-	private static function buildFilesManifest( $fileName, $files ) {
-		$fileContent = PHP_EOL;
-		foreach ( $files as $fileID => $data ) {
-			$key          = var_export( $fileID, true );
-			$versionCode  = var_export( $data['version'], true );
-			$fileContent .= <<<MANIFEST_CODE
-	$key => array(
-		'version' => $versionCode,
-		'path'    => {$data['path']}
-	),
-MANIFEST_CODE;
-			$fileContent .= PHP_EOL;
 		}
 
 		return self::buildFile( $fileName, $fileContent );

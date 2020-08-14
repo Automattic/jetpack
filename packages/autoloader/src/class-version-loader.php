@@ -18,40 +18,35 @@ class Version_Loader {
 	 *
 	 * @var array
 	 */
-	private $class_map = array();
+	private $classmap;
 
 	/**
 	 * A map of PSR-4 namespaces and their version and directory path.
 	 *
 	 * @var array
 	 */
-	private $psr4_map = array();
+	private $psr4_map;
+
+	/**
+	 * A map of all the files that we should load.
+	 *
+	 * @var array
+	 */
+	private $filemap;
 
 	/**
 	 * The constructor.
 	 *
 	 * @param Version_Selector $version_selector The Version_Selector object.
+	 * @param array            $classmap The verioned classmap to load using.
+	 * @param array            $psr4_map The versioned PSR-4 map to load using.
+	 * @param array            $filemap The versioned filemap to load.
 	 */
-	public function __construct( $version_selector ) {
+	public function __construct( $version_selector, $classmap, $psr4_map, $filemap ) {
 		$this->version_selector = $version_selector;
-	}
-
-	/**
-	 * Sets the class map used for autoloading.
-	 *
-	 * @param array $class_map The class version and path map.
-	 */
-	public function set_class_map( $class_map ) {
-		$this->class_map = $class_map;
-	}
-
-	/**
-	 * Sets the PSR-4 directory paths used for autoloading.
-	 *
-	 * @param array $psr4_map The PSR-4 version and directory path map.
-	 */
-	public function set_psr4( $psr4_map ) {
-		$this->psr4_map = $psr4_map;
+		$this->classmap         = $classmap;
+		$this->psr4_map         = $psr4_map;
+		$this->filemap          = $filemap;
 	}
 
 	/**
@@ -63,7 +58,7 @@ class Version_Loader {
 	 */
 	public function find_class_file( $class_name ) {
 		$data = $this->find_newest_file(
-			isset( $this->class_map[ $class_name ] ) ? $this->class_map[ $class_name ] : null,
+			isset( $this->classmap[ $class_name ] ) ? $this->classmap[ $class_name ] : null,
 			$this->find_psr4_file( $class_name )
 		);
 		if ( ! isset( $data ) ) {
@@ -71,6 +66,23 @@ class Version_Loader {
 		}
 
 		return $data['path'];
+	}
+
+	/**
+	 * Load all of the files in the filemap.
+	 */
+	public function load_filemap() {
+		if ( empty( $this->filemap ) ) {
+			return;
+		}
+
+		foreach ( $this->filemap as $file_identifier => $file_data ) {
+			if ( empty( $GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
+				require_once $file_data['path'];
+
+				$GLOBALS['__composer_autoload_files'][ $file_identifier ] = true;
+			}
+		}
 	}
 
 	/**
