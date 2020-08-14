@@ -11,14 +11,14 @@ class Manifest_Handler {
 	 *
 	 * @var array
 	 */
-	private $active_plugin_paths = array();
+	private $active_plugin_paths;
 
 	/**
 	 * The Version_Selector object.
 	 *
 	 * @var Version_Selector
 	 */
-	private $version_selector = null;
+	private $version_selector;
 
 	/**
 	 * The constructor.

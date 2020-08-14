@@ -217,6 +217,7 @@ AUTOLOADER_COMMENT;
 		$packageFiles = array(
 			'autoload.php'                 => '../autoload_packages.php',
 			'functions.php'                => 'autoload_functions.php',
+			'class-autoloader-locator.php' => null,
 			'class-autoloader-handler.php' => null,
 			'class-manifest-handler.php'   => null,
 			'class-plugins-handler.php'    => null,

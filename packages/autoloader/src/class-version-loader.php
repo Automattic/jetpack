@@ -11,7 +11,7 @@ class Version_Loader {
 	 *
 	 * @var Version_Selector
 	 */
-	private $version_selector = null;
+	private $version_selector;
 
 	/**
 	 * A map of available classes and their version and file path.
