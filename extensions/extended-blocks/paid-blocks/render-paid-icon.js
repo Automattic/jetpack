@@ -20,12 +20,12 @@ const renderPaidIcon = icon => {
 		icon = {
 			...icon,
 			src: cloneElement( icon.src, {
-				children: [ icon.src.props.children, <PaidSymbol /> ],
+				children: [ icon.src.props.children, <PaidSymbol key="paid-symbol" /> ],
 			} ),
 		};
 	} else if ( icon?.props?.children ) {
 		icon = cloneElement( icon, {
-			children: [ icon.props.children, <PaidSymbol /> ],
+			children: [ icon.props.children, <PaidSymbol key="paid-symbol" /> ],
 		} );
 	}
 	return icon;
