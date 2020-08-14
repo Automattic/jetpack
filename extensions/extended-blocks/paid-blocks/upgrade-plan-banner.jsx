@@ -33,6 +33,7 @@ const UpgradePlanBanner = ( {
 	}
 
 	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', 'wp-block' );
+	const redirectingText = __( 'Redirecting…', 'jetpack' );
 
 	return (
 		<div className={ cssClasses } data-align={ align }>
@@ -48,13 +49,13 @@ const UpgradePlanBanner = ( {
 			) }
 			{ checkoutUrl && (
 				<Button
-					href={ checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
+					href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 					onClick={ goToCheckoutPage }
 					target="_top"
 					className="is-primary"
-					disabled={ isRedirecting }
+					isBusy={ isRedirecting }
 				>
-					{ buttonText }
+					{ isRedirecting ? redirectingText : buttonText }
 				</Button>
 			) }
 		</div>
