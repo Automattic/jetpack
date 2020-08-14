@@ -94,6 +94,9 @@ AUTOLOADER_COMMENT;
 		$processedAutoloads = $this->processAutoloads( $autoloads, $scanPsrPackages, $vendorPath, $basePath );
 		unset( $packageMap, $autoloads );
 
+		// Make sure none of the legacy files remain that can lead to problems with the autoloader.
+		$this->removeLegacyFiles( $vendorPath );
+
 		// Write all of the files now that we're done.
 		$this->writeAutoloaderFiles( $vendorPath . '/jetpack-autoloader/', $suffix );
 		$this->writeManifests( $vendorPath . '/' . $targetDir, $processedAutoloads );
@@ -205,6 +208,26 @@ AUTOLOADER_COMMENT;
 			'classmap' => $processor->processClassmap( $autoloads, $scanPsrPackages ),
 			'files'    => $processor->processFiles( $autoloads ),
 		);
+	}
+
+	/**
+	 * Removes all of the legacy autoloader files so they don't cause any problems.
+	 *
+	 * @param string $outDir The directory legacy files are written to.
+	 */
+	private function removeLegacyFiles( $outDir ) {
+		$files = array(
+			'autoload_packages.php',
+			'autoload_functions.php',
+			'class-autoloader-handler.php',
+			'class-classes-handler.php',
+			'class-files-handler.php',
+			'class-plugins-handler.php',
+			'class-version-selector.php',
+		);
+		foreach ( $files as $file ) {
+			$this->filesystem->remove( $outDir . '/' . $file );
+		}
 	}
 
 	/**
