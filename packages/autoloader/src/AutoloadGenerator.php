@@ -91,6 +91,9 @@ AUTOLOADER_COMMENT;
 		$classMap = $this->getClassMap( $autoloads, $filesystem, $vendorPath, $basePath );
 		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
+		// Remove a file that was generated in versions 2.0.0 to 2.1.0.
+		$filesystem->remove( $vendorPath . '/autoload_functions.php' );
+
 		// Generate the files.
 		file_put_contents( $targetDir . '/jetpack_autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
 		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_classmap.php</info>', true );
@@ -101,8 +104,10 @@ AUTOLOADER_COMMENT;
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( 'autoload.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
 
-		file_put_contents( $vendorPath . '/autoload_functions.php', $this->getAutoloadPackageFile( 'functions.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_functions.php</info>', true );
+		$jetpackAutoloaderDir = $vendorPath . '/jetpack-autoloader';
+		$filesystem->ensureDirectoryExists( $jetpackAutoloaderDir );
+		file_put_contents( $jetpackAutoloaderDir . '/autoload_functions.php', $this->getAutoloadPackageFile( 'functions.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $jetpackAutoloaderDir . '/jetpack-autoloader/autoload_functions.php</info>', true );
 
 		file_put_contents( $vendorPath . '/class-autoloader-handler.php', $this->getAutoloadPackageFile( 'class-autoloader-handler.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-autoloader-handler.php</info>', true );
