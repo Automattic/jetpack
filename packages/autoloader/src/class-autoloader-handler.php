@@ -118,28 +118,16 @@ class Autoloader_Handler {
 	 * @return Version_Loader
 	 */
 	public function build_autoloader() {
-		require_once __DIR__ . '/class-manifest-handler.php';
-		require_once __DIR__ . '/class-version-loader.php';
-
 		$manifest_handler = new Manifest_Handler( $this->active_plugin_paths, $this->version_selector );
 
 		global $jetpack_packages_psr4;
-		$manifest_handler->register_plugin_manifests(
-			'vendor/composer/jetpack_autoload_psr4.php',
-			$jetpack_packages_psr4
-		);
+		$manifest_handler->register_plugin_manifests( 'vendor/composer/jetpack_autoload_psr4.php', $jetpack_packages_psr4 );
 
 		global $jetpack_packages_classmap;
-		$manifest_handler->register_plugin_manifests(
-			'vendor/composer/jetpack_autoload_classmap.php',
-			$jetpack_packages_classmap
-		);
+		$manifest_handler->register_plugin_manifests( 'vendor/composer/jetpack_autoload_classmap.php', $jetpack_packages_classmap );
 
 		global $jetpack_packages_filemap;
-		$manifest_handler->register_plugin_manifests(
-			'vendor/composer/jetpack_autoload_filemap.php',
-			$jetpack_packages_filemap
-		);
+		$manifest_handler->register_plugin_manifests( 'vendor/composer/jetpack_autoload_filemap.php', $jetpack_packages_filemap );
 
 		// Store the generated autoloader data in the loader so we can use it.
 		$loader = new Version_Loader( $this->version_selector );

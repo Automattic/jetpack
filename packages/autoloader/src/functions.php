@@ -62,6 +62,9 @@ function set_up_autoloader() {
 		return;
 	}
 
+	require_once __DIR__ . '/class-manifest-handler.php';
+	require_once __DIR__ . '/class-version-loader.php';
+
 	$jetpack_autoloader_loader = $autoloader_handler->build_autoloader();
 	$autoloader_handler->update_autoloader_chain();
 }
