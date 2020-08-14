@@ -5,4 +5,5 @@
 !jetpack_autoload_filemap.php
 !autoload_functions.php
 !autoload_packages.php
+!vendor/
 test-manifest.php
