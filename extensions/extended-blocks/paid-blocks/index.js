@@ -16,7 +16,11 @@ import { unregisterBlockStyle } from '@wordpress/blocks';
  * Internal dependencies
  */
 import withUpgradeBanner from './with-upgrade-banner';
-import { isUpgradeNudgeEnabled, isUpgradable, isStillUsableWithFreePlan } from '../../shared/plan-utils';
+import {
+	isUpgradeNudgeEnabled,
+	isUpgradable,
+	isStillUsableWithFreePlan,
+} from '../../shared/plan-utils';
 import paidBlockEdit from './edit';
 import renderPaidIcon from './render-paid-icon.js';
 

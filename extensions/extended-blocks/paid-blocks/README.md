@@ -1,12 +1,11 @@
-Paid Blocks
-===========
+# Paid Blocks
 
 This shared extension takes over providing additional behavior to a block if it considered to be a paid feature.
 
-This condition can depend on a few factors: 
+This condition can depend on a few factors:
 
-* is the site a Simple or Atomic site? 
-* does the site have site a paid or free plan? 
+- is the site a Simple or Atomic site?
+- does the site have site a paid or free plan?
 
 From the perspective of paid-blocks implementation however, our logic relies on the business-layer system.
 
