@@ -1111,22 +1111,20 @@ add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 function wpcomsh_upgrade_transferred_db() {
 	global $wp_db_version;
 
+	if (
+		empty( $_SERVER['ATOMIC_SITE_ID'] ) ||
+		$_SERVER['ATOMIC_SITE_ID'] <= 149474462 /* last site ID before WP 5.5 update */
+	) {
+		// We only want to run for real sites created after the WordPress 5.5 update
+		return;
+	}
+
 	// Value taken from:
 	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-includes/version.php#L23
 	$db_version_5_5 = 48748;
 
 	if( $wp_db_version < $db_version_5_5 ) {
 		// WordPress isn't yet at the version for upgrade
-		return;
-	}
-
-	// We need to be in installation mode to get actual, saved DB version
-	wp_installing( true );
-	$current_db_version = get_option( 'db_version' );
-	wp_installing( false );
-
-	if ( $current_db_version >= $db_version_5_5 ) {
-		// There's nothing to do
 		return;
 	}
 
@@ -1140,22 +1138,29 @@ function wpcomsh_upgrade_transferred_db() {
 	// and bring down a site if there are persistent errors
 	update_option( 'wpcomsh_upgraded_db', 1 );
 
-	//
-	// Update logic derived from:
-	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2167
-	//
-	
 	// We have to be in installation mode to work with options deprecated in WP 5.5
 	// Otherwise all gets and updates are directed to the new option names.
 	wp_installing( true );
 
-	if ( $current_db_version < 48121 && false !== get_option( 'comment_whitelist' ) && empty( get_option( 'comment_previously_approved' ) ) ) {
+	// Logic derived from:
+	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2176
+	if (
+		false !== get_option( 'comment_whitelist' ) &&
+		// default value from: https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L536
+		in_array( get_option( 'comment_previously_approved' ), array( false, 1 /* default value */ ) )
+	) {
 		$comment_previously_approved = get_option( 'comment_whitelist', '' );
 		update_option( 'comment_previously_approved', $comment_previously_approved );
 		delete_option( 'comment_whitelist' );
 	}
 
-	if ( $current_db_version < 48575 && false !== get_option( 'blacklist_keys' ) && empty( get_option( 'disallowed_keys' ) ) ) {
+	// Logic derived from:
+	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2182
+	if (
+		false !== get_option( 'blacklist_keys' ) &&
+		// default value from https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L535
+		in_array( get_option( 'disallowed_keys' ), array( false, '' /* default value */ ) )
+	) {
 		// Use more clear and inclusive language.
 		$disallowed_list = get_option( 'blacklist_keys' );
 
@@ -1175,17 +1180,30 @@ function wpcomsh_upgrade_transferred_db() {
 	// We're done updating deprecated options
 	wp_installing( false );
 
-	if ( $current_db_version < 48748 && ! get_option( 'finished_updating_comment_type' ) ) {
+	// Logic derived from:
+	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2199
+	// Make sure that comment_type update is attempted
+	if (
+		! get_option( 'finished_updating_comment_type' ) &&
+		false === wp_next_scheduled( 'wp_update_comment_type_batch' )
+	) {
 		update_option( 'finished_updating_comment_type', 0 );
 		wp_schedule_single_event( time() + ( 1 * MINUTE_IN_SECONDS ), 'wp_update_comment_type_batch' );
 	}
 
+	// We need to be in installation mode to get actual, saved DB version
+	wp_installing( true );
+	$current_db_version = get_option( 'db_version' );
+	wp_installing( false );
+
 	// Update DB version to avoid applying core upgrade logic which may be destructive
 	// to things like the new `comment_previously_approved` option.
 	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-admin/includes/upgrade.php#L2178
-	update_option( 'db_version', $db_version_5_5 );
+	if ( $current_db_version < $db_version_5_5 ) {
+		update_option( 'db_version', $db_version_5_5 );
 
-	// Preserve previous version for troubleshooting
-	update_option( 'wpcom_db_version_before_upgrade', $current_db_version, false /* do not autoload */ );
+		// Preserve previous version for troubleshooting
+		update_option( 'wpcom_db_version_before_upgrade', $current_db_version, false /* do not autoload */ );
+	}
 }
 add_action( 'muplugins_loaded', 'wpcomsh_upgrade_transferred_db' );
