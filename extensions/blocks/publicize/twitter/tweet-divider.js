@@ -5,7 +5,6 @@ import { flatMap } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
-import { create, __UNSTABLE_LINE_SEPARATOR } from '@wordpress/rich-text';
 
 /**
  * Internal dependencies
@@ -81,7 +80,13 @@ class TweetDivider extends Component {
 	}
 
 	render() {
-		const { ChildEdit, childProps, isTweetstorm, isSelectedTweetBoundary } = this.props;
+		const {
+			ChildEdit,
+			childProps,
+			isTweetstorm,
+			isSelectedTweetBoundary,
+			blockStyles,
+		} = this.props;
 
 		if ( ! isTweetstorm ) {
 			return <ChildEdit { ...childProps } />;
@@ -97,6 +102,20 @@ class TweetDivider extends Component {
 						</div>
 					</div>
 				) }
+				{ blockStyles && (
+					<style type="text/css">
+						{ blockStyles.map(
+							selector =>
+								`${ selector }::after {
+								content: "";
+								background: #0009;
+								width: 3px;
+								display: inline-block;
+								margin: 1px;
+							}`
+						) }
+					</style>
+				) }
 			</>
 		);
 	}
@@ -111,34 +130,45 @@ export default compose( [
 			tweet &&
 			tweet.blocks.some( block => block.clientId === selectedBlockClientId ) &&
 			tweet.blocks[ tweet.blocks.length - 1 ].clientId === childProps.clientId;
+
+		const computeSelector = element => {
+			// We've found the block node, we can return now.
+			if ( `block-${ childProps.clientId }` === element.id ) {
+				return `#block-${ childProps.clientId }`;
+			}
+
+			const parent = element.parentNode;
+			const index = Array.prototype.indexOf.call( parent.children, element );
+
+			return computeSelector( parent ) + ` > :nth-child( ${ index + 1 } )`;
+		};
+
+		const styles =
+			tweet &&
+			tweet.boundaries
+				.filter( boundary => 'end-of-line' === boundary.type )
+				.map( boundary => {
+					const line = document
+						.getElementById( `block-${ childProps.clientId }` )
+						.getElementsByTagName( 'li' )
+						.item( boundary.line );
+					return computeSelector( line );
+				} );
 		return {
 			isTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
 			isSelectedTweetBoundary,
 			boundaries: tweet && tweet.boundaries,
+			blockStyles: styles || [],
 		};
 	} ),
 	withDispatch( ( dispatch, { childProps }, { select } ) => {
 		return {
 			updateTweets: () => {
 				const topBlocks = select( 'core/editor' ).getBlocks();
-				const selectedBlocks = select( 'core/block-editor' ).getSelectedBlockClientIds();
 
 				const computeTweetBlocks = ( blocks = [] ) => {
 					return flatMap( blocks, ( block = {} ) => {
 						if ( SUPPORTED_BLOCKS[ block.name ] ) {
-							if ( 'core/list' === block.name ) {
-								return {
-									...block,
-									splitAttributes: {
-										values: create( {
-											html: block.attributes.values,
-											multilineTag: 'li',
-											multilineWrapperTags: [ 'ul', 'ol' ],
-										} ).text.split( __UNSTABLE_LINE_SEPARATOR ),
-									},
-								};
-							}
-
 							return block;
 						}
 
@@ -148,7 +178,7 @@ export default compose( [
 
 				const tweetBlocks = computeTweetBlocks( topBlocks );
 
-				dispatch( 'jetpack/publicize' ).refreshTweets( tweetBlocks, selectedBlocks );
+				dispatch( 'jetpack/publicize' ).refreshTweets( tweetBlocks );
 			},
 			updateAnnotations: () => {
 				const annotations = select( 'core/annotations' ).__experimentalGetAllAnnotationsForBlock(
@@ -166,13 +196,15 @@ export default compose( [
 				}
 
 				tweet.boundaries.forEach( boundary => {
-					const { container, ...range } = boundary;
-					dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
-						blockClientId: childProps.clientId,
-						source: 'jetpack-tweetstorm',
-						richTextIdentifier: container,
-						range,
-					} );
+					const { container, type, ...range } = boundary;
+					if ( 'normal' === type ) {
+						dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
+							blockClientId: childProps.clientId,
+							source: 'jetpack-tweetstorm',
+							richTextIdentifier: container,
+							range,
+						} );
+					}
 				} );
 			},
 		};

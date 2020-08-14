@@ -36,7 +36,6 @@ async function __refreshTweets( action, store ) {
 			path: '/wpcom/v2/tweetstorm/parse',
 			data: {
 				content: action.content,
-				selected: action.selected,
 			},
 			method: 'POST',
 		} );

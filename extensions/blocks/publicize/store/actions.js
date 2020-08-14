@@ -40,11 +40,10 @@ export function fetchFromAPI( path ) {
 	};
 }
 
-export function refreshTweets( content, selected ) {
+export function refreshTweets( content ) {
 	return {
 		type: 'REFRESH_TWEETS',
 		content,
-		selected,
 	};
 }
 

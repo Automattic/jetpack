@@ -37,14 +37,9 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 			$this->rest_base,
 			array(
 				'args'                                  => array(
-					'content'  => array(
+					'content' => array(
 						'description' => __( 'The blocks that need to be parsed into tweets.', 'jetpack' ),
 						'type'        => 'object',
-						'required'    => true,
-					),
-					'selected' => array(
-						'description' => __( 'The array of clientIds of the currently selected blocks.', 'jetpack' ),
-						'type'        => 'array',
 						'required'    => true,
 					),
 				),
@@ -63,7 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function parse_tweetstorm( $request ) {
-		return Jetpack_Tweetstorm_Helper::parse( $request['content'], $request['selected'] );
+		return Jetpack_Tweetstorm_Helper::parse( $request['content'] );
 	}
 }
 
