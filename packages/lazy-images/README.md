@@ -43,7 +43,7 @@ $ yarn build-packages
 
 On a local development environment run:
 ```bash
-$ composer phpunit-local
+$ composer phpunit
 ```
 
 ### Lint PHP source code
