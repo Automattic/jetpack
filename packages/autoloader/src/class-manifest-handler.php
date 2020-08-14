@@ -70,19 +70,30 @@ class Manifest_Handler {
 			return;
 		}
 
-		foreach ( $manifest as $file_identifier => $file_data ) {
-			if ( isset( $path_map[ $file_identifier ]['version'] ) ) {
-				$selected_version = $path_map[ $file_identifier ]['version'];
-			} else {
-				$selected_version = null;
-			}
+		foreach ( $manifest as $key => $data ) {
+			$this->register_record( $key, $data, $path_map );
+		}
+	}
 
-			if ( $this->version_selector->is_version_update_required( $selected_version, $file_data['version'] ) ) {
-				$path_map[ $file_identifier ] = array(
-					'version' => $file_data['version'],
-					'path'    => $file_data['path'],
-				);
-			}
+	/**
+	 * Registers an entry from the manifest in the path map.
+	 *
+	 * @param string $key The identifier for the entry we're registering.
+	 * @param array  $data The data for the entry we're registering.
+	 * @param array  $path_map The path map to add the contents of the manifest to.
+	 */
+	protected function register_record( $key, $data, &$path_map ) {
+		if ( isset( $path_map[ $key ]['version'] ) ) {
+			$selected_version = $path_map[ $key ]['version'];
+		} else {
+			$selected_version = null;
+		}
+
+		if ( $this->version_selector->is_version_update_required( $selected_version, $data['version'] ) ) {
+			$path_map[ $key ] = array(
+				'version' => $data['version'],
+				'path'    => $data['path'],
+			);
 		}
 	}
 }

@@ -47,12 +47,20 @@ class AutoloadGenerator extends BaseGenerator {
 AUTOLOADER_COMMENT;
 
 	/**
+	 * The filesystem utility.
+	 *
+	 * @var Filesystem
+	 */
+	private $filesystem;
+
+	/**
 	 * Instantiate an AutoloadGenerator object.
 	 *
 	 * @param IOInterface $io IO object.
 	 */
 	public function __construct( IOInterface $io = null ) {
-		$this->io = $io;
+		$this->io         = $io;
+		$this->filesystem = new Filesystem();
 	}
 
 	/**
@@ -75,21 +83,20 @@ AUTOLOADER_COMMENT;
 		$scanPsrPackages = false,
 		$suffix = null
 	) {
-		$filesystem = new Filesystem();
-		$filesystem->ensureDirectoryExists( $config->get( 'vendor-dir' ) );
+		$this->filesystem->ensureDirectoryExists( $config->get( 'vendor-dir' ) );
 
 		$packageMap = $this->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
 		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage );
 
 		// Convert the autoloads into a format that the manifest generator can consume more easily.
-		$basePath           = $filesystem->normalizePath( realpath( getcwd() ) );
-		$vendorPath         = $filesystem->normalizePath( realpath( $config->get( 'vendor-dir' ) ) );
-		$processedAutoloads = $this->processAutoloads( $autoloads, $scanPsrPackages, $filesystem, $vendorPath, $basePath );
+		$basePath           = $this->filesystem->normalizePath( realpath( getcwd() ) );
+		$vendorPath         = $this->filesystem->normalizePath( realpath( $config->get( 'vendor-dir' ) ) );
+		$processedAutoloads = $this->processAutoloads( $autoloads, $scanPsrPackages, $vendorPath, $basePath );
 		unset( $packageMap, $autoloads );
 
 		// Write all of the files now that we're done.
-		$this->writeAutoloaderFiles( $filesystem, $vendorPath . '/jetpack-autoloader/', $suffix );
-		$this->writeManifests( $filesystem, $vendorPath . '/' . $targetDir, $processedAutoloads );
+		$this->writeAutoloaderFiles( $vendorPath . '/jetpack-autoloader/', $suffix );
+		$this->writeManifests( $vendorPath . '/' . $targetDir, $processedAutoloads );
 	}
 
 	/**
@@ -168,19 +175,18 @@ AUTOLOADER_COMMENT;
 	/**
 	 * Given Composer's autoloads this will convert them to a version that we can use to generate the manifests.
 	 *
-	 * @param array      $autoloads The autoloads we want to process.
-	 * @param bool       $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
-	 * @param Filesystem $filesystem The filesystem object.
-	 * @param string     $vendorPath The path to the vendor directory.
-	 * @param string     $basePath The path to the current directory.
+	 * @param array  $autoloads The autoloads we want to process.
+	 * @param bool   $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
+	 * @param string $vendorPath The path to the vendor directory.
+	 * @param string $basePath The path to the current directory.
 	 *
 	 * @return array $processedAutoloads
 	 */
-	private function processAutoloads( $autoloads, $scanPsrPackages, $filesystem, $vendorPath, $basePath ) {
+	private function processAutoloads( $autoloads, $scanPsrPackages, $vendorPath, $basePath ) {
 		$processor = new AutoloadProcessor(
-			function ( $path, $classBlacklist, $namespace ) use ( $filesystem, $basePath ) {
-				$dir = $filesystem->normalizePath(
-					$filesystem->isAbsolutePath( $path ) ? $path : $basePath . '/' . $path
+			function ( $path, $classBlacklist, $namespace ) use ( $basePath ) {
+				$dir = $this->filesystem->normalizePath(
+					$this->filesystem->isAbsolutePath( $path ) ? $path : $basePath . '/' . $path
 				);
 				return ClassMapGenerator::createMap(
 					$dir,
@@ -189,8 +195,8 @@ AUTOLOADER_COMMENT;
 					empty( $namespace ) ? null : $namespace
 				);
 			},
-			function ( $path ) use ( $filesystem, $basePath, $vendorPath ) {
-				return $this->getPathCode( $filesystem, $basePath, $vendorPath, $path );
+			function ( $path ) use ( $basePath, $vendorPath ) {
+				return $this->getPathCode( $this->filesystem, $basePath, $vendorPath, $path );
 			}
 		);
 
@@ -204,15 +210,14 @@ AUTOLOADER_COMMENT;
 	/**
 	 * Writes all of the autoloader files to disk.
 	 *
-	 * @param Filesystem $filesystem The filesystem object.
-	 * @param string     $outDir The directory to write to.
-	 * @param string     $suffix The unique autoloader suffix.
+	 * @param string $outDir The directory to write to.
+	 * @param string $suffix The unique autoloader suffix.
 	 */
-	private function writeAutoloaderFiles( $filesystem, $outDir, $suffix ) {
+	private function writeAutoloaderFiles( $outDir, $suffix ) {
 		$this->io->writeError( "<info>Generating jetpack autoloader ($outDir)</info>" );
 
 		// We will remove all autoloader files to generate this again.
-		$filesystem->emptyDirectory( $outDir );
+		$this->filesystem->emptyDirectory( $outDir );
 
 		$packageFiles = array(
 			'autoload.php'                 => '../autoload_packages.php',
@@ -241,11 +246,10 @@ AUTOLOADER_COMMENT;
 	/**
 	 * Writes all of the manifest files to disk.
 	 *
-	 * @param Filesystem $filesystem The filesystem object.
-	 * @param string     $outDir The directory to write to.
-	 * @param array      $processedAutoloads The processed autoloads.
+	 * @param string $outDir The directory to write to.
+	 * @param array  $processedAutoloads The processed autoloads.
 	 */
-	private function writeManifests( $filesystem, $outDir, $processedAutoloads ) {
+	private function writeManifests( $outDir, $processedAutoloads ) {
 		$this->io->writeError( "<info>Generating jetpack autoloader manifests ($outDir)</info>" );
 
 		$manifestFiles = array(
@@ -256,7 +260,7 @@ AUTOLOADER_COMMENT;
 
 		foreach ( $manifestFiles as $key => $file ) {
 			// Make sure the file doesn't exist so it isn't there if we don't write it.
-			$filesystem->remove( $outDir . '/' . $file );
+			$this->filesystem->remove( $outDir . '/' . $file );
 			if ( empty( $processedAutoloads[ $key ] ) ) {
 				continue;
 			}

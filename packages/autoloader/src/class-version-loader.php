@@ -124,11 +124,16 @@ class Version_Loader {
 		if ( ! $class_index ) {
 			return null;
 		}
-		$class_namespace = substr( $class_name, 0, $class_index );
-		$class_for_path  = str_replace( '\\', '/', $class_name );
+		$class_for_path = str_replace( '\\', '/', $class_name );
 
-		// Find the most-specific namespace for this class.
-		for ( ; ! empty( $class_namespace ); $class_namespace = substr( $class_namespace, 0, strrpos( $class_namespace, '\\' ) ) ) {
+		// Search for the namespace by iteratively cutting off the last segment until
+		// we find a match. This allows us to check the most-specific namespaces
+		// first as well as minimize the amount of time spent looking.
+		for (
+			$class_namespace = substr( $class_name, 0, $class_index );
+			! empty( $class_namespace );
+			$class_namespace = substr( $class_namespace, 0, strrpos( $class_namespace, '\\' ) )
+		) {
 			$namespace = $class_namespace . '\\';
 			if ( ! isset( $this->psr4_map[ $namespace ] ) ) {
 				continue;
