@@ -4,11 +4,11 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-	  	"automattic/jetpack-constants": "@dev"
+		"automattic/jetpack-constants": "@dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "dev-add/posts_support"
 	},
 	"autoload": {
 		"classmap": [

@@ -3,12 +3,12 @@
 require dirname( __FILE__ ) . '/../../src/lazy-images.php';
 
 use Automattic\Jetpack\Jetpack_Lazy_Images;
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * Class WP_Test_Lazy_Images
  */
-class WP_Test_Lazy_Images extends TestCase {
+class WP_Test_Lazy_Images extends BaseTestCase {
 
 	/**
 	 * Setup.
@@ -175,14 +175,50 @@ class WP_Test_Lazy_Images extends TestCase {
 	}
 
 	/**
+	 * Create a upload
+	 *
+	 * @param string  $file File path.
+	 * @param integer $parent Parent post ID.
+	 * @return integer
+	 */
+	public function create_upload_object( $file, $parent = 0 ) {
+		$contents = file_get_contents( $file ); //phpcs:ignore
+		$upload   = wp_upload_bits( basename( $file ), null, $contents );
+
+		$type = '';
+		if ( ! empty( $upload['type'] ) ) {
+			$type = $upload['type'];
+		} else {
+			$mime = wp_check_filetype( $upload['file'], null );
+			if ( $mime ) {
+				$type = $mime['type'];
+			}
+		}
+
+		$attachment = array(
+			'post_title'     => basename( $upload['file'] ),
+			'post_content'   => '',
+			'post_type'      => 'attachment',
+			'post_parent'    => $parent,
+			'post_mime_type' => $type,
+			'guid'           => $upload['url'],
+		);
+
+		// Save the data.
+
+		$id = wp_insert_attachment( $attachment, $upload['file'], $parent );
+
+		wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $upload['file'] ) );
+
+		return $id;
+	}
+
+	/**
 	 * Test that the wp_get_attachment_image function output gets the lazy treatment.
 	 */
 	public function test_wp_get_attachment_image_gets_lazy_treatment() {
-		// Please refer to https://github.com/Automattic/jetpack/pull/16657 regarding the reasoning behind skipping this tests.
-		$this->markTestSkipped( 'This test needs to be refactored as it requires extending this class with WP_UnitTestCase and have a full WordPress instance running' );
-		return;
-		// phpcs:disable
-		$attachment_id = $this->factory->attachment->create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0 );
+
+		$attachment_id = $this->create_upload_object( dirname( __FILE__ ) . '/wp-logo.jpg', 0 );
 		add_filter( 'wp_get_attachment_image_attributes', array( '\Automattic\Jetpack\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 		$image = wp_get_attachment_image( $attachment_id );
 		remove_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
@@ -203,7 +239,7 @@ class WP_Test_Lazy_Images extends TestCase {
 		$this->markTestSkipped( 'This test needs to be refactored as it requires extending this class with WP_UnitTestCase and have a full WordPress instance running' );
 		return;
 		// phpcs:disable
-		$attachment_id = $this->factory->attachment->create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0 );
+		$attachment_id = $this->create_upload_object( dirname( __FILE__ ) . '/wp-logo.jpg', 0 );
 		$content       = sprintf( '[gallery ids="%d"]', $attachment_id );
 		$instance      = Jetpack_Lazy_Images::instance();
 
