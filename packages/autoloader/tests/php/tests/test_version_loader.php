@@ -144,4 +144,54 @@ class WP_Test_Version_Loader extends TestCase {
 
 		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_newer/src/Psr4/Test.php', $file_path );
 	}
+
+	/**
+	 * Tests that `load_filemap` correctly loads all of the files.
+	 *
+	 * @preserveGlobalState disabled
+	 * @runInSeparateProcess
+	 */
+	public function test_loads_filemap() {
+		$version_loader = new Version_Loader(
+			new Version_Selector(),
+			null,
+			null,
+			array(
+				'123456acbdefg' => array(
+					'version' => '1.0.0.0',
+					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/includes/functions.php',
+				),
+			)
+		);
+
+		$version_loader->load_filemap();
+
+		$this->assertTrue( $GLOBALS['__composer_autoload_files']['123456acbdefg'] );
+		$this->assertTrue( function_exists( '\\Jetpack\\AutoloaderTestData\\PluginCurrent\\if_i_exist_then_this_test_passed' ) );
+	}
+
+	/**
+	 * Tests that `load_filemap` does not load files that have already been loaded.
+	 */
+	public function test_loads_filemap_skips_existing_files() {
+		$version_loader = new Version_Loader(
+			new Version_Selector(),
+			null,
+			null,
+			array(
+				'123456acbdefg' => array(
+					'version' => '1.0.0.0',
+					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/includes/functions.php',
+				),
+			)
+		);
+
+		// Pretend it was already loaded!
+		$GLOBALS['__composer_autoload_files']['123456acbdefg'] = true;
+
+		$version_loader->load_filemap();
+
+		$this->assertTrue( $GLOBALS['__composer_autoload_files']['123456acbdefg'] );
+		$this->assertFalse( function_exists( '\\Jetpack\\AutoloaderTestData\\PluginCurrent\\if_i_exist_then_this_test_passed' ) );
+	}
 }

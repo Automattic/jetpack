@@ -10,7 +10,6 @@ define( 'TEST_DATA_PATH', __DIR__ . '/data' );
 
 // Load any of the test utilities.
 require_once __DIR__ . '/lib/functions-wordpress.php';
-require_once __DIR__ . '/lib/trait-manifest-mocks.php';
 
 // Load all of the classes for the autoloader.
 // We include these files manually both in the autoloader and here to avoid having them show up in the manifests.
