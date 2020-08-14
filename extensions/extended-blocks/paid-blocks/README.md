@@ -20,6 +20,6 @@ You can take a look at the Extension doc, [Paid Blocks](extensions/README.md#pai
 
 ### Setting blocks as paid not registered by Jetpack
 
-Sometimes some blocks need to be defined as paid because some of their features depend on the site plan, for instance, `core/video`. It's a core block.
+Sometimes blocks which are not themselves registered by Jetpack need to be marked as paid because some of their features depend on a site plan. A good example of this is the `core/video` block which is provided by Gutenberg Core and requires a paid plan in order to enable the uploading of video files.
 
 For such cases, you will need to mark the extension as "paid" within the WordPress.com codebase (not within Jetpack). You will also need to add the dependency to the paid blocks list. Please refer to D46955-code as a reference for how to achieve this.
