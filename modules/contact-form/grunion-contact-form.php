@@ -3482,10 +3482,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @param string $id field id.
 	 * @param string $class html classes (can be set by the admin).
-	 * @param string $consent_type can be implicit or explicit.
-	 * @param string $consent_message message that needs to be displayed to the visitor.
 	 */
-	private function render_consent_field( $id, $class, $consent_type, $consent_message ) {
+	private function render_consent_field( $id, $class ) {
+		$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
+		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
+
 		$field  = "<label class='grunion-field-label consent consent-" . $consent_type . "'>";
 		
 		if ( 'implicit' === $consent_type ) {
@@ -3620,10 +3621,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'consent':
-				$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
-				$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
-
-				$field .= $this->render_consent_field( $id, $field_class, $consent_type, $consent_message );
+				$field .= $this->render_consent_field( $id, $field_class );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );

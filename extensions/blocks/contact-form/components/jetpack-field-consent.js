@@ -41,7 +41,11 @@ const JetpackFieldConsent = ( {
 						}
 						setAttributes={ setAttributes }
 						labelFieldName={ `${ consentType }ConsentMessage` }
-						placeholder={ sprintf( __( 'Add %s consent message…', 'jetpack' ), consentType ) }
+						placeholder={ sprintf(
+							/* translators: placeholder is a type of consent: implicit or explicit */
+							__( 'Add %s consent message…', 'jetpack' ),
+							consentType
+						) }
 					/>
 					<InspectorControls>
 						<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>

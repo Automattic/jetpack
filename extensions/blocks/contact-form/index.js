@@ -369,7 +369,6 @@ export const childBlocks = [
 			edit: ( { attributes, isSelected, setAttributes } ) => {
 				const {
 					id,
-					// required,
 					width,
 					consentType,
 					implicitConsentMessage,
@@ -378,7 +377,6 @@ export const childBlocks = [
 				return (
 					<JetpackFieldConsent
 						id={ id }
-						// required={ required }
 						isSelected={ isSelected }
 						width={ width }
 						consentType={ consentType }
