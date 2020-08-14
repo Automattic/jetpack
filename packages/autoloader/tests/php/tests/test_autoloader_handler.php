@@ -20,8 +20,8 @@ class WP_Test_Autoloader_Handler extends TestCase {
 	 */
 	public function test_is_latest_autoloader_does_nothing_if_this_is_it() {
 		$autoloader_handler = new Autoloader_Handler(
-			__DIR__ . '/data/plugin_current',
-			array( __DIR__ . '/data/plugin_current' ),
+			TEST_DATA_PATH . '/plugins/plugin_current',
+			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);
@@ -29,7 +29,7 @@ class WP_Test_Autoloader_Handler extends TestCase {
 		$this->assertTrue( $autoloader_handler->is_latest_autoloader() );
 
 		global $jetpack_autoloader_latest_version;
-		$this->assertEquals( '1.0.0.0', $jetpack_autoloader_latest_version );
+		$this->assertEquals( '2.0.0.0', $jetpack_autoloader_latest_version );
 	}
 
 	/**
@@ -40,10 +40,10 @@ class WP_Test_Autoloader_Handler extends TestCase {
 	 */
 	public function test_is_latest_autoloader_requires_latest_if_this_is_not_it() {
 		$autoloader_handler = new Autoloader_Handler(
-			__DIR__ . '/data/plugin_current',
+			TEST_DATA_PATH . '/plugins/plugin_current',
 			array(
-				__DIR__ . '/data/plugin_current',
-				__DIR__ . '/data/plugin_newer',
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				TEST_DATA_PATH . '/plugins/plugin_newer',
 			),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
@@ -52,8 +52,8 @@ class WP_Test_Autoloader_Handler extends TestCase {
 		$this->assertFalse( $autoloader_handler->is_latest_autoloader() );
 
 		global $jetpack_autoloader_latest_version;
-		$this->assertEquals( '2.0.0.0', $jetpack_autoloader_latest_version );
-		$this->assertContains( __DIR__ . '/data/plugin_newer/vendor/autoload_packages.php', get_included_files() );
+		$this->assertEquals( '2.2.0.0', $jetpack_autoloader_latest_version );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_newer/vendor/autoload_packages.php', get_included_files() );
 	}
 
 	/**
@@ -63,8 +63,8 @@ class WP_Test_Autoloader_Handler extends TestCase {
 		global $jetpack_autoloader_activating_plugins_paths;
 
 		$autoloader_handler = new Autoloader_Handler(
-			__DIR__ . '/data/plugin_current',
-			array( __DIR__ . '/data/plugin_current' ),
+			TEST_DATA_PATH . '/plugins/plugin_current',
+			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);
@@ -80,7 +80,7 @@ class WP_Test_Autoloader_Handler extends TestCase {
 		global $jetpack_autoloader_activating_plugins_paths;
 
 		$autoloader_handler = new Autoloader_Handler(
-			__DIR__ . '/data/plugin_current',
+			TEST_DATA_PATH . '/plugins/plugin_current',
 			array(),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
@@ -88,7 +88,7 @@ class WP_Test_Autoloader_Handler extends TestCase {
 
 		$this->assertTrue( $autoloader_handler->should_autoloader_reset() );
 		$this->assertCount( 1, $jetpack_autoloader_activating_plugins_paths );
-		$this->assertEquals( __DIR__ . '/data/plugin_current', $jetpack_autoloader_activating_plugins_paths[0] );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current', $jetpack_autoloader_activating_plugins_paths[0] );
 	}
 
 	/**
@@ -96,8 +96,8 @@ class WP_Test_Autoloader_Handler extends TestCase {
 	 */
 	public function test_builds_autoloader() {
 		$autoloader_handler = new Autoloader_Handler(
-			__DIR__ . '/data/plugin_current',
-			array( __DIR__ . '/data/plugin_current' ),
+			TEST_DATA_PATH . '/plugins/plugin_current',
+			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);

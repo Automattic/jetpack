@@ -6,6 +6,8 @@
  */
 
 use PHPUnit\Framework\TestCase;
+use \Jetpack\AutoloaderTestData\Plugin\Test;
+use \Jetpack\AutoloaderTestData\Plugin\Psr4\Test as Psr4Test;
 
 /**
  * Test suite class for the Autoloader part that handles file loading.
@@ -18,7 +20,7 @@ class WP_Test_Version_Loader extends TestCase {
 	public function test_find_class_file_returns_null_for_unknown_class() {
 		$version_loader = new Version_Loader( new Version_Selector(), null, null, null );
 
-		$file_path = $version_loader->find_class_file( 'Test_Class' );
+		$file_path = $version_loader->find_class_file( Test::class );
 
 		$this->assertNull( $file_path );
 	}
@@ -30,18 +32,18 @@ class WP_Test_Version_Loader extends TestCase {
 		$version_loader = new Version_Loader(
 			new Version_Selector(),
 			array(
-				'Test_Class' => array(
+				Test::class => array(
 					'version' => '1.0.0.0',
-					'path'    => 'path_to_file.php',
+					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php',
 				),
 			),
 			null,
 			null
 		);
 
-		$file_path = $version_loader->find_class_file( 'Test_Class' );
+		$file_path = $version_loader->find_class_file( Test::class );
 
-		$this->assertEquals( 'path_to_file.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php', $file_path );
 	}
 
 	/**
@@ -52,17 +54,17 @@ class WP_Test_Version_Loader extends TestCase {
 			new Version_Selector(),
 			null,
 			array(
-				'Jetpack\\TestCase_ABC\\' => array(
+				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => array( __DIR__ . '/data' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current/src' ),
 				),
 			),
 			null
 		);
 
-		$file_path = $version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
+		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( __DIR__ . '/data/Psr4Folder/Psr4_ClassName_ABC.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/src/Psr4/Test.php', $file_path );
 	}
 
 	/**
@@ -74,21 +76,21 @@ class WP_Test_Version_Loader extends TestCase {
 			new Version_Selector(),
 			null,
 			array(
-				'Jetpack\\'               => array(
+				'Jetpack\\AutoloaderTestData\\'         => array(
 					'version' => '1.0.0.0',
-					'path'    => array( __DIR__ . '/data' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current' ),
 				),
-				'Jetpack\\TestCase_ABC\\' => array(
+				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => array( __DIR__ . '/data' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current/src' ),
 				),
 			),
 			null
 		);
 
-		$file_path = $version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
+		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( __DIR__ . '/data/Psr4Folder/Psr4_ClassName_ABC.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/src/Psr4/Test.php', $file_path );
 	}
 
 	/**
@@ -98,23 +100,23 @@ class WP_Test_Version_Loader extends TestCase {
 		$version_loader = new Version_Loader(
 			new Version_Selector(),
 			array(
-				'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' => array(
+				Psr4Test::class => array(
 					'version' => '2.0.0.0',
-					'path'    => 'path_to_file.php',
+					'path'    => TEST_DATA_PATH . '/plugins/plugin_newer/src/Psr4/Test.php',
 				),
 			),
 			array(
-				'Jetpack\\TestCase_ABC\\' => array(
+				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => array( __DIR__ . '/data' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current/src' ),
 				),
 			),
 			null
 		);
 
-		$file_path = $version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
+		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( 'path_to_file.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_newer/src/Psr4/Test.php', $file_path );
 	}
 
 	/**
@@ -124,22 +126,22 @@ class WP_Test_Version_Loader extends TestCase {
 		$version_loader = new Version_Loader(
 			new Version_Selector(),
 			array(
-				'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' => array(
+				Psr4Test::class => array(
 					'version' => '1.0.0.0',
-					'path'    => 'path_to_file.php',
+					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/src/Psr4/Test.php',
 				),
 			),
 			array(
-				'Jetpack\\TestCase_ABC\\' => array(
+				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '2.0.0.0',
-					'path'    => array( __DIR__ . '/data' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_newer/src' ),
 				),
 			),
 			null
 		);
 
-		$file_path = $version_loader->find_class_file( 'Jetpack\\TestCase_ABC\\Psr4Folder\\Psr4_ClassName_ABC' );
+		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( __DIR__ . '/data/Psr4Folder/Psr4_ClassName_ABC.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_newer/src/Psr4/Test.php', $file_path );
 	}
 }

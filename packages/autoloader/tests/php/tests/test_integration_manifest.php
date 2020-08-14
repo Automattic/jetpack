@@ -16,6 +16,11 @@ use PHPUnit\Framework\TestCase;
 class WP_Test_Integration_Manifest extends TestCase {
 
 	/**
+	 * The path to the test manifest we want to operate on.
+	 */
+	const TEST_MANIFEST_PATH = TEST_DATA_PATH . '/plugins/plugin_current/test-manifest.php';
+
+	/**
 	 * The manifest handler we're testing.
 	 *
 	 * @var Manifest_Handler
@@ -28,11 +33,16 @@ class WP_Test_Integration_Manifest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->manifest_handler = new Manifest_Handler( array( __DIR__ . '/data' ), new Version_Selector() );
+		$this->manifest_handler = new Manifest_Handler(
+			array(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+			),
+			new Version_Selector()
+		);
 
 		// Make sure the test manifest does not exist.
-		if ( file_exists( __DIR__ . '/data/test-manifest.php' ) ) {
-			unlink( __DIR__ . '/data/test-manifest.php' );
+		if ( file_exists( self::TEST_MANIFEST_PATH ) ) {
+			unlink( self::TEST_MANIFEST_PATH );
 		}
 	}
 
@@ -43,8 +53,8 @@ class WP_Test_Integration_Manifest extends TestCase {
 		parent::tearDown();
 
 		// Make sure the test manifest does not exist.
-		if ( file_exists( __DIR__ . '/data/test-manifest.php' ) ) {
-			unlink( __DIR__ . '/data/test-manifest.php' );
+		if ( file_exists( self::TEST_MANIFEST_PATH ) ) {
+			unlink( self::TEST_MANIFEST_PATH );
 		}
 	}
 
@@ -69,7 +79,7 @@ class WP_Test_Integration_Manifest extends TestCase {
 			array(
 				'TestFile' => array(
 					'version' => '1.0.0.0',
-					'path'    => dirname( __DIR__ ) . '/path_to_file.php',
+					'path'    => TEST_DATA_PATH . '/path_to_file.php',
 				),
 			),
 			$loaded
@@ -97,7 +107,7 @@ class WP_Test_Integration_Manifest extends TestCase {
 			array(
 				'Automattic\\Jetpack\\' => array(
 					'version' => '1.2.0.0',
-					'path'    => array( dirname( __DIR__ ) . '/src' ),
+					'path'    => array( TEST_DATA_PATH . '/src' ),
 				),
 			),
 			$loaded
@@ -125,7 +135,7 @@ class WP_Test_Integration_Manifest extends TestCase {
 			array(
 				'123d5a6s7vd' => array(
 					'version' => '1.3.0.0',
-					'path'    => dirname( __DIR__ ) . '/path_to_file.php',
+					'path'    => TEST_DATA_PATH . '/path_to_file.php',
 				),
 			),
 			$loaded
@@ -140,7 +150,7 @@ class WP_Test_Integration_Manifest extends TestCase {
 	 */
 	private function write_test_manifest( $autoload_type, $content ) {
 		file_put_contents(
-			__DIR__ . '/data/test-manifest.php',
+			self::TEST_MANIFEST_PATH,
 			ManifestGenerator::buildManifest( $autoload_type, 'test-manifest.php', $content )
 		);
 	}

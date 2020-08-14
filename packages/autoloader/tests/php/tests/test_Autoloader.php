@@ -6,7 +6,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
-use Jetpack\TestCase_ABC\ClassName_ABC;
+use Jetpack\AutoloaderTestData\Plugin\Test;
 
 /**
  * Test suite class for the Autoloader.
@@ -29,17 +29,17 @@ class WP_Test_Autoloader extends TestCase {
 		$jetpack_autoloader_loader = new Version_Loader(
 			new Version_Selector(),
 			array(
-				'Jetpack\TestCase_ABC\ClassName_ABC' => array(
+				Test::class => array(
 					'version' => '1.0.0.0',
-					'path'    => __DIR__ . '/data/path_to_class.php',
+					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php',
 				),
 			),
 			null,
 			null
 		);
 
-		$class = new ClassName_ABC();
+		$class = new Test();
 
-		$this->assertTrue( $class->return_true() );
+		$this->assertInstanceOf( Test::class, $class );
 	}
 }
