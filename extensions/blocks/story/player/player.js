@@ -89,7 +89,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 				setFullscreen( false );
 			}
 		}
-	}, [ currentSlideIndex ] );
+	}, [ currentSlideIndex, slides ] );
 
 	const onExitFullscreen = useCallback( () => {
 		setFullscreen( false );
