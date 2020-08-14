@@ -60,8 +60,8 @@ export default function Overlay( {
 					<GridiconFullscreen />
 				</div>
 			) }
-			<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
-				{ hasPrevious && (
+			{ hasPrevious && (
+				<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
 					<DecoratedButton
 						size={ 44 }
 						iconSize={ 24 }
@@ -69,10 +69,10 @@ export default function Overlay( {
 						icon="navigate_before"
 						className="outlined-w"
 					/>
-				) }
-			</div>
-			<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
-				{ hasNext && (
+				</div>
+			) }
+			{ hasNext && (
+				<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
 					<DecoratedButton
 						size={ 44 }
 						iconSize={ 24 }
@@ -80,8 +80,8 @@ export default function Overlay( {
 						icon="navigate_next"
 						className="outlined-w"
 					/>
-				) }
-			</div>
+				</div>
+			) }
 		</div>
 	);
 }

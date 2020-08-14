@@ -46,7 +46,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 			}
 			$attachment_id = $media_file['id'];
 			if ( 'image' === $media_file['type'] ) {
-				$image = wp_get_attachment_image_src( $attachment_id, 'full', false );
+				$image = wp_get_attachment_image_src( $attachment_id, EMBED_SIZE, false );
 				if ( ! $image ) {
 					return $media_file;
 				}
@@ -94,7 +94,7 @@ function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
-	$image      = wp_get_attachment_image_src( $media['id'], EMBED_SIZE, false );
+	$image      = wp_get_attachment_image_src( $media['id'], 'full', false );
 	$crop_class = '';
 	if ( $image ) {
 		list( , $width, $height ) = $image;

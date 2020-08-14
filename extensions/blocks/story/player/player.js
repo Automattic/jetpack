@@ -119,11 +119,16 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	}, [] );
 
 	useLayoutEffect( () => {
-		const wrapperHeight = ( wrapperRef.current && wrapperRef.current.offsetHeight ) || height;
-		const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
 		if ( ! fullscreen ) {
+			if ( ! wrapperRef.current ) {
+				return;
+			}
+			const wrapperHeight = wrapperRef.current.offsetHeight;
+			const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
 			setMaxSlideWidth( ratioBasedWidth );
 		} else {
+			const wrapperHeight = ( wrapperRef.current && wrapperRef.current.offsetHeight ) || height;
+			const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
 			const newMaxSlideWidth =
 				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
 			setMaxSlideWidth( newMaxSlideWidth );
@@ -131,7 +136,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 	}, [ width, height, fullscreen ] );
 
 	useLayoutEffect( () => {
-		if ( wrapperRef.current ) {
+		if ( wrapperRef.current && wrapperRef.current.offsetHeight > 0 ) {
 			setTargetAspectRatio( wrapperRef.current.offsetWidth / wrapperRef.current.offsetHeight );
 		}
 	}, [ width, height ] );
