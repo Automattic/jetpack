@@ -28,7 +28,7 @@ class WP_Test_Integration_Manifest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->manifest_handler = new Manifest_Handler( array(), new Version_Selector() );
+		$this->manifest_handler = new Manifest_Handler( array( __DIR__ . '/data' ), new Version_Selector() );
 
 		// Make sure the test manifest does not exist.
 		if ( file_exists( __DIR__ . '/data/test-manifest.php' ) ) {
@@ -62,7 +62,8 @@ class WP_Test_Integration_Manifest extends TestCase {
 			)
 		);
 
-		$loaded = $this->read_manifest();
+		$loaded = array();
+		$this->manifest_handler->register_plugin_manifests( 'test-manifest.php', $loaded );
 
 		$this->assertEquals(
 			array(
@@ -89,7 +90,8 @@ class WP_Test_Integration_Manifest extends TestCase {
 			)
 		);
 
-		$loaded = $this->read_manifest();
+		$loaded = array();
+		$this->manifest_handler->register_plugin_manifests( 'test-manifest.php', $loaded );
 
 		$this->assertEquals(
 			array(
@@ -116,7 +118,8 @@ class WP_Test_Integration_Manifest extends TestCase {
 			)
 		);
 
-		$loaded = $this->read_manifest();
+		$loaded = array();
+		$this->manifest_handler->register_plugin_manifests( 'test-manifest.php', $loaded );
 
 		$this->assertEquals(
 			array(
@@ -140,20 +143,5 @@ class WP_Test_Integration_Manifest extends TestCase {
 			__DIR__ . '/data/test-manifest.php',
 			ManifestGenerator::buildManifest( $autoload_type, 'test-manifest.php', $content )
 		);
-	}
-
-	/**
-	 * Reads the test manifest and returns the parsed array.
-	 *
-	 * @return mixed
-	 */
-	private function read_manifest() {
-		$method = new ReflectionMethod( Manifest_Handler::class, 'register_manifest' );
-		$method->setAccessible( true );
-		$input_array = null;
-
-		$method->invokeArgs( $this->manifest_handler, array( __DIR__ . '/data/test-manifest.php', &$input_array ) );
-
-		return $input_array;
 	}
 }

@@ -58,34 +58,51 @@ class Version_Loader {
 	 * Finds the file path for the given class.
 	 *
 	 * @param string $class_name The class to find.
+	 *
 	 * @return string|null $file_path The path to the file if found, null if no class was found.
 	 */
 	public function find_class_file( $class_name ) {
-		$classmap_data = isset( $this->class_map[ $class_name ] ) ? $this->class_map[ $class_name ] : null;
-		$psr4_data     = $this->find_psr4_file( $class_name );
-
-		if ( ! isset( $classmap_data ) && ! isset( $psr4_data ) ) {
+		$data = $this->find_newest_file(
+			isset( $this->class_map[ $class_name ] ) ? $this->class_map[ $class_name ] : null,
+			$this->find_psr4_file( $class_name )
+		);
+		if ( ! isset( $data ) ) {
 			return null;
-		} elseif ( isset( $classmap_data ) && ! isset( $psr4_data ) ) {
-			return $classmap_data['path'];
-		} elseif ( ! isset( $classmap_data ) && isset( $psr4_data ) ) {
-			return $psr4_data['path'];
+		}
+
+		return $data['path'];
+	}
+
+	/**
+	 * Compares different class sources and returns the newest.
+	 *
+	 * @param array|null $classmap_data The classmap class data.
+	 * @param array|null $psr4_data The PSR-4 class data.
+	 *
+	 * @return array|null $data
+	 */
+	private function find_newest_file( $classmap_data, $psr4_data ) {
+		if ( ! isset( $classmap_data ) ) {
+			return $psr4_data;
+		} elseif ( ! isset( $psr4_data ) ) {
+			return $classmap_data;
 		}
 
 		if ( $this->version_selector->is_version_update_required( $classmap_data['version'], $psr4_data['version'] ) ) {
-			return $psr4_data['path'];
+			return $psr4_data;
 		}
 
-		return $classmap_data['path'];
+		return $classmap_data;
 	}
 
 	/**
 	 * Finds the file for a given class in a PSR-4 namespace.
 	 *
 	 * @param string $class_name The class to find.
+	 *
 	 * @return array|null $data The version and path path to the file if found, null otherwise.
 	 */
-	protected function find_psr4_file( $class_name ) {
+	private function find_psr4_file( $class_name ) {
 		if ( ! isset( $this->psr4_map ) ) {
 			return null;
 		}
