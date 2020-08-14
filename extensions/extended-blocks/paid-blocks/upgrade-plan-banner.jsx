@@ -23,7 +23,7 @@ const UpgradePlanBanner = ( {
 	buttonText = __( 'Upgrade', 'jetpack' ),
 	visible = true,
 } ) => {
-	const [ checkoutUrl, goToCheckoutPage ] = useUpgradeFlow( onRedirect );
+	const [ checkoutUrl, goToCheckoutPage ] = useUpgradeFlow( 'value_bundle', onRedirect );
 
 	if ( ! visible ) {
 		return null;
