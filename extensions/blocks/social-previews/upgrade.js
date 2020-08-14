@@ -1,28 +1,33 @@
 /**
  * External dependencies
  */
-import { compact } from 'lodash';
 import { Button } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import analytics from '../../../_inc/client/lib/analytics';
-import { isSimpleSite } from '../../shared/site-type-utils';
-import getSiteFragment from '../../shared/get-site-fragment';
 import upgradeImageUrl from './upgrade-illustration.svg';
 import { BUSINESS_PLAN } from '../../shared/components/upgrade-nudge/constants';
+import useUpgradeFlow from "../../shared/use-upgrade-flow";
 
-const SocialPreviewsUpgrade = function SocialPreviewsUpgrade( {
-	autosaveAndRedirect,
-	href,
-	trackViewEvent,
-} ) {
+const trackViewEvent = () =>
+	void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
+		plan: BUSINESS_PLAN,
+		block: 'social-previews',
+	} );
+
+const trackClickEvent = () =>
+	void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
+		plan: BUSINESS_PLAN,
+		block: 'social-previews',
+	} );
+
+export default function SocialPreviewsUpgrade() {
+	const [ href, autosaveAndRedirect ] = useUpgradeFlow( BUSINESS_PLAN, trackClickEvent );
+
 	// Using the effect here so the tracking is only called once on component mount.
 	useEffect( trackViewEvent, [] );
 
@@ -72,66 +77,4 @@ const SocialPreviewsUpgrade = function SocialPreviewsUpgrade( {
 			</div>
 		</div>
 	);
-};
-
-export default compose( [
-	withSelect( select => {
-		const plan = select( 'wordpress-com/plans' ).getPlan( BUSINESS_PLAN );
-		const postId = select( 'core/editor' ).getCurrentPostId();
-		const postType = select( 'core/editor' ).getCurrentPostType();
-
-		const planPathSlug = plan?.path_slug;
-		const domain = getSiteFragment();
-
-		// The editor for CPTs has an `edit/` route fragment prefixed.
-		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
-
-		// Post-checkout: redirect back here.
-		const redirect_to = isSimpleSite()
-			? addQueryArgs(
-					'/' + compact( [ postTypeEditorRoutePrefix, postType, domain, postId ] ).join( '/' ),
-					{
-						plan_upgraded: 1,
-					}
-			  )
-			: addQueryArgs(
-					window.location.protocol + `//${ domain.replace( '::', '/' ) }/wp-admin/post.php`,
-					{
-						action: 'edit',
-						post: postId,
-						plan_upgraded: 1,
-					}
-			  );
-
-		const href =
-			planPathSlug &&
-			addQueryArgs( `https://wordpress.com/checkout/${ domain }/${ planPathSlug }`, {
-				redirect_to,
-			} );
-
-		return {
-			href,
-			trackViewEvent: () =>
-				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
-					plan: planPathSlug,
-					block: 'social-previews',
-				} ),
-			trackClickEvent: () =>
-				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
-					plan: planPathSlug,
-					block: 'social-previews',
-				} ),
-		};
-	} ),
-	withDispatch( ( dispatch, { href, trackClickEvent } ) => ( {
-		autosaveAndRedirect: async event => {
-			event.preventDefault(); // Don't follow the href before auto-saving.
-
-			trackClickEvent();
-			await dispatch( 'core/editor' ).autosave();
-
-			// Using window.top to escape from the editor iframe on WordPress.com.
-			window.top.location.href = href;
-		},
-	} ) ),
-] )( SocialPreviewsUpgrade );
+}
