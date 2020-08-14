@@ -89,6 +89,8 @@ if [ 80 -eq "$HOST_PORT" ]; then
 	WP_HOST_PORT=""
 fi
 
+chmod +x /var/scripts/run-extras.sh && . /var/scripts/run-extras.sh
+
 echo
 echo "Open http://${WP_DOMAIN}${WP_HOST_PORT}/ to see your site!"
 echo

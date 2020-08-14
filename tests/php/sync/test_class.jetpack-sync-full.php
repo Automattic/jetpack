@@ -990,20 +990,17 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		add_action( 'jetpack_full_sync_start', array( $this, 'record_full_sync_start_config' ), 10, 1 );
 
 		$standard_config = array(
-			'constants' => true,
-			'functions' => true,
-			'options' => true,
-			'terms' => true,
+			'constants'          => true,
+			'functions'          => true,
+			'options'            => true,
+			'terms'              => true,
 			'term_relationships' => true,
-			'themes' => true,
-			'users' => true,
-			'updates' => true,
-			'posts' => true
+			'themes'             => true,
+			'users'              => true,
+			'updates'            => true,
+			'posts'              => true,
+			'network_options'    => true,
 		);
-
-		if ( is_multisite() ) {
-			$standard_config['network_options'] = true;
-		}
 
 		$this->full_sync->start();
 
@@ -1119,12 +1116,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'              => 1,
 				'terms'              => 1,
 				'term_relationships' => 1,
+				'network_options'    => 1,
 			),
 			'config' => null
 		);
-		if ( is_multisite() ) {
-			$should_be_status['queue']['network_options'] = 1;
-		}
 
 		$this->assertEquals( $should_be_status['queue'], $full_sync_status['queue'] );
 		$this->assertEquals( $should_be_status['config'], $full_sync_status['config'] );
@@ -1156,6 +1151,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'              => 1,
 				'terms'              => 1,
 				'term_relationships' => 1,
+				'network_options'    => 1,
 			),
 			'sent_total'  => array(
 				'constants'          => -1,
@@ -1168,6 +1164,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'              => 1,
 				'terms'              => 1,
 				'term_relationships' => $this->test_posts_count, // Intentional; each post is in minimum one category by default.
+				'network_options'    => -1,
 			),
 			'queue' => array(
 				'constants'          => 1,
@@ -1180,13 +1177,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'              => 1,
 				'terms'              => 1,
 				'term_relationships' => 1,
+				'network_options'    => 1,
 			)
 		);
-		if ( is_multisite() ) {
-			$should_be_status['queue']['network_options']       = 1;
-			$should_be_status['sent']['network_options']        = 1;
-			$should_be_status['sent_total']['network_options']  = -1;
-		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
@@ -1420,6 +1413,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'              => 1,
 				'terms'              => 1,
 				'term_relationships' => 1,
+				'network_options'    => 1,
 			),
 			'queue' => array(
 				'constants'          => 1,
@@ -1432,6 +1426,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'              => 1,
 				'terms'              => 1,
 				'term_relationships' => 1,
+				'network_options'    => 1,
 			),
 			'total' => array(
 				'constants'          => 1,
@@ -1444,13 +1439,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'              => 1,
 				'terms'              => 1,
 				'term_relationships' => 1,
+				'network_options'    => 1,
 			)
 		);
-		if ( is_multisite() ) {
-			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['sent']['network_options']  = 1;
-			$should_be_status['total']['network_options'] = 1;
-		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
@@ -1513,15 +1504,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array(
-			'options' => true,
-			'functions' => true,
-			'constants' => true,
-			'users' => array( $current_user->ID )
+			'options'         => true,
+			'functions'       => true,
+			'constants'       => true,
+			'users'           => array( $current_user->ID ),
+			'network_options' => true,
 		);
-
-		if ( is_multisite() ) {
-			$expected_sync_config['network_options'] = true;
-		}
 
 		$full_sync_status = $this->full_sync->get_status();
 		$this->assertEquals(

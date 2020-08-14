@@ -49,8 +49,6 @@ class Jetpack {
 
 	private $rest_authentication_status = null;
 
-	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
-
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 *
@@ -212,6 +210,7 @@ class Jetpack {
 			'All in One SEO Pack Pro'        => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 			'The SEO Framework'              => 'autodescription/autodescription.php',
 			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
+			'Slim SEO'                       => 'slim-seo/slim-seo.php',
 		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'         => 'wordpress-seo/wp-seo.php',
@@ -220,6 +219,7 @@ class Jetpack {
 			'All in One SEO Pack Pro'        => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 			'The SEO Framework'              => 'autodescription/autodescription.php',
 			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
+			'Slim SEO'                       => 'slim-seo/slim-seo.php',
 		),
 		'widget-visibility'  => array(
 			'Widget Logic'    => 'widget-logic/widget_logic.php',
@@ -242,6 +242,7 @@ class Jetpack {
 			'XML Sitemaps'                         => 'xml-sitemaps/xml-sitemaps.php',
 			'MSM Sitemaps'                         => 'msm-sitemap/msm-sitemap.php',
 			'Rank Math'                            => 'seo-by-rank-math/rank-math.php',
+			'Slim SEO'                             => 'slim-seo/slim-seo.php',
 		),
 		'lazy-images'        => array(
 			'Lazy Load'              => 'lazy-load/lazy-load.php',
@@ -310,6 +311,7 @@ class Jetpack {
 		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button
 		'open-graph-metabox/open-graph-metabox.php',              // Open Graph Metabox
 		'seo-by-rank-math/rank-math.php',                        // Rank Math.
+		'slim-seo/slim-seo.php',                                 // Slim SEO
 	);
 
 	/**
@@ -328,6 +330,7 @@ class Jetpack {
 		'wp-to-twitter/wp-to-twitter.php',           // WP to Twitter
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
 		'seo-by-rank-math/rank-math.php',            // Rank Math.
+		'slim-seo/slim-seo.php',                     // Slim SEO
 	);
 
 	/**
@@ -476,6 +479,23 @@ class Jetpack {
 				// Upgrade to 8.4.0.
 				if ( Jetpack_Options::get_option( 'ab_connect_banner_green_bar' ) ) {
 					Jetpack_Options::delete_option( 'ab_connect_banner_green_bar' );
+				}
+
+				// Update to 8.8.x (WordPress 5.5 Compatibility).
+				if ( Jetpack_Options::get_option( 'autoupdate_plugins' ) ) {
+					$updated = update_site_option(
+						'auto_update_plugins',
+						array_unique(
+							array_merge(
+								(array) Jetpack_Options::get_option( 'autoupdate_plugins', array() ),
+								(array) get_site_option( 'auto_update_plugins', array() )
+							)
+						)
+					);
+
+					if ( $updated ) {
+						Jetpack_Options::delete_option( 'autoupdate_plugins' );
+					} // Should we have some type of fallback if something fails here?
 				}
 
 				if ( did_action( 'wp_loaded' ) ) {
@@ -5510,18 +5530,6 @@ endif;
 			return null;
 		}
 
-		// Ensure that we always have the request body available.  At this
-		// point, the WP REST API code to determine the request body has not
-		// run yet.  That code may try to read from 'php://input' later, but
-		// this can only be done once per request in PHP versions prior to 5.6.
-		// So we will go ahead and perform this read now if needed, and save
-		// the request body where both the Jetpack signature verification code
-		// and the WP REST API code can see it.
-		if ( ! isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ) {
-			$GLOBALS['HTTP_RAW_POST_DATA'] = file_get_contents( 'php://input' );
-		}
-		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
-
 		// Only support specific request parameters that have been tested and
 		// are known to work with signature verification.  A different method
 		// can be passed to the WP REST API via the '?_method=' parameter if
@@ -5534,7 +5542,7 @@ endif;
 			);
 			return null;
 		}
-		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' && ! empty( $this->HTTP_RAW_POST_DATA ) ) {
+		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
 			$this->rest_authentication_status = new WP_Error(
 				'rest_invalid_request',
 				__( 'This request method does not support body parameters.', 'jetpack' ),

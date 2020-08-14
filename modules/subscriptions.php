@@ -12,6 +12,8 @@
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
  */
 
+use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
 function jetpack_subscriptions_load() {
@@ -546,7 +548,7 @@ class Jetpack_Subscriptions {
 			}
 
 			if ( $async ) {
-				Jetpack::xmlrpc_async_call( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) );
+				XMLRPC_Async_Call::add_call( 'jetpack.subscribeToSite', 0, $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			} else {
 				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) );
 			}

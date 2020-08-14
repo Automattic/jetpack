@@ -8,9 +8,16 @@ function run_packages_tests {
 	do
 		if [ -d "$PACKAGE" ]; then
 			cd "$PACKAGE/../.."
-			echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$PACKAGE\` "
+			export NAME=$(basename $(pwd))
+
+			if [ "$DO_COVERAGE" == "true" ]; then
+				composer install
+				export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
+			fi
+			echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
 
 			if $WP_TRAVISCI_PACKAGES; then
+				ls -la $TRAVIS_BUILD_DIR/coverage/packages
 				# Everything is fine
 				:
 			else
@@ -76,7 +83,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	elif [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
-		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/clover.xml"
+		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
 	fi
 
   if [ "$LEGACY_FULL_SYNC" == "1" ]; then

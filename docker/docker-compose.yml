@@ -19,6 +19,18 @@ services:
       - default.env
       - .env
 
+  phpmyadmin:
+    container_name: jetpack_phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - db:mysql
+    ports:
+    - 8181:80
+    environment:
+      MYSQL_USERNAME: "${MYSQL_USER:-wordpress}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-wordpress}"
+    restart: always
+
   ## SMTP Server + Web Interface for viewing and testing emails during development.
   ## http://danfarrelly.nyc/MailDev/
   maildev:

@@ -19,14 +19,12 @@ registerJetpackPlugin( name, settings );
  * extension availability so will not render the Plugin if the extension is not
  * availabile.
  */
-const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' );
+const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' )?.available;
 
 if ( ! extensionAvailableOnPlan ) {
-    registerPlugin( `jetpack-${name}-upgrade-nudge`, {
-        render: () => {
-            return (
-                <SocialPreviews showUpgradeNudge={ true } />
-            );
-        }
-    } );
+	registerPlugin( `jetpack-${ name }-upgrade-nudge`, {
+		render: () => {
+			return <SocialPreviews showUpgradeNudge={ true } />;
+		},
+	} );
 }

@@ -170,15 +170,15 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function autoupdate_on() {
-		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$autoupdate_plugins = (array) get_site_option( 'auto_update_plugins', array() );
 		$autoupdate_plugins = array_unique( array_merge( $autoupdate_plugins, $this->plugins ) );
-		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
+		update_site_option( 'auto_update_plugins', $autoupdate_plugins );
 	}
 
 	protected function autoupdate_off() {
-		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$autoupdate_plugins = (array) get_site_option( 'auto_update_plugins', array() );
 		$autoupdate_plugins = array_diff( $autoupdate_plugins, $this->plugins );
-		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
+		update_site_option( 'auto_update_plugins', $autoupdate_plugins );
 	}
 
 	protected function autoupdate_translations_on() {

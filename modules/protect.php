@@ -249,9 +249,7 @@ class Jetpack_Protect_Module {
 		}
 
 		// Request the key
-		$xml = new Jetpack_IXR_Client( array (
-			'user_id' => get_current_user_id()
-		) );
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.protect.requestKey', $request );
 
 		// Hmm, can't talk to wordpress.com

@@ -302,6 +302,37 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media-header__account {
+	display: flex;
+	flex-direction: column;
+
+	.jetpack-external-media-header__account-info {
+		display: flex;
+		margin-bottom: 8px;
+	}
+
+	.jetpack-external-media-header__account-image {
+		margin-right: 8px;
+	}
+
+	.jetpack-external-media-header__account-name {
+		height: 18px;
+		max-width: 190px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.jetpack-external-media-browser__disconnect {
+		height: 40px;
+		margin: 1px 1px 9px 0;
+
+		@media only screen and ( min-width: 783px ) {
+			height: 30px;
+		}
+	}
+}
+
 .jetpack-external-media-header__pexels {
 	display: flex;
 	margin-bottom: 48px;

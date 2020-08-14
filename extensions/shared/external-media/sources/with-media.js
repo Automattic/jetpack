@@ -11,8 +11,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { speak } from '@wordpress/a11y';
+import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import { withSelect } from '@wordpress/data';
 
@@ -28,7 +27,13 @@ export default function withMedia() {
 			constructor( props ) {
 				super( props );
 
+				this.defaultAccount = {
+					image: '',
+					name: '',
+				};
+
 				this.state = {
+					account: this.defaultAccount,
 					media: [],
 					nextHandle: false,
 					isLoading: false,
@@ -101,6 +106,7 @@ export default function withMedia() {
 
 				this.setState(
 					{
+						account: resetMedia ? this.defaultAccount : this.state.account,
 						isLoading: true,
 						media: resetMedia ? [] : this.state.media,
 						nextHandle: resetMedia ? false : this.state.nextHandle,
@@ -153,6 +159,7 @@ export default function withMedia() {
 				} )
 					.then( result => {
 						this.setState( {
+							account: result.meta.account,
 							media: this.mergeMedia( media, result.media ),
 							nextHandle: result.meta.next_page,
 							isLoading: false,
@@ -170,18 +177,6 @@ export default function withMedia() {
 				if ( this.modalElement ) {
 					this.modalElement.focus();
 				}
-
-				// Announce the action with appended string of all the images' alt text.
-				speak(
-					sprintf(
-						__( 'Inserting: %s', 'jetpack' ),
-						items
-							.map( item => item.title )
-							.filter( item => item )
-							.join( ', ' )
-					),
-					'polite'
-				);
 
 				apiFetch( {
 					path: apiUrl,
@@ -236,7 +231,15 @@ export default function withMedia() {
 			};
 
 			render() {
-				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
+				const {
+					account,
+					isAuthenticated,
+					isCopying,
+					isLoading,
+					media,
+					nextHandle,
+					path,
+				} = this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const title = isCopying
@@ -270,6 +273,7 @@ export default function withMedia() {
 							</p>
 
 							<OriginalComponent
+								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
 								isCopying={ isCopying }

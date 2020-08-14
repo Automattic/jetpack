@@ -2,6 +2,14 @@
 @import './common';
 
 .wp-block-jetpack-donations {
+	.donations__amount {
+		cursor: text;
+	}
+
+	.donations__custom-amount {
+		cursor: default;
+	}
+
 	.donations__amount .block-editor-rich-text__editable {
 		display: inline-block;
 		text-align: left;
@@ -13,12 +21,9 @@
 		}
 	}
 
-	.donations__amount.wp-block-button:not(.has-text-color):not(.is-style-outline) [data-rich-text-placeholder]:after {
+	.donations__amount [data-rich-text-placeholder]:after {
 		color: $light-gray-700;
-	}
-
-	.donations__custom-amount .wp-block-button__link {
-		cursor: default;
+		opacity: 1;
 	}
 
 	.donations__custom-amount .donations__amount-value {
