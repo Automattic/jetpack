@@ -18,7 +18,7 @@ In short and as a general rule, if you need to set a block as paid, you should d
 
 You can take a look at the Extension doc, [Paid Blocks](extensions/README.md#paid-blocks) section to know more about this process.
 
-### Setting blocks as paid not registered by Jetpack
+### Setting blocks as paid which are not registered by Jetpack
 
 Sometimes blocks which are not themselves registered by Jetpack need to be marked as paid because some of their features depend on a site plan. A good example of this is the `core/video` block which is provided by Gutenberg Core and requires a paid plan in order to enable the uploading of video files.
 
