@@ -30,6 +30,10 @@
 		color: $light-gray-700;
 	}
 
+	.donations__donate-button-wrapper {
+		margin-bottom: 30px;
+	}
+
 	.jetpack-block-nudge {
 		max-width: none;
 	}
@@ -42,5 +46,5 @@
 }
 
 .jetpack-donations__currency-popover .components-popover__content {
-	min-width: 120px;
+	min-width: 130px;
 }

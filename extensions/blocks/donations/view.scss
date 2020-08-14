@@ -1,23 +1,86 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 @import './common';
+@import '../../shared/memberships';
 
 .wp-block-jetpack-donations {
-	.donations__one-time-item,
-	.donations__monthly-item,
-	.donations__annual-item {
-		display: none;
+	@keyframes spinner {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
-	.donations__tab {
-		&.is-one-time .donations__one-time-item,
-		&.is-monthly .donations__monthly-item,
-		&.is-annual .donations__annual-item {
-			display: block;
+	.donations__container:not( .loaded ) {
+		width: 100%;
+		height: 200px;
+		position: relative;
+
+		* {
+			display: none;
+		}
+
+		&:before {
+			content: "";
+			background-color: $dark-gray-200;
+			width: $spinner-size;
+			height: $spinner-size;
+			opacity: 0.7;
+			border-radius: 100%;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate( -50%, -50% );
+		}
+
+		&:after {
+			content: "";
+			background-color: $white;
+			width: ( $spinner-size / 4.5 );
+			height: ( $spinner-size / 4.5 );
+			border-radius: 100%;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-left: - $spinner-size / 3;
+			margin-top: - $spinner-size / 3;
+			transform-origin: ( $spinner-size / 3 ) ( $spinner-size / 3 );
+			animation: spinner 1s infinite linear;
+		}
+	}
+
+	.donations__tab.is-one-time {
+		.donations__monthly-item,
+		.donations__annual-item {
+			display: none;
+		}
+	}
+
+	.donations__tab.is-monthly {
+		.donations__one-time-item,
+		.donations__annual-item {
+			display: none;
+		}
+	}
+	.donations__tab.is-annual {
+		.donations__one-time-item,
+		.donations__monthly-item {
+			display: none;
 		}
 	}
 
 	.donations__amount {
 		cursor: pointer;
+
+		&:hover {
+			background-color: $light-gray-100;
+		}
+
+		&.is-selected {
+			background-color: $blue-wordpress-700;
+			color: $white;
+		}
 	}
 
 	.donations__custom-amount {
@@ -37,5 +100,10 @@
 				outline: none;
 			}
 		}
+	}
+
+	.donations__donate-button.is-disabled {
+		pointer-events: none;
+		opacity: 0.2;
 	}
 }

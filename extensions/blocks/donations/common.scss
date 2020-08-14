@@ -1,4 +1,5 @@
 // Common styles for both views (editor and frontend).
+@import '../../shared/styles/gutenberg-base-styles.scss';
 
 .wp-block-jetpack-donations {
 	.donations__container {
@@ -13,10 +14,10 @@
 	.donations__nav-item {
 		font-weight: bold;
 		display: inline-block;
-		flex-grow: 1;
+		flex: 1;
 		text-align: center;
 		font-size: 16px;
-		padding: 16px 24px;
+		padding: 12px;
 		border: none;
 		border-left: 1px solid $light-gray-700;
 		background: $white;
@@ -26,6 +27,10 @@
 		text-transform: none;
 		text-decoration: none;
 		outline: none;
+
+		@include break-small() {
+			padding: 16px 24px;
+		}
 
 		&:first-child {
 			border-left: none;
@@ -48,9 +53,9 @@
 	}
 
 	.donations__amounts {
-		margin-top: 30px;
 		margin-bottom: 30px;
 		display: flex;
+		flex-wrap: wrap;
 	}
 
 	.donations__amount {
@@ -60,8 +65,10 @@
 		color: $dark-gray-800;
 		border: 1px solid $light-gray-700;
 		margin-right: 8px;
+		margin-bottom: 8px;
 		font-weight: 600;
 		font-size: 16px;
+		white-space: nowrap;
 
 		&.has-focus {
 			box-shadow: 0 0 0 1px $white, 0 0 0 3px $blue-wordpress-700;
@@ -91,6 +98,6 @@
 	}
 
 	.donations__donate-button {
-		margin-bottom: 30px;
+		margin: 0;
 	}
 }
