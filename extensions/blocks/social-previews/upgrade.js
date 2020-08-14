@@ -11,22 +11,27 @@ import { useEffect } from '@wordpress/element';
 import analytics from '../../../_inc/client/lib/analytics';
 import upgradeImageUrl from './upgrade-illustration.svg';
 import { BUSINESS_PLAN } from '../../shared/components/upgrade-nudge/constants';
-import useUpgradeFlow from "../../shared/use-upgrade-flow";
+import useUpgradeFlow from '../../shared/use-upgrade-flow';
+import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
+import { name } from './index';
 
 const trackViewEvent = () =>
 	void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
 		plan: BUSINESS_PLAN,
-		block: 'social-previews',
+		block: name,
 	} );
 
 const trackClickEvent = () =>
 	void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 		plan: BUSINESS_PLAN,
-		block: 'social-previews',
+		block: name,
 	} );
 
 export default function SocialPreviewsUpgrade() {
-	const [ href, autosaveAndRedirect ] = useUpgradeFlow( BUSINESS_PLAN, trackClickEvent );
+	const {
+		details: { required_plan },
+	} = getJetpackExtensionAvailability( name );
+	const [ href, autosaveAndRedirect ] = useUpgradeFlow( required_plan, trackClickEvent );
 
 	// Using the effect here so the tracking is only called once on component mount.
 	useEffect( trackViewEvent, [] );
