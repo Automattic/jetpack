@@ -14,7 +14,9 @@ use Jetpack_Gutenberg;
 const FEATURE_NAME = 'story';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
-const EMBED_SIZE = array( 180, 320 );
+const EMBED_SIZE        = array( 180, 320 );
+const CROP_UP_TO        = 0.2;
+const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
 
 /**
  * Registers the block for use in Gutenberg
@@ -60,7 +62,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 						'width'  => absint( $width ),
 						'height' => absint( $height ),
 						'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-						'sizes'  => '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw', // 120vw to match the 20% upToCrop ratio
+						'sizes'  => IMAGE_BREAKPOINTS,
 					)
 				);
 			} else {
@@ -92,6 +94,26 @@ function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
+	$image      = wp_get_attachment_image_src( $media['id'], EMBED_SIZE, false );
+	$crop_class = '';
+	if ( $image ) {
+		list( , $width, $height ) = $image;
+		$media_aspect_ratio       = $width / $height;
+		$target_aspect_ratio      = EMBED_SIZE[0] / EMBED_SIZE[1];
+		if ( $media_aspect_ratio >= $target_aspect_ratio ) {
+			// image wider than canvas.
+			$media_too_wide_to_crop = $media_aspect_ratio > $target_aspect_ratio / ( 1 - CROP_UP_TO );
+			if ( ! $media_too_wide_to_crop ) {
+				$crop_class = 'wp-story-crop-wide';
+			}
+		} else {
+			// image narrower than canvas.
+			$media_too_narrow_to_crop = $media_aspect_ratio < $target_aspect_ratio * ( 1 - CROP_UP_TO );
+			if ( ! $media_too_narrow_to_crop ) {
+				$crop_class = 'wp-story-crop-narrow';
+			}
+		}
+	}
 	// need to specify the size of the embed so it picks an image that is large enough for the `src` attribute
 	// `sizes` is optimized for 1080x1920 (9:16) images
 	// Note that the Story block does not have thumbnail support, it will load the right
@@ -101,8 +123,8 @@ function render_image( $media ) {
 		EMBED_SIZE,
 		false,
 		array(
-			'class' => sprintf( 'wp-story-image wp-image-%d', $media['id'] ),
-			'sizes' => '(max-width: 169px) 169w, (max-width: 576px) 576w, (max-width: 768px) 768w, 1080w',
+			'class' => sprintf( 'wp-story-image wp-image-%d %s', $media['id'], $crop_class ),
+			'sizes' => IMAGE_BREAKPOINTS,
 		)
 	);
 }

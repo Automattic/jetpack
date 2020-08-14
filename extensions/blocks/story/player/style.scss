@@ -115,6 +115,14 @@
 		max-width: 100%;
 		margin: 0;
 		border: 0;
+
+		&.wp-story-crop-wide {
+			max-width: revert;
+		}
+
+		&.wp-story-crop-narrow {
+			max-height: revert;
+		}
 	}
 
 	.wp-story-meta, .wp-story-controls {
