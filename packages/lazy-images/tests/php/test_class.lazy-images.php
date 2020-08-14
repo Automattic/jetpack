@@ -271,6 +271,7 @@ class WP_Test_Lazy_Images extends TestCase {
 		$sample_image_srcset = '<img src="placeholder.jpg" data-lazy-src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w">';
 		$sample_img_sizes    = '<img src="placeholder.jpg" data-lazy-src="image.jpg" data-lazy-sizes="(min-width: 36em) 33.3vw, 100vw">';
 
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$allowed = wp_kses_allowed_html();
 
 		// First, test existence of issue if we don't filter.
@@ -452,7 +453,7 @@ class WP_Test_Lazy_Images extends TestCase {
 	 *
 	 * @dataProvider get_skip_image_with_attributes_data
 	 */
-	public function test_jetpack_lazy_images_skip_image_with_attributes_filter( $filter_name ) {
+	public function test_jetpack_lazy_images_skip_image_with_attributes_filter( $filter_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = Jetpack_Lazy_Images::instance();
 		$src      = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
 
@@ -520,7 +521,7 @@ class WP_Test_Lazy_Images extends TestCase {
 	public function get_input_content() {
 		ob_start();
 
-		require_once dirname( __FILE__ ) . '/pre-image-placeholder-content.php';
+		require_once dirname( __FILE__ ) . '/pre-image-placeholder-content.html';
 
 		$contents = trim( ob_get_contents() );
 		ob_end_clean();
@@ -536,7 +537,7 @@ class WP_Test_Lazy_Images extends TestCase {
 	public function get_output_content() {
 		ob_start();
 
-		require_once dirname( __FILE__ ) . '/post-image-placeholder-content.php';
+		require_once dirname( __FILE__ ) . '/post-image-placeholder-content.html';
 
 		$contents = trim( ob_get_contents() );
 		ob_end_clean();
