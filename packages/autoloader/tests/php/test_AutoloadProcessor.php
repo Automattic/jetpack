@@ -6,7 +6,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
-use Automattic\Jetpack\Autoloader\Composer\AutoloadProcessor;
+use Automattic\Jetpack\Autoloader\AutoloadProcessor;
 
 /**
  * Test suite class for the Autoload processor.
@@ -19,8 +19,8 @@ class WP_Test_AutoloadProcessor extends TestCase {
 	public function test_process_functions_return_null_when_empty() {
 		$processor = new AutoloadProcessor( null, null );
 
-		$this->assertNull( $processor->processClassmap( array(), false, '' ) );
-		$this->assertNull( $processor->processClassmap( array(), true, '' ) );
+		$this->assertNull( $processor->processClassmap( array(), false ) );
+		$this->assertNull( $processor->processClassmap( array(), true ) );
 		$this->assertNull( $processor->processPsr4Packages( array(), false ) );
 		$this->assertNull( $processor->processPsr4Packages( array(), true ) );
 		$this->assertNull( $processor->processFiles( array() ) );
@@ -32,7 +32,7 @@ class WP_Test_AutoloadProcessor extends TestCase {
 	public function test_process_classmap_does_not_scan_psr_packages() {
 		$classmap_scanner      = function ( $path, $class_blacklist, $namespace ) {
 			$this->assertEquals( 'src', $path );
-			$this->assertEquals( 'blacklist', $class_blacklist );
+			$this->assertNull( $class_blacklist );
 			$this->assertNull( $namespace );
 
 			return array(
@@ -54,7 +54,7 @@ class WP_Test_AutoloadProcessor extends TestCase {
 			),
 		);
 
-		$processed = $processor->processClassmap( $autoloads, false, 'blacklist' );
+		$processed = $processor->processClassmap( $autoloads, false );
 
 		$this->assertEquals(
 			array(
@@ -77,7 +77,7 @@ class WP_Test_AutoloadProcessor extends TestCase {
 	public function test_process_classmap_scans_psr_packages_when_requested() {
 		$classmap_scanner      = function ( $path, $class_blacklist, $namespace ) {
 			$this->assertEquals( 'src', $path );
-			$this->assertEquals( 'test-blacklist', $class_blacklist );
+			$this->assertNull( $class_blacklist );
 			$this->assertEquals( 'Jetpack\\Autoloader\\', $namespace );
 
 			return array(
@@ -101,7 +101,7 @@ class WP_Test_AutoloadProcessor extends TestCase {
 			),
 		);
 
-		$processed = $processor->processClassmap( $autoloads, true, 'test-blacklist' );
+		$processed = $processor->processClassmap( $autoloads, true );
 
 		$this->assertEquals(
 			array(
@@ -112,6 +112,53 @@ class WP_Test_AutoloadProcessor extends TestCase {
 				'TestClass2' => array(
 					'version' => 'dev-test2',
 					'path'    => 'converted2-src/TestClass2.php',
+				),
+			),
+			$processed
+		);
+	}
+
+	/**
+	 * Tests that `processClassmap` passes the blacklist correctly when given one.
+	 */
+	public function test_process_classmap_uses_blacklist() {
+		$classmap_scanner      = function ( $path, $class_blacklist, $namespace ) {
+			$this->assertEquals( 'src', $path );
+			$this->assertEquals( '{(TestClass)}', $class_blacklist );
+			$this->assertNull( $namespace );
+
+			return array(
+				'TestClass'  => 'src/TestClass.php',
+				'TestClass2' => 'src/TestClass2.php',
+			);
+		};
+		$path_code_transformer = function ( $path ) {
+			return 'converted-' . $path;
+		};
+		$processor             = new AutoloadProcessor( $classmap_scanner, $path_code_transformer );
+
+		$autoloads = array(
+			'classmap' => array(
+				array(
+					'path'    => 'src',
+					'version' => 'dev-test',
+				),
+			),
+		);
+
+		$autoloads['exclude-from-classmap'] = array( 'TestClass' );
+
+		$processed = $processor->processClassmap( $autoloads, false );
+
+		$this->assertEquals(
+			array(
+				'TestClass'  => array(
+					'version' => 'dev-test',
+					'path'    => 'converted-src/TestClass.php',
+				),
+				'TestClass2' => array(
+					'version' => 'dev-test',
+					'path'    => 'converted-src/TestClass2.php',
 				),
 			),
 			$processed

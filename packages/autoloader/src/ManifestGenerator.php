@@ -13,7 +13,7 @@
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
 
-namespace Automattic\Jetpack\Autoloader\Composer;
+namespace Automattic\Jetpack\Autoloader;
 
 /**
  * Class ManifestGenerator.

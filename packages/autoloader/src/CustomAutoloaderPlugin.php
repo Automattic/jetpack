@@ -12,7 +12,7 @@
 // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-namespace Automattic\Jetpack\Autoloader\Composer;
+namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;

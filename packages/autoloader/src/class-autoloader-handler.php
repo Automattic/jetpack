@@ -16,8 +16,7 @@ class Autoloader_Handler {
 	 */
 	const V2_AUTOLOADER_BASE = 'Automattic\Jetpack\Autoloader\jp';
 
-	const AUTOLOAD_GENERATOR_NAMESPACE  = 'Automattic\\Jetpack\\Autoloader\\';
-	const AUTOLOAD_GENERATOR_CLASS_NAME = self::AUTOLOAD_GENERATOR_NAMESPACE . 'AutoloadGenerator';
+	const AUTOLOAD_GENERATOR_CLASS_NAME = 'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator';
 
 	/**
 	 * The Plugins_Handler object.
@@ -97,26 +96,12 @@ class Autoloader_Handler {
 	 * @return string|null The autoloader's version.
 	 */
 	private function get_autoloader_version( $vendor_path ) {
-		$autoloader_version = null;
-
-		// Check both the PSR-4 and classmap files for our generator.
-		$psr4_path = $vendor_path . '/composer/jetpack_autoload_psr4.php';
-		if ( file_exists( $psr4_path ) ) {
-			$psr4 = require $psr4_path;
-			if ( isset( $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ] ) ) {
-				$autoloader_version = $psr4[ self::AUTOLOAD_GENERATOR_NAMESPACE ]['version'];
-			}
+		$classmap = require $vendor_path . '/composer/jetpack_autoload_classmap.php';
+		if ( isset( $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ] ) ) {
+			return $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
 		}
 
-		$classmap_path = $vendor_path . '/composer/jetpack_autoload_classmap.php';
-		if ( ! isset( $autoloader_version ) && file_exists( $classmap_path ) ) {
-			$classmap = require $classmap_path;
-			if ( isset( $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ] ) ) {
-				$autoloader_version = $classmap[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
-			}
-		}
-
-		return $autoloader_version;
+		return null;
 	}
 
 	/**

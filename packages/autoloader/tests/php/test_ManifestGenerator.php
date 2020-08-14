@@ -6,7 +6,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
-use Automattic\Jetpack\Autoloader\Composer\ManifestGenerator;
+use Automattic\Jetpack\Autoloader\ManifestGenerator;
 
 /**
  * Test suite class for the manifest generator

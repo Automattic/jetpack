@@ -12,7 +12,7 @@
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
-namespace Automattic\Jetpack\Autoloader\Composer;
+namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Util\Filesystem;
 
@@ -49,13 +49,12 @@ class AutoloadProcessor {
 	/**
 	 * Processes the classmap autoloads into a relative path format including the version for each file.
 	 *
-	 * @param array  $autoloads The autoloads we are processing.
-	 * @param bool   $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
-	 * @param string $classBlacklist Classes that should be excluded from the classmap.
+	 * @param array $autoloads The autoloads we are processing.
+	 * @param bool  $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
 	 *
 	 * @return array $processed
 	 */
-	public function processClassmap( $autoloads, $scanPsrPackages, $classBlacklist ) {
+	public function processClassmap( $autoloads, $scanPsrPackages ) {
 		// We can't scan PSR packages if we don't actually have any.
 		if ( empty( $autoloads['psr-4'] ) ) {
 			$scanPsrPackages = false;
@@ -63,6 +62,11 @@ class AutoloadProcessor {
 
 		if ( empty( $autoloads['classmap'] ) && ! $scanPsrPackages ) {
 			return null;
+		}
+
+		$classBlacklist = null;
+		if ( ! empty( $autoloads['exclude-from-classmap'] ) ) {
+			$classBlacklist = '{(' . implode( '|', $autoloads['exclude-from-classmap'] ) . ')}';
 		}
 
 		$processed = array();

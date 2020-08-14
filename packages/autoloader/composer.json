@@ -10,12 +10,15 @@
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
 	},
 	"autoload": {
+		"classmap": [
+			"src/AutoloadGenerator.php"
+		],
 		"psr-4": {
 			"Automattic\\Jetpack\\Autoloader\\": "src"
 		}
 	},
 	"extra": {
-		"class": "Automattic\\Jetpack\\Autoloader\\Composer\\CustomAutoloaderPlugin"
+		"class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
 	},
 	"scripts": {
 		"phpunit": [
