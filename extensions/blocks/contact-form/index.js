@@ -357,7 +357,7 @@ export const childBlocks = [
 				implicitConsentMessage: {
 					type: 'string',
 					default: __(
-						'By submitting your information, you are granting us permission to email you. You may unsubscribe at any time.',
+						"By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.",
 						'jetpack'
 					),
 				},

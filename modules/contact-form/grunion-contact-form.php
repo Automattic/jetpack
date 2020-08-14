@@ -375,7 +375,7 @@ class Grunion_Contact_Form_Plugin {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent' );
 
 		if ( ! isset( $atts['implicitConsentMessage'] ) ) {
-			$atts['implicitConsentMessage'] = __( 'By submitting your information, you are granting us permission to email you. You may unsubscribe at any time.', 'jetpack' );
+			$atts['implicitConsentMessage'] = __( "By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.", 'jetpack' );
 		}
 
 		if ( ! isset( $atts['explicitConsentMessage'] ) ) {
