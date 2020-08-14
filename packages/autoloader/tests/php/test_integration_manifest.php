@@ -28,7 +28,7 @@ class WP_Test_Integration_Manifest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->manifest_handler = new Manifest_Handler( new Plugins_Handler(), new Version_Selector() );
+		$this->manifest_handler = new Manifest_Handler( array(), new Version_Selector() );
 
 		// Make sure the test manifest does not exist.
 		if ( file_exists( __DIR__ . '/data/test-manifest.php' ) ) {

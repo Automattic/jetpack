@@ -54,7 +54,10 @@ function enqueue_files( $plugins_handler, $version_selector ) {
 	require_once __DIR__ . '/class-manifest-handler.php';
 	require_once __DIR__ . '/class-version-loader.php';
 
-	$manifest_handler = new Manifest_Handler( $plugins_handler, $version_selector );
+	$manifest_handler = new Manifest_Handler(
+		$plugins_handler->get_all_active_plugins_paths(),
+		$version_selector
+	);
 
 	global $jetpack_packages_psr4;
 	$manifest_handler->register_plugin_manifests(

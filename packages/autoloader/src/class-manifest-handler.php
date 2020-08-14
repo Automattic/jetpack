@@ -7,11 +7,11 @@
 class Manifest_Handler {
 
 	/**
-	 * The Plugins_Handler object.
+	 * An array of the active plugin paths we want to search.
 	 *
-	 * @var Plugins_Handler
+	 * @var array
 	 */
-	private $plugins_handler = null;
+	private $active_plugin_paths = array();
 
 	/**
 	 * The Version_Selector object.
@@ -23,12 +23,12 @@ class Manifest_Handler {
 	/**
 	 * The constructor.
 	 *
-	 * @param Plugins_Handler  $plugins_handler The Plugins_Handler object.
+	 * @param array            $active_plugin_paths An array of the active plugin paths we want to search.
 	 * @param Version_Selector $version_selector The Version_Selector object.
 	 */
-	public function __construct( $plugins_handler, $version_selector ) {
-		$this->plugins_handler  = $plugins_handler;
-		$this->version_selector = $version_selector;
+	public function __construct( $active_plugin_paths, $version_selector ) {
+		$this->active_plugin_paths = $active_plugin_paths;
+		$this->version_selector    = $version_selector;
 	}
 
 	/**
@@ -44,7 +44,7 @@ class Manifest_Handler {
 			function ( $path ) use ( $manifest_path ) {
 				return trailingslashit( $path ) . $manifest_path;
 			},
-			$this->plugins_handler->get_all_active_plugins_paths()
+			$this->active_plugin_paths
 		);
 
 		foreach ( $file_paths as $path ) {
