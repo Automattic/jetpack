@@ -34,7 +34,7 @@
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
-		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && NODE_ENV=production yarn build-extensions && NODE_ENV=production yarn build-search",
+		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && NODE_ENV=production yarn build-extensions && NODE_ENV=production yarn build-search && NODE_ENV=production yarn build-packages",
 		"docker:compose": "yarn docker:env && yarn docker:compose-extras && docker-compose -f docker/docker-compose.yml -f docker/compose-extras.yml",
 		"docker:up": "yarn docker:compose up",
 		"docker:ngrok": "yarn docker:compose -f docker/docker-compose-ngrok.yml",
