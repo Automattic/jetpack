@@ -19,7 +19,7 @@ export default ( {
 			r={ r }
 			fill={ fill }
 			stroke={ stroke }
-			stroke-width={ strokeWidth }
+			strokeWidth={ strokeWidth }
 		/>
 	);
 };
