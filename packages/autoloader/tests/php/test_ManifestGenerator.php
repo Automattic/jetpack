@@ -17,9 +17,9 @@ class WP_Test_ManifestGenerator extends TestCase {
 	 * Tests that all of the manifest generation methods do nothing without content.
 	 */
 	public function test_manifests_do_nothing_without_content() {
-		$this->assertNull( ManifestGenerator::buildClassmapManifest( 'test', array() ) );
-		$this->assertNull( ManifestGenerator::buildPsr4Manifest( 'test', array() ) );
-		$this->assertNull( ManifestGenerator::buildFilesManifest( 'test', array() ) );
+		$this->assertNull( ManifestGenerator::buildManifest( 'classmap', 'test', array() ) );
+		$this->assertNull( ManifestGenerator::buildManifest( 'psr-4', 'test', array() ) );
+		$this->assertNull( ManifestGenerator::buildManifest( 'files', 'test', array() ) );
 	}
 
 	/**
@@ -50,7 +50,7 @@ EXPECTED_FILE;
 			),
 		);
 
-		$manifest = ManifestGenerator::buildClassmapManifest( 'test-file.php', $content );
+		$manifest = ManifestGenerator::buildManifest( 'classmap', 'test-file.php', $content );
 
 		$this->assertEquals( $expected, $manifest );
 	}
@@ -83,7 +83,7 @@ EXPECTED_FILE;
 			),
 		);
 
-		$manifest = ManifestGenerator::buildPsr4Manifest( 'test-file2.php', $content );
+		$manifest = ManifestGenerator::buildManifest( 'psr-4', 'test-file2.php', $content );
 
 		$this->assertEquals( $expected, $manifest );
 	}
@@ -116,7 +116,7 @@ EXPECTED_FILE;
 			),
 		);
 
-		$manifest = ManifestGenerator::buildFilesManifest( 'test-file3.php', $content );
+		$manifest = ManifestGenerator::buildManifest( 'files', 'test-file3.php', $content );
 
 		$this->assertEquals( $expected, $manifest );
 	}

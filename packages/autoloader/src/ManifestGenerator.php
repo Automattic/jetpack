@@ -31,6 +31,10 @@ class ManifestGenerator {
 	 * @throws \InvalidArgumentException When an invalid autoloader type is given.
 	 */
 	public static function buildManifest( $autoloaderType, $fileName, $content ) {
+		if ( empty( $content ) ) {
+			return null;
+		}
+
 		switch ( $autoloaderType ) {
 			case 'classmap':
 				return self::buildClassmapManifest( $fileName, $content );
@@ -51,11 +55,7 @@ class ManifestGenerator {
 	 *
 	 * @return string|null $manifestFile
 	 */
-	public static function buildClassmapManifest( $fileName, $classmap ) {
-		if ( empty( $classmap ) ) {
-			return null;
-		}
-
+	private static function buildClassmapManifest( $fileName, $classmap ) {
 		$fileContent = PHP_EOL;
 		foreach ( $classmap as $class => $data ) {
 			$classCode    = var_export( $class, true );
@@ -80,11 +80,7 @@ MANIFEST_CODE;
 	 *
 	 * @return string|null $manifestFile
 	 */
-	public static function buildPsr4Manifest( $fileName, $namespaces ) {
-		if ( empty( $namespaces ) ) {
-			return null;
-		}
-
+	private static function buildPsr4Manifest( $fileName, $namespaces ) {
 		$fileContent = PHP_EOL;
 		foreach ( $namespaces as $namespace => $data ) {
 			$namespaceCode = var_export( $namespace, true );
@@ -110,11 +106,7 @@ MANIFEST_CODE;
 	 *
 	 * @return string|null $manifestFile
 	 */
-	public static function buildFilesManifest( $fileName, $files ) {
-		if ( empty( $files ) ) {
-			return null;
-		}
-
+	private static function buildFilesManifest( $fileName, $files ) {
 		$fileContent = PHP_EOL;
 		foreach ( $files as $fileID => $data ) {
 			$key          = var_export( $fileID, true );
