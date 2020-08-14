@@ -40,6 +40,13 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 
 	const uploading = some( slides, media => isBlobURL( media.url ) );
 	const showProgressBar = fullscreen || ! settings.showSlideCount;
+	const isVideo = slideIndex => {
+		const media = slideIndex < slides.length ? slides[ slideIndex ] : null;
+		if ( ! media ) {
+			return false;
+		}
+		return 'video' === media.type || ( media.mime || '' ).startsWith( 'video/' );
+	};
 
 	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
 		setCurrentSlideProgress( 0 );
@@ -60,7 +67,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		if ( ended && ! playing ) {
 			showSlide( 0 );
 		}
-		if ( ! playing ) {
+		if ( ! playing && ! fullscreen ) {
 			setPlaying( true );
 		}
 	}, [ playing, ended, fullscreen, disabled ] );
@@ -140,7 +147,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					'wp-story-fullscreen': fullscreen,
 					'wp-story-ended': ended,
 					'wp-story-disabled': disabled,
-					'wp-story-clickable': ! disabled,
+					'wp-story-clickable': ! disabled && ! fullscreen,
 				} ) }
 				style={ { maxWidth: `${ maxSlideWidth }px` } }
 				onClick={ onPress }
@@ -165,6 +172,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							onEnd={ tryNextSlide }
 							settings={ settings }
 							targetAspectRatio={ targetAspectRatio }
+							isVideo={ isVideo( currentSlideIndex ) }
 						/>
 					) ) }
 				</div>
@@ -192,6 +200,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					muted={ muted }
 					setPlaying={ setPlaying }
 					setMuted={ setMuted }
+					showMute={ isVideo( currentSlideIndex ) }
 				/>
 			</div>
 			{ fullscreen && (
