@@ -30,7 +30,7 @@ const defaultSettings = {
 	exitFullscreenOnEnd: true,
 	loadInFullscreen: false,
 	blurredBackground: true,
-	showSlideCount: true,
+	showSlideCount: false,
 	shadowDOM: {
 		enabled: true,
 		mode: 'open', // closed not supported right now
