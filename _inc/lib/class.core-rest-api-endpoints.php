@@ -3501,19 +3501,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$plugin = stripslashes( $request['slug'] );
 
 		jetpack_require_lib( 'plugins' );
-		$result = Jetpack_Plugins::install_plugin( $plugin );
 
-		if ( is_wp_error( $result ) ) {
-			return new WP_Error(
-				'install_plugin_failed',
-				sprintf(
-					/* translators: %1$s: plugin name. -- %2$s: error message. */
-					__( 'Unable to install %1$s: %2$s ', 'jetpack' ),
-					$plugin,
-					$result->get_error_message()
-				),
-				array( 'status' => 500 )
-			);
+		// Let's make sure the plugin isn't already installed.
+		$plugin_id = Jetpack_Plugins::get_plugin_id_by_slug( $plugin );
+
+		// If not installed, let's install now.
+		if ( ! $plugin_id ) {
+			$result = Jetpack_Plugins::install_plugin( $plugin );
+
+			if ( is_wp_error( $result ) ) {
+				return new WP_Error(
+					'install_plugin_failed',
+					sprintf(
+						/* translators: %1$s: plugin name. -- %2$s: error message. */
+						__( 'Unable to install %1$s: %2$s ', 'jetpack' ),
+						$plugin,
+						$result->get_error_message()
+					),
+					array( 'status' => 500 )
+				);
+			}
 		}
 
 		/*
@@ -3536,23 +3543,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		// Proceed with plugin activation.
-		$plugin_id = Jetpack_Plugins::get_plugin_id_by_slug( $plugin );
+		/*
+		 * Proceed with plugin activation.
+		 * Let's check again for the plugin's ID if we don't already have it.
+		 */
 		if ( ! $plugin_id ) {
-			return new WP_Error(
-				'unable_to_determine_installed_plugin',
-				__( 'Unable to determine what plugin was installed.', 'jetpack' ),
-				array( 'status' => 500 )
-			);
+			$plugin_id = Jetpack_Plugins::get_plugin_id_by_slug( $plugin );
+			if ( ! $plugin_id ) {
+				return new WP_Error(
+					'unable_to_determine_installed_plugin',
+					__( 'Unable to determine what plugin was installed.', 'jetpack' ),
+					array( 'status' => 500 )
+				);
+			}
 		}
 
 		$source      = ! empty( $request['source'] ) ? stripslashes( $request['source'] ) : 'rest_api';
 		$plugin_args = array(
-			'plugin' => $plugin_id,
+			'plugin' => substr( $plugin_id, 0, - 4 ),
 			'status' => 'active',
 			'source' => $source,
 		);
-		self::activate_plugin( $plugin_args );
+		return self::activate_plugin( $plugin_args );
 	}
 
 	/**
