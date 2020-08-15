@@ -7,13 +7,12 @@ import { get, pick } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { createElement, Fragment, useState } from '@wordpress/element';
+import { createElement, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { mediaUpload } from '@wordpress/editor';
-import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
+import { withNotices } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -87,7 +86,6 @@ export default withNotices( function StoryEdit( {
 
 	const mediaPlaceholder = (
 		<MediaPlaceholder
-			addToGallery={ hasImages }
 			isAppender={ hasImages }
 			className={ className }
 			disableMediaButtons={ hasImages && ! isSelected }
