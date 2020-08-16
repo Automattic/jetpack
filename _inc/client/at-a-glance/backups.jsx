@@ -232,7 +232,7 @@ class DashBackups extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
-				{ 'unavailable' === this.props.rewindStatus ? (
+				{ 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ? (
 					this.getVPContent()
 				) : (
 					<div className="jp-dash-item">{ this.getRewindContent() }</div>
