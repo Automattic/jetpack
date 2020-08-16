@@ -11,7 +11,7 @@ import { _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import { isCurrentUserLinked, isOfflineMode } from 'state/connection';
+import { isSiteConnected, isOfflineMode } from 'state/connection';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
@@ -55,7 +55,7 @@ export class Navigation extends React.Component {
 					>
 						{ _x( 'At a Glance', 'Navigation item.', 'jetpack' ) }
 					</NavItem>
-					{ ! this.props.isOfflineMode && this.props.isLinked && (
+					{ ! this.props.isOfflineMode && this.props.isSiteConnected && (
 						<NavItem
 							path="#/my-plan"
 							onClick={ this.trackMyPlanClick }
@@ -64,7 +64,7 @@ export class Navigation extends React.Component {
 							{ _x( 'My Plan', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{ ! this.props.isOfflineMode && this.props.isLinked && (
+					{ ! this.props.isOfflineMode && this.props.isSiteConnected && (
 						<NavItem
 							path="#/plans"
 							onClick={ this.trackPlansClick }
@@ -108,6 +108,6 @@ export default connect( state => {
 		userCanViewStats: _userCanViewStats( state ),
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
-		isLinked: isCurrentUserLinked( state ),
+		isSiteConnected: isSiteConnected( state ),
 	};
 } )( withRouter( Navigation ) );

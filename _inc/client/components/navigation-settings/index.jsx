@@ -14,7 +14,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import analytics from 'lib/analytics';
 import { filterSearch, getSearchTerm } from 'state/search';
-import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
+import { isSiteConnected } from 'state/connection';
 import {
 	getModules,
 	hasAnyOfTheseModules,
@@ -243,7 +243,6 @@ NavigationSettings.propTypes = {
 	userCanManageModules: PropTypes.bool.isRequired,
 	isSubscriber: PropTypes.bool.isRequired,
 	userCanPublish: PropTypes.bool.isRequired,
-	isLinked: PropTypes.bool.isRequired,
 	isSiteConnected: PropTypes.bool.isRequired,
 	isModuleActivated: PropTypes.func.isRequired,
 	searchHasFocus: PropTypes.bool.isRequired,
@@ -254,7 +253,6 @@ NavigationSettings.defaultProps = {
 	userCanManageModules: false,
 	isSubscriber: false,
 	userCanPublish: false,
-	isLinked: false,
 	isSiteConnected: false,
 	isModuleActivated: noop,
 	searchHasFocus: false,
@@ -268,7 +266,6 @@ export default connect(
 		userCanManageModules: _userCanManageModules( state ),
 		isSubscriber: _userIsSubscriber( state ),
 		userCanPublish: userCanPublish( state ),
-		isLinked: isCurrentUserLinked( state ),
 		isSiteConnected: isSiteConnected( state ),
 		isModuleActivated: module => isModuleActivated( state, module ),
 		moduleList: getModules( state ),

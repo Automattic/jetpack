@@ -678,7 +678,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function get_plans( $request ) {
-		$request = Client::wpcom_json_api_request_as_user(
+		$request = Client::wpcom_json_api_request_as_blog(
 			'/plans?_locale=' . get_user_locale(),
 			'2',
 			array(
@@ -686,7 +686,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'headers' => array(
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 				),
-			)
+			),
+			null,
+			'wpcom'
 		);
 
 		$body = json_decode( wp_remote_retrieve_body( $request ) );

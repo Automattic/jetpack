@@ -499,7 +499,8 @@ class Manager {
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
-		return (bool) $this->get_access_token( self::JETPACK_MASTER_USER );
+		// return (bool) $this->get_access_token( self::JETPACK_MASTER_USER );.
+		return $this->is_registered();
 	}
 
 	/**
