@@ -77,7 +77,7 @@ jQuery( document ).ready( function ( $ ) {
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: jetpackConnectButton.handleConnectionError,
-				success: jetpackConnectButton.handleConnectionSuccess,
+				success: jetpackConnectButton.handleAuthorizationComplete,
 			} );
 		},
 		triggerLoadingState: function () {
