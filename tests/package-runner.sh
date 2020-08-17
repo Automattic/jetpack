@@ -25,6 +25,8 @@ function run_package_test {
 	if [ -f "./packages/$package/phpunit.xml.dist" ]; then
 			echo "Running tests for package \`$package\` "
 			cd "./packages/$package"
+			rm composer.lock
+			rm -rf vendor
 			composer install
 			cd "../.."
 			result="yarn docker:compose exec wordpress phpunit --configuration=/var/www/html/wp-content/plugins/jetpack/packages/$package/phpunit.xml.dist"
