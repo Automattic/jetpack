@@ -20,6 +20,7 @@ import {
 } from '../../shared/plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { PaidBlockProvider } from './components';
+import { trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
@@ -48,6 +49,8 @@ export default createHigherOrderComponent(
 			'is-upgradable': isBannerVisible,
 		} );
 
+		const bannerContext = 'editor-canvas';
+
 		return (
 			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible }>
 				<UpgradePlanBanner
@@ -57,7 +60,12 @@ export default createHigherOrderComponent(
 					visible={ isBannerVisible }
 					description={ usableBlocksProps?.description }
 					requiredPlan={ requiredPlan }
-					context="editor-canvas"
+					context={ bannerContext }
+					onRedirect={ () => trackUpgradeClickEvent( {
+						plan: requiredPlan,
+						blockName: props.name,
+						context: bannerContext,
+					} ) }
 				/>
 
 				<BlockListBlock { ...props } className={ listBlockCSSClass } />
