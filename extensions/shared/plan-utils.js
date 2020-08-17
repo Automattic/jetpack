@@ -38,21 +38,21 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// Post-checkout: redirect back here
 	const redirect_to = isSimpleSite()
 		? addQueryArgs(
-			'/' +
-			compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' ),
-			{
-				plan_upgraded: 1,
-			}
-		)
+				'/' +
+					compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' ),
+				{
+					plan_upgraded: 1,
+				}
+		  )
 		: addQueryArgs(
-			window.location.protocol +
-			`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
-			{
-				action: 'edit',
-				post: postId,
-				plan_upgraded: 1,
-			}
-		);
+				window.location.protocol +
+					`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
+				{
+					action: 'edit',
+					post: postId,
+					plan_upgraded: 1,
+				}
+		  );
 
 	return (
 		planPathSlug &&
