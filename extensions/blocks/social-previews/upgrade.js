@@ -3,7 +3,6 @@
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -14,12 +13,6 @@ import { BUSINESS_PLAN } from '../../shared/components/upgrade-nudge/constants';
 import useUpgradeFlow from '../../shared/use-upgrade-flow';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import { name } from './index';
-
-const trackViewEvent = () =>
-	void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
-		plan: BUSINESS_PLAN,
-		block: name,
-	} );
 
 const trackClickEvent = () =>
 	void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
@@ -35,9 +28,6 @@ export default function SocialPreviewsUpgrade() {
 		required_plan,
 		trackClickEvent
 	);
-
-	// Using the effect here so the tracking is only called once on component mount.
-	useEffect( trackViewEvent, [] );
 
 	const redirectingText = __( 'Redirecting…', 'jetpack' );
 
