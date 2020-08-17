@@ -42,7 +42,7 @@
 		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"scripts": {
-		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor,packages/*/wordpress --extensions=php",
 		"php:lint": "vendor/bin/phpcs -p -s",
 		"php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
 		"php:autofix": "vendor/bin/phpcbf",

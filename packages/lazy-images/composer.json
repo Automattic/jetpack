@@ -4,10 +4,11 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-	  	"automattic/jetpack-constants": "@dev"
+		"automattic/jetpack-constants": "@dev"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
+		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
@@ -16,18 +17,17 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"bash bin/install-wp-tests.sh",
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"phpunit-local": [
-			"bash bin/install-wp-tests.sh",
-			"@composer install",
-			"docker-compose up -d",
-			"./bin/wait-for-db.sh && docker-compose exec -T wordpress bash -c 'cd /var/jetpack-lazy-images; ./vendor/phpunit/phpunit/phpunit --colors=always'",
-			"docker-compose stop"
-		]
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
 	"minimum-stability": "dev",
 	"prefer-stable": true
 }
