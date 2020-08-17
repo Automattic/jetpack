@@ -170,7 +170,9 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		activateAkismet: () =>
-			postRequest( `${ apiRoot }jetpack/v4/plugins/akismet/activate`, postParams )
+			postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
+				body: JSON.stringify( { slug: 'akismet', status: 'active' } ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
