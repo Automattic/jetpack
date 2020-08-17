@@ -11,20 +11,14 @@ import analytics from '../../../_inc/client/lib/analytics';
 import upgradeImageUrl from './upgrade-illustration.svg';
 import useUpgradeFlow from '../../shared/use-upgrade-flow';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
-import { name } from './index';
+import { name as block } from './index';
 
 export default function SocialPreviewsUpgrade() {
-	const required_plan = getJetpackExtensionAvailability( name )?.details?.required_plan;
+	const plan = getJetpackExtensionAvailability( block )?.details?.required_plan;
 	const trackClickEvent = () =>
-		void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
-			plan: required_plan,
-			block: name,
-		} );
+		void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', { plan, block } );
 
-	const [ href, autosaveAndRedirect, isRedirecting ] = useUpgradeFlow(
-		required_plan,
-		trackClickEvent
-	);
+	const [ href, autosaveAndRedirect, isRedirecting ] = useUpgradeFlow( plan, trackClickEvent );
 
 	const buttonText = isRedirecting ? __( 'Redirecting…', 'jetpack' ) : __( 'Upgrade', 'jetpack' );
 
