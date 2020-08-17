@@ -109,6 +109,17 @@
 		display: none;
 	}
 
+	// Prevent swiper button pseudo-element content displaying duplicate arrows.
+	.swiper-button-prev:after,
+	.swiper-container-rtl .swiper-button-next:after {
+		content: "";
+	}
+
+	.swiper-button-next:after,
+	.swiper-container-rtl .swiper-button-prev:after {
+		content: "";
+	}
+
 	&.swiper-container-rtl .swiper-button-prev.swiper-button-white,
 	&.swiper-container-rtl .wp-block-jetpack-slideshow_button-prev,
 	.swiper-button-next.swiper-button-white,
