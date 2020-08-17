@@ -23,6 +23,51 @@ export function getMustReauthConnections( state ) {
 		.map( connection => connection.service_name );
 }
 
+export function getTweetStorm( state ) {
+	const twitterAccount = state.connections.find(
+		connection => 'twitter' === connection.service_name
+	);
+
+	const tweets = [];
+	const tweet = {
+		date: Date.now(),
+		name: 'Account Name',
+		profileImage: 'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
+		screenName: twitterAccount?.display_name || '',
+	};
+
+	state.tweets.forEach( tweetBlob => {
+		// If there are no boundaries, this entire blob belongs in one tweet.
+		if ( 0 === tweetBlob.boundaries.length ) {
+			tweets.push( {
+				...tweet,
+				text: tweetBlob.content,
+			} );
+			return;
+		}
+
+		// Split the blob up into individual tweets, seperated by each boundary.
+		tweetBlob.boundaries.forEach( ( boundary, index ) => {
+			const start = index > 0 ? tweetBlob.boundaries[ index - 1 ].character : 0;
+
+			tweets.push( {
+				...tweet,
+				text: tweetBlob.content.slice( start, boundary.character ),
+			} );
+		} );
+
+		// Add the text from the last boundary to the end of the blob.
+		tweets.push( {
+			...tweet,
+			text: tweetBlob.content.slice(
+				tweetBlob.boundaries[ tweetBlob.boundaries.length - 1 ].character
+			),
+		} );
+	} );
+
+	return tweets;
+}
+
 export function getCurrentTweet( state ) {
 	return state.tweets.reduce( ( currentTweet, tweet ) => {
 		if ( currentTweet ) {

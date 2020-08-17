@@ -2,7 +2,12 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
+import {
+	FacebookPreview,
+	TwitterPreview,
+	TwitterThreadPreview,
+	SearchPreview,
+} from '@automattic/social-previews';
 
 export const AVAILABLE_SERVICES = [
 	{
@@ -21,8 +26,11 @@ export const AVAILABLE_SERVICES = [
 		title: __( 'Twitter', 'jetpack' ),
 		icon: 'twitter',
 		name: 'twitter',
-		preview: props => (
-			<TwitterPreview type={ props.image ? 'large_image_summary' : 'summary' } { ...props } />
-		),
+		preview: props =>
+			props.isTweetStorm ? (
+				<TwitterThreadPreview { ...props } />
+			) : (
+				<TwitterPreview type={ props.image ? 'large_image_summary' : 'summary' } { ...props } />
+			),
 	},
 ];

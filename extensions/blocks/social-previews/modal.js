@@ -29,6 +29,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	description,
 	url,
 	author,
+	isTweetStorm,
+	tweets,
 } ) {
 	// Inject the service icon into the title
 	const tabs = AVAILABLE_SERVICES.map( service => {
@@ -55,6 +57,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 				<TabPanel
 					className="jetpack-social-previews__modal-previews"
 					tabs={ tabs }
+					initialTabName={ isTweetStorm ? 'twitter' : null }
 					orientation="vertical"
 				>
 					{ tab => (
@@ -65,6 +68,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 								url={ url }
 								author={ author }
 								image={ image }
+								isTweetStorm={ isTweetStorm }
+								tweets={ tweets }
 							/>
 						</div>
 					) }
@@ -98,5 +103,7 @@ export default withSelect( ( select, props ) => {
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image: !! featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ) ),
+		isTweetStorm: getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
+		tweets: select( 'jetpack/publicize' ).getTweetStorm(),
 	};
 } )( SocialPreviewsModal );

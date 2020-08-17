@@ -199,13 +199,13 @@ export default compose( [
 				}
 
 				tweet.boundaries.forEach( boundary => {
-					const { container, type, ...range } = boundary;
+					const { container, type, start, end } = boundary;
 					if ( 'normal' === type ) {
 						dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
 							blockClientId: childProps.clientId,
 							source: 'jetpack-tweetstorm',
 							richTextIdentifier: container,
-							range,
+							range: { start, end },
 						} );
 					}
 				} );

@@ -293,6 +293,7 @@ class Jetpack_Tweetstorm_Helper {
 							return array(
 								'start'     => $line_offset,
 								'end'       => $line_offset + 1,
+								'character' => $offset,
 								'container' => $block_def['content_attributes'][0],
 								'type'      => 'normal',
 							);
@@ -311,6 +312,7 @@ class Jetpack_Tweetstorm_Helper {
 					$line_offset = $offset - $template_character_count;
 					return array(
 						'line'      => $line_count,
+						'character' => $offset,
 						'container' => $block_def['content_attributes'][0],
 						'type'      => 'end-of-line',
 					);
@@ -332,6 +334,7 @@ class Jetpack_Tweetstorm_Helper {
 					return array(
 						'start'     => $attribute_offset - 1,
 						'end'       => $attribute_offset,
+						'character' => $offset,
 						'container' => $attribute_name,
 						'type'      => 'normal',
 					);
