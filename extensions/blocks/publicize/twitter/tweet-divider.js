@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { flatMap } from 'lodash';
+import { Popover } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
@@ -12,6 +13,7 @@ import { Component } from '@wordpress/element';
 import { SocialServiceIcon } from '../../../shared/icons';
 
 import './editor.scss';
+import { __ } from '@wordpress/i18n';
 
 const SUPPORTED_BLOCKS = {
 	'core/heading': {
@@ -86,6 +88,8 @@ class TweetDivider extends Component {
 			isTweetstorm,
 			isSelectedTweetBoundary,
 			blockStyles,
+			shouldShowPopover,
+			popoverWarnings,
 		} = this.props;
 
 		if ( ! isTweetstorm ) {
@@ -100,6 +104,19 @@ class TweetDivider extends Component {
 						<div className="jetpack-publicize-twitter__tweet-divider-icon">
 							<SocialServiceIcon serviceName="twitter" />
 						</div>
+						{ shouldShowPopover && (
+							<Popover
+								className="jetpack-publicize-twitter__tweet-divider-popover"
+								focusOnMount={ false }
+								position="bottom center"
+							>
+								<ol>
+									{ popoverWarnings.map( warning => (
+										<li>{ warning }</li>
+									) ) }
+								</ol>
+							</Popover>
+						) }
 					</div>
 				) }
 				{ blockStyles && (
@@ -126,13 +143,21 @@ class TweetDivider extends Component {
 
 export default compose( [
 	withSelect( ( select, { childProps } ) => {
-		const selectedBlocks = select( 'core/block-editor' ).getSelectedBlockClientIds();
+		const {
+			isTyping,
+			isDraggingBlocks,
+			isMultiSelecting,
+			hasMultiSelection,
+			isBlockSelected,
+		} = select( 'core/block-editor' );
+
+		const supportedBlock = !! SUPPORTED_BLOCKS[ childProps.name ];
 		const tweet = select( 'jetpack/publicize' ).getTweetForBlock( childProps.clientId );
-		const selectedBlockClientId = selectedBlocks.length === 1 && selectedBlocks[ 0 ];
 		const isSelectedTweetBoundary =
-			tweet &&
-			tweet.blocks.some( block => block.clientId === selectedBlockClientId ) &&
-			tweet.blocks[ tweet.blocks.length - 1 ].clientId === childProps.clientId;
+			( tweet &&
+				tweet.blocks.some( block => isBlockSelected( block.clientId ) ) &&
+				tweet.blocks[ tweet.blocks.length - 1 ].clientId === childProps.clientId ) ||
+			( isBlockSelected( childProps.clientId ) && ! supportedBlock );
 
 		const computeSelector = element => {
 			// We've found the block node, we can return now.
@@ -157,11 +182,49 @@ export default compose( [
 						.item( boundary.line );
 					return computeSelector( line );
 				} );
+
+		const findTagsInContent = tags => {
+			if ( 0 === tags.length ) {
+				return false;
+			}
+
+			const tagRegexp = new RegExp( `<(${ tags.join( '|' ) })( |>|/>)`, 'gi' );
+			return SUPPORTED_BLOCKS[ childProps.name ].contentAttributes.reduce( ( found, attribute ) => {
+				if ( found ) {
+					return true;
+				}
+
+				return tagRegexp.test( childProps.attributes[ attribute ] );
+			}, false );
+		};
+
+		const popoverWarnings = [];
+		if ( ! supportedBlock ) {
+			popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
+		} else {
+			if ( findTagsInContent( [ 'strong', 'bold', 'em', 'i' ] ) ) {
+				popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
+			}
+
+			if ( findTagsInContent( [ 'a' ] ) ) {
+				popoverWarnings.push( __( 'Links will be posted seperately.', 'jetpack' ) );
+			}
+		}
+
+		const shouldShowPopover =
+			! isTyping() &&
+			! isDraggingBlocks() &&
+			! isMultiSelecting() &&
+			! hasMultiSelection() &&
+			popoverWarnings.length > 0;
+
 		return {
 			isTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
 			isSelectedTweetBoundary,
 			boundaries: tweet && tweet.boundaries,
 			blockStyles: styles || [],
+			popoverWarnings,
+			shouldShowPopover,
 		};
 	} ),
 	withDispatch( ( dispatch, { childProps }, { select } ) => {

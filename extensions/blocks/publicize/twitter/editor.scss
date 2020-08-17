@@ -47,6 +47,17 @@ h3.jetpack-publicize-twitter-options__heading {
 			margin: 4px;
 		}
 	}
+
+}
+
+.jetpack-publicize-twitter__tweet-divider-popover {
+	border-radius: 4px;
+	box-shadow: 0px 2px 10px #0009;
+
+	.components-popover__content {
+		color: #0009;
+		padding: 8px;
+	}
 }
 
 .annotation-text-jetpack-tweetstorm {
