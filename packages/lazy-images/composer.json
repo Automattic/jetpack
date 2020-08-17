@@ -8,7 +8,7 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"automattic/wordbless": "dev-add/posts_support"
+		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
