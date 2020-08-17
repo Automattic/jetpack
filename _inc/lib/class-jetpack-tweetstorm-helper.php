@@ -120,13 +120,26 @@ class Jetpack_Tweetstorm_Helper {
 				// Check if we can add this image to the last tweet.
 				$last_tweet = array_pop( $tweets );
 				if ( empty( $last_tweet['media'] ) ) {
-					$last_tweet['media'][] = array(
+					$last_tweet['blocks'][] = $block;
+					$last_tweet['media'][]  = array(
 						'url' => $url,
 					);
 
 					$tweets[] = $last_tweet;
-					continue;
+				} else {
+					$tweets[] = array(
+						'blocks'     => array( $block ),
+						'boundaries' => array(),
+						'content'    => '',
+						'media'      => array(
+							array(
+								'url' => $url,
+							),
+						),
+					);
 				}
+
+				continue;
 			}
 
 			$block_text = self::extract_text_from_block( $block );
