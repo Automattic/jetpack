@@ -1,4 +1,3 @@
-
 /**
  * External dependencies
  */
@@ -8,6 +7,7 @@ import { noop } from 'lodash';
  * WordPress dependencies
  */
 import { useSelect, dispatch } from '@wordpress/data';
+import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -23,9 +23,11 @@ function redirect( url, callback ) {
 	window.top.location.href = url;
 }
 
-import { getUpgradeUrl } from "../plan-utils";
+import { getUpgradeUrl } from '../plan-utils';
 
-export default function useUpgradeFlow ( planSlug, onRedirect = noop ) {
+export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
+	const [ isRedirecting, setIsRedirecting ] = useState( false );
+
 	const { checkoutUrl, isAutosaveablePost, isDirtyPost } = useSelect( select => {
 		const editorSelector = select( 'core/editor' );
 		const planSelector = select( 'wordpress-com/plans' );
@@ -50,6 +52,13 @@ export default function useUpgradeFlow ( planSlug, onRedirect = noop ) {
 
 		event.preventDefault();
 
+		// Lock re-redirecting attempts.
+		if ( isRedirecting ) {
+			return;
+		}
+
+		setIsRedirecting( true );
+
 		/*
 		 * If there are not unsaved values, redirect.
 		 * If the post is not auto-savable, redirect.
@@ -63,5 +72,5 @@ export default function useUpgradeFlow ( planSlug, onRedirect = noop ) {
 		savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
 	};
 
-	return [ checkoutUrl, goToCheckoutPage ];
+	return [ checkoutUrl, goToCheckoutPage, isRedirecting ];
 }

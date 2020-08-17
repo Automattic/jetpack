@@ -1,5 +1,4 @@
-UseUpgradeFlow hook
--------------------
+## UseUpgradeFlow hook
 
 Use this hook when you need to implement a component that leads the user to the checkout page.
 
@@ -12,32 +11,37 @@ Use this hook when you need to implement a component that leads the user to the 
 import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
 
 const myUPgradeComponent = () => {
-	const [ checkoutUrl, goToCheckoutPage ] = useUpgradeFlow( 'business-bundle' );
+	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow( 'business-bundle' );
 	return (
-        <Button
-            href={ checkoutUrl }
-            onClick={ goToCheckoutPage }
-        >
-            CheckOut!
-        </Button>
-    );
+		<Button href={ checkoutUrl } onClick={ goToCheckoutPage } isBusy={ isRedirecting }>
+			CheckOut!
+		</Button>
+	);
 };
 ```
 
 ### API
 
-```es6
-const [ checkoutUrl, goToCheckoutPage ] = useUpgradeFlow( planSlug, onRedirect );
-```
+`const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow( planSlug, onRedirect );`
 
-The hook returns an array with two items.
+#### Arguments
 
+The hook accepts two arguments.
 
-The first one (checkoutUrl) is a string with the checkout URL.
-You can use this value to set the href of an anchor element, for instance.
+- `planSlug` (`string`) - Slug of plan to purchase
+- _(optional)_ `onRedirect` (`(string) => void`) - callback function that will
+  be run when the redirect process triggers. The new URL is passed.
 
-The second item (goToCheckoutPage) is a function that can be used as a callback in an onClick event.
-It redirects the user to the checkout URL, checking before whether the current post/page/etc has changes to save.
-If so, it saves them before to redirect.
+### Return Values
 
-The hook accepts two argument. the planSug and an (optional) callback function that will be run when the redirect process triggers. 
+The hook returns an array with three items.
+
+- `checkoutUrl` (`string`): The checkout URL. You can use this value to set the href of an anchor element.
+- `goToCheckoutPage` (`(event) => void`): Callback to be used in an onClick event.
+
+Redirects the user to the checkout URL, checking before whether the current
+post/page/etc has changes to save. If so, it saves them before to redirect.
+
+- `isRedirecting` (`bool`): If the component is in the process of redirecting the
+  user. It may be waiting for a save to complete before redirecting. Use
+  this to set a button as busy or in a loading state.
