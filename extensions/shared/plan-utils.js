@@ -20,7 +20,7 @@ import getSiteFragment from './get-site-fragment';
  *
  * @param {object} siteParams -          Site params used to build the URL.
  * @param {string} siteParams.planSlug - Plan slug.
- * @param {string} siteParams.plan -     An object with details about the plan.
+ * @param {object} siteParams.plan -     An object with details about the plan.
  * @param {number} siteParams.postId -   Post id.
  * @param {string} siteParams.postType - Post type.
  * @returns {string}                     Upgrade URL.
