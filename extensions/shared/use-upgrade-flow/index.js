@@ -45,7 +45,7 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	// Alias. Save post by dispatch.
 	const savePost = dispatch( 'core/editor' ).savePost;
 
-	const goToCheckoutPage = event => {
+	const goToCheckoutPage = async event => {
 		if ( ! window?.top?.location?.href ) {
 			return;
 		}
@@ -64,7 +64,6 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		 * If the post is not auto-savable, redirect.
 		 */
 		if ( ! isDirtyPost || ! isAutosaveablePost ) {
-			// Using window.top to escape from the editor iframe on WordPress.com
 			return redirect( checkoutUrl, onRedirect );
 		}
 
