@@ -97,6 +97,39 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Professional', 'jetpack' ),
 				};
 
+			case 'is-daily-security-plan':
+				return {
+					details: expiration,
+					icon: imagePath + '/plans/plan-security-daily.svg',
+					tagLine: __(
+						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Daily', 'jetpack' ),
+				};
+
+			case 'is-realtime-security-plan':
+				return {
+					details: expiration,
+					icon: imagePath + '/plans/plan-security-realtime.svg',
+					tagLine: __(
+						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Security Real-Time', 'jetpack' ),
+				};
+
+			case 'is-complete-plan':
+				return {
+					details: expiration,
+					icon: imagePath + '/plans/plan-complete.svg',
+					tagLine: __(
+						'The most powerful WordPress sites: Top-tier security bundle, enhanced search.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Complete', 'jetpack' ),
+				};
+
 			case 'is-daily-backup-plan':
 				return {
 					details: expiration,

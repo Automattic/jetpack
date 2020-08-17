@@ -2,13 +2,15 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { debounce } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { memo, useCallback, useState, useRef } from '@wordpress/element';
+import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -37,8 +39,12 @@ function MediaBrowser( props ) {
 		onCopy,
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
+	const [ focused, setFocused ] = useState( -1 );
 
-	const onSelectImage = useCallback(
+	const columns = useRef( -1 );
+	const gridEl = useRef( null );
+
+	const select = useCallback(
 		newlySelected => {
 			let newSelected = [ newlySelected ];
 
@@ -73,11 +79,97 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
-	const prevMediaCount = useRef( 0 );
-
 	const onLoadMoreClick = () => {
-		prevMediaCount.current = media.length;
+		if ( media.length ) {
+			setFocused( media.length );
+		}
 		nextPage();
+	};
+
+	const navigate = ( keyCode, index ) => {
+		switch ( keyCode ) {
+			case LEFT:
+				if ( index >= 1 ) {
+					setFocused( index - 1 );
+				}
+				break;
+			case RIGHT:
+				if ( index < media.length ) {
+					setFocused( index + 1 );
+				}
+				break;
+			case UP:
+				if ( index >= columns.current ) {
+					setFocused( index - columns.current );
+				}
+				break;
+			case DOWN:
+				if ( index < media.length - columns.current ) {
+					setFocused( index + columns.current );
+				}
+				break;
+		}
+	};
+
+	/**
+	 * Counts how many items are in a row by checking how many of the grid's child
+	 * items have a matching offsetTop.
+	 */
+	const checkColumns = () => {
+		let perRow = 1;
+
+		const items = gridEl.current.children;
+
+		if ( items.length > 0 ) {
+			const firstOffset = items[ 0 ].offsetTop;
+
+			/**
+			 * Check how many items have a matching offsetTop. This will give us the
+			 * total number of items in a row.
+			 */
+			while ( perRow < items.length && items[ perRow ].offsetTop === firstOffset ) {
+				++perRow;
+			}
+		}
+
+		columns.current = perRow;
+	};
+
+	const checkColumnsDebounced = debounce( checkColumns, 400 );
+
+	useEffect( () => {
+		// Re-set columns on window resize:
+		window.addEventListener( 'resize', checkColumnsDebounced );
+		return () => {
+			window.removeEventListener( 'resize', checkColumnsDebounced );
+		};
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
+	useEffect( () => {
+		// Set columns value once when media are loaded.
+		if ( media.length && columns.current === -1 ) {
+			checkColumns();
+		}
+	}, [ media ] );
+
+	// Using _event to avoid eslint errors. Can change to event if it's in use again.
+	const handleMediaItemClick = ( _event, { item } ) => {
+		select( item );
+	};
+
+	const handleMediaItemKeyDown = ( event, { item, index } ) => {
+		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
+			navigate( event.keyCode, index );
+		} else if ( SPACE === event.keyCode ) {
+			select( item );
+			event.preventDefault(); // Prevent space from scrolling the page down.
+		} else if ( ENTER === event.keyCode ) {
+			select( item );
+		}
+
+		if ( [ LEFT, RIGHT, UP, DOWN, SPACE, ENTER ].includes( event.keyCode ) ) {
+			event.stopPropagation();
+		}
 	};
 
 	const SelectButton = () => {
@@ -95,13 +187,15 @@ function MediaBrowser( props ) {
 
 	return (
 		<div className={ wrapper }>
-			<ul className={ classes }>
+			<ul ref={ gridEl } className={ classes }>
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
+						index={ index }
 						key={ item.ID }
-						onClick={ onSelectImage }
-						focusOnMount={ !! prevMediaCount.current && index === prevMediaCount.current }
+						onClick={ handleMediaItemClick }
+						onKeyDown={ handleMediaItemKeyDown }
+						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
 					/>

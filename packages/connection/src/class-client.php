@@ -435,7 +435,7 @@ class Client {
 			return (string) $data;
 		}
 
-		foreach ( $data as $key => &$value ) {
+		foreach ( $data as &$value ) {
 			$value = self::_stringify_data( $value );
 		}
 

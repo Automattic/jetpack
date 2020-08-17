@@ -56,9 +56,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 		wp_set_current_user( 0 );
-		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
 		$jetpack = Jetpack::init();
-		$jetpack->HTTP_RAW_POST_DATA = null;
 	}
 
 	/**

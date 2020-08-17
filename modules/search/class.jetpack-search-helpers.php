@@ -738,4 +738,28 @@ class Jetpack_Search_Helpers {
 			get_post_types( array( 'exclude_from_search' => false ), 'objects' )
 		);
 	}
+
+	/**
+	 * Sanitizes a checkbox value for writing to the database.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param any $value from the customizer form.
+	 * @return string either '0' or '1'.
+	 */
+	public static function sanitize_checkbox_value( $value ) {
+		return true === $value ? '1' : '0';
+	}
+
+	/**
+	 * Sanitizes a checkbox value for rendering the Customizer.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param any $value from the database.
+	 * @return boolean
+	 */
+	public static function sanitize_checkbox_value_for_js( $value ) {
+		return '1' === $value;
+	}
 }

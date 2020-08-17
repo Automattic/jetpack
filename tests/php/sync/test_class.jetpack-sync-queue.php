@@ -258,6 +258,56 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( false, $buffer );
 	}
 
+	/**
+	 * Unit Tests to confirm that peek_by_id can handle different input types.
+	 * fetch_items_by_id is private so we need to ensure all input types are propely handled.
+	 */
+	public function test_peek_by_id() {
+		// Populate Queue with items.
+		$this->queue->add_all( array( 1, 2, 3 ) );
+
+		// Get Queue Items and create array of ids.
+		$items = $this->queue->get_all();
+		$ids   = array();
+		foreach ( $items as $item ) {
+			$ids[] = $item->id;
+		}
+
+		// Verify can retrieve items by ids.
+		$items = $this->queue->peek_by_id( $ids );
+		$this->assertEquals( 3, count( $items ) );
+
+		// Verify null returns an empty array.
+		$items = $this->queue->peek_by_id( null );
+		$this->assertEmpty( $items );
+		$this->assertInternalType( 'array', $items );
+
+		// Verify empty array returns an empty array.
+		$items = $this->queue->peek_by_id( array() );
+		$this->assertEmpty( $items );
+		$this->assertInternalType( 'array', $items );
+
+		// Verify unknown ids array returns an empty array.
+		$items = $this->queue->peek_by_id( array( 'blue' ) );
+		$this->assertEmpty( $items );
+		$this->assertInternalType( 'array', $items );
+
+		// Verify string returns an empty array.
+		$items = $this->queue->peek_by_id( 'blue' );
+		$this->assertEmpty( $items );
+		$this->assertInternalType( 'array', $items );
+
+		// Verify number returns an empty array.
+		$items = $this->queue->peek_by_id( 18 );
+		$this->assertEmpty( $items );
+		$this->assertInternalType( 'array', $items );
+
+		// Verify Error returns and empty array.
+		$items = $this->queue->peek_by_id( new \Automattic\Jetpack\Error( 'random', 'something happened.' ) );
+		$this->assertEmpty( $items );
+		$this->assertInternalType( 'array', $items );
+	}
+
 	function test_queue_is_persisted() {
 		$other_queue = new Queue( $this->queue->id );
 

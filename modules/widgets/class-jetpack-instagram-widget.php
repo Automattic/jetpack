@@ -45,7 +45,10 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			)
 		);
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_css' ) );
+		if ( is_active_widget( false, false, self::ID_BASE ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_css' ) );
+		}
+
 		add_action( 'wp_ajax_wpcom_instagram_widget_update_widget_token_id', array( $this, 'ajax_update_widget_token_id' ) );
 
 		$this->valid_options = array(
@@ -74,10 +77,6 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * Enqueues the widget's frontend CSS but only if the widget is currently in use.
 	 */
 	public function enqueue_css() {
-		if ( ! is_active_widget( false, false, self::ID_BASE ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
-			return;
-		}
-
 		wp_enqueue_style( self::ID_BASE, plugins_url( 'instagram/instagram.css', __FILE__ ), array(), JETPACK__VERSION );
 	}
 

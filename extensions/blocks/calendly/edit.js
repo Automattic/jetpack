@@ -8,7 +8,7 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
-import { BlockIcon, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -17,6 +17,7 @@ import {
 	Placeholder,
 	Spinner,
 	ToggleControl,
+	Toolbar,
 	withNotices,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
@@ -63,7 +64,8 @@ function CalendlyEdit( props ) {
 		style,
 		url,
 	} = validatedAttributes;
-	const [ embedCode, setEmbedCode ] = useState( '' );
+	const [ embedCode, setEmbedCode ] = useState( url );
+	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const [ embedButtonAttributes, setEmbedButtonAttributes ] = useState( {} );
 
@@ -116,6 +118,7 @@ function CalendlyEdit( props ) {
 			.then( () => {
 				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
 				setAttributes( newValidatedAttributes );
+				setIsEditingUrl( false );
 				noticeOperations.removeAllNotices();
 			} )
 			.catch( () => {
@@ -237,6 +240,13 @@ function CalendlyEdit( props ) {
 
 	const inspectorControls = (
 		<>
+			{ url && ! isEditingUrl && (
+				<BlockControls>
+					<Toolbar>
+						<Button onClick={ () => setIsEditingUrl( true ) }>{ __( 'Edit', 'jetpack' ) }</Button>
+					</Toolbar>
+				</BlockControls>
+			) }
 			{ url && (
 				<BlockStylesSelector
 					clientId={ clientId }
@@ -294,7 +304,7 @@ function CalendlyEdit( props ) {
 	return (
 		<div className={ classes }>
 			{ inspectorControls }
-			{ url ? blockPreview( style ) : blockPlaceholder }
+			{ url && ! isEditingUrl ? blockPreview( style ) : blockPlaceholder }
 		</div>
 	);
 }

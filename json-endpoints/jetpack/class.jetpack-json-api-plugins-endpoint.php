@@ -144,8 +144,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['action_links'] = $action_link;
 		}
 
-		$autoupdate = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
-		$plugin['autoupdate']      = $autoupdate;
+		$autoupdate           = in_array( $plugin_file, (array) get_site_option( 'auto_update_plugins', array() ), true );
+		$plugin['autoupdate'] = $autoupdate;
 
 		$autoupdate_translation = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
@@ -191,7 +191,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function plugin_has_autoupdates_enabled( $plugin_file ) {
-		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
+		return (bool) in_array( $plugin_file, (array) get_site_option( 'auto_update_plugins', array() ), true );
 	}
 
 	protected function plugin_has_translations_autoupdates_enabled( $plugin_file ) {

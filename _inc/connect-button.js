@@ -5,7 +5,7 @@ jQuery( document ).ready( function ( $ ) {
 	var tosText = $( '.jp-connect-full__tos-blurb' );
 	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
 	var connectionHelpSections = $(
-		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph'
+		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph, .jp-connect-full__testimonial'
 	);
 	var connectButtonFrom = '';
 
@@ -30,7 +30,7 @@ jQuery( document ).ready( function ( $ ) {
 		isRegistering: false,
 		isPaidPlan: false,
 		selectAndStartConnectionFlow: function () {
-			var connectionHelpSections = $( '#jetpack-connection-cards' );
+			var connectionHelpSections = $( '#jetpack-connection-cards, .jp-connect-full__testimonial' );
 			if ( connectionHelpSections.length ) {
 				connectionHelpSections.fadeOut( 600 );
 			}

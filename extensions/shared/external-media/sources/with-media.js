@@ -11,8 +11,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { speak } from '@wordpress/a11y';
+import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import { withSelect } from '@wordpress/data';
 
@@ -28,7 +27,13 @@ export default function withMedia() {
 			constructor( props ) {
 				super( props );
 
+				this.defaultAccount = {
+					image: '',
+					name: '',
+				};
+
 				this.state = {
+					account: this.defaultAccount,
 					media: [],
 					nextHandle: false,
 					isLoading: false,
@@ -38,8 +43,10 @@ export default function withMedia() {
 				};
 			}
 
-			modalRef = el => {
+			contentRef = el => {
 				if ( el ) {
+					// Store modal content.
+					this.contentElement = el;
 					// Find the modal wrapper.
 					this.modalElement = el.closest( '.jetpack-external-media-browser' );
 
@@ -51,6 +58,7 @@ export default function withMedia() {
 					// Remove listeners when unmounting.
 					this.modalElement.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
 					this.modalElement = null;
+					this.contentElement = null;
 				}
 			};
 
@@ -69,7 +77,10 @@ export default function withMedia() {
 				 * This can be removed once
 				 * https://github.com/WordPress/gutenberg/issues/22940 is fixed.
 				 */
-				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
+				if (
+					[ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) &&
+					! event.target.classList.contains( 'jetpack-external-media-browser__media__item' ) // Only let arrow key navigation on media grid items through. All others need to be stopped.
+				) {
 					event.stopPropagation();
 				}
 			};
@@ -101,6 +112,7 @@ export default function withMedia() {
 
 				this.setState(
 					{
+						account: resetMedia ? this.defaultAccount : this.state.account,
 						isLoading: true,
 						media: resetMedia ? [] : this.state.media,
 						nextHandle: resetMedia ? false : this.state.nextHandle,
@@ -153,6 +165,7 @@ export default function withMedia() {
 				} )
 					.then( result => {
 						this.setState( {
+							account: result.meta.account,
 							media: this.mergeMedia( media, result.media ),
 							nextHandle: result.meta.next_page,
 							isLoading: false,
@@ -170,18 +183,6 @@ export default function withMedia() {
 				if ( this.modalElement ) {
 					this.modalElement.focus();
 				}
-
-				// Announce the action with appended string of all the images' alt text.
-				speak(
-					sprintf(
-						__( 'Inserting: %s', 'jetpack' ),
-						items
-							.map( item => item.title )
-							.filter( item => item )
-							.join( ', ' )
-					),
-					'polite'
-				);
 
 				apiFetch( {
 					path: apiUrl,
@@ -236,7 +237,15 @@ export default function withMedia() {
 			};
 
 			render() {
-				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
+				const {
+					account,
+					isAuthenticated,
+					isCopying,
+					isLoading,
+					media,
+					nextHandle,
+					path,
+				} = this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const title = isCopying
@@ -262,7 +271,7 @@ export default function withMedia() {
 						aria={ { describedby } }
 						className={ classes }
 					>
-						<div ref={ this.modalRef }>
+						<div ref={ this.contentRef }>
 							{ noticeUI }
 
 							<p id={ describedby } className="jetpack-external-media-browser--visually-hidden">
@@ -270,6 +279,7 @@ export default function withMedia() {
 							</p>
 
 							<OriginalComponent
+								account={ account }
 								getMedia={ this.getMedia }
 								copyMedia={ this.copyMedia }
 								isCopying={ isCopying }

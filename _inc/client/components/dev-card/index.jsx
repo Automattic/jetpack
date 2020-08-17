@@ -210,6 +210,45 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
+						<label htmlFor="jetpack_security_daily">
+							<input
+								type="radio"
+								id="jetpack_security_daily"
+								value="jetpack_security_daily"
+								name="jetpack_security_daily"
+								checked={ 'is-daily-security-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security Daily
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_security_realtime">
+							<input
+								type="radio"
+								id="jetpack_security_realtime"
+								value="jetpack_security_realtime"
+								name="jetpack_security_realtime"
+								checked={ 'is-realtime-security-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security Real-Time
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_complete">
+							<input
+								type="radio"
+								id="jetpack_complete"
+								value="jetpack_complete"
+								name="jetpack_complete"
+								checked={ 'is-complete-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Complete
+						</label>
+					</li>
+					<li>
 						<label htmlFor="jetpack_backup_daily">
 							<input
 								type="radio"

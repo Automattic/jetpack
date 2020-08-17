@@ -949,6 +949,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'active_sitewide_plugins',
+		'auto_update_plugins', // WordPress 5.5+ auto-updates.
 	);
 
 	/**

@@ -65,6 +65,9 @@ add_action( 'delete_plugin', 'jetpack_docker_disable_delete_plugin', 10, 2 );
  */
 function jetpack_docker_disable_plugin_update( $plugins ) {
 	global $jetpack_docker_avoided_plugins;
+	if ( ! is_array( $jetpack_docker_avoided_plugins ) ) {
+		return $plugins;
+	}
 	foreach ( $jetpack_docker_avoided_plugins as $avoided_plugin ) {
 		if ( isset( $plugins->response[ $avoided_plugin ] ) ) {
 			unset( $plugins->response[ $avoided_plugin ] );

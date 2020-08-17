@@ -37,9 +37,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 		}
 
 		checkApiKeyTyped = event => {
-			if ( 0 < event.currentTarget.value.length ) {
-				this.props.checkAkismetKey( event.currentTarget.value );
-			}
+			this.props.checkAkismetKey( event.currentTarget.value );
 			this.keyChanged = true;
 			this.setState( {
 				delayKeyCheck: false,
@@ -87,12 +85,33 @@ export const Antispam = withModuleSettingsFormHelpers(
 			};
 			let akismetStatus = '',
 				foldableHeader = __( 'Checking your spam protection…', 'jetpack' ),
-				explanation = true;
+				explanation = jetpackCreateInterpolateElement(
+					__(
+						"If you don't already have an API key, then <a>get your API key here</a>, and you'll be guided through the process of getting one.",
+						'jetpack'
+					),
+					{
+						a: <a href={ 'https://akismet.com/wordpress/' } />,
+					}
+				);
 
 			if ( null === this.props.isAkismetKeyValid ) {
 				textProps.value = __( 'Fetching key…', 'jetpack' );
 				textProps.disabled = true;
 				explanation = false;
+			} else if (
+				! this.props.isDirty() &&
+				this.props.getSettingCurrentValue( 'wordpress_api_key' ) === '' &&
+				this.props.isAkismetKeyValid
+			) {
+				textProps.value = __( "A valid key has been set in your site's configuration.", 'jetpack' );
+				textProps.isValid = true;
+				textProps.disabled = true;
+				foldableHeader = __( 'Your site is protected from spam.', 'jetpack' );
+				explanation = __( 'It looks like your API key has been set globally.', 'jetpack' );
+				akismetStatus = (
+					<FormInputValidation text={ __( 'Your Antispam key is valid.', 'jetpack' ) } />
+				);
 			} else if ( '' === this.state.apiKey ) {
 				textProps.value = '';
 				foldableHeader = __( 'Your site needs an Antispam key.', 'jetpack' );
@@ -151,19 +170,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 									<TextInput { ...textProps } />
 									{ akismetStatus }
 								</FormLabel>
-								{ explanation && (
-									<p className="jp-form-setting-explanation">
-										{ jetpackCreateInterpolateElement(
-											__(
-												"If you don't already have an API key, then <a>get your API key here</a>, and you'll be guided through the process of getting one.",
-												'jetpack'
-											),
-											{
-												a: <a href={ 'https://akismet.com/wordpress/' } />,
-											}
-										) }
-									</p>
-								) }
+								{ explanation && <p className="jp-form-setting-explanation">{ explanation }</p> }
 							</FormFieldset>
 						</SettingsGroup>
 					</FoldableCard>

@@ -17,7 +17,6 @@ bin/phpcs-requirelist.js
 bin/pre-commit-hook.js
 bin/prepare-built-branch.sh
 bin/prepare-commit-msg.js
-bin/release-package.php
 bin/version-packages.sh
 css/*.css.map
 css/*.css.min.map

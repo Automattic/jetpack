@@ -6,28 +6,29 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { useRef, useEffect, useCallback } from '@wordpress/element';
+import { useRef, useEffect } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
-import { ENTER, SPACE } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
 
 function MediaItem( props ) {
-	const onClick = useCallback( () => {
-		if ( props.onClick ) {
-			props.onClick( props.item );
-		}
-	}, [ props.onClick ] );
+	const onClick = event => {
+		const { item, index } = props;
 
-	// Catch space and enter key presses.
-	const onKeyDown = event => {
-		if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
-			// Prevent spacebar from scrolling the page down.
-			event.preventDefault();
-			onClick( event );
+		if ( props.onClick ) {
+			props.onClick( event, { item, index } );
 		}
 	};
 
-	const { item, focusOnMount, isSelected, isCopying = false } = props;
+	// Catch space and enter key presses.
+	const onKeyDown = event => {
+		const { item, index } = props;
+
+		if ( props.onKeyDown ) {
+			props.onKeyDown( event, { item, index } );
+		}
+	};
+
+	const { item, focus, isSelected, isCopying = false } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null } = thumbnails;
 	const alt = title || caption || name;
@@ -41,12 +42,10 @@ function MediaItem( props ) {
 	const itemEl = useRef( null );
 
 	useEffect( () => {
-		if ( focusOnMount ) {
+		if ( focus ) {
 			itemEl.current.focus();
 		}
-		// Passing empty dependency array to focus on mount only.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [ focus ] );
 
 	/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	return (

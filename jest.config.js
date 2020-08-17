@@ -12,4 +12,5 @@ module.exports = {
 			'@automattic/calypso-build/jest/transform/asset'
 		),
 	},
+	coverageDirectory: "coverage/extensions"
 };

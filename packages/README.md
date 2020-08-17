@@ -63,29 +63,22 @@ $logo = new Jetpack_Logo();
 
 ## Deploying packages
 
-While the script we use to deploy the package takes care of everything, we might need to setup some stuff online in GitHub and Packagist. Let's use the Autoload package as an example. 
+While the script we use to deploy the package takes care of everything, we might need to setup some stuff online in GitHub and Packagist. Let's use the Autoloader package as an example. 
 
-You must first have an online repository in GitHub for the package. In this case, it's https://github.com/Automattic/jetpack-autoloader. The code here comes from the Jetpack plugin in `packages/autoloader`.
+1. Before you merge the PR introducing the new package in Jetpack, run through the steps below.
+2. Create an online repository in GitHub for the package. In this case, it's https://github.com/Automattic/jetpack-autoloader.
+3. Add an initial valid `composer.json` to the repository. You can copy it from your PR in the Jetpack repo.
+4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `master` branch.
+5. Go to https://packagist.org/packages/submit and insert the URL of the GitHub repository.
+6. Upon submission, add Crew members as package maintainers, as well as the `automattic` account.
 
-You also need a package home in Packagist. For the Autoloader, it's https://packagist.org/packages/automattic/jetpack-autoloader. To create a new one, go to https://packagist.org/packages/submit and insert the URL of the GitHub repository.
 
-To establish a link between the two, so the packages are updated in Packagist when they're updated in GitHub, you need to add a Webhook to the GitHub repo. You can find more information about it on the [Packagist docs](https://packagist.org/about#how-to-update-packages), and you can also check the [Packagist Webhook in Autoloader](https://github.com/Automattic/jetpack-autoloader/settings/hooks) to see how it's setup.
+Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-master` version of the package available to the public.
 
-Once you've all this ready, you should be standing in the Jetpack plugin root and run:
-
-```
-php bin/release-package.php autoloader 5.6.7 
-```
-
-The PHP script admits two parameters, the package name and the new target version (`5.6.7` is just an example). Once it's run, the script will:
-
-- create and push a new `automattic/jetpack-autoloader@5.6.7` tag in the main Jetpack repository.
-- filter the current Jetpack repository to the contents and history of the package subdirectory.
-- add the `automattic/jetpack-autoloader` package as a git remote.
-- push the new contents and history to the package repository.
-- fetch all current tags of the package repository.
-- create and push a new `v5.6.7` tag in the package repository.
-- reset the local repository to its original state and clean up.
+## Unit Tests
+You may run unit tests locally for any given package by running `composer phpunit` within the package directory or
+via Jetpack Docker with the command `yarn docker:phpunit:package` for all package unit tests or 
+`yarn docker:phpunit:package packagename` for a specific one. 
 
 ## Should my code be in a Package? 
 
