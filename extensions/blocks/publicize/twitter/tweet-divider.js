@@ -111,8 +111,12 @@ class TweetDivider extends Component {
 								position="bottom center"
 							>
 								<ol>
-									{ popoverWarnings.map( warning => (
-										<li>{ warning }</li>
+									{ popoverWarnings.map( ( warning, index ) => (
+										<li
+											key={ `jetpack-publicize-twitter__tweet-divider-popover-warning-${ index }` }
+										>
+											{ warning }
+										</li>
 									) ) }
 								</ol>
 							</Popover>
