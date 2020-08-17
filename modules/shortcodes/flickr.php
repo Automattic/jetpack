@@ -190,6 +190,11 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 			// Get the URL of the video from the page of the video.
 			$video_page_content = wp_remote_get( "http://flickr.com/photo.gne?id=$video_param" );
 
+			// Bail if we do not get any info from Flickr.
+			if ( is_wp_error( $video_page_content ) ) {
+				return '';
+			}
+
 			// Extract the URL from the og:url meta tag.
 			preg_match( '/property=\"og:url\"\scontent=\"([^\"]+)\"/', $video_page_content['body'], $matches );
 			if ( empty( $matches[1] ) ) {
