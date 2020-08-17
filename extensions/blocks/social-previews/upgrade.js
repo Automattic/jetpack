@@ -31,10 +31,15 @@ export default function SocialPreviewsUpgrade() {
 	const {
 		details: { required_plan },
 	} = getJetpackExtensionAvailability( name );
-	const [ href, autosaveAndRedirect ] = useUpgradeFlow( required_plan, trackClickEvent );
+	const [ href, autosaveAndRedirect, isRedirecting ] = useUpgradeFlow(
+		required_plan,
+		trackClickEvent
+	);
 
 	// Using the effect here so the tracking is only called once on component mount.
 	useEffect( trackViewEvent, [] );
+
+	const redirectingText = __( 'Redirecting…', 'jetpack' );
 
 	return (
 		<div className="jetpack-social-previews__modal-upgrade">
@@ -69,15 +74,15 @@ export default function SocialPreviewsUpgrade() {
 						) }
 					</li>
 				</ul>
-
 				<Button
 					href={ href } // Only for server-side rendering, since onClick doesn't work there.
 					isPrimary
 					label={ __( 'Purchase a business plan to access social previews', 'jetpack' ) }
 					onClick={ autosaveAndRedirect }
 					target="_top"
+					isBusy={ isRedirecting }
 				>
-					{ __( 'Upgrade', 'jetpack' ) }
+					{ isRedirecting ? redirectingText : __( 'Upgrade', 'jetpack' ) }
 				</Button>
 			</div>
 		</div>
