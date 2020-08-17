@@ -9,27 +9,24 @@ import { __ } from '@wordpress/i18n';
  */
 import analytics from '../../../_inc/client/lib/analytics';
 import upgradeImageUrl from './upgrade-illustration.svg';
-import { BUSINESS_PLAN } from '../../shared/components/upgrade-nudge/constants';
 import useUpgradeFlow from '../../shared/use-upgrade-flow';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import { name } from './index';
 
-const trackClickEvent = () =>
-	void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
-		plan: BUSINESS_PLAN,
-		block: name,
-	} );
-
 export default function SocialPreviewsUpgrade() {
-	const {
-		details: { required_plan },
-	} = getJetpackExtensionAvailability( name );
+	const required_plan = getJetpackExtensionAvailability( name )?.details?.required_plan;
+	const trackClickEvent = () =>
+		void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
+			plan: required_plan,
+			block: name,
+		} );
+
 	const [ href, autosaveAndRedirect, isRedirecting ] = useUpgradeFlow(
 		required_plan,
 		trackClickEvent
 	);
 
-	const redirectingText = __( 'Redirecting…', 'jetpack' );
+	const buttonText = isRedirecting ? __( 'Redirecting…', 'jetpack' ) : __( 'Upgrade', 'jetpack' );
 
 	return (
 		<div className="jetpack-social-previews__modal-upgrade">
@@ -72,7 +69,7 @@ export default function SocialPreviewsUpgrade() {
 					target="_top"
 					isBusy={ isRedirecting }
 				>
-					{ isRedirecting ? redirectingText : __( 'Upgrade', 'jetpack' ) }
+					{ buttonText }
 				</Button>
 			</div>
 		</div>
