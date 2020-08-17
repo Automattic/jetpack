@@ -42,6 +42,7 @@ export function getTweetStorm( state ) {
 			tweets.push( {
 				...tweet,
 				text: tweetBlob.content,
+				media: tweetBlob.media,
 			} );
 			return;
 		}
@@ -56,12 +57,14 @@ export function getTweetStorm( state ) {
 			} );
 		} );
 
-		// Add the text from the last boundary to the end of the blob.
+		// Add the text from the last boundary to the end of the blob as a new tweet,
+		// along with any media.
 		tweets.push( {
 			...tweet,
 			text: tweetBlob.content.slice(
 				tweetBlob.boundaries[ tweetBlob.boundaries.length - 1 ].character
 			),
+			media: tweetBlob.media,
 		} );
 	} );
 

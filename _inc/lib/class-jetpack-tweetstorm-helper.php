@@ -27,6 +27,10 @@ class Jetpack_Tweetstorm_Helper {
 			'content_attributes' => array( 'content' ),
 			'template'           => '{{content}}',
 		),
+		'core/image'     => array(
+			'type'          => 'image',
+			'url_attribute' => 'url',
+		),
 		'core/list'      => array(
 			'type'               => 'multiline',
 			'multiline_tag'      => 'li',
@@ -108,7 +112,23 @@ class Jetpack_Tweetstorm_Helper {
 		$parser = new Parser();
 
 		foreach ( $blocks as $block ) {
-			$block_def  = self::$supported_blocks[ $block['name'] ];
+			$block_def = self::$supported_blocks[ $block['name'] ];
+
+			if ( 'image' === $block_def['type'] ) {
+				$url = $block['attributes'][ $block_def['url_attribute'] ];
+
+				// Check if we can add this image to the last tweet.
+				$last_tweet = array_pop( $tweets );
+				if ( empty( $last_tweet['media'] ) ) {
+					$last_tweet['media'][] = array(
+						'url' => $url,
+					);
+
+					$tweets[] = $last_tweet;
+					continue;
+				}
+			}
+
 			$block_text = self::extract_text_from_block( $block );
 
 			if ( empty( $block_text ) ) {
@@ -218,6 +238,7 @@ class Jetpack_Tweetstorm_Helper {
 					'blocks'     => array( $block ),
 					'boundaries' => $boundaries,
 					'content'    => $block_text,
+					'media'      => array(),
 				);
 				continue;
 			}
@@ -228,6 +249,7 @@ class Jetpack_Tweetstorm_Helper {
 					'blocks'     => array( $block ),
 					'boundaries' => $boundaries,
 					'content'    => $block_text,
+					'media'      => array(),
 				);
 				continue;
 			}
@@ -243,6 +265,7 @@ class Jetpack_Tweetstorm_Helper {
 					'blocks'     => array( $block ),
 					'boundaries' => $boundaries,
 					'content'    => $block_text,
+					'media'      => array(),
 				);
 				continue;
 			}

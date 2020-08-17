@@ -31,6 +31,9 @@ const SUPPORTED_BLOCKS = {
 	'core/verse': {
 		contentAttributes: [ 'content' ],
 	},
+	'core/image': {
+		contentAttributes: [ 'url' ],
+	},
 };
 
 /**
@@ -189,6 +192,10 @@ export default compose( [
 
 		const findTagsInContent = tags => {
 			if ( 0 === tags.length ) {
+				return false;
+			}
+
+			if ( ! SUPPORTED_BLOCKS[ childProps.name ].contentAttributes ) {
 				return false;
 			}
 
