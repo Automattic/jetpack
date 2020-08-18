@@ -11,6 +11,12 @@ class VideoPress_XMLRPC {
 	 **/
 	private static $instance = null;
 
+	/**
+	 * The current user object.
+	 *
+	 * @var WP_User
+	 */
+	private $current_user;
 
 	/**
 	 * Private VideoPress_XMLRPC constructor.
@@ -18,7 +24,7 @@ class VideoPress_XMLRPC {
 	 * Use the VideoPress_XMLRPC::init() method to get an instance.
 	 */
 	private function __construct() {
-		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ), 10, 3 );
 	}
 
 	/**
@@ -37,11 +43,16 @@ class VideoPress_XMLRPC {
 	/**
 	 * Adds additional methods the WordPress xmlrpc API for handling VideoPress specific features
 	 *
-	 * @param array $methods
+	 * @param array   $methods The Jetpack API methods.
+	 * @param array   $core_methods The WordPress Core API methods (ignored).
+	 * @param WP_User $user The user object the API request is signed by.
 	 *
 	 * @return array
 	 */
-	public function xmlrpc_methods( $methods ) {
+	public function xmlrpc_methods( $methods, $core_methods, $user ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( $user && $user instanceof WP_User ) {
+			$this->current_user = $user;
+		}
 
 		$methods['jetpack.createMediaItem']             = array( $this, 'create_media_item' );
 		$methods['jetpack.updateVideoPressMediaItem']   = array( $this, 'update_videopress_media_item' );
@@ -62,6 +73,8 @@ class VideoPress_XMLRPC {
 	 * @return array
 	 */
 	public function create_media_item( $media ) {
+		$this->authenticate_user();
+
 		foreach ( $media as & $media_item ) {
 			$title = sanitize_title( basename( $media_item['url'] ) );
 			$guid  = isset( $media['guid'] ) ? $media['guid'] : null;
@@ -89,6 +102,7 @@ class VideoPress_XMLRPC {
 	 * @return bool
 	 */
 	public function update_videopress_media_item( $request ) {
+		$this->authenticate_user();
 
 		$id     = $request['post_id'];
 		$status = $request['status'];
@@ -144,6 +158,7 @@ class VideoPress_XMLRPC {
 	 * @return bool
 	 */
 	public function update_poster_image( $request ) {
+		$this->authenticate_user();
 
 		$post_id = $request['post_id'];
 		$poster  = $request['poster'];
@@ -169,5 +184,20 @@ class VideoPress_XMLRPC {
 		update_post_meta( $post_id, '_thumbnail_id', $thumbnail_id );
 
 		return true;
+	}
+
+	/**
+	 * Check if the XML-RPC request is signed by a user token, and authenticate the user in WordPress.
+	 *
+	 * @return bool
+	 */
+	private function authenticate_user() {
+		if ( $this->current_user ) {
+			wp_set_current_user( $this->current_user->ID );
+
+			return true;
+		}
+
+		return false;
 	}
 }
