@@ -46,6 +46,12 @@ $icon-background-color: #fff;
 			}
 		}
 	}
+
+	// Banner in the editor-canvas context.
+	&.block-editor-block-list__block {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
 }
 
 // Tweak Banner depending on the context.
