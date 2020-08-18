@@ -2,16 +2,16 @@
 
 namespace Automattic\Jetpack\Connection;
 
-require_once ABSPATH . WPINC . '/class-IXR.php';
-
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
 use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
 use WP_REST_Request;
 use WP_REST_Server;
 use Requests_Utility_CaseInsensitiveDictionary;
+use WP_User;
 
 /**
  * Unit tests for the REST API endpoints.
@@ -22,6 +22,8 @@ use Requests_Utility_CaseInsensitiveDictionary;
 class Test_REST_Endpoints extends TestCase {
 
 	const BLOG_TOKEN = 'new.blogtoken';
+	const BLOG_ID    = 42;
+	const USER_ID    = 111;
 
 	/**
 	 * REST Server object.
@@ -59,6 +61,8 @@ class Test_REST_Endpoints extends TestCase {
 		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' );
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_HOST'] = 'public-api.wordpress.com';
 
+		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
+
 		set_transient( 'jetpack_assumed_site_creation_date', '2020-02-28 01:13:27' );
 	}
 
@@ -76,21 +80,70 @@ class Test_REST_Endpoints extends TestCase {
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_HOST'] = $this->api_host_original;
 
 		delete_transient( 'jetpack_assumed_site_creation_date' );
+
+		WorDBless_Options::init()->options = array();
 	}
 
 	/**
 	 * Testing the `/jetpack/v4/remote_authorize` endpoint.
 	 */
 	public function test_remote_authorize() {
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
+
+		wp_cache_set(
+			self::USER_ID,
+			(object) array(
+				'ID'         => self::USER_ID,
+				'user_email' => 'sample@example.org',
+			),
+			'users'
+		);
+
+		$secret_1 = 'Az0g39toGWlYiTJ4NnDuAz0g39toGWlY';
+
+		$secrets = array(
+			'jetpack_authorize_' . self::USER_ID => array(
+				'secret_1' => $secret_1,
+				'secret_2' => 'zfIFcym2Jlzd8AVgzfIFcym2Jlzd8AVg',
+				'exp'      => time() + 60,
+			),
+		);
+
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$options_filter = function( $value ) use ( $secrets ) {
+			return $secrets;
+		};
+		add_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
+
+		$user_caps_filter = function( $allcaps, $caps, $args, $user ) {
+			if ( $user instanceof WP_User && self::USER_ID === $user->ID ) {
+				$allcaps['manage_options'] = true;
+				$allcaps['administrator']  = true;
+			}
+
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $user_caps_filter, 10, 4 );
+
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/remote_authorize' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( '{ "state": 111, "secret": "12345", "redirect_uri": "https://example.org", "code": "54321" }' );
+		$this->request->set_body( '{ "state": "' . self::USER_ID . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
 
 		$response = $this->server->dispatch( $this->request );
-		$data     = $response->get_data();
+		$this->assertEquals( 200, $response->get_status() );
 
-		$this->assertEquals( 404, $data['code'] );
-		$this->assertContains( '[user_unknown]', $data['message'] );
+		$data = $response->get_data();
+		$this->assertEquals( 'authorized', $data['result'] );
+
+		remove_filter( 'user_has_cap', $user_caps_filter );
+		remove_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
+		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ) );
+
+		wp_cache_delete( self::USER_ID, 'users' );
+
+		wp_set_current_user( 0 );
 	}
 
 	/**
@@ -159,6 +212,12 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `connection/reconnect` endpoint, full reconnect.
 	 */
 	public function test_connection_reconnect_full() {
+		$deregister_request_filter = function() {
+			return false;
+		};
+
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', $deregister_request_filter );
+
 		$this->setup_reconnect_test( null );
 		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
 
@@ -167,10 +226,12 @@ class Test_REST_Endpoints extends TestCase {
 
 		$data = $response->get_data();
 		$this->assertEquals( 'in_progress', $data['status'] );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/1' ) );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
 		$this->shutdown_reconnect_test( null );
+
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', $deregister_request_filter );
 	}
 
 	/**
@@ -218,7 +279,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$data = $response->get_data();
 		$this->assertEquals( 'in_progress', $data['status'] );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/1' ) );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 
 		$this->shutdown_reconnect_test( 'user_token' );
 	}
@@ -408,35 +469,52 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * Intercept the `Jetpack_Options` call to get `blog_id`, and set a random value.
+	 * Intercept the `jetpack-token-health` API request sent to WP.com, and mock the "invalid blog token" response.
 	 *
-	 * @param mixed  $value The current option value.
-	 * @param string $name Option name.
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
 	 *
-	 * @return int
+	 * @return array
 	 */
-	public function mock_blog_id( $value, $name ) {
-		if ( 'id' !== $name ) {
-			return $value;
+	public function intercept_auth_token_request( $response, $args, $url ) {
+		if ( false === strpos( $url, '/jetpack.token/' ) ) {
+			return $response;
 		}
 
-		return 42;
+		return array(
+			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'body'     => wp_json_encode(
+				array(
+					'access_token' => 'mock.token',
+					'token_type'   => 'X_JETPACK',
+					'scope'        => ( new Manager() )->sign_role( 'administrator' ),
+				)
+			),
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+		);
 	}
 
 	/**
-	 * Intercept the `Jetpack_Options` call to get `user_tokens`, and set a mock value.
+	 * Intercept the `Jetpack_Options` call and mock the values.
 	 *
 	 * @param mixed  $value The current option value.
 	 * @param string $name Option name.
 	 *
-	 * @return int
+	 * @return mixed
 	 */
-	public function mock_access_tokens( $value, $name ) {
-		if ( 'blog_token' !== $name ) {
-			return $value;
+	public function mock_jetpack_options( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return self::BLOG_TOKEN;
+			case 'id':
+				return self::BLOG_ID;
 		}
 
-		return self::BLOG_TOKEN;
+		return $value;
 	}
 
 	/**
@@ -494,8 +572,7 @@ class Test_REST_Endpoints extends TestCase {
 				break;
 		}
 
-		add_filter( 'jetpack_options', array( $this, 'mock_access_tokens' ), 10, 2 );
-		add_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10, 2 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
 	}
 
 	/**
@@ -537,8 +614,7 @@ class Test_REST_Endpoints extends TestCase {
 				break;
 		}
 
-		remove_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10 );
-		remove_filter( 'jetpack_options', array( $this, 'mock_access_tokens' ), 10 );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_validate_tokens_request' ), 10 );
 	}
 
