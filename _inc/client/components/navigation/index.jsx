@@ -11,12 +11,14 @@ import { _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 import { isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import SectionNav from 'components/section-nav';
 import {
+	getSiteRawUrl,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 } from 'state/initial-state';
@@ -66,7 +68,7 @@ export class Navigation extends React.Component {
 					) }
 					{ ! this.props.isOfflineMode && this.props.isLinked && (
 						<NavItem
-							path="#/plans"
+							path={ getRedirectUrl( 'jetpack-plans', { site: this.props.siteUrl } ) }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
 						>
@@ -109,5 +111,6 @@ export default connect( state => {
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		isLinked: isCurrentUserLinked( state ),
+		siteUrl: getSiteRawUrl( state ),
 	};
 } )( withRouter( Navigation ) );
