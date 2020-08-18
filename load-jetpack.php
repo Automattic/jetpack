@@ -59,7 +59,6 @@ require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
-require_once JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/paid-blocks/blocks-availability.php';
 
 jetpack_require_lib( 'class-jetpack-wizard' );
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-wizard-banner.php';
