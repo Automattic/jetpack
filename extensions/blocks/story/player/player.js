@@ -116,6 +116,9 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		if ( settings.loadInFullscreen ) {
 			setFullscreen( true );
 		}
+		if ( settings.playOnLoad ) {
+			setPlaying( true );
+		}
 	}, [] );
 
 	useLayoutEffect( () => {

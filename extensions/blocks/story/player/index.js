@@ -27,6 +27,7 @@ const defaultSettings = {
 	startMuted: false,
 	playInFullscreen: true,
 	playOnNextSlide: true,
+	playOnLoad: false,
 	exitFullscreenOnEnd: true,
 	loadInFullscreen: false,
 	blurredBackground: true,
