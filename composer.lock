@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/a8c-mc-stats",
@@ -39,7 +39,7 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
@@ -75,7 +75,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -111,7 +111,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -148,7 +148,7 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
@@ -173,7 +173,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -208,7 +208,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/config",
@@ -230,17 +230,18 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "e2a99ffdf8621efdddfac8cf6cf04c1edb21f256"
+                "reference": "bb68aeb045a837fe2fe4784ca41ac667fe5b6fa5"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
-                "automattic/jetpack-status": "@dev"
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
                 "automattic/wordbless": "@dev",
@@ -276,7 +277,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -308,7 +309,7 @@
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/device-detection",
@@ -340,7 +341,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
@@ -371,7 +372,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -415,22 +416,32 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/lazy-images",
-                "reference": "6e7f36702904faa7478b295ebdb60ef2d858e856"
+                "reference": "16409fc61cce65c8b914b08c80cae2cc0662ca2d"
             },
             "require": {
-                "automattic/jetpack-constants": "dev-master"
+                "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
+                "automattic/wordbless": "dev-master",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
                 "classmap": [
                     "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
@@ -443,7 +454,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -475,7 +486,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -504,7 +515,7 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
@@ -538,7 +549,7 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
@@ -569,7 +580,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -601,7 +612,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -634,7 +645,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -663,7 +674,7 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
@@ -700,7 +711,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -1067,16 +1078,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.5",
+            "version": "3.5.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6"
+                "reference": "e97627871a7eab2f70e59166072a6b767d5834e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
-                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/e97627871a7eab2f70e59166072a6b767d5834e0",
+                "reference": "e97627871a7eab2f70e59166072a6b767d5834e0",
                 "shasum": ""
             },
             "require": {
@@ -1114,7 +1125,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2020-04-17T01:09:41+00:00"
+            "time": "2020-08-10T04:50:15+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
