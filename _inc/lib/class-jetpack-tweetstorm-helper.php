@@ -111,8 +111,6 @@ class Jetpack_Tweetstorm_Helper {
 		$tweets = array();
 		$parser = new Parser();
 
-		header( 'X-timer-' . timer_stop( false ) . ': foo' );
-
 		foreach ( $blocks as $block ) {
 			$block_def = self::$supported_blocks[ $block['name'] ];
 
@@ -285,8 +283,6 @@ class Jetpack_Tweetstorm_Helper {
 			$last_tweet['content']  = $new_tweet_text;
 			$tweets[]               = $last_tweet;
 		}
-
-		header( 'X-timer-' . timer_stop( false ) . ': foo' );
 
 		return $tweets;
 	}
