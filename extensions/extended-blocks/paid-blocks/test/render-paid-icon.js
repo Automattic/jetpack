@@ -26,7 +26,7 @@ const iconWithSrcWithPaidIcon = {
 	src: (
 		<SVG xmlns="http://www.w3.org/2000/svg">
 			<G />
-			<PaidSymbol />
+			<PaidSymbol key="paid-symbol" />
 		</SVG>
 	),
 	foreground: '#555d66',
@@ -41,7 +41,7 @@ const iconWithouthSrc = (
 const iconWithouthSrcWithPaidIcon = (
 	<SVG xmlns="http://www.w3.org/2000/svg">
 		<G />
-		<PaidSymbol />
+		<PaidSymbol key="paid-symbol" />
 	</SVG>
 );
 
