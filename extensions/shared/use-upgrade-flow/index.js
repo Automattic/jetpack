@@ -15,6 +15,7 @@ import { useState } from '@wordpress/element';
 
 // Provably we should move this store to somewhere more generic.
 import '../components/upgrade-nudge/store';
+import { getUpgradeUrl } from '../plan-utils';
 
 function redirect( url, callback ) {
 	if ( callback ) {
@@ -22,8 +23,6 @@ function redirect( url, callback ) {
 	}
 	window.top.location.href = url;
 }
-
-import { getUpgradeUrl } from '../plan-utils';
 
 export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );

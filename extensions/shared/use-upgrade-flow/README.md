@@ -1,4 +1,4 @@
-## UseUpgradeFlow hook
+## useUpgradeFlow hook
 
 Use this hook when you need to implement a component that leads the user to the checkout page.
 

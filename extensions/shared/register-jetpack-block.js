@@ -11,7 +11,6 @@ import { registerBlockType } from '@wordpress/blocks';
 import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import withHasWarningIsInteractiveClassNames from './with-has-warning-is-interactive-class-names';
-import wrapPaidBlock from './wrap-paid-block';
 
 const availableBlockTags = {
 	paid: _x( 'paid', 'Short label appearing near a block requiring a paid plan', 'jetpack' ),
@@ -27,7 +26,7 @@ const betaExtensions = extensionList.beta || [];
  * @param {object} details - The block details
  * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
  */
-function requiresPaidPlan( unavailableReason, details ) {
+export function requiresPaidPlan( unavailableReason, details ) {
 	if ( unavailableReason === 'missing_plan' ) {
 		return details.required_plan;
 	}
@@ -38,15 +37,11 @@ function requiresPaidPlan( unavailableReason, details ) {
  * Builds an array of tags associated with this block, such as ["paid", "beta"].
  *
  * @param {string} name - The block's name.
- * @param {string|boolean} requiredPlan -  Does this block require a paid plan?
  * @returns {Array} Array of tags associated with this block
  */
-function buildBlockTags( name, requiredPlan ) {
+function buildBlockTags( name ) {
 	const blockTags = [];
 
-	if ( requiredPlan ) {
-		blockTags.push( availableBlockTags.paid );
-	}
 	if ( betaExtensions.includes( name ) ) {
 		blockTags.push( availableBlockTags.beta );
 	}
@@ -95,7 +90,6 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
-		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
 		example: requiredPlan ? undefined : settings.example,
 	} );
 

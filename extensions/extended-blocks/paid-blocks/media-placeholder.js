@@ -8,18 +8,28 @@ import { useContext, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isVideoFile } from './utils';
-import { CoverMediaContext } from './components';
+import { isFileOfType } from '../../shared/get-allowed-mime-types';
+import { isUpgradable, getUsableBlockProps } from '../../shared/plan-utils';
+import { PaidBlockContext } from './components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( 'core/cover' !== name ) {
+		const usableBlocksProps = getUsableBlockProps( name );
+
+		if ( ! usableBlocksProps?.mediaPlaceholder || ! isUpgradable( name ) ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
-		const onFilesUpload = useContext( CoverMediaContext );
+		const { fileType } = usableBlocksProps;
 		const { onError } = props;
+
+		const onBannerVisibilityChange = useContext( PaidBlockContext );
+
+		const checkUploadingVideoFiles = useCallback(
+			files => onBannerVisibilityChange( files?.length && isFileOfType( files[ 0 ], fileType ) ),
+			[ fileType, onBannerVisibilityChange ]
+		);
 
 		/**
 		 * On Uploading error handler.
@@ -33,25 +43,24 @@ export default createHigherOrderComponent(
 		const uploadingErrorHandler = useCallback(
 			message => {
 				const filename = message?.[ 0 ]?.props?.children;
-
-				if ( isVideoFile( filename ) ) {
-					return onFilesUpload( [ filename ] );
+				if ( isFileOfType( filename, fileType ) ) {
+					return checkUploadingVideoFiles( [ filename ] );
 				}
 
 				return onError( message );
 			},
-			[ onFilesUpload, onError ]
+			[ checkUploadingVideoFiles, fileType, onError ]
 		);
 
 		return (
-			<div className="jetpack-cover-media-placeholder">
+			<div className="paid-block-media-placeholder">
 				<CoreMediaPlaceholder
 					{ ...props }
-					onFilesPreUpload={ onFilesUpload }
+					onFilesPreUpload={ checkUploadingVideoFiles }
 					onError={ uploadingErrorHandler }
 				/>
 			</div>
 		);
 	},
-	'JetpackCoverMediaPlaceholder'
+	'withMediaPlaceholderUpgradable'
 );
