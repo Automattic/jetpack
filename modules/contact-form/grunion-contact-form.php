@@ -911,6 +911,17 @@ class Grunion_Contact_Form_Plugin {
 		$md['feedback_date'] = get_the_date( DATE_RFC3339, $post_id );
 		$content_fields      = self::parse_fields_from_content( $post_id );
 		$md['feedback_ip']   = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+
+		// add the email_marketing_consent to the post meta.
+		$md['email_marketing_consent'] = 0;
+		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
+			$all_fields = $content_fields['_feedback_all_fields'];
+			// check if the email_marketing_consent field exists.
+			if ( isset( $all_fields['email_marketing_consent'] ) ) {
+				$md['email_marketing_consent'] = $all_fields['email_marketing_consent'];
+			}
+		}
+
 		return $md;
 	}
 
