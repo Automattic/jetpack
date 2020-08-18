@@ -23,6 +23,7 @@ const UpgradePlanBanner = ( {
 	buttonText = __( 'Upgrade', 'jetpack' ),
 	visible = true,
 	requiredPlan,
+	context,
 } ) => {
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow(
 		requiredPlan,
@@ -32,7 +33,14 @@ const UpgradePlanBanner = ( {
 		return null;
 	}
 
-	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', 'wp-block' );
+	const cssClasses = classNames(
+		className,
+		'jetpack-upgrade-plan-banner', {
+			'wp-block': context === 'editor-canvas',
+			'block-editor-block-list__block': context === 'editor-canvas',
+		}
+	);
+
 	const redirectingText = __( 'Redirecting…', 'jetpack' );
 
 	return (
