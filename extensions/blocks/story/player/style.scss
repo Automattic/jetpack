@@ -622,8 +622,7 @@
 		right: 0;
 		top: 0;
 		bottom: 0;
-		opacity: 0.88;
-		background-color: $wp-story-background-color;
+		background-color: #0e1112e0;
 
 		@supports (backdrop-filter: none) {
 			backdrop-filter: blur(18px);
