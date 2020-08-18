@@ -22,7 +22,7 @@ import {
 	hasActiveScanPurchase,
 	hasActiveSearchPurchase,
 } from 'state/site';
-import { isPluginActive } from 'state/site/plugins';
+import { fetchPluginsData, isPluginActive } from 'state/site/plugins';
 
 function getInfoString( productName ) {
 	return sprintf(
@@ -297,22 +297,33 @@ const features = {
 
 	'creative-mail': {
 		mapStateToProps: state => {
+			const isCreativeMailActive = isPluginActive(
+				state,
+				'creative-mail-by-constant-contact/creative-mail-plugin.php'
+			);
+
 			return {
 				feature: 'creative-mail',
 				title: __( 'Creative Mail by Constant Contact', 'jetpack' ),
 				details: __( 'Send beautiful emails; grow followers.', 'jetpack' ),
-				checked: isPluginActive(
-					state,
-					'creative-mail-by-constant-contact/creative-mail-plugin.php'
-				),
-				optionsLink: '',
+				checked: isCreativeMailActive,
+				isDisabled: isCreativeMailActive,
 			};
 		},
 		mapDispatchToProps: dispatch => {
+			const installAndRefreshPluginData = () => {
+				restApi.installPlugin( 'creative-mail-by-constant-contact', 'setup-wizard' ).then( () => {
+					dispatch( fetchPluginsData() );
+				} );
+			};
+
 			return {
 				onToggleChange: currentCheckedValue => {
-					restApi.installPlugin( 'creative-mail-by-constant-contact', 'setup-wizard' );
+					if ( ! currentCheckedValue ) {
+						installAndRefreshPluginData();
+					}
 				},
+				onInstallClick: () => installAndRefreshPluginData(),
 			};
 		},
 	},

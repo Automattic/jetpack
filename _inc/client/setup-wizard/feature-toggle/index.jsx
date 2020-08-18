@@ -32,6 +32,7 @@ let FeatureToggle = props => {
 		configureLink,
 		upgradeLink,
 		optionsLink,
+		onInstallClick,
 		isPaid = false,
 		isButtonLinkExternal = false,
 		isOptionsLinkExternal = false,
@@ -111,6 +112,8 @@ let FeatureToggle = props => {
 				) }
 			</Button>
 		);
+	} else if ( ! checked && onInstallClick ) {
+		buttonContent = <Button onClick={ onInstallClick }>{ __( 'Install now', 'jetpack' ) }</Button>;
 	}
 
 	const largeWindow = 'large' === windowWidth;
@@ -187,6 +190,7 @@ FeatureToggle.propTypes = {
 	info: PropTypes.string,
 	checked: PropTypes.bool.isRequired,
 	onToggleChange: PropTypes.func,
+	onInstallClick: PropTypes.func,
 	configureLink: PropTypes.string,
 	upgradeLink: PropTypes.string,
 	optionsLink: PropTypes.string,
