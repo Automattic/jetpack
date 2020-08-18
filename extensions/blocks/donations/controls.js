@@ -23,7 +23,7 @@ import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import { CURRENCIES } from '@automattic/format-currency';
 
 const Controls = props => {
-	const { attributes, setAttributes, products, siteSlug } = props;
+	const { attributes, setAttributes, siteSlug } = props;
 	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
 
 	const toggleDonation = ( interval, show ) => {
@@ -38,7 +38,6 @@ const Controls = props => {
 			[ donationAttribute ]: {
 				...donation,
 				show,
-				planId: show ? products[ interval ] : null,
 			},
 		} );
 	};
