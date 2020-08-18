@@ -33,6 +33,10 @@ class Jetpack_Plan {
 				'calendly',
 				'send-a-message',
 				'social-previews',
+
+				'core/video',
+				'core/cover',
+				'core/audio',
 			),
 		),
 		'personal' => array(
@@ -46,6 +50,7 @@ class Jetpack_Plan {
 			'supports' => array(
 				'akismet',
 				'recurring-payments',
+				'premium-content/container',
 			),
 		),
 		'premium'  => array(
