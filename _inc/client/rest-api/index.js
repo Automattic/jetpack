@@ -380,11 +380,15 @@ function checkStatus( response ) {
 		} );
 	}
 
-	return response.json().then( json => {
-		const error = new Error( `${ json.message } (Status ${ response.status })` );
-		error.response = json;
-		throw error;
-	} );
+	return response
+		.json()
+		.catch( e => catchJsonParseError( e ) )
+		.then( json => {
+			const error = new Error( `${ json.message } (Status ${ response.status })` );
+			error.response = json;
+			error.name = 'ApiError';
+			throw error;
+		} );
 }
 
 function parseJsonResponse( response ) {
