@@ -30,12 +30,13 @@
 		"shortlinks",
 		"simple-payments",
 		"slideshow",
+		"social-previews",
 		"subscriptions",
 		"tiled-gallery",
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "donations", "story", "social-previews" ],
+	"beta": [ "amazon", "donations", "story" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
