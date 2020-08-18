@@ -173,6 +173,11 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 		$response_body = jetpack_instagram_fetch_embed( $url_args );
 	}
 
+	if ( is_wp_error( $response_body ) || empty( $response_body->html ) ) {
+		jetpack_instagram_output_errored_embed( $url );
+		return;
+	}
+
 	if ( $use_cache ) {
 		wp_cache_set(
 			$cache_key,
@@ -182,18 +187,27 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 		);
 	}
 
-	if ( ! empty( $response_body->html ) ) {
-		wp_enqueue_script(
-			'jetpack-instagram-embed',
-			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/instagram.min.js', 'modules/shortcodes/js/instagram.js' ),
-			array( 'jquery' ),
-			JETPACK__VERSION,
-			true
-		);
-		return $response_body->html;
-	}
+	wp_enqueue_script(
+		'jetpack-instagram-embed',
+		Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/instagram.min.js', 'modules/shortcodes/js/instagram.js' ),
+		array( 'jquery' ),
+		JETPACK__VERSION,
+		true
+	);
 
-	return '<!-- instagram error: no embed found -->';
+	return $response_body->html;
+}
+
+/**
+ * Given a URL, will output an HTML comment and the linked URL.
+ *
+ * @param string $url The URL that was attempted to embed.
+ */
+function jetpack_instagram_output_errored_embed( $url ) {
+	?>
+		<!-- Jetpack Instagram Embed: Failed to fetch from API -->
+		<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url_raw( $url ); ?></a>
+	<?php
 }
 
 /**
@@ -229,7 +243,7 @@ function jetpack_instagram_use_cache( $matches, $atts, $passed_url ) {
  *
  * @param array $args An array of arguments to pass to the embed API.
  *
- * @return mixed A HTML comment (string) if errored or an object.
+ * @return mixed An object if successful or a WP_Error object
  */
 function jetpack_instagram_fetch_embed( $args ) {
 	if ( Constants::is_defined( 'IS_WPCOM' ) && Constants::get_constant( 'IS_WPCOM' ) ) {
@@ -242,7 +256,10 @@ function jetpack_instagram_fetch_embed( $args ) {
 		$response = wp_remote_get( $url, array( 'redirection' => 0 ) );
 	} else {
 		if ( ! Jetpack::is_active() ) {
-			return '<!-- instagram error: Jetpack is not connected -->';
+			return new WP_Error(
+				'jetpack_not_active',
+				'Jetpack must be active to fetch Instagram embed'
+			);
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -260,7 +277,10 @@ function jetpack_instagram_fetch_embed( $args ) {
 		|| 200 !== wp_remote_retrieve_response_code( $response )
 		|| empty( $response_body )
 	) {
-		return '<!-- instagram error: invalid instagram resource -->';
+		return new WP_Error(
+			'instagram_error',
+			'Invalid Instagram resource'
+		);
 	}
 
 	return $response_body;
