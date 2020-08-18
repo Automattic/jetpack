@@ -1562,7 +1562,7 @@ function stats_get_csv( $table, $args = null ) {
 function stats_get_remote_csv( $url ) {
 	$method = 'GET';
 	$timeout = 90;
-	$user_id = JETPACK_MASTER_USER;
+	$user_id = 0; // Blog token.
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
