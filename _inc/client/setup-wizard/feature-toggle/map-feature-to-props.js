@@ -308,6 +308,7 @@ const features = {
 				details: __( 'Send beautiful emails; grow followers.', 'jetpack' ),
 				checked: isCreativeMailActive,
 				isDisabled: isCreativeMailActive,
+				configureLink: isCreativeMailActive ? '/wp-admin/admin.php?page=creativemail' : null,
 			};
 		},
 		mapDispatchToProps: dispatch => {
