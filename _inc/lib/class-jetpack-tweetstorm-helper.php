@@ -111,6 +111,8 @@ class Jetpack_Tweetstorm_Helper {
 		$tweets = array();
 		$parser = new Parser();
 
+		header( 'X-timer-' . timer_stop( false ) . ': foo' );
+
 		foreach ( $blocks as $block ) {
 			$block_def = self::$supported_blocks[ $block['name'] ];
 
@@ -127,6 +129,7 @@ class Jetpack_Tweetstorm_Helper {
 
 					$tweets[] = $last_tweet;
 				} else {
+					$tweets[] = $last_tweet;
 					$tweets[] = array(
 						'blocks'     => array( $block ),
 						'boundaries' => array(),
@@ -149,33 +152,77 @@ class Jetpack_Tweetstorm_Helper {
 			}
 			$boundaries = array();
 
-			// Is this block too long for a single tweet?
-			$tweet = $parser->parseTweet( $block_text );
-			if ( $tweet->permillage > 1000 ) {
-				// Multiline blocks prioritise splitting by line, so we can treat other
-				// text blocks as being "multiline", but with a single line.
-				if ( 'multiline' === $block_def['type'] ) {
-					$lines = explode( "\n", $block_text );
-				} else {
-					$lines = array( $block_text );
+			// Multiline blocks prioritise splitting by line, so we can treat other
+			// text blocks as being "multiline", but with a single line.
+			if ( 'multiline' === $block_def['type'] ) {
+				$lines = explode( "\n", $block_text );
+			} else {
+				$lines = array( $block_text );
+			}
+
+			// An array of the tweets this block will become.
+			$split_block = array( '' );
+			// Of the tweets that this block generates, track the one we're currently appending to.
+			$current_block_tweet = 0;
+			// Keep track of how many characters we've allocated to tweets so far.
+			$current_character_count = 0;
+
+			foreach ( $lines as $line_text ) {
+				// Is this line short enough to append to the current tweet?
+				$tweet = $parser->parseTweet( "{$split_block[ $current_block_tweet ]}\n$line_text" );
+				if ( $tweet->permillage <= 1000 ) {
+					$split_block[ $current_block_tweet ] .= "\n$line_text";
+					continue;
 				}
 
-				// An array of the tweets this block will become.
-				$split_block = array( '' );
-				// Of the tweets that this block generates, track the one we're currently appending to.
-				$current_block_tweet = 0;
-				// Keep track of how many characters we've allocated to tweets so far.
-				$current_character_count = 0;
+				// The line is too long to append, it needs to be the start of the next tweet.
+				if ( '' !== $split_block[ $current_block_tweet ] ) {
+					$current_character_count += strlen( $split_block[ $current_block_tweet ] );
+					$current_block_tweet++;
+					$split_block[ $current_block_tweet ] = '';
 
-				foreach ( $lines as $line_text ) {
-					// Is this line short enough to append to the current tweet?
-					$tweet = $parser->parseTweet( "{$split_block[ $current_block_tweet ]}\n$line_text" );
+					$boundaries[] = self::get_boundary( $block, $current_character_count );
+				}
+
+				// Is the line short enough to be a tweet by itself?
+				$tweet = $parser->parseTweet( $line_text );
+				if ( $tweet->permillage <= 1000 ) {
+					$split_block[ $current_block_tweet ] = $line_text;
+					continue;
+				}
+
+				// Split the line up by sentences. A sentence is defined as:
+				// - end of sentence punctuation [.!?]
+				// - followed by space(s), or the end of the line.
+				$sentences      = preg_split( '/([.!?](?:\s+|$))/', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
+				$sentence_count = count( $sentences );
+
+				for ( $ii = 0; $ii < $sentence_count; $ii += 2 ) {
+					$current_sentence = $sentences[ $ii ];
+					if ( ! empty( $sentences[ $ii + 1 ] ) ) {
+						$current_sentence .= $sentences[ $ii + 1 ];
+					}
+
+					// Can we append this sentence to the previous tweet?
+					$tweet = $parser->parseTweet( $split_block[ $current_block_tweet ] . trim( $current_sentence ) );
 					if ( $tweet->permillage <= 1000 ) {
-						$split_block[ $current_block_tweet ] .= "\n$line_text";
+						$split_block[ $current_block_tweet ] .= $current_sentence;
 						continue;
 					}
 
-					// The line is too long to append, it needs to be the start of the next tweet.
+					// Will this sentence fit in a new tweet by itself?
+					$tweet = $parser->parseTweet( trim( $current_sentence ) );
+					if ( $tweet->permillage <= 1000 ) {
+						$current_character_count += strlen( $split_block[ $current_block_tweet ] );
+						$current_block_tweet++;
+						$split_block[ $current_block_tweet ] = $current_sentence;
+
+						$boundaries[] = self::get_boundary( $block, $current_character_count );
+						continue;
+					}
+
+					// This long sentence will start the next tweet that this block is going
+					// to be turned into, so we need to record the boundary.
 					if ( '' !== $split_block[ $current_block_tweet ] ) {
 						$current_character_count += strlen( $split_block[ $current_block_tweet ] );
 						$current_block_tweet++;
@@ -184,76 +231,26 @@ class Jetpack_Tweetstorm_Helper {
 						$boundaries[] = self::get_boundary( $block, $current_character_count );
 					}
 
-					// Is the line short enough to be a tweet by itself?
-					$tweet = $parser->parseTweet( $line_text );
-					if ( $tweet->permillage <= 1000 ) {
-						$split_block[ $current_block_tweet ] = $line_text;
-						continue;
-					}
-
-					// Split the line up by sentences. A sentence is defined as:
-					// - end of sentence punctuation [.!?]
-					// - followed by space(s), or the end of the line.
-					$sentences      = preg_split( '/([.!?](?=\s+|$))/', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
-					$sentence_count = count( $sentences );
-
-					for ( $ii = 0; $ii < $sentence_count; $ii += 2 ) {
-						$current_sentence = $sentences[ $ii ] . $sentences[ $ii + 1 ];
-
-						// Is the current sentence too long for a single tweet?
-						$tweet = $parser->parseTweet( trim( $current_sentence ) );
-						if ( $tweet->permillage > 1000 ) {
-							// This long sentence will start the next tweet this block becomes.
-							if ( '' !== $split_block[ $current_block_tweet ] ) {
-								$current_character_count += strlen( $split_block[ $current_block_tweet ] );
-								$current_block_tweet++;
-								$split_block[ $current_block_tweet ] = '';
-
-								$boundaries[] = self::get_boundary( $block, $current_character_count );
-							}
-
-							// Split the long sentence into words.
-							$words      = explode( ' ', $current_sentence );
-							$word_count = count( $words );
-							for ( $jj = 0; $jj < $word_count; $jj++ ) {
-								// Will this word make the tweet too long?
-								$tweet = $parser->parseTweet( trim( "…{$split_block[ $current_block_tweet ]} {$words[ $jj ]}…" ) );
-								if ( $tweet->permillage > 1000 ) {
-									// There's an extra space to count, hence the "+ 1".
-									$current_character_count += strlen( $split_block[ $current_block_tweet ] ) + 1;
-									$current_block_tweet++;
-									$split_block[ $current_block_tweet ] = $words[ $jj ];
-
-									// Offset one back for the extra space.
-									$boundaries[] = self::get_boundary( $block, $current_character_count - 1 );
-								} else {
-									$split_block[ $current_block_tweet ] .= " {$words[ $jj ]}";
-								}
-							}
-						} else {
-							// Will this sentence make the tweet too long?
-							$tweet = $parser->parseTweet( $split_block[ $current_block_tweet ] . trim( $current_sentence ) );
-							if ( $tweet->permillage > 1000 ) {
-								$current_character_count += strlen( $split_block[ $current_block_tweet ] );
-								$current_block_tweet++;
-								$split_block[ $current_block_tweet ] = $current_sentence;
-
-								$boundaries[] = self::get_boundary( $block, $current_character_count );
-							} else {
-								$split_block[ $current_block_tweet ] .= $current_sentence;
-							}
+					// Split the long sentence into words.
+					$words      = explode( ' ', $current_sentence );
+					$word_count = count( $words );
+					for ( $jj = 0; $jj < $word_count; $jj++ ) {
+						// Can we add this word to the current tweet?
+						$tweet = $parser->parseTweet( trim( "…{$split_block[ $current_block_tweet ]} {$words[ $jj ]}…" ) );
+						if ( $tweet->permillage <= 1000 ) {
+							$split_block[ $current_block_tweet ] .= " {$words[ $jj ]}";
+							continue;
 						}
+
+						// There's an extra space to count, hence the "+ 1".
+						$current_character_count += strlen( $split_block[ $current_block_tweet ] ) + 1;
+						$current_block_tweet++;
+						$split_block[ $current_block_tweet ] = $words[ $jj ];
+
+						// Offset one back for the extra space.
+						$boundaries[] = self::get_boundary( $block, $current_character_count - 1 );
 					}
 				}
-
-				// Since this block is too long for a single tweet, appended is a new tweet.
-				$tweets[] = array(
-					'blocks'     => array( $block ),
-					'boundaries' => $boundaries,
-					'content'    => $block_text,
-					'media'      => array(),
-				);
-				continue;
 			}
 
 			// If there are no tweets recorded already, this block will be the first.
@@ -288,6 +285,8 @@ class Jetpack_Tweetstorm_Helper {
 			$last_tweet['content']  = $new_tweet_text;
 			$tweets[]               = $last_tweet;
 		}
+
+		header( 'X-timer-' . timer_stop( false ) . ': foo' );
 
 		return $tweets;
 	}
