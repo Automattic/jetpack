@@ -29,11 +29,13 @@ const Tabs = props => {
 		...( annualDonation.show && { '1 year': { title: __( 'Yearly', 'jetpack' ) } } ),
 	};
 
-	// Sets the plans when the block is inserted.
+	// Updates plans.
 	useEffect( () => {
-		// Since there is no setting for disabling the one-time option, we can assume that the block has been just
-		// inserted if the plan id for the one-time donation is not set.
-		if ( oneTimeDonation.planId ) {
+		if (
+			oneTimeDonation.planId === products[ 'one-time' ] &&
+			monthlyDonation.planId === products[ '1 month' ] &&
+			annualDonation.planId === products[ '1 year' ]
+		) {
 			return;
 		}
 
@@ -41,23 +43,6 @@ const Tabs = props => {
 			oneTimeDonation: { ...oneTimeDonation, planId: products[ 'one-time' ] },
 			monthlyDonation: { ...monthlyDonation, planId: products[ '1 month' ] },
 			annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
-		} );
-	}, [ oneTimeDonation, monthlyDonation, annualDonation, products, setAttributes ] );
-
-	// Sets the plans when Stripe has been connected (we use fake plans while Stripe is not connected so user can still try the block).
-	useEffect( () => {
-		if ( products[ 'one-time' ] === -1 || oneTimeDonation.planId !== -1 ) {
-			return;
-		}
-
-		setAttributes( {
-			oneTimeDonation: { ...oneTimeDonation, planId: products[ 'one-time' ] },
-			...( monthlyDonation.show && {
-				monthlyDonation: { ...monthlyDonation, planId: products[ '1 month' ] },
-			} ),
-			...( annualDonation.show && {
-				annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
-			} ),
 		} );
 	}, [ oneTimeDonation, monthlyDonation, annualDonation, setAttributes, products ] );
 
