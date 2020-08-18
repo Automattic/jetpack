@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
+import { get, rest } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
+import restApi from 'rest-api';
 import { getVaultPressData, isAkismetKeyValid } from 'state/at-a-glance';
 import { getSiteRawUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
@@ -21,6 +22,7 @@ import {
 	hasActiveScanPurchase,
 	hasActiveSearchPurchase,
 } from 'state/site';
+import { isPluginActive } from 'state/site/plugins';
 
 function getInfoString( productName ) {
 	return sprintf(
@@ -299,13 +301,18 @@ const features = {
 				feature: 'creative-mail',
 				title: __( 'Creative Mail by Constant Contact', 'jetpack' ),
 				details: __( 'Send beautiful emails; grow followers.', 'jetpack' ),
-				checked: false,
+				checked: isPluginActive(
+					state,
+					'creative-mail-by-constant-contact/creative-mail-plugin.php'
+				),
 				optionsLink: '',
 			};
 		},
 		mapDispatchToProps: dispatch => {
 			return {
-				onToggleChange: currentCheckedValue => {},
+				onToggleChange: currentCheckedValue => {
+					restApi.installPlugin( 'creative-mail-by-constant-contact', 'setup-wizard' );
+				},
 			};
 		},
 	},
