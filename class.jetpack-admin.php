@@ -53,26 +53,29 @@ class Jetpack_Admin {
 		// Add module bulk actions handler
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
-		// If the site has Jetpack Anti-Spam, change the Akismet menu label accordingly.
-		$site_products      = Jetpack_Site_Products::get();
-		$anti_spam_products = array( 'jetpack_anti_spam_monthly', 'jetpack_anti_spam' );
-		if ( ! empty( array_intersect( $anti_spam_products, array_column( $site_products, 'product_slug' ) ) ) ) {
-			// Prevent Akismet from adding a menu item.
-			add_action(
-				'admin_menu',
-				function () {
-					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
-				},
-				4
-			);
-			// Add an Anti-spam menu item for Jetpack.
-			add_action(
-				'jetpack_admin_menu',
-				function () {
-					add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
-				}
-			);
-			add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
+		if ( class_exists( 'Akismet_Admin' ) ) {
+			// If the site has Jetpack Anti-Spam, change the Akismet menu label accordingly.
+			$site_products      = Jetpack_Site_Products::get();
+			$anti_spam_products = array( 'jetpack_anti_spam_monthly', 'jetpack_anti_spam' );
+			if ( ! empty( array_intersect( $anti_spam_products, array_column( $site_products, 'product_slug' ) ) ) ) {
+				// Prevent Akismet from adding a menu item.
+				add_action(
+					'admin_menu',
+					function () {
+						remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+					},
+					4
+				);
+
+				// Add an Anti-spam menu item for Jetpack.
+				add_action(
+					'jetpack_admin_menu',
+					function () {
+						add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+					}
+				);
+				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
+			}
 		}
 	}
 
