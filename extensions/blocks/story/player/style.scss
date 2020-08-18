@@ -30,6 +30,13 @@
 		}
 	}
 
+	button {
+		box-shadow: none;
+		text-shadow: none;
+		background-color: transparent;
+		border: 0;
+	}
+
 	&.wp-story-initialized {
 		opacity: 1;
 	}
@@ -251,12 +258,10 @@
 		.wp-story-pagination-bullet {
 			flex: 1;
 			justify-content: space-between;
-			background-color: transparent;
 			opacity: 1;
 			margin: 0 2px;
 			padding: 6px 0;
 			vertical-align: top;
-			border: 0;
 
 			&:focus {
 				outline: none;
