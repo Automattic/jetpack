@@ -19,7 +19,11 @@ export default OriginalBlockEdit => props => {
 	return (
 		<Fragment>
 			<InspectorControls>
-				<UpgradePlanBanner description={ null } requiredPlan={ requiredPlan } />
+				<UpgradePlanBanner
+					description={ null }
+					requiredPlan={ requiredPlan }
+					context="sidebar"
+				/>
 			</InspectorControls>
 
 			<OriginalBlockEdit { ...props } />

@@ -57,6 +57,7 @@ export default createHigherOrderComponent(
 					visible={ isBannerVisible }
 					description={ usableBlocksProps?.description }
 					requiredPlan={ requiredPlan }
+					context="editor-canvas"
 				/>
 
 				<BlockListBlock { ...props } className={ listBlockCSSClass } />
