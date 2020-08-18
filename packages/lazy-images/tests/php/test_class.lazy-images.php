@@ -219,7 +219,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	public function test_wp_get_attachment_image_gets_lazy_treatment() {
 
 		$attachment_id = $this->create_upload_object( dirname( __FILE__ ) . '/wp-logo.jpg', 0 );
-		add_filter( 'wp_get_attachment_image_attributes', array( '\Automattic\Jetpack\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
+		add_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 		$image = wp_get_attachment_image( $attachment_id );
 		remove_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 
