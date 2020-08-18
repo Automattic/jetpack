@@ -1,6 +1,6 @@
 <?php
 /**
- * Block Editor functionality for Paid Blocks.
+ * Block Editor functionality for Blocks with require a site with a paid plan.
  *
  * @package Automattic\Jetpack\Extended_Blocks
  */

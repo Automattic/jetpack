@@ -1,7 +1,8 @@
 <?php
 /**
- * Block Editor class for Plan Blocks.
- * Sets blocks as paid.
+ * Paid_Blocks.
+ * Marks a block's availability as needing
+ * to be checked against the current plan.
  *
  * @package Automattic\Jetpack\Extended_Blocks
  */
