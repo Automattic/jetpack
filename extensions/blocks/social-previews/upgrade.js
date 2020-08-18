@@ -1,15 +1,27 @@
 /**
  * External dependencies
  */
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { Button } from '@wordpress/components';
+import analytics from '../../../_inc/client/lib/analytics';
 import upgradeImageUrl from './upgrade-illustration.svg';
+import useUpgradeFlow from '../../shared/use-upgrade-flow';
+import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
+import { name as block } from './index';
 
-const SocialPreviewsUpgrade = function SocialPreviewsUpgrade() {
+export default function SocialPreviewsUpgrade() {
+	const plan = getJetpackExtensionAvailability( block )?.details?.required_plan;
+	const trackClickEvent = () =>
+		void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', { plan, block } );
+
+	const [ href, autosaveAndRedirect, isRedirecting ] = useUpgradeFlow( plan, trackClickEvent );
+
+	const buttonText = isRedirecting ? __( 'Redirecting…', 'jetpack' ) : __( 'Upgrade', 'jetpack' );
+
 	return (
 		<div className="jetpack-social-previews__modal-upgrade">
 			<img
@@ -43,10 +55,17 @@ const SocialPreviewsUpgrade = function SocialPreviewsUpgrade() {
 						) }
 					</li>
 				</ul>
-				<Button isPrimary>{ __( 'Upgrade', 'jetpack' ) }</Button>
+				<Button
+					href={ href } // Only for server-side rendering, since onClick doesn't work there.
+					isPrimary
+					label={ __( 'Purchase a business plan to access social previews', 'jetpack' ) }
+					onClick={ autosaveAndRedirect }
+					target="_top"
+					isBusy={ isRedirecting }
+				>
+					{ buttonText }
+				</Button>
 			</div>
 		</div>
 	);
-};
-
-export default SocialPreviewsUpgrade;
+}
