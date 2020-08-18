@@ -1,6 +1,6 @@
 <?php
 /**
- * Paid_Blocks.
+ * Blocks_Availability.
  * Marks a block's availability as needing
  * to be checked against the current plan.
  *
@@ -10,17 +10,19 @@
 namespace Automattic\Jetpack\Extended_Blocks;
 
 /**
- * Class Paid_Blocks.
+ * Class Blocks_Availability.
  *
  * @package Automattic\Jetpack\Extended_Blocks
  */
-class Paid_Blocks {
+class Blocks_Availability {
 	/**
-	 * List of paid blocks.
+	 * Blocks that require a plan check
+	 * to determinate their availability
+	 * according to the current site plan.
 	 *
 	 * @var array
 	 */
-	public $paid_blocks = array(
+	public $blocks_list = array(
 		'core/cover',
 		'core/video',
 		'core/audio',
@@ -41,29 +43,29 @@ class Paid_Blocks {
 	}
 
 	/**
-	 * Paid_Blocks constructor.
+	 * Blocks_Availability constructor.
 	 */
 	private function __construct() {
-		// Populate the block-editor extensions/blocks available through Jetpack when running on Dotcom
+		// Populate the available extensions list.
 		add_filter(
 			'jetpack_set_available_extensions',
 			function ( $extensions ) {
-				return array_merge( $extensions, $this->paid_blocks );
+				return array_merge( $extensions, $this->Blocks_Availability );
 			}
 		);
 
-		// Set extensions availability depending on the plan site type and plan of the site.
+		// Set the block availability depending on the site plan.
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_block_availability' ) );
 	}
 
 	/**
 	 * Set the Jetpack Gutenberg extension availability.
-	 * It will check if the extension/block will require an upgrade
-	 * in order to make it completely available for the site.
+	 * It will check if the extension/block will require a site upgrade
+	 * to make it available.
 	 */
 	public function set_block_availability() {
-		foreach ( $this->paid_blocks as $paid_block ) {
-			\Jetpack_Gutenberg::set_availability_for_plan( $paid_block );
+		foreach ( $this->blocks_list as $block_slug ) {
+			\Jetpack_Gutenberg::set_availability_for_plan( $block_slug );
 		}
 	}
 }
