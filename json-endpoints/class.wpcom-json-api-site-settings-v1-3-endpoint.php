@@ -42,6 +42,7 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'jetpack_relatedposts_enabled'         => '(bool) Enable related posts?',
 		'jetpack_relatedposts_show_headline'   => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
+		'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
 		'jetpack_search_enabled'               => '(bool) Enable Jetpack Search',
 		'jetpack_search_supported'             => '(bool) Jetpack Search supported',
 		'jetpack_protect_whitelist'            => '(array) List of IP addresses to whitelist',
