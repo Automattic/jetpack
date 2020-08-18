@@ -307,7 +307,8 @@ const features = {
 				title: __( 'Creative Mail by Constant Contact', 'jetpack' ),
 				details: __( 'Send beautiful emails; grow followers.', 'jetpack' ),
 				checked: isCreativeMailActive,
-				isDisabled: isCreativeMailActive,
+				isDisabled: true,
+				isPaid: true,
 				configureLink: isCreativeMailActive ? '/wp-admin/admin.php?page=creativemail' : null,
 			};
 		},
@@ -319,11 +320,6 @@ const features = {
 			};
 
 			return {
-				onToggleChange: currentCheckedValue => {
-					if ( ! currentCheckedValue ) {
-						installAndRefreshPluginData();
-					}
-				},
 				onInstallClick: () => installAndRefreshPluginData(),
 			};
 		},
