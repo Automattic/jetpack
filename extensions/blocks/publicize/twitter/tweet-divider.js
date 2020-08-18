@@ -156,6 +156,7 @@ export default compose( [
 			isMultiSelecting,
 			hasMultiSelection,
 			isBlockSelected,
+			isCaretWithinFormattedText,
 		} = select( 'core/block-editor' );
 
 		const supportedBlock = !! SUPPORTED_BLOCKS[ childProps.name ];
@@ -213,7 +214,7 @@ export default compose( [
 		if ( ! supportedBlock ) {
 			popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
 		} else {
-			if ( findTagsInContent( [ 'strong', 'bold', 'em', 'i' ] ) ) {
+			if ( findTagsInContent( [ 'strong', 'bold', 'em', 'i', 'sup', 'sub', 'span', 's' ] ) ) {
 				popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
 			}
 
@@ -222,11 +223,13 @@ export default compose( [
 			}
 		}
 
+		// Don't show the popover when the user is clearly doing something else.
 		const shouldShowPopover =
 			! isTyping() &&
 			! isDraggingBlocks() &&
 			! isMultiSelecting() &&
 			! hasMultiSelection() &&
+			! isCaretWithinFormattedText() &&
 			popoverWarnings.length > 0;
 
 		return {
@@ -258,6 +261,37 @@ export default compose( [
 				dispatch( 'jetpack/publicize' ).refreshTweets( tweetBlocks );
 			},
 			updateAnnotations: () => {
+				// If this block hasn't been assigned to a tweet, skip annotation work.
+				const tweet = select( 'jetpack/publicize' ).getTweetForBlock( childProps.clientId );
+				if ( ! tweet ) {
+					return;
+				}
+
+				// Check if the block content has changed since we sent it to the server for analysis.
+				// If it has changed, don't update annotations, since it's better to leave them in the
+				// same place, (even if that's incorrect), instead of moving them to a place where they
+				// were correct a few seconds ago, but may be incorrect now.
+				const blockCopy = tweet.blocks.find( block => block.clientId === childProps.clientId );
+				const changed = SUPPORTED_BLOCKS[ childProps.name ].contentAttributes.reduce(
+					( changeDetected, attribute ) => {
+						if ( changeDetected ) {
+							return true;
+						}
+
+						if ( childProps.attributes[ attribute ] !== blockCopy.attributes[ attribute ] ) {
+							return true;
+						}
+
+						return false;
+					},
+					false
+				);
+
+				if ( changed ) {
+					return;
+				}
+
+				// Remove any existing annotations in this block.
 				const annotations = select( 'core/annotations' ).__experimentalGetAllAnnotationsForBlock(
 					childProps.clientId
 				);
@@ -267,11 +301,7 @@ export default compose( [
 					}
 				} );
 
-				const tweet = select( 'jetpack/publicize' ).getTweetForBlock( childProps.clientId );
-				if ( ! tweet ) {
-					return;
-				}
-
+				// Add new annotations in the appropriate location.
 				tweet.boundaries.forEach( boundary => {
 					const { container, type, start, end } = boundary;
 					if ( 'normal' === type ) {
