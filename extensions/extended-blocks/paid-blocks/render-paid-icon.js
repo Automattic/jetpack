@@ -7,7 +7,7 @@ import { cloneElement } from '@wordpress/element';
  * Internal dependencies
  */
 import PaidSymbol from './paid-symbol';
-import { isUpgradable } from "../../shared/plan-utils";
+import { isUpgradable } from '../../shared/plan-utils';
 
 /**
  * Enhance the default block icon with a paid indicator

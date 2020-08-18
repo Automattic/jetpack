@@ -25,11 +25,13 @@ export default OriginalBlockEdit => props => {
 					description={ null }
 					requiredPlan={ requiredPlan }
 					context={ bannerContext }
-					onRedirect={ () => trackUpgradeClickEvent( {
-						plan: requiredPlan,
-						blockName: props.name,
-						context: bannerContext,
-					} ) }
+					onRedirect={ () =>
+						trackUpgradeClickEvent( {
+							plan: requiredPlan,
+							blockName: props.name,
+							context: bannerContext,
+						} )
+					}
 				/>
 			</InspectorControls>
 
