@@ -20,7 +20,7 @@ import {
 } from '../../shared/plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { PaidBlockProvider } from './components';
-import { trackUpgradeClickEvent } from './utils';
+import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
@@ -33,6 +33,22 @@ export default createHigherOrderComponent(
 		const usableBlocksProps = getUsableBlockProps( props.name );
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
+
+		const bannerContext = 'editor-canvas';
+
+		const trackEventData = {
+			plan: requiredPlan,
+			blockName: props.name,
+			context: bannerContext,
+		};
+
+		useEffect( () => {
+			if ( ! isVisible ) {
+				return;
+			}
+
+			trackUpgradeBannerImpression( trackEventData );
+		}, [ isVisible, trackEventData ] );
 
 		// Hide Banner when block changes its attributes (dual Mode).
 		useEffect( () => setIsVisible( ! isDualMode ), [ props.attributes, setIsVisible, isDualMode ] );
@@ -49,8 +65,6 @@ export default createHigherOrderComponent(
 			'is-upgradable': isBannerVisible,
 		} );
 
-		const bannerContext = 'editor-canvas';
-
 		return (
 			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible }>
 				<UpgradePlanBanner
@@ -61,11 +75,7 @@ export default createHigherOrderComponent(
 					description={ usableBlocksProps?.description }
 					requiredPlan={ requiredPlan }
 					context={ bannerContext }
-					onRedirect={ () => trackUpgradeClickEvent( {
-						plan: requiredPlan,
-						blockName: props.name,
-						context: bannerContext,
-					} ) }
+					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
 				/>
 
 				<BlockListBlock { ...props } className={ listBlockCSSClass } />
