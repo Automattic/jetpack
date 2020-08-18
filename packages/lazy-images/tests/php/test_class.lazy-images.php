@@ -235,28 +235,16 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 * Test that the wp_get_attachment_image function output does not get the lazy treatment when lazy images feature is skipped.
 	 */
 	public function test_wp_get_attachment_image_does_not_get_lazy_treatment_when_skip_lazy_added() {
-		// Please refer to https://github.com/Automattic/jetpack/pull/16657 regarding the reasoning behind skipping this tests.
-		$this->markTestSkipped( 'This test needs to be refactored as it requires extending this class with WP_UnitTestCase and have a full WordPress instance running' );
-		return;
-		// phpcs:disable
 		$attachment_id = $this->create_upload_object( dirname( __FILE__ ) . '/wp-logo.jpg', 0 );
-		$content       = sprintf( '[gallery ids="%d"]', $attachment_id );
 		$instance      = Jetpack_Lazy_Images::instance();
 
 		$instance->setup_filters();
-		$gallery_output = do_shortcode( $content );
-		$instance->remove_filters();
-
-		$this->assertContains( 'srcset="placeholder.jpg"', $gallery_output );
-
-		$instance->setup_filters();
 		add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_skip_lazy_class_to_attributes' ) );
-		$gallery_output = do_shortcode( $content );
+		$image = wp_get_attachment_image( $attachment_id );
 		remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_skip_lazy_class_to_attributes' ) );
 		$instance->remove_filters();
 
-		$this->assertNotContains( 'srcset="placeholder.jpg"', $gallery_output );
-		// phpcs:enable
+		$this->assertNotContains( 'srcset="placeholder.jpg"', $image );
 	}
 
 	/**
