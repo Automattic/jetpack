@@ -50,7 +50,7 @@ class Blocks_Availability {
 		add_filter(
 			'jetpack_set_available_extensions',
 			function ( $extensions ) {
-				return array_merge( $extensions, $this->Blocks_Availability );
+				return array_merge( $extensions, $this->blocks_list );
 			}
 		);
 
