@@ -91,6 +91,7 @@ export default withSelect( ( select, props ) => {
 		post: getCurrentPost(),
 		title: getEditedPostAttribute( 'title' ),
 		description:
+			getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
 			getEditedPostAttribute( 'excerpt' ) ||
 			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
 		url: getEditedPostAttribute( 'link' ),
