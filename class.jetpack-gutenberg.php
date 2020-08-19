@@ -46,7 +46,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 		if ( isset( $args['render_callback'] ) ) {
 			$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
 		}
-		$method_name             = 'set_availability_for_plan';
+		$method_name = 'set_availability_for_plan';
 	} else {
 		$method_name = 'set_extension_available';
 	}
@@ -803,6 +803,26 @@ class Jetpack_Gutenberg {
 				$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
 				if ( ! empty( $extension_file_glob ) ) {
 					include_once $extension_file_glob[0];
+				}
+			}
+		}
+	}
+
+	/**
+	 * Loads PHP components of extended-blocks.
+	 *
+	 * @since 8.9.0
+	 */
+	public static function load_extended_blocks() {
+		if ( self::should_load() ) {
+			$extended_blocks = glob( JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/*' );
+
+			foreach ( $extended_blocks as $block ) {
+				$name = basename( $block );
+				$path = JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/' . $name . '/' . $name . '.php';
+
+				if ( file_exists( $path ) ) {
+					include_once $path;
 				}
 			}
 		}
