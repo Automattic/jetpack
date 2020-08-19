@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Heartbeat;
 
 class Jetpack_Heartbeat {
 
@@ -12,7 +13,13 @@ class Jetpack_Heartbeat {
 	 */
 	private static $instance = false;
 
-	private $cron_name = 'jetpack_v2_heartbeat';
+	/**
+	 * Holds the singleton instance of the proxied class
+	 *
+	 * @since 8.9.0
+	 * @var Automattic\Jetpack\Heartbeat
+	 */
+	private static $proxied_instance = false;
 
 	/**
 	 * Singleton
@@ -23,7 +30,8 @@ class Jetpack_Heartbeat {
 	 */
 	public static function init() {
 		if ( ! self::$instance ) {
-			self::$instance = new Jetpack_Heartbeat();
+			self::$instance         = new Jetpack_Heartbeat();
+			self::$proxied_instance = Heartbeat::init();
 		}
 
 		return self::$instance;
@@ -36,70 +44,22 @@ class Jetpack_Heartbeat {
 	 * @return Jetpack_Heartbeat
 	 */
 	private function __construct() {
-		if ( ! Jetpack::is_active() ) {
-			return;
-		}
-
-		// Schedule the task
-		add_action( $this->cron_name, array( $this, 'cron_exec' ) );
-
-		if ( ! wp_next_scheduled( $this->cron_name ) ) {
-			// Deal with the old pre-3.0 weekly one.
-			if ( $timestamp = wp_next_scheduled( 'jetpack_heartbeat' ) ) {
-				wp_unschedule_event( $timestamp, 'jetpack_heartbeat' );
-			}
-
-			wp_schedule_event( time(), 'daily', $this->cron_name );
-		}
-
-		add_filter( 'jetpack_xmlrpc_methods', array( __CLASS__, 'jetpack_xmlrpc_methods' ) );
+		add_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_stats_to_heartbeat' ) );
 	}
 
 	/**
 	 * Method that gets executed on the wp-cron call
 	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Heartbeat::cron_exec()
+	 *
 	 * @since 2.3.3
 	 * @global string $wp_version
 	 */
 	public function cron_exec() {
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::cron_exec' );
+		return self::$proxied_instance->cron_exec();
 
-		$jetpack = Jetpack::init();
-
-		/*
-		 * This should run daily.  Figuring in for variances in
-		 * WP_CRON, don't let it run more than every 23 hours at most.
-		 *
-		 * i.e. if it ran less than 23 hours ago, fail out.
-		 */
-		$last = (int) Jetpack_Options::get_option( 'last_heartbeat' );
-		if ( $last && ( $last + DAY_IN_SECONDS - HOUR_IN_SECONDS > time() ) ) {
-			return;
-		}
-
-		/*
-		 * Check for an identity crisis
-		 *
-		 * If one exists:
-		 * - Bump stat for ID crisis
-		 * - Email site admin about potential ID crisis
-		 */
-
-		// Coming Soon!
-
-		foreach ( self::generate_stats_array( 'v2-' ) as $key => $value ) {
-			$jetpack->stat( $key, $value );
-		}
-
-		Jetpack_Options::update_option( 'last_heartbeat', time() );
-
-		$jetpack->do_stats( 'server_side' );
-
-		/**
-		 * Fires when we synchronize all registered options on heartbeat.
-		 *
-		 * @since 3.3.0
-		 */
-		do_action( 'jetpack_heartbeat' );
 	}
 
 	/**
@@ -162,27 +122,65 @@ class Jetpack_Heartbeat {
 		return $return;
 	}
 
+	/**
+	 * Registers jetpack.getHeartbeatData xmlrpc method
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Heartbeat::jetpack_xmlrpc_methods()
+	 *
+	 * @param array $methods The list of methods to be filtered.
+	 * @return array $methods
+	 */
 	public static function jetpack_xmlrpc_methods( $methods ) {
-		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'xmlrpc_data_response' );
-		return $methods;
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::jetpack_xmlrpc_methods' );
+		return Heartbeat::jetpack_xmlrpc_methods( $methods );
 	}
 
+	/**
+	 * Handles the response for the jetpack.getHeartbeatData xmlrpc method
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Heartbeat::xmlrpc_data_response()
+	 *
+	 * @param array $params The parameters received in the request.
+	 * @return array $params all the stats that hearbeat handles.
+	 */
 	public static function xmlrpc_data_response( $params = array() ) {
-		// The WordPress XML-RPC server sets a default param of array()
-		// if no argument is passed on the request and the method handlers get this array in $params.
-		// generate_stats_array() needs a string as first argument.
-		$params = empty( $params ) ? '' : $params;
-		return self::generate_stats_array( $params );
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::xmlrpc_data_response' );
+		return Heartbeat::xmlrpc_data_response( $params );
 	}
 
+	/**
+	 * Clear scheduled events
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Heartbeat::deactivate()
+	 *
+	 * @return void
+	 */
 	public function deactivate() {
-		// Deal with the old pre-3.0 weekly one.
-		if ( $timestamp = wp_next_scheduled( 'jetpack_heartbeat' ) ) {
-			wp_unschedule_event( $timestamp, 'jetpack_heartbeat' );
+		// Cronjobs are now handled by the Heartbeat package and we don't want to deactivate it here.
+		// We are adding jetpack stats to the heartbeat only if the connection is available. so we don't need to disable the cron when disconnecting.
+		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'Automattic\\Jetpack\\Heartbeat::deactivate' );
+	}
+
+	/**
+	 * Add Jetpack Stats array to Heartbeat if Jetpack is connected
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param array $stats Jetpack Heartbeat stats.
+	 * @return array $stats
+	 */
+	public function add_stats_to_heartbeat( $stats ) {
+
+		if ( ! Jetpack::is_active() ) {
+			return $stats;
 		}
 
-		$timestamp = wp_next_scheduled( $this->cron_name );
-		wp_unschedule_event( $timestamp, $this->cron_name );
+		$jetpack_stats = self::generate_stats_array();
+
+		return array_merge( $stats, $jetpack_stats );
 	}
 
 }

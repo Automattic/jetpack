@@ -3330,8 +3330,6 @@ p {
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();
 
-		// Disable the Heartbeat cron
-		Jetpack_Heartbeat::init()->deactivate();
 	}
 
 	/**

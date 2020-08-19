@@ -3,6 +3,12 @@
 
 class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
+	/**
+	 * Test sends stats data on heartbeat
+	 *
+	 * @expectedDeprecated Jetpack_Heartbeat::cron_exec
+	 * @return void
+	 */
 	function test_sends_stats_data_on_heartbeat() {
 		$heartbeat = Jetpack_Heartbeat::init();
 
@@ -17,6 +23,12 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( JETPACK__VERSION, $action->args[0]['version'] );
 	}
 
+	/**
+	 * Test dont send expensive data on heartbeat
+	 *
+	 * @expectedDeprecated Jetpack_Heartbeat::cron_exec
+	 * @return void
+	 */
 	function test_dont_send_expensive_data_on_heartbeat() {
 		$heartbeat = Jetpack_Heartbeat::init();
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
@@ -28,6 +40,12 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $action->args[0]['users'] ) );
 	}
 
+	/**
+	 * Test sends stats data on heartbeat on multisite
+	 *
+	 * @expectedDeprecated Jetpack_Heartbeat::cron_exec
+	 * @return void
+	 */
 	public function  test_sends_stats_data_on_heartbeat_on_multisite() {
 		global $wpdb;
 
@@ -56,7 +74,7 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
-		
+
 		restore_current_blog();
 
 		$this->assertEquals( JETPACK__VERSION, $action->args[0]['version'] );
