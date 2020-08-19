@@ -65,6 +65,24 @@ class Jetpack_AMP_Support {
 
 		// Sync the amp-options.
 		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_safelist' ) );
+
+		// Allow spec-violating AMP content.
+		add_filter( 'amp_content_sanitizers', array( 'Jetpack_AMP_Support', 'amp_content_sanitizers' ) );
+	}
+
+	/**
+	 * Selectively disable AMP validation errors for some Jetpack content
+	 *
+	 * @param array $sanitizers The array of sanitizers, 'MyClassName' => [] // array of constructor params for class.
+	 */
+	public static function amp_content_sanitizers( $sanitizers ) {
+		if ( ! apply_filters( 'jetpack_allow_unsanitary_amp_content', true ) ) { // @todo - make false by default before merging
+			return $sanitizers;
+		}
+
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-jetpack-amp-feature-assets-sanitizer.php';
+		$sanitizers['Jetpack_AMP_Feature_Assets_Sanitizer'] = array();
+		return $sanitizers;
 	}
 
 	/**
