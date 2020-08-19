@@ -152,7 +152,7 @@ jQuery( document ).ready( function ( $ ) {
 			}
 
 			// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
-			if ( window.location.hash ) {
+			if ( jpConnect.contains( '#' ) ) {
 				window.location.reload( true );
 			}
 		},
