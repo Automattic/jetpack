@@ -200,6 +200,9 @@ function render_video( $media ) {
 function render_slide( $media, $index = 0 ) {
 	$media_template = '';
 	$media_type     = ! empty( $media['type'] ) ? $media['type'] : null;
+	if ( ! $media_type ) {
+		return '';
+	}
 	switch ( $media_type ) {
 		case 'image':
 			$media_template = render_image( $media, $index );
