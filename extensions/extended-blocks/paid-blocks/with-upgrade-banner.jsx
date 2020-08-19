@@ -35,6 +35,11 @@ export default createHigherOrderComponent(
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 
 		const bannerContext = 'editor-canvas';
+		const hasChildrenSelected = useSelect(
+			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props?.clientId ),
+			[]
+		);
+		const isBannerVisible = ( props?.isSelected || hasChildrenSelected ) && isVisible;
 
 		const trackEventData = {
 			plan: requiredPlan,
@@ -43,22 +48,15 @@ export default createHigherOrderComponent(
 		};
 
 		useEffect( () => {
-			if ( ! isVisible ) {
+			if ( ! isBannerVisible ) {
 				return;
 			}
 
 			trackUpgradeBannerImpression( trackEventData );
-		}, [ isVisible, trackEventData ] );
+		}, [ isBannerVisible, trackEventData ] );
 
 		// Hide Banner when block changes its attributes (dual Mode).
 		useEffect( () => setIsVisible( ! isDualMode ), [ props.attributes, setIsVisible, isDualMode ] );
-
-		const hasChildrenSelected = useSelect(
-			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props?.clientId ),
-			[]
-		);
-
-		const isBannerVisible = ( props?.isSelected || hasChildrenSelected ) && isVisible;
 
 		// Set banner CSS classes depending on its visibility.
 		const listBlockCSSClass = classNames( props?.className, {
