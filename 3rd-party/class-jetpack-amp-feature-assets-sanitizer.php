@@ -16,7 +16,8 @@ class Jetpack_AMP_Feature_Assets_Sanitizer extends AMP_Base_Sanitizer {
 	 * @var asset_xpaths.
 	 */
 	private static $asset_xpaths = array(
-		'//script[contains(@src,\'www.opentable.com/widget\')]',
+		'//script[contains(@src,\'//www.opentable.com/widget\')]',
+		'//script[contains(@src,\'//assets.pinterest.com/js/pinit.js\')]',
 	);
 
 	/**
