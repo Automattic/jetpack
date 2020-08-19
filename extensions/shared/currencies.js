@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { CURRENCIES } from '@automattic/format-currency';
+
+/**
  * Currencies we support and Stripe's minimum amount for a transaction in that currency.
  *
  * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -33,9 +38,32 @@ export const SUPPORTED_CURRENCIES = {
  * known types it returns ...
  *
  * @param {string} currency_code three character currency code to get minimum charge for
- * @return {number} Minimum charge amount for the given currency_code
+ * @returns {number} Minimum charge amount for the given currency_code
  */
 export function minimumTransactionAmountForCurrency( currency_code ) {
-	const minimum = SUPPORTED_CURRENCIES[ currency_code ];
-	return minimum;
+	return SUPPORTED_CURRENCIES[ currency_code ];
+}
+
+export function parseAmount( amount, currency ) {
+	if ( ! amount ) {
+		return null;
+	}
+
+	if ( typeof amount === 'number' ) {
+		return amount;
+	}
+
+	amount = parseFloat(
+		amount
+			// Remove any thousand grouping separator.
+			.replace( new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ), '' )
+			// Replace the localized decimal separator with a dot (the standard decimal separator in float numbers).
+			.replace( new RegExp( '\\' + CURRENCIES[ currency ].decimal, 'g' ), '.' )
+	);
+
+	if ( isNaN( amount ) ) {
+		return null;
+	}
+
+	return amount;
 }
