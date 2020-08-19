@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { flatMap } from 'lodash';
+import { flatMap, isEqual } from 'lodash';
 import { Popover } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
@@ -49,7 +49,15 @@ class TweetDivider extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { boundaries, childProps, isTweetstorm, updateTweets, updateAnnotations } = this.props;
+		const {
+			boundaries,
+			childProps,
+			contentAttributesChanged,
+			currentAnnotations,
+			isTweetstorm,
+			updateAnnotations,
+			updateTweets,
+		} = this.props;
 
 		if ( ! isTweetstorm ) {
 			return;
@@ -59,27 +67,14 @@ class TweetDivider extends Component {
 			return;
 		}
 
-		// Check if any of the attributes of the child block that contain content have changed.
-		const changed = SUPPORTED_BLOCKS[ childProps.name ].contentAttributes.reduce(
-			( changeDetected, attribute ) => {
-				if ( changeDetected ) {
-					return true;
-				}
-
-				if ( childProps.attributes[ attribute ] !== prevProps.childProps.attributes[ attribute ] ) {
-					return true;
-				}
-
-				return false;
-			},
-			false
-		);
-
-		if ( changed ) {
+		if ( contentAttributesChanged( prevProps.childProps.attributes, childProps.attributes ) ) {
 			updateTweets();
 		}
 
-		if ( prevProps.boundaries !== boundaries ) {
+		if (
+			currentAnnotations.length !== boundaries.length ||
+			! isEqual( prevProps.boundaries, boundaries )
+		) {
 			updateAnnotations();
 		}
 	}
@@ -159,13 +154,50 @@ export default compose( [
 			isCaretWithinFormattedText,
 		} = select( 'core/block-editor' );
 
+		const { getTweetsForBlock } = select( 'jetpack/publicize' );
+
+		const isTweetstorm = select( 'core/editor' ).getEditedPostAttribute( 'meta' )
+			.jetpack_is_tweetstorm;
+		const tweets = getTweetsForBlock( childProps.clientId );
+
+		const contentAttributesChanged = ( prevAttributes, attributes ) => {
+			const attributeNames = SUPPORTED_BLOCKS[ childProps.name ].contentAttributes;
+			return ! isEqual(
+				attributeNames.map( attribute => ( { attribute, content: prevAttributes[ attribute ] } ) ),
+				attributeNames.map( attribute => ( { attribute, content: attributes[ attribute ] } ) )
+			);
+		};
+
+		const currentAnnotations = select( 'core/annotations' ).__experimentalGetAllAnnotationsForBlock(
+			childProps.clientId
+		);
+
+		// If this block isn't assigned any tweets, we can skip the rest.
+		if ( ! isTweetstorm || ! tweets || tweets.length === 0 ) {
+			return {
+				isTweetstorm,
+				isSelectedTweetBoundary: false,
+				contentAttributesChanged,
+				boundaries: [],
+				blockStyles: [],
+				popoverWarnings: [],
+				shouldShowPopover: false,
+				currentAnnotations,
+			};
+		}
+
 		const supportedBlock = !! SUPPORTED_BLOCKS[ childProps.name ];
-		const tweet = select( 'jetpack/publicize' ).getTweetForBlock( childProps.clientId );
+
+		const lastTweet = tweets[ tweets.length - 1 ];
+		// The current block is the selected tweet boundary when either of these are true:
+		// - The current block is selected, and it's not a block type we support.
+		// - It's the last block in the last tweet, and the currently selected block is also in the same set of tweets.
 		const isSelectedTweetBoundary =
-			( tweet &&
-				tweet.blocks.some( block => isBlockSelected( block.clientId ) ) &&
-				tweet.blocks[ tweet.blocks.length - 1 ].clientId === childProps.clientId ) ||
-			( isBlockSelected( childProps.clientId ) && ! supportedBlock );
+			( isBlockSelected( childProps.clientId ) && ! supportedBlock ) ||
+			( lastTweet.blocks[ lastTweet.blocks.length - 1 ].clientId === childProps.clientId &&
+				tweets.some( tweet => tweet.blocks.some( block => isBlockSelected( block.clientId ) ) ) );
+
+		const boundaries = tweets.filter( tweet => tweet.boundary ).map( tweet => tweet.boundary );
 
 		const computeSelector = element => {
 			// We've found the block node, we can return now.
@@ -179,17 +211,15 @@ export default compose( [
 			return computeSelector( parent ) + ` > :nth-child( ${ index + 1 } )`;
 		};
 
-		const styles =
-			tweet &&
-			tweet.boundaries
-				.filter( boundary => 'end-of-line' === boundary.type )
-				.map( boundary => {
-					const line = document
-						.getElementById( `block-${ childProps.clientId }` )
-						.getElementsByTagName( 'li' )
-						.item( boundary.line );
-					return computeSelector( line );
-				} );
+		const blockStyles = boundaries
+			.filter( boundary => 'end-of-line' === boundary.type )
+			.map( boundary => {
+				const line = document
+					.getElementById( `block-${ childProps.clientId }` )
+					.getElementsByTagName( 'li' )
+					.item( boundary.line );
+				return computeSelector( line );
+			} );
 
 		const findTagsInContent = tags => {
 			if ( 0 === tags.length ) {
@@ -233,15 +263,17 @@ export default compose( [
 			popoverWarnings.length > 0;
 
 		return {
-			isTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
+			isTweetstorm,
 			isSelectedTweetBoundary,
-			boundaries: tweet && tweet.boundaries,
-			blockStyles: styles || [],
+			contentAttributesChanged,
+			boundaries,
+			blockStyles,
 			popoverWarnings,
 			shouldShowPopover,
+			currentAnnotations,
 		};
 	} ),
-	withDispatch( ( dispatch, { childProps }, { select } ) => {
+	withDispatch( ( dispatch, { childProps, contentAttributesChanged }, { select } ) => {
 		return {
 			updateTweets: () => {
 				const topBlocks = select( 'core/editor' ).getBlocks();
@@ -262,8 +294,8 @@ export default compose( [
 			},
 			updateAnnotations: () => {
 				// If this block hasn't been assigned to a tweet, skip annotation work.
-				const tweet = select( 'jetpack/publicize' ).getTweetForBlock( childProps.clientId );
-				if ( ! tweet ) {
+				const tweets = select( 'jetpack/publicize' ).getTweetsForBlock( childProps.clientId );
+				if ( ! tweets || tweets.length === 0 ) {
 					return;
 				}
 
@@ -271,23 +303,15 @@ export default compose( [
 				// If it has changed, don't update annotations, since it's better to leave them in the
 				// same place, (even if that's incorrect), instead of moving them to a place where they
 				// were correct a few seconds ago, but may be incorrect now.
-				const blockCopy = tweet.blocks.find( block => block.clientId === childProps.clientId );
-				const changed = SUPPORTED_BLOCKS[ childProps.name ].contentAttributes.reduce(
-					( changeDetected, attribute ) => {
-						if ( changeDetected ) {
-							return true;
-						}
+				const blockCopy = tweets.reduce( ( foundBlock, tweet ) => {
+					if ( foundBlock ) {
+						return foundBlock;
+					}
 
-						if ( childProps.attributes[ attribute ] !== blockCopy.attributes[ attribute ] ) {
-							return true;
-						}
+					return tweet.blocks.find( block => block.clientId === childProps.clientId );
+				}, false );
 
-						return false;
-					},
-					false
-				);
-
-				if ( changed ) {
+				if ( contentAttributesChanged( blockCopy.attributes, childProps.attributes ) ) {
 					return;
 				}
 
@@ -301,8 +325,10 @@ export default compose( [
 					}
 				} );
 
+				const boundaries = tweets.filter( tweet => tweet.boundary ).map( tweet => tweet.boundary );
+
 				// Add new annotations in the appropriate location.
-				tweet.boundaries.forEach( boundary => {
+				boundaries.forEach( boundary => {
 					const { container, type, start, end } = boundary;
 					if ( 'normal' === type ) {
 						dispatch( 'core/annotations' ).__experimentalAddAnnotation( {

@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
+use Twitter\Text\Configuration;
 use Twitter\Text\Parser;
 
 /**
@@ -26,31 +27,43 @@ class Jetpack_Tweetstorm_Helper {
 			'type'               => 'text',
 			'content_attributes' => array( 'content' ),
 			'template'           => '{{content}}',
+			'force_new'          => true,
+			'force_finished'     => false,
 		),
 		'core/image'     => array(
-			'type'          => 'image',
-			'url_attribute' => 'url',
+			'type'           => 'image',
+			'url_attribute'  => 'url',
+			'force_new'      => false,
+			'force_finished' => true,
 		),
 		'core/list'      => array(
 			'type'               => 'multiline',
 			'multiline_tag'      => 'li',
 			'content_attributes' => array( 'values' ),
 			'template'           => '- {{line}}',
+			'force_new'          => false,
+			'force_finished'     => false,
 		),
 		'core/paragraph' => array(
 			'type'               => 'text',
 			'content_attributes' => array( 'content' ),
 			'template'           => '{{content}}',
+			'force_new'          => false,
+			'force_finished'     => false,
 		),
 		'core/quote'     => array(
 			'type'               => 'text',
 			'content_attributes' => array( 'value', 'citation' ),
 			'template'           => '“{{value}}” – {{citation}}',
+			'force_new'          => false,
+			'force_finished'     => false,
 		),
 		'core/verse'     => array(
 			'type'               => 'text',
 			'content_attributes' => array( 'content' ),
 			'template'           => '{{content}}',
+			'force_new'          => false,
+			'force_finished'     => false,
 		),
 	);
 
@@ -108,38 +121,38 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return mixed
 	 */
 	public static function parse( $blocks ) {
+		// Initialise the tweets array with an empty tweet, so we don't need to check
+		// if we're creating the first tweet while processing blocks.
 		$tweets = array();
-		$parser = new Parser();
+		self::start_new_tweet( $tweets );
 
 		foreach ( $blocks as $block ) {
 			$block_def = self::$supported_blocks[ $block['name'] ];
 
+			// Grab the most recent tweet, so we can append to that if we can.
+			list( $current_tweet_index, $current_tweet ) = self::get_last_tweet( $tweets );
+
+			// Check if we need to start a new tweet.
+			if ( $current_tweet['finished'] || $block_def['force_new'] ) {
+				list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
+			}
+
+			// Handle media first, as we can most easily attach that to the previous tweet.
 			if ( 'image' === $block_def['type'] ) {
 				$url = $block['attributes'][ $block_def['url_attribute'] ];
 
 				// Check if we can add this image to the last tweet.
-				$last_tweet = array_pop( $tweets );
-				if ( empty( $last_tweet['media'] ) ) {
-					$last_tweet['blocks'][] = $block;
-					$last_tweet['media'][]  = array(
-						'url' => $url,
-					);
-
-					$tweets[] = $last_tweet;
-				} else {
-					$tweets[] = $last_tweet;
-					$tweets[] = array(
-						'blocks'     => array( $block ),
-						'boundaries' => array(),
-						'content'    => '',
-						'media'      => array(
-							array(
-								'url' => $url,
-							),
-						),
-					);
+				if ( ! empty( $current_tweet['media'] ) ) {
+					// There was already media attached to the last tweet,
+					// so let's put it in a new tweet.
+					list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
 				}
 
+				$current_tweet['media'][] = array(
+					'url' => $url,
+				);
+
+				self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
 				continue;
 			}
 
@@ -148,143 +161,305 @@ class Jetpack_Tweetstorm_Helper {
 			if ( empty( $block_text ) ) {
 				continue;
 			}
-			$boundaries = array();
 
-			// Multiline blocks prioritise splitting by line, so we can treat other
-			// text blocks as being "multiline", but with a single line.
+			// If the entire block can't be fit in this tweet, we need to start a new tweet.
+			if ( $current_tweet['changed'] && ! self::is_valid_tweet( trim( $current_tweet['text'] ) . "\n\n$block_text" ) ) {
+				self::start_new_tweet( $tweets );
+			}
+
+			// Multiline blocks prioritise splitting by line, but are otherwise identical to
+			// normal text blocks. This means we can treat normal text blocks as being
+			// "multiline", but with a single line.
 			if ( 'multiline' === $block_def['type'] ) {
 				$lines = explode( "\n", $block_text );
+
 			} else {
 				$lines = array( $block_text );
 			}
+			$line_total = count( $lines );
 
-			// An array of the tweets this block will become.
-			$split_block = array( '' );
-			// Of the tweets that this block generates, track the one we're currently appending to.
-			$current_block_tweet = 0;
-			// Keep track of how many characters we've allocated to tweets so far.
+			// Keep track of how many characters from this block we've allocated to tweets.
 			$current_character_count = 0;
 
-			foreach ( $lines as $line_text ) {
-				// Is this line short enough to append to the current tweet?
-				$tweet = $parser->parseTweet( "{$split_block[ $current_block_tweet ]}\n$line_text" );
-				if ( $tweet->permillage <= 1000 ) {
-					$split_block[ $current_block_tweet ] .= "\n$line_text";
-					continue;
-				}
+			for ( $line_count = 0; $line_count < $line_total; $line_count++ ) {
+				$line_text = $lines[ $line_count ];
 
-				// The line is too long to append, it needs to be the start of the next tweet.
-				if ( '' !== $split_block[ $current_block_tweet ] ) {
-					$current_character_count += strlen( $split_block[ $current_block_tweet ] );
-					$current_block_tweet++;
-					$split_block[ $current_block_tweet ] = '';
+				// Make sure we have the most recent tweet.
+				list( $current_tweet_index, $current_tweet ) = self::get_last_tweet( $tweets );
 
-					$boundaries[] = self::get_boundary( $block, $current_character_count );
-				}
-
-				// Is the line short enough to be a tweet by itself?
-				$tweet = $parser->parseTweet( $line_text );
-				if ( $tweet->permillage <= 1000 ) {
-					$split_block[ $current_block_tweet ] = $line_text;
-					continue;
-				}
-
-				// Split the line up by sentences. A sentence is defined as:
-				// - end of sentence punctuation [.!?]
-				// - followed by space(s), or the end of the line.
-				$sentences      = preg_split( '/([.!?](?:\s+|$))/', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
-				$sentence_count = count( $sentences );
-
-				for ( $ii = 0; $ii < $sentence_count; $ii += 2 ) {
-					$current_sentence = $sentences[ $ii ];
-					if ( ! empty( $sentences[ $ii + 1 ] ) ) {
-						$current_sentence .= $sentences[ $ii + 1 ];
+				if ( $current_tweet['changed'] ) {
+					// When it's the first line, add an extra blank line to seperate
+					// the tweet text from that of the previous block.
+					$seperator = "\n\n";
+					if ( $line_count > 0 ) {
+						$seperator = "\n";
 					}
 
-					// Can we append this sentence to the previous tweet?
-					$tweet = $parser->parseTweet( $split_block[ $current_block_tweet ] . trim( $current_sentence ) );
-					if ( $tweet->permillage <= 1000 ) {
-						$split_block[ $current_block_tweet ] .= $current_sentence;
+					// Is this line short enough to append to the current tweet?
+					if ( self::is_valid_tweet( trim( $current_tweet['text'] ) . "$seperator$line_text" ) ) {
+						// Don't trim the text yet, as we may need it for boundary calculations.
+						$current_tweet['text'] = $current_tweet['text'] . "$seperator$line_text";
+
+						self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
 						continue;
 					}
 
-					// Will this sentence fit in a new tweet by itself?
-					$tweet = $parser->parseTweet( trim( $current_sentence ) );
-					if ( $tweet->permillage <= 1000 ) {
-						$current_character_count += strlen( $split_block[ $current_block_tweet ] );
-						$current_block_tweet++;
-						$split_block[ $current_block_tweet ] = $current_sentence;
+					// This line is too long, and lines *must* be split to a new tweet if they don't fit
+					// into the current tweet. If this isn't the first line, record where we split the block.
+					if ( $line_count > 0 ) {
+						$current_character_count  += strlen( $current_tweet['text'] );
+						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count );
 
-						$boundaries[] = self::get_boundary( $block, $current_character_count );
+						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
+					}
+
+					// Start a new tweet.
+					list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
+				}
+
+				// Since we're now at the start of a new tweet, is this line short enough to be a tweet by itself?
+				if ( self::is_valid_tweet( $line_text ) ) {
+					$current_tweet['text'] = $line_text;
+
+					self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
+					continue;
+				}
+
+				// The line is too long for a single tweet, so split it by sentences.
+				$sentences      = preg_split( '/(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[a-zA-Z\'"\(])/', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
+				$sentence_total = count( $sentences );
+
+				// preg_split() puts the blank space between sentences into a seperate entry in the result,
+				// so we need to step through the result array by two, and append the blank space when needed.
+				for ( $sentence_count = 0; $sentence_count < $sentence_total; $sentence_count += 2 ) {
+					$current_sentence = $sentences[ $sentence_count ];
+					if ( ! empty( $sentences[ $sentence_count + 1 ] ) ) {
+						$current_sentence .= $sentences[ $sentence_count + 1 ];
+					}
+
+					// Make sure we have the most recent tweet.
+					list( $current_tweet_index, $current_tweet ) = self::get_last_tweet( $tweets );
+
+					// After the first sentence, we can try and append sentences to the previous sentence.
+					if ( $current_tweet['changed'] && $sentence_count > 0 ) {
+						// Is this sentence short enough for appending to the current tweet?
+						if ( self::is_valid_tweet( $current_tweet['text'] . rtrim( $current_sentence ) ) ) {
+							$current_tweet['text'] .= $current_sentence;
+
+							self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
+							continue;
+						}
+					}
+
+					// Will this sentence fit in its own tweet?
+					if ( self::is_valid_tweet( trim( $current_sentence ) ) ) {
+						if ( $current_tweet['changed'] ) {
+							// If we're already in the middle of a block, record the boundary
+							// before creating a new tweet.
+							if ( $line_count > 0 || $sentence_count > 0 ) {
+								$current_character_count += strlen( $current_tweet['text'] );
+
+								// A previous sentence may've been split by words, we don't want to count
+								// the ellipsis, but we do want to count the space it replaced.
+								if ( $sentence_count > 0 && 0 === strpos( $current_tweet['text'], '…' ) ) {
+									$current_character_count -= strlen( '…' ) + 1;
+								}
+								$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count );
+
+								self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
+							}
+
+							list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
+						}
+						$current_tweet['text'] = $current_sentence;
+
+						self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
 						continue;
 					}
 
 					// This long sentence will start the next tweet that this block is going
-					// to be turned into, so we need to record the boundary.
-					if ( '' !== $split_block[ $current_block_tweet ] ) {
-						$current_character_count += strlen( $split_block[ $current_block_tweet ] );
-						$current_block_tweet++;
-						$split_block[ $current_block_tweet ] = '';
+					// to be turned into, so we need to record the boundary and start a new tweet.
+					if ( $current_tweet['changed'] ) {
+						$current_character_count  += strlen( $current_tweet['text'] );
+						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count );
 
-						$boundaries[] = self::get_boundary( $block, $current_character_count );
+						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
+
+						list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
+
+						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
 					}
 
 					// Split the long sentence into words.
 					$words      = explode( ' ', $current_sentence );
-					$word_count = count( $words );
-					for ( $jj = 0; $jj < $word_count; $jj++ ) {
+					$word_total = count( $words );
+					for ( $word_count = 0; $word_count < $word_total; $word_count++ ) {
+						// Make sure we have the most recent tweet.
+						list( $current_tweet_index, $current_tweet ) = self::get_last_tweet( $tweets );
+
 						// Can we add this word to the current tweet?
-						$tweet = $parser->parseTweet( trim( "…{$split_block[ $current_block_tweet ]} {$words[ $jj ]}…" ) );
-						if ( $tweet->permillage <= 1000 ) {
-							$split_block[ $current_block_tweet ] .= " {$words[ $jj ]}";
+						if ( self::is_valid_tweet( "{$current_tweet['text']} {$words[ $word_count ]}…" ) ) {
+							$current_tweet['text'] .= " {$words[ $word_count ]}";
+
+							self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
 							continue;
 						}
 
-						// There's an extra space to count, hence the "+ 1".
-						$current_character_count += strlen( $split_block[ $current_block_tweet ] ) + 1;
-						$current_block_tweet++;
-						$split_block[ $current_block_tweet ] = $words[ $jj ];
+						// Add one for the space character that we won't include in the tweet text.
+						$current_character_count += strlen( $current_tweet['text'] ) + 1;
 
-						// Offset one back for the extra space.
-						$boundaries[] = self::get_boundary( $block, $current_character_count - 1 );
+						// If this is the second block in the split sentence, it'll start
+						// with ellipsis, which we don't want to count.
+						if ( 0 === strpos( $current_tweet['text'], '…' ) ) {
+							$current_character_count -= strlen( '…' );
+						}
+
+						// We're starting a new tweet with this word. Append ellipsis to
+						// the current tweet, then move on.
+						$current_tweet['text'] .= '…';
+
+						// Offset by 1, since the boundary is actually the space after the end of this tweet.
+						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count - 1 );
+						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
+
+						list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
+
+						$current_tweet['text'] = "…{$words[ $word_count ]}";
+
+						self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
 					}
 				}
 			}
-
-			// If there are no tweets recorded already, this block will be the first.
-			if ( empty( $tweets ) ) {
-				$tweets[] = array(
-					'blocks'     => array( $block ),
-					'boundaries' => $boundaries,
-					'content'    => $block_text,
-					'media'      => array(),
-				);
-				continue;
-			}
-
-			// Check if this block is short enough to append the the previous tweet.
-			$last_tweet     = array_pop( $tweets );
-			$new_tweet_text = "{$last_tweet['content']}\n\n$block_text";
-			$tweet          = $parser->parseTweet( $new_tweet_text );
-			if ( $tweet->permillage > 1000 ) {
-				// If this block is too long, create a new tweet for it.
-				$tweets[] = $last_tweet;
-				$tweets[] = array(
-					'blocks'     => array( $block ),
-					'boundaries' => $boundaries,
-					'content'    => $block_text,
-					'media'      => array(),
-				);
-				continue;
-			}
-
-			// Add the current block to the last tweet, then put that tweet back in the array.
-			$last_tweet['blocks'][] = $block;
-			$last_tweet['content']  = $new_tweet_text;
-			$tweets[]               = $last_tweet;
 		}
 
-		return $tweets;
+		// We managed to get to the end without creating any tweets, so don't return the single empty tweet.
+		if ( 1 === count( $tweets ) && false === $tweets[0]['changed'] ) {
+			return array();
+		}
+
+		return array_map(
+			function( $tweet ) {
+				$tweet['text'] = trim( $tweet['text'] );
+				$tweet['text'] = preg_replace( '/[ \t]+\n/', "\n", $tweet['text'] );
+
+				return $tweet;
+			},
+			$tweets
+		);
+	}
+
+	/**
+	 * Get the last tweet in the array, along with the index for that tweet.
+	 *
+	 * @param array $tweets The array of tweets.
+	 * @return array An array containing the index of the last tweet, and the last tweet itself.
+	 */
+	private static function get_last_tweet( $tweets ) {
+		$tweet = end( $tweets );
+		return array( key( $tweets ), $tweet );
+	}
+
+	/**
+	 * Creates a blank tweet, appends it to the passed tweets array, and returns the tweet.
+	 *
+	 * @param array $tweets The array of tweets.
+	 * @return array The blank tweet.
+	 */
+	private static function start_new_tweet( &$tweets ) {
+		$tweets[] = array(
+			// An array of blocks that make up this tweet.
+			'blocks'   => array(),
+			// If this tweet only contains part of a block, the boundary contains
+			// information about where in the block the tweet ends.
+			'boundary' => false,
+			// The text content of the tweet.
+			'text'     => '',
+			// The media content of the tweet.
+			'media'    => array(),
+			// Some blocks force a hard finish to the tweet, even if subsequent blocks
+			// could technically be appended. This flag shows when a tweet is finished.
+			'finished' => false,
+			// Flag if the current tweet already has content in it.
+			'changed'  => false,
+		);
+
+		return self::get_last_tweet( $tweets );
+	}
+
+	/**
+	 * Saves a tweet to the passed tweet array.
+	 *
+	 * This method adds some last minute checks: marking the tweet as "changed", as well
+	 * as adding the $block to the tweet (if it was passed, and hasn't already been added).
+	 *
+	 * @param array $tweets      The array of tweets.
+	 * @param int   $tweet_index Where in the tweet array this tweet should be stored.
+	 * @param array $tweet       The tweet being stored.
+	 * @param array $block       Optional. The block that was used to modify this tweet.
+	 * @return array The saved tweet, after the last minute checks have been done.
+	 */
+	private static function save_tweet( &$tweets, $tweet_index, $tweet, $block = null ) {
+		$tweet['changed'] = true;
+
+		// Check if this block is already recorded against this tweet.
+		if ( ! empty( $block ) ) {
+			$block_def = self::$supported_blocks[ $block['name'] ];
+
+			if ( $block_def['force_finished'] ) {
+				$tweet['finished'] = true;
+			}
+
+			$last_block = end( $tweet['blocks'] );
+			if ( false === $last_block || $last_block['clientId'] !== $block['clientId'] ) {
+				$tweet['blocks'][] = $block;
+			}
+		}
+
+		$tweets[ $tweet_index ] = $tweet;
+
+		return $tweet;
+	}
+
+	/**
+	 * Checks if the passed text is valid for a tweet or not.
+	 *
+	 * @param string $text The text to check.
+	 * @return bool Whether or not the text is valid.
+	 */
+	private static function is_valid_tweet( $text ) {
+		// Since we use '…' a lot, strip it out, so we can still use the ASCII checks.
+		$ellipsis_count = 0;
+		$text           = str_replace( '…', '', $text, $ellipsis_count );
+		// If the text is all ASCII, we can use normal string functions,
+		// which are much faster than the mb_*() string functions.
+		$is_ascii = false;
+		if ( function_exists( 'mb_check_encoding' ) ) {
+			if ( mb_check_encoding( $text, 'ASCII' ) ) {
+				$is_ascii = true;
+			}
+		} elseif ( ! preg_match( '/[^\x00-\x7F]/', $text ) ) {
+			$is_ascii = true;
+		}
+
+		if ( $is_ascii ) {
+			$config = new Configuration();
+
+			// Ellipsis characters count for two characters on Twitter.
+			//phpcs:ignore WordPress.NamingConventions.ValidVariableName
+			if ( ( strlen( $text ) + $ellipsis_count * 2 ) <= $config->maxWeightedTweetLength ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		$parser = new Parser();
+		$tweet  = $parser->parseTweet( $text );
+		if ( $tweet->permillage <= 1000 ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -324,7 +499,6 @@ class Jetpack_Tweetstorm_Helper {
 							return array(
 								'start'     => $line_offset,
 								'end'       => $line_offset + 1,
-								'character' => $offset,
 								'container' => $block_def['content_attributes'][0],
 								'type'      => 'normal',
 							);
@@ -339,11 +513,9 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// Are we breaking at the end of this line?
-				if ( $current_character_count + 1 === $offset ) {
-					$line_offset = $offset - $template_character_count;
+				if ( $current_character_count === $offset ) {
 					return array(
 						'line'      => $line_count,
-						'character' => $offset,
 						'container' => $block_def['content_attributes'][0],
 						'type'      => 'end-of-line',
 					);
@@ -365,7 +537,6 @@ class Jetpack_Tweetstorm_Helper {
 					return array(
 						'start'     => $attribute_offset - 1,
 						'end'       => $attribute_offset,
-						'character' => $offset,
 						'container' => $attribute_name,
 						'type'      => 'normal',
 					);

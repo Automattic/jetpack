@@ -81,6 +81,7 @@ module.exports = [
 	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',
 	'tests/e2e/plugins',
+	'tests/php/_inc/lib/test-class.jetpack-tweetstorm-helper.php',
 	'tests/php/general/test-class.jetpack-network.php',
 	'tests/php/test_class.jetpack_photon.php',
 	'views/admin/deactivation-dialog.php',

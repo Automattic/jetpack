@@ -86,6 +86,9 @@
 		<testsuite name="uninstall">
 			<directory prefix="test_" suffix=".php">tests/php/uninstall</directory>
 		</testsuite>
+		<testsuite name="lib">
+			<directory prefix="test" suffix=".php">tests/php/_inc/lib</directory>
+		</testsuite>
 		<testsuite name="restapi">
 			<directory prefix="test_class.rest-api" suffix=".php">tests/php/_inc/lib</directory>
 		</testsuite>
