@@ -90,7 +90,9 @@ export default withSelect( ( select, props ) => {
 	return {
 		post: getCurrentPost(),
 		title: getEditedPostAttribute( 'title' ),
-		description: getEditedPostAttribute( 'excerpt' ) || getEditedPostAttribute( 'content' ),
+		description:
+			getEditedPostAttribute( 'excerpt' ) ||
+			getEditedPostAttribute( 'content' ).split( '<!--more-->' )[ 0 ],
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image:
