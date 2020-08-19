@@ -2384,34 +2384,48 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	}
 
 	static function get_default_label_from_type( $type ) {
+		$str = null;
 		switch ( $type ) {
 			case 'text':
-				return __( 'Text', 'jetpack' );
+				$str = __( 'Text', 'jetpack' );
+				break;
 			case 'name':
-				return __( 'Name', 'jetpack' );
+				$str = __( 'Name', 'jetpack' );
+				break;
 			case 'email':
-				return __( 'Email', 'jetpack' );
+				$str = __( 'Email', 'jetpack' );
+				break;
 			case 'url':
-				return __( 'Website', 'jetpack' );
+				$str = __( 'Website', 'jetpack' );
+				break;
 			case 'date':
-				return __( 'Date', 'jetpack' );
+				$str = __( 'Date', 'jetpack' );
+				break;
 			case 'telephone':
-				return __( 'Phone', 'jetpack' );
+				$str = __( 'Phone', 'jetpack' );
+				break;
 			case 'textarea':
-				return __( 'Message', 'jetpack' );
+				$str = __( 'Message', 'jetpack' );
+				break;
 			case 'checkbox':
-				return __( 'Checkbox', 'jetpack' );
+				$str = __( 'Checkbox', 'jetpack' );
+				break;
 			case 'checkbox-multiple':
-				return __( 'Choose several', 'jetpack' );
+				$str = __( 'Choose several', 'jetpack' );
+				break;
 			case 'radio':
-				return __( 'Choose one', 'jetpack' );
+				$str = __( 'Choose one', 'jetpack' );
+				break;
 			case 'select':
-				return __( 'Select one', 'jetpack' );
+				$str = __( 'Select one', 'jetpack' );
+				break;
 			case 'consent':
-				return __( 'Consent', 'jetpack' );
+				$str = __( 'Consent', 'jetpack' );
+				break;
 			default:
-				return null;
+				$str = null;
 		}
+		return $str;
 	}
 
 	/**

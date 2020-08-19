@@ -44,21 +44,21 @@ const NoConsentBlockSettings = () => {
 	);
 };
 
+const shouldHaveConsentBlockSelector = innerBlocks => {
+	const hasEmailBlock = innerBlocks.some( ( { name } ) => name === 'jetpack/field-email' );
+	const hasConsentBlock = innerBlocks.some( ( { name } ) => name === 'jetpack/field-consent' );
+	if ( hasEmailBlock ) {
+		return ! hasConsentBlock;
+	}
+	return false;
+};
+
 const NewsletterIntegrationSettings = () => {
 	const selectedBlock = useSelect( select => select( 'core/block-editor' ).getSelectedBlock(), [] );
-
-	const shouldHaveConsentBlock = useMemo( () => {
-		const hasEmailBlock = selectedBlock.innerBlocks.some(
-			( { name } ) => name === 'jetpack/field-email'
-		);
-		const hasConsentBlock = selectedBlock.innerBlocks.some(
-			( { name } ) => name === 'jetpack/field-consent'
-		);
-		if ( hasEmailBlock ) {
-			return ! hasConsentBlock;
-		}
-		return false;
-	}, [ selectedBlock.innerBlocks ] );
+	const shouldHaveConsentBlock = useMemo(
+		() => shouldHaveConsentBlockSelector( selectedBlock.innerBlocks ),
+		[ selectedBlock.innerBlocks ]
+	);
 
 	return (
 		<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
