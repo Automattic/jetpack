@@ -58,11 +58,11 @@ export default createHigherOrderComponent(
 		}, [ isBannerVisible, setBannerAlreadyShown ] );
 
 		useEffect( () => {
-			if ( ! hasBannerAlreadyShown ) {
+			if ( hasBannerAlreadyShown || ! isBannerVisible ) {
 				return;
 			}
 			trackUpgradeBannerImpression( trackEventData );
-		}, [ hasBannerAlreadyShown, trackEventData ] );
+		}, [ hasBannerAlreadyShown, trackEventData, isBannerVisible ] );
 
 		// Hide Banner when block changes its attributes (dual Mode).
 		useEffect( () => setIsVisible( ! isDualMode ), [ props.attributes, setIsVisible, isDualMode ] );
