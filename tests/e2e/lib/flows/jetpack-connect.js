@@ -86,6 +86,10 @@ export async function doInPlaceConnection() {
 	await jetpackPage.connect();
 
 	await ( await InPlaceAuthorizeFrame.init( page ) ).approve();
+	await ( await PickAPlanPage.init( page ) ).selectFreePlan();
+	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
+	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+	await ( await Sidebar.init( page ) ).selectJetpack();
 }
 
 export async function syncJetpackPlanData( plan, mockPlanData = true ) {

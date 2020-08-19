@@ -147,13 +147,10 @@ jQuery( document ).ready( function ( $ ) {
 
 			if ( jetpackConnectButton.isPaidPlan ) {
 				window.location.assign( jpConnect.dashboardUrl );
+				// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
+				window.location.reload( true );
 			} else {
 				window.location.assign( jpConnect.plansPromptUrl );
-			}
-
-			// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
-			if ( -1 !== jpConnect.indexOf( '#' ) ) {
-				window.location.reload( true );
 			}
 		},
 		handleConnectionError: function ( error ) {
