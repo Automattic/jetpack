@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ab5e34e79b85e78a26d42fa2306d61f",
+    "content-hash": "e5447872cbe7ff8e7023cb94fce7a960",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -30,16 +30,16 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v1.0.5",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "e6a49fc62f51d4c234ebcef95ff82c1642061a23"
+                "reference": "89d466ca25fbdd861db6cab333a147ac5505b04f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/e6a49fc62f51d4c234ebcef95ff82c1642061a23",
-                "reference": "e6a49fc62f51d4c234ebcef95ff82c1642061a23",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/89d466ca25fbdd861db6cab333a147ac5505b04f",
+                "reference": "89d466ca25fbdd861db6cab333a147ac5505b04f",
                 "shasum": ""
             },
             "require-dev": {
@@ -52,7 +52,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2020-04-09T12:13:27+00:00"
+            "time": "2020-08-19T14:56:46+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
