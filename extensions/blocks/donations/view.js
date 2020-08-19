@@ -1,21 +1,24 @@
 /**
  * External dependencies
  */
+import formatCurrency from '@automattic/format-currency';
+
+/**
+ * WordPress dependencies
+ */
 import domReady from '@wordpress/dom-ready';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
  */
-import { parseAmount } from './amount';
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
 
 /**
  * Style dependencies
  */
 import './view.scss';
-import formatCurrency from '@automattic/format-currency';
 
 let jetpackDonationsAmount = null;
 let jetpackDonationsIsCustomAmount = false;
