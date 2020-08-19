@@ -1,5 +1,10 @@
 <?php
-// Populate the available extensions with core/cover.
+/**
+ * Populate the available extensions with core/cover.
+ *
+ * @package Jetpack
+ **/
+
 add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
