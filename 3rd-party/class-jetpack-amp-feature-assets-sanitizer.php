@@ -20,6 +20,10 @@ class Jetpack_AMP_Feature_Assets_Sanitizer extends AMP_Base_Sanitizer {
 		'//script[contains(@src,\'//assets.pinterest.com/js/pinit.js\')]',
 		'//script[ @id = \'eventbrite-widget-js\' ]',
 		'//script[ @id = \'eventbrite-widget-js-after\' ]',
+		'//script[ @id = \'jetpack-block-calendly-js-extra\' ]',
+		'//script[ @id = \'jetpack-block-calendly-js\' ]',
+		'//script[ @id = \'jetpack-calendly-external-js-js\' ]',
+		'//script[ @id = \'jetpack-calendly-external-js-js-after\' ]',
 	);
 
 	/**
