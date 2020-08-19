@@ -332,10 +332,10 @@ function render_block( $attributes ) {
 					<div class="wp-story-wrapper">
 						%6$s
 					</div>
-					<div role="button" class="wp-story-overlay wp-story-clickable">
-						%7$s
-					</div>
-					%8$s
+					<a class="wp-story-overlay" href="%7$s">
+						%8$s
+					</a>
+					%9$s
 				</div>
 			</div>
 		</div>',
@@ -345,6 +345,7 @@ function render_block( $attributes ) {
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
+		get_permalink(),
 		render_top_right_icon( $settings ),
 		render_pagination( $settings )
 	);
