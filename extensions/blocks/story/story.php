@@ -237,7 +237,7 @@ function render_top_right_icon( $settings ) {
 					<path d="M0 0h24v24H0z" fill="none"></path>
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M6 3H14V17H6L6 3ZM4 3C4 1.89543 4.89543 1 6 1H14C15.1046 1 16 1.89543 16 3V17C16 18.1046 15.1046 19 14 19H6C4.89543 19 4 18.1046 4 17V3ZM18 5C19.1046 5 20 5.89543 20 7V21C20 22.1046 19.1046 23 18 23H10C8.89543 23 8 22.1046 8 21H18V5Z"></path>
 				</svg>
-				<span>%s</span>
+				<span>%d</span>
 			</div>',
 			$slide_count
 		);
@@ -264,10 +264,11 @@ function render_top_right_icon( $settings ) {
  */
 function render_pagination_bullet( $slide_index ) {
 	return sprintf(
-		'<button class="wp-story-pagination-bullet" aria-label="Go to slide %d">
+		'<a href="#" class="wp-story-pagination-bullet" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
-		</button>',
-		$slide_index
+		</a>',
+		/* translators: %d is the slide number (1, 2, 3...) */
+		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
 	);
 }
 
@@ -325,9 +326,9 @@ function render_block( $attributes ) {
 								%5$s
 							</div>
 						</div>
-						<button class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
+						<a class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
 							<i class="jetpack-material-icons close md-24"></i>
-						</button>
+						</a>
 					</div>
 					<div class="wp-story-wrapper">
 						%6$s

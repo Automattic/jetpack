@@ -212,7 +212,13 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 				/>
 			</div>
 			{ fullscreen && (
-				<Background currentMedia={ settings.blurredBackground && slides[ currentSlideIndex ] } />
+				<Background
+					currentMedia={
+						settings.blurredBackground &&
+						slides.length > currentSlideIndex &&
+						slides[ currentSlideIndex ]
+					}
+				/>
 			) }
 		</>
 	);

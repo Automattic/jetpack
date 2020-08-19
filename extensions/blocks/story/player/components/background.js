@@ -13,7 +13,7 @@ import { SVG } from '@wordpress/components';
  */
 
 export default function Background( { currentMedia } ) {
-	const url = currentMedia.type === 'image' ? currentMedia.url : null;
+	const url = currentMedia && currentMedia.type === 'image' ? currentMedia.url : null;
 
 	return (
 		<div className="wp-story-background">
