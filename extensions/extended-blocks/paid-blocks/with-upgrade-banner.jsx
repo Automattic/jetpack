@@ -33,6 +33,7 @@ export default createHigherOrderComponent(
 		const usableBlocksProps = getUsableBlockProps( props.name );
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
+		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
@@ -47,13 +48,21 @@ export default createHigherOrderComponent(
 			context: bannerContext,
 		};
 
+		// Record event just once, the first time.
 		useEffect( () => {
 			if ( ! isBannerVisible ) {
 				return;
 			}
 
+			setBannerAlreadyShown( true );
+		}, [ isBannerVisible, setBannerAlreadyShown ] );
+
+		useEffect( () => {
+			if ( hasBannerAlreadyShown ) {
+				return;
+			}
 			trackUpgradeBannerImpression( trackEventData );
-		}, [ isBannerVisible, trackEventData ] );
+		}, [ hasBannerAlreadyShown, trackEventData ] );
 
 		// Hide Banner when block changes its attributes (dual Mode).
 		useEffect( () => setIsVisible( ! isDualMode ), [ props.attributes, setIsVisible, isDualMode ] );
