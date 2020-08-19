@@ -305,11 +305,14 @@ const features = {
 			return {
 				feature: 'creative-mail',
 				title: __( 'Creative Mail by Constant Contact', 'jetpack' ),
-				details: __( 'Send beautiful emails; grow followers.', 'jetpack' ),
+				details: __( 'Turn visitors into subscribers with email marketing.', 'jetpack' ),
 				checked: isCreativeMailActive,
 				isDisabled: true,
 				isPaid: true,
 				configureLink: isCreativeMailActive ? '/wp-admin/admin.php?page=creativemail' : null,
+				learnMoreLink:
+					'https://jetpack.com/support/jetpack-blocks/subscriber-form-block-and-field/',
+				isLearnMoreLinkExternal: true,
 			};
 		},
 		mapDispatchToProps: dispatch => {

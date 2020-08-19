@@ -32,10 +32,12 @@ let FeatureToggle = props => {
 		configureLink,
 		upgradeLink,
 		optionsLink,
+		learnMoreLink,
 		onInstallClick,
 		isPaid = false,
 		isButtonLinkExternal = false,
 		isOptionsLinkExternal = false,
+		isLearnMoreLinkExternal = false,
 	} = props;
 
 	const [ windowWidth, setWindowWidth ] = useState( false );
@@ -76,6 +78,12 @@ let FeatureToggle = props => {
 
 	const onViewOptionsClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_wizard_feature_view_options', {
+			feature,
+		} );
+	}, [ feature ] );
+
+	const onLearnMoreClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_feature_learn_more', {
 			feature,
 		} );
 	}, [ feature ] );
@@ -124,13 +132,15 @@ let FeatureToggle = props => {
 		infoContent = <p className="jp-setup-wizard-feature-toggle-info">{ info }</p>;
 	}
 
-	let optionsLinkElement;
+	// Note: if any more types of text links get added to this component then refactor these
+	// into a single set of textLink, isTextLinkExternal, and textLinkDisplayText props.
+	let textLinkContent;
 	if ( optionsLink ) {
 		const externalLinkProps = isOptionsLinkExternal
 			? { target: '_blank', rel: 'noopener noreferrer' }
 			: {};
 
-		optionsLinkElement = (
+		textLinkContent = (
 			<a
 				href={ optionsLink }
 				className="jp-setup-wizard-view-options-link"
@@ -139,6 +149,22 @@ let FeatureToggle = props => {
 			>
 				{ __( 'View options', 'jetpack' ) }
 				{ isOptionsLinkExternal && <Gridicon icon="external" size="18" /> }
+			</a>
+		);
+	} else if ( learnMoreLink ) {
+		const externalLinkProps = isLearnMoreLinkExternal
+			? { target: '_blank', rel: 'noopener noreferrer' }
+			: {};
+
+		textLinkContent = (
+			<a
+				href={ learnMoreLink }
+				className="jp-setup-wizard-view-options-link"
+				{ ...externalLinkProps }
+				onClick={ onLearnMoreClick }
+			>
+				{ __( 'Learn more', 'jetpack' ) }
+				{ isLearnMoreLinkExternal && <Gridicon icon="external" size="18" /> }
 			</a>
 		);
 	}
@@ -170,7 +196,7 @@ let FeatureToggle = props => {
 				<p className="jp-setup-wizard-feature-toggle-content">
 					{ largeWindow && <span>{ title }</span> }
 					{ details }
-					{ optionsLinkElement && <span>{ optionsLinkElement }</span> }
+					{ textLinkContent && <span>{ textLinkContent }</span> }
 				</p>
 			</div>
 			{ ( buttonContent || infoContent ) && (
@@ -194,10 +220,12 @@ FeatureToggle.propTypes = {
 	configureLink: PropTypes.string,
 	upgradeLink: PropTypes.string,
 	optionsLink: PropTypes.string,
+	learnMoreLink: PropTypes.string,
 	isPaid: PropTypes.bool,
 	isDisabled: PropTypes.bool,
 	isButtonLinkExternal: PropTypes.bool,
 	isOptionsLinkExternal: PropTypes.bool,
+	isLearnMoreLinkExternal: PropTypes.bool,
 };
 
 FeatureToggle = connect(
