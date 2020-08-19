@@ -70,11 +70,15 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['width'] ) ) {
 					return $media_file;
 				}
+				$url         = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
+				$description = ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'];
 				return array_merge(
 					$media_file,
 					array(
 						'width'  => absint( $video_meta['width'] ),
 						'height' => absint( $video_meta['height'] ),
+						'alt'    => $description,
+						'url'    => $url,
 					)
 				);
 			}
@@ -98,21 +102,7 @@ function render_image( $media ) {
 	$crop_class = '';
 	if ( $image ) {
 		list( , $width, $height ) = $image;
-		$media_aspect_ratio       = $width / $height;
-		$target_aspect_ratio      = EMBED_SIZE[0] / EMBED_SIZE[1];
-		if ( $media_aspect_ratio >= $target_aspect_ratio ) {
-			// image wider than canvas.
-			$media_too_wide_to_crop = $media_aspect_ratio > $target_aspect_ratio / ( 1 - CROP_UP_TO );
-			if ( ! $media_too_wide_to_crop ) {
-				$crop_class = 'wp-story-crop-wide';
-			}
-		} else {
-			// image narrower than canvas.
-			$media_too_narrow_to_crop = $media_aspect_ratio < $target_aspect_ratio * ( 1 - CROP_UP_TO );
-			if ( ! $media_too_narrow_to_crop ) {
-				$crop_class = 'wp-story-crop-narrow';
-			}
-		}
+		$crop_class               = get_image_crop_class( $width, $height );
 	}
 	// need to specify the size of the embed so it picks an image that is large enough for the `src` attribute
 	// `sizes` is optimized for 1080x1920 (9:16) images
@@ -130,6 +120,34 @@ function render_image( $media ) {
 }
 
 /**
+ * Return the css crop class if image width and height requires it
+ *
+ * @param array $width  Image width.
+ * @param array $height  Image height.
+ *
+ * @return string The CSS class which will display a cropped image
+ */
+function get_image_crop_class( $width, $height ) {
+	$crop_class          = '';
+	$media_aspect_ratio  = $width / $height;
+	$target_aspect_ratio = EMBED_SIZE[0] / EMBED_SIZE[1];
+	if ( $media_aspect_ratio >= $target_aspect_ratio ) {
+		// image wider than canvas.
+		$media_too_wide_to_crop = $media_aspect_ratio > $target_aspect_ratio / ( 1 - CROP_UP_TO );
+		if ( ! $media_too_wide_to_crop ) {
+			$crop_class = 'wp-story-crop-wide';
+		}
+	} else {
+		// image narrower than canvas.
+		$media_too_narrow_to_crop = $media_aspect_ratio < $target_aspect_ratio * ( 1 - CROP_UP_TO );
+		if ( ! $media_too_narrow_to_crop ) {
+			$crop_class = 'wp-story-crop-narrow';
+		}
+	}
+	return $crop_class;
+}
+
+/**
  * Render a video inside a slide
  *
  * @param array $media  Video information.
@@ -140,6 +158,22 @@ function render_video( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['mime'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
+
+	$metadata = wp_get_attachment_metadata( $media['id'] );
+	if ( ! empty( $metadata ) && ! empty( $metadata['videopress'] ) ) {
+		$poster_url  = $metadata['videopress']['poster'];
+		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
+		return sprintf(
+			'<img
+				alt="%s"
+				class="wp-block-jetpack-story_image wp-story-image %s"
+				src="%s">',
+			esc_attr( $description ),
+			get_image_crop_class( $metadata['videopress']['width'], $metadata['videopress']['height'] ),
+			esc_attr( $poster_url )
+		);
+	}
+
 	return sprintf(
 		'<video
 			title="%1$s"
@@ -165,7 +199,8 @@ function render_video( $media ) {
  */
 function render_slide( $media, $index = 0 ) {
 	$media_template = '';
-	switch ( ! empty( $media['type'] ) && $media['type'] ) {
+	$media_type     = ! empty( $media['type'] ) ? $media['type'] : null;
+	switch ( $media_type ) {
 		case 'image':
 			$media_template = render_image( $media, $index );
 			break;
