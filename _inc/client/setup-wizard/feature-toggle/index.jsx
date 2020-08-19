@@ -56,7 +56,7 @@ let FeatureToggle = props => {
 			props.onToggleChange( checked );
 			analytics.tracks.recordEvent( 'jetpack_wizard_feature_toggled', {
 				feature,
-				newValue: ! checked,
+				new_value: ! checked,
 			} );
 		}
 	}, [ checked, props.onToggleChange ] );
