@@ -131,10 +131,7 @@ class Test_REST_Endpoints extends TestCase {
 		$this->request->set_body( '{ "state": "' . self::USER_ID . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
 
 		$response = $this->server->dispatch( $this->request );
-		$this->assertEquals( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'authorized', $data['result'] );
+		$data     = $response->get_data();
 
 		remove_filter( 'user_has_cap', $user_caps_filter );
 		remove_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
@@ -144,6 +141,9 @@ class Test_REST_Endpoints extends TestCase {
 		wp_cache_delete( self::USER_ID, 'users' );
 
 		wp_set_current_user( 0 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'authorized', $data['result'] );
 	}
 
 	/**
@@ -203,35 +203,29 @@ class Test_REST_Endpoints extends TestCase {
 
 		$response = $this->server->dispatch( $this->request );
 
-		$this->assertEquals( $plugins, $response->get_data() );
-
 		$user->remove_cap( 'activate_plugins' );
+
+		$this->assertEquals( $plugins, $response->get_data() );
 	}
 
 	/**
 	 * Testing the `connection/reconnect` endpoint, full reconnect.
 	 */
 	public function test_connection_reconnect_full() {
-		$deregister_request_filter = function() {
-			return false;
-		};
-
-		add_filter( 'jetpack_connection_disconnect_site_wpcom', $deregister_request_filter );
-
 		$this->setup_reconnect_test( null );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
 		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
 
 		$response = $this->server->dispatch( $this->build_reconnect_request() );
-		$this->assertEquals( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'in_progress', $data['status'] );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+		$data     = $response->get_data();
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
 		$this->shutdown_reconnect_test( null );
 
-		remove_filter( 'jetpack_connection_disconnect_site_wpcom', $deregister_request_filter );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'in_progress', $data['status'] );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 	}
 
 	/**
@@ -242,13 +236,13 @@ class Test_REST_Endpoints extends TestCase {
 		add_filter( 'pre_http_request', array( $this, 'intercept_refresh_blog_token_request' ), 10, 3 );
 
 		$response = $this->server->dispatch( $this->build_reconnect_request() );
-		$this->assertEquals( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'completed', $data['status'] );
+		$data     = $response->get_data();
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_refresh_blog_token_request' ), 10 );
 		$this->shutdown_reconnect_test( 'blog_token' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'completed', $data['status'] );
 	}
 
 	/**
@@ -259,13 +253,13 @@ class Test_REST_Endpoints extends TestCase {
 		add_filter( 'pre_http_request', array( $this, 'intercept_refresh_blog_token_request_fail' ), 10, 3 );
 
 		$response = $this->server->dispatch( $this->build_reconnect_request() );
-		$this->assertEquals( 500, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'jetpack_secret', $data['code'] );
+		$data     = $response->get_data();
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_refresh_blog_token_request_fail' ), 10 );
 		$this->shutdown_reconnect_test( 'blog_token' );
+
+		$this->assertEquals( 500, $response->get_status() );
+		$this->assertEquals( 'jetpack_secret', $data['code'] );
 	}
 
 	/**
@@ -275,13 +269,13 @@ class Test_REST_Endpoints extends TestCase {
 		$this->setup_reconnect_test( 'user_token' );
 
 		$response = $this->server->dispatch( $this->build_reconnect_request() );
-		$this->assertEquals( 200, $response->get_status() );
-
-		$data = $response->get_data();
-		$this->assertEquals( 'in_progress', $data['status'] );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+		$data     = $response->get_data();
 
 		$this->shutdown_reconnect_test( 'user_token' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'in_progress', $data['status'] );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 	}
 
 	/**
