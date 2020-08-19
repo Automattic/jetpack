@@ -1740,7 +1740,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		Jetpack_Plan::update_from_sites_response( $response );
-		Jetpack_Site_Products::update_from_sites_response( $response );
 
 		$body = wp_remote_retrieve_body( $response );
 

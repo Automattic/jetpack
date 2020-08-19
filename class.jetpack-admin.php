@@ -55,7 +55,7 @@ class Jetpack_Admin {
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
 			// If the site has Jetpack Anti-Spam, change the Akismet menu label accordingly.
-			$site_products      = Jetpack_Site_Products::get();
+			$site_products      = Jetpack_Plan::get_products();
 			$anti_spam_products = array( 'jetpack_anti_spam_monthly', 'jetpack_anti_spam' );
 			if ( ! empty( array_intersect( $anti_spam_products, array_column( $site_products, 'product_slug' ) ) ) ) {
 				// Prevent Akismet from adding a menu item.
