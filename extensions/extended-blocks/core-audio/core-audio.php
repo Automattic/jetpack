@@ -1,10 +1,11 @@
 <?php
 /**
- * Populate the available extensions with core/audio.
+ * Plan checks for uploading audio files to core/audio.
  *
  * @package Jetpack
  **/
 
+// Populate the available extensions with core/audio.
 add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {

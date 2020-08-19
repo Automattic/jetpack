@@ -1,10 +1,11 @@
 <?php
 /**
- * Populate the available extensions with core/cover.
+ * Plan checks for uploading video files to core/cover.
  *
  * @package Jetpack
  **/
 
+// Populate the available extensions with core/cover.
 add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
