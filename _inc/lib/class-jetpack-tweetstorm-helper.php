@@ -139,6 +139,11 @@ class Jetpack_Tweetstorm_Helper {
 
 			// Handle media first, as we can most easily attach that to the previous tweet.
 			if ( 'image' === $block_def['type'] ) {
+				// If a URL hasn't been set, we can't use this block.
+				if ( empty( $block['attributes'][ $block_def['url_attribute'] ] ) ) {
+					continue;
+				}
+
 				$url = $block['attributes'][ $block_def['url_attribute'] ];
 
 				// Check if we can add this image to the last tweet.
