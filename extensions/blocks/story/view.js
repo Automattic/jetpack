@@ -32,12 +32,7 @@ function renderPlayer( rootElement, settings ) {
 	}
 
 	render(
-		<StoryPlayer
-			slides={ slides }
-			metadata={ metadata }
-			disabled={ false }
-			settings={ settings }
-		/>,
+		<StoryPlayer slides={ slides } metadata={ metadata } disabled={ false } { ...settings } />,
 		rootElement
 	);
 }
@@ -50,6 +45,8 @@ function parseSlides( slidesWrapper ) {
 		url: element.getAttribute( 'src' ),
 		id: element.getAttribute( 'data-id' ),
 		type: element.tagName.toLowerCase() === 'img' ? 'image' : 'video',
+		srcset: element.getAttribute( 'srcset' ),
+		sizes: element.getAttribute( 'sizes' ),
 	} ) );
 }
 
@@ -66,6 +63,23 @@ function parseMeta( metaWrapper ) {
 }
 
 if ( typeof window !== 'undefined' ) {
+	const settingsFromUrl = Array.from( new URLSearchParams( window.location.search ).entries() )
+		.filter( searchParam => searchParam[ 0 ].startsWith( 'wp-story-' ) )
+		.reduce( ( settings, searchParam ) => {
+			// convert `wp-story-load-in-fullscreen` to `loadInFullscreen`
+			const settingName = searchParam[ 0 ]
+				.replace( /^wp-story-/, '' )
+				.replace( /-([a-z])/g, group => group[ 1 ].toUpperCase() );
+			try {
+				// try to cast numbers and booleans first
+				settings[ settingName ] = JSON.parse( searchParam[ 1 ] );
+			} catch ( err ) {
+				// assume valid string
+				settings[ settingName ] = JSON.parse( `"${ searchParam[ 1 ] }"` );
+			}
+			return settings;
+		}, {} );
+
 	domReady( function () {
 		const storyBlocks = [ ...document.getElementsByClassName( 'wp-story' ) ];
 		storyBlocks.forEach( storyBlock => {
@@ -73,11 +87,22 @@ if ( typeof window !== 'undefined' ) {
 				return;
 			}
 
+			let settings = null;
+
+			if ( storyBlocks.length === 1 ) {
+				settings = {
+					...settingsFromUrl,
+				};
+			}
+
 			const settingsFromTemplate = storyBlock.getAttribute( 'data-settings' );
-			let settings;
+
 			if ( settingsFromTemplate ) {
 				try {
-					settings = JSON.parse( settingsFromTemplate );
+					settings = {
+						...settings,
+						...JSON.parse( settingsFromTemplate ),
+					};
 				} catch ( e ) {
 					// ignore parsing errors
 				}
