@@ -86,6 +86,7 @@ export default withNotices( function StoryEdit( {
 
 	const mediaPlaceholder = (
 		<MediaPlaceholder
+			addToGallery={ hasImages }
 			isAppender={ hasImages }
 			className={ className }
 			disableMediaButtons={ hasImages && ! isSelected }
