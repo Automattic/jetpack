@@ -25,7 +25,6 @@ import PlansPage from '../pages/wpcom/plans';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
 import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
-import InPlacePlansPage from '../pages/wp-admin/in-place-plans';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -87,7 +86,6 @@ export async function doInPlaceConnection() {
 	await jetpackPage.connect();
 
 	await ( await InPlaceAuthorizeFrame.init( page ) ).approve();
-	await ( await InPlacePlansPage.init( page ) ).selectFreePlan();
 }
 
 export async function syncJetpackPlanData( plan, mockPlanData = true ) {
