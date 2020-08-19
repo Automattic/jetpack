@@ -74,11 +74,11 @@
 		cursor: pointer;
 
 		&:hover {
-			background-color: $light-gray-100;
+			background-color: $white;
 		}
 
 		&.is-selected {
-			background-color: $blue-wordpress-700;
+			background-color: var(--wp-admin-theme-color);
 			color: $white;
 		}
 	}
