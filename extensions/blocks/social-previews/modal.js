@@ -93,7 +93,8 @@ export default withSelect( ( select, props ) => {
 		description:
 			getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
 			getEditedPostAttribute( 'excerpt' ) ||
-			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
+			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+			__( 'Visit the post for more.', 'jetpack' ),
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image:
