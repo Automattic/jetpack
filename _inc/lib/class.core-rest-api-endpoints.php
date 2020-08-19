@@ -1716,13 +1716,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 5.5.0
 	 *
-	 * @return array Array of site properties.
+	 * @return stdClass|WP_Error
 	 */
 	public static function site_data() {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
-			new WP_Error( 'site_id_missing' );
+			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => __( 'site_id_missing', 'jetpack' ) ) );
 		}
 
 		$args = array( 'headers' => array() );
@@ -1734,23 +1734,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1', $args );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = $body ? json_decode( $body ) : null;
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'site_data_fetch_failed' );
+			$api_error_code = null;
+
+			if ( is_wp_error( $response ) ) {
+				$api_error_code = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+			} elseif ( $data && ! empty( $data->error ) ) {
+				$api_error_code = $data->error;
+			}
+
+			return new WP_Error( 'site_data_fetch_failed', '', array( 'api_error_code' => $api_error_code ) );
 		}
 
 		Jetpack_Plan::update_from_sites_response( $response );
 
-		$body = wp_remote_retrieve_body( $response );
-
-		return json_decode( $body );
+		return $data;
 	}
 	/**
 	 * Get site data, including for example, the site's current plan.
 	 *
+	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 * @since 4.3.0
-	 *
-	 * @return array Array of site properties.
 	 */
 	public static function get_site_data() {
 		$site_data = self::site_data();
@@ -1769,13 +1776,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
-		if ( $site_data->get_error_code() === 'site_data_fetch_failed' ) {
-			return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data from WordPress.com. If the problem persists, try reconnecting Jetpack.', 'jetpack' ), array( 'status' => 400 ) );
+
+		$error_data = $site_data->get_error_data();
+
+		if ( empty( $error_data['api_error_code'] ) ) {
+			$error_message = esc_html__( 'Failed fetching site data from WordPress.com. If the problem persists, try reconnecting Jetpack.', 'jetpack' );
+		} else {
+			/* translators: %s is an error code (e.g. `token_mismatch`) */
+			$error_message = sprintf( esc_html__( 'Failed fetching site data from WordPress.com (%s). If the problem persists, try reconnecting Jetpack.', 'jetpack' ), $error_data['api_error_code'] );
 		}
 
-		if ( $site_data->get_error_code() === 'site_id_missing' ) {
-			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
-		}
+		return new WP_Error( $site_data->get_error_code(), $error_message, array( 'status' => 400 ) );
 	}
 
 	/**

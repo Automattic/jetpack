@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
+import SimpleNotice from 'components/notice';
 
 export default class JetpackConnectionErrors extends React.Component {
 	static propTypes = {
@@ -20,6 +21,15 @@ export default class JetpackConnectionErrors extends React.Component {
 			case 'refresh_blog_token':
 			case 'refresh_user_token':
 				return <ErrorNoticeCycleConnection text={ message } errorCode={ code } action={ action } />;
+			case 'display':
+				return (
+					<SimpleNotice
+						text={ message }
+						status={ 'is-error' }
+						icon={ 'link-break' }
+						showDismiss={ false }
+					/>
+				);
 		}
 
 		return null;
