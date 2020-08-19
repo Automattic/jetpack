@@ -87,7 +87,7 @@ const Edit = props => {
 	useEffect( () => {
 		const updateData = () => fetchStatus( 'donation' ).then( mapStatusToState, apiError );
 		updateData();
-	}, [] );
+	}, [ currency ] );
 
 	if ( isLoading ) {
 		return <LoadingStatus className={ className } />;

@@ -13,31 +13,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
-
-const parseAmount = ( amount, currency ) => {
-	if ( ! amount ) {
-		return null;
-	}
-
-	if ( typeof amount === 'number' ) {
-		return amount;
-	}
-
-	amount = parseFloat(
-		amount
-			// Remove any thousand grouping separator.
-			.replace( new RegExp( '\\' + CURRENCIES[ currency ].grouping, 'g' ), '' )
-			// Replace the localized decimal separator with a dot (the standard decimal separator in float numbers).
-			.replace( new RegExp( '\\' + CURRENCIES[ currency ].decimal, 'g' ), '.' )
-	);
-
-	if ( isNaN( amount ) ) {
-		return null;
-	}
-
-	return amount;
-};
+import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 
 const Amount = ( {
 	className = '',
@@ -143,4 +119,3 @@ const Amount = ( {
 };
 
 export default Amount;
-export { parseAmount };

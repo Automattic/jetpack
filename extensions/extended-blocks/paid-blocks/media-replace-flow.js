@@ -12,30 +12,36 @@ import { useRef, useContext } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { CoverMediaContext } from './components';
-import { isVideoFile } from './utils';
+import { isFileOfType } from '../../shared/get-allowed-mime-types';
+import { isUpgradable, getUsableBlockProps } from '../../shared/plan-utils';
+import { PaidBlockContext } from './components';
 
 export default createHigherOrderComponent(
 	MediaReplaceFlow => props => {
 		const { name } = useBlockEditContext();
+		const usableBlocksProps = getUsableBlockProps( name );
+
 		const preUploadFile = useRef();
-		if ( 'core/cover' !== name ) {
+		if ( ! usableBlocksProps?.mediaReplaceFlow || ! isUpgradable( name ) ) {
 			return <MediaReplaceFlow { ...props } />;
 		}
 
-		const onFilesUpload = useContext( CoverMediaContext );
+		const { fileType } = usableBlocksProps;
+		const onBannerVisibilityChange = useContext( PaidBlockContext );
 
 		return (
 			<MediaReplaceFlow
 				{ ...props }
 				onFilesUpload={ files => {
 					preUploadFile.current = files?.length ? files[ 0 ] : null;
-					onFilesUpload( files );
+					onBannerVisibilityChange( files?.length && isFileOfType( files[ 0 ], fileType ) );
 				} }
 				createNotice={ ( status, msg, options ) => {
 					// Detect video file from callback and reference instance.
-					if ( isVideoFile( preUploadFile.current ) ) {
+					if ( isFileOfType( preUploadFile.current, fileType ) ) {
 						preUploadFile.current = null; // clean up the file reference.
+
+						// Do not show Error notice when it's a video file.
 						return null;
 					}
 
@@ -44,5 +50,5 @@ export default createHigherOrderComponent(
 			/>
 		);
 	},
-	'JetpackCoverMediaReplaceFlow'
+	'withMediaReplaceFlowUpgradable'
 );

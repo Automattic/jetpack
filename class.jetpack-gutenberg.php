@@ -771,6 +771,8 @@ class Jetpack_Gutenberg {
 				'jetpack'          => array(
 					'is_active'                 => Jetpack::is_active(),
 					'is_current_user_connected' => $is_current_user_connected,
+					/** This filter is documented in class.jetpack-gutenberg.php */
+					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 				),
 				'siteFragment'     => $site_fragment,
 				'tracksUserData'   => $user_data,
@@ -1131,8 +1133,6 @@ class Jetpack_Gutenberg {
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
-			} elseif ( isset( $availability[ $bare_slug ]['details']['required_plan'] ) ) {
-				return self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 			}
 
 			return null;

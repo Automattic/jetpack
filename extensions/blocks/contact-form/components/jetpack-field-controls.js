@@ -7,20 +7,14 @@ import {
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
-import {
-	PanelBody,
-	TextControl,
-	ToggleControl,
-	Toolbar,
-	ToolbarButton,
-	Path,
-} from '@wordpress/components';
+import { PanelBody, ToggleControl, Toolbar, ToolbarButton, Path } from '@wordpress/components';
 
 /**
  * Internal Dependencies
  */
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import JetpackFieldWidth from './jetpack-field-width';
+import JetpackFieldCss from './jetpack-field-css';
 
 const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 	return (
@@ -61,12 +55,7 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 			</InspectorControls>
 
 			<InspectorAdvancedControls>
-				<TextControl
-					label={ __( 'Unique CSS ID', 'jetpack' ) }
-					value={ id }
-					onChange={ value => setAttributes( { id: value } ) }
-					help={ __( 'A unique ID that can be used in CSS or as an anchor.', 'jetpack' ) }
-				/>
+				<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
 			</InspectorAdvancedControls>
 		</>
 	);

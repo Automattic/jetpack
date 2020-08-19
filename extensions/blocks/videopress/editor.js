@@ -18,7 +18,6 @@ import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
-import wrapPaidBlock from '../../shared/wrap-paid-block';
 import { isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
@@ -160,22 +159,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				reusable: false,
 			},
 
-			edit:
-				isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason )
-					? wrapPaidBlock( {
-							requiredPlan: 'value_bundle',
-							customTitle: {
-								knownPlan: __( 'Upgrade to %(planName)s to upload videos.', 'jetpack' ),
-								unknownPlan: __( 'Upgrade to a paid plan to upload videos.', 'jetpack' ),
-							},
-							customSubTitle: __(
-								'Upload unlimited videos to your website and \
-						display them using a fast, unbranded, \
-						customizable player.',
-								'jetpack'
-							),
-					  } )( withVideoPressEdit( edit ) )
-					: withVideoPressEdit( edit ),
+			edit: withVideoPressEdit( edit ),
 
 			save: withVideoPressSave( save ),
 

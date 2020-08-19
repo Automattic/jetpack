@@ -39,7 +39,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 	add_thickbox();
