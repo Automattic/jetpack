@@ -58,7 +58,7 @@ export default createHigherOrderComponent(
 		}, [ isBannerVisible, setBannerAlreadyShown ] );
 
 		useEffect( () => {
-			if ( hasBannerAlreadyShown ) {
+			if ( ! hasBannerAlreadyShown ) {
 				return;
 			}
 			trackUpgradeBannerImpression( trackEventData );
