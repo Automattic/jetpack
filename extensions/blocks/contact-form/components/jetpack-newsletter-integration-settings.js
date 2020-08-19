@@ -1,11 +1,22 @@
 /**
  * External dependencies
  */
-import { BaseControl, Button, ExternalLink, PanelBody } from '@wordpress/components';
+import { BaseControl, Button, ExternalLink, PanelBody, Spinner, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from '@wordpress/element';
+import { get } from 'lodash';
+import { useCallback, useMemo, useState, useEffect } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
+import {
+	installAndActivatePlugin,
+	activatePlugin,
+	getPlugins,
+} from './../../../shared/plugin-management';
+import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
+
+const pluginPath = 'creative-mail-by-constant-contact/creative-mail-plugin.php';
+const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
+const pluginSlug = 'creative-mail-by-constant-contact';
 
 const useInsertConsentBlock = () => {
 	const selectedBlock = useSelect( select => select( 'core/block-editor' ).getSelectedBlock(), [] );
@@ -44,6 +55,169 @@ const NoConsentBlockSettings = () => {
 	);
 };
 
+const pluginStateEnum = Object.freeze( {
+	ACTIVE: 1,
+	INSTALLED: 2,
+	NOT_INSTALLED: 3,
+} );
+
+const CreativeMailPluginErrorState = () => {
+	return (
+		<p>
+			<em style={ { color: 'red' } }>
+				{ jetpackCreateInterpolateElement(
+					__(
+						'The plugin failed to install. Please check the <a>plugin information</a> to for detailed requirements.',
+						'jetpack'
+					),
+					{
+						a: (
+							<ExternalLink href="https://wordpress.org/plugins/creative-mail-by-constant-contact" />
+						),
+					}
+				) }
+			</em>
+		</p>
+	);
+};
+
+const CreativeMailPluginIsInstalling = () => {
+	return (
+		<Button icon={ <Icon icon="update" /> } disabled>
+			{ __( 'Installing..', 'jetpack' ) }
+		</Button>
+	);
+};
+
+const CreativeMailPluginIsNotInstalled = ( {
+	installAndActivateCreativeMailPlugin,
+	isInstalling,
+} ) => {
+	return (
+		<p>
+			<em>
+				{ __(
+					'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
+					'jetpack'
+				) }
+				{ isInstalling && <CreativeMailPluginIsInstalling /> }
+				{ ! isInstalling && (
+					<Button isText onClick={ installAndActivateCreativeMailPlugin }>
+						{ __( 'Install Creative Mail plugin', 'jetpack' ) }
+					</Button>
+				) }
+			</em>
+		</p>
+	);
+};
+
+const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalling } ) => {
+	return (
+		<p>
+			<em>
+				{ __(
+					'To start sending email campaigns, active the Creative Mail plugin for WordPress.',
+					'jetpack'
+				) }
+			</em>
+			<br />
+			<br />
+			{ isInstalling && <CreativeMailPluginIsInstalling /> }
+			{ ! isInstalling && (
+				<Button isPrimary onClick={ activateCreativeMailPlugin }>
+					{ __( 'Activate Creative Mail Plugin', 'jetpack' ) }
+				</Button>
+			) }
+		</p>
+	);
+};
+
+const CreativeMailPluginIsActive = () => {
+	return (
+		<p>
+			<em>
+				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack' ) }
+				<br />
+				<br />
+				<ExternalLink href="/wp-admin/admin.php?page=creativemail">
+					{ __( 'Open Creative Mail', 'jetpack' ) }
+				</ExternalLink>
+			</em>
+		</p>
+	);
+};
+
+const CreativeMailPlugin = () => {
+	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
+	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
+	const [ pluginError, setPluginError ] = useState();
+	const [ isInstalling, setIsInstalling ] = useState( false );
+
+	useEffect( () => {
+		getPlugins().then( plugins => {
+			setIsFetchingPlugins( false );
+			if ( get( plugins, pluginPath ) ) {
+				if ( get( plugins, [ pluginPath, 'active' ] ) ) {
+					setPluginState( pluginStateEnum.ACTIVE );
+				} else {
+					setPluginState( pluginStateEnum.INSTALLED );
+				}
+			}
+		} );
+	}, [ setPluginState, setIsFetchingPlugins ] );
+
+	const activateCreativeMailPlugin = useCallback( () => {
+		setPluginError( undefined );
+		setIsInstalling( true );
+		activatePlugin( pluginPathWithoutPhp )
+			.then( () => {
+				setPluginState( pluginStateEnum.ACTIVE );
+			} )
+			.catch( err => {
+				setPluginError( err );
+			} )
+			.finally( () => setIsInstalling( false ) );
+	}, [] );
+
+	const installAndActivateCreativeMailPlugin = useCallback( () => {
+		setPluginError( undefined );
+		setIsInstalling( true );
+		installAndActivatePlugin( pluginSlug )
+			.then( () => {
+				setPluginState( pluginStateEnum.ACTIVE );
+			} )
+			.catch( err => {
+				setPluginError( err );
+			} )
+			.finally( () => setIsInstalling( false ) );
+	}, [] );
+
+	if ( isFetchingPlugins ) {
+		return <Spinner />;
+	}
+
+	if ( pluginError ) {
+		return <CreativeMailPluginErrorState />;
+	}
+
+	if ( pluginState === pluginStateEnum.ACTIVE ) {
+		return <CreativeMailPluginIsActive />;
+	} else if ( pluginState === pluginStateEnum.INSTALLED ) {
+		return (
+			<CreativeMailPluginIsInstalled
+				activateCreativeMailPlugin={ activateCreativeMailPlugin }
+				isInstalling={ isInstalling }
+			/>
+		);
+	}
+	return (
+		<CreativeMailPluginIsNotInstalled
+			installAndActivateCreativeMailPlugin={ installAndActivateCreativeMailPlugin }
+			isInstalling={ isInstalling }
+		/>
+	);
+};
+
 const shouldHaveConsentBlockSelector = innerBlocks => {
 	const hasEmailBlock = innerBlocks.some( ( { name } ) => name === 'jetpack/field-email' );
 	const hasConsentBlock = innerBlocks.some( ( { name } ) => name === 'jetpack/field-consent' );
@@ -64,17 +238,7 @@ const NewsletterIntegrationSettings = () => {
 		<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
 			<BaseControl>
 				{ shouldHaveConsentBlock && <NoConsentBlockSettings /> }
-				<p>
-					<em>
-						{ __(
-							'To start sending email campaigns, install the Creative Mail plugin for WordPress. ',
-							'jetpack'
-						) }
-						<ExternalLink href="https://wordpress.org/plugins/creative-mail-by-constant-contact/">
-							{ __( 'Get the plugin now', 'jetpack' ) }
-						</ExternalLink>
-					</em>
-				</p>
+				<CreativeMailPlugin />
 			</BaseControl>
 		</PanelBody>
 	);
