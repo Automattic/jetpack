@@ -73,7 +73,9 @@ export class AuthIframe extends React.Component {
 	};
 
 	render = () => {
-		const src = this.props.connectUrl.replace( 'authorize', 'authorize_iframe' );
+		// The URL looks like https://jetpack.wordpress.com/jetpack.authorize_iframe/1/. We need to include the trailing
+		// slash below so that we don't end up with something like /jetpack.authorize_iframe_iframe/
+		const src = this.props.connectUrl.replace( 'authorize/', 'authorize_iframe/' );
 
 		return (
 			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
