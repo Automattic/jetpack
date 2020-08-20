@@ -52,6 +52,11 @@ $icon-background-color: #fff;
 		margin-top: 0;
 		margin-bottom: 0;
 	}
+
+	&.wp-block[data-align=right],
+	&.wp-block[data-align=left] {
+		height: $banner-height;
+	}
 }
 
 // Tweak Banner depending on the context.
