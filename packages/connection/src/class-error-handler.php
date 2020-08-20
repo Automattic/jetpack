@@ -313,46 +313,8 @@ class Error_Handler {
 			'nonce'         => wp_generate_password( 10, false ),
 		);
 
-		if ( $this->track_lost_active_master_user( $error->get_error_code(), $data['token'], $user_id ) ) {
-			$error_array['error_message'] = 'Site has a deleted but active master user token';
-		}
-
 		return $error_array;
 
-	}
-
-	/**
-	 * This is been used to track blogs with deleted master user but whose tokens are still actively being used
-	 *
-	 * See p9dueE-1GB-p2
-	 *
-	 * This tracking should be removed as long as we no longer need, possibly in 8.9
-	 *
-	 * @since 8.8.1
-	 *
-	 * @param string  $error_code The error code.
-	 * @param string  $token The token that triggered the error.
-	 * @param integer $user_id The user ID used to make the request that triggered the error.
-	 * @return boolean
-	 */
-	private function track_lost_active_master_user( $error_code, $token, $user_id ) {
-		if ( 'unknown_user' === $error_code ) {
-			$manager = new Manager();
-			// If the Unknown user is the master user (master user has been deleted).
-			if ( $manager->is_missing_connection_owner() && (int) $user_id === (int) $manager->get_connection_owner_id() ) {
-				$user_token = $manager->get_access_token( JETPACK_MASTER_USER );
-				// If there's still a token stored for the deleted master user.
-				if ( $user_token && is_object( $user_token ) && isset( $user_token->secret ) ) {
-					$token_parts = explode( ':', wp_unslash( $token ) );
-					// If the token stored for the deleted master user matches the token user by wpcom to make the request.
-					// This means that requests FROM this site TO wpcom using the JETPACK_MASTER_USER constant are still working.
-					if ( isset( $token_parts[0] ) && ! empty( $token_parts[0] ) && false !== strpos( $user_token->secret, $token_parts[0] ) ) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	/**
