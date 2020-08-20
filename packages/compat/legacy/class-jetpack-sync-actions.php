@@ -115,13 +115,14 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 * @param Integer $checkout_duration time spent retrieving items.
 	 * @param Integer $preprocess_duration Time spent converting items into data.
 	 * @param Integer $queue_size The current size of the sync queue.
+	 * @param string  $buffer_id The ID of the Queue buffer checked out for processing.
 	 *
 	 * @return WP_Response the response object.
 	 */
-	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null ) {
+	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
 
-		return Actions::send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size );
+		return Actions::send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size, $buffer_id );
 	}
 
 	/**
