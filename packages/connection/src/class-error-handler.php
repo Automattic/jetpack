@@ -646,7 +646,9 @@ class Error_Handler {
 		}
 
 		/**
-		 * Filters the message to be displayed in the admin notices area when there's a xmlrpc error
+		 * Filters the message to be displayed in the admin notices area when there's a xmlrpc error.
+		 *
+		 * By default  we don't display any errors.
 		 *
 		 * Return an empty value to disable the message.
 		 *
@@ -655,7 +657,7 @@ class Error_Handler {
 		 * @param string $message The error message.
 		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
 		 */
-		$message = apply_filters( 'jetpack_connection_error_notice_message', __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ), $this->get_verified_errors() );
+		$message = apply_filters( 'jetpack_connection_error_notice_message', '', $this->get_verified_errors() );
 
 		/**
 		 * Fires inside the admin_notices hook just before displaying the error message for a broken connection.
