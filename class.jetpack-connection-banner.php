@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 
 class Jetpack_Connection_Banner {
 	/**
@@ -194,7 +195,7 @@ class Jetpack_Connection_Banner {
 				'forceVariation'        => $force_variation,
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
-				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
+				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
 				'identity'              => $identity,
 				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
 			)
