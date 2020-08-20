@@ -6146,7 +6146,7 @@ endif;
 	public function get_cloud_site_options( $option_names ) {
 		$option_names = array_filter( (array) $option_names, 'is_string' );
 
-		$xml = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER ) );
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.fetchSiteOptions', $option_names );
 		if ( $xml->isError() ) {
 			return array(
