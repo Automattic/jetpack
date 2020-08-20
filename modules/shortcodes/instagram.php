@@ -100,6 +100,10 @@ wp_embed_register_handler(
  * @param string $url     The original URL that was matched by the regex.
  */
 function jetpack_instagram_handler( $matches, $atts, $url ) {
+	if ( ! Jetpack::is_active_and_not_offline_mode() ) {
+		return jetpack_instagram_output_errored_embed( $url );
+	}
+
 	global $content_width;
 
 	// keep a copy of the passed-in URL since it's modified below.
@@ -174,8 +178,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	}
 
 	if ( is_wp_error( $response_body ) || empty( $response_body->html ) ) {
-		jetpack_instagram_output_errored_embed( $url );
-		return;
+		return jetpack_instagram_output_errored_embed( $url );
 	}
 
 	if ( $use_cache ) {
@@ -202,12 +205,15 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
  * Given a URL, will output an HTML comment and the linked URL.
  *
  * @param string $url The URL that was attempted to embed.
+ *
+ * @return string The linked URL to the Instagram item.
  */
 function jetpack_instagram_output_errored_embed( $url ) {
-	?>
-		<!-- Jetpack Instagram Embed: Failed to fetch from API -->
-		<a href="<?php echo esc_url( $url ); ?>"><?php echo esc_url_raw( $url ); ?></a>
-	<?php
+	return sprintf(
+		'<a href="%s">%s</a>',
+		esc_url( $url ),
+		esc_url_raw( $url )
+	);
 }
 
 /**
