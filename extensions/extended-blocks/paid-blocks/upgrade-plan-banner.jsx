@@ -42,27 +42,29 @@ const UpgradePlanBanner = ( {
 
 	return (
 		<div className={ cssClasses } data-align={ align }>
-			{ title && (
-				<strong
-					className={ classNames( 'banner-title', { [ `${ className }__title` ]: className } ) }
-				>
-					{ title }
-				</strong>
-			) }
-			{ description && (
-				<span className={ `${ className }__description banner-description` }>{ description }</span>
-			) }
-			{ checkoutUrl && (
-				<Button
-					href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
-					onClick={ goToCheckoutPage }
-					target="_top"
-					className="is-primary"
-					isBusy={ isRedirecting }
-				>
-					{ isRedirecting ? redirectingText : buttonText }
-				</Button>
-			) }
+			<div className="jetpack-upgrade-plan-banner__wrapper">
+				{ title && (
+					<strong
+						className={ classNames( 'banner-title', { [ `${ className }__title` ]: className } ) }
+					>
+						{ title }
+					</strong>
+				) }
+				{ description && (
+					<span className={ `${ className }__description banner-description` }>{ description }</span>
+				) }
+				{ checkoutUrl && (
+					<Button
+						href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
+						onClick={ goToCheckoutPage }
+						target="_top"
+						className="is-primary"
+						isBusy={ isRedirecting }
+					>
+						{ isRedirecting ? redirectingText : buttonText }
+					</Button>
+				) }
+			</div>
 		</div>
 	);
 };
