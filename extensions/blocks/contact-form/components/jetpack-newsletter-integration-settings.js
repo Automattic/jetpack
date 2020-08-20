@@ -14,8 +14,8 @@ import {
 } from './../../../shared/plugin-management';
 import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
 
-const pluginPath = 'creative-mail-by-constant-contact/creative-mail-plugin.php';
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
+const pluginPath = `${ pluginPathWithoutPhp }.php`;
 const pluginSlug = 'creative-mail-by-constant-contact';
 
 const useInsertConsentBlock = () => {
@@ -82,9 +82,17 @@ const CreativeMailPluginErrorState = () => {
 };
 
 const CreativeMailPluginIsInstalling = () => {
+	const [ dots, setDots ] = useState( 1 );
+	useEffect( () => {
+		const dotsInterval = setInterval( () => {
+			setDots( dots + 1 );
+		}, 1000 );
+		return () => clearInterval( dotsInterval );
+	} );
 	return (
-		<Button icon={ <Icon icon="update" /> } disabled>
-			{ __( 'Installing..', 'jetpack' ) }
+		<Button isSecondary icon={ <Icon icon="update" /> } disabled>
+			{ __( 'Installing', 'jetpack' ) }
+			{ '.'.repeat( dots % 4 ) }
 		</Button>
 	);
 };
@@ -100,9 +108,11 @@ const CreativeMailPluginIsNotInstalled = ( {
 					'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
 					'jetpack'
 				) }
+				<br />
+				<br />
 				{ isInstalling && <CreativeMailPluginIsInstalling /> }
 				{ ! isInstalling && (
-					<Button isText onClick={ installAndActivateCreativeMailPlugin }>
+					<Button isSecondary onClick={ installAndActivateCreativeMailPlugin }>
 						{ __( 'Install Creative Mail plugin', 'jetpack' ) }
 					</Button>
 				) }
@@ -147,12 +157,7 @@ const CreativeMailPluginIsActive = () => {
 	);
 };
 
-const CreativeMailPlugin = () => {
-	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
-	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
-	const [ pluginError, setPluginError ] = useState();
-	const [ isInstalling, setIsInstalling ] = useState( false );
-
+const usePluginPromise = ( setIsFetchingPlugins, setPluginState ) => {
 	useEffect( () => {
 		getPlugins().then( plugins => {
 			setIsFetchingPlugins( false );
@@ -165,11 +170,13 @@ const CreativeMailPlugin = () => {
 			}
 		} );
 	}, [ setPluginState, setIsFetchingPlugins ] );
+};
 
-	const activateCreativeMailPlugin = useCallback( () => {
+const useOnCreativeMailPluginPromise = ( setPluginError, setIsInstalling, setPluginState ) => {
+	const onCreativeMailPluginClick = useCallback( ( func, arg ) => {
 		setPluginError( undefined );
 		setIsInstalling( true );
-		activatePlugin( pluginPathWithoutPhp )
+		func( arg )
 			.then( () => {
 				setPluginState( pluginStateEnum.ACTIVE );
 			} )
@@ -178,43 +185,47 @@ const CreativeMailPlugin = () => {
 			} )
 			.finally( () => setIsInstalling( false ) );
 	}, [] );
+	return onCreativeMailPluginClick;
+};
 
-	const installAndActivateCreativeMailPlugin = useCallback( () => {
-		setPluginError( undefined );
-		setIsInstalling( true );
-		installAndActivatePlugin( pluginSlug )
-			.then( () => {
-				setPluginState( pluginStateEnum.ACTIVE );
-			} )
-			.catch( err => {
-				setPluginError( err );
-			} )
-			.finally( () => setIsInstalling( false ) );
-	}, [] );
+const CreativeMailPlugin = () => {
+	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
+	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
+	const [ pluginError, setPluginError ] = useState();
+	const [ isInstalling, setIsInstalling ] = useState( false );
+	const onCreativeMailPluginClick = useOnCreativeMailPluginPromise(
+		setPluginError,
+		setIsInstalling,
+		setPluginState
+	);
+	usePluginPromise( setIsFetchingPlugins, setPluginState );
 
 	if ( isFetchingPlugins ) {
 		return <Spinner />;
 	}
-
 	if ( pluginError ) {
 		return <CreativeMailPluginErrorState />;
 	}
-
-	if ( pluginState === pluginStateEnum.ACTIVE ) {
-		return <CreativeMailPluginIsActive />;
-	} else if ( pluginState === pluginStateEnum.INSTALLED ) {
-		return (
-			<CreativeMailPluginIsInstalled
-				activateCreativeMailPlugin={ activateCreativeMailPlugin }
-				isInstalling={ isInstalling }
-			/>
-		);
-	}
 	return (
-		<CreativeMailPluginIsNotInstalled
-			installAndActivateCreativeMailPlugin={ installAndActivateCreativeMailPlugin }
-			isInstalling={ isInstalling }
-		/>
+		<>
+			{ pluginStateEnum.ACTIVE === pluginState && <CreativeMailPluginIsActive /> }
+			{ pluginStateEnum.INSTALLED === pluginState && (
+				<CreativeMailPluginIsInstalled
+					activateCreativeMailPlugin={ () =>
+						onCreativeMailPluginClick( activatePlugin, pluginPathWithoutPhp )
+					}
+					isInstalling={ isInstalling }
+				/>
+			) }
+			{ pluginStateEnum.NOT_INSTALLED === pluginState && (
+				<CreativeMailPluginIsNotInstalled
+					installAndActivateCreativeMailPlugin={ () =>
+						onCreativeMailPluginClick( installAndActivatePlugin, pluginSlug )
+					}
+					isInstalling={ isInstalling }
+				/>
+			) }
+		</>
 	);
 };
 
