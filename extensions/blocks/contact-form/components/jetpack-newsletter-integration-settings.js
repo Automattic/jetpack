@@ -157,21 +157,6 @@ const CreativeMailPluginIsActive = () => {
 	);
 };
 
-const usePluginPromise = ( setIsFetchingPlugins, setPluginState ) => {
-	useEffect( () => {
-		getPlugins().then( plugins => {
-			setIsFetchingPlugins( false );
-			if ( get( plugins, pluginPath ) ) {
-				if ( get( plugins, [ pluginPath, 'active' ] ) ) {
-					setPluginState( pluginStateEnum.ACTIVE );
-				} else {
-					setPluginState( pluginStateEnum.INSTALLED );
-				}
-			}
-		} );
-	}, [ setPluginState, setIsFetchingPlugins ] );
-};
-
 const useOnCreativeMailPluginPromise = ( setPluginError, setIsInstalling, setPluginState ) => {
 	const onCreativeMailPluginClick = useCallback( ( func, arg ) => {
 		setPluginError( undefined );
@@ -184,28 +169,11 @@ const useOnCreativeMailPluginPromise = ( setPluginError, setIsInstalling, setPlu
 				setPluginError( err );
 			} )
 			.finally( () => setIsInstalling( false ) );
-	}, [] );
+	}, [ setIsInstalling, setPluginError, setPluginState ] );
 	return onCreativeMailPluginClick;
 };
 
-const CreativeMailPlugin = () => {
-	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
-	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
-	const [ pluginError, setPluginError ] = useState();
-	const [ isInstalling, setIsInstalling ] = useState( false );
-	const onCreativeMailPluginClick = useOnCreativeMailPluginPromise(
-		setPluginError,
-		setIsInstalling,
-		setPluginState
-	);
-	usePluginPromise( setIsFetchingPlugins, setPluginState );
-
-	if ( isFetchingPlugins ) {
-		return <Spinner />;
-	}
-	if ( pluginError ) {
-		return <CreativeMailPluginErrorState />;
-	}
+const CreativeMailPluginState = ( { pluginState, onCreativeMailPluginClick, isInstalling } ) => {
 	return (
 		<>
 			{ pluginStateEnum.ACTIVE === pluginState && <CreativeMailPluginIsActive /> }
@@ -227,6 +195,52 @@ const CreativeMailPlugin = () => {
 			) }
 		</>
 	);
+};
+
+const CreativeMailPluginFetched = ( { pluginState, setPluginState } ) => {
+	const [ pluginError, setPluginError ] = useState();
+	const [ isInstalling, setIsInstalling ] = useState( false );
+	const onCreativeMailPluginClick = useOnCreativeMailPluginPromise(
+		setPluginError,
+		setIsInstalling,
+		setPluginState
+	);
+
+	if ( pluginError ) {
+		return <CreativeMailPluginErrorState />;
+	}
+
+	return <CreativeMailPluginState
+		pluginState={ pluginState }
+		onCreativeMailPluginClick={ onCreativeMailPluginClick }
+		isInstalling={ isInstalling }
+	/>;
+};
+
+const CreativeMailPlugin = () => {
+	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
+	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
+
+	useEffect( () => {
+		getPlugins().then( plugins => {
+			setIsFetchingPlugins( false );
+			if ( get( plugins, pluginPath ) ) {
+				if ( get( plugins, [ pluginPath, 'active' ] ) ) {
+					setPluginState( pluginStateEnum.ACTIVE );
+				} else {
+					setPluginState( pluginStateEnum.INSTALLED );
+				}
+			}
+		} );
+	}, [ setPluginState, setIsFetchingPlugins ] );
+
+	if ( isFetchingPlugins ) {
+		return <Spinner />;
+	}
+	return <CreativeMailPluginFetched
+		pluginState={ pluginState }
+		setPluginState={ setPluginState }
+	/>;
 };
 
 const shouldHaveConsentBlockSelector = innerBlocks => {
