@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Licensing\Manager as Licensing_Manager;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -787,6 +788,12 @@ class Jetpack {
 
 		// Actions for successful reconnect.
 		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
+
+		// Actions for licensing.
+		Licensing_Manager::instance()->initialize();
+		add_action( 'jetpack_licensing_stored_licenses_request_failed', array( $this, 'log_licensing_request_error' ) );
+		add_action( 'jetpack_licensing_stored_licenses_validations_failed', array( $this, 'log_licensing_validation_errors' ) );
+		add_action( 'load-toplevel_page_jetpack', array( $this, 'surface_licensing_error' ) );
 	}
 
 	/**
@@ -7405,5 +7412,54 @@ endif;
 		);
 
 		return $products;
+	}
+
+	/**
+	 * Log stored license request error for display at a later time.
+	 *
+	 * @since ??
+	 *
+	 * @return void
+	 */
+	public function log_licensing_request_error() {
+		set_transient(
+			'jetpack_licensing_error',
+			__( 'Failed to validate your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack' )
+		);
+	}
+
+	/**
+	 * Log stored license validation errors for display at a later time.
+	 *
+	 * @since ??
+	 *
+	 * @param array $errors Array of validation errors and the licenses they are for.
+	 * @return void
+	 */
+	public function log_licensing_validation_errors( $errors ) {
+		set_transient(
+			'jetpack_licensing_error',
+			sprintf(
+				/* translators: %s is a comma-separated list of license keys. */
+				__( 'The following Jetpack licenses are invalid or revoked: %s', 'jetpack' ),
+				implode( ', ', wp_list_pluck( $errors, 'license' ) )
+			)
+		);
+	}
+
+	/**
+	 * Surface licensing error (if any) to the user in the form of an admin notice.
+	 *
+	 * @since ??
+	 *
+	 * @return void
+	 */
+	public function surface_licensing_error() {
+		$error = get_transient( 'jetpack_licensing_error' );
+		delete_transient( 'jetpack_licensing_error' );
+
+		if ( $error ) {
+			self::state( 'error', $error );
+		}
 	}
 }
