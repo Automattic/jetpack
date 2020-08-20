@@ -382,7 +382,7 @@ class Error_Handler {
 	public function get_user_id_from_token( $token ) {
 		$parsed_token = explode( ':', wp_unslash( $token ) );
 
-		if ( isset( $parsed_token[2] ) && ! empty( $parsed_token[2] ) && ctype_digit( $parsed_token[2] ) ) {
+		if ( isset( $parsed_token[2] ) && ctype_digit( $parsed_token[2] ) ) {
 			$user_id = $parsed_token[2];
 		} else {
 			$user_id = 'invalid';
