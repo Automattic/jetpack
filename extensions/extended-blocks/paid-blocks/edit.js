@@ -9,12 +9,14 @@ import { InspectorControls } from '@wordpress/block-editor';
  */
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { getRequiredPlan } from '../../shared/plan-utils';
+import { trackUpgradeClickEvent } from './utils';
 
 export default OriginalBlockEdit => props => {
 	const requiredPlan = getRequiredPlan( props?.name );
 	if ( ! requiredPlan ) {
 		return <OriginalBlockEdit { ...props } />;
 	}
+	const bannerContext = 'sidebar';
 
 	return (
 		<Fragment>
@@ -22,7 +24,14 @@ export default OriginalBlockEdit => props => {
 				<UpgradePlanBanner
 					description={ null }
 					requiredPlan={ requiredPlan }
-					context="sidebar"
+					context={ bannerContext }
+					onRedirect={ () =>
+						trackUpgradeClickEvent( {
+							plan: requiredPlan,
+							blockName: props.name,
+							context: bannerContext,
+						} )
+					}
 				/>
 			</InspectorControls>
 
