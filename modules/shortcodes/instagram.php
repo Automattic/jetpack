@@ -100,10 +100,6 @@ wp_embed_register_handler(
  * @param string $url     The original URL that was matched by the regex.
  */
 function jetpack_instagram_handler( $matches, $atts, $url ) {
-	if ( ! Jetpack::is_active_and_not_offline_mode() ) {
-		return jetpack_instagram_output_errored_embed( $url );
-	}
-
 	global $content_width;
 
 	// keep a copy of the passed-in URL since it's modified below.
@@ -261,7 +257,7 @@ function jetpack_instagram_fetch_embed( $args ) {
 		);
 		$response = wp_remote_get( $url, array( 'redirection' => 0 ) );
 	} else {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_active_and_not_offline_mode() ) {
 			return new WP_Error(
 				'jetpack_not_active',
 				esc_html__( 'Jetpack must be active to fetch Instagram embed', 'jetpack' )
