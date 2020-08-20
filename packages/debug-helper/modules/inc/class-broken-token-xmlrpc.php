@@ -24,6 +24,8 @@ class Broken_Token_XmlRpc {
 		add_action( 'admin_post_clear_all_xmlrpc_errors', array( $this, 'admin_post_clear_all_xmlrpc_errors' ) );
 		add_action( 'admin_post_clear_all_verified_xmlrpc_errors', array( $this, 'admin_post_clear_all_verified_xmlrpc_errors' ) );
 		add_action( 'admin_post_refresh_verified_errors_list', array( $this, 'admin_post_refresh_verified_errors_list' ) );
+		add_action( 'admin_post_create_error', array( $this, 'admin_post_create_error' ) );
+		add_action( 'admin_post_clear_all_errors', array( $this, 'admin_post_clear_all_errors' ) );
 
 		$this->error_manager   = Error_Handler::get_instance();
 		$this->stored_errors   = $this->error_manager->get_stored_errors();
@@ -87,6 +89,31 @@ class Broken_Token_XmlRpc {
 
 			<p>
 				Now head to <a href="https://jetpack.com/debug/?url=<?php echo esc_url_raw( get_home_url() ); ?>">Jetpack Debugger</a> and trigger some requests!
+			</p>
+			<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+				<input type="hidden" name="action" value="create_error">
+				<?php wp_nonce_field( 'create-error' ); ?>
+				<h3>
+					Create fake errors
+				</h3>
+				<p>
+					<input type="radio" name="token_type" value="blog" checked /> With the blog token
+					<input type="radio" name="token_type" value="user"  /> With a user token
+					|
+					<input type="radio" name="verified" value="yes" checked /> Verified
+					<input type="radio" name="verified" value="no"  /> Not verified
+				</p>
+				<p>
+					<input type="submit" value="Create error" class="button button-primary">
+				</p>
+			</form>
+
+			<p>
+				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+					<input type="hidden" name="action" value="clear_all_errors">
+					<?php wp_nonce_field( 'clear-all-errors' ); ?>
+					<input type="submit" value="Clear all errors" class="button button-primary">
+				</form>
 			</p>
 
 			<div id="current_xmlrpc_errors">
@@ -172,6 +199,15 @@ class Broken_Token_XmlRpc {
 	/**
 	 * Clear all XMLRPC Errors.
 	 */
+	public function admin_post_clear_all_errors() {
+		check_admin_referer( 'clear-all-errors' );
+		$this->error_manager->delete_all_errors();
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Clear all unverified XMLRPC Errors.
+	 */
 	public function admin_post_clear_all_xmlrpc_errors() {
 		check_admin_referer( 'clear-xmlrpc-errors' );
 		$this->error_manager->delete_stored_errors();
@@ -205,6 +241,55 @@ class Broken_Token_XmlRpc {
 		} else {
 			wp_safe_redirect( get_home_url() );
 		}
+	}
+
+	/**
+	 * Generates a sample WP_Error object in the same format Manager class does for broken signatures
+	 *
+	 * @param string $error_code The error code you want the error to have.
+	 * @param string $user_id The user id you want the token to have.
+	 * @return \WP_Error
+	 */
+	public function get_sample_error( $error_code, $user_id ) {
+
+		$signature_details = array(
+			'token'     => 'dhj938djh938d:1:' . $user_id,
+			'timestamp' => time(),
+			'nonce'     => 'asd3d32d',
+			'body_hash' => 'dsf34frf',
+			'method'    => 'POST',
+			'url'       => 'https://example.org',
+			'signature' => 'sdf234fe',
+		);
+
+		return new \WP_Error(
+			$error_code,
+			'An error was triggered',
+			compact( 'signature_details' )
+		);
+
+	}
+
+	/**
+	 * Creates a fake error
+	 */
+	public function admin_post_create_error() {
+		check_admin_referer( 'create-error' );
+
+		$user_id = isset( $_POST['token_type'] ) && 'user' === $_POST['token_type'] ? 1 : 0;
+
+		$error = $this->get_sample_error( 'invalid_token', $user_id );
+
+		$this->error_manager->store_error( $error );
+
+		if ( isset( $_POST['verified'] ) && 'yes' === $_POST['verified'] ) {
+			$errors = $this->error_manager->get_stored_errors();
+			if ( isset( $errors['invalid_token'] ) && isset( $errors['invalid_token'][ $user_id ] ) ) {
+				$this->error_manager->verify_error( $errors['invalid_token'][ $user_id ] );
+			}
+		}
+
+		$this->admin_post_redirect_referrer();
 	}
 
 }
