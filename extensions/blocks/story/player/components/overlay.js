@@ -4,7 +4,7 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
+import GridiconFullscreen from 'gridicons/dist/fullscreen';
 
 /**
  * WordPress dependencies
@@ -17,58 +17,51 @@ import { createElement, useCallback } from '@wordpress/element';
 import { DecoratedButton } from './button';
 
 export default function Overlay( {
-	playing,
 	ended,
-	disabled,
-	onClick,
 	hasPrevious,
 	hasNext,
 	onNextSlide,
 	onPreviousSlide,
-	tapToPlayPause,
+	icon,
+	slideCount,
 } ) {
-	const onOverlayPressed = () => {
-		! disabled && tapToPlayPause && onClick();
-	};
-
-	const onPlayPressed = useCallback(
+	const onPreviousSlideHandler = useCallback(
 		event => {
-			if ( tapToPlayPause || disabled ) {
-				// let the event bubble
+			if ( ended ) {
 				return;
 			}
 			event.stopPropagation();
-			onClick();
-		},
-		[ tapToPlayPause, onClick ]
-	);
-
-	const onPreviousSlideHandler = useCallback(
-		event => {
-			event.stopPropagation();
 			onPreviousSlide();
 		},
-		[ onPreviousSlide ]
+		[ onPreviousSlide, ended ]
 	);
 
 	const onNextSlideHandler = useCallback(
 		event => {
+			if ( ended ) {
+				return;
+			}
 			event.stopPropagation();
 			onNextSlide();
 		},
-		[ onNextSlide ]
+		[ onNextSlide, ended ]
 	);
 
 	return (
-		<div
-			className={ classNames( {
-				'wp-story-overlay': true,
-				'wp-story-clickable': tapToPlayPause,
-			} ) }
-			onClick={ onOverlayPressed }
-		>
-			<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
-				{ hasPrevious && (
+		<div className="wp-story-overlay">
+			{ icon && (
+				<div className="wp-story-embed-icon">
+					{ icon }
+					<span>{ slideCount }</span>
+				</div>
+			) }
+			{ ! icon && (
+				<div className="wp-story-embed-icon-expand">
+					<GridiconFullscreen />
+				</div>
+			) }
+			{ hasPrevious && (
+				<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
 					<DecoratedButton
 						size={ 44 }
 						iconSize={ 24 }
@@ -76,10 +69,10 @@ export default function Overlay( {
 						icon="navigate_before"
 						className="outlined-w"
 					/>
-				) }
-			</div>
-			<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
-				{ hasNext && (
+				</div>
+			) }
+			{ hasNext && (
+				<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
 					<DecoratedButton
 						size={ 44 }
 						iconSize={ 24 }
@@ -87,25 +80,7 @@ export default function Overlay( {
 						icon="navigate_next"
 						className="outlined-w"
 					/>
-				) }
-			</div>
-			{ tapToPlayPause && ! playing && ! ended && (
-				<DecoratedButton
-					size={ 80 }
-					iconSize={ 56 }
-					label="Play Story"
-					icon="play_arrow"
-					onClick={ onPlayPressed }
-				/>
-			) }
-			{ ended && (
-				<DecoratedButton
-					size={ 80 }
-					iconSize={ 56 }
-					label="Replay Story"
-					icon="replay"
-					onClick={ onPlayPressed }
-				/>
+				</div>
 			) }
 		</div>
 	);

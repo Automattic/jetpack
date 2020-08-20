@@ -16,6 +16,7 @@
 
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 
 if ( defined( 'STATS_VERSION' ) ) {
@@ -669,7 +670,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
 	$timeout = 90;
-	$user_id = JETPACK_MASTER_USER; // means send the wp.com user_id
+	$user_id = 0; // Means use the blog token.
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
@@ -895,7 +896,7 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
  * @return void
  */
 function stats_update_blog() {
-	Jetpack::xmlrpc_async_call( 'jetpack.updateBlog', stats_get_blog() );
+	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
 /**
@@ -1307,7 +1308,7 @@ function stats_dashboard_widget_content() {
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
 	$timeout = 90;
-	$user_id = JETPACK_MASTER_USER;
+	$user_id = 0; // Means use the blog token.
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
@@ -1562,7 +1563,7 @@ function stats_get_csv( $table, $args = null ) {
 function stats_get_remote_csv( $url ) {
 	$method = 'GET';
 	$timeout = 90;
-	$user_id = JETPACK_MASTER_USER;
+	$user_id = 0; // Blog token.
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );

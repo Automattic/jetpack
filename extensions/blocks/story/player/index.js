@@ -7,7 +7,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement, render, useEffect, useRef, useState } from '@wordpress/element';
+import { createElement, render, useLayoutEffect, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -26,10 +26,12 @@ const defaultSettings = {
 	renderInterval: 50,
 	startMuted: false,
 	playInFullscreen: true,
+	playOnNextSlide: true,
+	playOnLoad: false,
 	exitFullscreenOnEnd: true,
 	loadInFullscreen: false,
-	tapToPlayPause: true, // embed feature
 	blurredBackground: true,
+	showSlideCount: false,
 	shadowDOM: {
 		enabled: true,
 		mode: 'open', // closed not supported right now
@@ -37,17 +39,18 @@ const defaultSettings = {
 			'#jetpack-block-story-css, link[href*="jetpack/_inc/blocks/story/view.css"]',
 	},
 	defaultAspectRatio: 720 / 1280,
+	cropUpTo: 0.2, // crop percentage allowed, after which media is displayed in letterbox
 	volume: 0.5,
 };
 
-export default function StoryPlayer( { slides, metadata, disabled, settings } ) {
+export default function StoryPlayer( { slides, metadata, disabled, ...settings } ) {
 	const playerSettings = merge( {}, defaultSettings, settings );
 
 	const rootElementRef = useRef();
 	const [ fullscreen, setFullscreen ] = useState( false );
 	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
 
-	useEffect( () => {
+	useLayoutEffect( () => {
 		if ( fullscreen ) {
 			if ( isMobile && fullscreenAPI.enabled() && ! playerSettings.loadInFullscreen ) {
 				fullscreenAPI.launch( rootElementRef.current );

@@ -642,9 +642,7 @@ class Jetpack_SSO {
 			: false;
 
 		if ( ! $nonce ) {
-			$xml = new Jetpack_IXR_Client( array(
-				'user_id' => get_current_user_id(),
-			) );
+			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.sso.requestNonce' );
 
 			if ( $xml->isError() ) {

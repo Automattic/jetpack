@@ -4,7 +4,14 @@
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 
-const JetpackFieldLabel = ( { setAttributes, label, labelFieldName, resetFocus, required } ) => {
+const JetpackFieldLabel = ( {
+	setAttributes,
+	label,
+	labelFieldName,
+	placeholder,
+	resetFocus,
+	required,
+} ) => {
 	return (
 		<div className="jetpack-field-label">
 			<RichText
@@ -19,7 +26,7 @@ const JetpackFieldLabel = ( { setAttributes, label, labelFieldName, resetFocus, 
 					}
 					setAttributes( { label: value } );
 				} }
-				placeholder={ __( 'Add label…', 'jetpack' ) }
+				placeholder={ placeholder ?? __( 'Add label…', 'jetpack' ) }
 				withoutInteractiveFormatting
 				allowedFormats={ [ 'core/bold', 'core/italic' ] }
 			/>

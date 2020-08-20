@@ -45,9 +45,12 @@ body.highlander-dark h3.sd-title:before {
 
 
 /* Sharing services list */
+.sd-sharing {
+	margin-bottom: 1em;
+}
 .sd-content ul {
 	padding: 0 !important;
-	margin: 0 0 .7em 0 !important;
+	margin: 0 !important;
 	list-style: none !important;
 }
 

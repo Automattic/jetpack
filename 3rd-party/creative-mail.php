@@ -124,5 +124,5 @@ function configure_plugin( $plugin_file, $source ) {
 		'source'  => esc_attr( $source ),
 	);
 
-	update_option( 'CE4WP_REFERRED_BY', $plugin_info );
+	update_option( 'ce4wp_referred_by', $plugin_info );
 }

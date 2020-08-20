@@ -23,3 +23,4 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 ## Tools
 
 1. [Making Authenticated async XML-RPC calls](docs/xmlrpc-async-calls.md)
+1. [Customizing error messages](docs/error-handling.md)

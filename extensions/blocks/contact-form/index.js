@@ -20,6 +20,7 @@ import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
+import JetpackFieldConsent from './components/jetpack-field-consent';
 
 export const name = 'contact-form';
 export const settings = {
@@ -142,6 +143,12 @@ const FieldDefaults = {
 				blocks: [ 'jetpack/field-select' ],
 				isMatch: ( { options } ) => 1 <= options.length,
 				transform: attributes => createBlock( 'jetpack/field-select', attributes ),
+			},
+			{
+				type: 'block',
+				blocks: [ 'jetpack/field-consent' ],
+				isMatch: ( { options } ) => 1 <= options.length,
+				transform: attributes => createBlock( 'jetpack/field-consent', attributes ),
 			},
 		],
 	},
@@ -321,6 +328,63 @@ export const childBlocks = [
 					type: 'string',
 					default: '',
 				},
+			},
+		},
+	},
+	{
+		name: 'field-consent',
+		settings: {
+			...FieldDefaults,
+			title: __( 'Consent', 'jetpack' ),
+			keywords: [ __( 'Consent', 'jetpack' ) ],
+			description: __( 'Ask for consent', 'jetpack' ),
+			icon: renderMaterialIcon(
+				<Path d="m81 370h142v40h-142zm0-39h142v-40h-142zm0-79h245v-40h-245zm378 260h-40c0-40.253906-32.746094-73-73-73s-73 32.746094-73 73h-40c0-42.085938 23.128906-78.867188 57.34375-98.3125-11.40625-13.023438-18.34375-30.054688-18.34375-48.6875 0-40.804688 33.195312-74 74-74s74 33.195312 74 74c0 18.632812-6.9375 35.664062-18.34375 48.6875 34.214844 19.445312 57.34375 56.226562 57.34375 98.3125zm-113-113c18.746094 0 34-15.253906 34-34s-15.253906-34-34-34-34 15.253906-34 34 15.253906 34 34 34zm-286 73h138.316406c-3.460937 12.757812-5.316406 26.164062-5.316406 40h-133c-33.085938 0-60-26.914062-60-60v-392c0-33.085938 26.914062-60 60-60h203.757812l142.132813 142.855469v125.210937c-12.042969-7.476562-25.453125-12.765625-39.890625-15.324218v-81.632813h-71.109375c-33.085937 0-60-26.914063-60-60v-71.109375h-174.890625c-11.027344 0-20 8.972656-20 20v392c0 11.027344 8.972656 20 20 20zm234.890625-340.890625h42.972656l-62.972656-63.234375v43.234375c0 11.03125 8.96875 20 20 20zm0 0" />,
+				24,
+				25,
+				'-26 0 512 512'
+			),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Consent', 'jetpack' ),
+				},
+				consentType: {
+					type: 'string',
+					default: 'implicit',
+				},
+				implicitConsentMessage: {
+					type: 'string',
+					default: __(
+						"By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.",
+						'jetpack'
+					),
+				},
+				explicitConsentMessage: {
+					type: 'string',
+					default: __( 'Can we send you an email from time to time?', 'jetpack' ),
+				},
+			},
+			edit: ( { attributes, isSelected, setAttributes } ) => {
+				const {
+					id,
+					width,
+					consentType,
+					implicitConsentMessage,
+					explicitConsentMessage,
+				} = attributes;
+				return (
+					<JetpackFieldConsent
+						id={ id }
+						isSelected={ isSelected }
+						width={ width }
+						consentType={ consentType }
+						implicitConsentMessage={ implicitConsentMessage }
+						explicitConsentMessage={ explicitConsentMessage }
+						setAttributes={ setAttributes }
+					/>
+				);
 			},
 		},
 	},

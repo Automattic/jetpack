@@ -122,19 +122,42 @@ export const requests = ( state = initialRequestsState, action ) => {
 };
 
 export const errors = ( state = {}, action ) => {
+	let resolveAction, defaultErrorMessage;
+
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_FAIL:
+			switch ( action.error.name ) {
+				case 'ApiError':
+					// We display the error using `ErrorNoticeCycleConnection` component, proving an easy way to reconnect.
+					resolveAction = 'reconnect';
+					defaultErrorMessage = __(
+						'There seems to be a problem with your connection to WordPress.com. If the problem persists, try reconnecting.',
+						'jetpack'
+					);
+					break;
+				case 'JsonParseError':
+					// We only display the error using `SimpleNotice`, reconnecting will not help here.
+					resolveAction = 'display';
+					defaultErrorMessage = __(
+						"Jetpack Dashboard was unable to properly communicate with your website. Please check your website's error logs to see what's wrong.",
+						'jetpack'
+					);
+					break;
+				default:
+					// Unknown error, we don't know how to fix that yet. It's highly unlikely reconnecting would help, so we do nothing.
+					resolveAction = null;
+					defaultErrorMessage = __( 'There seems to be a problem with your website.', 'jetpack' );
+					break;
+			}
+
 			return assign( {}, state, {
 				message: action.error.hasOwnProperty( 'response' )
 					? action.error.response.message
-					: __(
-							'There seems to be a problem with your connection to WordPress.com. If the problem persists, try reconnecting.',
-							'jetpack'
-					  ),
-				action: 'reconnect',
+					: defaultErrorMessage,
+				action: resolveAction,
 				code: action.error.hasOwnProperty( 'response' )
 					? action.error.response.code
-					: 'fetch_site_data_fail',
+					: 'fetch_site_data_fail_other',
 			} );
 		default:
 			return state;

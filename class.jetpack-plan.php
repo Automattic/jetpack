@@ -33,6 +33,10 @@ class Jetpack_Plan {
 				'calendly',
 				'send-a-message',
 				'social-previews',
+
+				'core/video',
+				'core/cover',
+				'core/audio',
 			),
 		),
 		'personal' => array(
