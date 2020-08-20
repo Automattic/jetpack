@@ -61,19 +61,22 @@ const pluginStateEnum = Object.freeze( {
 	NOT_INSTALLED: 3,
 } );
 
-const CreativeMailPluginErrorState = () => {
+const CreativeMailPluginErrorState = ( { error } ) => {
 	return (
 		<p>
 			<em style={ { color: 'red' } }>
 				{ jetpackCreateInterpolateElement(
 					__(
-						'The plugin failed to install. Please check the <a>plugin information</a> to for detailed requirements.',
+						'The plugin failed to install. <b /> Please check the <a>plugin information</a> for detailed requirements.',
 						'jetpack'
 					),
 					{
 						a: (
 							<ExternalLink href="https://wordpress.org/plugins/creative-mail-by-constant-contact" />
 						),
+						b: (
+							<span>{error}</span>
+						)
 					}
 				) }
 			</em>
@@ -81,18 +84,11 @@ const CreativeMailPluginErrorState = () => {
 	);
 };
 
-const CreativeMailPluginIsInstalling = () => {
-	const [ dots, setDots ] = useState( 1 );
-	useEffect( () => {
-		const dotsInterval = setInterval( () => {
-			setDots( dots + 1 );
-		}, 1000 );
-		return () => clearInterval( dotsInterval );
-	} );
+const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
 	return (
-		<Button isSecondary icon={ <Icon icon="update" /> } disabled>
-			{ __( 'Installing', 'jetpack' ) }
-			{ '.'.repeat( dots % 4 ) }
+		<Button isSecondary icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> } disabled>
+			{!isActivating && __( 'Installing…', 'jetpack' ) }
+			{isActivating && __( 'Activating…', 'jetpack' ) }
 		</Button>
 	);
 };
@@ -132,7 +128,7 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 			</em>
 			<br />
 			<br />
-			{ isInstalling && <CreativeMailPluginIsInstalling /> }
+			{ isInstalling && <CreativeMailPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
 				<Button isPrimary onClick={ activateCreativeMailPlugin }>
 					{ __( 'Activate Creative Mail Plugin', 'jetpack' ) }
@@ -207,7 +203,7 @@ const CreativeMailPluginFetched = ( { pluginState, setPluginState } ) => {
 	);
 
 	if ( pluginError ) {
-		return <CreativeMailPluginErrorState />;
+		return <CreativeMailPluginErrorState error={ pluginError } />;
 	}
 
 	return <CreativeMailPluginState
