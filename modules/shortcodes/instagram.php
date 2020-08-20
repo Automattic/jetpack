@@ -264,7 +264,7 @@ function jetpack_instagram_fetch_embed( $args ) {
 		if ( ! Jetpack::is_active() ) {
 			return new WP_Error(
 				'jetpack_not_active',
-				'Jetpack must be active to fetch Instagram embed'
+				esc_html__( 'Jetpack must be active to fetch Instagram embed', 'jetpack' )
 			);
 		}
 
@@ -285,7 +285,7 @@ function jetpack_instagram_fetch_embed( $args ) {
 	) {
 		return new WP_Error(
 			'instagram_error',
-			'Invalid Instagram resource'
+			esc_html__( 'Invalid Instagram resource', 'jetpack' )
 		);
 	}
 
