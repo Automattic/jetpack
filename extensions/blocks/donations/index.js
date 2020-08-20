@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
-import icon from './icon';
+import GridiconHeart from 'gridicons/dist/heart-outline';
 
 /**
  * Style dependencies
@@ -18,6 +18,7 @@ import './editor.scss';
 
 export const name = 'donations';
 export const title = __( 'Donations', 'jetpack' );
+export const icon = <GridiconHeart />;
 export const settings = {
 	title,
 	description: __( 'Collect one-time, monthly, or annually recurring donations.', 'jetpack' ),
