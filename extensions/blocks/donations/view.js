@@ -60,11 +60,9 @@ class JetpackDonations {
 
 	toggleDonateButton( enable ) {
 		const donateButton = this.getDonateButton();
-		if ( enable ) {
-			donateButton.classList.remove( 'is-disabled' );
-		} else {
-			donateButton.classList.add( 'is-disabled' );
-		}
+		enable
+			? donateButton.classList.remove( 'is-disabled' )
+			: donateButton.classList.add( 'is-disabled' );
 	}
 
 	updateUrl() {
