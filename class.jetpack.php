@@ -4797,7 +4797,7 @@ endif;
 		/**
 		 * Filter the URL used when authorizing a user to a WordPress.com account.
 		 *
-		 * @since 8.1.0
+		 * @since 8.9.0
 		 *
 		 * @param string $url Connection URL.
 		 */
