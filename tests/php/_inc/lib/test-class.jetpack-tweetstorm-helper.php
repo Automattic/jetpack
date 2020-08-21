@@ -375,4 +375,38 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected_boundary, $tweets[1]['boundary'] );
 	}
+
+	/**
+	 * Test that a range of emoji (including a variety of compound emoji) count as two characters.
+	 */
+	public function test_emoji_count_as_two_characters() {
+		$test_content = '🙂 🏳️‍🌈 👩‍👩‍👧‍👧 👨🏾‍🦰 👩🏻‍💻 ';
+
+		$blocks = array(
+			array(
+				'attributes' => array(
+					'content' => str_repeat( $test_content, 19 ),
+				),
+				'clientId'   => wp_generate_uuid4(),
+				'name'       => 'core/paragraph',
+			),
+		);
+
+		$expected_boundary = array(
+			'start'     => 705,
+			'end'       => 706,
+			'container' => 'content',
+			'type'      => 'normal',
+		);
+
+		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
+
+		$this->assertEquals( trim( str_repeat( $test_content, 18 ) ) . ' 🙂 🏳️‍🌈 👩‍👩‍👧‍👧…', $tweets[0]['text'] );
+		$this->assertEquals( '…👨🏾‍🦰 👩🏻‍💻', $tweets[1]['text'] );
+
+		$this->assertEquals( $blocks, $tweets[0]['blocks'] );
+		$this->assertEquals( $blocks, $tweets[1]['blocks'] );
+
+		$this->assertEquals( $expected_boundary, $tweets[0]['boundary'] );
+	}
 }

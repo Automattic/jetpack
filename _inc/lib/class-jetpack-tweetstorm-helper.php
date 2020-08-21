@@ -8,8 +8,6 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
-use Twitter\Text\Configuration;
-use Twitter\Text\Parser;
 
 /**
  * Class Jetpack_Tweetstorm_Helper
@@ -66,6 +64,15 @@ class Jetpack_Tweetstorm_Helper {
 			'force_finished'     => false,
 		),
 	);
+
+	/**
+	 * A cache of _wp_emoji_list( 'entities' ), after being run through html_entity_decode().
+	 *
+	 * Initialised in ::is_valid_tweet().
+	 *
+	 * @var array
+	 */
+	private static $emoji_list = array();
 
 	/**
 	 * Gather the Tweetstorm.
@@ -267,7 +274,7 @@ class Jetpack_Tweetstorm_Helper {
 								// A previous sentence may've been split by words, we don't want to count
 								// the ellipsis, but we do want to count the space it replaced.
 								if ( $sentence_count > 0 && 0 === strpos( $current_tweet['text'], '…' ) ) {
-									$current_character_count -= strlen( '…' ) + 1;
+									$current_character_count -= strlen( '…' ) - 1;
 								}
 								$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count );
 
@@ -291,8 +298,6 @@ class Jetpack_Tweetstorm_Helper {
 						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
 
 						list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
-
-						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
 					}
 
 					// Split the long sentence into words.
@@ -301,6 +306,14 @@ class Jetpack_Tweetstorm_Helper {
 					for ( $word_count = 0; $word_count < $word_total; $word_count++ ) {
 						// Make sure we have the most recent tweet.
 						list( $current_tweet_index, $current_tweet ) = self::get_last_tweet( $tweets );
+
+						// If we're on a new tweet, we don't want to add a space at the start.
+						if ( ! $current_tweet['changed'] ) {
+							$current_tweet['text'] = $words[ $word_count ];
+
+							self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
+							continue;
+						}
 
 						// Can we add this word to the current tweet?
 						if ( self::is_valid_tweet( "{$current_tweet['text']} {$words[ $word_count ]}…" ) ) {
@@ -311,7 +324,7 @@ class Jetpack_Tweetstorm_Helper {
 						}
 
 						// Add one for the space character that we won't include in the tweet text.
-						$current_character_count += strlen( $current_tweet['text'] ) + 1;
+						$current_character_count += strlen( $current_tweet['text'] );
 
 						// If this is the second block in the split sentence, it'll start
 						// with ellipsis, which we don't want to count.
@@ -323,8 +336,7 @@ class Jetpack_Tweetstorm_Helper {
 						// the current tweet, then move on.
 						$current_tweet['text'] .= '…';
 
-						// Offset by 1, since the boundary is actually the space after the end of this tweet.
-						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count - 1 );
+						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count + 1 );
 						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
 
 						list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
@@ -432,35 +444,72 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return bool Whether or not the text is valid.
 	 */
 	private static function is_valid_tweet( $text ) {
+		// Keep a running total of characters we've removed.
+		$stripped_characters = 0;
+
 		// Since we use '…' a lot, strip it out, so we can still use the ASCII checks.
 		$ellipsis_count = 0;
 		$text           = str_replace( '…', '', $text, $ellipsis_count );
-		// If the text is all ASCII, we can use normal string functions,
-		// which are much faster than the mb_*() string functions.
-		$is_ascii = false;
-		if ( function_exists( 'mb_check_encoding' ) ) {
-			if ( mb_check_encoding( $text, 'ASCII' ) ) {
-				$is_ascii = true;
+
+		// The ellipsis glyph counts for two characters.
+		$stripped_characters += $ellipsis_count * 2;
+
+		// Try filtering out emoji first, since ASCII text + emoji is a relatively common case.
+		if ( ! self::is_ascii( $text ) ) {
+			// Initialise the emoji cache.
+			if ( empty( self::$emoji_list ) ) {
+				self::$emoji_list = array_map( 'html_entity_decode', _wp_emoji_list( 'entities' ) );
 			}
-		} elseif ( ! preg_match( '/[^\x00-\x7F]/', $text ) ) {
-			$is_ascii = true;
+
+			$emoji_count = 0;
+			$text        = str_replace( self::$emoji_list, '', $text, $emoji_count );
+
+			// Emoji graphemes count as 2 characters each.
+			$stripped_characters += $emoji_count * 2;
 		}
 
-		if ( $is_ascii ) {
-			$config = new Configuration();
-
-			// Ellipsis characters count for two characters on Twitter.
-			//phpcs:ignore WordPress.NamingConventions.ValidVariableName
-			if ( ( strlen( $text ) + $ellipsis_count * 2 ) <= $config->maxWeightedTweetLength ) {
+		if ( self::is_ascii( $text ) ) {
+			$stripped_characters += strlen( $text );
+			if ( $stripped_characters <= 280 ) {
 				return true;
 			}
 
 			return false;
 		}
 
-		$parser = new Parser();
-		$tweet  = $parser->parseTweet( $text );
-		if ( $tweet->permillage <= 1000 ) {
+		// Remove any glyphs that count as 1 character.
+		// Source: https://github.com/twitter/twitter-text/blob/master/config/v3.json .
+		$single_character_count = 0;
+		$text                   = preg_replace( '/[\x{0000}-\x{4351}\x{8192}-\x{8205}\x{8208}-\x{8223}\x{8242}-\x{8247}]/uS', $text, -1, $single_character_count );
+
+		$stripped_characters += $single_character_count;
+
+		// Check if there's any text we haven't counted yet.
+		// Any remaining glyphs count as 2 characters each.
+		if ( ! empty( $text ) ) {
+			// WP provides a compat version of mb_strlen(), no need to check if it exists.
+			$stripped_characters += mb_strlen( $text, 'UTF-8' ) * 2;
+		}
+
+		if ( $stripped_characters <= 280 ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if a string only contains ASCII characters.
+	 *
+	 * @param string $text The string to check.
+	 * @return bool Whether or not the string is ASCII-only.
+	 */
+	private static function is_ascii( $text ) {
+		if ( function_exists( 'mb_check_encoding' ) ) {
+			if ( mb_check_encoding( $text, 'ASCII' ) ) {
+				return true;
+			}
+		} elseif ( ! preg_match( '/[^\x00-\x7F]/', $text ) ) {
 			return true;
 		}
 
@@ -539,9 +588,11 @@ class Jetpack_Tweetstorm_Helper {
 				$attribute_length = strlen( $block['attributes'][ $attribute_name ] );
 				if ( $current_character_count + $attribute_length >= $offset ) {
 					$attribute_offset = $offset - $current_character_count;
+					$substr           = substr( $block['attributes'][ $attribute_name ], 0, $attribute_offset - 1 );
+					$start            = self::utf_16_code_unit_length( $substr );
 					return array(
-						'start'     => $attribute_offset - 1,
-						'end'       => $attribute_offset,
+						'start'     => $start,
+						'end'       => $start + 1,
 						'container' => $attribute_name,
 						'type'      => 'normal',
 					);
@@ -553,6 +604,41 @@ class Jetpack_Tweetstorm_Helper {
 				$current_character_count += strlen( $part );
 			}
 		}
+	}
+
+	/**
+	 * JavaScript uses UTF-16 for encoding strings, which means we need to provide UTF-16
+	 * based offsets for the block editor to render tweet boundaries in the correct location.
+	 *
+	 * UTF-16 is a variable-width character encoding: every code unit is 2 bytes, a single character
+	 * can be one or two code units long. Fortunately for us, JavaScript's String.charAt() is based
+	 * on the older UCS-2 character encoding, which only counts single code units. PHP's strlen()
+	 * counts a code unit as being 2 characters, so once a string is converted to UTF-16, we have
+	 * a fast way to determine how long it is in UTF-16 code units.
+	 *
+	 * @param string $text The natively encoded string to get the length of.
+	 * @return int The length of the string in UTF-16 code units. Returns -1 if the length could not
+	 *             be calculated.
+	 */
+	private static function utf_16_code_unit_length( $text ) {
+		// If mb_convert_encoding() exists, we can use that for conversion.
+		if ( function_exists( 'mb_convert_encoding' ) ) {
+			// UTF-16 can add an additional code unit to the start of the string, called the
+			// Byte Order Mark (BOM), which indicates whether the string is encoding as
+			// big-endian, or little-endian. Since we don't want to count code unit, and the endianness
+			// doesn't matter for our purposes, using PHP's UTF-16BE encoding uses big-endian
+			// encoding, and ensures the BOM *won't* be prepended to the string to the string.
+			return strlen( mb_convert_encoding( $text, 'UTF-16BE' ) ) / 2;
+		}
+
+		// mb_convert_encoding() doesn't exist, but can manually convert from UTF-8.
+		$encoding = get_option( 'blog_charset' );
+		if ( ! in_array( $encoding, array( 'utf8', 'utf-8', 'UTF8', 'UTF-8' ), true ) ) {
+			// If it isn't UTF-8, we don't know how to do this conversion.
+			return -1;
+		}
+
+		return 0;
 	}
 
 	/**
