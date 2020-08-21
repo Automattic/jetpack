@@ -106,7 +106,13 @@ class Heartbeat {
 		// Coming Soon!
 
 		foreach ( self::generate_stats_array( 'v2-' ) as $key => $value ) {
-			$a8c_mc_stats->add( $key, $value );
+			if ( is_array( $value ) ) {
+				foreach ( $value as $v ) {
+					$a8c_mc_stats->add( $key, (string) $v );
+				}
+			} else {
+				$a8c_mc_stats->add( $key, (string) $value );
+			}
 		}
 
 		Jetpack_Options::update_option( 'last_heartbeat', time() );

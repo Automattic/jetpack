@@ -2698,8 +2698,8 @@ class Manager {
 		$active_plugins_using_connection = Plugin_Storage::get_all();
 		foreach ( array_keys( $active_plugins_using_connection ) as $plugin_slug ) {
 			if ( 'jetpack' !== $plugin_slug ) {
-				$stats_group           = isset( $active_plugins_using_connection['jetpack'] ) ? 'combined-connection' : 'standalone-connection';
-				$stats[ $stats_group ] = $plugin_slug;
+				$stats_group             = isset( $active_plugins_using_connection['jetpack'] ) ? 'combined-connection' : 'standalone-connection';
+				$stats[ $stats_group ][] = $plugin_slug;
 			}
 		}
 		return $stats;
