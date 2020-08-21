@@ -130,6 +130,10 @@ module.exports = [
 				},
 			] ),
 		],
+		optimization: {
+			...extensionsWebpackConfig.optimization,
+			moduleIds: 'hashed',
+		},
 	},
 	{
 		...componentsWebpackConfig,
