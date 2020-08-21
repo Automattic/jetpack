@@ -144,6 +144,37 @@ function mapSortToApiValue( sort ) {
 	return SORT_QUERY_MAP.get( sort, 'score_default' );
 }
 
+function promiseifedProxyRequest( proxyRequest, path, query ) {
+	return new Promise( function ( resolve, reject ) {
+		proxyRequest( { path, query, apiVersion: '1.3' }, function ( err, body, headers ) {
+			if ( err ) {
+				reject( err );
+			}
+			resolve( body, headers );
+		} );
+	} );
+}
+
+function errorHandlerFactory( cacheKey ) {
+	return function errorHandler( error ) {
+		// TODO: Display a message about falling back to a cached value in the interface
+		// Fallback to either cache if we run into any errors
+		const fallbackValue = cache.get( cacheKey ) || backupCache.get( cacheKey );
+		if ( fallbackValue ) {
+			return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
+		}
+		throw error;
+	};
+}
+
+function responseHandlerFactory( cacheKey ) {
+	return function responseHandler( responseJson ) {
+		cache.put( cacheKey, responseJson );
+		backupCache.put( cacheKey, responseJson );
+		return responseJson;
+	};
+}
+
 export function search( {
 	aggregations,
 	excludedPostTypes,
@@ -155,6 +186,7 @@ export function search( {
 	sort,
 	postsPerPage = 10,
 	adminQueryFilter,
+	isPrivateWpcom,
 } ) {
 	const key = stringify( Array.from( arguments ) );
 
@@ -201,22 +233,20 @@ export function search( {
 		} )
 	);
 
-	return fetch(
-		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
-	)
-		.catch( error => {
-			// TODO: Display a message about falling back to a cached value in the interface
-			// Fallback to either cache if we run into any errors
-			const fallbackValue = cache.get( key ) || backupCache.get( key );
-			if ( fallbackValue ) {
-				return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
-			}
-			throw error;
-		} )
-		.then( response => {
-			const json = response.json();
-			cache.put( key, json );
-			backupCache.put( key, json );
-			return json;
+	const errorHandler = errorHandlerFactory( key );
+	const responseHandler = responseHandlerFactory( key );
+	const path = `/sites/${ siteId }/search?${ queryString }`;
+	const url = `https://public-api.wordpress.com/rest/v1.3${ path }`;
+
+	if ( isPrivateWpcom ) {
+		return import( 'wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
+			return promiseifedProxyRequest( proxyRequest, path, query )
+				.catch( errorHandler )
+				.then( responseHandler );
 		} );
+	}
+	return fetch( url )
+		.catch( errorHandler )
+		.then( r => r.json() )
+		.then( responseHandler );
 }
