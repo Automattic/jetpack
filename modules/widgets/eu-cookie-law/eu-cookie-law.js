@@ -5,6 +5,7 @@
 		),
 		overlay = document.getElementById( 'eu-cookie-law' ),
 		widget = document.querySelector( '.widget_eu_cookie_law_widget' ),
+		inCustomizer = widget.hasAttribute( 'data-customize-widget-id' ),
 		getScrollTop,
 		initialScrollPosition,
 		scrollFunction;
@@ -27,10 +28,10 @@
 			/(?:(?:^|.*;\s*)personalized-ads-consent\s*\=\s*([^;]*).*$)|^.*$/,
 			'$1'
 		);
-		if ( '' !== cookieValue && '' !== adsCookieValue ) {
+		if ( '' !== cookieValue && '' !== adsCookieValue && ! inCustomizer ) {
 			overlay.parentNode.removeChild( overlay );
 		}
-	} else if ( '' !== cookieValue ) {
+	} else if ( '' !== cookieValue && ! inCustomizer ) {
 		overlay.parentNode.removeChild( overlay );
 	}
 
