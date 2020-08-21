@@ -57,7 +57,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function load_assets() {
 		$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
-		$style_relative_path  = '_inc/build/instant-search/instant-search.min.css';
+		$style_relative_path  = '_inc/build/instant-search/jp-search.bundle.css';
 		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) || ! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
 			return;
 		}
