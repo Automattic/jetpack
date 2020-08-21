@@ -53,4 +53,27 @@ export default {
 		type: 'string',
 		default: __( 'Or enter a custom amount', 'jetpack' ),
 	},
+	styles: {
+		type: 'object',
+		default: {
+			backgroundColor: null,
+			textColor: null,
+			gradient: null,
+			tab: {
+				backgroundColor: null,
+				textColor: null,
+				gradient: null,
+			},
+			amount: {
+				backgroundColor: null,
+				textColor: null,
+				gradient: null,
+			},
+			button: {
+				backgroundColor: null,
+				textColor: null,
+				gradient: null,
+			},
+		},
+	},
 };

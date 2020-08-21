@@ -19,7 +19,7 @@ import StripeNudge from '../../shared/components/stripe-nudge';
 
 const Tabs = props => {
 	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
-	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
+	const { oneTimeDonation, monthlyDonation, annualDonation, styles } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
@@ -59,8 +59,14 @@ const Tabs = props => {
 		}
 	}, [ monthlyDonation, annualDonation, setActiveTab, isTabActive ] );
 
+	const blockStyles = {
+		background: styles.gradient ?? undefined,
+		backgroundColor: styles.gradient ? undefined : styles.backgroundColor,
+		color: styles.textColor ?? undefined,
+	};
+
 	return (
-		<div className={ className }>
+		<div className={ className } style={ blockStyles }>
 			{ ! shouldUpgrade && stripeConnectUrl && (
 				<StripeNudge
 					blockName="donations"
