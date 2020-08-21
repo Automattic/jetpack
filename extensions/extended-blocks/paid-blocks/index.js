@@ -19,7 +19,6 @@ import {
 	isUpgradable,
 	isStillUsableWithFreePlan,
 } from '../../shared/plan-utils';
-import paidBlockEdit from './edit';
 import renderPaidIcon from './render-paid-icon.js';
 
 import './editor.scss';
@@ -36,9 +35,6 @@ const jetpackPaidBlock = ( settings, name ) => {
 
 		// Populate block keywords.
 		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium', 'jetpack' ) ] );
-
-		// Enhance BlockEdit function with HOC.
-		settings.edit = paidBlockEdit( settings.edit );
 
 		// Extend Icon for Paid blocks.
 		if ( ! isStillUsableWithFreePlan( name ) ) {
