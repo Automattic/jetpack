@@ -7,6 +7,7 @@ import formatCurrency from '@automattic/format-currency';
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
+import { ENTER } from '@wordpress/keycodes';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 
 /**
@@ -166,7 +167,7 @@ class JetpackDonations {
 
 		// Prevent new lines.
 		input.addEventListener( 'keydown', event => {
-			if ( event.keyCode === 13 ) {
+			if ( event.keyCode === ENTER ) {
 				event.preventDefault();
 			}
 		} );
