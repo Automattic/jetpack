@@ -934,6 +934,7 @@ EXPECTED;
 		$allowed = array(
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
+			'jetpack.getHeartbeatData',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
@@ -988,6 +989,7 @@ EXPECTED;
 		$allowed = array(
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
+			'jetpack.getHeartbeatData',
 		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
