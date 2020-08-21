@@ -129,7 +129,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
-				{ ! isAtomicSite && ! isSearchTerm && <ManagePlugins { ...commonProps } /> }
+				{ ! this.props.isAtomicSite && ! isSearchTerm && <ManagePlugins { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
@@ -149,5 +149,6 @@ export default connect( state => {
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
 		vaultPressData: getVaultPressData( state ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( Security );
