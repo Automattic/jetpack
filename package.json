@@ -165,7 +165,8 @@
 		"unfetch": "4.1.0",
 		"url-polyfill": "1.1.10",
 		"webpack": "4.44.1",
-		"webpack-cli": "3.3.12"
+		"webpack-cli": "3.3.12",
+		"wpcom-proxy-request": "5.0.2"
 	},
 	"optionalDependencies": {
 		"react": "16.13.1",
