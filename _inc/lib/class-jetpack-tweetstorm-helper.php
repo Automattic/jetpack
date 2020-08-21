@@ -75,6 +75,13 @@ class Jetpack_Tweetstorm_Helper {
 	private static $emoji_list = array();
 
 	/**
+	 * Special line seperator character, for multiline text.
+	 *
+	 * @var string
+	 */
+	private static $line_seperator = "\xE2\x80\xA8";
+
+	/**
 	 * Gather the Tweetstorm.
 	 *
 	 * @param  string $url The tweet URL to gather from.
@@ -170,21 +177,20 @@ class Jetpack_Tweetstorm_Helper {
 
 			$block_text = self::extract_text_from_block( $block );
 
-			if ( empty( $block_text ) ) {
+			if ( 0 === strlen( $block_text ) ) {
 				continue;
 			}
 
 			// If the entire block can't be fit in this tweet, we need to start a new tweet.
 			if ( $current_tweet['changed'] && ! self::is_valid_tweet( trim( $current_tweet['text'] ) . "\n\n$block_text" ) ) {
-				self::start_new_tweet( $tweets );
+				list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
 			}
 
 			// Multiline blocks prioritise splitting by line, but are otherwise identical to
 			// normal text blocks. This means we can treat normal text blocks as being
 			// "multiline", but with a single line.
 			if ( 'multiline' === $block_def['type'] ) {
-				$lines = explode( "\n", $block_text );
-
+				$lines = explode( self::$line_seperator, $block_text );
 			} else {
 				$lines = array( $block_text );
 			}
@@ -195,6 +201,13 @@ class Jetpack_Tweetstorm_Helper {
 
 			for ( $line_count = 0; $line_count < $line_total; $line_count++ ) {
 				$line_text = $lines[ $line_count ];
+
+				// If this is an empty line in a multiline block, we need to count the \n between
+				// lines, but can otherwise skip this line.
+				if ( 0 === strlen( $line_text ) && 'multiline' === $block_def['type'] ) {
+					$current_character_count++;
+					continue;
+				}
 
 				// Make sure we have the most recent tweet.
 				list( $current_tweet_index, $current_tweet ) = self::get_last_tweet( $tweets );
@@ -219,7 +232,8 @@ class Jetpack_Tweetstorm_Helper {
 					// This line is too long, and lines *must* be split to a new tweet if they don't fit
 					// into the current tweet. If this isn't the first line, record where we split the block.
 					if ( $line_count > 0 ) {
-						$current_character_count  += strlen( $current_tweet['text'] );
+						// Increment by 1 to allow for the \n between lines to be counted by ::get_boundary().
+						$current_character_count  += strlen( $current_tweet['text'] ) + 1;
 						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count );
 
 						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
@@ -245,7 +259,7 @@ class Jetpack_Tweetstorm_Helper {
 				// so we need to step through the result array by two, and append the blank space when needed.
 				for ( $sentence_count = 0; $sentence_count < $sentence_total; $sentence_count += 2 ) {
 					$current_sentence = $sentences[ $sentence_count ];
-					if ( ! empty( $sentences[ $sentence_count + 1 ] ) ) {
+					if ( isset( $sentences[ $sentence_count + 1 ] ) ) {
 						$current_sentence .= $sentences[ $sentence_count + 1 ];
 					}
 
@@ -269,13 +283,7 @@ class Jetpack_Tweetstorm_Helper {
 							// If we're already in the middle of a block, record the boundary
 							// before creating a new tweet.
 							if ( $line_count > 0 || $sentence_count > 0 ) {
-								$current_character_count += strlen( $current_tweet['text'] );
-
-								// A previous sentence may've been split by words, we don't want to count
-								// the ellipsis, but we do want to count the space it replaced.
-								if ( $sentence_count > 0 && 0 === strpos( $current_tweet['text'], '…' ) ) {
-									$current_character_count -= strlen( '…' ) - 1;
-								}
+								$current_character_count  += strlen( $current_tweet['text'] );
 								$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count );
 
 								self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
@@ -324,24 +332,22 @@ class Jetpack_Tweetstorm_Helper {
 						}
 
 						// Add one for the space character that we won't include in the tweet text.
-						$current_character_count += strlen( $current_tweet['text'] );
-
-						// If this is the second block in the split sentence, it'll start
-						// with ellipsis, which we don't want to count.
-						if ( 0 === strpos( $current_tweet['text'], '…' ) ) {
-							$current_character_count -= strlen( '…' );
-						}
+						$current_character_count += strlen( $current_tweet['text'] ) + 1;
 
 						// We're starting a new tweet with this word. Append ellipsis to
 						// the current tweet, then move on.
 						$current_tweet['text'] .= '…';
 
-						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count + 1 );
+						$current_tweet['boundary'] = self::get_boundary( $block, $current_character_count );
 						self::save_tweet( $tweets, $current_tweet_index, $current_tweet );
 
 						list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
 
-						$current_tweet['text'] = "…{$words[ $word_count ]}";
+						// If this is the second tweet created by the split sentence, it'll start
+						// with ellipsis, which we don't want to count, but we do want to count the space
+						// that was replaced by this ellipsis.
+						$current_tweet['text']    = "…{$words[ $word_count ]}";
+						$current_character_count -= strlen( '…' );
 
 						self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
 					}
@@ -419,7 +425,7 @@ class Jetpack_Tweetstorm_Helper {
 		$tweet['changed'] = true;
 
 		// Check if this block is already recorded against this tweet.
-		if ( ! empty( $block ) ) {
+		if ( isset( $block ) ) {
 			$block_def = self::$supported_blocks[ $block['name'] ];
 
 			if ( $block_def['force_finished'] ) {
@@ -444,6 +450,10 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return bool Whether or not the text is valid.
 	 */
 	private static function is_valid_tweet( $text ) {
+		// Replace all multiline seperators with a \n, since that's the
+		// character we actually want to count.
+		$text = str_replace( self::$line_seperator, "\n", $text );
+
 		// Keep a running total of characters we've removed.
 		$stripped_characters = 0;
 
@@ -457,7 +467,7 @@ class Jetpack_Tweetstorm_Helper {
 		// Try filtering out emoji first, since ASCII text + emoji is a relatively common case.
 		if ( ! self::is_ascii( $text ) ) {
 			// Initialise the emoji cache.
-			if ( empty( self::$emoji_list ) ) {
+			if ( 0 === count( self::$emoji_list ) ) {
 				self::$emoji_list = array_map( 'html_entity_decode', _wp_emoji_list( 'entities' ) );
 			}
 
@@ -486,7 +496,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		// Check if there's any text we haven't counted yet.
 		// Any remaining glyphs count as 2 characters each.
-		if ( ! empty( $text ) ) {
+		if ( 0 !== strlen( $text ) ) {
 			// WP provides a compat version of mb_strlen(), no need to check if it exists.
 			$stripped_characters += mb_strlen( $text, 'UTF-8' ) * 2;
 		}
@@ -535,39 +545,44 @@ class Jetpack_Tweetstorm_Helper {
 
 		$template_parts = preg_split( '/({{\w+}})/', self::$supported_blocks[ $block['name'] ]['template'], -1, PREG_SPLIT_DELIM_CAPTURE );
 
-		$current_character_count  = 0;
-		$template_character_count = 0;
-
 		if ( 'multiline' === $block_def['type'] ) {
+			$text_character_count     = 0;
+			$text_code_unit_count     = 0;
+			$template_character_count = 0;
+
 			$lines = self::extract_multiline_block_lines( $block );
 
 			$line_count = 0;
 			foreach ( $lines as $line ) {
-				foreach ( $template_parts as $part ) {
-					if ( '{{line}}' === $part ) {
-						$line_length = strlen( $line );
+				$line_length = strlen( $line );
 
-						// Are we breaking in the middle of this line?
-						if ( $current_character_count + $line_length > $offset ) {
-							$line_offset = $offset - $template_character_count;
-							return array(
-								'start'     => $line_offset,
-								'end'       => $line_offset + 1,
-								'container' => $block_def['content_attributes'][0],
-								'type'      => 'normal',
-							);
+				if ( 0 !== $line_length ) {
+					foreach ( $template_parts as $part ) {
+						if ( '{{line}}' === $part ) {
+							// Are we breaking in the middle of this line?
+							if ( $text_character_count + $template_character_count + $line_length > $offset ) {
+								// Calculate how far into this line the split defined by $offset occurs.
+								$line_offset = $offset - $text_character_count - $template_character_count;
+								$substr      = substr( $line, 0, $line_offset );
+								$start       = self::utf_16_code_unit_length( $substr ) - 1 + $text_code_unit_count;
+								return array(
+									'start'     => $start,
+									'end'       => $start + 1,
+									'container' => $block_def['content_attributes'][0],
+									'type'      => 'normal',
+								);
+							} else {
+								$text_character_count += $line_length;
+								$text_code_unit_count += self::utf_16_code_unit_length( $line );
+							}
 						} else {
-							$current_character_count += $line_length;
-							continue;
+							$template_character_count += strlen( $part );
 						}
-					} else {
-						$current_character_count  += strlen( $part );
-						$template_character_count += strlen( $part );
 					}
 				}
 
 				// Are we breaking at the end of this line?
-				if ( $current_character_count === $offset ) {
+				if ( $text_character_count + $template_character_count + 1 === $offset ) {
 					return array(
 						'line'      => $line_count,
 						'container' => $block_def['content_attributes'][0],
@@ -576,10 +591,13 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// Allow for the line break between lines.
-				$current_character_count++;
+				$text_character_count++;
+				$text_code_unit_count++;
 				$line_count++;
-			};
+			}
 		}
+
+		$current_character_count = 0;
 
 		foreach ( $template_parts as $part ) {
 			$matches = array();
@@ -588,8 +606,8 @@ class Jetpack_Tweetstorm_Helper {
 				$attribute_length = strlen( $block['attributes'][ $attribute_name ] );
 				if ( $current_character_count + $attribute_length >= $offset ) {
 					$attribute_offset = $offset - $current_character_count;
-					$substr           = substr( $block['attributes'][ $attribute_name ], 0, $attribute_offset - 1 );
-					$start            = self::utf_16_code_unit_length( $substr );
+					$substr           = substr( $block['attributes'][ $attribute_name ], 0, $attribute_offset );
+					$start            = self::utf_16_code_unit_length( $substr ) - 1;
 					return array(
 						'start'     => $start,
 						'end'       => $start + 1,
@@ -631,23 +649,18 @@ class Jetpack_Tweetstorm_Helper {
 			return strlen( mb_convert_encoding( $text, 'UTF-16BE' ) ) / 2;
 		}
 
-		// mb_convert_encoding() doesn't exist, but can manually convert from UTF-8.
-		$encoding = get_option( 'blog_charset' );
-		if ( ! in_array( $encoding, array( 'utf8', 'utf-8', 'UTF8', 'UTF-8' ), true ) ) {
-			// If it isn't UTF-8, we don't know how to do this conversion.
-			return -1;
-		}
-
-		return 0;
+		// If we can't convert this string, return a result that will avoid an incorrect annotation being added.
+		return -1;
 	}
 
 	/**
 	 * Extracts the tweetable text from a block.
 	 *
 	 * @param array $block The block, as represented in the block editor.
+	 * @return string The tweetable text from the block, in the correct template form.
 	 */
 	private static function extract_text_from_block( $block ) {
-		if ( empty( self::$supported_blocks[ $block['name'] ] ) ) {
+		if ( ! isset( self::$supported_blocks[ $block['name'] ] ) ) {
 			return '';
 		}
 
@@ -666,10 +679,15 @@ class Jetpack_Tweetstorm_Helper {
 			$text  = '';
 
 			foreach ( $lines as $line ) {
-				$text .= str_replace( '{{line}}', $line, $block_def['template'] ) . "\n";
+				if ( 0 === strlen( $line ) ) {
+					$text .= self::$line_seperator;
+				} else {
+					$text .= str_replace( '{{line}}', $line, $block_def['template'] ) . self::$line_seperator;
+				}
 			}
 
 			$text = trim( $text );
+			$text = preg_replace( '/(' . self::$line_seperator . ')+$/', '', $text );
 		}
 
 		return wp_strip_all_tags( $text );
@@ -684,26 +702,38 @@ class Jetpack_Tweetstorm_Helper {
 	 */
 	public static function extract_multiline_block_lines( $block ) {
 		$block_def = self::$supported_blocks[ $block['name'] ];
+		// Multiline blocks only support extracting content from one content attribute.
 		$attribute = $block_def['content_attributes'][0];
 
 		// Remove all HTML tags except the line wrapper tag, and remove attributes from that.
 		$cleaned_content = wp_kses( $block['attributes'][ $attribute ], array( $block_def['multiline_tag'] => array() ) );
 
-		// Split the content into an array, cleaning out empty values and the wrapper tags.
+		// Split the content into an array, cleaning out unnecessary empty values and the wrapper tags.
+		$tokens = wp_html_split( $cleaned_content );
 		return array_values(
 			array_filter(
-				wp_html_split( $cleaned_content ),
-				function( $section ) {
-					if ( empty( $section ) ) {
+				$tokens,
+				function( $token, $key ) use ( $block_def, $tokens ) {
+					// If the token is empty, and we're in the token after an opening
+					// tag, we need to keep this, as it's an empty list item, so it affects
+					// how we calculate line boundaries.
+					if ( 0 === strlen( $token ) && $key > 0 && "<{$block_def['multiline_tag']}>" === $tokens[ $key - 1 ] ) {
+						return true;
+					}
+
+					// Any other empty tokens can be removed.
+					if ( 0 === strlen( $token ) ) {
 						return false;
 					}
 
-					if ( '<' === substr( $section, 0, 1 ) && '>' === substr( $section, -1 ) ) {
+					// Remove any remaining tags.
+					if ( '<' === substr( $token, 0, 1 ) && '>' === substr( $token, -1 ) ) {
 						return false;
 					}
 
 					return true;
-				}
+				},
+				ARRAY_FILTER_USE_BOTH
 			)
 		);
 	}

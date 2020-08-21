@@ -72,7 +72,8 @@ class TweetDivider extends Component {
 		}
 
 		if (
-			currentAnnotations.length !== boundaries.length ||
+			currentAnnotations.length !==
+				boundaries.filter( boundary => 'normal' === boundary.type ).length ||
 			! isEqual( prevProps.boundaries, boundaries )
 		) {
 			updateAnnotations();
@@ -218,8 +219,15 @@ export default compose( [
 					.getElementById( `block-${ childProps.clientId }` )
 					.getElementsByTagName( 'li' )
 					.item( boundary.line );
-				return computeSelector( line );
-			} );
+
+				// Confirm that the line hasn't been deleted since this boundary was calculated.
+				if ( line ) {
+					return computeSelector( line );
+				}
+
+				return false;
+			} )
+			.filter( style => !! style );
 
 		const findTagsInContent = tags => {
 			if ( 0 === tags.length ) {

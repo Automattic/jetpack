@@ -409,4 +409,82 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected_boundary, $tweets[0]['boundary'] );
 	}
+
+	/**
+	 * Test that a boundary will be set at the end of the short items, and correct
+	 * boundaries will be set inside the long item.
+	 */
+	public function test_short_list_items_followed_by_long_list_item() {
+		$test_content = '🙂 🏳️‍🌈 👩‍👩‍👧‍👧 👨🏾‍🦰 👩🏻‍💻 ';
+
+		$blocks = array(
+			array(
+				'attributes' => array(
+					'values' => str_repeat( '<li>' . trim( $test_content ) . '</li>', 2 )
+						. '<li>' . trim( str_repeat( $test_content, 50 ) ) . '</li>',
+				),
+				'clientId'   => wp_generate_uuid4(),
+				'name'       => 'core/list',
+			),
+		);
+
+		$expected_boundaries = array(
+			array(
+				'line'      => 1,
+				'container' => 'values',
+				'type'      => 'end-of-line',
+			),
+			array(
+				'start'     => 769,
+				'end'       => 770,
+				'container' => 'values',
+				'type'      => 'normal',
+			),
+			array(
+				'start'     => 1473,
+				'end'       => 1474,
+				'container' => 'values',
+				'type'      => 'normal',
+			),
+		);
+
+		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
+
+		$this->assertEquals( trim( str_repeat( '- ' . trim( $test_content ) . "\n", 2 ) ), $tweets[0]['text'] );
+		$this->assertEquals( '- ' . trim( str_repeat( $test_content, 18 ) ) . ' 🙂 🏳️‍🌈…', $tweets[1]['text'] );
+		$this->assertEquals( '…👩‍👩‍👧‍👧 👨🏾‍🦰 👩🏻‍💻 ' . trim( str_repeat( $test_content, 17 ) ) . ' 🙂 🏳️‍🌈 👩‍👩‍👧‍👧 👨🏾‍🦰…', $tweets[2]['text'] );
+		$this->assertEquals( '…👩🏻‍💻 ' . trim( str_repeat( $test_content, 13 ) ), $tweets[3]['text'] );
+
+		$this->assertEquals( $blocks, $tweets[0]['blocks'] );
+		$this->assertEquals( $blocks, $tweets[1]['blocks'] );
+		$this->assertEquals( $blocks, $tweets[2]['blocks'] );
+		$this->assertEquals( $blocks, $tweets[3]['blocks'] );
+
+		$this->assertEquals( $expected_boundaries[0], $tweets[0]['boundary'] );
+		$this->assertEquals( $expected_boundaries[1], $tweets[1]['boundary'] );
+		$this->assertEquals( $expected_boundaries[2], $tweets[2]['boundary'] );
+	}
+
+	/**
+	 * Test that an assortment of blank lines in a list are ignored.
+	 */
+	public function test_blank_list_items() {
+		$test_content = 'This is 22 characters.';
+
+		$blocks = array(
+			array(
+				'attributes' => array(
+					'values' => "<li></li><li></li><li><li></li><li>$test_content</li></li><li></li><li>$test_content</li>",
+				),
+				'clientId'   => wp_generate_uuid4(),
+				'name'       => 'core/list',
+			),
+		);
+
+		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
+
+		$this->assertEquals( "- $test_content\n- $test_content", $tweets[0]['text'] );
+
+		$this->assertEquals( $blocks, $tweets[0]['blocks'] );
+	}
 }
