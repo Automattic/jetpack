@@ -1,13 +1,16 @@
+/* global calypsoifyGutenberg */
+
 /**
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 
 const fetchStatus = async ( type = null ) => {
-	let path = '/wpcom/v2/memberships/status';
-	if ( type ) {
-		path += `?type=${ type }`;
-	}
+	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
+		...( type && { type } ),
+		...( typeof calypsoifyGutenberg !== 'undefined' && { source: 'gutenberg-calypso' } ),
+	} );
 	try {
 		const result = await apiFetch( {
 			path,
