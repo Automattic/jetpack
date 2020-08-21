@@ -130,6 +130,9 @@ class Error_Handler {
 		// If the site gets reconnected, clear errors.
 		add_action( 'jetpack_site_registered', array( $this, 'delete_all_errors' ) );
 		add_action( 'jetpack_get_site_data_success', array( $this, 'delete_all_errors' ) );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
+		add_filter( 'jetpack_connection_delete_all_tokens', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
+		add_action( 'jetpack_unlinked_user', array( $this, 'delete_all_errors' ) );
 	}
 
 	/**
@@ -472,6 +475,21 @@ class Error_Handler {
 	public function delete_all_errors() {
 		$this->delete_stored_errors();
 		$this->delete_verified_errors();
+	}
+
+	/**
+	 * Delete all stored and verified errors from the database and returns unfiltered value
+	 *
+	 * This is used to hook into a couple of filters that expect true to not short circuit the disconnection flow
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param mixed $check The input sent by the filter.
+	 * @return boolean
+	 */
+	public function delete_all_errors_and_return_unfiltered_value( $check ) {
+		$this->delete_all_errors();
+		return $check;
 	}
 
 	/**
