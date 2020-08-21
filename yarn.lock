@@ -88,12 +88,12 @@
   dependencies:
     "@automattic/popup-monitor" "^1.0.0"
 
-"@automattic/social-previews@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@automattic/social-previews/-/social-previews-1.0.2.tgz#dfd42e3d8c2dd6d2b3f530a5efc944340ab87f65"
-  integrity sha512-LLSwHxDON2b/BtuACeE7lpGhm5QqzPu/lnCQUpD21OLRyyrpOTUrVPR6tJPRD0kZFWZIkTolTrosJKfZ0eLyBw==
+"@automattic/social-previews@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@automattic/social-previews/-/social-previews-1.0.3.tgz#05d0d56b2b033c6d3c48d99de18f9a77464eb3e4"
+  integrity sha512-NGbTAXN21g7cqIdUcsOZ+AV9KRlJdHrh8/nUIEXuh3rZlvmAX3SnTygMbDpAAwYXvb1Bt2d1Lf9KBInJf7pp/Q==
   dependencies:
-    "@babel/runtime" "^7.9.2"
+    "@babel/runtime" "^7.11.1"
     lodash "^4.17.15"
     prop-types "^15.7.2"
 
@@ -1281,6 +1281,13 @@
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.10.4.tgz#a6724f1a6b8d2f6ea5236dbfe58c7d7ea9c5eb99"
   integrity sha512-UpTN5yUJr9b4EX2CnGNWIvER7Ab83ibv0pcvvHc4UOdrBI5jb8bj+32cCwPX6xu0mt2daFNjYhoi+X7beH0RSw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime@^7.11.1":
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.11.2.tgz#f549c13c754cc40b87644b9fa9f09a6a95fe0736"
+  integrity sha512-TeWkU52so0mPtDcaCTxNBI/IHiz0pZgr8VEFqXFtZWpYD08ZB6FaSwVAS8MKRQAP3bYKiVjwysOJgMFY28o6Tw==
   dependencies:
     regenerator-runtime "^0.13.4"
 
