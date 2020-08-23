@@ -109,7 +109,7 @@ function load_assets( $attr, $content ) {
 
 		// @todo Is intrinsic size right? Is content_width the right dimensions?
 		return sprintf(
-			'<amp-iframe srcdoc="%s" width="%d" height="%d" layout="intrinsic" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
+			'<amp-iframe src="data:text/html,%s" width="%d" height="%d" layout="intrinsic" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
 			htmlspecialchars( $html ),
 			Jetpack::get_content_width(),
 			Jetpack::get_content_width(),
