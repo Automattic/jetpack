@@ -72,29 +72,47 @@ function load_assets( $attr, $content ) {
 	wpcom_load_event( $access_token['source'] );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		static $map_block_counter = array();
+		// Get the original state.
+		$scripts_queue = wp_scripts()->queue;
+		$scripts_done  = wp_scripts()->done;
+		$styles_queue  = wp_styles()->queue;
+		$styles_done   = wp_styles()->done;
 
-		$id = get_the_ID();
-		if ( ! isset( $map_block_counter[ $id ] ) ) {
-			$map_block_counter[ $id ] = 0;
-		}
-		$map_block_counter[ $id ]++;
+		// Empty out everything.
+		wp_scripts()->queue = array();
+		wp_scripts()->done  = array();
+		wp_styles()->queue  = array();
+		wp_styles()->done   = array();
 
-		$iframe_url = add_query_arg(
-			array(
-				'map-block-counter' => absint( $map_block_counter[ $id ] ),
-				'map-block-post-id' => $id,
-			),
-			get_permalink()
+		// Get what we need.
+		ob_start();
+		add_filter( 'jetpack_is_amp_request', '__return_false' );
+		Jetpack_Gutenberg::load_assets_as_required( 'map' );
+		wp_scripts()->do_items();
+		wp_styles()->do_items();
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$assets_html = ob_get_clean();
+
+		// Restore to the original state.
+		wp_scripts()->queue = $scripts_queue;
+		wp_scripts()->done  = $scripts_done;
+		wp_styles()->queue  = $styles_queue;
+		wp_styles()->done   = $styles_done;
+
+		$html = sprintf(
+			'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
+			$assets_html,
+			preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 )
 		);
 
 		$placeholder = preg_replace( '/(?<=<div\s)/', 'placeholder ', $content );
 
+		// @todo Is intrinsic size right? Is content_width the right dimensions?
 		return sprintf(
-			'<amp-iframe src="%s" width="%d" height="%d" layout="responsive" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
-			esc_url( $iframe_url ),
-			4,
-			3,
+			'<amp-iframe srcdoc="%s" width="%d" height="%d" layout="intrinsic" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
+			htmlspecialchars( $html ),
+			Jetpack::get_content_width(),
+			Jetpack::get_content_width(),
 			$placeholder
 		);
 	}

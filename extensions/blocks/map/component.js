@@ -203,10 +203,7 @@ export class Map extends Component {
 			mapEl.style.height = mapHeight + 'px';
 		} else {
 			const blockWidth = mapEl.offsetWidth;
-			const maxHeight =
-				window.location.search.indexOf( 'map-block-counter' ) > -1
-					? window.innerHeight
-					: window.innerHeight * 0.8;
+			const maxHeight = window.innerHeight * 0.8;
 			const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
 			mapEl.style.height = blockHeight + 'px';
 		}
