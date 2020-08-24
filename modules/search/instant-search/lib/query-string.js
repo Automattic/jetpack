@@ -7,17 +7,9 @@ import { encode } from 'qss';
 /**
  * Internal dependencies
  */
-import {
-	SERVER_OBJECT_NAME,
-	SORT_DIRECTION_ASC,
-	RESULT_FORMAT_MINIMAL,
-	RESULT_FORMAT_PRODUCT,
-	VALID_SORT_KEYS,
-} from './constants';
+import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC, VALID_SORT_KEYS } from './constants';
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
 import { decode } from './query-string-decode';
-
-const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ), false, false );
@@ -48,7 +40,6 @@ export function setSearchQuery( searchValue ) {
 	} else {
 		query.s = searchValue;
 	}
-
 	pushQueryString( encode( query ) );
 }
 
