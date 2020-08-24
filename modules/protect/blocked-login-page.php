@@ -612,19 +612,34 @@ class Jetpack_Protect_Blocked_Login_Page {
 				} ?>
 			</div>
 			<div id="error-footer">
-			<?php if ( $back_button && ! $recovery_form ) {
-				if (  'rtl' == $text_direction ) {
+			<?php
+			if ( $back_button && ! $recovery_form ) {
+				if ( 'rtl' === $text_direction ) {
 					$back_button_icon = '<svg class="gridicon gridicons-arrow-right" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/></g></svg>';
 				} else {
 					$back_button_icon = '<svg class="gridicon gridicons-arrow-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>';
 				}
-			?>
-				<a href='javascript:history.back()'><?php printf( __( '%s Back' ), $back_button_icon ); ?></a>
-			<?php } else {
+				?>
+				<a href='javascript:history.back()'
+				<?php
+				printf(
+					/* translators: %s is HTML markup, for a back icon. */
+					__( '%s Back', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$back_button_icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+				?>
+				</a>
+				<?php
+			} else {
 				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';?>
 					<a href="<?php echo esc_url( self::get_help_url() ); ?>" rel="noopener noreferrer" target="_blank">
-						<?php // translators: %s is the help icon. ?>
-						<?php echo esc_html( sprintf( __( '%s Get help unlocking your site', 'jetpack' ), $help_icon ) ); ?>
+						<?php
+						printf(
+							/* translators: %s is HTML markup, for a help icon. */
+							__( '%s Get help unlocking your site', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							$help_icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						);
+						?>
 					</a>
 			<?php } ?>
 			</div>
