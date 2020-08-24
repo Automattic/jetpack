@@ -1,7 +1,15 @@
 /**
  * External dependencies
  */
-import { BaseControl, Button, ExternalLink, PanelBody, Spinner, Icon } from '@wordpress/components';
+import {
+	BaseControl,
+	Button,
+	ExternalLink,
+	PanelBody,
+	Spinner,
+	Icon,
+	Notice,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
 import { useCallback, useMemo, useState, useEffect } from '@wordpress/element';
@@ -63,32 +71,32 @@ const pluginStateEnum = Object.freeze( {
 
 const CreativeMailPluginErrorState = ( { error } ) => {
 	return (
-		<p>
-			<em style={ { color: 'red' } }>
-				{ jetpackCreateInterpolateElement(
-					__(
-						'The plugin failed to install. <b /> Please check the <a>plugin information</a> for detailed requirements.',
-						'jetpack'
+		<Notice isDismissible={ false } status="error">
+			{ jetpackCreateInterpolateElement(
+				__(
+					'The plugin failed to install. <b /> Please check the <a>plugin information</a> for detailed requirements.',
+					'jetpack'
+				),
+				{
+					a: (
+						<ExternalLink href="https://wordpress.org/plugins/creative-mail-by-constant-contact" />
 					),
-					{
-						a: (
-							<ExternalLink href="https://wordpress.org/plugins/creative-mail-by-constant-contact" />
-						),
-						b: (
-							<span>{error}</span>
-						)
-					}
-				) }
-			</em>
-		</p>
+					b: <span>{ error }</span>,
+				}
+			) }
+		</Notice>
 	);
 };
 
 const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
 	return (
-		<Button isSecondary icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> } disabled>
-			{!isActivating && __( 'Installing…', 'jetpack' ) }
-			{isActivating && __( 'Activating…', 'jetpack' ) }
+		<Button
+			isSecondary
+			icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> }
+			disabled
+		>
+			{ ! isActivating && __( 'Installing…', 'jetpack' ) }
+			{ isActivating && __( 'Activating…', 'jetpack' ) }
 		</Button>
 	);
 };
@@ -154,18 +162,21 @@ const CreativeMailPluginIsActive = () => {
 };
 
 const useOnCreativeMailPluginPromise = ( setPluginError, setIsInstalling, setPluginState ) => {
-	const onCreativeMailPluginClick = useCallback( ( func, arg ) => {
-		setPluginError( undefined );
-		setIsInstalling( true );
-		func( arg )
-			.then( () => {
-				setPluginState( pluginStateEnum.ACTIVE );
-			} )
-			.catch( err => {
-				setPluginError( err );
-			} )
-			.finally( () => setIsInstalling( false ) );
-	}, [ setIsInstalling, setPluginError, setPluginState ] );
+	const onCreativeMailPluginClick = useCallback(
+		( func, arg ) => {
+			setPluginError( undefined );
+			setIsInstalling( true );
+			func( arg )
+				.then( () => {
+					setPluginState( pluginStateEnum.ACTIVE );
+				} )
+				.catch( err => {
+					setPluginError( err );
+				} )
+				.finally( () => setIsInstalling( false ) );
+		},
+		[ setIsInstalling, setPluginError, setPluginState ]
+	);
 	return onCreativeMailPluginClick;
 };
 
@@ -206,11 +217,13 @@ const CreativeMailPluginFetched = ( { pluginState, setPluginState } ) => {
 		return <CreativeMailPluginErrorState error={ pluginError } />;
 	}
 
-	return <CreativeMailPluginState
-		pluginState={ pluginState }
-		onCreativeMailPluginClick={ onCreativeMailPluginClick }
-		isInstalling={ isInstalling }
-	/>;
+	return (
+		<CreativeMailPluginState
+			pluginState={ pluginState }
+			onCreativeMailPluginClick={ onCreativeMailPluginClick }
+			isInstalling={ isInstalling }
+		/>
+	);
 };
 
 const CreativeMailPlugin = () => {
@@ -233,10 +246,9 @@ const CreativeMailPlugin = () => {
 	if ( isFetchingPlugins ) {
 		return <Spinner />;
 	}
-	return <CreativeMailPluginFetched
-		pluginState={ pluginState }
-		setPluginState={ setPluginState }
-	/>;
+	return (
+		<CreativeMailPluginFetched pluginState={ pluginState } setPluginState={ setPluginState } />
+	);
 };
 
 const shouldHaveConsentBlockSelector = innerBlocks => {
