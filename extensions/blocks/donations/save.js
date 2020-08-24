@@ -23,7 +23,6 @@ const Save = ( { attributes } ) => {
 		showCustomAmount,
 		chooseAmountText,
 		customAmountText,
-		styles,
 	} = attributes;
 
 	if ( ! oneTimeDonation || ! oneTimeDonation.show || oneTimeDonation.planId === -1 ) {
@@ -36,14 +35,8 @@ const Save = ( { attributes } ) => {
 		...( annualDonation.show && { '1 year': { title: __( 'Yearly', 'jetpack' ) } } ),
 	};
 
-	const blockStyles = {
-		background: styles.gradient || undefined,
-		backgroundColor: styles.gradient ? undefined : styles.backgroundColor,
-		color: styles.textColor || undefined,
-	};
-
 	return (
-		<div style={ blockStyles }>
+		<div>
 			<div className="donations__container">
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__nav">

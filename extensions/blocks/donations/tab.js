@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { RichText } from '@wordpress/block-editor';
@@ -11,8 +16,15 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import Amount from './amount';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { getColorClasses, getColorStyles } from './colors';
 
-const Tab = ( { activeTab, attributes, setAttributes } ) => {
+const Tab = ( {
+	activeTab,
+	attributes,
+	setAttributes,
+	amountsBackgroundColor,
+	amountsTextColor,
+} ) => {
 	const {
 		currency,
 		oneTimeDonation,
@@ -93,6 +105,15 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		.map( format => format.name )
 		.filter( format => format !== 'core/link' );
 
+	const amountsClasses = getColorClasses( {
+		backgroundColor: amountsBackgroundColor,
+		textColor: amountsTextColor,
+	} );
+	const amountsStyle = getColorStyles( {
+		backgroundColor: amountsBackgroundColor,
+		textColor: amountsTextColor,
+	} );
+
 	return (
 		<div className="donations__tab">
 			<RichText
@@ -110,6 +131,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 			<div className="donations__amounts">
 				{ amounts.map( ( amount, index ) => (
 					<Amount
+						className={ amountsClasses }
 						currency={ currency }
 						defaultValue={ defaultAmounts[ index ] }
 						label={ sprintf(
@@ -120,6 +142,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 						key={ `jetpack-donations-amount-${ index }` }
 						onChange={ newAmount => setAmount( newAmount, index ) }
 						value={ amount }
+						style={ amountsStyle }
 					/>
 				) ) }
 			</div>
@@ -135,8 +158,9 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 						currency={ currency }
 						label={ __( 'Custom amount', 'jetpack' ) }
 						defaultValue={ minimumTransactionAmountForCurrency( currency ) * 100 }
-						className="donations__custom-amount"
+						className={ classNames( 'donations__custom-amount', amountsClasses ) }
 						disabled={ true }
+						style={ amountsStyle }
 					/>
 				</>
 			) }

@@ -53,27 +53,70 @@ export default {
 		type: 'string',
 		default: __( 'Or enter a custom amount', 'jetpack' ),
 	},
-	styles: {
-		type: 'object',
-		default: {
-			backgroundColor: null,
-			textColor: null,
-			gradient: null,
-			tab: {
-				backgroundColor: null,
-				textColor: null,
-				gradient: null,
-			},
-			amount: {
-				backgroundColor: null,
-				textColor: null,
-				gradient: null,
-			},
-			button: {
-				backgroundColor: null,
-				textColor: null,
-				gradient: null,
-			},
-		},
+	backgroundColor: {
+		type: 'string',
+	},
+	customBackgroundColor: {
+		type: 'string',
+	},
+	textColor: {
+		type: 'string',
+	},
+	customTextColor: {
+		type: 'string',
+	},
+	gradient: {
+		type: 'string',
+	},
+	customGradient: {
+		type: 'string',
+	},
+	tabBackgroundColor: {
+		type: 'string',
+	},
+	tabCustomBackgroundColor: {
+		type: 'string',
+	},
+	tabTextColor: {
+		type: 'string',
+	},
+	tabCustomTextColor: {
+		type: 'string',
+	},
+	tabGradient: {
+		type: 'string',
+	},
+	tabCustomGradient: {
+		type: 'string',
+	},
+	tabActiveBackgroundColor: {
+		type: 'string',
+	},
+	tabActiveCustomBackgroundColor: {
+		type: 'string',
+	},
+	tabActiveTextColor: {
+		type: 'string',
+	},
+	tabActiveCustomTextColor: {
+		type: 'string',
+	},
+	tabActiveGradient: {
+		type: 'string',
+	},
+	tabActiveCustomGradient: {
+		type: 'string',
+	},
+	amountsBackgroundColor: {
+		type: 'string',
+	},
+	amountsCustomBackgroundColor: {
+		type: 'string',
+	},
+	amountsTextColor: {
+		type: 'string',
+	},
+	amountsCustomTextColor: {
+		type: 'string',
 	},
 };

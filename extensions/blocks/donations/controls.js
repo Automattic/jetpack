@@ -25,11 +25,31 @@ import { DOWN } from '@wordpress/keycodes';
  * Internal dependencies
  */
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
-import ColorsPanel from './colors-panel';
+import { ColorsPanel } from './colors';
 
 const Controls = props => {
-	const { attributes, setAttributes, siteSlug } = props;
-	const { currency, monthlyDonation, annualDonation, showCustomAmount, styles } = attributes;
+	const {
+		attributes,
+		setAttributes,
+		siteSlug,
+		backgroundColor,
+		textColor,
+		tabBackgroundColor,
+		tabTextColor,
+		tabActiveBackgroundColor,
+		tabActiveTextColor,
+		amountsBackgroundColor,
+		amountsTextColor,
+		setBackgroundColor,
+		setTextColor,
+		setTabBackgroundColor,
+		setTabTextColor,
+		setTabActiveBackgroundColor,
+		setTabActiveTextColor,
+		setAmountsBackgroundColor,
+		setAmountsTextColor,
+	} = props;
+	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
 
 	const toggleDonation = ( interval, show ) => {
 		const donationAttributes = {
@@ -117,7 +137,24 @@ const Controls = props => {
 						{ __( 'View donation earnings', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>
-				<ColorsPanel styles={ styles } setAttributes={ setAttributes } />
+				<ColorsPanel
+					backgroundColor={ backgroundColor }
+					textColor={ textColor }
+					tabBackgroundColor={ tabBackgroundColor }
+					tabTextColor={ tabTextColor }
+					tabActiveBackgroundColor={ tabActiveBackgroundColor }
+					tabActiveTextColor={ tabActiveTextColor }
+					amountsBackgroundColor={ amountsBackgroundColor }
+					amountsTextColor={ amountsTextColor }
+					setBackgroundColor={ setBackgroundColor }
+					setTextColor={ setTextColor }
+					setTabBackgroundColor={ setTabBackgroundColor }
+					setTabTextColor={ setTabTextColor }
+					setTabActiveBackgroundColor={ setTabActiveBackgroundColor }
+					setTabActiveTextColor={ setTabActiveTextColor }
+					setAmountsBackgroundColor={ setAmountsBackgroundColor }
+					setAmountsTextColor={ setAmountsTextColor }
+				/>
 			</InspectorControls>
 		</>
 	);

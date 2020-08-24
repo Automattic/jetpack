@@ -6,6 +6,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
+import { __experimentalUseGradient as useGradient } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -16,10 +17,26 @@ import { __ } from '@wordpress/i18n';
 import Controls from './controls';
 import Tab from './tab';
 import StripeNudge from '../../shared/components/stripe-nudge';
+import { getColorClasses, getColorStyles, isGradientAvailable } from './colors';
 
 const Tabs = props => {
-	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
-	const { oneTimeDonation, monthlyDonation, annualDonation, styles } = attributes;
+	const {
+		attributes,
+		className,
+		products,
+		setAttributes,
+		shouldUpgrade,
+		stripeConnectUrl,
+		backgroundColor,
+		textColor,
+		tabBackgroundColor,
+		tabTextColor,
+		tabActiveBackgroundColor,
+		tabActiveTextColor,
+		amountsBackgroundColor,
+		amountsTextColor,
+	} = props;
+	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
@@ -59,14 +76,56 @@ const Tabs = props => {
 		}
 	}, [ monthlyDonation, annualDonation, setActiveTab, isTabActive ] );
 
-	const blockStyles = {
-		background: styles.gradient ?? undefined,
-		backgroundColor: styles.gradient ? undefined : styles.backgroundColor,
-		color: styles.textColor ?? undefined,
-	};
+	/* eslint-disable react-hooks/rules-of-hooks */
+	const { gradientClass: gradientClass, gradientValue: gradientValue } = isGradientAvailable
+		? useGradient()
+		: {};
+	const { gradientClass: tabGradientClass, gradientValue: tabGradientValue } = isGradientAvailable
+		? useGradient( {
+				gradientAttribute: 'tabGradient',
+				customGradientAttribute: 'tabCustomGradient',
+		  } )
+		: {};
+	const {
+		gradientClass: tabActiveGradientClass,
+		gradientValue: tabActiveGradientValue,
+	} = isGradientAvailable
+		? useGradient( {
+				gradientAttribute: 'tabActiveGradient',
+				customGradientAttribute: 'tabActiveCustomGradient',
+		  } )
+		: {};
+	/* eslint-enable react-hooks/rules-of-hooks */
+
+	const classes = getColorClasses( { backgroundColor, gradientClass, gradientValue, textColor } );
+	const style = getColorStyles( { backgroundColor, gradientValue, textColor } );
+
+	const tabClasses = getColorClasses( {
+		backgroundColor: tabBackgroundColor,
+		gradientClass: tabGradientClass,
+		gradientValue: tabGradientValue,
+		textColor: tabTextColor,
+	} );
+	const tabStyle = getColorStyles( {
+		backgroundColor: tabBackgroundColor,
+		gradientValue: tabGradientValue,
+		textColor: tabTextColor,
+	} );
+
+	const tabActiveClasses = getColorClasses( {
+		backgroundColor: tabActiveBackgroundColor,
+		gradientClass: tabActiveGradientClass,
+		gradientValue: tabActiveGradientValue,
+		textColor: tabActiveTextColor,
+	} );
+	const tabActiveStyle = getColorStyles( {
+		backgroundColor: tabActiveBackgroundColor,
+		gradientValue: tabActiveGradientValue,
+		textColor: tabActiveTextColor,
+	} );
 
 	return (
-		<div className={ className } style={ blockStyles }>
+		<div className={ classNames( className, classes ) } style={ style }>
 			{ ! shouldUpgrade && stripeConnectUrl && (
 				<StripeNudge
 					blockName="donations"
@@ -81,12 +140,17 @@ const Tabs = props => {
 							<div
 								role="button"
 								tabIndex={ 0 }
-								className={ classNames( 'donations__nav-item', 'wp-block-button__link', {
-									'is-active': isTabActive( interval ),
-								} ) }
+								className={ classNames(
+									'donations__nav-item',
+									isTabActive( interval ) ? tabActiveClasses : tabClasses,
+									{
+										'is-active': isTabActive( interval ),
+									}
+								) }
 								onClick={ () => setActiveTab( interval ) }
 								onKeyDown={ () => setActiveTab( interval ) }
 								key={ `jetpack-donations-nav-item-${ interval } ` }
+								style={ isTabActive( interval ) ? tabActiveStyle : tabStyle }
 							>
 								{ title }
 							</div>
@@ -94,7 +158,13 @@ const Tabs = props => {
 					</div>
 				) }
 				<div className="donations__content">
-					<Tab activeTab={ activeTab } attributes={ attributes } setAttributes={ setAttributes } />
+					<Tab
+						activeTab={ activeTab }
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						amountsBackgroundColor={ amountsBackgroundColor }
+						amountsTextColor={ amountsTextColor }
+					/>
 				</div>
 			</div>
 			<Controls { ...props } />

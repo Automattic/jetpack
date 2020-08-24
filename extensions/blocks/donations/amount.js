@@ -16,13 +16,14 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 
 const Amount = ( {
-	className = '',
+	className = null,
 	currency = null,
 	defaultValue = null,
 	disabled = false,
 	label = '',
 	onChange = null,
 	value = '',
+	style = null,
 } ) => {
 	const [ editedValue, setEditedValue ] = useState(
 		formatCurrency( value, currency, { symbol: '' } )
@@ -87,7 +88,7 @@ const Amount = ( {
 
 	return (
 		<div
-			className={ classnames( 'donations__amount', 'wp-block-button__link', className, {
+			className={ classnames( 'donations__amount', className, {
 				'has-focus': isFocused,
 				'has-error': isInvalid,
 			} ) }
@@ -95,6 +96,7 @@ const Amount = ( {
 			tabIndex={ 0 }
 			onClick={ setFocus }
 			onKeyDown={ setFocus }
+			style={ style }
 		>
 			{ CURRENCIES[ currency ].symbol }
 			{ disabled ? (
