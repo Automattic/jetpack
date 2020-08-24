@@ -124,7 +124,6 @@ class Callables extends Module {
 		}
 
 		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS_NEXT_TICK as $option ) {
-
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable_next_tick' ) );
 			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable_next_tick' ) );
 		}
