@@ -36,7 +36,7 @@ export default function RestaurantPicker( props ) {
 	};
 
 	const restaurantNames = restaurants
-		.filter( restaurant => selectedRestaurants.indexOf( restaurant.rid.toString() ) )
+		.filter( restaurant => selectedRestaurants.indexOf( restaurant.rid.toString() ) < 0 )
 		.map( restaurant => restaurant.name + ` (#${ restaurant.rid })` );
 
 	const onSubmit = event => {
@@ -62,7 +62,7 @@ export default function RestaurantPicker( props ) {
 			{ props.onSubmit ? (
 				<form onSubmit={ onSubmit }>
 					{ formInput }
-					<Button isSecondary isLarge type="submit">
+					<Button isSecondary type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>

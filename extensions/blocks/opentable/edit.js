@@ -18,7 +18,7 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
+import { getBlockDefaultClassName, registerBlockStyle, unregisterBlockStyle } from '@wordpress/blocks';
 import { useEffect } from '@wordpress/element';
 
 /**
@@ -28,22 +28,25 @@ import './editor.scss';
 import icon from './icon';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import RestaurantPicker from './restaurant-picker';
-import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import usePrevious from './use-previous';
 
 import {
+	buttonStyle,
+	defaultAttributes,
 	getStyleOptions,
 	getStyleValues,
 	languageOptions,
 	languageValues,
-	defaultAttributes,
 } from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { getActiveStyleName } from '../../shared/block-styles';
 import { getAttributesFromEmbedCode } from './utils';
 
 function OpenTableEdit( {
 	attributes,
 	className,
 	clientId,
+	isSelected,
 	name,
 	noticeOperations,
 	noticeUI,
@@ -56,18 +59,12 @@ function OpenTableEdit( {
 		setAttributes( validatedAttributes );
 	}
 
-	const {
-		align,
-		rid,
-		style,
-		iframe,
-		domain,
-		lang,
-		newtab,
-		negativeMargin,
-		__isBlockPreview,
-	} = attributes;
+	const { align, rid, iframe, domain, lang, newtab, negativeMargin } = attributes;
 	const isPlaceholder = isEmpty( rid );
+	const selectedStyle = getActiveStyleName( getStyleOptions(), attributes.className );
+	const style = getActiveStyleName( getStyleOptions( rid ), attributes.className );
+	const prevStyle = usePrevious( style );
+	const __isBlockPreview = isEqual( rid, [ '1' ] );
 
 	useEffect( () => {
 		noticeOperations.removeAllNotices();
@@ -90,6 +87,42 @@ function OpenTableEdit( {
 		}
 	}, [ __isBlockPreview, align, isPlaceholder, noticeOperations, rid, style ] );
 
+	// Don't allow button style with multiple restaurant IDs.
+	useEffect( () => {
+		if ( 'button' === selectedStyle && Array.isArray( rid ) && rid.length > 1 ) {
+			setAttributes( { className: '', style: '' } );
+		}
+	}, [ rid, selectedStyle, setAttributes ] );
+
+	// Temporarily remove button block style if multiple restaurants are present.
+	useEffect( () => {
+		if ( ! isSelected ) {
+			return;
+		}
+
+		if ( Array.isArray( rid ) && rid.length > 1 ) {
+			unregisterBlockStyle( 'jetpack/opentable', [ 'button' ] );
+		} else {
+			registerBlockStyle( 'jetpack/opentable', buttonStyle );
+		}
+	}, [ isSelected, rid ] );
+
+	useEffect( () => {
+		// Reset wide alignment if switching from wide style.
+		if ( 'wide' === prevStyle && 'wide' === align ) {
+			setAttributes( { align: '' } );
+		}
+
+		// If switching to wide style set wide alignment as well as it works better.
+		if ( 'wide' === style && prevStyle && style !== prevStyle ) {
+			setAttributes( { align: 'wide' } );
+		}
+
+		// Need to force attribute to be updated after switch to using block styles
+		// so it still meets frontend rendering expectations.
+		setAttributes( { style } );
+	}, [ style ] );
+
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
 		if ( ! newAttributes ) {
@@ -111,24 +144,7 @@ function OpenTableEdit( {
 		noticeOperations.removeAllNotices();
 	};
 
-	const styleOptions = getStyleOptions( rid );
 	const styleValues = getStyleValues( rid );
-
-	const updateStyle = newStyle => {
-		setAttributes( newStyle );
-		// If the old style was wide
-		// then reset the alignment
-		if ( style === 'wide' && align === 'wide' ) {
-			setAttributes( { align: '' } );
-		}
-
-		// If the new style is wide
-		// then set the alignment to wide as it works much better like that
-		if ( newStyle.style === 'wide' ) {
-			setAttributes( { align: 'wide' } );
-		}
-	};
-
 	const getTypeAndTheme = fromStyle =>
 		rid.length > 1
 			? [ 'multi', 'button' !== fromStyle ? fromStyle : 'standard' ]
@@ -137,8 +153,8 @@ function OpenTableEdit( {
 					'button' === fromStyle ? 'standard' : fromStyle,
 			  ];
 
-	const blockPreview = styleOveride => {
-		const [ type, theme ] = getTypeAndTheme( styleOveride ? styleOveride : style );
+	const blockPreview = styleOverride => {
+		const [ type, theme ] = getTypeAndTheme( styleOverride ? styleOverride : style );
 		return (
 			<>
 				<div className={ `${ defaultClassName }-overlay` }></div>
@@ -184,14 +200,6 @@ function OpenTableEdit( {
 					/>
 				) }
 			</InspectorAdvancedControls>
-			<BlockStylesSelector
-				clientId={ clientId }
-				styleOptions={ styleOptions }
-				onSelectStyle={ updateStyle }
-				activeStyle={ style }
-				attributes={ attributes }
-				viewportWidth={ 150 }
-			/>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<RestaurantPicker rids={ rid } onChange={ onPickerSubmit } />
@@ -237,7 +245,7 @@ function OpenTableEdit( {
 	);
 
 	const editClasses = classnames( className, {
-		[ `${ defaultClassName }-theme-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
+		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ) && className.indexOf( 'is-style' ) === -1,
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
