@@ -4,45 +4,17 @@
 import { applyFilters } from '@wordpress/hooks';
 
 /**
- * Gets the URL of the media. Tries loading a smaller size available to be used as a thumbnail and falls back to the full size.
- *
- * Source: https://github.com/WordPress/gutenberg/blob/HEAD/packages/editor/src/components/post-featured-image/index.js
+ * Gets the URL of the media. Tries loading a smaller size (1024px width) if available and falls back to the full size.
  *
  * @param {object} media
  * @param {number} currentPostId
  * @returns {?string} URL address
  */
-export function getMediaSourceUrl( media, currentPostId ) {
+export function getMediaSourceUrl( media ) {
 	if ( ! media ) {
 		return null;
 	}
 
-	const sizes = media.media_details?.sizes;
-	if ( sizes ) {
-		const mediaSize = applyFilters(
-			'editor.PostFeaturedImage.imageSize',
-			'post-thumbnail',
-			media.id,
-			currentPostId
-		);
-		if ( sizes[ mediaSize ] ) {
-			// use mediaSize when available
-			return sizes[ mediaSize ].source_url;
-		}
-
-		// get fallbackMediaSize if mediaSize is not available
-		const fallbackMediaSize = applyFilters(
-			'editor.PostFeaturedImage.imageSize',
-			'thumbnail',
-			media.id,
-			currentPostId
-		);
-		if ( sizes[ fallbackMediaSize ] ) {
-			// use fallbackMediaSize when mediaSize is not available
-			return sizes[ fallbackMediaSize ].source_url;
-		}
-	}
-
-	// use full image size when mediaFallbackSize and mediaSize are not available
-	return media.source_url;
+	// Try getting the large size (1024px width) and fallback to the full size.
+	return media.media_details?.sizes?.large?.source_url || media.source_url;
 }
