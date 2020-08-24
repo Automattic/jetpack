@@ -104,6 +104,7 @@ class Callables extends Module {
 		} else {
 			$this->callable_whitelist = Defaults::get_callable_whitelist();
 		}
+		$this->force_send_callables_on_next_tick = false; // Resets here as well mostly for tests.
 	}
 
 	/**
