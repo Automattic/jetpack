@@ -44,7 +44,6 @@ require_once( 'widgets/aboutme.php' );
 require_once( 'widgets/author-grid.php' );
 require_once( 'widgets/freshly-pressed.php' );
 require_once( 'widgets/gravatar.php' );
-require_once( 'widgets/instagram/instagram.php' );
 require_once( 'widgets/i-voted.php' );
 require_once( 'widgets/music-player.php' );
 require_once( 'widgets/posts-i-like.php' );
