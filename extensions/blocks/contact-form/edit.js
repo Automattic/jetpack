@@ -269,7 +269,7 @@ function JetpackContactFormEdit( {
 		return (
 			<Button
 				className="components-toolbar__control jetpack-contact-form__toggle"
-				label={ __( 'Edit Form Settings' ) }
+				label={ __( 'Edit Form Settings', 'jetpack' ) }
 				onClick={ onToggle }
 				onKeyDown={ openOnArrowDown }
 				icon={ <Icon icon="edit" /> }
