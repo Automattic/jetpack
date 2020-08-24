@@ -60,6 +60,10 @@
 		}
 	}
 
+	.twitter-preview__summary {
+		max-width: 100%;
+	}
+
 	@media ( min-width: $break-small ) {
 		width: calc( 100vw - 40px );
 	}
