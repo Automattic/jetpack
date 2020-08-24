@@ -4801,7 +4801,7 @@ endif;
 		 *
 		 * @param string $url Connection URL.
 		 */
-		return apply_filters( 'jetpack_build_connection_url', $url );
+		return apply_filters( 'jetpack_build_authorize_url', $url );
 	}
 
 	/**
