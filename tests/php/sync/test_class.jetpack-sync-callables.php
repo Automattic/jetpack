@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
@@ -1001,8 +1002,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_GET['body-hash'] ) ;
 		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
 		unset( $_SERVER['REQUEST_METHOD'] );
-		$jetpack = Jetpack::init();
-		$jetpack->reset_saved_auth_state();
+
+		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		Jetpack::connection()->reset_raw_post_data();
 		wp_set_current_user( $user_id );
 		self::$admin_id = null;
