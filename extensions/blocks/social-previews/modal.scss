@@ -32,6 +32,7 @@
 			outline: 0;
 			margin: 3px 0;
 			font-size: 0;
+			white-space: nowrap;
 
 			svg {
 				display: block;
@@ -46,18 +47,30 @@
 				box-shadow: 0px 0px 0px 2px var(--wp-admin-theme-color);
 			}
 		}
-
 	}
 
 	.components-tab-panel__tab-content {
 		padding: 10px;
 		background-color: $white;
 		flex: 1;
+
+		> div {
+			display: flex;
+			justify-content: center;
+		}
 	}
 
-	@media ( min-width: $break-medium ) {
+	.twitter-preview__summary {
+		max-width: 100%;
+	}
+
+	@media ( min-width: $break-small ) {
+		width: calc( 100vw - 40px );
+	}
+
+	@media ( min-width: $break-large ) {
 		flex-direction: row;
-		width: 900px;
+		width: calc( #{$break-large} - 40px );
 		min-height: 500px;
 
 		.components-tab-panel__tabs {
@@ -111,7 +124,7 @@
 			margin-bottom: 12px;
 
 			&:before {
-				content:  "\2713 ";
+				content: '\2713 ';
 				position: absolute;
 				left: -20px;
 				color: $alert-green;
