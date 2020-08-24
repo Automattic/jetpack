@@ -42,7 +42,7 @@ let FeatureToggle = props => {
 	} = props;
 
 	const [ windowWidth, setWindowWidth ] = useState( false );
-	const [ installing, setInstalling ] = useState( false );
+	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	const handleResize = useCallback( () => {
 		setWindowWidth( window.innerWidth <= 660 ? 'small' : 'large' );
@@ -91,9 +91,9 @@ let FeatureToggle = props => {
 	}, [ feature ] );
 
 	const handleOnInstallClick = useCallback( () => {
-		setInstalling( true );
+		setIsInstalling( true );
 		onInstallClick().then( () => {
-			setInstalling( false );
+			setIsInstalling( false );
 		} );
 	} );
 
@@ -130,7 +130,7 @@ let FeatureToggle = props => {
 			</Button>
 		);
 	} else if ( ! checked && onInstallClick ) {
-		if ( installing ) {
+		if ( isInstalling ) {
 			buttonContent = (
 				<Button disabled>
 					{
