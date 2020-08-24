@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
  */
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import Spinner from 'components/spinner';
 import analytics from 'lib/analytics';
 
 import {
@@ -41,6 +42,7 @@ let FeatureToggle = props => {
 	} = props;
 
 	const [ windowWidth, setWindowWidth ] = useState( false );
+	const [ installing, setInstalling ] = useState( false );
 
 	const handleResize = useCallback( () => {
 		setWindowWidth( window.innerWidth <= 660 ? 'small' : 'large' );
@@ -88,6 +90,13 @@ let FeatureToggle = props => {
 		} );
 	}, [ feature ] );
 
+	const handleOnInstallClick = useCallback( () => {
+		setInstalling( true );
+		onInstallClick().then( () => {
+			setInstalling( false );
+		} );
+	} );
+
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
 		buttonContent = (
@@ -121,7 +130,21 @@ let FeatureToggle = props => {
 			</Button>
 		);
 	} else if ( ! checked && onInstallClick ) {
-		buttonContent = <Button onClick={ onInstallClick }>{ __( 'Install now', 'jetpack' ) }</Button>;
+		if ( installing ) {
+			buttonContent = (
+				<Button disabled>
+					{
+						<div className="jp-setup-wizard-install-spinner-container">
+							<Spinner />
+						</div>
+					}
+				</Button>
+			);
+		} else {
+			buttonContent = (
+				<Button onClick={ handleOnInstallClick }>{ __( 'Install now', 'jetpack' ) }</Button>
+			);
+		}
 	}
 
 	const largeWindow = 'large' === windowWidth;
