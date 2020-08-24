@@ -611,6 +611,7 @@ class Jetpack_Options {
 			'jetpack_connection_banner_ab',
 			'jetpack_active_plan',
 			'jetpack_activation_source',
+			'jetpack_site_products',
 			'jetpack_sso_match_by_email',
 			'jetpack_sso_require_two_step',
 			'jetpack_sso_remove_login_form',

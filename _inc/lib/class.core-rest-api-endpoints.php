@@ -1712,7 +1712,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Fetch site data from .com including the site's current plan.
+	 * Fetch site data from .com including the site's current plan and the site's products.
 	 *
 	 * @since 5.5.0
 	 *
