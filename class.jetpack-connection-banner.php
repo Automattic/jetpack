@@ -195,7 +195,7 @@ class Jetpack_Connection_Banner {
 				'forceVariation'        => $force_variation,
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
-				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
+				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans', array( 'source' => 'jetpack-connect' ) ),
 				'identity'              => $identity,
 				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
 			)

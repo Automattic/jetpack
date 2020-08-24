@@ -68,7 +68,10 @@ export class Navigation extends React.Component {
 					) }
 					{ ! this.props.isOfflineMode && this.props.isLinked && (
 						<NavItem
-							path={ getRedirectUrl( 'jetpack-plans', { site: this.props.siteUrl } ) }
+							path={ getRedirectUrl( 'jetpack-plans', {
+								site: this.props.siteUrl,
+								from: 'jetpack-plans',
+							} ) }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
 						>

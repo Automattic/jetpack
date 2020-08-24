@@ -35,7 +35,7 @@ export default function getRedirectUrl( source, args = {} ) {
 		queryVars.source = encodeURIComponent( source );
 	}
 
-	const acceptedArgs = [ 'site', 'path', 'query', 'anchor' ];
+	const acceptedArgs = [ 'site', 'path', 'query', 'anchor', 'from' ];
 
 	Object.keys( args ).map( argName => {
 		if ( acceptedArgs.includes( argName ) ) {
