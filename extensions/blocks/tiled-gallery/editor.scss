@@ -67,8 +67,8 @@
 		&.is-selected .tiled-gallery__item__move-menu,
 		&.is-selected .tiled-gallery__item__inline-menu {
 			background: $white;
-			border: 1px solid $dark-opacity-light-800;
-			border-radius: $radius-round-rectangle;
+			border: 1px solid $dark-gray-placeholder;
+			border-radius: $radius-block-ui;
 			transition: box-shadow 0.2s ease-out;
 			@include reduce-motion("transition");
 
@@ -77,7 +77,7 @@
 			}
 
 			.components-button {
-				color: $dark-opacity-300;
+				color: $dark-gray-placeholder;
 				padding: 2px;
 				height: $button-size-small;
 
@@ -128,7 +128,7 @@
 
 			&:hover,
 			&:focus {
-				border: 1px solid $dark-gray-500;
+				border: 1px solid $gray-600;
 			}
 		}
 	}
@@ -196,7 +196,7 @@
 	}
 
 	.components-menu-item__button.is-active {
-		color: $dark-gray-900;
-		box-shadow: 0 0 0 $active-item-outline-width $dark-gray-500 !important;
+		color: $gray-900;
+		box-shadow: 0 0 0 $active-item-outline-width $gray-600 !important;
 	}
 }

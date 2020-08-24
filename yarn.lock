@@ -2887,10 +2887,10 @@
   resolved "https://registry.yarnpkg.com/@wordpress/babel-plugin-import-jsx-pragma/-/babel-plugin-import-jsx-pragma-2.5.0.tgz#d140f902be16f9bef38abafd2a05e040e8aed29e"
   integrity sha512-fvb9+BBi5ns95pTKj2R/YoGbIbA2oBb2YNxRr0pSmeuURFqzeaQIzE+lFnkLCkWVp3DCkXQ1x92+5aWqOqfqzg==
 
-"@wordpress/base-styles@1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/base-styles/-/base-styles-1.5.0.tgz#22395a641399df541ad572c6b9e869423247cab1"
-  integrity sha512-eCG7P3BtKfGiHatvqlJqCn3XdtTMnq4sxtQ/avQ+m40UXJ1mqiW2Ipcen2/MelFqsWVMb4ujjeZwWTsq+vncjg==
+"@wordpress/base-styles@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@wordpress/base-styles/-/base-styles-2.0.1.tgz#0e76e3980862decd12d31611423c8f00204a938e"
+  integrity sha512-nwm0OK/AkxkTkdvZTMeBxkO01RXFYP8TXdqAsx6Fn022o7YV40V89yLr7zTRoQ8MSNy6c/WmRxnLKapLdUCDUg==
 
 "@wordpress/blob@^2.7.0":
   version "2.7.0"
