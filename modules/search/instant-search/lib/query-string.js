@@ -38,7 +38,7 @@ function pushQueryString( queryString, shouldEmitEvent = true ) {
 export function getSearchQuery() {
 	const query = getQuery();
 	// Cast query.s as string since it can be a number
-	return 's' in query ? decodeURIComponent( String( query.s ) ) : '';
+	return 's' in query ? String( query.s ) : '';
 }
 
 export function setSearchQuery( searchValue ) {
