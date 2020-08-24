@@ -1079,7 +1079,7 @@ EXPECTED;
 	 * @param string $option_name Option and filter name.
 	 * @param string $query_string_name Query string variable name.
 	 */
-	public function test_partner_codes_are_added_to_connect_url( $code_type, $option_name, $query_string_name ) {
+	public function test_partner_codes_are_added_to_authorize_url( $code_type, $option_name, $query_string_name ) {
 		$test_code = 'abc-123';
 		Partner::init();
 		add_filter(
@@ -1089,7 +1089,7 @@ EXPECTED;
 			}
 		);
 		$jetpack = \Jetpack::init();
-		$url     = $jetpack->build_connect_url();
+		$url     = $jetpack->build_authorize_url();
 
 		$parsed_vars = array();
 		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $parsed_vars );
@@ -1099,7 +1099,7 @@ EXPECTED;
 	}
 
 	/**
-	 * Provides code for test_partner_codes_are_added_to_connect_url.
+	 * Provides code for test_partner_codes_are_added_to_authorize_url.
 	 *
 	 * @return array
 	 */
