@@ -38,11 +38,18 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_status' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
 					'args'                => array(
-						'type' => array(
+						'type'   => array(
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => function( $param ) {
 								return in_array( $param, array( 'donation', 'all' ), true );
+							},
+						),
+						'source' => array(
+							'type'              => 'string',
+							'required'          => false,
+							'validate_callback' => function( $param ) {
+								return in_array( $param, array( 'calypso', 'earn', 'gutenberg', 'gutenberg-wpcom' ), true );
 							},
 						),
 					),
