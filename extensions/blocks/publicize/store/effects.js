@@ -3,6 +3,7 @@
  */
 import { throttle } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
+import { serialize } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -35,7 +36,11 @@ async function __refreshTweets( action, store ) {
 		const results = await apiFetch( {
 			path: '/wpcom/v2/tweetstorm/parse',
 			data: {
-				content: action.content,
+				content: serialize( action.content ),
+				blocks: action.content.map( block => ( {
+					attributes: block.attributes,
+					clientId: block.clientId,
+				} ) ),
 			},
 			method: 'POST',
 		} );

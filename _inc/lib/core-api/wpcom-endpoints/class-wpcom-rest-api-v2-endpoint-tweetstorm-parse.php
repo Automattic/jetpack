@@ -38,8 +38,13 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 			array(
 				'args'                                  => array(
 					'content' => array(
-						'description' => __( 'The blocks that need to be parsed into tweets.', 'jetpack' ),
-						'type'        => 'object',
+						'description' => __( 'The serialised blocks that need to be parsed into tweets.', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'blocks'  => array(
+						'description' => __( 'An array of editor-specific block inforation, in the order matching the blocks in `content`.', 'jetpack' ),
+						'type'        => 'array',
 						'required'    => true,
 					),
 				),
@@ -58,7 +63,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function parse_tweetstorm( $request ) {
-		return Jetpack_Tweetstorm_Helper::parse( $request['content'] );
+		return Jetpack_Tweetstorm_Helper::parse( $request['content'], $request['blocks'] );
 	}
 }
 

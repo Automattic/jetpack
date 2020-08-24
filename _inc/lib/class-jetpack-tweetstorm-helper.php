@@ -22,11 +22,12 @@ class Jetpack_Tweetstorm_Helper {
 	 */
 	private static $supported_blocks = array(
 		'core/heading'   => array(
-			'type'               => 'text',
-			'content_attributes' => array( 'content' ),
-			'template'           => '{{content}}',
-			'force_new'          => true,
-			'force_finished'     => false,
+			'type'           => 'text',
+			'content'        => 'innerHTML',
+			'content_tags'   => array(),
+			'template'       => '{{content}}',
+			'force_new'      => true,
+			'force_finished' => false,
 		),
 		'core/image'     => array(
 			'type'           => 'image',
@@ -35,33 +36,36 @@ class Jetpack_Tweetstorm_Helper {
 			'force_finished' => true,
 		),
 		'core/list'      => array(
-			'type'               => 'multiline',
-			'multiline_tag'      => 'li',
-			'content_attributes' => array( 'values' ),
-			'template'           => '- {{line}}',
-			'force_new'          => false,
-			'force_finished'     => false,
+			'type'           => 'multiline',
+			'content'        => 'innerHTML',
+			'multiline_tag'  => 'li',
+			'template'       => '- {{line}}',
+			'force_new'      => false,
+			'force_finished' => false,
 		),
 		'core/paragraph' => array(
-			'type'               => 'text',
-			'content_attributes' => array( 'content' ),
-			'template'           => '{{content}}',
-			'force_new'          => false,
-			'force_finished'     => false,
+			'type'           => 'text',
+			'content'        => 'innerHTML',
+			'content_tags'   => array(),
+			'template'       => '{{content}}',
+			'force_new'      => false,
+			'force_finished' => false,
 		),
 		'core/quote'     => array(
-			'type'               => 'text',
-			'content_attributes' => array( 'value', 'citation' ),
-			'template'           => '“{{value}}” – {{citation}}',
-			'force_new'          => false,
-			'force_finished'     => false,
+			'type'           => 'text',
+			'content'        => 'innerHTML',
+			'content_tags'   => array( 'blockquote', 'cite' ),
+			'template'       => '“{{blockquote}}” – {{cite}}',
+			'force_new'      => false,
+			'force_finished' => false,
 		),
 		'core/verse'     => array(
-			'type'               => 'text',
-			'content_attributes' => array( 'content' ),
-			'template'           => '{{content}}',
-			'force_new'          => false,
-			'force_finished'     => false,
+			'type'           => 'text',
+			'content'        => 'innerHTML',
+			'content_tags'   => array(),
+			'template'       => '{{content}}',
+			'force_new'      => false,
+			'force_finished' => false,
 		),
 	);
 
@@ -131,10 +135,17 @@ class Jetpack_Tweetstorm_Helper {
 	/**
 	 * Parse tweets.
 	 *
-	 * @param array $blocks An array of blocks that can be parsed into tweets.
-	 * @return mixed
+	 * @param string $content    A blob of serialised blocks that need to be parsed into tweets.
+	 * @param array  $client_ids Optional. An array of clientIds corresponding to the blocks in $blocks.
+	 * @return array An array of tweets.
 	 */
-	public static function parse( $blocks ) {
+	public static function parse( $content, $client_ids = array() ) {
+		$blocks = self::extract_blocks( $content, $client_ids );
+
+		if ( empty( $blocks ) ) {
+			return array();
+		}
+
 		// Initialise the tweets array with an empty tweet, so we don't need to check
 		// if we're creating the first tweet while processing blocks.
 		$tweets = array();
@@ -175,14 +186,13 @@ class Jetpack_Tweetstorm_Helper {
 				continue;
 			}
 
-			$block_text = self::extract_text_from_block( $block );
-
-			if ( 0 === strlen( $block_text ) ) {
+			// This is a text block, is there any text?
+			if ( 0 === strlen( $block['text'] ) ) {
 				continue;
 			}
 
 			// If the entire block can't be fit in this tweet, we need to start a new tweet.
-			if ( $current_tweet['changed'] && ! self::is_valid_tweet( trim( $current_tweet['text'] ) . "\n\n$block_text" ) ) {
+			if ( $current_tweet['changed'] && ! self::is_valid_tweet( trim( $current_tweet['text'] ) . "\n\n{$block['text']}" ) ) {
 				list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
 			}
 
@@ -190,9 +200,9 @@ class Jetpack_Tweetstorm_Helper {
 			// normal text blocks. This means we can treat normal text blocks as being
 			// "multiline", but with a single line.
 			if ( 'multiline' === $block_def['type'] ) {
-				$lines = explode( self::$line_seperator, $block_text );
+				$lines = explode( self::$line_seperator, $block['text'] );
 			} else {
-				$lines = array( $block_text );
+				$lines = array( $block['text'] );
 			}
 			$line_total = count( $lines );
 
@@ -372,6 +382,52 @@ class Jetpack_Tweetstorm_Helper {
 	}
 
 	/**
+	 * Given a `post_content`-style serialised blob of blocks, this will extract them into
+	 * a useful list of blocks and their content. If the $client_ids parameter is provided,
+	 * we'll also keep track of which block belongs to which clientId in the block editor.
+	 *
+	 * @param string $content       A serialised blob of blocks.
+	 * @param array  $editor_blocks Optional. An array of block editor-specific data, matching the blocks in $content.
+	 * @return array An array of blocks, in our internal representation.
+	 */
+	private static function extract_blocks( $content, $editor_blocks = array() ) {
+		$blocks = parse_blocks( $content );
+
+		if ( empty( $blocks ) ) {
+			return array();
+		}
+
+		// parse_blocks() can sometimes return a bunch of NULL blocks, so let's clean up the block array.
+		$blocks = array_values(
+			array_filter(
+				$blocks,
+				function ( $block ) {
+					return isset( self::$supported_blocks[ $block['blockName'] ] );
+				}
+			)
+		);
+
+		$block_count   = count( $blocks );
+		$block_content = array();
+
+		for ( $ii = 0; $ii < $block_count; $ii++ ) {
+			$block     = $blocks[ $ii ];
+			$extracted = array(
+				'name' => $block['blockName'],
+				'text' => self::extract_text_from_block( $block ),
+			);
+			if ( isset( $editor_blocks[ $ii ] ) ) {
+				$extracted['clientId']   = $editor_blocks[ $ii ]['clientId'];
+				$extracted['attributes'] = $editor_blocks[ $ii ]['attributes'];
+			}
+
+			$block_content[] = $extracted;
+		}
+
+		return $block_content;
+	}
+
+	/**
 	 * Get the last tweet in the array, along with the index for that tweet.
 	 *
 	 * @param array $tweets The array of tweets.
@@ -433,7 +489,7 @@ class Jetpack_Tweetstorm_Helper {
 			}
 
 			$last_block = end( $tweet['blocks'] );
-			if ( false === $last_block || $last_block['clientId'] !== $block['clientId'] ) {
+			if ( isset( $block['clientId'] ) && ( false === $last_block || $last_block['clientId'] !== $block['clientId'] ) ) {
 				$tweet['blocks'][] = $block;
 			}
 		}
@@ -550,7 +606,8 @@ class Jetpack_Tweetstorm_Helper {
 			$text_code_unit_count     = 0;
 			$template_character_count = 0;
 
-			$lines = self::extract_multiline_block_lines( $block );
+			$tags  = self::extract_tag_content_from_html( $block_def['multiline_tag'], $block );
+			$lines = $tags[ $block_def['multiline_tag'] ];
 
 			$line_count = 0;
 			foreach ( $lines as $line ) {
@@ -660,25 +717,28 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return string The tweetable text from the block, in the correct template form.
 	 */
 	private static function extract_text_from_block( $block ) {
-		if ( ! isset( self::$supported_blocks[ $block['name'] ] ) ) {
+		if ( ! isset( self::$supported_blocks[ $block['blockName'] ] ) ) {
 			return '';
 		}
 
-		$block_def = self::$supported_blocks[ $block['name'] ];
+		$block_def = self::$supported_blocks[ $block['blockName'] ];
+
+		if ( 'innerHTML' !== $block_def['content'] ) {
+			return '';
+		}
 
 		if ( 'text' === $block_def['type'] ) {
-			$text = array_reduce(
-				$block_def['content_attributes'],
-				function( $current_text, $attribute ) use ( $block ) {
-					return str_replace( '{{' . $attribute . '}}', $block['attributes'][ $attribute ], $current_text );
-				},
-				$block_def['template']
-			);
-		} elseif ( 'multiline' === $block_def['type'] ) {
-			$lines = self::extract_multiline_block_lines( $block );
-			$text  = '';
+			$tags = self::extract_tag_content_from_html( $block_def['content_tags'], $block['innerHTML'] );
+			$text = $block_def['template'];
 
-			foreach ( $lines as $line ) {
+			foreach ( $tags as $tag => $values ) {
+				$text = str_replace( '{{' . $tag . '}}', implode( '', $values ), $text );
+			}
+		} elseif ( 'multiline' === $block_def['type'] ) {
+			$tags = self::extract_tag_content_from_html( array( $block_def['multiline_tag'] ), $block['innerHTML'] );
+			$text = '';
+
+			foreach ( $tags[ $block_def['multiline_tag'] ] as $line ) {
 				if ( 0 === strlen( $line ) ) {
 					$text .= self::$line_seperator;
 				} else {
@@ -690,52 +750,74 @@ class Jetpack_Tweetstorm_Helper {
 			$text = preg_replace( '/(' . self::$line_seperator . ')+$/', '', $text );
 		}
 
-		return wp_strip_all_tags( $text );
+		return $text;
 	}
 
 	/**
-	 * Given a multiline block, this will extract the text from each line, and return an array
-	 * of those lines.
+	 * Given a list of tags and a HTML blob, this will extract the text content inside
+	 * each of the given tags.
 	 *
-	 * @param array $block The block to extract from.
-	 * @return array The array of lines.
+	 * @param array  $tags An array of tag names.
+	 * @param string $html A blob of HTML.
+	 * @return array An array of the extract content. The keys in the array are the $tags,
+	 *               each value is an array. The value array is indexed in the same order as the tag
+	 *               appears in the HTML blob, including nested tags.
 	 */
-	public static function extract_multiline_block_lines( $block ) {
-		$block_def = self::$supported_blocks[ $block['name'] ];
-		// Multiline blocks only support extracting content from one content attribute.
-		$attribute = $block_def['content_attributes'][0];
+	private static function extract_tag_content_from_html( $tags, $html ) {
+		if ( empty( $tags ) ) {
+			return array( 'content' => array( wp_strip_all_tags( $html ) ) );
+		}
 
-		// Remove all HTML tags except the line wrapper tag, and remove attributes from that.
-		$cleaned_content = wp_kses( $block['attributes'][ $attribute ], array( $block_def['multiline_tag'] => array() ) );
+		$values = array();
 
-		// Split the content into an array, cleaning out unnecessary empty values and the wrapper tags.
-		$tokens = wp_html_split( $cleaned_content );
-		return array_values(
-			array_filter(
-				$tokens,
-				function( $token, $key ) use ( $block_def, $tokens ) {
-					// If the token is empty, and we're in the token after an opening
-					// tag, we need to keep this, as it's an empty list item, so it affects
-					// how we calculate line boundaries.
-					if ( 0 === strlen( $token ) && $key > 0 && "<{$block_def['multiline_tag']}>" === $tokens[ $key - 1 ] ) {
-						return true;
+		$tokens = wp_html_split( $html );
+
+		foreach ( $tags as $tag ) {
+			$values[ $tag ] = array();
+
+			// Since tags can be nested, keeping track of the nesting level allows
+			// us to extract nested content into a flat array.
+			$opened = -1;
+			$closed = -1;
+			foreach ( $tokens as $token ) {
+				if ( 0 === strlen( trim( $token ) ) ) {
+					// Skip any empty tokens.
+					continue;
+				}
+
+				if ( "<$tag>" === $token || 0 === strpos( $token, "<$tag " ) ) {
+					// A tag has just been opened.
+					$opened++;
+					// Set an empty value now, so we're keeping track of empty tags.
+					if ( ! isset( $values[ $tag ][ $opened ] ) ) {
+						$values[ $tag ][ $opened ] = '';
 					}
+					continue;
+				}
 
-					// Any other empty tokens can be removed.
-					if ( 0 === strlen( $token ) ) {
-						return false;
+				if ( "</$tag>" === $token ) {
+					// The tag has been closed.
+					$closed++;
+					continue;
+				}
+
+				if ( '<' === $token[0] ) {
+					// We can skip any other tags.
+					continue;
+				}
+
+				if ( $opened !== $closed ) {
+					// We're currently in a tag, with some content. Append it to the right value.
+					if ( 0 === strlen( $values[ $tag ][ $opened ] ) ) {
+						$values[ $tag ][ $opened ] = $token;
+					} else {
+						$values[ $tag ][ $opened ] .= " $token";
 					}
+				}
+			}
+		}
 
-					// Remove any remaining tags.
-					if ( '<' === substr( $token, 0, 1 ) && '>' === substr( $token, -1 ) ) {
-						return false;
-					}
-
-					return true;
-				},
-				ARRAY_FILTER_USE_BOTH
-			)
-		);
+		return $values;
 	}
 
 	/**
