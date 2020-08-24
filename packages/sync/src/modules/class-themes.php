@@ -556,7 +556,7 @@ class Themes extends Module {
 	 * @return array Theme data.
 	 */
 	public function expand_theme_data() {
-		return array( $this->get_theme_support_info() );
+		return array( $this->get_theme_support_info( null, true ) );
 	}
 
 	/**
@@ -784,9 +784,10 @@ class Themes extends Module {
 	 * @access private
 	 *
 	 * @param \WP_Theme $theme Theme object. Optional, will default to the current theme.
+	 * @param boolean   $send_full_theme_data Should send additional theme data.
 	 * @return array Theme data.
 	 */
-	private function get_theme_support_info( $theme = null ) {
+	private function get_theme_support_info( $theme = null, $send_full_theme_data = false ) {
 		$theme_support = array();
 
 		// We are trying to get the current theme info.
@@ -798,7 +799,9 @@ class Themes extends Module {
 		$theme_support['version'] = $theme->get( 'Version' );
 		$theme_support['slug']    = $theme->get_stylesheet();
 		$theme_support['uri']     = $theme->get( 'ThemeURI' );
-
+		if ( $send_full_theme_data ) {
+			return array_merge( Functions::get_theme_support(), $theme_support );
+		}
 		return $theme_support;
 	}
 
