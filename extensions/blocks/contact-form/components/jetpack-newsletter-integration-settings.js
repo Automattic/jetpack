@@ -212,11 +212,9 @@ const CreativeMailPluginFetched = ( { pluginState, setPluginState } ) => {
 		setIsInstalling,
 		setPluginState
 	);
-
 	if ( pluginError ) {
 		return <CreativeMailPluginErrorState error={ pluginError } />;
 	}
-
 	return (
 		<CreativeMailPluginState
 			pluginState={ pluginState }
@@ -242,7 +240,6 @@ const CreativeMailPlugin = () => {
 			}
 		} );
 	}, [ setPluginState, setIsFetchingPlugins ] );
-
 	if ( isFetchingPlugins ) {
 		return <Spinner />;
 	}
