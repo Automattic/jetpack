@@ -384,39 +384,9 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
-	getConnectUrl() {
-		const { postId } = this.props;
-		const { connectURL } = this.state;
-
-		if ( ! isURL( connectURL ) ) {
-			return null;
-		}
-
-		if ( ! postId ) {
-			return connectURL;
-		}
-
-		let decodedState;
-		try {
-			const state = getQueryArg( connectURL, 'state' );
-			decodedState = JSON.parse( atob( state ) );
-		} catch ( err ) {
-			if ( process.env.NODE_ENV !== 'production' ) {
-				console.error( err ); // eslint-disable-line no-console
-			}
-			return connectURL;
-		}
-
-		decodedState.from_editor_post_id = postId;
-
-		return addQueryArgs( connectURL, { state: btoa( JSON.stringify( decodedState ) ) } );
-	}
-
 	render = () => {
-		const { notices } = this.props;
-		const { connected, products } = this.state;
-
-		const stripeConnectUrl = this.getConnectUrl();
+		const { notices, postId } = this.props;
+		const { connected, connectURL, products } = this.state;
 
 		/**
 		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
@@ -458,7 +428,11 @@ class MembershipsButtonEdit extends Component {
 				{ ! this.hasUpgradeNudge &&
 					! this.state.shouldUpgrade &&
 					connected === API_STATE_NOTCONNECTED && (
-						<StripeNudge blockName="recurring-payments" stripeConnectUrl={ stripeConnectUrl } />
+						<StripeNudge
+							blockName="recurring-payments"
+							postId={ postId }
+							stripeConnectUrl={ connectURL }
+						/>
 					) }
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
