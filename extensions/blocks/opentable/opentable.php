@@ -52,7 +52,14 @@ function load_assets( $attributes ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$classes = array( sprintf( 'wp-block-jetpack-%s-theme-%s', FEATURE_NAME, get_attribute( $attributes, 'style' ) ) );
+	$classes    = array();
+	$class_name = get_attribute( $attributes, 'className' );
+
+	// Handles case of deprecated version using theme instead of block styles.
+	if ( ! $class_name || strpos( $class_name, 'is-style-' ) === false ) {
+		$classes[] = sprintf( 'is-style-%s', get_attribute( $attributes, 'style' ) );
+	}
+
 	if ( array_key_exists( 'rid', $attributes ) && is_array( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
 		$classes[] = 'is-multi';
 	}

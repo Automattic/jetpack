@@ -20,6 +20,7 @@ import QuerySite from 'components/data/query-site';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import { getPlanClass } from 'lib/plans/constants';
 import { getActiveSitePurchases, getSitePlan } from 'state/site';
+import { isAtomicSite } from 'state/initial-state';
 import BackupsScan from './backups-scan';
 import Antispam from './antispam';
 import { JetpackBackup } from './jetpack-backup';
@@ -128,7 +129,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
-				{ ! isSearchTerm && <ManagePlugins { ...commonProps } /> }
+				{ ! this.props.isAtomicSite && ! isSearchTerm && <ManagePlugins { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
@@ -148,5 +149,6 @@ export default connect( state => {
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
 		vaultPressData: getVaultPressData( state ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( Security );

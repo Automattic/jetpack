@@ -1,4 +1,4 @@
-<?php 
+<?php
 $assets = array (
   0 => 'tools/jetpack-live-branches/jetpack-live-branches.user.js',
   1 => 'tools/builder/frontend-css.js',

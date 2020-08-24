@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { uniq, each } from 'lodash';
+import { uniq } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -9,8 +9,6 @@ import { uniq, each } from 'lodash';
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import { select } from '@wordpress/data';
-import { unregisterBlockStyle } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -78,12 +76,5 @@ addFilter(
 domReady( function () {
 	if ( isUpgradeNudgeEnabled() ) {
 		document.body.classList.add( 'jetpack-enable-upgrade-nudge' );
-
-		// Unregister block styles for all paid blocks.
-		each( stylesByPaidBlocks, blockName => {
-			each( select( 'core/blocks' ).getBlockStyles( blockName ), ( { name } ) =>
-				unregisterBlockStyle( blockName, name )
-			);
-		} );
 	}
 } );

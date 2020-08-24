@@ -109,7 +109,7 @@ var jetpackLazyImagesModule = function() {
 		sizes = image.getAttribute( 'data-lazy-sizes' );
 
 		// Remove lazy attributes.
-		image.removeAttribute( 'data-lazy-srcset' ),
+		image.removeAttribute( 'data-lazy-srcset' );
 		image.removeAttribute( 'data-lazy-sizes' );
 		image.removeAttribute( 'data-lazy-src' );
 
@@ -400,7 +400,7 @@ var jetpackLazyImagesModule = function() {
 
 	/**
 	 * Starts polling for intersection changes if the polling is not already
-	 * happening, and if the page's visibilty state is visible.
+	 * happening, and if the page's visibility state is visible.
 	 * @private
 	 */
 	IntersectionObserver.prototype._monitorIntersections = function() {

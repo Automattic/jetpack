@@ -96,6 +96,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.8.2 =
+
+* Release date: August 17, 2020
+
+**Bug fixes**
+
+* Infinite Scroll: avoid loading issues with some themes using Infinite Scroll.
+
 = 8.8.1 =
 
 * Release date: August 10, 2020

@@ -748,7 +748,7 @@ class Jetpack {
 			}
 		);
 
-		// Update the Jetpack plan from API on heartbeats.
+		// Update the site's Jetpack plan and products from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
 
 		/**

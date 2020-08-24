@@ -1,6 +1,6 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Handles fetching of the site's plan from WordPress.com and caching the value locally.
+ * Handles fetching of the site's plan and products from WordPress.com and caching values locally.
  *
  * Not to be confused with the `Jetpack_Plans` class (in `_inc/lib/plans.php`), which
  * fetches general information about all available plans from WordPress.com, side-effect free.
@@ -11,7 +11,7 @@
 use Automattic\Jetpack\Connection\Client;
 
 /**
- * Provides methods methods for fetching the plan from WordPress.com.
+ * Provides methods methods for fetching the site's plan and products from WordPress.com.
  */
 class Jetpack_Plan {
 	/**
@@ -21,7 +21,19 @@ class Jetpack_Plan {
 	 */
 	private static $active_plan_cache;
 
+	/**
+	 * The name of the option that will store the site's plan.
+	 *
+	 * @var string
+	 */
 	const PLAN_OPTION = 'jetpack_active_plan';
+
+	/**
+	 * The name of the option that will store the site's products.
+	 *
+	 * @var string
+	 */
+	const SITE_PRODUCTS_OPTION = 'jetpack_site_products';
 
 	const PLAN_DATA = array(
 		'free'     => array(
@@ -85,7 +97,7 @@ class Jetpack_Plan {
 
 	/**
 	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
-	 * plan from the response.
+	 * site's plan and products from the response.
 	 *
 	 * @param array $response The response from `/sites/%d`.
 	 * @return bool Was the plan successfully updated?
@@ -104,23 +116,44 @@ class Jetpack_Plan {
 		// Decode the results.
 		$results = json_decode( $body, true );
 
-		// Bail if there were no results or plan details returned.
-		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
+		if ( ! is_array( $results ) ) {
+			return false;
+		}
+
+		if ( isset( $results['products'] ) ) {
+			// Store the site's products in an option and return true if updated.
+			self::store_data_in_option( self::SITE_PRODUCTS_OPTION, $results['products'] );
+		}
+
+		if ( ! isset( $results['plan'] ) ) {
 			return false;
 		}
 
 		// Store the new plan in an option and return true if updated.
-		$result = update_option( self::PLAN_OPTION, $results['plan'], true );
-		if ( ! $result ) {
-			// If we got to this point, then we know we need to update. So, assume there is an issue
-			// with caching. To fix that issue, we can delete the current option and then update.
-			delete_option( self::PLAN_OPTION );
-			$result = update_option( self::PLAN_OPTION, $results['plan'], true );
-		}
+		$result = self::store_data_in_option( self::PLAN_OPTION, $results['plan'] );
 
 		if ( $result ) {
 			// Reset the cache since we've just updated the plan.
 			self::$active_plan_cache = null;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Store data in an option.
+	 *
+	 * @param string $option The name of the option that will store the data.
+	 * @param array  $data Data to be store in an option.
+	 * @return bool Were the subscriptions successfully updated?
+	 */
+	private static function store_data_in_option( $option, $data ) {
+		$result = update_option( $option, $data, true );
+
+		// If something goes wrong with the update, so delete the current option and then update it.
+		if ( ! $result ) {
+			delete_option( $option );
+			$result = update_option( $option, $data, true );
 		}
 
 		return $result;
@@ -194,6 +227,20 @@ class Jetpack_Plan {
 		self::$active_plan_cache = $plan;
 
 		return $plan;
+	}
+
+	/**
+	 * Get the site's products.
+	 *
+	 * @uses get_option()
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Active Jetpack products
+	 */
+	public static function get_products() {
+		return get_option( self::SITE_PRODUCTS_OPTION, array() );
 	}
 
 	/**

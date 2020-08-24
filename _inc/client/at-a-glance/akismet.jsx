@@ -24,6 +24,7 @@ import { getSitePlan } from 'state/site';
 import { isOfflineMode } from 'state/connection';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -54,9 +55,22 @@ class DashAkismet extends Component {
 	onActivateClick = () => {
 		this.trackActivateClick();
 
-		restApi.activateAkismet().then( () => {
-			window.location.href = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
+		this.props.createNotice( 'is-info', __( 'Activating Akismet…', 'jetpack' ), {
+			id: 'activating-akismet',
 		} );
+
+		restApi
+			.activateAkismet()
+			.then( () => {
+				this.props.removeNotice( 'activating-akismet' );
+				window.location.href = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
+			} )
+			.catch( () => {
+				this.props.removeNotice( 'activating-akismet' );
+				this.props.createNotice( 'is-error', __( 'Could not activate Akismet.', 'jetpack' ), {
+					id: 'activate-akismet-failure',
+				} );
+			} );
 
 		return false;
 	};
@@ -209,10 +223,18 @@ class DashAkismet extends Component {
 	}
 }
 
-export default connect( state => ( {
-	akismetData: getAkismetData( state ),
-	sitePlan: getSitePlan( state ),
-	isOfflineMode: isOfflineMode( state ),
-	upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
-	nonce: getApiNonce( state ),
-} ) )( DashAkismet );
+export default connect(
+	state => {
+		return {
+			akismetData: getAkismetData( state ),
+			sitePlan: getSitePlan( state ),
+			isOfflineMode: isOfflineMode( state ),
+			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+			nonce: getApiNonce( state ),
+		};
+	},
+	{
+		createNotice,
+		removeNotice,
+	}
+)( DashAkismet );

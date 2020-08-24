@@ -81,7 +81,7 @@ export default withSelect( ( select, props ) => {
 	}
 
 	const { getMedia, getUser } = select( 'core' );
-	const { getCurrentPost, getCurrentPostId, getEditedPostAttribute } = select( 'core/editor' );
+	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
@@ -97,7 +97,6 @@ export default withSelect( ( select, props ) => {
 			__( 'Visit the post for more.', 'jetpack' ),
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
-		image:
-			!! featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ), getCurrentPostId() ),
+		image: !! featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ) ),
 	};
 } )( SocialPreviewsModal );

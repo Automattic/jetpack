@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
  */
 import Tabs from './tabs';
 import LoadingError from './loading-error';
-import LoadingStatus from './loading-status';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 
@@ -17,7 +16,6 @@ const Edit = props => {
 	const { attributes, className } = props;
 	const { currency } = attributes;
 
-	const [ isLoading, setIsLoading ] = useState( true );
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
 	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
@@ -26,7 +24,6 @@ const Edit = props => {
 
 	const apiError = message => {
 		setLoadingError( message );
-		setIsLoading( false );
 	};
 
 	const filterProducts = productList =>
@@ -50,7 +47,6 @@ const Edit = props => {
 	const mapStatusToState = result => {
 		if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
 			setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
-			setIsLoading( false );
 			return;
 		}
 		setShouldUpgrade( result.should_upgrade_to_access_memberships );
@@ -61,14 +57,12 @@ const Edit = props => {
 
 		if ( hasRequiredProducts( filteredProducts ) ) {
 			setProducts( filteredProducts );
-			setIsLoading( false );
 			return;
 		}
 
 		// Set fake products when plan should be upgraded or there is no connection to Stripe so users can still try the
 		// block in the editor.
 		if ( result.should_upgrade_to_access_memberships || result.connect_url ) {
-			setIsLoading( false );
 			setProducts( {
 				'one-time': -1,
 				'1 month': -1,
@@ -79,7 +73,6 @@ const Edit = props => {
 
 		// Only create products if we have the correct plan and stripe connection.
 		fetchDefaultProducts( currency ).then( defaultProducts => {
-			setIsLoading( false );
 			return setProducts( filterProducts( defaultProducts ) );
 		}, apiError );
 	};
@@ -88,10 +81,6 @@ const Edit = props => {
 		const updateData = () => fetchStatus( 'donation' ).then( mapStatusToState, apiError );
 		updateData();
 	}, [ currency ] );
-
-	if ( isLoading ) {
-		return <LoadingStatus className={ className } />;
-	}
 
 	if ( loadingError ) {
 		return <LoadingError className={ className } error={ loadingError } />;

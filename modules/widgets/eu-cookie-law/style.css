@@ -124,3 +124,11 @@ amp-consent.widget_eu_cookie_law_widget.widget.top {
 		right: 8px;
 	}
 }
+
+/**
+ * Tweak position of the Customizer edit button to make it more obvious this
+ * is an editable widget rather than a normal accept cookies banner.
+ */
+.widget_eu_cookie_law_widget .customize-partial-edit-shortcut > button {
+	left: 0;
+}

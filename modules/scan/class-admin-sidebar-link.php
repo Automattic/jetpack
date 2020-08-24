@@ -112,10 +112,12 @@ class Admin_Sidebar_Link {
 		$offset = 0;
 		foreach ( $submenu['jetpack'] as $link ) {
 			if ( 'jetpack_admin_page' !== $link[1] ) {
-				return $offset;
+				break;
 			}
 			$offset++;
 		}
+
+		return $offset;
 	}
 
 	/**

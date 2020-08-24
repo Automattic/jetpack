@@ -212,6 +212,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_publicize_options'                => array(),
 			'jetpack_connection_active_plugins'        => array( 'jetpack' ),
 			'jetpack_sync_non_blocking'                => false,
+			'ce4wp_referred_by'                        => array(),
 		);
 
 		// Options Deprecated in WP 5.5.

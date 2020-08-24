@@ -9,7 +9,7 @@
 	display: inline-block;
 	position: relative;
 
-	&-theme-wide,
+	&.is-style-wide,
 	&.is-placeholder {
 		display: block;
 	}
@@ -42,25 +42,30 @@
 				width: 100%;
 				@media screen and ( min-width: 480px ) {
 					width: 327px;
+
+					input[type=text].components-form-token-field__input {
+						min-height: 32px;
+					}
 				}
 			}
 
-			.components-button.is-large {
-				// Used to emulate the new Gutenberg styles
-				// TODO: remove once support for < 7.2 is removed
+			> .components-button {
 				padding-bottom: 0px;
 				padding-top: 0px;
 				padding-right: 8px;
 				padding-left: 8px;
-				height: 36px;
+				height: 42px;
 				align-items: center;
 				line-height: normal;
-				// End copied styles
 
 				@media screen and ( min-width: 480px ) {
-					margin: 1px 0 0 4px;
+					margin: 0 0 0 4px;
 					position: relative;
 				}
+			}
+
+			.components-form-token-field__remove-token {
+				padding: 2px 6px;
 			}
 		}
 	}
@@ -81,6 +86,11 @@
 		margin-bottom: 1em;
 		position: relative;
 		width: 100%;
+
+		.components-form-token-field__token-text {
+			display: inline-flex;
+			align-items: center;
+		}
 	}
 
 	&-placeholder-links {
@@ -91,6 +101,11 @@
 		}
 
 		a {
+			@media screen and ( min-width: 480px ) {
+				form > button {
+					height: 50px;
+				}
+			}
 			padding: 0.25em 1em 0.25em 0;
 			&:last-child {
 				padding-right: 0;
@@ -99,7 +114,7 @@
 		}
 	}
 
-	&-theme-button {
+	&.is-style-button {
 		&.has-no-margin {
 			iframe {
 				margin: -14px;

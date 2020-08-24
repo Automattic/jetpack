@@ -7,6 +7,7 @@ import formatCurrency from '@automattic/format-currency';
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
+import { ENTER } from '@wordpress/keycodes';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 
 /**
@@ -20,226 +21,223 @@ import { initializeMembershipButtons } from '../../shared/memberships';
  */
 import './view.scss';
 
-let jetpackDonationsAmount = null;
-let jetpackDonationsIsCustomAmount = false;
-let jetpackDonationsInterval = 'one-time';
+class JetpackDonations {
+	constructor( block ) {
+		this.block = block;
+		this.amount = null;
+		this.isCustomAmount = false;
+		this.interval = 'one-time';
 
-const getNavItem = interval =>
-	document.querySelector(
-		`.wp-block-jetpack-donations .donations__nav-item[data-interval="${ interval }"]`
-	);
+		// Initialize block.
+		this.initNavigation();
+		this.handleCustomAmount();
+		this.handleChosenAmount();
 
-const resetSelectedAmount = () => {
-	const selectedAmount = document.querySelector(
-		'.wp-block-jetpack-donations .donations__amount.is-selected'
-	);
-	if ( selectedAmount ) {
-		selectedAmount.classList.remove( 'is-selected' );
+		// Remove loading spinner.
+		this.block.querySelector( '.donations__container' ).classList.add( 'loaded' );
 	}
-};
 
-const getDonateButton = interval => {
-	const buttonIntervalClasses = {
-		'one-time': 'donations__one-time-item',
-		'1 month': 'donations__monthly-item',
-		'1 year': 'donations__annual-item',
-	};
-	return document.querySelector(
-		`.wp-block-jetpack-donations .donations__donate-button.${ buttonIntervalClasses[ interval ] }`
-	);
-};
-
-const toggleDonateButton = enable => {
-	const donateButton = getDonateButton( jetpackDonationsInterval );
-	if ( enable ) {
-		donateButton.classList.remove( 'is-disabled' );
-	} else {
-		donateButton.classList.add( 'is-disabled' );
+	getNavItem( interval ) {
+		return this.block.querySelector( `.donations__nav-item[data-interval="${ interval }"]` );
 	}
-};
 
-const updateUrl = () => {
-	const donateButton = getDonateButton( jetpackDonationsInterval );
-	const url = donateButton.getAttribute( 'href' );
-	if ( jetpackDonationsAmount ) {
-		donateButton.setAttribute(
-			'href',
-			addQueryArgs( url, {
-				amount: jetpackDonationsAmount,
-				...( jetpackDonationsIsCustomAmount && { customAmount: true } ),
-			} )
+	resetSelectedAmount() {
+		const selectedAmount = this.block.querySelector( '.donations__amount.is-selected' );
+		if ( selectedAmount ) {
+			selectedAmount.classList.remove( 'is-selected' );
+		}
+	}
+
+	getDonateButton() {
+		const buttonIntervalClasses = {
+			'one-time': 'donations__one-time-item',
+			'1 month': 'donations__monthly-item',
+			'1 year': 'donations__annual-item',
+		};
+		return this.block.querySelector(
+			`.donations__donate-button.${ buttonIntervalClasses[ this.interval ] }`
 		);
-	} else {
-		donateButton.setAttribute( 'href', removeQueryArgs( url, 'amount', 'customAmount' ) );
-	}
-};
-
-const updateAmountFromCustomAmountInput = () => {
-	const input = document.querySelector(
-		'.wp-block-jetpack-donations .donations__custom-amount .donations__amount-value'
-	);
-	const wrapper = document.querySelector( '.wp-block-jetpack-donations .donations__custom-amount' );
-
-	const amount = input.innerHTML;
-	if ( ! amount ) {
-		jetpackDonationsAmount = null;
-		toggleDonateButton( false );
-		return;
 	}
 
-	// Validates the amount.
-	const currency = input.dataset.currency;
-	const parsedAmount = parseAmount( amount, currency );
-	if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
-		wrapper.classList.remove( 'has-error' );
-		jetpackDonationsAmount = parsedAmount;
-		toggleDonateButton( true );
-	} else {
-		wrapper.classList.add( 'has-error' );
-		jetpackDonationsAmount = null;
-		toggleDonateButton( false );
-	}
-	updateUrl();
-};
-
-const jetpackDonationsInitNavigation = () => {
-	const navItems = document.querySelectorAll( '.wp-block-jetpack-donations .donations__nav-item' );
-	const tabContent = document.querySelector( '.wp-block-jetpack-donations .donations__tab' );
-	const tabContentClasses = {
-		'one-time': 'is-one-time',
-		'1 month': 'is-monthly',
-		'1 year': 'is-annual',
-	};
-
-	const handleClick = event => {
-		// Update selected interval.
-		const prevInterval = jetpackDonationsInterval;
-		const newInterval = event.target.dataset.interval;
-		jetpackDonationsInterval = newInterval;
-
-		// Toggle nav item.
-		const prevNavItem = getNavItem( prevInterval );
-		prevNavItem.classList.remove( 'is-active' );
-		const newNavItem = getNavItem( newInterval );
-		newNavItem.classList.add( 'is-active' );
-
-		// Toggle tab content.
-		tabContent.classList.remove( tabContentClasses[ prevInterval ] );
-		tabContent.classList.add( tabContentClasses[ newInterval ] );
-
-		// Reset chosen amount.
-		jetpackDonationsAmount = null;
-		jetpackDonationsIsCustomAmount = false;
-		resetSelectedAmount();
-		updateUrl();
-
-		// Disable donate button.
-		toggleDonateButton( false );
-	};
-
-	navItems.forEach( navItem => {
-		navItem.addEventListener( 'click', handleClick );
-		navItem.addEventListener( 'keydown', handleClick );
-	} );
-
-	// Activates the default tab on first execution.
-	const navItem = getNavItem( jetpackDonationsInterval );
-	navItem.classList.add( 'is-active' );
-	tabContent.classList.add( tabContentClasses[ jetpackDonationsInterval ] );
-};
-
-const jetpackDonationsHandleCustomAmount = () => {
-	const input = document.querySelector(
-		'.wp-block-jetpack-donations .donations__custom-amount .donations__amount-value'
-	);
-	if ( ! input ) {
-		return;
+	toggleDonateButton( enable ) {
+		const donateButton = this.getDonateButton();
+		enable
+			? donateButton.classList.remove( 'is-disabled' )
+			: donateButton.classList.add( 'is-disabled' );
 	}
 
-	const wrapper = document.querySelector( '.wp-block-jetpack-donations .donations__custom-amount' );
-
-	// Make input editable.
-	input.setAttribute( 'contenteditable', '' );
-
-	// Prevent new lines.
-	input.addEventListener( 'keydown', event => {
-		if ( event.keyCode === 13 ) {
-			event.preventDefault();
-		}
-	} );
-
-	input.addEventListener( 'focus', () => {
-		// Add focus styles to wrapper element.
-		wrapper.classList.add( 'has-focus' );
-		wrapper.classList.remove( 'is-selected' );
-
-		// Toggle selected amount.
-		resetSelectedAmount();
-		if ( jetpackDonationsIsCustomAmount ) {
-			return;
-		}
-		jetpackDonationsIsCustomAmount = true;
-		updateAmountFromCustomAmountInput();
-	} );
-
-	input.addEventListener( 'blur', () => {
-		// Remove focus styles to wrapper element.
-		wrapper.classList.remove( 'has-focus' );
-
-		if ( ! jetpackDonationsIsCustomAmount || ! jetpackDonationsAmount ) {
-			return;
-		}
-
-		// Mark custom amount as selected.
-		wrapper.classList.add( 'is-selected' );
-
-		// Formats the entered amount.
-		input.innerHTML = formatCurrency( jetpackDonationsAmount, input.dataset.currency, {
-			symbol: '',
-		} );
-	} );
-
-	input.addEventListener( 'input', updateAmountFromCustomAmountInput );
-};
-
-const jetpackDonationsHandleChosenAmount = () => {
-	const prefixedAmounts = document.querySelectorAll(
-		'.wp-block-jetpack-donations .donations__amount:not( .donations__custom-amount )'
-	);
-	prefixedAmounts.forEach( amount => {
-		amount.addEventListener( 'click', event => {
-			// Toggle amount.
-			resetSelectedAmount();
-			event.target.classList.add( 'is-selected' );
-			jetpackDonationsAmount = event.target.dataset.amount;
-			jetpackDonationsIsCustomAmount = false;
-			const customAmountWrapper = document.querySelector(
-				'.wp-block-jetpack-donations .donations__custom-amount'
+	updateUrl() {
+		const donateButton = this.getDonateButton();
+		const url = donateButton.getAttribute( 'href' );
+		if ( this.amount ) {
+			donateButton.setAttribute(
+				'href',
+				addQueryArgs( url, {
+					amount: this.amount,
+					...( this.isCustomAmount && { customAmount: true } ),
+				} )
 			);
-			if ( customAmountWrapper ) {
-				customAmountWrapper.classList.remove( 'has-error' );
-			}
-			updateUrl();
+		} else {
+			donateButton.setAttribute( 'href', removeQueryArgs( url, 'amount', 'customAmount' ) );
+		}
+	}
 
-			// Enables donate button.
-			const donateButton = getDonateButton( jetpackDonationsInterval );
-			donateButton.classList.remove( 'is-disabled' );
+	updateAmountFromCustomAmountInput() {
+		const input = this.block.querySelector( '.donations__custom-amount .donations__amount-value' );
+		const wrapper = this.block.querySelector( '.donations__custom-amount' );
+
+		const amount = input.innerHTML;
+		if ( ! amount ) {
+			this.amount = null;
+			this.toggleDonateButton( false );
+			return;
+		}
+
+		// Validates the amount.
+		const currency = input.dataset.currency;
+		const parsedAmount = parseAmount( amount, currency );
+		if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
+			wrapper.classList.remove( 'has-error' );
+			this.amount = parsedAmount;
+			this.toggleDonateButton( true );
+		} else {
+			wrapper.classList.add( 'has-error' );
+			this.amount = null;
+			this.toggleDonateButton( false );
+		}
+		this.updateUrl();
+	}
+
+	initNavigation() {
+		const navItems = this.block.querySelectorAll( '.donations__nav-item' );
+		const tabContent = this.block.querySelector( '.donations__tab' );
+		const tabContentClasses = {
+			'one-time': 'is-one-time',
+			'1 month': 'is-monthly',
+			'1 year': 'is-annual',
+		};
+
+		const handleClick = event => {
+			// Update selected interval.
+			const prevInterval = this.interval;
+			const newInterval = event.target.dataset.interval;
+			this.interval = newInterval;
+
+			// Toggle nav item.
+			const prevNavItem = this.getNavItem( prevInterval );
+			prevNavItem.classList.remove( 'is-active' );
+			const newNavItem = this.getNavItem( newInterval );
+			newNavItem.classList.add( 'is-active' );
+
+			// Toggle tab content.
+			tabContent.classList.remove( tabContentClasses[ prevInterval ] );
+			tabContent.classList.add( tabContentClasses[ newInterval ] );
+
+			// Reset chosen amount.
+			this.amount = null;
+			this.isCustomAmount = false;
+			this.resetSelectedAmount();
+			this.updateUrl();
+
+			// Disable donate button.
+			this.toggleDonateButton( false );
+		};
+
+		navItems.forEach( navItem => {
+			navItem.addEventListener( 'click', handleClick );
+			navItem.addEventListener( 'keydown', handleClick );
 		} );
-	} );
 
-	// Disable all buttons on init since no amount has been chosen yet.
-	document
-		.querySelectorAll( '.wp-block-jetpack-donations .donations__donate-button' )
-		.forEach( button => button.classList.add( 'is-disabled' ) );
-};
+		// Activates the default tab on first execution.
+		const navItem = this.getNavItem( this.interval );
+		navItem.classList.add( 'is-active' );
+		tabContent.classList.add( tabContentClasses[ this.interval ] );
+	}
+
+	handleCustomAmount() {
+		const input = this.block.querySelector( '.donations__custom-amount .donations__amount-value' );
+		if ( ! input ) {
+			return;
+		}
+
+		const wrapper = this.block.querySelector( '.donations__custom-amount' );
+
+		// Make input editable.
+		input.setAttribute( 'contenteditable', '' );
+
+		// Prevent new lines.
+		input.addEventListener( 'keydown', event => {
+			if ( event.keyCode === ENTER ) {
+				event.preventDefault();
+			}
+		} );
+
+		input.addEventListener( 'focus', () => {
+			// Add focus styles to wrapper element.
+			wrapper.classList.add( 'has-focus' );
+			wrapper.classList.remove( 'is-selected' );
+
+			// Toggle selected amount.
+			this.resetSelectedAmount();
+			if ( this.isCustomAmount ) {
+				return;
+			}
+			this.isCustomAmount = true;
+			this.updateAmountFromCustomAmountInput();
+		} );
+
+		input.addEventListener( 'blur', () => {
+			// Remove focus styles to wrapper element.
+			wrapper.classList.remove( 'has-focus' );
+
+			if ( ! this.isCustomAmount || ! this.amount ) {
+				return;
+			}
+
+			// Mark custom amount as selected.
+			wrapper.classList.add( 'is-selected' );
+
+			// Formats the entered amount.
+			input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {
+				symbol: '',
+			} );
+		} );
+
+		input.addEventListener( 'input', () => this.updateAmountFromCustomAmountInput() );
+	}
+
+	handleChosenAmount() {
+		const prefixedAmounts = this.block.querySelectorAll(
+			'.donations__amount:not( .donations__custom-amount )'
+		);
+		prefixedAmounts.forEach( amount => {
+			amount.addEventListener( 'click', event => {
+				// Toggle amount.
+				this.resetSelectedAmount();
+				event.target.classList.add( 'is-selected' );
+				this.amount = event.target.dataset.amount;
+				this.isCustomAmount = false;
+				const customAmountWrapper = this.block.querySelector( '.donations__custom-amount' );
+				if ( customAmountWrapper ) {
+					customAmountWrapper.classList.remove( 'has-error' );
+				}
+				this.updateUrl();
+
+				// Enables the donate button.
+				const donateButton = this.getDonateButton();
+				donateButton.classList.remove( 'is-disabled' );
+			} );
+		} );
+
+		// Disable all buttons on init since no amount has been chosen yet.
+		this.block
+			.querySelectorAll( '.donations__donate-button' )
+			.forEach( button => button.classList.add( 'is-disabled' ) );
+	}
+}
 
 domReady( () => {
-	jetpackDonationsInitNavigation();
-	jetpackDonationsHandleCustomAmount();
-	jetpackDonationsHandleChosenAmount();
+	const blocks = document.querySelectorAll( '.wp-block-jetpack-donations' );
+	blocks.forEach( block => new JetpackDonations( block ) );
 	initializeMembershipButtons( '.donations__donate-button' );
-	const container = document.querySelector( '.wp-block-jetpack-donations .donations__container' );
-	if ( container ) {
-		container.classList.add( 'loaded' );
-	}
 } );
