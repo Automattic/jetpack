@@ -5,6 +5,7 @@
 		"calendly",
 		"contact-form",
 		"contact-info",
+		"donations",
 		"eventbrite",
 		"gathering-tweetstorms",
 		"gif",
@@ -36,7 +37,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "donations", "story" ],
+	"beta": [ "amazon", "story" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
