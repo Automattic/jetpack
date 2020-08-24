@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { applyFilters } from '@wordpress/hooks';
-
-/**
  * Gets the URL of the media. Tries loading a smaller size (1024px width) if available and falls back to the full size.
  *
  * @param {object} media
