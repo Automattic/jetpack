@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { RichText } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -87,6 +88,11 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		} );
 	};
 
+	const formatTypes = useSelect( select => select( 'core/rich-text' ).getFormatTypes(), [] );
+	const allowedFormatsForButton = formatTypes
+		.map( format => format.name )
+		.filter( format => format !== 'core/link' );
+
 	return (
 		<div className="donations__tab">
 			<RichText
@@ -147,6 +153,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
 					value={ getDonationValue( 'buttonText' ) }
 					onChange={ value => setButtonText( value ) }
+					allowedFormats={ allowedFormatsForButton }
 				/>
 			</div>
 		</div>
