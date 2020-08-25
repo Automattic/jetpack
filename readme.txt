@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * External Media: offer a way to disconnect Google Photos accounts from within the media modal.
 * Sharing: add spacing around customization link.
 * Search: improve styling of expanded results in the Instant Search interface.
+* Shortcodes: remove jQuery dependency from Gist shortcode.
 
 **Improved compatibility**
 
