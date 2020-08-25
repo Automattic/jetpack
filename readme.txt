@@ -117,8 +117,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: ensure our External Media option is compatible with other plugins that also make changes to the Media Library options in the block editor.
 * Connection: ensure better compatibility of the Monitor, Protect, and Subscription features with your site's connection to WordPress.com.
 * General: remove references to pre-PHP 5.6 code.
-* Sharing: add Slim SEO to the list of plugins compatible with Jetpack's Open Graph and Twitter Cards Meta tags.
 * Sharing: improve accessibility of the sharing butttons in AMP views.
+* Third-party plugin compatibility: add new compatibility file for the Creative Mail plugin.
+* Third-party plugin compatibility: add Slim SEO to the list of plugins compatible with Jetpack's Open Graph and Twitter Cards Meta tags.
 
 **Bug fixes**
 
