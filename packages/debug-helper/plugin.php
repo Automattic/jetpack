@@ -17,7 +17,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '1.0' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '1.0.1' );
 
 /**
  * Include file names from the modules directory here.
