@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Blocks: add "Edit" button the Calendly block toolbar.
+* Blocks: add new "Consent" field option to the Form block.
 * Connection: improve the reconnection process when your site is not properly connected to WordPress.com anymore.
 * Dashboard: improved legibility across all Jetpack interfaces.
 * External Media: improve keyboard navigation in the media modal.
