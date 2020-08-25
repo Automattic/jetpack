@@ -311,7 +311,7 @@ const features = {
 				isPaid: true,
 				configureLink: isCreativeMailActive ? '/wp-admin/admin.php?page=creativemail' : null,
 				learnMoreLink:
-					'https://jetpack.com/support/jetpack-blocks/subscriber-form-block-and-field/',
+					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
 				isLearnMoreLinkExternal: true,
 			};
 		},
