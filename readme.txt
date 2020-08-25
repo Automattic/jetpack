@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Connection: ensure better compatibility of the Monitor and Protect features with your site's connection to WordPress.com.
+* General: remove references to pre-PHP 5.6 code.
 * Sharing: add Slim SEO to the list of plugins compatible with Jetpack's Open Graph and Twitter Cards Meta tags.
 
 **Bug fixes**
