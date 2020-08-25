@@ -2,6 +2,65 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 8.9 =
+
+* Release date: September 1, 2020
+* Release post: https://wp.me/p1moTy-rAs
+
+**Major Enhancements**
+
+* The new Donations Block allows you to easily accept and process donations on your site.
+* You can now preview how your posts will look on Facebook, Twitter, and Google Search Results even before you hit the Publish button.
+
+
+**Enhancements**
+
+* Blocks: add "Edit" button to the Calendly block toolbar.
+* Blocks: add new "Consent" field option to the Form block.
+* Connection: improve the reconnection process when your site is not properly connected to WordPress.com anymore.
+* Connection: improve messaging offered and displayed in the dashboard when there are connection issues between your site and WordPress.com.
+* Contact Form: put feedback that matches the disallowed list in trash.
+* Dashboard: improved legibility across all Jetpack interfaces.
+* External Media: improve keyboard navigation in the media modal.
+* External Media: offer a way to disconnect Google Photos accounts from within the media modal.
+* Sharing: add spacing around customization link.
+* Search: improve styling of expanded results in the Instant Search interface.
+* Shortcodes: remove jQuery dependency from Gist shortcode.
+
+**Improved compatibility**
+
+* Anti-Spam: better handle globally-configured Akismet API keys in the Jetpack dashboard.
+* Blocks: update to use latest colors defined by WordPress.
+* Blocks: ensure our External Media option is compatible with other plugins that also make changes to the Media Library options in the block editor.
+* Connection: ensure better compatibility of the Monitor, Protect, Secure Sign In, Stats, and Subscription features with your site's connection to WordPress.com.
+* General: remove references to pre-PHP 5.6 code.
+* Sharing: improve accessibility of the sharing butttons in AMP views.
+* Shortcode Embeds: ensure compatibility of the Instagram embeds with upcoming Instagram API changes.
+* Third-party plugin compatibility: add new compatibility file for the Creative Mail plugin.
+* Third-party plugin compatibility: add Slim SEO to the list of plugins compatible with Jetpack's Open Graph and Twitter Cards Meta tags.
+
+**Bug fixes**
+
+* Autoloader: avoid issues when updating plugins using the Autoloader in environments using OPCache.
+* Autoloader: remove the map regeneration that occurs after a plugin update.
+* Activity Log: ensure that theme changes are mentioned in the Activity Log.
+* Blocks: ensure alignment options are respected for the Video block in the editor.
+* Blocks: avoid accidental disconnections of the Payments block in the editor.
+* Blocks: bug fixes and improvement of consistency of block style implementation in the OpenTable block.
+* Blocks: avoid duplicate navigation arrows in the Slideshow block.
+* CLI tools: avoid notices when using Synchronization CLI tools.
+* Connection: ensure that secondary users can connect their own account to their WordPress.com account.
+* Dashboard: fix missing card for Backups in some error cases.
+* Protect: avoid displaying HTML markup on blocked login screen.
+* Protect: avoid Fatal errors when trying to update Protect options from the REST API.
+* Search: ensure that Instant Search options are properly saved in the Customizer.
+* Search: avoid errors when searching for a term and including the "%" symbol.
+* Shortcodes: avoid Fatal errors when receiving unexpected response from Flickr.
+* Theme Tools: resolve a PHP notice in PHP 7.4.
+* Video: ensure that videos uploaded with Jetpack Videos are assigned to the correct author.
+* Widgets: ensure that the Instagram Widget is properly styled when previewed in the customizer.
+* Widgets: do not hide accepted cookie widget to allow visual customization in the Customizer.
+
 = 8.8.2 =
 
 * Release date: August 17, 2020
