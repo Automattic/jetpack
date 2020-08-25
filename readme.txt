@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: add "Edit" button the Calendly block toolbar.
 * Blocks: add new "Consent" field option to the Form block.
 * Connection: improve the reconnection process when your site is not properly connected to WordPress.com anymore.
+* Connection: improve messaging offered and displayed in the dashboard when there are connection issues between your site and WordPress.com.
 * Dashboard: improved legibility across all Jetpack interfaces.
 * External Media: improve keyboard navigation in the media modal.
 * External Media: offer a way to disconnect Google Photos accounts from within the media modal.
