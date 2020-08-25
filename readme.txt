@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Dashboard: improved legibility across all Jetpack interfaces.
+* Search: improve styling of expanded results in the Instant Search interface.
 
 **Improved compatibility**
 
