@@ -1,3 +1,5 @@
+@import "~@automattic/color-studio/dist/color-variables";
+
 .wp-block-jetpack-repeat-visitor {
 	.components-notice {
 		margin: 1em 0 0;
@@ -40,7 +42,7 @@
 	}
 
 	.components-base-control__help {
-		color: var( --muriel-hot-red-500 );
+		color: $studio-red-50;
 		font-size: 13px;
 	}
 }
