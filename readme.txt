@@ -137,6 +137,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection: ensure that secondary users can connect their own account to their WordPress.com account.
 * Dashboard: fix missing card for Backups in some error cases.
 * Search: ensure that Instant Search options are properly saved in the Customizer.
+* Shortcodes: avoid Fatal errors when receiving unexpected response from Flickr.
 * Theme Tools: resolve a PHP notice in PHP 7.4.
 * Video: ensure that videos uploaded with Jetpack Videos are assigned to the correct author.
 * Widgets: ensure that the Instagram Widget is properly styled when previewed in the customizer.
