@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
+import { get, rest } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
+import restApi from 'rest-api';
 import { getVaultPressData, isAkismetKeyValid } from 'state/at-a-glance';
 import { getSiteRawUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
@@ -21,6 +22,7 @@ import {
 	hasActiveScanPurchase,
 	hasActiveSearchPurchase,
 } from 'state/site';
+import { fetchPluginsData, isPluginActive } from 'state/site/plugins';
 
 function getInfoString( productName ) {
 	return sprintf(
@@ -300,6 +302,39 @@ const features = {
 				onToggleChange: currentCheckedValue => {
 					return dispatch( updateSettings( { 'copy-post': ! currentCheckedValue } ) );
 				},
+			};
+		},
+	},
+
+	'creative-mail': {
+		mapStateToProps: state => {
+			const isCreativeMailActive = isPluginActive(
+				state,
+				'creative-mail-by-constant-contact/creative-mail-plugin.php'
+			);
+
+			return {
+				feature: 'creative-mail',
+				title: __( 'Creative Mail by Constant Contact', 'jetpack' ),
+				details: __( 'Turn visitors into subscribers with email marketing.', 'jetpack' ),
+				checked: isCreativeMailActive,
+				isDisabled: true,
+				isPaid: true,
+				configureLink: isCreativeMailActive ? '/wp-admin/admin.php?page=creativemail' : null,
+				learnMoreLink:
+					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
+				isLearnMoreLinkExternal: true,
+			};
+		},
+		mapDispatchToProps: dispatch => {
+			const installAndRefreshPluginData = () => {
+				restApi.installPlugin( 'creative-mail-by-constant-contact', 'setup-wizard' ).then( () => {
+					dispatch( fetchPluginsData() );
+				} );
+			};
+
+			return {
+				onInstallClick: () => installAndRefreshPluginData(),
 			};
 		},
 	},

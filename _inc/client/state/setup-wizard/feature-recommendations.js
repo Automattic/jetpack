@@ -11,6 +11,7 @@ export const featureGroups = {
 		'infinite-scroll',
 	],
 	marketing: [
+		'creative-mail',
 		'ads',
 		'comment-likes',
 		'contact-form',
@@ -61,6 +62,7 @@ export const featureRecommendations = {
 		'carousel',
 		'extra-sidebar-widgets',
 		'tiled-galleries',
+		'creative-mail',
 	],
 	'business-use': [ 'monitor', 'contact-form', 'notifications' ],
 	'advertising-revenue': [ 'ads' ],

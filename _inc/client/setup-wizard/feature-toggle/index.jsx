@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
  */
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import Spinner from 'components/spinner';
 import analytics from 'lib/analytics';
 
 import {
@@ -32,12 +33,16 @@ let FeatureToggle = props => {
 		configureLink,
 		upgradeLink,
 		optionsLink,
+		learnMoreLink,
+		onInstallClick,
 		isPaid = false,
 		isButtonLinkExternal = false,
 		isOptionsLinkExternal = false,
+		isLearnMoreLinkExternal = false,
 	} = props;
 
 	const [ windowWidth, setWindowWidth ] = useState( false );
+	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	const handleResize = useCallback( () => {
 		setWindowWidth( window.innerWidth <= 660 ? 'small' : 'large' );
@@ -79,6 +84,19 @@ let FeatureToggle = props => {
 		} );
 	}, [ feature ] );
 
+	const onLearnMoreClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_feature_learn_more', {
+			feature,
+		} );
+	}, [ feature ] );
+
+	const handleOnInstallClick = useCallback( () => {
+		setIsInstalling( true );
+		onInstallClick().then( () => {
+			setIsInstalling( false );
+		} );
+	} );
+
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
 		buttonContent = (
@@ -111,6 +129,22 @@ let FeatureToggle = props => {
 				) }
 			</Button>
 		);
+	} else if ( ! checked && onInstallClick ) {
+		if ( isInstalling ) {
+			buttonContent = (
+				<Button disabled>
+					{
+						<div className="jp-setup-wizard-install-spinner-container">
+							<Spinner />
+						</div>
+					}
+				</Button>
+			);
+		} else {
+			buttonContent = (
+				<Button onClick={ handleOnInstallClick }>{ __( 'Install now', 'jetpack' ) }</Button>
+			);
+		}
 	}
 
 	const largeWindow = 'large' === windowWidth;
@@ -121,13 +155,15 @@ let FeatureToggle = props => {
 		infoContent = <p className="jp-setup-wizard-feature-toggle-info">{ info }</p>;
 	}
 
-	let optionsLinkElement;
+	// Note: if any more types of text links get added to this component then refactor these
+	// into a single set of textLink, isTextLinkExternal, and textLinkDisplayText props.
+	let textLinkContent;
 	if ( optionsLink ) {
 		const externalLinkProps = isOptionsLinkExternal
 			? { target: '_blank', rel: 'noopener noreferrer' }
 			: {};
 
-		optionsLinkElement = (
+		textLinkContent = (
 			<a
 				href={ optionsLink }
 				className="jp-setup-wizard-view-options-link"
@@ -136,6 +172,22 @@ let FeatureToggle = props => {
 			>
 				{ __( 'View options', 'jetpack' ) }
 				{ isOptionsLinkExternal && <Gridicon icon="external" size="18" /> }
+			</a>
+		);
+	} else if ( learnMoreLink ) {
+		const externalLinkProps = isLearnMoreLinkExternal
+			? { target: '_blank', rel: 'noopener noreferrer' }
+			: {};
+
+		textLinkContent = (
+			<a
+				href={ learnMoreLink }
+				className="jp-setup-wizard-view-options-link"
+				{ ...externalLinkProps }
+				onClick={ onLearnMoreClick }
+			>
+				{ __( 'Learn more', 'jetpack' ) }
+				{ isLearnMoreLinkExternal && <Gridicon icon="external" size="18" /> }
 			</a>
 		);
 	}
@@ -167,7 +219,7 @@ let FeatureToggle = props => {
 				<p className="jp-setup-wizard-feature-toggle-content">
 					{ largeWindow && <span>{ title }</span> }
 					{ details }
-					{ optionsLinkElement && <span>{ optionsLinkElement }</span> }
+					{ textLinkContent && <span>{ textLinkContent }</span> }
 				</p>
 			</div>
 			{ ( buttonContent || infoContent ) && (
@@ -187,13 +239,16 @@ FeatureToggle.propTypes = {
 	info: PropTypes.string,
 	checked: PropTypes.bool.isRequired,
 	onToggleChange: PropTypes.func,
+	onInstallClick: PropTypes.func,
 	configureLink: PropTypes.string,
 	upgradeLink: PropTypes.string,
 	optionsLink: PropTypes.string,
+	learnMoreLink: PropTypes.string,
 	isPaid: PropTypes.bool,
 	isDisabled: PropTypes.bool,
 	isButtonLinkExternal: PropTypes.bool,
 	isOptionsLinkExternal: PropTypes.bool,
+	isLearnMoreLinkExternal: PropTypes.bool,
 };
 
 FeatureToggle = connect(

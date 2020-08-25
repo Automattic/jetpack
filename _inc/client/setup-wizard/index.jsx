@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import QuerySite from 'components/data/query-site';
+import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
@@ -47,6 +48,7 @@ const SetupWizardComponent = props => {
 	return (
 		<>
 			<QuerySite />
+			<QuerySitePlugins />
 			<QueryRewindStatus />
 			<QueryVaultPressData />
 			<QueryAkismetKeyCheck />
