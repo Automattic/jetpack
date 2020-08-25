@@ -108,7 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Blocks: add "Edit" button the Calendly block toolbar.
+* Blocks: add "Edit" button to the Calendly block toolbar.
 * Blocks: add new "Consent" field option to the Form block.
 * Connection: improve the reconnection process when your site is not properly connected to WordPress.com anymore.
 * Connection: improve messaging offered and displayed in the dashboard when there are connection issues between your site and WordPress.com.
