@@ -5831,7 +5831,7 @@ endif;
 	 */
 	public static function xmlrpc_async_call( ...$args ) {
 
-		_deprecated_function( 'Jetpack::xmlrpc_async_call', 'jetpack-8.9.0', 'Jetpack_Xmlrpc_Async_Call::add_call' );
+		_deprecated_function( 'Jetpack::xmlrpc_async_call', 'jetpack-8.9.0', 'Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call' );
 
 		global $blog_id;
 		static $clients = array();
