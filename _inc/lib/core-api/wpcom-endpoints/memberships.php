@@ -38,11 +38,18 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_status' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
 					'args'                => array(
-						'type' => array(
+						'type'   => array(
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => function( $param ) {
 								return in_array( $param, array( 'donation', 'all' ), true );
+							},
+						),
+						'source' => array(
+							'type'              => 'string',
+							'required'          => false,
+							'validate_callback' => function( $param ) {
+								return in_array( $param, array( 'calypso', 'earn', 'gutenberg', 'gutenberg-wpcom' ), true );
 							},
 						),
 					),
@@ -219,6 +226,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
+		$source       = $request['source'];
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
@@ -229,7 +237,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			if ( $product_type ) {
 				$path = add_query_arg(
 					array(
-						'type' => $product_type,
+						'type'   => $product_type,
+						'source' => $source,
 					),
 					$path
 				);
