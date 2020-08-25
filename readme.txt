@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection: ensure better compatibility of the Monitor, Protect, Secure Sign In, Stats, and Subscription features with your site's connection to WordPress.com.
 * General: remove references to pre-PHP 5.6 code.
 * Sharing: improve accessibility of the sharing butttons in AMP views.
+* Shortcode Embeds: ensure compatibility of the Instagram embeds with upcoming Instagram API changes.
 * Third-party plugin compatibility: add new compatibility file for the Creative Mail plugin.
 * Third-party plugin compatibility: add Slim SEO to the list of plugins compatible with Jetpack's Open Graph and Twitter Cards Meta tags.
 
