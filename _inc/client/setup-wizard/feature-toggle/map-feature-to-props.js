@@ -35,12 +35,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-ads-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-ads-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -74,6 +77,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ].includes(
 				planClass
@@ -82,13 +86,17 @@ const features = {
 			let optionsLink;
 			let isOptionsLinkExternal = false;
 			if ( inCurrentPlan ) {
-				optionsLink = getRedirectUrl( 'jetpack-setup-wizard-anti-spam-get-started' );
+				optionsLink = getRedirectUrl( 'jetpack-setup-wizard-anti-spam-get-started', {
+					site: siteRawUrl,
+				} );
 				isOptionsLinkExternal = true;
 			}
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-antispam-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-antispam-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -115,6 +123,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 			const isBackupsPurchased =
 				hasActiveBackupPurchase( state ) ||
 				[
@@ -132,7 +141,9 @@ const features = {
 
 			let upgradeLink;
 			if ( ! isBackupsPurchased ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-backups-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-backups-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -354,12 +365,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-google-analytics-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-google-analytics-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -671,6 +685,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 			const isScanPurchased =
 				hasActiveScanPurchase( state ) ||
 				[ 'is-premium-plan', 'is-business-plan', 'is-scan-plan' ].includes( planClass );
@@ -682,7 +697,9 @@ const features = {
 
 			let upgradeLink;
 			if ( ! isScanPurchased ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-scan-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-scan-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -711,11 +728,14 @@ const features = {
 			let upgradeLink;
 			let optionsLink;
 			const sitePlan = getSitePlan( state );
+			const siteRawUrl = getSiteRawUrl( state );
 			if (
 				'is-business-plan' !== getPlanClass( sitePlan.product_slug ) &&
 				! hasActiveSearchPurchase( state )
 			) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-search-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-search-upgrade', {
+					site: siteRawUrl,
+				} );
 			} else {
 				optionsLink = '#/settings?term=search';
 			}
@@ -765,6 +785,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
@@ -775,7 +796,9 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-seo-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-seo-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			return {
@@ -877,12 +900,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-block-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-block-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -890,7 +916,9 @@ const features = {
 			let isButtonLinkExternal = false;
 			if ( inCurrentPlan ) {
 				info = getInfoString( sitePlan.product_name );
-				configureLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-support' );
+				configureLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-support', {
+					site: siteRawUrl,
+				} );
 				isButtonLinkExternal = true;
 			}
 
@@ -1044,12 +1072,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-videopress-upgrade' );
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-videopress-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
