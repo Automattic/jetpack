@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Anti-Spam: better handle globally-configured Akismet API keys in the Jetpack dashboard.
 * Connection: ensure better compatibility of the Monitor, Protect, and Subscription features with your site's connection to WordPress.com.
 * General: remove references to pre-PHP 5.6 code.
 * Sharing: add Slim SEO to the list of plugins compatible with Jetpack's Open Graph and Twitter Cards Meta tags.
