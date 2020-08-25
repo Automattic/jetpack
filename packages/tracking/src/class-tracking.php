@@ -104,7 +104,10 @@ class Tracking {
 		}
 		$terms_of_service = new Terms_Of_Service();
 		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
-		if ( ! $terms_of_service->has_agreed() ) {
+		if (
+			$this->connection->is_active()
+			&& ! $terms_of_service->has_agreed()
+		) {
 			return false;
 		}
 
