@@ -66,8 +66,8 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 ## Installing development tools
 
 ### Minimum required versions
- * Node.js - LTS
- * Yarn - 1.7
+ * Node.js - LTS (Currently 10, see engines section of package.json)
+ * Yarn - 1.3 (See engines section of package.json)
  * PHP - 7.4 (in case you're running WordPress locally)
 
 ---
