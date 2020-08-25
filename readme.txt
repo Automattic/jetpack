@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Activity Log: ensure that theme changes are mentioned in the Activity Log.
 * Blocks: ensure alignment options are respected for the Video block in the editor.
+* Blocks: avoid accidental disconnections of the Payments block in the editor.
 * CLI tools: avoid notices when using Synchronization CLI tools.
 * Theme Tools: resolve a PHP notice in PHP 7.4.
 
