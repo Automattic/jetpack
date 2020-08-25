@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Anti-Spam: better handle globally-configured Akismet API keys in the Jetpack dashboard.
+* Blocks: update to use latest colors defined by WordPress.
 * Blocks: ensure our External Media option is compatible with other plugins that also make changes to the Media Library options in the block editor.
 * Connection: ensure better compatibility of the Monitor, Protect, Secure Sign In, Stats, and Subscription features with your site's connection to WordPress.com.
 * General: remove references to pre-PHP 5.6 code.
