@@ -36,9 +36,9 @@ async function __refreshTweets( action, store ) {
 		const results = await apiFetch( {
 			path: '/wpcom/v2/tweetstorm/parse',
 			data: {
-				content: serialize( action.content ),
 				blocks: action.content.map( block => ( {
 					attributes: block.attributes,
+					block: serialize( block ),
 					clientId: block.clientId,
 				} ) ),
 			},

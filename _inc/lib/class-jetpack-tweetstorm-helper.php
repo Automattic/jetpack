@@ -38,6 +38,7 @@ class Jetpack_Tweetstorm_Helper {
 		'core/list'      => array(
 			'type'           => 'multiline',
 			'content'        => 'innerHTML',
+			'container'      => 'values',
 			'multiline_tag'  => 'li',
 			'template'       => '- {{line}}',
 			'force_new'      => false,
@@ -54,8 +55,12 @@ class Jetpack_Tweetstorm_Helper {
 		'core/quote'     => array(
 			'type'           => 'text',
 			'content'        => 'innerHTML',
-			'content_tags'   => array( 'blockquote', 'cite' ),
-			'template'       => '“{{blockquote}}” – {{cite}}',
+			// The quote content will always be inside <p> tags.
+			'content_tags'   => array(
+				'value'    => 'p',
+				'citation' => 'cite',
+			),
+			'template'       => '“{{p}}” – {{cite}}',
 			'force_new'      => false,
 			'force_finished' => false,
 		),
@@ -135,12 +140,12 @@ class Jetpack_Tweetstorm_Helper {
 	/**
 	 * Parse tweets.
 	 *
-	 * @param string $content    A blob of serialised blocks that need to be parsed into tweets.
-	 * @param array  $client_ids Optional. An array of clientIds corresponding to the blocks in $blocks.
+	 * @param array $blocks An array of blocks, with optional editor-specific information, that
+	 *                      need to be parsed into tweets.
 	 * @return array An array of tweets.
 	 */
-	public static function parse( $content, $client_ids = array() ) {
-		$blocks = self::extract_blocks( $content, $client_ids );
+	public static function parse( $blocks ) {
+		$blocks = self::extract_blocks( $blocks );
 
 		if ( empty( $blocks ) ) {
 			return array();
@@ -372,8 +377,26 @@ class Jetpack_Tweetstorm_Helper {
 
 		return array_map(
 			function( $tweet ) {
+				// Tidy up the whitespace.
 				$tweet['text'] = trim( $tweet['text'] );
 				$tweet['text'] = preg_replace( '/[ \t]+\n/', "\n", $tweet['text'] );
+
+				// Remove internal flags.
+				unset( $tweet['changed'] );
+				unset( $tweet['finished'] );
+
+				// Remove bulky block data.
+				if ( ! isset( $tweet['blocks'][0]['attributes'] ) && ! isset( $tweet['blocks'][0]['clientId'] ) ) {
+					$tweet['blocks'] = array();
+				} else {
+					// Remove the parts of the block data that the editor doesn't need.
+					$block_count = count( $tweet['blocks'] );
+					for ( $ii = 0; $ii < $block_count; $ii++ ) {
+						unset( $tweet['blocks'][ $ii ]['block'] );
+						unset( $tweet['blocks'][ $ii ]['name'] );
+						unset( $tweet['blocks'][ $ii ]['text'] );
+					}
+				}
 
 				return $tweet;
 			},
@@ -382,49 +405,30 @@ class Jetpack_Tweetstorm_Helper {
 	}
 
 	/**
-	 * Given a `post_content`-style serialised blob of blocks, this will extract them into
-	 * a useful list of blocks and their content. If the $client_ids parameter is provided,
-	 * we'll also keep track of which block belongs to which clientId in the block editor.
+	 * Given an array of blocks and optional editor information, this will extract them into
+	 * the internal representation used during parsing.
 	 *
-	 * @param string $content       A serialised blob of blocks.
-	 * @param array  $editor_blocks Optional. An array of block editor-specific data, matching the blocks in $content.
+	 * @param array $blocks An array of blocks and optional editor-related information.
 	 * @return array An array of blocks, in our internal representation.
 	 */
-	private static function extract_blocks( $content, $editor_blocks = array() ) {
-		$blocks = parse_blocks( $content );
-
+	private static function extract_blocks( $blocks ) {
 		if ( empty( $blocks ) ) {
 			return array();
 		}
 
-		// parse_blocks() can sometimes return a bunch of NULL blocks, so let's clean up the block array.
-		$blocks = array_values(
-			array_filter(
-				$blocks,
-				function ( $block ) {
-					return isset( self::$supported_blocks[ $block['blockName'] ] );
-				}
-			)
-		);
-
-		$block_count   = count( $blocks );
-		$block_content = array();
+		$block_count = count( $blocks );
 
 		for ( $ii = 0; $ii < $block_count; $ii++ ) {
-			$block     = $blocks[ $ii ];
-			$extracted = array(
-				'name' => $block['blockName'],
-				'text' => self::extract_text_from_block( $block ),
-			);
-			if ( isset( $editor_blocks[ $ii ] ) ) {
-				$extracted['clientId']   = $editor_blocks[ $ii ]['clientId'];
-				$extracted['attributes'] = $editor_blocks[ $ii ]['attributes'];
+			if ( ! isset( self::$supported_blocks[ $blocks[ $ii ]['block']['blockName'] ] ) ) {
+				unset( $blocks[ $ii ] );
+				continue;
 			}
 
-			$block_content[] = $extracted;
+			$blocks[ $ii ]['name'] = $blocks[ $ii ]['block']['blockName'];
+			$blocks[ $ii ]['text'] = self::extract_text_from_block( $blocks[ $ii ]['block'] );
 		}
 
-		return $block_content;
+		return array_values( $blocks );
 	}
 
 	/**
@@ -594,9 +598,14 @@ class Jetpack_Tweetstorm_Helper {
 	 *
 	 * @param array   $block  The block being checked.
 	 * @param integer $offset The position in the tweet text where it will be split.
-	 * @return array The position in the block editor to insert the tweet boundary annotation.
+	 * @return array|false `false` if the boundary can't be determined. Otherwise, returns the
+	 *                     position in the block editor to insert the tweet boundary annotation.
 	 */
 	private static function get_boundary( $block, $offset ) {
+		if ( ! isset( $block['clientId'] ) && ! isset( $block['attributes'] ) ) {
+			return false;
+		}
+
 		$block_def = self::$supported_blocks[ $block['name'] ];
 
 		$template_parts = preg_split( '/({{\w+}})/', self::$supported_blocks[ $block['name'] ]['template'], -1, PREG_SPLIT_DELIM_CAPTURE );
@@ -606,7 +615,7 @@ class Jetpack_Tweetstorm_Helper {
 			$text_code_unit_count     = 0;
 			$template_character_count = 0;
 
-			$tags  = self::extract_tag_content_from_html( $block_def['multiline_tag'], $block );
+			$tags  = self::extract_tag_content_from_html( array( $block_def['multiline_tag'] ), $block['block']['innerHTML'] );
 			$lines = $tags[ $block_def['multiline_tag'] ];
 
 			$line_count = 0;
@@ -625,7 +634,7 @@ class Jetpack_Tweetstorm_Helper {
 								return array(
 									'start'     => $start,
 									'end'       => $start + 1,
-									'container' => $block_def['content_attributes'][0],
+									'container' => $block_def['container'],
 									'type'      => 'normal',
 								);
 							} else {
@@ -642,7 +651,7 @@ class Jetpack_Tweetstorm_Helper {
 				if ( $text_character_count + $template_character_count + 1 === $offset ) {
 					return array(
 						'line'      => $line_count,
-						'container' => $block_def['content_attributes'][0],
+						'container' => $block_def['container'],
 						'type'      => 'end-of-line',
 					);
 				}
@@ -717,10 +726,6 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return string The tweetable text from the block, in the correct template form.
 	 */
 	private static function extract_text_from_block( $block ) {
-		if ( ! isset( self::$supported_blocks[ $block['blockName'] ] ) ) {
-			return '';
-		}
-
 		$block_def = self::$supported_blocks[ $block['blockName'] ];
 
 		if ( 'innerHTML' !== $block_def['content'] ) {
@@ -732,7 +737,7 @@ class Jetpack_Tweetstorm_Helper {
 			$text = $block_def['template'];
 
 			foreach ( $tags as $tag => $values ) {
-				$text = str_replace( '{{' . $tag . '}}', implode( '', $values ), $text );
+				$text = str_replace( '{{' . $tag . '}}', trim( implode( '', $values ) ), $text );
 			}
 		} elseif ( 'multiline' === $block_def['type'] ) {
 			$tags = self::extract_tag_content_from_html( array( $block_def['multiline_tag'] ), $block['innerHTML'] );
@@ -785,6 +790,20 @@ class Jetpack_Tweetstorm_Helper {
 					continue;
 				}
 
+				// If we're currently storing content, check if it's a text-formatting
+				// tag that we should apply.
+				if ( $opened !== $closed ) {
+					// End of a paragraph, put in some newlines.
+					if ( '</p>' === $token ) {
+						$values[ $tag ][ $opened ] .= "\n\n";
+					}
+
+					// A line break gets one newline.
+					if ( 0 === strpos( $token, '<br' ) ) {
+						$values[ $tag ][ $opened ] .= "\n";
+					}
+				}
+
 				if ( "<$tag>" === $token || 0 === strpos( $token, "<$tag " ) ) {
 					// A tag has just been opened.
 					$opened++;
@@ -808,11 +827,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				if ( $opened !== $closed ) {
 					// We're currently in a tag, with some content. Append it to the right value.
-					if ( 0 === strlen( $values[ $tag ][ $opened ] ) ) {
-						$values[ $tag ][ $opened ] = $token;
-					} else {
-						$values[ $tag ][ $opened ] .= " $token";
-					}
+					$values[ $tag ][ $opened ] .= $token;
 				}
 			}
 		}

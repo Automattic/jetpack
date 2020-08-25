@@ -37,13 +37,8 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 			$this->rest_base,
 			array(
 				'args'                                  => array(
-					'content' => array(
-						'description' => __( 'The serialised blocks that need to be parsed into tweets.', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-					'blocks'  => array(
-						'description' => __( 'An array of editor-specific block inforation, in the order matching the blocks in `content`.', 'jetpack' ),
+					'blocks' => array(
+						'description' => __( 'An array of serialised blocks, and editor-specific block information.', 'jetpack' ),
 						'type'        => 'array',
 						'required'    => true,
 					),
@@ -63,7 +58,24 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function parse_tweetstorm( $request ) {
-		return Jetpack_Tweetstorm_Helper::parse( $request['content'], $request['blocks'] );
+		// The "block" attribute is serialised, unserialise it before passing it on.
+		$blocks = array_map(
+			function ( $block ) {
+				$parsed_block = parse_blocks( $block['block'] );
+				if ( count( $parsed_block ) > 0 ) {
+					$block['block'] = $parsed_block[0];
+					return $block;
+				}
+
+				return null;
+			},
+			$request['blocks']
+		);
+
+		// Remove any blocks that failed to unserialise.
+		$blocks = array_values( array_filter( $blocks, 'is_array' ) );
+
+		return Jetpack_Tweetstorm_Helper::parse( $blocks );
 	}
 }
 
