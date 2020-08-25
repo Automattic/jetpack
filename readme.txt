@@ -143,6 +143,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Protect: avoid displaying HTML markup on blocked login screen.
 * Protect: avoid Fatal errors when trying to update Protect options from the REST API.
 * Search: ensure that Instant Search options are properly saved in the Customizer.
+* Search: avoid errors when searching for a term and including the "%" symbol.
 * Shortcodes: avoid Fatal errors when receiving unexpected response from Flickr.
 * Theme Tools: resolve a PHP notice in PHP 7.4.
 * Video: ensure that videos uploaded with Jetpack Videos are assigned to the correct author.
