@@ -40,7 +40,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-ads-upgrade' );
 			}
 
 			let info;
@@ -88,7 +88,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-antispam-upgrade' );
 			}
 
 			let info;
@@ -132,7 +132,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! isBackupsPurchased ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-backups-upgrade' );
 			}
 
 			let info;
@@ -359,7 +359,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-google-analytics-upgrade' );
 			}
 
 			let info;
@@ -1049,7 +1049,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-videopress-upgrade' );
 			}
 
 			let info;
