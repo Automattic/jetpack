@@ -109,7 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-* Monitor: ensure better compatibility with your site's connection to WordPress.com.
+* Connection: ensure better compatibility of the Monitor and Protect features with your site's connection to WordPress.com.
 
 **Bug fixes**
 
