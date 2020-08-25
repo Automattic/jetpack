@@ -64,11 +64,8 @@ const CreativeMailPluginsLoaded = ( {
 		return <Spinner />;
 	}
 	if ( hasError ) {
-		return (
-			<Notice isDismissible={ false } status="error">
-				{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }
-			</Notice>
-		);
+		// Don`t show anything if you can't access the plugins
+		return null;
 	}
 	return (
 		<CreativeMailPluginFetched pluginState={ pluginState } setPluginState={ setPluginState } />
