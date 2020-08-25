@@ -67,8 +67,10 @@ class Autoloader_Handler {
 				$compare_path    = trailingslashit( $plugin_path ) . 'vendor/autoload_packages.php';
 
 				if ( $this->version_selector->is_version_update_required( $selected_autoloader_version, $compare_version ) ) {
-					$selected_autoloader_version = $compare_version;
-					$selected_autoloader_path    = $compare_path;
+					if ( ! $this->check_for_v1_files( $compare_path ) ) {
+						$selected_autoloader_version = $compare_version;
+						$selected_autoloader_path    = $compare_path;
+					}
 				}
 			}
 		}
@@ -79,6 +81,50 @@ class Autoloader_Handler {
 		if ( $current_autoloader_path !== $selected_autoloader_path ) {
 			require $selected_autoloader_path;
 		}
+	}
+
+	/**
+	 * Check the plugins directory for autoloader v1.x files. If the plugin's directory contains
+	 * v1.x autoloader files, we will ignore it.
+	 *
+	 * This situation can occur if a plugin has a v2.x autoloader and a backup containing a version
+	 * of the plugin with a v1.x autoloader is restored. The v2.x autolaoder files remain in the
+	 * plugin directory.
+	 *
+	 * @param string $autoload_packages_path The path to the plugin's vendor/autoload_packages.php file.
+	 *
+	 * @return boolean True if the plugin directory contains a v1.x autoloader, false otherwise.
+	 */
+	private function check_for_v1_files( $autoload_packages_path ) {
+		$v1_classmap_path = trailingslashit( dirname( $autoload_packages_path ) ) . 'composer/autoload_classmap_package.php';
+
+		if ( ! file_exists( $v1_classmap_path ) ) {
+			return false;
+		}
+
+		clearstatcache();
+
+		// The v2.x file is small, less than 1 KB. The v1.x file is much larger, > 6 KB.
+		if ( 1000 < filesize( $autoload_packages_path ) ) {
+			// Try to delete v2.x files.
+			if ( file_exists( trailingslashit( dirname( $autoload_packages_path ) ) . 'autoload_functions.php' ) ) {
+				unlink( trailingslashit( dirname( $autoload_packages_path ) ) . 'autoload_functions.php' );
+			}
+
+			if ( file_exists( trailingslashit( dirname( $autoload_packages_path ) ) . 'jetpack-autoloader/autoload_functions.php' ) ) {
+				unlink( trailingslashit( dirname( $autoload_packages_path ) ) . 'jetpack-autoloader/autoload_functions.php' );
+			}
+
+			if ( file_exists( trailingslashit( dirname( $autoload_packages_path ) ) . 'composer/jetpack_autoload_classmap.php' ) ) {
+				unlink( trailingslashit( dirname( $autoload_packages_path ) ) . 'composer/jetpack_autoload_classmap.php' );
+			}
+
+			return true;
+		}
+
+		// Try to delete v1.x classmap file.
+		unlink( $v1_classmap_path );
+		return false;
 	}
 
 	/**
