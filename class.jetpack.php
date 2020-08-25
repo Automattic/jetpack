@@ -4793,7 +4793,14 @@ endif;
 			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 		}
 
-		return $url;
+		/**
+		 * Filter the URL used when authorizing a user to a WordPress.com account.
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param string $url Connection URL.
+		 */
+		return apply_filters( 'jetpack_build_authorize_url', $url );
 	}
 
 	/**
