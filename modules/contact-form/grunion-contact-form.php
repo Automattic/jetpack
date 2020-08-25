@@ -2741,6 +2741,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$spam = '***SPAM*** ';
 		}
 
+		/**
+		 * Filter whether a submitted contact form is in the comment disallowed list.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param bool  $result         Is the submitted feedback in the disallowed list.
+		 * @param array $akismet_values Feedack values returned by the Akismet plugin.
+		 */
 		$in_comment_disallowed_list = apply_filters( 'jetpack_contact_form_in_comment_disallowed_list', false, $akismet_values );
 
 		if ( ! $comment_author ) {
