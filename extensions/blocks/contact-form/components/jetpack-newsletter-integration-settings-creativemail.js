@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Spinner } from '@wordpress/components';
+import { Spinner, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
 import { useCallback, useState, useEffect } from '@wordpress/element';
@@ -79,7 +79,11 @@ const CreativeMailPlugin = () => {
 		return <Spinner />;
 	}
 	if ( hasError ) {
-		<p>{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }</p>;
+		return (
+			<Notice isDismissible={ false } status="error">
+				{ __( "Couldn't access the plugins. Please try again later.", 'jetpack' ) }
+			</Notice>
+		);
 	}
 	return (
 		<CreativeMailPluginFetched pluginState={ pluginState } setPluginState={ setPluginState } />
