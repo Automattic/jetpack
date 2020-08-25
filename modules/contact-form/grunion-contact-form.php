@@ -141,7 +141,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blocklist' ), 10, 2 );
-
+		add_filter( 'jetpack_contact_form_in_comment_disallowed_list', array( $this, 'is_in_disallowed_list' ), 10, 2 );
 		// Akismet to the rescue
 		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
 			add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10, 2 );
@@ -678,10 +678,26 @@ class Grunion_Contact_Form_Plugin {
 	 * @return bool TRUE => spam, FALSE => not spam
 	 */
 	public function is_spam_blocklist( $is_spam, $form = array() ) {
-		global $wp_version;
-
 		if ( $is_spam ) {
 			return $is_spam;
+		}
+
+		return $this->is_in_disallowed_list( false, $form );
+	}
+
+	/**
+	 * Check if a submission matches the comment disallowed list.
+	 * Attached to `jetpack_contact_form_in_comment_disallowed_list`.
+	 *
+	 * @param boolean $in_disallowed_list Whether the feedback is in the disallowed list.
+	 * @param array   $form The form array.
+	 * @return bool Returns true if the form submission matches the disallowed list and false if it doesn't.
+	 */
+	public function is_in_disallowed_list( $in_disallowed_list, $form = array() ) {
+		global $wp_version;
+
+		if ( $in_disallowed_list ) {
+			return $in_disallowed_list;
 		}
 
 		/*
@@ -2725,6 +2741,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$spam = '***SPAM*** ';
 		}
 
+		/**
+		 * Filter whether a submitted contact form is in the comment disallowed list.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param bool  $result         Is the submitted feedback in the disallowed list.
+		 * @param array $akismet_values Feedack values returned by the Akismet plugin.
+		 */
+		$in_comment_disallowed_list = apply_filters( 'jetpack_contact_form_in_comment_disallowed_list', false, $akismet_values );
+
 		if ( ! $comment_author ) {
 			$comment_author = $comment_author_email;
 		}
@@ -2779,8 +2807,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
 		$time             = date_i18n( $date_time_format, current_time( 'timestamp' ) );
 
-		// keep a copy of the feedback as a custom post type
-		$feedback_status = $is_spam === true ? 'spam' : 'publish';
+		// Keep a copy of the feedback as a custom post type.
+		if ( $in_comment_disallowed_list ) {
+			$feedback_status = 'trash';
+		} elseif ( $is_spam ) {
+			$feedback_status = 'spam';
+		} else {
+			$feedback_status = 'publish';
+		}
 
 		foreach ( (array) $akismet_values as $av_key => $av_value ) {
 			$akismet_values[ $av_key ] = Grunion_Contact_Form_Plugin::strip_tags( $av_value );
