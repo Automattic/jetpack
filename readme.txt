@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * CLI tools: avoid notices when using Synchronization CLI tools.
 * Search: ensure that Instant Search options are properly saved in the Customizer.
 * Theme Tools: resolve a PHP notice in PHP 7.4.
+* Video: ensure that videos uploaded with Jetpack Videos are assigned to the correct author.
 * Widgets: ensure that the Instagram Widget is properly styled when previewed in the customizer.
 
 --------
