@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Dashboard: improved legibility across all Jetpack interfaces.
+* External Media: improve keyboard navigation in the media modal.
 * External Media: offer a way to disconnect Google Photos accounts from within the media modal.
 * Search: improve styling of expanded results in the Instant Search interface.
 
