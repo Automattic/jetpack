@@ -139,6 +139,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Theme Tools: resolve a PHP notice in PHP 7.4.
 * Video: ensure that videos uploaded with Jetpack Videos are assigned to the correct author.
 * Widgets: ensure that the Instagram Widget is properly styled when previewed in the customizer.
+* Widgets: do not hide accepted cookie widget to allow visual customization in the Customizer.
 
 --------
 
