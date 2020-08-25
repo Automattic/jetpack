@@ -54,27 +54,12 @@ const CreativeMailPluginFetched = ( { pluginState, setPluginState } ) => {
 	);
 };
 
-const CreativeMailPlugin = () => {
-	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
-	const [ hasError, setHasError ] = useState( false );
-	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
-
-	useEffect( () => {
-		getPlugins()
-			.then( plugins => {
-				setIsFetchingPlugins( false );
-				if ( get( plugins, pluginPath ) ) {
-					if ( get( plugins, [ pluginPath, 'active' ] ) ) {
-						setPluginState( pluginStateEnum.ACTIVE );
-					} else {
-						setPluginState( pluginStateEnum.INSTALLED );
-					}
-				}
-			} )
-			.catch( () => {
-				setHasError( true );
-			} );
-	}, [ setPluginState, setIsFetchingPlugins ] );
+const CreativeMailPluginsLoaded = ( {
+	isFetchingPlugins,
+	hasError,
+	pluginState,
+	setPluginState,
+} ) => {
 	if ( isFetchingPlugins ) {
 		return <Spinner />;
 	}
@@ -87,6 +72,32 @@ const CreativeMailPlugin = () => {
 	}
 	return (
 		<CreativeMailPluginFetched pluginState={ pluginState } setPluginState={ setPluginState } />
+	);
+};
+
+const CreativeMailPlugin = () => {
+	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
+	const [ hasError, setHasError ] = useState( false );
+	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
+
+	useEffect( () => {
+		getPlugins()
+			.then( plugins => {
+				setHasError( false );
+				setIsFetchingPlugins( false );
+				get( plugins, pluginPath ) && get( plugins, [ pluginPath, 'active' ] )
+					? setPluginState( pluginStateEnum.ACTIVE )
+					: setPluginState( pluginStateEnum.INSTALLED );
+			} )
+			.catch( setHasError( true ) );
+	}, [ setPluginState, setIsFetchingPlugins ] );
+	return (
+		<CreativeMailPluginsLoaded
+			isFetchingPlugins={ isFetchingPlugins }
+			hasError={ hasError }
+			pluginState={ pluginState }
+			setPluginState={ setPluginState }
+		/>
 	);
 };
 
