@@ -8,6 +8,18 @@
 
 ### Blocks
 
+#### Donations
+
+The new Donations Block allows you to easily accept and process donations on your site.
+
+To give it a try, open the Block editor and try to add a Donations block to your post. Let us know what you think!
+
+#### Social Previews
+
+You can now preview how your posts will look like on Facebook, Twitter, and Google Search Results even before you hit the Publish button.
+
+Check this out from the Jetpack sidebar appearing in the block editor.
+
 #### Form
 
 In this release, we've added 3 things to the Form block:

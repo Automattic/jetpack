@@ -103,6 +103,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* The new Donations Block allows you to easily accept and process donations on your site.
+* You can now preview how your posts will look like on Facebook, Twitter, and Google Search Results even before you hit the Publish button.
+
 **Enhancements**
 
 * Blocks: add "Edit" button the Calendly block toolbar.
