@@ -5825,7 +5825,7 @@ endif;
 	 * Helper method for multicall XMLRPC.
 	 *
 	 * @deprecated since 8.9.0
-	 * @see Jetpack_Xmlrpc_Async_Call::add_call()
+	 * @see Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call()
 	 *
 	 * @param ...$args Args for the async_call.
 	 */
