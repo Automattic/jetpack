@@ -89,24 +89,6 @@ export default {
 	tabCustomGradient: {
 		type: 'string',
 	},
-	tabActiveBackgroundColor: {
-		type: 'string',
-	},
-	tabActiveCustomBackgroundColor: {
-		type: 'string',
-	},
-	tabActiveTextColor: {
-		type: 'string',
-	},
-	tabActiveCustomTextColor: {
-		type: 'string',
-	},
-	tabActiveGradient: {
-		type: 'string',
-	},
-	tabActiveCustomGradient: {
-		type: 'string',
-	},
 	amountsBackgroundColor: {
 		type: 'string',
 	},
@@ -117,6 +99,24 @@ export default {
 		type: 'string',
 	},
 	amountsCustomTextColor: {
+		type: 'string',
+	},
+	buttonBackgroundColor: {
+		type: 'string',
+	},
+	buttonCustomBackgroundColor: {
+		type: 'string',
+	},
+	buttonTextColor: {
+		type: 'string',
+	},
+	buttonCustomTextColor: {
+		type: 'string',
+	},
+	buttonGradient: {
+		type: 'string',
+	},
+	buttonCustomGradient: {
 		type: 'string',
 	},
 };

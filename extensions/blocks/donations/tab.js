@@ -16,14 +16,15 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import Amount from './amount';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
-import { getColorClasses, getColorStyles } from './colors';
 
 const Tab = ( {
 	activeTab,
 	attributes,
 	setAttributes,
-	amountsBackgroundColor,
-	amountsTextColor,
+	amountsClasses,
+	amountsStyle,
+	buttonClasses,
+	buttonStyle,
 } ) => {
 	const {
 		currency,
@@ -105,15 +106,6 @@ const Tab = ( {
 		.map( format => format.name )
 		.filter( format => format !== 'core/link' );
 
-	const amountsClasses = getColorClasses( {
-		backgroundColor: amountsBackgroundColor,
-		textColor: amountsTextColor,
-	} );
-	const amountsStyle = getColorStyles( {
-		backgroundColor: amountsBackgroundColor,
-		textColor: amountsTextColor,
-	} );
-
 	return (
 		<div className="donations__tab">
 			<RichText
@@ -173,11 +165,16 @@ const Tab = ( {
 			/>
 			<div className="wp-block-button donations__donate-button-wrapper">
 				<RichText
-					className="wp-block-button__link donations__donate-button"
+					className={ classNames(
+						'wp-block-button__link',
+						'donations__donate-button',
+						buttonClasses
+					) }
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
 					value={ getDonationValue( 'buttonText' ) }
 					onChange={ value => setButtonText( value ) }
 					allowedFormats={ allowedFormatsForButton }
+					style={ buttonStyle }
 				/>
 			</div>
 		</div>

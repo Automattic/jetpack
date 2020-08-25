@@ -6,7 +6,6 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { __experimentalUseGradient as useGradient } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -17,7 +16,33 @@ import { __ } from '@wordpress/i18n';
 import Controls from './controls';
 import Tab from './tab';
 import StripeNudge from '../../shared/components/stripe-nudge';
-import { getColorClasses, getColorStyles, isGradientAvailable } from './colors';
+import { getGradients } from './colors';
+
+const getColorClassesAndStyles = ( {
+	backgroundColor,
+	textColor,
+	gradientAttribute = 'gradient',
+	customGradientAttribute = 'customGradient',
+} ) => {
+	const { gradientValue, gradientClass } = getGradients( {
+		gradientAttribute,
+		customGradientAttribute,
+	} );
+	const classes = {
+		'has-background': backgroundColor.color || gradientValue,
+		[ backgroundColor.class ]: backgroundColor.class,
+		'has-text-color': textColor.color,
+		[ textColor.class ]: textColor.class,
+		'has-background-gradient': gradientValue,
+		[ gradientClass ]: gradientClass,
+	};
+	const styles = {
+		backgroundColor: backgroundColor.color,
+		...( gradientValue && { background: gradientValue } ),
+		color: textColor.color,
+	};
+	return [ classes, styles ];
+};
 
 const Tabs = props => {
 	const {
@@ -31,10 +56,10 @@ const Tabs = props => {
 		textColor,
 		tabBackgroundColor,
 		tabTextColor,
-		tabActiveBackgroundColor,
-		tabActiveTextColor,
 		amountsBackgroundColor,
 		amountsTextColor,
+		buttonBackgroundColor,
+		buttonTextColor,
 	} = props;
 	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
@@ -76,52 +101,27 @@ const Tabs = props => {
 		}
 	}, [ monthlyDonation, annualDonation, setActiveTab, isTabActive ] );
 
-	/* eslint-disable react-hooks/rules-of-hooks */
-	const { gradientClass: gradientClass, gradientValue: gradientValue } = isGradientAvailable
-		? useGradient()
-		: {};
-	const { gradientClass: tabGradientClass, gradientValue: tabGradientValue } = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'tabGradient',
-				customGradientAttribute: 'tabCustomGradient',
-		  } )
-		: {};
-	const {
-		gradientClass: tabActiveGradientClass,
-		gradientValue: tabActiveGradientValue,
-	} = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'tabActiveGradient',
-				customGradientAttribute: 'tabActiveCustomGradient',
-		  } )
-		: {};
-	/* eslint-enable react-hooks/rules-of-hooks */
+	const [ classes, style ] = getColorClassesAndStyles( { backgroundColor, textColor } );
 
-	const classes = getColorClasses( { backgroundColor, gradientClass, gradientValue, textColor } );
-	const style = getColorStyles( { backgroundColor, gradientValue, textColor } );
-
-	const tabClasses = getColorClasses( {
+	const [ tabClasses, tabStyle ] = getColorClassesAndStyles( {
 		backgroundColor: tabBackgroundColor,
-		gradientClass: tabGradientClass,
-		gradientValue: tabGradientValue,
 		textColor: tabTextColor,
-	} );
-	const tabStyle = getColorStyles( {
-		backgroundColor: tabBackgroundColor,
-		gradientValue: tabGradientValue,
-		textColor: tabTextColor,
+		gradientAttribute: 'tabGradient',
+		customGradientAttribute: 'tabCustomGradient',
 	} );
 
-	const tabActiveClasses = getColorClasses( {
-		backgroundColor: tabActiveBackgroundColor,
-		gradientClass: tabActiveGradientClass,
-		gradientValue: tabActiveGradientValue,
-		textColor: tabActiveTextColor,
+	const [ amountsClasses, amountsStyle ] = getColorClassesAndStyles( {
+		backgroundColor: amountsBackgroundColor,
+		textColor: amountsTextColor,
+		gradientAttribute: null,
+		customGradientAttribute: null,
 	} );
-	const tabActiveStyle = getColorStyles( {
-		backgroundColor: tabActiveBackgroundColor,
-		gradientValue: tabActiveGradientValue,
-		textColor: tabActiveTextColor,
+
+	const [ buttonClasses, buttonStyle ] = getColorClassesAndStyles( {
+		backgroundColor: buttonBackgroundColor,
+		textColor: buttonTextColor,
+		gradientAttribute: 'buttonGradient',
+		customGradientAttribute: 'buttonCustomGradient',
 	} );
 
 	return (
@@ -140,17 +140,13 @@ const Tabs = props => {
 							<div
 								role="button"
 								tabIndex={ 0 }
-								className={ classNames(
-									'donations__nav-item',
-									isTabActive( interval ) ? tabActiveClasses : tabClasses,
-									{
-										'is-active': isTabActive( interval ),
-									}
-								) }
+								className={ classNames( 'donations__nav-item', tabClasses, {
+									'is-active': isTabActive( interval ),
+								} ) }
 								onClick={ () => setActiveTab( interval ) }
 								onKeyDown={ () => setActiveTab( interval ) }
 								key={ `jetpack-donations-nav-item-${ interval } ` }
-								style={ isTabActive( interval ) ? tabActiveStyle : tabStyle }
+								style={ tabStyle }
 							>
 								{ title }
 							</div>
@@ -162,8 +158,10 @@ const Tabs = props => {
 						activeTab={ activeTab }
 						attributes={ attributes }
 						setAttributes={ setAttributes }
-						amountsBackgroundColor={ amountsBackgroundColor }
-						amountsTextColor={ amountsTextColor }
+						amountsClasses={ amountsClasses }
+						amountsStyle={ amountsStyle }
+						buttonClasses={ buttonClasses }
+						buttonStyle={ buttonStyle }
 					/>
 				</div>
 			</div>

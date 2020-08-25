@@ -4,6 +4,12 @@
 .wp-block-jetpack-donations {
 	.donations__amount {
 		cursor: text;
+
+		&.has-focus {
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px $blue-wordpress-700;
+			outline: 2px solid transparent;
+			outline-offset: -2px;
+		}
 	}
 
 	.donations__custom-amount {

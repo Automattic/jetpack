@@ -36,15 +36,15 @@
 			border-left: none;
 		}
 
-		&:hover {
-			background: $white;
-			color: $gray-900;
-		}
-
 		&.is-active {
 			background: var(--wp-admin-theme-color);
 			color: $white;
 			cursor: default;
+		}
+
+		&:not( .is-active ) {
+			// Decrease brightness on inactive tab so the active tab looks different when a custom background color is set.
+			filter: brightness( 85% );
 		}
 	}
 
@@ -69,12 +69,6 @@
 		font-weight: 600;
 		font-size: 16px;
 		white-space: nowrap;
-
-		&.has-focus {
-			box-shadow: 0 0 0 1px $white, 0 0 0 3px var(--wp-admin-theme-color);
-			outline: 2px solid transparent;
-			outline-offset: -2px;
-		}
 
 		&.has-error {
 			box-shadow: 0 0 0 1px $white, 0 0 0 3px $alert-red;

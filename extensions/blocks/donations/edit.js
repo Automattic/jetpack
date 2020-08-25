@@ -105,9 +105,9 @@ export default compose(
 		{ textColor: 'color' },
 		{ tabBackgroundColor: 'background-color' },
 		{ tabTextColor: 'color' },
-		{ tabActiveBackgroundColor: 'background-color' },
-		{ tabActiveTextColor: 'color' },
 		{ amountsBackgroundColor: 'background-color' },
-		{ amountsTextColor: 'color' }
+		{ amountsTextColor: 'color' },
+		{ buttonBackgroundColor: 'background-color' },
+		{ buttonTextColor: 'color' }
 	)
 )( Edit );

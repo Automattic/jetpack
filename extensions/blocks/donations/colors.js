@@ -9,61 +9,46 @@ import { __ } from '@wordpress/i18n';
 
 export const isGradientAvailable = !! useGradient;
 
-export const getColorClasses = ( { backgroundColor, gradientClass, gradientValue, textColor } ) => {
-	return {
-		[ backgroundColor.class ]: backgroundColor.class,
-		[ textColor.class ]: textColor.class,
-		'has-background-gradient': gradientValue,
-		[ gradientClass ]: gradientClass,
-	};
-};
+/* eslint-disable react-hooks/rules-of-hooks */
+export const getGradients = ( {
+	gradientAttribute = 'gradient',
+	customGradientAttribute = 'customGradient',
+} = {} ) => {
+	if ( ! isGradientAvailable || ! gradientAttribute || ! customGradientAttribute ) {
+		return {};
+	}
 
-export const getColorStyles = ( { backgroundColor, gradientValue, textColor } ) => {
-	return {
-		backgroundColor: backgroundColor.color,
-		...( gradientValue && { background: gradientValue } ),
-		color: textColor.color,
-	};
+	return useGradient( { gradientAttribute, customGradientAttribute } );
 };
+/* eslint-enable react-hooks/rules-of-hooks */
 
 export const ColorsPanel = ( {
 	backgroundColor,
 	textColor,
 	tabBackgroundColor,
 	tabTextColor,
-	tabActiveBackgroundColor,
-	tabActiveTextColor,
 	amountsBackgroundColor,
 	amountsTextColor,
+	buttonBackgroundColor,
+	buttonTextColor,
 	setBackgroundColor,
 	setTextColor,
 	setTabBackgroundColor,
 	setTabTextColor,
-	setTabActiveBackgroundColor,
-	setTabActiveTextColor,
 	setAmountsBackgroundColor,
 	setAmountsTextColor,
+	setButtonBackgroundColor,
+	setButtonTextColor,
 } ) => {
-	/* eslint-disable react-hooks/rules-of-hooks */
-	const { gradientValue: gradientValue, setGradient: setGradient } = isGradientAvailable
-		? useGradient()
-		: {};
-	const { gradientValue: tabGradientValue, setGradient: setTabGradient } = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'tabGradient',
-				customGradientAttribute: 'tabCustomGradient',
-		  } )
-		: {};
-	const {
-		gradientValue: tabActiveGradientValue,
-		setGradient: setTabActiveGradient,
-	} = isGradientAvailable
-		? useGradient( {
-				gradientAttribute: 'tabActiveGradient',
-				customGradientAttribute: 'tabActiveCustomGradient',
-		  } )
-		: {};
-	/* eslint-enable react-hooks/rules-of-hooks */
+	const { gradientValue: gradientValue, setGradient: setGradient } = getGradients();
+	const { gradientValue: tabGradientValue, setGradient: setTabGradient } = getGradients( {
+		gradientAttribute: 'tabGradient',
+		customGradientAttribute: 'tabCustomGradient',
+	} );
+	const { gradientValue: buttonGradientValue, setGradient: setButtonGradient } = getGradients( {
+		gradientAttribute: 'buttonGradient',
+		customGradientAttribute: 'buttonCustomGradient',
+	} );
 
 	return (
 		<PanelColorGradientSettings
@@ -95,18 +80,6 @@ export const ColorsPanel = ( {
 					onGradientChange: setTabGradient,
 				},
 				{
-					label: __( 'Tab Active Text Color', 'jetpack' ),
-					colorValue: tabActiveTextColor.color,
-					onColorChange: setTabActiveTextColor,
-				},
-				{
-					label: __( 'Tab Active Background Color', 'jetpack' ),
-					colorValue: tabActiveBackgroundColor.color,
-					onColorChange: setTabActiveBackgroundColor,
-					gradientValue: tabActiveGradientValue,
-					onGradientChange: setTabActiveGradient,
-				},
-				{
 					label: __( 'Amounts Text Color', 'jetpack' ),
 					colorValue: amountsTextColor.color,
 					onColorChange: setAmountsTextColor,
@@ -115,6 +88,18 @@ export const ColorsPanel = ( {
 					label: __( 'Amounts Background Color', 'jetpack' ),
 					colorValue: amountsBackgroundColor.color,
 					onColorChange: setAmountsBackgroundColor,
+				},
+				{
+					label: __( 'Button Text Color', 'jetpack' ),
+					colorValue: buttonTextColor.color,
+					onColorChange: setButtonTextColor,
+				},
+				{
+					label: __( 'Button Background Color', 'jetpack' ),
+					colorValue: buttonBackgroundColor.color,
+					onColorChange: setButtonBackgroundColor,
+					gradientValue: buttonGradientValue,
+					onGradientChange: setButtonGradient,
 				},
 			] }
 		/>

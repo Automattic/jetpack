@@ -173,9 +173,8 @@ class JetpackDonations {
 		} );
 
 		input.addEventListener( 'focus', () => {
-			// Add focus styles to wrapper element.
-			wrapper.classList.add( 'has-focus' );
-			wrapper.classList.remove( 'is-selected' );
+			// Add selected styles to wrapper element.
+			wrapper.classList.add( 'is-selected' );
 
 			// Toggle selected amount.
 			this.resetSelectedAmount();
@@ -187,15 +186,9 @@ class JetpackDonations {
 		} );
 
 		input.addEventListener( 'blur', () => {
-			// Remove focus styles to wrapper element.
-			wrapper.classList.remove( 'has-focus' );
-
 			if ( ! this.isCustomAmount || ! this.amount ) {
 				return;
 			}
-
-			// Mark custom amount as selected.
-			wrapper.classList.add( 'is-selected' );
 
 			// Formats the entered amount.
 			input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {
