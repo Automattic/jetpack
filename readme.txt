@@ -134,6 +134,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Activity Log: ensure that theme changes are mentioned in the Activity Log.
 * Blocks: ensure alignment options are respected for the Video block in the editor.
 * Blocks: avoid accidental disconnections of the Payments block in the editor.
+* Blocks: bug fixes and improvement of consistency of block style implementation in the OpenTable block.
 * Blocks: avoid duplicate navigation arrows in the Slideshow block.
 * CLI tools: avoid notices when using Synchronization CLI tools.
 * Connection: ensure that secondary users can connect their own account to their WordPress.com account.
