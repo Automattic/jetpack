@@ -113,7 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* CLI tools: avoid notices when using Synchronization CLI tools.
 
 --------
 
