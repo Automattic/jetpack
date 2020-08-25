@@ -682,7 +682,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! isScanPurchased ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-scan-upgrade' );
 			}
 
 			let info;
@@ -715,7 +715,7 @@ const features = {
 				'is-business-plan' !== getPlanClass( sitePlan.product_slug ) &&
 				! hasActiveSearchPurchase( state )
 			) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-search-upgrade' );
 			} else {
 				optionsLink = '#/settings?term=search';
 			}
@@ -775,7 +775,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-seo-upgrade' );
 			}
 
 			return {
@@ -882,7 +882,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-block-upgrade' );
 			}
 
 			let info;
