@@ -16,7 +16,7 @@ To give it a try, open the Block editor and try to add a Donations block to your
 
 #### Social Previews
 
-You can now preview how your posts will look like on Facebook, Twitter, and Google Search Results even before you hit the Publish button.
+You can now preview how your posts will look on Facebook, Twitter, and Google Search Results even before you hit the Publish button.
 
 Check this out from the Jetpack sidebar appearing in the block editor.
 
