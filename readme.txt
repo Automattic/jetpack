@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: avoid accidental disconnections of the Payments block in the editor.
 * Blocks: avoid duplicate navigation arrows in the Slideshow block.
 * CLI tools: avoid notices when using Synchronization CLI tools.
+* Dashboard: fix missing card for Backups in some error cases.
 * Search: ensure that Instant Search options are properly saved in the Customizer.
 * Theme Tools: resolve a PHP notice in PHP 7.4.
 * Video: ensure that videos uploaded with Jetpack Videos are assigned to the correct author.
