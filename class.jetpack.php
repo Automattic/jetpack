@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
@@ -46,8 +47,6 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 class Jetpack {
 	public $xmlrpc_server = null;
-
-	private $rest_authentication_status = null;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
@@ -680,8 +679,8 @@ class Jetpack {
 		add_filter( 'login_url', array( $this, 'login_url' ), 10, 2 );
 		add_action( 'login_init', array( $this, 'login_init' ) );
 
-		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
-		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
@@ -5452,15 +5451,13 @@ endif;
 
 	/**
 	 * Resets the saved authentication state in between testing requests.
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Connection\Rest_Authentication::reset_saved_auth_state()
 	 */
 	public function reset_saved_auth_state() {
-		$this->rest_authentication_status = null;
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		$this->connection_manager->reset_saved_auth_state();
+		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::reset_saved_auth_state' );
+		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 	}
 
 	/**
@@ -5511,82 +5508,30 @@ endif;
 		return $this->connection_manager->authenticate_jetpack( $user, $username, $password );
 	}
 
-	// Authenticates requests from Jetpack server to WP REST API endpoints.
-	// Uses the existing XMLRPC request signing implementation.
+	/**
+	 * Authenticates requests from Jetpack server to WP REST API endpoints.
+	 * Uses the existing XMLRPC request signing implementation.
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authenticate()
+	 */
 	function wp_rest_authenticate( $user ) {
-		if ( ! empty( $user ) ) {
-			// Another authentication method is in effect.
-			return $user;
-		}
-
-		if ( ! isset( $_GET['_for'] ) || $_GET['_for'] !== 'jetpack' ) {
-			// Nothing to do for this authentication method.
-			return null;
-		}
-
-		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
-			// Nothing to do for this authentication method.
-			return null;
-		}
-
-		// Only support specific request parameters that have been tested and
-		// are known to work with signature verification.  A different method
-		// can be passed to the WP REST API via the '?_method=' parameter if
-		// needed.
-		if ( $_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This request method is not supported.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This request method does not support body parameters.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		$verified = $this->connection_manager->verify_xml_rpc_signature();
-
-		if (
-			$verified &&
-			isset( $verified['type'] ) &&
-			'user' === $verified['type'] &&
-			! empty( $verified['user_id'] )
-		) {
-			// Authentication successful.
-			$this->rest_authentication_status = true;
-			return $verified['user_id'];
-		}
-
-		// Something else went wrong.  Probably a signature error.
-		$this->rest_authentication_status = new WP_Error(
-			'rest_invalid_signature',
-			__( 'The request is not signed correctly.', 'jetpack' ),
-			array( 'status' => 400 )
-		);
-		return null;
+		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenticate' );
+		return Connection_Rest_Authentication::init()->wp_rest_authenticate( $user );
 	}
 
 	/**
 	 * Report authentication status to the WP REST API.
 	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authentication_errors()
+	 *
 	 * @param  WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
 	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
 	 */
 	public function wp_rest_authentication_errors( $value ) {
-		if ( $value !== null ) {
-			return $value;
-		}
-		return $this->rest_authentication_status;
+		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenication_errors' );
+		return Connection_Rest_Authentication::init()->wp_rest_authentication_errors( $value );
 	}
 
 	/**
