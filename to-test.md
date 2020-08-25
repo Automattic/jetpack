@@ -19,6 +19,12 @@ You can try to use those new options and let us know if everything works well.
 
 ### Connection
 
+##### Connection flow
+
+When you connect your site to WordPress.com, you should now be redirected to WordPress.com after the connection process, and offered a plan there. Give that a try and let us know if it all works properly.
+
+##### Other features
+
 We've made a number of changes to better couple your site's connection to WordPress.com with the status of features like Protect, Monitor, Subscriptions, or Stats on your site.
 
 To test this, on a new or existing site, ensure that toggling those features on and off still works, and that the features themselves still work.
