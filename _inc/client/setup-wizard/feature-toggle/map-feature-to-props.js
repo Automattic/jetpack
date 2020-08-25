@@ -319,7 +319,6 @@ const features = {
 				details: __( 'Turn visitors into subscribers with email marketing.', 'jetpack' ),
 				checked: isCreativeMailActive,
 				isDisabled: true,
-				isPaid: true,
 				configureLink: isCreativeMailActive ? '/wp-admin/admin.php?page=creativemail' : null,
 				learnMoreLink:
 					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
