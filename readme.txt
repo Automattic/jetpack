@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Autoloader: avoid issues when updating plugins using the Autoloader in environments using OPCache.
+* Autoloader: remove the map regeneration that occurs after a plugin update.
 * Activity Log: ensure that theme changes are mentioned in the Activity Log.
 * Blocks: ensure alignment options are respected for the Video block in the editor.
 * Blocks: avoid accidental disconnections of the Payments block in the editor.
