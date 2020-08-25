@@ -84,13 +84,13 @@ const CreativeMailPlugin = () => {
 		getPlugins()
 			.then( plugins => {
 				setHasError( false );
-				setIsFetchingPlugins( false );
 				get( plugins, pluginPath ) && get( plugins, [ pluginPath, 'active' ] )
 					? setPluginState( pluginStateEnum.ACTIVE )
 					: setPluginState( pluginStateEnum.INSTALLED );
 			} )
-			.catch( setHasError( true ) );
-	}, [ setPluginState, setIsFetchingPlugins ] );
+			.catch( () => setHasError( true ) )
+			.finally( () => setIsFetchingPlugins( false ) );
+	}, [ setPluginState, setIsFetchingPlugins, setHasError ] );
 	return (
 		<CreativeMailPluginsLoaded
 			isFetchingPlugins={ isFetchingPlugins }
