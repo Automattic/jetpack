@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: ensure alignment options are respected for the Video block in the editor.
 * Blocks: avoid accidental disconnections of the Payments block in the editor.
 * CLI tools: avoid notices when using Synchronization CLI tools.
+* Search: ensure that Instant Search options are properly saved in the Customizer.
 * Theme Tools: resolve a PHP notice in PHP 7.4.
 
 --------
