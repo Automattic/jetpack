@@ -31,6 +31,32 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Given a quote and attribution, it will generate the blob of data
+	 * that the parser expects to recieve for a quote block.
+	 *
+	 * @param string $quote       The quote text.
+	 * @param string $attribution The attribution text.
+	 * @return array The quote blob of data.
+	 */
+	public function generateQuoteData( $quote, $attribution ) {
+		// Generate an array of lines for the quote filtering out empty lines.
+		$quote_lines = array_filter( array_map( 'trim', explode( "\n", $quote ) ), 'strlen' );
+		$quote_value = '<p>' . implode( '</p><p>', $quote_lines ) . '</p>';
+
+		return array(
+			'attributes' => array(
+				'value'    => $quote_value,
+				'citation' => $attribution,
+			),
+			'block'      => array(
+				'blockName' => 'core/quote',
+				'innerHTML' => "<blockquote>$quote_value<cite>$attribution</cite></blockquote>",
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
 	 * Helper function. Given a string of list data, it will generate the blob of data
 	 * that the parser expects to recieve for a list block.
 	 *
@@ -549,6 +575,24 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$this->assertTweetGenerated(
 			$blocks,
 			array( "- $test_content\n- $test_content" ),
+			array( false ),
+			array( $blocks )
+		);
+	}
+
+	/**
+	 * Test that a simple quote block renders correctly.
+	 */
+	public function test_simple_quote() {
+		$test_quote       = '“You miss 100% of the shots you don’t take” – Wayne Gretzky – Michael Scott';
+		$test_attribution = 'Gary Pendergast';
+
+		$blocks = array(
+			$this->generateQuoteData( $test_quote, $test_attribution ),
+		);
+		$this->assertTweetGenerated(
+			$blocks,
+			array( "“{$test_quote}” – $test_attribution" ),
 			array( false ),
 			array( $blocks )
 		);
