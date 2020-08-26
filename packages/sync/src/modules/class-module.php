@@ -179,9 +179,14 @@ abstract class Module {
 	 * @access protected
 	 *
 	 * @param mixed $values Values to calculate checksum for.
+	 * @param bool  $sort If $values should have ksort called on it.
 	 * @return int The checksum.
 	 */
-	protected function get_check_sum( $values ) {
+	protected function get_check_sum( $values, $sort = true ) {
+		// Associative array order changes the generated checksum value.
+		if ( $sort && is_array( $values ) ) {
+			$values = ksort( $values );
+		}
 		return crc32( wp_json_encode( jetpack_json_wrap( $values ) ) );
 	}
 

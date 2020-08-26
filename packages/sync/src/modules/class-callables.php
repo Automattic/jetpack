@@ -437,18 +437,26 @@ class Callables extends Module {
 		$has_changed        = false;
 		// Only send the callables that have changed.
 		foreach ( $callables as $name => $value ) {
-			$checksum = $this->get_check_sum( $value );
+			$checksum       = $this->get_check_sum( $value );
+			$checksum_usort = $this->get_check_sum( $value, false );
+
 			// Explicitly not using Identical comparison as get_option returns a string.
 			if ( ! is_null( $value ) && $this->should_send_callable( $callable_checksums, $name, $checksum ) ) {
-				/**
-				 * Tells the client to sync a callable (aka function) to the server
-				 *
-				 * @since 4.2.0
-				 *
-				 * @param string The name of the callable
-				 * @param mixed The value of the callable
-				 */
-				do_action( 'jetpack_sync_callable', $name, $value );
+
+				// Only send callable if the non sorted checksum also does not match.
+				if ( $this->should_send_callable( $callable_checksums, $name, $checksum_usort ) ) {
+
+					/**
+					 * Tells the client to sync a callable (aka function) to the server
+					 *
+					 * @param string The name of the callable
+					 * @param mixed The value of the callable
+					 *
+					 * @since 4.2.0
+					 */
+					do_action( 'jetpack_sync_callable', $name, $value );
+				}
+
 				$callable_checksums[ $name ] = $checksum;
 				$has_changed                 = true;
 			} else {
