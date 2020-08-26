@@ -170,16 +170,21 @@ class Config {
 	}
 
 	/**
-	 * Enables the tracking feature. Depends on the Terms of Service package, so enables it too.
+	 * Enables the tracking feature.
+	 * Depends on the Terms of Service package and the Connection package,
+	 * so enables them too.
 	 */
 	protected function enable_tracking() {
 
 		// Enabling dependencies.
 		$this->ensure_feature( 'tos' );
+		$this->ensure_feature( 'connection' );
 
 		$terms_of_service = new Terms_Of_Service();
-		$tracking         = new Plugin_Tracking();
-		if ( $terms_of_service->has_agreed() ) {
+		$connection       = new Manager();
+		$tracking         = new Plugin_Tracking( $connection );
+
+		if ( $terms_of_service->has_agreed() && $connection->is_user_connected() ) {
 			add_action( 'init', array( $tracking, 'init' ) );
 		} else {
 			/**
