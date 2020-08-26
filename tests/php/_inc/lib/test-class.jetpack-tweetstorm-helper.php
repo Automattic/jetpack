@@ -31,6 +31,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Given a string of text, it will generate the blob of data
+	 * that the parser expects to recieve for a heading block.
+	 *
+	 * @param string $text The heading text.
+	 * @return array The heading blob of data.
+	 */
+	public function generateHeadingData( $text ) {
+		return array(
+			'attributes' => array(
+				'content' => $text,
+			),
+			'block'      => array(
+				'blockName' => 'core/heading',
+				'innerHTML' => "<h2>$text</h2>",
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
 	 * Helper function. Given a quote and attribution, it will generate the blob of data
 	 * that the parser expects to recieve for a quote block.
 	 *
@@ -590,11 +610,47 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$blocks = array(
 			$this->generateQuoteData( $test_quote, $test_attribution ),
 		);
+
 		$this->assertTweetGenerated(
 			$blocks,
 			array( "“{$test_quote}” – $test_attribution" ),
 			array( false ),
 			array( $blocks )
+		);
+	}
+
+	/**
+	 * Test that a heading will start a new block.
+	 */
+	public function test_heading() {
+		$test_content = 'Here is some text.';
+		$test_heading = 'This is more text!';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateHeadingData( $test_heading ),
+		);
+
+		$expected_text = array(
+			$test_content,
+			$test_heading,
+		);
+
+		$expected_boundaries = array(
+			false,
+			false,
+		);
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			array( $blocks[1] ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 }
