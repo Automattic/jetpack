@@ -38,6 +38,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'REST API Tester',
 		'description' => '',
 	),
+	'mocker'          => array(
+		'file'        => 'class-mocker.php',
+		'name'        => 'Mocker',
+		'description' => '',
+	),
 );
 
 require_once 'class-admin.php';
