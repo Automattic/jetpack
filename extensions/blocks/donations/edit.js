@@ -1,8 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { withColors } from '@wordpress/block-editor';
-import { compose } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -99,15 +97,4 @@ const Edit = props => {
 	);
 };
 
-export default compose(
-	withColors(
-		{ backgroundColor: 'background-color' },
-		{ textColor: 'color' },
-		{ tabBackgroundColor: 'background-color' },
-		{ tabTextColor: 'color' },
-		{ amountsBackgroundColor: 'background-color' },
-		{ amountsTextColor: 'color' },
-		{ buttonBackgroundColor: 'background-color' },
-		{ buttonTextColor: 'color' }
-	)
-)( Edit );
+export default Edit;

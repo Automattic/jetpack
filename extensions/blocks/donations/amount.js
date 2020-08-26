@@ -23,7 +23,6 @@ const Amount = ( {
 	label = '',
 	onChange = null,
 	value = '',
-	style = null,
 } ) => {
 	const [ editedValue, setEditedValue ] = useState(
 		formatCurrency( value, currency, { symbol: '' } )
@@ -96,7 +95,6 @@ const Amount = ( {
 			tabIndex={ 0 }
 			onClick={ setFocus }
 			onKeyDown={ setFocus }
-			style={ style }
 		>
 			{ CURRENCIES[ currency ].symbol }
 			{ disabled ? (

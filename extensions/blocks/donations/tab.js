@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
  * WordPress dependencies
  */
 import { RichText } from '@wordpress/block-editor';
@@ -17,15 +12,7 @@ import { useEffect, useState } from '@wordpress/element';
 import Amount from './amount';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
-const Tab = ( {
-	activeTab,
-	attributes,
-	setAttributes,
-	amountsClasses,
-	amountsStyle,
-	buttonClasses,
-	buttonStyle,
-} ) => {
+const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	const {
 		currency,
 		oneTimeDonation,
@@ -123,7 +110,6 @@ const Tab = ( {
 			<div className="donations__amounts">
 				{ amounts.map( ( amount, index ) => (
 					<Amount
-						className={ amountsClasses }
 						currency={ currency }
 						defaultValue={ defaultAmounts[ index ] }
 						label={ sprintf(
@@ -134,7 +120,6 @@ const Tab = ( {
 						key={ `jetpack-donations-amount-${ index }` }
 						onChange={ newAmount => setAmount( newAmount, index ) }
 						value={ amount }
-						style={ amountsStyle }
 					/>
 				) ) }
 			</div>
@@ -150,9 +135,8 @@ const Tab = ( {
 						currency={ currency }
 						label={ __( 'Custom amount', 'jetpack' ) }
 						defaultValue={ minimumTransactionAmountForCurrency( currency ) * 100 }
-						className={ classNames( 'donations__custom-amount', amountsClasses ) }
+						className="donations__custom-amount"
 						disabled={ true }
-						style={ amountsStyle }
 					/>
 				</>
 			) }
@@ -165,16 +149,11 @@ const Tab = ( {
 			/>
 			<div className="wp-block-button donations__donate-button-wrapper">
 				<RichText
-					className={ classNames(
-						'wp-block-button__link',
-						'donations__donate-button',
-						buttonClasses
-					) }
+					className="wp-block-button__link donations__donate-button"
 					placeholder={ __( 'Write a message…', 'jetpack' ) }
 					value={ getDonationValue( 'buttonText' ) }
 					onChange={ value => setButtonText( value ) }
 					allowedFormats={ allowedFormatsForButton }
-					style={ buttonStyle }
 				/>
 			</div>
 		</div>

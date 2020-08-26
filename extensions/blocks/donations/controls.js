@@ -25,7 +25,6 @@ import { DOWN } from '@wordpress/keycodes';
  * Internal dependencies
  */
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
-import { ColorsPanel } from './colors';
 
 const Controls = props => {
 	const { attributes, setAttributes, siteSlug } = props;
@@ -117,7 +116,6 @@ const Controls = props => {
 						{ __( 'View donation earnings', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>
-				<ColorsPanel { ...props } />
 			</InspectorControls>
 		</>
 	);
