@@ -7,8 +7,8 @@
 	"require": {
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-tracking": "@dev",
-		"automattic/jetpack-sync": "@dev"
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-tracking": "@dev"
 	},
 	"autoload": {
 		"classmap": [
