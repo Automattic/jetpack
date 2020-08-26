@@ -185,9 +185,23 @@ abstract class Module {
 	protected function get_check_sum( $values, $sort = true ) {
 		// Associative array order changes the generated checksum value.
 		if ( $sort && is_array( $values ) ) {
-			ksort( $values );
+			$this->recursive_ksort( $values );
 		}
 		return crc32( wp_json_encode( jetpack_json_wrap( $values ) ) );
+	}
+
+	/**
+	 * Recursively call ksort on an Array
+	 *
+	 * @param array $values Array.
+	 */
+	private function recursive_ksort( $values ) {
+		ksort( $values );
+		foreach ( $values as $value ) {
+			if ( is_array( $value ) ) {
+				$this->recursive_ksort( $value );
+			}
+		}
 	}
 
 	/**
