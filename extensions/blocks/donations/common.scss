@@ -46,18 +46,30 @@
 		}
 
 		h4 {
-			margin: 0 0 32px;
+			margin: 0 0 16px;
+
+			@include break-small() {
+				margin: 0 0 32px;
+			}
 		}
 
 		p {
-			margin: 0 0 24px;
+			margin: 0 0 16px;
+
+			@include break-small() {
+				margin: 0 0 24px;
+			}
 		}
 	}
 
 	.donations__amounts {
-		margin-bottom: 24px;
+		margin-bottom: 16px;
 		display: flex;
 		flex-wrap: wrap;
+
+		@include break-small() {
+			margin: 0 0 24px;
+		}
 	}
 
 	.donations__amount {
@@ -88,8 +100,13 @@
 	.donations__separator {
 		line-height: 8px;
 		height: 8px;
-		margin-bottom: 32px;
-		margin-top: 32px;
+		margin-bottom: 16px;
+		margin-top: 16px;
+
+		@include break-small() {
+			margin-bottom: 32px;
+			margin-top: 32px;
+		}
 	}
 
 	.donations__donate-button-wrapper,
