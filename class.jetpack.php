@@ -7170,18 +7170,6 @@ endif;
 	}
 
 	/**
-	 * Checks whether or not TOS has been agreed upon.
-	 * Will return true if a user has clicked to register, or is already connected.
-	 */
-	public static function jetpack_tos_agreed() {
-		_deprecated_function( 'Jetpack::jetpack_tos_agreed', 'Jetpack 7.9.0', '\Automattic\Jetpack\Terms_Of_Service->has_agreed' );
-
-		$terms_of_service = new Terms_Of_Service();
-		return $terms_of_service->has_agreed();
-
-	}
-
-	/**
 	 * Handles activating default modules as well general cleanup for the new connection.
 	 *
 	 * @param boolean $activate_sso                 Whether to activate the SSO module when activating default modules.
