@@ -52,7 +52,7 @@ class Terms_Of_Service {
 	 * Returns whether the master user has agreed to the terms of service.
 	 *
 	 * The following conditions have to be met in order to agree to the terms of service.
-	 * 1. The master user has gone though the connect flow (deprecated @since 8.9.0).
+	 * 1. The master user has gone though the connect flow.
 	 * 2. The site is not in dev mode.
 	 * 3. The master user of the site is still connected (deprecated @since 8.9.0).
 	 *
