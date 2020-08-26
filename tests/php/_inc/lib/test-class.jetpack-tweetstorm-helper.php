@@ -85,25 +85,77 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	/**
 	 * Helper function. Tests that a generate tweet contains the expected data.
 	 *
-	 * @param string $text     The text of the generated tweet.
-	 * @param array  $blocks   An array of blocks that should be defined in the tweet.
-	 * @param array  $boundary The boundary data that the tweet should contain.
-	 * @param array  $tweet    A single tweet returned from the parser.
+	 * @param string $text        The text of the generated tweet.
+	 * @param array  $blocks      An array of blocks that should be defined in the tweet.
+	 * @param array  $boundary    The boundary data that the tweet should contain.
+	 * @param array  $tweet       A single tweet returned from the parser.
+	 * @param bool   $editor_info Flag whether or not editor-related info should be in the tweet.
 	 */
-	public function assertTweetContains( $text, $blocks, $boundary, $tweet ) {
+	public function assertTweetContains( $text, $blocks, $boundary, $tweet, $editor_info ) {
 		$this->assertEquals( $text, $tweet['text'] );
 
-		$block_count = count( $blocks );
+		if ( $editor_info ) {
+			$block_count = count( $blocks );
 
-		$this->assertEquals( $block_count, count( $tweet['blocks'] ) );
+			$this->assertEquals( $block_count, count( $tweet['blocks'] ) );
 
-		for ( $ii = 0; $ii < $block_count; $ii++ ) {
-			$this->assertArrayNotHasKey( 'block', $tweet['blocks'][ $ii ] );
-			$this->assertEquals( $blocks[ $ii ]['clientId'], $tweet['blocks'][ $ii ]['clientId'] );
-			$this->assertEquals( $blocks[ $ii ]['attributes'], $tweet['blocks'][ $ii ]['attributes'] );
+			for ( $ii = 0; $ii < $block_count; $ii++ ) {
+				$this->assertArrayNotHasKey( 'block', $tweet['blocks'][ $ii ] );
+				$this->assertEquals( $blocks[ $ii ]['clientId'], $tweet['blocks'][ $ii ]['clientId'] );
+				$this->assertEquals( $blocks[ $ii ]['attributes'], $tweet['blocks'][ $ii ]['attributes'] );
+			}
+
+			$this->assertEquals( $boundary, $tweet['boundary'] );
+		} else {
+			$this->assertEquals( array(), $tweet['blocks'] );
+			$this->assertEquals( false, $tweet['boundary'] );
+		}
+	}
+
+	/**
+	 * Helper function. Generates tweets in the form of both editor and Publicize requests, then
+	 * confirms that they've been generated the same way.
+	 *
+	 * @param array $blocks       The array of blocks used to generate the tweets.
+	 * @param array $text         An array of strings matching the generated tweets.
+	 * @param array $boundaries   The boundary data that each tweet should contain.
+	 * @param array $tweet_blocks An array of arrays: each child array should be the blocks used
+	 *                            to generate each tweet.
+	 */
+	public function assertTweetGenerated( $blocks, $text, $boundaries, $tweet_blocks ) {
+		$tweets      = Jetpack_Tweetstorm_Helper::parse( $blocks );
+		$tweet_count = count( $tweets );
+
+		$this->assertEquals( $tweet_count, count( $text ) );
+		$this->assertEquals( $tweet_count, count( $boundaries ) );
+		$this->assertEquals( $tweet_count, count( $tweet_blocks ) );
+
+		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
+			$this->assertTweetContains( $text[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], true );
 		}
 
-		$this->assertEquals( $boundary, $tweet['boundary'] );
+		// Remove the data that the editor sends, to match Publicize's behaviour.
+		$publicize_blocks = array_map(
+			function ( $block ) {
+				unset( $block['attributes'] );
+				unset( $block['clientId'] );
+
+				return $block;
+			},
+			$blocks
+		);
+
+		$tweets      = Jetpack_Tweetstorm_Helper::parse( $publicize_blocks );
+		$tweet_count = count( $tweets );
+
+		$this->assertEquals( $tweet_count, count( $text ) );
+		$this->assertEquals( $tweet_count, count( $boundaries ) );
+		$this->assertEquals( $tweet_count, count( $tweet_blocks ) );
+
+		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
+			$this->assertTweetContains( $text[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], false );
+		}
+
 	}
 
 	/**
@@ -122,9 +174,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( $test_content ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains( $test_content, $blocks, false, $tweets[0] );
+		$this->assertTweetGenerated( $blocks, array( $test_content ), array( false ), array( $blocks ) );
 	}
 
 	/**
@@ -138,13 +188,11 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( $test_content ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
-			"$test_content\n\n$test_content\n\n$test_content",
+		$this->assertTweetGenerated(
 			$blocks,
-			false,
-			$tweets[0]
+			array( "$test_content\n\n$test_content\n\n$test_content" ),
+			array( false ),
+			array( $blocks )
 		);
 	}
 
@@ -157,16 +205,12 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( str_repeat( $test_content, 13 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
-			trim( str_repeat( $test_content, 12 ) ),
+		$this->assertTweetGenerated(
 			$blocks,
-			$this->generateNormalBoundary( 275, 276, 'content' ),
-			$tweets[0]
+			array( trim( str_repeat( $test_content, 12 ) ), trim( $test_content ) ),
+			array( $this->generateNormalBoundary( 275, 276, 'content' ), false ),
+			array( $blocks, $blocks )
 		);
-
-		$this->assertTweetContains( trim( $test_content ), $blocks, false, $tweets[1] );
 	}
 
 	/**
@@ -180,20 +224,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( $test_content ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			trim( str_repeat( $test_content, 12 ) ),
-			array( $blocks[0] ),
-			$this->generateNormalBoundary( 275, 276, 'content' ),
-			$tweets[0]
+			trim( $test_content ) . "\n\n" . trim( $test_content ),
 		);
 
-		$this->assertTweetContains(
-			trim( $test_content ) . "\n\n" . trim( $test_content ),
-			$blocks,
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 275, 276, 'content' ),
 			false,
-			$tweets[1]
+		);
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -207,27 +257,29 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( str_repeat( $test_content, 13 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			trim( $test_content ),
-			array( $blocks[0] ),
-			false,
-			$tweets[0]
-		);
-
-		$this->assertTweetContains(
 			trim( str_repeat( $test_content, 12 ) ),
-			array( $blocks[1] ),
-			$this->generateNormalBoundary( 275, 276, 'content' ),
-			$tweets[1]
+			trim( $test_content ),
 		);
 
-		$this->assertTweetContains(
-			trim( $test_content ),
-			array( $blocks[1] ),
+		$expected_boundaries = array(
 			false,
-			$tweets[2]
+			$this->generateNormalBoundary( 275, 276, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			array( $blocks[1] ),
+			array( $blocks[1] ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -240,20 +292,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( str_repeat( $test_content, 13 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			str_repeat( $test_content, 12 ) . 'This is 22…',
-			$blocks,
-			$this->generateNormalBoundary( 274, 275, 'content' ),
-			$tweets[0]
+			'…characters',
 		);
 
-		$this->assertTweetContains(
-			'…characters',
-			$blocks,
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 274, 275, 'content' ),
 			false,
-			$tweets[1]
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -268,27 +326,29 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( trim( str_repeat( $test_content, 13 ) ) . '. ' . str_repeat( $short_sentence, 13 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			str_repeat( $test_content, 12 ) . 'This is 22…',
-			$blocks,
-			$this->generateNormalBoundary( 274, 275, 'content' ),
-			$tweets[0]
-		);
-
-		$this->assertTweetContains(
 			trim( '…characters. ' . str_repeat( $short_sentence, 11 ) ),
-			$blocks,
-			$this->generateNormalBoundary( 539, 540, 'content' ),
-			$tweets[1]
+			trim( str_repeat( $short_sentence, 2 ) ),
 		);
 
-		$this->assertTweetContains(
-			trim( str_repeat( $short_sentence, 2 ) ),
-			$blocks,
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 274, 275, 'content' ),
+			$this->generateNormalBoundary( 539, 540, 'content' ),
 			false,
-			$tweets[2]
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -304,27 +364,29 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( str_repeat( $test_sentence_chunk, 13 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			trim( $test_paragraph ),
-			array( $blocks[0] ),
-			false,
-			$tweets[0]
-		);
-
-		$this->assertTweetContains(
 			str_repeat( $test_sentence_chunk, 12 ) . 'This is 22…',
-			array( $blocks[1] ),
-			$this->generateNormalBoundary( 274, 275, 'content' ),
-			$tweets[1]
+			'…characters',
 		);
 
-		$this->assertTweetContains(
-			'…characters',
-			array( $blocks[1] ),
+		$expected_boundaries = array(
 			false,
-			$tweets[2]
+			$this->generateNormalBoundary( 274, 275, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			array( $blocks[1] ),
+			array( $blocks[1] ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -338,20 +400,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateListData( str_repeat( "<li>$test_content</li>", 12 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			trim( str_repeat( "- $test_content\n", 11 ) ),
-			$blocks,
-			$this->generateLineBoundary( 10, 'values' ),
-			$tweets[0]
+			"- $test_content",
 		);
 
-		$this->assertTweetContains(
-			"- $test_content",
-			$blocks,
+		$expected_boundaries = array(
+			$this->generateLineBoundary( 10, 'values' ),
 			false,
-			$tweets[1]
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -367,27 +435,29 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateListData( str_repeat( "<li>$test_content</li>", 12 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			$test_content,
-			array( $blocks[0] ),
-			false,
-			$tweets[0]
-		);
-
-		$this->assertTweetContains(
 			trim( str_repeat( "- $test_content\n", 11 ) ),
-			array( $blocks[1] ),
-			$this->generateLineBoundary( 10, 'values' ),
-			$tweets[1]
+			"- $test_content",
 		);
 
-		$this->assertTweetContains(
-			"- $test_content",
-			array( $blocks[1] ),
+		$expected_boundaries = array(
 			false,
-			$tweets[2]
+			$this->generateLineBoundary( 10, 'values' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			array( $blocks[1] ),
+			array( $blocks[1] ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -401,20 +471,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateParagraphData( str_repeat( $test_content, 19 ) ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			trim( str_repeat( $test_content, 18 ) ) . ' 🙂 🏳️‍🌈 👩‍👩‍👧‍👧…',
-			$blocks,
-			$this->generateNormalBoundary( 705, 706, 'content' ),
-			$tweets[0]
+			'…👨🏾‍🦰 👩🏻‍💻',
 		);
 
-		$this->assertTweetContains(
-			'…👨🏾‍🦰 👩🏻‍💻',
-			$blocks,
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 705, 706, 'content' ),
 			false,
-			$tweets[1]
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -431,34 +507,32 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
+		$expected_text = array(
 			trim( str_repeat( '- ' . trim( $test_content ) . "\n", 2 ) ),
-			$blocks,
-			$this->generateLineBoundary( 1, 'values' ),
-			$tweets[0]
-		);
-
-		$this->assertTweetContains(
 			'- ' . trim( str_repeat( $test_content, 18 ) ) . ' 🙂 🏳️‍🌈…',
-			$blocks,
-			$this->generateNormalBoundary( 769, 770, 'values' ),
-			$tweets[1]
-		);
-
-		$this->assertTweetContains(
 			'…👩‍👩‍👧‍👧 👨🏾‍🦰 👩🏻‍💻 ' . trim( str_repeat( $test_content, 17 ) ) . ' 🙂 🏳️‍🌈 👩‍👩‍👧‍👧 👨🏾‍🦰…',
-			$blocks,
-			$this->generateNormalBoundary( 1473, 1474, 'values' ),
-			$tweets[2]
+			'…👩🏻‍💻 ' . trim( str_repeat( $test_content, 13 ) ),
 		);
 
-		$this->assertTweetContains(
-			'…👩🏻‍💻 ' . trim( str_repeat( $test_content, 13 ) ),
-			$blocks,
+		$expected_boundaries = array(
+			$this->generateLineBoundary( 1, 'values' ),
+			$this->generateNormalBoundary( 769, 770, 'values' ),
+			$this->generateNormalBoundary( 1473, 1474, 'values' ),
 			false,
-			$tweets[3]
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -472,13 +546,11 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->generateListData( "<li></li><li></li><li><li></li><li>$test_content</li></li><li></li><li>$test_content</li>" ),
 		);
 
-		$tweets = Jetpack_Tweetstorm_Helper::parse( $blocks );
-
-		$this->assertTweetContains(
-			"- $test_content\n- $test_content",
+		$this->assertTweetGenerated(
 			$blocks,
-			false,
-			$tweets[0]
+			array( "- $test_content\n- $test_content" ),
+			array( false ),
+			array( $blocks )
 		);
 	}
 }
