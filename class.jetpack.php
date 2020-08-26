@@ -5777,9 +5777,15 @@ endif;
 	/**
 	 * Helper method for multicall XMLRPC.
 	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call()
+	 *
 	 * @param ...$args Args for the async_call.
 	 */
 	public static function xmlrpc_async_call( ...$args ) {
+
+		_deprecated_function( 'Jetpack::xmlrpc_async_call', 'jetpack-8.9.0', 'Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call' );
+
 		global $blog_id;
 		static $clients = array();
 
@@ -7161,18 +7167,6 @@ endif;
 			default:
 				return 'https://wordpress.com/';
 		}
-	}
-
-	/**
-	 * Checks whether or not TOS has been agreed upon.
-	 * Will return true if a user has clicked to register, or is already connected.
-	 */
-	public static function jetpack_tos_agreed() {
-		_deprecated_function( 'Jetpack::jetpack_tos_agreed', 'Jetpack 7.9.0', '\Automattic\Jetpack\Terms_Of_Service->has_agreed' );
-
-		$terms_of_service = new Terms_Of_Service();
-		return $terms_of_service->has_agreed();
-
 	}
 
 	/**
