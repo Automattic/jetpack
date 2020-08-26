@@ -21,7 +21,7 @@ define( 'JETPACK__VERSION', '9.0-alpha' );
 /**
  * Constant used to fetch the connection owner token
  *
- * @deprecated 8.9.0
+ * @deprecated 9.0.0
  * @var boolean
  */
 define( 'JETPACK_MASTER_USER', true );
