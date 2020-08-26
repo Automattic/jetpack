@@ -185,7 +185,7 @@ abstract class Module {
 	protected function get_check_sum( $values, $sort = true ) {
 		// Associative array order changes the generated checksum value.
 		if ( $sort && is_array( $values ) ) {
-			$values = ksort( $values );
+			ksort( $values );
 		}
 		return crc32( wp_json_encode( jetpack_json_wrap( $values ) ) );
 	}
