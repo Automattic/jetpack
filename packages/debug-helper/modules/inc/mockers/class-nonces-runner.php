@@ -22,7 +22,7 @@ class Nonces_Runner implements Runner_Interface {
 	 * @return bool
 	 */
 	public function run( $number ) {
-		for ( $i = $number, $per_batch = 100; $i > 0; $i -= $per_batch ) {
+		for ( $i = $number, $per_batch = 500; $i > 0; $i -= $per_batch ) {
 			$this->run_batch( min( $per_batch, $i ) );
 		}
 

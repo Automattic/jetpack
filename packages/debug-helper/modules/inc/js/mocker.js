@@ -11,6 +11,10 @@ class Mocker {
 		this.submitElement = this.formElement.querySelector( '#mocker-submit' );
 		this.responseElement = this.formElement.querySelector( '#mocker-response' );
 
+		this.limitPerBatch = 10000;
+		this.limitBatches = 5;
+		this.runningBatches = 0;
+
 		if ( this.formElement ) {
 			this.formElement.addEventListener( 'submit', e => {
 				e.preventDefault();
@@ -19,40 +23,68 @@ class Mocker {
 		}
 	}
 
-	submit() {
+	async submit() {
 		const loader = loaderButton( this.submitElement );
 		loader.on();
 
 		const data = this.dataElement.value.toLowerCase();
 		const number = parseInt( this.numberElement.value );
 
-		fetch(
-			`${ window.wpApiSettings.root }jetpack-debug/mocker&data=${ encodeURIComponent(
-				data
-			) }&number=${ number }`,
-			{
-				headers: {
-					'X-WP-Nonce': window.wpApiSettings.nonce,
-				},
-			}
-		)
-			.then( response => response.json() )
-			.then( body => {
-				if ( ! body.success ) {
-					console.log( body );
-				}
-
-				loader.off();
-
-				this.responseElement.innerHTML = `<strong>Response: ${
-					body.success ? 'Success' : 'Failure (see console log for details)'
-				}</strong>`;
-
-				this.responseElement.classList.remove( 'block-hide' );
-			} );
-
 		this.responseElement.innerHTML = '';
-		this.responseElement.classList.add( 'block-hide' );
+		this.responseElement.classList.remove( 'block-hide' );
+
+		let k = 0;
+		const batches = [];
+		for ( let i = number; i > 0; i -= this.limitPerBatch ) {
+			batches.push( this.runBatch( ++k, data, Math.min( i, this.limitPerBatch ) ) );
+		}
+
+		await Promise.all( batches );
+
+		this.responseElement.innerHTML += `<br><br><strong>Finished! 🏁</strong>`;
+
+		loader.off();
+	}
+
+	async runBatch( batchKey, data, number ) {
+		const div = document.createElement( 'div' );
+		this.responseElement.appendChild( div );
+
+		if ( ! this.canBatch() ) {
+			div.innerHTML = `Batch ${ batchKey } is waiting...`;
+			await new Promise( ( resolve, reject ) => {
+				const interval = setInterval( () => {
+					if ( this.canBatch() ) {
+						clearInterval( interval );
+						resolve();
+					}
+				}, 500 );
+			} );
+		}
+
+		++this.runningBatches;
+		div.innerHTML = `Batch ${ batchKey } has started...`;
+
+		const url = `${ window.wpApiSettings.root }jetpack-debug/mocker&data=${ encodeURIComponent(
+			data
+		) }&number=${ number }`;
+		const headers = { 'X-WP-Nonce': window.wpApiSettings.nonce };
+
+		const response = await fetch( url, { headers } );
+		const body = await response.json();
+
+		div.innerHTML = `Batch ${ batchKey } has finished: ${
+			body.success ? 'success' : 'failure (see network log for details)'
+		}`;
+
+		return new Promise( ( resolve, reject ) => {
+			--this.runningBatches;
+			resolve( true === body.success );
+		} );
+	}
+
+	canBatch() {
+		return this.runningBatches < this.limitBatches;
 	}
 }
 
