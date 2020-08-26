@@ -198,10 +198,6 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			$file['error'] = 'rest_upload_user_quota_exceeded|' . __( 'You have used your space quota. Please delete files before uploading.', 'default' );
 		}
 
-		if ( '0' != $file['error'] && ! isset( $_POST['html-upload'] ) && ! wp_doing_ajax() ) {
-			wp_die( $file['error'] . ' <a href="javascript:history.go(-1)">' . __( 'Back', 'default' ) . '</a>' );
-		}
-
 		return $file;
 	}
 	/**
