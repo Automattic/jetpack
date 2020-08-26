@@ -42,17 +42,10 @@
 		padding: 16px;
 
 		@include break-small() {
-			padding: 24px;
+			padding: 32px;
 		}
 
-		h4 {
-			margin: 0 0 16px;
-
-			@include break-small() {
-				margin: 0 0 32px;
-			}
-		}
-
+		h4,
 		p {
 			margin: 0 0 16px;
 

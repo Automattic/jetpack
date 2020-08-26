@@ -1,7 +1,7 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 @import './common';
 
-.wp-block-jetpack-donations {
+.editor-styles-wrapper .wp-block-jetpack-donations {
 	.donations__amount {
 		cursor: text;
 
@@ -34,6 +34,10 @@
 
 	.donations__custom-amount .donations__amount-value {
 		color: $light-gray-700;
+	}
+
+	.donations__donate-button-wrapper:not( .alignleft ):not( .alignright ) {
+		margin: 0;
 	}
 
 	.jetpack-block-nudge {
