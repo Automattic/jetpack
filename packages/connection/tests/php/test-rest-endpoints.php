@@ -89,8 +89,8 @@ class Test_REST_Endpoints extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 400, $data['code'] );
-		$this->assertContains( '[verify_secrets_missing]', $data['message'] );
+		$this->assertEquals( 404, $data['code'] );
+		$this->assertContains( '[user_unknown]', $data['message'] );
 	}
 
 	/**
