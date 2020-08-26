@@ -173,11 +173,10 @@ class JetpackDonations {
 		} );
 
 		input.addEventListener( 'focus', () => {
-			// Add selected styles to wrapper element.
-			wrapper.classList.add( 'is-selected' );
-
 			// Toggle selected amount.
 			this.resetSelectedAmount();
+			wrapper.classList.add( 'is-selected' );
+
 			if ( this.isCustomAmount ) {
 				return;
 			}
