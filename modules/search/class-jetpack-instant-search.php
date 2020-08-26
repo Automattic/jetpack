@@ -565,8 +565,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$enabled_post_types = array();
 		$widget_options     = get_option( Jetpack_Search_Helpers::get_widget_option_name(), array() );
 
-		// Iterate through each Jetpack Search widget configuration and append each enabled post type
-		// to $enabled_post_types.
+		// Prior to Jetpack 8.8, post types were enabled via Jetpack Search widgets rather than disabled via the Customizer.
+		// To continue supporting post types set up in the old way, we iterate through each Jetpack Search
+		// widget configuration and append each enabled post type to $enabled_post_types.
 		foreach ( $widget_options as $widget_option ) {
 			if ( isset( $widget_option['post_types'] ) && is_array( $widget_option['post_types'] ) ) {
 				foreach ( $widget_option['post_types'] as $enabled_post_type ) {
@@ -575,7 +576,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			}
 		}
 
-		$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
-		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
+		if ( ! empty( $enabled_post_types ) ) {
+			$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
+			update_option( Jetpack_Search_Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
+		}
 	}
 }
