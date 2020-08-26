@@ -48,19 +48,23 @@ function wpcomsh_patched_gutenberg_experimental_apply_classnames_and_styles( $bl
 		return $block_content;
 	}
 
+	// We need to wrap the block in order to handle UTF-8 properly.
+	$wrapper_left  = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body>';
+	$wrapper_right = '</body></html>';
+
 	$dom = new DOMDocument( '1.0', 'utf-8' );
 
 	// Suppress warnings from this method from polluting the front-end.
 	// @codingStandardsIgnoreStart
 
 	// WPCOMSH: This is the patched line from https://github.com/WordPress/gutenberg/pull/24447
-	if ( ! @$dom->loadHTML( mb_convert_encoding( $block_content, 'HTML-ENTITIES', 'UTF-8' ), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_COMPACT ) ) {
+	if ( ! @$dom->loadHTML( $wrapper_left . $block_content . $wrapper_right , LIBXML_HTML_NODEFDTD | LIBXML_COMPACT ) ) {
 	// @codingStandardsIgnoreEnd
 		return $block_content;
 	}
 
 	$xpath      = new DOMXPath( $dom );
-	$block_root = $xpath->query( '/*' )[0];
+	$block_root = $xpath->query( '/html/body/*' )[0];
 
 	if ( empty( $block_root ) ) {
 		return $block_content;
@@ -87,10 +91,10 @@ function wpcomsh_patched_gutenberg_experimental_apply_classnames_and_styles( $bl
 		$block_root->setAttribute( 'style', $new_styles );
 	}
 
-	return $dom->saveHtml();
+	return str_replace( array( $wrapper_left, $wrapper_right ), '', $dom->saveHtml() );
 }
 
-function wpcomsh_hotfix_gutenberg_8_7_0_encoding() {
+function wpcomsh_hotfix_gutenberg_8_7_x_encoding() {
 	remove_filter( 'render_block', 'gutenberg_experimental_apply_classnames_and_styles', 10 );
 	add_filter( 'render_block', 'wpcomsh_patched_gutenberg_experimental_apply_classnames_and_styles', 10, 2 );
 }
@@ -102,8 +106,8 @@ function wpcomsh_hotfix_gutenberg() {
 	}
 
 	// Apply fixes by Gutenberg version.
-	if ( '8.7.0' === GUTENBERG_VERSION ) {
-		wpcomsh_hotfix_gutenberg_8_7_0_encoding();
+	if ( '8.7.0' === GUTENBERG_VERSION ||  '8.7.1' === GUTENBERG_VERSION ) {
+		wpcomsh_hotfix_gutenberg_8_7_x_encoding();
 	}
 }
 add_action( 'plugins_loaded', 'wpcomsh_hotfix_gutenberg' );
