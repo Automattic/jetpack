@@ -41,7 +41,7 @@ export default compose( [
 		autosaveAndRedirect: async event => {
 			event.preventDefault(); // Don't follow the href before autosaving
 			onClick( blockName );
-			await dispatch( 'core/editor' ).autosave();
+			await dispatch( 'core/editor' ).savePost();
 			// Using window.top to escape from the editor iframe on WordPress.com
 			window.top.location.href = href;
 		},
