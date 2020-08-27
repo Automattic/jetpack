@@ -12,7 +12,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Helper function. Given a string of text, it will generate the blob of data
-	 * that the parser expects to recieve for a paragraph block.
+	 * that the parser expects to receive for a paragraph block.
 	 *
 	 * @param string $text The paragraph text.
 	 * @return array The paragraph blob of data.
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Helper function. Given a string of text, it will generate the blob of data
-	 * that the parser expects to recieve for a heading block.
+	 * that the parser expects to receive for a heading block.
 	 *
 	 * @param string $text The heading text.
 	 * @return array The heading blob of data.
@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Helper function. Given a quote and attribution, it will generate the blob of data
-	 * that the parser expects to recieve for a quote block.
+	 * that the parser expects to receive for a quote block.
 	 *
 	 * @param string $quote       The quote text.
 	 * @param string $attribution The attribution text.
@@ -78,7 +78,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Helper function. Given a string of list data, it will generate the blob of data
-	 * that the parser expects to recieve for a list block.
+	 * that the parser expects to receive for a list block.
 	 *
 	 * @param string $html The list data.
 	 * @return array The list blob of data.
@@ -91,6 +91,25 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			'block'      => array(
 				'blockName' => 'core/list',
 				'innerHTML' => "<ul>$html</ul>",
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
+	 * Helper function. Given a URL, it will generate the blob of data
+	 * that the parser expects to receive for an image block.
+	 *
+	 * @param string $url The image URL.
+	 * @param string $alt The image alt text.
+	 * @return array The image blob of data.
+	 */
+	public function generateImageData( $url, $alt ) {
+		return array(
+			'attributes' => array(),
+			'block'      => array(
+				'blockName' => 'core/image',
+				'innerHTML' => "<figure><img src='$url' alt='$alt'/></figure>",
 			),
 			'clientId'   => wp_generate_uuid4(),
 		);
@@ -131,14 +150,37 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	/**
 	 * Helper function. Tests that a generate tweet contains the expected data.
 	 *
-	 * @param string $text        The text of the generated tweet.
-	 * @param array  $blocks      An array of blocks that should be defined in the tweet.
-	 * @param array  $boundary    The boundary data that the tweet should contain.
-	 * @param array  $tweet       A single tweet returned from the parser.
-	 * @param bool   $editor_info Flag whether or not editor-related info should be in the tweet.
+	 * @param string|array $content {
+	 *     The content of the tweet. Passing a string is the equivalent of passing
+	 *     an array with the `text` parameter set.
+	 *
+	 *     @type string $text  Optional. The text of the tweet.
+	 *     @type array  $media Optional. Array of media that will be used for media attachments.
+	 *     @type string $embed Optional. URL of a tweet to be quoted, or page to be embedded.
+	 * }
+	 * @param array        $blocks      An array of blocks that should be defined in the tweet.
+	 * @param array        $boundary    The boundary data that the tweet should contain.
+	 * @param array        $tweet       A single tweet returned from the parser.
+	 * @param bool         $editor_info Flag whether or not editor-related info should be in the tweet.
 	 */
-	public function assertTweetContains( $text, $blocks, $boundary, $tweet, $editor_info ) {
-		$this->assertEquals( $text, $tweet['text'] );
+	public function assertTweetContains( $content, $blocks, $boundary, $tweet, $editor_info ) {
+		if ( is_string( $content ) ) {
+			$content = array(
+				'text' => $content,
+			);
+		}
+
+		$content = wp_parse_args(
+			$content,
+			array(
+				'text'  => '',
+				'media' => array(),
+				'embed' => '',
+			)
+		);
+
+		$this->assertEquals( $content['text'], $tweet['text'] );
+		$this->assertEquals( $content['media'], $tweet['media'] );
 
 		if ( $editor_info ) {
 			$block_count = count( $blocks );
@@ -163,21 +205,28 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * confirms that they've been generated the same way.
 	 *
 	 * @param array $blocks       The array of blocks used to generate the tweets.
-	 * @param array $text         An array of strings matching the generated tweets.
+	 * @param array $content {
+	 *     An array of content matching the generated tweets. Each element can be a string, which is
+	 *     the equivalent of passing an array with the `text` parameter set.
+	 *
+	 *     @type string $text  Optional. The text of the tweet.
+	 *     @type array  $media Optional. Array of media that will be used for media attachments.
+	 *     @type string $embed Optional. URL of a tweet to be quoted, or page to be embedded.
+	 * }
 	 * @param array $boundaries   The boundary data that each tweet should contain.
 	 * @param array $tweet_blocks An array of arrays: each child array should be the blocks used
 	 *                            to generate each tweet.
 	 */
-	public function assertTweetGenerated( $blocks, $text, $boundaries, $tweet_blocks ) {
+	public function assertTweetGenerated( $blocks, $content, $boundaries, $tweet_blocks ) {
 		$tweets      = Jetpack_Tweetstorm_Helper::parse( $blocks );
 		$tweet_count = count( $tweets );
 
-		$this->assertEquals( $tweet_count, count( $text ) );
+		$this->assertEquals( $tweet_count, count( $content ) );
 		$this->assertEquals( $tweet_count, count( $boundaries ) );
 		$this->assertEquals( $tweet_count, count( $tweet_blocks ) );
 
 		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
-			$this->assertTweetContains( $text[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], true );
+			$this->assertTweetContains( $content[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], true );
 		}
 
 		// Remove the data that the editor sends, to match Publicize's behaviour.
@@ -194,12 +243,12 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$tweets      = Jetpack_Tweetstorm_Helper::parse( $publicize_blocks );
 		$tweet_count = count( $tweets );
 
-		$this->assertEquals( $tweet_count, count( $text ) );
+		$this->assertEquals( $tweet_count, count( $content ) );
 		$this->assertEquals( $tweet_count, count( $boundaries ) );
 		$this->assertEquals( $tweet_count, count( $tweet_blocks ) );
 
 		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
-			$this->assertTweetContains( $text[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], false );
+			$this->assertTweetContains( $content[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], false );
 		}
 
 	}
@@ -666,5 +715,122 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$expected_boundaries,
 			$expected_blocks
 		);
+	}
+
+	/**
+	 * Test that an image block will be appended to the previous tweet.
+	 */
+	public function test_image_is_appended() {
+		$test_content = 'That selfie lyfe';
+		$test_url     = 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg';
+		$test_alt     = 'This is how we roll.';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateImageData( $test_url, $test_alt ),
+		);
+
+		$expected_content = array(
+			array(
+				'text'  => $test_content,
+				'media' => array(
+					array(
+						'url' => $test_url,
+						'alt' => $test_alt,
+					),
+				),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that an image block will be appended to the previous tweet, but then the second image
+	 * won't be appended.
+	 */
+	public function test_second_image_is_not_appended() {
+		$test_content = 'That selfie lyfe';
+		$test_images  = array(
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt' => 'This is how we roll.',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt' => 'Like a boss.',
+			),
+		);
+
+		$blocks = array(
+			$this->generateListData( "<li>$test_content</li>" ),
+			$this->generateImageData( $test_images[0]['url'], $test_images[0]['alt'] ),
+			$this->generateImageData( $test_images[1]['url'], $test_images[1]['alt'] ),
+		);
+
+		$expected_content = array(
+			array(
+				'text'  => "- $test_content",
+				'media' => array(
+					array(
+						'url' => $test_images[0]['url'],
+						'alt' => $test_images[0]['alt'],
+					),
+				),
+			),
+			array(
+				'media' => array(
+					array(
+						'url' => $test_images[1]['url'],
+						'alt' => $test_images[1]['alt'],
+					),
+				),
+			),
+		);
+
+		$expected_boundaries = array( false, false );
+
+		$expected_blocks = array(
+			array_slice( $blocks, 0, 2 ),
+			array_slice( $blocks, 2, 1 ),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that an image block will not be appended to the previous tweet when the previous tweet text
+	 * takes up too many characters to allow the image to fit inside Twitter's limits.
+	 */
+	public function test_image_following_long_paragraph_is_not_appended() {
+		$test_content = trim( str_repeat( 'That selfie lyfe. ', 15 ) );
+		$test_url     = 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg';
+		$test_alt     = 'This is how we roll.';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateImageData( $test_url, $test_alt ),
+		);
+
+		$expected_content = array(
+			$test_content,
+			array(
+				'media' => array(
+					array(
+						'url' => $test_url,
+						'alt' => $test_alt,
+					),
+				),
+			),
+		);
+
+		$expected_boundaries = array( false, false );
+
+		$expected_blocks = array(
+			array_slice( $blocks, 0, 1 ),
+			array_slice( $blocks, 1, 1 ),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
 }
