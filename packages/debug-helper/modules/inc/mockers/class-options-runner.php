@@ -40,14 +40,17 @@ class Options_Runner implements Runner_Interface {
 	private function run_batch( $limit ) {
 		global $wpdb;
 
-		$sql = "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES ";
+		$sql = "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES "
+			. implode( ', ', array_fill( 0, $limit, '( %s, %s, "no" )' ) );
 
+		$values_to_insert = array();
 		for ( $i = 0; $i < $limit; ++$i ) {
-			$sql .= "('" . esc_sql( $this->get_random_name() ) . "', '" . esc_sql( $this->get_random_value() ) . "', 'no'), ";
+			$values_to_insert[] = $this->get_random_name();
+			$values_to_insert[] = $this->get_random_value();
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( substr( $sql, 0, -2 ) );
+		$wpdb->query( $wpdb->prepare( $sql, $values_to_insert ) );
 
 		return true;
 	}

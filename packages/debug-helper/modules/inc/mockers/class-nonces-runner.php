@@ -43,15 +43,16 @@ class Nonces_Runner implements Runner_Interface {
 			return false;
 		}
 
-		$sql = "INSERT INTO {$wpdb->prefix}options (option_name, option_value, autoload) VALUES ";
+		$sql = "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES "
+			. implode( ', ', array_fill( 0, $limit, '( %s, %s, "no" )' ) );
 
+		$values_to_insert = array();
 		for ( $i = 0; $i < $limit; ++$i ) {
-			list( $name, $value ) = $this->get_random_nonce();
-			$sql                 .= "('" . esc_sql( $name ) . "', '" . esc_sql( $value ) . "', 'no'), ";
+			$values_to_insert = array_merge( $values_to_insert, $this->get_random_nonce() );
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( substr( $sql, 0, -2 ) );
+		$wpdb->query( $wpdb->prepare( $sql, $values_to_insert ) );
 
 		return true;
 	}

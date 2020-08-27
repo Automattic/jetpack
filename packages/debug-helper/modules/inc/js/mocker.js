@@ -65,9 +65,9 @@ class Mocker {
 		++this.runningBatches;
 		div.innerHTML = `Batch ${ batchKey } has started...`;
 
-		const url = `${ window.wpApiSettings.root }jetpack-debug/mocker&data=${ encodeURIComponent(
-			data
-		) }&number=${ number }`;
+		const url = `${ window.wpApiSettings.root }jetpack-debug/mocker${
+			-1 === window.wpApiSettings.root.indexOf( '?' ) ? '?' : '&'
+		}data=${ encodeURIComponent( data ) }&number=${ number }`;
 		const headers = { 'X-WP-Nonce': window.wpApiSettings.nonce };
 
 		const response = await fetch( url, { headers } );
