@@ -11,7 +11,7 @@ import Cache from 'cache';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS } from './constants';
+import { MINUTE_IN_MILLISECONDS, SERVER_OBJECT_NAME } from './constants';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
@@ -144,6 +144,48 @@ function mapSortToApiValue( sort ) {
 	return SORT_QUERY_MAP.get( sort, 'score_default' );
 }
 
+function generateApiQueryString( {
+	aggregations,
+	excludedPostTypes,
+	filter,
+	pageHandle,
+	query,
+	resultFormat,
+	sort,
+	postsPerPage = 10,
+	adminQueryFilter,
+} ) {
+	let fields = [
+		'date',
+		'permalink.url.raw',
+		'tag.name.default',
+		'category.name.default',
+		'post_type',
+		'has.image',
+		'shortcode_types',
+		'image.url.raw',
+	];
+	const highlightFields = [ 'title', 'content', 'comments' ];
+
+	switch ( resultFormat ) {
+		case 'product':
+			fields = fields.concat( [ 'wc.price' ] );
+	}
+
+	return encode(
+		flatten( {
+			aggregations,
+			fields,
+			highlight_fields: highlightFields,
+			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
+			query: encodeURIComponent( query ),
+			sort: mapSortToApiValue( sort ),
+			page_handle: pageHandle,
+			size: postsPerPage,
+		} )
+	);
+}
+
 function promiseifedProxyRequest( proxyRequest, path, query ) {
 	return new Promise( function ( resolve, reject ) {
 		proxyRequest( { path, query, apiVersion: '1.3' }, function ( err, body, headers ) {
@@ -186,7 +228,6 @@ export function search( {
 	sort,
 	postsPerPage = 10,
 	adminQueryFilter,
-	isPrivateWpcom,
 } ) {
 	const key = stringify( Array.from( arguments ) );
 
@@ -203,49 +244,38 @@ export function search( {
 			.then( data => ( { _isCached: true, _isError: false, _isOffline: false, ...data } ) );
 	}
 
-	let fields = [
-		'date',
-		'permalink.url.raw',
-		'tag.name.default',
-		'category.name.default',
-		'post_type',
-		'has.image',
-		'shortcode_types',
-		'image.url.raw',
-	];
-	const highlightFields = [ 'title', 'content', 'comments' ];
-
-	switch ( resultFormat ) {
-		case 'product':
-			fields = fields.concat( [ 'wc.price' ] );
-	}
-
-	const queryString = encode(
-		flatten( {
-			aggregations,
-			fields,
-			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
-			query: encodeURIComponent( query ),
-			sort: mapSortToApiValue( sort ),
-			page_handle: pageHandle,
-			size: postsPerPage,
-		} )
-	);
-
+	const queryString = generateApiQueryString( {
+		adminQueryFilter,
+		aggregations,
+		excludedPostTypes,
+		filter,
+		pageHandle,
+		postsPerPage,
+		query,
+		resultFormat,
+		sort,
+	} );
 	const errorHandler = errorHandlerFactory( key );
 	const responseHandler = responseHandlerFactory( key );
-	const path = `/sites/${ siteId }/search?${ queryString }`;
-	const url = `https://public-api.wordpress.com/rest/v1.3${ path }`;
 
-	if ( isPrivateWpcom ) {
+	const pathForPublicApi = `/sites/${ siteId }/search?${ queryString }`;
+
+	if ( window[ SERVER_OBJECT_NAME ].isPrivateSite && window[ SERVER_OBJECT_NAME ].isWpcom ) {
 		return import( 'wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
-			return promiseifedProxyRequest( proxyRequest, path, query )
+			return promiseifedProxyRequest( proxyRequest, pathForPublicApi, query )
 				.catch( errorHandler )
 				.then( responseHandler );
 		} );
 	}
-	return fetch( url )
+
+	const urlForPublicApi = `${ window[ SERVER_OBJECT_NAME ].apiRoot }rest/v1.3${ pathForPublicApi }`;
+	const urlForProxiedApi = `${ window[ SERVER_OBJECT_NAME ].apiRoot }wpcom/v2/search?${ queryString }`;
+	const url = window[ SERVER_OBJECT_NAME ].isPrivateSite ? urlForProxiedApi : urlForPublicApi;
+	const isApiColocated = window[ SERVER_OBJECT_NAME ].apiRoot.includes( window.location.origin );
+
+	return fetch( url, {
+		headers: isApiColocated ? { 'X-WP-Nonce': window[ SERVER_OBJECT_NAME ].apiNonce } : {},
+	} )
 		.catch( errorHandler )
 		.then( r => r.json() )
 		.then( responseHandler );

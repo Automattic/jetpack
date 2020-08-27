@@ -224,7 +224,6 @@ class SearchApp extends Component {
 			sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
-			isPrivateWpcom: this.props.options.isPrivateWpcom,
 		} )
 			.then( newResponse => {
 				if ( this.state.requestId === requestId ) {

@@ -145,8 +145,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
 			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-			'isPrivateWpcom'        => '-1' === get_option( 'blog_public' ),
-			'isAtomic'              => jetpack_is_atomic_site(),
+			'isAtomicSite'          => jetpack_is_atomic_site(),
+			'isPrivateSite'         => '-1' === get_option( 'blog_public' ),
+			'isWpcom'               => defined( 'IS_WPCOM' ) && IS_WPCOM,
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
