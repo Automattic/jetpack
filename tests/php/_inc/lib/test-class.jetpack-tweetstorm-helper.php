@@ -275,6 +275,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that an unsupported block gives no tweets.
+	 */
+	public function test_unsupported_block_no_tweets() {
+		$blocks = array(
+			array(
+				'attributes' => array(
+					'feedURL' => 'https://wordpress.org/news/feed/',
+				),
+				'block'      => array(
+					'blockName' => 'core/rss',
+					'innerHTML' => '',
+				),
+				'clientId'   => wp_generate_uuid4(),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, array(), array(), array() );
+	}
+
+	/**
 	 * Test that a single short paragraph turns into one tweet.
 	 */
 	public function test_single_paragraph() {
@@ -319,6 +339,42 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array( trim( str_repeat( $test_content, 12 ) ), trim( $test_content ) ),
 			array( $this->generateNormalBoundary( 275, 276, 'content' ), false ),
 			array( $blocks, $blocks )
+		);
+	}
+
+	/**
+	 * Test that a single long paragraph containing multibyte characters is split into two tweets,
+	 * breaking at the end of a sentence.
+	 */
+	public function test_single_long_multibyte_paragraph() {
+		$test_content = 'ℌ𝔢𝔯𝔢 𝔦𝔰 𝔰𝔬𝔪𝔢 𝔱𝔢𝔵𝔱. ';
+		$blocks       = array(
+			$this->generateParagraphData( str_repeat( $test_content, 18 ) ),
+		);
+
+		$expected_text = array(
+			trim( str_repeat( $test_content, 8 ) ),
+			trim( str_repeat( $test_content, 8 ) ),
+			trim( str_repeat( $test_content, 2 ) ),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 255, 256, 'content' ),
+			$this->generateNormalBoundary( 511, 512, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
 		);
 	}
 
@@ -444,6 +500,42 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_boundaries = array(
 			$this->generateNormalBoundary( 274, 275, 'content' ),
 			$this->generateNormalBoundary( 539, 540, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
+		);
+	}
+
+	/**
+	 * Test that a long sentence will start in the next tweet when it's too long.
+	 */
+	public function test_short_sentence_followed_by_a_long_sentence() {
+		$test_content   = 'This is 22 characters ';
+		$short_sentence = 'This is 23 characters. ';
+		$blocks         = array(
+			$this->generateParagraphData( $short_sentence . trim( str_repeat( $test_content, 13 ) ) . '.' ),
+		);
+
+		$expected_text = array(
+			trim( $short_sentence ),
+			trim( str_repeat( $test_content, 12 ) . 'This is 22…' ),
+			'…characters.',
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 22, 23, 'content' ),
+			$this->generateNormalBoundary( 297, 298, 'content' ),
 			false,
 		);
 

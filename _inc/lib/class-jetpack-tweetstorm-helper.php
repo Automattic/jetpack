@@ -274,7 +274,7 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// The line is too long for a single tweet, so split it by sentences.
-				$sentences      = preg_split( '/(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[a-zA-Z\'"\(])/', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
+				$sentences      = preg_split( '/(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
 				$sentence_total = count( $sentences );
 
 				// preg_split() puts the blank space between sentences into a seperate entry in the result,
@@ -377,11 +377,7 @@ class Jetpack_Tweetstorm_Helper {
 			}
 		}
 
-		// We managed to get to the end without creating any tweets, so don't return the single empty tweet.
-		if ( 1 === count( $tweets ) && false === $tweets[0]['changed'] ) {
-			return array();
-		}
-
+		// Before we return, clean out unnecessary cruft from the return data.
 		$tweets = array_map(
 			function( $tweet ) {
 				// Remove tweets that don't have anything saved in them. eg, if the last block is a
@@ -572,7 +568,7 @@ class Jetpack_Tweetstorm_Helper {
 		// Remove any glyphs that count as 1 character.
 		// Source: https://github.com/twitter/twitter-text/blob/master/config/v3.json .
 		$single_character_count = 0;
-		$text                   = preg_replace( '/[\x{0000}-\x{4351}\x{8192}-\x{8205}\x{8208}-\x{8223}\x{8242}-\x{8247}]/uS', $text, -1, $single_character_count );
+		$text                   = preg_replace( '/[\x{0000}-\x{4351}\x{8192}-\x{8205}\x{8208}-\x{8223}\x{8242}-\x{8247}]/uS', '', $text, -1, $single_character_count );
 
 		$stripped_characters += $single_character_count;
 
