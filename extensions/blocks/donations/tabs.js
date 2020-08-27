@@ -75,7 +75,7 @@ const Tabs = props => {
 							<div
 								role="button"
 								tabIndex={ 0 }
-								className={ classNames( 'donations__nav-item', 'wp-block-button__link', {
+								className={ classNames( 'donations__nav-item', {
 									'is-active': isTabActive( interval ),
 								} ) }
 								onClick={ () => setActiveTab( interval ) }
