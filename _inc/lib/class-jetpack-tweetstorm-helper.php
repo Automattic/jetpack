@@ -375,8 +375,15 @@ class Jetpack_Tweetstorm_Helper {
 			return array();
 		}
 
-		return array_map(
+		$tweets = array_map(
 			function( $tweet ) {
+				// Remove tweets that don't have anything saved in them. eg, if the last block is a
+				// header with no text, it'll force a new tweet, but we won't end up putting anything
+				// in that tweet.
+				if ( ! $tweet['changed'] ) {
+					return false;
+				}
+
 				// Tidy up the whitespace.
 				$tweet['text'] = trim( $tweet['text'] );
 				$tweet['text'] = preg_replace( '/[ \t]+\n/', "\n", $tweet['text'] );
@@ -402,6 +409,9 @@ class Jetpack_Tweetstorm_Helper {
 			},
 			$tweets
 		);
+
+		// Clean any removed tweets out of the result.
+		return array_values( array_filter( $tweets, 'is_array' ) );
 	}
 
 	/**
@@ -732,12 +742,19 @@ class Jetpack_Tweetstorm_Helper {
 			return '';
 		}
 
+		// Keep track of whether we've found any content in the tags.
+		$found_content = false;
+
 		if ( 'text' === $block_def['type'] ) {
 			$tags = self::extract_tag_content_from_html( $block_def['content_tags'], $block['innerHTML'] );
 			$text = $block_def['template'];
 
 			foreach ( $tags as $tag => $values ) {
-				$text = str_replace( '{{' . $tag . '}}', trim( implode( '', $values ) ), $text );
+				$content = trim( implode( '', $values ) );
+				if ( strlen( $content ) > 0 ) {
+					$found_content = true;
+				}
+				$text = str_replace( '{{' . $tag . '}}', $content, $text );
 			}
 		} elseif ( 'multiline' === $block_def['type'] ) {
 			$tags = self::extract_tag_content_from_html( array( $block_def['multiline_tag'] ), $block['innerHTML'] );
@@ -747,12 +764,18 @@ class Jetpack_Tweetstorm_Helper {
 				if ( 0 === strlen( $line ) ) {
 					$text .= self::$line_seperator;
 				} else {
-					$text .= str_replace( '{{line}}', $line, $block_def['template'] ) . self::$line_seperator;
+					$found_content = true;
+					$text         .= str_replace( '{{line}}', $line, $block_def['template'] ) . self::$line_seperator;
 				}
 			}
 
 			$text = trim( $text );
 			$text = preg_replace( '/(' . self::$line_seperator . ')+$/', '', $text );
+		}
+
+		// If there was no actual content in this block, return an empty string instead of an empty template.
+		if ( ! $found_content ) {
+			return '';
 		}
 
 		return $text;

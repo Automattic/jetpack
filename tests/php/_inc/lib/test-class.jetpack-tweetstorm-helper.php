@@ -208,7 +208,21 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * Test that sending no blocks gives no tweets.
 	 */
 	public function test_no_blocks_no_tweets() {
-		$this->assertEmpty( Jetpack_Tweetstorm_Helper::parse( array() ) );
+		$this->assertTweetGenerated( array(), array(), array(), array() );
+	}
+
+	/**
+	 * Test that sending empty blocks gives no tweets.
+	 */
+	public function test_no_content_no_tweets() {
+		$blocks = array(
+			$this->generateParagraphData( '' ),
+			$this->generateHeadingData( '' ),
+			$this->generateListData( '<li></li>' ),
+			$this->generateQuoteData( '', '' ),
+		);
+
+		$this->assertTweetGenerated( $blocks, array(), array(), array() );
 	}
 
 	/**
