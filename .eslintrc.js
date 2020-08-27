@@ -45,7 +45,6 @@ module.exports = {
 		'no-trailing-spaces': 2,
 		// Allows Chai `expect` expressions
 		'no-unused-expressions': 0,
-		'no-unused-vars': 2,
 		'no-var': 2,
 		'object-curly-spacing': [ 2, 'always' ],
 		'operator-linebreak': [
@@ -82,7 +81,6 @@ module.exports = {
 				},
 			},
 		],
-		'template-curly-spacing': [ 2, 'always' ],
 		'wpcalypso/i18n-ellipsis': 2,
 		'wpcalypso/i18n-no-collapsible-whitespace': 2,
 		'wpcalypso/i18n-no-this-translate': 2,
