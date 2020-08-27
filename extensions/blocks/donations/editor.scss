@@ -1,9 +1,15 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 @import './common';
 
-.wp-block-jetpack-donations {
+.editor-styles-wrapper .wp-block-jetpack-donations {
 	.donations__amount {
 		cursor: text;
+
+		&.has-focus {
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px var(--wp-admin-theme-color);
+			outline: 2px solid transparent;
+			outline-offset: -2px;
+		}
 	}
 
 	.donations__custom-amount {
@@ -30,8 +36,8 @@
 		color: $light-gray-700;
 	}
 
-	.donations__donate-button-wrapper {
-		margin-bottom: 30px;
+	.donations__donate-button-wrapper:not( .alignleft ):not( .alignright ) {
+		margin: 0;
 	}
 
 	.jetpack-block-nudge {
