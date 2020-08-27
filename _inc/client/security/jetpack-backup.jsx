@@ -38,7 +38,7 @@ export class JetpackBackup extends Component {
 					link: getRedirectUrl( 'jetpack-support-backup' ),
 				} }
 			>
-				{ __( 'Your site is being backed up.', 'jetpack' ) }
+				{ __( 'Your site is connected to VaultPress for backups.', 'jetpack' ) }
 			</SettingsGroup>
 		);
 	};
@@ -69,7 +69,7 @@ export class JetpackBackup extends Component {
 				return {
 					title: __( 'Active', 'jetpack' ),
 					icon: 'checkmark-circle',
-					description: __( 'Your site is being backed up.', 'jetpack' ),
+					description: __( 'Your site is connected to Jetpack Backup.', 'jetpack' ),
 					url: getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
 				};
 			default:
