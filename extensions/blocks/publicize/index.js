@@ -21,7 +21,7 @@ import { PostTypeSupportCheck } from '@wordpress/editor';
  */
 import './editor.scss';
 import './store';
-import './twitter';
+import TwitterThreadListener from './twitter';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './panel';
 
@@ -30,6 +30,7 @@ export const name = 'publicize';
 export const settings = {
 	render: () => (
 		<PostTypeSupportCheck supportKeys="publicize">
+			<TwitterThreadListener />
 			<JetpackPluginSidebar>
 				<PanelBody title={ __( 'Share this post', 'jetpack' ) }>
 					<PublicizePanel />

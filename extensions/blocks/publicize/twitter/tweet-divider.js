@@ -1,40 +1,20 @@
 /**
  * External dependencies
  */
-import { flatMap, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 import { Popover } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { SocialServiceIcon } from '../../../shared/icons';
+import { SUPPORTED_BLOCKS } from './index';
 
 import './editor.scss';
-import { __ } from '@wordpress/i18n';
-
-const SUPPORTED_BLOCKS = {
-	'core/heading': {
-		contentAttributes: [ 'content' ],
-	},
-	'core/list': {
-		contentAttributes: [ 'values' ],
-	},
-	'core/paragraph': {
-		contentAttributes: [ 'content' ],
-	},
-	'core/quote': {
-		contentAttributes: [ 'value', 'citation' ],
-	},
-	'core/verse': {
-		contentAttributes: [ 'content' ],
-	},
-	'core/image': {
-		contentAttributes: [ 'url' ],
-	},
-};
 
 /**
  * Class that wraps around the edit function for all blocks, adding various
@@ -283,23 +263,7 @@ export default compose( [
 	} ),
 	withDispatch( ( dispatch, { childProps, contentAttributesChanged }, { select } ) => {
 		return {
-			updateTweets: () => {
-				const topBlocks = select( 'core/editor' ).getBlocks();
-
-				const computeTweetBlocks = ( blocks = [] ) => {
-					return flatMap( blocks, ( block = {} ) => {
-						if ( SUPPORTED_BLOCKS[ block.name ] ) {
-							return block;
-						}
-
-						return computeTweetBlocks( block.innerBlocks );
-					} );
-				};
-
-				const tweetBlocks = computeTweetBlocks( topBlocks );
-
-				dispatch( 'jetpack/publicize' ).refreshTweets( tweetBlocks );
-			},
+			updateTweets: () => dispatch( 'jetpack/publicize' ).refreshTweets(),
 			updateAnnotations: () => {
 				// If this block hasn't been assigned to a tweet, skip annotation work.
 				const tweets = select( 'jetpack/publicize' ).getTweetsForBlock( childProps.clientId );

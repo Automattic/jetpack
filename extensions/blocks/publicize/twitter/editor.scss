@@ -87,3 +87,17 @@ h3.jetpack-publicize-twitter-options__heading {
 		background: #fff9;
 	}
 }
+
+.annotation-text-jetpack-tweetstorm,
+.jetpack-publicize-twitter__tweet-divider {
+	transition: opacity 0.5s;
+	opacity: 1;
+}
+
+.jetpack-tweetstorm-is-typing {
+	.annotation-text-jetpack-tweetstorm,
+	.jetpack-publicize-twitter__tweet-divider {
+		transition: opacity 0.5s;
+		opacity: 0.2;
+	}
+}

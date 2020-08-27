@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import { throttle } from 'lodash';
+import { flatMap, throttle } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { serialize } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
+import { SUPPORTED_BLOCKS } from '../twitter';
 import { setConnectionTestResults, setTweets } from './actions';
 
 /**
@@ -29,14 +31,36 @@ export async function refreshConnectionTestResults( action, store ) {
 	}
 }
 
+/**
+ * Handle sending the tweet refresh request.
+ *
+ * @param {object} action - Action which had initiated the effect handler.
+ * @param {object} store - Store instance.
+ *
+ * @returns {object} Refresh tweets results action.
+ */
 async function __refreshTweets( action, store ) {
 	const { dispatch } = store;
+
+	const topBlocks = select( 'core/editor' ).getBlocks();
+
+	const computeTweetBlocks = ( blocks = [] ) => {
+		return flatMap( blocks, ( block = {} ) => {
+			if ( SUPPORTED_BLOCKS[ block.name ] ) {
+				return block;
+			}
+
+			return computeTweetBlocks( block.innerBlocks );
+		} );
+	};
+
+	const tweetBlocks = computeTweetBlocks( topBlocks );
 
 	try {
 		const results = await apiFetch( {
 			path: '/wpcom/v2/tweetstorm/parse',
 			data: {
-				blocks: action.content.map( block => ( {
+				blocks: tweetBlocks.map( block => ( {
 					attributes: block.attributes,
 					block: serialize( block ),
 					clientId: block.clientId,
@@ -51,7 +75,8 @@ async function __refreshTweets( action, store ) {
 }
 
 /**
- * Effect handler which will refreshing the state of the tweets..
+ * Effect handler which will refreshing the state of the tweets. Tweet refreshes are throttled
+ * to once ever 2 seconds.
  *
  * @param {object} action - Action which had initiated the effect handler.
  * @param {object} store - Store instance.
