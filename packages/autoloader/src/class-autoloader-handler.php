@@ -112,34 +112,26 @@ class Autoloader_Handler {
 		 */
 		if ( 2000 < filesize( $autoload_packages_path ) ) {
 			// The autoload_package.php file is a v1.x, so try to delete v2.x files.
-			$vendor_dir = dirname( $autoload_packages_path );
-			if ( file_exists( trailingslashit( $vendor_dir ) . 'autoload_functions.php' )
-				&& is_writable( $vendor_dir )
-				&& is_executable( $vendor_dir ) ) {
-				unlink( trailingslashit( $vendor_dir ) . 'autoload_functions.php' );
-			}
+			$vendor_dir = trailingslashit( dirname( $autoload_packages_path ) );
 
-			$jetpack_autoloader_dir = trailingslashit( $vendor_dir ) . 'jetpack-autoloader';
-			if ( file_exists( trailingslashit( $jetpack_autoloader_dir ) . 'autoload_functions.php' )
-				&& is_writable( $jetpack_autoloader_dir )
-				&& is_executable( $jetpack_autoloader_dir ) ) {
-				unlink( trailingslashit( $jetpack_autoloader_dir ) . 'autoload_functions.php' );
-			}
+			$v1_files_to_delete = array(
+				$vendor_dir . 'autoload_functions.php',
+				$vendor_dir . 'jetpack-autoloader/autoload_functions.php',
+				$vendor_dir . 'composer/jetpack_autoload_classmap.php',
+				$vendor_dir . 'composer/jetpack_autoload_filemap.php',
+			);
 
-			$composer_dir = trailingslashit( $vendor_dir ) . 'composer';
-			if ( file_exists( trailingslashit( $composer_dir ) . 'jetpack_autoload_classmap.php' )
-				&& is_writable( $composer_dir )
-				&& is_executable( $composer_dir ) ) {
-				unlink( trailingslashit( $composer_dir ) . 'jetpack_autoload_classmap.php' );
+			foreach ( $v1_files_to_delete as $file ) {
+				if ( file_exists( $file ) ) {
+					@unlink( $file ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				}
 			}
 
 			return true;
 		}
 
 		// Try to delete v1.x classmap file.
-		if ( is_writable( dirname( $v1_classmap_path ) ) && is_executable( dirname( $v1_classmap_path ) ) ) {
-			unlink( $v1_classmap_path );
-		}
+		@unlink( $v1_classmap_path ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		return false;
 	}
