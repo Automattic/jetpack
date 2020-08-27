@@ -325,20 +325,13 @@ class Jetpack_Signature {
 
 	/**
 	 * Concatenates a parameter name and a parameter value with an equals sign between them.
-	 * Supports one-dimensional arrays as `$value`.
+	 * Supports nested array `$value`s.
 	 *
 	 * @param string $name  Parameter name.
 	 * @param mixed  $value Parameter value.
 	 * @return string A pair with parameter name and value (e.g. `name=value`).
 	 */
 	public function join_with_equal_sign( $name, $value ) {
-		if ( is_array( $value ) ) {
-			$result = array();
-			foreach ( $value as $array_key => $array_value ) {
-				$result[] = $name . '[' . $array_key . ']=' . $array_value;
-			}
-			return $result;
-		}
-		return "{$name}={$value}";
+		return substr( add_query_arg( $name, $value, '' ), 1 );
 	}
 }
