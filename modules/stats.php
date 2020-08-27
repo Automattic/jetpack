@@ -187,7 +187,7 @@ function stats_template_redirect() {
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
-
+	add_action( 'amp_post_template_footer', 'stats_footer' );
 }
 
 
