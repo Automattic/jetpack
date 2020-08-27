@@ -76,14 +76,15 @@ const CreativeMailPlugin = () => {
 	const [ isFetchingPlugins, setIsFetchingPlugins ] = useState( true );
 	const [ hasError, setHasError ] = useState( false );
 	const [ pluginState, setPluginState ] = useState( pluginStateEnum.NOT_INSTALLED );
-
 	useEffect( () => {
 		getPlugins()
 			.then( plugins => {
 				setHasError( false );
-				get( plugins, pluginPath ) && get( plugins, [ pluginPath, 'active' ] )
-					? setPluginState( pluginStateEnum.ACTIVE )
-					: setPluginState( pluginStateEnum.INSTALLED );
+				if ( get( plugins, pluginPath ) ) {
+					get( plugins, [ pluginPath, 'active' ] )
+						? setPluginState( pluginStateEnum.ACTIVE )
+						: setPluginState( pluginStateEnum.INSTALLED );
+				}
 			} )
 			.catch( () => setHasError( true ) )
 			.finally( () => setIsFetchingPlugins( false ) );
