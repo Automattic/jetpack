@@ -114,14 +114,14 @@ class Autoloader_Handler {
 			// The autoload_package.php file is a v1.x, so try to delete v2.x files.
 			$vendor_dir = trailingslashit( dirname( $autoload_packages_path ) );
 
-			$v1_files_to_delete = array(
+			$v2_files_to_delete = array(
 				$vendor_dir . 'autoload_functions.php',
 				$vendor_dir . 'jetpack-autoloader/autoload_functions.php',
 				$vendor_dir . 'composer/jetpack_autoload_classmap.php',
 				$vendor_dir . 'composer/jetpack_autoload_filemap.php',
 			);
 
-			foreach ( $v1_files_to_delete as $file ) {
+			foreach ( $v2_files_to_delete as $file ) {
 				if ( file_exists( $file ) ) {
 					@unlink( $file ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 				}
