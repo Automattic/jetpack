@@ -162,6 +162,16 @@ For a specific package's tests
 yarn docker:phpunit:package autoloader
 ```
 
+If you need to clear out a particular package's composer.lock
+```sh
+yarn docker:phpunit:package autoloader -c
+```
+
+To run all package unit tests and clear all composer.lock files within
+```sh
+yarn docker:phpunit:package -c
+```
+
 ### Starting over
 
 To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
