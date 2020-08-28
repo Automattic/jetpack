@@ -127,6 +127,14 @@ export default function withMedia() {
 					return;
 				}
 
+				// Normalize upload errors.
+				if ( error.errors?.length ) {
+					error = {
+						code: error.errors[ 0 ].error,
+						message: error.errors[ 0 ].message,
+					};
+				}
+
 				const { noticeOperations } = this.props;
 
 				noticeOperations.createErrorNotice(
