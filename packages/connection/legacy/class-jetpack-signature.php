@@ -325,13 +325,40 @@ class Jetpack_Signature {
 
 	/**
 	 * Concatenates a parameter name and a parameter value with an equals sign between them.
-	 * Supports nested array `$value`s.
 	 *
-	 * @param string $name  Parameter name.
-	 * @param mixed  $value Parameter value.
-	 * @return string A pair with parameter name and value (e.g. `name=value`).
+	 * @param string       $name  Parameter name.
+	 * @param string|array $value Parameter value.
+	 * @return string|array A string pair (e.g. `name=value`) or an array of string pairs.
 	 */
 	public function join_with_equal_sign( $name, $value ) {
-		return substr( add_query_arg( $name, $value, '' ), 1 );
+		if ( is_array( $value ) ) {
+			return $this->join_array_with_equal_sign( $name, $value );
+		}
+		return "{$name}={$value}";
+	}
+
+	/**
+	 * Helper function for join_with_equal_sign for handling arrayed values.
+	 * Explicitly supports nested arrays.
+	 *
+	 * @param string $name  Parameter name.
+	 * @param array  $value Parameter value.
+	 * @return array An array of string pairs (e.g. `[ name[example]=value ]`).
+	 */
+	private function join_array_with_equal_sign( $name, $value ) {
+		$result = array();
+		foreach ( $value as $value_key => $value_value ) {
+			$joined_value = $this->join_with_equal_sign( $name . '[' . $value_key . ']', $value_value );
+			if ( is_array( $joined_value ) ) {
+				foreach ( array_values( $joined_value ) as $individual_joined_value ) {
+					$result[] = $individual_joined_value;
+				}
+			} elseif ( is_string( $joined_value ) ) {
+				$result[] = $joined_value;
+			}
+		}
+
+		sort( $result );
+		return $result;
 	}
 }
