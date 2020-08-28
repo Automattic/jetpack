@@ -19,6 +19,7 @@ parameters:
         - class.jetpack-connection-banner.php
         - class.jetpack-data.php
     excludes_analyse:
+    	- node_modules/*
     	- vendor/automattic/*/tests/*
     	- vendor/bin
     	- vendor/dealerdirect/*
