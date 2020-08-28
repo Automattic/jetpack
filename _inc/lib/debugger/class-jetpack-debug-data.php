@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack Debug Data for the legacy Jetpack debugger page and the WP 5.2-era Site Health sections.
+ * Jetpack Debug Data for the Site Health sections.
  *
  * @package jetpack
  */
