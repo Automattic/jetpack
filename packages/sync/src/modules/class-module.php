@@ -195,9 +195,9 @@ abstract class Module {
 	 *
 	 * @param array $values Array.
 	 */
-	private function recursive_ksort( $values ) {
+	private function recursive_ksort( &$values ) {
 		ksort( $values );
-		foreach ( $values as $value ) {
+		foreach ( $values as &$value ) {
 			if ( is_array( $value ) ) {
 				$this->recursive_ksort( $value );
 			}
