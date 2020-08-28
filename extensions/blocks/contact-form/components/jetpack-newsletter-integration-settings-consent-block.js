@@ -12,11 +12,11 @@ const useInsertConsentBlock = () => {
 	const { insertBlock } = useDispatch( 'core/block-editor' );
 
 	const insertConsentBlock = useCallback( async () => {
-		const buttonBlockIndex = ( selectedBlock.innerBlocks ?? [] ).findIndex(
+		let buttonBlockIndex = ( selectedBlock.innerBlocks ?? [] ).findIndex(
 			( { name } ) => name === 'jetpack/button'
 		);
 		if ( buttonBlockIndex === -1 ) {
-			return;
+			buttonBlockIndex = ( selectedBlock.innerBlocks ?? [] ).length;
 		}
 
 		const newConsentBlock = await createBlock( 'jetpack/field-consent' );
