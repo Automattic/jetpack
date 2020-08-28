@@ -116,6 +116,35 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Given an array of image URLs and alt text, it will generate the
+	 * blob of data that the parser expects to receive for a gallery block.
+	 *
+	 * @param array $images {
+	 *     An array of images to include in the gallery.
+	 *
+	 *     @type string $url The image URL.
+	 *     @type string $alt The image alt text.
+	 * }
+	 * @return array The gallery blob of data.
+	 */
+	public function generateGalleryData( $images ) {
+		return array(
+			'attributes' => array(),
+			'block'      => array(
+				'blockName' => 'core/image',
+				'innerHTML' => '<figure><ul>' . array_reduce(
+					$images,
+					function ( $image_string, $image ) {
+						return "$image_string<li><figure><img src='{$image['url']}' alt='{$image['alt']}'/></li></figure>";
+					},
+					''
+				) . '</ul></figure>',
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
 	 * Helper function. Generates a normal boundary marker.
 	 *
 	 * @param int    $start     The start position of the marker.
@@ -838,10 +867,10 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that an image block will be appended to the previous tweet, but then the second image
-	 * won't be appended.
+	 * Test that an image block will be appended to the previous tweet, but then a gallery and
+	 * second image won't be appended.
 	 */
-	public function test_second_image_is_not_appended() {
+	public function test_gallery_and_second_image_are_not_appended() {
 		$test_content = 'That selfie lyfe';
 		$test_images  = array(
 			array(
@@ -852,11 +881,24 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'url' => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
 				'alt' => 'Like a boss.',
 			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
+				'alt' => 'Is this really a selfie?',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
+				'alt' => 'Keeping up with pop culture.',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt' => 'Why does the raccoon miss out?! 😢',
+			),
 		);
 
 		$blocks = array(
 			$this->generateListData( "<li>$test_content</li>" ),
 			$this->generateImageData( $test_images[0]['url'], $test_images[0]['alt'] ),
+			$this->generateGalleryData( array_slice( $test_images, 2, 3 ) ),
 			$this->generateImageData( $test_images[1]['url'], $test_images[1]['alt'] ),
 		);
 
@@ -871,6 +913,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				),
 			),
 			array(
+				'media' => array_slice( $test_images, 2, 3 ),
+			),
+			array(
 				'media' => array(
 					array(
 						'url' => $test_images[1]['url'],
@@ -880,11 +925,12 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			),
 		);
 
-		$expected_boundaries = array( false, false );
+		$expected_boundaries = array( false, false, false );
 
 		$expected_blocks = array(
 			array_slice( $blocks, 0, 2 ),
 			array_slice( $blocks, 2, 1 ),
+			array_slice( $blocks, 3, 1 ),
 		);
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
@@ -922,6 +968,85 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array_slice( $blocks, 0, 1 ),
 			array_slice( $blocks, 1, 1 ),
 		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that a gallery block will be appended to the previous tweet.
+	 */
+	public function test_gallery_is_appended() {
+		$test_content = 'That selfie lyfe';
+		$test_images  = array(
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt' => 'This is how we roll.',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt' => 'Like a boss.',
+			),
+		);
+
+		$blocks = array(
+			$this->generateListData( "<li>$test_content</li>" ),
+			$this->generateGalleryData( $test_images ),
+		);
+
+		$expected_content = array(
+			array(
+				'text'  => "- $test_content",
+				'media' => $test_images,
+			),
+		);
+
+		$expected_boundaries = array( false );
+
+		$expected_blocks = array( $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that a gallery block with too many images will be trimmed down to 4.
+	 */
+	public function test_long_gallery_is_trimmed() {
+		$test_images = array(
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt' => 'This is how we roll.',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt' => 'Like a boss.',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
+				'alt' => 'Is this really a selfie?',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
+				'alt' => 'Keeping up with pop culture.',
+			),
+			array(
+				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt' => 'Why does the raccoon miss out?! 😢',
+			),
+		);
+
+		$blocks = array(
+			$this->generateGalleryData( $test_images ),
+		);
+
+		$expected_content = array(
+			array(
+				'media' => array_slice( $test_images, 0, 4 ),
+			),
+		);
+
+		$expected_boundaries = array( false );
+
+		$expected_blocks = array( $blocks );
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}

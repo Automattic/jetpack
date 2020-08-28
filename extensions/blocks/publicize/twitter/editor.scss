@@ -71,6 +71,16 @@ h3.jetpack-publicize-twitter-options__heading {
 	margin: 1px;
 }
 
+.blocks-gallery-grid .blocks-gallery-item:nth-child(5) figure::before {
+	content: "";
+	height: calc( 100% + 16px );
+	width: 4px;
+	background: #0009;
+	position: absolute;
+	left: -10px;
+	top: -8px;
+}
+
 .is-dark-theme {
 	.jetpack-publicize-twitter__tweet-divider {
 		.jetpack-publicize-twitter__tweet-divider-icon {
@@ -86,17 +96,25 @@ h3.jetpack-publicize-twitter-options__heading {
 	.annotation-text-jetpack-tweetstorm {
 		background: #fff9;
 	}
+
+	.blocks-gallery-grid .blocks-gallery-item:nth-child(5) figure::before {
+		background: #fff9;
+	}
 }
 
 .annotation-text-jetpack-tweetstorm,
-.jetpack-publicize-twitter__tweet-divider {
+.jetpack-publicize-twitter__tweet-divider,
+.block-editor-block-list__block li::after,
+.blocks-gallery-grid .blocks-gallery-item:nth-child(5) figure::before {
 	transition: opacity 0.5s;
 	opacity: 1;
 }
 
 .jetpack-tweetstorm-is-typing {
 	.annotation-text-jetpack-tweetstorm,
-	.jetpack-publicize-twitter__tweet-divider {
+	.jetpack-publicize-twitter__tweet-divider,
+	.block-editor-block-list__block li::after,
+	.blocks-gallery-grid .blocks-gallery-item:nth-child(5) figure::before {
 		transition: opacity 0.5s;
 		opacity: 0.2;
 	}

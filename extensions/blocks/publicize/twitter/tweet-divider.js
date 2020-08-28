@@ -192,13 +192,16 @@ export default compose( [
 			return computeSelector( parent ) + ` > :nth-child( ${ index + 1 } )`;
 		};
 
+		const blockElement = document.getElementById( `block-${ childProps.clientId }` );
 		const blockStyles = boundaries
 			.filter( boundary => 'end-of-line' === boundary.type )
 			.map( boundary => {
-				const line = document
-					.getElementById( `block-${ childProps.clientId }` )
-					.getElementsByTagName( 'li' )
-					.item( boundary.line );
+				// When switching from code to visual editor, the block may not've been re-added to the DOM yet.
+				if ( ! blockElement ) {
+					return false;
+				}
+
+				const line = blockElement.getElementsByTagName( 'li' ).item( boundary.line );
 
 				// Confirm that the line hasn't been deleted since this boundary was calculated.
 				if ( line ) {
@@ -232,6 +235,10 @@ export default compose( [
 		if ( ! supportedBlock ) {
 			popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
 		} else {
+			if ( 'core/gallery' === childProps.name && childProps.attributes.images.length > 4 ) {
+				popoverWarnings.push( __( 'Twitter displays the first four images.', 'jetpack' ) );
+			}
+
 			if ( findTagsInContent( [ 'strong', 'bold', 'em', 'i', 'sup', 'sub', 'span', 's' ] ) ) {
 				popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
 			}

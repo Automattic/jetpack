@@ -21,6 +21,16 @@ class Jetpack_Tweetstorm_Helper {
 	 * @var array
 	 */
 	private static $supported_blocks = array(
+		'core/gallery'   => array(
+			'type'           => 'image',
+			'content'        => 'innerHTML',
+			'content_attrs'  => array(
+				'url' => array( 'img', 'src' ),
+				'alt' => array( 'img', 'alt' ),
+			),
+			'force_new'      => false,
+			'force_finished' => true,
+		),
 		'core/heading'   => array(
 			'type'           => 'text',
 			'content'        => 'innerHTML',
@@ -192,7 +202,8 @@ class Jetpack_Tweetstorm_Helper {
 					list( $current_tweet_index, $current_tweet ) = self::start_new_tweet( $tweets );
 				}
 
-				$current_tweet['media'] = $block['media'];
+				// We can only add the first four images found to the tweet.
+				$current_tweet['media'] = array_slice( $block['media'], 0, 4 );
 
 				self::save_tweet( $tweets, $current_tweet_index, $current_tweet, $block );
 				continue;

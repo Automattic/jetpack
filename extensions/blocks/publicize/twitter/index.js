@@ -12,8 +12,14 @@ import TweetDivider from './tweet-divider';
 import './editor.scss';
 
 export const SUPPORTED_BLOCKS = {
+	'core/gallery': {
+		contentAttributes: [ 'images' ],
+	},
 	'core/heading': {
 		contentAttributes: [ 'content' ],
+	},
+	'core/image': {
+		contentAttributes: [ 'alt', 'url' ],
 	},
 	'core/list': {
 		contentAttributes: [ 'values' ],
@@ -26,9 +32,6 @@ export const SUPPORTED_BLOCKS = {
 	},
 	'core/verse': {
 		contentAttributes: [ 'content' ],
-	},
-	'core/image': {
-		contentAttributes: [ 'url' ],
 	},
 };
 
