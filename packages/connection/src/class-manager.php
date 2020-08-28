@@ -1188,29 +1188,33 @@ class Manager {
 			return $cached_date;
 		}
 
-		$earliest_registered_users  = get_users(
-			array(
-				'role'    => 'administrator',
-				'orderby' => 'user_registered',
-				'order'   => 'ASC',
-				'fields'  => array( 'user_registered' ),
-				'number'  => 1,
-			)
-		);
-		if ( ! $earliest_registered_users ) {
-			$earliest_registered_users  = get_users(
+		$earliest_registration_date = false;
+		if ( is_multisite() ) {
+			$earliest_registration_date = get_blog_details()->registered;
+		} else {
+			$earliest_registered_users = get_users(
 				array(
+					'role'    => 'administrator',
 					'orderby' => 'user_registered',
 					'order'   => 'ASC',
 					'fields'  => array( 'user_registered' ),
 					'number'  => 1,
 				)
 			);
-		}
+			if ( ! $earliest_registered_users ) {
+				$earliest_registered_users = get_users(
+					array(
+						'orderby' => 'user_registered',
+						'order'   => 'ASC',
+						'fields'  => array( 'user_registered' ),
+						'number'  => 1,
+					)
+				);
+			}
 
-		$earliest_registration_date = false;
-		if ( $earliest_registered_users ) {
-			$earliest_registration_date = $earliest_registered_users[0]->user_registered;
+			if ( $earliest_registered_users ) {
+				$earliest_registration_date = $earliest_registered_users[0]->user_registered;
+			}
 		}
 
 		$earliest_posts = get_posts(
