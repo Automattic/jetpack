@@ -63,8 +63,16 @@ class WPCOM_REST_API_V2_Endpoint_Search extends WP_REST_Controller {
 			sprintf( '/sites/%d/search', absint( $site_id ) )
 		);
 		$request = Client::wpcom_json_api_request_as_blog( $path, '1.3' );
-		$body    = wp_remote_retrieve_body( $request );
-		return json_decode( $body );
+		$body    = json_decode( wp_remote_retrieve_body( $request ) );
+		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+			return $body;
+		}
+
+		return new WP_Error(
+			$body->error,
+			$body->message,
+			array( 'status' => wp_remote_retrieve_response_code( $request ) )
+		);
 	}
 }
 
