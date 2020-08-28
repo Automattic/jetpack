@@ -42,26 +42,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_changed_theme_is_synced() {
-		$theme_features = array(
-			'post-thumbnails',
-			'post-formats',
-			'custom-header',
-			'custom-background',
-			'custom-logo',
-			'menus',
-			'automatic-feed-links',
-			'editor-style',
-			'widgets',
-			'html5',
-			'title-tag',
-			'jetpack-social-menu',
-			'jetpack-responsive-videos',
-			'infinite-scroll',
-			'site-logo',
-			'editor-color-palette',
-			'editor-gradient-presets',
-		);
-
 		// this forces theme mods to be saved as an option so that this test is valid
 		set_theme_mod( 'foo', 'bar' );
 		$this->sender->do_sync();
@@ -75,11 +55,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $switch_data->args[1]['version'] ) );
 		$this->assertTrue( isset( $switch_data->args[1]['slug'] ) );
 		$this->assertTrue( isset( $switch_data->args[1]['uri'] ) );
-
-		foreach ( $theme_features as $theme_feature ) {
-			$synced_theme_support_value = $this->server_replica_storage->current_theme_supports( $theme_feature );
-			$this->assertEquals( current_theme_supports( $theme_feature ), $synced_theme_support_value, 'Feature(s) not synced' . $theme_feature );
-		}
 
 		// TODO: content_width - this has traditionally been synced as if it was a theme-specific
 		// value, but in fact it's a per-page/post value defined via Jetpack's Custom CSS module
@@ -101,6 +76,42 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
+	}
+
+	/**
+	 * Test that we support syncing all the different theme features still.
+	 */
+	public function test_theme_callable_syncs_theme_supports_data() {
+		$this->sender->do_sync();
+		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
+
+		$theme_features = array(
+			'post-thumbnails',
+			'post-formats',
+			'custom-header',
+			'custom-background',
+			'custom-logo',
+			'menus',
+			'automatic-feed-links',
+			'editor-style',
+			'widgets',
+			'html5',
+			'title-tag',
+			'jetpack-social-menu',
+			'jetpack-responsive-videos',
+			'infinite-scroll',
+			'site-logo',
+			'editor-color-palette',
+			'editor-gradient-presets',
+		);
+
+		foreach ( $theme_features as $theme_feature ) {
+			$this->assertEquals(
+				current_theme_supports( $theme_feature ),
+				isset( $theme_supports[ $theme_feature ] ),
+				'Feature(s) not synced' . $theme_feature
+			);
+		}
 	}
 
 	public function test_network_enable_disable_theme_sync() {
