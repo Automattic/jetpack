@@ -46,10 +46,9 @@ services:
     container_name: jetpack_sftp
     image: atmoz/sftp
     volumes:
-      - ..:/home/wordpress/var/www/html/wp-content/plugins/jetpack
+      ## WordPress and its plugins and themes should be defined in docker/compose-volumes.yml{.sample}, not here!
+      ## That avoids having to define them both here and in the "wordpress" service.
       - dockerdirectory:/home/wordpress/var/www/html/wp-content/plugins/jetpack/docker
-      - ./mu-plugins:/home/wordpress/var/www/html/wp-content/mu-plugins
-      - ./wordpress:/home/wordpress/var/www/html
       - ./data/ssh.keys:/home/wordpress/.ssh/keys:ro
     ports:
       - "${PORT_SFTP:-1022}:22"
@@ -76,17 +75,13 @@ services:
       - maildev
     image: automattic/jetpack-wordpress-dev:latest
     volumes:
-      - ..:/var/www/html/wp-content/plugins/jetpack
-      ## Kludge for not having docker contain recursive stuff
-      ## You will see on your filesystem that this dir gets created
+      ## WordPress and its plugins and themes should be defined in docker/compose-volumes.yml{.sample}, not here!
+      ## That avoids having to define them both here and in the "sftp" service.
       - dockerdirectory:/var/www/html/wp-content/plugins/jetpack/docker
-      - ./mu-plugins:/var/www/html/wp-content/mu-plugins
       - ./wordpress-develop:/tmp/wordpress-develop
-      - ./wordpress:/var/www/html
       - ./logs/apache2/:/var/log/apache2
       - ./logs/php:/var/log/php
       - ./bin:/var/scripts
-      - ../packages/debug-helper:/var/www/html/wp-content/plugins/jetpack-debug-helper
     ports:
       - "${PORT_WORDPRESS:-80}:80"
     restart: always

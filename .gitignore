@@ -19,6 +19,8 @@ vendor/automattic/jetpack-autoloader
 # Custom environment for docker-compose (used by docker-compose.yml)
 /.env
 /docker/compose-extras.yml
+/docker/compose-volumes.yml
+/docker/compose-volumes.built.yml
 # File for personal customiziations, if desired.
 /docker/mu-plugins/0-sandbox.php
 .idea
