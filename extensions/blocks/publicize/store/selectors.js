@@ -31,7 +31,9 @@ export function getTweetStorm( state ) {
 	const tweetTemplate = {
 		date: Date.now(),
 		name: 'Account Name',
-		profileImage: 'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
+		profileImage:
+			twitterAccount?.profile_picture ||
+			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
 		screenName: twitterAccount?.display_name || '',
 	};
 
