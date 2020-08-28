@@ -50,6 +50,7 @@ services:
       - dockerdirectory:/home/wordpress/var/www/html/wp-content/plugins/jetpack/docker
       - ./mu-plugins:/home/wordpress/var/www/html/wp-content/mu-plugins
       - ./wordpress:/home/wordpress/var/www/html
+      - ./data/ssh.keys:/home/wordpress/.ssh/keys:ro
     ports:
       - "${PORT_SFTP:-1022}:22"
     env_file:

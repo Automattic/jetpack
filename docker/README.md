@@ -237,9 +237,13 @@ You can access WordPress and Jetpack files via SFTP server container.
 - Pass: `wordpress`
 - WordPress path: `/var/www/html`
 
-You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
+You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/). If you intend to do so, change the password in the `SFTP_USERS` variable in `./docker/.env`!
 
 Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backup/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+
+### SFTP keys
+
+To allow SFTP login using a key, place the public key files (e.g. `id_rsa.pub`) in `./docker/data/ssh.keys`.
 
 ## Must Use Plugins directory
 
