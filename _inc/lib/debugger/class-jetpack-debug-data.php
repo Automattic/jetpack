@@ -10,6 +10,7 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Class Jetpack_Debug_Data
@@ -180,8 +181,9 @@ class Jetpack_Debug_Data {
 		 * If a token does not contain a period, then it is malformed and we report it as such.
 		 */
 		$user_id    = get_current_user_id();
-		$blog_token = Jetpack_Data::get_access_token();
-		$user_token = Jetpack_Data::get_access_token( $user_id );
+		$cxn_mgr    = new Connection_Manager();
+		$blog_token = $cxn_mgr->get_access_token();
+		$user_token = $cxn_mgr->get_access_token( $user_id );
 
 		$tokenset = '';
 		if ( $blog_token ) {
