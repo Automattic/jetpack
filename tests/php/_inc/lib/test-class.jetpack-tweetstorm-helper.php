@@ -18,6 +18,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * @return array The paragraph blob of data.
 	 */
 	public function generateParagraphData( $text ) {
+		$text = str_replace( "\n", '<br>', $text );
 		return array(
 			'attributes' => array(
 				'content' => $text,
@@ -368,6 +369,23 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array( trim( str_repeat( $test_content, 12 ) ), trim( $test_content ) ),
 			array( $this->generateNormalBoundary( 275, 276, 'content' ), false ),
 			array( $blocks, $blocks )
+		);
+	}
+
+	/**
+	 * Test that a single long paragraph is split into two tweets, breaking at the end of a sentence.
+	 */
+	public function test_line_break_is_preserved() {
+		$test_content = "First line.\nsecond line.";
+		$blocks       = array(
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			array( $test_content ),
+			array( false ),
+			array( $blocks )
 		);
 	}
 

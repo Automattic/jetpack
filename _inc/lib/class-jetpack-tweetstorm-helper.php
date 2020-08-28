@@ -896,7 +896,12 @@ class Jetpack_Tweetstorm_Helper {
 	 *               appears in the HTML blob, including nested tags.
 	 */
 	private static function extract_tag_content_from_html( $tags, $html ) {
+		// Normalise <br>.
+		$html = preg_replace( '/<br\s*\/?>/', '<br>', $html );
+
+		// If there were no tags passed, assume the entire text is required.
 		if ( empty( $tags ) ) {
+			$html = str_replace( '<br>', "\n", $html );
 			return array( 'content' => array( wp_strip_all_tags( $html ) ) );
 		}
 
@@ -926,7 +931,7 @@ class Jetpack_Tweetstorm_Helper {
 					}
 
 					// A line break gets one newline.
-					if ( 0 === strpos( $token, '<br' ) ) {
+					if ( '<br>' === $token ) {
 						$values[ $tag ][ $opened ] .= "\n";
 					}
 				}
