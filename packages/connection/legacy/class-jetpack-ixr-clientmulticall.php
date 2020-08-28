@@ -43,7 +43,7 @@ class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 	 * @return bool True if request succeeded, false otherwise.
 	 */
 	public function query( ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		usort( $this->calls, array( $this, 'sort_calls' ) );
+		$this->calls = $this->sort_calls( $this->calls );
 
 		// Prepare multicall, then call the parent::query() method.
 		return parent::query( 'system.multicall', $this->calls );
@@ -53,19 +53,29 @@ class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 	 * Sort the IXR calls.
 	 * Make sure syncs are always done first.
 	 *
-	 * @param array $a First call in the sorting iteration.
-	 * @param array $b Second call in the sorting iteration.
-	 * @return int Result of the sorting iteration.
+	 * @param array $calls Calls to sort.
+	 * @return array Sorted calls.
 	 */
-	public function sort_calls( $a, $b ) {
-		if ( 'jetpack.syncContent' === $a['methodName'] ) {
-			return -1;
-		}
+	public function sort_calls( $calls ) {
+		usort(
+			$calls,
+			function ( $a, $b ) use ( $calls ) {
+				if ( 'jetpack.syncContent' === $a['methodName'] && 'jetpack.syncContent' !== $b['methodName'] ) {
+					return -1;
+				}
 
-		if ( 'jetpack.syncContent' === $b['methodName'] ) {
-			return 1;
-		}
+				if ( 'jetpack.syncContent' === $b['methodName'] && 'jetpack.syncContent' !== $a['methodName'] ) {
+					return 1;
+				}
 
-		return 0;
+				// The following will put equal values next to each other based on the index of the first one.
+				$a_index = array_search( $a, $calls, true );
+				$b_index = array_search( $b, $calls, true );
+
+				return $a_index - $b_index;
+			}
+		);
+
+		return $calls;
 	}
 }
