@@ -757,6 +757,11 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return string The tweetable text from the block, in the correct template form.
 	 */
 	private static function extract_text_from_block( $block ) {
+		// If the block doesn't have an innerHTMl, we're not going to get any text.
+		if ( empty( $block['innerHTML'] ) ) {
+			return '';
+		}
+
 		$block_def = self::$supported_blocks[ $block['blockName'] ];
 
 		// Keep track of whether we've found any content in the tags.
