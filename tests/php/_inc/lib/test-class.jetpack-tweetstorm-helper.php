@@ -107,7 +107,10 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 */
 	public function generateImageData( $url, $alt ) {
 		return array(
-			'attributes' => array(),
+			'attributes' => array(
+				'url' => $url,
+				'alt' => $alt,
+			),
 			'block'      => array(
 				'blockName' => 'core/image',
 				'innerHTML' => "<figure><img src='$url' alt='$alt'/></figure>",
@@ -130,7 +133,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 */
 	public function generateGalleryData( $images ) {
 		return array(
-			'attributes' => array(),
+			'attributes' => array(
+				'images' => $images,
+			),
 			'block'      => array(
 				'blockName' => 'core/image',
 				'innerHTML' => '<figure><ul>' . array_reduce(
@@ -316,6 +321,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'block'      => array(
 					'blockName' => 'core/rss',
 					'innerHTML' => '',
+				),
+				'clientId'   => wp_generate_uuid4(),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, array(), array(), array() );
+	}
+
+	/**
+	 * Test that a block which relies on innerHTML for the content won't
+	 * generate a tweet if they don't have innerHTML set.
+	 */
+	public function test_no_innerhtml_no_tweets() {
+		$blocks = array(
+			array(
+				'attributes' => array(
+					'content' => null,
+				),
+				'block'      => array(
+					'blockName' => 'core/paragraph',
 				),
 				'clientId'   => wp_generate_uuid4(),
 			),
