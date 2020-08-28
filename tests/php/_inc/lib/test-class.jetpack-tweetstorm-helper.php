@@ -151,6 +151,41 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Generate the blob of data that the parser
+	 * expects to receive for a spacer block.
+	 *
+	 * @return array The spacer blob of data.
+	 */
+	public function generateSpacerData() {
+		return array(
+			'attributes' => array(),
+			'block'      => array(
+				'blockName' => 'core/spacer',
+				'innerHTML' => '<div />',
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
+	 * Helper function. Generate the blob of data that the parser
+	 * expects to receive for a separator block.
+	 *
+	 * @return array The separator blob of data.
+	 */
+	public function generateSeparatorData() {
+		return array(
+			'attributes' => array(),
+			'block'      => array(
+				'blockName' => 'core/separator',
+				'innerHTML' => '<hr />',
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+
+	/**
 	 * Helper function. Generates a normal boundary marker.
 	 *
 	 * @param int    $start     The start position of the marker.
@@ -1092,5 +1127,45 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_blocks = array( $blocks );
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that a spacer block starts a new tweet.
+	 */
+	public function test_spacer_starts_new_tweet() {
+		$test_content = 'This is some content.';
+		$blocks       = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateSpacerData(),
+			$this->generateParagraphData( $test_content ),
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			array( "$test_content", "$test_content\n\n$test_content" ),
+			array( false, false ),
+			array( array_slice( $blocks, 0, 2 ), array_slice( $blocks, 2, 2 ) )
+		);
+	}
+
+	/**
+	 * Test that a separator block starts a new tweet.
+	 */
+	public function test_separator_starts_new_tweet() {
+		$test_content = 'This is some content.';
+		$blocks       = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateParagraphData( $test_content ),
+			$this->generateSeparatorData(),
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			array( "$test_content\n\n$test_content", "$test_content" ),
+			array( false, false ),
+			array( array_slice( $blocks, 0, 3 ), array_slice( $blocks, 3, 1 ) )
+		);
 	}
 }

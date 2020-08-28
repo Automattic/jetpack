@@ -78,6 +78,16 @@ class Jetpack_Tweetstorm_Helper {
 			'force_new'      => false,
 			'force_finished' => false,
 		),
+		'core/separator' => array(
+			'type'           => 'break',
+			'force_new'      => false,
+			'force_finished' => true,
+		),
+		'core/spacer'    => array(
+			'type'           => 'break',
+			'force_new'      => false,
+			'force_finished' => true,
+		),
 		'core/verse'     => array(
 			'type'           => 'text',
 			'content'        => 'innerHTML',
@@ -196,6 +206,11 @@ class Jetpack_Tweetstorm_Helper {
 
 			// Grab the most recent tweet.
 			$current_tweet = self::get_current_tweet();
+
+			// Break blocks have no content to add, so we can skip the rest of this loop.
+			if ( 'break' === $block_def['type'] ) {
+				self::save_current_tweet( $current_tweet, $block );
+			}
 
 			// Check if we need to start a new tweet.
 			if ( $current_tweet['finished'] || $block_def['force_new'] ) {

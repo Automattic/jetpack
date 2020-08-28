@@ -30,6 +30,12 @@ export const SUPPORTED_BLOCKS = {
 	'core/quote': {
 		contentAttributes: [ 'value', 'citation' ],
 	},
+	'core/separator': {
+		contentAttributes: [],
+	},
+	'core/spacer': {
+		contentAttributes: [],
+	},
 	'core/verse': {
 		contentAttributes: [ 'content' ],
 	},
