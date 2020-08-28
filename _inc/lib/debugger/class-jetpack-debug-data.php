@@ -266,7 +266,7 @@ class Jetpack_Debug_Data {
 				$debug_info[ $header ] = array(
 					'label'   => 'Server Variable ' . $header,
 					'value'   => ( $_SERVER[ $header ] ) ? $_SERVER[ $header ] : 'false',
-					'private' => false,
+					'private' => true, // This isn't really 'private' information, but we don't want folks to easily paste these into public forums.
 				);
 			}
 		}
