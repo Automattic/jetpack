@@ -1,14 +1,34 @@
+# Add to composer.json:  "autoload": { "classmap": [ "_inc/lib" ] },
+#$ composer dump-autoload -o
+
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
 parameters:
-	excludes_analyse:
-		- vendor/automattic/*/tests/*
-		- vendor/bin
-		- vendor/dealerdirect/*
-		- vendor/phpcompatibility/*
-		- vendor/phpstan/*
-		- vendor/sirbrillig/*
-		- vendor/squizlabs/*
-		- vendor/wp-coding-standards/*
-		- packages/*
-		- docker
-		- tools
-		- tests
+    level: 2
+#    level: 4
+#    level: max
+    inferPrivatePropertyTypeFromConstructor: true
+    paths:
+        - class.frame-nonce-preview.php
+        - class.jetpack-admin.php
+        - class.jetpack-affiliate.php
+        - class.jetpack-autoupdate.php
+        - class.jetpack-bbpress-json-api-compat.php
+        - class.jetpack-client-server.php
+##        - class.jetpack-cli.php
+        - class.jetpack-connection-banner.php
+        - class.jetpack-data.php
+    excludes_analyse:
+    	- vendor/automattic/*/tests/*
+    	- vendor/bin
+    	- vendor/dealerdirect/*
+    	- vendor/phpcompatibility/*
+    	- vendor/phpstan/*
+    	- vendor/sirbrillig/*
+    	- vendor/squizlabs/*
+    	- vendor/szepeviktor/*
+    	- vendor/wp-coding-standards/*
+    	- packages/*
+    	- docker
+    	- tools
+    	- tests

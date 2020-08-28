@@ -41,6 +41,7 @@
 		"phpstan/phpstan": "0.12.40",
 		"sirbrillig/phpcs-changed": "2.5.1",
 		"sirbrillig/phpcs-variable-analysis": "2.8.3",
+		"szepeviktor/phpstan-wordpress": "^0.6.3",
 		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"scripts": {
