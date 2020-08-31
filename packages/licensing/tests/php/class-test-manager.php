@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 /**
  * Tests the TOS package.
  *
