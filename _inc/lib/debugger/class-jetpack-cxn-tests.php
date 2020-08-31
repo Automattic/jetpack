@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Sync\Modules;
@@ -396,6 +397,50 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			);
 		}
 		return $result;
+	}
+
+	/**
+	 * Tests blog and current user's token against wp.com's check-token-health endpoint.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @return array Test results.
+	 */
+	protected function test__token_health() {
+		$name = __FUNCTION__;
+
+		$m                = new Connection_Manager();
+		$validated_tokens = $m->validate_tokens();
+
+		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => __( 'Token health check failed to validate tokens.', 'jetpack' ),
+				)
+			);
+		}
+
+		$invalid_tokens_exist = false;
+		foreach ( $validated_tokens as $validated_token ) {
+			if ( ! $validated_token['is_healthy'] ) {
+				$invalid_tokens_exist = true;
+				break;
+			}
+		}
+
+		if ( false === $invalid_tokens_exist ) {
+			return self::passing_test( array( 'name' => $name ) );
+		}
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				'short_description' => __( 'Connection test failed: Invalid Jetpack tokens', 'jetpack' ),
+				'action_label'      => __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ),
+				'action'            => Redirect::get_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
+			)
+		);
 	}
 
 	/**
