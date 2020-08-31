@@ -19,11 +19,16 @@ function stripQueryString( url ) {
 
 const PhotonImage = ( { useDiv, src, maxWidth = 300, maxHeight = 300, alt, ...otherProps } ) => {
 	const photonSrc = photon( stripQueryString( src ), { resize: `${ maxWidth },${ maxHeight }` } );
+	const srcToDisplay = photonSrc !== null ? photonSrc : src;
 
 	return useDiv ? (
-		<div style={ { backgroundImage: `url("${ src }")` } } title={ alt } { ...otherProps } />
+		<div
+			style={ { backgroundImage: `url("${ srcToDisplay }")` } }
+			title={ alt }
+			{ ...otherProps }
+		/>
 	) : (
-		<img src={ photonSrc !== null ? photonSrc : src } alt={ alt } { ...otherProps } />
+		<img src={ srcToDisplay } alt={ alt } { ...otherProps } />
 	);
 };
 
