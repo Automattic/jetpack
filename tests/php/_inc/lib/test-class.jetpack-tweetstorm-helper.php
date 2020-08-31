@@ -966,6 +966,32 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that an image block with really long alt text will have the alt text removed.
+	 */
+	public function test_long_alt_is_removed() {
+		$test_url = 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg';
+		$test_alt = str_repeat( 'a', 1001 );
+
+		$blocks = array(
+			$this->generateImageData( $test_url, $test_alt ),
+		);
+
+		$expected_content = array(
+			array(
+				'media' => array(
+					array(
+						'url'  => $test_url,
+						'alt'  => '',
+						'type' => 'image/jpeg',
+					),
+				),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
 	 * Test that an image block will be appended to the previous tweet, but then a gallery and
 	 * second image won't be appended.
 	 */

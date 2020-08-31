@@ -597,8 +597,27 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return bool Whether or not the text is valid.
 	 */
 	private static function is_valid_tweet( $text, $reserved_characters = 0 ) {
-		$max_length = 280 - $reserved_characters;
+		return self::is_within_twitter_length( $text, 280 - $reserved_characters );
+	}
 
+	/**
+	 * Checks if the passed text is valid for image alt text.
+	 *
+	 * @param string $text The text to check.
+	 * @return bool Whether or not the text is valid.
+	 */
+	private static function is_valid_alt_text( $text ) {
+		return self::is_within_twitter_length( $text, 1000 );
+	}
+
+	/**
+	 * Check if a string is shorter than a given length, according to Twitter's rules for counting string length.
+	 *
+	 * @param string $text       The text to check.
+	 * @param int    $max_length The number of characters long this string can be.
+	 * @return bool Whether or not the string is no longer than the length limit.
+	 */
+	private static function is_within_twitter_length( $text, $max_length ) {
 		// Replace all multiline seperators with a \n, since that's the
 		// character we actually want to count.
 		$text = str_replace( self::$line_seperator, "\n", $text );
@@ -896,7 +915,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				$media[] = array(
 					'url'  => $url[ $ii ],
-					'alt'  => $alt[ $ii ],
+					'alt'  => self::is_valid_alt_text( $alt[ $ii ] ) ? $alt[ $ii ] : '',
 					'type' => $filedata['type'],
 				);
 			}
