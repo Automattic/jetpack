@@ -16,7 +16,7 @@ class Atomic_Record_Jetpack_Token_Errors {
 			return;
 		}
 
-		if ( ! isset( $_SERVER['ATOMIC_SITE_ID'] ) ) {
+		if ( ! isset( $_SERVER['ATOMIC_SITE_ID'] ) && ! defined( 'ATOMIC_SITE_ID' ) ) {
 			return;
 		}
 

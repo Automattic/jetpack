@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.142
+ * Version: 2.4.143
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.142' );
+define( 'WPCOMSH_VERSION', '2.4.143' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1109,9 +1109,15 @@ add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 function wpcomsh_upgrade_transferred_db() {
 	global $wp_db_version;
 
+	if ( isset( $_SERVER['ATOMIC_SITE_ID'] ) ) {
+		$atomic_site_id = $_SERVER['ATOMIC_SITE_ID'];
+	} else if ( defined( 'ATOMIC_SITE_ID' ) ) {
+		$atomic_site_id = ATOMIC_SITE_ID;
+	}
+
 	if (
-		empty( $_SERVER['ATOMIC_SITE_ID'] ) ||
-		$_SERVER['ATOMIC_SITE_ID'] <= 149474462 /* last site ID before WP 5.5 update */
+		empty( $atomic_site_id ) ||
+		$atomic_site_id <= 149474462 /* last site ID before WP 5.5 update */
 	) {
 		// We only want to run for real sites created after the WordPress 5.5 update
 		return;
