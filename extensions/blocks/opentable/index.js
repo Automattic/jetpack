@@ -24,7 +24,6 @@ import './view.scss';
 
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
-import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
 
 export const settings = {
 	title,
