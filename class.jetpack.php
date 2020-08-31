@@ -4,6 +4,7 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -3299,8 +3300,9 @@ p {
 	 */
 	public static function disconnect( $update_activated_state = true ) {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+		Nonce_Handler::clean( true );
+
 		$connection = self::connection();
-		$connection->clean_nonces( true );
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
@@ -5574,11 +5576,7 @@ endif;
 	public function add_nonce( $timestamp, $nonce ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::add_nonce' );
 
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->add_nonce( $timestamp, $nonce );
+		return Nonce_Handler::add( $timestamp, $nonce );
 	}
 
 	/**
@@ -5662,13 +5660,13 @@ endif;
 	 * Cleans nonces that were saved when calling ::add_nonce.
 	 *
 	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::clean_nonces()
+	 * @see Automattic\Jetpack\Connection\Nonce_Handler::clean()
 	 *
 	 * @param bool $all whether to clean even non-expired nonces.
 	 */
 	public static function clean_nonces( $all = false ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::clean_nonces' );
-		return self::connection()->clean_nonces( $all );
+		Nonce_Handler::clean( $all );
 	}
 
 	/**
@@ -6048,7 +6046,7 @@ endif;
 			$this->connection_manager = new Connection_Manager();
 		}
 
-		if ( ! $this->connection_manager->add_nonce( $timestamp, $nonce ) ) {
+		if ( ! Nonce_Handler::add( $timestamp, $nonce ) ) {
 			// De-nonce the nonce, at least for 5 minutes.
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
