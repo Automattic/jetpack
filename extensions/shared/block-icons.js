@@ -1,7 +1,13 @@
 /**
  * Internal dependencies
  */
+import { colors as PALETTE } from '@automattic/color-studio'; 
 import { isAtomicSite, isSimpleSite } from './site-type-utils';
+
+/**
+ * Constants
+ */
+const COLOR_JETPACK = PALETTE[ 'Jetpack Green 40' ];
 
 /**
  * Returns the icon color for Jetpack blocks.
@@ -18,6 +24,5 @@ export function getIconColor() {
 	}
 
 	// Jetpack Green
-	// https://github.com/Automattic/jetpack/blob/ed275e2d8167f79899c4965719f76410e244be87/_inc/client/scss/variables/_colors.scss#L95
-	return '#00be28';
+	return COLOR_JETPACK;
 }
