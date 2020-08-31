@@ -20,6 +20,7 @@ import {
 	activatePlugin,
 	getPlugins,
 } from './../../../shared/plugin-management';
+import getJetpackData from './../../../shared/get-jetpack-data';
 import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
@@ -146,6 +147,11 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 	);
 };
 
+const getCreativeMailPluginUrl = () => {
+	const adminUrl = get( getJetpackData(), 'adminUrl', false );
+	return `${ adminUrl }admin.php?page=creativemail`;
+};
+
 const CreativeMailPluginIsActive = () => {
 	return (
 		<p>
@@ -153,7 +159,7 @@ const CreativeMailPluginIsActive = () => {
 				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack' ) }
 				<br />
 				<br />
-				<ExternalLink href="/wp-admin/admin.php?page=creativemail">
+				<ExternalLink href={ getCreativeMailPluginUrl() }>
 					{ __( 'Open Creative Mail', 'jetpack' ) }
 				</ExternalLink>
 			</em>
