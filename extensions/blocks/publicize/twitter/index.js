@@ -39,6 +39,9 @@ export const SUPPORTED_BLOCKS = {
 	'core/verse': {
 		contentAttributes: [ 'content' ],
 	},
+	'core/video': {
+		contentAttributes: [],
+	},
 };
 
 /**

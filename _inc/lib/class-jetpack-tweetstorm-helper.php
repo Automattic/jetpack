@@ -96,6 +96,15 @@ class Jetpack_Tweetstorm_Helper {
 			'force_new'      => false,
 			'force_finished' => false,
 		),
+		'core/video'     => array(
+			'type'           => 'video',
+			'content'        => 'innerHTML',
+			'content_attrs'  => array(
+				'url' => array( 'video', 'src' ),
+			),
+			'force_new'      => false,
+			'force_finished' => true,
+		),
 	);
 
 	/**
@@ -440,10 +449,44 @@ class Jetpack_Tweetstorm_Helper {
 			$current_tweet = self::start_new_tweet();
 		}
 
-		// We can only add the first four images found to the tweet.
-		$current_tweet['media'] = array_slice( $block['media'], 0, 4 );
+		$media = array_values(
+			array_filter(
+				$block['media'],
+				function ( $single ) {
+					// Only images and videos can be uploaded.
+					if ( 0 === strpos( $single['type'], 'image/' ) || 0 === strpos( $single['type'], 'video/' ) ) {
+						return true;
+					}
 
-		self::save_current_tweet( $current_tweet, $block );
+					return false;
+				}
+			)
+		);
+
+		if ( count( $media ) > 0 ) {
+			if ( 0 === strpos( $media[0]['type'], 'video/' ) || 'image/gif' === $media[0]['type'] ) {
+				// We can only attach a single video or GIF.
+				$current_tweet['media'] = array_slice( $media, 0, 1 );
+			} else {
+				// Since a GIF or video isn't the first element, we can remove all of them from the array.
+				$filtered_media = array_values(
+					array_filter(
+						$media,
+						function ( $single ) {
+							if ( 0 === strpos( $single['type'], 'video/' ) || 'image/gif' === $single['type'] ) {
+								return false;
+							}
+
+							return true;
+						}
+					)
+				);
+				// We can only add the first four images found to the tweet.
+				$current_tweet['media'] = array_slice( $filtered_media, 0, 4 );
+			}
+
+			self::save_current_tweet( $current_tweet, $block );
+		}
 	}
 
 	/**
@@ -849,9 +892,28 @@ class Jetpack_Tweetstorm_Helper {
 			$img_count = count( $url );
 
 			for ( $ii = 0; $ii < $img_count; $ii++ ) {
+				$filedata = wp_check_filetype( basename( wp_parse_url( $url[ $ii ], PHP_URL_PATH ) ) );
+
 				$media[] = array(
-					'url' => $url[ $ii ],
-					'alt' => $alt[ $ii ],
+					'url'  => $url[ $ii ],
+					'alt'  => $alt[ $ii ],
+					'type' => $filedata['type'],
+				);
+			}
+		} elseif ( 'video' === $block_def['type'] ) {
+			$url = self::extract_attr_content_from_html(
+				$block_def['content_attrs']['url'][0],
+				$block_def['content_attrs']['url'][1],
+				$block['innerHTML']
+			);
+
+			// We can only ever use the first video found, no need to go through all of them.
+			if ( count( $url ) > 0 ) {
+				$filedata = wp_check_filetype( basename( wp_parse_url( $url[0], PHP_URL_PATH ) ) );
+
+				$media[] = array(
+					'url'  => $url[0],
+					'type' => $filedata['type'],
 				);
 			}
 		}

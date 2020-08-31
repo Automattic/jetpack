@@ -120,6 +120,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Given a URL, it will generate the blob of data
+	 * that the parser expects to receive for a video block.
+	 *
+	 * @param string $url The video URL.
+	 * @return array The video blob of data.
+	 */
+	public function generateVideoData( $url ) {
+		return array(
+			'attributes' => array(
+				'url' => $url,
+			),
+			'block'      => array(
+				'blockName' => 'core/video',
+				'innerHTML' => "<figure><video src='$url'/></figure>",
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
 	 * Helper function. Given an array of image URLs and alt text, it will generate the
 	 * blob of data that the parser expects to receive for a gallery block.
 	 *
@@ -934,8 +954,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'text'  => $test_content,
 				'media' => array(
 					array(
-						'url' => $test_url,
-						'alt' => $test_alt,
+						'url'  => $test_url,
+						'alt'  => $test_alt,
+						'type' => 'image/jpeg',
 					),
 				),
 			),
@@ -952,24 +973,29 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$test_content = 'That selfie lyfe';
 		$test_images  = array(
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
-				'alt' => 'This is how we roll.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'This is how we roll.',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
-				'alt' => 'Like a boss.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt'  => 'Like a boss.',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
-				'alt' => 'Is this really a selfie?',
+				'url'  => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
+				'alt'  => 'Is this really a selfie?',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
-				'alt' => 'Keeping up with pop culture.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
+				'alt'  => 'Keeping up with pop culture.',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
-				'alt' => 'Why does the raccoon miss out?! 😢',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'Why does the raccoon miss out?! 😢',
+				'type' => 'image/jpeg',
 			),
 		);
 
@@ -985,8 +1011,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'text'  => "- $test_content",
 				'media' => array(
 					array(
-						'url' => $test_images[0]['url'],
-						'alt' => $test_images[0]['alt'],
+						'url'  => $test_images[0]['url'],
+						'alt'  => $test_images[0]['alt'],
+						'type' => $test_images[0]['type'],
 					),
 				),
 			),
@@ -996,8 +1023,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array(
 				'media' => array(
 					array(
-						'url' => $test_images[1]['url'],
-						'alt' => $test_images[1]['alt'],
+						'url'  => $test_images[1]['url'],
+						'alt'  => $test_images[1]['alt'],
+						'type' => $test_images[0]['type'],
 					),
 				),
 			),
@@ -1033,8 +1061,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array(
 				'media' => array(
 					array(
-						'url' => $test_url,
-						'alt' => $test_alt,
+						'url'  => $test_url,
+						'alt'  => $test_alt,
+						'type' => 'image/jpeg',
 					),
 				),
 			),
@@ -1057,12 +1086,14 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$test_content = 'That selfie lyfe';
 		$test_images  = array(
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
-				'alt' => 'This is how we roll.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'This is how we roll.',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
-				'alt' => 'Like a boss.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt'  => 'Like a boss.',
+				'type' => 'image/jpeg',
 			),
 		);
 
@@ -1091,24 +1122,29 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public function test_long_gallery_is_trimmed() {
 		$test_images = array(
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
-				'alt' => 'This is how we roll.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'This is how we roll.',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
-				'alt' => 'Like a boss.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt'  => 'Like a boss.',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
-				'alt' => 'Is this really a selfie?',
+				'url'  => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
+				'alt'  => 'Is this really a selfie?',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
-				'alt' => 'Keeping up with pop culture.',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
+				'alt'  => 'Keeping up with pop culture.',
+				'type' => 'image/jpeg',
 			),
 			array(
-				'url' => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
-				'alt' => 'Why does the raccoon miss out?! 😢',
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'Why does the raccoon miss out?! 😢',
+				'type' => 'image/jpeg',
 			),
 		);
 
@@ -1127,6 +1163,131 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_blocks = array( $blocks );
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that a gallery block with a GIF as the first image is trimmed down to just that GIF.
+	 */
+	public function test_gallery_starting_with_gif_is_trimmed() {
+		$test_images = array(
+			array(
+				'url'  => 'https://jetpackme.files.wordpress.com/2018/10/jetpack-site-accelerator-toggle-gif.gif',
+				'alt'  => 'This is probably a GIF.',
+				'type' => 'image/gif',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt'  => 'Like a boss.',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
+				'alt'  => 'Is this really a selfie?',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
+				'alt'  => 'Keeping up with pop culture.',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'Why does the raccoon miss out?! 😢',
+				'type' => 'image/jpeg',
+			),
+		);
+
+		$blocks = array(
+			$this->generateGalleryData( $test_images ),
+		);
+
+		$expected_content = array(
+			array(
+				'media' => array_slice( $test_images, 0, 1 ),
+			),
+		);
+
+		$expected_boundaries = array( false );
+
+		$expected_blocks = array( $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+
+	}
+	/**
+	 * Test that a gallery block with a GIF not as the first image has that GIF filtered out.
+	 */
+	public function test_gallery_with_gif_is_filtered() {
+		$test_images = array(
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt'  => 'Like a boss.',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2020/02/wp-1582952469369.jpg',
+				'alt'  => 'Is this really a selfie?',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://jetpackme.files.wordpress.com/2018/10/jetpack-site-accelerator-toggle-gif.gif',
+				'alt'  => 'This is probably a GIF.',
+				'type' => 'image/gif',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
+				'alt'  => 'Keeping up with pop culture.',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'Why does the raccoon miss out?! 😢',
+				'type' => 'image/jpeg',
+			),
+		);
+
+		$blocks = array(
+			$this->generateGalleryData( $test_images ),
+		);
+
+		$expected_content = array(
+			array(
+				'media' => array_merge( array_slice( $test_images, 0, 2 ), array_slice( $test_images, 3, 2 ) ),
+			),
+		);
+
+		$expected_boundaries = array( false );
+
+		$expected_blocks = array( $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that a video block will be appended to the previous tweet.
+	 */
+	public function test_video_is_appended() {
+		$test_content = 'KITTENS';
+		$test_url     = 'https://pentophoto.files.wordpress.com/2012/10/chatty-kitten.mov';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateVideoData( $test_url ),
+		);
+
+		$expected_content = array(
+			array(
+				'text'  => $test_content,
+				'media' => array(
+					array(
+						'url'  => $test_url,
+						'type' => 'video/quicktime',
+					),
+				),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
 	}
 
 	/**
