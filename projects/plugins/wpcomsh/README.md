@@ -247,4 +247,4 @@ Enables the SEO Description Block that is currently only available for WordPress
 
 ### Navigation Sidebar in the Block Editor
 
-The navigation sidebar in the [WordPress.com Editing Toolkit](https://wordpress.org/plugins/full-site-editing/) is enabled using a filter. The site helper adds the filter and uses WordPress.com and Automattic specific logic to decide whether to enable it.
+The navigation sidebar in the [WordPress.com Editing Toolkit](https://wordpress.org/plugins/full-site-editing/) is enabled using a filter. The site helper adds the filter and may use WordPress.com and Automattic specific logic to decide whether to enable it.
