@@ -95,11 +95,6 @@ class Manager {
 
 		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
 
-		add_action( 'jetpack_clean_nonces', array( Nonce_Handler::class, 'clean' ) );
-		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
-		}
-
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
 
 		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );

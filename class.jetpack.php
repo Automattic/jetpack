@@ -506,6 +506,11 @@ class Jetpack {
 						array( __CLASS__, 'upgrade_on_load' )
 					);
 				}
+
+				// Upgrade to Jetpack 9.0.0, cleaning up nonces during runtime.
+				if ( wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+					wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+				}
 			}
 		}
 	}

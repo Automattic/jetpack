@@ -12,6 +12,8 @@ namespace Automattic\Jetpack\Connection;
  */
 class Nonce_Handler {
 
+	const CLEANUP_RUNTIME_LIMIT = 2;
+
 	/**
 	 * The nonces used during the request are stored here to keep them valid.
 	 *
@@ -24,9 +26,11 @@ class Nonce_Handler {
 	 *
 	 * @param int    $timestamp the current request timestamp.
 	 * @param string $nonce the nonce value.
+	 * @param bool   $run_cleanup Whether to run the `cleanup_runtime()`.
+	 *
 	 * @return bool whether the nonce is unique or not.
 	 */
-	public static function add( $timestamp, $nonce ) {
+	public static function add( $timestamp, $nonce, $run_cleanup = true ) {
 		global $wpdb;
 
 		if ( isset( static::$nonces_used_this_request[ "$timestamp:$nonce" ] ) ) {
@@ -53,6 +57,17 @@ class Nonce_Handler {
 					'no'
 				)
 			);
+
+			/**
+			 * Use the filter to disable the nonce cleanup that happens at shutdown after adding a new nonce.
+			 *
+			 * @since 9.0.0
+			 *
+			 * @param int $limit How many old nonces to remove at shutdown.
+			 */
+			if ( apply_filters( 'jetpack_connection_add_nonce_cleanup', $run_cleanup ) ) {
+				add_action( 'shutdown', array( __CLASS__, 'clean_runtime' ) );
+			}
 		} else {
 			$return = false;
 		}
@@ -89,6 +104,36 @@ class Nonce_Handler {
 				break;
 			}
 		}
+	}
+
+	/**
+	 * Remove a few old nonces on shutdown.
+	 *
+	 * @return bool
+	 */
+	public static function clean_runtime() {
+		global $wpdb;
+
+		/**
+		 * Adjust the number of old nonces that are cleaned up at shutdown.
+		 *
+		 * @since 9.0.0
+		 *
+		 * @param int $limit How many old nonces to remove at shutdown.
+		 */
+		$limit = apply_filters( 'jetpack_connection_nonce_cleanup_runtime_limit', static::CLEANUP_RUNTIME_LIMIT );
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM `{$wpdb->options}`"
+				. " WHERE `option_name` >= 'jetpack_nonce_' AND `option_name` < %s"
+				. ' LIMIT %d',
+				'jetpack_nonce_' . ( time() - 3600 ),
+				$limit
+			)
+		);
+
+		return true;
 	}
 
 	/**
