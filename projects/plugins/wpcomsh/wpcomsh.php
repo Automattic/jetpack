@@ -1213,3 +1213,8 @@ function wpcomsh_amp_dev_tools_enabled_default_user_metadata( $value, $object_id
 	return $value;
 }
 add_filter( 'default_user_metadata', 'wpcomsh_amp_dev_tools_enabled_default_user_metadata', 10, 5 );
+
+// Disable the Widgets Block Editor screen feature
+// See D48850-code
+// See https://github.com/WordPress/gutenberg/pull/24843
+add_filter( 'gutenberg_use_widgets_block_editor', '__return_false', 100 );
