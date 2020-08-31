@@ -16,7 +16,7 @@ export default function PriceGroup( {
 	fullPrice,
 } ) {
 	return (
-		<div className="single-product-backup__price-group">
+		<div className="single-product__price-group">
 			{ !! discountedPrice ? (
 				<React.Fragment>
 					<PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } original />
@@ -25,7 +25,7 @@ export default function PriceGroup( {
 			) : (
 				<PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } />
 			) }
-			<div className="single-product-backup__price-group-billing-timeframe">
+			<div className="single-product__price-group-billing-timeframe">
 				{ getBillingTimeFrameString( billingTimeFrame ) }
 			</div>
 		</div>

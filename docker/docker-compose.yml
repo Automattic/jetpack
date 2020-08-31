@@ -19,6 +19,18 @@ services:
       - default.env
       - .env
 
+  phpmyadmin:
+    container_name: jetpack_phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - db:mysql
+    ports:
+    - 8181:80
+    environment:
+      MYSQL_USERNAME: "${MYSQL_USER:-wordpress}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-wordpress}"
+    restart: always
+
   ## SMTP Server + Web Interface for viewing and testing emails during development.
   ## http://danfarrelly.nyc/MailDev/
   maildev:
@@ -61,8 +73,7 @@ services:
     depends_on:
       - db
       - maildev
-    build: .
-    image: jetpack_wordpress:localbuild
+    image: automattic/jetpack-wordpress-dev:latest
     volumes:
       - ..:/var/www/html/wp-content/plugins/jetpack
       ## Kludge for not having docker contain recursive stuff
@@ -74,6 +85,7 @@ services:
       - ./logs/apache2/:/var/log/apache2
       - ./logs/php:/var/log/php
       - ./bin:/var/scripts
+      - ../packages/debug-helper:/var/www/html/wp-content/plugins/jetpack-debug-helper
     ports:
       - "${PORT_WORDPRESS:-80}:80"
     restart: always

@@ -15,7 +15,6 @@ import { getIconColor } from '../../shared/block-icons';
  * Style dependencies
  */
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'amazon';
 export const title = __( 'Amazon', 'jetpack' );
@@ -27,7 +26,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	category: 'earn',
 	keywords: [ __( 'amazon', 'jetpack' ), __( 'affiliate', 'jetpack' ) ],
 	supports: {
 		align: true,

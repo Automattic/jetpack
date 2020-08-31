@@ -11,7 +11,9 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
+import save from './save';
 import { queueMusic } from './icons/';
 import { getIconColor } from '../../shared/block-icons';
 
@@ -20,7 +22,6 @@ import { getIconColor } from '../../shared/block-icons';
  */
 import './style.scss';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'podcast-player';
 export const namespaceName = `jetpack/${ name }`;
@@ -32,40 +33,82 @@ export const settings = {
 		src: queueMusic,
 		foreground: getIconColor(),
 	},
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 	keywords: [
 		_x( 'audio', 'block search term', 'jetpack' ),
 		_x( 'embed', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
-		align: false /* if set to true, the 'align' option below can be used*/,
-		// Pick which alignment options to display.
-		/*align: [ 'left', 'right', 'full' ],*/
-		// Support for wide alignment, that requires additional support in themes.
+		/*
+		 * Support for block's alignment (left, center, right, wide, full). When
+		 * true, it adds block controls to change block’s alignment.
+		 */
+		align: false, // [ 'left', 'right', 'full' ]
+		/*
+		 * Support for wide alignment, that requires additional support in themes.
+		 */
 		alignWide: true,
-		// When true, a new field in the block sidebar allows to define an id for the block and a button to copy the direct link.
+		/*
+		 * When true, a new field in the block sidebar allows to define an id for
+		 * the block and a button to copy the direct link.
+		 */
 		anchor: false,
-		// When true, a new field in the block sidebar allows to define a custom className for the block’s wrapper.
+		/*
+		 * When true, a new field in the block sidebar allows to define a custom
+		 * className for the block’s wrapper.
+		 */
 		customClassName: true,
-		// When false, Gutenberg won't add a class like .wp-block-your-block-name to the root element of your saved markup
+		/*
+		 * When false, Gutenberg won't add a class like .wp-block-your-block-name to
+		 * the root element of your saved markup.
+		 */
 		className: true,
-		// Setting this to false suppress the ability to edit a block’s markup individually. We often set this to false in Jetpack blocks.
+		/*
+		 * Setting this to false suppress the ability to edit a block’s markup
+		 * individually. We often set this to false in Jetpack blocks.
+		 */
 		html: false,
-		// Passing false hides this block in Gutenberg's visual inserter.
-		/*inserter: true,*/
-		// When false, user will only be able to insert the block once per post.
+		/*
+		 * When false, user will only be able to insert the block once per post.
+		 */
 		multiple: true,
-		// When false, the block won't be available to be converted into a reusable block.
+		/*
+		 * When false, the block won't be available to be converted into a reusable
+		 * block.
+		 */
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	attributes,
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			customPrimaryColor: '#00be28',
+			hexPrimaryColor: '#00be28',
+			exampleFeedData: {
+				title: __( 'Jetpack Example Podcast', 'jetpack' ),
+				link: 'https://jetpack.com',
+				cover:
+					'https://jetpackme.files.wordpress.com/2020/05/jetpack-example-podcast-cover.png?w=160',
+				tracks: [
+					{
+						id: '3',
+						title: __( '3. Our third episode', 'jetpack' ),
+						duration: '14:58',
+					},
+					{
+						id: '2',
+						title: __( '2. Interview with a special guest', 'jetpack' ),
+						duration: '19:17',
+					},
+					{
+						id: '1',
+						title: __( '1. Welcome to Example Podcast', 'jetpack' ),
+						duration: '11:25',
+					},
+				],
+			},
 		},
 	},
+	deprecated: [ deprecatedV1 ],
 };

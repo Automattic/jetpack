@@ -107,8 +107,11 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 
 	ob_start();
 
-	?>
-	<script type="text/javascript">
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		wp_enqueue_style( 'gravatar-style', plugins_url( '/css/gravatar-amp.css', __FILE__ ), array(), JETPACK__VERSION );
+	} else {
+		?>
+		<script type="text/javascript">
 		( function() {
 			if ( null === document.getElementById( 'gravatar-profile-embed-styles' ) ) {
 				var headID = document.getElementsByTagName( 'head' )[0];
@@ -127,7 +130,10 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 				headID.appendChild( styleNode );
 			}
 		} )();
-	</script>
+		</script>
+		<?php
+	}
+	?>
 
 	<div class="grofile vcard" id="grofile-embed-<?php echo esc_attr( $instance ); ?>">
 		<div class="grofile-inner">

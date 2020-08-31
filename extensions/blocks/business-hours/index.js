@@ -12,7 +12,6 @@ import './style.scss';
 import BusinessHours from './edit';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
 
 /**
  * Block Registrations:
@@ -87,7 +86,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	supports: {
 		html: true,
 	},

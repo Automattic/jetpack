@@ -3,11 +3,17 @@
  */
 import { combineReducers } from 'redux';
 import { assign, find, get, merge } from 'lodash';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { isJetpackProduct, isJetpackSearch } from 'lib/plans/constants';
+import {
+	isJetpackProduct,
+	isJetpackBackup,
+	isJetpackScan,
+	isJetpackSearch,
+} from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
@@ -24,6 +30,9 @@ import {
 	JETPACK_SITE_PURCHASES_FETCH,
 	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
 	JETPACK_SITE_PURCHASES_FETCH_FAIL,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL,
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
@@ -32,6 +41,8 @@ export const data = ( state = {}, action ) => {
 			return assign( {}, state, action.siteData );
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
+			return merge( {}, state, { site: { connectedPlugins: action.connectedPlugins } } );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return merge( {}, state, { site: { features: action.siteFeatures } } );
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
@@ -57,6 +68,10 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSiteBenefits: true,
 			} );
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH:
+			return assign( {}, state, {
+				isFetchingConnectedPlugins: true,
+			} );
 		case JETPACK_SITE_FEATURES_FETCH:
 			return assign( {}, state, {
 				isFetchingSiteFeatures: true,
@@ -79,6 +94,12 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSiteBenefits: false,
 			} );
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL:
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isFetchingConnectedPlugins: false,
+				isDoneFetchingConnectedPlugins: true,
+			} );
 		case JETPACK_SITE_FEATURES_FETCH_FAIL:
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return assign( {}, state, {
@@ -100,10 +121,64 @@ export const requests = ( state = initialRequestsState, action ) => {
 	}
 };
 
+export const errors = ( state = {}, action ) => {
+	let resolveAction, defaultErrorMessage;
+
+	switch ( action.type ) {
+		case JETPACK_SITE_DATA_FETCH_FAIL:
+			switch ( action.error.name ) {
+				case 'ApiError':
+					// We display the error using `ErrorNoticeCycleConnection` component, proving an easy way to reconnect.
+					resolveAction = 'reconnect';
+					defaultErrorMessage = __(
+						'There seems to be a problem with your connection to WordPress.com. If the problem persists, try reconnecting.',
+						'jetpack'
+					);
+					break;
+				case 'JsonParseError':
+					// We only display the error using `SimpleNotice`, reconnecting will not help here.
+					resolveAction = 'display';
+					defaultErrorMessage = __(
+						"Jetpack Dashboard was unable to properly communicate with your website. Please check your website's error logs to see what's wrong.",
+						'jetpack'
+					);
+					break;
+				default:
+					// Unknown error, we don't know how to fix that yet. It's highly unlikely reconnecting would help, so we do nothing.
+					resolveAction = null;
+					defaultErrorMessage = __( 'There seems to be a problem with your website.', 'jetpack' );
+					break;
+			}
+
+			return assign( {}, state, {
+				message: action.error.hasOwnProperty( 'response' )
+					? action.error.response.message
+					: defaultErrorMessage,
+				action: resolveAction,
+				code: action.error.hasOwnProperty( 'response' )
+					? action.error.response.code
+					: 'fetch_site_data_fail_other',
+			} );
+		default:
+			return state;
+	}
+};
+
 export const reducer = combineReducers( {
 	data,
 	requests,
+	errors,
 } );
+
+/**
+ * Returns an object of the siteData errors
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Object}        Error object
+ */
+export function getSiteDataErrors( state ) {
+	return [ get( state.jetpack.siteData, [ 'errors' ], [] ) ];
+}
 
 /**
  * Returns true if currently requesting site data. Otherwise false.
@@ -128,6 +203,26 @@ export function isFetchingSiteData( state ) {
  */
 export function isFetchingSiteBenefits( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingSiteBenefits;
+}
+
+/**
+ * Returns true if currently requesting connected plugins. Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether connected plugins are being requested
+ */
+export function isFetchingConnectedPlugins( state ) {
+	return !! state.jetpack.siteData.requests.isFetchingConnectedPlugins;
+}
+
+/**
+ * Returns true if the connected plugins request has finished (even if it returned an error). Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether connected plugins request is completed.
+ */
+export function isDoneFetchingConnectedPlugins( state ) {
+	return !! state.jetpack.siteData.requests.isDoneFetchingConnectedPlugins;
 }
 
 /**
@@ -199,6 +294,26 @@ export function getActiveProductPurchases( state ) {
 	);
 }
 
+export function getActiveBackupPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackBackup( product.product_slug )
+	);
+}
+
+export function hasActiveBackupPurchase( state ) {
+	return !! getActiveBackupPurchase( state );
+}
+
+export function getActiveScanPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackScan( product.product_slug )
+	);
+}
+
+export function hasActiveScanPurchase( state ) {
+	return !! getActiveScanPurchase( state );
+}
+
 export function getActiveSearchPurchase( state ) {
 	return find( getActiveProductPurchases( state ), product =>
 		isJetpackSearch( product.product_slug )
@@ -211,4 +326,19 @@ export function hasActiveSearchPurchase( state ) {
 
 export function getSiteID( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'ID' ] );
+}
+
+/**
+ * Returns plugins that use the Jetpack connection
+ *
+ * @param  {Object} state Global state tree
+ * @return {Object}        Connected plugins
+ */
+export function getConnectedPlugins( state ) {
+	if ( ! isDoneFetchingConnectedPlugins( state ) ) {
+		return null;
+	}
+
+	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], [] );
+	return plugins.filter( plugin => 'jetpack' !== plugin.slug );
 }

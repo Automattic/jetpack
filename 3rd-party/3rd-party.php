@@ -20,6 +20,7 @@ function load_3rd_party() {
 		'buddypress.php',
 		'class.jetpack-amp-support.php',
 		'class.jetpack-modules-overrides.php', // Special case. Tools to be used to override module settings.
+		'creative-mail.php',
 		'debug-bar.php',
 		'domain-mapping.php',
 		'polldaddy.php',

@@ -10,7 +10,6 @@ import { G, Path, SVG } from '@wordpress/components';
 import edit from './edit';
 import './style.scss';
 import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'related-posts';
 
@@ -30,7 +29,7 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 
 	keywords: [
 		_x( 'similar content', 'block search term', 'jetpack' ),

@@ -1,9 +1,16 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+
 class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 
 	public function setUp() {
 		parent::setUp();
+
+		// Note: This forces the tests below to use the WPCOM/legacy flow. This means that
+		// the call to the /oembed-proxy endpoint isn't covered with tests. We should create
+		// at least one test below that specifically covers that.
+		Constants::set_constant( 'IS_WPCOM', true );
 
 		// Back compat for PHPUnit 3!
 		// @todo Remove this when WP's PHP version bumps.

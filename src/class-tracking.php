@@ -195,7 +195,7 @@ class Tracking {
 	 *
 	 * @param String                   $action the action name, i.e., 'remote_authorize'.
 	 * @param String                   $stage  the execution stage, can be 'begin', 'success', 'error', etc.
-	 * @param Array|WP_Error|IXR_Error $parameters (optional) extra parameters to be passed to the tracked action.
+	 * @param array|WP_Error|IXR_Error $parameters (optional) extra parameters to be passed to the tracked action.
 	 * @param WP_User                  $user (optional) the acting user.
 	 */
 	public function jetpack_xmlrpc_server_event( $action, $stage, $parameters = array(), $user = null ) {

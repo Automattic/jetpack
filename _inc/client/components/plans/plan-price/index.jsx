@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { translate as __ } from 'i18n-calypso';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { getCurrencyObject } from '@automattic/format-currency';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Style dependencies
@@ -51,18 +51,36 @@ export class PlanPrice extends Component {
 		const smallerPrice = this.renderPrice( priceRange[ 0 ] );
 		const higherPrice = priceRange[ 1 ] && this.renderPrice( priceRange[ 1 ] );
 
+		if ( ! higherPrice ) {
+			return (
+				<>
+					{ jetpackCreateInterpolateElement(
+						/* translators: This shows a price, like $22. */
+						__( '<Currency /><Price />', 'jetpack' ),
+						{
+							Currency: (
+								<sup className="plan-price__currency-symbol">{ priceRange[ 0 ].price.symbol }</sup>
+							),
+							Price: smallerPrice,
+						}
+					) }
+				</>
+			);
+		}
+
 		return (
 			<>
-				<sup className="plan-price__currency-symbol">{ priceRange[ 0 ].price.symbol }</sup>
-				{ higherPrice
-					? __( '{{smallerPrice/}}-{{higherPrice/}}', {
-							components: {
-								smallerPrice,
-								higherPrice,
-							},
-							comment: 'The price range for a particular product',
-					  } )
-					: smallerPrice }
+				{ jetpackCreateInterpolateElement(
+					/* translators: This shows a price range, like $ 22-55. */
+					__( '<Currency /><smallerPrice />-<higherPrice />', 'jetpack' ),
+					{
+						Currency: (
+							<sup className="plan-price__currency-symbol">{ priceRange[ 0 ].price.symbol }</sup>
+						),
+						smallerPrice: smallerPrice,
+						higherPrice: higherPrice,
+					}
+				) }
 			</>
 		);
 	}

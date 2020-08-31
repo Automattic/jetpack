@@ -17,7 +17,7 @@ function adjustFit( parts, target ) {
 }
 
 export function handleRowResize( row, width ) {
-	applyRowRatio( row, getRowRatio( row ), width );
+	return applyRowRatio( row, getRowRatio( row ), width );
 }
 
 function getRowRatio( row ) {
@@ -69,7 +69,7 @@ function applyRowRatio( row, [ ratio, weightedRatio ], width ) {
 	const rawHeight =
 		( 1 / ratio ) * ( width - GUTTER_WIDTH * ( row.childElementCount - 1 ) - weightedRatio );
 
-	applyColRatio( row, {
+	return applyColRatio( row, {
 		rawHeight,
 		rowWidth: width - GUTTER_WIDTH * ( row.childElementCount - 1 ),
 	} );
@@ -93,6 +93,12 @@ function applyColRatio( row, { rawHeight, rowWidth } ) {
 			rawWidth,
 		} );
 	} );
+
+	const colWidthPercentages = adjustedWidths.map(
+		adjustedWidth => ( adjustedWidth / rowWidth ) * 100
+	);
+
+	return colWidthPercentages;
 }
 
 function applyImgRatio( col, { colHeight, width, rawWidth } ) {

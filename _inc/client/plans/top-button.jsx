@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -33,7 +34,7 @@ export default class TopButton extends React.Component {
 			plansUpgradeUrl,
 		} = this.props;
 		const url = isActivePlan
-			? `https://wordpress.com/plans/my-plan/${ siteRawUrl }`
+			? getRedirectUrl( 'calypso-plans-my-plan', { site: siteRawUrl } )
 			: plansUpgradeUrl;
 		const className = classNames(
 			'plan-features__table-item',

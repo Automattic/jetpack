@@ -11,7 +11,6 @@ import { registerBlockType } from '@wordpress/blocks';
 import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import withHasWarningIsInteractiveClassNames from './with-has-warning-is-interactive-class-names';
-import wrapPaidBlock from './wrap-paid-block';
 
 const availableBlockTags = {
 	paid: _x( 'paid', 'Short label appearing near a block requiring a paid plan', 'jetpack' ),
@@ -23,11 +22,11 @@ const betaExtensions = extensionList.beta || [];
 /**
  * Checks whether the block requires a paid plan or not.
  *
- * @param {string} unavailableReason The reason why block is unavailable
- * @param {Object} details The block details
+ * @param {string} unavailableReason - The reason why block is unavailable
+ * @param {object} details - The block details
  * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
  */
-function requiresPaidPlan( unavailableReason, details ) {
+export function requiresPaidPlan( unavailableReason, details ) {
 	if ( unavailableReason === 'missing_plan' ) {
 		return details.required_plan;
 	}
@@ -37,16 +36,12 @@ function requiresPaidPlan( unavailableReason, details ) {
 /**
  * Builds an array of tags associated with this block, such as ["paid", "beta"].
  *
- * @param {string} name The block's name.
- * @param {string|boolean} requiredPlan  Does this block require a paid plan?
- * @returns {array} Array of tags associated with this block
+ * @param {string} name - The block's name.
+ * @returns {Array} Array of tags associated with this block
  */
-function buildBlockTags( name, requiredPlan ) {
+function buildBlockTags( name ) {
 	const blockTags = [];
 
-	if ( requiredPlan ) {
-		blockTags.push( availableBlockTags.paid );
-	}
 	if ( betaExtensions.includes( name ) ) {
 		blockTags.push( availableBlockTags.beta );
 	}
@@ -57,8 +52,8 @@ function buildBlockTags( name, requiredPlan ) {
 /**
  * Takes a block title string and optionally appends comma separated block tags in parentheses.
  *
- * @param {string} blockTitle The block's title
- * @param {array} blockTags The tags you want appended in parentheses (tags, show, here)
+ * @param {string} blockTitle - The block's title
+ * @param {Array} blockTags - The tags you want appended in parentheses (tags, show, here)
  * @returns {string} Block title
  */
 function buildBlockTitle( blockTitle, blockTags = [] ) {
@@ -72,10 +67,10 @@ function buildBlockTitle( blockTitle, blockTags = [] ) {
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} name The block's name.
- * @param {object} settings The block's settings.
- * @param {object} childBlocks The block's child blocks.
- * @returns {object|false} Either false if the block is not available, or the results of `registerBlockType`
+ * @param {string} name - The block's name.
+ * @param {object} settings - The block's settings.
+ * @param {object} childBlocks - The block's child blocks.
+ * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
@@ -95,7 +90,6 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
-		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
 		example: requiredPlan ? undefined : settings.example,
 	} );
 

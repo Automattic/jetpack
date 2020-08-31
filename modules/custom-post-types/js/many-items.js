@@ -1,13 +1,13 @@
-( function( $ ) {
+( function ( $ ) {
 	var menuSelector, nonceInput, methods;
 
 	methods = {
-		init: function(/*options*/) {
+		init: function (/*options*/) {
 			var $this = this,
 				tbody,
 				row;
 
-			this.on( 'keypress.manyItemsTable', function( event ) {
+			this.on( 'keypress.manyItemsTable', function ( event ) {
 				if ( 13 !== event.which ) {
 					return;
 				}
@@ -17,7 +17,7 @@
 					methods.submitRow.apply( $this );
 				}
 				methods.addRow.apply( $this );
-			} ).on( 'focus.manyItemsTable', ':input', function(/*event*/) {
+			} ).on( 'focus.manyItemsTable', ':input', function (/*event*/) {
 				$this.data( 'currentRow', $( this ).parents( 'tr:first' ) );
 			} );
 
@@ -35,13 +35,13 @@
 			return this;
 		},
 
-		destroy: function() {
+		destroy: function () {
 			this.off( '.manyItemsTable' );
 
 			return this;
 		},
 
-		submitRow: function() {
+		submitRow: function () {
 			var submittedRow, currentInputs, allInputs, partialFormData;
 
 			submittedRow = this.data( 'currentRow' );
@@ -65,7 +65,7 @@
 				data: partialFormData,
 				processData: false,
 				contentType: false,
-			} ).complete( function( xhr ) {
+			} ).complete( function ( xhr ) {
 				submittedRow.html( xhr.responseText );
 			} );
 
@@ -74,7 +74,7 @@
 			return this;
 		},
 
-		addRow: function() {
+		addRow: function () {
 			var row = this.data( 'row' ).clone();
 			row.appendTo( this.data( 'tbody' ) );
 			row.find( ':input:first' ).focus();
@@ -83,7 +83,7 @@
 		},
 	};
 
-	$.fn.manyItemsTable = function( method ) {
+	$.fn.manyItemsTable = function ( method ) {
 		// Method calling logic
 		if ( methods[ method ] ) {
 			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
@@ -95,20 +95,18 @@
 		}
 	};
 
-	$.fn.clickAddRow = function() {
+	$.fn.clickAddRow = function () {
 		var tbody = this.find( 'tbody:last' ),
 			row = tbody.find( 'tr:first' ).clone();
 
-		$( row )
-			.find( 'input, textarea' )
-			.val( '' );
+		$( row ).find( 'input, textarea' ).val( '' );
 		$( row ).appendTo( tbody );
 	};
 } )( jQuery );
 
-jQuery( '.many-items-table' ).one( 'focus', ':input', function( event ) {
+jQuery( '.many-items-table' ).one( 'focus', ':input', function ( event ) {
 	jQuery( event.delegateTarget ).manyItemsTable();
 } );
-jQuery( '.many-items-table' ).on( 'click', 'a.nova-new-row', function( event ) {
+jQuery( '.many-items-table' ).on( 'click', 'a.nova-new-row', function ( event ) {
 	jQuery( event.delegateTarget ).clickAddRow();
 } );

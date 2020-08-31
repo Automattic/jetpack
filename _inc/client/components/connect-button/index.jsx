@@ -4,13 +4,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import { translate as __ } from 'i18n-calypso';
-import analytics from 'lib/analytics';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	disconnectSite,
@@ -18,10 +20,12 @@ import {
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
+	authorizeUserInPlace,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
+	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
 } from 'state/connection';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 
@@ -34,12 +38,15 @@ export class ConnectButton extends React.Component {
 		connectUser: PropTypes.bool,
 		from: PropTypes.string,
 		asLink: PropTypes.bool,
+		connectLegend: PropTypes.string,
+		connectInPlace: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		connectUser: false,
 		from: '',
 		asLink: false,
+		connectInPlace: true,
 	};
 
 	state = {
@@ -61,6 +68,18 @@ export class ConnectButton extends React.Component {
 		this.setState( { showModal: ! this.state.showModal } );
 	};
 
+	loadIframe = e => {
+		e.preventDefault();
+		// If the iframe is already loaded or we don't have a connectUrl yet, return.
+		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
+			return;
+		}
+		// Track click
+		analytics.tracks.recordJetpackClick( 'link_account_in_place' );
+		// Dispatch user in place authorization.
+		this.props.authorizeUserInPlace();
+	};
+
 	renderUserButton = () => {
 		// Already linked
 		if ( this.props.isLinked ) {
@@ -74,7 +93,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ __( 'Unlink me from WordPress.com' ) }
+						{ this.props.connectLegend || __( 'Unlink me from WordPress.com', 'jetpack' ) }
 					</a>
 				</div>
 			);
@@ -89,9 +108,26 @@ export class ConnectButton extends React.Component {
 		const buttonProps = {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl,
+				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend = __( 'Link to WordPress.com' );
+			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com', 'jetpack' );
+
+		// Secondary users in-place connection flow
+
+		// Due to the limitation in how 3rd party cookies are handled in Safari,
+		// we're falling back to the original flow on Safari desktop and mobile,
+		// thus ignore the 'connectInPlace' property value.
+
+		// We also check the `doNotUseConnectionIframe` initial global state property.
+		// This will override the button's `connectInPlace` property.
+
+		if (
+			this.props.connectInPlace &&
+			! this.props.isSafari &&
+			! this.props.doNotUseConnectionIframe
+		) {
+			buttonProps.onClick = this.loadIframe;
+		}
 
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
@@ -114,7 +150,7 @@ export class ConnectButton extends React.Component {
 					onClick={ this.handleOpenModal }
 					disabled={ this.props.isDisconnecting }
 				>
-					{ __( 'Manage site connection' ) }
+					{ this.props.connectLegend || __( 'Manage site connection', 'jetpack' ) }
 				</a>
 			);
 		}
@@ -129,7 +165,7 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl,
 			},
-			connectLegend = __( 'Set up Jetpack' );
+			connectLegend = this.props.connectLegend || __( 'Set up Jetpack', 'jetpack' );
 
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
@@ -143,21 +179,26 @@ export class ConnectButton extends React.Component {
 			<div>
 				{ ! this.props.isSiteConnected && (
 					<p className="jp-banner__tos-blurb">
-						{ __(
-							'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.',
+						{ jetpackCreateInterpolateElement(
+							__(
+								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+								'jetpack'
+							),
 							{
-								components: {
-									tosLink: (
-										<a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank" />
-									),
-									shareDetailsLink: (
-										<a
-											href="https://jetpack.com/support/what-data-does-jetpack-sync"
-											rel="noopener noreferrer"
-											target="_blank"
-										/>
-									),
-								},
+								tosLink: (
+									<a
+										href={ getRedirectUrl( 'wpcom-tos' ) }
+										rel="noopener noreferrer"
+										target="_blank"
+									/>
+								),
+								shareDetailsLink: (
+									<a
+										href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+										rel="noopener noreferrer"
+										target="_blank"
+									/>
+								),
 							}
 						) }
 					</p>
@@ -184,6 +225,9 @@ export default connect(
 			connectUrl: _getConnectUrl( state ),
 			isLinked: _isCurrentUserLinked( state ),
 			isUnlinking: _isUnlinkingUser( state ),
+			isAuthorizing: _isAuthorizingUserInPlace( state ),
+			isSafari: isSafari( state ),
+			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
 		};
 	},
 	dispatch => {
@@ -193,6 +237,9 @@ export default connect(
 			},
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
+			},
+			authorizeUserInPlace: () => {
+				return dispatch( authorizeUserInPlace() );
 			},
 		};
 	}

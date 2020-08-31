@@ -26,11 +26,13 @@ import {
 	switchUserPermission,
 	switchThreats,
 	switchRewindState,
+	switchScanState,
 } from 'state/dev-version';
 import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import Card from 'components/card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import { getRewindStatus } from 'state/rewind';
+import { getScanStatus } from 'state/scan';
 
 export class DevCard extends React.Component {
 	static displayName = 'DevCard';
@@ -49,6 +51,10 @@ export class DevCard extends React.Component {
 
 	onRewindStatusChange = event => {
 		this.props.switchRewindState( event.target.value );
+	};
+
+	onScanStatusChange = event => {
+		this.props.switchScanState( event.target.value );
 	};
 
 	maybeShowStatsToggle = () => {
@@ -136,6 +142,7 @@ export class DevCard extends React.Component {
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
+		const scanState = get( this.props.scanStatus, [ 'state' ], false );
 
 		return (
 			<Card compact className={ classes }>
@@ -200,6 +207,45 @@ export class DevCard extends React.Component {
 								onChange={ this.onPlanChange }
 							/>
 							Pro
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_security_daily">
+							<input
+								type="radio"
+								id="jetpack_security_daily"
+								value="jetpack_security_daily"
+								name="jetpack_security_daily"
+								checked={ 'is-daily-security-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security Daily
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_security_realtime">
+							<input
+								type="radio"
+								id="jetpack_security_realtime"
+								value="jetpack_security_realtime"
+								name="jetpack_security_realtime"
+								checked={ 'is-realtime-security-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Security Real-Time
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_complete">
+							<input
+								type="radio"
+								id="jetpack_complete"
+								value="jetpack_complete"
+								name="jetpack_complete"
+								checked={ 'is-complete-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Complete
 						</label>
 					</li>
 					<li>
@@ -315,7 +361,7 @@ export class DevCard extends React.Component {
 				</ul>
 				<hr />
 				<ul>
-					<strong>Backup & Scan</strong>
+					<strong>Backup</strong>
 					<li>
 						<label htmlFor="rewindUnavailable">
 							<input
@@ -369,6 +415,61 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 				</ul>
+				<ul>
+					<strong>Scan</strong>
+					<li>
+						<label htmlFor="scanUnavailable">
+							<input
+								type="radio"
+								id="scanUnavailable"
+								value="unavailable"
+								name="unavailable"
+								checked={ 'unavailable' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Unavailable
+						</label>
+					</li>
+					<li>
+						<label htmlFor="scanProvisioning">
+							<input
+								type="radio"
+								id="scanProvisioning"
+								value="provisioning"
+								name="provisioning"
+								checked={ 'provisioning' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Provisioning
+						</label>
+					</li>
+					<li>
+						<label htmlFor="scanIdle">
+							<input
+								type="radio"
+								id="scanIdle"
+								value="idle"
+								name="idle"
+								checked={ 'idle' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Idle
+						</label>
+					</li>
+					<li>
+						<label htmlFor="scanScanning">
+							<input
+								type="radio"
+								id="scanScanning"
+								value="scanning"
+								name="scanning"
+								checked={ 'scanning' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Scanning
+						</label>
+					</li>
+				</ul>
 				{ this.maybeShowStatsToggle() }
 				{ this.maybeShowIsLinkedToggle() }
 			</Card>
@@ -389,6 +490,7 @@ export default connect(
 			canEditPosts: userCanEditPosts( state ),
 			getVaultPressScanThreatCount: () => getVaultPressScanThreatCount( state ),
 			rewindStatus: getRewindStatus( state ),
+			scanStatus: getScanStatus( state ),
 		};
 	},
 	dispatch => {
@@ -408,6 +510,7 @@ export default connect(
 			switchRewindState: rewindState => {
 				return dispatch( switchRewindState( rewindState ) );
 			},
+			switchScanState: scanState => dispatch( switchScanState( scanState ) ),
 		};
 	}
 )( DevCard );

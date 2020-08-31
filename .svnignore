@@ -13,11 +13,10 @@ readme.md
 babel.config*
 phpunit.xml.dist
 dangerfile.js
-bin/phpcs-whitelist.js
+bin/phpcs-requirelist.js
 bin/pre-commit-hook.js
 bin/prepare-built-branch.sh
 bin/prepare-commit-msg.js
-bin/release-package.php
 bin/version-packages.sh
 css/*.css.map
 css/*.css.min.map
@@ -45,7 +44,6 @@ postcss.config.js
 gulpfile.js
 gulpfile.babel.js
 node_modules
-languages/jetpack.pot
 LICENSE.txt
 modules/widgets/follow-button.php
 modules/calypsoify/*.css.map
@@ -82,3 +80,4 @@ packages
 modules/search/instant-search
 modules/search/.eslintrc.js
 wp-cli-templates
+logs

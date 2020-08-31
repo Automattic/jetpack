@@ -21,6 +21,15 @@
 	}
 }
 
+.jp-sitemap-row {
+	display: flex;
+	align-items: center;
+	margin-top: 1rem;
+	
+	.dops-clipboard-button-input {
+		flex-grow: 1;
+	}
+}
 
 // we want to place.jp-form-input-with-prefix's margin after this element
 .jp-form-input-with-prefix-bottom-message {
@@ -29,7 +38,6 @@
 	line-height: 2em;
 	margin-top: 5px;
 }
-
 
 .jp-form-site-verification-verified {
 	background-color: $white;

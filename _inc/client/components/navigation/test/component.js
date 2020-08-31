@@ -15,10 +15,10 @@ describe( 'Navigation', () => {
 	let testProps = {
 			userCanManageModules: false,
 			userCanViewStats: false,
-			route: {
-				name: 'At a Glance',
-				path: '/dashboard'
+			location: {
+				pathname: '/dashboard'
 			},
+			routeName: 'At a Glance',
 			isModuleActivated: module => false
 		};
 	const wrapper = shallow( <Navigation { ...testProps } /> );

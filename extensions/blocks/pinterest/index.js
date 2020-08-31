@@ -11,7 +11,6 @@ import { createBlock } from '@wordpress/blocks';
 import edit from './edit';
 import { pinType } from './utils';
 import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
@@ -39,7 +38,7 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 
 	keywords: [
 		_x( 'social', 'block search term', 'jetpack' ),

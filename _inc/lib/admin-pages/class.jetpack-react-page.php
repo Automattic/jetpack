@@ -1,5 +1,6 @@
 <?php
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
 
@@ -48,6 +49,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Add Jetpack Setup sub-link for eligible users
+	 */
+	function jetpack_add_set_up_sub_nav_item() {
+		if ( $this->show_setup_wizard() ) {
+			global $submenu;
+			$submenu['jetpack'][] = array( __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/setup' );
+		}
+	}
+
+	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
 	 *
 	 * Works in Dev Mode or when user is connected.
@@ -55,7 +66,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
-		if ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) {
+		if ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) {
 			global $submenu;
 			if ( current_user_can( 'jetpack_admin_page' ) ) {
 				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
@@ -69,7 +80,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
+		if ( ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/settings' );
 		}
@@ -149,7 +160,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 
-		$is_development_mode = ( new Status() )->is_development_mode();
+		$is_offline_mode     = ( new Status() )->is_offline_mode();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
 		$script_dependencies = array( 'wp-polyfill' );
 		if ( file_exists( $script_deps_path ) ) {
@@ -165,10 +176,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			true
 		);
 
-		if ( ! $is_development_mode && Jetpack::is_active() ) {
+		if ( ! $is_offline_mode && Jetpack::is_active() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
+
+		wp_set_script_translations( 'react-plugin', 'jetpack' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
@@ -176,6 +189,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function get_initial_state() {
+		global $is_safari;
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
@@ -224,25 +238,31 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		$current_user_data = jetpack_current_user_data();
 
-		$status = new Status();
+		/**
+		 * Adds information to the `connectionStatus` API field that is unique to the Jetpack React dashboard.
+		 */
+		$connection_status = array(
+			'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
+			'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
+
+			/**
+			 * Filter to add connection errors
+			 * Format: array( array( 'code' => '...', 'message' => '...', 'action' => '...' ), ... )
+			 *
+			 * @since 8.7.0
+			 *
+			 * @param array $errors Connection errors.
+			 */
+			'errors'             => apply_filters( 'react_connection_errors_initial_state', array() ),
+		);
+
+		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectionStatus'            => array(
-				'isActive'           => Jetpack::is_active(),
-				'isStaging'          => $status->is_staging_site(),
-				'devMode'            => array(
-					'isActive' => $status->is_development_mode(),
-					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-					'url'      => site_url() && false === strpos( site_url(), '.' ),
-					'filter'   => apply_filters( 'jetpack_development_mode', false ),
-				),
-				'isPublic'           => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
-				'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
-			),
+			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
@@ -253,6 +273,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'getModules'                  => $modules,
 			'rawUrl'                      => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl'                    => esc_url( admin_url() ),
+			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                       => array(
 				// data is populated asynchronously on page load.
 				'data'  => array(
@@ -285,6 +306,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isAtomicSite'               => jetpack_is_atomic_site(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
 			),
 			'themeData'                   => array(
@@ -294,18 +316,21 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 				),
 			),
-			'locale'                      => Jetpack::get_i18n_data_json(),
-			'localeSlug'                  => join( '-', explode( '_', get_user_locale() ) ),
 			'jetpackStateNotices'         => array(
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
+				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? $this->get_update_modal_data() : null,
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp'                   => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => $this->get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
+			'products'                    => Jetpack::get_products_for_purchase(),
+			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
+			'isSafari'                    => $is_safari,
+			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 		);
 	}
 
@@ -329,6 +354,126 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$core_api_endpoint = new Jetpack_Core_API_Data();
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
+	}
+
+
+	/**
+	 * Returns a boolean for whether the Setup Wizard should be displayed or not.
+	 *
+	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
+	 */
+	public function show_setup_wizard() {
+		return Jetpack_Wizard::can_be_displayed();
+	}
+
+	/**
+	 * Returns the release post content and image data as an associative array.
+	 * This data is used to create the update modal.
+	 */
+	public function get_update_modal_data() {
+		$post_data = $this->get_release_post_data();
+
+		if ( ! isset( $post_data['posts'][0] ) ) {
+			return;
+		}
+
+		$post = $post_data['posts'][0];
+
+		if ( empty( $post['content'] ) ) {
+			return;
+		}
+
+		// This allows us to embed videopress videos into the release post.
+		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_post_embed_iframe' ), 10, 2 );
+		$content = wp_kses_post( $post['content'] );
+		remove_filter( 'wp_kses_allowed_html', array( $this, 'allow_post_embed_iframe' ), 10, 2 );
+
+		$post_title = isset( $post['title'] ) ? $post['title'] : null;
+		$title      = wp_kses( $post_title, array() );
+
+		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
+		if ( ! empty( $post_thumbnail ) ) {
+			jetpack_require_lib( 'class.jetpack-photon-image' );
+			$photon_image = new Jetpack_Photon_Image(
+				array(
+					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
+					'width'  => $post_thumbnail['width'],
+					'height' => $post_thumbnail['height'],
+				),
+				$post_thumbnail['mime_type']
+			);
+			$photon_image->resize(
+				array(
+					'width'  => 600,
+					'height' => null,
+					'crop'   => false,
+				)
+			);
+			$post_thumbnail_url = $photon_image->get_raw_filename();
+		} else {
+			$post_thumbnail_url = null;
+		}
+
+		$post_array = array(
+			'release_post_content'        => $content,
+			'release_post_featured_image' => $post_thumbnail_url,
+			'release_post_title'          => $title,
+		);
+
+		return $post_array;
+	}
+
+	/**
+	 * Temporarily allow post content to contain iframes, e.g. for videopress.
+	 *
+	 * @param string $tags    The tags.
+	 * @param string $context The context.
+	 */
+	public function allow_post_embed_iframe( $tags, $context ) {
+		if ( 'post' === $context ) {
+			$tags['iframe'] = array(
+				'src'             => true,
+				'height'          => true,
+				'width'           => true,
+				'frameborder'     => true,
+				'allowfullscreen' => true,
+			);
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * Obtains the release post from the Jetpack release post blog. A release post will be displayed in the
+	 * update modal when a post has a tag equal to the Jetpack version number.
+	 *
+	 * The response parameters for the post array can be found here:
+	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response
+	 *
+	 * @return array|null Returns an associative array containing the release post data at index ['posts'][0].
+	 *                    Returns null if the release post data is not available.
+	 */
+	private function get_release_post_data() {
+		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
+			return null;
+		}
+
+		$release_post_src = add_query_arg(
+			array(
+				'order_by' => 'date',
+				'tag'      => JETPACK__VERSION,
+				'number'   => '1',
+			),
+			'https://public-api.wordpress.com/rest/v1/sites/' . JETPACK__RELEASE_POST_BLOG_SLUG . '/posts'
+		);
+
+		$response = wp_remote_get( $release_post_src );
+
+		if ( ! is_array( $response ) ) {
+			return null;
+		}
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 }
 
@@ -361,7 +506,7 @@ function jetpack_current_user_data() {
 		'username'    => $current_user->user_login,
 		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
+		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),

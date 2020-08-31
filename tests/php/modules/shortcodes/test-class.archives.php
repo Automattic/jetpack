@@ -36,19 +36,52 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Gets the test data for test_shortcodes_archives_format_option().
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return array The test data.
+	 */
+	public function get_data_archives_format_option() {
+		return array(
+			'non_amp' => array(
+				false,
+				'<select name="archive-dropdown" onchange="document.location.href=this.options[this.selectedIndex].value;"><option value="">--</option>	<option value=\'{{permalink}}\'> {{title}} </option>' . "\n" . '</select>',
+			),
+			'amp'     => array(
+				true,
+				'<select name="archive-dropdown" on="change:AMP.navigateTo(url=event.value)"><option value="">--</option>	<option value=\'{{permalink}}\'> {{title}} </option>' . "\n" . '</select>',
+			),
+		);
+	}
+
+	/**
+	 * Test [archives format="option"].
+	 *
+	 * @dataProvider get_data_archives_format_option
 	 * @author scotchfield
 	 * @covers ::archives_shortcode
 	 * @since 3.2
+	 *
+	 * @param bool   $is_amp Whether this is an AMP endpoint.
+	 * @param string $expected The expected return value of the shortcode callback.
 	 */
-	public function test_shortcodes_archives_format_option() {
-		$this->factory->post->create( array() );
-		$attr = array(
-			'format' => 'option'
+	public function test_shortcodes_archives_format_option( $is_amp, $expected ) {
+		if ( $is_amp ) {
+			add_filter( 'jetpack_is_amp_request', '__return_true' );
+		}
+
+		$post     = $this->factory->post->create_and_get();
+		$expected = str_replace(
+			array( '{{permalink}}', '{{title}}' ),
+			array( get_permalink( $post ), $post->post_title ),
+			$expected
 		);
 
-		$archives = archives_shortcode( $attr );
-
-		$this->assertEquals( substr( $archives, 0, 7 ), '<select' );
+		$this->assertEquals(
+			$expected,
+			archives_shortcode( array( 'format' => 'option' ) )
+		);
 	}
 
 	/**

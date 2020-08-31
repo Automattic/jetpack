@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { getSiteBenefits, getSiteID, getSitePlan } from 'state/site';
+import { getSiteBenefits, getSiteID, getSitePlan, getConnectedPlugins } from 'state/site';
 import { isDevVersion } from 'state/initial-state';
 import { submitSurvey as submitSurveyAction } from 'state/disconnect-survey/actions';
 import analytics from 'lib/analytics';
@@ -20,6 +20,7 @@ import JetpackTerminationDialogFeatures from './features';
 import JetpackTerminationDialogSurvey from './survey';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
+import QueryConnectedPlugins from 'components/data/query-connected-plugins';
 import Spinner from 'components/spinner';
 
 function mapBenefitNameToGridicon( benefitName ) {
@@ -80,6 +81,7 @@ class JetpackTerminationDialog extends Component {
 		siteBenefits: PropTypes.array,
 		submitSurvey: PropTypes.func,
 		terminateJetpack: PropTypes.func.isRequired,
+		connectedPlugins: PropTypes.array,
 	};
 
 	state = {
@@ -125,13 +127,14 @@ class JetpackTerminationDialog extends Component {
 	};
 
 	renderFeatures() {
-		const { isDevSite: siteIsDev, purpose, siteBenefits } = this.props;
+		const { isDevSite: siteIsDev, purpose, siteBenefits, connectedPlugins } = this.props;
 
-		return siteBenefits ? (
+		return siteBenefits && connectedPlugins ? (
 			<JetpackTerminationDialogFeatures
 				isDevSite={ siteIsDev }
 				purpose={ purpose }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
+				connectedPlugins={ connectedPlugins }
 			/>
 		) : (
 			<Card className="jetpack-termination-dialog__spinner">
@@ -158,11 +161,11 @@ class JetpackTerminationDialog extends Component {
 		const { step } = this.state;
 		return showSurvey && step === JetpackTerminationDialog.FEATURE_STEP ? (
 			<Button primary onClick={ this.handleContinueClick }>
-				{ __( 'Continue' ) }
+				{ __( 'Continue', 'jetpack' ) }
 			</Button>
 		) : (
 			<Button scary primary onClick={ this.handleTerminationClick }>
-				{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
+				{ purpose === 'disconnect' ? __( 'Disconnect', 'jetpack' ) : __( 'Disable', 'jetpack' ) }
 			</Button>
 		);
 	}
@@ -175,10 +178,13 @@ class JetpackTerminationDialog extends Component {
 			<div className="jetpack-termination-dialog">
 				<QuerySite />
 				<QuerySiteBenefits />
+				<QueryConnectedPlugins />
 				<Card>
 					<div className="jetpack-termination-dialog__header">
 						<h2>
-							{ purpose === 'disconnect' ? __( 'Disconnect Jetpack' ) : __( 'Disable Jetpack' ) }
+							{ purpose === 'disconnect'
+								? __( 'Disconnect Jetpack', 'jetpack' )
+								: __( 'Disable Jetpack', 'jetpack' ) }
 						</h2>
 						{ location === 'dashboard' && (
 							<Gridicon
@@ -196,11 +202,11 @@ class JetpackTerminationDialog extends Component {
 					<div className="jetpack-termination-dialog__button-row">
 						<p>
 							{ purpose === 'disconnect'
-								? __( 'Are you sure you want to disconnect?' )
-								: __( 'Are you sure you want to disconnect and deactivate?' ) }
+								? __( 'Are you sure you want to disconnect?', 'jetpack' )
+								: __( 'Are you sure you want to disconnect and deactivate?', 'jetpack' ) }
 						</p>
 						<div className="jetpack-termination-dialog__button-row-buttons">
-							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Cancel' ) }</Button>
+							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Cancel', 'jetpack' ) }</Button>
 							{ this.renderPrimaryButton() }
 						</div>
 					</div>
@@ -216,6 +222,7 @@ export default connect(
 		siteBenefits: getSiteBenefits( state ),
 		siteId: getSiteID( state ),
 		sitePlan: getSitePlan( state ),
+		connectedPlugins: getConnectedPlugins( state ),
 	} ),
 	{
 		submitSurvey: submitSurveyAction,

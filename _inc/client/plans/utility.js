@@ -1,19 +1,15 @@
 /**
  * External dependencies
  */
-import { translate as __ } from 'i18n-calypso';
+import { _x } from '@wordpress/i18n';
 
 export function getBillingTimeFrameString( billingTimeFrame ) {
 	if ( 'yearly' === billingTimeFrame ) {
-		return __( 'per year', {
-			comment: 'Duration of product subscription timeframe.',
-		} );
+		return _x( 'per year', 'Duration of product subscription timeframe.', 'jetpack' );
 	}
 
 	if ( 'monthly' === billingTimeFrame ) {
-		return __( 'per month', {
-			comment: 'Duration of product subscription timeframe.',
-		} );
+		return _x( 'per month', 'Duration of product subscription timeframe.', 'jetpack' );
 	}
 
 	return '';

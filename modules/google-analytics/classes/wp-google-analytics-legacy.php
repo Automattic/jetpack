@@ -69,6 +69,14 @@ class Jetpack_Google_Analytics_Legacy {
 			return;
 		}
 
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			// For Reader mode — legacy.
+			add_filter( 'amp_post_template_analytics', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
+			// For Standard and Transitional modes.
+			add_filter( 'amp_analytics_entries', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
+			return;
+		}
+
 		$custom_vars = array(
 			"_gaq.push(['_setAccount', '{$tracking_id}']);",
 		);

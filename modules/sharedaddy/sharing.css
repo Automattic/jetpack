@@ -45,9 +45,12 @@ body.highlander-dark h3.sd-title:before {
 
 
 /* Sharing services list */
+.sd-sharing {
+	margin-bottom: 1em;
+}
 .sd-content ul {
 	padding: 0 !important;
-	margin: 0 0 .7em 0 !important;
+	margin: 0 !important;
 	list-style: none !important;
 }
 
@@ -752,4 +755,14 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 	width: 312px;
 	height: 123px;
 	margin: 0 0 1em 0;
+}
+
+.sd-content .share-customize-link {
+	margin-top: 0em;
+	line-height: 11px;
+}
+
+.sd-content .share-customize-link a {
+	font-size: 11px;
+	font-family: "Open Sans", sans-serif;
 }

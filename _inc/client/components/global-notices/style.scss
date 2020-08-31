@@ -18,18 +18,24 @@
 		right: 16px;
 		bottom: auto;
 		left: auto;
-		max-width: calc( 100% - 32px );
+
+		/* `36px` being the width of the collapsed WP-admin sidebar */
+		max-width: calc( 100% - 32px - 36px );
 	}
 
 	@include breakpoint( ">960px" ) {
 		top: 47px + 24px;
 		right: 24px;
-		max-width: calc( 100% - 48px );
+
+		/* `160px` being the width of the WP-admin sidebar */
+		max-width: calc( 100% - 48px - 160px );
 	}
 
 	@include breakpoint( ">1040px" ) {
 		right: 32px;
-		max-width: calc( 100% - 64px );
+
+		/* `160px` being the width of the WP-admin sidebar */
+		max-width: calc( 100% - 64px - 160px );
 	}
 }
 

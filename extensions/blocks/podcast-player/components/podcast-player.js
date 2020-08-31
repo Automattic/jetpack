@@ -17,15 +17,16 @@ import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
 import Playlist from './playlist';
 import AudioPlayer from './audio-player';
 import Header from './header';
-import { getColorClassName } from '../utils';
+import { getColorsObject } from '../utils';
+import withErrorBoundary from './with-error-boundary';
 
-// const debug = debugFactory( 'jetpack:podcast-player' );
 const noop = () => {};
 
 export class PodcastPlayer extends Component {
 	state = {
 		playerState: STATE_PAUSED,
 		currentTrack: 0,
+		hasUserInteraction: false,
 	};
 
 	playerRef = player => {
@@ -37,15 +38,28 @@ export class PodcastPlayer extends Component {
 	};
 
 	/**
+	 * Record the user has interacted with the player.
+	 *
+	 * @private
+	 */
+	recordUserInteraction = () => {
+		if ( ! this.state.hasUserInteraction ) {
+			this.setState( { hasUserInteraction: true } );
+		}
+	};
+
+	/**
 	 * Select a track and play/pause, as needed.
+	 *
 	 * @public
-	 * @param {number} track The track number
+	 * @param {number} track - The track number
 	 */
 	selectTrack = track => {
 		const { currentTrack } = this.state;
 
 		// Current track already selected.
 		if ( currentTrack === track ) {
+			this.recordUserInteraction();
 			this.togglePlayPause();
 			return;
 		}
@@ -61,10 +75,14 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Load audio from the track, start playing.
+	 *
 	 * @private
-	 * @param {number} track The track number
+	 * @param {number} track - The track number
 	 */
 	loadAndPlay = track => {
+		// Record that user has interacted.
+		this.recordUserInteraction();
+
 		const trackData = this.getTrack( track );
 		if ( ! trackData ) {
 			return;
@@ -73,9 +91,13 @@ export class PodcastPlayer extends Component {
 		this.setState( { currentTrack: track } );
 		this.setAudioSource( trackData.src );
 
-		// Read that we're loading the track and its description. This is dismissible via ctrl on VoiceOver.
-		/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]" */
+		/*
+		 * Read that we're loading the track and its description. This is
+		 * dismissible via ctrl on VoiceOver.
+		 */
 		speak(
+			/* translators: %s is the track title. It describes the current state of
+			the track as "Loading: [track title]". */
 			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
 			'assertive'
 		);
@@ -85,8 +107,9 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Get track data.
+	 *
 	 * @private
-	 * @param {number} track The track number
+	 * @param {number} track - The track number
 	 * @returns {object} Track object.
 	 */
 	getTrack = track => {
@@ -95,26 +118,47 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Error handler for audio.
+	 *
 	 * @private
+	 * @param {object} error - The error object
 	 */
-	handleError = () => {
-		this.setState( { playerState: STATE_ERROR } );
+	handleError = error => {
+		// If an error happens before any user interaction, our player is broken beyond repair.
+		if ( ! this.state.hasUserInteraction ) {
+			// There is a known error where IE11 doesn't support the <audio> element by
+			// default but errors instead. If the user is using IE11 we thus provide
+			// additional instructions on how they can turn on <audio> support.
+			const isIE11 = window.navigator.userAgent.match( /Trident\/7\./ );
+			// Internal error message, no translation needed
+			const playerError = isIE11
+				? 'IE11: Playing sounds in webpages setting is not checked'
+				: error;
+			// setState wrapper makes sure our ErrorBoundary handles the error.
+			this.setState( () => {
+				throw new Error( playerError );
+			} );
+		}
 
+		// Otherwise, let's just mark the episode as broken.
+		this.setState( { playerState: STATE_ERROR } );
 		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
 	/**
 	 * Play handler for audio.
+	 *
 	 * @private
 	 */
 	handlePlay = () => {
 		this.setState( {
 			playerState: STATE_PLAYING,
+			hasUserInteraction: true,
 		} );
 	};
 
 	/**
 	 * Pause handler for audio.
+	 *
 	 * @private
 	 */
 	handlePause = () => {
@@ -127,25 +171,29 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Play current audio.
+	 *
 	 * @public
 	 */
 	play = noop;
 
 	/**
 	 * Pause current audio.
+	 *
 	 * @public
 	 */
 	pause = noop;
 
 	/**
 	 * Toggle playing state.
+	 *
 	 * @public
 	 */
 	togglePlayPause = noop;
 
 	/**
 	 * Set audio source.
-	 * @param {string} src The url of audio content.
+	 *
+	 * @param {string} src - The url of audio content.
 	 * @public
 	 */
 	setAudioSource = noop;
@@ -156,10 +204,13 @@ export class PodcastPlayer extends Component {
 			itemsToShow,
 			primaryColor,
 			customPrimaryColor,
+			hexPrimaryColor,
 			secondaryColor,
 			customSecondaryColor,
+			hexSecondaryColor,
 			backgroundColor,
 			customBackgroundColor,
+			hexBackgroundColor,
 			showCoverArt,
 			showEpisodeDescription,
 		} = attributes;
@@ -168,42 +219,25 @@ export class PodcastPlayer extends Component {
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 		const track = this.getTrack( currentTrack );
 
-		// Set CSS classes string.
-		const primaryColorClass = getColorClassName( 'color', primaryColor );
-		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
-		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
+		const colors = getColorsObject( {
+			primaryColor,
+			customPrimaryColor,
+			secondaryColor,
+			customSecondaryColor,
+			backgroundColor,
+			customBackgroundColor,
+		} );
 
-		const colors = {
-			primary: {
-				name: primaryColor,
-				custom: customPrimaryColor,
-				classes: classnames( {
-					'has-primary': primaryColorClass || customPrimaryColor,
-					[ primaryColorClass ]: primaryColorClass,
-				} ),
-			},
-			secondary: {
-				name: secondaryColor,
-				custom: customSecondaryColor,
-				classes: classnames( {
-					'has-secondary': secondaryColorClass || customSecondaryColor,
-					[ secondaryColorClass ]: secondaryColorClass,
-				} ),
-			},
-			background: {
-				name: backgroundColor,
-				custom: customBackgroundColor,
-				classes: classnames( {
-					'has-background': backgroundColorClass || customBackgroundColor,
-					[ backgroundColorClass ]: backgroundColorClass,
-				} ),
-			},
-		};
-
+		/*
+		 * Set colors through inline styles.
+		 * Also, add CSS variables.
+		 */
 		const inlineStyle = {
-			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
-			backgroundColor:
-				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
+			color: customSecondaryColor,
+			backgroundColor: customBackgroundColor,
+			'--jetpack-podcast-player-primary': hexPrimaryColor,
+			'--jetpack-podcast-player-secondary': hexSecondaryColor,
+			'--jetpack-podcast-player-background': hexBackgroundColor,
 		};
 
 		const cssClassesName = classnames(
@@ -216,12 +250,15 @@ export class PodcastPlayer extends Component {
 		return (
 			<section
 				className={ cssClassesName }
-				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
+				style={ inlineStyle }
 				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
 				aria-describedby={
 					track && track.description ? `${ playerId }__track-description` : undefined
 				}
-				// The following line ensures compatibility with Calypso previews (jetpack-iframe-embed.js).
+				/*
+				 * The following line ensures compatibility with Calypso previews
+				 * (jetpack-iframe-embed.js).
+				 */
 				data-jetpack-iframe-ignore
 			>
 				<Header
@@ -247,8 +284,15 @@ export class PodcastPlayer extends Component {
 					id={ `jetpack-podcast-player__tracklist-title--${ playerId }` }
 					className="jetpack-podcast-player--visually-hidden"
 				>
-					{ /* translators: %s is the track title. This describes what the playlist goes with, like "Playlist: [name of the podcast]" */ }
-					{ sprintf( __( 'Playlist: %s', 'jetpack' ), title ) }
+					{ /*
+					 * This describes what the playlist goes with, like "Playlist: [name
+					 * of the podcast]".
+					 */ }
+					{ sprintf(
+						// translators: %s is the track title.
+						__( 'Playlist: %s', 'jetpack' ),
+						title
+					) }
 				</h4>
 				<p
 					id={ `jetpack-podcast-player__tracklist-description--${ playerId }` }
@@ -256,14 +300,16 @@ export class PodcastPlayer extends Component {
 				>
 					{ __( 'Select an episode to play it in the audio player.', 'jetpack' ) }
 				</p>
-				<Playlist
-					playerId={ playerId }
-					playerState={ playerState }
-					currentTrack={ currentTrack }
-					tracks={ tracksToDisplay }
-					selectTrack={ this.selectTrack }
-					colors={ colors }
-				/>
+				{ tracksToDisplay.length > 1 && (
+					<Playlist
+						playerId={ playerId }
+						playerState={ playerState }
+						currentTrack={ currentTrack }
+						tracks={ tracksToDisplay }
+						selectTrack={ this.selectTrack }
+						colors={ colors }
+					/>
+				) }
 			</section>
 		);
 	}
@@ -282,4 +328,4 @@ PodcastPlayer.defaultProps = {
 	tracks: [],
 };
 
-export default PodcastPlayer;
+export default withErrorBoundary( PodcastPlayer );

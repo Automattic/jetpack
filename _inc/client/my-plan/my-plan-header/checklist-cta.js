@@ -2,22 +2,23 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Button from 'components/button';
+import getRedirectUrl from 'lib/jp-redirect';
 
 export default function ChecklistCta( { onClick, siteSlug } ) {
 	return (
 		<div className="jp-landing__plan-features-header-checklist-cta-container">
 			<Button
-				href={ `https://wordpress.com/plans/my-plan/${ siteSlug }?checklist` }
+				href={ getRedirectUrl( 'calypso-plans-my-plan', { site: siteSlug, query: 'checklist' } ) }
 				onClick={ onClick }
 				primary
 			>
-				{ __( 'View your setup checklist' ) }
+				{ __( 'View your setup checklist', 'jetpack' ) }
 			</Button>
 		</div>
 	);

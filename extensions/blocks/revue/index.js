@@ -7,10 +7,19 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
 import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
+import save from './save';
+
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'button',
+		text: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
+	},
+};
 
 export const name = 'revue';
 
@@ -21,7 +30,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),
@@ -33,17 +42,10 @@ export const settings = {
 	},
 	attributes,
 	edit,
-	save: ( { attributes: { revueUsername } } ) => {
-		const url = `https://www.getrevue.co/profile/${ revueUsername }`;
-		return (
-			<div>
-				<a href={ url }>{ url }</a>
-			</div>
-		);
-	},
+	save,
 	example: {
-		attributes: {
-			revueUsername: 'example',
-		},
+		attributes: { revueUsername: 'example' },
+		innerBlocks: [ innerButtonBlock ],
 	},
+	deprecated: [ deprecatedV1 ],
 };

@@ -12,6 +12,7 @@ module.exports = {
 		wp: true,
 		context: true,
 		jestPuppeteer: true,
+		reporter: true,
 	},
 	rules: {
 		'arrow-parens': [ 0, 'as-needed' ],

@@ -1,62 +1,57 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
-import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { TextControl, Disabled } from '@wordpress/components';
+import { addFilter } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
+import JetpackFieldControls from './jetpack-field-controls';
 
-function JetpackField( {
-	isSelected,
-	type,
-	required,
-	label,
-	setAttributes,
-	defaultValue,
-	placeholder,
-	id,
-} ) {
+export default function JetpackField( props ) {
+	const { id, type, required, label, setAttributes, placeholder, width } = props;
+
 	return (
-		<Fragment>
-			<div className={ classNames( 'jetpack-field', { 'is-selected': isSelected } ) }>
-				<TextControl
-					type={ type }
-					label={
-						<JetpackFieldLabel
-							required={ required }
-							label={ label }
-							setAttributes={ setAttributes }
-							isSelected={ isSelected }
-						/>
-					}
-					placeholder={ placeholder }
-					value={ placeholder }
-					onChange={ value => setAttributes( { placeholder: value } ) }
-					title={ __( 'Set the placeholder text', 'jetpack' ) }
-				/>
+		<>
+			<div className="jetpack-field">
+				<JetpackFieldLabel required={ required } label={ label } setAttributes={ setAttributes } />
+				<Disabled>
+					<TextControl
+						type={ type }
+						placeholder={ placeholder }
+						value={ placeholder }
+						onChange={ value => setAttributes( { placeholder: value } ) }
+						title={ __( 'Set the placeholder text', 'jetpack' ) }
+					/>
+				</Disabled>
 			</div>
-			<InspectorControls>
-				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Default Value', 'jetpack' ) }
-						value={ defaultValue }
-						onChange={ value => setAttributes( { defaultValue: value } ) }
-					/>
-					<TextControl
-						label={ __( 'ID', 'jetpack' ) }
-						value={ id }
-						onChange={ value => setAttributes( { id: value } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
-		</Fragment>
+
+			<JetpackFieldControls
+				id={ id }
+				required={ required }
+				width={ width }
+				setAttributes={ setAttributes }
+			/>
+		</>
 	);
 }
 
-export default JetpackField;
+const withCustomClassName = createHigherOrderComponent( BlockListBlock => {
+	return props => {
+		if ( props.name.indexOf( 'jetpack/field' ) > -1 ) {
+			const customClassName = props.attributes.width
+				? 'jetpack-field__width-' + props.attributes.width
+				: '';
+
+			return <BlockListBlock { ...props } className={ customClassName } />;
+		}
+
+		return <BlockListBlock { ...props } />;
+	};
+}, 'withCustomClassName' );
+
+addFilter( 'editor.BlockListBlock', 'jetpack/contact-form', withCustomClassName );

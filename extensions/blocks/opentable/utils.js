@@ -3,6 +3,10 @@ export const restRefRegex = /restref=([0-9]+)&/;
 export const ridRegex = /rid=([0-9]+)&/;
 
 const getAttributesFromUrl = url => {
+	if ( ! url ) {
+		return;
+	}
+
 	let src = '';
 	if ( url.indexOf( 'http' ) === 0 ) {
 		src = new URL( url );

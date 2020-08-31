@@ -112,7 +112,7 @@ class FoldableCard extends React.Component {
 			) : null,
 			expandedSummary = this.props.expandedSummary ? (
 				<span className="dops-foldable-card__summary_expanded">
-					{ this.props.expandedSummary }{' '}
+					{ this.props.expandedSummary }{ ' ' }
 				</span>
 			) : null,
 			header = this.props.header ? (

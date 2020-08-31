@@ -2,15 +2,11 @@
 /**
  * WordPress dependencies
  */
-import { _x, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 export default {
 	revueUsername: {
 		type: 'string',
-	},
-	text: {
-		type: 'string',
-		default: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
 	},
 	emailLabel: {
 		type: 'string',
@@ -43,26 +39,5 @@ export default {
 	lastNameShow: {
 		type: 'boolean',
 		default: true,
-	},
-	backgroundColor: {
-		type: 'string',
-	},
-	textColor: {
-		type: 'string',
-	},
-	customBackgroundColor: {
-		type: 'string',
-	},
-	customTextColor: {
-		type: 'string',
-	},
-	borderRadius: {
-		type: 'number',
-	},
-	gradient: {
-		type: 'string',
-	},
-	customGradient: {
-		type: 'string',
 	},
 };

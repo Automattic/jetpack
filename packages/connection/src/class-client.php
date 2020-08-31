@@ -18,8 +18,8 @@ class Client {
 	/**
 	 * Makes an authorized remote request using Jetpack_Signature
 	 *
-	 * @param Array        $args the arguments for the remote request.
-	 * @param Array|String $body the request body.
+	 * @param array        $args the arguments for the remote request.
+	 * @param array|String $body the request body.
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
@@ -181,7 +181,7 @@ class Client {
 	 * @see Utils::fix_url_for_bad_hosts()
 	 *
 	 * @param String  $url the request URL.
-	 * @param Array   $args request arguments.
+	 * @param array   $args request arguments.
 	 * @param Boolean $set_fallback whether to allow flagging this request to use a fallback certficate override.
 	 * @return array|WP_Error WP HTTP response on success
 	 */
@@ -357,10 +357,10 @@ class Client {
 	 *
 	 * @param String $path The API endpoint relative path.
 	 * @param String $version The API version.
-	 * @param Array  $args Request arguments.
+	 * @param array  $args Request arguments.
 	 * @param String $body Request body.
 	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
-	 * @return Array|WP_Error $response Data.
+	 * @return array|WP_Error $response Data.
 	 */
 	public static function wpcom_json_api_request_as_blog(
 		$path,
@@ -414,7 +414,7 @@ class Client {
 	 * make sure that body hashes are made ith the string version, which is what will be seen after a
 	 * server pulls up the data in the $_POST array.
 	 *
-	 * @param Array|Mixed $data the data that needs to be stringified.
+	 * @param array|Mixed $data the data that needs to be stringified.
 	 *
 	 * @return array|string
 	 */
@@ -435,7 +435,7 @@ class Client {
 			return (string) $data;
 		}
 
-		foreach ( $data as $key => &$value ) {
+		foreach ( $data as &$value ) {
 			$value = self::_stringify_data( $value );
 		}
 

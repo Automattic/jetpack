@@ -1,6 +1,6 @@
 <?php
 
-if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR  ) {
+if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
 }
 

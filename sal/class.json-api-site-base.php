@@ -79,7 +79,19 @@ abstract class SAL_Site {
 
 	abstract public function get_locale();
 
+	/**
+	 * The flag indicates that the site has Jetpack installed
+	 *
+	 * @return bool
+	 */
 	abstract public function is_jetpack();
+
+	/**
+	 * The flag indicates that the site is connected to WP.com via Jetpack Connection
+	 *
+	 * @return bool
+	 */
+	abstract public function is_jetpack_connection();
 
 	abstract public function get_jetpack_modules();
 
@@ -149,11 +161,15 @@ abstract class SAL_Site {
 		return false;
 	}
 
-	public function get_post_by_id( $post_id, $context ) {
-		// Remove the skyword tracking shortcode for posts returned via the API.
-		remove_shortcode( 'skyword-tracking' );
-		add_shortcode( 'skyword-tracking', '__return_empty_string' );
+	public function is_cloud_eligible() {
+		return false;
+	}
 
+	public function get_products() {
+		return array();
+	}
+
+	public function get_post_by_id( $post_id, $context ) {
 		$post = get_post( $post_id, OBJECT, $context );
 
 		if ( ! $post ) {
@@ -404,6 +420,8 @@ abstract class SAL_Site {
 	}
 
 	function get_capabilities() {
+		$is_wpcom_blog_owner = wpcom_get_blog_owner() === (int) get_current_user_id();
+
 		return array(
 			'edit_pages'          => current_user_can( 'edit_pages' ),
 			'edit_posts'          => current_user_can( 'edit_posts' ),
@@ -417,12 +435,13 @@ abstract class SAL_Site {
 			'manage_categories'   => current_user_can( 'manage_categories' ),
 			'manage_options'      => current_user_can( 'manage_options' ),
 			'moderate_comments'   => current_user_can( 'moderate_comments' ),
-			'activate_wordads'    => wpcom_get_blog_owner() === (int) get_current_user_id(),
+			'activate_wordads'    => $is_wpcom_blog_owner,
 			'promote_users'       => current_user_can( 'promote_users' ),
 			'publish_posts'       => current_user_can( 'publish_posts' ),
 			'upload_files'        => current_user_can( 'upload_files' ),
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
+			'own_site'            => $is_wpcom_blog_owner,
 			/**
 		 	 * Filter whether the Hosting section in Calypso should be available for site.
 			 *
@@ -661,5 +680,9 @@ abstract class SAL_Site {
 
 	function get_site_segment() {
 		return false;
+	}
+
+	function get_site_creation_flow() {
+		return get_option( 'site_creation_flow' );
 	}
 }

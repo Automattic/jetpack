@@ -1,7 +1,7 @@
 const config = {
 	WP_ADMIN_USER: {
-		username: 'wordpress',
-		password: 'wordpress',
+		username: 'admin',
+		password: 'password',
 	},
 	WP_BASE_URL: 'http://localhost',
 	testCardCredentials: {

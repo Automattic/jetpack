@@ -21,7 +21,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( '1' == get_option( 'blog_public' ) ) { // loose comparison okay.
-	include_once 'sitemaps/sitemaps.php';
+	include_once __DIR__ . '/sitemaps/sitemaps.php';
+
+	// Disable WordPress 5.5-era sitemaps.
+	add_filter( 'wp_sitemaps_enabled', '__return_false' );
 }
 
 add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemap_on_activate' );
@@ -33,10 +36,10 @@ add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemap_on_activate' );
  */
 function jetpack_sitemap_on_activate() {
 	wp_clear_scheduled_hook( 'jp_sitemap_cron_hook' );
-	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-constants.php';
-	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-buffer.php';
-	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-stylist.php';
-	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-librarian.php';
-	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-finder.php';
-	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-builder.php';
+	require_once __DIR__ . '/sitemaps/sitemap-constants.php';
+	require_once __DIR__ . '/sitemaps/sitemap-buffer.php';
+	require_once __DIR__ . '/sitemaps/sitemap-stylist.php';
+	require_once __DIR__ . '/sitemaps/sitemap-librarian.php';
+	require_once __DIR__ . '/sitemaps/sitemap-finder.php';
+	require_once __DIR__ . '/sitemaps/sitemap-builder.php';
 }

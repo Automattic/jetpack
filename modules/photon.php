@@ -10,12 +10,17 @@
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Appearance
  * Additional Search Queries: photon, photo cdn, image cdn, speed, compression, resize, responsive images, responsive, content distribution network, optimize, page speed, image optimize, photon jetpack
+ *
+ * @package Jetpack.
  */
 
-Jetpack::dns_prefetch( array(
-	'//i0.wp.com',
-	'//i1.wp.com',
-	'//i2.wp.com',
-) );
+\Automattic\Jetpack\Assets::add_resource_hint(
+	array(
+		'//i0.wp.com',
+		'//i1.wp.com',
+		'//i2.wp.com',
+	),
+	'dns-prefetch'
+);
 
 Jetpack_Photon::instance();

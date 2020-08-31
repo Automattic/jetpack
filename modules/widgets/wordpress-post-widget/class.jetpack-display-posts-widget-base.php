@@ -563,7 +563,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 				 *
 				 * @param string $args Extra parameters to filter posts returned from the WordPress.com REST API.
 				 */
-				apply_filters( 'jetpack_display_posts_widget_posts_params', '' )
+				apply_filters( 'jetpack_display_posts_widget_posts_params', '?fields=id,title,excerpt,URL,featured_image' )
 			)
 		);
 

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Functions;
 
 /**
  * Class to handle sync for themes.
@@ -109,7 +110,7 @@ class Themes extends Module {
 	 * @param mixed  $old_value  Old value of the network option.
 	 * @param int    $network_id ID of the network.
 	 */
-	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
+	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$all_enabled_theme_slugs = array_keys( $value );
 
 		if ( count( $old_value ) > count( $value ) ) {
@@ -257,8 +258,7 @@ class Themes extends Module {
 			return;
 		}
 
-		$real_file = $theme->get_stylesheet_directory() . '/' . $file;
-		if ( ! wp_verify_nonce( $args['nonce'], 'edit-theme_' . $real_file . $stylesheet ) ) {
+		if ( ! wp_verify_nonce( $args['nonce'], 'edit-theme_' . $stylesheet . '_' . $file ) ) {
 			return;
 		}
 
@@ -285,6 +285,7 @@ class Themes extends Module {
 			}
 		}
 
+		$real_file = $theme->get_stylesheet_directory() . '/' . $file;
 		if ( 0 !== validate_file( $real_file, $allowed_files ) ) {
 			return;
 		}
@@ -555,7 +556,7 @@ class Themes extends Module {
 	 * @return array Theme data.
 	 */
 	public function expand_theme_data() {
-		return array( $this->get_theme_support_info() );
+		return array( $this->get_theme_support_info( null, true ) );
 	}
 
 	/**
@@ -783,30 +784,24 @@ class Themes extends Module {
 	 * @access private
 	 *
 	 * @param \WP_Theme $theme Theme object. Optional, will default to the current theme.
+	 * @param boolean   $send_full_theme_data Should send additional theme data.
 	 * @return array Theme data.
 	 */
-	private function get_theme_support_info( $theme = null ) {
-		global $_wp_theme_features;
-
+	private function get_theme_support_info( $theme = null, $send_full_theme_data = false ) {
 		$theme_support = array();
 
 		// We are trying to get the current theme info.
 		if ( null === $theme ) {
 			$theme = wp_get_theme();
-
-			foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
-				$has_support = current_theme_supports( $theme_feature );
-				if ( $has_support ) {
-					$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
-				}
-			}
 		}
 
 		$theme_support['name']    = $theme->get( 'Name' );
 		$theme_support['version'] = $theme->get( 'Version' );
 		$theme_support['slug']    = $theme->get_stylesheet();
 		$theme_support['uri']     = $theme->get( 'ThemeURI' );
-
+		if ( $send_full_theme_data ) {
+			return array_merge( Functions::get_theme_support(), $theme_support );
+		}
 		return $theme_support;
 	}
 
@@ -849,7 +844,7 @@ class Themes extends Module {
 	 *
 	 * @return int total
 	 */
-	public function total( $config ) {
+	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;
 	}
 

@@ -181,6 +181,7 @@ class Sharing_Admin {
 		$title = '';
 		$klasses = array( 'service', 'advanced', 'share-' . $service->get_class() );
 		if ( $service->is_deprecated() ) {
+			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 			$title = sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $service->get_name() );
 			$klasses[] = 'share-deprecated';
 		}

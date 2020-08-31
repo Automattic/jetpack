@@ -49,6 +49,7 @@ function jetpack_social_menu_init() {
 	}
 }
 add_action( 'after_setup_theme', 'jetpack_social_menu_init', 99 );
+add_action( 'restapi_theme_init', 'jetpack_social_menu_init' );
 
 /**
  * Return the type of menu the theme is using.
@@ -59,10 +60,13 @@ add_action( 'after_setup_theme', 'jetpack_social_menu_init', 99 );
 function jetpack_social_menu_get_type() {
 	$options = get_theme_support( 'jetpack-social-menu' );
 
-	if ( empty( $options ) ) {
+	if ( ! $options ) {
 		$menu_type = null;
 	} else {
-		$menu_type = ( in_array( $options[0], array( 'genericons', 'svg' ) ) ) ? $options[0] : 'genericons';
+		$menu_type = 'genericons';
+		if ( is_array( $options ) && isset( $options[0] ) ) {
+			$menu_type = ( in_array( $options[0], array( 'genericons', 'svg' ), true ) ) ? $options[0] : 'genericons';
+		}
 	}
 
 	return $menu_type;

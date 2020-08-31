@@ -3,8 +3,8 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import { withRouter } from 'react-router';
+import { __, sprintf } from '@wordpress/i18n';
+import { withRouter } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -12,12 +12,12 @@ import { withRouter } from 'react-router';
 import SimpleNotice from 'components/notice';
 import { getActiveSitePurchases } from 'state/site';
 
-export function PlanConflictWarning( {
-	activeSitePurchases,
-	router: {
-		location: { pathname },
-	},
-} ) {
+/**
+ * PlanConflictWarning component
+ *
+ * @returns {object} component
+ */
+export function PlanConflictWarning( { activeSitePurchases, location: { pathname } } ) {
 	// Only show on plans page.
 	if ( '/plans' !== pathname ) {
 		return null;
@@ -61,26 +61,24 @@ export function PlanConflictWarning( {
 		return null;
 	}
 
-	let featureName = __( 'daily backups' );
+	let featureName = __( 'daily backups', 'jetpack' );
 	if ( 'jetpack_business' === sitePlanPurchase.product_slug ) {
-		featureName = __( 'real-time backups' );
+		featureName = __( 'real-time backups', 'jetpack' );
 	}
 
 	return (
 		<SimpleNotice
 			status="is-warning"
 			showDismiss={ false }
-			text={ __(
-				'Your %(planName)s Plan includes %(featureName)s. ' +
-					'Looks like you also purchased the %(productName)s product. ' +
-					'Consider removing %(productName)s.',
-				{
-					args: {
-						featureName,
-						planName: sitePlanPurchase.product_name,
-						productName: backupPurchase.product_name,
-					},
-				}
+			text={ sprintf(
+				/* translators: %1$s: feature, such as "daily backups". %2$s: Plan name, such as "Jetpack Premium". %3$s: Product name, such as "Jetpack Backups". */
+				__(
+					'Your %2$s Plan includes %1$s. Looks like you also purchased the %3$s product. Consider removing %3$s.',
+					'jetpack'
+				),
+				featureName,
+				sitePlanPurchase.product_name,
+				backupPurchase.product_name
 			) }
 		/>
 	);

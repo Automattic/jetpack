@@ -232,8 +232,8 @@ function isThreeValidCandidate( processed, toProcess, isWide ) {
 		( ratio < 2.5 ||
 			( ratio < 5 &&
 				/* nextAreSymettric */
-				( toProcess.length >= 3 &&
-					/* @FIXME floating point equality?? */ toProcess[ 0 ] === toProcess[ 2 ] ) ) ||
+				toProcess.length >= 3 &&
+				/* @FIXME floating point equality?? */ toProcess[ 0 ] === toProcess[ 2 ] ) ||
 			isWide )
 	);
 }
@@ -241,7 +241,7 @@ function isThreeValidCandidate( processed, toProcess, isWide ) {
 function isFourValidCandidate( processed, toProcess ) {
 	const ratio = sum( take( toProcess, 4 ) );
 	return (
-		( fourIsNotRecent( processed ) && ( ratio < 3.5 && toProcess.length > 5 ) ) ||
+		( fourIsNotRecent( processed ) && ratio < 3.5 && toProcess.length > 5 ) ||
 		( ratio < 7 && toProcess.length === 4 )
 	);
 }

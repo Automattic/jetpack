@@ -3,9 +3,12 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { connect } from 'react-redux';
-import { numberFormat, translate as __ } from 'i18n-calypso';
+import { numberFormat } from 'i18n-calypso';
+import { __, _x } from '@wordpress/i18n';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -18,9 +21,10 @@ import restApi from 'rest-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
 import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -29,7 +33,7 @@ class DashAkismet extends Component {
 
 		// Connected props
 		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
-		isDevMode: PropTypes.bool.isRequired,
+		isOfflineMode: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 	};
 
@@ -37,7 +41,7 @@ class DashAkismet extends Component {
 		siteRawUrl: '',
 		siteAdminUrl: '',
 		akismetData: 'N/A',
-		isDevMode: '',
+		isOfflineMode: '',
 	};
 
 	trackActivateClick() {
@@ -51,39 +55,55 @@ class DashAkismet extends Component {
 	onActivateClick = () => {
 		this.trackActivateClick();
 
-		restApi.activateAkismet().then( () => {
-			window.location.href = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
+		this.props.createNotice( 'is-info', __( 'Activating Akismet…', 'jetpack' ), {
+			id: 'activating-akismet',
 		} );
+
+		restApi
+			.activateAkismet()
+			.then( () => {
+				this.props.removeNotice( 'activating-akismet' );
+				window.location.href = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
+			} )
+			.catch( () => {
+				this.props.removeNotice( 'activating-akismet' );
+				this.props.createNotice( 'is-error', __( 'Could not activate Akismet.', 'jetpack' ), {
+					id: 'activate-akismet-failure',
+				} );
+			} );
 
 		return false;
 	};
 
 	getContent() {
 		const akismetData = this.props.akismetData;
-		const labelName = __( 'Anti-spam' );
+		const labelName = __( 'Anti-spam', 'jetpack' );
 		const isSiteOnFreePlan =
 			'jetpack_free' === get( this.props.sitePlan, 'product_slug', 'jetpack_free' );
 
 		const support = {
 			text: __(
-				'Jetpack Anti-spam powered by Akismet. Comments and contact form submissions are checked against our global database of spam.'
+				'Jetpack Anti-spam powered by Akismet. Comments and contact form submissions are checked against our global database of spam.',
+				'jetpack'
 			),
 			link: 'https://akismet.com/',
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
 		const getAkismetUpgradeBanner = () => {
-			const description = __( 'Already have a key? {{a}}Activate Akismet{{/a}}', {
-				components: {
+			const description = jetpackCreateInterpolateElement(
+				__( 'Already have a key? <a>Activate Akismet</a>', 'jetpack' ),
+				{
 					a: <a href="javascript:void(0)" onClick={ this.onActivateClick } />,
-				},
-			} );
+				}
+			);
 
 			return (
 				<JetpackBanner
-					callToAction={ __( 'Upgrade' ) }
+					callToAction={ __( 'Upgrade', 'jetpack' ) }
 					title={ __(
-						'Automatically clear spam from your comments and forms so you can get back to your business.'
+						'Automatically clear spam from your comments and forms so you can get back to your business.',
+						'jetpack'
 					) }
 					description={ description }
 					disableHref="false"
@@ -99,7 +119,7 @@ class DashAkismet extends Component {
 		if ( 'N/A' === akismetData ) {
 			return (
 				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
-					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
+					<p className="jp-dash-item__description">{ __( 'Loading…', 'jetpack' ) }</p>
 				</DashItem>
 			);
 		}
@@ -159,7 +179,8 @@ class DashAkismet extends Component {
 					pro={ true }
 				>
 					{ __(
-						"Your Jetpack plan provides anti-spam protection through Akismet. Click 'set up' to enable it on your site."
+						"Your Jetpack plan provides anti-spam protection through Akismet. Click 'set up' to enable it on your site.",
+						'jetpack'
 					) }
 				</DashItem>
 			);
@@ -176,19 +197,17 @@ class DashAkismet extends Component {
 			>
 				<h2 className="jp-dash-item__count">{ numberFormat( akismetData.all.spam ) }</h2>
 				<p className="jp-dash-item__description">
-					{ __( 'Spam comments blocked.', {
-						context: 'Example: "412 Spam comments blocked"',
-					} ) }
+					{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
 				</p>
 			</DashItem>,
-			! this.props.isDevMode && (
+			! this.props.isOfflineMode && (
 				<Card
 					key="moderate-comments"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ `https://wordpress.com/comments/all/${ this.props.siteRawUrl }` }
+					href={ getRedirectUrl( 'calypso-comments-all', { site: this.props.siteRawUrl } ) }
 				>
-					{ __( 'Moderate comments' ) }
+					{ __( 'Moderate comments', 'jetpack' ) }
 				</Card>
 			),
 		];
@@ -204,10 +223,18 @@ class DashAkismet extends Component {
 	}
 }
 
-export default connect( state => ( {
-	akismetData: getAkismetData( state ),
-	sitePlan: getSitePlan( state ),
-	isDevMode: isDevMode( state ),
-	upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
-	nonce: getApiNonce( state ),
-} ) )( DashAkismet );
+export default connect(
+	state => {
+		return {
+			akismetData: getAkismetData( state ),
+			sitePlan: getSitePlan( state ),
+			isOfflineMode: isOfflineMode( state ),
+			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+			nonce: getApiNonce( state ),
+		};
+	},
+	{
+		createNotice,
+		removeNotice,
+	}
+)( DashAkismet );

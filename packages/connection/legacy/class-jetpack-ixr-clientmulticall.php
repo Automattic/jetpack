@@ -23,9 +23,10 @@ class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 	 * Add a IXR call to the client.
 	 * First argument is the method name.
 	 * The rest of the arguments are the params specified to the method.
+	 *
+	 * @param string[] ...$args IXR args.
 	 */
-	public function addCall() {
-		$args          = func_get_args();
+	public function addCall( ...$args ) {
 		$method_name   = array_shift( $args );
 		$struct        = array(
 			'methodName' => $method_name,
@@ -37,9 +38,11 @@ class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 	/**
 	 * Perform the IXR multicall request.
 	 *
+	 * @param string[] ...$args IXR args.
+	 *
 	 * @return bool True if request succeeded, false otherwise.
 	 */
-	public function query() {
+	public function query( ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		usort( $this->calls, array( $this, 'sort_calls' ) );
 
 		// Prepare multicall, then call the parent::query() method.

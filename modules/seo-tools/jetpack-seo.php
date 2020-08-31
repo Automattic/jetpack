@@ -116,11 +116,14 @@ class Jetpack_SEO {
 				$description = Jetpack_SEO_Posts::get_post_description( get_post() );
 
 				if ( $description ) {
-					$description = wp_trim_words( strip_shortcodes( wp_kses( $description, array() ) ) );
+					$description         = wp_trim_words(
+						strip_shortcodes(
+							wp_strip_all_tags( $description, true )
+						)
+					);
 					$meta['description'] = $description;
 				}
 			}
-
 		} elseif ( is_author() ) {
 			$obj = get_queried_object();
 

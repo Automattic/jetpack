@@ -11,7 +11,7 @@ import { expect } from 'chai';
 import { PlanConflictWarning } from '../plan-conflict-warning';
 
 describe( 'PlanConflictWarning', () => {
-	const router = { location: { pathname: '/plans' } };
+	const location = { pathname: '/plans' };
 
 	const personalPlan = {
 		product_slug: 'jetpack_personal',
@@ -34,43 +34,43 @@ describe( 'PlanConflictWarning', () => {
 	};
 
 	it( 'should not render when not in correct path', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ { location: { pathname: '/test' } } } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ { pathname: '/test' } } /> );
 		expect( wrapper.isEmptyRender() ).to.equal( true );
 	} );
 
 	it( 'should not render when there are no purchases', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [] } /> );
 		expect( wrapper.isEmptyRender() ).to.equal( true );
 	} );
 
 	it( 'should not render when there is one purchase', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [ {} ] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [ {} ] } /> );
 		expect( wrapper.isEmptyRender() ).to.equal( true );
 	} );
 
 	it( 'should not render when there is no backup purchase', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [ personalPlan ] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [ personalPlan ] } /> );
 		expect( wrapper.isEmptyRender() ).to.equal( true );
 	} );
 
 	it( 'should not render when there is no site plan purchase', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [ dailyBackups ] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [ dailyBackups ] } /> );
 		expect( wrapper.isEmptyRender() ).to.equal( true );
 	} );
 
 	it( 'should not render with both real-time backups and a non-professional plan', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [ realTimeBackups, personalPlan ] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [ realTimeBackups, personalPlan ] } /> );
 		expect( wrapper.isEmptyRender() ).to.equal( true );
 	} );
 
 	it( 'should not render with both real-time monthly backups and a non-professional plan', () => {
 		const realTimeBackupsMontly = { product_slug: 'jetpack_backups_realtime_monthly', ...realTimeBackups };
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [ realTimeBackupsMontly, personalPlan ] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [ realTimeBackupsMontly, personalPlan ] } /> );
 		expect( wrapper.isEmptyRender() ).to.equal( true );
 	} );
 
 	it( 'should show warning with both daily backups and a plan', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [ dailyBackups, personalPlan ] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [ dailyBackups, personalPlan ] } /> );
 		expect( wrapper.prop( 'text' ) ).to.equal(
 			'Your Jetpack Personal Plan includes daily backups. ' +
 			'Looks like you also purchased the Jetpack Backup (Daily) product. ' +
@@ -79,7 +79,7 @@ describe( 'PlanConflictWarning', () => {
 	} );
 
 	it( 'should show warning with both real-time backups and a Professional plan', () => {
-		const wrapper = shallow( <PlanConflictWarning router={ router } activeSitePurchases={ [ realTimeBackups, professionalPlan ] } /> );
+		const wrapper = shallow( <PlanConflictWarning location={ location } activeSitePurchases={ [ realTimeBackups, professionalPlan ] } /> );
 		expect( wrapper.prop( 'text' ) ).to.equal(
 			'Your Jetpack Professional Plan includes real-time backups. ' +
 			'Looks like you also purchased the Jetpack Backup (Real-time) product. ' +

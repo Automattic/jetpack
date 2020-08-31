@@ -625,4 +625,24 @@ class Functions {
 		}
 		return false;
 	}
+
+	/**
+	 * Return the theme's supported features.
+	 * Used for syncing the supported feature that we care about.
+	 *
+	 * @return array List of features that the theme supports.
+	 */
+	public static function get_theme_support() {
+		global $_wp_theme_features;
+
+		$theme_support = array();
+		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
+			$has_support = current_theme_supports( $theme_feature );
+			if ( $has_support ) {
+				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
+			}
+		}
+
+		return $theme_support;
+	}
 }

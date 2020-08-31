@@ -7,6 +7,8 @@
  * Instead, we don't register the widget if the Stats Module isn't active.
  */
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Register the widget for use in Appearance -> Widgets
  */
@@ -299,7 +301,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		if ( ! $posts ) {
-			$link = 'https://jetpack.com/support/getting-more-views-and-traffic/';
+			$link = esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) );
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$link = 'https://en.support.wordpress.com/getting-more-site-traffic/';
 			}
@@ -525,12 +527,15 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	/**
 	 * Get the top posts based on views
 	 *
+	 * @since 8.4.0 Added $types param
+	 *
 	 * @param int   $count The maximum number of posts to be returned.
 	 * @param array $args The widget arguments.
 	 * @param array $types The post types that should be returned.
-	 * @return array array of posts.
+	 *
+	 * @return array array of posts. Defaults to 'post' and 'page'.
 	 */
-	public function get_by_views( $count, $args, $types ) {
+	public function get_by_views( $count, $args, $types = array( 'post', 'page' ) ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			global $wpdb;
 

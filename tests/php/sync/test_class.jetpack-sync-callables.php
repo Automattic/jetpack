@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
@@ -99,6 +100,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'paused_themes'                    => Functions::get_paused_themes(),
 			'paused_plugins'                   => Functions::get_paused_plugins(),
 			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
+			'theme_support'                    => Functions::get_theme_support(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -164,6 +166,47 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+	}
+
+	/**
+	 * Tests that calling unlock_sync_callable_next_tick works as expected.
+	 *
+	 * Return null
+	 */
+	public function test_white_listed_callable_sync_on_next_tick() {
+		// Setup...
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
+		$this->sender->do_sync();
+		$initial_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+
+		// Action happends that should has the correct data only on the next page load.
+		$this->callable_module->unlock_sync_callable_next_tick(); // Calling this should have no effect on this sync.
+		$this->sender->do_sync();
+		$should_be_initial_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEquals( $initial_value, $should_be_initial_value );
+
+		// Next tick...
+		$this->sender->do_sync(); // This sync sends the updated data...
+		$new_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertNotEquals( $initial_value, $new_value );
+	}
+
+	/**
+	 * Tests that updating the theme should result in the no callabled transient being set.
+	 *
+	 * Return null
+	 */
+	public function test_updating_stylesheet_sends_the_theme_data() {
+
+		// Make sure we don't already use this theme.
+		$this->assertNotEquals( 'twentythirteen', get_option( 'stylesheet' ) );
+
+		switch_theme( 'twentythirteen' );
+		$this->sender->do_sync();
+
+		// Since we can load up the data to see if new data will get send
+		// this tests if we remove the transiant so that the data can get synced on the next tick.
+		$this->assertFalse( get_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME ) );
 	}
 
 	function test_sync_always_sync_changes_to_modules_right_away() {
@@ -1001,8 +1044,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_GET['body-hash'] ) ;
 		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
 		unset( $_SERVER['REQUEST_METHOD'] );
-		$jetpack = Jetpack::init();
-		$jetpack->reset_saved_auth_state();
+
+		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		Jetpack::connection()->reset_raw_post_data();
 		wp_set_current_user( $user_id );
 		self::$admin_id = null;

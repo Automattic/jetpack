@@ -17,8 +17,8 @@ import { includes } from 'lodash';
 /**
  * Internal dependencies
  */
-import PublicizeServiceIcon from './service-icon';
 import getSiteFragment from '../../shared/get-site-fragment';
+import { SocialServiceIcon } from '../../shared/icons';
 
 class PublicizeConnection extends Component {
 	/**
@@ -84,7 +84,10 @@ class PublicizeConnection extends Component {
 				{ this.maybeDisplayLinkedInNotice() }
 				<div className="publicize-jetpack-connection-container">
 					<label htmlFor={ fieldId } className="jetpack-publicize-connection-label">
-						<PublicizeServiceIcon serviceName={ serviceName } />
+						<SocialServiceIcon
+							serviceName={ serviceName }
+							className="jetpack-publicize-gutenberg-social-icon"
+						/>
 						<span className="jetpack-publicize-connection-label-copy">{ label }</span>
 					</label>
 					{ toggle }

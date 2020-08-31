@@ -36,10 +36,18 @@ export default {
 		type: 'string',
 		validator: colorValidator,
 	},
+	hexPrimaryColor: {
+		type: 'string',
+		validator: colorValidator,
+	},
 	secondaryColor: {
 		type: 'string',
 	},
 	customSecondaryColor: {
+		type: 'string',
+		validator: colorValidator,
+	},
+	hexSecondaryColor: {
 		type: 'string',
 		validator: colorValidator,
 	},
@@ -49,5 +57,12 @@ export default {
 	customBackgroundColor: {
 		type: 'string',
 		validator: colorValidator,
+	},
+	hexBackgroundColor: {
+		type: 'string',
+		validator: colorValidator,
+	},
+	exampleFeedData: {
+		type: 'object',
 	},
 };

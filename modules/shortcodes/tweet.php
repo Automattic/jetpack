@@ -120,8 +120,8 @@ class Jetpack_Tweet {
 				}
 
 				$time           = strtotime( $data->created_at );
-				$human_readable = date( 'F d, Y', $time );
-				$data_datetime  = date( 'Y-m-d\TH:i:sP', $time );
+				$human_readable = gmdate( 'F d, Y', $time );
+				$data_datetime  = gmdate( 'Y-m-d\TH:i:sP', $time );
 
 				/*
 				 * Additional params.

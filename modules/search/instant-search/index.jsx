@@ -23,11 +23,12 @@ const injectSearchApp = () => {
 				...window[ SERVER_OBJECT_NAME ].widgets,
 				...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
 			] ) }
+			hasOverlayWidgets={ !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets }
 			initialHref={ window.location.href }
 			initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 			// NOTE: initialShowResults is only used in the customizer. See lib/customize.js.
 			initialShowResults={ window[ SERVER_OBJECT_NAME ].showResults }
-			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort, getSearchQuery() ) }
+			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].defaultSort ) }
 			isSearchPage={ getSearchQuery() !== '' }
 			options={ window[ SERVER_OBJECT_NAME ] }
 			themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
@@ -39,7 +40,7 @@ const injectSearchApp = () => {
 if ( window[ SERVER_OBJECT_NAME ] ) {
 	bindCustomizerChanges();
 }
-document.addEventListener( 'DOMContentLoaded', function() {
+document.addEventListener( 'DOMContentLoaded', function () {
 	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		initializeTracks();
 		resetTrackingCookies();

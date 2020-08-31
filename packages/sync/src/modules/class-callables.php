@@ -53,7 +53,20 @@ class Callables extends Module {
 		'jetpack_sync_error_idc',
 		'paused_plugins',
 		'paused_themes',
+
 	);
+
+	const ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS_NEXT_TICK = array(
+		'stylesheet',
+	);
+	/**
+	 * Setting this value to true will make it so that the callables will not be unlocked
+	 * but the lock will be removed after content is send so that callables will be
+	 * sent in the next request.
+	 *
+	 * @var bool
+	 */
+	private $force_send_callables_on_next_tick = false;
 
 	/**
 	 * For some options, the callable key differs from the option name/key
@@ -91,6 +104,7 @@ class Callables extends Module {
 		} else {
 			$this->callable_whitelist = Defaults::get_callable_whitelist();
 		}
+		$this->force_send_callables_on_next_tick = false; // Resets here as well mostly for tests.
 	}
 
 	/**
@@ -107,6 +121,11 @@ class Callables extends Module {
 		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable' ) );
+		}
+
+		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS_NEXT_TICK as $option ) {
+			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable_next_tick' ) );
+			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable_next_tick' ) );
 		}
 
 		// Provide a hook so that hosts can send changes to certain callables right away.
@@ -289,6 +308,17 @@ class Callables extends Module {
 	}
 
 	/**
+	 * Unlock callables on the next tick.
+	 * Sometime the true callable values are only present on the next tick.
+	 * When switching themes for example.
+	 *
+	 * @access public
+	 */
+	public function unlock_sync_callable_next_tick() {
+		$this->force_send_callables_on_next_tick = true;
+	}
+
+	/**
 	 * Unlock callables and plugin action links.
 	 *
 	 * @access public
@@ -411,7 +441,6 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function maybe_sync_callables() {
-
 		$callables = $this->get_all_callables();
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
 			if ( ! is_admin() ) {
@@ -423,6 +452,9 @@ class Callables extends Module {
 				$callables = $this->get_always_sent_callables();
 			}
 			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+				if ( $this->force_send_callables_on_next_tick ) {
+					$this->unlock_sync_callable();
+				}
 				return;
 			}
 		}
@@ -430,8 +462,10 @@ class Callables extends Module {
 		if ( empty( $callables ) ) {
 			return;
 		}
-
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
+		// No need to set the transiant we are trying to remove it anyways.
+		if ( ! $this->force_send_callables_on_next_tick ) {
+			set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
+		}
 
 		$callable_checksums = (array) \Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
 		$has_changed        = false;
@@ -459,6 +493,9 @@ class Callables extends Module {
 			\Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
 		}
 
+		if ( $this->force_send_callables_on_next_tick ) {
+			$this->unlock_sync_callable();
+		}
 	}
 
 	/**
@@ -515,7 +552,7 @@ class Callables extends Module {
 	 *
 	 * @return int total
 	 */
-	public function total( $config ) {
+	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return count( $this->get_callable_whitelist() );
 	}
 

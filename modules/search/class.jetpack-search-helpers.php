@@ -150,11 +150,11 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param array|null $whitelisted_widget_ids array of whitelisted widget IDs.
+	 * @param array|null $allowed_widget_ids array of allowed widget IDs.
 	 *
 	 * @return array Active filters.
 	 */
-	public static function get_filters_from_widgets( $whitelisted_widget_ids = null ) {
+	public static function get_filters_from_widgets( $allowed_widget_ids = null ) {
 		$filters = array();
 
 		$widget_options = self::get_widgets_from_option();
@@ -167,7 +167,7 @@ class Jetpack_Search_Helpers {
 			if ( ! self::is_active_widget( $widget_id ) || empty( $settings['filters'] ) ) {
 				continue;
 			}
-			if ( isset( $whitelisted_widget_ids ) && ! in_array( $widget_id, $whitelisted_widget_ids, true ) ) {
+			if ( isset( $allowed_widget_ids ) && ! in_array( $widget_id, $allowed_widget_ids, true ) ) {
 				continue;
 			}
 
@@ -699,5 +699,67 @@ class Jetpack_Search_Helpers {
 			}
 		}
 		return false !== GP_Locales::by_field( 'wp_locale', $locale );
+	}
+
+	/**
+	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
+	 *
+	 * @since 8.6.0
+	 * @param string $file Path of the file we are looking for.
+	 * @return string $script_version Version number.
+	 */
+	public static function get_asset_version( $file ) {
+		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
+			? filemtime( JETPACK__PLUGIN_DIR . $file )
+			: JETPACK__VERSION;
+	}
+
+
+	/**
+	 * Generates a customizer settings ID for a given post type.
+	 *
+	 * @since 8.8.0
+	 * @param object $post_type Post type object returned from get_post_types.
+	 * @return string $customizer_id Customizer setting ID.
+	 */
+	public static function generate_post_type_customizer_id( $post_type ) {
+		return Jetpack_Search_Options::OPTION_PREFIX . 'disable_post_type_' . $post_type->name;
+	}
+
+	/**
+	 * Generates an array of post types associated with their customizer IDs.
+	 *
+	 * @since 8.8.0
+	 * @return array $ids Post type => post type customizer ID object.
+	 */
+	public static function generate_post_type_customizer_ids() {
+		return array_map(
+			array( 'self', 'generate_post_type_customizer_id' ),
+			get_post_types( array( 'exclude_from_search' => false ), 'objects' )
+		);
+	}
+
+	/**
+	 * Sanitizes a checkbox value for writing to the database.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param any $value from the customizer form.
+	 * @return string either '0' or '1'.
+	 */
+	public static function sanitize_checkbox_value( $value ) {
+		return true === $value ? '1' : '0';
+	}
+
+	/**
+	 * Sanitizes a checkbox value for rendering the Customizer.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param any $value from the database.
+	 * @return boolean
+	 */
+	public static function sanitize_checkbox_value_for_js( $value ) {
+		return '1' === $value;
 	}
 }

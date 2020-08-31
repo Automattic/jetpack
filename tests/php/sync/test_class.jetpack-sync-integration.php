@@ -103,7 +103,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$this->listener->enqueue_action( 'test_action', array( 'test_arg' ), $this->listener->get_sync_queue() );
 
-		$this->assertTrue( !! has_filter( 'jetpack_sync_sender_should_load', '__return_true' ) );
+		$this->assertTrue( has_filter( 'jetpack_sync_sender_should_load' ) );
 		$this->assertTrue( Actions::$sender !== null );
 	}
 

@@ -104,6 +104,18 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		reconnect: action =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams, {
+				body: JSON.stringify( { action: action } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchConnectedPlugins: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchModules: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
 				.then( checkStatus )
@@ -157,8 +169,24 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		installPlugin: ( slug, source ) => {
+			const props = { slug, status: 'active' };
+
+			if ( source ) {
+				props.source = source;
+			}
+
+			return postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
+				body: JSON.stringify( props ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse );
+		},
+
 		activateAkismet: () =>
-			postRequest( `${ apiRoot }jetpack/v4/plugins/akismet/activate`, postParams )
+			postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
+				body: JSON.stringify( { slug: 'akismet', status: 'active' } ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -236,6 +264,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSetupQuestionnaire: () =>
+			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchProducts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )
 				.then( checkStatus )
@@ -243,6 +276,12 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchRewindStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
+
+		fetchScanStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/scan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
@@ -283,6 +322,13 @@ function JetpackRestApiClient( root, nonce ) {
 		submitSurvey: surveyResponse =>
 			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
 				body: JSON.stringify( surveyResponse ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		saveSetupQuestionnaire: props =>
+			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
+				body: JSON.stringify( props ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
@@ -348,11 +394,15 @@ function checkStatus( response ) {
 		} );
 	}
 
-	return response.json().then( json => {
-		const error = new Error( `${ json.message } (Status ${ response.status })` );
-		error.response = json;
-		throw error;
-	} );
+	return response
+		.json()
+		.catch( e => catchJsonParseError( e ) )
+		.then( json => {
+			const error = new Error( `${ json.message } (Status ${ response.status })` );
+			error.response = json;
+			error.name = 'ApiError';
+			throw error;
+		} );
 }
 
 function parseJsonResponse( response ) {

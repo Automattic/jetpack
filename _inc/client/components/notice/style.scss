@@ -77,13 +77,20 @@
 	}
 }
 
-.dops-notice__content {
+.dops-notice__content.dops-notice__content {
 	padding: 13px;
 	font-size: 12px;
 	flex-grow: 1;
 
 	@include breakpoint( ">480px" ) {
 		font-size: 14px;
+	}
+	a {
+		text-decoration: underline;
+		color: $white;
+	}
+	a:hover {
+		text-decoration: none;
 	}
 }
 

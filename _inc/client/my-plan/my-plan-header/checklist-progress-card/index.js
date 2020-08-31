@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-import { translate as __ } from 'i18n-calypso';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 import ProgressBar from './progress-bar';
 import QueryChecklistProgress from 'components/data/query-checklist-progress';
 import { getSiteRawUrl } from 'state/initial-state';
@@ -37,9 +38,11 @@ class ChecklistProgressCard extends Component {
 						<div className="checklist__header-main">
 							<div className="checklist__header-progress">
 								<span className="checklist__header-progress-text">
-									{ __( 'Your Jetpack setup progress', {
-										comment: 'Onboarding task list progress',
-									} ) }
+									{ _x(
+										'Your Jetpack setup progress',
+										'Onboarding task list progress',
+										'jetpack'
+									) }
 								</span>
 								<span className="checklist__header-progress-number">{ `${ completed }/${ total }` }</span>
 							</div>
@@ -48,13 +51,15 @@ class ChecklistProgressCard extends Component {
 						<div className="checklist__header-secondary">
 							<Button
 								compact
-								href={ `https://wordpress.com/plans/my-plan/${ siteSlug }` }
+								href={ getRedirectUrl( 'calypso-plans-my-plan', { site: siteSlug } ) }
 								onClick={ this.trackCtaClick }
 								primary
 							>
-								{ __( 'Complete Jetpack Setup', {
-									comment: 'Text on link to list of onboarding tasks',
-								} ) }
+								{ _x(
+									'Complete Jetpack Setup',
+									'Text on link to list of onboarding tasks',
+									'jetpack'
+								) }
 							</Button>
 						</div>
 					</Card>

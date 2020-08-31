@@ -13,7 +13,7 @@ that you can add a button to your admin area:
 use Automattic\Jetpack\Connection\Manager;
 
 // Getting the existing blog token created at registration step.
-$manager = new Manager();
+$manager = new Manager( 'plugin-slug' );
 $blog_token = $manager->get_access_token();
 $user_token = $manager->get_access_token( get_current_user_id() );
 $auth_url   = $manager->get_authorization_url();
@@ -41,7 +41,7 @@ add_action( 'admin_post_connect_user', 'your_plugin_connect_user' ) );
 
 function your_plugin_register_site() {
 	check_admin_referer( 'connect-user' );
-	( new Manager() )->connect_user();
+	( new Manager( 'plugin-slug' ) )->connect_user();
 }
 ```
 

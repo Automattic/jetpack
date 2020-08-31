@@ -1,6 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Extensions\Slideshow;
 
 /**
  * Slideshow shortcode.
@@ -163,13 +164,13 @@ class Jetpack_Slideshow_Shortcode {
 			);
 		}
 
-		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
-
-		$js_attr = array(
+		$color     = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
+		$autostart = $attr['autostart'] ? $attr['autostart'] : 'true';
+		$js_attr   = array(
 			'gallery'   => $gallery,
 			'selector'  => $gallery_instance,
 			'trans'     => $attr['trans'] ? $attr['trans'] : 'fade',
-			'autostart' => $attr['autostart'] ? $attr['autostart'] : 'true',
+			'autostart' => $autostart,
 			'color'     => $color,
 		);
 
@@ -180,6 +181,21 @@ class Jetpack_Slideshow_Shortcode {
 				esc_url( get_permalink( $post_id ) . '#' . $gallery_instance . '-slideshow' ),
 				esc_html__( 'Click to view slideshow.', 'jetpack' )
 			);
+		}
+
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			// Load the styles and use the rendering method from the Slideshow block.
+			Jetpack_Gutenberg::load_styles_as_required( 'slideshow' );
+
+			$amp_args = array(
+				'ids' => wp_list_pluck( $gallery, 'id' ),
+			);
+
+			if ( 'true' == $autostart ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- attribute can be stored as boolean or string.
+				$amp_args['autoplay'] = true;
+			}
+
+			return Slideshow\render_amp( $amp_args );
 		}
 
 		return $this->slideshow_js( $js_attr );

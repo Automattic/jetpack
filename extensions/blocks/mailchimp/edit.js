@@ -3,7 +3,6 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
-import SubmitButton from '../../shared/submit-button';
 import { __ } from '@wordpress/i18n';
 import {
 	Button,
@@ -14,13 +13,13 @@ import {
 	TextControl,
 	withNotices,
 } from '@wordpress/components';
-import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { icon } from '.';
+import { icon, innerButtonBlock } from '.';
 import MailchimpGroups from './mailchimp-groups';
 
 const API_STATE_LOADING = 0;
@@ -250,7 +249,10 @@ class MailchimpSubscribeEdit extends Component {
 					title={ __( 'You can edit the email placeholder in the sidebar.', 'jetpack' ) }
 					type="email"
 				/>
-				<SubmitButton { ...this.props } />
+				<InnerBlocks
+					template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }
+					templateLock="all"
+				/>
 				<RichText
 					tagName="p"
 					placeholder={ __( 'Write consent text', 'jetpack' ) }

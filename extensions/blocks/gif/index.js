@@ -13,7 +13,6 @@ import { getIconColor } from '../../shared/block-icons';
 // Ordering is important! Editor overrides style!
 import './style.scss';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'gif';
 export const title = __( 'GIF', 'jetpack' );
@@ -31,7 +30,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 	keywords: [
 		_x( 'animated', 'block search term', 'jetpack' ),
 		_x( 'giphy', 'block search term', 'jetpack' ),

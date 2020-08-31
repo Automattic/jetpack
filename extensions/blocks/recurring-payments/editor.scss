@@ -17,7 +17,7 @@
 			max-width: 500px;
 			p {
 				font-size: 13px;
-				margin: 0 0 20px;
+				margin: 0 0 10px;
 			}
 		}
 	}
@@ -78,10 +78,10 @@
 		transform: translateY( 14px );
 
 		// Use opacity to work in various editor styles.
-		background: $dark-opacity-light-200;
+		background: $dark-gray-placeholder;
 
 		.is-dark-theme & {
-			background: $light-opacity-light-200;
+			background: $light-gray-placeholder;
 		}
 	}
 

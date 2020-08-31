@@ -1,3 +1,3 @@
-export default function( label ) {
+export default function ( label ) {
 	return label + ' is required';
 }

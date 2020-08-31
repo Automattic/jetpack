@@ -60,11 +60,11 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			if ( ! isset( $this->badges[ $instance['badge'] ] ) ) {
 				$instance['badge'] = $this->defaults['badge'];
 			}
-			$badge_url        = esc_url( 'https://internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' );
+			$badge_url        = esc_url( 'https://www.internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' );
 			$photon_badge_url = jetpack_photon_url( $badge_url );
 			$alt_text         = esc_html__( 'Member of The Internet Defense League', 'jetpack' );
 			echo $args['before_widget'];
-			echo '<p><a href="https://internetdefenseleague.org/"><img src="' . $photon_badge_url . '" alt="' . $alt_text . '" style="max-width: 100%; height: auto;" /></a></p>';
+			echo '<p><a href="https://www.internetdefenseleague.org/"><img src="' . $photon_badge_url . '" alt="' . $alt_text . '" style="max-width: 100%; height: auto;" /></a></p>';
 			echo $args['after_widget'];
 		}
 
@@ -86,6 +86,12 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		if ( ! isset( $this->variants[ $this->variant ] ) ) {
 			$this->variant = $this->defaults['variant'];
 		}
+
+		// On AMP endpoints, prevent a validation error from the inline script.
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		?>
 		<script type="text/javascript">
 			window._idl = {};
@@ -93,9 +99,8 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			_idl.variant = "<?php echo esc_js( $this->variant ); ?>";
 			(function() {
 				var idl = document.createElement('script');
-				idl.type = 'text/javascript';
 				idl.async = true;
-				idl.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'members.internetdefenseleague.org/include/?url=' + (_idl.url || '') + '&campaign=' + (_idl.campaign || '') + '&variant=' + (_idl.variant || 'banner');
+				idl.src = 'https://members.internetdefenseleague.org/include/?url=' + (_idl.url || '') + '&campaign=' + (_idl.campaign || '') + '&variant=' + (_idl.variant || 'banner');
 				document.getElementsByTagName('body')[0].appendChild(idl);
 			})();
 		</script>

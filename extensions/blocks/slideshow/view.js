@@ -17,9 +17,13 @@ import {
 } from './swiper-callbacks';
 
 if ( typeof window !== 'undefined' ) {
-	domReady( function() {
+	domReady( function () {
 		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
 		forEach( slideshowBlocks, slideshowBlock => {
+			if ( slideshowBlock.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+				return;
+			}
+
 			const { autoplay, delay, effect } = slideshowBlock.dataset;
 			const prefersReducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 			const shouldAutoplay = autoplay && ! prefersReducedMotion;
@@ -67,6 +71,8 @@ if ( typeof window !== 'undefined' ) {
 						.querySelector( '.wp-block-jetpack-slideshow_container' )
 						.classList.add( 'wp-swiper-initialized' );
 				} );
+
+			slideshowBlock.setAttribute( 'data-jetpack-block-initialized', 'true' );
 		} );
 	} );
 }

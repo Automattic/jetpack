@@ -9,6 +9,7 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * Xdebug setup.
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
+* phpMyAdmin to aid in viewing the database.
 * Handy NPM/Yarn shorthand commands like `yarn docker:up` and `yarn docker:phpunit` to simplify the usage.
 
 ## To get started
@@ -19,7 +20,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 * [Docker](https://hub.docker.com/search/?type=edition&offering=community)
 * [NodeJS](https://nodejs.org)
-* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
+* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than what is noted in the [development environment documentation](../docs/development-environment.md#minimum-required-versions): `yarn --version`
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites; you will need to open up Docker to install its dependencies.
@@ -54,7 +55,7 @@ You should follow [Jetpack’s development documentation](../docs/development-en
 
 WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic in `./docker/wordpress/wp-config.php` so you shouldn’t need to change these even if you access the site via different domains.
 
-## Environment Variables, `.env` Files, and Ports
+## Custom mounts, environment Variables, `.env` Files, and Ports
 
 You can control some of the behavior of Jetpack's Docker configuration with environment variables. Note, though, that there are two types of environments:
 1. The host environment in which the `yarn docker:*` (`docker-compose`) commands run when creating/managing the containers.
@@ -73,6 +74,12 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 
 Configurable settings are documented in the [`./docker/default.env` file](https://github.com/Automattic/jetpack/blob/master/docker/default.env).
 Customizations should go into a `./docker/.env` file you create, though, not in the `./docker/default.env` file.
+
+### Mounting extra directories into the container
+
+You can use the file `docker/compose-extras.yml` to add mounts or alter the configuration provided by `docker/docker-compose.yml`.
+
+Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
 
 ## Working with containers
 
@@ -106,7 +113,7 @@ yarn docker:up
 
 Start three containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`. Wrapper for `docker-composer up`.
 
-This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`. It won’t build the images again on its own if you changed any of the other files like `Dockerfile`, `run.sh` (the entry-point file) or the provisioned files for configuring Apache and PHP. See "rebuilding images".
+This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`.
 
 For running the containers in the background, use:
 
@@ -128,14 +135,6 @@ yarn docker:down
 
 Will stop all of the containers created by this docker-compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
 
-### Rebuild images
-
-```sh
-yarn docker:build-image
-```
-
-You need to rebuild the WordPress image with this command if you modified `Dockerfile`, `docker-composer.yml` or the provisioned files we use for configuring Apache and PHP.
-
 ### Running unit tests
 
 ```sh
@@ -151,6 +150,26 @@ yarn docker:phpunit --filter=Protect
 This command runs the tests as a multi site install
 ```sh
 yarn docker:phpunit:multisite --filter=Protect
+```
+
+For all package unit tests
+```sh
+yarn docker:phpunit:package
+```
+
+For a specific package's tests
+```sh
+yarn docker:phpunit:package autoloader
+```
+
+If you need to clear out a particular package's composer.lock
+```sh
+yarn docker:phpunit:package autoloader -c
+```
+
+To run all package unit tests and clear all composer.lock files within
+```sh
+yarn docker:phpunit:package -c
 ```
 
 ### Starting over
@@ -205,6 +224,8 @@ Connecting to your MySQL database from outside the container, use:
 - Database: `wordpress`
 
 You can also see your database files via local file system at `./docker/data/mysql`
+
+You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
 ## SFTP access
 
@@ -335,21 +356,20 @@ Jetpack Docker environment can be wonderful for developing your own plugins and 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
 1. First ensure your containers are stopped (`yarn docker:stop`).
-2. Create a docker-compose file. You can place it anywhere in your computer:
-	```yml
-	version: '3.3'
-	services:
-	  wordpress:
-	    volumes:
-	      - ~/my-plugin:/var/www/html/wp-content/plugins/my-plugin
-	```
-	What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `plugins/my-plugin` with the path to your own plugin or theme.
-3. Start containers and include your custom volumes by running:
-	```bash
-	yarn docker:compose -f ~/docker-compose.my-volumes.yml up
-	```
+2. Edit `docker/compose-extras.yml`. This file will be generated when running `yarn docker:up`, containing commented out content from a sample file `docker/compose-extras.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
+   ```yml
+   version: '3.3'
+   services:
+     wordpress:
+       volumes:
+        - /Users/myself/checkouts/vaultpress:/var/www/html/wp-content/plugins/vaultpress
+   ```
 
-You can pass multiple configuration files by adding more `-f/--file` arguments. Docker Compose [combines them into a single configuration](https://docs.docker.com/compose/reference/overview/#use--f-to-specify-name-and-path-of-one-or-more-compose-files).
+   What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `/Users/myself/checkouts/vaultpress` with the path to your own plugin or theme.
+3. Start containers and include your custom volumes by running:
+   ```bash
+   yarn docker:up
+   ```
 
 ## Debugging
 
@@ -370,6 +390,17 @@ yarn docker:tail
 Emails don’t leave your WordPress and are caught by [MailDev](http://danfarrelly.nyc/MailDev/) SMTP server container instead.
 
 To debug emails via web-interface, open [http://localhost:1080](http://localhost:1080)
+
+
+### Debugging different WordPress versions
+
+You can use the [WP CLI](https://make.wordpress.org/cli/) to update the version of WordPress running inside the Docker container. Example command:
+
+```
+yarn docker:wp core update --version=5.3.4 --force
+```
+
+This is useful if you want to check your code is compatible with the minimum version of WP Jetpack supports, which can be found in the [readme.txt](../readme.txt). We always support the latest patched version of the branch we specify as "Requires at least" in the readme file. You can match it with the exact version on the [WordPress Releases page](https://wordpress.org/download/releases/).
 
 ### Debugging PHP with Xdebug
 

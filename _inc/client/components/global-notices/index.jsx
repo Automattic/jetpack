@@ -52,7 +52,7 @@ class NoticesList extends React.Component {
 
 	render() {
 		const noticesRaw = this.props.notices[ this.props.id ] || [];
-		let noticesList = noticesRaw.map( function( notice, index ) {
+		let noticesList = noticesRaw.map( function ( notice, index ) {
 			return (
 				<SimpleNotice
 					key={ 'notice-old-' + index }
@@ -76,7 +76,7 @@ class NoticesList extends React.Component {
 		//and from the old component. When all notices are moved to redux store, this component
 		//needs to be updated.
 		noticesList = noticesList.concat(
-			this.props.storeNotices.map( function( notice, index ) {
+			this.props.storeNotices.map( function ( notice, index ) {
 				return (
 					<SimpleNotice
 						key={ 'notice-' + index }

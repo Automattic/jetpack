@@ -3,6 +3,9 @@
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
  * Ported from an internal Automattic plugin.
  */
+
+use Automattic\Jetpack\Redirect;
+
 class Jetpack_Calypsoify {
 
 	/**
@@ -47,6 +50,7 @@ class Jetpack_Calypsoify {
 	}
 
 	public function setup_admin() {
+		global $wp_version;
 		// Masterbar is currently required for this to work properly. Mock the instance of it
 		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
 			$this->mock_masterbar_activation();
@@ -64,9 +68,12 @@ class Jetpack_Calypsoify {
 
 		add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
 
-		add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
-		add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
-		add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+		// The following three add the autoupdates UI, which we aren't adding for WP 5.5.
+		if ( version_compare( '5.5-alpha', $wp_version, '>=' ) ) {
+			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
+			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
+			add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+		}
 
 		add_action( 'current_screen', array( $this, 'attach_views_filter' ) );
 
@@ -93,7 +100,7 @@ class Jetpack_Calypsoify {
 			$repo_plugins = self::get_dotorg_repo_plugins();
 		}
 
-		$autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$autoupdating_plugins = (array) get_site_option( 'auto_update_plugins', array() );
 		// $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
 		if ( 'autoupdate' === $column_name ) {
 			if ( ! in_array( $slug, $repo_plugins ) ) {
@@ -128,6 +135,11 @@ class Jetpack_Calypsoify {
 		return array_merge( array_keys( $plugins->response ), array_keys( $plugins->no_update ) );
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 *
+	 * @param array $bulk_actions Bulk actions array.
+	 */
 	public function bulk_actions_plugins( $bulk_actions ) {
 		$bulk_actions['jetpack_enable_plugin_autoupdates'] = __( 'Enable Automatic Updates', 'jetpack' );
 		$bulk_actions['jetpack_disable_plugin_autoupdates'] = __( 'Disable Automatic Updates', 'jetpack' );
@@ -137,7 +149,7 @@ class Jetpack_Calypsoify {
 	public function handle_bulk_actions_plugins( $redirect_to, $action, $slugs ) {
 		$redirect_to = remove_query_arg( array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ), $redirect_to );
 		if ( in_array( $action, array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ) ) ) {
-			$list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+			$list        = (array) get_site_option( 'auto_update_plugins', array() );
 			$initial_qty = sizeof( $list );
 
 			if ( 'jetpack_enable_plugin_autoupdates' === $action ) {
@@ -146,12 +158,15 @@ class Jetpack_Calypsoify {
 				$list = array_diff( $list, $slugs );
 			}
 
-			Jetpack_Options::update_option( 'autoupdate_plugins', $list );
+			update_site_option( 'auto_update_plugins', $list );
 			$redirect_to = add_query_arg( $action, absint( sizeof( $list ) - $initial_qty ), $redirect_to );
 		}
 		return $redirect_to;
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 */
 	public function plugins_admin_notices() {
 		if ( ! empty( $_GET['jetpack_enable_plugin_autoupdates'] ) ) {
 			$qty = (int) $_GET['jetpack_enable_plugin_autoupdates'];
@@ -162,6 +177,9 @@ class Jetpack_Calypsoify {
 		}
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 */
 	public function jetpack_toggle_autoupdate() {
 		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
 			wp_send_json_error();
@@ -282,10 +300,16 @@ class Jetpack_Calypsoify {
 		);
 	}
 
-	public function insert_sidebar_html() { 
-		$heading = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
+	/**
+	 * Inserts Sidebar HTML
+	 *
+	 * @return void
+	 */
+	public function insert_sidebar_html() {
+		$heading       = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
+		$home_url = Redirect::get_url( 'calypso-home' );
 		?>
-		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() ) ); ?>" id="calypso-sidebar-header">
+		<a href="<?php echo esc_url( $home_url ); ?>" id="calypso-sidebar-header">
 			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
 
 			<ul>
@@ -301,15 +325,15 @@ class Jetpack_Calypsoify {
 
 		// Add proper links to masterbar top sections.
 		$my_sites_node       = (object) $wp_admin_bar->get_node( 'blog' );
-		$my_sites_node->href = 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() );
+		$my_sites_node->href = Redirect::get_url( 'calypso-home' );
 		$wp_admin_bar->add_node( $my_sites_node );
 
 		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );
-		$reader_node->href = 'https://wordpress.com/read';
+		$reader_node->href = Redirect::get_url( 'calypso-read' );
 		$wp_admin_bar->add_node( $reader_node );
 
 		$me_node       = (object) $wp_admin_bar->get_node( 'my-account' );
-		$me_node->href = 'https://wordpress.com/me';
+		$me_node->href = Redirect::get_url( 'calypso-me' );
 		$wp_admin_bar->add_node( $me_node );
 	}
 
@@ -326,14 +350,14 @@ class Jetpack_Calypsoify {
 	 */
 	private function get_calypso_origin() {
 		$origin    = ! empty( $_GET['origin'] ) ? $_GET['origin'] : 'https://wordpress.com';
-		$whitelist = array(
+		$allowed = array(
 			'http://calypso.localhost:3000',
 			'http://127.0.0.1:41050', // Desktop App
 			'https://wpcalypso.wordpress.com',
 			'https://horizon.wordpress.com',
 			'https://wordpress.com',
 		);
-		return in_array( $origin, $whitelist ) ? $origin : 'https://wordpress.com';
+		return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
 
 		function get_site_suffix() {
 			if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
@@ -491,7 +515,7 @@ class Jetpack_Calypsoify {
 
 	/**
 	 * Remove the parentheses from list table view counts when Calypsofied.
-	 * 
+	 *
 	 * @param array $views Array of views. See: WP_List_Table::get_views().
 	 * @return array Filtered views.
 	 */

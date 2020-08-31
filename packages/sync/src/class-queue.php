@@ -84,7 +84,7 @@ class Queue {
 
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		if ( count( $items ) === $rows_added ) {
+		if ( count( $items ) !== $rows_added ) {
 			return new \WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 		return true;
@@ -383,6 +383,11 @@ class Queue {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
+			// Always delete ids_to_remove even when buffer is no longer checked-out.
+			// They were processed by WP.com so safe to remove from queue.
+			if ( ! is_null( $ids_to_remove ) ) {
+				$this->delete( $ids_to_remove );
+			}
 			return $is_valid;
 		}
 
@@ -643,6 +648,11 @@ class Queue {
 	 */
 	private function fetch_items_by_id( $items_ids ) {
 		global $wpdb;
+
+		// return early if $items_ids is empty or not an array.
+		if ( empty( $items_ids ) || ! is_array( $items_ids ) ) {
+			return null;
+		}
 
 		$ids_placeholders        = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
 		$query_with_placeholders = "SELECT option_name AS id, option_value AS value

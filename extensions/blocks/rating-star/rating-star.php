@@ -71,12 +71,14 @@ function render_block( $attributes ) {
 }
 
 /**
- * The following filter is added only to support the old 0.6.2 version of the AMP plugin.
- * This entire section can be removed once we're on version a newer version.
- * Confirmed that version 1.4.1 (or presumably newer) does not need this filter.
+ * Older versions of AMP (0.6.2) are unable to render the markup, so we hide it
+ * Newer versions of AMP (1.4.1+) seem OK, but need the screen-reader text hidden
  */
 function amp_add_inline_css() {
-	echo '.wp-block-jetpack-rating-star span { display: none; }';
+	if ( defined( 'AMP__VERSION' ) && version_compare( AMP__VERSION, '1.4.1', '>=' ) ) {
+		echo '.wp-block-jetpack-rating-star span.screen-reader-text { border: 0; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; word-wrap: normal; }';
+	} else {
+		echo '.wp-block-jetpack-rating-star span:not([aria-hidden="true"]) { display: none; }';
+	}
 }
 add_action( 'amp_post_template_css', __NAMESPACE__ . '\amp_add_inline_css', 11 );
-

@@ -16,7 +16,7 @@ export default class SimplePaymentBlock {
 	}
 
 	static title() {
-		return 'Simple Payments';
+		return 'Pay with PayPal';
 	}
 
 	async fillDetails( {
@@ -53,7 +53,8 @@ export default class SimplePaymentBlock {
 
 	/**
 	 * Checks whether block is rendered on frontend
-	 * @param {Page} page Puppeteer page instance
+	 *
+	 * @param {page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.jetpack-simple-payments-product';

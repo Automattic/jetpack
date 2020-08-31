@@ -8,6 +8,7 @@ import { assign, get, merge } from 'lodash';
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
+import { getSiteProducts } from 'state/site-products';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -62,6 +63,10 @@ export function getSiteRawUrl( state ) {
 
 export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
+}
+
+export function getSiteTitle( state ) {
+	return get( state.jetpack.initialState, 'siteTitle', '' );
 }
 
 export function isSitePublic( state ) {
@@ -144,6 +149,10 @@ export function getUserWpComEmail( state ) {
 
 export function getUserWpComAvatar( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'avatar' ] );
+}
+
+export function getUserGravatar( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'gravatar' ] );
 }
 
 export function getUsername( state ) {
@@ -258,6 +267,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Check if the Setup Wizard should be displayed
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if the Setup Wizard should be displayed.
+ */
+export function showSetupWizard( state ) {
+	return get( state.jetpack.initialState.siteData, 'showSetupWizard', false );
+}
+
+/**
  * Check if the site is part of a Multisite network.
  *
  * @param {object} state Global state tree
@@ -312,3 +332,100 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
 	);
 };
+
+/**
+ * Returns the list of products that are available for purchase.
+ *
+ * @param state
+ * @returns Array of Products that you can purchase.
+ */
+export function getProductsForPurchase( state ) {
+	const products = get( state.jetpack.initialState, 'products', [] );
+	const siteProducts = getSiteProducts( state );
+
+	return products.map( product => {
+		const optionKey = product.options[ 0 ].key;
+		return {
+			title: product.title,
+			key: product.key,
+			shortDescription: product.short_description,
+			labelPopup: product.label_popup,
+			optionsLabel: product.options_label,
+			defaultOption: product.default_option,
+			options: getProductOptions( state, product, siteProducts ),
+			learnMore: product.learn_more,
+			learnMoreUrl: getUpgradeUrl( state, `aag-${ product.key }` ),
+			showPromotion: product.show_promotion,
+			promotionPercentage: product.discount_percent,
+			recordCount: get( siteProducts, [ optionKey, 'price_tier_usage_quantity' ], '0' ),
+			priceTierSlug: get( siteProducts, [ optionKey, 'price_tier_slug' ], null ),
+			includedInPlans: product.included_in_plans,
+		};
+	} );
+}
+
+function getProductOptions( state, product, siteProducts ) {
+	return product.options.map( option => {
+		return {
+			name: option.name,
+			type: option.type,
+			key: option.key,
+			slug: option.slug,
+			description: option.description,
+			currencyCode: get( siteProducts, [ option.key, 'currency_code' ], '' ),
+			yearly: {
+				fullPrice: get( siteProducts, [ option.key, 'cost' ], '' ),
+				upgradeUrl: getUpgradeUrl( state, option.slug ),
+			},
+			monthly: {
+				fullPrice: get( siteProducts, [ `${ option.key }_monthly`, 'cost' ], '' ),
+				upgradeUrl: getUpgradeUrl( state, `${ option.slug }-monthly` ),
+			},
+		};
+	} );
+}
+
+/**
+ * The status of the Setup Wizard when the application loaded.
+ *
+ * @param {*} state Global state tree
+ *
+ * @return {string} The Setup Wizard status.
+ */
+export function getInitialSetupWizardStatus( state ) {
+	return get( state.jetpack.initialState, 'setupWizardStatus', '' );
+}
+
+/**
+ * Get the connection errors.
+ *
+ * @param  {Object} state Global state tree.
+ * @returns {Array} Connection errors.
+ */
+export function getConnectionErrors( state ) {
+	return get( state.jetpack.initialState, [ 'connectionStatus', 'errors' ], [] ).filter( error =>
+		error.hasOwnProperty( 'action' )
+	);
+}
+
+/**
+ * Check if the user is on Safari browser.
+ *
+ * @param {Object} state   Global state tree.
+ *
+ * @return {boolean} True the user is on Safari browser.
+ */
+export function isSafari( state ) {
+	return !! state.jetpack.initialState.isSafari;
+}
+
+/**
+ * Check if the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
+ *
+ * @param {Object} state   Global state tree.
+ *
+ * @return {boolean} True, the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
+ */
+export function doNotUseConnectionIframe( state ) {
+	return !! state.jetpack.initialState.doNotUseConnectionIframe;
+}

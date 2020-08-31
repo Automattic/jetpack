@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BaseControl, PanelBody, TextControl, ToggleControl } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { BaseControl, PanelBody, ToggleControl } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
 import { withInstanceId } from '@wordpress/compose';
 
@@ -11,22 +10,17 @@ import { withInstanceId } from '@wordpress/compose';
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
+import JetpackFieldControls from './jetpack-field-controls';
 
-const JetpackFieldCheckbox = ( {
-	instanceId,
-	required,
-	label,
-	setAttributes,
-	isSelected,
-	defaultValue,
-	id,
-} ) => {
+function JetpackFieldCheckbox( props ) {
+	const { id, instanceId, required, label, setAttributes, width, defaultValue } = props;
+
 	return (
 		<BaseControl
 			id={ `jetpack-field-checkbox-${ instanceId }` }
 			className="jetpack-field jetpack-field-checkbox"
 			label={
-				<Fragment>
+				<>
 					<input
 						className="jetpack-field-checkbox__checkbox"
 						type="checkbox"
@@ -37,26 +31,26 @@ const JetpackFieldCheckbox = ( {
 						required={ required }
 						label={ label }
 						setAttributes={ setAttributes }
-						isSelected={ isSelected }
+					/>
+					<JetpackFieldControls
+						id={ id }
+						required={ required }
+						width={ width }
+						setAttributes={ setAttributes }
 					/>
 					<InspectorControls>
-						<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
+						<PanelBody title={ __( 'Checkbox Settings', 'jetpack' ) }>
 							<ToggleControl
-								label={ __( 'Default Checked State', 'jetpack' ) }
+								label={ __( 'Checked by default', 'jetpack' ) }
 								checked={ defaultValue }
-								onChange={ value => setAttributes( { defaultValue: value } ) }
-							/>
-							<TextControl
-								label={ __( 'ID', 'jetpack' ) }
-								value={ id }
-								onChange={ value => setAttributes( { id: value } ) }
+								onChange={ value => setAttributes( { defaultValue: value ? 'true' : '' } ) }
 							/>
 						</PanelBody>
 					</InspectorControls>
-				</Fragment>
+				</>
 			}
 		/>
 	);
-};
+}
 
 export default withInstanceId( JetpackFieldCheckbox );

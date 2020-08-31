@@ -7,7 +7,9 @@ import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { defaultAttributes } from './attributes';
+import { defaultAttributes, getStyleOptions } from './attributes';
+import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
 import icon from './icon';
 import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
@@ -22,6 +24,7 @@ import './view.scss';
 
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
+import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
 
 export const settings = {
 	title,
@@ -30,7 +33,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	category: 'earn',
 	keywords: [
 		_x( 'booking', 'block search term', 'jetpack' ),
 		_x( 'reservation', 'block search term', 'jetpack' ),
@@ -42,15 +45,16 @@ export const settings = {
 	},
 	edit,
 	save: ( { attributes: { rid } } ) => (
-		<>
-			{ rid.map( restaurantId => (
-				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }>
+		<div>
+			{ rid.map( ( restaurantId, restaurantIndex ) => (
+				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` } key={ `${ restaurantId }-${ restaurantIndex }` } >
 					{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
 				</a>
 			) ) }
-		</>
+		</div>
 	),
 	attributes: defaultAttributes,
+	styles: getStyleOptions(),
 	example: {
 		attributes: {
 			rid: [ '1' ],
@@ -59,6 +63,7 @@ export const settings = {
 			domain: 'com',
 			lang: 'en-US',
 			newtab: false,
+			negativeMargin: false,
 		},
 	},
 	transforms: {
@@ -76,4 +81,5 @@ export const settings = {
 			},
 		],
 	},
+	deprecated: [ deprecatedV1, deprecatedV2 ],
 };

@@ -6,17 +6,18 @@ import config from 'config';
  * WordPress dependencies
  */
 import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
-import { readFileSync } from 'fs';
 /**
  * Internal dependencies
  */
 import { sendSnippetToSlack } from './reporters/slack';
+import logger from './logger';
+import { execSyncShellCommand } from './utils-helper';
 
 /**
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
  * More details at: https://pptr.dev/#?product=Puppeteer&show=api-pagewaitforselectorselector-options
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
@@ -31,14 +32,14 @@ export async function waitForSelector( page, selector, options = {} ) {
 	try {
 		const element = await page.waitForSelector( selector, options );
 		const secondsPassed = ( new Date() - startTime ) / 1000;
-		console.log( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
+		logger.info( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
 		return element;
 	} catch ( e ) {
 		if ( options.logHTML && PUPPETEER_HEADLESS !== 'false' ) {
 			await logHTML();
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;
-		console.log(
+		logger.info(
 			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec. URL: ${ page.url() }`
 		);
 		throw e;
@@ -49,44 +50,62 @@ export async function waitForSelector( page, selector, options = {} ) {
  * Waits for element to be present and visible in DOM, and then clicks on it. @param options could be used to modify click behavior.
  * More: https://pptr.dev/#?product=Puppeteer&version=v1.17.0&show=api-elementhandleclickoptions
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
 export async function waitAndClick( page, selector, options = { visible: true } ) {
 	await waitForSelector( page, selector, options );
-	return await page.click( selector, options );
+
+	try {
+		await page.click( selector, options );
+		logger.info( `Clicked on element by locator: ${ selector }.` );
+	} catch ( e ) {
+		logger.info( `Failed to click on element by locator: ${ selector }. URL: ${ page.url() }` );
+		throw e;
+	}
 }
 
 /**
  * Waits for element to be present in DOM, removes all the previous content and types @param value into the element.
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ *
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {string} value Value to type into
  * @param {Object} options Custom options to modify function behavior. The same object passes in two different functions. Use with caution!
  */
 export async function waitAndType( page, selector, value, options = { visible: true } ) {
 	const el = await waitForSelector( page, selector, options );
-	await page.focus( selector );
-	await pressKeyWithModifier( 'primary', 'a' );
-	// await el.click( { clickCount: 3 } );
-	await page.waitFor( 300 );
-	await el.type( value, options );
+
+	try {
+		await page.focus( selector );
+		await pressKeyWithModifier( 'primary', 'a' );
+		// await el.click( { clickCount: 3 } );
+		await page.waitFor( 300 );
+		await el.type( value, options );
+		logger.info( `Typed into element with locator: ${ selector }.` );
+	} catch ( e ) {
+		logger.info( `Failed to type into element with locator: ${ selector }. URL: ${ page.url() }` );
+		throw e;
+	}
 }
 
 /**
  * Waits for element to be visible, returns false if element was not found after timeout.
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {number} timeout Amount of time to wait for element
  *
  * @return {boolean} true if visible, false if not
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
-	const isVisible = await isEventuallyPresent( page, selector, { visible: true, timeout } );
+	const isVisible = await isEventuallyPresent( page, selector, {
+		visible: true,
+		timeout,
+	} );
 	if ( ! isVisible ) {
-		console.log( `Element is not visible by locator: ${ selector }` );
+		logger.info( `Element is not visible by locator: ${ selector }` );
 	}
 	return isVisible;
 }
@@ -95,7 +114,7 @@ export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
  * Waits for element to be present, returns false if element was not found after timeout.
  * A bit low level than `isEventuallyVisible`, which allows to wait for an element to appear in DOM but not visible yet,
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify wait behavior.
  *
@@ -130,11 +149,11 @@ export function getAccountCredentials( accountName ) {
 /**
  * Clicks on the element which will open up a new page, waits for that page to open and returns a new page
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {number} timeout Wait timeout
  *
- * @return {Puppeteer.Page} New instance of the opened page.
+ * @return {page} New instance of the opened page.
  */
 export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) {
 	// Create a promise that rejects in <ms> milliseconds
@@ -163,7 +182,7 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 /**
  * Scroll the element into view
  *
- * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  */
 export async function scrollIntoView( page, selector ) {
@@ -174,21 +193,22 @@ export async function scrollIntoView( page, selector ) {
 export async function logHTML() {
 	const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 	if ( process.env.E2E_DEBUG ) {
-		console.log( '#### PAGE HTML ####' );
-		console.log( page.url() );
-		console.log( bodyHTML );
+		logger.info( '#### PAGE HTML ####' );
+		logger.info( page.url() );
+		logger.info( bodyHTML );
 	}
 	await sendSnippetToSlack( bodyHTML );
 	return bodyHTML;
 }
 
 export async function logDebugLog() {
-	const log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+	const log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+
 	if ( log.length > 1 ) {
 		if ( process.env.E2E_DEBUG ) {
-			console.log( '#### WP DEBUG.LOG ####' );
-			console.log( log );
+			logger.info( '#### WP DEBUG.LOG ####' );
+			logger.info( log );
 		}
-		await sendSnippetToSlack( log );
+		logger.slack( { message: log, type: 'debuglog' } );
 	}
 }

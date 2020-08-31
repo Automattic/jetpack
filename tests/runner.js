@@ -41,6 +41,7 @@ if ( program.args.length ) {
 		window.Initial_State = {
 			userData: {},
 			dismissedNotices: {},
+			locale: '{}',
 		};
 
 		switch ( program.args[ 0 ] ) {
@@ -58,7 +59,7 @@ if ( program.args.length ) {
 				break;
 		}
 	} else {
-		program.args.forEach( function( file ) {
+		program.args.forEach( function ( file ) {
 			mocha.addFile( file );
 		} );
 	}
@@ -68,8 +69,8 @@ if ( program.args.length ) {
 	} );
 }
 
-mocha.run( function( failures ) {
-	process.on( 'exit', function() {
+mocha.run( function ( failures ) {
+	process.on( 'exit', function () {
 		process.exit( failures ); //eslint-disable-line no-process-exit
 	} );
 } );

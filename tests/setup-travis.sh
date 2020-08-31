@@ -10,15 +10,15 @@ phpenv config-rm xdebug.ini
 # Configure PHP and PHPUnit environment
 if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
 	composer install --ignore-platform-reqs
-	composer global require "phpunit/phpunit=5.7.*" --ignore-platform-reqs
+	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
 elif [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
   composer remove sirbrillig/phpcs-changed --dev
   composer install
-	composer global require "phpunit/phpunit=5.7.*" --no-suggest
+	composer global require "phpunit/phpunit=6.5.*" --no-suggest
 elif [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
   composer install
-  composer global require "phpunit/phpunit=5.7.*" --no-suggest
-elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
+  composer global require "phpunit/phpunit=7.5.*" --no-suggest
+elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
   composer remove sirbrillig/phpcs-changed --dev
   composer install
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
@@ -38,7 +38,7 @@ latest)
 	git clone --depth=1 --branch $(php ./tests/get-wp-version.php) git://develop.git.wordpress.org/ /tmp/wordpress-latest
 	;;
 previous)
-	git clone --depth=1 --branch 5.3 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+	git clone --depth=1 --branch 5.4 git://develop.git.wordpress.org/ /tmp/wordpress-previous
 	;;
 esac
 

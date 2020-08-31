@@ -2,14 +2,12 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { pick } from 'lodash';
 import formatCurrency from '@automattic/format-currency';
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { withSelect, withDispatch } from '@wordpress/data';
 import {
 	Button,
 	ExternalLink,
@@ -20,21 +18,17 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
+import { InspectorControls, InnerBlocks, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import StripeNudge from '../../shared/components/stripe-nudge';
-import {
-	icon,
-	isPriceValid,
-	minimumTransactionAmountForCurrency,
-	removeInvalidProducts,
-	CURRENCY_OPTIONS,
-} from '.';
+import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { icon, isPriceValid, removeInvalidProducts, CURRENCY_OPTIONS } from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -43,6 +37,21 @@ const API_STATE_NOTCONNECTED = 2;
 const PRODUCT_NOT_ADDING = 0;
 const PRODUCT_FORM = 1;
 const PRODUCT_FORM_SUBMITTED = 2;
+
+/**
+ * Formats a price with the right format for a numeric input value.
+ *
+ * @param {number} price Price to format.
+ * @param {string} currency Currency code.
+ * @returns {string} Formatted price.
+ */
+const formatPriceForNumberInputValue = ( price, currency ) => {
+	// By using `formatCurrency` we ensure the resulting price contains the relevant decimals for the given currency (i.e. 0.5 > 0.50).
+	return formatCurrency( price, currency, {
+		decimal: '.', // Values for numeric inputs need to use a dot notation for decimals.
+		symbol: '', // Values for numeric inputs cannot contain any currency symbol, only numbers.
+	} );
+};
 
 class MembershipsButtonEdit extends Component {
 	constructor() {
@@ -56,7 +65,10 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			siteSlug: '',
 			editedProductCurrency: 'USD',
-			editedProductPrice: minimumTransactionAmountForCurrency( 'USD' ),
+			editedProductPrice: formatPriceForNumberInputValue(
+				minimumTransactionAmountForCurrency( 'USD' ),
+				'USD'
+			),
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
@@ -123,11 +135,23 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
-	handleCurrencyChange = editedProductCurrency =>
+	handleCurrencyChange = editedProductCurrency => {
+		let editedProductPrice = this.state.editedProductPrice;
+
+		if ( ! isPriceValid( editedProductCurrency, editedProductPrice ) ) {
+			editedProductPrice = formatPriceForNumberInputValue(
+				minimumTransactionAmountForCurrency( editedProductCurrency ),
+				editedProductCurrency
+			);
+		}
+
 		this.setState( {
 			editedProductCurrency,
-			editedProductPriceValid: isPriceValid( editedProductCurrency, this.state.editedProductPrice ),
+			editedProductPrice,
+			editedProductPriceValid: true,
 		} );
+	};
+
 	handleRenewIntervalChange = editedProductRenewInterval =>
 		this.setState( { editedProductRenewInterval } );
 
@@ -218,7 +242,7 @@ class MembershipsButtonEdit extends Component {
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
-					{ __( 'Add a plan', 'jetpack' ) }
+					{ __( 'Add a payment plan', 'jetpack' ) }
 				</Button>
 			);
 		}
@@ -280,6 +304,10 @@ class MembershipsButtonEdit extends Component {
 							label: __( 'Yearly', 'jetpack' ),
 							value: '1 year',
 						},
+						{
+							label: __( 'One-Time Payment', 'jetpack' ),
+							value: 'one-time',
+						},
 					] }
 					value={ this.state.editedProductRenewInterval }
 				/>
@@ -290,7 +318,7 @@ class MembershipsButtonEdit extends Component {
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
-						{ __( 'Add this plan', 'jetpack' ) }
+						{ __( 'Add this payment plan', 'jetpack' ) }
 					</Button>
 					<Button
 						isLarge
@@ -310,11 +338,25 @@ class MembershipsButtonEdit extends Component {
 		return formatCurrency( parseFloat( product.price ), product.currency );
 	};
 
-	setMembershipAmount = id =>
-		this.props.setAttributes( {
-			planId: id,
-			submitButtonText: this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' ),
-		} );
+	setMembershipAmount = id => {
+		const { innerButtons, updateBlockAttributes, setAttributes } = this.props;
+		const currentPlanId = this.props.attributes.planId;
+		const defaultTextForNewPlan =
+			this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' );
+		const defaultTextForCurrentPlan = currentPlanId
+			? this.getFormattedPriceByProductId( currentPlanId ) + __( ' Contribution', 'jetpack' )
+			: undefined;
+		if ( innerButtons.length ) {
+			innerButtons[ 0 ].innerBlocks.forEach( block => {
+				const currentText = block.attributes.text;
+				const text =
+					currentText === defaultTextForCurrentPlan ? defaultTextForNewPlan : currentText;
+				updateBlockAttributes( block.clientId, { text } );
+			} );
+		}
+
+		return setAttributes( { planId: parseInt( id ) } );
+	};
 
 	renderMembershipAmounts = () => (
 		<div>
@@ -322,6 +364,7 @@ class MembershipsButtonEdit extends Component {
 				<Button
 					className="membership-button__field-button"
 					isLarge
+					isSecondary
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
@@ -334,50 +377,32 @@ class MembershipsButtonEdit extends Component {
 	renderDisclaimer = () => {
 		return (
 			<div className="membership-button__disclaimer">
-				<ExternalLink href="https://en.support.wordpress.com/recurring-payments-button/#related-fees">
-					{ __( 'Read more about Recurring Payments and related fees.', 'jetpack' ) }
+				<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+					{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		);
 	};
 
-	getConnectUrl() {
-		const { postId } = this.props;
-		const { connectURL } = this.state;
-
-		if ( ! isURL( connectURL ) ) {
-			return null;
-		}
-
-		if ( ! postId ) {
-			return connectURL;
-		}
-
-		let decodedState;
-		try {
-			const state = getQueryArg( connectURL, 'state' );
-			decodedState = JSON.parse( atob( state ) );
-		} catch ( err ) {
-			if ( process.env.NODE_ENV !== 'production' ) {
-				console.error( err ); // eslint-disable-line no-console
-			}
-			return connectURL;
-		}
-
-		decodedState.from_editor_post_id = postId;
-
-		return addQueryArgs( connectURL, { state: btoa( JSON.stringify( decodedState ) ) } );
-	}
-
 	render = () => {
-		const { notices } = this.props;
-		const { connected, products } = this.state;
+		const { notices, postId } = this.props;
+		const { connected, connectURL, products } = this.state;
 
-		const stripeConnectUrl = this.getConnectUrl();
+		/**
+		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
+		 *
+		 * @param {bool} showControls Whether inspectors controls are shown.
+		 * @param {string} showControls Block ID.
+		 */
+		const showControls = applyFilters(
+			'jetpack.RecurringPayments.showControls',
+			products.length > 0,
+			this.props.clientId
+		);
 
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Product', 'jetpack' ) }>
+				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
 					<SelectControl
 						label={ __( 'Payment plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
@@ -391,7 +416,7 @@ class MembershipsButtonEdit extends Component {
 				</PanelBody>
 				<PanelBody title={ __( 'Management', 'jetpack' ) }>
 					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
-						{ __( 'See your earnings, subscriber list, and products.', 'jetpack' ) }
+						{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
@@ -403,21 +428,25 @@ class MembershipsButtonEdit extends Component {
 				{ ! this.hasUpgradeNudge &&
 					! this.state.shouldUpgrade &&
 					connected === API_STATE_NOTCONNECTED && (
-						<StripeNudge blockName="recurring-payments" stripeConnectUrl={ stripeConnectUrl } />
+						<StripeNudge
+							blockName="recurring-payments"
+							postId={ postId }
+							stripeConnectUrl={ connectURL }
+						/>
 					) }
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
 							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Recurring Payments', 'jetpack' ) }
+							label={ __( 'Payments', 'jetpack' ) }
 							notices={ notices }
 							instructions={ __(
-								"You'll need to upgrade your plan to use the Recurring Payments button.",
+								"You'll need to upgrade your plan to use the Payments block.",
 								'jetpack'
 							) }
 						>
 							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
-								{ __( 'Upgrade Your Plan', 'jetpack' ) }
+								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
 							{ this.renderDisclaimer() }
 						</Placeholder>
@@ -437,7 +466,7 @@ class MembershipsButtonEdit extends Component {
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
 								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
+								label={ __( 'Payments', 'jetpack' ) }
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
@@ -458,7 +487,7 @@ class MembershipsButtonEdit extends Component {
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
 								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
+								label={ __( 'Payments', 'jetpack' ) }
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
@@ -476,21 +505,21 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ products.length > 0 && inspectorControls }
+				{ showControls && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
 					this.props.attributes.planId ) && (
-					<SubmitButton
-						{ ...{
-							attributes: pick( this.props.attributes, [
-								'submitButtonText',
-								'backgroundButtonColor',
-								'textButtonColor',
-								'customBackgroundButtonColor',
-								'customBackgroundButtonColor',
-							] ),
-							setAttributes: this.props.setAttributes,
-						} }
+					<InnerBlocks
+						template={ [
+							[
+								'jetpack/button',
+								{
+									element: 'a',
+									uniqueId: 'recurring-payments-id',
+								},
+							],
+						] }
+						templateLock="all"
 					/>
 				) }
 				{ this.hasUpgradeNudge && connected === API_STATE_NOTCONNECTED && (
@@ -504,6 +533,13 @@ class MembershipsButtonEdit extends Component {
 }
 
 export default compose( [
-	withSelect( select => ( { postId: select( 'core/editor' ).getCurrentPostId() } ) ),
+	withSelect( ( select, { clientId } ) => ( {
+		postId: select( 'core/editor' ).getCurrentPostId(),
+		innerButtons: select( 'core/editor' ).getBlocksByClientId( clientId ),
+	} ) ),
+	withDispatch( dispatch => {
+		const { updateBlockAttributes } = dispatch( 'core/editor' );
+		return { updateBlockAttributes };
+	} ),
 	withNotices,
 ] )( MembershipsButtonEdit );

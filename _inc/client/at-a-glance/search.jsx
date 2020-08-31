@@ -4,21 +4,23 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
-import { getPlanClass, PLAN_JETPACK_SEARCH } from 'lib/plans/constants';
-import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import DashItem from 'components/dash-item';
 import Card from 'components/card';
-import JetpackBanner from 'components/jetpack-banner';
-import { isDevMode } from 'state/connection';
+import DashItem from 'components/dash-item';
+import { getPlanClass, PLAN_JETPACK_SEARCH } from 'lib/plans/constants';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
-import { getUpgradeUrl, isAtomicSite } from 'state/initial-state';
+import { getUpgradeUrl } from 'state/initial-state';
+import { isOfflineMode } from 'state/connection';
+import JetpackBanner from 'components/jetpack-banner';
+import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
 
 /**
  * Displays a card for Search based on the props given.
@@ -28,11 +30,11 @@ import { getUpgradeUrl, isAtomicSite } from 'state/initial-state';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Search' ) }
+		label={ __( 'Search', 'jetpack' ) }
 		module="search"
 		support={ {
 			text: SEARCH_SUPPORT,
-			link: 'https://jetpack.com/support/search/',
+			link: getRedirectUrl( 'jetpack-support-search' ),
 		} }
 		className={ props.className }
 		status={ props.status }
@@ -49,12 +51,12 @@ class DashSearch extends Component {
 		getOptionValue: PropTypes.func.isRequired,
 
 		// Connected props
-		isDevMode: PropTypes.bool.isRequired,
+		isOfflineMode: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
 		getOptionValue: noop,
-		isDevMode: false,
+		isOfflineMode: false,
 	};
 
 	trackSearchLink() {
@@ -73,24 +75,19 @@ class DashSearch extends Component {
 	};
 
 	render() {
-		// NOTE: Jetpack Search currently does not support atomic sites.
-		if ( this.props.isAtomicSite ) {
-			return null;
-		}
-
 		if ( this.props.isFetching ) {
 			return renderCard( {
 				status: '',
-				content: __( 'Loading…' ),
+				content: __( 'Loading…', 'jetpack' ),
 			} );
 		}
 
-		if ( this.props.isDevMode ) {
+		if ( this.props.isOfflineMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
-				content: __( 'Unavailable in Dev Mode' ),
+				content: __( 'Unavailable in Offline Mode', 'jetpack' ),
 			} );
 		}
 
@@ -101,7 +98,7 @@ class DashSearch extends Component {
 				pro_inactive: true,
 				overrideContent: (
 					<JetpackBanner
-						callToAction={ __( 'Upgrade' ) }
+						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
@@ -118,18 +115,18 @@ class DashSearch extends Component {
 			return (
 				<div className="jp-dash-item">
 					<DashItem
-						label={ __( 'Search' ) }
+						label={ __( 'Search', 'jetpack' ) }
 						module="search"
 						support={ {
 							text: SEARCH_SUPPORT,
-							link: 'https://jetpack.com/support/search/',
+							link: getRedirectUrl( 'jetpack-support-search' ),
 						} }
 						className="jp-dash-item__is-active"
 						isModule={ false }
 						pro={ true }
 					>
 						<p className="jp-dash-item__description">
-							{ __( 'Jetpack Search is powering search on your site.' ) }
+							{ __( 'Jetpack Search is powering search on your site.', 'jetpack' ) }
 						</p>
 					</DashItem>
 					{ this.props.hasSearchProduct ? (
@@ -146,7 +143,7 @@ class DashSearch extends Component {
 							className="jp-search-config-aag"
 							href="customize.php?autofocus[panel]=widgets"
 						>
-							{ __( 'Add Search (Jetpack) Widget' ) }
+							{ __( 'Add Search (Jetpack) Widget', 'jetpack' ) }
 						</Card>
 					) }
 				</div>
@@ -156,12 +153,13 @@ class DashSearch extends Component {
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
-			content: __(
-				'{{a}}Activate{{/a}} to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+			content: jetpackCreateInterpolateElement(
+				__(
+					'<a>Activate</a> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+					'jetpack'
+				),
 				{
-					components: {
-						a: <a href="javascript:void(0)" onClick={ this.activateSearch } />,
-					},
+					a: <a href="javascript:void(0)" onClick={ this.activateSearch } />,
 				}
 			),
 		} );
@@ -170,9 +168,8 @@ class DashSearch extends Component {
 
 export default connect( state => {
 	return {
-		isAtomicSite: isAtomicSite( state ),
 		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),
 		hasSearchProduct: hasActiveSearchPurchase( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),

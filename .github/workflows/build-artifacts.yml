@@ -1,0 +1,43 @@
+name: Build artifacts
+on: push
+
+jobs:
+  build_master_job:
+    name: Master
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout Jetpack
+        uses: actions/checkout@master
+      - name: Build production version
+        uses: automattic/action-jetpack-build-to-branch@master
+        with:
+          branch_pull: 'master'
+          branch_push: 'master-built'
+          commit_message: 'Automated production build from master'
+  build_beta:
+    name: Beta
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    steps:
+    - name: Checkout Jetpack
+      uses: actions/checkout@master
+    - name: Build jetpack
+      run: |
+        BRANCH=${GITHUB_REF:11}
+        ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
+    - name: Upload jetpack build
+      uses: actions/upload-artifact@v2
+      with:
+        name: jetpack-dev
+        path: /tmp/artifact
+    # Find the PR associated with this push, if there is one.
+    - uses: jwalton/gh-find-current-pr@v1
+      id: findPr
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Inform beta builder
+      run: |
+        VERSION=$(cat /tmp/artifact/jetpack-dev/version.txt)
+        BRANCH=${GITHUB_REF:11}
+        curl -L "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"

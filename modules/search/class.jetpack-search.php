@@ -192,6 +192,13 @@ class Jetpack_Search {
 	 * @since 8.3.0
 	 */
 	public function load_php() {
+		$this->base_load_php();
+	}
+
+	/**
+	 * Loads the PHP common to all search. Should be called from extending classes.
+	 */
+	protected function base_load_php() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
 		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';

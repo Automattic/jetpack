@@ -23,7 +23,7 @@ const SearchDemo = createReactClass( {
 
 	mixins: [ PureRenderMixin ],
 
-	render: function() {
+	render: function () {
 		return (
 			<div className="design-assets__group">
 				<h2>

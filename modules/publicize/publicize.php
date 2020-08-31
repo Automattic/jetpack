@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Redirect;
+
 abstract class Publicize_Base {
 
 	/**
@@ -1238,7 +1240,6 @@ abstract class Publicize_Base {
 }
 
 function publicize_calypso_url() {
-	$calypso_sharing_url = 'https://wordpress.com/marketing/connections/';
 	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
 		$site_suffix = Jetpack::build_raw_urls( home_url() );
 	} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
@@ -1246,8 +1247,8 @@ function publicize_calypso_url() {
 	}
 
 	if ( $site_suffix ) {
-		return $calypso_sharing_url . $site_suffix;
+		return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => $site_suffix ) );
 	} else {
-		return $calypso_sharing_url;
+		return Redirect::get_url( 'calypso-marketing-connections-base' );
 	}
 }

@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Internal dependencies
  */
 import {
@@ -11,7 +16,6 @@ import {
 } from 'state/action-types';
 
 import restApi from 'rest-api';
-import { translate as __ } from 'i18n-calypso';
 import { createNotice } from 'components/global-notices/state/notices/actions';
 
 export const checkVerifyStatusGoogle = ( keyringId = null ) => {
@@ -86,7 +90,7 @@ export const verifySiteGoogle = keyringId => {
 
 				if ( data.verified ) {
 					dispatch(
-						createNotice( 'is-success', __( 'Site is verified' ), {
+						createNotice( 'is-success', __( 'Site is verified', 'jetpack' ), {
 							id: 'verify-site-google-verified',
 							duration: 2000,
 						} )

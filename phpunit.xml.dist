@@ -95,14 +95,17 @@
 		<testsuite name="3rd-party">
 			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>
 		</testsuite>
-		<testsuite name="lazy-images">
-			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
+		<testsuite name="carousel">
+			<directory prefix="test-" suffix=".php">tests/php/modules/carousel</directory>
 		</testsuite>
 		<testsuite name="search">
 			<directory prefix="test" suffix=".php">tests/php/modules/search</directory>
 		</testsuite>
 		<testsuite name="geo-location">
 			<directory prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
+		</testsuite>
+		<testsuite name="google-analytics">
+			<directory prefix="test" suffix=".php">tests/php/modules/google-analytics</directory>
 		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
@@ -125,6 +128,10 @@
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">vendor</directory>
 				<directory suffix=".php">views</directory>
+				<directory suffix=".php">packages</directory>
+				<directory suffix=".php">bin</directory>
+				<directory suffix=".php">tools</directory>
+				<directory suffix=".php">docker</directory>
 			</exclude>
 		</whitelist>
 	</filter>

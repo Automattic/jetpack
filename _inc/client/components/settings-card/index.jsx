@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import { get, includes, isEmpty } from 'lodash';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
 import {
 	PLAN_JETPACK_PREMIUM,
 	PLAN_JETPACK_BUSINESS,
@@ -30,7 +30,6 @@ import {
 import {
 	getSiteAdminUrl,
 	getUpgradeUrl,
-	isAtomicSite,
 	isMultisite,
 	userCanManageModules,
 } from 'state/initial-state';
@@ -83,9 +82,11 @@ export const SettingsCard = props => {
 
 	const getBanner = () => {
 		const planClass = getPlanClass( props.sitePlan.product_slug ),
-			upgradeLabel = __( 'Upgrade', {
-				context: 'A caption for a button to upgrade an existing paid feature to a higher tier.',
-			} );
+			upgradeLabel = _x(
+				'Upgrade',
+				'A caption for a button to upgrade an existing paid feature to a higher tier.',
+				'jetpack'
+			);
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
@@ -95,7 +96,7 @@ export const SettingsCard = props => {
 
 				return (
 					<JetpackBanner
-						title={ __( 'Host fast, high-quality, ad-free video.' ) }
+						title={ __( 'Host fast, high-quality, ad-free video.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -115,7 +116,7 @@ export const SettingsCard = props => {
 
 				return (
 					<JetpackBanner
-						title={ __( 'Generate income with high-quality ads.' ) }
+						title={ __( 'Generate income with high-quality ads.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -132,7 +133,7 @@ export const SettingsCard = props => {
 				if ( 'is-premium-plan' === planClass ) {
 					return (
 						<JetpackBanner
-							title={ __( 'Real-time site backups and automatic threat resolution.' ) }
+							title={ __( 'Real-time site backups and automatic threat resolution.', 'jetpack' ) }
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
 							feature={ feature }
@@ -145,7 +146,7 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
+						title={ __( 'Protect against data loss, malware, and malicious attacks.', 'jetpack' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
@@ -162,7 +163,8 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
-							'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.'
+							'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.',
+							'jetpack'
 						) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -179,7 +181,8 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
-							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium or Professional.'
+							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium or Professional.',
+							'jetpack'
 						) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -189,8 +192,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				// NOTE: Jetpack Search currently does not support atomic sites.
-				if ( props.hasActiveSearchPurchase || props.isAtomicSite ) {
+				if ( props.hasActiveSearchPurchase ) {
 					return '';
 				}
 
@@ -198,7 +200,8 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
-							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.'
+							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+							'jetpack'
 						) }
 						plan={ PLAN_JETPACK_SEARCH }
 						feature={ feature }
@@ -219,7 +222,7 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Protect your site from spam.' ) }
+						title={ __( 'Protect your site from spam.', 'jetpack' ) }
 						plan={ PLAN_JETPACK_PERSONAL }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
@@ -321,15 +324,26 @@ export const SettingsCard = props => {
 		return null;
 	}
 
+	let moduleId = '';
+	if ( props.feature ) {
+		moduleId = `jp-settings-${ props.feature }`;
+	} else if ( props.module ) {
+		moduleId = `jp-settings-${ props.module }`;
+	}
+
 	return (
 		getModuleOverridenBanner() || (
-			<form className="jp-form-settings-card" onSubmit={ ! isSaving ? props.onSubmit : undefined }>
+			<form
+				{ ...( moduleId ? { id: moduleId } : null ) }
+				className={ `jp-form-settings-card` }
+				onSubmit={ ! isSaving ? props.onSubmit : undefined }
+			>
 				<SectionHeader label={ header }>
 					{ ! props.hideButton && (
 						<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 							{ isSaving
-								? __( 'Saving…', { context: 'Button caption' } )
-								: __( 'Save settings', { context: 'Button caption' } ) }
+								? _x( 'Saving…', 'Button caption', 'jetpack' )
+								: _x( 'Save settings', 'Button caption', 'jetpack' ) }
 						</Button>
 					) }
 					{ props.action && (
@@ -379,6 +393,5 @@ export default connect( state => {
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
 		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
-		isAtomicSite: isAtomicSite( state ),
 	};
 } )( SettingsCard );

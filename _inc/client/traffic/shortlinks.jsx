@@ -3,10 +3,12 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __, _x } from '@wordpress/i18n';
+
 /**
  * Internal dependencies
  */
+import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule } from 'state/modules';
 import SettingsCard from 'components/settings-card';
@@ -20,7 +22,7 @@ class Shortlinks extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'WP.me Shortlinks', { context: 'Settings header' } ) }
+				header={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
 				module="shortlinks"
 				hideButton
 			>
@@ -28,9 +30,9 @@ class Shortlinks extends Component {
 					module={ { module: 'shortlinks' } }
 					support={ {
 						text: this.props.shortlinksModule.description,
-						link: 'https://jetpack.com/support/shortlinks/',
+						link: getRedirectUrl( 'jetpack-support-shortlinks' ),
 					} }
-					disableInDevMode
+					disableInOfflineMode
 				>
 					<ModuleToggle
 						slug="shortlinks"
@@ -39,7 +41,7 @@ class Shortlinks extends Component {
 						toggling={ this.props.isSavingAnyOption( 'shortlinks' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Generate shortened URLs for simpler sharing.' ) }
+						{ __( 'Generate shortened URLs for simpler sharing.', 'jetpack' ) }
 					</ModuleToggle>
 				</SettingsGroup>
 			</SettingsCard>

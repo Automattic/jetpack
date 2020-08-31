@@ -7,15 +7,69 @@
 class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
-	 * After a test method runs, reset any state in WordPress the test method might have changed.
+	 * The tested instance.
+	 *
+	 * @var Jetpack_Recipes
+	 */
+	public $instance;
+
+	/**
+	 * Set up each test.
+	 *
+	 * @inheritDoc
 	 */
 	public function setUp() {
-		// Run hook to load shortcode.
-		do_action( 'init' );
+		parent::setUp();
+		$this->instance = new Jetpack_Recipes();
+		$this->instance->action_init();
+	}
 
-		// Reset data.
-		wp_reset_postdata();
+	/**
+	 * Tear down after each test.
+	 *
+	 * @inheritDoc
+	 */
+	public function tearDown() {
+		wp_dequeue_script( 'jetpack-recipes-js' );
+		wp_dequeue_script( 'jetpack-recipes-printthis' );
 		parent::tearDown();
+	}
+
+	/**
+	 * Test add_scripts.
+	 *
+	 * @since 8.5.0
+	 */
+	public function test_add_scripts() {
+		global $posts;
+
+		$post = new stdClass();
+		$post->post_content = '[recipe]';
+		$posts              = array( $post );
+		$this->instance->add_scripts();
+
+		$this->assertTrue( wp_style_is( 'jetpack-recipes-style' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-recipes-printthis' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-recipes-js' ) );
+	}
+
+	/**
+	 * Test add_scripts on an AMP endpoint.
+	 *
+	 * @since 8.5.0
+	 */
+	public function test_add_scripts_amp() {
+		global $posts;
+
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$post = new stdClass();
+		$post->post_content = '[recipe]';
+		$posts              = array( $post );
+		$this->instance->add_scripts();
+
+		$this->assertTrue( wp_style_is( 'jetpack-recipes-style' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-recipes-printthis' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-recipes-js' ) );
 	}
 
 	/**
@@ -124,7 +178,22 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe image="' . $attachment_id . '"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />', $shortcode_content );
+
+		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$this->assertContains(
+				'<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />',
+				$shortcode_content
+			);
+		} else {
+			$this->assertContains(
+				'<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />',
+				$shortcode_content
+			);
+		}
 	}
 
 	/**
@@ -136,7 +205,22 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe image="https://example.com"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+
+		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$this->assertContains(
+				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />',
+				$shortcode_content
+			);
+		} else {
+			$this->assertContains(
+				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />',
+				$shortcode_content
+			);
+		}
 	}
 
 	/**
@@ -185,7 +269,16 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image https://example.com]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+
+		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />', $shortcode_content );
+		} else {
+			$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+		}
 	}
 
 	/**
@@ -198,7 +291,16 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image image="https://example.com"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+
+		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />', $shortcode_content );
+		} else {
+			$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+		}
 	}
 
 	/**
@@ -245,7 +347,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image ' . $attachment_id . ']';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />', $shortcode_content );
+		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
 	}
 
 	/**
@@ -268,7 +370,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image image="' . $attachment_id . '"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />', $shortcode_content );
+		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
 	}
 
 	/**
@@ -311,5 +413,58 @@ EOT;
 
 		$shortcode_content = do_shortcode( "[recipe]\n$tags\n[/recipe]" );
 		$this->assertContains( $tags, $shortcode_content );
+	}
+
+	/**
+	 * Gets the test data for test_shortcodes_recipe_amp().
+	 *
+	 * @return array The test data.
+	 */
+	public function get_data_recipe_amp() {
+		return array(
+			'only_recipe_shortcode'       => array(
+				'[recipe title="Mediterranean Panini" servings="5-8" preptime="50 mins" cooktime="25 mins" difficulty="hard" rating="★★★★"]',
+				'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><h3 class="p-name jetpack-recipe-title fn" itemprop="name">Mediterranean Panini</h3>
+					<ul class="jetpack-recipe-meta">
+						<li class="jetpack-recipe-servings p-yield yield" itemprop="recipeYield"><strong>Servings: </strong>5-8</li>
+						<li class="jetpack-recipe-preptime"><time itemprop="prepTime" datetime="P0DT0H50M0S"><strong>Prep Time:</strong> <span class="preptime">50 mins</span></time></li>
+						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong> <span class="cooktime">25 mins</span></time></li>
+						<li class="jetpack-recipe-difficulty"><strong>Difficulty: </strong>hard</li><li class="jetpack-recipe-rating"><strong>Rating: </strong><span itemprop="contentRating">★★★★</span></li>
+						<li class="jetpack-recipe-print"><a href="#" on="tap:AMP.print">Print page</a></li>
+					</ul>
+				<div class="jetpack-recipe-content"></div></div>',
+			),
+			'with_recipe_notes_shortcode' => array(
+				'[recipe title="Mediterranean Panini" servings="5-8" preptime="50 mins" cooktime="25 mins" difficulty="hard" rating="★★★★"][recipe-notes]Credit: allrecipes.com[/recipe-notes][/recipe]',
+				'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><h3 class="p-name jetpack-recipe-title fn" itemprop="name">Mediterranean Panini</h3>
+					<ul class="jetpack-recipe-meta">
+						<li class="jetpack-recipe-servings p-yield yield" itemprop="recipeYield"><strong>Servings: </strong>5-8</li>
+						<li class="jetpack-recipe-preptime"><time itemprop="prepTime" datetime="P0DT0H50M0S"><strong>Prep Time:</strong><span class="preptime">50 mins</span></time></li>
+						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong><span class="cooktime">25 mins</span></time></li>
+						<li class="jetpack-recipe-difficulty"><strong>Difficulty: </strong>hard</li><li class="jetpack-recipe-rating"><strong>Rating: </strong><span itemprop="contentRating">★★★★</span></li>
+						<li class="jetpack-recipe-print"><a href="#" on="tap:AMP.print">Print page</a></li>
+					</ul>
+				<div class="jetpack-recipe-content"><div class="jetpack-recipe-notes">Credit: allrecipes.com</div></div></div>',
+			),
+		);
+	}
+
+	/**
+	 * Test the [recipe] shortcode on an AMP endpoint.
+	 *
+	 * @dataProvider get_data_recipe_amp
+	 * @since 8.5.0
+	 */
+	public function test_shortcodes_recipe_amp( $shortcode, $expected ) {
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+
+		$expected = preg_replace( '/\s+/', ' ', $expected );
+		$expected = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $expected ) );
+
+		$actual = do_shortcode( $shortcode );
+		$actual = preg_replace( '/\s+/', ' ', $actual );
+		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
+
+		$this->assertEquals( $expected, $actual );
 	}
 }

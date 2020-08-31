@@ -4,7 +4,7 @@
 		margin: 0 auto;
 	}
 
-	&-theme-standard {
+	&.is-style-standard {
 		height: 301px;
 
 		&.is-multi {
@@ -16,7 +16,7 @@
 		}
 	}
 
-	&-theme-tall {
+	&.is-style-tall {
 		height: 490px;
 
 		&.is-multi {
@@ -28,17 +28,23 @@
 		}
 	}
 
-	&-theme-wide {
+	&.is-style-wide {
 		height: 150px;
 		&.aligncenter iframe {
 			width: 840px !important;
 		}
 	}
 
-	&-theme-button {
+	&.is-style-button {
 		height: 113px;
 		&.aligncenter iframe {
 			width: 210px !important;
+		}
+
+		&.has-no-margin {
+			> div[id^="ot-widget-container"] {
+				margin: -14px;
+			}
 		}
 	}
 

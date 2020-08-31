@@ -4,22 +4,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import SimpleNotice from 'components/notice';
-import analytics from 'lib/analytics';
 import { get } from 'lodash';
+import { __, _n, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import { isDevMode } from 'state/connection';
-import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -30,6 +25,13 @@ import {
 } from 'state/at-a-glance';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getRewindStatus } from 'state/rewind';
+import { getScanStatus } from 'state/scan';
+import { isOfflineMode } from 'state/connection';
+import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import SimpleNotice from 'components/notice';
 
 /**
  * Track click on Pro status badge.
@@ -75,17 +77,17 @@ class ProStatus extends React.Component {
 			case 'provisioning':
 				return {
 					status: 'is-info',
-					text: __( 'Setting up' ),
+					text: __( 'Setting up', 'jetpack' ),
 				};
 			case 'awaiting_credentials':
 				return {
 					status: 'is-warning',
-					text: __( 'Action needed' ),
+					text: __( 'Action needed', 'jetpack' ),
 				};
 			case 'active':
 				return {
 					status: 'is-success',
-					text: __( 'Connected' ),
+					text: __( 'Connected', 'jetpack' ),
 				};
 			default:
 				return { status: '', text: '' };
@@ -101,15 +103,19 @@ class ProStatus extends React.Component {
 			case 'threats':
 				status = 'is-error';
 				if ( this.props.isCompact ) {
-					action = __( 'Threats', {
-						context: 'A caption for a small button to fix security issues.',
-					} );
+					action = _x(
+						'Threats',
+						'A caption for a small button to fix security issues.',
+						'jetpack'
+					);
 				} else {
-					action = __( 'See threats', {
-						context: 'A caption for a small button to fix security issues.',
-					} );
+					action = _x(
+						'See threats',
+						'A caption for a small button to fix security issues.',
+						'jetpack'
+					);
 				}
-				actionUrl = 'https://dashboard.vaultpress.com/';
+				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
 			case 'free':
 			case 'personal':
@@ -117,9 +123,11 @@ class ProStatus extends React.Component {
 				return;
 			case 'secure':
 				status = 'is-success';
-				message = __( 'Secure', {
-					context: 'Short message informing user that the site is secure.',
-				} );
+				message = _x(
+					'Secure',
+					'Short message informing user that the site is secure.',
+					'jetpack'
+				);
 				break;
 			case 'invalid_key':
 				return;
@@ -131,7 +139,7 @@ class ProStatus extends React.Component {
 					</SimpleNotice>
 				);
 			case 'active':
-				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
+				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE', 'jetpack' ) }</span>;
 		}
 		return (
 			<SimpleNotice showDismiss={ false } status={ status } isCompact={ true }>
@@ -162,15 +170,18 @@ class ProStatus extends React.Component {
 				onClick={ handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
-				href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
+				href={ getRedirectUrl( 'calypso-plugins-setup', {
+					site: this.props.siteRawUrl,
+					query: `only=${ feature }`,
+				} ) }
 			>
-				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
+				{ _x( 'Set up', 'Caption for a button to set up a feature.', 'jetpack' ) }
 			</Button>
 		);
 	};
 
 	render() {
-		const sitePlan = this.props.sitePlan(),
+		const sitePlan = this.props.sitePlan,
 			vpData = this.props.getVaultPressData();
 		let pluginSlug = '';
 		if (
@@ -188,10 +199,9 @@ class ProStatus extends React.Component {
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
 			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			hasScan = get( vpData, [ 'data', 'features', 'security' ], false ),
-			hasJetpackBackup = [ 'is-daily-backup-plan', 'is-realtime-backup-plan' ].includes(
-				this.props.planClass
-			);
+			hasVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
+
+		const { scanStatus } = this.props;
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {
@@ -205,24 +215,20 @@ class ProStatus extends React.Component {
 					break;
 
 				case 'scan':
-					if (
-						this.props.fetchingSiteData ||
-						this.props.isFetchingVaultPressData ||
-						hasJetpackBackup
-					) {
-						return '';
-					}
-					if ( ( hasFree || hasPersonal ) && ! hasScan ) {
-						if ( this.props.isCompact ) {
-							return this.getProActions( 'free', 'scan' );
-						} else if ( hasPersonal && ! hasBackups ) {
-							// Personal plans doesn't have scan but it does have backups.
-							return this.getSetUpButton( 'backups' );
-						}
+					if ( this.props.fetchingSiteData || this.props.isFetchingVaultPressData ) {
 						return '';
 					}
 					if ( 'N/A' !== vpData ) {
-						if ( ! hasScan ) {
+						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
+							if ( this.props.isCompact ) {
+								return this.getProActions( 'free', 'scan' );
+							} else if ( hasPersonal && ! hasBackups ) {
+								// Personal plans doesn't have scan but it does have backups.
+								return this.getSetUpButton( 'backups' );
+							}
+							return '';
+						}
+						if ( ! hasVPScan ) {
 							return this.getSetUpButton( 'scan' );
 						}
 
@@ -230,6 +236,25 @@ class ProStatus extends React.Component {
 							0 === this.props.getScanThreats() ? 'secure' : 'threats',
 							'scan'
 						);
+					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
+						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
+							return (
+								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
+									{ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
+								</SimpleNotice>
+							);
+						}
+						if ( ! scanStatus.credentials ) {
+							return '';
+						}
+						if ( scanStatus.credentials.length === 0 ) {
+							return (
+								<SimpleNotice showDismiss={ false } status="is-warning" isCompact>
+									{ __( 'Action needed', 'jetpack' ) }
+								</SimpleNotice>
+							);
+						}
+						return this.getProActions( 'secure', 'scan' );
 					}
 					break;
 
@@ -271,7 +296,7 @@ class ProStatus extends React.Component {
 				<QuerySitePlugins />
 				<QueryAkismetKeyCheck />
 				<QueryVaultPressData />
-				{ ! this.props.isDevMode &&
+				{ ! this.props.isOfflineMode &&
 					getStatus(
 						this.props.proFeature,
 						this.props.pluginActive( pluginSlug ),
@@ -292,17 +317,18 @@ export default connect( state => {
 		getVaultPressData: () => getVaultPressData( state ),
 		getAkismetData: () => getAkismetData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
-		sitePlan: () => sitePlan,
+		sitePlan,
 		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		fetchingAkismetData: isFetchingAkismetData( state ),
 		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
 		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
 		rewindStatus: getRewindStatus( state ),
+		scanStatus: getScanStatus( state ),
 	};
 } )( ProStatus );

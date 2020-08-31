@@ -2,13 +2,14 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -28,18 +29,18 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
 				siteAdminUrl = this.props.siteAdminUrl,
-				isDevMode = this.props.isDevMode,
+				isOfflineMode = this.props.isOfflineMode,
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const configCard = () => {
-				if ( isDevMode ) {
+				if ( isOfflineMode ) {
 					return (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
 							href={ siteAdminUrl + 'options-general.php?page=sharing' }
 						>
-							{ __( 'Configure your sharing buttons' ) }
+							{ __( 'Configure your sharing buttons', 'jetpack' ) }
 						</Card>
 					);
 				}
@@ -52,9 +53,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ 'https://wordpress.com/marketing/sharing-buttons/' + siteRawUrl }
+							href={ getRedirectUrl( 'calypso-marketing-sharing-buttons', { site: siteRawUrl } ) }
 						>
-							{ __( 'Configure your sharing buttons' ) }
+							{ __( 'Configure your sharing buttons', 'jetpack' ) }
 						</Card>
 					);
 				}
@@ -67,7 +68,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						rel="noopener noreferrer"
 						href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }
 					>
-						{ __( 'Create a Jetpack account to use this feature' ) }
+						{ __( 'Create a Jetpack account to use this feature', 'jetpack' ) }
 					</Card>
 				);
 			};
@@ -75,23 +76,25 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Sharing buttons', { context: 'Settings header' } ) }
+					header={ _x( 'Sharing buttons', 'Settings header', 'jetpack' ) }
 					module="sharing"
 					hideButton
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ { module: 'sharing' } }
 						support={ {
 							text: __(
-								'You can customize the sharing buttons and choose which services to display.'
+								'You can customize the sharing buttons and choose which services to display.',
+								'jetpack'
 							),
-							link: 'https://jetpack.com/support/sharing/',
+							link: getRedirectUrl( 'jetpack-support-sharing' ),
 						} }
 					>
 						<p>
 							{ __(
-								'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.'
+								'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.',
+								'jetpack'
 							) }
 						</p>
 						<ModuleToggle
@@ -100,7 +103,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Add sharing buttons to your posts and pages' ) }
+							{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isActive && configCard() }

@@ -23,4 +23,8 @@ export default {
 		min: 0,
 		max: 50,
 	},
+	isStackedOnMobile: {
+		type: 'boolean',
+		default: true,
+	},
 };

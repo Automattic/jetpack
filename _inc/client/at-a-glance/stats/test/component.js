@@ -4,6 +4,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -55,11 +56,11 @@ describe( 'Dashboard Stats', () => {
 				day: undefined,
 			},
 			isModuleAvailable: true,
-			isDevMode: false,
+			isOfflineMode: false,
 			moduleList: { stats: {} },
 			activeTab: 'day',
 			isLinked: true,
-			connectUrl: 'https://wordpress.com/jetpack/connect/',
+			connectUrl: getRedirectUrl( 'calypso-jetpack-connect' ),
 			isEmptyStatsCardDismissed: false,
 			getOptionValue: module => 'stats' === module,
 			getModuleOverride: () => false,

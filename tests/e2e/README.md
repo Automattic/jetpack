@@ -11,20 +11,13 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
     - [WP Site Configuration](#wp-site-configuration)
     - [Environment Variables](#environment-variables)
 - [Running tests](#running-tests)
-  - [How to run tests](#how-to-run-tests)
 - [Writing tests](#writing-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
 
 ## Pre-requisites
 
-### Install dependencies
-
-This readme assumes that node and yarn already installed on your machine.
-
-```bash
-yarn
-```
+This readme assumes that `node`, `yarn` and `docker` are already installed on your machine.
 
 ### Configuration
 
@@ -34,40 +27,25 @@ Jetpack E2E tests relies on encrypted configuration file, which is included in t
 
 To decrypt the config file (a8c only):
 
-- Find a decryption key. Search the `SS` for "E2E Jetpack CONFIG_KEY"
+- Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
 - Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
 
 #### WP Site Configuration
 
-The tests require a WP installation with installed Jetpack, and which could be connected i.e. the site has a public domain. Ngrok-ed local site or a fresh JN site will work perfectly. Since Jetpack plan is required for some of the blocks, there are few states in which test site could be:
+Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to have WP installation with installed Jetpack accessible via local `ngrok` tunnel. Required environment easily could be created via core's `wp-env` node package.
 
-1. A fresh site with not connected Jetpack which does not have any purchased plan
-2. Jetpack connected site with purchased Professional _sandboxed_ plan. More on sandboxed plans: PCYsg-IA-p2
-
-By default, tests expect that your site is accessible on `localhost`, and its admin credentials are `wordpress` / `wordpress`. All these values could be overridden by environment variables that could be passed along with the test execution command. The default values are defined in default (non-encrypted) config file: [`./config/default.js`](./config/default.js)
-
-##### Disposable Docker WP installation
-
-You can run tests locally inside disposable docker container. It will provide you a clean WP installation which is ready to run the tests. To launch the site:
+`wp-env` is a wrapper around `docker-compose` that makes it pretty easy to get up and running with E2E tests (and local development as well!). We use a wrapper around `wp-env` that configures ngrok, and updates some options to make `wp-env` containers to work with Jetpack tests. To setup tests environment:
 
 1. Make sure that docker and ngrok is installed locally
-1. run `./tests/e2e/bin/docker-e2e-cli.sh setup` to start a Docker container
-1. run the tests: `yarn test-e2e --runInBand --verbose`. With above flags, the tests will be run sequentially, which will eliminate any racing conditions with reusing single docker instance.
+1. run `./tests/e2e/bin/env.sh start` to start a `wp-env` containers. It will start 2 wordpress installation (we would use only 1 though) & wp-cli container.
+1. run the tests: `yarn test-e2e`.
 
 #### Environment variables
 
-These environmental variables could be used to re-define default WP site related values:
-
-- `export WP_BASE_URL={your site URL}`
-- `export WP_USERNAME={your site Admin username}`
-- `export WP_PASSWORD={your site Admin password}`
-
-`PUPPETEER_HEADLESS` - is used to run test visually. Default is `true`
-`E2E_DEBUG` - Could be used to help with tests development / debugging. For now, it's used to pause the test execution on test error or failure
+`PUPPETEER_HEADLESS` - wether or not to run tests headlessly. Default is `true`.
+`E2E_DEBUG` - Will log browser interactions into console. Also, will pause test execution on test failure
 
 ## Running tests
-
-### How to run tests
 
 You can run the e2e tests locally using this command:
 
@@ -87,10 +65,10 @@ To run an individual test, use the direct path to the spec. For example:
 npm run test-e2e ./tests/e2e/specs/dummy.test.js
 ```
 
-You can also provide the base URL, Test username and Test password like this:
+For best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended. Also Jest's `-t` argument could be used to run single test from the test suite(file)
 
 ```bash
-WP_BASE_URL="URL" WP_USERNAME="your_login" WP_PASSWORD="your_password" npm run test-e2e
+E2E_DEBUG=true PUPPETEER_HEADLESS=false npm run test-e2e ./tests/e2e/specs/some.test.js -t 'Test name'
 ```
 
 ## Writing tests
@@ -109,7 +87,7 @@ The following packages are being used to write tests:
 
 ## Tests Architecture
 
-The tests are using the PageObject pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components. All the pages extending the [`Page`](./lib/pages/page.js) class, and don't really have any specific requirements, except maybe the way how page constructors are designed. `expectedSelector` is a CSS selector that identifies the specific page/component. Make sure to pass `page` instance together with the `expectedSelector` to the `super` call as follows:
+The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components. All the pages extending the [`Page`](./lib/pages/page.js) class, and don't really have any specific requirements, except maybe the way how page constructors are designed. `expectedSelector` is a CSS selector that identifies the specific page/component. Make sure to pass `page` instance together with the `expectedSelector` to the `super` call as follows:
 
 ```js
 constructor( page ) {
@@ -122,11 +100,12 @@ Since most of Puppeteer functionality is `async`, and JavaScript constructors ar
 
 ## CI Configuration
 
-The heart of CI infrastructure is a [`setup-e2e-travis.sh`](./bin/setup-e2e-travis.sh) script. This script doing a few things:
+Both local runs and CI sharing the same `wp-env` based configuration
 
-- Installs and launches `ngrok` which is tunneling `localhost:80` to the public domain
-- Installs and sets-up the `nginx`
-- Installs and sets-up WordPress installation
-- Activates Jetpack plugin
+## Functionality plugins
 
-You can disable e2e tests in Travis by setting Travis env variable `RUN_E2E` to false (or just removing it completely) in project's [settings page](https://travis-ci.org/Automattic/jetpack/settings). To re-enable them - just set it to `true`
+Tests relies on functionality plugins that provide some additional functionality, provide shortcuts, etc.
+
+### e2e-plan-data-interceptor.php
+
+The purpose of this plugin is to provide a way to `mock` Jetpack plan, for cases when we test functionality that does not directly use paid services. Great example of this purpose is a paid Gutenberg blocks.

@@ -26,10 +26,10 @@ export default class WordAdsBlock {
 	async switchFormat( buttonNumber ) {
 		await clickBlockToolbarButton( 'Pick an ad format' );
 
-		const formatButtonsSelector = '.wp-block-jetpack-wordads__format-picker button';
-		await waitForSelector( this.page, formatButtonsSelector );
-		const allButtons = await this.page.$$( formatButtonsSelector );
-		await allButtons[ buttonNumber ].click();
+		const formatButtonSelector = `.wp-block-jetpack-wordads__format-picker button:nth-child(${ buttonNumber })`;
+		await waitForSelector( this.page, formatButtonSelector );
+		await this.page.waitFor( 500 );
+		return await waitAndClick( this.page, formatButtonSelector );
 	}
 
 	getSelector( selector ) {
@@ -42,7 +42,8 @@ export default class WordAdsBlock {
 
 	/**
 	 * Checks whether block is rendered on frontend
-	 * @param {Page} page Puppeteer page instance
+	 *
+	 * @param {page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = ".entry-content iframe[src*='wordads']";

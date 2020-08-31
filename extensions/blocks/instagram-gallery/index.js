@@ -9,18 +9,20 @@ import { __, _x } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
 import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'instagram-gallery';
 
 export const settings = {
-	title: __( 'Instagram Gallery', 'jetpack' ),
-	description: __( 'Embed posts from your Instagram account', 'jetpack' ),
+	title: __( 'Latest Instagram Posts', 'jetpack' ),
+	description: __(
+		'Display an automatically updating list of the latest posts from your Instagram feed.',
+		'jetpack'
+	),
 	icon: {
 		src: 'instagram',
 		foreground: getIconColor(),
 	},
-	category: supportsCollections() ? 'embed' : 'jetpack',
+	category: 'embed',
 	keywords: [
 		_x( 'images', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
@@ -32,13 +34,14 @@ export const settings = {
 	},
 	attributes,
 	edit,
-	save: ( { attributes: { instagramUser } } ) => (
-		<div>
-			<a
-				href={ `https://www.instagram.com/${ instagramUser }/` }
-				rel="noopener noreferrer"
-				target="_blank"
-			>{ `https://www.instagram.com/${ instagramUser }/` }</a>
-		</div>
-	),
+	save: ( { attributes: { instagramUser } } ) =>
+		instagramUser && (
+			<div>
+				<a
+					href={ `https://www.instagram.com/${ instagramUser }/` }
+					rel="noopener noreferrer"
+					target="_blank"
+				>{ `https://www.instagram.com/${ instagramUser }/` }</a>
+			</div>
+		),
 };

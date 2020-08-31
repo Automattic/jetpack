@@ -7,7 +7,9 @@
 	> div {
 		margin-bottom: 0.75em;
 	}
+}
 
+.wp-block-jetpack-revue {
 	.wp-block-button {
 		margin-top: 0;
 	}
@@ -17,7 +19,7 @@
 		margin-top: 0.25em;
 		width: 100%;
 		@media screen and ( min-width: 600px ) {
-			width: 50%;
+			max-width: 300px;
 		}
 	}
 
@@ -37,4 +39,8 @@
 	&.is-visible {
 		display: block;
 	}
+}
+
+.wp-block-jetpack-revue__fallback {
+	display: none;
 }

@@ -2,19 +2,20 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
+import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import SupportInfo from 'components/support-info';
+import TextInput from 'components/text-input';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 import './style.scss';
 
@@ -54,20 +55,20 @@ class CommentsComponent extends React.Component {
 			return null;
 		}
 
-		const { isUnavailableInDevMode, getOptionValue } = this.props;
+		const { isUnavailableInOfflineMode: isUnavailableInOfflineMode, getOptionValue } = this.props;
 
 		const comments = this.props.getModule( 'comments' ),
 			isCommentsActive = this.props.getOptionValue( 'comments' ),
-			commentsUnavailableInDevMode = this.props.isUnavailableInDevMode( 'comments' ),
+			commentsUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'comments' ),
 			gravatar = this.props.getModule( 'gravatar-hovercards' ),
 			markdown = this.props.getModule( 'markdown' ),
-			commentLikesUnavailable = isUnavailableInDevMode( 'comment-likes' ),
+			commentLikesUnavailable = isUnavailableInOfflineMode( 'comment-likes' ),
 			commentLikesActive = getOptionValue( 'comment-likes' );
 
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Comments' ) }
+				header={ __( 'Comments', 'jetpack' ) }
 				module="comments"
 				saveDisabled={ this.props.isSavingAnyOption( [
 					'highlander_comment_form_prompt',
@@ -77,20 +78,20 @@ class CommentsComponent extends React.Component {
 				{ foundComments && (
 					<SettingsGroup
 						hasChild
-						disableInDevMode
+						disableInOfflineMode
 						module={ comments }
 						support={ {
 							text: __(
-								'Replaces the standard WordPress comment form with a new comment system ' +
-									'that includes social media login options.'
+								'Replaces the standard WordPress comment form with a new comment system that includes social media login options.',
+								'jetpack'
 							),
-							link: 'https://jetpack.com/support/comments',
+							link: getRedirectUrl( 'jetpack-support-comments' ),
 						} }
 					>
 						<ModuleToggle
 							slug="comments"
 							compact
-							disabled={ commentsUnavailableInDevMode }
+							disabled={ commentsUnavailableInOfflineMode }
 							activated={ this.props.getOptionValue( 'comments' ) }
 							toggling={ this.props.isSavingAnyOption( 'comments' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -99,29 +100,31 @@ class CommentsComponent extends React.Component {
 						</ModuleToggle>
 						<FormFieldset>
 							<FormLabel>
-								<span className="jp-form-label-wide">{ __( 'Comment form introduction' ) }</span>
+								<span className="jp-form-label-wide">
+									{ __( 'Comment form introduction', 'jetpack' ) }
+								</span>
 								<TextInput
 									name={ 'highlander_comment_form_prompt' }
 									value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
 									disabled={
 										! isCommentsActive ||
-										commentsUnavailableInDevMode ||
+										commentsUnavailableInOfflineMode ||
 										this.props.isSavingAnyOption( 'highlander_comment_form_prompt' )
 									}
 									onChange={ this.props.onOptionChange }
 								/>
 							</FormLabel>
 							<span className="jp-form-setting-explanation">
-								{ __( 'A few catchy words to motivate your visitors to comment.' ) }
+								{ __( 'A few catchy words to motivate your visitors to comment.', 'jetpack' ) }
 							</span>
 							<FormLabel>
-								<span className="jp-form-label-wide">{ __( 'Color scheme' ) }</span>
+								<span className="jp-form-label-wide">{ __( 'Color scheme', 'jetpack' ) }</span>
 								<FormSelect
 									name={ 'jetpack_comment_form_color_scheme' }
 									value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
 									disabled={
 										! isCommentsActive ||
-										commentsUnavailableInDevMode ||
+										commentsUnavailableInOfflineMode ||
 										this.props.isSavingAnyOption( 'jetpack_comment_form_color_scheme' )
 									}
 									onChange={ this.props.onOptionChange }
@@ -151,7 +154,7 @@ class CommentsComponent extends React.Component {
 									</ModuleToggle>
 								</FormFieldset>
 								<SupportInfo
-									text={ __( 'Show Gravatar hovercards alongside comments.' ) }
+									text={ __( 'Show Gravatar hovercards alongside comments.', 'jetpack' ) }
 									link={ gravatar.learn_more_button }
 									privacyLink={ gravatar.learn_more_button + '#privacy' }
 								/>
@@ -180,12 +183,12 @@ class CommentsComponent extends React.Component {
 										onChange={ this.handleMarkdownCommentsToggle }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable Markdown use for comments.' ) }
+											{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
 										</span>
 									</CompactFormToggle>
 								</FormFieldset>
 								<SupportInfo
-									text={ __( 'Allow readers to use markdown in comments.' ) }
+									text={ __( 'Allow readers to use markdown in comments.', 'jetpack' ) }
 									link={ markdown.learn_more_button }
 									privacyLink={ markdown.learn_more_button + '#privacy' }
 								/>
@@ -203,14 +206,16 @@ class CommentsComponent extends React.Component {
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable comment likes.' ) }
+											{ __( 'Enable comment likes.', 'jetpack' ) }
 										</span>
 									</ModuleToggle>
 								</FormFieldset>
 								<SupportInfo
-									text={ __( 'Allow readers to like individual comments.' ) }
-									link="https://jetpack.com/support/comment-likes/"
-									privacyLink="https://jetpack.com/support/comment-likes/#privacy"
+									text={ __( 'Allow readers to like individual comments.', 'jetpack' ) }
+									link={ getRedirectUrl( 'jetpack-support-comment-likes' ) }
+									privacyLink={ getRedirectUrl( 'jetpack-support-comment-likes', {
+										anchor: 'privacy',
+									} ) }
 								/>
 							</div>
 						) }

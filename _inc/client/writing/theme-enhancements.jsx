@@ -3,12 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 import { FormLabel, FormLegend } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
@@ -121,8 +122,9 @@ class ThemeEnhancements extends React.Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Theme enhancements' ) }
+				header={ __( 'Theme enhancements', 'jetpack' ) }
 				hideButton={ ! foundInfiniteScroll || ! this.props.isInfiniteScrollSupported }
+				module="theme-enhancements"
 			>
 				{ infiniteScrollDisabledByOverride && (
 					<ModuleOverriddenBanner moduleName={ infScr.name } compact />
@@ -134,30 +136,32 @@ class ThemeEnhancements extends React.Component {
 						key={ `theme_enhancement_${ infScr.module }` }
 						support={ {
 							text: __(
-								'Loads the next posts automatically when the reader approaches the bottom of the page.'
+								'Loads the next posts automatically when the reader approaches the bottom of the page.',
+								'jetpack'
 							),
-							link: 'https://jetpack.com/support/infinite-scroll',
+							link: getRedirectUrl( 'jetpack-support-infinite-scroll' ),
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
 						<p>
 							{ __(
-								'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.'
+								'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.',
+								'jetpack'
 							) }
 						</p>
 						{ this.props.isInfiniteScrollSupported ? (
 							[
 								{
 									key: 'infinite_default',
-									label: __( 'Load more posts using the default theme behavior' ),
+									label: __( 'Load more posts using the default theme behavior', 'jetpack' ),
 								},
 								{
 									key: 'infinite_button',
-									label: __( 'Load more posts in page with a button' ),
+									label: __( 'Load more posts in page with a button', 'jetpack' ),
 								},
 								{
 									key: 'infinite_scroll',
-									label: __( 'Load more posts as the reader scrolls down' ),
+									label: __( 'Load more posts as the reader scrolls down', 'jetpack' ),
 								},
 							].map( radio => (
 								<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
@@ -174,15 +178,16 @@ class ThemeEnhancements extends React.Component {
 							) )
 						) : (
 							<span>
-								{ __( 'Theme support required.' ) + ' ' }
+								{ __( 'Theme support required.', 'jetpack' ) + ' ' }
 								<a
 									onClick={ this.trackLearnMoreIS }
 									href={ infScr.learn_more_button + '#theme' }
 									title={ __(
-										'Learn more about adding support for Infinite Scroll to your theme.'
+										'Learn more about adding support for Infinite Scroll to your theme.',
+										'jetpack'
 									) }
 								>
-									{ __( 'Learn more' ) }
+									{ __( 'Learn more', 'jetpack' ) }
 								</a>
 							</span>
 						) }
@@ -193,7 +198,7 @@ class ThemeEnhancements extends React.Component {
 						module={ { module: customCSS.module } }
 						support={ {
 							text: customCSS.description,
-							link: 'https://jetpack.com/support/custom-css/',
+							link: getRedirectUrl( 'jetpack-support-custom-css' ),
 						} }
 					>
 						<ModuleToggle
@@ -204,7 +209,7 @@ class ThemeEnhancements extends React.Component {
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __( 'Enhance CSS customization panel' ) }
+								{ __( 'Enhance CSS customization panel', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>

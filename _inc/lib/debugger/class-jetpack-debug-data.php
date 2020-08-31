@@ -9,6 +9,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class Jetpack_Debug_Data
@@ -95,8 +96,8 @@ class Jetpack_Debug_Data {
 	 */
 	public static function core_debug_data( $debug ) {
 		$support_url = Jetpack::is_development_version()
-			? 'https://jetpack.com/contact-support/beta-group/'
-			: 'https://jetpack.com/contact-support/';
+			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
+			: Redirect::get_url( 'jetpack-contact-support' );
 
 		$jetpack = array(
 			'jetpack' => array(
@@ -282,7 +283,7 @@ class Jetpack_Debug_Data {
 			foreach ( $sync_statuses as $sync_status => $sync_status_value ) {
 				$human_readable_sync_status[ $sync_status ] =
 					in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ), true )
-						? date( 'r', $sync_status_value ) : $sync_status_value;
+						? gmdate( 'r', $sync_status_value ) : $sync_status_value;
 			}
 			$debug_info['full_sync'] = array(
 				'label'   => 'Full Sync Status',

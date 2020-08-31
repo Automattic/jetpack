@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
+
+/**
  * Internal dependencies
  */
 import Page from '../page';
@@ -9,11 +14,12 @@ import {
 	waitAndType,
 	isEventuallyVisible,
 } from '../../page-helper';
+import logger from '../../logger';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
-		const url = 'https://wordpress.com/log-in';
+		const url = getRedirectUrl( 'wpcom-log-in' );
 		super( page, { expectedSelector, url, explicitWaitMS: 45000 } );
 	}
 
@@ -45,7 +51,7 @@ export default class LoginPage extends Page {
 			} );
 		} catch ( e ) {
 			if ( retry === true ) {
-				console.log( `The login didn't work as expected - retrying now: '${ e }'` );
+				logger.info( `The login didn't work as expected - retrying now: '${ e }'` );
 				return await this.login( wpcomUser, { retry: false } );
 			}
 			throw e;

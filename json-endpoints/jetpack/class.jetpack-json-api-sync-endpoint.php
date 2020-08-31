@@ -10,7 +10,13 @@ use Automattic\Jetpack\Sync\Settings;
 
 // POST /sites/%s/sync
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
+
+	/**
+	 * Sync endpoints allow authentication via a blog token therefore require no user capabilities.
+	 *
+	 * @var array
+	 */
+	protected $needed_capabilities = array();
 
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
 		return parent::validate_call( $_blog_id, $capability, false );
@@ -249,7 +255,14 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		}
 	}
 
-	public function immediate_full_sync_pull( $number_of_items ) {
+	/**
+	 * Check out a buffer of full sync actions.
+	 *
+	 * @param null $number_of_items Number of Actions to check-out.
+	 *
+	 * @return array Sync Actions to be returned to requestor
+	 */
+	public function immediate_full_sync_pull( $number_of_items = null ) {
 		// try to give ourselves as much time as possible.
 		set_time_limit( 0 );
 
@@ -294,6 +307,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
+
 		$request_body = $this->input();
 		$queue_name = $this->validate_queue( $request_body['queue'] );
 
@@ -317,13 +331,28 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 
 		$items = $queue->peek_by_id( $request_body['item_ids'] );
 
-		/** This action is documented in packages/sync/src/modules/Full_Sync.php */
-		$full_sync_module = Modules::get_module( 'full-sync' );
+		// Update Full Sync Status if queue is "full_sync".
+		if ( 'full_sync' === $queue_name ) {
+			$full_sync_module = Modules::get_module( 'full-sync' );
 
-		$full_sync_module->update_sent_progress_action( $items );
+			$full_sync_module->update_sent_progress_action( $items );
+		}
 
 		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
+
+		// Perform another checkout?
+		if ( isset( $request_body['continue'] ) && $request_body['continue'] ) {
+			if ( in_array( $queue_name, array( 'full_sync', 'immediate' ), true ) ) {
+				// Send Full Sync Actions.
+				Sender::get_instance()->do_full_sync();
+			} else {
+				// Send Incremental Sync Actions.
+				if ( $queue->has_any_items() ) {
+					Sender::get_instance()->do_sync();
+				}
+			}
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -337,7 +366,7 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 
 	protected static function sanitize_item_ids( $item ) {
 		// lets not delete any options that don't start with jpsq_sync-
-		if ( substr( $item, 0, 5 ) !== 'jpsq_' ) {
+		if ( ! is_string( $item ) || substr( $item, 0, 5 ) !== 'jpsq_' ) {
 			return null;
 		}
 		//Limit to A-Z,a-z,0-9,_,-,.

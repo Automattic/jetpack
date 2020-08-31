@@ -16,12 +16,12 @@ function getWebpackConfig() {
 	return require( './../../webpack.config.js' );
 }
 
-export const watch = function() {
+export const watch = function () {
 	const config = getWebpackConfig();
 
 	return webpack( config ).watch(
 		100,
-		onBuild.bind( this, function( error ) {
+		onBuild.bind( this, function ( error ) {
 			if ( error ) {
 				log( error );
 				return;
@@ -30,7 +30,7 @@ export const watch = function() {
 	);
 };
 
-gulp.task( 'react:master', function( done ) {
+gulp.task( 'react:master', function ( done ) {
 	const config = getWebpackConfig();
 
 	return webpack( config ).run( onBuild.bind( this, done ) );
@@ -90,9 +90,11 @@ function onBuild( done, err, stats ) {
 		'videopress',
 		'comment-likes',
 		'lazy-images',
+		'scan',
+		'wordads',
 	];
 
-	// Source any JS for whitelisted modules, which will minimize us shipping much
+	// Source any JS for allowed modules, which will minimize us shipping much
 	// more JS that we haven't pointed to in PHP yet.
 	// Example output: modules/(shortcodes|widgets)/**/*.js
 	const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
@@ -122,7 +124,7 @@ function onBuild( done, err, stats ) {
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulpif( ! is_prod, sourcemaps.write( 'maps' ) ) ) // Put the maps in _inc/build/maps so that we can easily .svnignore
 		.pipe( gulp.dest( '_inc/build' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( 'Your other JS is now uglified!' );
 			done();
 		} );

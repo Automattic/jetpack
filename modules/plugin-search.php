@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Disable direct access and execution.
@@ -226,7 +227,7 @@ class Jetpack_Plugin_Search {
 					'Learn more about these suggestions.',
 					'jetpack'
 				),
-				'supportLink'    => 'https://jetpack.com/redirect/?source=plugin-hint-learn-support',
+				'supportLink'    => Redirect::get_url( 'plugin-hint-learn-support' ),
 				'hideText'       => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);
@@ -277,7 +278,7 @@ class Jetpack_Plugin_Search {
 				'requires_connection' => true,
 				'module' => 'akismet',
 				'sort' => '16',
-				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/',
+				'learn_more_button' => Redirect::get_url( 'plugin-hint-upgrade-akismet' ),
 				'configure_url' => admin_url( 'admin.php?page=akismet-key-config' ),
 			),
 		);
@@ -429,20 +430,29 @@ class Jetpack_Plugin_Search {
 	 *
 	 */
 	private function get_configure_url( $feature, $configure_url ) {
-		$siteFragment = Jetpack::build_raw_urls( get_home_url() );
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$configure_url = "https://wordpress.com/marketing/connections/$siteFragment";
+				$configure_url = Redirect::get_url( 'calypso-marketing-connections' );
 				break;
 			case 'seo-tools':
-				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#seo";
+				$configure_url = Redirect::get_url(
+					'calypso-marketing-traffic',
+					array(
+						'anchor' => 'seo',
+					)
+				);
 				break;
 			case 'google-analytics':
-				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#analytics";
+				$configure_url = Redirect::get_url(
+					'calypso-marketing-traffic',
+					array(
+						'anchor' => 'analytics',
+					)
+				);
 				break;
 			case 'wordads':
-				$configure_url = "https://wordpress.com/ads/settings/$siteFragment";
+				$configure_url = Redirect::get_url( 'wpcom-ads-settings' );
 				break;
 		}
 		return $configure_url;
@@ -465,7 +475,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				href="' . esc_url( Redirect::get_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
@@ -502,7 +512,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				href="' . esc_url( Redirect::get_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
@@ -538,52 +548,12 @@ class Jetpack_Plugin_Search {
  * @return bool True if PSH is active.
  */
 function jetpack_is_psh_active() {
-	// false means unset, 1 means active, 0 means inactive.
-	$status = get_transient( 'jetpack_psh_status' );
-
-	if ( false === $status ) {
-		$error = false;
-		$status = jetpack_get_remote_is_psh_active( $error );
-		set_transient(
-			'jetpack_psh_status',
-			// Cache as int
-			(int) $status,
-			// If there was an error, still cache but for a shorter time
-			( $error ? 5 : 15 ) * MINUTE_IN_SECONDS
-		);
-	}
-
-	return (bool) $status;
-}
-
-/**
- * Makes remote request to determine if Plugin search hints is active.
- *
- * @since 7.1.1
- * @internal
- *
- * @param bool &$error Did the remote request result in an error?
- * @return bool True if PSH is active.
- */
-function jetpack_get_remote_is_psh_active( &$error ) {
-	$response = wp_remote_get( 'https://jetpack.com/psh-status/' );
-	if ( is_wp_error( $response ) ) {
-		$error = true;
-		return true;
-	}
-
-	$body = wp_remote_retrieve_body( $response );
-	if ( empty( $body ) ) {
-		$error = true;
-		return true;
-	}
-
-	$json = json_decode( $body );
-	if ( ! isset( $json->active ) ) {
-		$error = true;
-		return true;
-	}
-
-	$error = false;
-	return (bool) $json->active;
+	/**
+	 * Disables the Plugin Search Hints feature found when searching the plugins page.
+	 *
+	 * @since 8.7.0
+	 *
+	 * @param bool Set false to disable the feature.
+	 */
+	return apply_filters( 'jetpack_psh_active', true );
 }

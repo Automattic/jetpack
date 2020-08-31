@@ -97,7 +97,7 @@ function jetpack_migrate_gallery_widget_is_importable( $widget ) {
  * @return array|null
  */
 function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
-	$whitelisted_keys = array(
+	$allowed_keys = array(
 		'ids' => '',
 		'link' => '',
 		'title' => '',
@@ -122,12 +122,12 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 	// Ensure widget has no keys other than those expected.
 	// Not all widgets have conditions, so lets add it in.
 	$widget_copy = array_merge( array( 'conditions' => null ), $widget );
-	$non_whitelisted_keys = array_diff_key( $widget_copy, $whitelisted_keys );
-	if ( count( $non_whitelisted_keys ) > 0 ) {
+	$non_allowed_keys = array_diff_key( $widget_copy, $allowed_keys );
+	if ( count( $non_allowed_keys ) > 0 ) {
 		jetpack_migrate_gallery_widget_bump_stats( 'extra-key' );
 
-		// Log the names of the keys not in our whitelist.
-		foreach ( $non_whitelisted_keys as $key => $value ) {
+		// Log the names of the keys not in our allowed list.
+		foreach ( $non_allowed_keys as $key => $value ) {
 			jetpack_migrate_gallery_widget_bump_stats( "extra-key-$key", "migration-extra-key" );
 		}
 	}

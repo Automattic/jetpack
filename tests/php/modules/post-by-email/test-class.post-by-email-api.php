@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+
 /**
  * Automated testing of the post-by-email REST API.
  *
@@ -120,9 +123,6 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 		}
 
 		wp_set_current_user( 0 );
-
-		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
-		Jetpack::init()->HTTP_RAW_POST_DATA = null;
 	}
 
 	/**
@@ -198,8 +198,7 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 	 */
 	public function rest_pre_dispatch( $result, $server ) {
 		// Reset Jetpack::xmlrpc_verification saved state.
-		$jetpack = Jetpack::init();
-		$jetpack->reset_saved_auth_state();
+		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 
 		// Set POST body for Jetpack::verify_xml_rpc_signature.
 		$GLOBALS['HTTP_RAW_POST_DATA'] = $this->request->get_body(); // phpcs:ignore

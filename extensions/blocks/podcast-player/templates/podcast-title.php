@@ -18,19 +18,22 @@ if ( empty( $title ) ) {
 	return;
 }
 
-if ( ! empty( $link ) ) :
-	?>
-	<a
-		class="jetpack-podcast-player__podcast-title"
-		href="<?php echo esc_url( $link ); ?>"
-		target="_blank"
-		rel="noopener noreferrer nofollow"
-	>
-		<?php echo esc_html( $title ); ?>
-	</a>
-<?php else : ?>
-	<span class="jetpack-podcast-player__podcast-title">
-		<?php echo esc_html( $title ); ?>
-	</span>;
+?>
+<span class="jetpack-podcast-player__podcast-title">
 	<?php
-endif;
+	if ( ! empty( $link ) ) :
+		?>
+		<a
+			class="jetpack-podcast-player__link"
+			href="<?php echo esc_url( $link ); ?>"
+			target="_blank"
+			rel="noopener noreferrer nofollow"
+		>
+			<?php echo esc_html( $title ); ?>
+		</a>
+		<?php
+	else :
+		echo esc_html( $title );
+	endif;
+	?>
+</span>

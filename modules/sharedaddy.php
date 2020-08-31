@@ -16,6 +16,7 @@
  */
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Redirect;
 
 if ( ! function_exists( 'sharing_init' ) ) {
 	require dirname( __FILE__ ) . '/sharedaddy/sharedaddy.php';
@@ -38,10 +39,9 @@ function sharedaddy_loaded() {
  */
 function jetpack_sharedaddy_configuration_url() {
 	$status = new Status();
-	if ( $status->is_development_mode() || $status->is_staging_site() || ! Jetpack::is_user_connected() ) {
+	if ( $status->is_offline_mode() || $status->is_staging_site() || ! Jetpack::is_user_connected() ) {
 		return admin_url( 'options-general.php?page=sharing' );
 	}
 
-	$site_suffix = Jetpack::build_raw_urls( get_home_url() );
-	return 'https://wordpress.com/marketing/sharing-buttons/' . $site_suffix;
+	return Redirect::get_url( 'calypso-marketing-sharing-buttons' );
 }

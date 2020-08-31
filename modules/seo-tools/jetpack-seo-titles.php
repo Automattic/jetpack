@@ -227,7 +227,7 @@ class Jetpack_SEO_Titles {
 	/**
 	 * Checks if a given format conforms to predefined SEO title templates.
 	 *
-	 * Every format type and token must be whitelisted.
+	 * Every format type and token must be specifically allowed..
 	 * @see get_allowed_tokens()
 	 *
 	 * @param array $title_formats Template of SEO title to check.

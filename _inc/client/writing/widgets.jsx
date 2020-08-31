@@ -3,10 +3,12 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __, _x } from '@wordpress/i18n';
+
 /**
  * Internal dependencies
  */
+import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -26,7 +28,7 @@ class Widgets extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Widgets', { context: 'Settings header' } ) }
+				header={ _x( 'Widgets', 'Settings header', 'jetpack' ) }
 				module="widgets"
 				hideButton
 			>
@@ -35,7 +37,7 @@ class Widgets extends Component {
 						module={ { module: 'widgets' } }
 						support={ {
 							text: this.props.widgetsModule.description,
-							link: 'https://jetpack.com/support/extra-sidebar-widgets/',
+							link: getRedirectUrl( 'jetpack-support-extra-sidebar-widgets' ),
 						} }
 					>
 						<ModuleToggle
@@ -45,7 +47,8 @@ class Widgets extends Component {
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							{ __(
-								'Make extra widgets available for use on your site including subscription forms and Twitter streams'
+								'Make extra widgets available for use on your site including subscription forms and Twitter streams',
+								'jetpack'
 							) }
 						</ModuleToggle>
 					</SettingsGroup>
@@ -55,9 +58,10 @@ class Widgets extends Component {
 						module={ { module: 'widget-visibility' } }
 						support={ {
 							text: __(
-								'Widget visibility lets you decide which widgets appear on which pages, so you can finely tailor widget content.'
+								'Widget visibility lets you decide which widgets appear on which pages, so you can finely tailor widget content.',
+								'jetpack'
 							),
-							link: 'https://jetpack.com/support/widget-visibility/',
+							link: getRedirectUrl( 'jetpack-support-widget-visibility' ),
 						} }
 					>
 						<ModuleToggle
@@ -67,7 +71,8 @@ class Widgets extends Component {
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							{ __(
-								'Enable widget visibility controls to display widgets only on particular posts or pages'
+								'Enable widget visibility controls to display widgets only on particular posts or pages',
+								'jetpack'
 							) }
 						</ModuleToggle>
 					</SettingsGroup>

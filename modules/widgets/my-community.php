@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Redirect;
+
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -235,7 +238,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 					sprintf(
 						__( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
 						admin_url( 'widgets.php' ),
-						'https://jetpack.com/support/getting-more-views-and-traffic/'
+						esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) )
 					), array( 'a' => array( 'href' => true ) )
 				) . '</p>';
 			} else {

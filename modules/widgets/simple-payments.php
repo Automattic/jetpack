@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 	/**
-	 * Simple Payments Button
+	 * Pay with PayPal (aka Simple Payments)
 	 *
-	 * Display a Simple Payments Button as a Widget.
+	 * Display a Pay with PayPal button as a Widget.
 	 */
 	class Jetpack_Simple_Payments_Widget extends WP_Widget {
 		/**
@@ -24,7 +24,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/simple-payments/simple-payments.php#L386-L415
 		 *
 		 * Indian Rupee (INR) is listed here for backwards compatibility with previously added widgets.
-		 * It's not supported by Simple Payments because at the time of the creation of this file
+		 * It's not supported by Pay with PayPal because at the time of the creation of this file
 		 * because it's limited to in-country PayPal India accounts only.
 		 * Discussion: https://github.com/Automattic/wp-calypso/pull/28236
 		 */
@@ -62,10 +62,10 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			parent::__construct(
 				'jetpack_simple_payments_widget',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
-				apply_filters( 'jetpack_widget_name', __( 'Simple Payments', 'jetpack' ) ),
+				apply_filters( 'jetpack_widget_name', __( 'Pay with PayPal', 'jetpack' ) ),
 				array(
 					'classname'                   => 'jetpack-simple-payments',
-					'description'                 => __( 'Add a Simple Payments Button as a Widget.', 'jetpack' ),
+					'description'                 => __( 'Add a Pay with PayPal button as a Widget.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				)
 			);
@@ -442,7 +442,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			// `bumps_stats_extra` only exists on .com
 			if ( function_exists( 'bump_stats_extras' ) ) {
-				require_lib( 'tracks/client' );
+				jetpack_require_lib( 'tracks/client' );
 				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
 				/** This action is documented in modules/widgets/social-media-icons.php */
 				do_action( 'jetpack_bump_stats_extra', 'jetpack-simple_payments', $stat_name );

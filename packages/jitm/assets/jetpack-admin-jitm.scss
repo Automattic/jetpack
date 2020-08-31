@@ -50,7 +50,9 @@ $blue-medium-dark:       #0071a1;
 	padding: 7px 14px 9px;
 	-webkit-appearance: none;
 	appearance: none;
-
+	text-align: center;
+	min-width: 90px;
+	
 	&:hover {
 		background: #f1f1f1;
 		border-color: $blue-grey-dark;
@@ -192,7 +194,7 @@ $blue-medium-dark:       #0071a1;
 	z-index: 2;
 
 	@include breakpoint( "<480px" ) {
-		display: block;
+		display: flex;
 	}
 
 	&.is-card-link {
@@ -237,6 +239,17 @@ $blue-medium-dark:       #0071a1;
 		&.is-dismissible {
 			padding-right: rem( 16px );
 		}
+	}
+}
+
+.jitm-banner__buttons_container {
+	display: grid;
+	height: 50%;
+	margin-top: auto;
+	margin-bottom: auto;
+
+	@include breakpoint( ">480px" ) {
+		display: flex;
 	}
 }
 
@@ -312,6 +325,10 @@ $blue-medium-dark:       #0071a1;
 	@include breakpoint( ">480px" ) {
 		align-items: center;
 	}
+
+	@include breakpoint( "<960px" ) {
+		margin-bottom: 10px;
+	}
 }
 
 .jitm-banner__content {
@@ -322,6 +339,11 @@ $blue-medium-dark:       #0071a1;
 
 	@include breakpoint( ">480px" ) {
 		flex-wrap: nowrap;
+	}
+
+	@include breakpoint( "<960px" ) {
+		display: grid;
+		margin-right: 5px;
 	}
 }
 
@@ -414,6 +436,8 @@ $blue-medium-dark:       #0071a1;
 	display: block;
 	text-decoration: none;
 	line-height: .5;
+	margin-top: auto;
+	margin-bottom: auto;
 
 	&:before {
 		color: darken($gray, 20%);

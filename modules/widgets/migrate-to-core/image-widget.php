@@ -72,21 +72,24 @@ function jetpack_migrate_image_widget() {
 		// Ensure widget has no keys other than those expected.
 		// Not all widgets have conditions, so lets add it in.
 		$widget_copy = array_merge( array( 'conditions' => null ), $widget );
-		$non_whitelisted_keys = array_diff_key( $widget_copy, array(
-			'title' => '',
-			'img_url' => '',
-			'alt_text' => '',
-			'img_title' => '',
-			'caption' => '',
-			'align' => '',
-			'img_width' => '',
-			'img_height' => '',
-			'link' => '',
-			'link_target_blank' => '',
-			'conditions' => '',
-		) );
+		$non_allowed_keys = array_diff_key(
+			$widget_copy,
+			array(
+				'title'             => '',
+				'img_url'           => '',
+				'alt_text'          => '',
+				'img_title'         => '',
+				'caption'           => '',
+				'align'             => '',
+				'img_width'         => '',
+				'img_height'        => '',
+				'link'              => '',
+				'link_target_blank' => '',
+				'conditions'        => '',
+			)
+		);
 
-		if ( count( $non_whitelisted_keys ) > 0 ) {
+		if ( count( $non_allowed_keys ) > 0 ) {
 			// skipping the widget in question
 			continue;
 		}
@@ -207,7 +210,7 @@ function jetpack_migrate_image_widget() {
 			delete_option( 'widget_image' );
 		}
 	}
-	
+
 	Jetpack_Options::update_option( 'image_widget_migration', true );
 }
 add_action( 'widgets_init', 'jetpack_migrate_image_widget' );

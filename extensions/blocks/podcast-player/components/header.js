@@ -8,13 +8,31 @@ import classnames from 'classnames';
  */
 import { memo } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import { default as linkIcon } from '../icons/link';
+
 const Header = memo(
-	( { playerId, title, cover, link, track, children, showCoverArt, showEpisodeDescription, colors } ) => (
+	( {
+		playerId,
+		title,
+		cover,
+		link,
+		track,
+		children,
+		showCoverArt,
+		showEpisodeDescription,
+		colors,
+	} ) => (
 		<div className="jetpack-podcast-player__header">
 			<div className="jetpack-podcast-player__current-track-info">
 				{ showCoverArt && cover && (
 					<div className="jetpack-podcast-player__cover">
-						{ /* alt="" will prevent the src from being announced. Ideally we'd have a cover.alt, but we can't get that from the RSS */ }
+						{ /*
+						 * alt="" will prevent the src from being announced by a screen reader.
+						 * Ideally we'd have a cover.alt, but we can't get that from the RSS.
+						 */ }
 						<img className="jetpack-podcast-player__cover-image" src={ cover } alt="" />
 					</div>
 				) }
@@ -30,14 +48,17 @@ const Header = memo(
 				) }
 			</div>
 
-			{ /* putting this above the audio player for source order HTML with screen readers, then visually switching it with the audio player via flex */ }
+			{ /*
+			 * Putting this above the audio player for source order HTML with screen
+			 * readers, then visually switching it with the audio player via flex.
+			 */ }
 			{ !! ( showEpisodeDescription && track && track.description ) && (
-				<div
+				<p
 					id={ `${ playerId }__track-description` }
 					className="jetpack-podcast-player__track-description"
 				>
 					{ track.description }
-				</div>
+				</p>
 			) }
 
 			{ /* children contains the audio player */ }
@@ -46,50 +67,63 @@ const Header = memo(
 	)
 );
 
-const Title = memo( ( {
-	playerId,
-	title,
-	link,
-	track,
-	colors = { primary: { name: null, custom: null, classes: '' } }
-} ) => (
-	<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__title">
-		{ !! ( track && track.title ) && (
-			<span
-				className={ classnames( 'jetpack-podcast-player__current-track-title', colors.primary.classes ) }
-				style={ { color: colors.primary.custom } }
-			>
-				{ track.title }
-			</span>
-		) }
+const Title = memo(
+	( {
+		playerId,
+		title,
+		link,
+		track,
+		colors = { primary: { name: null, custom: null, classes: '' } },
+	} ) => (
+		<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__title">
+			{ !! ( track && track.title ) && (
+				<span
+					className={ classnames(
+						'jetpack-podcast-player__current-track-title',
+						colors.primary.classes
+					) }
+					style={ { color: colors.primary.custom } }
+				>
+					{ track.title }
+					<a
+						className="jetpack-podcast-player__track-title-link"
+						href={ track.link || track.src }
+						target="_blank"
+						rel="noopener noreferrer nofollow"
+					>
+						{ linkIcon }
+					</a>
+				</span>
+			) }
 
-		{ /* Adds a visually hidden dash when both a track and a podcast titles are present */ }
-		{ !! ( track && track.title && title ) && (
-			<span className="jetpack-podcast-player--visually-hidden"> - </span>
-		) }
+			{ /*
+			 * Adds a visually hidden dash when both a track and a podcast titles are
+			 * present.
+			 */ }
+			{ !! ( track && track.title && title ) && (
+				<span className="jetpack-podcast-player--visually-hidden"> - </span>
+			) }
 
-		{ !! title && <PodcastTitle title={ title } link={ link } colors={ colors } /> }
-	</h2>
-) );
+			{ !! title && <PodcastTitle title={ title } link={ link } colors={ colors } /> }
+		</h2>
+	)
+);
 
-const PodcastTitle = memo( ( { title, link, colors = { secondary: { name: null, custom: null, classes: '' } } } ) => {
-	const className = classnames( 'jetpack-podcast-player__podcast-title', colors.secondary.classes );
-
-	if ( link ) {
-		return (
+const PodcastTitle = memo( ( { title, link } ) => (
+	<span className="jetpack-podcast-player__podcast-title">
+		{ link ? (
 			<a
-				className={ className }
-				style={ { color: colors.secondary.custom } }
+				className="jetpack-podcast-player__link"
 				href={ link }
 				target="_blank"
 				rel="noopener noreferrer nofollow"
 			>
 				{ title }
 			</a>
-		);
-	}
-
-	return <span className={ className }>{ title }</span>;
-} );
+		) : (
+			{ title }
+		) }
+	</span>
+) );
 
 export default Header;

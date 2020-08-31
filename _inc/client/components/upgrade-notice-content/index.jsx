@@ -1,24 +1,25 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import ExternalLink from 'components/external-link';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import JetpackDialogue from 'components/jetpack-dialogue';
-import { imagePath } from 'constants/urls';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
+import ModernOverlay from 'components/jetpack-dialogue-modern';
 
 const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 	class extends Component {
 		componentDidMount() {
+			jQuery( 'body' ).addClass( 'jp-dialogue-modern-showing' );
 			analytics.tracks.recordEvent( 'jetpack_warm_welcome_view', { version: this.props.version } );
+		}
+
+		componentWillUnmount() {
+			jQuery( 'body' ).removeClass( 'jp-dialogue-modern-showing' );
 		}
 
 		trackLearnMoreClick = () => {
@@ -38,62 +39,49 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 		};
 
 		renderInnerContent() {
-			const blockEditorUrl = `${ this.props.adminUrl }post-new.php`;
+			const domparser = new DOMParser();
+			const dom_content = domparser.parseFromString( this.props.releasePostContent, 'text/html' );
+			const els = dom_content.getElementsByTagName( 'a' );
+			for ( let i = 0; i < els.length; i++ ) {
+				els[ i ].setAttribute( 'target', '_blank' );
+				els[ i ].setAttribute( 'rel', 'noopener noreferrer' );
+			}
+			const content = dom_content.body.innerHTML;
+
+			/*eslint-disable react/no-danger*/
 			return (
 				<div className="jp-upgrade-notice__content">
-					<p>
-						{ __( 'The features you rely on, adapted for the new WordPress editor.' ) }
-						<br />
-						{ __( 'A new editor? Yes! {{a}}Learn more{{/a}}.', {
-							components: {
-								a: (
-									<ExternalLink
-										target="_blank"
-										rel="noopener noreferrer"
-										href={ 'https://wp.me/p1moTy-cee' }
-									/>
-								),
-							},
-						} ) }
-					</p>
-
-					<h2>{ __( 'Build your Jetpack site with blocks' ) }</h2>
-
-					<p>
-						{ __(
-							'Today, we are introducing the first wave of Jetpack-specific blocks built specifically ' +
-								'for the new editor experience: Simple Payment button, Form, Map, and Markdown.'
-						) }
-					</p>
-					<p>
-						<img
-							src={ imagePath + 'block-picker.png' }
-							width="250"
-							alt={ __( 'Jetpack is ready for the new WordPress editor' ) }
-						/>
-					</p>
-					<div className="jp-dialogue__cta-container">
-						<Button primary={ true } href={ blockEditorUrl } onClick={ this.trackLearnMoreClick }>
-							{ __( 'Take me to the new editor' ) }
-						</Button>
-						<Button onClick={ this.dismissNotice }>{ __( 'Okay, got it!' ) }</Button>
-					</div>
+					{ /*
+					 * The release post content is santized before reaching this point.
+					 * See Jetpack::send_update_modal_data().
+					 */ }
+					<div dangerouslySetInnerHTML={ { __html: content } } />
 				</div>
 			);
+			/*eslint-enable react/no-danger*/
 		}
 
 		render() {
+			const { featuredImage } = this.props;
+			let featuredImageComponent = null,
+				{ title } = this.props;
+
+			if ( featuredImage && featuredImage.length > 0 ) {
+				featuredImageComponent = <img src={ featuredImage } alt={ '' } />;
+			}
+
+			if ( ! title || 0 === title.length ) {
+				title = sprintf(
+					/* translators: Placeholder is a version number. */
+					__( 'New in Jetpack %s', 'jetpack' ),
+					this.props.version
+				);
+			}
+
 			return (
-				// TODO: update SVG?
-				<JetpackDialogue
-					svg={
-						<img
-							src={ imagePath + 'jetpack-gutenberg.svg' }
-							width="250"
-							alt={ __( 'Jetpack is ready for the new WordPress editor' ) }
-						/>
-					}
-					title={ __( 'New in Jetpack!' ) }
+				<ModernOverlay
+					svg={ featuredImageComponent }
+					title={ title }
 					content={ this.renderInnerContent() }
 					dismiss={ this.dismissNotice }
 				/>
@@ -101,12 +89,5 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 		}
 	}
 );
-
-JetpackDialogue.propTypes = {
-	adminUrl: PropTypes.string,
-	dismiss: PropTypes.func,
-	isUnavailableInDevMode: PropTypes.func,
-	version: PropTypes.string,
-};
 
 export default UpgradeNoticeContent;

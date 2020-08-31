@@ -3,13 +3,14 @@
  */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Banner from 'components/banner';
+import getRedirectUrl from 'lib/jp-redirect';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_SITE_BACKUPS_JETPACK } from 'lib/plans/constants';
@@ -31,13 +32,13 @@ export class JetpackBackup extends Component {
 				module={ { module: 'backups' } }
 				support={ {
 					text: __(
-						'Backs up your site to the global WordPress.com servers, ' +
-							'allowing you to restore your content in the event of an emergency or error.'
+						'Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.',
+						'jetpack'
 					),
-					link: 'https://jetpack.com/support/backups/',
+					link: getRedirectUrl( 'jetpack-support-backup' ),
 				} }
 			>
-				{ __( 'Your site is backed up.' ) }
+				{ __( 'Your site is connected to VaultPress for backups.', 'jetpack' ) }
 			</SettingsGroup>
 		);
 	};
@@ -49,32 +50,36 @@ export class JetpackBackup extends Component {
 		switch ( rewindState ) {
 			case 'provisioning':
 				return {
-					title: __( 'Provisioning' ),
+					title: __( 'Provisioning', 'jetpack' ),
 					icon: 'info',
-					description: __( 'Jetpack Backup is being configured for your site.' ),
+					description: __( 'Jetpack Backup is being configured for your site.', 'jetpack' ),
 					url: '',
 				};
 			case 'awaiting_credentials':
 				return {
-					title: __( 'Awaiting credentials' ),
+					title: __( 'Awaiting credentials', 'jetpack' ),
 					icon: 'notice',
 					description: __(
-						'You need to enter your server credentials to finish configuring Jetpack Backup.'
+						'You need to enter your server credentials to finish configuring Jetpack Backup.',
+						'jetpack'
 					),
-					url: 'https://wordpress.com/settings/security/' + siteRawUrl,
+					url: getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 				};
 			case 'active':
 				return {
-					title: __( 'Active' ),
+					title: __( 'Active', 'jetpack' ),
 					icon: 'checkmark-circle',
-					description: __( 'Your site is being backed up.' ),
-					url: 'https://wordpress.com/activity-log/' + siteRawUrl,
+					description: __( 'Your site is connected to Jetpack Backup.', 'jetpack' ),
+					url: getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
 				};
 			default:
 				return {
-					title: __( 'Oops!' ),
+					title: __( 'Oops!', 'jetpack' ),
 					icon: 'info',
-					description: __( 'The Jetpack Backup status could not be retrieved at this time.' ),
+					description: __(
+						'The Jetpack Backup status could not be retrieved at this time.',
+						'jetpack'
+					),
 					url: '',
 				};
 		}
@@ -105,7 +110,7 @@ export class JetpackBackup extends Component {
 		if ( ! hasRewindData && ! vaultPressEnabled ) {
 			return (
 				<SettingsCard
-					header={ __( 'Jetpack Backup', { context: 'Settings header' } ) }
+					header={ _x( 'Jetpack Backup', 'Settings header', 'jetpack' ) }
 					hideButton
 					action={ FEATURE_SITE_BACKUPS_JETPACK }
 				>
@@ -113,13 +118,13 @@ export class JetpackBackup extends Component {
 						module={ { module: 'backups' } }
 						support={ {
 							text: __(
-								'Backs up your site to the global WordPress.com servers, ' +
-									'allowing you to restore your content in the event of an emergency or error.'
+								'Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.',
+								'jetpack'
 							),
-							link: 'https://jetpack.com/support/backups/',
+							link: getRedirectUrl( 'jetpack-support-backup' ),
 						} }
 					>
-						{ __( 'Checking site status…' ) }
+						{ __( 'Checking site status…', 'jetpack' ) }
 					</SettingsGroup>
 				</SettingsCard>
 			);
@@ -129,7 +134,7 @@ export class JetpackBackup extends Component {
 			<SettingsCard
 				feature={ FEATURE_SITE_BACKUPS_JETPACK }
 				{ ...this.props }
-				header={ __( 'Jetpack Backup', { context: 'Settings header' } ) }
+				header={ _x( 'Jetpack Backup', 'Settings header', 'jetpack' ) }
 				hideButton
 			>
 				{ 'unavailable' === rewindState ? this.getVaultPressContent() : this.getRewindBanner() }

@@ -28,4 +28,12 @@
 	&-color-notice {
 		margin: 0;
 	}
+
+	div[data-align=center] > & {
+		text-align: center;
+	}
+
+	.components-placeholder__fieldset input {
+		flex: 1;
+	}
 }

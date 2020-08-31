@@ -120,6 +120,7 @@ class Posts extends Module {
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
@@ -142,17 +143,25 @@ class Posts extends Module {
 	 */
 	public function daily_akismet_meta_cleanup_before( $feedback_ids ) {
 		remove_action( 'deleted_post_meta', $this->action_handler );
-		/**
-		 * Used for syncing deletion of batch post meta
-		 *
-		 * @since 6.1.0
-		 *
-		 * @module sync
-		 *
-		 * @param array $feedback_ids feedback post IDs
-		 * @param string $meta_key to be deleted
-		 */
-		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values' );
+
+		if ( ! is_array( $feedback_ids ) || count( $feedback_ids ) < 1 ) {
+			return;
+		}
+
+		$ids_chunks = array_chunk( $feedback_ids, 100, false );
+		foreach ( $ids_chunks as $chunk ) {
+			/**
+			 * Used for syncing deletion of batch post meta
+			 *
+			 * @since 6.1.0
+			 *
+			 * @module sync
+			 *
+			 * @param array $feedback_ids feedback post IDs
+			 * @param string $meta_key to be deleted
+			 */
+			do_action( 'jetpack_post_meta_batch_delete', $chunk, '_feedback_akismet_values' );
+		}
 	}
 
 	/**
@@ -265,6 +274,23 @@ class Posts extends Module {
 	public function expand_jetpack_sync_save_post( $args ) {
 		list( $post_id, $post, $update, $previous_state ) = $args;
 		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+	}
+
+	/**
+	 * Filter all blacklisted post types.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 */
+	public function filter_blacklisted_post_types_deleted( $args ) {
+
+		// deleted_post is called after the SQL delete but before cache cleanup.
+		// There is the potential we can't detect post_type at this point.
+		if ( ! $this->is_post_type_allowed( $args[0] ) ) {
+			return false;
+		}
+
+		return $args;
 	}
 
 	/**
@@ -519,13 +545,9 @@ class Posts extends Module {
 			$post = get_post( $post_ID );
 		}
 
-		$previous_status = isset( $this->previous_status[ $post_ID ] ) ?
-			$this->previous_status[ $post_ID ] :
-			self::DEFAULT_PREVIOUS_STATE;
+		$previous_status = isset( $this->previous_status[ $post_ID ] ) ? $this->previous_status[ $post_ID ] : self::DEFAULT_PREVIOUS_STATE;
 
-		$just_published = isset( $this->just_published[ $post_ID ] ) ?
-			$this->just_published[ $post_ID ] :
-			false;
+		$just_published = isset( $this->just_published[ $post_ID ] ) ? $this->just_published[ $post_ID ] : false;
 
 		$state = array(
 			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
@@ -540,13 +562,14 @@ class Posts extends Module {
 		 *
 		 * @param int $post_ID the post ID
 		 * @param mixed $post \WP_Post object
-		 * @param bool  $update Whether this is an existing post being updated or not.
+		 * @param bool $update Whether this is an existing post being updated or not.
 		 * @param mixed $state state
 		 *
 		 * @module sync
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
+
 		$this->send_published( $post_ID, $post );
 	}
 
@@ -593,15 +616,18 @@ class Posts extends Module {
 		 */
 		$flags = apply_filters( 'jetpack_published_post_flags', $post_flags, $post );
 
-		/**
-		 * Action that gets synced when a post type gets published.
-		 *
-		 * @since 4.4.0
-		 *
-		 * @param int $post_ID
-		 * @param mixed array $flags post flags that are added to the post
-		 */
-		do_action( 'jetpack_published_post', $post_ID, $flags );
+		// Only Send Pulished Post event if post_type is not blacklisted.
+		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+			/**
+			 * Action that gets synced when a post type gets published.
+			 *
+			 * @since 4.4.0
+			 *
+			 * @param int $post_ID
+			 * @param mixed array $flags post flags that are added to the post
+			 */
+			do_action( 'jetpack_published_post', $post_ID, $flags );
+		}
 		unset( $this->just_published[ $post_ID ] );
 
 		/**

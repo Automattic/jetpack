@@ -24,8 +24,6 @@ import {
 	hasFilter,
 	setSearchQuery,
 	setSortQuery,
-	getSortKeyFromSortOption,
-	getSortOptionFromSortKey,
 	setFilterQuery,
 	restorePreviousHref,
 } from '../lib/query-string';
@@ -72,15 +70,7 @@ class SearchApp extends Component {
 		window.addEventListener( 'popstate', this.onPopstate );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.form.addEventListener( 'submit', this.handleSubmit );
-			input.addEventListener( 'input', this.handleInput );
-		} );
-
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.addEventListener( 'change', this.handleSortChange );
-		} );
-
+		this.updateEventListeners( this.state.overlayOptions.overlayTrigger );
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
@@ -93,14 +83,30 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'input', this.handleInput );
-		} );
-
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.removeEventListener( 'change', this.handleSortChange );
+			input.removeEventListener( 'focus', this.handleInputFocus );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
+		} );
+	}
+
+	updateEventListeners( type ) {
+		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+			if ( type === 'results' ) {
+				// Remove focus event listener
+				input.removeEventListener( 'focus', this.handleInputFocus );
+				// Add listeners for input and submit
+				input.form.addEventListener( 'submit', this.handleSubmit );
+				input.addEventListener( 'input', this.handleInput );
+			}
+			if ( type === 'immediate' ) {
+				// Remove listeners for input and submit
+				input.form.removeEventListener( 'submit', this.handleSubmit );
+				input.removeEventListener( 'input', this.handleInput );
+				// Add focus event listener
+				input.addEventListener( 'focus', this.handleInputFocus );
+			}
 		} );
 	}
 
@@ -111,6 +117,8 @@ class SearchApp extends Component {
 	restoreBodyScroll() {
 		document.body.style.overflowY = null;
 	}
+
+	getSort = () => getSortQuery( this.props.initialSort );
 
 	hasActiveQuery() {
 		return getSearchQuery() !== '' || hasFilter();
@@ -123,8 +131,6 @@ class SearchApp extends Component {
 	handleSubmit = event => {
 		event.preventDefault();
 		this.handleInput.flush();
-		setSearchQuery( event.target.elements.s.value );
-		this.showResults();
 	};
 
 	handleInput = debounce( event => {
@@ -135,9 +141,7 @@ class SearchApp extends Component {
 		setSearchQuery( event.target.value );
 	}, 200 );
 
-	handleSortChange = event => {
-		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
-	};
+	handleInputFocus = () => this.showResults();
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
@@ -154,8 +158,11 @@ class SearchApp extends Component {
 
 	handleOverlayOptionsUpdate = newOverlayOptions => {
 		this.setState(
-			{ overlayOptions: { ...this.state.overlayOptions, ...newOverlayOptions } },
-			this.showResults
+			state => ( { overlayOptions: { ...state.overlayOptions, ...newOverlayOptions } } ),
+			() => {
+				this.updateEventListeners( this.state.overlayOptions.overlayTrigger );
+				this.showResults();
+			}
 		);
 	};
 
@@ -187,13 +194,11 @@ class SearchApp extends Component {
 			input.value = getSearchQuery();
 		} );
 
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.value = getSortOptionFromSortKey( getSortQuery() );
-		} );
-
 		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
 		this.forceUpdate();
 	};
+
+	onChangeSort = sort => setSortQuery( sort );
 
 	loadNextPage = () => {
 		this.hasNextPage() && this.getResults( { pageHandle: this.state.response.page_handle } );
@@ -202,8 +207,7 @@ class SearchApp extends Component {
 	getResults = ( {
 		query = getSearchQuery(),
 		filter = getFilterQuery(),
-		sort = getSortQuery(),
-		resultFormat = getResultFormatQuery(),
+		sort = this.getSort(),
 		pageHandle,
 	} = {} ) => {
 		const requestId = this.state.requestId + 1;
@@ -212,13 +216,14 @@ class SearchApp extends Component {
 		return search( {
 			// Skip aggregations when requesting for paged results
 			aggregations: !! pageHandle ? {} : this.props.aggregations,
+			excludedPostTypes: this.props.options.excludedPostTypes,
 			filter,
 			pageHandle,
 			query,
-			resultFormat,
 			siteId: this.props.options.siteId,
 			sort,
 			postsPerPage: this.props.options.postsPerPage,
+			adminQueryFilter: this.props.options.adminQueryFilter,
 		} )
 			.then( newResponse => {
 				if ( this.state.requestId === requestId ) {
@@ -255,24 +260,29 @@ class SearchApp extends Component {
 				closeColor={ this.state.overlayOptions.closeColor }
 				closeOverlay={ this.hideResults }
 				colorTheme={ this.state.overlayOptions.colorTheme }
+				hasOverlayWidgets={ this.props.hasOverlayWidgets }
 				isVisible={ this.state.showResults }
 				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
 					closeOverlay={ this.hideResults }
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
+					enableSort={ this.state.overlayOptions.enableSort }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.state.isLoading }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
+					onChangeSort={ this.onChangeSort }
 					onLoadNextPage={ this.loadNextPage }
+					overlayTrigger={ this.state.overlayOptions.overlayTrigger }
 					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
-					resultFormat={ getResultFormatQuery() }
+					resultFormat={ this.state.overlayOptions.resultFormat }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
+					sort={ this.getSort() }
 					widgets={ this.props.options.widgets }
 					widgetsOutsideOverlay={ this.props.options.widgetsOutsideOverlay }
 				/>

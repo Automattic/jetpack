@@ -11,6 +11,7 @@
 		"ext-fileinfo": "*",
 		"ext-json": "*",
 		"ext-openssl": "*",
+		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-abtest": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
@@ -19,11 +20,15 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
+		"automattic/jetpack-heartbeat": "@dev",
 		"automattic/jetpack-jitm": "@dev",
+		"automattic/jetpack-lazy-images": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-partner": "@dev",
+		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
@@ -31,14 +36,14 @@
 		"automattic/jetpack-tracking": "@dev"
 	},
 	"require-dev": {
-		"dealerdirect/phpcodesniffer-composer-installer": "0.6.2",
+		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
-		"sirbrillig/phpcs-changed": "2.2.7",
-		"sirbrillig/phpcs-variable-analysis": "2.8.1",
-		"wp-coding-standards/wpcs": "2.2.1"
+		"sirbrillig/phpcs-changed": "2.5.1",
+		"sirbrillig/phpcs-variable-analysis": "2.8.3",
+		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"scripts": {
-		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor,packages/*/wordpress --extensions=php",
 		"php:lint": "vendor/bin/phpcs -p -s",
 		"php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
 		"php:autofix": "vendor/bin/phpcbf",

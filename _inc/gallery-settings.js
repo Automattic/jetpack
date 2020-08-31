@@ -1,12 +1,12 @@
 /**
  * Jetpack Gallery Settings
  */
-( function( $ ) {
+( function ( $ ) {
 	var media = wp.media;
 
 	// Wrap the render() function to append controls.
 	media.view.Settings.Gallery = media.view.Settings.Gallery.extend( {
-		render: function() {
+		render: function () {
 			var $el = this.$el;
 
 			media.view.Settings.prototype.render.apply( this, arguments );
@@ -19,7 +19,7 @@
 			// Hide the Columns setting for all types except Default
 			$el
 				.find( 'select[name=type]' )
-				.on( 'change', function() {
+				.on( 'change', function () {
 					var columnSetting = $el.find( 'select[name=columns]' ).closest( 'label.setting' );
 
 					if ( 'default' === $( this ).val() || 'thumbnails' === $( this ).val() ) {

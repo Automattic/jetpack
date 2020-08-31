@@ -11,7 +11,6 @@ import { Fragment } from '@wordpress/element';
 import edit from './edit';
 import { DEFAULT_FORMAT } from './constants';
 import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'wordads';
 export const title = __( 'Ad', 'jetpack' );
@@ -61,7 +60,7 @@ export const settings = {
 		attributes: {},
 	},
 
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	category: 'earn',
 
 	keywords: [
 		_x( 'ads', 'block search term', 'jetpack' ),

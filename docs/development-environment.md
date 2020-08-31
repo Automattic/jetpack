@@ -66,8 +66,8 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 ## Installing development tools
 
 ### Minimum required versions
- * Node.js - LTS
- * Yarn - 1.7
+ * Node.js - LTS (Currently 10, see engines section of package.json)
+ * Yarn - 1.3 (See engines section of package.json)
  * PHP - 7.4 (in case you're running WordPress locally)
 
 ---
@@ -200,8 +200,8 @@ yarn distclean
 
 Jetpack contains several extensions that have a separate build process. You can find information how to build them below: 
 
-* Jetpack Instant Search - [build instructions](../extensions/README.md)
-* Jetpack Block Editor Extensions - [build instructions](../modules/search/instant-search/README.md)
+* Jetpack Instant Search - [build instructions](../modules/search/instant-search/README.md)
+* Jetpack Block Editor Extensions - [build instructions](../extensions/README.md)
 
 ---
 
@@ -235,6 +235,26 @@ To get started, there are several ways to run the unit tests, depending on how y
 	```sh
 	yarn docker:phpunit:multisite --filter=Protect
 	```
+ 
+    For all package unit tests
+    ```sh
+    yarn docker:phpunit:package
+    ```
+    
+    For a specific package's tests
+    ```sh
+    yarn docker:phpunit:package autoloader
+    ```
+    
+    If you need to clear out a particular package's composer.lock
+    ```sh
+    yarn docker:phpunit:package autoloader -c
+    ```
+    
+    To run all package unit tests and clear all composer.lock files within
+    ```sh
+    yarn docker:phpunit:package -c
+    ```
 
 * ### VVV & Local Installs
 
@@ -375,7 +395,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	* `wp jetpack status [<full>]`
 	* `wp jetpack module <list|activate|deactivate|toggle> [<module_name>]`
 	* `wp jetpack options <list|get|delete|update> [<option_name>] [<option_value>]`
-	* `wp jetpack protect <whitelist> [<ip|ip_low-ip_high|list|clear>]`
+	* `wp jetpack protect <allow> [<ip|ip_low-ip_high|list|clear>]`
 	* `wp jetpack reset <modules|options>`
 	* `wp jetpack disconnect <blog|user> [<user_identifier>]`
 	* `wp jetpack status`
@@ -385,15 +405,15 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 * ### JETPACK_DEV_DEBUG
 
-	`JETPACK_DEV_DEBUG` constant can be used to enable development mode in Jetpack. Add `define( 'JETPACK_DEV_DEBUG', true );` in your `wp-config.php` to enable it. With Development Mode, features that do not require a connection to WordPress.com servers can be activated on a local WordPress installation for testing.
+	`JETPACK_DEV_DEBUG` constant can be used to enable offline mode in Jetpack. Add `define( 'JETPACK_DEV_DEBUG', true );` in your `wp-config.php` to enable it. With Offline Mode, features that do not require a connection to WordPress.com servers can be activated on a local WordPress installation for testing.
 	
-	Development mode automatically gets enabled if you don’t have a period in your site’s hostname, i.e. localhost. If you use a different URL, such as mycooltestsite.local, then you will need to define the `JETPACK_DEV_DEBUG` constant.
+	Offline mode automatically gets enabled if you don’t have a period in your site’s hostname, i.e. localhost. If you use a different URL, such as mycooltestsite.local, then you will need to define the `JETPACK_DEV_DEBUG` constant.
 	
-	You can also enable Jetpack’s development mode through a plugin, thanks to the jetpack_development_mode filter:
+	You can also enable Jetpack’s offline mode through a plugin, thanks to the jetpack_offline_mode filter:
 	
-	`add_filter( 'jetpack_development_mode', '__return_true' );`
+	`add_filter( 'jetpack_offline_mode', '__return_true' );`
 	
-	While in Development Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Publicize, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Development Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
+	While in Offline Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Publicize, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Offline Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
 
 * ### JETPACK__SANDBOX_DOMAIN
 

@@ -20,8 +20,8 @@ Extensions in the `extensions/blocks` folder loosely follow this structure:
 	├── block-or-plugin-name.php ← PHP file where the block and its assets are registered.
 	├── editor.js                ← script loaded only in the editor
 	├── editor.scss              ← styles loaded only in the editor
-	├── view.js                  ← script loaded in the editor and theme
-	└── view.scss                ← styles loaded in the editor and theme
+	├── view.js                  ← script loaded on the frontend
+	└── view.scss                ← styles loaded on the frontend
 ```
 
 If your block depends on another block, place them all in extensions folder:
@@ -67,13 +67,7 @@ We also offer an "experimental" state for extensions. Those extensions will be m
 
 Experimental extensions are usually considered ready for production, but are served only to sites requesting them.
 
-### Testing
-
-Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
-
-Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
-
-## Scaffolding blocks with WP-CLI
+### Scaffolding blocks with WP-CLI
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
 
@@ -81,7 +75,7 @@ We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax i
 
 **Currently the only `type` is `block`.**
 
-### Options
+#### Options
 
 - **title**: Block name, also used to create the slug. This parameter is required. If it's something like _Logo gallery_, the slug will be `logo-gallery`. It's also used to generate the class name when an external edit component is requested. Following this example, it would be `LogoGalleryEdit`.
 - **--slug**: Specific slug to identify the block that overrides the one generated base don the title.
@@ -89,7 +83,7 @@ We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax i
 - **--keywords**: Provide up to three keywords separated by a comma so users when they search for a block in the editor.
 - **--variation**: Allows to decide whether the block should be a production block, experimental, or beta. Defaults to Beta when arg not provided.
 
-### Files
+#### Files
 
 All files will be created in a directory under `extensions/blocks/` named after the block title or a specific given slug. For a hypothetical **Jukebox** block, it will create the following files
 
@@ -103,7 +97,7 @@ All files will be created in a directory under `extensions/blocks/` named after 
 Additionally, the slug of the new block will be added to the `beta` array in the file `extensions/index.json`.
 Since it's added to the beta array, you need to load the beta blocks as explained above to be able to test this block.
 
-### Examples
+#### Examples
 
 `wp jetpack scaffold block "Cool Block"`
 
@@ -113,11 +107,19 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 
 `wp jetpack scaffold block "Jukebox" --variation="experimental"`
 
-### Can I use Jurassic Ninja to test blocks?
+### Testing
+
+Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
+
+Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
+
+#### Can I use Jurassic Ninja to test blocks?
 
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
 
 Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=master or use other ninjastic features.
+
+## Deploying extensions
 
 ### How do I merge extensions to Jetpack
 
@@ -152,9 +154,107 @@ rsync -az --delete _inc/blocks/ \
 
 To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
+## Paid blocks
+
+Blocks can be restricted to specific paid plans in both WordPress.com and Jetpack. When registering a block using `jetpack_register_block`, pass `plan_check => true` as a key in the second argument. When the block is registered we check the plan data to see if the user's plan supports this block. For example:
+
+```php
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'plan_check'      => true,
+		)
+	);
+}
+```
+
+This approach applies to both blocks and sidebar extensions.
+
+Sometimes blocks are paid for WordPress.com users but free for Jetpack users. In these cases it is still necessary to add the block to the plan data for _both_ environments, for example:
+
+```php
+const PLAN_DATA = array(
+	'free'     => array(
+		'plans'    => array(
+			'jetpack_free',
+		),
+		'supports' => array(
+			'opentable',
+			'calendly',
+		),
+	),
+```
+
+The plan data is found in `class.jetpack-plan.php` for Jetpack and an example of adding the features to WordPress.com plans is in D43206-code.
+
+### Upgrades for Blocks
+Paid blocks that aren't supported by a user's plan will still be registered for use in the block editor, but will not be displayed by default.
+
+You can, however, use the following filter:
+
+```php
+add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
+```
+
+This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block.
+
+### Upgrades for Jetpack sidebar extensions
+
+Unlike blocks, adding an extension for the Jetpack sidebar requires calling `registerJetpackPlugin` (a high level wrapper around Gutenberg's `registerPlugin`) to register the Plugin with Gutenberg.
+
+This function [contains a conditional which checks whether the extension is available on the current plan](https://github.com/Automattic/jetpack/blob/f76d346a180c65a45aaf8be5802ae03d0e8d3355/extensions/shared/register-jetpack-plugin.js#L19-L22) and if it is not then the Plugin is _not_ registered and will not be available in the Jetpack sidebar.
+
+This means that for extensions which are gated by Plan, users who are _not_ on the appropriate plan will not know they are missing out on the extension.
+
+Therefore, in a similar way to ["Upgrades for Blocks"](#upgrades-for-blocks) you may wish to provide a fallback experience (eg: an upgrade nudge) for users who are not on an appropriate plan.
+
+To do this, you can check whether your extension is available on the current plan using the [`getJetpackExtensionAvailability` helper function](https://github.com/Automattic/jetpack/blob/f76d346a180c65a45aaf8be5802ae03d0e8d3355/extensions/shared/get-jetpack-extension-availability.js) and if it is _not_ available then you can conditionally register a fallback extension _directly with Gutenberg_ by calling `registerPlugin`. This bypasses the availability checks and ensures your fallback experience is always rendered _if_ the user is not on an appropriate plan.
+
+An example of this pattern is provided below:
+
+```jsx
+const extensionName = 'my-extension-name';
+
+
+/*
+ * Register the main "social-previews" extension if the feature is available
+ * on the current plan.
+ */
+registerJetpackPlugin( extensionName, {
+	render: () => <MyExtensionComponent />
+} );
+
+/*
+ * If the social previews extension is not available on this plan (WP.com only)
+ * then manually register a near identical Plugin which shows the upgrade nudge.
+ */
+const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' )?.available;
+
+if ( ! extensionAvailableOnPlan ) {
+	/*
+	 * When registering directly we must manually prepend the 'jetpack-'
+	 * prefix to the block slug and the `-fallback` suffix in order to
+	 * identify it as the fallback extension.
+	 */
+	registerPlugin( `jetpack-${ extensionName }-fallback`, {
+		render: <MyExtensionComponent isFallback={true} />
+	} );
+}
+```
+
+For a working example please see the [Social Previews extension](https://github.com/Automattic/jetpack/blob/f76d346a180c65a45aaf8be5802ae03d0e8d3355/extensions/blocks/social-previews/editor.js):
+
+
+### Terminology
+Blocks can be registered but not available:
+- Registered: The block appears in the block inserter
+- Available: The block is included in the user's current plan and renders in the front end of the site
+
 ## Good to know when developing Gutenberg extensions
 
-## The Build
+### The Build
 
 - Compiled extensions are output to `_inc/blocks`
 - You can view the various build commands in `package.json`
@@ -164,7 +264,7 @@ If you need to modify the build process, bear in mind that config files are also
 synced to WordPress.com via Fusion. Consult with a Jetpack crew member to ensure
 you test the new build in both environments.
 
-## Debugging
+### Debugging
 
 Setting these might be useful for debugging with block editor:
 
@@ -209,18 +309,20 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 ### i18n
 
-As of 04/2019, `wp.i18n` [doesn't support React elements in strings](https://github.com/WordPress/gutenberg/issues/9846). You will have to structure your copy so that links and other HTML can be translated separately.
-
-Not possible:
-
-```js
-__( 'Still confused? Check out <a>documentation</a> for more!' )
-```
-
-Possible:
+`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`. However, since `createInterpolateElement` is only available in WordPress 5.5+, you will need to use `jetpackCreateInterpolateElement` instead to avoid issues on older versions of WordPress.
 
 ```jsx
-{ __( 'Still confused?' ) } <a>{ __( 'Check out documentation for more!' ) }</a>
+import { BlockIcon } from '@wordpress/block-editor';
+import { jetpackCreateInterpolateElement } from '../../shared/create-interpolate-element';
+const getDocumentationLink = () => {
+	return jetpackCreateInterpolateElement(
+		__( '<FlagIcon /> Still confused? <a>Check out documentation for more!</a>', 'jetpack' ),
+		{
+			FlagIcon: <BlockIcon icon="flag" />,
+			a: <a href="https://jetpack.com" />,
+		}
+	);
+};
 ```
 
 ### Colors
@@ -234,3 +336,9 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+
+## Native support
+
+This is still very much experimental and subject to change.
+React Native support for Jetpack blocks is being added as part of the WordPress [Android](https://github.com/wordpress-mobile/WordPress-Android) and [iOS](https://github.com/wordpress-mobile/WordPress-iOS) apps.
+A react-native build configuration will attempt to resolve `.native.js` extensions before `.js` ones, making `.native.js` a simple approach to write "cross-platform" gutenberg blocks.

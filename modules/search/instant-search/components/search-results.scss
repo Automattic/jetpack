@@ -9,7 +9,7 @@
 
 	mark {
 		padding: 0;
-		font-weight: bold;
+		font-weight: inherit;
 	}
 
 	.jetpack-instant-search__overlay--light & {
@@ -47,8 +47,12 @@
 
 	@include break-medium() {
 		margin-right: 4em;
+		.jetpack-instant-search__overlay--no-sidebar & {
+			margin-right: 0;
+		}
 	}
 }
+
 .jetpack-instant-search__search-results-secondary {
 	display: none;
 
@@ -57,11 +61,13 @@
 		display: block;
 		flex: 2;
 		width: auto;
-		padding: 10em 0 0;
 		background: none;
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
+		.jetpack-instant-search__overlay--no-sidebar & {
+			display: none;
+		}
 	}
 }
 
@@ -73,7 +79,7 @@
 .jetpack-instant-search__search-results-title,
 .jetpack-instant-search__search-results-unused-query {
 	overflow: hidden;
-	margin: 0;
+	margin: 0 0 2em 0;
 	padding: 0;
 }
 

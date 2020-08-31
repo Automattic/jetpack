@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -12,8 +12,8 @@ import Card from 'components/card';
 import { getSettings } from 'state/settings';
 import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/initial-state';
 import {
-	isDevMode,
-	isUnavailableInDevMode,
+	isOfflineMode,
+	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
@@ -35,8 +35,8 @@ export class Writing extends React.Component {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
-			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isOfflineMode: this.props.isOfflineMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isLinked: this.props.isLinked,
 			getModuleOverride: this.props.getModuleOverride,
 		};
@@ -75,9 +75,10 @@ export class Writing extends React.Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Writing' )
+							? __( 'Writing', 'jetpack' )
 							: __(
-									'Compose content the way you want to and streamline your publishing experience.'
+									'Compose content the way you want to and streamline your publishing experience.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"
@@ -105,7 +106,8 @@ export class Writing extends React.Component {
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
-							'Writing tools available to you will be shown here when an administrator enables them.'
+							'Writing tools available to you will be shown here when an administrator enables them.',
+							'jetpack'
 						) }
 					</Card>
 				) }
@@ -119,8 +121,8 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
 		masterbarIsAlwaysActive: isAtomicSite( state ),
-		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		userCanEditPosts: userCanEditPosts( state ),
 		isModuleActivated: module_name => isModuleActivated( state, module_name ),
 		isLinked: isCurrentUserLinked( state ),

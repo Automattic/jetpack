@@ -192,7 +192,7 @@ Fetch Jetpack's current connection status.
 {
 	"isActive": true,
 	"isStaging": false,
-	"devMode": {
+	"offlineMode": {
 		"isActive":false,
 		"constant":false,
 		"url":false,

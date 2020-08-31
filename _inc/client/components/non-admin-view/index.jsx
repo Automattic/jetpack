@@ -24,7 +24,7 @@ class NonAdminView extends React.Component {
 	shouldComponentUpdate( nextProps ) {
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
-			nextProps.route.path !== this.props.route.path
+			nextProps.location.pathname !== this.props.location.pathname
 		);
 	}
 
@@ -44,7 +44,6 @@ class NonAdminView extends React.Component {
 					navComponent = <NavigationSettings { ...this.props } />;
 					pageComponent = (
 						<SearchableSettings
-							route={ this.props.route }
 							siteAdminUrl={ this.props.siteAdminUrl }
 							siteRawUrl={ this.props.siteRawUrl }
 							searchTerm={ this.props.searchTerm }
@@ -66,7 +65,7 @@ class NonAdminView extends React.Component {
 	};
 
 	render() {
-		return this.renderMainContent( this.props.route.path );
+		return this.renderMainContent( this.props.location.pathname );
 	}
 }
 

@@ -8,6 +8,18 @@
 		}
 	}
 
+	.wp-block-jetpack-button {
+		margin-bottom: 1em;
+	}
+
+	.error,
+	.error:focus {
+		outline: 1px;
+		outline-offset: -2px;
+		outline-style: auto;
+		outline-color: var( --color-error );
+	}
+
 	.wp-block-jetpack-mailchimp_notification {
 		display: none;
 		margin-bottom: $jetpack-block-margin-bottom;
@@ -44,5 +56,4 @@
 	form.amp-form-submit-error > p {
 		display: none;
 	}
-
 }

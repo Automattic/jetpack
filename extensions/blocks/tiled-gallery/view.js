@@ -56,7 +56,14 @@ const observeGalleries = () => {
 
 	const observer = new ResizeObserver( handleObservedResize );
 
-	galleries.forEach( gallery => observer.observe( gallery ) );
+	galleries.forEach( gallery => {
+		if ( gallery.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+			return;
+		}
+
+		observer.observe( gallery );
+		gallery.setAttribute( 'data-jetpack-block-initialized', 'true' );
+	} );
 };
 
 if ( typeof window !== 'undefined' ) {

@@ -31,6 +31,13 @@ class Jetpack_AMP_Support {
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
 		add_filter( 'sharing_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_disable_sharedaddy_css' ) );
+		add_action( 'wp_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_enqueue_sharing_css' ) );
+
+		// Sharing for Reader mode.
+		if ( function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
+			add_action( 'amp_post_template_footer', 'jetpack_social_menu_include_svg_icons' );
+		}
+		add_action( 'amp_post_template_css', array( 'Jetpack_AMP_Support', 'amp_reader_sharing_css' ), 10, 0 );
 
 		// enforce freedom mode for videopress.
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
@@ -41,8 +48,14 @@ class Jetpack_AMP_Support {
 		// Post rendering changes for legacy AMP.
 		add_action( 'pre_amp_render_post', array( 'Jetpack_AMP_Support', 'amp_disable_the_content_filters' ) );
 
+		// Disable Comment Likes.
+		add_filter( 'jetpack_comment_likes_enabled', array( 'Jetpack_AMP_Support', 'comment_likes_enabled' ) );
+
 		// Transitional mode AMP should not have comment likes.
-		add_action( 'the_content', array( 'Jetpack_AMP_Support', 'disable_comment_likes_before_the_content' ) );
+		add_filter( 'the_content', array( 'Jetpack_AMP_Support', 'disable_comment_likes_before_the_content' ) );
+
+		// Remove the Likes button from the admin bar.
+		add_filter( 'jetpack_admin_bar_likes_enabled', array( 'Jetpack_AMP_Support', 'disable_likes_admin_bar' ) );
 
 		// Add post template metadata for legacy AMP.
 		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
@@ -51,20 +64,7 @@ class Jetpack_AMP_Support {
 		add_filter( 'jetpack_photon_post_image_args', array( 'Jetpack_AMP_Support', 'filter_photon_post_image_args_for_stories' ), 10, 2 );
 
 		// Sync the amp-options.
-		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_whitelist' ) );
-
-		// Show admin bar.
-		add_filter( 'show_admin_bar', array( 'Jetpack_AMP_Support', 'show_admin_bar' ) );
-		add_filter( 'jetpack_comment_likes_enabled', array( 'Jetpack_AMP_Support', 'comment_likes_enabled' ) );
-	}
-
-	/**
-	 * Disable the admin bar on AMP views.
-	 *
-	 * @param Whether bool $show the admin bar should be shown. Default false.
-	 */
-	public static function show_admin_bar( $show ) {
-		return $show && ! self::is_amp_request();
+		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_safelist' ) );
 	}
 
 	/**
@@ -136,6 +136,18 @@ class Jetpack_AMP_Support {
 			remove_filter( 'comment_text', 'comment_like_button', 12, 2 );
 		}
 		return $content;
+	}
+
+	/**
+	 * Do not display the Likes' Admin bar on AMP requests.
+	 *
+	 * @param bool $is_admin_bar_button_visible Should the Like button be visible in the Admin bar. Default to true.
+	 */
+	public static function disable_likes_admin_bar( $is_admin_bar_button_visible ) {
+		if ( self::is_amp_request() ) {
+			return false;
+		}
+		return $is_admin_bar_button_visible;
 	}
 
 	/**
@@ -300,10 +312,10 @@ class Jetpack_AMP_Support {
 	 * @return array Dimensions.
 	 */
 	private static function extract_image_dimensions_from_getimagesize( $dimensions ) {
-		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'require_lib' ) ) ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'jetpack_require_lib' ) ) ) {
 			return $dimensions;
 		}
-		require_lib( 'wpcom/imagesize' );
+		jetpack_require_lib( 'wpcom/imagesize' );
 
 		foreach ( $dimensions as $url => $value ) {
 			if ( is_array( $value ) ) {
@@ -353,6 +365,12 @@ class Jetpack_AMP_Support {
 	 * @param array  $sharing_enabled Array of Sharing Services currently enabled.
 	 */
 	public static function render_sharing_html( $markup, $sharing_enabled ) {
+		global $post;
+
+		if ( empty( $post ) ) {
+			return '';
+		}
+
 		if ( ! self::is_amp_request() ) {
 			return $markup;
 		}
@@ -361,39 +379,17 @@ class Jetpack_AMP_Support {
 		if ( empty( $sharing_enabled ) ) {
 			return $markup;
 		}
-		$supported_services = array(
-			'facebook'  => array(
-				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-				'data-param-app_id' => apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ),
-			),
-			'twitter'   => array(),
-			'pinterest' => array(),
-			'whatsapp'  => array(),
-			'tumblr'    => array(),
-			'linkedin'  => array(),
-		);
-		$sharing_links      = array();
+
+		$sharing_links = array();
 		foreach ( $sharing_enabled['visible'] as $id => $service ) {
-			if ( ! isset( $supported_services[ $id ] ) ) {
-				$sharing_links[] = "<!-- not supported: $id -->";
-				continue;
+			$sharing_link = $service->get_amp_display( $post );
+			if ( ! empty( $sharing_link ) ) {
+				$sharing_links[] = $sharing_link;
 			}
-			$args         = array_merge(
-				array(
-					'type' => $id,
-				),
-				$supported_services[ $id ]
-			);
-			$sharing_link = '<amp-social-share';
-			foreach ( $args as $key => $value ) {
-				$sharing_link .= sprintf( ' %s="%s"', sanitize_key( $key ), esc_attr( $value ) );
-			}
-			$sharing_link   .= '></amp-social-share>';
-			$sharing_links[] = $sharing_link;
 		}
 
-		// Wrap AMP sharing buttons in container.
-		$markup = preg_replace( '#(?<=<div class="sd-content">).+?(?=</div>)#s', implode( '', $sharing_links ), $markup );
+		// Replace the existing unordered list with AMP sharing buttons.
+		$markup = preg_replace( '#<ul>(.+)</ul>#', implode( '', $sharing_links ), $markup );
 
 		// Remove any lingering share-end list items.
 		$markup = str_replace( '<li class="share-end"></li>', '', $markup );
@@ -413,6 +409,40 @@ class Jetpack_AMP_Support {
 		}
 
 		return $enqueue;
+	}
+
+	/**
+	 * Enqueues the AMP specific sharing styles for the sharing icons.
+	 */
+	public static function amp_enqueue_sharing_css() {
+		if ( self::is_amp_request() ) {
+			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
+		}
+	}
+
+	/**
+	 * For the AMP Reader mode template, include styles that we need.
+	 */
+	public static function amp_reader_sharing_css() {
+		// If sharing is not enabled, we should not proceed to render the CSS.
+		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
+			return;
+		}
+
+		/*
+		 * We'll need to output the full contents of the 2 files
+		 * in the head on AMP views. We can't rely on regular enqueues here.
+		 *
+		 * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		 * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		 */
+		echo file_get_contents( JETPACK_SOCIAL_LOGOS_DIR . 'social-logos.css' );
+		echo file_get_contents( WP_SHARING_PLUGIN_DIR . 'amp-sharing.css' );
+
+		/*
+		 * phpcs:enable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		 * phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		 */
 	}
 
 	/**
@@ -486,14 +516,15 @@ class Jetpack_AMP_Support {
 	/**
 	 *  Adds amp-options to the list of options to sync, if AMP is available
 	 *
-	 * @param array $options_whitelist Whitelist of options to sync.
-	 * @return array Updated options whitelist
+	 * @param array $options_safelist Safelist of options to sync.
+	 *
+	 * @return array Updated options safelist
 	 */
-	public static function filter_jetpack_options_whitelist( $options_whitelist ) {
+	public static function filter_jetpack_options_safelist( $options_safelist ) {
 		if ( function_exists( 'is_amp_endpoint' ) ) {
-			$options_whitelist[] = 'amp-options';
+			$options_safelist[] = 'amp-options';
 		}
-		return $options_whitelist;
+		return $options_safelist;
 	}
 }
 

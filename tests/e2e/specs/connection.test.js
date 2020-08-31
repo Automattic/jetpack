@@ -1,42 +1,37 @@
 /**
  * Internal dependencies
  */
-import WPLoginPage from '../lib/pages/wp-admin/login';
+import { catchBeforeAll, step } from '../lib/setup-env';
+import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
+import { execWpCommand } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
-import PluginsPage from '../lib/pages/wp-admin/plugins';
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
-import { catchBeforeAll } from '../lib/jest.test.failure';
 
-describe( 'Jetpack connection', () => {
+describe( 'Connection', () => {
 	catchBeforeAll( async () => {
-		await resetWordpressInstall();
-		const url = getNgrokSiteUrl();
-		await ( await WPLoginPage.visit( page, url + '/wp-login.php' ) ).login();
+		await execWpCommand( 'wp option delete jetpack_private_options' );
+		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false' );
+		// For some reason it need 2 reloads to make constant actually work.
+		await page.reload();
+		await page.reload();
 	} );
 
-	it( 'Can find connect button on plugins page', async () => {
-		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
-
-		const pluginsPage = await PluginsPage.init( page );
-		await pluginsPage.deactivateJetpack();
-		await pluginsPage.activateJetpack();
-
-		expect( await pluginsPage.isFullScreenPopupShown() ).toBeTruthy();
+	afterAll( async () => {
+		await execWpCommand(
+			'wp option update jetpack_private_options --format=json < jetpack_private_options.txt'
+		);
+		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
 	} );
 
-	it( 'Can find connect button on dashboard page', async () => {
-		await ( await Sidebar.init( page ) ).selectDashboard();
+	it( 'In-place', async () => {
+		await step( 'Can start in-place connection', async () => {
+			await ( await Sidebar.init( page ) ).selectJetpack();
+			await doInPlaceConnection();
+		} );
 
-		const dashboard = await DashboardPage.init( page );
-		expect( await dashboard.isConnectBannerVisible() ).toBeTruthy();
-	} );
-
-	it( 'Can find connect button on Jetpack page', async () => {
-		await ( await Sidebar.init( page ) ).selectJetpack();
-
-		const jetpackPage = await JetpackPage.init( page );
-		expect( await jetpackPage.isConnectBannerVisible() ).toBeTruthy();
+		await step( 'Can assert that site is connected', async () => {
+			const jetpackPage = await JetpackPage.init( page );
+			expect( await jetpackPage.isConnected() ).toBeTruthy();
+		} );
 	} );
 } );

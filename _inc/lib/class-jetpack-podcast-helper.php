@@ -95,11 +95,11 @@ class Jetpack_Podcast_Helper {
 			return '';
 		}
 
-		// Replace all entities with their characters, including all types of quotes.
-		$str = wp_specialchars_decode( $str, ENT_QUOTES );
-
 		// Make sure there are no tags.
 		$str = wp_strip_all_tags( $str );
+
+		// Replace all entities with their characters, including all types of quotes.
+		$str = html_entity_decode( $str, ENT_QUOTES );
 
 		return $str;
 	}

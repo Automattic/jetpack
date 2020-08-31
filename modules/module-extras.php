@@ -9,7 +9,7 @@
 
 /**
  * Features available all the time:
- *    - When in development mode.
+ *    - When in offline mode.
  *    - When connected to WordPress.com.
  */
 $tools = array(
@@ -45,6 +45,7 @@ $tools = array(
 $connected_tools = array(
 	'calypsoify/class.jetpack-calypsoify.php',
 	'plugin-search.php',
+	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',
@@ -59,7 +60,7 @@ if ( Jetpack::is_active() ) {
  * Filter extra tools (not modules) to include.
  *
  * @since 2.4.0
- * @since 5.4.0 can be used in multisite when Jetpack is not connected to WordPress.com and not in development mode.
+ * @since 5.4.0 can be used in multisite when Jetpack is not connected to WordPress.com and not in offline mode.
  *
  * @param array $tools Array of extra tools to include.
  */

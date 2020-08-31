@@ -110,7 +110,7 @@ class SelectDropdown extends Component {
 			// add keys and refs to children
 			return React.Children.map(
 				this.props.children,
-				function( child, index ) {
+				function ( child, index ) {
 					if ( ! child ) {
 						return null;
 					}
@@ -118,7 +118,7 @@ class SelectDropdown extends Component {
 					const newChild = React.cloneElement( child, {
 						ref: child.type === DropdownItem ? 'item-' + refIndex : null,
 						key: 'item-' + index,
-						onClick: function( event ) {
+						onClick: function ( event ) {
 							self.refs.dropdownContainer.focus();
 							if ( typeof child.props.onClick === 'function' ) {
 								child.props.onClick( event );
@@ -136,7 +136,7 @@ class SelectDropdown extends Component {
 			);
 		}
 
-		return this.props.options.map( function( item, index ) {
+		return this.props.options.map( function ( item, index ) {
 			if ( ! item ) {
 				return (
 					<DropdownSeparator key={ 'dropdown-separator-' + this.state.instanceId + '-' + index } />
@@ -178,7 +178,7 @@ class SelectDropdown extends Component {
 		};
 
 		if ( this.props.className ) {
-			this.props.className.split( ' ' ).forEach( function( className ) {
+			this.props.className.split( ' ' ).forEach( function ( className ) {
 				dropdownClasses[ className ] = true;
 			} );
 		}
@@ -196,7 +196,6 @@ class SelectDropdown extends Component {
 					tabIndex={ this.props.tabIndex || 0 }
 					role="listbox"
 					aria-labelledby={ 'select-dropdown-' + this.state.instanceId }
-					aria-haspopup="true"
 					aria-owns={ 'select-submenu-' + this.state.instanceId }
 					aria-controls={ 'select-submenu-' + this.state.instanceId }
 					aria-expanded={ this.state.isOpen }
@@ -336,14 +335,14 @@ class SelectDropdown extends Component {
 			focusedIndex =
 				typeof this.focused === 'number' ? this.focused : items.indexOf( this.state.selected );
 		} else {
-			items = filter( this.props.children, function( item ) {
+			items = filter( this.props.children, function ( item ) {
 				return item.type === DropdownItem;
 			} );
 
 			focusedIndex =
 				typeof this.focused === 'number'
 					? this.focused
-					: findIndex( items, function( item ) {
+					: findIndex( items, function ( item ) {
 							return item.props.selected;
 					  } );
 		}

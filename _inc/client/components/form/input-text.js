@@ -38,7 +38,7 @@ export default createReactClass( {
 		onChange: PropTypes.func,
 	},
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			uniqueId: getUniqueId(),
 			// for floating label support
@@ -47,7 +47,7 @@ export default createReactClass( {
 		};
 	},
 
-	componentDidMount: function() {
+	componentDidMount: function () {
 		const el = this.refs.input.getDOMNode();
 		switch ( this.props.formatter ) {
 			case 'cardNumber':
@@ -63,15 +63,15 @@ export default createReactClass( {
 		}
 	},
 
-	focus: function() {
+	focus: function () {
 		ReactDOM.findDOMNode( this.refs.input ).focus();
 	},
 
-	getDefaultProps: function() {
+	getDefaultProps: function () {
 		return { type: 'text' };
 	},
 
-	changeValue: function( event ) {
+	changeValue: function ( event ) {
 		const inputValue = event.target.value;
 
 		this.setValue( inputValue );
@@ -87,14 +87,14 @@ export default createReactClass( {
 			}
 			this.setState( { animating: true } );
 			requestAnimationFrame(
-				function() {
+				function () {
 					this.setState( { floated: true } );
 				}.bind( this )
 			);
 		}
 	},
 
-	render: function() {
+	render: function () {
 		const { style, labelSuffix, label, ...other } = this.props;
 		let className, labelClass;
 
@@ -128,7 +128,7 @@ export default createReactClass( {
 		return this._renderInput( this.props.name, style, className, ...other );
 	},
 
-	_renderInput: function( label, style, extraClassName, ...other ) {
+	_renderInput: function ( label, style, extraClassName, ...other ) {
 		let errorMessage;
 
 		style = style || {};

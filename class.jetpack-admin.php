@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
@@ -37,7 +38,9 @@ class Jetpack_Admin {
 		$this->jetpack_about = new Jetpack_About_Page();
 
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
+		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_set_up_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $this->fallback_page, 'add_actions' ) );
@@ -49,6 +52,43 @@ class Jetpack_Admin {
 
 		// Add module bulk actions handler
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
+
+		if ( class_exists( 'Akismet_Admin' ) ) {
+			// If the site has Jetpack Anti-Spam, change the Akismet menu label accordingly.
+			$site_products      = Jetpack_Plan::get_products();
+			$anti_spam_products = array( 'jetpack_anti_spam_monthly', 'jetpack_anti_spam' );
+			if ( ! empty( array_intersect( $anti_spam_products, array_column( $site_products, 'product_slug' ) ) ) ) {
+				// Prevent Akismet from adding a menu item.
+				add_action(
+					'admin_menu',
+					function () {
+						remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
+					},
+					4
+				);
+
+				// Add an Anti-spam menu item for Jetpack.
+				add_action(
+					'jetpack_admin_menu',
+					function () {
+						add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+					}
+				);
+				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
+			}
+		}
+	}
+
+	/**
+	 * Generate styles to replace Akismet logo for the Jetpack logo. It's a workaround until we create a proper settings page for
+	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
+	 */
+	public function akismet_logo_replacement_styles() {
+		$logo            = new Jetpack_Logo();
+		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
+		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
+		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
+		wp_add_inline_style( 'admin-bar', $style );
 	}
 
 	static function sort_requires_connection_last( $module1, $module2 ) {
@@ -70,7 +110,7 @@ class Jetpack_Admin {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_development_mode();
+		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -205,7 +245,7 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
 			if ( ! Jetpack::is_active() ) {

@@ -2,14 +2,16 @@
  * External dependencies
  */
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
-import ExternalLink from 'components/external-link';
 import { get, includes } from 'lodash';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import ExternalLink from 'components/external-link';
+import getRedirectUrl from 'lib/jp-redirect';
+import TextInput from 'components/text-input';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -66,11 +68,11 @@ class VerificationServicesComponent extends React.Component {
 				<JetpackBanner
 					title={ verification.name }
 					icon="cog"
-					description={ __( '%(moduleName)s has been disabled by a site administrator.', {
-						args: {
-							moduleName: verification.name,
-						},
-					} ) }
+					description={ sprintf(
+						/* translators: placeholder is a feature name. */
+						__( '%s has been disabled by a site administrator.', 'jetpack' ),
+						verification.name
+					) }
 				/>
 			);
 		}
@@ -87,9 +89,10 @@ class VerificationServicesComponent extends React.Component {
 					module={ verification }
 					support={ {
 						text: __(
-							'Provides the necessary hidden tags needed to verify your WordPress site with various services.'
+							'Provides the necessary hidden tags needed to verify your WordPress site with various services.',
+							'jetpack'
 						),
-						link: 'https://jetpack.com/support/site-verification-tools',
+						link: getRedirectUrl( 'jetpack-support-site-verification-tools' ),
 					} }
 				>
 					<ModuleToggle
@@ -100,49 +103,51 @@ class VerificationServicesComponent extends React.Component {
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
-							{ __( 'Verify site ownership with third party services' ) }
+							{ __( 'Verify site ownership with third party services', 'jetpack' ) }
 						</span>
 					</ModuleToggle>
 					<p>
-						{ __(
-							'Note that {{b}}verifying your site with these services is not necessary{{/b}} in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the {{support}}full instructions{{/support}} if you are having trouble. Supported verification services: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}}, and {{yandex}}Yandex.Webmaster{{/yandex}}.',
+						{ jetpackCreateInterpolateElement(
+							/* translators: placeholders are links to external sites. */
+							__(
+								'Note that <b>verifying your site with these services is not necessary</b> in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the <support>full instructions</support> if you are having trouble. Supported verification services: <google>Google Search Console</google>, <bing>Bing Webmaster Center</bing>, <pinterest>Pinterest Site Verification</pinterest>, and <yandex>Yandex.Webmaster</yandex>.',
+								'jetpack'
+							),
 							{
-								components: {
-									b: <strong />,
-									support: <a href="https://jetpack.com/support/site-verification-tools/" />,
-									google: (
-										<ExternalLink
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href="https://www.google.com/webmasters/tools/"
-										/>
-									),
-									bing: (
-										<ExternalLink
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href="https://www.bing.com/webmaster/"
-										/>
-									),
-									pinterest: (
-										<ExternalLink
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href="https://pinterest.com/website/verify/"
-										/>
-									),
-									yandex: (
-										<ExternalLink
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href="https://webmaster.yandex.com/sites/"
-										/>
-									),
-								},
+								b: <strong />,
+								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
+								google: (
+									<ExternalLink
+										icon={ true }
+										target="_blank"
+										rel="noopener noreferrer"
+										href="https://www.google.com/webmasters/tools/"
+									/>
+								),
+								bing: (
+									<ExternalLink
+										icon={ true }
+										target="_blank"
+										rel="noopener noreferrer"
+										href="https://www.bing.com/webmaster/"
+									/>
+								),
+								pinterest: (
+									<ExternalLink
+										icon={ true }
+										target="_blank"
+										rel="noopener noreferrer"
+										href="https://pinterest.com/website/verify/"
+									/>
+								),
+								yandex: (
+									<ExternalLink
+										icon={ true }
+										target="_blank"
+										rel="noopener noreferrer"
+										href="https://webmaster.yandex.com/sites/"
+									/>
+								),
 							}
 						) }
 					</p>
@@ -154,7 +159,7 @@ class VerificationServicesComponent extends React.Component {
 							disabled={ this.props.isUpdating( 'google' ) || ! isVerificationActive }
 						/>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_bing">
-							<span>{ __( 'Bing' ) }</span>
+							<span>{ __( 'Bing', 'jetpack' ) }</span>
 							<TextInput
 								name="bing"
 								value={ this.getSiteVerificationValue( 'bing' ) }
@@ -165,7 +170,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_pinterest">
-							<span>{ __( 'Pinterest' ) }</span>
+							<span>{ __( 'Pinterest', 'jetpack' ) }</span>
 							<TextInput
 								name="pinterest"
 								value={ this.getSiteVerificationValue( 'pinterest' ) }
@@ -176,7 +181,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_yandex">
-							<span>{ __( 'Yandex' ) }</span>
+							<span>{ __( 'Yandex', 'jetpack' ) }</span>
 							<TextInput
 								name="yandex"
 								value={ this.getSiteVerificationValue( 'yandex' ) }

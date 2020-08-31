@@ -23,7 +23,6 @@ import simplePaymentsExample1 from './simple-payments_example-1.jpg';
  * Styles
  */
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'simple-payments';
 
@@ -36,11 +35,11 @@ export const icon = (
 
 const supportLink =
 	isSimpleSite() || isAtomicSite()
-		? 'https://support.wordpress.com/simple-payments/'
-		: 'https://jetpack.com/support/jetpack-blocks/simple-payments-block/';
+		? 'https://wordpress.com/support/pay-with-paypal/'
+		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal/';
 
 export const settings = {
-	title: __( 'Simple Payments', 'jetpack' ),
+	title: __( 'Pay with PayPal', 'jetpack' ),
 
 	description: (
 		<Fragment>
@@ -62,7 +61,7 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	category: 'earn',
 
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),
@@ -71,6 +70,8 @@ export const settings = {
 		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'shop', 'block search term', 'jetpack' ),
+		_x( 'simple', 'block search term', 'jetpack' ),
+		_x( 'payments', 'block search term', 'jetpack' ),
 		'PayPal',
 	],
 

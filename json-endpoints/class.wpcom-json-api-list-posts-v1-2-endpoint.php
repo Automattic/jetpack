@@ -1,61 +1,63 @@
 <?php
 
-new WPCOM_JSON_API_List_Posts_v1_2_Endpoint( array(
-	'description' => 'Get a list of matching posts.',
-	'min_version' => '1.2',
-	'max_version' => '1.2',
+new WPCOM_JSON_API_List_Posts_v1_2_Endpoint(
+	array(
+		'description'      => 'Get a list of matching posts.',
+		'min_version'      => '1.2',
+		'max_version'      => '1.2',
 
-	'group'       => 'posts',
-	'stat'        => 'posts',
+		'group'            => 'posts',
+		'stat'             => 'posts',
 
-	'method'      => 'GET',
-	'path'        => '/sites/%s/posts/',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
-
-	'query_parameters' => array(
-		'number'   => '(int=20) The number of posts to return. Limit: 100.',
-		'offset'   => '(int=0) 0-indexed offset.',
-		'page'     => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
-		'page_handle' => '(string) A page handle, returned from a previous API call as a <code>meta.next_page</code> property. This is the most efficient way to fetch the next page of results.',
-		'order'    => array(
-			'DESC' => 'Return posts in descending order. For dates, that means newest to oldest.',
-			'ASC'  => 'Return posts in ascending order. For dates, that means oldest to newest.',
+		'method'           => 'GET',
+		'path'             => '/sites/%s/posts/',
+		'path_labels'      => array(
+			'$site' => '(int|string) Site ID or domain',
 		),
-		'order_by' => array(
-			'date'          => 'Order by the created time of each post.',
-			'modified'      => 'Order by the modified time of each post.',
-			'title'         => "Order lexicographically by the posts' titles.",
-			'comment_count' => 'Order by the number of comments for each post.',
-			'ID'            => 'Order by post ID.',
-		),
-		'after'    => '(ISO 8601 datetime) Return posts dated after the specified datetime.',
-		'before'   => '(ISO 8601 datetime) Return posts dated before the specified datetime.',
-		'modified_after'    => '(ISO 8601 datetime) Return posts modified after the specified datetime.',
-		'modified_before'   => '(ISO 8601 datetime) Return posts modified before the specified datetime.',
-		'tag'      => '(string) Specify the tag name or slug.',
-		'category' => '(string) Specify the category name or slug.',
-		'term'     => '(object:string) Specify comma-separated term slugs to search within, indexed by taxonomy slug.',
-		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
-		'exclude_private_types' => '(bool=false) Use this flag together with `type=any` to get only publicly accessible posts.',
-		'parent_id' => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
-		'exclude'  => '(array:int|int) Excludes the specified post ID(s) from the response',
-		'exclude_tree' => '(int) Excludes the specified post and all of its descendants from the response. Applies only to hierarchical post types.',
-		'status'   => '(string) Comma-separated list of statuses for which to query, including any of: "publish", "private", "draft", "pending", "future", and "trash", or simply "any". Defaults to "publish"',
-		'sticky'    => array(
-			'include'   => 'Sticky posts are not excluded from the list.',
-			'exclude'   => 'Sticky posts are excluded from the list.',
-			'require'   => 'Only include sticky posts',
-		),
-		'author'   => "(int) Author's user ID",
-		'search'   => '(string) Search query',
-		'meta_key'   => '(string) Metadata key that the post should contain',
-		'meta_value'   => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
-	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/posts/?number=2'
-) );
+		'query_parameters' => array(
+			'number'                => '(int=20) The number of posts to return. Limit: 100.',
+			'offset'                => '(int=0) 0-indexed offset.',
+			'page'                  => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
+			'page_handle'           => '(string) A page handle, returned from a previous API call as a <code>meta.next_page</code> property. This is the most efficient way to fetch the next page of results.',
+			'order'                 => array(
+				'DESC' => 'Return posts in descending order. For dates, that means newest to oldest.',
+				'ASC'  => 'Return posts in ascending order. For dates, that means oldest to newest.',
+			),
+			'order_by'              => array(
+				'date'          => 'Order by the created time of each post.',
+				'modified'      => 'Order by the modified time of each post.',
+				'title'         => "Order lexicographically by the posts' titles.",
+				'comment_count' => 'Order by the number of comments for each post.',
+				'ID'            => 'Order by post ID.',
+			),
+			'after'                 => '(ISO 8601 datetime) Return posts dated after the specified datetime.',
+			'before'                => '(ISO 8601 datetime) Return posts dated before the specified datetime.',
+			'modified_after'        => '(ISO 8601 datetime) Return posts modified after the specified datetime.',
+			'modified_before'       => '(ISO 8601 datetime) Return posts modified before the specified datetime.',
+			'tag'                   => '(string) Specify the tag name or slug.',
+			'category'              => '(string) Specify the category name or slug.',
+			'term'                  => '(object:string) Specify comma-separated term slugs to search within, indexed by taxonomy slug.',
+			'type'                  => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+			'exclude_private_types' => '(bool=false) Use this flag together with `type=any` to get only publicly accessible posts.',
+			'parent_id'             => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
+			'exclude'               => '(array:int|int) Excludes the specified post ID(s) from the response',
+			'exclude_tree'          => '(int) Excludes the specified post and all of its descendants from the response. Applies only to hierarchical post types.',
+			'status'                => '(string) Comma-separated list of statuses for which to query, including any of: "publish", "private", "draft", "pending", "future", and "trash", or simply "any". Defaults to "publish"',
+			'sticky'                => array(
+				'include' => 'Sticky posts are not excluded from the list.',
+				'exclude' => 'Sticky posts are excluded from the list.',
+				'require' => 'Only include sticky posts',
+			),
+			'author'                => "(int) Author's user ID",
+			'search'                => '(string) Search query',
+			'meta_key'              => '(string) Metadata key that the post should contain',
+			'meta_value'            => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
+		),
+
+		'example_request'  => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/posts/?number=2',
+	)
+);
 
 class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_v1_1_Endpoint {
 	// /sites/%s/posts/ -> $blog_id
@@ -65,14 +67,14 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 			return $blog_id;
 		}
 
-		$args = $this->query_args();
+		$args                        = $this->query_args();
 		$is_eligible_for_page_handle = true;
-		$site = $this->get_platform()->get_site( $blog_id );
+		$site                        = $this->get_platform()->get_site( $blog_id );
 
 		if ( $args['number'] < 1 ) {
 			$args['number'] = 20;
 		} elseif ( 100 < $args['number'] ) {
-			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
+			return new WP_Error( 'invalid_number', 'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
 		if ( isset( $args['type'] ) ) {
@@ -91,7 +93,7 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 
 				if ( isset( $args['exclude_private_types'] ) && $args['exclude_private_types'] == true ) {
 					$public_post_types = get_post_types( array( 'public' => true ) );
-					$args['type'] = array_intersect( $public_post_types, $whitelisted_post_types );
+					$args['type']      = array_intersect( $public_post_types, $whitelisted_post_types );
 				} else {
 					$args['type'] = $whitelisted_post_types;
 				}
@@ -111,13 +113,18 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 			}
 
 			if ( empty( $allowed_types ) ) {
-				return array( 'found' => 0, 'posts' => array() );
+				return array(
+					'found' => 0,
+					'posts' => array(),
+				);
 			}
 			$args['type'] = $allowed_types;
-		}
-		else {
+		} else {
 			if ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
-				return array( 'found' => 0, 'posts' => array() );
+				return array(
+					'found' => 0,
+					'posts' => array(),
+				);
 			}
 		}
 
@@ -133,15 +140,18 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 				'trash',
 				'any',
 			);
-			$status = array_intersect( $status, $statuses_whitelist );
+			$status             = array_intersect( $status, $statuses_whitelist );
 		} else {
 			// logged-out users can see only published posts
 			$statuses_whitelist = array( 'publish', 'any' );
-			$status = array_intersect( $status, $statuses_whitelist );
+			$status             = array_intersect( $status, $statuses_whitelist );
 
 			if ( empty( $status ) ) {
 				// requested only protected statuses? nothing for you here
-				return array( 'found' => 0, 'posts' => array() );
+				return array(
+					'found' => 0,
+					'posts' => array(),
+				);
 			}
 			// clear it (AKA published only) because "any" includes protected
 			$status = array();
@@ -159,57 +169,64 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 			'fields'         => 'ids',
 		);
 
-		if ( ! is_user_logged_in () ) {
+		if ( ! is_user_logged_in() ) {
 			$query['has_password'] = false;
 		}
 
 		if ( isset( $args['meta_key'] ) ) {
 			$show = false;
-			if ( WPCOM_JSON_API_Metadata::is_public( $args['meta_key'] ) )
+			if ( WPCOM_JSON_API_Metadata::is_public( $args['meta_key'] ) ) {
 				$show = true;
-			if ( current_user_can( 'edit_post_meta', $query['post_type'], $args['meta_key'] ) )
+			}
+			if ( current_user_can( 'edit_post_meta', $query['post_type'], $args['meta_key'] ) ) {
 				$show = true;
+			}
 
-			if ( is_protected_meta( $args['meta_key'], 'post' ) && ! $show )
+			if ( is_protected_meta( $args['meta_key'], 'post' ) && ! $show ) {
 				return new WP_Error( 'invalid_meta_key', 'Invalid meta key', 404 );
+			}
 
 			$meta = array( 'key' => $args['meta_key'] );
-			if ( isset( $args['meta_value'] ) )
+			if ( isset( $args['meta_value'] ) ) {
 				$meta['value'] = $args['meta_value'];
+			}
 
 			$query['meta_query'] = array( $meta );
 		}
 
 		if ( $args['sticky'] === 'include' ) {
 			$query['ignore_sticky_posts'] = 1;
-		} else if ( $args['sticky'] === 'exclude' ) {
+		} elseif ( $args['sticky'] === 'exclude' ) {
 			$sticky = get_option( 'sticky_posts' );
 			if ( is_array( $sticky ) ) {
 				$query['post__not_in'] = $sticky;
 			}
-		} else if ( $args['sticky'] === 'require' ) {
+		} elseif ( $args['sticky'] === 'require' ) {
 			$sticky = get_option( 'sticky_posts' );
 			if ( is_array( $sticky ) && ! empty( $sticky ) ) {
 				$query['post__in'] = $sticky;
 			} else {
 				// no sticky posts exist
-				return array( 'found' => 0, 'posts' => array() );
+				return array(
+					'found' => 0,
+					'posts' => array(),
+				);
 			}
 		}
 
 		if ( isset( $args['exclude'] ) ) {
-			$excluded_ids = (array) $args['exclude'];
+			$excluded_ids          = (array) $args['exclude'];
 			$query['post__not_in'] = isset( $query['post__not_in'] ) ? array_merge( $query['post__not_in'], $excluded_ids ) : $excluded_ids;
 		}
 
 		if ( isset( $args['exclude_tree'] ) && is_post_type_hierarchical( $args['type'] ) ) {
 			// get_page_children is a misnomer; it supports all hierarchical post types
-			$page_args = array(
-					'child_of' => $args['exclude_tree'],
-					'post_type' => $args['type'],
-					// since we're looking for things to exclude, be aggressive
-					'post_status' => 'publish,draft,pending,private,future,trash',
-				);
+			$page_args        = array(
+				'child_of'    => $args['exclude_tree'],
+				'post_type'   => $args['type'],
+				// since we're looking for things to exclude, be aggressive
+				'post_status' => 'publish,draft,pending,private,future,trash',
+			);
 			$post_descendants = get_pages( $page_args );
 
 			$exclude_tree = array( $args['exclude_tree'] );
@@ -222,7 +239,7 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 
 		if ( isset( $args['category'] ) ) {
 			$category = get_term_by( 'slug', $args['category'], 'category' );
-			if ( $category === false) {
+			if ( $category === false ) {
 				$query['category_name'] = $args['category'];
 			} else {
 				$query['cat'] = $category->term_id;
@@ -244,8 +261,8 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 
 				$query['tax_query'][] = array(
 					'taxonomy' => $taxonomy,
-					'field' => 'slug',
-					'terms' => explode( ',', $slug )
+					'field'    => 'slug',
+					'terms'    => explode( ',', $slug ),
 				);
 			}
 		}
@@ -333,59 +350,63 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 
 		}
 
-		$return = array();
+		$return         = array();
 		$excluded_count = 0;
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
-			case 'found' :
-				$return[$key] = (int) $wp_query->found_posts;
-				break;
-			case 'posts' :
-				$posts = array();
-				foreach ( $wp_query->posts as $post_ID ) {
-					$the_post = $this->get_post_by( 'ID', $post_ID, $args['context'] );
-					if ( $the_post && ! is_wp_error( $the_post ) ) {
-						$posts[] = $the_post;
-					} else {
-						$excluded_count++;
-					}
-				}
-
-				if ( $posts ) {
-					/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
-					do_action( 'wpcom_json_api_objects', 'posts', count( $posts ) );
-				}
-
-				$return[$key] = $posts;
-				break;
-
-			case 'meta' :
-				if ( ! is_array( $args['type'] ) ) {
-					$return[$key] = (object) array(
-						'links' => (object) array(
-							'counts' => (string) $this->links->get_site_link( $blog_id, 'post-counts/' . $args['type'] ),
-						)
-					);
-				}
-
-				if ( $is_eligible_for_page_handle && $return['posts'] ) {
-					$last_post = end( $return['posts'] );
-					reset( $return['posts'] );
-					if ( ( $return['found'] > count( $return['posts'] ) ) && $last_post ) {
-						if ( ! isset( $return[$key] ) ) {
-							$return[$key] = (object) array();
+				case 'found':
+					$return[ $key ] = (int) $wp_query->found_posts;
+					break;
+				case 'posts':
+					$posts = array();
+					foreach ( $wp_query->posts as $post_ID ) {
+						$the_post = $this->get_post_by( 'ID', $post_ID, $args['context'] );
+						if ( $the_post && ! is_wp_error( $the_post ) ) {
+							$posts[] = $the_post;
+						} else {
+							$excluded_count++;
 						}
-						$return[$key]->next_page = $this->build_page_handle( $last_post, $query );
 					}
-				}
 
-				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-					if ( !isset( $return[$key] ) )
-						$return[$key] = new stdClass;
-					$return[$key]->wpcom = true;
-				}
+					if ( $posts ) {
+						/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
+						do_action( 'wpcom_json_api_objects', 'posts', count( $posts ) );
+					}
 
-				break;
+					$return[ $key ] = $posts;
+					break;
+
+				case 'meta':
+					if ( ! is_array( $args['type'] ) ) {
+						$return[ $key ] = (object) array(
+							'links' => (object) array(
+								'counts' => (string) $this->links->get_site_link( $blog_id, 'post-counts/' . $args['type'] ),
+							),
+						);
+					}
+
+					if ( $is_eligible_for_page_handle && $return['posts'] ) {
+						$last_post = end( $return['posts'] );
+						reset( $return['posts'] );
+						if ( ( $return['found'] > count( $return['posts'] ) ) && $last_post ) {
+							if ( ! isset( $return[ $key ] ) ) {
+								$return[ $key ] = (object) array();
+							}
+
+							if ( isset( $last_post['ID'] ) ) {
+								$return[ $key ]->next_page = $this->build_page_handle( $last_post, $query );
+							}
+						}
+					}
+
+					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+						if ( ! isset( $return[ $key ] ) ) {
+							$return[ $key ] = new stdClass();
+						}
+						$return[ $key ]->wpcom = true;
+					}
+
+					break;
 			}
 		}
 
@@ -399,21 +420,26 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 		if ( ! $column ) {
 			$column = 'date';
 		}
-		return build_query( array( 'value' => urlencode($post[$column]), 'id' => $post['ID'] ) );
+		return build_query(
+			array(
+				'value' => urlencode( $post[ $column ] ),
+				'id'    => $post['ID'],
+			)
+		);
 	}
 
 	function _build_date_range_query( $column, $range, $where ) {
 		global $wpdb;
 
 		switch ( count( $range ) ) {
-			case 2 :
+			case 2:
 				$where .= $wpdb->prepare(
 					" AND `$wpdb->posts`.$column >= CAST( %s AS DATETIME ) AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ",
 					$range['after'],
 					$range['before']
 				);
 				break;
-			case 1 :
+			case 1:
 				if ( isset( $range['before'] ) ) {
 					$where .= $wpdb->prepare(
 						" AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ",

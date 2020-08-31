@@ -199,7 +199,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			if (
 				isset( $modules[ $slug ]['requires_connection'] )
 				&& $modules[ $slug ]['requires_connection']
-				&& ( new Status() )->is_development_mode()
+				&& ( new Status() )->is_offline_mode()
 			) {
 				$modules[ $slug ]['activated'] = false;
 			}
@@ -366,7 +366,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			if (
 				isset( $module['requires_connection'] )
 				&& $module['requires_connection']
-				&& ( new Status() )->is_development_mode()
+				&& ( new Status() )->is_offline_mode()
 			) {
 				$module['activated'] = false;
 			}
@@ -715,7 +715,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_global_whitelist':
+					if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
+						require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+					}
+
 					$updated = jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
+
 					if ( is_wp_error( $updated ) ) {
 						$error = $updated->get_error_message();
 					}

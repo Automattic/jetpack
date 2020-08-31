@@ -5,6 +5,8 @@
  * Register support for Twenty Fourteen.
  */
 
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+
 /**
  * Add theme support for infinite scroll
  */
@@ -27,7 +29,7 @@ add_action( 'after_setup_theme', 'jetpack_twentyfourteen_infinite_scroll_init' )
  */
 function jetpack_twentyfourteen_has_footer_widgets() {
 	if ( function_exists( 'jetpack_is_mobile' ) ) {
-		if ( ( Jetpack_User_Agent_Info::is_ipad() && is_active_sidebar( 'sidebar-1' ) )
+		if ( ( User_Agent_Info::is_ipad() && is_active_sidebar( 'sidebar-1' ) )
 			|| ( jetpack_is_mobile( '', true ) && ( is_active_sidebar( 'sidebar-1' ) || is_active_sidebar( 'sidebar-2' ) ) )
 			|| is_active_sidebar( 'sidebar-3' ) )
 

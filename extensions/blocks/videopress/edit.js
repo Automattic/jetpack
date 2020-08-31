@@ -6,7 +6,6 @@ import { isBlobURL } from '@wordpress/blob';
 import {
 	BaseControl,
 	Button,
-	Disabled,
 	IconButton,
 	PanelBody,
 	SandBox,
@@ -22,6 +21,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	RichText,
+	__experimentalBlock as Block,
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -36,6 +36,12 @@ import { getVideoPressUrl } from './url';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
+// For Gutenberg versions that support it, use the figure block wrapper (from '@wordpress/block-editor')
+// to wrap the VideoPress component the same way the underlying `core/video` block is wrapped.
+// (Otherwise there's an issue with Gutenberg >= 8.1 where the VideoPress block becomes unselectable,
+// see https://github.com/Automattic/jetpack/issues/15922.)
+const BlockFigureWrapper = Block ? Block.figure : 'figure';
+
 const VideoPressEdit = CoreVideoEdit =>
 	class extends Component {
 		constructor() {
@@ -44,9 +50,30 @@ const VideoPressEdit = CoreVideoEdit =>
 				media: null,
 				isFetchingMedia: false,
 				fallback: false,
+				interactive: false,
 			};
 			this.posterImageButton = createRef();
 		}
+
+		static getDerivedStateFromProps( nextProps, state ) {
+			if ( ! nextProps.isSelected && state.interactive ) {
+				// We only want to change this when the block is not selected, because changing it when
+				// the block becomes selected makes the overlap disappear too early. Hiding the overlay
+				// happens on mouseup when the overlay is clicked.
+				return { interactive: false };
+			}
+
+			return null;
+		}
+
+		hideOverlay = () => {
+			// This is called onMouseUp on the overlay. We can't respond to the `isSelected` prop
+			// changing, because that happens on mouse down, and the overlay immediately disappears,
+			// and the mouse event can end up in the preview content. We can't use onClick on
+			// the overlay to hide it either, because then the editor misses the mouseup event, and
+			// thinks we're multi-selecting blocks.
+			this.setState( { interactive: true } );
+		};
 
 		componentDidMount() {
 			const { guid } = this.props.attributes;
@@ -153,7 +180,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				preview,
 				setAttributes,
 			} = this.props;
-			const { fallback, isFetchingMedia } = this.state;
+			const { fallback, isFetchingMedia, interactive } = this.state;
 			const { autoplay, caption, controls, loop, muted, poster, preload } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
@@ -269,19 +296,33 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			const { html, scripts } = preview;
 
+			// Disabled because the overlay div doesn't actually have a role or functionality
+			// as far as the user is concerned. We're just catching the first click so that
+			// the block can be selected without interacting with the embed preview that the overlay covers.
+			/* eslint-disable jsx-a11y/no-static-element-interactions */
 			return (
 				<Fragment>
 					{ blockSettings }
-					<figure className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }>
-						{ /*
-							Disable the video player so the user clicking on it won't play the
+					<BlockFigureWrapper
+						className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }
+					>
+						<div className="wp-block-embed__wrapper">
+							<SandBox html={ html } scripts={ scripts } />
+						</div>
+
+						{
+							/*
+							Disable the video player when the block isn't selected,
+							so the user clicking on it won't play the
 							video when the controls are enabled.
-						*/ }
-						<Disabled>
-							<div className="wp-block-embed__wrapper">
-								<SandBox html={ html } scripts={ scripts } />
-							</div>
-						</Disabled>
+						*/
+							! interactive && (
+								<div
+									className="block-library-embed__interactive-overlay"
+									onMouseUp={ this.hideOverlay }
+								/>
+							)
+						}
 						{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
 							<RichText
 								tagName="figcaption"
@@ -291,7 +332,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								inlineToolbar
 							/>
 						) }
-					</figure>
+					</BlockFigureWrapper>
 				</Fragment>
 			);
 		}

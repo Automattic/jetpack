@@ -60,6 +60,9 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
+jetpack_require_lib( 'class-jetpack-wizard' );
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-wizard-banner.php';
+
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	jetpack_require_lib( 'debugger' );

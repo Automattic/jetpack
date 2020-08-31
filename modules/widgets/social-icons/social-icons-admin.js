@@ -1,4 +1,4 @@
-( function( $ ) {
+( function ( $ ) {
 	var timeout = null;
 
 	// Make the list of items sortable.
@@ -10,12 +10,8 @@
 			placeholder: 'jetpack-social-icons-widget-item ui-state-placeholder',
 			containment: widget,
 			forcePlaceholderSize: true,
-			update: function() {
-				livePreviewUpdate(
-					$( this )
-						.parents( '.form' )
-						.find( '.widget-control-save' )
-				);
+			update: function () {
+				livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 			},
 		} );
 	}
@@ -29,9 +25,11 @@
 		button.trigger( 'click' ).hide();
 	}
 
-	$( document ).ready( function() {
+	$( document ).ready( function () {
 		// Add an item.
-		$( document ).on( 'click', '.jetpack-social-icons-widget.add-button button', function( event ) {
+		$( document ).on( 'click', '.jetpack-social-icons-widget.add-button button', function (
+			event
+		) {
 			event.preventDefault();
 
 			var template, widgetContent, widgetList, widgetLastItem, urlId, urlName;
@@ -54,18 +52,14 @@
 		} );
 
 		// Remove an item.
-		$( document ).on( 'click', '.jetpack-widget-social-icons-remove-item-button', function(
+		$( document ).on( 'click', '.jetpack-widget-social-icons-remove-item-button', function (
 			event
 		) {
 			event.preventDefault();
 
-			var button = $( this )
-				.parents( '.form' )
-				.find( '.widget-control-save' );
+			var button = $( this ).parents( '.form' ).find( '.widget-control-save' );
 
-			$( this )
-				.parents( '.jetpack-social-icons-widget-item' )
-				.remove();
+			$( this ).parents( '.jetpack-social-icons-widget-item' ).remove();
 
 			livePreviewUpdate( button );
 		} );
@@ -74,7 +68,7 @@
 		$( document ).on(
 			'click',
 			'div.widget[id*="jetpack_widget_social_icons"] .widget-title, div.widget[id*="jetpack_widget_social_icons"] .widget-action',
-			function() {
+			function () {
 				if ( $( this ).parents( '#available-widgets' ).length ) {
 					return;
 				}
@@ -84,7 +78,7 @@
 		);
 
 		// Event handler for widget added.
-		$( document ).on( 'widget-added', function( event, widget ) {
+		$( document ).on( 'widget-added', function ( event, widget ) {
 			if ( widget.is( '[id*="jetpack_widget_social_icons"]' ) ) {
 				event.preventDefault();
 				initWidget( widget );
@@ -92,7 +86,7 @@
 		} );
 
 		// Event handler for widget updated.
-		$( document ).on( 'widget-updated', function( event, widget ) {
+		$( document ).on( 'widget-updated', function ( event, widget ) {
 			if ( widget.is( '[id*="jetpack_widget_social_icons"]' ) ) {
 				event.preventDefault();
 				initWidget( widget );
@@ -100,45 +94,29 @@
 		} );
 
 		// Live preview update on input focus out.
-		$( document ).on( 'focusout', 'input[name*="jetpack_widget_social_icons"]', function() {
-			livePreviewUpdate(
-				$( this )
-					.parents( '.form' )
-					.find( '.widget-control-save' )
-			);
+		$( document ).on( 'focusout', 'input[name*="jetpack_widget_social_icons"]', function () {
+			livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 		} );
 
 		// Live preview update on input enter key.
-		$( document ).on( 'keydown', 'input[name*="jetpack_widget_social_icons"]', function( event ) {
+		$( document ).on( 'keydown', 'input[name*="jetpack_widget_social_icons"]', function ( event ) {
 			if ( event.keyCode === 13 ) {
-				livePreviewUpdate(
-					$( this )
-						.parents( '.form' )
-						.find( '.widget-control-save' )
-				);
+				livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 			}
 		} );
 
 		// Live preview update on input key up 1s.
-		$( document ).on( 'keyup', 'input[name*="jetpack_widget_social_icons"]', function() {
+		$( document ).on( 'keyup', 'input[name*="jetpack_widget_social_icons"]', function () {
 			clearTimeout( timeout );
 
-			timeout = setTimeout( function() {
-				livePreviewUpdate(
-					$( this )
-						.parents( '.form' )
-						.find( '.widget-control-save' )
-				);
+			timeout = setTimeout( function () {
+				livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 			}, 1000 );
 		} );
 
 		// Live preview update on select change.
-		$( document ).on( 'change', 'select[name*="jetpack_widget_social_icons"]', function() {
-			livePreviewUpdate(
-				$( this )
-					.parents( '.form' )
-					.find( '.widget-control-save' )
-			);
+		$( document ).on( 'change', 'select[name*="jetpack_widget_social_icons"]', function () {
+			livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 		} );
 	} );
 } )( jQuery );

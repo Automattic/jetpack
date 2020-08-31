@@ -56,12 +56,15 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
-			'jetpack.jsonAPI'         => array( $this, 'json_api' ),
 			'jetpack.verifyAction'    => array( $this, 'verify_action' ),
 			'jetpack.getUser'         => array( $this, 'get_user' ),
 			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 		);
+
+		if ( class_exists( 'Jetpack' ) ) {
+			$jetpack_methods['jetpack.jsonAPI'] = array( $this, 'json_api' );
+		}
 
 		$this->user = $this->login();
 
@@ -69,15 +72,18 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.testConnection'    => array( $this, 'test_connection' ),
-					'jetpack.testAPIUserCode'   => array( $this, 'test_api_user_code' ),
-					'jetpack.featuresAvailable' => array( $this, 'features_available' ),
-					'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
-					'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
-					'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
-					'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
+					'jetpack.testAPIUserCode'  => array( $this, 'test_api_user_code' ),
+					'jetpack.disconnectBlog'   => array( $this, 'disconnect_blog' ),
+					'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
+					'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
 				)
 			);
+
+			if ( class_exists( 'Jetpack' ) ) {
+				$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
+				$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
+				$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
+			}
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
 				$jetpack_methods['metaWeblog.newMediaObject']      = $core_methods['metaWeblog.newMediaObject'];
@@ -159,7 +165,7 @@ class Jetpack_XMLRPC_Server {
 
 		if ( ! $user_id ) {
 			return $this->error(
-				new Jetpack_Error(
+				new \WP_Error(
 					'invalid_user',
 					__( 'Invalid user identifier.', 'jetpack' ),
 					400
@@ -172,7 +178,7 @@ class Jetpack_XMLRPC_Server {
 
 		if ( ! $user ) {
 			return $this->error(
-				new Jetpack_Error(
+				new \WP_Error(
 					'user_unknown',
 					__( 'User not found.', 'jetpack' ),
 					404
@@ -222,7 +228,7 @@ class Jetpack_XMLRPC_Server {
 		 *
 		 * @param String  $action the action name, i.e., 'remote_authorize'.
 		 * @param String  $stage  the execution stage, can be 'begin', 'success', 'error', etc.
-		 * @param Array   $parameters extra parameters from the event.
+		 * @param array   $parameters extra parameters from the event.
 		 * @param WP_User $user the acting user.
 		 */
 		do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'begin', array(), $user );
@@ -230,18 +236,18 @@ class Jetpack_XMLRPC_Server {
 		foreach ( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
 			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
 				return $this->error(
-					new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ),
+					new \WP_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ),
 					'remote_authorize'
 				);
 			}
 		}
 
 		if ( ! $user ) {
-			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ), 'remote_authorize' );
+			return $this->error( new \WP_Error( 'user_unknown', 'User not found.', 404 ), 'remote_authorize' );
 		}
 
 		if ( $this->connection->is_active() && $this->connection->is_user_connected( $request['state'] ) ) {
-			return $this->error( new Jetpack_Error( 'already_connected', 'User already connected.', 400 ), 'remote_authorize' );
+			return $this->error( new \WP_Error( 'already_connected', 'User already connected.', 400 ), 'remote_authorize' );
 		}
 
 		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
@@ -293,7 +299,7 @@ class Jetpack_XMLRPC_Server {
 
 		if ( empty( $request['nonce'] ) ) {
 			return $this->error(
-				new Jetpack_Error(
+				new \WP_Error(
 					'nonce_missing',
 					__( 'The required "nonce" parameter is missing.', 'jetpack' ),
 					400
@@ -319,7 +325,7 @@ class Jetpack_XMLRPC_Server {
 			'OK' !== trim( wp_remote_retrieve_body( $response ) )
 		) {
 			return $this->error(
-				new Jetpack_Error(
+				new \WP_Error(
 					'invalid_nonce',
 					__( 'There was an issue validating this request.', 'jetpack' ),
 					400
@@ -338,7 +344,7 @@ class Jetpack_XMLRPC_Server {
 				return $this->error( $registered, 'remote_register' );
 			} elseif ( ! $registered ) {
 				return $this->error(
-					new Jetpack_Error(
+					new \WP_Error(
 						'registration_error',
 						__( 'There was an unspecified error registering the site', 'jetpack' ),
 						400
@@ -506,7 +512,7 @@ class Jetpack_XMLRPC_Server {
 	private function fetch_and_verify_local_user( $request ) {
 		if ( empty( $request['local_user'] ) ) {
 			return $this->error(
-				new Jetpack_Error(
+				new \WP_Error(
 					'local_user_missing',
 					__( 'The required "local_user" parameter is missing.', 'jetpack' ),
 					400
@@ -589,13 +595,13 @@ class Jetpack_XMLRPC_Server {
 		$user = wp_authenticate( 'username', 'password' );
 		if ( is_wp_error( $user ) ) {
 			if ( 'authentication_failed' === $user->get_error_code() ) { // Generic error could mean most anything.
-				$this->error = new Jetpack_Error( 'invalid_request', 'Invalid Request', 403 );
+				$this->error = new \WP_Error( 'invalid_request', 'Invalid Request', 403 );
 			} else {
 				$this->error = $user;
 			}
 			return false;
 		} elseif ( ! $user ) { // Shouldn't happen.
-			$this->error = new Jetpack_Error( 'invalid_request', 'Invalid Request', 403 );
+			$this->error = new \WP_Error( 'invalid_request', 'Invalid Request', 403 );
 			return false;
 		}
 

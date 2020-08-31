@@ -170,6 +170,22 @@ class Actions {
 	}
 
 	/**
+	 * Decides if the sender should run on shutdown when actions are queued.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function should_initialize_sender_enqueue() {
+		if ( Constants::is_true( 'DOING_CRON' ) ) {
+			return self::sync_via_cron_allowed();
+		}
+
+		return true;
+	}
+
+	/**
 	 * Decides if sync should run at all during this request.
 	 *
 	 * @access public
@@ -190,7 +206,7 @@ class Actions {
 			return false;
 		}
 
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 
@@ -206,6 +222,42 @@ class Actions {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Helper function to get details as to why sync is not allowed, if it is not allowed.
+	 *
+	 * @return array
+	 */
+	public static function get_debug_details() {
+		$debug                                  = array();
+		$debug['debug_details']['sync_allowed'] = self::sync_allowed();
+		$debug['debug_details']['sync_health']  = Health::get_status();
+		if ( false === $debug['debug_details']['sync_allowed'] ) {
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$debug['debug_details']['is_wpcom'] = true;
+			}
+			if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+				$debug['debug_details']['PHPUNIT_JETPACK_TESTSUITE'] = true;
+			}
+			if ( ! Settings::is_sync_enabled() ) {
+				$debug['debug_details']['is_sync_enabled']              = false;
+				$debug['debug_details']['jetpack_sync_disable']         = Settings::get_setting( 'disable' );
+				$debug['debug_details']['jetpack_sync_network_disable'] = Settings::get_setting( 'network_disable' );
+			}
+			if ( ( new Status() )->is_offline_mode() ) {
+				$debug['debug_details']['is_offline_mode'] = true;
+			}
+			if ( ( new Status() )->is_staging_site() ) {
+				$debug['debug_details']['is_staging_site'] = true;
+			}
+			$connection = new Jetpack_Connection();
+			if ( ! $connection->is_active() ) {
+				$debug['debug_details']['active_connection'] = false;
+			}
+		}
+		return $debug;
+
 	}
 
 	/**
@@ -261,9 +313,11 @@ class Actions {
 	 * @param float  $checkout_duration      Time spent retrieving queue items from the DB.
 	 * @param float  $preprocess_duration    Time spent converting queue items into data to send.
 	 * @param int    $queue_size             The size of the sync queue at the time of processing.
+	 * @param string $buffer_id              The ID of the Queue buffer checked out for processing.
 	 * @return Jetpack_Error|mixed|WP_Error  The result of the sending request.
 	 */
-	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null ) {
+	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
+
 		$query_args = array(
 			'sync'       => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
 			'codec'      => $codec_name,
@@ -274,6 +328,7 @@ class Actions {
 			'cd'         => sprintf( '%.4f', $checkout_duration ),
 			'pd'         => sprintf( '%.4f', $preprocess_duration ),
 			'queue_size' => $queue_size,
+			'buffer_id'  => $buffer_id,
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -311,7 +366,6 @@ class Actions {
 		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,
-				'user_id' => JETPACK_MASTER_USER,
 				'timeout' => $query_args['timeout'],
 			)
 		);
@@ -370,15 +424,12 @@ class Actions {
 		}
 
 		$initial_sync_config = array(
-			'options'   => true,
-			'functions' => true,
-			'constants' => true,
-			'users'     => array( get_current_user_id() ),
+			'options'         => true,
+			'functions'       => true,
+			'constants'       => true,
+			'users'           => array( get_current_user_id() ),
+			'network_options' => true,
 		);
-
-		if ( is_multisite() ) {
-			$initial_sync_config['network_options'] = true;
-		}
 
 		self::do_full_sync( $initial_sync_config );
 	}
@@ -473,6 +524,7 @@ class Actions {
 
 		$time_limit = Settings::get_setting( 'cron_sync_time_limit' );
 		$start_time = time();
+		$executions = 0;
 
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time( $type );
@@ -486,8 +538,20 @@ class Actions {
 				}
 			}
 
+			// Explicitly only allow 1 do_full_sync call until issue with Immediate Full Sync is resolved.
+			// For more context see p1HpG7-9pe-p2.
+			if ( 'full_sync' === $type && $executions >= 1 ) {
+				break;
+			}
+
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
+
+			// # of send actions performed.
+			$executions ++;
+
 		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
+
+		return $executions;
 	}
 
 	/**
@@ -508,7 +572,7 @@ class Actions {
 	 */
 	public static function initialize_sender() {
 		self::$sender = Sender::get_instance();
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 7 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 8 );
 	}
 
 	/**
@@ -738,6 +802,7 @@ class Actions {
 		$next_cron       = ( ! empty( $cron_timestamps ) ) ? $cron_timestamps[0] - time() : '';
 
 		$checksums = array();
+		$debug     = array();
 
 		if ( ! empty( $fields ) ) {
 			$store         = new Replicastore();
@@ -755,6 +820,10 @@ class Actions {
 			if ( in_array( 'comment_meta_checksum', $fields_params, true ) ) {
 				$checksums['comment_meta_checksum'] = $store->comment_meta_checksum();
 			}
+
+			if ( in_array( 'debug_details', $fields_params, true ) ) {
+				$debug = self::get_debug_details();
+			}
 		}
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
@@ -764,6 +833,7 @@ class Actions {
 		$result = array_merge(
 			$full_sync_status,
 			$checksums,
+			$debug,
 			array(
 				'cron_size'            => count( $cron_timestamps ),
 				'next_cron'            => $next_cron,

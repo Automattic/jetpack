@@ -103,11 +103,7 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
-function buildFilterObject( filterQuery ) {
-	if ( ! filterQuery ) {
-		return {};
-	}
-
+function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
 	const filter = { bool: { must: [] } };
 	getFilterKeys()
 		.filter( key => isLengthyArray( filterQuery[ key ] ) )
@@ -121,11 +117,36 @@ function buildFilterObject( filterQuery ) {
 				}
 			} );
 		} );
+
+	if ( adminQueryFilter ) {
+		filter.bool.must.push( adminQueryFilter );
+	}
+
+	if ( excludedPostTypes?.length > 0 ) {
+		filter.bool.must.push( {
+			bool: {
+				must_not: excludedPostTypes.map( postType =>
+					filterKeyToEsFilter.get( 'post_types' )( postType )
+				),
+			},
+		} );
+	}
 	return filter;
+}
+
+// Maps sort values to values expected by the API
+const SORT_QUERY_MAP = new Map( [
+	[ 'oldest', 'date_asc' ],
+	[ 'newest', 'date_desc' ],
+	[ 'relevance', 'score_default' ],
+] );
+function mapSortToApiValue( sort ) {
+	return SORT_QUERY_MAP.get( sort, 'score_default' );
 }
 
 export function search( {
 	aggregations,
+	excludedPostTypes,
 	filter,
 	pageHandle,
 	query,
@@ -133,6 +154,7 @@ export function search( {
 	siteId,
 	sort,
 	postsPerPage = 10,
+	adminQueryFilter,
 } ) {
 	const key = stringify( Array.from( arguments ) );
 
@@ -157,13 +179,13 @@ export function search( {
 		'post_type',
 		'has.image',
 		'shortcode_types',
+		'image.url.raw',
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
 
 	switch ( resultFormat ) {
-		case 'engagement':
 		case 'product':
-			fields = fields.concat( [ 'image.url.raw', 'wc.price' ] );
+			fields = fields.concat( [ 'wc.price' ] );
 	}
 
 	const queryString = encode(
@@ -171,9 +193,9 @@ export function search( {
 			aggregations,
 			fields,
 			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter ),
+			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
 			query: encodeURIComponent( query ),
-			sort,
+			sort: mapSortToApiValue( sort ),
 			page_handle: pageHandle,
 			size: postsPerPage,
 		} )

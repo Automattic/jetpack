@@ -200,11 +200,12 @@ class Jetpack_Memberships {
 	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
-	 * @param array $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
+	 * @param array  $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
+	 * @param string $content - Recurring Payment block content.
 	 *
 	 * @return string|void
 	 */
-	public function render_button( $attrs ) {
+	public function render_button( $attrs, $content = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
 
 		if ( empty( $attrs['planId'] ) ) {
@@ -219,15 +220,53 @@ class Jetpack_Memberships {
 			return;
 		}
 
-		$data = array(
-			'blog_id'      => self::get_blog_id(),
-			'plan_id'      => $plan_id,
-			'button_label' => __( 'Your contribution', 'jetpack' ),
-		);
+		add_thickbox();
 
-		if ( isset( $attrs['submitButtonText'] ) ) {
-			$data['button_label'] = $attrs['submitButtonText'];
+		if ( ! empty( $content ) ) {
+			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
+			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
+			$subscribe_url = $this->get_subscription_url( $plan_id );
+			return str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
 		}
+
+		return $this->deprecated_render_button_v1( $attrs, $plan_id );
+	}
+
+	/**
+	 * Builds subscription URL for this membership using the current blog and
+	 * supplied plan IDs.
+	 *
+	 * @param integer $plan_id - Unique ID for the plan being subscribed to.
+	 * @return string
+	 */
+	public function get_subscription_url( $plan_id ) {
+		global $wp;
+
+		return add_query_arg(
+			array(
+				'blog'     => esc_attr( self::get_blog_id() ),
+				'plan'     => esc_attr( $plan_id ),
+				'lang'     => esc_attr( get_locale() ),
+				'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
+				'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
+			),
+			'https://subscribe.wordpress.com/memberships/'
+		);
+	}
+
+	/**
+	 * Renders a deprecated legacy version of the button HTML.
+	 *
+	 * @param array   $attrs - Array containing the Recurring Payment block attributes.
+	 * @param integer $plan_id - Unique plan ID the membership is for.
+	 *
+	 * @return string
+	 */
+	public function deprecated_render_button_v1( $attrs, $plan_id ) {
+		$button_label = isset( $attrs['submitButtonText'] )
+			? $attrs['submitButtonText']
+			: __( 'Your contribution', 'jetpack' );
+
 		$button_styles = array();
 		if ( ! empty( $attrs['customBackgroundButtonColor'] ) ) {
 			array_push(
@@ -248,19 +287,7 @@ class Jetpack_Memberships {
 			);
 		}
 		$button_styles = implode( ';', $button_styles );
-		add_thickbox();
-		global $wp;
 
-		$button_url = add_query_arg(
-			array(
-				'blog'     => esc_attr( $data['blog_id'] ),
-				'plan'     => esc_attr( $data['plan_id'] ),
-				'lang'     => esc_attr( get_locale() ),
-				'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
-				'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
-			),
-			'https://subscribe.wordpress.com/memberships/'
-		);
 		return sprintf(
 			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
@@ -270,10 +297,10 @@ class Jetpack_Memberships {
 					array( 'wp-block-button' )
 				)
 			),
-			esc_url( $button_url ),
+			esc_url( $this->get_subscription_url( $plan_id ) ),
 			isset( $attrs['submitButtonClasses'] ) ? esc_attr( $attrs['submitButtonClasses'] ) : 'wp-block-button__link',
 			esc_attr( $button_styles ),
-			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button ),
+			wp_kses( $button_label, self::$tags_allowed_in_the_button ),
 			isset( $attrs['submitButtonAttributes'] ) ? sanitize_text_field( $attrs['submitButtonAttributes'] ) : '' // Needed for arbitrary target=_blank on WPCOM VIP.
 		);
 	}

@@ -75,6 +75,10 @@ class Jetpack_Core_API_Site_Endpoint {
 			return self::get_failed_fetch_error();
 		}
 
+		if ( 200 !== intval( wp_remote_retrieve_response_code( $response ) ) ) {
+			return self::get_failed_fetch_error();
+		}
+
 		// Decode the results.
 		$results = json_decode( $response['body'], true );
 

@@ -1,5 +1,6 @@
 @import '_inc/client/scss/functions/rem';
 @import '_inc/client/scss/variables/colors';
+@import '_inc/client/scss/typography';
 
 .updated { // utlizes some core styles, overrides some others
 	&.jp-banner {
@@ -8,7 +9,7 @@
 	}
 
 	.jp-banner__header {
-		font-size: rem( 18px ) ;
+		font-size: $font-title-small;
 		font-weight: 400;
 		margin-top: 0;
 	}
@@ -28,7 +29,7 @@
 		display: block;
 		padding: rem( 6px ) 0;
 		line-height: 1.5;
-		font-size: rem( 11px );
+		font-size: $font-body-extra-small;
 		color: $gray-dark;
 		@include minbreakpoint(phablet) {
 			margin-left: rem(18px);
@@ -45,7 +46,7 @@
 }
 
 .jp-banner__description {
-	font-size: rem( 14px );
+	font-size: $font-body-small;
 }
 
 .jp-banner__description-container {
@@ -94,7 +95,7 @@
 
 		h4 {
 			line-height: 1.25;
-			font-size: rem( 22px );
+			font-size: $font-title-medium;
 			font-weight: normal;
 			margin: 1em 0;
 		}
@@ -165,18 +166,20 @@
 
 	h2 {
 		margin: rem( 24px ) 10% 0;
-		font-size: rem( 22px );
+		font-size: $font-title-large;
 		font-weight: bold;
+		line-height: 1.2;
 		color: black;
 
 		@include breakpoint(large-phone) {
 			margin-top: rem( 16px );
+			font-size: $font-title-medium;
 		};
 	}
 
 	h3 {
 		color: $gray-text-min;
-		font-size: rem( 16px );
+		font-size: $font-body;
 		font-weight: normal;
 		margin: rem( 10px ) 0 rem( 24px );
 	}
@@ -187,7 +190,7 @@
 }
 
 .jp-connect-full__tos-blurb {
-	font-size: rem( 11px );
+	font-size: $font-body-extra-small;
 	margin: 0 auto rem( 16px );
 }
 
@@ -196,7 +199,7 @@
 }
 
 .jp-connect-full__dismiss-paragraph {
-	font-size: .6875rem;
+	font-size: $font-body-extra-small;
 }
 
 .jp-connect-full__tos-blurb a,
@@ -217,23 +220,31 @@
 }
 
 .jp-connect-full__slide {
-	max-width: 35%;
+	max-width: 38%;
 	margin: rem(48px) 0;
 
 	@include breakpoint(tablet) {
 		margin: rem(30px) 0;
 	}
 
-	p {
-		font-size: rem(14px);
+	h3 {
+		font-size: $font-title-small;
+	}
+
+	img {
+		max-width: 100%;
+	}
+
+	ul {
+		list-style: disc;
+		margin-left: 16px;
 	}
 
 	.illustration {
-		padding: rem(12px);
 
 		@include minbreakpoint(phablet) {
-			margin-bottom: rem(42px);
-		};
+			margin-bottom: rem( 32px );
+		}
 	}
 }
 
@@ -244,21 +255,21 @@
 
 	h2 {
 		margin: rem( 16px ) 0 0;
-		font-size: rem( 22px );
+		font-size: $font-title-medium;
 		font-weight: normal;
 		color: black;
 	}
 
 	h3 {
 		color: $gray-text-min;
-		font-size: rem( 16px );
+		font-size: $font-body;
 		font-weight: normal;
 		margin: rem( 10px ) 0 rem( 24px );
 	}
 }
 
 .jp-connect-full__button-container-loading {
-	font-size: 14px;
+	font-size: $font-body-small;
 	animation: jetpack-loading-fade 1.6s ease-in-out infinite;
 }
 
@@ -367,7 +378,7 @@
 
 .jp-wpcom-connect__content-container p {
 	color: darken( $gray, 20% );
-	font-size: rem( 14px );
+	font-size: $font-body-small;
 }
 
 .jp-wpcom-connect__content-container h2 {
@@ -437,7 +448,7 @@
 
 .jp-wpcom-connect__slide ul li {
 	color: darken( $gray, 20% );
-	font-size: rem( 12px );
+	font-size: $font-body-extra-small;
 }
 
 .jp-banner__button-container .dops-button {

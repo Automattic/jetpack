@@ -11,21 +11,24 @@ import { InnerBlocks } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import './editor.scss';
-import JetpackContactForm from './components/jetpack-contact-form';
+import edit from './edit';
+import defaultAttributes from './attributes';
+import variations from './variations';
+import deprecated from './deprecated';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
-import colorValidator from '../../shared/colorValidator';
 import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'contact-form';
 
-export const icon = renderMaterialIcon(
+const icon = renderMaterialIcon(
 	<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
 );
+
+import JetpackFieldConsent from './components/jetpack-field-consent';
 
 export const settings = {
 	title: __( 'Form', 'jetpack' ),
@@ -39,149 +42,19 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: supportsCollections() ? 'grow' : 'jetpack',
 	supports: {
 		html: false,
 	},
-	attributes: {
-		subject: {
-			type: 'string',
-			default: '',
-		},
-		to: {
-			type: 'string',
-			default: '',
-		},
-		submitButtonText: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
-		},
-		backgroundButtonColor: {
-			type: 'string',
-		},
-		textButtonColor: {
-			type: 'string',
-		},
-		customBackgroundButtonColor: {
-			type: 'string',
-			validator: colorValidator,
-		},
-		customTextButtonColor: {
-			type: 'string',
-			validator: colorValidator,
-		},
-		submitButtonClasses: { type: 'string' },
-		hasFormSettingsSet: {
-			type: 'string',
-			default: null,
-		},
-		customThankyou: {
-			type: 'string',
-			default: '',
-		},
-		customThankyouMessage: {
-			type: 'string',
-			default: '',
-		},
-		customThankyouRedirect: {
-			type: 'string',
-			default: '',
-		},
-
-		// Deprecated
-		has_form_settings_set: {
-			type: 'string',
-			default: null,
-		},
-		submit_button_text: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
-		},
-	},
-
-	edit: JetpackContactForm,
-	save: () => <InnerBlocks.Content />,
-	example: {
-		attributes: {
-			hasFormSettingsSet: true,
-			submitButtonText: __( 'Submit', 'jetpack' ),
-		},
-		innerBlocks: [
-			{
-				name: 'jetpack/field-name',
-				attributes: {
-					label: __( 'Name', 'jetpack' ),
-					required: true,
-				},
-			},
-			{
-				name: 'jetpack/field-email',
-				attributes: {
-					label: __( 'Email', 'jetpack' ),
-					required: true,
-				},
-			},
-			{
-				name: 'jetpack/field-url',
-				attributes: {
-					label: __( 'Website', 'jetpack' ),
-				},
-			},
-			{
-				name: 'jetpack/field-textarea',
-				attributes: {
-					label: __( 'Message', 'jetpack' ),
-				},
-			},
-		],
-	},
-	deprecated: [
-		{
-			attributes: {
-				subject: {
-					type: 'string',
-					default: '',
-				},
-				to: {
-					type: 'string',
-					default: '',
-				},
-				submit_button_text: {
-					type: 'string',
-					default: __( 'Submit', 'jetpack' ),
-				},
-				has_form_settings_set: {
-					type: 'string',
-					default: null,
-				},
-			},
-			migrate: attr => {
-				return {
-					submitButtonText: attr.submit_button_text,
-					hasFormSettingsSet: attr.has_form_settings_set,
-					to: attr.to,
-					subject: attr.subject,
-				};
-			},
-
-			isEligible: attr => {
-				// when the deprecated, snake_case values are default, no need to migrate
-				if (
-					! attr.has_form_settings_set &&
-					( ! attr.submit_button_text || attr.submit_button_text === 'Submit' )
-				) {
-					return false;
-				}
-				return true;
-			},
-
-			save: () => <InnerBlocks.Content />,
-		},
-	],
+	attributes: defaultAttributes,
+	edit,
+	save: InnerBlocks.Content,
+	variations,
+	category: 'grow',
+	deprecated,
 };
 
 const FieldDefaults = {
-	category: supportsCollections() ? 'grow' : 'jetpack',
+	category: 'grow',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,
@@ -211,6 +84,10 @@ const FieldDefaults = {
 		id: {
 			type: 'string',
 			default: '',
+		},
+		width: {
+			type: 'number',
+			default: 100,
 		},
 	},
 	transforms: {
@@ -257,14 +134,6 @@ const FieldDefaults = {
 				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-textarea', attributes ),
 			},
-			/* // not yet ready for prime time.
-			{
-				type: 'block',
-				blocks: [ 'jetpack/field-checkbox' ],
-				isMatch: ( { options } ) => 1 === options.length,
-				transform: ( attributes )=>createBlock( 'jetpack/field-checkbox', attributes )
-			},
-			*/
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-checkbox-multiple' ],
@@ -283,27 +152,37 @@ const FieldDefaults = {
 				isMatch: ( { options } ) => 1 <= options.length,
 				transform: attributes => createBlock( 'jetpack/field-select', attributes ),
 			},
+			{
+				type: 'block',
+				blocks: [ 'jetpack/field-consent' ],
+				isMatch: ( { options } ) => 1 <= options.length,
+				transform: attributes => createBlock( 'jetpack/field-consent', attributes ),
+			},
 		],
 	},
 	save: () => null,
+	example: {},
 };
 
 const getFieldLabel = ( { attributes, name: blockName } ) => {
 	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
 };
 
-const editField = type => props => (
-	<JetpackField
-		type={ type }
-		label={ getFieldLabel( props ) }
-		required={ props.attributes.required }
-		setAttributes={ props.setAttributes }
-		isSelected={ props.isSelected }
-		defaultValue={ props.attributes.defaultValue }
-		placeholder={ props.attributes.placeholder }
-		id={ props.attributes.id }
-	/>
-);
+const editField = type => props => {
+	return (
+		<JetpackField
+			type={ type }
+			label={ getFieldLabel( props ) }
+			required={ props.attributes.required }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			placeholder={ props.attributes.placeholder }
+			id={ props.attributes.id }
+			width={ props.attributes.width }
+		/>
+	);
+};
 
 const editMultiField = type => props => (
 	<JetpackFieldMultiple
@@ -314,6 +193,7 @@ const editMultiField = type => props => (
 		type={ type }
 		isSelected={ props.isSelected }
 		id={ props.attributes.id }
+		width={ props.attributes.width }
 	/>
 );
 
@@ -391,7 +271,7 @@ export const childBlocks = [
 		name: 'field-telephone',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Telephone', 'jetpack' ),
+			title: __( 'Phone Number', 'jetpack' ),
 			keywords: [
 				__( 'Phone', 'jetpack' ),
 				__( 'Cellular phone', 'jetpack' ),
@@ -424,6 +304,7 @@ export const childBlocks = [
 					defaultValue={ props.attributes.defaultValue }
 					placeholder={ props.attributes.placeholder }
 					id={ props.attributes.id }
+					width={ props.attributes.width }
 				/>
 			),
 		},
@@ -446,6 +327,7 @@ export const childBlocks = [
 					isSelected={ props.isSelected }
 					defaultValue={ props.attributes.defaultValue }
 					id={ props.attributes.id }
+					width={ props.attributes.width }
 				/>
 			),
 			attributes: {
@@ -454,6 +336,63 @@ export const childBlocks = [
 					type: 'string',
 					default: '',
 				},
+			},
+		},
+	},
+	{
+		name: 'field-consent',
+		settings: {
+			...FieldDefaults,
+			title: __( 'Consent', 'jetpack' ),
+			keywords: [ __( 'Consent', 'jetpack' ) ],
+			description: __( 'Ask for consent', 'jetpack' ),
+			icon: renderMaterialIcon(
+				<Path d="m81 370h142v40h-142zm0-39h142v-40h-142zm0-79h245v-40h-245zm378 260h-40c0-40.253906-32.746094-73-73-73s-73 32.746094-73 73h-40c0-42.085938 23.128906-78.867188 57.34375-98.3125-11.40625-13.023438-18.34375-30.054688-18.34375-48.6875 0-40.804688 33.195312-74 74-74s74 33.195312 74 74c0 18.632812-6.9375 35.664062-18.34375 48.6875 34.214844 19.445312 57.34375 56.226562 57.34375 98.3125zm-113-113c18.746094 0 34-15.253906 34-34s-15.253906-34-34-34-34 15.253906-34 34 15.253906 34 34 34zm-286 73h138.316406c-3.460937 12.757812-5.316406 26.164062-5.316406 40h-133c-33.085938 0-60-26.914062-60-60v-392c0-33.085938 26.914062-60 60-60h203.757812l142.132813 142.855469v125.210937c-12.042969-7.476562-25.453125-12.765625-39.890625-15.324218v-81.632813h-71.109375c-33.085937 0-60-26.914063-60-60v-71.109375h-174.890625c-11.027344 0-20 8.972656-20 20v392c0 11.027344 8.972656 20 20 20zm234.890625-340.890625h42.972656l-62.972656-63.234375v43.234375c0 11.03125 8.96875 20 20 20zm0 0" />,
+				24,
+				25,
+				'-26 0 512 512'
+			),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: __( 'Consent', 'jetpack' ),
+				},
+				consentType: {
+					type: 'string',
+					default: 'implicit',
+				},
+				implicitConsentMessage: {
+					type: 'string',
+					default: __(
+						"By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.",
+						'jetpack'
+					),
+				},
+				explicitConsentMessage: {
+					type: 'string',
+					default: __( 'Can we send you an email from time to time?', 'jetpack' ),
+				},
+			},
+			edit: ( { attributes, isSelected, setAttributes } ) => {
+				const {
+					id,
+					width,
+					consentType,
+					implicitConsentMessage,
+					explicitConsentMessage,
+				} = attributes;
+				return (
+					<JetpackFieldConsent
+						id={ id }
+						isSelected={ isSelected }
+						width={ width }
+						consentType={ consentType }
+						implicitConsentMessage={ implicitConsentMessage }
+						explicitConsentMessage={ explicitConsentMessage }
+						setAttributes={ setAttributes }
+					/>
+				);
 			},
 		},
 	},

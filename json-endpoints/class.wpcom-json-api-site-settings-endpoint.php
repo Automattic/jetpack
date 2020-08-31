@@ -45,6 +45,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_relatedposts_show_headline' => '(bool) Show headline in related posts?',
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
 		'jetpack_protect_whitelist'    => '(array) List of IP addresses to whitelist',
+		'instant_search_enabled'       => '(bool) Enable the new Jetpack Instant Search interface',
 		'jetpack_search_enabled'       => '(bool) Enable Jetpack Search',
 		'jetpack_search_supported'     => '(bool) Jetpack Search is supported',
 		'infinite_scroll'              => '(bool) Support infinite scroll of posts?',
@@ -245,6 +246,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return array
 	 */
 	public function get_settings_response() {
+		global $wp_version;
 
 		// Allow update in later versions
 		/**
@@ -327,13 +329,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
 				$response[ $key ] = array(
-
 					// also exists as "options"
 					'admin_url'               => get_admin_url(),
 					'default_ping_status'     => (bool) ( 'closed' != get_option( 'default_ping_status' ) ),
 					'default_comment_status'  => (bool) ( 'closed' != get_option( 'default_comment_status' ) ),
 
 					// new stuff starts here
+						'instant_search_enabled'  => (bool) get_option( 'instant_search_enabled' ),
 					'blog_public'             => (int) get_option( 'blog_public' ),
 					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
@@ -362,10 +364,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'social_notifications_reblog' => ( "on" == get_option( 'social_notifications_reblog' ) ),
 					'social_notifications_subscribe' => ( "on" == get_option( 'social_notifications_subscribe' ) ),
 					'comment_moderation'      => (bool) get_option( 'comment_moderation' ),
-					'comment_whitelist'       => (bool) get_option( 'comment_whitelist' ),
+					'comment_whitelist'                => ( version_compare( $wp_version, '5.5-alpha', '>=' ) )
+						? (bool) get_option( 'comment_previously_approved' )
+						: (bool) get_option( 'comment_whitelist' ),
+					'comment_previously_approved'       => (bool) get_option( 'comment_previously_approved' ),
 					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
 					'moderation_keys'         => get_option( 'moderation_keys' ),
-					'blacklist_keys'          => get_option( 'blacklist_keys' ),
+					'blacklist_keys'                   => ( version_compare( $wp_version, '5.5-alpha', '>=' ) )
+						? get_option( 'disallowed_keys' )
+						: get_option( 'blacklist_keys' ),
+					'disallowed_keys'          => get_option( 'disallowed_keys' ),
 					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_option( 'lang_id' ),
@@ -730,7 +738,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
-					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_legacy_front_page_meta() ) {
 						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 
@@ -788,6 +796,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'rss_use_excerpt':
 					update_option( 'rss_use_excerpt', (int)(bool) $value );
+					break;
+
+				case 'instant_search_enabled':
+					update_option( 'instant_search_enabled', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				default:

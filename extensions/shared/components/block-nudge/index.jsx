@@ -24,13 +24,13 @@ export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subt
 				</Button>,
 			]
 		}
-		className="jetpack-block-nudge"
+		className="jetpack-block-nudge wp-block"
 	>
 		<span className="jetpack-block-nudge__info">
 			{ icon }
 			<span className="jetpack-block-nudge__text-container">
 				<span className="jetpack-block-nudge__title">{ title }</span>
-				<span className="jetpack-block-nudge__message">{ subtitle }</span>
+				{ subtitle && <span className="jetpack-block-nudge__message">{ subtitle }</span> }
 			</span>
 		</span>
 	</Warning>
@@ -41,7 +41,7 @@ export default compose( [
 		autosaveAndRedirect: async event => {
 			event.preventDefault(); // Don't follow the href before autosaving
 			onClick( blockName );
-			await dispatch( 'core/editor' ).autosave();
+			await dispatch( 'core/editor' ).savePost();
 			// Using window.top to escape from the editor iframe on WordPress.com
 			window.top.location.href = href;
 		},

@@ -5,7 +5,8 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
+import { getNgrokSiteUrl, execWpCommand } from './utils-helper';
+import logger from './logger';
 
 export async function persistPlanData( planType = 'jetpack_business' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
@@ -15,14 +16,8 @@ export async function persistPlanData( planType = 'jetpack_business' ) {
 
 	fs.writeFileSync( 'plan-data.txt', JSON.stringify( planData ) );
 
-	const cmd = `wp option add ${ planDataOption }`;
-	await execWpCommand( cmd, ' < plan-data.txt' );
-}
-
-export async function movePluginToPluginsDirectory() {
-	const cmd =
-		'mkdir ../jetpack-test-plugins && cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../jetpack-test-plugins/e2e-plan-data-interceptor.php';
-	await execShellCommand( cmd );
+	const cmd = `wp option update ${ planDataOption } < plan-data.txt`;
+	await execWpCommand( cmd );
 }
 
 export async function activatePlanDataInterceptor() {
@@ -245,6 +240,7 @@ function getPlanData(
 /**
  * Returns a JSON representation of Jetpack plan data.
  * TODO: Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow.
+ *
  * @param {string} type Jetpack plan slug.
  * @return {JSON} JSON Jetpack plan object.
  */
@@ -392,12 +388,13 @@ export async function syncPlanData( page ) {
 	do {
 		await page.reload( { waitFor: 'networkidle0' } );
 
-		// eslint-disable-next-line no-undef
+		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		/* eslint-enable no-undef */
 		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
-		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+		logger.info( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
 

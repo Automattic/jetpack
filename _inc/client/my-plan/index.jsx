@@ -25,8 +25,8 @@ export function MyPlan( props ) {
 	let sitePlan = props.sitePlan.product_slug || '',
 		availableFeatures = props.availableFeatures,
 		activeFeatures = props.activeFeatures;
-	if ( 'dev' === props.getSiteConnectionStatus( props ) ) {
-		sitePlan = 'dev';
+	if ( 'offline' === props.getSiteConnectionStatus( props ) ) {
+		sitePlan = 'offline';
 		availableFeatures = {};
 		activeFeatures = {};
 	}

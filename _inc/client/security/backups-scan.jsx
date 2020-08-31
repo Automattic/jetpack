@@ -4,44 +4,48 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { numberFormat, translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import analytics from 'lib/analytics';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { get, includes } from 'lodash';
-import Banner from 'components/banner';
+import { numberFormat } from 'i18n-calypso';
+import { __, _x, _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Banner from 'components/banner';
+import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isModuleActivated } from 'state/modules';
+import QueryRewindStatus from 'components/data/query-rewind-status';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 import { showBackups } from 'state/initial-state';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 class LoadingCard extends Component {
 	render() {
 		return (
 			<SettingsCard
-				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
+				header={ _x( 'Backups and security scanning', 'Settings header', 'jetpack' ) }
 				hideButton
 				action="scan"
 			>
 				<SettingsGroup
-					disableInDevMode
+					disableInOfflineMode
 					module={ { module: 'backups' } }
 					support={ {
 						text: __(
-							'Backs up your site to the global WordPress.com servers, ' +
-								'allowing you to restore your content in the event of an emergency or error.'
+							'Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.',
+							'jetpack'
 						),
-						link: 'https://help.vaultpress.com/get-to-know/',
+						link: getRedirectUrl( 'vaultpress-help-get-to-know' ),
 					} }
 				>
-					{ __( 'Checking site status…' ) }
+					{ __( 'Checking site status…', 'jetpack' ) }
 				</SettingsGroup>
 			</SettingsCard>
 		);
@@ -50,13 +54,13 @@ class LoadingCard extends Component {
 
 class BackupsScanRewind extends Component {
 	static propTypes = {
-		isDevMode: PropTypes.bool,
+		isOfflineMode: PropTypes.bool,
 		siteRawUrl: PropTypes.string,
 		rewindState: PropTypes.string,
 	};
 
 	static defaultProps = {
-		isDevMode: false,
+		isOfflineMode: false,
 		siteRawUrl: '',
 		rewindState: '',
 	};
@@ -67,35 +71,35 @@ class BackupsScanRewind extends Component {
 		switch ( rewindState ) {
 			case 'provisioning':
 				return {
-					title: __( 'Provisioning' ),
+					title: __( 'Provisioning', 'jetpack' ),
 					icon: 'info',
-					description: __( 'Backups and Scan are being configured for your site.' ),
+					description: __( 'Backups and Scan are being configured for your site.', 'jetpack' ),
 					url: '',
 				};
 			case 'awaiting_credentials':
 				return {
-					title: __( 'Awaiting credentials' ),
+					title: __( 'Awaiting credentials', 'jetpack' ),
 					icon: 'notice',
 					description: __(
-						'You need to enter your server credentials to finish configuring Backups and Scan.'
+						'You need to enter your server credentials to finish configuring Backups and Scan.',
+						'jetpack'
 					),
-					url: 'https://wordpress.com/settings/security/' + siteRawUrl,
+					url: getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 				};
 			case 'active':
 				return {
-					title: __( 'Active' ),
+					title: __( 'Active', 'jetpack' ),
 					icon: 'checkmark-circle',
-					description: __(
-						'Your site is being backed up in real time and regularly scanned for security threats.'
-					),
-					url: 'https://wordpress.com/activity-log/' + siteRawUrl,
+					description: __( 'Your site is connected to Jetpack Backup and Scan.', 'jetpack' ),
+					url: getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
 				};
 			default:
 				return {
-					title: __( 'Oops!' ),
+					title: __( 'Oops!', 'jetpack' ),
 					icon: 'info',
 					description: __(
-						'The Jetpack Backup and Scan status could not be retrieved at this time.'
+						'The Jetpack Backup and Scan status could not be retrieved at this time.',
+						'jetpack'
 					),
 					url: '',
 				};
@@ -103,8 +107,8 @@ class BackupsScanRewind extends Component {
 	}
 
 	getCardText = () => {
-		if ( this.props.isDevMode ) {
-			return __( 'Unavailable in Dev Mode.' );
+		if ( this.props.isOfflineMode ) {
+			return __( 'Unavailable in Offline Mode.', 'jetpack' );
 		}
 
 		const { title, icon, description, url } = this.getRewindMessage();
@@ -126,7 +130,7 @@ class BackupsScanRewind extends Component {
 			<SettingsCard
 				feature={ 'rewind' }
 				{ ...this.props }
-				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
+				header={ _x( 'Backups and security scanning', 'Settings header', 'jetpack' ) }
 				action={ 'rewind' }
 				hideButton
 			>
@@ -156,8 +160,8 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
 			let cardText = '';
 
-			if ( this.props.isDevMode ) {
-				return __( 'Unavailable in Dev Mode.' );
+			if ( this.props.isOfflineMode ) {
+				return __( 'Unavailable in Offline Mode.', 'jetpack' );
 			}
 
 			// We check if the features are active first, rather than the plan because it's possible the site is on a
@@ -168,26 +172,27 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					return (
 						<div>
 							<strong>
-								{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
-									count: threats,
-									args: {
-										number: numberFormat( threats ),
-									},
-								} ) }
+								{ sprintf(
+									_n( 'Uh oh, %s threat found.', 'Uh oh, %s threats found.', threats, 'jetpack' ),
+									numberFormat( threats )
+								) }
 							</strong>
 							<br />
 							<br />
-							{ __( '{{a}}View details{{/a}}', {
-								components: { a: <a href="https://dashboard.vaultpress.com/" /> },
+							{ jetpackCreateInterpolateElement( __( '<a>View details</a>', 'jetpack' ), {
+								a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } />,
 							} ) }
 							<br />
-							{ __( '{{a}}Contact Support{{/a}}', {
-								components: { a: <a href="https://jetpack.com/support" /> },
+							{ jetpackCreateInterpolateElement( __( '<a>Contact Support</a>', 'jetpack' ), {
+								a: <a href={ getRedirectUrl( 'jetpack-support' ) } />,
 							} ) }
 						</div>
 					);
 				}
-				return __( 'Your site is backed up and threat-free.' );
+				return __(
+					'Your site is connected to VaultPress for backups and security scanning.',
+					'jetpack'
+				);
 			}
 
 			// Only return here if backups enabled and site on on free/personal plan, or if Jetpack Backup is in use.
@@ -199,21 +204,22 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					planClass
 				)
 			) {
-				return __( 'Your site is backed up.' );
+				return __( 'Your site is connected to VaultPress for backups.', 'jetpack' );
 			}
 
 			// Nothing is enabled. We can show upgrade/setup text now.
 			switch ( planClass ) {
 				case 'is-personal-plan':
-					cardText = __( "You have paid for backups but they're not yet active." );
-					cardText += ' ' + __( 'Click "Set Up" to finish installation.' );
+					cardText = __( "You have paid for backups but they're not yet active.", 'jetpack' );
+					cardText += ' ' + __( 'Click "Set Up" to finish installation.', 'jetpack' );
 					break;
 				case 'is-premium-plan':
 				case 'is-business-plan':
 					cardText = __(
-						'You have paid for backups and security scanning but they’re not yet active.'
+						'You have paid for backups and security scanning but they’re not yet active.',
+						'jetpack'
 					);
-					cardText += ' ' + __( 'Click "Set Up" to finish installation.' );
+					cardText += ' ' + __( 'Click "Set Up" to finish installation.', 'jetpack' );
 					break;
 			}
 
@@ -249,32 +255,33 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				<SettingsCard
 					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
 					{ ...this.props }
-					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
+					header={ _x( 'Backups and security scanning', 'Settings header', 'jetpack' ) }
 					action="scan"
 					hideButton
 				>
+					<QueryRewindStatus />
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ { module: 'backups' } }
 						support={ {
 							text: __(
-								'Backs up your site to the global WordPress.com servers, ' +
-									'allowing you to restore your content in the event of an emergency or error.'
+								'Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.',
+								'jetpack'
 							),
-							link: 'https://help.vaultpress.com/get-to-know/',
+							link: getRedirectUrl( 'vaultpress-help-get-to-know' ),
 						} }
 					>
 						{ this.getCardText() }
 					</SettingsGroup>
-					{ ! this.props.isUnavailableInDevMode( 'backups' ) && scanEnabled && (
+					{ ! this.props.isUnavailableInOfflineMode( 'backups' ) && scanEnabled && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
 							target="_blank"
-							href="https://dashboard.vaultpress.com/"
+							href={ getRedirectUrl( 'vaultpress-dashboard' ) }
 						>
-							{ __( 'Configure your Security Scans' ) }
+							{ __( 'Configure your Security Scans', 'jetpack' ) }
 						</Card>
 					) }
 				</SettingsCard>

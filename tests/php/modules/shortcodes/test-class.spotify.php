@@ -79,4 +79,18 @@ class WP_Test_Jetpack_Shortcodes_Spotify extends WP_UnitTestCase {
 		$this->assertContains( "spotify:track:$track_id", $content );
 	}
 
+	/**
+	 * Verify that content like "spotify:track:55fQ9iIkC2qajnlvI1iMWO" on its own line, not preceded by an HTML tag, will be converted to a player.
+	 *
+	 * @since 8.6.0
+	 */
+	public function test_shortcodes_spotify_player_content_no_html() {
+		$track_id = '55fQ9iIkC2qajnlvI1iMWO';
+		$content  = "This is another plain text before a spotify track
+		spotify:track:$track_id";
+
+		$content = apply_filters( 'the_content', $content );
+		$this->assertContains( 'https://embed.spotify.com/?uri=' . rawurlencode( "spotify:track:$track_id" ), $content );
+	}
+
 }

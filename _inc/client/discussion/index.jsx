@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -12,8 +12,8 @@ import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import {
-	isDevMode,
-	isUnavailableInDevMode,
+	isOfflineMode,
+	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
@@ -29,8 +29,8 @@ export class Discussion extends React.Component {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
-			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isOfflineMode: this.props.isOfflineMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 		};
 
 		const foundComments = this.props.isModuleFound( 'comments' ),
@@ -59,9 +59,10 @@ export class Discussion extends React.Component {
 				<Card
 					title={
 						this.props.searchTerm
-							? __( 'Discussion' )
+							? __( 'Discussion', 'jetpack' )
 							: __(
-									'Manage advanced comment settings and grow your audience with email subscriptions.'
+									'Manage advanced comment settings and grow your audience with email subscriptions.',
+									'jetpack'
 							  )
 					}
 					className="jp-settings-description"
@@ -88,8 +89,8 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
-		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		connectUrl: getConnectUrl( state ),
 		isLinked: isCurrentUserLinked( state ),

@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
 import React from 'react';
-import { translate as __ } from 'i18n-calypso';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import getRedirectUrl from 'lib/jp-redirect';
 import JetpackBanner from 'components/jetpack-banner';
 
 import './style.scss';
@@ -25,21 +27,6 @@ class ModuleOverridenBanner extends JetpackBanner {
 			return null;
 		}
 
-		const translationArgs = {
-			args: {
-				moduleName: this.props.moduleName,
-			},
-			components: {
-				link: (
-					<a
-						href="http://jetpack.com/support/module-overrides/"
-						target="_blank"
-						rel="noopener noreferrer"
-					/>
-				),
-			},
-		};
-
 		const classes = classNames( 'module-overridden-banner', {
 			'is-compact': this.props.compact,
 		} );
@@ -49,9 +36,24 @@ class ModuleOverridenBanner extends JetpackBanner {
 				className={ classes }
 				title={ this.props.moduleName }
 				icon="cog"
-				description={ __(
-					'%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.',
-					translationArgs
+				description={ jetpackCreateInterpolateElement(
+					sprintf(
+						/* translators: placeholder is a feature name. */
+						__(
+							'%s has been disabled by a site administrator. <link>Learn more</link>.',
+							'jetpack'
+						),
+						this.props.moduleName
+					),
+					{
+						link: (
+							<a
+								href={ getRedirectUrl( 'jetpack-support-module-overrides' ) }
+								target="_blank"
+								rel="noopener noreferrer"
+							/>
+						),
+					}
 				) }
 			/>
 		);

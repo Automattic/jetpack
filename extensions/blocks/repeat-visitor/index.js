@@ -13,7 +13,6 @@ import save from './components/save';
 import { CRITERIA_AFTER, DEFAULT_THRESHOLD } from './constants';
 import { getIconColor } from '../../shared/block-icons';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'repeat-visitor';
 export const icon = renderMaterialIcon(
@@ -30,7 +29,7 @@ export const settings = {
 			default: DEFAULT_THRESHOLD,
 		},
 	},
-	category: supportsCollections() ? 'widgets' : 'jetpack',
+	category: 'widgets',
 	description: __(
 		'Control block visibility based on how often a visitor has viewed the page.',
 		'jetpack'

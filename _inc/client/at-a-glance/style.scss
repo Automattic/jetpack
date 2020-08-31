@@ -15,7 +15,7 @@
 	margin-bottom: 0;
 
 	p {
-		font-size: rem( 14px );
+		font-size: $font-body-small;
 		color: $gray-text-min;
 	}
 }
@@ -42,7 +42,7 @@
 }
 
 .jp-at-a-glance__stats-inactive-text {
-	font-size: rem( 14px );
+	font-size: $font-body-small;
 	line-height: 1.5;
 
 	@include breakpoint( '<660px' ) {
@@ -164,10 +164,11 @@
 
 .jp-at-a-glance__stat-details {
 	margin: 0;
+	font-size: $font-body-small;
 }
 
 .jp-at-a-glance__stat-number {
-	font-size: rem( 22px );
+	font-size: $font-title-medium;
 	font-weight: 400;
 	margin: rem( 8px ) 0;
 }
@@ -229,7 +230,8 @@
 
 .jp-at-a-glance__stats-view-link:focus {
 	outline: 0;
-	box-shadow: none;
+	box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+
 }
 
 // heavy flexbox nesting below, careful! – @jeffgolenski
@@ -324,7 +326,6 @@
 }
 
 .jp-connection-settings__text {
-	width: 70%;
 	margin-left: rem( 16px );
 	word-break: break-word;
 }
@@ -353,7 +354,7 @@
 
 .jp-connection-settings__email {
 	color: $gray;
-	font-size: rem( 13px );
+	font-size: $font-body-small;
 	font-style: italic;
 	font-weight: 400;
 }
@@ -370,27 +371,27 @@
 .jp-connection-settings__modal-body {
 	margin: 0;
 	padding: rem( 24px ) rem( 32px );
-	font-size: rem( 14px );
+	font-size: $font-body-small;
 	color: $blue-dark-text;
 	text-align: center;
 
 	h2 {
 		margin: rem( 32px ) 0 rem( 24px );
-		font-size: rem( 32px );
+		font-size: $font-title-large;
 		font-weight: 300;
 		color: $blue-dark-text;
 	}
 
 	h4 {
 		margin: rem( 16px ) rem( 24px ) 0;
-		font-size: rem( 16px );
+		font-size: $font-body;
 		font-weight: 400;
 		line-height: 1.5em;
 		color: $blue-heading;
 	}
 
 	p {
-		font-size: rem( 14px );
+		font-size: $font-body-small;
 	}
 
 	ul {

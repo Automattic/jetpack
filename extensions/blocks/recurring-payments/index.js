@@ -6,13 +6,19 @@ import { getCurrencyDefaults } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
 
 /**
+ * WordPress dependencies
+ */
+import { InnerBlocks } from '@wordpress/block-editor';
+
+/**
  * Internal dependencies
  */
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
+import { SUPPORTED_CURRENCIES, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import './editor.scss';
-import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'recurring-payments';
 
@@ -26,16 +32,17 @@ export const icon = (
 );
 
 export const settings = {
-	title: __( 'Recurring Payments', 'jetpack' ),
+	title: __( 'Payments', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
-	category: supportsCollections() ? 'earn' : 'jetpack',
+	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
+	category: 'earn',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscriptions', 'block search term', 'jetpack' ),
+		_x( 'product', 'block search term', 'jetpack' ),
 		'stripe',
 		_x( 'memberships', 'block search term', 'jetpack' ),
 	],
@@ -43,61 +50,21 @@ export const settings = {
 		planId: {
 			type: 'integer',
 		},
-		submitButtonText: {
-			type: 'string',
-		},
-		submitButtonClasses: {
-			type: 'string',
-		},
-		backgroundButtonColor: {
-			type: 'string',
-		},
-		textButtonColor: {
-			type: 'string',
-		},
-		customBackgroundButtonColor: {
-			type: 'string',
-		},
-		customTextButtonColor: {
-			type: 'string',
-		},
 		align: {
 			type: 'string',
 		},
 	},
 	edit,
-	save: () => null,
+	save: ( { className } ) => (
+		<div className={ className }>
+			<InnerBlocks.Content />
+		</div>
+	),
 	supports: {
 		html: false,
 		align: true,
 	},
-};
-
-/**
- * Currencies we support and Stripe's minimum amount for a transaction in that currency.
- *
- * https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
- *
- * @type { [currency: string]: number }
- */
-export const SUPPORTED_CURRENCIES = {
-	USD: 0.5,
-	AUD: 0.5,
-	BRL: 0.5,
-	CAD: 0.5,
-	CHF: 0.5,
-	DKK: 2.5,
-	EUR: 0.5,
-	GBP: 0.3,
-	HKD: 4.0,
-	INR: 0.5,
-	JPY: 50,
-	MXN: 10,
-	NOK: 3.0,
-	NZD: 0.5,
-	PLN: 2.0,
-	SEK: 3.0,
-	SGD: 0.5,
+	deprecated: [ deprecatedV1 ],
 };
 
 /**
@@ -115,18 +82,6 @@ export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value =
 	const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
 	return { value, label };
 } );
-
-/**
- * Returns the minimum transaction amount for the given currency. If currency is not one of the
- * known types it returns ...
- *
- * @param {string} currency_code three character currency code to get minimum charge for
- * @return {number} Minimum charge amount for the given currency_code
- */
-export function minimumTransactionAmountForCurrency( currency_code ) {
-	const minimum = SUPPORTED_CURRENCIES[ currency_code ];
-	return minimum;
-}
 
 /**
  * True if the price is a number and at least the minimum allowed amount.

@@ -19,3 +19,8 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 2. [Authorize the user](docs/authorize-user.md)
 3. In-place user auth @todo
 4. Disconnecting @todo
+
+## Tools
+
+1. [Making Authenticated async XML-RPC calls](docs/xmlrpc-async-calls.md)
+1. [Customizing error messages](docs/error-handling.md)

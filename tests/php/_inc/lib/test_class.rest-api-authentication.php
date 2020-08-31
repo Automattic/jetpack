@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
@@ -56,9 +58,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 		wp_set_current_user( 0 );
-		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
 		$jetpack = Jetpack::init();
-		$jetpack->HTTP_RAW_POST_DATA = null;
 	}
 
 	/**
@@ -374,7 +374,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	public function rest_pre_dispatch( $result, $server ) {
 		// Reset Jetpack::xmlrpc_verification saved state
 		$jetpack = Jetpack::init();
-		$jetpack->reset_saved_auth_state();
+		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		// Set POST body for Jetpack::verify_xml_rpc_signature
 		$GLOBALS['HTTP_RAW_POST_DATA'] = $this->request->get_body();
 		// Set host and URL for Jetpack_Signature::sign_current_request

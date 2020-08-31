@@ -4,6 +4,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -19,8 +20,8 @@ describe( 'DashItem', () => {
 		statusText: '',
 		disabled: true,
 		pro: true,
-		isDevMode: false,
-		href: 'https://jetpack.com/',
+		isOfflineMode: false,
+		href: getRedirectUrl( 'jetpack' ),
 		userCanToggle: true,
 		siteAdminUrl: 'https://example.org/wp-admin/',
 		siteRawUrl: 'example.org',
@@ -40,7 +41,7 @@ describe( 'DashItem', () => {
 	} );
 
 	it( 'the href property for the card body is correctly set', () => {
-		expect( wrapper.find( '.jp-dash-item__card' ).props().href ).to.be.equal( 'https://jetpack.com/' );
+		expect( wrapper.find( '.jp-dash-item__card' ).props().href ).to.be.equal( getRedirectUrl( 'jetpack' ) );
 	} );
 
 	it( 'the top component has classes properly set when is disabled', () => {
@@ -139,15 +140,15 @@ describe( 'DashItem', () => {
 
 	} );
 
-	describe( 'when site is in Dev Mode, not a PRO module, user can not toggle', () => {
+	describe( 'when site is in Offline Mode, not a PRO module, user can not toggle', () => {
 
 		testProps = Object.assign( testProps, {
-			isDevMode: true
+			isOfflineMode: true
 		} );
 
 		const wrapper = shallow( <DashItem { ...testProps } /> );
 
-		it( 'does not display the PRO button linked to #/plans when site is in Dev Mode', () => {
+		it( 'does not display the PRO button linked to #/plans when site is in Offline Mode', () => {
 			expect( wrapper.find( 'SectionHeader' ).props().cardBadge ).to.have.length( 0 );
 		} );
 
@@ -164,7 +165,7 @@ describe( 'DashItem', () => {
 			module: 'manage',
 			status: 'is-warning',
 			pro: false,
-			isDevMode: false,
+			isOfflineMode: false,
 			userCanToggle: true,
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			siteRawUrl: 'example.org',
@@ -179,7 +180,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
-			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( 'https://wordpress.com/plugins/manage/' + manageProps.siteRawUrl );
+			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( getRedirectUrl( 'calypso-plugins-manage', { site: manageProps.siteRawUrl } ) );
 		} );
 
 		it( "when status is 'is-working', the warning badge has an 'active' label", () => {
@@ -195,7 +196,7 @@ describe( 'DashItem', () => {
 			label: 'Monitor',
 			status: '',
 			pro: false,
-			isDevMode: false,
+			isOfflineMode: false,
 			userCanToggle: true,
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			siteRawUrl: 'example.org',

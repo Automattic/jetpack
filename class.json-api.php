@@ -392,9 +392,10 @@ class WPCOM_JSON_API {
 			$response = new stdClass();
 		}
 
-		if ( 'text/plain' === $content_type ) {
+		if ( 'text/plain' === $content_type ||
+			'text/html' === $content_type ) {
 			status_header( (int) $status_code );
-			header( 'Content-Type: text/plain' );
+			header( 'Content-Type: ' . $content_type );
 			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
 			}

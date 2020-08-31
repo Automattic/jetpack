@@ -4,6 +4,7 @@
  * Plugin URI: https://github.com/automattic/jetpack
  * Author: Jetpack Team
  * Version: 1.0.0
+ * Text Domain: jetpack
  *
  * @package jetpack-test-plugin-e2e-plan-data
  */
@@ -18,13 +19,17 @@ add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 1, 3 );
  * @param string $url request URL.
  */
 function e2e_intercept_plan_data_request( $return, $r, $url ) {
+	if ( ! class_exists( 'Jetpack_Options' ) ) {
+		return $return;
+	}
+
 	$site_id = Jetpack_Options::get_option( 'id' );
 
 	if ( empty( $site_id ) ) {
 		return $return;
 	}
 
-	// match both /sites/$site_id && /sites/$site_id? urls
+	// match both /sites/$site_id && /sites/$site_id? urls.
 	if ( 1 === preg_match( sprintf( '/\/sites\/%d($|\?)/', $site_id ), $url ) ) {
 		$plan_data = get_option( 'e2e_jetpack_plan_data' );
 		if ( empty( $plan_data ) ) {

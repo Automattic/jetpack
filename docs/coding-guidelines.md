@@ -16,6 +16,21 @@ These are some things to keep in mind when writing code for Jetpack plugin. Plea
 - Sanitize URLs, attributes, everything. WordPress.com VIP has this nice [article about the topic](https://vip.wordpress.com/documentation/vip/best-practices/security/validating-sanitizing-escaping/).
 - Create [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) if you can. If you're not familiar with Unit Testing, you can check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/).
 
+## Deprecating code
+
+When deprecating code in Jetpack (removing / renaming files, classes, functions, methods), there are a few things to keep in mind:
+
+1. Other plugins / themes may be relying on that code, so we cannot just remove it. A quick way to gauge the use of a function can be to search for it in OpenGrok and [WPDirectory](https://wpdirectory.net/).
+2. Deleting a file that was loaded and in use in the previous release can cause Fatal Errors on sites with aggressive OpCache setups.
+
+For these reasons, here are a few guidelines you can follow:
+
+- Instead of deleting files, mark them as deprecated first with `_deprecated_file`.
+- Deprecate classes, functions, and methods in the same way, while still returning its replacement if there is one.
+- Deprecated code should remain in Jetpack for 6 months, so third-parties have time to find out about the deprecations and update their codebase.
+- If possible, reach out to partners who rely on deprecated code to let them know when the code will be removed, and how they can update.
+- If necessary, you can publish an update guide on developer.jetpack.com to help people update.
+
 ## Widgets
 
 - Make them support Customizer's Selective Refresh. Here's an [article about it](https://make.wordpress.org/core/2016/03/22/implementing-selective-refresh-support-for-widgets/).
@@ -27,3 +42,11 @@ These are some things to keep in mind when writing code for Jetpack plugin. Plea
 - Where it applies, make strings available for translation.
 - Instead of `__`, `_e`, `_x` and similar functions, use their safe versions `esc_html__`, `esc_html_e`, `esc_html_x` and others where possible.
 - Add the `jetpack` text domain to the translation functions.
+
+## Where should my code live? 
+
+Here are some general guidelines when considering adding new functionality: 
+
+- [Packages](../packages/README.md#should-my-code-be-in-a-package)
+- Modules (@todo)
+- module-extras.php (@todo)

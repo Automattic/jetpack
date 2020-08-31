@@ -143,6 +143,7 @@ BODY;
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertContains( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
+		$this->assertContains( 'sandbox="allow-popups allow-scripts allow-same-origin"', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
 	}

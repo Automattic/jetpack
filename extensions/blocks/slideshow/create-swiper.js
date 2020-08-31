@@ -35,14 +35,14 @@ export default async function createSwiper(
 		on: mapValues(
 			callbacks,
 			callback =>
-				function() {
+				function () {
 					callback( this );
 				}
 		),
 	};
 	const [ { default: Swiper } ] = await Promise.all( [
-		import( /* webpackChunkName: "swiper" */ 'swiper/dist/js/swiper.js' ),
-		import( /* webpackChunkName: "swiper" */ 'swiper/dist/css/swiper.css' ),
+		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.js' ),
+		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.css' ),
 	] );
 	return new Swiper( container, merge( {}, defaultParams, params ) );
 }

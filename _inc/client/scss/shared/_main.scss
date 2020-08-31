@@ -13,42 +13,46 @@
 
 // General Elements
 
-.jetpack-pagestyles #wpcontent {
-	padding-left: 0;
-}
-
 .wp-admin.toplevel_page_jetpack {
 	background-color: $gray-light;
 	line-height: 1.4; // fixes core bug that sets an em unit on body
 	height: auto;
 }
 
-.jetpack-pagestyles a {
-	text-decoration: none;
+.jetpack-pagestyles #wpcontent {
+	padding-left: 0;
 }
+
+.jetpack-pagestyles {
+	font-size: $font-body-small;
+}
+
+	.jetpack-pagestyles a {
+		text-decoration: none;
+	}
+
+	// Hello Dolly positioning overwrite
+	.jetpack-pagestyles #dolly {
+		float: none;
+		position: relative;
+		right: 0;
+		left: 0;
+		top: 0;
+		padding: rem( 10px );
+		text-align: right;
+		background: $white;
+		font-size: rem( 12px );
+		font-style: italic;
+		color: $gray;
+		border-bottom: 1px lighten( $gray, 30% ) solid;
+
+		@include breakpoint( "<660px" ) {
+			display: none;
+		}
+	}
 
 .dops-notice__text a {
 	text-decoration: underline;
-}
-
-// Hello Dolly positioning overwrite
-.jetpack-pagestyles #dolly {
-	float: none;
-	position: relative;
-	right: 0;
-	left: 0;
-	top: 0;
-	padding: rem( 10px );
-	text-align: right;
-	background: $white;
-	font-size: rem( 12px );
-	font-style: italic;
-	color: $gray;
-	border-bottom: 1px lighten( $gray, 30% ) solid;
-
-	@include breakpoint( "<660px" ) {
-		display: none;
-	}
 }
 
 // restyled the arrow to match our gray
@@ -78,4 +82,12 @@
 
 @keyframes pulse-light {
 	50% { background-color: lighten( $gray, 30% ); }
+}
+
+.blur {
+  -webkit-filter: blur(5px);
+  -moz-filter: blur(5px);
+  -o-filter: blur(5px);
+  -ms-filter: blur(5px);
+  filter: blur(5px);
 }

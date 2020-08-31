@@ -4,16 +4,15 @@
 /_inc/build
 /_inc/client/**/test/*.js
 /_inc/jetpack-modules.models.js
-/_inc/jquery.spin.js
 /_inc/postmessage.js
-/_inc/spin.js
 /docker/wordpress-develop/
 /docker/wordpress/
-/languages/
 /modules/custom-css/custom-css/js/core-customizer-css-preview.js
 /modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js
 /modules/custom-css/custom-css/js/core-customizer-css.js
-/modules/lazy-images/js/lazy-images.js
+/packages/lazy-images/src/js/lazy-images.js
+/packages/lazy-images/vendor
+
 /modules/widgets/search/js/search-widget-admin.js
 /vendor/
 

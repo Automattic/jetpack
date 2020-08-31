@@ -17,13 +17,17 @@
  * @package Jetpack
  */
 
-if ( get_option( 'embed_autourls' ) ) {
+add_shortcode( 'hulu', 'jetpack_hulu_shortcode' );
 
-	// Convert hulu URLS to shortcodes for old comments, saved before comments for shortcodes were enabled.
+if (
+	! is_admin()
+	/** This filter is documented in modules/shortcodes/youtube.php */
+	&& apply_filters( 'jetpack_comments_allow_oembed', true )
+	// No need for this on WordPress.com, this is done for multiple shortcodes at a time there.
+	&& ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
+) {
 	add_filter( 'comment_text', 'jetpack_hulu_link', 1 );
 }
-
-add_shortcode( 'hulu', 'jetpack_hulu_shortcode' );
 
 /**
  * Return a Hulu video ID from a given set to attributes.

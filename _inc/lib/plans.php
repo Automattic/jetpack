@@ -23,7 +23,7 @@ class Jetpack_Plans {
 				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 			}
 
-			return Store_Product_List::get_active_plans_v1_5();
+			return Store_Product_List::api_only_get_active_plans_v1_4();
 		}
 
 		// We're on Jetpack, so it's safe to use this namespace.
