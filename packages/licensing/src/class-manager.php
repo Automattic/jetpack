@@ -17,7 +17,7 @@ use WP_Error;
  *
  * @since ??
  *
- * Helper class that is responsible for validating licenses to the current site.
+ * Helper class that is responsible for attaching licenses to the current site.
  */
 class Manager {
 	/**
@@ -53,8 +53,8 @@ class Manager {
 	 * @return void
 	 */
 	public function initialize() {
-		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'validate_stored_licenses' ) );
-		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'validate_stored_licenses_on_connection' ) );
+		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
+		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'attach_stored_licenses_on_connection' ) );
 	}
 
 	/**
@@ -91,12 +91,12 @@ class Manager {
 	}
 
 	/**
-	 * Validate the given licenses.
+	 * Attach the given licenses.
 	 *
-	 * @param string[] $licenses Licenses to validate.
+	 * @param string[] $licenses Licenses to attach.
 	 * @return array|WP_Error Results for each license (which may include WP_Error instances) or a WP_Error instance.
 	 */
-	public function validate_licenses( array $licenses ) {
+	public function attach_licenses( array $licenses ) {
 		if ( ! $this->connection()->is_active() ) {
 			return new WP_Error( 'not_connected', __( 'Jetpack is not connected.', 'jetpack' ) );
 		}
@@ -108,13 +108,13 @@ class Manager {
 		$xml = $this->request( array( 'user_id' => JETPACK_MASTER_USER ) );
 
 		foreach ( $licenses as $license ) {
-			$xml->addCall( 'jetpack.validateLicense', $license );
+			$xml->addCall( 'jetpack.attachLicense', $license );
 		}
 
 		$xml->query();
 
 		if ( $xml->isError() ) {
-			$error = new WP_Error( 'request_failed', __( 'License validation request failed.', 'jetpack' ) );
+			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack' ) );
 			$error->add( $xml->getErrorCode(), $xml->getErrorMessage() );
 			return $error;
 		}
@@ -134,18 +134,18 @@ class Manager {
 	}
 
 	/**
-	 * Validate all stored licenses.
+	 * Attach all stored licenses.
 	 *
 	 * @return array|WP_Error Results for each license (which may include WP_Error instances) or a WP_Error instance.
 	 */
-	public function validate_stored_licenses() {
+	public function attach_stored_licenses() {
 		$licenses = $this->stored_licenses();
-		$results  = $this->validate_licenses( $licenses );
+		$results  = $this->attach_licenses( $licenses );
 
 		if ( is_wp_error( $results ) ) {
 			if ( 'request_failed' === $results->get_error_code() ) {
 				/**
-				 * Fires when the request to validate all stored licenses fails.
+				 * Fires when the request to attach all stored licenses fails.
 				 *
 				 * @since ??
 				 *
@@ -167,12 +167,12 @@ class Manager {
 
 			if ( ! empty( $errors ) ) {
 				/**
-				 * Fires when one or more stored licenses fail to be validated.
+				 * Fires when one or more stored licenses fail to be attached.
 				 *
-				 * @param array $errors Array of validation errors and the licenses they are for.
+				 * @param array $errors Array of attaching errors and the licenses they are for.
 				 * @since ??
 				 */
-				do_action( 'jetpack_licensing_stored_licenses_validations_failed', $errors );
+				do_action( 'jetpack_licensing_stored_licenses_attaching_failed', $errors );
 			}
 		}
 
@@ -180,16 +180,16 @@ class Manager {
 	}
 
 	/**
-	 * Validat all stored licenses during connection flow for the master user.
+	 * Attach all stored licenses during connection flow for the master user.
 	 *
 	 * @return void
 	 */
-	public function validate_stored_licenses_on_connection() {
+	public function attach_stored_licenses_on_connection() {
 		$master_user_id = Jetpack_Options::get_option( 'master_user' );
 		$is_master_user = $master_user_id && get_current_user_id() === $master_user_id;
 
 		if ( $is_master_user ) {
-			$this->validate_stored_licenses();
+			$this->attach_stored_licenses();
 		}
 	}
 }

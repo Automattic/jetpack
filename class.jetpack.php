@@ -792,7 +792,7 @@ class Jetpack {
 		// Actions for licensing.
 		Licensing_Manager::instance()->initialize();
 		add_action( 'jetpack_licensing_stored_licenses_request_failed', array( $this, 'log_licensing_request_error' ) );
-		add_action( 'jetpack_licensing_stored_licenses_validations_failed', array( $this, 'log_licensing_validation_errors' ) );
+		add_action( 'jetpack_licensing_stored_licenses_validations_failed', array( $this, 'log_licensing_attaching_errors' ) );
 		add_action( 'load-toplevel_page_jetpack', array( $this, 'surface_licensing_error' ) );
 	}
 
@@ -7424,24 +7424,24 @@ endif;
 	public function log_licensing_request_error() {
 		set_transient(
 			'jetpack_licensing_error',
-			__( 'Failed to validate your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack' )
+			__( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack' )
 		);
 	}
 
 	/**
-	 * Log stored license validation errors for display at a later time.
+	 * Log stored license attaching errors for display at a later time.
 	 *
 	 * @since ??
 	 *
-	 * @param array $errors Array of validation errors and the licenses they are for.
+	 * @param array $errors Array of attaching errors and the licenses they are for.
 	 * @return void
 	 */
-	public function log_licensing_validation_errors( $errors ) {
+	public function log_licensing_attaching_errors( $errors ) {
 		set_transient(
 			'jetpack_licensing_error',
 			sprintf(
 				/* translators: %s is a comma-separated list of license keys. */
-				__( 'The following Jetpack licenses are invalid or revoked: %s', 'jetpack' ),
+				__( 'The following Jetpack licenses are invalid, already in use or revoked: %s', 'jetpack' ),
 				implode( ', ', wp_list_pluck( $errors, 'license' ) )
 			)
 		);

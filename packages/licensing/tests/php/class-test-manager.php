@@ -24,6 +24,9 @@ use WP_User;
  * @package Automattic\Jetpack
  */
 class Test_Manager extends BaseTestCase {
+	/**
+	 * Test stored_licenses().
+	 */
 	public function test_stored_licenses() {
 		$licensing = new Licensing_Manager();
 
@@ -51,7 +54,10 @@ class Test_Manager extends BaseTestCase {
 		delete_option( Licensing_Manager::LICENSES_OPTION_NAME );
 	}
 
-	public function test_validate_licenses__without_connection() {
+	/**
+	 * Test attach_licenses() without an active Jetpack connection.
+	 */
+	public function test_attach_licenses__without_connection() {
 		$connection = $this->createMock( Connection_Manager::class );
 
 		$connection->method( 'is_active' )->willReturn( false );
@@ -63,13 +69,16 @@ class Test_Manager extends BaseTestCase {
 
 		$licensing->method( 'connection' )->willReturn( $connection );
 
-		$result = $licensing->validate_licenses( array() );
+		$result = $licensing->attach_licenses( array() );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'not_connected', $result->get_error_code() );
 	}
 
-	public function test_validate_licenses__empty_input() {
+	/**
+	 * Test attach_licenses() with an empty input.
+	 */
+	public function test_attach_licenses__empty_input() {
 		$connection = $this->createMock( Connection_Manager::class );
 
 		$connection->method( 'is_active' )->willReturn( true );
@@ -81,10 +90,13 @@ class Test_Manager extends BaseTestCase {
 
 		$licensing->method( 'connection' )->willReturn( $connection );
 
-		$this->assertSame( array(), $licensing->validate_licenses( array() ) );
+		$this->assertSame( array(), $licensing->attach_licenses( array() ) );
 	}
 
-	public function test_validate_licenses__request_failure() {
+	/**
+	 * Test attach_licenses() with request failure.
+	 */
+	public function test_attach_licenses__request_failure() {
 		$connection = $this->createMock( Connection_Manager::class );
 
 		$connection->method( 'is_active' )->willReturn( true );
@@ -108,14 +120,17 @@ class Test_Manager extends BaseTestCase {
 			->with( array( 'user_id' => JETPACK_MASTER_USER ) )
 			->willReturn( $ixr_client );
 
-		$result = $licensing->validate_licenses( array( 'foo', 'bar' ) );
+		$result = $licensing->attach_licenses( array( 'foo', 'bar' ) );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( array( 'request_failed', 1 ), $result->get_error_codes() );
 		$this->assertSame( 'Expected error message', $result->get_error_messages()[1] );
 	}
 
-	public function test_validate_licenses__multiple_licenses() {
+	/**
+	 * Test attach_licenses() with multiple licenses.
+	 */
+	public function test_attach_licenses__multiple_licenses() {
 		$connection = $this->createMock( Connection_Manager::class );
 
 		$connection->method( 'is_active' )->willReturn( true );
@@ -133,8 +148,8 @@ class Test_Manager extends BaseTestCase {
 		$ixr_client->expects( $this->exactly( 2 ) )
 			->method( 'addCall' )
 			->withConsecutive(
-				array( 'jetpack.validateLicense', 'foo' ),
-				array( 'jetpack.validateLicense', 'bar' )
+				array( 'jetpack.attachLicense', 'foo' ),
+				array( 'jetpack.attachLicense', 'bar' )
 			);
 		$ixr_client->method( 'isError' )
 			->willReturn( false );
@@ -154,7 +169,7 @@ class Test_Manager extends BaseTestCase {
 			->with( array( 'user_id' => JETPACK_MASTER_USER ) )
 			->willReturn( $ixr_client );
 
-		$result = $licensing->validate_licenses( array( 'foo', 'bar' ) );
+		$result = $licensing->attach_licenses( array( 'foo', 'bar' ) );
 
 		$this->assertSame( 2, count( $result ) );
 		$this->assertInstanceOf( WP_Error::class, $result[0] );
@@ -163,14 +178,17 @@ class Test_Manager extends BaseTestCase {
 		$this->assertTrue( $result[1] );
 	}
 
-	public function test_validate_stored_licenses() {
+	/**
+	 * Test attach_stored_licenses().
+	 */
+	public function test_attach_stored_licenses() {
 		$result0  = new WP_Error();
 		$result1  = true;
 		$licenses = array( 'foo', 'bar' );
 
 		$licensing = $this->createPartialMock(
 			Licensing_Manager::class,
-			array( 'stored_licenses', 'validate_licenses' )
+			array( 'stored_licenses', 'attach_licenses' )
 		);
 
 		$licensing->expects( $this->once() )
@@ -178,19 +196,22 @@ class Test_Manager extends BaseTestCase {
 			->willReturn( $licenses );
 
 		$licensing->expects( $this->once() )
-			->method( 'validate_licenses' )
+			->method( 'attach_licenses' )
 			->with( $licenses )
 			->willReturn( array( $result0, $result1 ) );
 
-		$this->assertSame( array( $result0, $result1 ), $licensing->validate_stored_licenses() );
+		$this->assertSame( array( $result0, $result1 ), $licensing->attach_stored_licenses() );
 	}
 
-	public function test_validate_stored_licenses__adds_error_on_request_failure() {
+	/**
+	 * Test attach_stored_licenses() fires the request failure action.
+	 */
+	public function test_attach_stored_licenses__fires_request_failure_action() {
 		$licenses = array( 'foo', 'bar' );
 
 		$licensing = $this->createPartialMock(
 			Licensing_Manager::class,
-			array( 'stored_licenses', 'validate_licenses' )
+			array( 'stored_licenses', 'attach_licenses' )
 		);
 
 		$licensing->expects( $this->once() )
@@ -198,16 +219,19 @@ class Test_Manager extends BaseTestCase {
 			->willReturn( $licenses );
 
 		$licensing->expects( $this->once() )
-			->method( 'validate_licenses' )
+			->method( 'attach_licenses' )
 			->with( $licenses )
 			->willReturn( new WP_Error( 'request_failed' ) );
 
 		$times = did_action( 'jetpack_licensing_stored_licenses_request_failed' );
-		$licensing->validate_stored_licenses();
+		$licensing->attach_stored_licenses();
 		$this->assertSame( $times + 1, did_action( 'jetpack_licensing_stored_licenses_request_failed' ) );
 	}
 
-	public function test_validate_stored_licenses__adds_errors_for_license_failures() {
+	/**
+	 * Test attach_stored_licenses() fires the license attaching failure action.
+	 */
+	public function test_attach_stored_licenses__fires_license_attaching_failures_action() {
 		$result0  = new WP_Error();
 		$result1  = true;
 		$result2  = new WP_Error();
@@ -215,7 +239,7 @@ class Test_Manager extends BaseTestCase {
 
 		$licensing = $this->createPartialMock(
 			Licensing_Manager::class,
-			array( 'stored_licenses', 'validate_licenses' )
+			array( 'stored_licenses', 'attach_licenses' )
 		);
 
 		$licensing->expects( $this->once() )
@@ -223,7 +247,7 @@ class Test_Manager extends BaseTestCase {
 			->willReturn( $licenses );
 
 		$licensing->expects( $this->once() )
-			->method( 'validate_licenses' )
+			->method( 'attach_licenses' )
 			->with( $licenses )
 			->willReturn( array( $result0, $result1, $result2 ) );
 
@@ -237,14 +261,17 @@ class Test_Manager extends BaseTestCase {
 			$this->assertSame( 'baz', $errors[1]['license'] );
 		};
 
-		add_action( 'jetpack_licensing_stored_licenses_validations_failed', $spy );
-		$licensing->validate_stored_licenses();
-		remove_action( 'jetpack_licensing_stored_licenses_validations_failed', $spy );
+		add_action( 'jetpack_licensing_stored_licenses_attaching_failed', $spy );
+		$licensing->attach_stored_licenses();
+		remove_action( 'jetpack_licensing_stored_licenses_attaching_failed', $spy );
 
 		$this->assertSame( 1, $spy_ran );
 	}
 
-	public function test_validate_stored_licenses_on_connection__master_user() {
+	/**
+	 * Test attach_stored_licenses_on_connection() for the master user.
+	 */
+	public function test_attach_stored_licenses_on_connection__master_user() {
 		global $current_user;
 
 		$old_user = $current_user;
@@ -255,19 +282,22 @@ class Test_Manager extends BaseTestCase {
 
 		$licensing = $this->createPartialMock(
 			Licensing_Manager::class,
-			array( 'validate_stored_licenses' )
+			array( 'attach_stored_licenses' )
 		);
 
 		$licensing->expects( $this->once() )
-			->method( 'validate_stored_licenses' );
+			->method( 'attach_stored_licenses' );
 
-		$licensing->validate_stored_licenses_on_connection();
+		$licensing->attach_stored_licenses_on_connection();
 
 		$current_user = $old_user;
 		Jetpack_Options::update_option( 'master_user', false );
 	}
 
-	public function test_validate_stored_licenses_on_connection__secondary_user() {
+	/**
+	 * Test attach_stored_licenses_on_connection() for a secondary user.
+	 */
+	public function test_attach_stored_licenses_on_connection__secondary_user() {
 		global $current_user;
 
 		$old_user = $current_user;
@@ -278,13 +308,13 @@ class Test_Manager extends BaseTestCase {
 
 		$licensing = $this->createPartialMock(
 			Licensing_Manager::class,
-			array( 'validate_stored_licenses' )
+			array( 'attach_stored_licenses' )
 		);
 
 		$licensing->expects( $this->never() )
-			->method( 'validate_stored_licenses' );
+			->method( 'attach_stored_licenses' );
 
-		$licensing->validate_stored_licenses_on_connection();
+		$licensing->attach_stored_licenses_on_connection();
 
 		$current_user = $old_user;
 		Jetpack_Options::update_option( 'master_user', false );

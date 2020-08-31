@@ -1,10 +1,10 @@
 # Jetpack Licensing
 
-A Licensing Package that validates Jetpack licenses.
+A Licensing Package that attaches Jetpack licenses.
 
 ### Usage
 
-Initialize to automatically validate licenses when:
+Initialize to automatically attach licenses when:
 - The `jetpack_licenses` option is updated.
 - Jetpack is connected.
 
@@ -14,11 +14,11 @@ use Automattic\Jetpack\Licensing\Manager as Licensing_Manager;
 Licensing_Manager::instance()->initialize();
 ```
 
-Validate an array of license keys.
+Attach an array of license keys.
 
 ```php
 use Automattic\Jetpack\Licensing\Manager as Licensing_Manager;
 
 $licenses = array( 'license_key_1', 'license_key_2' );
-$results  = Licensing_Manager::instance()->validate_licenses( $licenses );
+$results  = Licensing_Manager::instance()->attach_licenses( $licenses );
 ```
