@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
+use Jetpack_AMP_Support;
 
 /**
  * Class Main
@@ -102,6 +103,42 @@ class Admin_Bar_Notice {
 			'multiple'           => sprintf( esc_html__( '%s Threats found', 'jetpack' ), $this->get_icon() ),
 		);
 		wp_localize_script( self::SCRIPT_NAME, 'Jetpack_Scan', $script_data );
+
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			$this->add_amp_filters();
+		}
+	}
+
+	/**
+	 * Add filters for AMP compatibility to make sure scripts are included in Dev Mode so they are not sanitized out of the page.
+	 *
+	 * Note that the logic here will be simplified once the AMP plugin supports flagging registered scripts for dev mode.
+	 *
+	 * @link https://github.com/ampproject/amp-wp/issues/4598
+	 */
+	private function add_amp_filters() {
+
+		// Inject the data-ampdevmode attribute into the <script> tag for jetpack-scan-show-notice.
+		add_filter(
+			'script_loader_tag',
+			static function ( $tag, $handle ) {
+				if ( self::SCRIPT_NAME === $handle ) {
+					$tag = preg_replace( '/(?<=<script\s)/', ' data-ampdevmode ', $tag );
+				}
+				return $tag;
+			},
+			10,
+			2
+		);
+
+		// Inject the data-ampdevmode attribute into the inline <script> output via wp_localize_script().
+		add_filter(
+			'amp_dev_mode_element_xpaths',
+			static function ( $expressions ) {
+				$expressions[] = '//script[ contains( @text, "Jetpack_Scan" ) ]';
+				return $expressions;
+			}
+		);
 	}
 
 	/**
