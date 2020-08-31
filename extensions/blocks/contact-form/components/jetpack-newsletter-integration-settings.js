@@ -20,7 +20,7 @@ import {
 	activatePlugin,
 	getPlugins,
 } from './../../../shared/plugin-management';
-import getSiteFragment from './../../../shared/get-site-fragment';
+import getJetpackData from './../../../shared/get-jetpack-data';
 import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
@@ -147,18 +147,10 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 	);
 };
 
-function getCreativeMailPluginUrl () {
-	const siteFragment = getSiteFragment();
-
-	if ( undefined !== typeof window && window.location && siteFragment ) {
-		return `${ window.location.protocol }//${ siteFragment.replace(
-			'::',
-			'/'
-		) }/wp-admin/admin.php?page=creativemail`;
-	}
-
-	return null;
-}
+const getCreativeMailPluginUrl = () => {
+	const adminUrl = get( getJetpackData(), 'adminUrl', false );
+	return `${ adminUrl }admin.php?page=creativemail`;
+};
 
 const CreativeMailPluginIsActive = () => {
 	return (
