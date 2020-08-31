@@ -92,7 +92,7 @@ export const getRecommendedFeatureGroups = state => {
 	);
 
 	// Note these are in a list here to guarantee order
-	return [ 'security', 'performance', 'marketing', 'publishing' ].map( featureGroupKey => ( {
+	return [ 'security', 'marketing', 'performance', 'publishing' ].map( featureGroupKey => ( {
 		...getFeatureGroupContent( featureGroupKey ),
 		features: intersection( featureGroups[ featureGroupKey ], recommendedFeatures ),
 	} ) );
