@@ -276,6 +276,12 @@ export function search( {
 	return fetch( url, {
 		headers: isApiColocated ? { 'X-WP-Nonce': window[ SERVER_OBJECT_NAME ].apiNonce } : {},
 	} )
+		.then( response => {
+			if ( ! response.ok || response.status !== 200 ) {
+				throw new Error( `Unexpected response from API with status code ${ response.status }.` );
+			}
+			return response;
+		} )
 		.catch( errorHandler )
 		.then( r => r.json() )
 		.then( responseHandler );
