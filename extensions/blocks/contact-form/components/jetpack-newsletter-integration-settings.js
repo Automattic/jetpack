@@ -20,6 +20,7 @@ import {
 	activatePlugin,
 	getPlugins,
 } from './../../../shared/plugin-management';
+import getSiteFragment from './../../../shared/get-site-fragment';
 import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
@@ -146,6 +147,19 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 	);
 };
 
+function getCreativeMailPluginUrl () {
+	const siteFragment = getSiteFragment();
+
+	if ( undefined !== typeof window && window.location && siteFragment ) {
+		return `${ window.location.protocol }//${ siteFragment.replace(
+			'::',
+			'/'
+		) }/wp-admin/admin.php?page=creativemail`;
+	}
+
+	return null;
+}
+
 const CreativeMailPluginIsActive = () => {
 	return (
 		<p>
@@ -153,7 +167,7 @@ const CreativeMailPluginIsActive = () => {
 				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack' ) }
 				<br />
 				<br />
-				<ExternalLink href="/wp-admin/admin.php?page=creativemail">
+				<ExternalLink href={ getCreativeMailPluginUrl() }>
 					{ __( 'Open Creative Mail', 'jetpack' ) }
 				</ExternalLink>
 			</em>
