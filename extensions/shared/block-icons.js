@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { colors as PALETTE } from '@automattic/color-studio'; 
+import { colors as PALETTE } from '@automattic/color-studio';
 import { isAtomicSite, isSimpleSite } from './site-type-utils';
 
 /**
