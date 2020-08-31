@@ -223,9 +223,14 @@ class PlanGrid extends React.Component {
 					</td>
 				);
 			}
-			// don't show prices for a lower plan
+			// don't show prices for a lower plan.
+			// Only show the plan's description.
 			if ( ! this.shouldRenderButton( type ) ) {
-				return <td key={ 'price-' + type } className={ className } />;
+				return (
+					<td key={ 'price-' + type } className={ className }>
+						{ plan.description }
+					</td>
+				);
 			}
 			// using dangerouslySetInnerHTML because formatting localized
 			// currencies is best left to our server and it includes the <abbr> element
