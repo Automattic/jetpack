@@ -9,7 +9,7 @@ use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Licensing\Manager as Licensing_Manager;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -790,7 +790,7 @@ class Jetpack {
 		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
 
 		// Actions for licensing.
-		Licensing_Manager::instance()->initialize();
+		Licensing::instance()->initialize();
 		add_action( 'jetpack_licensing_stored_licenses_request_failed', array( $this, 'log_licensing_request_error' ) );
 		add_action( 'jetpack_licensing_stored_licenses_validations_failed', array( $this, 'log_licensing_attaching_errors' ) );
 		add_action( 'load-toplevel_page_jetpack', array( $this, 'surface_licensing_error' ) );

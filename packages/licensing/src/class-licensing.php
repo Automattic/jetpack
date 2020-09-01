@@ -5,7 +5,7 @@
  * @package automattic/jetpack-licensing
  */
 
-namespace Automattic\Jetpack\Licensing;
+namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_IXR_ClientMulticall;
@@ -13,13 +13,13 @@ use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class Manager.
+ * Class Licensing.
  *
  * @since ??
  *
  * Helper class that is responsible for attaching licenses to the current site.
  */
-class Manager {
+class Licensing {
 	/**
 	 * Name of the WordPress option that holds all known Jetpack licenses.
 	 *

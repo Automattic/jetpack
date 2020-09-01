@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Licensing\Manager as Licensing_Manager;
+use Automattic\Jetpack\Licensing;
 use Jetpack_IXR_ClientMulticall;
 use Jetpack_Options;
 use phpmock\Mock;
@@ -19,39 +19,39 @@ use WP_Error;
 use WP_User;
 
 /**
- * Class Test_Manager
+ * Class Test_Licensing
  *
  * @package Automattic\Jetpack
  */
-class Test_Manager extends BaseTestCase {
+class Test_Licensing extends BaseTestCase {
 	/**
 	 * Test stored_licenses().
 	 */
 	public function test_stored_licenses() {
-		$licensing = new Licensing_Manager();
+		$licensing = new Licensing();
 
-		delete_option( Licensing_Manager::LICENSES_OPTION_NAME );
+		delete_option( Licensing::LICENSES_OPTION_NAME );
 		$this->assertSame( array(), $licensing->stored_licenses() );
 
-		update_option( Licensing_Manager::LICENSES_OPTION_NAME, new stdClass() );
+		update_option( Licensing::LICENSES_OPTION_NAME, new stdClass() );
 		$this->assertSame( array(), $licensing->stored_licenses() );
 
-		update_option( Licensing_Manager::LICENSES_OPTION_NAME, array() );
+		update_option( Licensing::LICENSES_OPTION_NAME, array() );
 		$this->assertSame( array(), $licensing->stored_licenses() );
 
-		update_option( Licensing_Manager::LICENSES_OPTION_NAME, array( null ) );
+		update_option( Licensing::LICENSES_OPTION_NAME, array( null ) );
 		$this->assertSame( array(), $licensing->stored_licenses() );
 
-		update_option( Licensing_Manager::LICENSES_OPTION_NAME, array( new stdClass() ) );
+		update_option( Licensing::LICENSES_OPTION_NAME, array( new stdClass() ) );
 		$this->assertSame( array(), $licensing->stored_licenses() );
 
-		update_option( Licensing_Manager::LICENSES_OPTION_NAME, array( 1 ) );
+		update_option( Licensing::LICENSES_OPTION_NAME, array( 1 ) );
 		$this->assertSame( array( '1' ), $licensing->stored_licenses() );
 
-		update_option( Licensing_Manager::LICENSES_OPTION_NAME, array( 'foo', 'bar' ) );
+		update_option( Licensing::LICENSES_OPTION_NAME, array( 'foo', 'bar' ) );
 		$this->assertSame( array( 'foo', 'bar' ), $licensing->stored_licenses() );
 
-		delete_option( Licensing_Manager::LICENSES_OPTION_NAME );
+		delete_option( Licensing::LICENSES_OPTION_NAME );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Test_Manager extends BaseTestCase {
 		$connection->method( 'is_active' )->willReturn( false );
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'connection' )
 		);
 
@@ -84,7 +84,7 @@ class Test_Manager extends BaseTestCase {
 		$connection->method( 'is_active' )->willReturn( true );
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'connection' )
 		);
 
@@ -102,7 +102,7 @@ class Test_Manager extends BaseTestCase {
 		$connection->method( 'is_active' )->willReturn( true );
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'connection', 'request' )
 		);
 
@@ -136,7 +136,7 @@ class Test_Manager extends BaseTestCase {
 		$connection->method( 'is_active' )->willReturn( true );
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'connection', 'request' )
 		);
 
@@ -187,7 +187,7 @@ class Test_Manager extends BaseTestCase {
 		$licenses = array( 'foo', 'bar' );
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'stored_licenses', 'attach_licenses' )
 		);
 
@@ -210,7 +210,7 @@ class Test_Manager extends BaseTestCase {
 		$licenses = array( 'foo', 'bar' );
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'stored_licenses', 'attach_licenses' )
 		);
 
@@ -238,7 +238,7 @@ class Test_Manager extends BaseTestCase {
 		$licenses = array( 'foo', 'bar', 'baz' );
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'stored_licenses', 'attach_licenses' )
 		);
 
@@ -281,7 +281,7 @@ class Test_Manager extends BaseTestCase {
 		$current_user->ID = 1;
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'attach_stored_licenses' )
 		);
 
@@ -307,7 +307,7 @@ class Test_Manager extends BaseTestCase {
 		$current_user->ID = 2;
 
 		$licensing = $this->createPartialMock(
-			Licensing_Manager::class,
+			Licensing::class,
 			array( 'attach_stored_licenses' )
 		);
 
