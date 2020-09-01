@@ -53,6 +53,15 @@ class Admin_Bar_Notice {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_toolbar_script' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_toolbar_script' ) );
 		add_action( 'admin_bar_menu', array( $this, 'add_threats_to_toolbar' ), 999 );
+
+		// Inject the data-ampdevmode attribute into the inline <script> output via wp_localize_script(). To revisit after https://github.com/ampproject/amp-wp/issues/4598.
+		add_filter(
+			'amp_dev_mode_element_xpaths',
+			static function ( $expressions ) {
+				$expressions[] = '//script[ contains( text(), "Jetpack_Scan" ) ]';
+				return $expressions;
+			}
+		);
 	}
 
 	/**
@@ -104,41 +113,20 @@ class Admin_Bar_Notice {
 		);
 		wp_localize_script( self::SCRIPT_NAME, 'Jetpack_Scan', $script_data );
 
+		// Inject the data-ampdevmode attribute into the <script> tag for jetpack-scan-show-notice. To revisit after https://github.com/ampproject/amp-wp/issues/4598.
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
-			$this->add_amp_filters();
+			add_filter(
+				'script_loader_tag',
+				static function ( $tag, $handle ) {
+					if ( self::SCRIPT_NAME === $handle ) {
+						$tag = preg_replace( '/(?<=<script\s)/', ' data-ampdevmode ', $tag );
+					}
+					return $tag;
+				},
+				10,
+				2
+			);
 		}
-	}
-
-	/**
-	 * Add filters for AMP compatibility to make sure scripts are included in Dev Mode so they are not sanitized out of the page.
-	 *
-	 * Note that the logic here will be simplified once the AMP plugin supports flagging registered scripts for dev mode.
-	 *
-	 * @link https://github.com/ampproject/amp-wp/issues/4598
-	 */
-	private function add_amp_filters() {
-
-		// Inject the data-ampdevmode attribute into the <script> tag for jetpack-scan-show-notice.
-		add_filter(
-			'script_loader_tag',
-			static function ( $tag, $handle ) {
-				if ( self::SCRIPT_NAME === $handle ) {
-					$tag = preg_replace( '/(?<=<script\s)/', ' data-ampdevmode ', $tag );
-				}
-				return $tag;
-			},
-			10,
-			2
-		);
-
-		// Inject the data-ampdevmode attribute into the inline <script> output via wp_localize_script().
-		add_filter(
-			'amp_dev_mode_element_xpaths',
-			static function ( $expressions ) {
-				$expressions[] = '//script[ contains( @text, "Jetpack_Scan" ) ]';
-				return $expressions;
-			}
-		);
 	}
 
 	/**
