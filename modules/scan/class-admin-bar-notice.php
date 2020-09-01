@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
-use Jetpack_AMP_Support;
 
 /**
  * Class Main
@@ -100,7 +99,7 @@ class Admin_Bar_Notice {
 		}
 
 		// We don't know about threats in the cache lets load the JS that fetches the info and updates the admin bar.
-		Assets::enqueue_async_script( self::SCRIPT_NAME, '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js', array(), self::SCRIPT_VERSION, true );
+		Assets::enqueue_async_script( self::SCRIPT_NAME, '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js', array( 'admin-bar' ), self::SCRIPT_VERSION, true );
 
 		$script_data = array(
 			'nonce'              => wp_create_nonce( 'wp_rest' ),
@@ -112,21 +111,6 @@ class Admin_Bar_Notice {
 			'multiple'           => sprintf( esc_html__( '%s Threats found', 'jetpack' ), $this->get_icon() ),
 		);
 		wp_localize_script( self::SCRIPT_NAME, 'Jetpack_Scan', $script_data );
-
-		// Inject the data-ampdevmode attribute into the <script> tag for jetpack-scan-show-notice. To revisit after https://github.com/ampproject/amp-wp/issues/4598.
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
-			add_filter(
-				'script_loader_tag',
-				static function ( $tag, $handle ) {
-					if ( self::SCRIPT_NAME === $handle ) {
-						$tag = preg_replace( '/(?<=<script\s)/', ' data-ampdevmode ', $tag );
-					}
-					return $tag;
-				},
-				10,
-				2
-			);
-		}
 	}
 
 	/**
