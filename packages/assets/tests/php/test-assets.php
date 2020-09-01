@@ -21,8 +21,8 @@ use Brain\Monkey\Filters;
  *                            Typically this is done by passing __FILE__ as the argument.
  */
 function plugins_url( $path, $plugin_path ) {
-	if ( strpos( $plugin_path, 'test-plugin.php' ) ) {
-		return 'http://www.example.com/wp-content/plugins/test-plugin/' . $path;
+	if ( strpos( $plugin_path, 'test-package.php' ) ) {
+		return 'http://www.example.com/wp-content/plugins/jetpack/packages/test-package/' . $path;
 	}
 
 	return 'http://www.example.com//wp-content/plugins/jetpack/' . $path;
@@ -119,21 +119,21 @@ class AssetsTest extends TestCase {
 	}
 
 	/**
-	 * Test that get_file_url_for_environment returns a full plugin asset url when plugin path is provided.
+	 * Test that get_file_url_for_environment returns a full package asset url when package path is provided.
 	 *
 	 * @param string $min_path        minified path.
 	 * @param string $non_min_path    non-minified path.
-	 * @param string $plugin_path     Plugin path.
+	 * @param string $package_path    Package path.
 	 * @param bool   $is_script_debug Is SCRIPT_DEBUG enabled.
 	 * @param string $expected        Expected result.
 	 * @param string $not_expected    Non expected result.
 	 *
 	 * @author       jeherve
-	 * @dataProvider get_file_url_for_environment_plugin_path_data_provider
+	 * @dataProvider get_file_url_for_environment_package_path_data_provider
 	 */
-	public function test_get_file_url_for_environment_plugin_path( $min_path, $non_min_path, $plugin_path, $is_script_debug, $expected, $not_expected ) {
+	public function test_get_file_url_for_environment_package_path( $min_path, $non_min_path, $package_path, $is_script_debug, $expected, $not_expected ) {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
-		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path, $plugin_path );
+		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path, $package_path );
 
 		$this->assertStringContainsString( $expected, $file_url );
 		$this->assertStringNotContainsString( $not_expected, $file_url );
@@ -188,28 +188,28 @@ class AssetsTest extends TestCase {
 	/**
 	 * Possible values for test_get_file_url_for_environment.
 	 */
-	public function get_file_url_for_environment_plugin_path_data_provider() {
+	public function get_file_url_for_environment_package_path_data_provider() {
 		$min_path     = 'src/js/test.min.js';
 		$non_min_path = 'src/js/test.js';
-		$plugin_path  = '/var/html/wp-content/plugins/test-plugin/test-plugin.php';
+		$package_path = '/var/html/wp-content/plugins/jetpack/packages/test-package/test-package.php';
 
 		return array(
 			'script-debug-true'  => array(
 				$min_path,
 				$non_min_path,
-				$plugin_path,
+				$package_path,
 				true,
-				'wp-content/plugins/test-plugin/' . $non_min_path,
-				'wp-content/plugins/test-plugin/' . $min_path,
+				'wp-content/plugins/jetpack/packages/test-package/' . $non_min_path,
+				'wp-content/plugins/jetpack/packages/test-package/' . $min_path,
 
 			),
 			'script-debug-false' => array(
 				$min_path,
 				$non_min_path,
-				$plugin_path,
+				$package_path,
 				false,
-				'wp-content/plugins/test-plugin/' . $min_path,
-				'wp-content/plugins/test-plugin/' . $non_min_path,
+				'wp-content/plugins/jetpack/packages/test-package/' . $min_path,
+				'wp-content/plugins/jetpack/packages/test-package/' . $non_min_path,
 			),
 		);
 	}

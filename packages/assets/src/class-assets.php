@@ -94,14 +94,14 @@ class Assets {
 	 *
 	 * @param string $min_path     minified path.
 	 * @param string $non_min_path non-minified path.
-	 * @param string $plugin       Optional. A full path to a file inside a plugin or mu-plugin.
+	 * @param string $package_path Optional. A full path to a file inside a package directory
 	 *                             The URL will be relative to its directory. Default empty.
 	 *                             Typically this is done by passing __FILE__ as the argument.
 	 *
 	 * @return string The URL to the file
 	 * @since 5.6.0
 	 */
-	public static function get_file_url_for_environment( $min_path, $non_min_path, $plugin = '' ) {
+	public static function get_file_url_for_environment( $min_path, $non_min_path, $package_path = '' ) {
 		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
 			? $non_min_path
 			: $min_path;
@@ -114,7 +114,7 @@ class Assets {
 		if ( ! empty( $file_parts['host'] ) ) {
 			$url = $path;
 		} else {
-			$plugin_path = empty( $plugin ) ? Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) : $plugin;
+			$plugin_path = empty( $package_path ) ? Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) : $package_path;
 
 			$url = plugins_url( $path, $plugin_path );
 		}
