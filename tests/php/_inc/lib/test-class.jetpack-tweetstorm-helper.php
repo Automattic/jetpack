@@ -204,6 +204,31 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Helper function. Generate the blob of data that the parser
+	 * expects to receive for an embedded tweet block.
+	 *
+	 * @param string $url The tweet url.
+	 *
+	 * @return array The embedded tweet blob of data.
+	 */
+	public function generateTweetEmbedData( $url ) {
+		return array(
+			'attributes' => array(
+				'providerNameSlug' => 'twitter',
+				'url'              => $url,
+			),
+			'block'      => array(
+				'attrs'     => array(
+					'providerNameSlug' => 'twitter',
+					'url'              => $url,
+				),
+				'blockName' => 'core/embed',
+				'innerHTML' => '',
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
 
 	/**
 	 * Helper function. Generates a normal boundary marker.
@@ -246,7 +271,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 *
 	 *     @type string $text  Optional. The text of the tweet.
 	 *     @type array  $media Optional. Array of media that will be used for media attachments.
-	 *     @type string $embed Optional. URL of a tweet to be quoted, or page to be embedded.
+	 *     @type string $tweet Optional. URL of a tweet to be quoted.
 	 * }
 	 * @param array        $blocks      An array of blocks that should be defined in the tweet.
 	 * @param array        $boundary    The boundary data that the tweet should contain.
@@ -265,12 +290,13 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array(
 				'text'  => '',
 				'media' => array(),
-				'embed' => '',
+				'tweet' => '',
 			)
 		);
 
 		$this->assertEquals( $content['text'], $tweet['text'] );
 		$this->assertEquals( $content['media'], $tweet['media'] );
+		$this->assertEquals( $content['tweet'], $tweet['tweet'] );
 
 		if ( $editor_info ) {
 			$block_count = count( $blocks );
@@ -301,7 +327,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 *
 	 *     @type string $text  Optional. The text of the tweet.
 	 *     @type array  $media Optional. Array of media that will be used for media attachments.
-	 *     @type string $embed Optional. URL of a tweet to be quoted, or page to be embedded.
+	 *     @type string $tweet Optional. URL of a tweet to be quoted.
 	 * }
 	 * @param array $boundaries   The boundary data that each tweet should contain.
 	 * @param array $tweet_blocks An array of arrays: each child array should be the blocks used
@@ -1354,5 +1380,27 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array( false, false ),
 			array( array_slice( $blocks, 0, 3 ), array_slice( $blocks, 3, 1 ) )
 		);
+	}
+
+	/**
+	 * Test that an embedded tweet block will be appended to the previous tweet.
+	 */
+	public function test_embedded_tweet_is_appended() {
+		$test_content = 'As true today as it was then.';
+		$test_url     = 'https://twitter.com/GaryPendergast/status/934003415507546112';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateTweetEmbedData( $test_url ),
+		);
+
+		$expected_content = array(
+			array(
+				'text'  => $test_content,
+				'tweet' => $test_url,
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
 	}
 }

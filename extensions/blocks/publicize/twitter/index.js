@@ -40,7 +40,10 @@ export const SUPPORTED_BLOCKS = {
 		contentAttributes: [ 'content' ],
 	},
 	'core/video': {
-		contentAttributes: [],
+		contentAttributes: [ 'src' ],
+	},
+	'core/embed': {
+		contentAttributes: [ 'url' ],
 	},
 };
 

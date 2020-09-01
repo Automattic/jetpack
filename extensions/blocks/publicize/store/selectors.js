@@ -48,6 +48,7 @@ export function getTweetStorm( state ) {
 		...tweetTemplate,
 		text: tweet.text,
 		media: tweet.media,
+		tweet: tweet.tweet,
 	} ) );
 }
 

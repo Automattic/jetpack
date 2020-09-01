@@ -29,10 +29,17 @@ describe( 'getTweetStorm', () => {
 							alt: 'Some picture',
 						},
 					],
+					tweet: '',
 				},
 				{
 					text: 'Tweet 2',
 					media: [],
+					tweet: '',
+				},
+				{
+					text: 'Tweet 3',
+					media: [],
+					tweet: 'https://twitter.com/GaryPendergast/status/934003415507546112',
 				},
 			],
 		};
@@ -47,19 +54,31 @@ describe( 'getTweetStorm', () => {
 						alt: 'Some picture',
 					},
 				],
+				tweet: '',
 			},
 			{
 				profileImage: 'https://abs.twimg.com/my_profile_image.png',
 				screenName: 'me',
 				text: 'Tweet 2',
 				media: [],
+				tweet: '',
+			},
+			{
+				profileImage: 'https://abs.twimg.com/my_profile_image.png',
+				screenName: 'me',
+				text: 'Tweet 3',
+				media: [],
+				tweet: 'https://twitter.com/GaryPendergast/status/934003415507546112',
 			},
 		];
 
 		const tweets = getTweetStorm( state );
 
+		expect( tweets.length ).toEqual( expected.length );
+
 		expect( tweets[0] ).toMatchObject( expected[0] );
 		expect( tweets[1] ).toMatchObject( expected[1] );
+		expect( tweets[2] ).toMatchObject( expected[2] );
 	} );
 
 	it( 'returns the default twitter account details when none is provided.', () => {
