@@ -117,11 +117,11 @@ class Jetpack_Tweetstorm_Helper {
 	private static $emoji_list = array();
 
 	/**
-	 * Special line seperator character, for multiline text.
+	 * Special line separator character, for multiline text.
 	 *
 	 * @var string
 	 */
-	private static $line_seperator = "\xE2\x80\xA8";
+	private static $line_separator = "\xE2\x80\xA8";
 
 	/**
 	 * Every media attachment takes up some space from the text limit.
@@ -259,7 +259,7 @@ class Jetpack_Tweetstorm_Helper {
 		// normal text blocks. This means we can treat normal text blocks as being
 		// "multiline", but with a single line.
 		if ( 'multiline' === $block_def['type'] ) {
-			$lines = explode( self::$line_seperator, $block['text'] );
+			$lines = explode( self::$line_separator, $block['text'] );
 		} else {
 			$lines = array( $block['text'] );
 		}
@@ -284,15 +284,15 @@ class Jetpack_Tweetstorm_Helper {
 			if ( $current_tweet['changed'] ) {
 				// When it's the first line, add an extra blank line to seperate
 				// the tweet text from that of the previous block.
-				$seperator = "\n\n";
+				$separator = "\n\n";
 				if ( $line_count > 0 ) {
-					$seperator = "\n";
+					$separator = "\n";
 				}
 
 				// Is this line short enough to append to the current tweet?
-				if ( self::is_valid_tweet( trim( $current_tweet['text'] ) . "$seperator$line_text" ) ) {
+				if ( self::is_valid_tweet( trim( $current_tweet['text'] ) . "$separator$line_text" ) ) {
 					// Don't trim the text yet, as we may need it for boundary calculations.
-					$current_tweet['text'] = $current_tweet['text'] . "$seperator$line_text";
+					$current_tweet['text'] = $current_tweet['text'] . "$separator$line_text";
 
 					self::save_current_tweet( $current_tweet, $block );
 					continue;
@@ -618,9 +618,9 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return bool Whether or not the string is no longer than the length limit.
 	 */
 	private static function is_within_twitter_length( $text, $max_length ) {
-		// Replace all multiline seperators with a \n, since that's the
+		// Replace all multiline separators with a \n, since that's the
 		// character we actually want to count.
-		$text = str_replace( self::$line_seperator, "\n", $text );
+		$text = str_replace( self::$line_separator, "\n", $text );
 
 		// Keep a running total of characters we've removed.
 		$stripped_characters = 0;
@@ -861,15 +861,15 @@ class Jetpack_Tweetstorm_Helper {
 
 			foreach ( $tags[ $block_def['multiline_tag'] ] as $line ) {
 				if ( 0 === strlen( $line ) ) {
-					$text .= self::$line_seperator;
+					$text .= self::$line_separator;
 				} else {
 					$found_content = true;
-					$text         .= str_replace( '{{line}}', $line, $block_def['template'] ) . self::$line_seperator;
+					$text         .= str_replace( '{{line}}', $line, $block_def['template'] ) . self::$line_separator;
 				}
 			}
 
 			$text = trim( $text );
-			$text = preg_replace( '/(' . self::$line_seperator . ')+$/', '', $text );
+			$text = preg_replace( '/(' . self::$line_separator . ')+$/', '', $text );
 		}
 
 		// If there was no actual content in this block, return an empty string instead of an empty template.
