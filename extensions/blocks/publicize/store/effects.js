@@ -15,10 +15,10 @@ import { setConnectionTestResults, setTweets } from './actions';
 /**
  * Effect handler which will refresh the connection test results.
  *
- * @param {Object} action Action which had initiated the effect handler.
- * @param {Object} store  Store instance.
+ * @param {object} action - Action which had initiated the effect handler.
+ * @param {object} store - Store instance.
  *
- * @return {Object} Refresh connection test results action.
+ * @returns {object} Refresh connection test results action.
  */
 export async function refreshConnectionTestResults( action, store ) {
 	const { dispatch } = store;
@@ -32,6 +32,23 @@ export async function refreshConnectionTestResults( action, store ) {
 }
 
 /**
+ * Given an array of blocks, this will return an array of just the blocks (including child blocks of
+ * those blocks passed) that we support transforming into tweet content.
+ *
+ * @param {Array} blocks - The array of blocks to check.
+ * @returns {Array} The blocks that can be turned into tweets.
+ */
+export const computeTweetBlocks = ( blocks = [] ) => {
+	return flatMap( blocks, ( block = {} ) => {
+		if ( SUPPORTED_BLOCKS[ block.name ] ) {
+			return block;
+		}
+
+		return computeTweetBlocks( block.innerBlocks );
+	} );
+};
+
+/**
  * Handle sending the tweet refresh request.
  *
  * @param {object} action - Action which had initiated the effect handler.
@@ -43,16 +60,6 @@ async function __refreshTweets( action, store ) {
 	const { dispatch } = store;
 
 	const topBlocks = select( 'core/editor' ).getBlocks();
-
-	const computeTweetBlocks = ( blocks = [] ) => {
-		return flatMap( blocks, ( block = {} ) => {
-			if ( SUPPORTED_BLOCKS[ block.name ] ) {
-				return block;
-			}
-
-			return computeTweetBlocks( block.innerBlocks );
-		} );
-	};
 
 	const tweetBlocks = computeTweetBlocks( topBlocks );
 

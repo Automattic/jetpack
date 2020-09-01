@@ -1,4 +1,4 @@
-const DEFAULT_STATE = {
+export const DEFAULT_STATE = {
 	connections: [],
 	tweets: [],
 };
@@ -6,10 +6,10 @@ const DEFAULT_STATE = {
 /**
  * Reducer managing Publicize connection test results.
  *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
+ * @param {object} state - Current state.
+ * @param {object} action - Dispatched action.
  *
- * @return {Object} Updated state.
+ * @returns {object} Updated state.
  */
 export default function ( state = DEFAULT_STATE, action ) {
 	switch ( action.type ) {
@@ -26,7 +26,7 @@ export default function ( state = DEFAULT_STATE, action ) {
 		case 'SET_TWEETS':
 			return {
 				...state,
-				tweets: action.results,
+				tweets: action.tweets,
 			};
 	}
 

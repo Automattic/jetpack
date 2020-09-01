@@ -40,16 +40,29 @@ export function fetchFromAPI( path ) {
 	};
 }
 
-export function refreshTweets( content ) {
+/**
+ * Returns an action object used in signalling that we're refreshing
+ * the tweets that have been parsed out of the content.
+ *
+ * @returns {object} Action object.
+ */
+export function refreshTweets() {
 	return {
 		type: 'REFRESH_TWEETS',
-		content,
 	};
 }
 
-export function setTweets( results ) {
+/**
+ * Returns an action object used in signalling that twets have been refreshed,
+ * and the state will be updated.
+ *
+ * @param {Array} tweets - The array of tweet objects returned by the parser.
+ *
+ * @returns {object} Action object.
+ */
+export function setTweets( tweets ) {
 	return {
 		type: 'SET_TWEETS',
-		results,
+		tweets,
 	};
 }

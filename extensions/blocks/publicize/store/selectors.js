@@ -1,9 +1,9 @@
 /**
  * Returns the failed Publicize connections.
  *
- * @param {Object} state State object.
+ * @param {object} state - State object.
  *
- * @return {Array} List of connections.
+ * @returns {Array} List of connections.
  */
 export function getFailedConnections( state ) {
 	return state.connections.filter( connection => false === connection.test_success );
@@ -13,9 +13,9 @@ export function getFailedConnections( state ) {
  * Returns a list of Publicize connection service names that require reauthentication from users.
  * iFor example, when LinkedIn switched its API from v1 to v2.
  *
- * @param {Object} state State object.
+ * @param {object} state - State object.
  *
- * @return {Array} List of service names that need reauthentication.
+ * @returns {Array} List of service names that need reauthentication.
  */
 export function getMustReauthConnections( state ) {
 	return state.connections
@@ -23,8 +23,15 @@ export function getMustReauthConnections( state ) {
 		.map( connection => connection.service_name );
 }
 
+/**
+ * Given a the state object, this will use the `tweets` property to generate an array of tweets.
+ *
+ * @param {object} state - State object.
+ *
+ * @returns {Array} Array of tweets.
+ */
 export function getTweetStorm( state ) {
-	const twitterAccount = state.connections.find(
+	const twitterAccount = state.connections?.find(
 		connection => 'twitter' === connection.service_name
 	);
 
