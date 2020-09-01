@@ -89,6 +89,9 @@ class Assets {
 	 * Given a minified path, and a non-minified path, will return
 	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
 	 *
+	 * If $package_path is provided, then the minified or non-minified file URL will be generated
+	 * relative to the root package directory.
+	 *
 	 * Both `$min_base` and `$non_min_base` can be either full URLs, or are expected to be relative to the
 	 * root Jetpack directory.
 	 *
