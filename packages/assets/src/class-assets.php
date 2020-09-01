@@ -92,13 +92,16 @@ class Assets {
 	 * Both `$min_base` and `$non_min_base` can be either full URLs, or are expected to be relative to the
 	 * root Jetpack directory.
 	 *
-	 * @since 5.6.0
-	 *
-	 * @param string $min_path minified path.
+	 * @param string $min_path     minified path.
 	 * @param string $non_min_path non-minified path.
+	 * @param string $plugin       Optional. A full path to a file inside a plugin or mu-plugin.
+	 *                             The URL will be relative to its directory. Default empty.
+	 *                             Typically this is done by passing __FILE__ as the argument.
+	 *
 	 * @return string The URL to the file
+	 * @since 5.6.0
 	 */
-	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
+	public static function get_file_url_for_environment( $min_path, $non_min_path, $plugin = '' ) {
 		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
 			? $non_min_path
 			: $min_path;
@@ -109,9 +112,11 @@ class Assets {
 		 */
 		$file_parts = wp_parse_url( $path );
 		if ( ! empty( $file_parts['host'] ) ) {
-				$url = $path;
+			$url = $path;
 		} else {
-			$url = plugins_url( $path, Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) );
+			$plugin_path = empty( $plugin ) ? Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) : $plugin;
+
+			$url = plugins_url( $path, $plugin_path );
 		}
 
 		/**
