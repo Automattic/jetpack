@@ -204,34 +204,34 @@ class Test_Licensing extends BaseTestCase {
 	}
 
 	/**
-	 * Test attach_stored_licenses() fires the request failure action.
+	 * Test attach_stored_licenses() logs request failure.
 	 */
-	public function test_attach_stored_licenses__fires_request_failure_action() {
+	public function test_attach_stored_licenses__logs_request_failure() {
 		$licenses = array( 'foo', 'bar' );
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,
-			array( 'stored_licenses', 'attach_licenses' )
+			array( 'stored_licenses', 'attach_licenses', 'log_error' )
 		);
 
-		$licensing->expects( $this->once() )
-			->method( 'stored_licenses' )
+		$licensing->method( 'stored_licenses' )
 			->willReturn( $licenses );
 
-		$licensing->expects( $this->once() )
-			->method( 'attach_licenses' )
+		$licensing->method( 'attach_licenses' )
 			->with( $licenses )
 			->willReturn( new WP_Error( 'request_failed' ) );
 
-		$times = did_action( 'jetpack_licensing_stored_licenses_request_failed' );
+		$licensing->expects( $this->once() )
+			->method( 'log_error' )
+			->with( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.' );
+
 		$licensing->attach_stored_licenses();
-		$this->assertSame( $times + 1, did_action( 'jetpack_licensing_stored_licenses_request_failed' ) );
 	}
 
 	/**
-	 * Test attach_stored_licenses() fires the license attaching failure action.
+	 * Test attach_stored_licenses() logs license attaching failures.
 	 */
-	public function test_attach_stored_licenses__fires_license_attaching_failures_action() {
+	public function test_attach_stored_licenses__logs_license_attaching_failures() {
 		$result0  = new WP_Error();
 		$result1  = true;
 		$result2  = new WP_Error();
@@ -239,33 +239,21 @@ class Test_Licensing extends BaseTestCase {
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,
-			array( 'stored_licenses', 'attach_licenses' )
+			array( 'stored_licenses', 'attach_licenses', 'log_error' )
 		);
 
-		$licensing->expects( $this->once() )
-			->method( 'stored_licenses' )
+		$licensing->method( 'stored_licenses' )
 			->willReturn( $licenses );
 
-		$licensing->expects( $this->once() )
-			->method( 'attach_licenses' )
+		$licensing->method( 'attach_licenses' )
 			->with( $licenses )
 			->willReturn( array( $result0, $result1, $result2 ) );
 
-		$spy_ran = 0;
-		$spy     = function ( $errors ) use ( &$spy_ran ) {
-			$spy_ran++;
+		$licensing->expects( $this->once() )
+			->method( 'log_error' )
+			->with( 'The following Jetpack licenses are invalid, already in use or revoked: foo, baz' );
 
-			$this->assertInstanceOf( WP_Error::class, $errors[0]['error'] );
-			$this->assertSame( 'foo', $errors[0]['license'] );
-			$this->assertInstanceOf( WP_Error::class, $errors[1]['error'] );
-			$this->assertSame( 'baz', $errors[1]['license'] );
-		};
-
-		add_action( 'jetpack_licensing_stored_licenses_attaching_failed', $spy );
 		$licensing->attach_stored_licenses();
-		remove_action( 'jetpack_licensing_stored_licenses_attaching_failed', $spy );
-
-		$this->assertSame( 1, $spy_ran );
 	}
 
 	/**

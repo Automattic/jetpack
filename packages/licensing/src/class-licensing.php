@@ -8,16 +8,16 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Jetpack;
 use Jetpack_IXR_ClientMulticall;
 use Jetpack_Options;
 use WP_Error;
 
 /**
  * Class Licensing.
+ * Helper class that is responsible for attaching licenses to the current site.
  *
  * @since ??
- *
- * Helper class that is responsible for attaching licenses to the current site.
  */
 class Licensing {
 	/**
@@ -26,6 +26,13 @@ class Licensing {
 	 * @const string
 	 */
 	const LICENSES_OPTION_NAME = 'jetpack_licenses';
+
+	/**
+	 * Name of the WordPress transient that holds the last license attaching error, if any.
+	 *
+	 * @const string
+	 */
+	const ERROR_TRANSIENT_NAME = 'jetpack_licenses_error';
 
 	/**
 	 * Holds the singleton instance of this class.
@@ -55,6 +62,7 @@ class Licensing {
 	public function initialize() {
 		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'attach_stored_licenses_on_connection' ) );
+		add_action( 'load-toplevel_page_jetpack', array( $this, 'surface_error' ) );
 	}
 
 	/**
@@ -74,6 +82,30 @@ class Licensing {
 	 */
 	protected function request( $client_args ) {
 		return new Jetpack_IXR_ClientMulticall( $client_args );
+	}
+
+	/**
+	 * Log an error to be surfaced to the user at a later time.
+	 *
+	 * @param string $error Human-readable error message.
+	 * @return void
+	 */
+	protected function log_error( $error ) {
+		set_transient( self::ERROR_TRANSIENT_NAME, $error );
+	}
+
+	/**
+	 * Surface a previously logged error (if any) to the user in the form of an admin notice.
+	 *
+	 * @return void
+	 */
+	public function surface_error() {
+		$error = get_transient( self::ERROR_TRANSIENT_NAME );
+		delete_transient( self::ERROR_TRANSIENT_NAME );
+
+		if ( $error ) {
+			Jetpack::state( 'error', $error );
+		}
 	}
 
 	/**
@@ -144,35 +176,27 @@ class Licensing {
 
 		if ( is_wp_error( $results ) ) {
 			if ( 'request_failed' === $results->get_error_code() ) {
-				/**
-				 * Fires when the request to attach all stored licenses fails.
-				 *
-				 * @since ??
-				 *
-				 * @param WP_Error $error Request error.
-				 */
-				do_action( 'jetpack_licensing_stored_licenses_request_failed', $results );
+				$this->log_error(
+					__( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack' )
+				);
 			}
 		} else {
-			$errors = array();
+			$failed = array();
 
 			foreach ( $results as $index => $result ) {
 				if ( isset( $licenses[ $index ] ) && is_wp_error( $result ) ) {
-					$errors[] = array(
-						'error'   => $result,
-						'license' => $licenses[ $index ],
-					);
+					$failed[] = $licenses[ $index ];
 				}
 			}
 
-			if ( ! empty( $errors ) ) {
-				/**
-				 * Fires when one or more stored licenses fail to be attached.
-				 *
-				 * @param array $errors Array of attaching errors and the licenses they are for.
-				 * @since ??
-				 */
-				do_action( 'jetpack_licensing_stored_licenses_attaching_failed', $errors );
+			if ( ! empty( $failed ) ) {
+				$this->log_error(
+					sprintf(
+						/* translators: %s is a comma-separated list of license keys. */
+						__( 'The following Jetpack licenses are invalid, already in use or revoked: %s', 'jetpack' ),
+						implode( ', ', $failed )
+					)
+				);
 			}
 		}
 
