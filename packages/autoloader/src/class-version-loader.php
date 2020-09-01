@@ -57,7 +57,7 @@ class Version_Loader {
 	 * @return string|null $file_path The path to the file if found, null if no class was found.
 	 */
 	public function find_class_file( $class_name ) {
-		$data = $this->find_newest_file(
+		$data = $this->select_newest_file(
 			isset( $this->classmap[ $class_name ] ) ? $this->classmap[ $class_name ] : null,
 			$this->find_psr4_file( $class_name )
 		);
@@ -93,7 +93,7 @@ class Version_Loader {
 	 *
 	 * @return array|null $data
 	 */
-	private function find_newest_file( $classmap_data, $psr4_data ) {
+	private function select_newest_file( $classmap_data, $psr4_data ) {
 		if ( ! isset( $classmap_data ) ) {
 			return $psr4_data;
 		} elseif ( ! isset( $psr4_data ) ) {

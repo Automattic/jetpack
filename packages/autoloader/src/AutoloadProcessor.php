@@ -64,9 +64,9 @@ class AutoloadProcessor {
 			return null;
 		}
 
-		$classBlacklist = null;
+		$excludedClasses = null;
 		if ( ! empty( $autoloads['exclude-from-classmap'] ) ) {
-			$classBlacklist = '{(' . implode( '|', $autoloads['exclude-from-classmap'] ) . ')}';
+			$excludedClasses = '{(' . implode( '|', $autoloads['exclude-from-classmap'] ) . ')}';
 		}
 
 		$processed = array();
@@ -76,7 +76,7 @@ class AutoloadProcessor {
 				$namespace = empty( $namespace ) ? null : $namespace;
 
 				foreach ( $sources as $source ) {
-					$classmap = call_user_func( $this->classmapScanner, $source['path'], $classBlacklist, $namespace );
+					$classmap = call_user_func( $this->classmapScanner, $source['path'], $excludedClasses, $namespace );
 
 					foreach ( $classmap as $class => $path ) {
 						$processed[ $class ] = array(
@@ -90,7 +90,7 @@ class AutoloadProcessor {
 
 		if ( ! empty( $autoloads['classmap'] ) ) {
 			foreach ( $autoloads['classmap'] as $package ) {
-				$classmap = call_user_func( $this->classmapScanner, $package['path'], $classBlacklist, null );
+				$classmap = call_user_func( $this->classmapScanner, $package['path'], $excludedClasses, null );
 
 				foreach ( $classmap as $class => $path ) {
 					$processed[ $class ] = array(

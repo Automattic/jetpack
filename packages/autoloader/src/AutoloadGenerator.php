@@ -100,6 +100,10 @@ AUTOLOADER_COMMENT;
 		// Write all of the files now that we're done.
 		$this->writeAutoloaderFiles( $vendorPath . '/jetpack-autoloader/', $suffix );
 		$this->writeManifests( $vendorPath . '/' . $targetDir, $processedAutoloads );
+
+		if ( ! $scanPsrPackages ) {
+			$this->io->writeError( '<warning>You are generating an unoptimized autoloader. If this is a production build, consider using the -o option.</warning>' );
+		}
 	}
 
 	/**
@@ -187,13 +191,13 @@ AUTOLOADER_COMMENT;
 	 */
 	private function processAutoloads( $autoloads, $scanPsrPackages, $vendorPath, $basePath ) {
 		$processor = new AutoloadProcessor(
-			function ( $path, $classBlacklist, $namespace ) use ( $basePath ) {
+			function ( $path, $excludedClasses, $namespace ) use ( $basePath ) {
 				$dir = $this->filesystem->normalizePath(
 					$this->filesystem->isAbsolutePath( $path ) ? $path : $basePath . '/' . $path
 				);
 				return ClassMapGenerator::createMap(
 					$dir,
-					$classBlacklist,
+					$excludedClasses,
 					null, // Don't pass the IOInterface since the normal autoload generation will have reported already.
 					empty( $namespace ) ? null : $namespace
 				);
@@ -217,7 +221,6 @@ AUTOLOADER_COMMENT;
 	 */
 	private function removeLegacyFiles( $outDir ) {
 		$files = array(
-			'autoload_packages.php',
 			'autoload_functions.php',
 			'class-autoloader-handler.php',
 			'class-classes-handler.php',
