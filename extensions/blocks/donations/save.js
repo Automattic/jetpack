@@ -44,7 +44,7 @@ const Save = ( { attributes } ) => {
 							<div
 								role="button"
 								tabIndex={ 0 }
-								className="donations__nav-item wp-block-button__link"
+								className="donations__nav-item"
 								key={ `jetpack-donations-nav-item-${ interval } ` }
 								data-interval={ interval }
 							>
@@ -77,7 +77,7 @@ const Save = ( { attributes } ) => {
 						<RichText.Content tagName="p" value={ chooseAmountText } />
 						<div className="donations__amounts donations__one-time-item">
 							{ oneTimeDonation.amounts.map( amount => (
-								<div className="donations__amount wp-block-button__link" data-amount={ amount }>
+								<div className="donations__amount" data-amount={ amount }>
 									{ formatCurrency( amount, currency ) }
 								</div>
 							) ) }
@@ -85,7 +85,7 @@ const Save = ( { attributes } ) => {
 						{ monthlyDonation.show && (
 							<div className="donations__amounts donations__monthly-item">
 								{ monthlyDonation.amounts.map( amount => (
-									<div className="donations__amount wp-block-button__link" data-amount={ amount }>
+									<div className="donations__amount" data-amount={ amount }>
 										{ formatCurrency( amount, currency ) }
 									</div>
 								) ) }
@@ -94,7 +94,7 @@ const Save = ( { attributes } ) => {
 						{ annualDonation.show && (
 							<div className="donations__amounts donations__annual-item">
 								{ annualDonation.amounts.map( amount => (
-									<div className="donations__amount wp-block-button__link" data-amount={ amount }>
+									<div className="donations__amount" data-amount={ amount }>
 										{ formatCurrency( amount, currency ) }
 									</div>
 								) ) }
@@ -103,7 +103,7 @@ const Save = ( { attributes } ) => {
 						{ showCustomAmount && (
 							<>
 								<RichText.Content tagName="p" value={ customAmountText } />
-								<div className="donations__amount donations__custom-amount wp-block-button__link">
+								<div className="donations__amount donations__custom-amount">
 									{ CURRENCIES[ currency ].symbol }
 									<div
 										className="donations__amount-value"

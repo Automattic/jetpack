@@ -125,9 +125,13 @@ class JetpackDonations {
 
 			// Toggle nav item.
 			const prevNavItem = this.getNavItem( prevInterval );
-			prevNavItem.classList.remove( 'is-active' );
+			if ( prevNavItem ) {
+				prevNavItem.classList.remove( 'is-active' );
+			}
 			const newNavItem = this.getNavItem( newInterval );
-			newNavItem.classList.add( 'is-active' );
+			if ( newNavItem ) {
+				newNavItem.classList.add( 'is-active' );
+			}
 
 			// Toggle tab content.
 			tabContent.classList.remove( tabContentClasses[ prevInterval ] );
@@ -150,7 +154,9 @@ class JetpackDonations {
 
 		// Activates the default tab on first execution.
 		const navItem = this.getNavItem( this.interval );
-		navItem.classList.add( 'is-active' );
+		if ( navItem ) {
+			navItem.classList.add( 'is-active' );
+		}
 		tabContent.classList.add( tabContentClasses[ this.interval ] );
 	}
 
@@ -173,12 +179,10 @@ class JetpackDonations {
 		} );
 
 		input.addEventListener( 'focus', () => {
-			// Add focus styles to wrapper element.
-			wrapper.classList.add( 'has-focus' );
-			wrapper.classList.remove( 'is-selected' );
-
 			// Toggle selected amount.
 			this.resetSelectedAmount();
+			wrapper.classList.add( 'is-selected' );
+
 			if ( this.isCustomAmount ) {
 				return;
 			}
@@ -187,15 +191,9 @@ class JetpackDonations {
 		} );
 
 		input.addEventListener( 'blur', () => {
-			// Remove focus styles to wrapper element.
-			wrapper.classList.remove( 'has-focus' );
-
 			if ( ! this.isCustomAmount || ! this.amount ) {
 				return;
 			}
-
-			// Mark custom amount as selected.
-			wrapper.classList.add( 'is-selected' );
 
 			// Formats the entered amount.
 			input.innerHTML = formatCurrency( this.amount, input.dataset.currency, {

@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { CURRENCIES } from '@automattic/format-currency';
+
+/**
  * WordPress dependencies
  */
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
@@ -20,7 +25,6 @@ import { DOWN } from '@wordpress/keycodes';
  * Internal dependencies
  */
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
-import { CURRENCIES } from '@automattic/format-currency';
 
 const Controls = props => {
 	const { attributes, setAttributes, siteSlug } = props;
