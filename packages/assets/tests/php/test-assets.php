@@ -128,7 +128,7 @@ class AssetsTest extends TestCase {
 	 * @param string $expected        Expected result.
 	 * @param string $not_expected    Non expected result.
 	 *
-	 * @author       jeherve
+	 * @author       davidlonjon
 	 * @dataProvider get_file_url_for_environment_package_path_data_provider
 	 */
 	public function test_get_file_url_for_environment_package_path( $min_path, $non_min_path, $package_path, $is_script_debug, $expected, $not_expected ) {
