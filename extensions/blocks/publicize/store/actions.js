@@ -2,9 +2,9 @@
  * Returns an action object used in signalling that
  * we're setting the Publicize connection test results.
  *
- * @param {Array} results Connection test results.
+ * @param {Array} results - Connection test results.
  *
- * @return {Object} Action object.
+ * @returns {object} Action object.
  */
 export function setConnectionTestResults( results ) {
 	return {
@@ -17,7 +17,7 @@ export function setConnectionTestResults( results ) {
  * Returns an action object used in signalling that
  * we're refreshing the Publicize connection test results.
  *
- * @return {Object} Action object.
+ * @returns {object} Action object.
  */
 export function refreshConnectionTestResults() {
 	return {
@@ -29,9 +29,9 @@ export function refreshConnectionTestResults() {
  * Returns an action object used in signalling that
  * we're initiating a fetch request to the REST API.
  *
- * @param {String} path API endpoint path.
+ * @param {string} path - API endpoint path.
  *
- * @return {Object} Action object.
+ * @returns {object} Action object.
  */
 export function fetchFromAPI( path ) {
 	return {
