@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { refreshTweets, setTweets } from '../actions';
+import { refreshTweets, setTweets, setTwitterCards } from '../actions';
 
 describe( 'refreshTweets', () => {
 	it( 'returns the REFRESH_TWEETS action type', () => {
@@ -17,6 +17,16 @@ describe( 'setTweets', () => {
 		expect( setTweets( tweets ) ).toEqual( {
 			type: 'SET_TWEETS',
 			tweets,
+		} );
+	} );
+} );
+
+describe( 'setTwitterCards', () => {
+	it( 'returns the SET_TWITTER_CARDS action type', () => {
+		const cards = [ 'foo', 'bar' ];
+		expect( setTwitterCards( cards ) ).toEqual( {
+			type: 'SET_TWITTER_CARDS',
+			cards,
 		} );
 	} );
 } );

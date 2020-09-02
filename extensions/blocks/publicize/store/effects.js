@@ -85,7 +85,7 @@ async function __refreshTweets() {
  */
 export const refreshTweets = throttle( __refreshTweets, 2000, { leading: true, trailing: true } );
 
-export async function getTwitterCardsEffect( action ) {
+export async function getTwitterCards( action ) {
 	if ( 0 === action.urls.length ) {
 		return dispatch( 'jetpack/publicize' ).setTwitterCards( [] );
 	}
@@ -107,5 +107,5 @@ export async function getTwitterCardsEffect( action ) {
 export default {
 	REFRESH_CONNECTION_TEST_RESULTS: refreshConnectionTestResults,
 	REFRESH_TWEETS: refreshTweets,
-	GET_TWITTER_CARDS: getTwitterCardsEffect,
+	GET_TWITTER_CARDS: getTwitterCards,
 };

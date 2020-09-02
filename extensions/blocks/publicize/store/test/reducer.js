@@ -24,4 +24,57 @@ describe( 'reducer', () => {
 		};
 		expect( reducer( DEFAULT_STATE, action ) ).toEqual( expected );
 	} );
+
+	it( 'sets the twitterCards property when given the SET_TWITTER_CARDS action', () => {
+		const cards = [ 'foo', 'bar' ];
+		const action = {
+			type: 'SET_TWITTER_CARDS',
+			cards,
+		};
+		const expected = {
+			...DEFAULT_STATE,
+			twitterCards: cards,
+		};
+		expect( reducer( DEFAULT_STATE, action ) ).toEqual( expected );
+	} );
+
+	it( 'marks the passed urls as loading when given the GET_TWITTER_CARDS action', () => {
+		const urls = [ 'foo', 'bar' ];
+		const action = {
+			type: 'GET_TWITTER_CARDS',
+			urls,
+		};
+		const expected = {
+			...DEFAULT_STATE,
+			twitterCards: {
+				foo: { error: 'loading' },
+				bar: { error: 'loading' },
+			},
+		};
+		expect( reducer( DEFAULT_STATE, action ) ).toEqual( expected );
+	} );
+
+	it( 'marks existing cards as loading when given the GET_TWITTER_CARDS action', () => {
+		const startState = {
+			...DEFAULT_STATE,
+			twitterCards: {
+				foo: { title: 'some title' },
+			},
+
+		}
+		const urls = [ 'foo', 'bar', 'baz' ];
+		const action = {
+			type: 'GET_TWITTER_CARDS',
+			urls,
+		};
+		const expected = {
+			...DEFAULT_STATE,
+			twitterCards: {
+				foo: { error: 'loading' },
+				bar: { error: 'loading' },
+				baz: { error: 'loading' },
+			},
+		};
+		expect( reducer( DEFAULT_STATE, action ) ).toEqual( expected );
+	} );
 } );

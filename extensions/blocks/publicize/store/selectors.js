@@ -23,6 +23,13 @@ export function getMustReauthConnections( state ) {
 		.map( connection => connection.service_name );
 }
 
+/**
+ * Returns a template for tweet data, based on the first Twitter account found.
+ *
+ * @param {object} state - State object.
+ *
+ * @returns {object} The Twitter account data.
+ */
 export function getTweetTemplate( state ) {
 	const twitterAccount = state.connections?.find(
 		connection => 'twitter' === connection.service_name
@@ -39,7 +46,7 @@ export function getTweetTemplate( state ) {
 }
 
 /**
- * Given a the state object, this will use the `tweets` property to generate an array of tweets.
+ * Generates an array of tweets, including Twitter account data.
  *
  * @param {object} state - State object.
  *
@@ -58,20 +65,14 @@ export function getTweetStorm( state ) {
 	} ) );
 }
 
-export function getCurrentTweet( state ) {
-	return state.tweets.reduce( ( currentTweet, tweet ) => {
-		if ( currentTweet ) {
-			return currentTweet;
-		}
-
-		if ( tweet.current ) {
-			return tweet;
-		}
-
-		return false;
-	}, false );
-}
-
+/**
+ * Returns the tweets that a particular block is part of.
+ *
+ * @param {object} state - State object.
+ * @param {string} clientId - The clientId of the block.
+ *
+ * @returns {Array} The tweets.
+ */
 export function getTweetsForBlock( state, clientId ) {
 	return state.tweets.filter( tweet => {
 		if ( tweet.blocks.find( block => block.clientId === clientId ) ) {
@@ -82,6 +83,14 @@ export function getTweetsForBlock( state, clientId ) {
 	} );
 }
 
+/**
+ * Given a list of URLs, this will find the first available Twitter card.
+ *
+ * @param {object} state - State object.
+ * @param {Array} urls - The URLs to find Twitter Card data for.
+ *
+ * @returns {object} The first available Twitter Card for the given URLs.
+ */
 export function getTwitterCardForURLs( state, urls ) {
 	if ( ! urls ) {
 		return undefined;
@@ -103,6 +112,14 @@ export function getTwitterCardForURLs( state, urls ) {
 	}, undefined );
 }
 
+/**
+ * Check if we already have a Twitter Card (or error) cached for a given URL already.
+ *
+ * @param {object} state - State object.
+ * @param {string} url - The URL to check.
+ *
+ * @returns {boolean} Whether or not we have something for the URL.
+ */
 export function twitterCardIsCached( state, url ) {
 	return !! state.twitterCards[ url ];
 }
