@@ -9,4 +9,5 @@
   */
 function test() {
 	echo 'Silece is gold';
+	echo 'And even more!';
 }
