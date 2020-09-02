@@ -123,15 +123,23 @@ class Nonce_Handler {
 		 */
 		$limit = apply_filters( 'jetpack_connection_nonce_cleanup_runtime_limit', static::CLEANUP_RUNTIME_LIMIT );
 
-		$wpdb->query(
+		$ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"DELETE FROM `{$wpdb->options}`"
+				"SELECT option_id FROM `{$wpdb->options}`"
 				. " WHERE `option_name` >= 'jetpack_nonce_' AND `option_name` < %s"
 				. ' LIMIT %d',
 				'jetpack_nonce_' . ( time() - 3600 ),
 				$limit
 			)
 		);
+
+		if ( is_array( $ids ) && count( $ids ) ) {
+			$ids_fill = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+
+			// The Code Sniffer is unable to understand what's going on...
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			$wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( {$ids_fill} )", $ids ) );
+		}
 
 		return true;
 	}

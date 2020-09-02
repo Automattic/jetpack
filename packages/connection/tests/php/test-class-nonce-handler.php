@@ -134,26 +134,45 @@ class Test_Nonce_Handler extends TestCase {
 	 * Testing the runtime nonce cleanup functionality.
 	 */
 	public function test_clean_runtime() {
-		$query_filter_run = false;
+		$nonce_ids = array( 1111, 2222 );
 
-		$query_filter = function( $result, $query ) use ( &$query_filter_run ) {
-			if ( ! $query_filter_run && false !== strpos( $query, 'jetpack_nonce_' ) ) {
+		$query_filter_select_run = false;
+		$query_filter_delete_run = false;
+
+		$query_filter_select = function( $result, $query ) use ( &$query_filter_select_run, $nonce_ids ) {
+			if ( ! $query_filter_select_run && 0 === strpos( $query, 'SELECT ' ) && false !== strpos( $query, 'jetpack_nonce_' ) ) {
 				global $wpdb;
 
-				$query_filter_run = true;
-				self::assertStringStartsWith( "DELETE FROM `{$wpdb->options}` WHERE `option_name` >= 'jetpack_nonce_' AND `option_name` < ", $query );
+				$query_filter_select_run = true;
+				self::assertStringStartsWith( "SELECT option_id FROM `{$wpdb->options}` WHERE `option_name` >= 'jetpack_nonce_' AND `option_name` < ", $query );
+
+				return array( (object) array( 'option_id' => $nonce_ids[0] ), (object) array( 'option_id' => $nonce_ids[1] ) );
 			}
 
 			return $result;
 		};
 
-		add_filter( 'wordbless_wpdb_query_results', $query_filter, 10, 2 );
+		$query_filter_delete = function( $result, $query ) use ( &$query_filter_delete_run, $nonce_ids ) {
+			if ( ! $query_filter_delete_run && 0 === strpos( $query, 'DELETE ' ) && false !== strpos( $query, 'option_id' ) ) {
+				global $wpdb;
+
+				$query_filter_delete_run = true;
+				self::assertEquals( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( " . implode( ', ', $nonce_ids ) . ' )', $query );
+			}
+
+			return $result;
+		};
+
+		add_filter( 'wordbless_wpdb_query_results', $query_filter_select, 10, 2 );
+		add_filter( 'wordbless_wpdb_query_results', $query_filter_delete, 10, 2 );
 
 		Nonce_Handler::clean_runtime();
 
-		remove_filter( 'wordbless_wpdb_query_results', $query_filter );
+		remove_filter( 'wordbless_wpdb_query_results', $query_filter_select );
+		remove_filter( 'wordbless_wpdb_query_results', $query_filter_delete );
 
-		self::assertTrue( $query_filter_run, "The SQL query assertions haven't run." );
+		self::assertTrue( $query_filter_select_run, "The SQL query assertions haven't run." );
+		self::assertTrue( $query_filter_delete_run, "The SQL query assertions haven't run." );
 	}
 
 }
