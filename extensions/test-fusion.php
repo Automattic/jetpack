@@ -8,5 +8,6 @@
   * Implements test().
   */
 function test() {
-	echo 'Silece is gold';
+  echo 'Silece is gold';
+  echo 'Is it?';
 }
