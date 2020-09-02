@@ -17,7 +17,7 @@ use WP_Error;
  * Class Licensing.
  * Helper class that is responsible for attaching licenses to the current site.
  *
- * @since ??
+ * @since 9.0.0
  */
 class Licensing {
 	/**
@@ -71,17 +71,13 @@ class Licensing {
 	 * @return Connection_Manager
 	 */
 	protected function connection() {
-		return new Connection_Manager();
-	}
+		static $connection;
 
-	/**
-	 * Make an authenticated WP.com API multicall request instance.
-	 *
-	 * @param array $client_args IXR client arguments.
-	 * @return Jetpack_IXR_ClientMulticall
-	 */
-	protected function request( $client_args ) {
-		return new Jetpack_IXR_ClientMulticall( $client_args );
+		if ( null === $connection ) {
+			$connection = new Connection_Manager();
+		}
+
+		return $connection;
 	}
 
 	/**
@@ -123,6 +119,24 @@ class Licensing {
 	}
 
 	/**
+	 * Make an authenticated WP.com XMLRPC multicall request to attach the provided license keys.
+	 *
+	 * @param string[] $licenses License keys to attach.
+	 * @return Jetpack_IXR_ClientMulticall
+	 */
+	protected function attach_licenses_request( array $licenses ) {
+		$xml = new Jetpack_IXR_ClientMulticall( array( 'user_id' => JETPACK_MASTER_USER ) );
+
+		foreach ( $licenses as $license ) {
+			$xml->addCall( 'jetpack.attachLicense', $license );
+		}
+
+		$xml->query();
+
+		return $xml;
+	}
+
+	/**
 	 * Attach the given licenses.
 	 *
 	 * @param string[] $licenses Licenses to attach.
@@ -137,13 +151,7 @@ class Licensing {
 			return array();
 		}
 
-		$xml = $this->request( array( 'user_id' => JETPACK_MASTER_USER ) );
-
-		foreach ( $licenses as $license ) {
-			$xml->addCall( 'jetpack.attachLicense', $license );
-		}
-
-		$xml->query();
+		$xml = $this->attach_licenses_request( $licenses );
 
 		if ( $xml->isError() ) {
 			$error = new WP_Error( 'request_failed', __( 'License attach request failed.', 'jetpack' ) );
@@ -180,39 +188,38 @@ class Licensing {
 					__( 'Failed to attach your Jetpack license(s). Please try reconnecting Jetpack.', 'jetpack' )
 				);
 			}
-		} else {
-			$failed = array();
 
-			foreach ( $results as $index => $result ) {
-				if ( isset( $licenses[ $index ] ) && is_wp_error( $result ) ) {
-					$failed[] = $licenses[ $index ];
-				}
-			}
+			return $results;
+		}
 
-			if ( ! empty( $failed ) ) {
-				$this->log_error(
-					sprintf(
-						/* translators: %s is a comma-separated list of license keys. */
-						__( 'The following Jetpack licenses are invalid, already in use or revoked: %s', 'jetpack' ),
-						implode( ', ', $failed )
-					)
-				);
+		$failed = array();
+
+		foreach ( $results as $index => $result ) {
+			if ( isset( $licenses[ $index ] ) && is_wp_error( $result ) ) {
+				$failed[] = $licenses[ $index ];
 			}
+		}
+
+		if ( ! empty( $failed ) ) {
+			$this->log_error(
+				sprintf(
+					/* translators: %s is a comma-separated list of license keys. */
+					__( 'The following Jetpack licenses are invalid, already in use or revoked: %s', 'jetpack' ),
+					implode( ', ', $failed )
+				)
+			);
 		}
 
 		return $results;
 	}
 
 	/**
-	 * Attach all stored licenses during connection flow for the master user.
+	 * Attach all stored licenses during connection flow for the connection owner.
 	 *
 	 * @return void
 	 */
 	public function attach_stored_licenses_on_connection() {
-		$master_user_id = Jetpack_Options::get_option( 'master_user' );
-		$is_master_user = $master_user_id && get_current_user_id() === $master_user_id;
-
-		if ( $is_master_user ) {
+		if ( $this->connection()->is_connection_owner() ) {
 			$this->attach_stored_licenses();
 		}
 	}
