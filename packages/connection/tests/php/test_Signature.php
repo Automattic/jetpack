@@ -99,4 +99,60 @@ class SignatureTest extends TestCase {
 				),
 		);
 	}
+
+	/**
+	 * Tests the Jetpack_Signature->normalized_query_parameters() method.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Jetpack_Signature->normalized_query_parameters
+	 * @dataProvider normalized_query_parameters_data_provider
+	 *
+	 * @param string       $query_string Query string key value.
+	 * @param string|array $expected_output The expected output of $signature->normalized_query_parameters.
+	 */
+	public function test_normalized_query_parameters( $query_string, $expected_output ) {
+		$signature = new \Jetpack_Signature( 'some-secret', 0 );
+		$this->assertEquals( $expected_output, $signature->normalized_query_parameters( $query_string ) );
+	}
+
+	/**
+	 * Data provider for test_join_with_equal_sign.
+	 *
+	 * The test data arrays have the format:
+	 *    'name'            => The value that the constant will be set to. Null if the constant will not be set.
+	 *    'value'           => The name of the constant.
+	 *    'expected_output' => The expected output of Utils::jetpack_api_constant_filter().
+	 */
+	public function normalized_query_parameters_data_provider() {
+		return array(
+			'signature_omitted' =>
+				array(
+					'query_string'    => 'size=10&signature=super-secret',
+					'expected_output' => array(
+						'size=10',
+					),
+				),
+			'query_key_sort'    =>
+				array(
+					'query_string'    => 'size=10&highlight_fields%5B0%5D=title&highlight_fields%5B1%5D=content&aggregations%5Btaxonomy_1%5D%5Bterms%5D%5Bfield%5D=taxonomy.xposts.slug_slash_name&aggregations%5Btaxonomy_1%5D%5Bterms%5D%5Bsize%5D=5&fields%5B0%5D=date&fields%5B1%5D=permalink.url.raw&query=journey',
+					'expected_output' => array(
+						'query=journey',
+						// Note that size has been sorted below query.
+						'size=10',
+						array(
+							'aggregations[taxonomy_1][terms][field]=taxonomy.xposts.slug_slash_name',
+							'aggregations[taxonomy_1][terms][size]=5',
+						),
+						array(
+							'fields[0]=date',
+							'fields[1]=permalink.url.raw',
+						),
+						// Note that aggregations has been sorted below aggregations and fields.
+						array(
+							'highlight_fields[0]=title',
+							'highlight_fields[1]=content',
+						),
+					),
+				),
+		);
+	}
 }
