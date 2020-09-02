@@ -1,6 +1,7 @@
 export const DEFAULT_STATE = {
 	connections: [],
 	tweets: [],
+	twitterCards: [],
 };
 
 /**
@@ -27,6 +28,22 @@ export default function ( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				tweets: action.tweets,
+			};
+		case 'GET_TWITTER_CARDS': {
+			const loadingCards = {};
+			action.urls.forEach( url => ( loadingCards[ url ] = { error: 'loading' } ) );
+			return {
+				...state,
+				twitterCards: {
+					...state.twitterCards,
+					...loadingCards,
+				},
+			};
+		}
+		case 'SET_TWITTER_CARDS':
+			return {
+				...state,
+				twitterCards: action.cards,
 			};
 	}
 

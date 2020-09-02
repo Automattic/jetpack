@@ -19,7 +19,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'tweetstorm/parse';
+		$this->rest_base = 'tweetstorm';
 
 		if ( ! class_exists( 'Jetpack_Tweetstorm_Helper' ) ) {
 			\jetpack_require_lib( 'class-jetpack-tweetstorm-helper' );
@@ -34,7 +34,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base,
+			$this->rest_base . '/parse',
 			array(
 				'args'                                  => array(
 					'blocks' => array(
@@ -45,6 +45,24 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 				),
 				'methods'                               => WP_REST_Server::EDITABLE,
 				'callback'                              => array( $this, 'parse_tweetstorm' ),
+				'allow_blog_token_when_site_is_private' => true,
+				'permission_callback'                   => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/generate-cards',
+			array(
+				'args'                                  => array(
+					'urls' => array(
+						'description' => __( 'An array of URLs to generate Twitter card details for.', 'jetpack' ),
+						'type'        => 'array',
+						'required'    => true,
+					),
+				),
+				'methods'                               => WP_REST_Server::EDITABLE,
+				'callback'                              => array( $this, 'generate_cards' ),
 				'allow_blog_token_when_site_is_private' => true,
 				'permission_callback'                   => '__return_true',
 			)
@@ -76,6 +94,16 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 		$blocks = array_values( array_filter( $blocks, 'is_array' ) );
 
 		return Jetpack_Tweetstorm_Helper::parse( $blocks );
+	}
+
+	/**
+	 * Grab the card content for a list of URLs.
+	 *
+	 * @param  WP_REST_Request $request The request.
+	 * @return array The array of cards for the requested URLs.
+	 */
+	public function generate_cards( $request ) {
+		return Jetpack_Tweetstorm_Helper::generate_cards( $request['urls'] );
 	}
 }
 

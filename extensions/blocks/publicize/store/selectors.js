@@ -23,6 +23,21 @@ export function getMustReauthConnections( state ) {
 		.map( connection => connection.service_name );
 }
 
+export function getTweetTemplate( state ) {
+	const twitterAccount = state.connections?.find(
+		connection => 'twitter' === connection.service_name
+	);
+
+	return {
+		date: Date.now(),
+		name: 'Account Name',
+		profileImage:
+			twitterAccount?.profile_picture ||
+			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
+		screenName: twitterAccount?.display_name || '',
+	};
+}
+
 /**
  * Given a the state object, this will use the `tweets` property to generate an array of tweets.
  *
@@ -31,24 +46,15 @@ export function getMustReauthConnections( state ) {
  * @returns {Array} Array of tweets.
  */
 export function getTweetStorm( state ) {
-	const twitterAccount = state.connections?.find(
-		connection => 'twitter' === connection.service_name
-	);
-
-	const tweetTemplate = {
-		date: Date.now(),
-		name: 'Account Name',
-		profileImage:
-			twitterAccount?.profile_picture ||
-			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-		screenName: twitterAccount?.display_name || '',
-	};
+	const tweetTemplate = getTweetTemplate( state );
 
 	return state.tweets.map( tweet => ( {
 		...tweetTemplate,
 		text: tweet.text,
 		media: tweet.media,
 		tweet: tweet.tweet,
+		urls: tweet.urls,
+		card: getTwitterCardForURLs( state, tweet.urls ),
 	} ) );
 }
 
@@ -74,4 +80,29 @@ export function getTweetsForBlock( state, clientId ) {
 
 		return false;
 	} );
+}
+
+export function getTwitterCardForURLs( state, urls ) {
+	if ( ! urls ) {
+		return undefined;
+	}
+
+	return urls.reduce( ( foundCard, url ) => {
+		if ( foundCard ) {
+			return foundCard;
+		}
+
+		if ( state.twitterCards[ url ] && ! state.twitterCards[ url ].error ) {
+			return {
+				url,
+				...state.twitterCards[ url ],
+			};
+		}
+
+		return undefined;
+	}, undefined );
+}
+
+export function twitterCardIsCached( state, url ) {
+	return !! state.twitterCards[ url ];
 }

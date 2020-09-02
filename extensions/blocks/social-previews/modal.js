@@ -7,6 +7,7 @@
 /**
  * External dependencies
  */
+import { get } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { Modal, TabPanel } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -87,12 +88,15 @@ export default withSelect( ( select, props ) => {
 
 	const { getMedia, getUser } = select( 'core' );
 	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
+	const { getTweetTemplate, getTweetStorm } = select( 'jetpack/publicize' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
 	const user = authorId && getUser( authorId );
 
-	return {
+	const isTweetStorm = getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
+
+	const postData = {
 		post: getCurrentPost(),
 		title: getEditedPostAttribute( 'title' ),
 		description:
@@ -103,7 +107,29 @@ export default withSelect( ( select, props ) => {
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image: !! featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ) ),
-		isTweetStorm: getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
-		tweets: select( 'jetpack/publicize' ).getTweetStorm(),
+	};
+
+	let tweets = [];
+	if ( isTweetStorm ) {
+		tweets = getTweetStorm();
+	} else {
+		const meta = getEditedPostAttribute( 'meta' );
+		const postTitle = getEditedPostAttribute( 'title' );
+		const text = get( meta, [ 'jetpack_publicize_message' ], postTitle );
+
+		tweets.push( {
+			...getTweetTemplate(),
+			text,
+			card: {
+				...postData,
+				type: postData.image ? 'summary_large_image' : 'summary',
+			},
+		} );
+	}
+
+	return {
+		...postData,
+		tweets,
+		isTweetStorm,
 	};
 } )( SocialPreviewsModal );

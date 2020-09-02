@@ -4,28 +4,22 @@
 import { flatMap, throttle } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { serialize } from '@wordpress/blocks';
-import { select } from '@wordpress/data';
+import { select, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { SUPPORTED_BLOCKS } from '../twitter';
-import { setConnectionTestResults, setTweets } from './actions';
 
 /**
  * Effect handler which will refresh the connection test results.
  *
- * @param {object} action - Action which had initiated the effect handler.
- * @param {object} store - Store instance.
- *
  * @returns {object} Refresh connection test results action.
  */
-export async function refreshConnectionTestResults( action, store ) {
-	const { dispatch } = store;
-
+export async function refreshConnectionTestResults() {
 	try {
 		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
-		return dispatch( setConnectionTestResults( results ) );
+		return dispatch( 'jetpack/publicize' ).setConnectionTestResults( results );
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
@@ -51,14 +45,9 @@ export const computeTweetBlocks = ( blocks = [] ) => {
 /**
  * Handle sending the tweet refresh request.
  *
- * @param {object} action - Action which had initiated the effect handler.
- * @param {object} store - Store instance.
- *
  * @returns {object} Refresh tweets results action.
  */
-async function __refreshTweets( action, store ) {
-	const { dispatch } = store;
-
+async function __refreshTweets() {
 	const topBlocks = select( 'core/editor' ).getBlocks();
 
 	const tweetBlocks = computeTweetBlocks( topBlocks );
@@ -75,7 +64,12 @@ async function __refreshTweets( action, store ) {
 			},
 			method: 'POST',
 		} );
-		return dispatch( setTweets( results ) );
+
+		// Start generating any missing Twitter cards.
+		const urls = flatMap( results, block => block.urls );
+		dispatch( 'jetpack/publicize' ).getTwitterCards( urls );
+
+		return dispatch( 'jetpack/publicize' ).setTweets( results );
 	} catch ( error ) {
 		// Refreshing tweets failed
 	}
@@ -86,13 +80,32 @@ async function __refreshTweets( action, store ) {
  * to once ever 2 seconds.
  *
  * @param {object} action - Action which had initiated the effect handler.
- * @param {object} store - Store instance.
  *
  * @returns {object} Refresh tweets results action.
  */
 export const refreshTweets = throttle( __refreshTweets, 2000, { leading: true, trailing: true } );
 
+export async function getTwitterCardsEffect( action ) {
+	if ( 0 === action.urls.length ) {
+		return dispatch( 'jetpack/publicize' ).setTwitterCards( [] );
+	}
+
+	try {
+		const results = await apiFetch( {
+			path: '/wpcom/v2/tweetstorm/generate-cards',
+			data: {
+				urls: action.urls,
+			},
+			method: 'POST',
+		} );
+		return dispatch( 'jetpack/publicize' ).setTwitterCards( results );
+	} catch ( error ) {
+		// Refreshing tweets failed
+	}
+}
+
 export default {
 	REFRESH_CONNECTION_TEST_RESULTS: refreshConnectionTestResults,
 	REFRESH_TWEETS: refreshTweets,
+	GET_TWITTER_CARDS: getTwitterCardsEffect,
 };

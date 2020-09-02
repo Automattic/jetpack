@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { select } from '@wordpress/data';
+
+/**
  * Returns an action object used in signalling that
  * we're setting the Publicize connection test results.
  *
@@ -64,5 +69,21 @@ export function setTweets( tweets ) {
 	return {
 		type: 'SET_TWEETS',
 		tweets,
+	};
+}
+
+export function getTwitterCards( urls ) {
+	const { twitterCardIsCached } = select( 'jetpack/publicize' );
+
+	return {
+		type: 'GET_TWITTER_CARDS',
+		urls: urls.filter( url => ! twitterCardIsCached( url ) ),
+	};
+}
+
+export function setTwitterCards( cards ) {
+	return {
+		type: 'SET_TWITTER_CARDS',
+		cards,
 	};
 }
