@@ -20,7 +20,6 @@ const Edit = props => {
 	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
 	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
 	const [ products, setProducts ] = useState( [] );
-	const [ siteSlug, setSiteSlug ] = useState( '' );
 
 	const apiError = message => {
 		setLoadingError( message );
@@ -51,7 +50,6 @@ const Edit = props => {
 		}
 		setShouldUpgrade( result.should_upgrade_to_access_memberships );
 		setStripeConnectUrl( result.connect_url );
-		setSiteSlug( result.site_slug );
 
 		const filteredProducts = filterProducts( result.products );
 
@@ -91,7 +89,6 @@ const Edit = props => {
 			{ ...props }
 			products={ products }
 			shouldUpgrade={ shouldUpgrade }
-			siteSlug={ siteSlug }
 			stripeConnectUrl={ stripeConnectUrl }
 		/>
 	);
