@@ -140,6 +140,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'postsPerPage'          => $posts_per_page,
 			'siteId'                => $this->jetpack_blog_id,
 			'postTypes'             => $post_type_labels,
+			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
+
+			// config values related to private site support.
+			'apiRoot'               => esc_url_raw( rest_url() ),
+			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+			'isPrivateSite'         => '-1' === get_option( 'blog_public' ),
+			'isWpcom'               => defined( 'IS_WPCOM' ) && IS_WPCOM,
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
