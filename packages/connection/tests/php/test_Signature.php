@@ -34,7 +34,7 @@ class SignatureTest extends TestCase {
 	 * The test data arrays have the format:
 	 *    'name'            => The value that the constant will be set to. Null if the constant will not be set.
 	 *    'value'           => The name of the constant.
-	 *    'expected_output' => The expected output of Utils::jetpack_api_constant_filter().
+	 *    'expected_output' => The expected output of $signature->join_with_equal_sign.
 	 */
 	public function join_with_equal_sign_data_provider() {
 		return array(
@@ -120,7 +120,7 @@ class SignatureTest extends TestCase {
 	 * The test data arrays have the format:
 	 *    'name'            => The value that the constant will be set to. Null if the constant will not be set.
 	 *    'value'           => The name of the constant.
-	 *    'expected_output' => The expected output of Utils::jetpack_api_constant_filter().
+	 *    'expected_output' => The expected output of $signature->normalized_query_parameters().
 	 */
 	public function normalized_query_parameters_data_provider() {
 		return array(
@@ -146,7 +146,7 @@ class SignatureTest extends TestCase {
 							'fields[0]=date',
 							'fields[1]=permalink.url.raw',
 						),
-						// Note that aggregations has been sorted below aggregations and fields.
+						// Note that highlight_fields has been sorted below aggregations and fields.
 						array(
 							'highlight_fields[0]=title',
 							'highlight_fields[1]=content',
