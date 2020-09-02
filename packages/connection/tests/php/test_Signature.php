@@ -50,6 +50,15 @@ class SignatureTest extends TestCase {
 					'value'           => array( 'Michael', 'Jim', 'Pam' ),
 					'expected_output' => array( 'first_names[0]=Michael', 'first_names[1]=Jim', 'first_names[2]=Pam' ),
 				),
+			'associative_array_value'        =>
+				array(
+					'name'            => 'numbers',
+					'value'           => array(
+						'one' => 1,
+						'two' => 2,
+					),
+					'expected_output' => array( 'numbers[one]=1', 'numbers[two]=2' ),
+				),
 			'nested_array_value'             =>
 				array(
 					'name'            => 'numbers',
