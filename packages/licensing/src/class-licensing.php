@@ -125,7 +125,7 @@ class Licensing {
 	 * @return Jetpack_IXR_ClientMulticall
 	 */
 	protected function attach_licenses_request( array $licenses ) {
-		$xml = new Jetpack_IXR_ClientMulticall( array( 'user_id' => JETPACK_MASTER_USER ) );
+		$xml = new Jetpack_IXR_ClientMulticall();
 
 		foreach ( $licenses as $license ) {
 			$xml->addCall( 'jetpack.attachLicense', $license );
