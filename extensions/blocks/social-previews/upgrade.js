@@ -33,7 +33,7 @@ export default function SocialPreviewsUpgrade() {
 			/>
 			<div className="jetpack-social-previews__upgrade-description">
 				<h2 className="jetpack-social-previews__upgrade-heading">
-					{ __( 'Upgrade to a Business Plan to unlock the power of our SEO tools', 'jetpack' ) }
+					{ __( 'Upgrade to a Business plan to unlock the power of our SEO tools', 'jetpack' ) }
 				</h2>
 				<ul className="jetpack-social-previews__upgrade-feature-list">
 					<li>
@@ -50,7 +50,7 @@ export default function SocialPreviewsUpgrade() {
 					</li>
 					<li>
 						{ __(
-							'Customize your front page meta data to change how your site appears to search engines.',
+							'Customize your front page metadata to change how your site appears to search engines.',
 							'jetpack'
 						) }
 					</li>
@@ -58,7 +58,7 @@ export default function SocialPreviewsUpgrade() {
 				<Button
 					href={ href } // Only for server-side rendering, since onClick doesn't work there.
 					isPrimary
-					label={ __( 'Purchase a business plan to access social previews', 'jetpack' ) }
+					label={ __( 'Purchase a Business plan to access social previews', 'jetpack' ) }
 					onClick={ autosaveAndRedirect }
 					target="_top"
 					isBusy={ isRedirecting }
