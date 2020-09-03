@@ -43,7 +43,10 @@ export default function ( state = DEFAULT_STATE, action ) {
 		case 'SET_TWITTER_CARDS':
 			return {
 				...state,
-				twitterCards: action.cards,
+				twitterCards: {
+					...state.twitterCards,
+					...action.cards,
+				},
 			};
 	}
 

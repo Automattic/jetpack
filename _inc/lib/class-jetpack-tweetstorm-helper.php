@@ -1310,7 +1310,7 @@ class Jetpack_Tweetstorm_Helper {
 				foreach ( $filters as $attribute => $value ) {
 					$found_data = self::extract_attr_content_from_html( 'meta', 'content', $result->body, array( $attribute => $value ) );
 					if ( count( $found_data ) > 0 && strlen( $found_data[0] ) > 0 ) {
-						$url_card_data[ $key ] = html_entity_decode( $found_data[0] );
+						$url_card_data[ $key ] = html_entity_decode( $found_data[0], ENT_QUOTES );
 						break;
 					}
 				}
