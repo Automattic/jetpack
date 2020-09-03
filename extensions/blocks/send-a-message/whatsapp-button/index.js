@@ -6,7 +6,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getIconColor } from '../../shared/block-icons';
+import { getIconColor } from '../../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
