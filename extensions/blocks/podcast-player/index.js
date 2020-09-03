@@ -83,8 +83,8 @@ export const settings = {
 	attributes,
 	example: {
 		attributes: {
-			customPrimaryColor: '#00be28',
-			hexPrimaryColor: '#00be28',
+			customPrimaryColor: getIconColor(),
+			hexPrimaryColor: getIconColor(),
 			exampleFeedData: {
 				title: __( 'Jetpack Example Podcast', 'jetpack' ),
 				link: 'https://jetpack.com',
