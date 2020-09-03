@@ -6,19 +6,12 @@
  * @package automattic/jetpack-autoloader
  */
 
-namespace Jetpack\TestCase_ABC;
+// phpcs:disable Generic.Classes.DuplicateClassName.Found
+
+namespace Jetpack\AutoloaderTestData\Plugin;
 
 /**
- * Class ClassName_ABC.
+ * Class Test.
  */
-class ClassName_ABC {
-
-	/**
-	 * Returns True.
-	 *
-	 * @return bool
-	 */
-	public function return_true() {
-		return true;
-	}
+class Test {
 }
