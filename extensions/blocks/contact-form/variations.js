@@ -8,9 +8,10 @@ import { getIconColor } from '../../shared/block-icons';
 /**
  * Internal dependencies
  */
+import { isSimpleSite } from '../../shared/site-type-utils';
 import renderMaterialIcon from '../../shared/render-material-icon';
 
-const variations = [
+const availableVariations = [
 	{
 		name: 'contact-form',
 		title: __( 'Contact Form', 'jetpack' ),
@@ -37,35 +38,37 @@ const variations = [
 			],
 		],
 	},
-	{
-		name: 'newsletter-form',
-		title: __( 'Newsletter Sign-up', 'jetpack' ),
-		description: __(
-			'A simple way to collect information from folks visiting your site.',
-			'jetpack'
-		),
-		icon: {
-			src: renderMaterialIcon(
-				<Path d="M37.9999 7.59998C49.3999 7.59998 68.3999 26.6 68.3999 26.6V68.4H7.59985V26.6C7.59985 26.6 26.5999 7.59998 37.9999 7.59998ZM64.5999 63.536L50.4259 52.44L64.5999 41.8L62.9659 40.394L54.3779 45.334L55.2899 28.956L21.9639 26.98L20.2159 44.232L12.6539 40.622L11.3999 41.8L25.5739 52.44L12.5019 63.27L14.0219 64.904L37.9999 49.4L62.8139 65.17L64.5999 63.536Z" />,
-				48,
-				48,
-				'-6 -6 92 92'
-			),
-			foreground: getIconColor(),
-		},
-		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-consent', {} ],
-			[
-				'jetpack/button',
-				{
-					text: __( 'Subscribe', 'jetpack' ),
-					element: 'button',
+	! isSimpleSite()
+		? {
+				name: 'newsletter-form',
+				title: __( 'Newsletter Sign-up', 'jetpack' ),
+				description: __(
+					'A simple way to collect information from folks visiting your site.',
+					'jetpack'
+				),
+				icon: {
+					src: renderMaterialIcon(
+						<Path d="M37.9999 7.59998C49.3999 7.59998 68.3999 26.6 68.3999 26.6V68.4H7.59985V26.6C7.59985 26.6 26.5999 7.59998 37.9999 7.59998ZM64.5999 63.536L50.4259 52.44L64.5999 41.8L62.9659 40.394L54.3779 45.334L55.2899 28.956L21.9639 26.98L20.2159 44.232L12.6539 40.622L11.3999 41.8L25.5739 52.44L12.5019 63.27L14.0219 64.904L37.9999 49.4L62.8139 65.17L64.5999 63.536Z" />,
+						48,
+						48,
+						'-6 -6 92 92'
+					),
+					foreground: getIconColor(),
 				},
-			],
-		],
-	},
+				innerBlocks: [
+					[ 'jetpack/field-name', { required: true } ],
+					[ 'jetpack/field-email', { required: true } ],
+					[ 'jetpack/field-consent', {} ],
+					[
+						'jetpack/button',
+						{
+							text: __( 'Subscribe', 'jetpack' ),
+							element: 'button',
+						},
+					],
+				],
+		  }
+		: null,
 	{
 		name: 'rsvp-form',
 		title: __( 'RSVP Form', 'jetpack' ),
@@ -229,5 +232,7 @@ const variations = [
 		},
 	},
 ];
+
+const variations = availableVariations.filter( Boolean );
 
 export default variations;
