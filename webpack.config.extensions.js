@@ -144,6 +144,10 @@ module.exports = [
 				/^@wordpress\/i18n$/,
 				path.join( __dirname, './extensions/shared/i18n-to-php' )
 			),
+			new webpack.NormalModuleReplacementPlugin(
+				/^@wordpress\/element$/,
+				path.join( __dirname, './extensions/shared/element-to-php' )
+			),
 			new StaticSiteGeneratorPlugin( {
 				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
 				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
