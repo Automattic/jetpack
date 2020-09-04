@@ -11,7 +11,6 @@
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_dirFound
 // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
@@ -48,23 +47,31 @@ class AutoloadGenerator extends BaseGenerator {
 AUTOLOADER_COMMENT;
 
 	/**
+	 * The filesystem utility.
+	 *
+	 * @var Filesystem
+	 */
+	private $filesystem;
+
+	/**
 	 * Instantiate an AutoloadGenerator object.
 	 *
 	 * @param IOInterface $io IO object.
 	 */
 	public function __construct( IOInterface $io = null ) {
-		$this->io = $io;
+		$this->io         = $io;
+		$this->filesystem = new Filesystem();
 	}
 
 	/**
-	 * Dump the autoloader.
+	 * Dump the Jetpack autoloader files.
 	 *
 	 * @param Config                       $config Config object.
 	 * @param InstalledRepositoryInterface $localRepo Installed Reposetories object.
 	 * @param PackageInterface             $mainPackage Main Package object.
 	 * @param InstallationManager          $installationManager Manager for installing packages.
 	 * @param string                       $targetDir Path to the current target directory.
-	 * @param bool                         $scanPsr0Packages Whether to search for packages. Currently hard coded to always be false.
+	 * @param bool                         $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
 	 * @param string                       $suffix The autoloader suffix.
 	 */
 	public function dump(
@@ -73,56 +80,30 @@ AUTOLOADER_COMMENT;
 		PackageInterface $mainPackage,
 		InstallationManager $installationManager,
 		$targetDir,
-		$scanPsr0Packages = null, // Not used we always optimize.
+		$scanPsrPackages = false,
 		$suffix = null
 	) {
-
-		$filesystem = new Filesystem();
-		$filesystem->ensureDirectoryExists( $config->get( 'vendor-dir' ) );
-
-		$basePath   = $filesystem->normalizePath( realpath( getcwd() ) );
-		$vendorPath = $filesystem->normalizePath( realpath( $config->get( 'vendor-dir' ) ) );
-		$targetDir  = $vendorPath . '/' . $targetDir;
-		$filesystem->ensureDirectoryExists( $targetDir );
+		$this->filesystem->ensureDirectoryExists( $config->get( 'vendor-dir' ) );
 
 		$packageMap = $this->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
 		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage );
 
-		$classMap = $this->getClassMap( $autoloads, $filesystem, $vendorPath, $basePath );
-		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
+		// Convert the autoloads into a format that the manifest generator can consume more easily.
+		$basePath           = $this->filesystem->normalizePath( realpath( getcwd() ) );
+		$vendorPath         = $this->filesystem->normalizePath( realpath( $config->get( 'vendor-dir' ) ) );
+		$processedAutoloads = $this->processAutoloads( $autoloads, $scanPsrPackages, $vendorPath, $basePath );
+		unset( $packageMap, $autoloads );
 
-		// Remove a file that was generated in versions 2.0.0 to 2.1.0.
-		$filesystem->remove( $vendorPath . '/autoload_functions.php' );
+		// Make sure none of the legacy files remain that can lead to problems with the autoloader.
+		$this->removeLegacyFiles( $vendorPath );
 
-		// Generate the files.
-		file_put_contents( $targetDir . '/jetpack_autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_classmap.php</info>', true );
+		// Write all of the files now that we're done.
+		$this->writeAutoloaderFiles( $vendorPath . '/jetpack-autoloader/', $suffix );
+		$this->writeManifests( $vendorPath . '/' . $targetDir, $processedAutoloads );
 
-		file_put_contents( $targetDir . '/jetpack_autoload_filemap.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_filemap.php</info>', true );
-
-		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( 'autoload.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
-
-		$jetpackAutoloaderDir = $vendorPath . '/jetpack-autoloader';
-		$filesystem->ensureDirectoryExists( $jetpackAutoloaderDir );
-		file_put_contents( $jetpackAutoloaderDir . '/autoload_functions.php', $this->getAutoloadPackageFile( 'functions.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $jetpackAutoloaderDir . '/jetpack-autoloader/autoload_functions.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-autoloader-handler.php', $this->getAutoloadPackageFile( 'class-autoloader-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-autoloader-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-classes-handler.php', $this->getAutoloadPackageFile( 'class-classes-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-classes-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-files-handler.php', $this->getAutoloadPackageFile( 'class-files-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-files-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-plugins-handler.php', $this->getAutoloadPackageFile( 'class-plugins-handler.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-plugins-handler.php</info>', true );
-
-		file_put_contents( $vendorPath . '/class-version-selector.php', $this->getAutoloadPackageFile( 'class-version-selector.php', $suffix ) );
-		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-version-selector.php</info>', true );
+		if ( ! $scanPsrPackages ) {
+			$this->io->writeError( '<warning>You are generating an unoptimized autoloader. If this is a production build, consider using the -o option.</warning>' );
+		}
 	}
 
 	/**
@@ -182,7 +163,7 @@ AUTOLOADER_COMMENT;
 				}
 			}
 			if ( 'files' === $type && isset( $autoload['files'] ) && is_array( $autoload['files'] ) ) {
-				foreach ( $autoload['files'] as $file_id => $paths ) {
+				foreach ( $autoload['files'] as $paths ) {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
@@ -199,145 +180,128 @@ AUTOLOADER_COMMENT;
 	}
 
 	/**
-	 * Take the autoloads array and return the classMap that contains the path and the version for each namespace.
+	 * Given Composer's autoloads this will convert them to a version that we can use to generate the manifests.
 	 *
-	 * @param array      $autoloads Array of autoload settings defined defined by the packages.
-	 * @param Filesystem $filesystem Filesystem class instance.
-	 * @param string     $vendorPath Path to the vendor directory.
-	 * @param string     $basePath Base Path.
+	 * @param array  $autoloads The autoloads we want to process.
+	 * @param bool   $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
+	 * @param string $vendorPath The path to the vendor directory.
+	 * @param string $basePath The path to the current directory.
 	 *
-	 * @return string $classMap
+	 * @return array $processedAutoloads
 	 */
-	private function getClassMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
-		$blacklist = null;
-
-		if ( ! empty( $autoloads['exclude-from-classmap'] ) ) {
-			$blacklist = '{(' . implode( '|', $autoloads['exclude-from-classmap'] ) . ')}';
-		}
-
-		$classmapString = '';
-
-		// Scan the PSR-4 and classmap directories for class files, and add them to the class map.
-		foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
-			foreach ( $packages_info as $package ) {
-				$dir       = $filesystem->normalizePath(
-					$filesystem->isAbsolutePath( $package['path'] )
-						? $package['path']
-						: $basePath . '/' . $package['path']
+	private function processAutoloads( $autoloads, $scanPsrPackages, $vendorPath, $basePath ) {
+		$processor = new AutoloadProcessor(
+			function ( $path, $excludedClasses, $namespace ) use ( $basePath ) {
+				$dir = $this->filesystem->normalizePath(
+					$this->filesystem->isAbsolutePath( $path ) ? $path : $basePath . '/' . $path
 				);
-				$namespace = empty( $namespace ) ? null : $namespace;
-				$map       = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, $namespace );
+				return ClassMapGenerator::createMap(
+					$dir,
+					$excludedClasses,
+					null, // Don't pass the IOInterface since the normal autoload generation will have reported already.
+					empty( $namespace ) ? null : $namespace
+				);
+			},
+			function ( $path ) use ( $basePath, $vendorPath ) {
+				return $this->getPathCode( $this->filesystem, $basePath, $vendorPath, $path );
+			}
+		);
 
-				foreach ( $map as $class => $path ) {
-					$classCode       = var_export( $class, true );
-					$pathCode        = $this->getPathCode( $filesystem, $basePath, $vendorPath, $path );
-					$versionCode     = var_export( $package['version'], true );
-					$classmapString .= <<<CLASS_CODE
-	$classCode => array(
-		'version' => $versionCode,
-		'path'    => $pathCode
-	),
-CLASS_CODE;
-					$classmapString .= PHP_EOL;
-				}
+		return array(
+			'psr-4'    => $processor->processPsr4Packages( $autoloads, $scanPsrPackages ),
+			'classmap' => $processor->processClassmap( $autoloads, $scanPsrPackages ),
+			'files'    => $processor->processFiles( $autoloads ),
+		);
+	}
+
+	/**
+	 * Removes all of the legacy autoloader files so they don't cause any problems.
+	 *
+	 * @param string $outDir The directory legacy files are written to.
+	 */
+	private function removeLegacyFiles( $outDir ) {
+		$files = array(
+			'autoload_functions.php',
+			'class-autoloader-handler.php',
+			'class-classes-handler.php',
+			'class-files-handler.php',
+			'class-plugins-handler.php',
+			'class-version-selector.php',
+		);
+		foreach ( $files as $file ) {
+			$this->filesystem->remove( $outDir . '/' . $file );
+		}
+	}
+
+	/**
+	 * Writes all of the autoloader files to disk.
+	 *
+	 * @param string $outDir The directory to write to.
+	 * @param string $suffix The unique autoloader suffix.
+	 */
+	private function writeAutoloaderFiles( $outDir, $suffix ) {
+		$this->io->writeError( "<info>Generating jetpack autoloader ($outDir)</info>" );
+
+		// We will remove all autoloader files to generate this again.
+		$this->filesystem->emptyDirectory( $outDir );
+
+		$packageFiles = array(
+			'autoload.php'                 => '../autoload_packages.php',
+			'functions.php'                => 'autoload_functions.php',
+			'class-autoloader-locator.php' => null,
+			'class-autoloader-handler.php' => null,
+			'class-manifest-handler.php'   => null,
+			'class-plugins-handler.php'    => null,
+			'class-version-selector.php'   => null,
+			'class-version-loader.php'     => null,
+		);
+
+		foreach ( $packageFiles as $file => $newFile ) {
+			$newFile = isset( $newFile ) ? $newFile : $file;
+
+			$content = $this->getAutoloadPackageFile( $file, $suffix );
+
+			if ( file_put_contents( $outDir . '/' . $newFile, $content ) ) {
+				$this->io->writeError( "  <info>Generated: $newFile</info>" );
+			} else {
+				$this->io->writeError( "  <error>Error: $newFile</error>" );
 			}
 		}
+	}
 
-		foreach ( $autoloads['classmap'] as $package ) {
-			$dir = $filesystem->normalizePath(
-				$filesystem->isAbsolutePath( $package['path'] )
-					? $package['path']
-					: $basePath . '/' . $package['path']
-			);
-			$map = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, null );
+	/**
+	 * Writes all of the manifest files to disk.
+	 *
+	 * @param string $outDir The directory to write to.
+	 * @param array  $processedAutoloads The processed autoloads.
+	 */
+	private function writeManifests( $outDir, $processedAutoloads ) {
+		$this->io->writeError( "<info>Generating jetpack autoloader manifests ($outDir)</info>" );
 
-			foreach ( $map as $class => $path ) {
-				$classCode       = var_export( $class, true );
-				$pathCode        = $this->getPathCode( $filesystem, $basePath, $vendorPath, $path );
-				$versionCode     = var_export( $package['version'], true );
-				$classmapString .= <<<CLASS_CODE
-	$classCode => array(
-		'version' => $versionCode,
-		'path'    => $pathCode
-	),
-CLASS_CODE;
-				$classmapString .= PHP_EOL;
+		$manifestFiles = array(
+			'classmap' => 'jetpack_autoload_classmap.php',
+			'psr-4'    => 'jetpack_autoload_psr4.php',
+			'files'    => 'jetpack_autoload_filemap.php',
+		);
+
+		foreach ( $manifestFiles as $key => $file ) {
+			// Make sure the file doesn't exist so it isn't there if we don't write it.
+			$this->filesystem->remove( $outDir . '/' . $file );
+			if ( empty( $processedAutoloads[ $key ] ) ) {
+				continue;
+			}
+
+			$content = ManifestGenerator::buildManifest( $key, $file, $processedAutoloads[ $key ] );
+			if ( empty( $content ) ) {
+				continue;
+			}
+
+			if ( file_put_contents( $outDir . '/' . $file, $content ) ) {
+				$this->io->writeError( "  <info>Generated: $file</info>" );
+			} else {
+				$this->io->writeError( "  <error>Error: $file</error>" );
 			}
 		}
-
-		return 'array( ' . PHP_EOL . $classmapString . ');' . PHP_EOL;
-	}
-
-	/**
-	 * Generate the PHP that will be used in the autoload_classmap_package.php files.
-	 *
-	 * @param string $classMap class map array string that is to be written out to the file.
-	 *
-	 * @return string
-	 */
-	private function getAutoloadClassmapPackagesFile( $classMap ) {
-
-		return <<<INCLUDE_CLASSMAP
-<?php
-
-// This file `autoload_classmap_packages.php` was auto generated by automattic/jetpack-autoloader.
-
-\$vendorDir = dirname(__DIR__);
-\$baseDir   = dirname(\$vendorDir);
-
-return $classMap
-
-INCLUDE_CLASSMAP;
-	}
-
-	/**
-	 * Take the autoloads array and return the fileMap that contains the path and the version for each namespace.
-	 *
-	 * @param array      $autoloads Array of autoload settings defined defined by the packages.
-	 * @param Filesystem $filesystem Filesystem class instance.
-	 * @param string     $vendorPath Path to the vendor directory.
-	 * @param string     $basePath Base Path.
-	 *
-	 * @return string $fileMap
-	 */
-	private function getFileMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
-		$fileMapString = '';
-		foreach ( $autoloads['files'] as $file_id => $package ) {
-			$key            = var_export( $file_id, true );
-			$pathCode       = $this->getPathCode( $filesystem, $basePath, $vendorPath, $package['path'] );
-			$versionCode    = var_export( $package['version'], true );
-			$fileMapString .= <<<FILE_CODE
-	$key => array(
-		'version' => $versionCode,
-		'path'    => $pathCode
-	),
-FILE_CODE;
-			$fileMapString .= PHP_EOL;
-		}
-
-		return 'array( ' . PHP_EOL . $fileMapString . ');' . PHP_EOL;
-	}
-
-	/**
-	 * Generate the PHP that will be used in the autoload_files_package.php files.
-	 *
-	 * @param string $filesMap files array as string that is to be written out to the file.
-	 *
-	 * @return string
-	 */
-	private function getAutoloadFilesPackagesFile( $filesMap ) {
-
-		return <<<INCLUDE_FILEMAP
-<?php
-
-// This file `autoload_files_packages.php` was auto generated by automattic/jetpack-autoloader.
-
-\$vendorDir = dirname(__DIR__);
-\$baseDir   = dirname(\$vendorDir);
-
-return $filesMap
-
-INCLUDE_FILEMAP;
 	}
 
 	/**

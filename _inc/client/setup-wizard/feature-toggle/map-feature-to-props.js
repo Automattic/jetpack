@@ -11,7 +11,7 @@ import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import restApi from 'rest-api';
 import { getVaultPressData, isAkismetKeyValid } from 'state/at-a-glance';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting, updateSettings } from 'state/settings';
 import {
@@ -312,6 +312,8 @@ const features = {
 				state,
 				'creative-mail-by-constant-contact/creative-mail-plugin.php'
 			);
+			const siteAdminUrl = getSiteAdminUrl( state );
+			const creativeMailConfigureLink = siteAdminUrl + 'admin.php?page=creativemail';
 
 			return {
 				feature: 'creative-mail',
@@ -320,7 +322,7 @@ const features = {
 				checked: isCreativeMailActive,
 				isDisabled: true,
 				isPaid: true,
-				configureLink: isCreativeMailActive ? '/wp-admin/admin.php?page=creativemail' : null,
+				configureLink: isCreativeMailActive ? creativeMailConfigureLink : null,
 				learnMoreLink:
 					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
 				isLearnMoreLinkExternal: true,
