@@ -60,7 +60,7 @@ function load_assets( $attributes ) {
 		$attributes = array_merge( $attributes, array( 'style' => 'standard' ) );
 		$classes[]  = 'is-style-mobile';
 	}
-	
+
 	// Handles case of deprecated version using theme instead of block styles.
 	if ( ! $class_name || strpos( $class_name, 'is-style-' ) === false ) {
 		$classes[] = sprintf( 'is-style-%s', $style );
@@ -74,7 +74,7 @@ function load_assets( $attributes ) {
 	}
 	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, $classes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
-	
+
 	// The OpenTable script uses multiple `rid` paramters,
 	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
 	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
