@@ -35,6 +35,7 @@ export default class SimpleNotice extends React.Component {
 			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) ),
 		] ),
 		icon: PropTypes.string,
+		onDismissClick: PropTypes.func,
 		className: PropTypes.string,
 	};
 

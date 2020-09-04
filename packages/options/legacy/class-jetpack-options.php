@@ -112,6 +112,7 @@ class Jetpack_Options {
 			'first_admin_view',             // (bool)   Set to true the first time the user views the admin. Usually after the initial connection.
 			'setup_wizard_questionnaire',   // (array)  List of user choices from the setup wizard.
 			'setup_wizard_status',          // (string) Status of the setup wizard.
+			'licensing_error',              // (string) Last error message occurred while attaching licenses that is yet to be surfaced to the user.
 		);
 	}
 

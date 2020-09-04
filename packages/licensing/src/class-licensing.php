@@ -62,7 +62,6 @@ class Licensing {
 	public function initialize() {
 		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'attach_stored_licenses_on_connection' ) );
-		add_action( 'load-toplevel_page_jetpack', array( $this, 'surface_error' ) );
 	}
 
 	/**
@@ -87,21 +86,7 @@ class Licensing {
 	 * @return void
 	 */
 	protected function log_error( $error ) {
-		set_transient( self::ERROR_TRANSIENT_NAME, $error );
-	}
-
-	/**
-	 * Surface a previously logged error (if any) to the user in the form of an admin notice.
-	 *
-	 * @return void
-	 */
-	public function surface_error() {
-		$error = get_transient( self::ERROR_TRANSIENT_NAME );
-		delete_transient( self::ERROR_TRANSIENT_NAME );
-
-		if ( $error ) {
-			Jetpack::state( 'error', $error );
-		}
+		Jetpack_Options::update_option( 'licensing_error', $error );
 	}
 
 	/**

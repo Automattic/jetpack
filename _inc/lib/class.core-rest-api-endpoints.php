@@ -615,6 +615,34 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		/*
+		 * Get and update the last licensing error message.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/error',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_licensing_error',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_licensing_error',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'args'                => array(
+						'error' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -3763,5 +3791,31 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'code' => 'success',
 			)
 		);
+	}
+
+	/**
+	 * Get the last licensing error message, if any.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @return string Licensing error message or empty string.
+	 */
+	public static function get_licensing_error() {
+		return Jetpack_Options::get_option( 'licensing_error', '' );
+	}
+
+	/**
+	 * Update the last licensing error message.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return bool true.
+	 */
+	public static function update_licensing_error( $request ) {
+		Jetpack_Options::update_option( 'licensing_error', $request['error'] );
+
+		return true;
 	}
 } // class end
