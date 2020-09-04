@@ -99,7 +99,6 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @param Event $event Script event object.
 	 */
 	public function postAutoloadDump( Event $event ) {
-
 		$config = $this->composer->getConfig();
 
 		if ( 'vendor' !== $config->raw()['config']['vendor-dir'] ) {
@@ -113,7 +112,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		$repoManager         = $this->composer->getRepositoryManager();
 		$localRepo           = $repoManager->getLocalRepository();
 		$package             = $this->composer->getPackage();
-		$optimize            = true;
+		$optimize            = $event->getFlags()['optimize'];
 		$suffix              = $config->get( 'autoloader-suffix' )
 			? $config->get( 'autoloader-suffix' )
 			: md5( uniqid( '', true ) );
