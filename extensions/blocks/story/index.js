@@ -10,6 +10,7 @@ import edit from './edit';
 import save from './save';
 import icon from './icon';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Example Images
@@ -58,7 +59,10 @@ export const settings = {
 		html: false,
 		inserter: true, // toggle to false before merging to BETA blocks
 	},
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	edit,
 	save,
 	example: {

@@ -10,6 +10,7 @@ import attributes from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
+import { getIconColor } from '../../shared/block-icons';
 import save from './save';
 
 export const innerButtonBlock = {
@@ -25,7 +26,10 @@ export const name = 'revue';
 export const settings = {
 	title: __( 'Revue', 'jetpack' ),
 	description: __( 'Add a subscription form for your Revue newsletter.', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'grow',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),

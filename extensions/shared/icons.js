@@ -3,11 +3,17 @@
  */
 import { G, Icon, Path, Polygon, Rect, SVG } from '@wordpress/components';
 import classNames from 'classnames';
+import { colors as PALETTE } from '@automattic/color-studio';
 
 /**
  * Internal dependencies
  */
 import './icons.scss';
+
+/**
+ * Constants
+ */
+const COLOR_JETPACK = PALETTE[ 'Jetpack Green 40' ];
 
 export const MediaLibraryIcon = () => (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -88,7 +94,7 @@ export const JetpackLogo = ( { size = 24, className } ) => (
 	>
 		<Path
 			className="jetpack-logo__icon-circle"
-			fill="#00be28"
+			fill={ COLOR_JETPACK }
 			d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
 		/>
 		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="15,19 7,19 15,3 " />

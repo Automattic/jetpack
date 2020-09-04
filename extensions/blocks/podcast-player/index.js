@@ -15,6 +15,7 @@ import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import save from './save';
 import { queueMusic } from './icons/';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -28,7 +29,10 @@ export const title = __( 'Podcast Player', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
-	icon: queueMusic,
+	icon: {
+		src: queueMusic,
+		foreground: getIconColor(),
+	},
 	category: 'embed',
 	keywords: [
 		_x( 'audio', 'block search term', 'jetpack' ),
@@ -79,8 +83,8 @@ export const settings = {
 	attributes,
 	example: {
 		attributes: {
-			customPrimaryColor: '#00be28',
-			hexPrimaryColor: '#00be28',
+			customPrimaryColor: getIconColor(),
+			hexPrimaryColor: getIconColor(),
 			exampleFeedData: {
 				title: __( 'Jetpack Example Podcast', 'jetpack' ),
 				link: 'https://jetpack.com',
