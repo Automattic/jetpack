@@ -6169,6 +6169,8 @@ endif;
 						$sync_error['wpcom_siteurl'] === $local_options['siteurl']
 				) {
 					$is_valid = false;
+					// Enable migrate_for_idc so that sync actions are accepted.
+					Jetpack_Options::update_option( 'migrate_for_idc', true );
 				} elseif ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
 				}
