@@ -57,7 +57,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function load_assets() {
 		$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
-		$style_relative_path  = '_inc/build/instant-search/instant-search.min.css';
+		$style_relative_path  = '_inc/build/instant-search/jp-search.bundle.css';
 		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) || ! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
 			return;
 		}
@@ -140,6 +140,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'postsPerPage'          => $posts_per_page,
 			'siteId'                => $this->jetpack_blog_id,
 			'postTypes'             => $post_type_labels,
+			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
+
+			// config values related to private site support.
+			'apiRoot'               => esc_url_raw( rest_url() ),
+			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+			'isPrivateSite'         => '-1' === get_option( 'blog_public' ),
+			'isWpcom'               => defined( 'IS_WPCOM' ) && IS_WPCOM,
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
@@ -163,7 +170,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$options = apply_filters( 'jetpack_instant_search_options', $options );
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));' );
+		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
 	}
 
 	/**
