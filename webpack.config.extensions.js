@@ -25,6 +25,11 @@ const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin
 const editorSetup = path.join( __dirname, 'extensions', 'editor' );
 const viewSetup = path.join( __dirname, 'extensions', 'view' );
 
+/**
+ * @param type
+ * @param inputDir
+ * @param presetBlocks
+ */
 function blockScripts( type, inputDir, presetBlocks ) {
 	return presetBlocks
 		.map( block => path.join( inputDir, 'blocks', block, `${ type }.js` ) )
@@ -139,37 +144,39 @@ module.exports = [
 				/^@wordpress\/i18n$/,
 				path.join( __dirname, './extensions/shared/i18n-to-php' )
 			),
-			new StaticSiteGeneratorPlugin( {
-				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
-				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
-				globals: {
-					Mousetrap: {
-						init: _.noop,
-						prototype: {},
-					},
-					document: {
-						addEventListener: _.noop,
-						createElement: _.noop,
-						head: { appendChild: _.noop },
-					},
-					navigator: {},
-					window: {
-						addEventListener: _.noop,
-						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
-						matchMedia: () => ( {
-							addListener: () => {},
-						} ),
-						navigator: { platform: '', userAgent: '' },
-						Node: {
-							TEXT_NODE: '',
-							ELEMENT_NODE: '',
-							DOCUMENT_POSITION_PRECEDING: '',
-							DOCUMENT_POSITION_FOLLOWING: '',
-						},
-						URL: {},
-					},
-				},
-			} ),
+			// new StaticSiteGeneratorPlugin( {
+			// 	// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
+			// 	// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
+			// 	globals: {
+			// 		Mousetrap: {
+			// 			init: _.noop,
+			// 			prototype: {},
+			// 		},
+			// 		document: {
+			// 			addEventListener: _.noop,
+			// 			createElement: _.noop,
+			// 			head: { appendChild: _.noop },
+			// 			documentElement: _.noop,
+			// 		},
+			// 		navigator: {},
+			// 		window: {
+			// 			addEventListener: _.noop,
+			// 			// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
+			// 			matchMedia: () => ( {
+			// 				addListener: () => {},
+			// 			} ),
+			// 			removeEventListener: _.noop,
+			// 			navigator: { platform: '', userAgent: '' },
+			// 			Node: {
+			// 				TEXT_NODE: '',
+			// 				ELEMENT_NODE: '',
+			// 				DOCUMENT_POSITION_PRECEDING: '',
+			// 				DOCUMENT_POSITION_FOLLOWING: '',
+			// 			},
+			// 			URL: {},
+			// 		},
+			// 	},
+			// } ),
 		],
 	},
 ];
