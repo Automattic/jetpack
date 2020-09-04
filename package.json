@@ -247,6 +247,9 @@
 		"**/postcss-selector-parser/dot-prop": "^5.1.1",
 		"**/lodash": "4.17.20",
 		"**/terser-webpack-plugin/serialize-javascript": "^3.1.0",
-		"**/copy-webpack-plugin/serialize-javascript": "^3.1.0"
+		"**/copy-webpack-plugin/serialize-javascript": "^3.1.0",
+		"**/@wordpress/blocks/showdown": "^1.9.1",
+		"**/gulp-sass/node-sass": "^4.12.0",
+		"**/tar-stream/bl": "^2.2.1"
 	}
 }
