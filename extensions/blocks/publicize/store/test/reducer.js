@@ -33,7 +33,7 @@ describe( 'reducer', () => {
 		};
 		const expected = {
 			...DEFAULT_STATE,
-			twitterCards: cards,
+			twitterCards: { ...cards },
 		};
 		expect( reducer( DEFAULT_STATE, action ) ).toEqual( expected );
 	} );
