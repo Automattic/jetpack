@@ -21,7 +21,11 @@ use Brain\Monkey\Filters;
  *                            Typically this is done by passing __FILE__ as the argument.
  */
 function plugins_url( $path, $plugin_path ) {
-	return $plugin_path . $path;
+	if ( strpos( $plugin_path, 'test-package.php' ) ) {
+		return 'http://www.example.com/wp-content/plugins/jetpack/packages/test-package/' . $path;
+	}
+
+	return 'http://www.example.com//wp-content/plugins/jetpack/' . $path;
 }
 
 /**
@@ -115,6 +119,27 @@ class AssetsTest extends TestCase {
 	}
 
 	/**
+	 * Test that get_file_url_for_environment returns a full package asset url when package path is provided.
+	 *
+	 * @param string $min_path        minified path.
+	 * @param string $non_min_path    non-minified path.
+	 * @param string $package_path    Package path.
+	 * @param bool   $is_script_debug Is SCRIPT_DEBUG enabled.
+	 * @param string $expected        Expected result.
+	 * @param string $not_expected    Non expected result.
+	 *
+	 * @author       davidlonjon
+	 * @dataProvider get_file_url_for_environment_package_path_data_provider
+	 */
+	public function test_get_file_url_for_environment_package_path( $min_path, $non_min_path, $package_path, $is_script_debug, $expected, $not_expected ) {
+		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
+		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path, $package_path );
+
+		$this->assertContains( $expected, $file_url );
+		$this->assertNotContains( $not_expected, $file_url );
+	}
+
+	/**
 	 * Tests ability for a filter to map specific URLs.
 	 *
 	 * @author kraftbj
@@ -157,6 +182,35 @@ class AssetsTest extends TestCase {
 		return array(
 			'full_url'          => array( 'https://jetpack.com/scripts/test.js' ),
 			'protocol_relative' => array( '//jetpack.com/styles/test.css' ),
+		);
+	}
+
+	/**
+	 * Possible values for test_get_file_url_for_environment.
+	 */
+	public function get_file_url_for_environment_package_path_data_provider() {
+		$min_path     = 'src/js/test.min.js';
+		$non_min_path = 'src/js/test.js';
+		$package_path = '/var/html/wp-content/plugins/jetpack/packages/test-package/test-package.php';
+
+		return array(
+			'script-debug-true'  => array(
+				$min_path,
+				$non_min_path,
+				$package_path,
+				true,
+				'wp-content/plugins/jetpack/packages/test-package/' . $non_min_path,
+				'wp-content/plugins/jetpack/packages/test-package/' . $min_path,
+
+			),
+			'script-debug-false' => array(
+				$min_path,
+				$non_min_path,
+				$package_path,
+				false,
+				'wp-content/plugins/jetpack/packages/test-package/' . $min_path,
+				'wp-content/plugins/jetpack/packages/test-package/' . $non_min_path,
+			),
 		);
 	}
 
