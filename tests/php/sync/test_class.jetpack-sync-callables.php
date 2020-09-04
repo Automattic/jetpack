@@ -1152,6 +1152,49 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
+	 * Verify get_check_sum is consistent for differently ordered arrays.
+	 */
+	public function test_sync_does_not_send_updates_if_array_order_is_only_change() {
+		$plugins = Functions::get_plugins();
+
+		// Let's see if the original values get synced.
+		$this->sender->do_sync();
+		$plugins_synced = $this->server_replica_storage->get_callable( 'get_plugins' );
+
+		$this->assertEquals( $plugins, $plugins_synced );
+
+		add_filter( 'all_plugins', array( $this, 'randomize_array_keys' ), 100, 1 );
+		do_action( 'jetpack_sync_unlock_sync_callable' );
+		$this->server_event_storage->reset();
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		$this->assertFalse( $event );
+	}
+
+	/**
+	 * Randomize the get_plugins array keys.
+	 *
+	 * @param array $plugins array of plugins.
+	 *
+	 * @return array
+	 */
+	public function randomize_array_keys( $plugins ) {
+		// First plugin in array.
+		$plugin_key = array_keys( $plugins )[0];
+
+		// sort the plugin's array entries.
+		$keys = array_keys( $plugins[ $plugin_key ] );
+		shuffle( $keys );
+		$random = array();
+		foreach ( $keys as $key ) {
+			$random[ $key ] = $plugins[ $plugin_key ][ $key ];
+		}
+		$plugins[ $plugin_key ] = $random;
+		return $plugins;
+	}
+
+	/**
 	 * Test getting the main network site wpcom ID in single site installs
 	 *
 	 * @return void
