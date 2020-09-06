@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\OpenTable;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
+use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'opentable';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -67,8 +68,10 @@ function load_assets( $attributes ) {
 		$classes[] = sprintf( 'is-style-%s', $style );
 	}
 
+	$is_multi = false; // @todo Temp.
 	if ( array_key_exists( 'rid', $attributes ) && is_array( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
 		$classes[] = 'is-multi';
+		$is_multi  = true; // @todo Temp.
 	}
 	if ( array_key_exists( 'negativeMargin', $attributes ) && $attributes['negativeMargin'] ) {
 		$classes[] = 'has-no-margin';
@@ -76,10 +79,52 @@ function load_assets( $attributes ) {
 	$classes = Blocks::classes( FEATURE_NAME, $attributes, $classes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 
-	// The OpenTable script uses multiple `rid` paramters,
-	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
-	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	$content .= '<script type="text/javascript" src="' . esc_url( build_embed_url( $attributes ) ) . '"></script>';
+	$script_url = build_embed_url( $attributes );
+
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		// Extract params from URL since it had jetpack_opentable_block_url filters applied.
+		$url_query = \wp_parse_url( $script_url, PHP_URL_QUERY ) . '&overlay=false&disablega=false';
+
+		$src = "https://www.opentable.com/widget/reservation/canvas?$url_query";
+
+		// @todo This is temporary workaround! The height should not be needed, and otherwise it should just have layout=fill. To replace once https://github.com/ampproject/amphtml/issues/29398 fixed.
+		$height = $is_multi ? 361 : 301;
+		$params = array();
+		wp_parse_str( $url_query, $params );
+		if ( 'tall' === $params['theme'] ) {
+			$height = $is_multi ? 550 : 490;
+		} elseif ( 'wide' === $params['theme'] ) {
+			$height = 150;
+		} elseif ( 'button' === $params['theme'] ) {
+			$height = 113;
+		}
+		$layout_attrs = sprintf( 'layout="fixed-height" height="%d"', $height );
+
+		// Note an iframe is similarly constructed in the block edit function.
+		$content .= sprintf(
+			'<amp-iframe src="%s" %s sandbox="allow-scripts allow-forms allow-same-origin">%s</amp-iframe>',
+			esc_url( $src ),
+			$layout_attrs,
+			sprintf(
+				'<a placeholder href="%s">%s</a>',
+				esc_url(
+					add_query_arg(
+						array(
+							'rid' => $params['rid'],
+						),
+						'https://www.opentable.com/restref/client/'
+					)
+				),
+				esc_html__( 'Make a reservation', 'jetpack' )
+			)
+		);
+	} else {
+		// The OpenTable script uses multiple `rid` paramters,
+		// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$content .= '<script src="' . esc_url( $script_url ) . '"></script>';
+	}
+
 	$content .= '</div>';
 
 	return $content;
