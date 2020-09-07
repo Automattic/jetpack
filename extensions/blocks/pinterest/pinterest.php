@@ -56,7 +56,7 @@ function fetch_pin_info( $pin_id ) {
 		'https://widgets.pinterest.com/v3/pidgets/pins/info/'
 	);
 
-	$response = wp_remote_get( $pin_info_api_url );
+	$response = wp_remote_get( esc_url_raw( $pin_info_api_url ) );
 	if ( is_wp_error( $response ) ) {
 		set_transient( $transient_id, $response, HOUR_IN_SECONDS );
 		return $response;
