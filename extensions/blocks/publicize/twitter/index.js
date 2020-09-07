@@ -70,6 +70,12 @@ const addTweetDivider = blockSettings => {
 addFilter( 'blocks.registerBlockType', 'jetpack/publishing-tweetstorms', addTweetDivider );
 
 const TwitterThreadListener = ( { isTweetstorm, isTyping } ) => {
+	if ( isTweetstorm ) {
+		document.body.classList.add( 'jetpack-tweetstorm' );
+	} else {
+		document.body.classList.remove( 'jetpack-tweetstorm' );
+	}
+
 	if ( isTweetstorm && isTyping ) {
 		document.body.classList.add( 'jetpack-tweetstorm-is-typing' );
 	} else {
