@@ -114,8 +114,14 @@ class Nonce_Handler {
 
 	/**
 	 * Clean up the expired nonces on shutdown.
+	 *
+	 * @return bool True if the cleanup query has been run, false if the table is locked.
 	 */
 	public static function clean_runtime() {
+		if ( static::is_table_locked() ) {
+			return false;
+		}
+
 		/**
 		 * Adjust the number of old nonces that are cleaned up at shutdown.
 		 *
@@ -126,6 +132,8 @@ class Nonce_Handler {
 		$limit = apply_filters( 'jetpack_connection_nonce_cleanup_runtime_limit', static::CLEANUP_RUNTIME_LIMIT );
 
 		static::delete( $limit, time() - static::LIFETIME );
+
+		return true;
 	}
 
 
@@ -171,6 +179,19 @@ class Nonce_Handler {
 		static::$nonces_used_this_request = array();
 
 		return true;
+	}
+
+	/**
+	 * Check if the options table is locked.
+	 *
+	 * @return bool
+	 */
+	protected static function is_table_locked() {
+		global $wpdb;
+
+		$result = $wpdb->get_results( "SHOW OPEN TABLES WHERE In_use > 0 AND `Table` = '{$wpdb->options}'" );
+
+		return is_array( $result ) && count( $result );
 	}
 
 }
