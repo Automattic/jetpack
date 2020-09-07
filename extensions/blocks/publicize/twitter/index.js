@@ -45,6 +45,9 @@ export const SUPPORTED_BLOCKS = {
 	'core/embed': {
 		contentAttributes: [ 'url' ],
 	},
+	'jetpack/gif': {
+		contentAttributes: [ 'giphyUrl' ],
+	},
 };
 
 /**

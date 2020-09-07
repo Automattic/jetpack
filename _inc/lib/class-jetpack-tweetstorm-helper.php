@@ -23,6 +23,8 @@ class Jetpack_Tweetstorm_Helper {
 	private static $supported_blocks = array(
 		'core/embed'     => array(
 			'type'           => 'embed',
+			'content'        => 'attrs',
+			'embed_attr'     => 'url',
 			'force_new'      => false,
 			'force_finished' => true,
 		),
@@ -107,6 +109,13 @@ class Jetpack_Tweetstorm_Helper {
 			'content_attrs'  => array(
 				'url' => array( 'video', 'src' ),
 			),
+			'force_new'      => false,
+			'force_finished' => true,
+		),
+		'jetpack/gif'    => array(
+			'type'           => 'embed',
+			'content'        => 'attrs',
+			'embed_attr'     => 'giphyUrl',
 			'force_new'      => false,
 			'force_finished' => true,
 		),
@@ -1082,8 +1091,24 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return string The URL. Empty string if there is none available.
 	 */
 	private static function extract_embed_from_block( $block ) {
-		if ( 'core/embed' === $block['blockName'] && 'twitter' !== $block['attrs']['providerNameSlug'] && ! empty( $block['attrs']['url'] ) ) {
-			return $block['attrs']['url'];
+		$block_def = self::$supported_blocks[ $block['blockName'] ];
+
+		if ( 'embed' !== $block_def['type'] ) {
+			return '';
+		}
+
+		// Twitter embeds are handled in ::extract_tweet_from_block().
+		if ( 'core/embed' === $block['blockName'] && 'twitter' === $block['attrs']['providerNameSlug'] ) {
+			return '';
+		}
+
+		if ( 'jetpack/gif' === $block['blockName'] ) {
+			return str_replace( '/embed/', '/gifs/', $block['attrs'][ $block_def['embed_attr'] ] );
+		}
+
+		// When the embed URL is stored in an attribute, return it.
+		if ( 'attrs' === $block_def['content'] ) {
+			return $block['attrs'][ $block_def['embed_attr'] ];
 		}
 
 		return '';
@@ -1417,8 +1442,14 @@ class Jetpack_Tweetstorm_Helper {
 
 		$cards = array();
 		foreach ( $results as $result ) {
+			if ( count( $result->history ) > 0 ) {
+				$url = $result->history[0]->url;
+			} else {
+				$url = $result->url;
+			}
+
 			if ( ! $result->success ) {
-				$cards[ $result->url ] = array(
+				$cards[ $url ] = array(
 					'error' => 'invalid_url',
 				);
 				continue;
@@ -1437,9 +1468,9 @@ class Jetpack_Tweetstorm_Helper {
 			}
 
 			if ( count( $url_card_data ) > 0 ) {
-				$cards[ $result->url ] = $url_card_data;
+				$cards[ $url ] = $url_card_data;
 			} else {
-				$cards[ $result->url ] = array(
+				$cards[ $url ] = array(
 					'error' => 'no_og_data',
 				);
 			}
