@@ -102,7 +102,7 @@ function load_assets( $attributes ) {
 
 		// Note an iframe is similarly constructed in the block edit function.
 		$content .= sprintf(
-			'<amp-iframe src="%s" %s sandbox="allow-scripts allow-forms allow-same-origin">%s</amp-iframe>',
+			'<amp-iframe src="%s" %s sandbox="allow-scripts allow-forms allow-same-origin allow-popups">%s</amp-iframe>',
 			esc_url( $src ),
 			$layout_attrs,
 			sprintf(
