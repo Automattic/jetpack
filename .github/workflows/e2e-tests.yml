@@ -60,6 +60,8 @@ jobs:
       run: yarn test-decrypt-config
 
     - name: Start docker env
+      env:
+        CONFIG_KEY: ${{ secrets.NGROK_KEY }}
       run: ./tests/e2e/bin/env.sh start
 
     - name: Run tests
