@@ -3,7 +3,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Internal dependencies
