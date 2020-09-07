@@ -361,11 +361,6 @@ class Jetpack_SSO {
 					$reauth = ! empty( $_GET['force_reauth'] );
 					$sso_url = $this->get_sso_url_or_die( $reauth );
 
-					// Is this our first SSO Login. Set an option.
-					if ( ! Jetpack_Options::get_option( 'sso_first_login' ) ) {
-						Jetpack_options::update_option( 'sso_first_login', true );
-					}
-
 					$tracking->record_user_event( 'sso_login_redirect_success' );
 					wp_safe_redirect( $sso_url );
 					exit;
