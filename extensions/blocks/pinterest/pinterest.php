@@ -84,7 +84,9 @@ function fetch_pin_info( $pin_id ) {
 }
 
 /**
- * Render amp-pinterest component.
+ * Render a Pin using the amp-pinterest component.
+ *
+ * This does not render boards or user profiles.
  *
  * Since AMP components need to be statically sized to be valid (so as to avoid layout shifting), there are quite a few
  * hard-coded numbers as taken from the CSS for the AMP component.
@@ -92,7 +94,7 @@ function fetch_pin_info( $pin_id ) {
  * @param array $attr Block attributes.
  * @return string Markup for <amp-pinterest>.
  */
-function render_amp( $attr ) {
+function render_amp_pin( $attr ) {
 	$info = null;
 	if ( preg_match( URL_PATTERN, $attr['url'], $matches ) ) {
 		$info = fetch_pin_info( $matches['pin_id'] );
@@ -151,10 +153,15 @@ function render_amp( $attr ) {
 	} else {
 		// Fallback embed when info is not available.
 		$amp_pinterest = sprintf(
-			'<amp-pinterest data-do="embedPin" data-url="%s" width="%d" height="%d"></amp-pinterest></div>',
+			'<amp-pinterest data-do="embedPin" data-url="%1$s" width="%2$d" height="%3$d">%4$s</amp-pinterest>',
 			esc_url( $attr['url'] ),
 			450, // Fallback width.
-			750 // Fallback height.
+			750, // Fallback height.
+			sprintf(
+				'<a placeholder href="%s">%s</a>',
+				esc_url( $attr['url'] ),
+				esc_html( $attr['url'] )
+			)
 		);
 	}
 
@@ -174,7 +181,7 @@ function render_amp( $attr ) {
  */
 function load_assets( $attr, $content ) {
 	if ( Jetpack_AMP_Support::is_amp_request() ) {
-		return render_amp( $attr );
+		return render_amp_pin( $attr );
 	} else {
 		wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
 		return $content;
