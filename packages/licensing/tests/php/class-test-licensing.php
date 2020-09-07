@@ -23,6 +23,48 @@ use WP_User;
  */
 class Test_Licensing extends BaseTestCase {
 	/**
+	 * Test last_error().
+	 */
+	public function test_last_error() {
+		$licensing = new Licensing();
+
+		delete_option( 'jetpack_options' );
+		$this->assertSame( '', $licensing->last_error() );
+
+		update_option( 'jetpack_options', array() );
+		$this->assertSame( '', $licensing->last_error() );
+
+		update_option( 'jetpack_options', array( 'licensing_error' => '' ) );
+		$this->assertSame( '', $licensing->last_error() );
+
+		update_option( 'jetpack_options', array( 'licensing_error' => 'foo' ) );
+		$this->assertSame( 'foo', $licensing->last_error() );
+
+		delete_option( 'jetpack_options' );
+	}
+
+	/**
+	 * Test log_error().
+	 */
+	public function test_log_error() {
+		$licensing = new Licensing();
+
+		delete_option( 'jetpack_options' );
+		$this->assertSame( '', $licensing->last_error() );
+
+		$licensing->log_error( '' );
+		$this->assertSame( '', $licensing->last_error() );
+
+		$licensing->log_error( 'foo' );
+		$this->assertSame( 'foo', $licensing->last_error() );
+
+		$licensing->log_error( str_repeat( 'a', 2048 ) );
+		$this->assertSame( str_repeat( 'a', 1024 ), $licensing->last_error() );
+
+		delete_option( 'jetpack_options' );
+	}
+
+	/**
 	 * Test stored_licenses().
 	 */
 	public function test_stored_licenses() {

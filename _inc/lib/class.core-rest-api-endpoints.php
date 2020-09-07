@@ -4,6 +4,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -3801,7 +3802,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return string Licensing error message or empty string.
 	 */
 	public static function get_licensing_error() {
-		return Jetpack_Options::get_option( 'licensing_error', '' );
+		return Licensing::instance()->last_error();
 	}
 
 	/**
@@ -3814,7 +3815,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool true.
 	 */
 	public static function update_licensing_error( $request ) {
-		Jetpack_Options::update_option( 'licensing_error', $request['error'] );
+		Licensing::instance()->log_error( $request['error'] );
 
 		return true;
 	}

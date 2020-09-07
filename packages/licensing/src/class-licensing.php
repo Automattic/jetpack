@@ -80,13 +80,23 @@ class Licensing {
 	}
 
 	/**
+	 * Get the last license attach request error that has occurred, if any.
+	 *
+	 * @return string Human-readable error message or an empty string.
+	 */
+	public function last_error() {
+		return Jetpack_Options::get_option( 'licensing_error', '' );
+	}
+
+	/**
 	 * Log an error to be surfaced to the user at a later time.
 	 *
 	 * @param string $error Human-readable error message.
 	 * @return void
 	 */
-	protected function log_error( $error ) {
-		Jetpack_Options::update_option( 'licensing_error', $error );
+	public function log_error( $error ) {
+		$substr = function_exists( 'mb_substr' ) ? 'mb_substr' : 'substr';
+		Jetpack_Options::update_option( 'licensing_error', $substr( $error, 0, 1024 ) );
 	}
 
 	/**
