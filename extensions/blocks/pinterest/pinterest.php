@@ -137,7 +137,7 @@ function render_amp( $attr ) {
 		}
 
 		// When Pin description is empty, make sure title and description from rich metadata are supplied for accessibility and discoverability.
-		$title = $has_description ? '' : implode( ': ', array_filter( array( $title, $description ) ) );
+		$title = $has_description ? '' : implode( "\n", array_filter( array( $title, $description ) ) );
 
 		$amp_pinterest = sprintf(
 			'<amp-pinterest style="%1$s" data-do="embedPin" data-url="%2$s" width="%3$d" height="%4$d" title="%5$s">%6$s</amp-pinterest>',
