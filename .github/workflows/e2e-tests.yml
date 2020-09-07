@@ -1,0 +1,70 @@
+name: End-to-End Tests
+
+on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  push:
+    branches: [master]
+    paths-ignore:
+    - '**.md'
+
+env:
+  DB_NAME: jetpack_test
+  DB_HOST: 127.0.0.1
+  DB_USERNAME: root
+  DB_PASSWORD: root
+
+jobs:
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+
+    - uses: actions/cache@v2
+      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
+    - uses: actions/cache@v2
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Build Jetpack
+      run: yarn && yarn build-production
+
+    - name: Setup env and WordPress
+      run: |
+        sudo apt update
+        sudo apt install -y zip
+
+    - name: Decrypt config
+      env:
+        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      run: yarn test-decrypt-config
+
+    - name: Start docker env
+      run: ./tests/e2e/bin/env.sh start
+
+    - name: Run tests
+      run: yarn test-e2e
+
+    - name: Upload Allure artifacts
+      if: ${{ always() }}
+      run: ./tests/e2e/bin/push-allure-artifacts.sh
