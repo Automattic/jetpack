@@ -1050,11 +1050,16 @@ class Jetpack_Tweetstorm_Helper {
 				);
 			}
 		} elseif ( 'video' === $block_def['type'] ) {
-			$url = self::extract_attr_content_from_html(
-				$block_def['content_attrs']['url'][0],
-				$block_def['content_attrs']['url'][1],
-				$block['innerHTML']
-			);
+			// Handle VideoPress videos.
+			if ( isset( $block['attrs']['src'] ) && 0 === strpos( $block['attrs']['src'], 'https://videos.files.wordpress.com/' ) ) {
+				$url = array( $block['attrs']['src'] );
+			} else {
+				$url = self::extract_attr_content_from_html(
+					$block_def['content_attrs']['url'][0],
+					$block_def['content_attrs']['url'][1],
+					$block['innerHTML']
+				);
+			}
 
 			// We can only ever use the first video found, no need to go through all of them.
 			if ( count( $url ) > 0 ) {
