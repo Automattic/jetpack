@@ -88,14 +88,14 @@ class Jetpack_IXR_ClientMulticall_Test extends BaseTestCase {
 				'methodName' => 'foo',
 				'params'     => array( 16 ),
 			),
-			array(
-				'methodName' => 'foo',
-				'params'     => array( 17 ),
-			),
 			// Intentional duplicate.
 			array(
 				'methodName' => 'foo',
 				'params'     => array( 12 ),
+			),
+			array(
+				'methodName' => 'foo',
+				'params'     => array( 17 ),
 			),
 		);
 
@@ -152,11 +152,6 @@ class Jetpack_IXR_ClientMulticall_Test extends BaseTestCase {
 				'methodName' => 'foo',
 				'params'     => array( 12 ),
 			),
-			// Intentional duplicate gets moved up next to the other one.
-			array(
-				'methodName' => 'foo',
-				'params'     => array( 12 ),
-			),
 			array(
 				'methodName' => 'foo',
 				'params'     => array( 13 ),
@@ -168,6 +163,11 @@ class Jetpack_IXR_ClientMulticall_Test extends BaseTestCase {
 			array(
 				'methodName' => 'foo',
 				'params'     => array( 16 ),
+			),
+			// Intentional duplicate remains in the same place.
+			array(
+				'methodName' => 'foo',
+				'params'     => array( 12 ),
 			),
 			array(
 				'methodName' => 'foo',
