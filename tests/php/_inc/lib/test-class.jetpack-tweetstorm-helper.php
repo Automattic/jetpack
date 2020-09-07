@@ -206,21 +206,22 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Helper function. Generate the blob of data that the parser
-	 * expects to receive for an embedded tweet block.
+	 * expects to receive for an embed block.
 	 *
-	 * @param string $url The tweet url.
+	 * @param string $provider The embed provider name.
+	 * @param string $url      The url of the embed.
 	 *
 	 * @return array The embedded tweet blob of data.
 	 */
-	public function generateTweetEmbedData( $url ) {
+	public function generateCoreEmbedData( $provider, $url ) {
 		return array(
 			'attributes' => array(
-				'providerNameSlug' => 'twitter',
+				'providerNameSlug' => $provider,
 				'url'              => $url,
 			),
 			'block'      => array(
 				'attrs'     => array(
-					'providerNameSlug' => 'twitter',
+					'providerNameSlug' => $provider,
 					'url'              => $url,
 				),
 				'blockName' => 'core/embed',
@@ -272,6 +273,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 *     @type string $text  Optional. The text of the tweet.
 	 *     @type array  $media Optional. Array of media that will be used for media attachments.
 	 *     @type string $tweet Optional. URL of a tweet to be quoted.
+	 *     @type array  $urls  Optional. A list of URLs that appear in the tweet text.
 	 * }
 	 * @param array        $blocks      An array of blocks that should be defined in the tweet.
 	 * @param array        $boundary    The boundary data that the tweet should contain.
@@ -291,12 +293,14 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'text'  => '',
 				'media' => array(),
 				'tweet' => '',
+				'urls'  => array(),
 			)
 		);
 
 		$this->assertEquals( $content['text'], $tweet['text'] );
 		$this->assertEquals( $content['media'], $tweet['media'] );
 		$this->assertEquals( $content['tweet'], $tweet['tweet'] );
+		$this->assertEquals( $content['urls'], $tweet['urls'] );
 
 		if ( $editor_info ) {
 			$block_count = count( $blocks );
@@ -304,7 +308,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->assertEquals( $block_count, count( $tweet['blocks'] ) );
 
 			for ( $ii = 0; $ii < $block_count; $ii++ ) {
-				$this->assertArrayNotHasKey( 'block', $tweet['blocks'][ $ii ] );
+				$this->assertEquals( 2, count( $tweet['blocks'][ $ii ] ) );
 				$this->assertEquals( $blocks[ $ii ]['clientId'], $tweet['blocks'][ $ii ]['clientId'] );
 				$this->assertEquals( $blocks[ $ii ]['attributes'], $tweet['blocks'][ $ii ]['attributes'] );
 			}
@@ -328,6 +332,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 *     @type string $text  Optional. The text of the tweet.
 	 *     @type array  $media Optional. Array of media that will be used for media attachments.
 	 *     @type string $tweet Optional. URL of a tweet to be quoted.
+	 *     @type array  $urls  Optional. A list of URLs that appear in the tweet text.
 	 * }
 	 * @param array $boundaries   The boundary data that each tweet should contain.
 	 * @param array $tweet_blocks An array of arrays: each child array should be the blocks used
@@ -1391,7 +1396,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$blocks = array(
 			$this->generateParagraphData( $test_content ),
-			$this->generateTweetEmbedData( $test_url ),
+			$this->generateCoreEmbedData( 'twitter', $test_url ),
 		);
 
 		$expected_content = array(
@@ -1402,5 +1407,179 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		);
 
 		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that other embeds will be appended as URLs.
+	 */
+	public function test_youtube_embed_is_appended() {
+		$test_content = 'The master.';
+		$test_url     = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateCoreEmbedData( 'youtube', $test_url ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => "$test_content $test_url",
+				'urls' => array( $test_url ),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that link URLs are added to the tweet text.
+	 */
+	public function test_links_handled() {
+		$test_urls = array(
+			'https://jetpack.com',
+			'https://wordpress.org/',
+			'https://jetpack.com',
+		);
+
+		$test_content  = "This <a href='$test_urls[0]'>is</a> <a href='$test_urls[1]'>a</a> <a href='$test_urls[2]'>test</a>.";
+		$expected_text = "This is ($test_urls[0]) a ($test_urls[1]) test ($test_urls[2]).";
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => $expected_text,
+				'urls' => $test_urls,
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that long URLs don't cause text to break into multiple tweets.
+	 */
+	public function test_long_links_dont_break_a_paragraph_up() {
+		$test_url = 'https://jetpack.com/' . str_repeat( 'a', 280 );
+
+		$test_content  = "It's <a href='$test_url'>a celebration</a>!";
+		$expected_text = "It's a celebration ($test_url)!";
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => $expected_text,
+				'urls' => array( $test_url ),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that URLs appearing before and after paragraph breaks are counted correctly.
+	 */
+	public function test_many_urls_in_a_long_paragraph() {
+		$test_url = 'https://jetpack.com/';
+
+		$test_content  = "This is <a href='$test_url'>some text</a> for testing. ";
+		$expected_text = "This is some text ($test_url) for testing. ";
+
+		$blocks = array(
+			$this->generateParagraphData( trim( str_repeat( $test_content, 9 ) ) ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => trim( str_repeat( $expected_text, 4 ) ),
+				'urls' => array_fill( 0, 4, $test_url ),
+			),
+			array(
+				'text' => trim( str_repeat( $expected_text, 4 ) ),
+				'urls' => array_fill( 0, 4, $test_url ),
+			),
+			array(
+				'text' => trim( $expected_text ),
+				'urls' => array( $test_url ),
+			),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 123, 124, 'content' ),
+			$this->generateNormalBoundary( 247, 248, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array_fill( 0, 3, $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that URLs appearing in long and varied lists are counted correctly.
+	 */
+	public function test_many_urls_in_diferent_list_items() {
+		$test_url = 'https://jetpack.com/';
+
+		$test_content  = "This is <a href='$test_url'>some text</a> for testing. ";
+		$expected_text = "This is some text ($test_url) for testing. ";
+
+		$blocks = array(
+			$this->generateListData(
+				'<li>' . trim( str_repeat( $test_content, 7 ) ) . '</li>' .
+				'<li></li>' .
+				'<li>' . trim( $test_content ) . '</li>' .
+				'<li><ul><li></li>' .
+				'<li>' . trim( $test_content ) . '</li>' .
+				'<li></li></ul>' .
+				'<li></li>' .
+				'<li>' . trim( str_repeat( $test_content, 9 ) ) . '</li>'
+			),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => '- ' . trim( str_repeat( $expected_text, 4 ) ),
+				'urls' => array_fill( 0, 4, $test_url ),
+			),
+			array(
+				'text' => trim( str_repeat( $expected_text, 3 ) ) . "\n- " . trim( $expected_text ),
+				'urls' => array_fill( 0, 4, $test_url ),
+			),
+			array(
+				'text' => trim( "- $expected_text" ),
+				'urls' => array( $test_url ),
+			),
+			array(
+				'text' => '- ' . trim( str_repeat( $expected_text, 4 ) ),
+				'urls' => array_fill( 0, 4, $test_url ),
+			),
+			array(
+				'text' => trim( str_repeat( $expected_text, 4 ) ),
+				'urls' => array_fill( 0, 4, $test_url ),
+			),
+			array(
+				'text' => trim( $expected_text ),
+				'urls' => array( $test_url ),
+			),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 123, 124, 'values' ),
+			$this->generateLineBoundary( 2, 'values' ),
+			$this->generateLineBoundary( 5, 'values' ),
+			$this->generateNormalBoundary( 407, 408, 'values' ),
+			$this->generateNormalBoundary( 531, 532, 'values' ),
+			false,
+		);
+
+		$expected_blocks = array_fill( 0, 6, $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
 }

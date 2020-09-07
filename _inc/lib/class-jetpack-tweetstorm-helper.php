@@ -79,7 +79,7 @@ class Jetpack_Tweetstorm_Helper {
 				'value'    => 'p',
 				'citation' => 'cite',
 			),
-			'template'       => '“{{p}}” – {{cite}}',
+			'template'       => '“{{value}}” – {{citation}}',
 			'force_new'      => false,
 			'force_finished' => false,
 		),
@@ -129,6 +129,13 @@ class Jetpack_Tweetstorm_Helper {
 	private static $line_separator = "\xE2\x80\xA8";
 
 	/**
+	 * URLs always take up a fixed length from the text limit.
+	 *
+	 * @var int
+	 */
+	private static $characters_per_url = 24;
+
+	/**
 	 * Every media attachment takes up some space from the text limit.
 	 *
 	 * @var int
@@ -141,6 +148,13 @@ class Jetpack_Tweetstorm_Helper {
 	 * @var array
 	 */
 	private static $tweets = array();
+
+	/**
+	 * While we're caching everything, we want to keep track of the URLs we're adding.
+	 *
+	 * @var array
+	 */
+	private static $urls = array();
 
 	/**
 	 * Gather the Tweetstorm.
@@ -278,10 +292,8 @@ class Jetpack_Tweetstorm_Helper {
 		for ( $line_count = 0; $line_count < $line_total; $line_count++ ) {
 			$line_text = $lines[ $line_count ];
 
-			// If this is an empty line in a multiline block, we need to count the \n between
-			// lines, but can otherwise skip this line.
+			// If this is an empty line in a multiline block, we can skip it.
 			if ( 0 === strlen( $line_text ) && 'multiline' === $block_def['type'] ) {
-				$current_character_count++;
 				continue;
 			}
 
@@ -533,14 +545,12 @@ class Jetpack_Tweetstorm_Helper {
 
 		// We can only attach an embed to the previous tweet if it doesn't already
 		// have any URLs in it.
-		if ( count( $current_tweet['urls'] ) > 0 ) {
+		if ( preg_match( '/url-placeholder-\d+-*/', $current_tweet['text'] ) ) {
 			$current_tweet         = self::start_new_tweet();
-			$current_tweet['text'] = $block['embed'];
+			$current_tweet['text'] = self::generate_url_placeholder( $block['embed'] );
 		} else {
-			$current_tweet['text'] .= ' ' . $block['embed'];
+			$current_tweet['text'] .= ' ' . self::generate_url_placeholder( $block['embed'] );
 		}
-
-		$current_tweet['urls'][] = $block['embed'];
 
 		self::save_current_tweet( $current_tweet, $block );
 	}
@@ -593,8 +603,6 @@ class Jetpack_Tweetstorm_Helper {
 			'media'    => array(),
 			// The quoted tweet in this tweet.
 			'tweet'    => '',
-			// Any URLs in the text content, in the order they appear.
-			'urls'     => array(),
 			// Some blocks force a hard finish to the tweet, even if subsequent blocks
 			// could technically be appended. This flag shows when a tweet is finished.
 			'finished' => false,
@@ -758,13 +766,14 @@ class Jetpack_Tweetstorm_Helper {
 
 	/**
 	 * A block will generate a certain amount of text to be inserted into a tweet. If that text is too
-	 * long for a tweet, we already know where the text will be split, but we need to calculate where
-	 * that corresponds to in the block edit UI.
+	 * long for a tweet, we already know where the text will be split when it's published as tweet, but
+	 * we need to calculate where that corresponds to in the block edit UI.
 	 *
-	 * The tweet template for that block may add extra characters, and the block may contain multiple
-	 * RichText areas (corresponding to attributes), so we need to keep track of both until the
-	 * this function calculates which attribute area (in the block editor, the richTextIdentifier)
-	 * that offset corresponds to, and how far into that attribute area it is.
+	 * The tweet template for that block may add extra characters, extra characters are added for URL
+	 * placeholders, and the block may contain multiple RichText areas (corresponding to attributes),
+	 * so we need to keep track of both until the this function calculates which attribute area (in the
+	 * block editor, the richTextIdentifier) that offset corresponds to, and how far into that attribute
+	 * area it is.
 	 *
 	 * @param array   $block  The block being checked.
 	 * @param integer $offset The position in the tweet text where it will be split.
@@ -772,92 +781,138 @@ class Jetpack_Tweetstorm_Helper {
 	 *                     position in the block editor to insert the tweet boundary annotation.
 	 */
 	private static function get_boundary( $block, $offset ) {
-		if ( ! isset( $block['clientId'] ) && ! isset( $block['attributes'] ) ) {
+		// If we don't have a clientId, there's no point in generating a boundary, since this
+		// parse request doesn't have a way to map blocks back to editor UI.
+		if ( ! isset( $block['clientId'] ) ) {
 			return false;
 		}
 
 		$block_def = self::$supported_blocks[ $block['name'] ];
 
-		$template_parts = preg_split( '/({{\w+}})/', self::$supported_blocks[ $block['name'] ]['template'], -1, PREG_SPLIT_DELIM_CAPTURE );
-
+		$lines = array();
 		if ( 'multiline' === $block_def['type'] ) {
-			$text_character_count     = 0;
-			$text_code_unit_count     = 0;
-			$template_character_count = 0;
+			$tags        = array( $block_def['multiline_tag'] );
+			$tag_content = self::extract_tag_content_from_html( $tags, $block['block']['innerHTML'] );
 
-			$tags  = self::extract_tag_content_from_html( array( $block_def['multiline_tag'] ), $block['block']['innerHTML'] );
-			$lines = $tags[ $block_def['multiline_tag'] ];
+			$lines = array_map(
+				function ( $line ) {
+					return array(
+						'line' => $line,
+					);
+				},
+				$tag_content[ $block_def['multiline_tag'] ]
+			);
+		} else {
+			if ( isset( $block_def['content_tags'] ) ) {
+				$tags = $block_def['content_tags'];
+			} else {
+				$tags = array( 'content' );
+			}
 
-			$line_count = 0;
-			foreach ( $lines as $line ) {
-				$line_length = strlen( $line );
+			$tag_content = self::extract_tag_content_from_html( $tags, $block['block']['innerHTML'] );
 
-				if ( 0 !== $line_length ) {
-					foreach ( $template_parts as $part ) {
-						if ( '{{line}}' === $part ) {
-							// Are we breaking in the middle of this line?
-							if ( $text_character_count + $template_character_count + $line_length > $offset ) {
-								// Calculate how far into this line the split defined by $offset occurs.
-								$line_offset = $offset - $text_character_count - $template_character_count;
-								$substr      = substr( $line, 0, $line_offset );
-								$start       = self::utf_16_code_unit_length( $substr ) - 1 + $text_code_unit_count;
-								return array(
-									'start'     => $start,
-									'end'       => $start + 1,
-									'container' => $block_def['container'],
-									'type'      => 'normal',
-								);
+			$merged_content = array_map(
+				function ( $content ) {
+					return implode( "\n", $content );
+				},
+				$tag_content
+			);
+
+			$lines[] = array();
+			foreach ( $merged_content as $attribute_tag => $attribute_content ) {
+				if ( 'content' === $attribute_tag ) {
+					$lines[0]['content'] = $attribute_content;
+				} else {
+					$attribute_name = array_search( $attribute_tag, $block_def['content_tags'], true );
+
+					$lines[0][ $attribute_name ] = $attribute_content;
+				}
+			}
+		}
+
+		$line_count = count( $lines );
+
+		$template_parts = preg_split( '/({{\w+}})/', $block_def['template'], -1, PREG_SPLIT_DELIM_CAPTURE );
+
+		// Keep track of the total number of bytes we've processed from this block.
+		$total_bytes_processed = 0;
+
+		// Keep track of the number of characters that the processed data translates to in the editor.
+		$characters_processed = 0;
+
+		foreach ( $lines as $line_number => $line ) {
+			// Add up the length of all the parts of this line.
+			$line_byte_total = array_sum( array_map( 'strlen', $line ) );
+
+			if ( $line_byte_total > 0 ) {
+				// We have something to use in the template, so loop over each part of the template, and count it.
+				foreach ( $template_parts as $template_part ) {
+					$matches = array();
+					if ( preg_match( '/{{(\w+)}}/', $template_part, $matches ) ) {
+						$part_name = $matches[1];
+
+						$line_part_data  = $line[ $part_name ];
+						$line_part_bytes = strlen( $line_part_data );
+
+						$cleaned_line_part_data = preg_replace( '/ \(url-placeholder-\d+-*\)/', '', $line_part_data );
+
+						if ( $total_bytes_processed + $line_part_bytes >= $offset ) {
+							// We know that the offset is somewhere inside this part of the tweet, but we need to remove the length
+							// of any URL placeholders that appear before the boundary, to be able to calculate the correct attribute offset.
+
+							// $total_bytes_processed is the sum of everything we've processed so far, (including previous parts)
+							// on this line. This makes it relatively easy to calculate the number of bytes into this part
+							// that the boundary will occur.
+							$line_part_byte_boundary = $offset - $total_bytes_processed;
+
+							// Grab the data from this line part that appears before the boundary.
+							$line_part_pre_boundary_data = substr( $line_part_data, 0, $line_part_byte_boundary );
+
+							// Remove any URL placeholders, since these aren't shown in the editor.
+							$line_part_pre_boundary_data = preg_replace( '/ \(url-placeholder-\d+-*\)/', '', $line_part_pre_boundary_data );
+
+							$boundary_start = $characters_processed + self::utf_16_code_unit_length( $line_part_pre_boundary_data ) - 1;
+
+							if ( 'multiline' === $block_def['type'] ) {
+								$container_name = $block_def['container'];
 							} else {
-								$text_character_count += $line_length;
-								$text_code_unit_count += self::utf_16_code_unit_length( $line );
+								$container_name = $part_name;
 							}
+
+							return array(
+								'start'     => $boundary_start,
+								'end'       => $boundary_start + 1,
+								'container' => $container_name,
+								'type'      => 'normal',
+							);
 						} else {
-							$template_character_count += strlen( $part );
+							$total_bytes_processed += $line_part_bytes;
+							$characters_processed  += self::utf_16_code_unit_length( $cleaned_line_part_data );
+							continue;
 						}
+					} else {
+						$total_bytes_processed += strlen( $template_part );
 					}
 				}
 
 				// Are we breaking at the end of this line?
-				if ( $text_character_count + $template_character_count + 1 === $offset ) {
+				if ( $total_bytes_processed + 1 === $offset && $line_count > 1 ) {
 					return array(
-						'line'      => $line_count,
+						'line'      => $line_number,
 						'container' => $block_def['container'],
 						'type'      => 'end-of-line',
 					);
 				}
 
-				// Allow for the line break between lines.
-				$text_character_count++;
-				$text_code_unit_count++;
-				$line_count++;
+				// The newline at the end of each line is 1 byte, but we don't need to count empty lines.
+				$total_bytes_processed++;
 			}
+
+			// We do need to count empty lines in the editor, since they'll be displayed.
+			$characters_processed++;
 		}
 
-		$current_character_count = 0;
-
-		foreach ( $template_parts as $part ) {
-			$matches = array();
-			if ( preg_match( '/{{(\w+)}}/', $part, $matches ) ) {
-				$attribute_name   = $matches[1];
-				$attribute_length = strlen( $block['attributes'][ $attribute_name ] );
-				if ( $current_character_count + $attribute_length >= $offset ) {
-					$attribute_offset = $offset - $current_character_count;
-					$substr           = substr( $block['attributes'][ $attribute_name ], 0, $attribute_offset );
-					$start            = self::utf_16_code_unit_length( $substr ) - 1;
-					return array(
-						'start'     => $start,
-						'end'       => $start + 1,
-						'container' => $attribute_name,
-						'type'      => 'normal',
-					);
-				} else {
-					$current_character_count += $attribute_length;
-					continue;
-				}
-			} else {
-				$current_character_count += strlen( $part );
-			}
-		}
+		return false;
 	}
 
 	/**
@@ -915,12 +970,16 @@ class Jetpack_Tweetstorm_Helper {
 				if ( strlen( $content ) > 0 ) {
 					$found_content = true;
 				}
-				$text = str_replace( '{{' . $tag . '}}', $content, $text );
+				if ( 'content' === $tag ) {
+					$placeholder = 'content';
+				} else {
+					$placeholder = array_search( $tag, $block_def['content_tags'], true );
+				}
+				$text = str_replace( '{{' . $placeholder . '}}', $content, $text );
 			}
 		} elseif ( 'multiline' === $block_def['type'] ) {
 			$tags = self::extract_tag_content_from_html( array( $block_def['multiline_tag'] ), $block['innerHTML'] );
 			$text = '';
-
 			foreach ( $tags[ $block_def['multiline_tag'] ] as $line ) {
 				if ( 0 === strlen( $line ) ) {
 					$text .= self::$line_separator;
@@ -1037,12 +1096,25 @@ class Jetpack_Tweetstorm_Helper {
 	private static function clean_return_tweets() {
 		// Before we return, clean out unnecessary cruft from the return data.
 		$tweets = array_map(
-			function( $tweet ) {
+			function ( $tweet ) {
 				// Remove tweets that don't have anything saved in them. eg, if the last block is a
 				// header with no text, it'll force a new tweet, but we won't end up putting anything
 				// in that tweet.
 				if ( ! $tweet['changed'] ) {
 					return false;
+				}
+
+				// Replace any URL placeholders that appear in the text.
+				$tweet['urls'] = array();
+				foreach ( self::$urls as $id => $url ) {
+					$count = 0;
+
+					$tweet['text'] = str_replace( str_pad( "url-placeholder-$id", self::$characters_per_url, '-' ), $url, $tweet['text'], $count );
+
+					// If we found a URL, keep track of it for the editor.
+					if ( $count > 0 ) {
+						$tweet['urls'][] = $url;
+					}
 				}
 
 				// Tidy up the whitespace.
@@ -1060,10 +1132,15 @@ class Jetpack_Tweetstorm_Helper {
 					// Remove the parts of the block data that the editor doesn't need.
 					$block_count = count( $tweet['blocks'] );
 					for ( $ii = 0; $ii < $block_count; $ii++ ) {
-						unset( $tweet['blocks'][ $ii ]['block'] );
-						unset( $tweet['blocks'][ $ii ]['name'] );
-						unset( $tweet['blocks'][ $ii ]['text'] );
-						unset( $tweet['blocks'][ $ii ]['media'] );
+						$keys = array_keys( $tweet['blocks'][ $ii ] );
+						foreach ( $keys as $key ) {
+							// The editor only needs these attributes, everything else will be unset.
+							if ( in_array( $key, array( 'attributes', 'clientId' ), true ) ) {
+								continue;
+							}
+
+							unset( $tweet['blocks'][ $ii ][ $key ] );
+						}
 					}
 				}
 
@@ -1092,8 +1169,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		// If there were no tags passed, assume the entire text is required.
 		if ( empty( $tags ) ) {
-			$html = str_replace( '<br>', "\n", $html );
-			return array( 'content' => array( wp_strip_all_tags( $html ) ) );
+			$tags = array( 'content' );
 		}
 
 		$values = array();
@@ -1105,10 +1181,23 @@ class Jetpack_Tweetstorm_Helper {
 
 			// Since tags can be nested, keeping track of the nesting level allows
 			// us to extract nested content into a flat array.
-			$opened = -1;
-			$closed = -1;
+			if ( 'content' === $tag ) {
+				// The special "content" tag means we should store the entire content,
+				// so assume the tag is open from the beginning.
+				$opened = 0;
+				$closed = -1;
+
+				$values['content'][0] = '';
+			} else {
+				$opened = -1;
+				$closed = -1;
+			}
+
+			// When we come across a URL, we need to keep track of it, so it can then be inserted
+			// in the right place.
+			$current_url = '';
 			foreach ( $tokens as $token ) {
-				if ( 0 === strlen( trim( $token ) ) ) {
+				if ( 0 === strlen( $token ) ) {
 					// Skip any empty tokens.
 					continue;
 				}
@@ -1124,6 +1213,24 @@ class Jetpack_Tweetstorm_Helper {
 					// A line break gets one newline.
 					if ( '<br>' === $token ) {
 						$values[ $tag ][ $opened ] .= "\n";
+					}
+
+					// A link has opened, grab the URL for inserting later.
+					if ( 0 === strpos( $token, '<a ' ) ) {
+						$href_values = self::extract_attr_content_from_html( 'a', 'href', $token );
+						if ( ! empty( $href_values[0] ) ) {
+							// Remember the URL.
+							$current_url = $href_values[0];
+						}
+					}
+
+					// A link has closed, insert the URL from that link if we have one.
+					if ( '</a>' === $token && '' !== $current_url ) {
+						// Generate a unique-to-this-block placeholder which takes up the
+						// same number of characters as a URL does.
+						$values[ $tag ][ $opened ] .= ' (' . self::generate_url_placeholder( $current_url ) . ')';
+
+						$current_url = '';
 					}
 				}
 
@@ -1193,7 +1300,7 @@ class Jetpack_Tweetstorm_Helper {
 		foreach ( $tokens as $token ) {
 			$found_value = '';
 
-			if ( 0 === strlen( trim( $token ) ) ) {
+			if ( 0 === strlen( $token ) ) {
 				// Skip any empty tokens.
 				continue;
 			}
@@ -1253,6 +1360,19 @@ class Jetpack_Tweetstorm_Helper {
 		}
 
 		return $values;
+	}
+
+	/**
+	 * Generates a placeholder for URLs, using the appropriate number of characters to imitate how
+	 * Twitter counts the length of URLs in tweets.
+	 *
+	 * @param string $url The URL to generate a placeholder for.
+	 * @return string The placeholder.
+	 */
+	public static function generate_url_placeholder( $url ) {
+		self::$urls[] = $url;
+
+		return str_pad( 'url-placeholder-' . ( count( self::$urls ) - 1 ), self::$characters_per_url, '-' );
 	}
 
 	/**
