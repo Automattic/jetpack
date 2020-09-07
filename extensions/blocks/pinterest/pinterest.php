@@ -140,7 +140,7 @@ function render_amp( $attr ) {
 		$title = $has_description ? '' : implode( ': ', array_filter( array( $title, $description ) ) );
 
 		$amp_pinterest = sprintf(
-			'<amp-pinterest style="%s" data-do="embedPin" data-url="%s" width="%d" height="%d" title="%s">%s</amp-pinterest></div>',
+			'<amp-pinterest style="%s" data-do="embedPin" data-url="%s" width="%d" height="%d" title="%s">%s</amp-pinterest>',
 			esc_attr( 'line-height:1.5; font-size:21px' ), // Override styles from theme due to precise height calculations above.
 			esc_url( $attr['url'] ),
 			$amp_fixed_width + ( $amp_padding * 2 ),
