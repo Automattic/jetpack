@@ -9,11 +9,11 @@ on:
     paths-ignore:
     - '**.md'
 
-env:
-  DB_NAME: jetpack_test
-  DB_HOST: 127.0.0.1
-  DB_USERNAME: root
-  DB_PASSWORD: root
+# env:
+#   DB_NAME: jetpack_test
+#   DB_HOST: 127.0.0.1
+#   DB_USERNAME: root
+#   DB_PASSWORD: root
 
 jobs:
   e2e-tests:
