@@ -1035,11 +1035,13 @@ class Manager {
 	 * @param bool $all whether to clean even non-expired nonces.
 	 *
 	 * @deprecated since 9.0.0
+	 *
+	 * @see Nonce_Handler::clean_all()
 	 */
 	public function clean_nonces( $all = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.0.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean' );
+		_deprecated_function( __METHOD__, 'jetpack-9.0.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
 
-		Nonce_Handler::clean( $all );
+		Nonce_Handler::clean_all( $all ? PHP_INT_MAX : time() - Nonce_Handler::LIFETIME );
 	}
 
 	/**

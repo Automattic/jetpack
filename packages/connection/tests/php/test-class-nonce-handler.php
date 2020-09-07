@@ -105,46 +105,22 @@ class Test_Nonce_Handler extends TestCase {
 	}
 
 	/**
-	 * Testing the nonce cleanup functionality.
-	 */
-	public function test_clean() {
-		$query_filter_run = false;
-
-		$query_filter = function( $result, $query ) use ( &$query_filter_run ) {
-			if ( ! $query_filter_run && false !== strpos( $query, 'jetpack\_nonce' ) ) {
-				global $wpdb;
-
-				$query_filter_run = true;
-				self::assertStringStartsWith( "DELETE FROM `{$wpdb->options}` WHERE `option_name` LIKE 'jetpack\_nonce\_", $query );
-			}
-
-			return $result;
-		};
-
-		add_filter( 'wordbless_wpdb_query_results', $query_filter, 10, 2 );
-
-		Nonce_Handler::clean();
-
-		remove_filter( 'wordbless_wpdb_query_results', $query_filter );
-
-		self::assertTrue( $query_filter_run, "The SQL query assertions haven't run." );
-	}
-
-	/**
 	 * Testing the runtime nonce cleanup functionality.
 	 */
-	public function test_clean_runtime() {
-		$nonce_ids = array( 1111, 2222 );
+	public function test_delete() {
+		$nonce_ids        = array( 1111, 2222 );
+		$limit            = 42;
+		$cutoff_timestamp = static::TIMESTAMP;
 
 		$query_filter_select_run = false;
 		$query_filter_delete_run = false;
 
-		$query_filter_select = function( $result, $query ) use ( &$query_filter_select_run, $nonce_ids ) {
+		$query_filter_select = function( $result, $query ) use ( &$query_filter_select_run, $nonce_ids, $limit, $cutoff_timestamp ) {
 			if ( ! $query_filter_select_run && 0 === strpos( $query, 'SELECT ' ) && false !== strpos( $query, 'jetpack_nonce_' ) ) {
 				global $wpdb;
 
 				$query_filter_select_run = true;
-				self::assertStringStartsWith( "SELECT option_id FROM `{$wpdb->options}` WHERE `option_name` >= 'jetpack_nonce_' AND `option_name` < ", $query );
+				self::assertEquals( "SELECT option_id FROM `{$wpdb->options}` WHERE `option_name` >= 'jetpack_nonce_' AND `option_name` < 'jetpack_nonce_{$cutoff_timestamp}' LIMIT {$limit}", $query );
 
 				return array( (object) array( 'option_id' => $nonce_ids[0] ), (object) array( 'option_id' => $nonce_ids[1] ) );
 			}
@@ -166,7 +142,7 @@ class Test_Nonce_Handler extends TestCase {
 		add_filter( 'wordbless_wpdb_query_results', $query_filter_select, 10, 2 );
 		add_filter( 'wordbless_wpdb_query_results', $query_filter_delete, 10, 2 );
 
-		Nonce_Handler::clean_runtime();
+		Nonce_Handler::delete( $limit, $cutoff_timestamp );
 
 		remove_filter( 'wordbless_wpdb_query_results', $query_filter_select );
 		remove_filter( 'wordbless_wpdb_query_results', $query_filter_delete );

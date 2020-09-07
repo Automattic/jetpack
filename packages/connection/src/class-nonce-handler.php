@@ -12,7 +12,21 @@ namespace Automattic\Jetpack\Connection;
  */
 class Nonce_Handler {
 
-	const CLEANUP_RUNTIME_LIMIT = 2;
+	/**
+	 * How many nonces should be removed during each run of the runtime cleanup.
+	 * Can be modified using the filter `jetpack_connection_nonce_cleanup_runtime_limit`.
+	 */
+	const CLEANUP_RUNTIME_LIMIT = 10;
+
+	/**
+	 * How many nonces should be removed per batch during the `clean_all()` run.
+	 */
+	const CLEAN_ALL_LIMIT_PER_BATCH = 1000;
+
+	/**
+	 * Nonce lifetime in seconds.
+	 */
+	const LIFETIME = HOUR_IN_SECONDS;
 
 	/**
 	 * The nonces used during the request are stored here to keep them valid.
@@ -80,40 +94,28 @@ class Nonce_Handler {
 	}
 
 	/**
-	 * Cleans nonces that were saved when calling ::add_nonce.
+	 * Removing all the nonces.
 	 *
-	 * @param bool $all whether to clean even non-expired nonces.
+	 * @param int $cutoff_timestamp All nonces added before this timestamp will be removed.
+	 *
+	 * @return true
 	 */
-	public static function clean( $all = false ) {
-		global $wpdb;
+	public static function clean_all( $cutoff_timestamp = PHP_INT_MAX ) {
+		for ( $i = 0; $i < 1000; ++$i ) {
+			$result = static::delete( static::CLEAN_ALL_LIMIT_PER_BATCH, $cutoff_timestamp );
 
-		$sql      = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
-
-		if ( true !== $all ) {
-			$sql       .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
-			$sql_args[] = time() - 3600;
-		}
-
-		$sql .= ' ORDER BY `option_id` LIMIT 100';
-
-		$sql = $wpdb->prepare( $sql, $sql_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-		for ( $i = 0; $i < 1000; $i++ ) {
-			if ( ! $wpdb->query( $sql ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			if ( ! $result ) {
 				break;
 			}
 		}
+
+		return true;
 	}
 
 	/**
-	 * Remove a few old nonces on shutdown.
-	 *
-	 * @return bool
+	 * Clean up the expired nonces on shutdown.
 	 */
 	public static function clean_runtime() {
-		global $wpdb;
-
 		/**
 		 * Adjust the number of old nonces that are cleaned up at shutdown.
 		 *
@@ -123,25 +125,41 @@ class Nonce_Handler {
 		 */
 		$limit = apply_filters( 'jetpack_connection_nonce_cleanup_runtime_limit', static::CLEANUP_RUNTIME_LIMIT );
 
+		static::delete( $limit, time() - static::LIFETIME );
+	}
+
+
+	/**
+	 * Delete the nonces.
+	 *
+	 * @param int      $limit How many nonces to delete.
+	 * @param null|int $cutoff_timestamp All nonces added before this timestamp will be removed.
+	 *
+	 * @return int|false Number of removed nonces, or `false` if nothing to remove (or in case of a database error).
+	 */
+	public static function delete( $limit = 10, $cutoff_timestamp = null ) {
+		global $wpdb;
+
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT option_id FROM `{$wpdb->options}`"
 				. " WHERE `option_name` >= 'jetpack_nonce_' AND `option_name` < %s"
 				. ' LIMIT %d',
-				'jetpack_nonce_' . ( time() - 3600 ),
+				'jetpack_nonce_' . $cutoff_timestamp,
 				$limit
 			)
 		);
 
-		if ( is_array( $ids ) && count( $ids ) ) {
-			$ids_fill = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
-
-			// The Code Sniffer is unable to understand what's going on...
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			$wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( {$ids_fill} )", $ids ) );
+		if ( ! is_array( $ids ) || ! count( $ids ) ) {
+			// There's either nothing to remove, or there's an error and we can't proceed.
+			return false;
 		}
 
-		return true;
+		$ids_fill = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
+
+		// The Code Sniffer is unable to understand what's going on...
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		return $wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( {$ids_fill} )", $ids ) );
 	}
 
 	/**

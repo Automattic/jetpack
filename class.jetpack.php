@@ -3304,8 +3304,11 @@ p {
 	 * @static
 	 */
 	public static function disconnect( $update_activated_state = true ) {
+		// The hook is not being set since Jetpack 9.0.0,
+		// but we're removing it just in case it wasn't properly cleaned up after the plugin update.
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-		Nonce_Handler::clean( true );
+
+		Nonce_Handler::clean_all();
 
 		$connection = self::connection();
 
@@ -5659,19 +5662,6 @@ endif;
 		}
 
 		return $this->connection_manager->xmlrpc_options( $options );
-	}
-
-	/**
-	 * Cleans nonces that were saved when calling ::add_nonce.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Nonce_Handler::clean()
-	 *
-	 * @param bool $all whether to clean even non-expired nonces.
-	 */
-	public static function clean_nonces( $all = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::clean_nonces' );
-		Nonce_Handler::clean( $all );
 	}
 
 	/**
