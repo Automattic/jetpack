@@ -74,6 +74,8 @@ start_ngrok() {
 	kill_ngrok
 
 	if [ ! -z "$NGROK_KEY" ]; then
+		echo -e $(status_message "Setting up ngrok auth key")
+
 			$NGROK_CMD authtoken $NGROK_KEY
 	fi
 
@@ -127,6 +129,7 @@ reset_env() {
 
 configure_wp_env() {
 	yarn wp-env run tests-wordpress touch wp-content/debug.log
+	yarn wp-env run tests-wordpress chown www-data:www-data wp-content/debug.log
 
 	yarn wp-env run tests-cli wp option set siteurl "$WP_SITE_URL"
 	yarn wp-env run tests-cli wp option set home "$WP_SITE_URL"
