@@ -200,11 +200,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		} else {
 			$result = self::failing_test(
 				array(
-					'name'             => $name,
-					'label'            => __( 'Your site is not connected to Jetpack', 'jetpack' ),
-					'action'           => admin_url( 'admin.php?page=jetpack#/dashboard' ),
-					'action_label'     => __( 'Reconnect your site now', 'jetpack' ),
-					'long_description' => sprintf(
+					'name'              => $name,
+					'short_description' => __( 'Your site is not connected to Jetpack', 'jetpack' ),
+					'action'            => admin_url( 'admin.php?page=jetpack#/dashboard' ),
+					'action_label'      => __( 'Reconnect your site now', 'jetpack' ),
+					'long_description'  => sprintf(
 						'<p>%1$s</p>' .
 						'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s</strong></p>',
 						__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack' ),
