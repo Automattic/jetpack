@@ -1489,6 +1489,40 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that embeds will start a new tweet when the previous tweet already has URLs in it.
+	 */
+	public function test_embeds_start_new_tweet_after_links() {
+		$test_url     = 'https://pento.net';
+		$test_content = "The <a href='$test_url'>joker</a>.";
+		$test_embed   = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateCoreEmbedData( 'youtube', $test_embed ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => "The joker ($test_url).",
+				'urls' => array( $test_url ),
+			),
+			array(
+				'text' => $test_embed,
+				'urls' => array( $test_embed ),
+			),
+		);
+
+		$expected_boundaries = array( false, false );
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			array( $blocks[1] ),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
 	 * Test that link URLs are added to the tweet text.
 	 */
 	public function test_links_handled() {
