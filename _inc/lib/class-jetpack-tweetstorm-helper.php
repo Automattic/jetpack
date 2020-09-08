@@ -18,72 +18,107 @@ class Jetpack_Tweetstorm_Helper {
 	/**
 	 * Blocks that can be converted to tweets.
 	 *
-	 * @var array
+	 * @var array {
+	 *     The key for each element must match the registered block name.
+	 *
+	 *     @type string $type Required. The type of content this block produces. Can be one of 'break', 'embed', 'image',
+	 *                        'multiline', 'text', or 'video'.
+	 *     @type string $content_location Optional. Where the block content can be found. Can be 'html', if we need to parse
+	 *                           it out of the block HTML text, 'html-attributes', if the we need to parse it out of HTML attributes
+	 *                           in the block HTML, or 'block-attributes', if the content can be found in the block attributes.
+	 *                           Note that these attributes need to be available when the serialised block is
+	 *                           parsed using `parse_blocks()`. If it isn't set, it's assumed the block doesn't add
+	 *                           any content to the Twitter thread.
+	 *     @type array $content Optional. Defines what parts of the block content need to be extracted. Behaviour can vary based on
+	 *                          `$content_location`, and `$type`:
+	 *
+	 *                              - When `$content_location` is 'html', a value of `array()` or `array( 'content' )` have the same meaning:
+	 *                                The entire block HTML should be used. In both cases, 'content' will be the corresponding tag in `$template`.
+	 *                              - When `$content_location` is 'html', it should be formatted as `array( 'container' => 'tag' )`,
+	 *                                where 'container' is the name of the corresponding RichText container in the block editor, and is also the name
+	 *                                of the corresponding tag in the $template string. 'tag' is the HTML tag within the block that corresponds to this
+	 *                                container. When `$type` is 'multiline', there must only be one element in the array, and tag should be set to the HTML
+	 *                                tag that corresponds to each line, though the 'container' should still be the RichText container name. (Eg, in the core/list block, the tag is 'li'.)
+	 *                              - When `$content_location` is 'html-attributes', the array should be formatted as `array( 'name' => array( 'tag', 'attribute') )`,
+	 *                                where 'name' is the name of a particular value that different block types require, 'tag' is the name of the HTML tag where 'attribute'
+	 *                                can be found, containing the value to use for 'name'. When `$type` is 'image', 'url' and 'alt' must be defined. When `$type` is 'video',
+	 *                                'url' must be defined.
+	 *                              - When `$content_location` is 'block-attributes', it must be an array of block attribute names. When `$type` is 'embed', there
+	 *                                only be one element, corresponding to the URL for the embed.
+	 *     @type string $template Required for 'text' and 'multiline' types, ignored for all other types. Describes how the block content will be formatted when tweeted.
+	 *                            Tags should match the keys of `$content`, except for the special "{{content}}", which matches the entire HTML content of the block.
+	 *                            For 'multiline' types, the template will be repeated for every line in the block.
+	 *     @type boolean $force_new Required. Whether or not a new tweet should be started when this block is encountered.
+	 *     @type boolean $force_finished Required. Whether or not a new tweet should be started after this block is finished.
+	 * }
 	 */
 	private static $supported_blocks = array(
 		'core/embed'     => array(
-			'type'           => 'embed',
-			'content'        => 'attrs',
-			'embed_attr'     => 'url',
-			'force_new'      => false,
-			'force_finished' => true,
+			'type'             => 'embed',
+			'content_location' => 'block-attributes',
+			'content'          => array( 'url' ),
+			'force_new'        => false,
+			'force_finished'   => true,
 		),
 		'core/gallery'   => array(
-			'type'           => 'image',
-			'content'        => 'innerHTML',
-			'content_attrs'  => array(
+			'type'             => 'image',
+			'content_location' => 'html-attributes',
+			'content'          => array(
 				'url' => array( 'img', 'src' ),
 				'alt' => array( 'img', 'alt' ),
 			),
-			'force_new'      => false,
-			'force_finished' => true,
+			'force_new'        => false,
+			'force_finished'   => true,
 		),
 		'core/heading'   => array(
-			'type'           => 'text',
-			'content'        => 'innerHTML',
-			'content_tags'   => array(),
-			'template'       => '{{content}}',
-			'force_new'      => true,
-			'force_finished' => false,
+			'type'             => 'text',
+			'content_location' => 'html',
+			'content'          => array(),
+			'template'         => '{{content}}',
+			'force_new'        => true,
+			'force_finished'   => false,
 		),
 		'core/image'     => array(
-			'type'           => 'image',
-			'content'        => 'innerHTML',
-			'content_attrs'  => array(
+			'type'             => 'image',
+			'content_location' => 'html-attributes',
+			'content'          => array(
 				'url' => array( 'img', 'src' ),
 				'alt' => array( 'img', 'alt' ),
 			),
-			'force_new'      => false,
-			'force_finished' => true,
+			'force_new'        => false,
+			'force_finished'   => true,
 		),
 		'core/list'      => array(
-			'type'           => 'multiline',
-			'content'        => 'innerHTML',
-			'container'      => 'values',
-			'multiline_tag'  => 'li',
-			'template'       => '- {{line}}',
-			'force_new'      => false,
-			'force_finished' => false,
+			'type'             => 'multiline',
+			'content_location' => 'html',
+			// It looks a little weird to use the 'values' key for a single line,
+			// but 'values' is the name of the RichText content area.
+			'content'          => array(
+				'values' => 'li',
+			),
+			'template'         => '- {{values}}',
+			'force_new'        => false,
+			'force_finished'   => false,
 		),
 		'core/paragraph' => array(
-			'type'           => 'text',
-			'content'        => 'innerHTML',
-			'content_tags'   => array(),
-			'template'       => '{{content}}',
-			'force_new'      => false,
-			'force_finished' => false,
+			'type'             => 'text',
+			'content_location' => 'html',
+			'content'          => array(),
+			'template'         => '{{content}}',
+			'force_new'        => false,
+			'force_finished'   => false,
 		),
 		'core/quote'     => array(
-			'type'           => 'text',
-			'content'        => 'innerHTML',
+			'type'             => 'text',
+			'content_location' => 'html',
 			// The quote content will always be inside <p> tags.
-			'content_tags'   => array(
+			'content'          => array(
 				'value'    => 'p',
 				'citation' => 'cite',
 			),
-			'template'       => '“{{value}}” – {{citation}}',
-			'force_new'      => false,
-			'force_finished' => false,
+			'template'         => '“{{value}}” – {{citation}}',
+			'force_new'        => false,
+			'force_finished'   => false,
 		),
 		'core/separator' => array(
 			'type'           => 'break',
@@ -96,28 +131,28 @@ class Jetpack_Tweetstorm_Helper {
 			'force_finished' => true,
 		),
 		'core/verse'     => array(
-			'type'           => 'text',
-			'content'        => 'innerHTML',
-			'content_tags'   => array(),
-			'template'       => '{{content}}',
-			'force_new'      => false,
-			'force_finished' => false,
+			'type'             => 'text',
+			'content_location' => 'html',
+			'content'          => array(),
+			'template'         => '{{content}}',
+			'force_new'        => false,
+			'force_finished'   => false,
 		),
 		'core/video'     => array(
-			'type'           => 'video',
-			'content'        => 'innerHTML',
-			'content_attrs'  => array(
+			'type'             => 'video',
+			'content_location' => 'html-attributes',
+			'content'          => array(
 				'url' => array( 'video', 'src' ),
 			),
-			'force_new'      => false,
-			'force_finished' => true,
+			'force_new'        => false,
+			'force_finished'   => true,
 		),
 		'jetpack/gif'    => array(
-			'type'           => 'embed',
-			'content'        => 'attrs',
-			'embed_attr'     => 'giphyUrl',
-			'force_new'      => false,
-			'force_finished' => true,
+			'type'             => 'embed',
+			'content_location' => 'block-attributes',
+			'content'          => array( 'giphyUrl' ),
+			'force_new'        => false,
+			'force_finished'   => true,
 		),
 	);
 
@@ -798,43 +833,44 @@ class Jetpack_Tweetstorm_Helper {
 
 		$block_def = self::$supported_blocks[ $block['name'] ];
 
-		$lines = array();
-		if ( 'multiline' === $block_def['type'] ) {
-			$tags        = array( $block_def['multiline_tag'] );
-			$tag_content = self::extract_tag_content_from_html( $tags, $block['block']['innerHTML'] );
-
-			$lines = array_map(
-				function ( $line ) {
-					return array(
-						'line' => $line,
-					);
-				},
-				$tag_content[ $block_def['multiline_tag'] ]
-			);
+		if ( isset( $block_def['content'] ) && count( $block_def['content'] ) > 0 ) {
+			$tags = $block_def['content'];
 		} else {
-			if ( isset( $block_def['content_tags'] ) ) {
-				$tags = $block_def['content_tags'];
+			$tags = array( 'content' );
+		}
+
+		$tag_content = self::extract_tag_content_from_html( $tags, $block['block']['innerHTML'] );
+
+		// $tag_content is split up by tag first, then lines. We want to remap it to split it by lines
+		// first, then tag.
+		$lines = array();
+		foreach ( $tag_content as $tag => $content ) {
+			if ( 'content' === $tag ) {
+				$attribute_name = 'content';
 			} else {
-				$tags = array( 'content' );
+				$attribute_name = array_search( $tag, $block_def['content'], true );
 			}
 
-			$tag_content = self::extract_tag_content_from_html( $tags, $block['block']['innerHTML'] );
-
-			$merged_content = array_map(
-				function ( $content ) {
-					return implode( "\n", $content );
-				},
-				$tag_content
-			);
-
-			$lines[] = array();
-			foreach ( $merged_content as $attribute_tag => $attribute_content ) {
-				if ( 'content' === $attribute_tag ) {
-					$lines[0]['content'] = $attribute_content;
+			foreach ( $content as $id => $content_string ) {
+				// Multiline blocks can have multiple lines, but other blocks will always only have 1.
+				if ( 'multiline' === $block_def['type'] ) {
+					$line_number = $id;
 				} else {
-					$attribute_name = array_search( $attribute_tag, $block_def['content_tags'], true );
+					$line_number = 0;
+				}
 
-					$lines[0][ $attribute_name ] = $attribute_content;
+				if ( ! isset( $lines[ $line_number ] ) ) {
+					$lines[ $line_number ] = array();
+				}
+
+				if ( ! isset( $lines[ $line_number ][ $attribute_name ] ) ) {
+					// For multiline blocks, or the first time this attribute has been encountered
+					// in single line blocks, assign the string to the line/attribute.
+					$lines[ $line_number ][ $attribute_name ] = $content_string;
+				} else {
+					// For subsequent times this line/attribute is encountered (only in single line blocks),
+					// append the string with a line break.
+					$lines[ $line_number ][ $attribute_name ] .= "\n$content_string";
 				}
 			}
 		}
@@ -882,16 +918,10 @@ class Jetpack_Tweetstorm_Helper {
 
 							$boundary_start = $characters_processed + self::utf_16_code_unit_length( $line_part_pre_boundary_data ) - 1;
 
-							if ( 'multiline' === $block_def['type'] ) {
-								$container_name = $block_def['container'];
-							} else {
-								$container_name = $part_name;
-							}
-
 							return array(
 								'start'     => $boundary_start,
 								'end'       => $boundary_start + 1,
-								'container' => $container_name,
+								'container' => $part_name,
 								'type'      => 'normal',
 							);
 						} else {
@@ -906,9 +936,11 @@ class Jetpack_Tweetstorm_Helper {
 
 				// Are we breaking at the end of this line?
 				if ( $total_bytes_processed + 1 === $offset && $line_count > 1 ) {
+					reset( $block_def['content'] );
+					$container = key( $block_def['content'] );
 					return array(
 						'line'      => $line_number,
-						'container' => $block_def['container'],
+						'container' => $container,
 						'type'      => 'end-of-line',
 					);
 				}
@@ -967,45 +999,53 @@ class Jetpack_Tweetstorm_Helper {
 
 		$block_def = self::$supported_blocks[ $block['blockName'] ];
 
-		// Keep track of whether we've found any content in the tags.
-		$found_content = false;
-
-		if ( 'text' === $block_def['type'] ) {
-			$tags = self::extract_tag_content_from_html( $block_def['content_tags'], $block['innerHTML'] );
-			$text = $block_def['template'];
-
-			foreach ( $tags as $tag => $values ) {
-				$content = trim( implode( '', $values ) );
-				if ( strlen( $content ) > 0 ) {
-					$found_content = true;
-				}
-				if ( 'content' === $tag ) {
-					$placeholder = 'content';
-				} else {
-					$placeholder = array_search( $tag, $block_def['content_tags'], true );
-				}
-				$text = str_replace( '{{' . $placeholder . '}}', $content, $text );
-			}
-		} elseif ( 'multiline' === $block_def['type'] ) {
-			$tags = self::extract_tag_content_from_html( array( $block_def['multiline_tag'] ), $block['innerHTML'] );
-			$text = '';
-			foreach ( $tags[ $block_def['multiline_tag'] ] as $line ) {
-				if ( 0 === strlen( $line ) ) {
-					$text .= self::$line_separator;
-				} else {
-					$found_content = true;
-					$text         .= str_replace( '{{line}}', $line, $block_def['template'] ) . self::$line_separator;
-				}
-			}
-
-			$text = trim( $text );
-			$text = preg_replace( '/(' . self::$line_separator . ')+$/', '', $text );
-		}
-
-		// If there was no actual content in this block, return an empty string instead of an empty template.
-		if ( ! $found_content ) {
+		// We currently only support extracting text from HTML text nodes.
+		if ( ! isset( $block_def['content_location'] ) || 'html' !== $block_def['content_location'] ) {
 			return '';
 		}
+
+		if ( isset( $block_def['content'] ) && count( $block_def['content'] ) > 0 ) {
+			$tags = $block_def['content'];
+		} else {
+			$tags = array( 'content' );
+		}
+
+		$tag_values = self::extract_tag_content_from_html( $tags, $block['innerHTML'] );
+
+		$lines = array();
+		foreach ( $tag_values as $tag => $values ) {
+			// For single-line blocks, we need to squash all the values for this tag into a single value.
+			if ( 'multiline' !== $block_def['type'] ) {
+				$values = array( trim( implode( '', $values ) ) );
+			}
+
+			if ( 'content' === $tag ) {
+				$placeholder = 'content';
+			} else {
+				$placeholder = array_search( $tag, $block_def['content'], true );
+			}
+
+			foreach ( $values as $line_number => $value ) {
+				if ( ! isset( $lines[ $line_number ] ) ) {
+					$lines[ $line_number ] = $block_def['template'];
+				}
+
+				$lines[ $line_number ] = str_replace( '{{' . $placeholder . '}}', $value, $lines[ $line_number ] );
+			}
+		}
+
+		$empty_template = preg_replace( '/{{.*?}}/', '', $block_def['template'] );
+		$lines          = array_filter(
+			$lines,
+			function ( $line ) use ( $empty_template ) {
+				return $line !== $empty_template;
+			}
+		);
+
+		$text = implode( self::$line_separator, $lines );
+
+		$text = trim( $text );
+		$text = preg_replace( '/(' . self::$line_separator . ')+$/', '', $text );
 
 		return $text;
 	}
@@ -1028,13 +1068,13 @@ class Jetpack_Tweetstorm_Helper {
 
 		if ( 'image' === $block_def['type'] ) {
 			$url = self::extract_attr_content_from_html(
-				$block_def['content_attrs']['url'][0],
-				$block_def['content_attrs']['url'][1],
+				$block_def['content']['url'][0],
+				$block_def['content']['url'][1],
 				$block['innerHTML']
 			);
 			$alt = self::extract_attr_content_from_html(
-				$block_def['content_attrs']['alt'][0],
-				$block_def['content_attrs']['alt'][1],
+				$block_def['content']['alt'][0],
+				$block_def['content']['alt'][1],
 				$block['innerHTML']
 			);
 
@@ -1055,8 +1095,8 @@ class Jetpack_Tweetstorm_Helper {
 				$url = array( $block['attrs']['src'] );
 			} else {
 				$url = self::extract_attr_content_from_html(
-					$block_def['content_attrs']['url'][0],
-					$block_def['content_attrs']['url'][1],
+					$block_def['content']['url'][0],
+					$block_def['content']['url'][1],
 					$block['innerHTML']
 				);
 			}
@@ -1107,16 +1147,16 @@ class Jetpack_Tweetstorm_Helper {
 			return '';
 		}
 
+		$url = '';
+		if ( 'block-attributes' === $block_def['content_location'] ) {
+			$url = $block['attrs'][ $block_def['content'][0] ];
+		}
+
 		if ( 'jetpack/gif' === $block['blockName'] ) {
-			return str_replace( '/embed/', '/gifs/', $block['attrs'][ $block_def['embed_attr'] ] );
+			$url = str_replace( '/embed/', '/gifs/', $url );
 		}
 
-		// When the embed URL is stored in an attribute, return it.
-		if ( 'attrs' === $block_def['content'] ) {
-			return $block['attrs'][ $block_def['embed_attr'] ];
-		}
-
-		return '';
+		return $url;
 	}
 
 	/**
