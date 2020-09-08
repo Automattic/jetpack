@@ -86,7 +86,7 @@ jobs:
       run: |
         curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
         tar -zxvf allure.tgz -C /opt/
-        ln -s /opt/allure/bin/allure /usr/bin/allure
+        sudo ln -s /opt/allure/bin/allure /usr/bin/allure
         /usr/bin/allure -v
         allure -v
 
