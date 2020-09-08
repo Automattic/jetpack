@@ -80,9 +80,10 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Run allure
+      env:
+        ALLURE_VERSION: 2.13.5
+        ALLURE_REPO: "http://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
       run: |
-        export ALLURE_VERSION=2.13.5
-        export ALLURE_REPO="http://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
         curl -o allure.tgz -Ls ALLURE_REPO/ALLURE_VERSION/allure-commandline-ALLURE_VERSION.tgz
         tar -zxvf allure.tgz -C /opt/
         ln -s /opt/allure/bin/allure /usr/bin/allure
