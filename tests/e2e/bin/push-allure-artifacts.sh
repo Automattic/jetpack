@@ -9,7 +9,7 @@ REPO_DIR=$ROOT_DIR/$REPO
 RESULTS_DIR="allure-results"
 USERNAME="jetpackbot"
 
-allure -v
+allure --version
 
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
