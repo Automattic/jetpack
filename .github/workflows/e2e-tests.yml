@@ -66,11 +66,15 @@ jobs:
 
     - name: Upload Allure artifacts
       if: ${{ always() }}
+      env:
+        ALLURE_VERSION: 2.13.5
+        ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
       run: |
-        sudo apt-add-repository ppa:qameta/allure
-        sudo apt-get update
-        sudo apt install -y allure
+        curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
+        tar -zxvf allure.tgz -C /opt/
+        sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
         allure -v
+
         ./tests/e2e/bin/push-allure-artifacts.sh
   allure:
     name: Allure
@@ -86,9 +90,7 @@ jobs:
       run: |
         curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
         tar -zxvf allure.tgz -C /opt/
-        ls -la /opt
         sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
-        ls -la /usr/bin
         allure -v
 
         ./tests/e2e/bin/push-allure-artifacts.sh
