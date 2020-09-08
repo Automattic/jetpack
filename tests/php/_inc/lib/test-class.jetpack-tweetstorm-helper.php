@@ -140,6 +140,32 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Given a URL, it will generate the blob of data
+	 * that the parser expects to receive for a VidePress video block.
+	 *
+	 * @param string $guid     The VideoPress video ID.
+	 * @param string $filename The filename of the video.
+	 * @return array The VideoPress blob of data.
+	 */
+	public function generateVideoPressData( $guid, $filename ) {
+		return array(
+			'attributes' => array(
+				'guid' => $guid,
+				'src'  => "https://videos.files.wordpress.com/$guid/$filename",
+			),
+			'block'      => array(
+				'attrs'     => array(
+					'guid' => $guid,
+					'src'  => "https://videos.files.wordpress.com/$guid/$filename",
+				),
+				'blockName' => 'core/video',
+				'innerHTML' => "<figure><div>\nhttps://videopress.com/v/$guid?preloadContent=metadata\n</div></figure>",
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
 	 * Helper function. Given an array of image URLs and alt text, it will generate the
 	 * blob of data that the parser expects to receive for a gallery block.
 	 *
@@ -1486,6 +1512,34 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 					array(
 						'url'  => $test_url,
 						'type' => 'video/quicktime',
+					),
+				),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that a VideoPress video block will be appended to the previous tweet.
+	 */
+	public function test_videopress_video_is_appended() {
+		$test_content  = 'KITTENS';
+		$test_guid     = 'mmQ4ecI6';
+		$test_filename = 'chatty-kitten_dvd.mp4';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateVideoPressData( $test_guid, $test_filename ),
+		);
+
+		$expected_content = array(
+			array(
+				'text'  => $test_content,
+				'media' => array(
+					array(
+						'url'  => "https://videos.files.wordpress.com/$test_guid/$test_filename",
+						'type' => 'video/mp4',
 					),
 				),
 			),
