@@ -237,7 +237,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * @param string $provider The embed provider name.
 	 * @param string $url      The url of the embed.
 	 *
-	 * @return array The embedded tweet blob of data.
+	 * @return array The embed blob of data.
 	 */
 	public function generateCoreEmbedData( $provider, $url ) {
 		return array(
@@ -252,6 +252,29 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				),
 				'blockName' => 'core/embed',
 				'innerHTML' => '',
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
+	 * Helper function. Generate the blob of data that the parser
+	 * expects to receive for Jetpack GIF block.
+	 *
+	 * @param string $url The embed URL of the GIF.
+	 *
+	 * @return array The embedded tweet blob of data.
+	 */
+	public function generateJetpackGifData( $url ) {
+		return array(
+			'attributes' => array(
+				'giphyUrl' => $url,
+			),
+			'block'      => array(
+				'attrs'     => array(
+					'giphyUrl' => $url,
+				),
+				'blockName' => 'jetpack/gif',
 			),
 			'clientId'   => wp_generate_uuid4(),
 		);
@@ -1626,6 +1649,27 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array(
 				'text' => "$test_content $test_url",
 				'urls' => array( $test_url ),
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that Jetpack GIF embeds will be appended as URLs, with the URL re-written correctly.
+	 */
+	public function test_jetpack_gif_is_appended() {
+		$test_url     = 'https://giphy.com/embed/jTqfCm1C0BV5fFAYvT';
+		$expected_url = 'https://giphy.com/gifs/jTqfCm1C0BV5fFAYvT';
+
+		$blocks = array(
+			$this->generateJetpackGifData( $test_url ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => $expected_url,
+				'urls' => array( $expected_url ),
 			),
 		);
 
