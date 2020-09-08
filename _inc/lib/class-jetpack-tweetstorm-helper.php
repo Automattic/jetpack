@@ -336,11 +336,6 @@ class Jetpack_Tweetstorm_Helper {
 		for ( $line_count = 0; $line_count < $line_total; $line_count++ ) {
 			$line_text = $lines[ $line_count ];
 
-			// If this is an empty line in a multiline block, we can skip it.
-			if ( 0 === strlen( $line_text ) && 'multiline' === $block_def['type'] ) {
-				continue;
-			}
-
 			// Make sure we have the most recent tweet at the start of every loop.
 			$current_tweet = self::get_current_tweet();
 
@@ -1004,6 +999,7 @@ class Jetpack_Tweetstorm_Helper {
 			return '';
 		}
 
+		// Find out which tags we need to extract content from.
 		if ( isset( $block_def['content'] ) && count( $block_def['content'] ) > 0 ) {
 			$tags = $block_def['content'];
 		} else {
@@ -1012,6 +1008,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		$tag_values = self::extract_tag_content_from_html( $tags, $block['innerHTML'] );
 
+		// We can treat single line blocks as "multiline", with only one line in them.
 		$lines = array();
 		foreach ( $tag_values as $tag => $values ) {
 			// For single-line blocks, we need to squash all the values for this tag into a single value.
@@ -1019,12 +1016,14 @@ class Jetpack_Tweetstorm_Helper {
 				$values = array( trim( implode( '', $values ) ) );
 			}
 
+			// Handle the special "content" tag.
 			if ( 'content' === $tag ) {
 				$placeholder = 'content';
 			} else {
 				$placeholder = array_search( $tag, $block_def['content'], true );
 			}
 
+			// Loop over each instance of this value, appling that value to the corresponding line template.
 			foreach ( $values as $line_number => $value ) {
 				if ( ! isset( $lines[ $line_number ] ) ) {
 					$lines[ $line_number ] = $block_def['template'];
@@ -1034,6 +1033,7 @@ class Jetpack_Tweetstorm_Helper {
 			}
 		}
 
+		// Remove any lines that didn't apply any content.
 		$empty_template = preg_replace( '/{{.*?}}/', '', $block_def['template'] );
 		$lines          = array_filter(
 			$lines,
@@ -1042,8 +1042,10 @@ class Jetpack_Tweetstorm_Helper {
 			}
 		);
 
+		// Join the lines together into a single string.
 		$text = implode( self::$line_separator, $lines );
 
+		// Trim off any extra whitespace that we no longer need.
 		$text = trim( $text );
 		$text = preg_replace( '/(' . self::$line_separator . ')+$/', '', $text );
 
