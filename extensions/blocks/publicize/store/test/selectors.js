@@ -188,6 +188,7 @@ describe( 'getTwitterCardForURLs', () => {
 		const state = {
 			twitterCards: {
 				'foo': { title: 'bar' },
+				'baz': { title: 'cat' },
 			},
 		};
 		const expected = {
