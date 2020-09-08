@@ -87,4 +87,7 @@ jobs:
         curl -o allure.tgz -Ls ALLURE_REPO/ALLURE_VERSION/allure-commandline-ALLURE_VERSION.tgz
         tar -zxvf allure.tgz -C /opt/
         ln -s /opt/allure/bin/allure /usr/bin/allure
+        /usr/bin/allure -v
+        allure -v
+
         ./tests/e2e/bin/push-allure-artifacts.sh
