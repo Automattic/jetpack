@@ -49,20 +49,16 @@ jobs:
     - name: Build Jetpack
       run: yarn && yarn build-production
 
-    - name: Setup env and WordPress
-      run: |
-        sudo apt update
-        sudo apt install -y zip
-
-    - name: Decrypt config
-      env:
-        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-      run: yarn test-decrypt-config
-
-    - name: Start docker env
+    - name: Set up environment
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
-      run: ./tests/e2e/bin/env.sh start
+        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      run: |
+        sudo apt-add-repository ppa:qameta/allure
+        sudo apt-get update
+        sudo apt install -y zip allure
+        yarn test-decrypt-config
+        ./tests/e2e/bin/env.sh start
 
     - name: Run tests
       run: yarn test-e2e
