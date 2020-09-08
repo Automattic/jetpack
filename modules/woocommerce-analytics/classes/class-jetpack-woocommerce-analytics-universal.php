@@ -284,7 +284,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 			$this->record_event(
 				'woocommerceanalytics_product_purchase',
-				$product ? $product->get_id() : -1,
+				$product_id,
 				array(
 					'oi' => $order->get_order_number(),
 					'pq' => $order_item->get_quantity(),
