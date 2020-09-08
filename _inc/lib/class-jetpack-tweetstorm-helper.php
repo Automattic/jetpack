@@ -911,7 +911,13 @@ class Jetpack_Tweetstorm_Helper {
 							// Remove any URL placeholders, since these aren't shown in the editor.
 							$line_part_pre_boundary_data = preg_replace( '/ \(url-placeholder-\d+-*\)/', '', $line_part_pre_boundary_data );
 
-							$boundary_start = $characters_processed + self::utf_16_code_unit_length( $line_part_pre_boundary_data ) - 1;
+							$boundary_start = self::utf_16_code_unit_length( $line_part_pre_boundary_data ) - 1;
+
+							// Multiline blocks need to offset for the characters that are in the same content area,
+							// but which were counted on previous lines.
+							if ( 'multiline' === $block_def['type'] ) {
+								$boundary_start += $characters_processed;
+							}
 
 							return array(
 								'start'     => $boundary_start,
@@ -1013,7 +1019,7 @@ class Jetpack_Tweetstorm_Helper {
 		foreach ( $tag_values as $tag => $values ) {
 			// For single-line blocks, we need to squash all the values for this tag into a single value.
 			if ( 'multiline' !== $block_def['type'] ) {
-				$values = array( trim( implode( '', $values ) ) );
+				$values = array( trim( implode( "\n", $values ) ) );
 			}
 
 			// Handle the special "content" tag.
@@ -1277,8 +1283,8 @@ class Jetpack_Tweetstorm_Helper {
 				// If we're currently storing content, check if it's a text-formatting
 				// tag that we should apply.
 				if ( $opened !== $closed ) {
-					// End of a paragraph, put in some newlines.
-					if ( '</p>' === $token ) {
+					// End of a paragraph, put in some newlines (as long as we're not extracting paragraphs).
+					if ( '</p>' === $token && 'p' !== $tag ) {
 						$values[ $tag ][ $opened ] .= "\n\n";
 					}
 

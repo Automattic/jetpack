@@ -933,6 +933,96 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that a long quote block splits.
+	 */
+	public function test_long_quote() {
+		$test_quote       = 'Here is a bunch of text for you. ';
+		$test_attribution = 'Gary Pendergast';
+
+		$blocks = array(
+			$this->generateQuoteData( trim( str_repeat( $test_quote, 9 ) ), $test_attribution ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => '“' . trim( str_repeat( $test_quote, 8 ) ),
+			),
+			array(
+				'text' => trim( $test_quote ) . "” – $test_attribution",
+			),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 263, 264, 'value' ),
+			false,
+		);
+
+		$expected_blocks = array( $blocks, $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that a quote block with multiple paragraphs splits correctly.
+	 */
+	public function test_multi_paragraph_quote() {
+		$test_quote       = 'Here is a bunch of text for you. ';
+		$test_attribution = 'Gary Pendergast';
+
+		$blocks = array(
+			$this->generateQuoteData( trim( str_repeat( $test_quote, 4 ) ) . "\n" . trim( str_repeat( $test_quote, 4 ) ), $test_attribution ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => '“' . trim( str_repeat( $test_quote, 4 ) ) . "\n" . trim( str_repeat( $test_quote, 3 ) ),
+			),
+			array(
+				'text' => trim( $test_quote ) . "” – $test_attribution",
+			),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 230, 231, 'value' ),
+			false,
+		);
+
+		$expected_blocks = array( $blocks, $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
+	 * Test that a quote attribution with sentences in it splits.
+	 */
+	public function test_quote_attribution_sentence_splits() {
+		$test_quote       = 'Here is a bunch of text for you. ';
+		$test_attribution = 'Ugh. That guy. You know.';
+
+		$blocks = array(
+			$this->generateQuoteData( trim( str_repeat( $test_quote, 8 ) ), $test_attribution ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => '“' . trim( str_repeat( $test_quote, 8 ) ) . '” – Ugh.',
+			),
+			array(
+				'text' => 'That guy. You know.',
+			),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 4, 5, 'citation' ),
+			false,
+		);
+
+		$expected_blocks = array( $blocks, $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
 	 * Test that a heading will start a new block.
 	 */
 	public function test_heading() {
