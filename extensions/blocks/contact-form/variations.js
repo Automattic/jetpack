@@ -1,15 +1,21 @@
 /**
  * External dependencies
  */
+import { compact } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
+import { isSimpleSite } from '../../shared/site-type-utils';
 import renderMaterialIcon from '../../shared/render-material-icon';
 
-const variations = [
+const variations = compact( [
 	{
 		name: 'contact-form',
 		title: __( 'Contact Form', 'jetpack' ),
@@ -33,7 +39,7 @@ const variations = [
 			],
 		],
 	},
-	{
+	! isSimpleSite() && {
 		name: 'newsletter-form',
 		title: __( 'Newsletter Sign-up', 'jetpack' ),
 		description: __(
@@ -209,6 +215,6 @@ const variations = [
 			subject: __( 'New feedback received from your website', 'jetpack' ),
 		},
 	},
-];
+] );
 
 export default variations;
