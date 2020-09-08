@@ -792,8 +792,6 @@ class Jetpack {
 		foreach (
 			array(
 				'sync',
-				'tracking',
-				'tos',
 			)
 			as $feature
 		) {
@@ -849,6 +847,15 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
+		}
+
+		if ( ( new Tracking( $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
+		} else {
+			/**
+			 * Initialize tracking right after the user agrees to the terms of service.
+			 */
+			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
 	}
 
