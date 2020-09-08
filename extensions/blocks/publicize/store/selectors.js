@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Returns the failed Publicize connections.
  *
  * @param {object} state - State object.
@@ -37,7 +42,7 @@ export function getTweetTemplate( state ) {
 
 	return {
 		date: Date.now(),
-		name: 'Account Name',
+		name: twitterAccount?.profile_display_name || __( 'Account Name', 'jetpack' ),
 		profileImage:
 			twitterAccount?.profile_picture ||
 			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
