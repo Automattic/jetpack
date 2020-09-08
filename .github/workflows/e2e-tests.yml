@@ -57,6 +57,8 @@ jobs:
         sudo apt-add-repository ppa:qameta/allure
         sudo apt-get update
         sudo apt install -y zip allure
+        which allure
+
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
 
@@ -65,4 +67,9 @@ jobs:
 
     - name: Upload Allure artifacts
       if: ${{ always() }}
-      run: ./tests/e2e/bin/push-allure-artifacts.sh
+      run: |
+        which allure
+        sudo apt-add-repository ppa:qameta/allure
+        sudo apt-get update
+        sudo apt install -y allure
+        ./tests/e2e/bin/push-allure-artifacts.sh
