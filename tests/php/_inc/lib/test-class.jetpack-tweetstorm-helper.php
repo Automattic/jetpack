@@ -52,6 +52,26 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Given a string of text, it will generate the blob of data
+	 * that the parser expects to receive for a verse block.
+	 *
+	 * @param string $text The verse text.
+	 * @return array The verse blob of data.
+	 */
+	public function generateVerseData( $text ) {
+		return array(
+			'attributes' => array(
+				'content' => $text,
+			),
+			'block'      => array(
+				'blockName' => 'core/verse',
+				'innerHTML' => "<pre>$text</pre>",
+			),
+			'clientId'   => wp_generate_uuid4(),
+		);
+	}
+
+	/**
 	 * Helper function. Given a quote and attribution, it will generate the blob of data
 	 * that the parser expects to receive for a quote block.
 	 *
@@ -796,6 +816,47 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$expected_boundaries,
 			$expected_blocks
 		);
+	}
+
+	/**
+	 * Test that a basic verse maintains spacing.
+	 */
+	public function test_basic_verse() {
+		$test_content = "They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?";
+		$blocks       = array(
+			$this->generateVerseData( $test_content ),
+		);
+
+		$this->assertTweetGenerated( $blocks, array( $test_content ), array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that a long verse splits correctly.
+	 */
+	public function test_long_verse() {
+		$test_content = "They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?\n\n";
+
+		$blocks = array(
+			$this->generateVerseData( trim( str_repeat( $test_content, 4 ) ) ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => str_repeat( $test_content, 3 ) . "They say that code\n        is poetry.",
+			),
+			array(
+				'text' => "Is indentation poetry,\n  too?",
+			),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 264, 265, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array( $blocks, $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
 
 	/**
