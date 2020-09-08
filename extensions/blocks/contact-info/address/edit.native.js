@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { PlainText } from '@wordpress/block-editor';
 import { ToggleControl } from '@wordpress/components';
+import { InspectorControls } from '@wordpress/block-editor';
 
 class AddressEdit extends Component {
 	constructor( ...args ) {
@@ -38,14 +39,16 @@ class AddressEdit extends Component {
 		} = this.props;
 
 		const externalLink = (
-			<ToggleControl
-				label={ __( 'Link address to Google Maps', 'jetpack' ) }
-				checked={ linkToGoogleMaps }
-				onChange={ newlinkToGoogleMaps => {
-					setAttributes( { linkToGoogleMaps: newlinkToGoogleMaps } );
-					onFocus();
-				} }
-			/>
+			<InspectorControls>
+				<ToggleControl
+					label={ __( 'Link address to Google Maps', 'jetpack' ) }
+					checked={ linkToGoogleMaps }
+					onChange={ newlinkToGoogleMaps => {
+						setAttributes( { linkToGoogleMaps: newlinkToGoogleMaps } );
+						onFocus();
+					} }
+				/>
+			</InspectorControls>
 		);
 
 		return (
@@ -107,8 +110,8 @@ class AddressEdit extends Component {
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>
-					{ externalLink }
 				</Fragment>
+				{ externalLink }
 			</View>
 		);
 	}

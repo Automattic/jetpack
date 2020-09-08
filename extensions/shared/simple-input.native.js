@@ -7,6 +7,7 @@ import { View } from 'react-native';
 const simpleInput = ( type, props, label, view, onChange ) => {
 	const { onFocus } = props;
 	const value = props.attributes[ type ];
+	const keyboardType = props.keyboardType || 'default';
 	return (
 		<View>
 			<PlainText
@@ -15,6 +16,7 @@ const simpleInput = ( type, props, label, view, onChange ) => {
 				aria-label={ label }
 				onChange={ onChange }
 				onFocus={ onFocus }
+				keyboardType={ keyboardType }
 			/>
 		</View>
 	);
