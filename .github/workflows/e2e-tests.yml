@@ -54,35 +54,14 @@ jobs:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
-        sudo apt-add-repository ppa:qameta/allure
-        sudo apt-get update
-        sudo apt install -y zip allure
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
-
 
     - name: Run tests
       run: yarn test-e2e
 
     - name: Upload Allure artifacts
       if: ${{ always() }}
-      env:
-        ALLURE_VERSION: 2.13.5
-        ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
-      run: |
-        curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
-        tar -zxvf allure.tgz -C /opt/
-        sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
-
-        ./tests/e2e/bin/push-allure-artifacts.sh
-  allure:
-    name: Allure
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Run allure
       env:
         ALLURE_VERSION: 2.13.5
         ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
