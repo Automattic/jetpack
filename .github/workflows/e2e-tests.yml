@@ -57,10 +57,10 @@ jobs:
         sudo apt-add-repository ppa:qameta/allure
         sudo apt-get update
         sudo apt install -y zip allure
-        which allure
 
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
+        which allure
 
     - name: Run tests
       run: yarn test-e2e
