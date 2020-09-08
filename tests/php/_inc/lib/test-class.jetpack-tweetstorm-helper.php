@@ -1100,6 +1100,63 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that unsupported content types will not be added.
+	 */
+	public function test_unsupported_types_are_removed() {
+		$test_content = "There's something fake in here....";
+		$test_images  = array(
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'This is how we roll.',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/01/IMG_20190101_175338.jpg',
+				'alt'  => 'Like a boss.',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2020/02/ms-selfie.docx',
+				'alt'  => 'Is this really a selfie?',
+				'type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190318_152120.jpg',
+				'alt'  => 'Keeping up with pop culture.',
+				'type' => 'image/jpeg',
+			),
+			array(
+				'url'  => 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg',
+				'alt'  => 'Why does the raccoon miss out?! 😢',
+				'type' => 'image/jpeg',
+			),
+		);
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateGalleryData( $test_images ),
+		);
+
+		$expected_content = array(
+			array(
+				'text'  => "$test_content",
+				'media' => array(
+					$test_images[0],
+					$test_images[1],
+					$test_images[3],
+					$test_images[4],
+				),
+			),
+		);
+
+		$expected_boundaries = array( false );
+
+		$expected_blocks = array( $blocks );
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
 	 * Test that an image block will not be appended to the previous tweet when the previous tweet text
 	 * takes up too many characters to allow the image to fit inside Twitter's limits.
 	 */
