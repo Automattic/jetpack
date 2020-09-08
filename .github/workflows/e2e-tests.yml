@@ -83,6 +83,7 @@ jobs:
       run: |
         sudo apt-add-repository ppa:qameta/allure
         sudo apt-get update
-        sudo apt install -y zip allure
-        allure --version
+        sudo apt install -y allure
+        java -version
+        dpkg -L allure
         ./tests/e2e/bin/push-allure-artifacts.sh
