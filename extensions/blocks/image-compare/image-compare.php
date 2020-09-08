@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\ImageCompare;
 
-use Jetpack_AMP_Support;
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'image-compare';
@@ -38,7 +38,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+	if ( Blocks::is_amp_request() ) {
 		return render_amp( $attr );
 	}
 

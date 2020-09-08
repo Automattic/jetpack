@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\OpenTable;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'opentable';
@@ -72,7 +73,7 @@ function load_assets( $attributes ) {
 	if ( array_key_exists( 'negativeMargin', $attributes ) && $attributes['negativeMargin'] ) {
 		$classes[] = 'has-no-margin';
 	}
-	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, $classes );
+	$classes = Blocks::classes( FEATURE_NAME, $attributes, $classes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 
 	// The OpenTable script uses multiple `rid` paramters,

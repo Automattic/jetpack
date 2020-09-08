@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Google_Calendar;
 
-use Jetpack_AMP_Support;
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'google-calendar';
@@ -41,7 +41,7 @@ function load_assets( $attr ) {
 	$url     = isset( $attr['url'] )
 		? Jetpack_Gutenberg::validate_block_embed_url( $attr['url'], array( 'calendar.google.com' ) ) :
 		'';
-	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
+	$classes = Blocks::classes( FEATURE_NAME, $attr );
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
@@ -49,7 +49,7 @@ function load_assets( $attr ) {
 		return;
 	}
 
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+	if ( Blocks::is_amp_request() ) {
 		return sprintf(
 			'<div class="%1$s"><amp-iframe src="%2$s" frameborder="0" style="border:0" scrolling="no" height="%3$d" sandbox="allow-scripts allow-same-origin" layout="responsive"></amp-iframe></div>',
 			esc_attr( $classes ),

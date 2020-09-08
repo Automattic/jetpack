@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "47b37ad7ddee294cec6da18fcee814dc",
+    "content-hash": "d99f2087c792c7d1102844480e714c30",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/a8c-mc-stats",
@@ -39,7 +39,7 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
@@ -75,7 +75,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -111,11 +111,11 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "557195e755ff951fe3f8544056c5696eecc4d2cb"
+                "reference": "b9eb7c8e38782d3715568382ea97462c5608bd92"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -128,9 +128,9 @@
                 "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
             },
             "autoload": {
-			    "classmap": [
-				  "src/AutoloadGenerator.php"
-				],
+                "classmap": [
+                    "src/AutoloadGenerator.php"
+                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Autoloader\\": "src"
                 }
@@ -151,7 +151,7 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
@@ -175,8 +175,43 @@
             }
         },
         {
+            "name": "automattic/jetpack-blocks",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/blocks",
+                "reference": "057e0ecae8c03cbc335bb5ea488f67b51603fd7a"
+            },
+            "require-dev": {
+                "automattic/wordbless": "dev-master",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-compat",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -211,7 +246,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/config",
@@ -233,14 +268,15 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "bb68aeb045a837fe2fe4784ca41ac667fe5b6fa5"
+                "reference": "ccbf1b70e17ee389082c8aaa1cf625582fd9b373"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-heartbeat": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -280,7 +316,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -312,7 +348,7 @@
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/device-detection",
@@ -344,7 +380,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
@@ -375,7 +411,7 @@
         },
         {
             "name": "automattic/jetpack-heartbeat",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/heartbeat",
@@ -410,7 +446,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -454,13 +490,14 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/lazy-images",
-                "reference": "16409fc61cce65c8b914b08c80cae2cc0662ca2d"
+                "reference": "b42d4c093ea12c89dd16c713c07e5a2c15c8ff5d"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
@@ -492,7 +529,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -524,7 +561,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -553,7 +590,7 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
@@ -587,7 +624,7 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
@@ -618,7 +655,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -650,7 +687,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -683,7 +720,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -712,14 +749,13 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "f97241d09352c4ca44eab26520cac4c1903d08d3"
+                "reference": "723788a4aa7c508746f7c425f99c645c2a057598"
             },
             "require": {
-                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
@@ -749,7 +785,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -1220,6 +1256,7 @@
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
+        "automattic/jetpack-blocks": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,

@@ -16,6 +16,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
+		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",

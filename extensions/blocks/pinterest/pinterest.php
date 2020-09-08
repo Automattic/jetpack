@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Pinterest;
 
-use Jetpack_AMP_Support;
+use Automattic\Jetpack\Blocks;
 use WP_Error;
 
 const FEATURE_NAME = 'pinterest';
@@ -180,7 +180,7 @@ function render_amp_pin( $attr ) {
  * @return string
  */
 function load_assets( $attr, $content ) {
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+	if ( Blocks::is_amp_request() ) {
 		return render_amp_pin( $attr );
 	} else {
 		wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );

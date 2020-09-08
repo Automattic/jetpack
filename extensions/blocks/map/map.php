@@ -9,9 +9,9 @@
 
 namespace Automattic\Jetpack\Extensions\Map;
 
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
-use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;
 use Jetpack_Mapbox_Helper;
 use Jetpack_Options;
@@ -71,7 +71,7 @@ function load_assets( $attr, $content ) {
 
 	wpcom_load_event( $access_token['source'] );
 
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+	if ( Blocks::is_amp_request() ) {
 		static $map_block_counter = array();
 
 		$id = get_the_ID();
