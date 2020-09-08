@@ -61,7 +61,7 @@ jobs:
         ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
       run: |
         curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
-        tar -zxvf allure.tgz -C /opt/
+        tar -zxf allure.tgz -C /opt/
         sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
 
         ./tests/e2e/bin/push-allure-artifacts.sh
