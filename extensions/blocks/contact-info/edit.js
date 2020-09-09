@@ -28,7 +28,7 @@ const ContactInfoEdit = props => {
 				'is-selected': isSelected,
 			} ) }
 		>
-			<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateLock={ false } template={ TEMPLATE } />
+			<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateLock={ false } templateInsertUpdatesSelection={ false } template={ TEMPLATE } />
 		</div>
 	);
 };
