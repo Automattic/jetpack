@@ -328,7 +328,7 @@ class Sender {
 		}
 
 		// Don't sync if request is marked as read only.
-		if ( defined( 'JETPACK_SYNC_READ_ONLY' ) && JETPACK_SYNC_READ_ONLY ) {
+		if ( Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) ) {
 			return new \WP_Error( 'jetpack_sync_read_only' );
 		}
 

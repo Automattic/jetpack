@@ -139,7 +139,7 @@ class Actions {
 	 * @static
 	 */
 	public static function mark_sync_read_only() {
-		defined( 'JETPACK_SYNC_READ_ONLY' ) || define( 'JETPACK_SYNC_READ_ONLY', true );
+		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
 	}
 
 	/**
