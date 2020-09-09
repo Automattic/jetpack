@@ -165,7 +165,7 @@ class Defaults {
 		'jetpack_publicize_options',
 		'jetpack_connection_active_plugins',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
-		'ce4wp_referred_by', // Creative Mail. See pbtFPC-H5-p2
+		'ce4wp_referred_by', // Creative Mail. See pbtFPC-H5-p2 .
 	);
 
 	/**
@@ -894,7 +894,7 @@ class Defaults {
 		'promote_users',
 		'delete_themes',
 		'export',
-		'edit_comment',
+		'moderate_comments',
 		'upload_plugins',
 		'upload_themes',
 	);
