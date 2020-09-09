@@ -14,6 +14,8 @@ services:
     image: mysql:5.7
     volumes:
       - ./data/mysql:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+      - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
     restart: always
     env_file:
       - default.env
