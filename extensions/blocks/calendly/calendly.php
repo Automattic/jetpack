@@ -126,14 +126,14 @@ function load_assets( $attr, $content ) {
 				// For P2s only: wait until after o2 has
 				// replaced main#content to initialize widget.
 				$script = <<<JS_END
-				jQuery('body').on( 'ready.o2', function( event, domRef ) {
-					$init_calendly_widget_js
-				} );
-				JS_END;
+jQuery('body').on( 'ready.o2', function( event, domRef ) {
+	$init_calendly_widget_js
+} );
+JS_END;
 			} else {
 				$script = <<<JS_END
-					$init_calendly_widget_js
-				JS_END;
+$init_calendly_widget_js
+JS_END;
 			}
 			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 		}
