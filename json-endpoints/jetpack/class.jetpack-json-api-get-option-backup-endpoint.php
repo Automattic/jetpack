@@ -7,7 +7,7 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 	protected $option_names;
 
 	function validate_input( $object ) {
-		$query_args = $this->query_args();		
+		$query_args = $this->query_args();
 
 		if ( empty( $query_args['name'] ) ) {
 			return new WP_Error( 'option_name_not_specified', __( 'You must specify an option name', 'jetpack' ), 400 );
@@ -23,6 +23,9 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 	}
 
 	protected function result() {
+		// Disable Sync as this is a read-only operation and triggered by sync activity.
+		\Automattic\Jetpack\Sync\Actions::mark_sync_read_only();
+
 		$options = array_map( array( $this, 'get_option_row' ), $this->option_names );
 		return array( 'options' => $options );
 	}
