@@ -96,6 +96,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.9.1 =
+
+* Release date: September 16, 2020
+
+**Bug fixes**
+
+* 
+
 = 8.9 =
 
 * Release date: September 1, 2020
