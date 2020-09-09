@@ -239,11 +239,15 @@ class Users extends Module {
 
 		$user_caps = $user->allcaps;
 
-		foreach ( Defaults::get_capabilities_whitelist() as $capability ) {
-			if ( in_array( $capability, $user_caps, true ) ) {
-				$user_capabilities[ $capability ] = true;
+		foreach ( $user_caps as $cap => $enabled ) {
+			if (
+				in_array( $cap, Defaults::get_capabilities_whitelist(), true )
+				&& true === $enabled
+			) {
+				$user_capabilities[ $cap ] = true;
 			}
 		}
+
 		return $user_capabilities;
 	}
 
