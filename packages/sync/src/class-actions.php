@@ -99,7 +99,7 @@ class Actions {
 			self::initialize_listener();
 		}
 
-		add_action( 'init', array( __CLASS__, '' ), 90 );
+		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 	}
 
 	/**
