@@ -17,22 +17,34 @@ const alignToFlex = {
 	wide: 'center',
 };
 
+/**
+ * Internal dependencies
+ */
+import styles from './editor.scss';
+
 const StoryEdit = ({
 		attributes,
 }) => {
-	const { align, content, level, placeholder, width, mediaFiles } = attributes;
-	const hasImages = !! mediaFiles.length;
+	const { mediaFiles, align } = attributes;
+	const hasContent = !! mediaFiles.length;
 	return (
-		<View>
-			{! hasImages && 
-				<Text>Empty Story placeholder here</Text>
-			}
-			{ hasImages && 
-				<Image
-					align={ align && alignToFlex[ align ] }
-					url={ mediaFiles[0].url } // just select the first one
-					width={ width }
-				/>
+		<View style={ styles['wp-story-container'] }>
+			{!hasContent && 
+				<Text 	style={ styles['wp-story-wrapper'] }
+				align={ align && alignToFlex[ align ] }
+				align={ 'center' }
+
+				 >
+						Empty Story placeholder here
+				</Text>
+			}	
+			{ hasContent && 
+				<View style={ styles['wp-story-wrapper'] }>
+					<Image
+						url={ mediaFiles[0].url } // just select the first one // TODO see how to handle video
+						style={ styles['wp-story-image'] }
+					/>
+				</View>
 			}
 		</View>
 	);
