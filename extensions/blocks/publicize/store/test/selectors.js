@@ -1,14 +1,24 @@
 /**
  * Internal dependencies
  */
-import { getTweetStorm, getTweetsForBlock, getTwitterCardForURLs, twitterCardIsCached } from '../selectors';
+import { getTweetStorm, getTweetsForBlock, getTwitterCardForURLs, twitterCardIsCached, getTweetTemplate } from '../selectors';
+
+/**
+ * getTweetstorm() adds a tweet to the start and the end of the thread, but
+ * we really don't need to test for them here.
+ *
+ * @param {object} state State data.
+ */
+const getTweetstormHelper = ( state ) => {
+	return getTweetStorm( state ).slice( 1, -1 );
+};
 
 describe( 'getTweetStorm', () => {
 	it( 'returns an empty array when there are no tweets', () => {
 		const state = {
 			tweets: [],
 		};
-		expect( getTweetStorm( state ) ).toEqual( [] );
+		expect( getTweetstormHelper( state ) ).toEqual( [] );
 	} );
 
 	it( 'returns tweets filled out with the account details', () => {
@@ -72,7 +82,7 @@ describe( 'getTweetStorm', () => {
 			},
 		];
 
-		const tweets = getTweetStorm( state );
+		const tweets = getTweetstormHelper( state );
 
 		expect( tweets.length ).toEqual( expected.length );
 
@@ -101,7 +111,7 @@ describe( 'getTweetStorm', () => {
 			screenName: '',
 		};
 
-		const tweets = getTweetStorm( state );
+		const tweets = getTweetstormHelper( state );
 
 		const accountInfo = {
 			name: tweets[0].name,

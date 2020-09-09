@@ -7,7 +7,6 @@
 /**
  * External dependencies
  */
-import { get } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { Modal, TabPanel } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -88,7 +87,7 @@ export default withSelect( ( select, props ) => {
 
 	const { getMedia, getUser } = select( 'core' );
 	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
-	const { getTweetTemplate, getTweetStorm } = select( 'jetpack/publicize' );
+	const { getTweetTemplate, getTweetStorm, getShareMessage } = select( 'jetpack/publicize' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
@@ -113,13 +112,9 @@ export default withSelect( ( select, props ) => {
 	if ( isTweetStorm ) {
 		tweets = getTweetStorm();
 	} else {
-		const meta = getEditedPostAttribute( 'meta' );
-		const postTitle = getEditedPostAttribute( 'title' );
-		const text = get( meta, [ 'jetpack_publicize_message' ], postTitle );
-
 		tweets.push( {
 			...getTweetTemplate(),
-			text,
+			text: getShareMessage(),
 			card: {
 				...postData,
 				type: postData.image ? 'summary_large_image' : 'summary',

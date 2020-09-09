@@ -1,7 +1,17 @@
 /**
  * External dependencies
  */
+import { get } from 'lodash';
+import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+
+// Links and media attached to tweets take up 24 characters each.
+const ATTACHMENT_MESSAGE_PADDING = 24;
+
+// The maximum length is 280 characters, but there'll always be a URL attached (plus a space).
+const MAXIMUM_MESSAGE_LENGTH = 280 - ATTACHMENT_MESSAGE_PADDING - 1;
+
+const DEFAULT_TWEETSTORM_MESSAGE = '\n\n' + __( 'A thread ⬇️', 'jetpack' );
 
 /**
  * Returns the failed Publicize connections.
@@ -60,14 +70,88 @@ export function getTweetTemplate( state ) {
 export function getTweetStorm( state ) {
 	const tweetTemplate = getTweetTemplate( state );
 
-	return state.tweets.map( tweet => ( {
+	const thread = [
+		getFirstTweet( state ),
+		...state.tweets.map( tweet => ( {
+			...tweetTemplate,
+			text: tweet.text,
+			media: tweet.media,
+			tweet: tweet.tweet,
+			urls: tweet.urls,
+			card: getTwitterCardForURLs( state, tweet.urls ),
+		} ) ),
+	];
+
+	// Only add the last tweet if there's actual content in the thread.
+	if ( thread.length > 1 ) {
+		thread.push( getLastTweet( state ) );
+	}
+
+	return thread;
+}
+
+/**
+ * Constructs the first tweet to use in the thread.
+ *
+ * @param {object} state - State object.
+ *
+ * @returns {object} The tweet.
+ */
+export function getFirstTweet( state ) {
+	// This isn't defined properly in the test environment, so we have to skip this function.
+	if ( ! select( 'core' ) ) {
+		return;
+	}
+
+	const tweetTemplate = getTweetTemplate( state );
+
+	const { getMedia } = select( 'core' );
+	const { getEditedPostAttribute } = select( 'core/editor' );
+
+	const featuredImageId = getEditedPostAttribute( 'featured_media' );
+	const url = getEditedPostAttribute( 'link' );
+
+	const media = featuredImageId && getMedia( featuredImageId );
+	const image = media?.media_details?.sizes?.large?.source_url || media?.source_url;
+
+	return {
 		...tweetTemplate,
-		text: tweet.text,
-		media: tweet.media,
-		tweet: tweet.tweet,
-		urls: tweet.urls,
-		card: getTwitterCardForURLs( state, tweet.urls ),
-	} ) );
+		text: getShareMessage() + ` ${ url }`,
+		urls: [ url ],
+		card: {
+			title: getEditedPostAttribute( 'title' ),
+			description:
+				getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
+				getEditedPostAttribute( 'excerpt' ) ||
+				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+				__( 'Visit the post for more.', 'jetpack' ),
+			url,
+			image,
+			type: image ? 'summary_large_image' : 'summary',
+		},
+	};
+}
+
+/**
+ * Constructs the last tweet to use in the thread.
+ *
+ * @param {object} state - State object.
+ *
+ * @returns {object} The tweet.
+ */
+export function getLastTweet( state ) {
+	// This isn't defined properly in the test environment, so we have to skip this function.
+	if ( ! select( 'core/editor' ) ) {
+		return;
+	}
+
+	const { getEditedPostAttribute } = select( 'core/editor' );
+	const url = getEditedPostAttribute( 'link' );
+
+	return {
+		...getFirstTweet( state ),
+		text: __( "I've also published this thread on my site:", 'jetpack' ) + ` ${ url }`,
+	};
 }
 
 /**
@@ -127,4 +211,47 @@ export function getTwitterCardForURLs( state, urls ) {
  */
 export function twitterCardIsCached( state, url ) {
 	return !! state.twitterCards[ url ];
+}
+
+/**
+ * Gets the message that will be used hen sharing this post.
+ *
+ * @returns {string} The share message.
+ */
+export function getShareMessage() {
+	const { getEditedPostAttribute } = select( 'core/editor' );
+	const meta = getEditedPostAttribute( 'meta' );
+	const postTitle = getEditedPostAttribute( 'title' );
+	const message = get( meta, [ 'jetpack_publicize_message' ], '' );
+
+	const isTweetstorm = meta.jetpack_is_tweetstorm;
+
+	if ( message ) {
+		return message.substr( 0, getShareMessageMaxLength() );
+	}
+
+	if ( postTitle ) {
+		return (
+			postTitle.substr( 0, getShareMessageMaxLength() ) +
+			( isTweetstorm ? DEFAULT_TWEETSTORM_MESSAGE : '' )
+		);
+	}
+
+	return '';
+}
+
+/**
+ * Get the maximum length that a share message can be.
+ *
+ * @returns {number} The maximum length of a share message.
+ */
+export function getShareMessageMaxLength() {
+	const { getEditedPostAttribute } = select( 'core/editor' );
+	const isTweetstorm = getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
+
+	if ( ! isTweetstorm ) {
+		return MAXIMUM_MESSAGE_LENGTH;
+	}
+
+	return MAXIMUM_MESSAGE_LENGTH - DEFAULT_TWEETSTORM_MESSAGE.length;
 }
