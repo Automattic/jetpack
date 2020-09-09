@@ -232,6 +232,19 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	/**
 	 * Tests Photon's HTML parsing.
 	 *
+	 * @author biskobe
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 3.2
+	 */
+	public function test_photon_parse_images_from_html_a_tags_with_hash_in_href() {
+		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'a-tags-with-hash-href.html' );
+
+		$this->assertEquals( trim( $expected ), trim( Jetpack_Photon::filter_the_content( $sample_html ) ) );
+	}
+
+	/**
+	 * Tests Photon's HTML parsing.
+	 *
 	 * @author scotchfield
 	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
