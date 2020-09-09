@@ -894,7 +894,6 @@ class Defaults {
 		'promote_users',
 		'delete_themes',
 		'export',
-		'moderate_comments',
 		'upload_plugins',
 		'upload_themes',
 	);
