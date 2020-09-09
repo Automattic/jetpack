@@ -8,6 +8,8 @@ import { PlainText } from '@wordpress/block-editor';
 import { ToggleControl } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
 
+import styles from '../editor.scss';
+
 class AddressEdit extends Component {
 	constructor( ...args ) {
 		super( ...args );
@@ -51,65 +53,31 @@ class AddressEdit extends Component {
 			</InspectorControls>
 		);
 
+		const textData = [
+			{ value: address,      placeholder: __( 'Street Address', 'jetpack' ),        onChange: newAddress => setAttributes( { address: newAddress } ) },
+			{ value: addressLine2, placeholder: __( 'Address Line 2', 'jetpack' ),        onChange: newAddressLine2 => setAttributes( { addressLine2: newAddressLine2 } ) },
+			{ value: addressLine3, placeholder: __( 'Address Line 3', 'jetpack' ),        onChange: newAddressLine3 => setAttributes( { addressLine3: newAddressLine3 } ) },
+			{ value: city,         placeholder: __( 'City', 'jetpack' ),                  onChange: newCity => setAttributes( { city: newCity } ) },
+			{ value: region,       placeholder: __( 'State/Province/Region', 'jetpack' ), onChange: newRegion => setAttributes( { region: newRegion } ) },
+			{ value: postal,       placeholder: __( 'Postal/Zip Code', 'jetpack' ),       onChange: newPostal => setAttributes( { postal: newPostal } ) },
+			{ value: country,      placeholder: __( 'Country', 'jetpack' ),               onChange: newCountry => setAttributes( { country: newCountry } ) },
+		];
+		const textInput = (value, placeholder, onChange) => (
+			<PlainText
+			  style={ styles.blockEditorPlainText }
+				value={ value }
+				placeholder={ placeholder }
+				placeholderTextColor={ styles.placeholder.color }
+				aria-label={ placeholder }
+				onChange={ onChange }
+				onKeyDown={ this.preventEnterKey }
+				onFocus={ onFocus }
+			/>
+		);
 		return (
 			<View>
 				<Fragment>
-					<PlainText
-						value={ address }
-						placeholder={ __( 'Street Address', 'jetpack' ) }
-						aria-label={ __( 'Street Address', 'jetpack' ) }
-						onChange={ newAddress => setAttributes( { address: newAddress } ) }
-						onKeyDown={ this.preventEnterKey }
-						onFocus={ onFocus }
-					/>
-					<PlainText
-						value={ addressLine2 }
-						placeholder={ __( 'Address Line 2', 'jetpack' ) }
-						aria-label={ __( 'Address Line 2', 'jetpack' ) }
-						onChange={ newAddressLine2 => setAttributes( { addressLine2: newAddressLine2 } ) }
-						onKeyDown={ this.preventEnterKey }
-						onFocus={ onFocus }
-					/>
-					<PlainText
-						value={ addressLine3 }
-						placeholder={ __( 'Address Line 3', 'jetpack' ) }
-						aria-label={ __( 'Address Line 3', 'jetpack' ) }
-						onChange={ newAddressLine3 => setAttributes( { addressLine3: newAddressLine3 } ) }
-						onKeyDown={ this.preventEnterKey }
-						onFocus={ onFocus }
-					/>
-					<PlainText
-						value={ city }
-						placeholder={ __( 'City', 'jetpack' ) }
-						aria-label={ __( 'City', 'jetpack' ) }
-						onChange={ newCity => setAttributes( { city: newCity } ) }
-						onKeyDown={ this.preventEnterKey }
-						onFocus={ onFocus }
-					/>
-					<PlainText
-						value={ region }
-						placeholder={ __( 'State/Province/Region', 'jetpack' ) }
-						aria-label={ __( 'State/Province/Region', 'jetpack' ) }
-						onChange={ newRegion => setAttributes( { region: newRegion } ) }
-						onKeyDown={ this.preventEnterKey }
-						onFocus={ onFocus }
-					/>
-					<PlainText
-						value={ postal }
-						placeholder={ __( 'Postal/Zip Code', 'jetpack' ) }
-						aria-label={ __( 'Postal/Zip Code', 'jetpack' ) }
-						onChange={ newPostal => setAttributes( { postal: newPostal } ) }
-						onKeyDown={ this.preventEnterKey }
-						onFocus={ onFocus }
-					/>
-					<PlainText
-						value={ country }
-						placeholder={ __( 'Country', 'jetpack' ) }
-						aria-label={ __( 'Country', 'jetpack' ) }
-						onChange={ newCountry => setAttributes( { country: newCountry } ) }
-						onKeyDown={ this.preventEnterKey }
-						onFocus={ onFocus }
-					/>
+					{ textData.map( data => textInput(data.value, data.placeholder, data.onChange) ) }
 				</Fragment>
 				{ externalLink }
 			</View>

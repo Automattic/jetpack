@@ -11,12 +11,12 @@ const simpleInput = ( type, props, label, view, onChange ) => {
 	return (
 		<View>
 			<PlainText
+			  { ...props }
 				value={ value }
 				placeholder={ label }
 				aria-label={ label }
 				onChange={ onChange }
 				onFocus={ onFocus }
-				keyboardType={ keyboardType }
 			/>
 		</View>
 	);

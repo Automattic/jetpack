@@ -7,6 +7,8 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+import styles from './editor.scss';
+
 const ALLOWED_BLOCKS = [
 	'jetpack/address',
 	'jetpack/email',
@@ -20,7 +22,7 @@ const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address'
 
 const ContactInfoEdit = () => {
 	return (
-		<View>
+		<View style={ styles.jetpackContactInfoBlock }>
 			<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateLock={ false } template={ TEMPLATE } />
 		</View>
 	);

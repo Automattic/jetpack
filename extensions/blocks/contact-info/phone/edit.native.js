@@ -8,10 +8,16 @@ import { __ } from '@wordpress/i18n';
  */
 import save from './save';
 import simpleInput from '../../../shared/simple-input';
+import styles from '../editor.scss';
 
 const PhoneEdit = props => {
 	const { setAttributes } = props;
-	return simpleInput( 'phone', { ...props, keyboardType: 'phone-pad' }, __( 'Phone number', 'jetpack' ), save, nextValue =>
+	const nativeProps = {
+		keyboardType: 'phone-pad',
+		style: styles.blockEditorPlainText,
+		placeholderTextColor: styles.placeholder.color,
+	};
+	return simpleInput( 'phone', { ...props, ...nativeProps }, __( 'Phone number', 'jetpack' ), save, nextValue =>
 		setAttributes( { phone: nextValue } )
 	);
 };
