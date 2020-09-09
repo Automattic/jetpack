@@ -115,13 +115,26 @@ function load_assets( $attr, $content ) {
 				esc_attr( $classes ),
 				esc_attr( $block_id )
 			);
-			$script  = <<<JS_END
-Calendly.initInlineWidget({
-	url: '%s',
-	parentElement: document.getElementById('%s'),
-	inlineStyles: false,
-});
-JS_END;
+
+			$init_calendly_widget_js = "Calendly.initInlineWidget({
+				url: '%s',
+				parentElement: document.getElementById('%s'),
+				inlineStyles: false,
+			})";
+
+			if ( $is_p2_site ) {
+				// For P2s only: wait until after o2 has
+				// replaced main#content to initialize widget.
+				$script = <<<JS_END
+				jQuery('body').on( 'ready.o2', function( event, domRef ) {
+					_.defer( $init_calendly_widget_js );
+				} );
+				JS_END;
+			} else {
+				$script = <<<JS_END
+					$init_calendly_widget_js;
+				JS_END;
+			}
 			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 		}
 	}
