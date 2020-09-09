@@ -227,6 +227,12 @@ You can also see your database files via local file system at `./docker/data/mys
 
 You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
+Another way to accessing the database is MySQL client using the following command:
+```sh
+yarn docker:db
+```  
+This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
+
 ## SFTP access
 
 You can access WordPress and Jetpack files via SFTP server container.
@@ -379,6 +385,14 @@ To `tail -f` the PHP error log, run:
 ```sh
 yarn docker:tail
 ```
+
+#### MySQL Slow Query Log
+
+The MySQL Server is configured to log any queries that take longer than 0.5 second to execute.
+
+Path to the slow query log: `docker/logs/mysql/slow.log`.
+
+We recommend to regularly review the log to make sure performance issues don't go unnoticed.
 
 ### Debugging emails
 
