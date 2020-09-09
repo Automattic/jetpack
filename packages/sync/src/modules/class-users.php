@@ -233,11 +233,14 @@ class Users extends Module {
 	 */
 	public function get_real_user_capabilities( $user ) {
 		$user_capabilities = array();
-		if ( is_wp_error( $user ) ) {
+		if ( is_wp_error( $user ) || ! is_a( $user, 'WP_User' ) ) {
 			return $user_capabilities;
 		}
+
+		$user_caps = $user->allcaps;
+
 		foreach ( Defaults::get_capabilities_whitelist() as $capability ) {
-			if ( user_can( $user, $capability ) ) {
+			if ( in_array( $capability, $user_caps, true ) ) {
 				$user_capabilities[ $capability ] = true;
 			}
 		}
