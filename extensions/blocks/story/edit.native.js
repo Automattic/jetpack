@@ -9,14 +9,6 @@ import {
 	Image,
 } from '@wordpress/components';
 
-const alignToFlex = {
-	left: 'flex-start',
-	center: 'center',
-	right: 'flex-end',
-	full: 'center',
-	wide: 'center',
-};
-
 /**
  * Internal dependencies
  */
@@ -25,16 +17,12 @@ import styles from './editor.scss';
 const StoryEdit = ({
 		attributes,
 }) => {
-	const { mediaFiles, align } = attributes;
+	const { mediaFiles } = attributes;
 	const hasContent = !! mediaFiles.length;
 	return (
 		<View style={ styles['wp-story-container'] }>
 			{!hasContent && 
-				<Text 	style={ styles['wp-story-wrapper'] }
-				align={ align && alignToFlex[ align ] }
-				align={ 'center' }
-
-				 >
+				<Text 	style={ styles['wp-story-wrapper'] }>
 						Empty Story placeholder here
 				</Text>
 			}	
