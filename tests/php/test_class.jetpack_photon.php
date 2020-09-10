@@ -87,6 +87,13 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 
+		/**
+		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
+		 */
+		$instance = new ReflectionProperty( 'Jetpack_Photon', 'image_sizes' );
+		$instance->setAccessible( true );
+		$instance->setValue( null );
+
 		parent::tearDown();
 	}
 
@@ -239,7 +246,15 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	public function test_photon_parse_images_from_html_a_tags_with_hash_in_href() {
 		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'a-tags-with-hash-href.html' );
 
-		$this->assertEquals( trim( $expected ), trim( Jetpack_Photon::filter_the_content( $sample_html ) ) );
+		// Make sure we're not going to get any weird modifications due to auto-detected widths/heights and other props.
+		$args_reset_callback = function () {
+			return array();
+		};
+		add_filter( 'jetpack_photon_post_image_args', $args_reset_callback, 10, 0 );
+
+		$this->assertEquals( trim( $expected ), trim( ( Jetpack_Photon::instance() )->filter_the_content( $sample_html ) ) );
+
+		remove_filter( 'jetpack_photon_post_image_args', $args_reset_callback );
 	}
 
 	/**
