@@ -695,64 +695,139 @@ EXPECTED;
 	}
 
 	/**
+	 * Tests the Manager::get_assumed_site_creation_date method. In this test, the user
+	 * registration date is earlier than the post creation date.
+	 *
 	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
+	 * @covers Automattic\Jetpack\Connection\Manager::get_assumed_site_creation_date()
 	 */
-	function test_get_assumed_site_creation_date_user_earliest() {
-		$user_id = $this->factory->user->create( array(
-			'role'            => 'administrator',
-			'user_registered' => '1990-01-01 00:00:00',
-		) );
-		$post_id = $this->factory->post->create( array(
-			'post_date' => '1995-01-01 00:00:00',
-		) );
+	public function test_get_assumed_site_creation_date_user_earliest() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite.' );
+		}
+
+		$user_id = $this->factory->user->create(
+			array(
+				'role'            => 'administrator',
+				'user_registered' => '1990-01-01 00:00:00',
+			)
+		);
+		$post_id = $this->factory->post->create(
+			array(
+				'post_date' => '1995-01-01 00:00:00',
+			)
+		);
 
 		$jetpack = new MockJetpack();
-		$this->assertEquals( '1990-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
+		$result  = $jetpack::connection()->get_assumed_site_creation_date();
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );
+
+		$this->assertEquals( '1990-01-01 00:00:00', $result );
 	}
 
 	/**
-	 * @author tyxla
-	 * @covers Jetpack::get_assumed_site_creation_date()
+	 * Tests the Manager::get_assumed_site_creation_date method in a multisite environment.
+	 * In this test, the site registration date is earlier than the post creation date.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::get_assumed_site_creation_date()
 	 */
-	function test_get_assumed_site_creation_date_post_earliest() {
-		$user_id = $this->factory->user->create( array(
-			'role'            => 'administrator',
-			'user_registered' => '1994-01-01 00:00:00',
-		) );
-		$post_id = $this->factory->post->create( array(
-			'post_date' => '1991-01-01 00:00:00',
-		) );
+	public function test_get_assumed_site_creation_date_site_earliest() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Only compatible with multisite.' );
+		}
+
+		update_blog_details( get_current_blog_id(), array( 'registered' => '1989-01-01 00:00:00' ) );
+
+		$user_id = $this->factory->user->create(
+			array(
+				'role'            => 'administrator',
+				'user_registered' => '1990-01-01 00:00:00',
+			)
+		);
+		$post_id = $this->factory->post->create(
+			array(
+				'post_date' => '1995-01-01 00:00:00',
+			)
+		);
 
 		$jetpack = new MockJetpack();
-		$this->assertEquals( '1991-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
+		$result  = $jetpack::connection()->get_assumed_site_creation_date();
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );
+
+		$this->assertEquals( '1989-01-01 00:00:00', $result );
 	}
 
 	/**
+	 * Tests the Manager::get_assumed_site_creation_date method. In this test, the post creation
+	 * data is earlier than the user registration date for a single sites and earlier than the site
+	 * registration for multsite.
+	 *
 	 * @author tyxla
 	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
-	function test_get_assumed_site_creation_date_only_admins() {
-		$admin_id = $this->factory->user->create( array(
-			'role'            => 'administrator',
-			'user_registered' => '1994-01-01 00:00:00',
-		) );
-		$editor_id = $this->factory->user->create( array(
-			'role'            => 'editor',
-			'user_registered' => '1992-01-01 00:00:00',
-		) );
+	public function test_get_assumed_site_creation_date_post_earliest() {
+		if ( is_multisite() ) {
+			update_blog_details( get_current_blog_id(), array( 'registered' => '1992-01-01 00:00:00' ) );
+		}
+
+		$user_id = $this->factory->user->create(
+			array(
+				'role'            => 'administrator',
+				'user_registered' => '1994-01-01 00:00:00',
+			)
+		);
+		$post_id = $this->factory->post->create(
+			array(
+				'post_date' => '1991-01-01 00:00:00',
+			)
+		);
 
 		$jetpack = new MockJetpack();
-		$this->assertEquals( '1994-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
+		$result  = $jetpack::connection()->get_assumed_site_creation_date();
+
+		wp_delete_user( $user_id );
+		wp_delete_post( $post_id, true );
+
+		$this->assertEquals( '1991-01-01 00:00:00', $result );
+	}
+
+	/**
+	 * Tests the Manager::get_assumed_site_creation_date method. In this test, the editor's
+	 * registration date is earlier than the admin's registration date, and the admin date should
+	 * be used.
+	 *
+	 * @author tyxla
+	 * @covers Jetpack::get_assumed_site_creation_date()
+	 */
+	public function test_get_assumed_site_creation_date_only_admins() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with multisite.' );
+		}
+
+		$admin_id  = $this->factory->user->create(
+			array(
+				'role'            => 'administrator',
+				'user_registered' => '1994-01-01 00:00:00',
+			)
+		);
+		$editor_id = $this->factory->user->create(
+			array(
+				'role'            => 'editor',
+				'user_registered' => '1992-01-01 00:00:00',
+			)
+		);
+
+		$jetpack = new MockJetpack();
+		$result  = $jetpack::connection()->get_assumed_site_creation_date();
 
 		wp_delete_user( $admin_id );
 		wp_delete_user( $editor_id );
+
+		$this->assertEquals( '1994-01-01 00:00:00', $result );
 	}
 
 	/**
