@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * General: avoid deprecation PHP notices when used with WooCommerce 4.4+.
+* Search: fix a bug where no results appear when using Jetpack's Instant Search interface.
 
 = 8.9 =
 
