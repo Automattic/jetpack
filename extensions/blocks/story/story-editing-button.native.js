@@ -18,7 +18,7 @@ const StoryEditingButton = ( {
 	onEditButtonTapped,
 } ) => {
 	return (
-		<TouchableWithoutFeedback onPress={ console.log("button pressed") }>
+		<TouchableWithoutFeedback onPress={ onEditButtonTapped }>
 			<View style={ styles.editContainer }>
 				<View style={ styles.edit }>
 					{/* { mediaOptions() } */}
