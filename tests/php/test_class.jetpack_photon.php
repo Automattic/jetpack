@@ -252,7 +252,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		};
 		add_filter( 'jetpack_photon_post_image_args', $args_reset_callback, 10, 0 );
 
-		$this->assertEquals( trim( $expected ), trim( ( Jetpack_Photon::instance() )->filter_the_content( $sample_html ) ) );
+		$this->assertEquals( trim( $expected ), trim( Jetpack_Photon::instance()->filter_the_content( $sample_html ) ) );
 
 		remove_filter( 'jetpack_photon_post_image_args', $args_reset_callback );
 	}
