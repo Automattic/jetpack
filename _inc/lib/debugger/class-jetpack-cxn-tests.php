@@ -827,7 +827,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
 
-		$testsite_url = Connection_Utils::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+		$testsite_url = JETPACK__API_BASE . 'testsite/1/?url=';
 
 		// Using PHP_INT_MAX - 1 so that there is still a way to override this if needed and since it only impacts this one call.
 		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ), PHP_INT_MAX - 1 );

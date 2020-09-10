@@ -1540,9 +1540,8 @@ class Manager {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
 		$url = sprintf(
-			'%s://%s/%s/v%s/%s',
-			Client::protocol(),
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 			'wpcom',
 			'2',
 			'sites/' . $blog_id . '/jetpack-token-health'
@@ -1814,7 +1813,7 @@ class Manager {
 		);
 
 		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
-		$response = Client::_wp_remote_request( Utils::fix_url_for_bad_hosts( $this->api_url( 'token' ) ), $args );
+		$response = Client::_wp_remote_request( $this->api_url( 'token' ), $args );
 		remove_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
 
 		if ( is_wp_error( $response ) ) {
@@ -2572,9 +2571,8 @@ class Manager {
 		}
 
 		$url     = sprintf(
-			'%s://%s/%s/v%s/%s',
-			Client::protocol(),
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 			'wpcom',
 			'2',
 			'sites/' . $blog_id . '/jetpack-refresh-blog-token'

@@ -3552,18 +3552,13 @@ p {
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
-			$args       = array();
-			$connection = self::connection();
-			Client::_wp_remote_request(
-				Connection_Utils::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
-				$args,
-				true
-			);
+			$args = array();
+			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
 		Jetpack_Wizard_Banner::init();
 
-		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
+		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
 		}
 
@@ -5032,13 +5027,14 @@ endif;
 	}
 
 	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::fix_url_for_bad_hosts() instead.
+	 * @deprecated 8.0
 	 *
-	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
+	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
+	 * But we no longer fix "bad hosts" anyway, outbound HTTPS is required for Jetpack to function.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::fix_url_for_bad_hosts' );
-		return Connection_Utils::fix_url_for_bad_hosts( $url );
+		_deprecated_function( __METHOD__, 'jetpack-8.0' );
+		return $url;
 	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
@@ -5147,32 +5143,19 @@ endif;
 			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
 				$ssl = 0;
 			} else {
-				switch ( JETPACK_CLIENT__HTTPS ) {
-					case 'NEVER':
-						$ssl     = 0;
-						$message = __( 'JETPACK_CLIENT__HTTPS is set to NEVER', 'jetpack' );
-						break;
-					case 'ALWAYS':
-					case 'AUTO':
-					default:
-						$ssl = 1;
-						break;
-				}
+				$ssl = 1;
 
-				// If it's not 'NEVER', test to see
-				if ( $ssl ) {
-					if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+				if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+					$ssl     = 0;
+					$message = __( 'WordPress reports no SSL support', 'jetpack' );
+				} else {
+					$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
+					if ( is_wp_error( $response ) ) {
 						$ssl     = 0;
 						$message = __( 'WordPress reports no SSL support', 'jetpack' );
-					} else {
-						$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
-						if ( is_wp_error( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'WordPress reports no SSL support', 'jetpack' );
-						} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
-						}
+					} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
+						$ssl     = 0;
+						$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
 					}
 				}
 			}
@@ -5184,7 +5167,7 @@ endif;
 	}
 
 	/*
-	 * Displays an admin_notice, alerting the user to their JETPACK_CLIENT__HTTPS constant being 'AUTO' but SSL isn't working.
+	 * Displays an admin_notice, alerting the user that outbound SSL isn't working.
 	 */
 	public function alert_auto_ssl_fail() {
 		if ( ! current_user_can( 'manage_options' ) ) {
