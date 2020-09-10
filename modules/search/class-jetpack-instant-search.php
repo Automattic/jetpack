@@ -123,6 +123,20 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		$excluded_post_types   = get_option( $prefix . 'excluded_post_types' ) ? explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ) : array();
+		$post_types            = array_values(
+			get_post_types(
+				array(
+					'exclude_from_search' => false,
+					'public'              => true,
+				)
+			)
+		);
+		$unexcluded_post_types = array_diff( $post_types, $excluded_post_types );
+		// NOTE: If all post types are being excluded, ignore the option value.
+		if ( count( $unexcluded_post_types ) === 0 ) {
+			$excluded_post_types = array();
+		}
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
