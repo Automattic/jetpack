@@ -16,7 +16,10 @@ jobs:
 
     steps:
 
-    - run: cat $GITHUB_EVENT_PATH
+    - run: |
+        echo $GITHUB_RUN_NUMBER
+        echo $GITHUB_ACTION
+        cat $GITHUB_EVENT_PATH
 
     - uses: actions/checkout@v2
 
