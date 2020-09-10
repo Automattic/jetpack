@@ -5,8 +5,11 @@ import { readFileSync, createReadStream } from 'fs';
 import { WebClient, ErrorCode } from '@slack/web-api';
 import config from 'config';
 
-const { GITHUB_REPOSITORY, GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
+const { GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
 
+const token = config.get( 'slackToken' );
+const conversationId = config.get( 'slackChannel' );
+const ccBrbrr = 'cc <@U6NSPV1LY>';
 const event = JSON.parse( readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
 const runURL = `https://github.com/Automattic/jetpack/runs/${ GITHUB_RUN_ID }?check_suite_focus=true`;
 const isPullRequest = !! event.pull_request;
@@ -20,11 +23,7 @@ if ( isPullRequest ) {
 	githubURL = `https://github.com/Automattic/jetpack/tree/${ branchName }`;
 }
 
-const token = config.get( 'slackToken' );
-const conversationId = config.get( 'slackChannel' );
 const webCli = new WebClient( token );
-
-const ccBrbrr = 'cc <@U6NSPV1LY>';
 
 async function sendRequestToSlack( fn ) {
 	try {
