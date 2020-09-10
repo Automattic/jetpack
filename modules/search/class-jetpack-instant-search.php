@@ -122,6 +122,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$posts_per_page = 20;
 		}
 
+		$excluded_post_types   = get_option( $prefix . 'excluded_post_types' ) ? explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ) : array();
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -150,7 +151,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
-			'excludedPostTypes'     => explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ),
+			'excludedPostTypes'     => $excluded_post_types,
 
 			// widget info.
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
