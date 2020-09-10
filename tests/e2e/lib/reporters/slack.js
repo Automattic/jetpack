@@ -1,27 +1,29 @@
 /**
  * External dependencies
  */
-import { createReadStream } from 'fs';
+import { readFileSync, createReadStream } from 'fs';
 import { WebClient, ErrorCode } from '@slack/web-api';
 import config from 'config';
 
-const {
-	TRAVIS_BRANCH,
-	TRAVIS_REPO_SLUG,
-	TRAVIS_PULL_REQUEST_BRANCH,
-	TRAVIS_BUILD_WEB_URL,
-	TRAVIS_JOB_WEB_URL,
-	TRAVIS_BUILD_NUMBER,
-	E2E_SLACK_TOKEN,
-	E2E_CHANNEL_NAME,
-	TRAVIS_PULL_REQUEST,
-} = process.env;
-const token = E2E_SLACK_TOKEN || config.get( 'slackToken' );
-const conversationId = E2E_CHANNEL_NAME || config.get( 'slackChannel' );
+const { GITHUB_REPOSITORY, GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
+
+const event = JSON.parse( readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
+const runURL = `https://github.com/Automattic/jetpack/runs/${ GITHUB_RUN_ID }?check_suite_focus=true`;
+const isPullRequest = !! event.pull_request;
+let githubURL;
+let branchName;
+if ( isPullRequest ) {
+	githubURL = event.pull_request.html_url;
+	branchName = event.pull_request.head.ref;
+} else {
+	branchName = event.ref.substr( 11 );
+	githubURL = `https://github.com/Automattic/jetpack/tree/${ branchName }`;
+}
+
+const token = config.get( 'slackToken' );
+const conversationId = config.get( 'slackChannel' );
 const webCli = new WebClient( token );
 
-const repoURL = `https://github.com/${ TRAVIS_REPO_SLUG }`;
-const branchName = TRAVIS_PULL_REQUEST_BRANCH !== '' ? TRAVIS_PULL_REQUEST_BRANCH : TRAVIS_BRANCH;
 const ccBrbrr = 'cc <@U6NSPV1LY>';
 
 async function sendRequestToSlack( fn ) {
@@ -66,34 +68,29 @@ export const getFailedTestMessage = ( { name, block, error } ) => {
 *Test suite*: ${ block }
 *Test case*: ${ name }
 *Failure reason:* ${ testFailure }
-*Travis build:* ${ TRAVIS_BUILD_WEB_URL }
-*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
+*E2E action run:* ${ runURL }
 *Github branch:* ${ branchName }
-*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }` ),
+*Github URL:* ${ githubURL }` ),
 	];
 	return message;
 };
 
 export const getResultMessage = failureCount => {
-	let buildInfo = `*BUILD #${ TRAVIS_BUILD_NUMBER } FAILED:*
+	let buildInfo = `*BUILD #${ GITHUB_RUN_ID } FAILED:*
 
 *Total failures:* ${ failureCount }
-*Travis build:* ${ TRAVIS_BUILD_WEB_URL }
-*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
+*E2E action run:* ${ runURL }
 *Github branch:* ${ branchName }`;
 
-	if ( TRAVIS_PULL_REQUEST ) {
-		buildInfo += `\n*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }`;
-	} else {
-		buildInfo += `\n*Github branch URL:* ${ repoURL }/tree/${ branchName }`;
-	}
+	buildInfo += isPullRequest ? `\n*Github PR URL:* ` : '\n*Github branch URL:* ';
+	buildInfo += githubURL;
 
 	const message = [
 		createSection( buildInfo ),
 		createSection( `Build details are threaded :thread:` ),
 	];
 
-	if ( TRAVIS_BRANCH === 'master' ) {
+	if ( branchName === 'master' ) {
 		message.push( createSection( ccBrbrr ) );
 	}
 
@@ -101,17 +98,13 @@ export const getResultMessage = failureCount => {
 };
 
 export const getSuccessMessage = () => {
-	let buildInfo = `*BUILD #${ TRAVIS_BUILD_NUMBER } PASSED:*
+	let buildInfo = `*BUILD #${ GITHUB_RUN_ID } PASSED:*
 
-*Travis build:* ${ TRAVIS_BUILD_WEB_URL }
-*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
+*E2E action run:* ${ runURL }
 *Github branch:* ${ branchName }`;
 
-	if ( TRAVIS_PULL_REQUEST ) {
-		buildInfo += `\n*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }`;
-	} else {
-		buildInfo += `\n*Github branch URL:* ${ repoURL }/tree/${ branchName }`;
-	}
+	buildInfo += isPullRequest ? `\n*Github PR URL:* ` : '\n*Github branch URL:* ';
+	buildInfo += githubURL;
 
 	const message = [ createSection( buildInfo ) ];
 	return message;
