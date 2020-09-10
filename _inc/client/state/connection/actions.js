@@ -258,7 +258,7 @@ export const authorizeUserInPlaceSuccess = () => {
 	};
 };
 
-export const reconnectSite = ( action = 'reconnect' ) => {
+export const reconnectSite = () => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: SITE_RECONNECT,
@@ -269,7 +269,7 @@ export const reconnectSite = ( action = 'reconnect' ) => {
 			} )
 		);
 		return restApi
-			.reconnect( action )
+			.reconnect()
 			.then( connectionStatusData => {
 				const status = connectionStatusData.status;
 				const authorizeUrl = connectionStatusData.authorizeUrl;

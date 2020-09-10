@@ -519,7 +519,6 @@ class Test_REST_Endpoints extends TestCase {
 	private function build_reconnect_request() {
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/reconnect' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( wp_json_encode( array( 'action' => 'reconnect' ) ) );
 
 		return $this->request;
 	}
