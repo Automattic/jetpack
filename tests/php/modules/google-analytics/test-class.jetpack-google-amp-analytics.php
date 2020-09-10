@@ -18,11 +18,43 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 	protected $product;
 
 	/**
+	 * Is Woo Enabled
+	 *
+	 * @var bool
+	 */
+	protected static $woo_enabled;
+
+	/**
+	 * Runs the routine before setting up all tests.
+	 */
+	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
+		if ( 1 !== (int) getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+			return;
+		}
+
+		self::$woo_enabled = true;
+
+		$woo_tests_dir = dirname( __FILE__ ) . '/../../../../woocommerce/tests';
+
+		if ( ! file_exists( $woo_tests_dir ) ) {
+			error_log( 'PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );
+			self::$woo_enabled = false;
+		}
+	}
+
+	/**
 	 * Runs the routine before each test is executed.
 	 *
 	 * @return void
 	 */
 	public function setUp() {
+		if ( ! self::$woo_enabled ) {
+			$this->markTestSkipped();
+			return;
+		}
+
 		parent::setUp();
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
