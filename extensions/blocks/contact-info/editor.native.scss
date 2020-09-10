@@ -5,12 +5,8 @@
 
 .blockEditorPlainText {
 	flex-grow: 1;
-	padding: 0;
+	padding: 2px;
 	box-shadow: none;
 	font-size: $editor-font-size;
 	border: none;
-}
-
-.placeholder {
-	color: $light-gray-placeholder;
 }
