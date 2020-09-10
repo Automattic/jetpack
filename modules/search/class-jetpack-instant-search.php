@@ -122,6 +122,21 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$posts_per_page = 20;
 		}
 
+		$excluded_post_types   = get_option( $prefix . 'excluded_post_types' ) ? explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ) : array();
+		$post_types            = array_values(
+			get_post_types(
+				array(
+					'exclude_from_search' => false,
+					'public'              => true,
+				)
+			)
+		);
+		$unexcluded_post_types = array_diff( $post_types, $excluded_post_types );
+		// NOTE: If all post types are being excluded, ignore the option value.
+		if ( count( $unexcluded_post_types ) === 0 ) {
+			$excluded_post_types = array();
+		}
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -143,7 +158,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
-			'excludedPostTypes'     => explode( ',', get_option( $prefix . 'excluded_post_types', '' ) ),
+			'excludedPostTypes'     => $excluded_post_types,
 
 			// widget info.
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
@@ -234,10 +249,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Run the aggregations API query for any filtering
 	 *
 	 * @since 8.3.0
-	 *
-	 * @param WP_Query $query The WP_Query being filtered.
 	 */
-	public function action__parse_query( $query ) {
+	public function action__parse_query() {
 		if ( ! empty( $this->search_result ) ) {
 			return;
 		}
