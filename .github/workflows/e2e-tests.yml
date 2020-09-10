@@ -56,9 +56,11 @@ jobs:
 
     - name: Upload Allure artifacts
       if: ${{ always() }}
+      continue-on-error: true
       env:
         ALLURE_VERSION: 2.13.5
         ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
+        GH_TEST_REPORT_TOKEN: ${{ secrets.GH_TEST_REPORT_TOKEN }}
       run: |
         curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
         tar -zxf allure.tgz -C /opt/
