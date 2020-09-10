@@ -960,40 +960,78 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test changing the master user.
+	 * Test changing the master user without the owner parameter.
 	 *
-	 * @since 6.2.0
-	 * @since 7.7.0 No longer need to be master user to update.
+	 * @since 9.9.0 Split into multiple tests.
 	 */
-	public function test_change_owner() {
-
+	public function test_change_owner_with_invalid_param() {
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_disconnect' );
 		wp_set_current_user( $user->ID );
 
-		// Mock site already registered
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+		// Attempt request without owner parameter.
+		$response = $this->create_and_get_request( 'connection/owner', array(), 'POST' );
+		$this->assertResponseStatus( 400, $response );
+		$this->assertEquals( 'invalid_param', $response->get_data()['code'] );
+	}
 
-		// Set up user as master user
-		Jetpack_Options::update_option( 'master_user', $user->ID );
+	/**
+	 * Test changing the master user to a non-existent user.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_change_owner_with_bad_user() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_disconnect' );
+		wp_set_current_user( $user->ID );
 
-		// Attempt owner change with bad user
+		// Attempt owner change with bad user.
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
 		$this->assertResponseStatus( 400, $response );
+		$this->assertEquals( 'new_owner_not_admin', $response->get_data()['code'] );
+	}
 
-		// Attempt owner change to same user
+	/**
+	 * Test changing the master user to the same user.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_change_owner_to_same_user() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_disconnect' );
+		wp_set_current_user( $user->ID );
+
+		// Attempt owner change to same user.
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $user->ID ), 'POST' );
 		$this->assertResponseStatus( 400, $response );
+		$this->assertEquals( 'new_owner_is_current_user', $response->get_data()['code'] );
+	}
 
-		// Create another user
+	/**
+	 * Test changing the master user to a valid user.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_change_owner_to_valid_user() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_disconnect' );
+		wp_set_current_user( $user->ID );
+
+		// Create another user.
 		$new_owner = $this->create_and_get_user( 'administrator' );
-		Jetpack_Options::update_option( 'user_tokens', array(
-			$user->ID => "honey.badger.$user->ID",
-			$new_owner->ID => "honey.badger.$new_owner->ID",
-		) );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$user->ID      => "honey.badger.$user->ID",
+				$new_owner->ID => "honey.badger.$new_owner->ID",
+			)
+		);
 
-		// Change owner to valid user
+		// Change owner to valid user.
 		add_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
 		$this->assertResponseStatus( 200, $response );

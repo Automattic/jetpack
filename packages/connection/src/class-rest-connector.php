@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Tracking;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
 use WP_REST_Request;
@@ -100,6 +101,17 @@ class REST_Connector {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'connection_reconnect' ),
 				'permission_callback' => __CLASS__ . '::jetpack_reconnect_permission_check',
+			)
+		);
+
+		// Set the connection owner.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'set_connection_owner' ),
+				'permission_callback' => array( $this, 'set_connection_owner_permission_callback' ),
 			)
 		);
 	}
@@ -276,6 +288,103 @@ class REST_Connector {
 		}
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Check that user has permission to change the master user.
+	 *
+	 * @since 6.2.0
+	 * @since 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
+	 *
+	 * @return bool|WP_Error True if user is able to change master user.
+	 */
+	public function set_connection_owner_permission_callback() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Change the connection owner.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if owner successfully changed.
+	 */
+	public function set_connection_owner( $request ) {
+		if ( ! isset( $request['owner'] ) ) {
+			return new WP_Error(
+				'invalid_param',
+				esc_html__( 'Invalid Parameter', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$new_owner_id = $request['owner'];
+		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
+			return new WP_Error(
+				'new_owner_not_admin',
+				esc_html__( 'New owner is not admin', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( get_current_user_id() === $new_owner_id ) {
+			return new WP_Error(
+				'new_owner_is_current_user',
+				esc_html__( 'New owner is same as current user', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		if ( ! $this->connection->is_user_connected( $new_owner_id ) ) {
+			return new WP_Error(
+				'new_owner_not_connected',
+				esc_html__( 'New owner is not connected', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Update the master user in Jetpack.
+		$updated = \Jetpack_Options::update_option( 'master_user', $new_owner_id );
+
+		// Notify WPCOM about the master user change.
+		$xml = new \Jetpack_IXR_Client(
+			array(
+				'user_id' => get_current_user_id(),
+			)
+		);
+		$xml->query(
+			'jetpack.switchBlogOwner',
+			array(
+				'new_blog_owner' => $new_owner_id,
+			)
+		);
+
+		if ( $updated && ! $xml->isError() ) {
+
+			// Track it.
+			if ( class_exists( 'Automattic\Jetpack\Tracking' ) ) {
+				$tracking = new Tracking();
+				$tracking->record_user_event( 'set_connection_owner_success' );
+			}
+
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+				)
+			);
+		}
+
+		return new WP_Error(
+			'error_setting_new_owner',
+			esc_html__( 'Could not confirm new owner.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
 	}
 
 }

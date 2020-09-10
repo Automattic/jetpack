@@ -112,6 +112,8 @@ class Manager {
 		Heartbeat::init();
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
 
+		add_action( 'admin_notices', array( ( new Owner() ), 'delete_user_update_connection_owner_notice' ) );
+
 	}
 
 	/**

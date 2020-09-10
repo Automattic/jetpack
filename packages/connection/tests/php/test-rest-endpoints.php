@@ -611,4 +611,36 @@ class Test_REST_Endpoints extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'intercept_validate_tokens_request' ), 10 );
 	}
 
+	/**
+	 * Test changing the connection owner with the required capability.
+	 */
+	public function test_change_owner_with_permission() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_disconnect' );
+
+		// Attempt owner change with bad user.
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+		$user->remove_cap( 'jetpack_disconnect' );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Test changing the connection owner without the required capability.
+	 */
+	public function test_change_owner_without_permission() {
+		$user = wp_get_current_user();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'owner' => $user->ID ) ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+		$this->assertEquals( 'invalid_user_permission_set_connection_owner', $response->get_data()['code'] );
+	}
 }

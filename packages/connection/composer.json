@@ -7,6 +7,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-heartbeat": "@dev",
 		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-tracking": "@dev"
