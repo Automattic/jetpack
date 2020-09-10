@@ -282,6 +282,7 @@ class Jetpack_Tweetstorm_Helper {
 			// Break blocks have no content to add, so we can skip the rest of this loop.
 			if ( 'break' === $block_def['type'] ) {
 				self::save_current_tweet( $current_tweet, $block );
+				continue;
 			}
 
 			// Check if we need to start a new tweet.
