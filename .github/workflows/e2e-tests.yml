@@ -1,4 +1,4 @@
-name: End-to-End Tests
+name: E2E Tests
 
 on:
   pull_request:
@@ -9,15 +9,9 @@ on:
     paths-ignore:
     - '**.md'
 
-# env:
-#   DB_NAME: jetpack_test
-#   DB_HOST: 127.0.0.1
-#   DB_USERNAME: root
-#   DB_PASSWORD: root
-
 jobs:
   e2e-tests:
-    name: E2E Tests
+    name: All
     runs-on: ubuntu-latest
 
     steps:
@@ -48,6 +42,7 @@ jobs:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
+        echo $GITHUB_EVENT_PATH
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
 
