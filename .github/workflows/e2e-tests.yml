@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+    - run: echo $GITHUB_EVENT_PATH
+
     - uses: actions/checkout@v2
 
     - name: Use yarn cache
@@ -42,7 +45,6 @@ jobs:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
-        echo $GITHUB_EVENT_PATH
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
 
@@ -64,7 +66,7 @@ jobs:
         ./tests/e2e/bin/push-allure-artifacts.sh
 
   gutenberg-e2e-tests:
-    name: E2E Tests with latest Gutenberg
+    name: with latest Gutenberg
     runs-on: ubuntu-latest
     env:
       LATEST_GUTENBERG: 1
