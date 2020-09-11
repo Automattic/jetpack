@@ -767,8 +767,9 @@ class Jetpack_Tweetstorm_Helper {
 
 		// Remove any glyphs that count as 1 character.
 		// Source: https://github.com/twitter/twitter-text/blob/master/config/v3.json .
+		// Note that the source ranges are in decimal, the regex ranges are converted to hex.
 		$single_character_count = 0;
-		$text                   = preg_replace( '/[\x{0000}-\x{4351}\x{8192}-\x{8205}\x{8208}-\x{8223}\x{8242}-\x{8247}]/uS', '', $text, -1, $single_character_count );
+		$text                   = preg_replace( '/[\x{0000}-\x{10FF}\x{2000}-\x{200D}\x{2010}-\x{201F}\x{2032}-\x{2037}]/uS', '', $text, -1, $single_character_count );
 
 		$stripped_characters += $single_character_count;
 
@@ -779,7 +780,7 @@ class Jetpack_Tweetstorm_Helper {
 			$stripped_characters += mb_strlen( $text, 'UTF-8' ) * 2;
 		}
 
-		if ( $stripped_characters <= 280 ) {
+		if ( $stripped_characters <= $max_length ) {
 			return true;
 		}
 

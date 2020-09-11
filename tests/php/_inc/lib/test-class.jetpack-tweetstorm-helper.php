@@ -1922,4 +1922,43 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
+
+	/**
+	 * Test that a tweet that's nearly filled with miscellaneous characters that count for 2 characters
+	 * will cause an image block to start a new tweet.
+	 */
+	public function test_nearly_full_tweet_followed_by_image() {
+		$test_content = str_repeat( '†', 135 );
+		$test_url     = 'https://pentophoto.files.wordpress.com/2019/03/mvimg_20190317_1915122.jpg';
+		$test_alt     = 'This is how we roll.';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateImageData( $test_url, $test_alt ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => $test_content,
+			),
+			array(
+				'media' => array(
+					array(
+						'url'  => $test_url,
+						'alt'  => $test_alt,
+						'type' => 'image/jpeg',
+					),
+				),
+			),
+		);
+
+		$expected_boundaries = array( false, false );
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			array( $blocks[1] ),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
 }
