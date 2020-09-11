@@ -150,6 +150,8 @@ export function getLastTweet( state ) {
 
 	return {
 		...getFirstTweet( state ),
+		// The URL is deliberately not included in the translatable string, as it must always
+		// be the last thing in the tweet text.
 		text: __( "I've also published this thread on my site:", 'jetpack' ) + ` ${ url }`,
 	};
 }
