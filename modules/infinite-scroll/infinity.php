@@ -1785,7 +1785,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @module infinite-scroll
 		 *
-		 * @since 8.9.1
+		 * @since 9.0.0
 		 *
 		 * @param array  array() An array to store multiple markup entries to be added to the footer.
 		 * @param string $buffer The contents of the output buffer.
@@ -1798,7 +1798,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @module infinite-scroll
 		 *
-		 * @since 8.9.1
+		 * @since 9.0.0
 		 *
 		 * @param string $buffer The contents of the output buffer.
 		 */
@@ -1861,7 +1861,7 @@ class The_Neverending_Home_Page {
 			 *
 			 * @module infinite-scroll
 			 *
-			 * @since 8.9.1
+			 * @since 9.0.0
 			 *
 			 * @param string '' The markup for the next page separator.
 			 */
@@ -1879,7 +1879,7 @@ class The_Neverending_Home_Page {
 				 *
 				 * @module infinite-scroll
 				 *
-				 * @since 8.9.1
+				 * @since 9.0.0
 				 *
 				 * @param string '' The markup for the older posts/next page.
 				 */
@@ -1933,7 +1933,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @module infinite-scroll
 		 *
-		 * @since 8.9.1
+		 * @since 9.0.0
 		 *
 		 * @param array $next_page The contents of the output buffer.
 		 */
