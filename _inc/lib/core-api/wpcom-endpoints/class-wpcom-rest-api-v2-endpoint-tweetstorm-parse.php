@@ -3,7 +3,7 @@
  * REST API endpoint for parsing Tweetstorms out of block content.
  *
  * @package Jetpack
- * @since 8.7.0
+ * @since 9.0.0
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -11,7 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 /**
  * Tweetstorm gatherer.
  *
- * @since 8.7.0
+ * @since 9.0.0
  */
 class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 	/**
