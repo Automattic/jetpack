@@ -44,7 +44,7 @@ const StoryEdit = ({
 		// }
 		// requestStoryCreatorLoad( id );
 		// let's open the Story Creator and load this block in there
-		requestStoryCreatorLoad( 1000 );
+		requestStoryCreatorLoad( mediaFiles, clientId );
 	};
 
 	return (
