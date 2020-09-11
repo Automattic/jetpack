@@ -10,9 +10,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
-		entry: {}, // We'll override later
-		'output-filename': '[name].js',
-		'output-path': path.join( __dirname, '_inc', 'build' ),
+		entry: { search: path.join( __dirname, './modules/search/instant-search/index.jsx' ) },
+		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
+		'output-filename': 'jp-search.bundle.js',
+		'output-path': path.join( __dirname, '_inc', 'build', 'instant-search' ),
 	}
 );
 
@@ -29,30 +30,22 @@ const sharedWebpackConfig = {
 	devtool: isDevelopment ? 'source-map' : false,
 };
 
-module.exports = [
-	{
-		...sharedWebpackConfig,
-		entry: { search: path.join( __dirname, './modules/search/instant-search/index.jsx' ) },
-		output: {
-			...sharedWebpackConfig.output,
-			chunkFilename: 'jp-search.chunk-[name]-[hash].js',
-			filename: 'jp-search.bundle.js',
-			path: path.join( __dirname, '_inc/build/instant-search' ),
-		},
-		performance: isDevelopment
-			? {
-					maxAssetSize: 500000,
-					maxEntrypointSize: 500000,
-					hints: 'error',
-			  }
-			: {
-					maxAssetSize: 153600,
-					maxEntrypointSize: 153600,
-					hints: 'error',
-			  },
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
-		],
-	},
-];
+module.exports = {
+	...sharedWebpackConfig,
+
+	performance: isDevelopment
+		? {
+				maxAssetSize: 500000,
+				maxEntrypointSize: 500000,
+				hints: 'error',
+		  }
+		: {
+				maxAssetSize: 153600,
+				maxEntrypointSize: 153600,
+				hints: 'error',
+		  },
+	plugins: [
+		...sharedWebpackConfig.plugins,
+		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
+	],
+};
