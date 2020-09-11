@@ -1780,10 +1780,28 @@ class The_Neverending_Home_Page {
 			$buffer
 		);
 
-		// Get the theme footers.
+		/**
+		 * Get the theme footers.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 8.9.1
+		 *
+		 * @param array  array() An array to store multiple markup entries to be added to the footer.
+		 * @param string $buffer The contents of the output buffer.
+		 */
 		$footers = apply_filters( 'jetpack_amp_infinite_footers', array(), $buffer );
 
-		// Hook for themes to filter custom markup on next page load.
+		/**
+		 * Filter the output buffer.
+		 * Themes can leverage this hook to add custom markup on next page load.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 8.9.1
+		 *
+		 * @param string $buffer The contents of the output buffer.
+		 */
 		$buffer = apply_filters( 'jetpack_amp_infinite_output', $buffer );
 
 		// Add the amp next page markup.
@@ -1836,12 +1854,38 @@ class The_Neverending_Home_Page {
 		]
 	</script>
 	<div separator>
-		<?php echo wp_kses_post( apply_filters( 'jetpack_amp_infinite_separator', '' ) ); ?>
+		<?php
+		echo wp_kses_post(
+			/**
+			 * AMP infinite scroll separator.
+			 *
+			 * @module infinite-scroll
+			 *
+			 * @since 8.9.1
+			 *
+			 * @param string '' The markup for the next page separator.
+			 */
+			apply_filters( 'jetpack_amp_infinite_separator', '' )
+		);
+		?>
 	</div>
 	<div recommendation-box class="recommendation-box">
 		<template type="amp-mustache">
 			{{#pages}}
-			<?php echo wp_kses_post( apply_filters( 'jetpack_amp_infinite_older_posts', '' ) ); ?>
+			<?php
+			echo wp_kses_post(
+				/**
+				 * AMP infinite scroll older posts markup.
+				 *
+				 * @module infinite-scroll
+				 *
+				 * @since 8.9.1
+				 *
+				 * @param string '' The markup for the older posts/next page.
+				 */
+				apply_filters( 'jetpack_amp_infinite_older_posts', '' )
+			);
+			?>
 			{{/pages}}
 		</template>
 	</div>
@@ -1880,6 +1924,19 @@ class The_Neverending_Home_Page {
 			'image' => $image,
 		);
 
+		/**
+		 * The next page settings.
+		 * An array containing:
+		 *  - title => The title to be featured on the browser tab.
+		 *  - url   => The URL of next page.
+		 *  - image => The image URL. A required AMP setting, not in use currently. Themes are welcome to leverage.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 8.9.1
+		 *
+		 * @param array $next_page The contents of the output buffer.
+		 */
 		return apply_filters( 'jetpack_amp_infinite_next_page_data', $next_page );
 	}
 
