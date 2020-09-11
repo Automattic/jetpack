@@ -18,6 +18,7 @@ use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 if ( defined( 'STATS_VERSION' ) ) {
 	return;
@@ -175,6 +176,12 @@ function stats_template_redirect() {
 	global $current_user;
 
 	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
+		return;
+	}
+
+	// Staging Sites should not generate tracking stats.
+	$status = new Status();
+	if ( $status->is_staging_site() ) {
 		return;
 	}
 
