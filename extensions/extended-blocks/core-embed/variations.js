@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { some } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { registerBlockVariation } from '@wordpress/blocks';
@@ -32,7 +37,11 @@ if ( typeof registerBlockVariation !== undefined ) {
 } else {
 	// WP version < 5.5.
 	const boundFunction = ( settings, name ) => {
-		if ( name === 'core/embed' && settings?.variations?.length ) {
+		if (
+			name === 'core/embed' &&
+			settings?.variations?.length &&
+			! some( settings.variations, { name: 'loom' } )
+		) {
 			settings.variations = [ ...settings.variations, coreEmbedVariation ];
 		}
 		return settings;
