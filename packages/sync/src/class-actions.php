@@ -151,6 +151,13 @@ class Actions {
 	 * @return bool
 	 */
 	public static function should_initialize_sender() {
+
+		// Allow for explicit disable of Sync from request param jetpack_sync_read_only.
+		if ( isset( $_REQUEST['jetpack_sync_read_only'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			self::mark_sync_read_only();
+			return false;
+		}
+
 		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}
