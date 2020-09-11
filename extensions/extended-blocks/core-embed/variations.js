@@ -20,8 +20,8 @@ const coreEmbedVariation = {
 	name: 'loom',
 	title: 'Loom',
 	icon: LoomIcon,
-	keywords: [ __( 'video' ) ],
-	description: __( 'Embed a Loom video.' ),
+	keywords: [ __( 'video', 'jetpack' ) ],
+	description: __( 'Embed a Loom video.', 'jetpack' ),
 	patterns: [ /^https?:\/\/(www\.)?loom\.com\/share\/.+/i ],
 	attributes: { providerNameSlug: 'loom', responsive: true },
 };
