@@ -1961,4 +1961,39 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
+
+	/**
+	 * All URLs count for 24 characters, regardless of their actual length. We need to ensure URLs
+	 * that have been typed into text (but aren't necessarily linked) are counted correctly.
+	 */
+	public function test_text_urls_are_counted_correctly() {
+		$test_content = 'https://jetpack.com ';
+
+		$blocks = array(
+			$this->generateParagraphData( trim( str_repeat( $test_content, 12 ) ) ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => trim( str_repeat( $test_content, 11 ) ) . '…',
+				'urls' => array_fill( 0, 11, trim( $test_content ) ),
+			),
+			array(
+				'text' => '…' . trim( $test_content ),
+				'urls' => array( trim( $test_content ) ),
+			),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 219, 220, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
 }

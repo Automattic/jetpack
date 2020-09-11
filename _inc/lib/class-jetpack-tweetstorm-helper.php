@@ -9,6 +9,8 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 
+require_once 'class-twitter-regex.php';
+
 /**
  * Class Jetpack_Tweetstorm_Helper
  *
@@ -898,6 +900,14 @@ class Jetpack_Tweetstorm_Helper {
 
 						$cleaned_line_part_data = preg_replace( '/ \(url-placeholder-\d+-*\)/', '', $line_part_data );
 
+						$cleaned_line_part_data = preg_replace_callback(
+							'/url-placeholder-(\d+)-*/',
+							function ( $matches ) {
+								return self::$urls[ $matches[1] ];
+							},
+							$cleaned_line_part_data
+						);
+
 						if ( $total_bytes_processed + $line_part_bytes >= $offset ) {
 							// We know that the offset is somewhere inside this part of the tweet, but we need to remove the length
 							// of any URL placeholders that appear before the boundary, to be able to calculate the correct attribute offset.
@@ -912,6 +922,14 @@ class Jetpack_Tweetstorm_Helper {
 
 							// Remove any URL placeholders, since these aren't shown in the editor.
 							$line_part_pre_boundary_data = preg_replace( '/ \(url-placeholder-\d+-*\)/', '', $line_part_pre_boundary_data );
+
+							$line_part_pre_boundary_data = preg_replace_callback(
+								'/url-placeholder-(\d+)-*/',
+								function ( $matches ) {
+									return self::$urls[ $matches[1] ];
+								},
+								$line_part_pre_boundary_data
+							);
 
 							$boundary_start = self::utf_16_code_unit_length( $line_part_pre_boundary_data ) - 1;
 
@@ -1336,7 +1354,20 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				if ( $opened !== $closed ) {
-					// We're currently in a tag, with some content. Append it to the right value.
+					// We're currently in a tag, with some content.
+
+					// Find any URLs in this content, and replace them with a placeholder.
+					preg_match_all( Twitter_Regex::getValidUrlMatcher(), $token, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE );
+					$offset = 0;
+					foreach ( $matches as $match ) {
+						list( $url, $start ) = $match[2];
+
+						$token = substr_replace( $token, self::generate_url_placeholder( $url ), $start + $offset, strlen( $url ) );
+
+						$offset += self::$characters_per_url - strlen( $url );
+					}
+
+					// Append it to the right value.
 					$values[ $tag ][ $opened ] .= $token;
 				}
 			}
