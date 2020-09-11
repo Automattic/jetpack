@@ -327,6 +327,11 @@ class Sender {
 			return new \WP_Error( 'is_importing' );
 		}
 
+		// Don't sync if request is marked as read only.
+		if ( Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) ) {
+			return new \WP_Error( 'jetpack_sync_read_only' );
+		}
+
 		if ( ! Settings::is_sender_enabled( $queue->id ) ) {
 			return new \WP_Error( 'sender_disabled_for_queue_' . $queue->id );
 		}
