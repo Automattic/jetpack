@@ -27,7 +27,7 @@ const coreEmbedVariation = {
 	title: 'Loom',
 	icon: embedLoomIcon,
 	keywords: [ __( 'video' ) ],
-	description: __( 'Embed a Loom video.' ),
+	description: __( 'Embed a Loom video.', 'jetpack' ),
 	patterns: [ /^https?:\/\/(www\.)?loom\.com\/share\/.+/i ],
 	attributes: { providerNameSlug: 'loom', responsive: true },
 };
