@@ -88,6 +88,22 @@ class AutoloadProcessor {
 			}
 		}
 
+		if ( ! empty( $autoloads['psr-0'] ) ) {
+			foreach ( $autoloads['psr-0'] as $namespace => $sources ) {
+				$namespace = empty( $namespace ) ? null : $namespace;
+
+				foreach ( $sources as $source ) {
+					$classmap = call_user_func( $this->classmapScanner, $source['path'], $excludedClasses, $namespace );
+					foreach ( $classmap as $class => $path ) {
+						$processed[ $class ] = array(
+							'version' => $source['version'],
+							'path'    => call_user_func( $this->pathCodeTransformer, $path ),
+						);
+					}
+				}
+			}
+		}
+
 		if ( ! empty( $autoloads['classmap'] ) ) {
 			foreach ( $autoloads['classmap'] as $package ) {
 				$classmap = call_user_func( $this->classmapScanner, $package['path'], $excludedClasses, null );

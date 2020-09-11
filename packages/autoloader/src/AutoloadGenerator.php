@@ -121,7 +121,7 @@ AUTOLOADER_COMMENT;
 	protected function parseAutoloadsType( array $packageMap, $type, PackageInterface $mainPackage ) {
 		$autoloads = array();
 
-		if ( 'psr-4' !== $type && 'classmap' !== $type && 'files' !== $type ) {
+		if ( 'psr-4' !== $type && 'classmap' !== $type && 'files' !== $type && 'psr-0' !== $type ) {
 			return parent::parseAutoloadsType( $packageMap, $type, $mainPackage );
 		}
 
@@ -137,8 +137,8 @@ AUTOLOADER_COMMENT;
 				$installPath = substr( $installPath, 0, -strlen( '/' . $package->getTargetDir() ) );
 			}
 
-			if ( 'psr-4' === $type && isset( $autoload['psr-4'] ) && is_array( $autoload['psr-4'] ) ) {
-				foreach ( $autoload['psr-4'] as $namespace => $paths ) {
+			if ( in_array( $type, array( 'psr-4', 'psr-0' ), true ) && isset( $autoload[ $type ] ) && is_array( $autoload[ $type ] ) ) {
+				foreach ( $autoload[ $type ] as $namespace => $paths ) {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
 						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
