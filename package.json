@@ -35,7 +35,7 @@
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
 		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && NODE_ENV=production yarn build-extensions && NODE_ENV=production yarn build-search && NODE_ENV=production yarn build-packages",
-		"docker:compose": "yarn docker:env && yarn docker:compose-extras && docker-compose -f docker/docker-compose.yml -f docker/compose-extras.yml",
+		"docker:compose": "yarn docker:env && yarn docker:compose-volumes && yarn docker:compose-extras && docker-compose -f docker/docker-compose.yml -f docker/compose-volumes.built.yml -f docker/compose-extras.yml",
 		"docker:up": "yarn docker:compose up",
 		"docker:ngrok": "yarn docker:compose -f docker/docker-compose-ngrok.yml",
 		"docker:ngrok-up": "yarn docker:ngrok up",
@@ -58,6 +58,7 @@
 		"docker:clean": "yarn docker:compose down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
 		"docker:env": "node -e \"require('fs').createWriteStream( 'docker/.env', { flags: 'a' } );\"",
 		"docker:compose-extras": "[ -f docker/compose-extras.yml ] || cp docker/compose-extras.yml.sample docker/compose-extras.yml",
+		"docker:compose-volumes": "[ -f docker/compose-volumes.yml ] || cp docker/compose-volumes.yml.sample docker/compose-volumes.yml; bash ./bin/compose-volumes.sh docker/compose-volumes.yml > docker/compose-volumes.built.yml",
 		"docker:update-core-unit-tests": "yarn docker:compose exec wordpress svn up /tmp/wordpress-develop/tests/phpunit/data/ /tmp/wordpress-develop/tests/phpunit/includes",
 		"lint": "eslint --ext .js,.jsx . _inc extensions modules",
 		"lint-file": "eslint --ext .js,.jsx",
@@ -106,7 +107,7 @@
 		"@wordpress/element": "2.16.0",
 		"@wordpress/i18n": "3.9.0",
 		"@wordpress/url": "2.11.0",
-		"babel-jest": "26.2.2",
+		"babel-jest": "26.3.0",
 		"babel-loader": "8.0.6",
 		"bounding-client-rect": "1.0.5",
 		"cache": "2.1.0",
@@ -167,7 +168,8 @@
 		"unfetch": "4.1.0",
 		"url-polyfill": "1.1.10",
 		"webpack": "4.44.1",
-		"webpack-cli": "3.3.12"
+		"webpack-cli": "3.3.12",
+		"wpcom-proxy-request": "5.0.2"
 	},
 	"optionalDependencies": {
 		"react": "16.13.1",
@@ -200,7 +202,7 @@
 		"eslint-loader": "4.0.2",
 		"eslint-plugin-es5": "1.5.0",
 		"eslint-plugin-jest": "23.20.0",
-		"eslint-plugin-jsdoc": "30.2.4",
+		"eslint-plugin-jsdoc": "30.3.2",
 		"eslint-plugin-jsx-a11y": "6.3.1",
 		"eslint-plugin-lodash": "7.1.0",
 		"eslint-plugin-prettier": "3.1.4",
@@ -208,12 +210,12 @@
 		"eslint-plugin-wpcalypso": "5.0.0",
 		"glob": "7.1.6",
 		"husky": "4.2.5",
-		"jest": "26.2.2",
+		"jest": "26.4.2",
 		"jest-allure": "0.1.3",
 		"jest-puppeteer": "4.4.0",
 		"lodash": "4.17.20",
 		"markdown-spellcheck": "1.3.1",
-		"mocha": "8.1.0",
+		"mocha": "8.1.3",
 		"mockery": "2.1.0",
 		"nock": "13.0.4",
 		"node-wp-i18n": "1.2.3",
@@ -230,7 +232,7 @@
 		"winston": "3.3.3"
 	},
 	"engines": {
-		"node": ">=10",
+		"node": "^12.18.0",
 		"yarn": "^1.3.2"
 	},
 	"resolutions": {

@@ -89,16 +89,22 @@ class Assets {
 	 * Given a minified path, and a non-minified path, will return
 	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
 	 *
+	 * If $package_path is provided, then the minified or non-minified file URL will be generated
+	 * relative to the root package directory.
+	 *
 	 * Both `$min_base` and `$non_min_base` can be either full URLs, or are expected to be relative to the
 	 * root Jetpack directory.
 	 *
-	 * @since 5.6.0
-	 *
-	 * @param string $min_path minified path.
+	 * @param string $min_path     minified path.
 	 * @param string $non_min_path non-minified path.
+	 * @param string $package_path Optional. A full path to a file inside a package directory
+	 *                             The URL will be relative to its directory. Default empty.
+	 *                             Typically this is done by passing __FILE__ as the argument.
+	 *
 	 * @return string The URL to the file
+	 * @since 5.6.0
 	 */
-	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
+	public static function get_file_url_for_environment( $min_path, $non_min_path, $package_path = '' ) {
 		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
 			? $non_min_path
 			: $min_path;
@@ -109,9 +115,11 @@ class Assets {
 		 */
 		$file_parts = wp_parse_url( $path );
 		if ( ! empty( $file_parts['host'] ) ) {
-				$url = $path;
+			$url = $path;
 		} else {
-			$url = plugins_url( $path, Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) );
+			$plugin_path = empty( $package_path ) ? Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) : $package_path;
+
+			$url = plugins_url( $path, $plugin_path );
 		}
 
 		/**

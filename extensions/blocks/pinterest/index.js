@@ -10,6 +10,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import { pinType } from './utils';
+import { getIconColor } from '../../shared/block-icons';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
@@ -32,7 +33,10 @@ export const settings = {
 
 	description: __( 'Embed a Pinterest pin, board, or user.', 'jetpack' ),
 
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 
 	category: 'embed',
 

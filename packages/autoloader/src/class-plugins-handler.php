@@ -14,16 +14,18 @@ class Plugins_Handler {
 	public function get_all_active_plugins_paths() {
 		global $jetpack_autoloader_activating_plugins_paths;
 
-		$active_plugins_paths    = $this->get_active_plugins_paths();
-		$multisite_plugins_paths = $this->get_multisite_plugins_paths();
-		$active_plugins_paths    = array_merge( $multisite_plugins_paths, $active_plugins_paths );
-
+		$active_plugins_paths     = $this->get_active_plugins_paths();
+		$multisite_plugins_paths  = $this->get_multisite_plugins_paths();
 		$activating_plugins_paths = $this->get_plugins_activating_via_request();
-		$activating_plugins_paths = array_unique( array_merge( $activating_plugins_paths, $jetpack_autoloader_activating_plugins_paths ) );
 
-		$plugins_paths = array_unique( array_merge( $active_plugins_paths, $activating_plugins_paths ) );
-
-		return $plugins_paths;
+		return array_unique(
+			array_merge(
+				$active_plugins_paths,
+				$activating_plugins_paths,
+				$multisite_plugins_paths,
+				(array) $jetpack_autoloader_activating_plugins_paths
+			)
+		);
 	}
 
 	/**
@@ -73,33 +75,6 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Checks whether the autoloader should be reset. The autoloader should be reset
-	 * when a plugin is activating via a method other than a request, for example
-	 * using WP-CLI. When this occurs, the activating plugin was not known when
-	 * the autoloader selected the package versions for the classmap and filemap
-	 * globals, so the autoloader must reselect the versions.
-	 *
-	 * If the current plugin is not already known, this method will add it to the
-	 * $jetpack_autoloader_activating_plugins_paths global.
-	 *
-	 * @return boolean True if the autoloder must be reset, else false.
-	 */
-	public function should_autoloader_reset() {
-		global $jetpack_autoloader_activating_plugins_paths;
-
-		$plugins_paths       = $this->get_all_active_plugins_paths();
-		$current_plugin_path = $this->get_current_plugin_path();
-		$plugin_unknown      = ! in_array( $current_plugin_path, $plugins_paths, true );
-
-		if ( $plugin_unknown ) {
-			// If the current plugin isn't known, add it to the activating plugins list.
-			$jetpack_autoloader_activating_plugins_paths[] = $current_plugin_path;
-		}
-
-		return $plugin_unknown;
-	}
-
-	/**
 	 * Returns an array containing the names of plugins that are activating via a request.
 	 *
 	 * @return array An array of names of the activating plugins or an empty array.
@@ -143,8 +118,8 @@ class Plugins_Handler {
 	 * @return string The path of the current plugin.
 	 */
 	public function get_current_plugin_path() {
-		$vendor_path = str_replace( '\\', '/', dirname( __FILE__ ) );
-		// Path to the plugin's folder (the parent of the vendor folder).
+		$vendor_path = str_replace( '\\', '/', dirname( dirname( __FILE__ ) ) );
+		// Path to the plugin's folder (the parent of the vendor/jetpack-autoloader folder).
 		return substr( $vendor_path, 0, strrpos( $vendor_path, '/' ) );
 	}
 }

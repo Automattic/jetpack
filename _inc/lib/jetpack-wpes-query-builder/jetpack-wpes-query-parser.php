@@ -151,6 +151,15 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 		return array_keys( $lst );
 	}
 
+	public function get_lang_field_suffix() {
+		if ( ! is_array( $this->langs ) || empty( $this->langs ) ) {
+			return;
+		}
+
+		// Returns the first language only
+		return $this->langs[0];
+	}
+
 	/*
 	 * Take a list of field prefixes and expand them for multi-lingual
 	 * with the provided boostings.

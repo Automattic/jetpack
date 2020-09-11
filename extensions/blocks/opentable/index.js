@@ -12,6 +12,9 @@ import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
 import icon from './icon';
+import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
+import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 /**
  * Style dependencies
@@ -21,12 +24,14 @@ import './view.scss';
 
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
-import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
 
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'earn',
 	keywords: [
 		_x( 'booking', 'block search term', 'jetpack' ),

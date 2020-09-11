@@ -11,6 +11,7 @@ import renderMaterialIcon from '../../shared/render-material-icon';
 import edit from './components/edit';
 import save from './components/save';
 import { CRITERIA_AFTER, DEFAULT_THRESHOLD } from './constants';
+import { getIconColor } from '../../shared/block-icons';
 import './editor.scss';
 
 export const name = 'repeat-visitor';
@@ -33,7 +34,10 @@ export const settings = {
 		'Control block visibility based on how often a visitor has viewed the page.',
 		'jetpack'
 	),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	keywords: [
 		_x( 'return', 'block search term', 'jetpack' ),
 		_x( 'visitors', 'block search term', 'jetpack' ),

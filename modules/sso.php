@@ -38,7 +38,6 @@ class Jetpack_SSO {
 		add_action( 'login_form_logout',               array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'jetpack_unlinked_user',           array( $this, 'delete_connection_for_user') );
 		add_action( 'wp_login',                        array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
-		add_action( 'jetpack_jitm_received_envelopes', array( $this, 'inject_sso_jitm' ), 10, 2 );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -361,11 +360,6 @@ class Jetpack_SSO {
 					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 					$reauth = ! empty( $_GET['force_reauth'] );
 					$sso_url = $this->get_sso_url_or_die( $reauth );
-
-					// Is this our first SSO Login. Set an option.
-					if ( ! Jetpack_Options::get_option( 'sso_first_login' ) ) {
-						Jetpack_options::update_option( 'sso_first_login', true );
-					}
 
 					$tracking->record_user_event( 'sso_login_redirect_success' );
 					wp_safe_redirect( $sso_url );
@@ -1131,70 +1125,6 @@ class Jetpack_SSO {
 	 **/
 	public function get_user_data( $user_id ) {
 		return get_user_meta( $user_id, 'wpcom_user_data', true );
-	}
-
-	/**
-	 * Mark SSO as discovered when an SSO JITM is viewed.
-	 *
-	 * @since 6.9.0
-	 *
-	 * @param array  $envelopes    Array of JITM messages received after API call.
-	 * @param string $message_path The message path to ask for.
-	 *
-	 * @return array $envelopes New array of JITM messages. May now contain only one message, about SSO.
-	 */
-	public function inject_sso_jitm( $envelopes, $message_path = null) {
-		/*
-		 * Bail early if:
-		 * - the request does not originate from wp-admin main dashboard.
-		 * - that's not the first time the user uses SSO.
-		 */
-		if (
-			'wp:dashboard:admin_notices' !== $message_path
-			|| true !== Jetpack_Options::get_option( 'sso_first_login' )
-		) {
-			return $envelopes;
-		}
-
-		// Update our option to mark that SSO was discovered.
-		Jetpack_Options::update_option( 'sso_first_login', false );
-
-		return $this->prepare_sso_first_login_jitm();
-	}
-
-	/**
-	 * Prepare JITM array for new SSO users
-	 *
-	 * @since 6.9.0
-	 *
-	 * @return array $sso_first_login_jitm array containting one object of information about our message.
-	 */
-	private function prepare_sso_first_login_jitm() {
-		// Build our custom SSO JITM.
-		$discover_sso_message = array(
-			'content'         => array(
-				'message'     => esc_html__( "You've successfully signed in with WordPress.com Secure Sign On!", 'jetpack' ),
-				'icon'        => 'jetpack',
-				'list'        => array(),
-				'description' => esc_html__( 'Interested in learning more about how Secure Sign On keeps your site safer?', 'jetpack' ),
-				'classes'     => '',
-			),
-			'CTA'             => array(
-				'message'   => esc_html__( 'Learn More', 'jetpack' ),
-				'hook'      => '',
-				'newWindow' => true,
-				'primary'   => true,
-			),
-			'template'        => 'default',
-			'ttl'             => 300,
-			'id'              => 'sso_discover',
-			'feature_class'   => 'sso',
-			'expires'         => 3628800,
-			'max_dismissal'   => 1,
-			'activate_module' => null,
-		);
-
-		return array( json_decode( json_encode( $discover_sso_message ) ) );
 	}
 }
 

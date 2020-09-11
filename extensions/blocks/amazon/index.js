@@ -7,8 +7,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import attributes from './attributes';
-import icon from './icon';
 import edit from './edit';
+import icon from './icon';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -21,7 +22,10 @@ export const settings = {
 	attributes,
 	title,
 	description: __( 'Promote Amazon products and earn a commission from sales.', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'earn',
 	keywords: [ __( 'amazon', 'jetpack' ), __( 'affiliate', 'jetpack' ) ],
 	supports: {

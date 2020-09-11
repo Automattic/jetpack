@@ -128,6 +128,13 @@
 		padding: 0;
 		margin: 0;
 	}
+
+	.wp-block > &.is-style-wide {
+		&.alignright {
+			left: auto;
+			right: 0;
+		}
+	}
 }
 
 .wp-block[data-type="jetpack/opentable"] {

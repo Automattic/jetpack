@@ -23,6 +23,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 /**
@@ -83,49 +84,6 @@ class Jetpack_Lazy_Images {
 		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
 		 */
 		return apply_filters( 'jetpack_lazy_images_is_amp_request', $is_amp_request );
-	}
-
-	/**
-	 * Given a minified path, and a non-minified path, will return
-	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
-	 *
-	 * Both `$min_base` and `$non_min_base` can be either full URLs, or are expected to be relative to the
-	 * root package directory.
-	 *
-	 * @since 8.8
-	 *
-	 * @param string $min_path Minified path.
-	 * @param string $non_min_path Non-minified path.
-	 * @return string The URL to the file.
-	 */
-	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
-		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
-				? $non_min_path
-				: $min_path;
-
-		/*
-		 * If the path is actually a full URL, keep that.
-		 * We look for a host value, since enqueues are sometimes without a scheme.
-		 */
-		$file_parts = wp_parse_url( $path );
-		if ( ! empty( $file_parts['host'] ) ) {
-			$url = $path;
-		} else {
-			$url = plugins_url( $path, __FILE__ );
-		}
-
-		/**
-		 * Filters the URL for a file passed through the get_file_url_for_environment function.
-		 *
-		 * @since 8.8
-		 *
-		 * @package automattic/jetpack-lazy-images
-		 *
-		 * @param string $url The URL to the file.
-		 * @param string $min_path The minified path.
-		 * @param string $non_min_path The non-minified path.
-		 */
-		return apply_filters( 'jetpack_lazy_load_get_file_for_environment', $url, $min_path, $non_min_path );
 	}
 
 	/**
@@ -528,7 +486,7 @@ class Jetpack_Lazy_Images {
 	public function enqueue_assets() {
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			self::get_file_url_for_environment( 'js/lazy-images.min.js', 'js/lazy-images.js' ),
+			Assets::get_file_url_for_environment( 'js/lazy-images.min.js', 'js/lazy-images.js', __FILE__ ),
 			array(),
 			self::ASSETS_VERSION,
 			true

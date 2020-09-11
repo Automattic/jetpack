@@ -9,6 +9,8 @@ import { __, _x } from '@wordpress/i18n';
 import edit from './edit';
 import save from './save';
 import { StarIcon, StarBlockIcon } from './icon';
+import { getIconColor } from '../../shared/block-icons';
+
 import './editor.scss';
 import './style.scss';
 
@@ -20,7 +22,10 @@ export const settings = {
 		'Rate movies, books, songs, recipes — anything you can put a number on.',
 		'jetpack'
 	),
-	icon: StarBlockIcon,
+	icon: {
+		src: StarBlockIcon,
+		foreground: getIconColor(),
+	},
 	keywords: [
 		_x( 'star', 'block search term', 'jetpack' ),
 		_x( 'rating', 'block search term', 'jetpack' ),

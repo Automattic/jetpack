@@ -13,6 +13,7 @@ import edit from './edit';
 import icon from './icon';
 import save from './save';
 import { getAttributesFromEmbedCode, REGEX } from './utils';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -36,7 +37,10 @@ export const title = __( 'Calendly', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'grow',
 	keywords: [
 		_x( 'calendar', 'block search term', 'jetpack' ),

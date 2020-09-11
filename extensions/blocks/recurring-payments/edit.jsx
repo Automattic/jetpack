@@ -5,7 +5,6 @@ import classnames from 'classnames';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import formatCurrency from '@automattic/format-currency';
-import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import {
@@ -28,6 +27,7 @@ import { applyFilters } from '@wordpress/hooks';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import StripeNudge from '../../shared/components/stripe-nudge';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import getSiteFragment from '../../shared/get-site-fragment';
 import { icon, isPriceValid, removeInvalidProducts, CURRENCY_OPTIONS } from '.';
 
 const API_STATE_LOADING = 0;
@@ -63,7 +63,6 @@ class MembershipsButtonEdit extends Component {
 			shouldUpgrade: false,
 			upgradeURL: '',
 			products: [],
-			siteSlug: '',
 			editedProductCurrency: 'USD',
 			editedProductPrice: formatPriceForNumberInputValue(
 				minimumTransactionAmountForCurrency( 'USD' ),
@@ -112,7 +111,6 @@ class MembershipsButtonEdit extends Component {
 					products,
 					should_upgrade_to_access_memberships: shouldUpgrade,
 					upgrade_url: upgradeURL,
-					site_slug: siteSlug,
 				} = result;
 				const connected = result.connected_account_id
 					? API_STATE_CONNECTED
@@ -122,7 +120,6 @@ class MembershipsButtonEdit extends Component {
 					connectURL,
 					shouldUpgrade,
 					upgradeURL,
-					siteSlug,
 					products: removeInvalidProducts( products ),
 				} );
 			},
@@ -415,7 +412,7 @@ class MembershipsButtonEdit extends Component {
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Management', 'jetpack' ) }>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
+					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
 						{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>

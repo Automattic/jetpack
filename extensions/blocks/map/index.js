@@ -13,10 +13,14 @@ import deprecatedV1 from './deprecated/v1';
 import './style.scss';
 import './editor.scss';
 export const { name } = mapSettings;
+import { getIconColor } from '../../shared/block-icons';
 
 export const settings = {
 	title: mapSettings.title,
-	icon: mapSettings.icon,
+	icon: {
+		src: mapSettings.icon,
+		foreground: getIconColor(),
+	},
 	category: mapSettings.category,
 	keywords: mapSettings.keywords,
 	description: mapSettings.description,
