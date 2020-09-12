@@ -8,12 +8,27 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 const ALLOWED_BLOCKS = [
+	'jetpack/markdown',
 	'jetpack/address',
 	'jetpack/email',
 	'jetpack/phone',
-  'core/heading',
-  'core/separator',
-  'core/spacer',
+	'jetpack/map',
+	'jetpack/business-hours',
+	'core/paragraph',
+	'core/image',
+	'core/heading',
+	'core/gallery',
+	'core/list',
+	'core/quote',
+	'core/shortcode',
+	'core/audio',
+	'core/code',
+	'core/cover',
+	'core/html',
+	'core/separator',
+	'core/spacer',
+	'core/subhead',
+	'core/video',
 ];
 
 const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address' ] ];
@@ -28,7 +43,7 @@ const ContactInfoEdit = props => {
 				'is-selected': isSelected,
 			} ) }
 		>
-			<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateLock={ false } templateInsertUpdatesSelection={ false } template={ TEMPLATE } />
+			<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateLock={ false } template={ TEMPLATE } />
 		</div>
 	);
 };

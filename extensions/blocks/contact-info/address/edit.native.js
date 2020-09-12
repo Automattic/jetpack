@@ -64,51 +64,51 @@ class AddressEdit extends Component {
 			{
 				value: address,
 				placeholder: __( 'Street Address', 'jetpack' ),
-				onChange: newAddress => setAttributes( { address: newAddress } ),
+				key: 'address',
 			},
 			{
 				value: addressLine2,
 				placeholder: __( 'Address Line 2', 'jetpack' ),
-				onChange: newAddressLine2 => setAttributes( { addressLine2: newAddressLine2 } ),
+				key: 'addressLine2',
 			},
 			{
 				value: addressLine3,
 				placeholder: __( 'Address Line 3', 'jetpack' ),
-				onChange: newAddressLine3 => setAttributes( { addressLine3: newAddressLine3 } ),
+				key: 'addressLine3',
 			},
 			{
 				value: city,
 				placeholder: __( 'City', 'jetpack' ),
-				onChange: newCity => setAttributes( { city: newCity } ),
+				key: 'city',
 			},
 			{
 				value: region,
 				placeholder: __( 'State/Province/Region', 'jetpack' ),
-				onChange: newRegion => setAttributes( { region: newRegion } ),
+				key: 'region',
 			},
 			{
 				value: postal,
 				placeholder: __( 'Postal/Zip Code', 'jetpack' ),
-				onChange: newPostal => setAttributes( { postal: newPostal } ),
+				key: 'postal',
 			},
 			{
 				value: country,
 				placeholder: __( 'Country', 'jetpack' ),
-				onChange: newCountry => setAttributes( { country: newCountry } ),
+				key: 'country',
 			},
 		];
 		const placeholderTextColor = getStylesFromColorScheme(
 			styles.placeholder.color,
 			styles.placeholderDark.color
 		);
-		const textInput = ( value, placeholder, onChange ) => (
+		const textInput = ( value, placeholder, key ) => (
 			<PlainText
 				style={ stylesEditor.blockEditorPlainText }
 				value={ value }
 				placeholder={ placeholder }
 				placeholderTextColor={ placeholderTextColor }
 				aria-label={ placeholder }
-				onChange={ onChange }
+				onChange={ newValue => setAttributes( { [ key ]: newValue } ) }
 				onKeyDown={ this.preventEnterKey }
 				onFocus={ onFocus }
 			/>
@@ -116,7 +116,7 @@ class AddressEdit extends Component {
 		return (
 			<View>
 				<Fragment>
-					{ textData.map( data => textInput( data.value, data.placeholder, data.onChange ) ) }
+					{ textData.map( data => textInput( data.value, data.placeholder, data.key ) ) }
 				</Fragment>
 				{ externalLink }
 			</View>
