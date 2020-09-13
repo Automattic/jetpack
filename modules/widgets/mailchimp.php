@@ -232,7 +232,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		public function enqueue_admin_scripts() {
 			global $pagenow;
 
-			if ( 'widgets.php' === $pagenow ) {
+			if ( in_array( $pagenow, array( 'widgets.php', 'customize.php' ), true ) ) {
 				wp_enqueue_script(
 					'jetpack-mailchimp-admin-js',
 					Assets::get_file_url_for_environment(

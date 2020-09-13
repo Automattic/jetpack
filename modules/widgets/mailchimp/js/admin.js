@@ -322,11 +322,14 @@
 	} );
 
 	// Form events.
-	var widgetsWrap = $( '.widgets-holder-wrap' );
-	widgetsWrap.on( 'click', '.jetpack-mailchimp-section-toggler', function() {
-		$( this )
-			.next()
-			.slideToggle();
-		$( this ).toggleClass( 'jetpack-mailchimp-closed' );
+	var widgetsWrappers = [ '#customize-theme-controls', '.widgets-holder-wrap' ]; // for customizer and widgets page.
+
+	widgetsWrappers.forEach( function( wrapper ) {
+		$( wrapper ).on( 'click', '.jetpack-mailchimp-section-toggler', function() {
+			$( this )
+				.next()
+				.slideToggle();
+			$( this ).toggleClass( 'jetpack-mailchimp-closed' );
+		} );
 	} );
 } )( jQuery );

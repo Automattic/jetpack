@@ -2,6 +2,10 @@
 	margin: 0 -15px 0 -15px;
 }
 
+#customize-theme-controls .mailchimp-widget-jetpack-form-wrapper {
+	margin: 0 -10px 0 -10px;
+}
+
 .jetpack-mailchimp-section-toggler {
 	position: relative;
 	padding: 15px;

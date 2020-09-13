@@ -22,7 +22,9 @@
 	right: -23px;
 	height: 56px;
 	border-radius: 50%;
-	background: #fff;
+	background: #fff !important;
+	background-color: #fff !important;
+	font-size: 1em !important;
 	box-shadow: 0 4px 12px rgba(36,28,21,.12);
 	transform: scale(0.8);
 }
