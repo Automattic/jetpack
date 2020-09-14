@@ -27,9 +27,12 @@ jobs:
 
     - name: check nvm location
       shell: bash -l -eo pipefail {0}
-      run: which nvm
+      run: echo $NVM_DIR
 
-    - run:    which nvm
+    - name: test nvm command
+      shell: bash -l -eo pipefail {0}
+      run: nvm ls
+
     - run: nvm -v
 
     - name: Build jetpack
