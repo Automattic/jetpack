@@ -46,7 +46,7 @@ jobs:
         nvm install
 
         BRANCH=${GITHUB_REF:11}
-        ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
+        bash ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
     - name: Upload jetpack build
       uses: actions/upload-artifact@v2
       with:
