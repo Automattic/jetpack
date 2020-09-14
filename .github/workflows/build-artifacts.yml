@@ -47,7 +47,7 @@ jobs:
         export NVM_DIR="$HOME/.nvm"
         source "$NVM_DIR/nvm.sh"
         nvm ls
-        which nvm
+        type -a nvm
 
         BRANCH=${GITHUB_REF:11}
         ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
