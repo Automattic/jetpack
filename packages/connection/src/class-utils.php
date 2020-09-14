@@ -82,4 +82,16 @@ class Utils {
 
 		return null;
 	}
+
+	/**
+	 * Add a filter to initialize default values of the constants.
+	 */
+	public static function init_default_constants() {
+		add_filter(
+			'jetpack_constant_default_value',
+			array( __CLASS__, 'jetpack_api_constant_filter' ),
+			10,
+			2
+		);
+	}
 }

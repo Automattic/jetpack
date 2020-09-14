@@ -73,6 +73,8 @@ class Rest_Authentication {
 			return $user;
 		}
 
+		Utils::init_default_constants();
+
 		if ( ! isset( $_GET['_for'] ) || 'jetpack' !== $_GET['_for'] ) {
 			// Nothing to do for this authentication method.
 			return null;
