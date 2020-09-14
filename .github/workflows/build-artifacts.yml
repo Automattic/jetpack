@@ -29,6 +29,9 @@ jobs:
     - name: test nvm command
       shell: bash -l -eo pipefail {0}
       run: nvm ls
+    - name: nvm install
+      shell: bash -l -eo pipefail {0}
+      run: nvm install
     - name: Build jetpack
       run: |
         BRANCH=${GITHUB_REF:11}
