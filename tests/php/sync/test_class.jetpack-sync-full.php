@@ -583,6 +583,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( in_array( $mu_blog_user_id, $this->synced_user_ids ) );
 
 		$this->sender->do_full_sync();
+		restore_current_blog();
 
 		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
 

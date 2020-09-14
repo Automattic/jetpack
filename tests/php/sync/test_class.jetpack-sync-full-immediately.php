@@ -397,6 +397,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+		restore_current_blog();
 
 		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
 
