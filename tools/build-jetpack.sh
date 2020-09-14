@@ -65,12 +65,10 @@ hash composer 2>/dev/null || {
 }
 
 # Using the version of Node that is required in .nvmrc
-# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 source "$NVM_DIR/nvm.sh"
-# nvm ls
-# nvm install
-nvm use || {
+
+nvm install && nvm use || {
     echo >&2 "This script requires a certain Node version."
     echo >&2 "We could not use the Node version that is specified in the .nvmrc file."
     exit 1;
