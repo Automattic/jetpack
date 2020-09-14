@@ -26,8 +26,8 @@ jobs:
     - name: Build jetpack
       shell: bash -l -eo pipefail {0}
       run: |
-        export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+        export NVM_DIR="$HOME/.nvm"
+        source "$NVM_DIR/nvm.sh"
         BRANCH=${GITHUB_REF:11}
         ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
     - name: Upload jetpack build
