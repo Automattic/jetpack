@@ -17,7 +17,7 @@ jobs:
           commit_message: 'Automated production build from master'
   build_beta:
     name: Beta
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     steps:
     - name: Checkout Jetpack
