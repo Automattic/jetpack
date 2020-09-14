@@ -241,6 +241,7 @@
 		"**/terser-webpack-plugin/serialize-javascript": "^3.1.0",
 		"**/@automattic/calypso-build/node-sass": "^4.13.1",
 		"**/tar-stream/bl": "^2.2.1",
-		"**/gulp/gulp-cli/yargs/yargs-parser": "^13.1.2"
+		"**/gulp/gulp-cli/yargs/yargs-parser": "^13.1.2",
+		"**/node-fetch": "^2.6.1"
 	}
 }
