@@ -33,9 +33,18 @@ jobs:
       shell: bash -l -eo pipefail {0}
       run: nvm ls
 
-    - run: nvm -v
+    - name: test nvm command
+      shell: bash -l -eo pipefail {0}
+      run: nvm -v
+    - name: test nvm command
+      shell: bash -l -eo pipefail {0}
+      run: which nvm
+    - name: test nvm command
+      shell: bash -l -eo pipefail {0}
+      run: nvm use
 
     - name: Build jetpack
+      shell: bash -l -eo pipefail {0}
       run: |
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
         export NVM_DIR="$HOME/.nvm"
