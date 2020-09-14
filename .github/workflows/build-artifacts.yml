@@ -43,11 +43,8 @@ jobs:
     - name: Build jetpack
       shell: bash -l -eo pipefail {0}
       run: |
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-        export NVM_DIR="$HOME/.nvm"
-        source "$NVM_DIR/nvm.sh"
-        nvm ls
-        nvm use
+
+        nvm install
 
         BRANCH=${GITHUB_REF:11}
         ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
