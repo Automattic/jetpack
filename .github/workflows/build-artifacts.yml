@@ -24,7 +24,11 @@ jobs:
       uses: actions/checkout@master
 
     - run: node -v
-    - run: command -v nvm
+
+    - name: check nvm location
+      shell: bash -l -eo pipefail {0}
+      run: which nvm
+
     - run:    which nvm
     - run: nvm -v
 
