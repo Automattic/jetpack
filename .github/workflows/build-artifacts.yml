@@ -23,11 +23,10 @@ jobs:
     - name: Checkout Jetpack
       uses: actions/checkout@master
 
-    - run: |
-        node -v
-        command -v nvm
-        which nvm
-        nvm -v
+    - run: node -v
+    - run: command -v nvm
+    - run:    which nvm
+    - run: nvm -v
 
     - name: Build jetpack
       run: |
