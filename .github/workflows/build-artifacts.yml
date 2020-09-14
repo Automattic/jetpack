@@ -22,7 +22,13 @@ jobs:
     steps:
     - name: Checkout Jetpack
       uses: actions/checkout@master
-    - run: nvm install
+    - name: check nvm location
+      shell: bash -l -eo pipefail {0}
+      run: echo $NVM_DIR
+
+    - name: test nvm command
+      shell: bash -l -eo pipefail {0}
+      run: nvm ls
     - name: Build jetpack
       run: |
         BRANCH=${GITHUB_REF:11}
