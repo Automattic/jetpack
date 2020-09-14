@@ -9,7 +9,8 @@
 #   - url: "https://raw.githubusercontent.com/automattic/jetpack/master/.github/codeclimate-base.yml"
 #     path: "codeclimate-base.yml"
 ---
-engines:
+version: "2"
+plugins:
   csslint:
     enabled: true
   duplication:
@@ -28,23 +29,17 @@ engines:
     enabled: true
   eslint:
     enabled: true
-    channel: "eslint-5"
+    channel: "eslint-7"
     config:
       config: "/.eslintrc.js"
+      extensions:
+      - .js
+      - .jsx
   scss-lint:
     enabled: true
   markdownlint:
     enabled: true
-ratings:
-  paths:
-  - "**.css"
-  - "**.scss"
-  - "**.inc"
-  - "**.js"
-  - "**.jsx"
-  - "**.php"
-  - "**.md"
-exclude_paths:
+exclude_patterns:
   - "**/.github/**"
   - "**/tests/**"
   - "**.png"
