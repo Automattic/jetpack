@@ -8,7 +8,7 @@ const urlValidator = url => ! url || url.startsWith( 'https://calendly.com/' );
 export default {
 	backgroundColor: {
 		type: 'string',
-		default: 'ffffff',
+		default: 'fffffe',
 		validator: colorValidator,
 	},
 	hideEventTypeDetails: {
