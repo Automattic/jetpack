@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { SocialServiceIcon } from '../../../shared/icons';
 import { SUPPORTED_BLOCKS } from './index';
-import { contentAttributesChanged } from './utils';
+import { contentAttributesChanged, checkForTagsInContentAttributes } from './utils';
 
 import './editor.scss';
 
@@ -201,25 +201,6 @@ export default compose( [
 			} )
 			.filter( style => !! style );
 
-		const findTagsInContent = tags => {
-			if ( 0 === tags.length ) {
-				return false;
-			}
-
-			if ( ! SUPPORTED_BLOCKS[ childProps.name ].contentAttributes ) {
-				return false;
-			}
-
-			const tagRegexp = new RegExp( `<(${ tags.join( '|' ) })( |>|/>)`, 'gi' );
-			return SUPPORTED_BLOCKS[ childProps.name ].contentAttributes.reduce( ( found, attribute ) => {
-				if ( found ) {
-					return true;
-				}
-
-				return tagRegexp.test( childProps.attributes[ attribute ] );
-			}, false );
-		};
-
 		const popoverWarnings = [];
 		if ( ! supportedBlock ) {
 			popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
@@ -228,11 +209,22 @@ export default compose( [
 				popoverWarnings.push( __( 'Twitter displays the first four images.', 'jetpack' ) );
 			}
 
-			if ( findTagsInContent( [ 'strong', 'bold', 'em', 'i', 'sup', 'sub', 'span', 's' ] ) ) {
+			if (
+				checkForTagsInContentAttributes( childProps, [
+					'strong',
+					'bold',
+					'em',
+					'i',
+					'sup',
+					'sub',
+					'span',
+					's',
+				] )
+			) {
 				popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
 			}
 
-			if ( findTagsInContent( [ 'a' ] ) ) {
+			if ( checkForTagsInContentAttributes( childProps, [ 'a' ] ) ) {
 				popoverWarnings.push( __( 'Links will be posted seperately.', 'jetpack' ) );
 			}
 		}
