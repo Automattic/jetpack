@@ -29,29 +29,3 @@ export const contentAttributesChanged = ( prevProps, props ) => {
 		attributeNames.map( attribute => ( { attribute, content: props.attributes[ attribute ] } ) )
 	);
 };
-
-/**
- * Checks whether or not there are any tags in the content attributes for this particular block.
- *
- * @param {object} props - The block props.
- * @param {Array} tags - An array of the tag names to look for.
- * @returns {boolean} Whether or not any of the given tags were found.
- */
-export const checkForTagsInContentAttributes = ( props, tags ) => {
-	if ( 0 === tags.length ) {
-		return false;
-	}
-
-	if ( ! SUPPORTED_BLOCKS[ props.name ]?.contentAttributes ) {
-		return false;
-	}
-
-	const tagRegexp = new RegExp( `<(${ tags.join( '|' ) })( |>|/>)`, 'gi' );
-	return SUPPORTED_BLOCKS[ props.name ].contentAttributes.reduce( ( found, attribute ) => {
-		if ( found ) {
-			return true;
-		}
-
-		return tagRegexp.test( props.attributes[ attribute ] );
-	}, false );
-};

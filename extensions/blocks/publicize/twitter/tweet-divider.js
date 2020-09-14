@@ -6,14 +6,13 @@ import { Popover } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { SocialServiceIcon } from '../../../shared/icons';
 import { SUPPORTED_BLOCKS } from './index';
-import { contentAttributesChanged, checkForTagsInContentAttributes } from './utils';
+import { contentAttributesChanged } from './utils';
 
 import './editor.scss';
 
@@ -66,8 +65,7 @@ class TweetDivider extends Component {
 			childProps,
 			isTweetStorm,
 			isSelectedTweetBoundary,
-			blockStyles,
-			shouldShowPopover,
+			boundaryStylesSelectors,
 			popoverWarnings,
 		} = this.props;
 
@@ -83,7 +81,7 @@ class TweetDivider extends Component {
 						<div className="jetpack-publicize-twitter__tweet-divider-icon">
 							<SocialServiceIcon serviceName="twitter" />
 						</div>
-						{ shouldShowPopover && (
+						{ popoverWarnings.length > 0 && (
 							<Popover
 								className="jetpack-publicize-twitter__tweet-divider-popover"
 								focusOnMount={ false }
@@ -102,9 +100,9 @@ class TweetDivider extends Component {
 						) }
 					</div>
 				) }
-				{ blockStyles && (
+				{ boundaryStylesSelectors && (
 					<style type="text/css">
-						{ blockStyles.map(
+						{ boundaryStylesSelectors.map(
 							selector =>
 								`${ selector }::after {
 								content: "";
@@ -127,124 +125,23 @@ class TweetDivider extends Component {
 export default compose( [
 	withSelect( ( select, { childProps } ) => {
 		const {
-			isTyping,
-			isDraggingBlocks,
-			isMultiSelecting,
-			hasMultiSelection,
-			isBlockSelected,
-			isCaretWithinFormattedText,
-		} = select( 'core/block-editor' );
-
-		const { getTweetsForBlock, isTweetStorm } = select( 'jetpack/publicize' );
-
-		const tweets = getTweetsForBlock( childProps.clientId );
+			isTweetStorm,
+			getPopoverWarnings,
+			getBoundariesForBlock,
+			getBoundaryStyleSelectors,
+			isSelectedTweetBoundary,
+		} = select( 'jetpack/publicize' );
 
 		const currentAnnotations = select( 'core/annotations' ).__experimentalGetAllAnnotationsForBlock(
 			childProps.clientId
 		);
 
-		// If this block isn't assigned any tweets, we can skip the rest.
-		if ( ! isTweetStorm || ! tweets || tweets.length === 0 ) {
-			return {
-				isTweetStorm,
-				isSelectedTweetBoundary: false,
-				boundaries: [],
-				blockStyles: [],
-				popoverWarnings: [],
-				shouldShowPopover: false,
-				currentAnnotations,
-			};
-		}
-
-		const supportedBlock = !! SUPPORTED_BLOCKS[ childProps.name ];
-
-		const lastTweet = tweets[ tweets.length - 1 ];
-		// The current block is the selected tweet boundary when either of these are true:
-		// - The current block is selected, and it's not a block type we support.
-		// - It's the last block in the last tweet, and the currently selected block is also in the same set of tweets.
-		const isSelectedTweetBoundary =
-			( isBlockSelected( childProps.clientId ) && ! supportedBlock ) ||
-			( lastTweet.blocks[ lastTweet.blocks.length - 1 ].clientId === childProps.clientId &&
-				tweets.some( tweet => tweet.blocks.some( block => isBlockSelected( block.clientId ) ) ) );
-
-		const boundaries = tweets.filter( tweet => tweet.boundary ).map( tweet => tweet.boundary );
-
-		const computeSelector = element => {
-			// We've found the block node, we can return now.
-			if ( `block-${ childProps.clientId }` === element.id ) {
-				return `#block-${ childProps.clientId }`;
-			}
-
-			const parent = element.parentNode;
-			const index = Array.prototype.indexOf.call( parent.children, element );
-
-			return computeSelector( parent ) + ` > :nth-child( ${ index + 1 } )`;
-		};
-
-		const blockElement = document.getElementById( `block-${ childProps.clientId }` );
-		const blockStyles = boundaries
-			.filter( boundary => 'end-of-line' === boundary.type )
-			.map( boundary => {
-				// When switching from code to visual editor, the block may not've been re-added to the DOM yet.
-				if ( ! blockElement ) {
-					return false;
-				}
-
-				const line = blockElement.getElementsByTagName( 'li' ).item( boundary.line );
-
-				// Confirm that the line hasn't been deleted since this boundary was calculated.
-				if ( line ) {
-					return computeSelector( line );
-				}
-
-				return false;
-			} )
-			.filter( style => !! style );
-
-		const popoverWarnings = [];
-		if ( ! supportedBlock ) {
-			popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
-		} else {
-			if ( 'core/gallery' === childProps.name && childProps.attributes.images.length > 4 ) {
-				popoverWarnings.push( __( 'Twitter displays the first four images.', 'jetpack' ) );
-			}
-
-			if (
-				checkForTagsInContentAttributes( childProps, [
-					'strong',
-					'bold',
-					'em',
-					'i',
-					'sup',
-					'sub',
-					'span',
-					's',
-				] )
-			) {
-				popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
-			}
-
-			if ( checkForTagsInContentAttributes( childProps, [ 'a' ] ) ) {
-				popoverWarnings.push( __( 'Links will be posted seperately.', 'jetpack' ) );
-			}
-		}
-
-		// Don't show the popover when the user is clearly doing something else.
-		const shouldShowPopover =
-			! isTyping() &&
-			! isDraggingBlocks() &&
-			! isMultiSelecting() &&
-			! hasMultiSelection() &&
-			! isCaretWithinFormattedText() &&
-			popoverWarnings.length > 0;
-
 		return {
-			isTweetStorm,
-			isSelectedTweetBoundary,
-			boundaries,
-			blockStyles,
-			popoverWarnings,
-			shouldShowPopover,
+			isTweetStorm: isTweetStorm(),
+			isSelectedTweetBoundary: isSelectedTweetBoundary( childProps ),
+			boundaries: getBoundariesForBlock( childProps.clientId ),
+			boundaryStylesSelectors: getBoundaryStyleSelectors( childProps.clientId ),
+			popoverWarnings: getPopoverWarnings( childProps ),
 			currentAnnotations,
 		};
 	} ),

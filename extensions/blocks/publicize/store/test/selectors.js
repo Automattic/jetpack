@@ -1,7 +1,11 @@
 /**
+ * @jest-environment jsdom
+ */
+
+/**
  * Internal dependencies
  */
-import { getTweetStorm, getTweetsForBlock, getTwitterCardForURLs, twitterCardIsCached, getTweetTemplate } from '../selectors';
+import { getTweetStorm, getTweetsForBlock, getTwitterCardForURLs, twitterCardIsCached } from '../selectors';
 
 /**
  * getTweetstorm() adds a tweet to the start and the end of the thread, but

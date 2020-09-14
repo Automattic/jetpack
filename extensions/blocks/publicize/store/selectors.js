@@ -5,6 +5,11 @@ import { get } from 'lodash';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
+import { SUPPORTED_BLOCKS } from '../twitter';
+
 // Links and media attached to tweets take up 24 characters each.
 const ATTACHMENT_MESSAGE_PADDING = 24;
 
@@ -260,4 +265,199 @@ export function getShareMessageMaxLength() {
  */
 export function isTweetStorm() {
 	return !! select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
+}
+
+/**
+ * Finds the boundary definitions for a given block.
+ *
+ * @param {object} state - State object.
+ * @param {string} clientId - The block clientId.
+ * @returns {Array} The boundary definitions.
+ */
+export function getBoundariesForBlock( state, clientId ) {
+	if ( ! isTweetStorm() ) {
+		return [];
+	}
+
+	const tweets = getTweetsForBlock( state, clientId );
+
+	if ( ! tweets || tweets.length === 0 ) {
+		return [];
+	}
+
+	return tweets.filter( tweet => tweet.boundary ).map( tweet => tweet.boundary );
+}
+
+/**
+ * Helper function for computing an exact selector for the given element within a block.
+ *
+ * @param {Node} element - The DOM element to find a selector  for.
+ * @param {string} clientId - The clientId of the containing block.
+ * @returns {string} The selector to access the given element.
+ */
+function computeSelector( element, clientId ) {
+	// We've found the block node, we can return now.
+	if ( `block-${ clientId }` === element.id ) {
+		return `#block-${ clientId }`;
+	}
+
+	const parent = element.parentNode;
+	const index = Array.prototype.indexOf.call( parent.children, element );
+
+	return computeSelector( parent, clientId ) + ` > :nth-child( ${ index + 1 } )`;
+}
+
+/**
+ * Returns an array of CSS selectors to be used for adding end-of-line boundaries.
+ *
+ * @param {object} state - State object.
+ * @param {string} clientId - The clientId of the containing block.
+ * @returns {Array} An array of CSS selectors.
+ */
+export function getBoundaryStyleSelectors( state, clientId ) {
+	const boundaries = getBoundariesForBlock( state, clientId );
+
+	const blockElement = document.getElementById( `block-${ clientId }` );
+
+	return boundaries
+		.filter( boundary => 'end-of-line' === boundary.type )
+		.map( boundary => {
+			// When switching from code to visual editor, the block may not've been re-added to the DOM yet.
+			if ( ! blockElement ) {
+				return false;
+			}
+
+			const line = blockElement.getElementsByTagName( 'li' ).item( boundary.line );
+
+			// Confirm that the line hasn't been deleted since this boundary was calculated.
+			if ( line ) {
+				return computeSelector( line, clientId );
+			}
+
+			return false;
+		} )
+		.filter( style => !! style );
+}
+
+/**
+ * Helper function to check whether or not there are any tags in the content attributes
+ * for this particular block.
+ *
+ * @param {object} props - The block props.
+ * @param {Array} tags - An array of the tag names to look for.
+ * @returns {boolean} Whether or not any of the given tags were found.
+ */
+function checkForTagsInContentAttributes( props, tags ) {
+	if ( 0 === tags.length ) {
+		return false;
+	}
+
+	if ( ! SUPPORTED_BLOCKS[ props.name ]?.contentAttributes ) {
+		return false;
+	}
+
+	const tagRegexp = new RegExp( `<(${ tags.join( '|' ) })( |>|/>)`, 'gi' );
+	return SUPPORTED_BLOCKS[ props.name ].contentAttributes.reduce( ( found, attribute ) => {
+		if ( found ) {
+			return true;
+		}
+
+		return tagRegexp.test( props.attributes[ attribute ] );
+	}, false );
+}
+
+/**
+ * If now's a good time to show popover warnings, return an array of warnings. If now isn't a good time,
+ * an empty array will be returned.
+ *
+ * @param {object} state - State object.
+ * @param {object} props - The props for the block to check for warnings.
+ * @returns {Array} An array of warnings to show.
+ */
+export function getPopoverWarnings( state, props ) {
+	const {
+		isTyping,
+		isDraggingBlocks,
+		isMultiSelecting,
+		hasMultiSelection,
+		isCaretWithinFormattedText,
+	} = select( 'core/block-editor' );
+
+	if ( ! isTweetStorm() ) {
+		return [];
+	}
+
+	// Don't show any popovers if the author is doing something else.
+	if (
+		isTyping() ||
+		isDraggingBlocks() ||
+		isMultiSelecting() ||
+		hasMultiSelection() ||
+		isCaretWithinFormattedText()
+	) {
+		return [];
+	}
+
+	const popoverWarnings = [];
+	if ( ! SUPPORTED_BLOCKS[ props.name ] ) {
+		popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
+	} else {
+		if ( 'core/gallery' === props.name && props.attributes.images.length > 4 ) {
+			popoverWarnings.push( __( 'Twitter displays the first four images.', 'jetpack' ) );
+		}
+
+		if (
+			checkForTagsInContentAttributes( props, [
+				'strong',
+				'bold',
+				'em',
+				'i',
+				'sup',
+				'sub',
+				'span',
+				's',
+			] )
+		) {
+			popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
+		}
+
+		if ( checkForTagsInContentAttributes( props, [ 'a' ] ) ) {
+			popoverWarnings.push( __( 'Links will be posted seperately.', 'jetpack' ) );
+		}
+	}
+
+	return popoverWarnings;
+}
+
+/**
+ * Determines whether the passed block is the boundary for the tweet containing the currently selected block.
+ *
+ * @param {object} state - State object.
+ * @param {object} props - The block to check.
+ * @returns {boolean} Whether or not the passed block is the boundary.
+ */
+export function isSelectedTweetBoundary( state, props ) {
+	const { isBlockSelected } = select( 'core/block-editor' );
+
+	if ( ! isTweetStorm() ) {
+		return false;
+	}
+
+	const supportedBlock = !! SUPPORTED_BLOCKS[ props.name ];
+	const tweets = getTweetsForBlock( state, props.clientId );
+
+	if ( ! tweets || tweets.length === 0 ) {
+		return false;
+	}
+
+	const lastTweet = tweets[ tweets.length - 1 ];
+
+	// The current block is the selected tweet boundary when either of these are true:
+	// - The current block is selected, and it's not a block type we support.
+	// - It's the last block in the last tweet, and the currently selected block is also in the same set of tweets.
+	return (
+		( isBlockSelected( props.clientId ) && ! supportedBlock ) ||
+		( lastTweet.blocks[ lastTweet.blocks.length - 1 ].clientId === props.clientId &&
+			tweets.some( tweet => tweet.blocks.some( block => isBlockSelected( block.clientId ) ) ) )
+	);
 }
