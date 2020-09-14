@@ -33,6 +33,8 @@ jobs:
       shell: bash -l -eo pipefail {0}
       run: nvm install
     - name: Build jetpack
+      shell: bash -l -eo pipefail {0}
+
       run: |
         BRANCH=${GITHUB_REF:11}
         ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
