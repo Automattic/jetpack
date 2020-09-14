@@ -397,14 +397,23 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+
+		$user_count             = $this->server_replica_storage->user_count();
+		$srs_added_mu_blog_user = $this->server_replica_storage->get_user( $added_mu_blog_user_id );
+		$srs_user               = $this->server_replica_storage->get_user( $user_id );
+		$srs_mu_blog_user       = $this->server_replica_storage->get_user( $mu_blog_user_id );
+
+		// restore context then run assertions.
 		restore_current_blog();
 
-		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
+		$this->assertEquals( 2, $user_count );
 
 		// again, opposite users from previous sync
-		$this->assertNotNull( $this->server_replica_storage->get_user( $added_mu_blog_user_id ) );
-		$this->assertNull( $this->server_replica_storage->get_user( $user_id ) );
-		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
+
+		$this->assertNotNull( $srs_added_mu_blog_user );
+		$this->assertNull( $srs_user );
+		$this->assertNotNull( $srs_mu_blog_user );
+
 	}
 
 	function record_full_synced_users( $user_ids ) {
