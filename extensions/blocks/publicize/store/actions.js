@@ -58,11 +58,10 @@ export function refreshTweets() {
 }
 
 /**
- * Returns an action object used in signalling that twets have been refreshed,
+ * Returns an action object used in signalling that tweets have been refreshed,
  * and the state will be updated.
  *
  * @param {Array} tweets - The array of tweet objects returned by the parser.
- *
  * @returns {object} Action object.
  */
 export function setTweets( tweets ) {
@@ -72,6 +71,12 @@ export function setTweets( tweets ) {
 	};
 }
 
+/**
+ * Returns an action object used in signalling that we're fetching Twitter Cards.
+ *
+ * @param {Array} urls - An array of URLs to fetch.
+ * @returns {object} Action object.
+ */
 export function getTwitterCards( urls ) {
 	const { twitterCardIsCached } = select( 'jetpack/publicize' );
 
@@ -81,6 +86,13 @@ export function getTwitterCards( urls ) {
 	};
 }
 
+/**
+ * Returns an action object used in signalling that Twitter Cards have been fetched
+ * and the state will be updated.
+ *
+ * @param {Array} cards - The array of card object returned by the server.
+ * @returns {object} Action object.
+ */
 export function setTwitterCards( cards ) {
 	return {
 		type: 'SET_TWITTER_CARDS',
