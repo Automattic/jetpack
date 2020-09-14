@@ -1996,4 +1996,33 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
+
+	/**
+	 * If the text of the link is the same as the href, we should only include one in the tweet.
+	 */
+	public function test_text_urls_inside_links_are_deduplicated() {
+		$test_url     = 'https://jetpack.com';
+		$test_content = "Visiting <a href='$test_url'>$test_url</a> is good for your soul.";
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => "Visiting $test_url is good for your soul.",
+				'urls' => array( $test_url ),
+			),
+		);
+
+		$expected_boundaries = array(
+			false,
+		);
+
+		$expected_blocks = array(
+			$blocks,
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
 }

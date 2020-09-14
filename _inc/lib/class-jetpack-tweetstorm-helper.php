@@ -1365,6 +1365,11 @@ class Jetpack_Tweetstorm_Helper {
 						$token = substr_replace( $token, self::generate_url_placeholder( $url ), $start + $offset, strlen( $url ) );
 
 						$offset += self::$characters_per_url - strlen( $url );
+
+						// If we're in a link with a URL set, there's no need to keep two copies of the same link.
+						if ( $url === $current_url ) {
+							$current_url = '';
+						}
 					}
 
 					// Append it to the right value.
