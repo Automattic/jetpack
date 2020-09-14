@@ -390,7 +390,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotNull( $this->server_replica_storage->get_user( $added_mu_blog_user_id ) );
 		$this->assertNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
 
-		// now switch to the other site and sync, and ensure that only that site's users get synced
+		// now switch to the other site and sync, and ensure that only that site's users get synced.
 		switch_to_blog( $other_blog_id );
 		$this->server_replica_storage->reset();
 		$this->synced_user_ids = null;
@@ -408,8 +408,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 2, $user_count );
 
-		// again, opposite users from previous sync
-
+		// again, opposite users from previous sync.
 		$this->assertNotNull( $srs_added_mu_blog_user );
 		$this->assertNull( $srs_user );
 		$this->assertNotNull( $srs_mu_blog_user );
