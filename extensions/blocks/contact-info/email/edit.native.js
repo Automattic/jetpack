@@ -15,13 +15,17 @@ import styles from '../style.scss';
 
 const EmailEdit = props => {
 	const { setAttributes, getStylesFromColorScheme } = props;
-	const placeholderTextColor = getStylesFromColorScheme(
-		styles.placeholder.color,
-		styles.placeholderDark.color
+	const { color: placeholderTextColor } = getStylesFromColorScheme(
+		styles.placeholder,
+		styles.placeholderDark
+	);
+	const textColors = getStylesFromColorScheme(
+		styles.blockEditorPlainTextColor,
+		styles.blockEditorPlainTextColorDark
 	);
 	const nativeProps = {
 		keyboardType: 'email-address',
-		style: stylesEditor.blockEditorPlainText,
+		style: { ...stylesEditor.blockEditorPlainText, ...textColors },
 		placeholderTextColor,
 	};
 	return simpleInput(

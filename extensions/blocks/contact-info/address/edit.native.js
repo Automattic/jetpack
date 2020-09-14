@@ -47,7 +47,7 @@ class AddressEdit extends Component {
 
 		const externalLink = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Contact Info Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Address Settings', 'jetpack' ) }>
 					<ToggleControl
 						label={ __( 'Link address to Google Maps', 'jetpack' ) }
 						checked={ linkToGoogleMaps }
@@ -97,13 +97,21 @@ class AddressEdit extends Component {
 				key: 'country',
 			},
 		];
-		const placeholderTextColor = getStylesFromColorScheme(
-			styles.placeholder.color,
-			styles.placeholderDark.color
+		const { color: placeholderTextColor } = getStylesFromColorScheme(
+			styles.placeholder,
+			styles.placeholderDark
+		);
+		const textColors = getStylesFromColorScheme(
+			styles.blockEditorPlainTextColor,
+			styles.blockEditorPlainTextColorDark
 		);
 		const textInput = ( value, placeholder, key ) => (
 			<PlainText
-				style={ stylesEditor.blockEditorPlainText }
+				style={ {
+					...stylesEditor.blockEditorPlainText,
+					...stylesEditor.addressPadding,
+					...textColors,
+				} }
 				value={ value }
 				placeholder={ placeholder }
 				placeholderTextColor={ placeholderTextColor }

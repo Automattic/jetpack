@@ -1,7 +1,19 @@
+@import "~@wordpress/base-styles/colors";
+
 .placeholder {
   color: $gray;
 }
 
 .placeholderDark {
   color: $gray-50;
+}
+
+.blockEditorPlainTextColor {
+	color: $gray-900;
+	text-decoration-color: $blue-500;
+}
+
+.blockEditorPlainTextColorDark {
+	color: $white;
+	text-decoration-color: $blue-30;
 }

@@ -1,3 +1,5 @@
+@import "~@wordpress/base-styles/variables";
+
 .jetpackContactInfoBlock {
 	box-shadow: none;
 	margin: 0;
@@ -5,8 +7,14 @@
 
 .blockEditorPlainText {
 	flex-grow: 1;
-	padding: 2px;
+	padding: 0;
 	box-shadow: none;
 	font-size: $editor-font-size;
+	font-family: $default-regular-font;
 	border: none;
+}
+
+.addressPadding {
+	padding-top: 4px;
+	padding-bottom: 4px;
 }
