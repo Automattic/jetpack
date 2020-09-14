@@ -24,7 +24,6 @@ jobs:
       uses: actions/checkout@master
 
     - name: Build jetpack
-      shell: bash -l -eo pipefail {0}
       run: |
         export NVM_DIR="$HOME/.nvm"
         source "$NVM_DIR/nvm.sh"
