@@ -15,7 +15,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
  */
 import './editor.scss';
 
-const PublicizeTwitterOptions = ( { connections, isTweetstorm, setTweetstorm } ) => {
+const PublicizeTwitterOptions = ( { connections, isTweetStorm, setTweetstorm } ) => {
 	if ( ! connections.some( connection => 'twitter' === connection.service_name ) ) {
 		return null;
 	}
@@ -34,7 +34,7 @@ const PublicizeTwitterOptions = ( { connections, isTweetstorm, setTweetstorm } )
 				{ __( 'Twitter settings', 'jetpack' ) }
 			</h3>
 			<RadioControl
-				selected={ isTweetstorm ? 'tweetstorm' : 'single' }
+				selected={ isTweetStorm ? 'tweetstorm' : 'single' }
 				options={ [
 					{
 						label: __( 'Share your blog post as a link in a single tweet', 'jetpack' ),
@@ -57,13 +57,18 @@ const PublicizeTwitterOptions = ( { connections, isTweetstorm, setTweetstorm } )
 export default compose( [
 	withSelect( select => ( {
 		connections: select( 'core/editor' ).getEditedPostAttribute( 'jetpack_publicize_connections' ),
-		isTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
+		isTweetStorm: select( 'jetpack/publicize' ).isTweetStorm(),
 	} ) ),
 	withDispatch( dispatch => ( {
 		setTweetstorm: value => {
 			dispatch( 'core/editor' ).editPost( { meta: { jetpack_is_tweetstorm: value } } );
 			if ( value ) {
 				dispatch( 'jetpack/publicize' ).refreshTweets();
+			} else {
+				// Clean up all of the tweet boundary annotations that might be left over.
+				dispatch( 'core/annotations' ).__experimentalRemoveAnnotationsBySource(
+					'jetpack-tweetstorm'
+				);
 			}
 		},
 	} ) ),

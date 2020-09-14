@@ -87,13 +87,13 @@ export default withSelect( ( select, props ) => {
 
 	const { getMedia, getUser } = select( 'core' );
 	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
-	const { getTweetTemplate, getTweetStorm, getShareMessage } = select( 'jetpack/publicize' );
+	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } = select(
+		'jetpack/publicize'
+	);
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
 	const user = authorId && getUser( authorId );
-
-	const isTweetStorm = getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
 
 	const postData = {
 		post: getCurrentPost(),

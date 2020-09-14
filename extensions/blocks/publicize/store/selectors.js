@@ -226,8 +226,6 @@ export function getShareMessage() {
 	const postTitle = getEditedPostAttribute( 'title' );
 	const message = get( meta, [ 'jetpack_publicize_message' ], '' );
 
-	const isTweetstorm = meta.jetpack_is_tweetstorm;
-
 	if ( message ) {
 		return message.substr( 0, getShareMessageMaxLength() );
 	}
@@ -235,7 +233,7 @@ export function getShareMessage() {
 	if ( postTitle ) {
 		return (
 			postTitle.substr( 0, getShareMessageMaxLength() ) +
-			( isTweetstorm ? DEFAULT_TWEETSTORM_MESSAGE : '' )
+			( isTweetStorm() ? DEFAULT_TWEETSTORM_MESSAGE : '' )
 		);
 	}
 
@@ -248,12 +246,18 @@ export function getShareMessage() {
  * @returns {number} The maximum length of a share message.
  */
 export function getShareMessageMaxLength() {
-	const { getEditedPostAttribute } = select( 'core/editor' );
-	const isTweetstorm = getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
-
-	if ( ! isTweetstorm ) {
+	if ( ! isTweetStorm() ) {
 		return MAXIMUM_MESSAGE_LENGTH;
 	}
 
 	return MAXIMUM_MESSAGE_LENGTH - DEFAULT_TWEETSTORM_MESSAGE.length;
+}
+
+/**
+ * Check whether or not this post will be published as a tweetstorm.
+ *
+ * @returns {boolean} Whether or not it's a tweetstorm.
+ */
+export function isTweetStorm() {
+	return !! select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
 }

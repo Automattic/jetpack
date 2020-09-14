@@ -69,14 +69,14 @@ const addTweetDivider = blockSettings => {
 
 addFilter( 'blocks.registerBlockType', 'jetpack/publishing-tweetstorms', addTweetDivider );
 
-const TwitterThreadListener = ( { isTweetstorm, isTyping } ) => {
-	if ( isTweetstorm ) {
+const TwitterThreadListener = ( { isTweetStorm, isTyping } ) => {
+	if ( isTweetStorm ) {
 		document.body.classList.add( 'jetpack-tweetstorm' );
 	} else {
 		document.body.classList.remove( 'jetpack-tweetstorm' );
 	}
 
-	if ( isTweetstorm && isTyping ) {
+	if ( isTweetStorm && isTyping ) {
 		document.body.classList.add( 'jetpack-tweetstorm-is-typing' );
 	} else {
 		document.body.classList.remove( 'jetpack-tweetstorm-is-typing' );
@@ -88,7 +88,7 @@ const TwitterThreadListener = ( { isTweetstorm, isTyping } ) => {
 
 export default compose( [
 	withSelect( select => ( {
-		isTweetstorm: select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm,
+		isTweetStorm: select( 'jetpack/publicize' ).isTweetStorm(),
 		isTyping: select( 'core/block-editor' ).isTyping(),
 	} ) ),
 ] )( TwitterThreadListener );

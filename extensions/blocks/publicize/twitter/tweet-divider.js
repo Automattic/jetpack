@@ -22,8 +22,8 @@ import './editor.scss';
  */
 class TweetDivider extends Component {
 	componentDidMount() {
-		const { isTweetstorm, updateTweets } = this.props;
-		if ( isTweetstorm ) {
+		const { isTweetStorm, updateTweets } = this.props;
+		if ( isTweetStorm ) {
 			updateTweets();
 		}
 	}
@@ -34,12 +34,12 @@ class TweetDivider extends Component {
 			childProps,
 			contentAttributesChanged,
 			currentAnnotations,
-			isTweetstorm,
+			isTweetStorm,
 			updateAnnotations,
 			updateTweets,
 		} = this.props;
 
-		if ( ! isTweetstorm ) {
+		if ( ! isTweetStorm ) {
 			return;
 		}
 
@@ -64,14 +64,14 @@ class TweetDivider extends Component {
 		const {
 			ChildEdit,
 			childProps,
-			isTweetstorm,
+			isTweetStorm,
 			isSelectedTweetBoundary,
 			blockStyles,
 			shouldShowPopover,
 			popoverWarnings,
 		} = this.props;
 
-		if ( ! isTweetstorm ) {
+		if ( ! isTweetStorm ) {
 			return <ChildEdit { ...childProps } />;
 		}
 
@@ -135,10 +135,8 @@ export default compose( [
 			isCaretWithinFormattedText,
 		} = select( 'core/block-editor' );
 
-		const { getTweetsForBlock } = select( 'jetpack/publicize' );
+		const { getTweetsForBlock, isTweetStorm } = select( 'jetpack/publicize' );
 
-		const isTweetstorm = select( 'core/editor' ).getEditedPostAttribute( 'meta' )
-			.jetpack_is_tweetstorm;
 		const tweets = getTweetsForBlock( childProps.clientId );
 
 		const contentAttributesChanged = ( prevAttributes, attributes ) => {
@@ -154,9 +152,9 @@ export default compose( [
 		);
 
 		// If this block isn't assigned any tweets, we can skip the rest.
-		if ( ! isTweetstorm || ! tweets || tweets.length === 0 ) {
+		if ( ! isTweetStorm || ! tweets || tweets.length === 0 ) {
 			return {
-				isTweetstorm,
+				isTweetStorm,
 				isSelectedTweetBoundary: false,
 				contentAttributesChanged,
 				boundaries: [],
@@ -258,7 +256,7 @@ export default compose( [
 			popoverWarnings.length > 0;
 
 		return {
-			isTweetstorm,
+			isTweetStorm,
 			isSelectedTweetBoundary,
 			contentAttributesChanged,
 			boundaries,
