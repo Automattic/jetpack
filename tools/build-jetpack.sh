@@ -1,6 +1,4 @@
 #!/bin/bash
-set -eo pipefail
-
 RED='\033[0;31m'
 trap 'exit_build' ERR
 

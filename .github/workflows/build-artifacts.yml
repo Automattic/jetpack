@@ -22,19 +22,10 @@ jobs:
     steps:
     - name: Checkout Jetpack
       uses: actions/checkout@master
-    - name: check nvm location
-      shell: bash -l -eo pipefail {0}
-      run: echo $NVM_DIR
-
-    - name: test nvm command
-      shell: bash -l -eo pipefail {0}
-      run: nvm ls
-    - name: nvm install
-      shell: bash -l -eo pipefail {0}
-      run: nvm install
+    - name: install nvm
+      run: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
     - name: Build jetpack
       shell: bash -l -eo pipefail {0}
-
       run: |
         BRANCH=${GITHUB_REF:11}
         ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
