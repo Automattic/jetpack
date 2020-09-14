@@ -33,9 +33,9 @@ jobs:
       shell: bash -l -eo pipefail {0}
       run: nvm ls
 
-    # - name: test nvm command
-    #   shell: bash -l -eo pipefail {0}
-    #   run: which nvm
+    - name: test nvm command
+      shell: bash -l -eo pipefail {0}
+      run: type -a nvm
     # - name: test nvm command
     #   shell: bash -l -eo pipefail {0}
     #   run: nvm use
