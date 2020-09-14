@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { SocialServiceIcon } from '../../../shared/icons';
 import { SUPPORTED_BLOCKS } from './index';
+import { contentAttributesChanged } from './utils';
 
 import './editor.scss';
 
@@ -32,7 +33,6 @@ class TweetDivider extends Component {
 		const {
 			boundaries,
 			childProps,
-			contentAttributesChanged,
 			currentAnnotations,
 			isTweetStorm,
 			updateAnnotations,
@@ -47,7 +47,7 @@ class TweetDivider extends Component {
 			return;
 		}
 
-		if ( contentAttributesChanged( prevProps.childProps.attributes, childProps.attributes ) ) {
+		if ( contentAttributesChanged( prevProps.childProps, childProps ) ) {
 			updateTweets();
 		}
 
@@ -139,14 +139,6 @@ export default compose( [
 
 		const tweets = getTweetsForBlock( childProps.clientId );
 
-		const contentAttributesChanged = ( prevAttributes, attributes ) => {
-			const attributeNames = SUPPORTED_BLOCKS[ childProps.name ].contentAttributes;
-			return ! isEqual(
-				attributeNames.map( attribute => ( { attribute, content: prevAttributes[ attribute ] } ) ),
-				attributeNames.map( attribute => ( { attribute, content: attributes[ attribute ] } ) )
-			);
-		};
-
 		const currentAnnotations = select( 'core/annotations' ).__experimentalGetAllAnnotationsForBlock(
 			childProps.clientId
 		);
@@ -156,7 +148,6 @@ export default compose( [
 			return {
 				isTweetStorm,
 				isSelectedTweetBoundary: false,
-				contentAttributesChanged,
 				boundaries: [],
 				blockStyles: [],
 				popoverWarnings: [],
@@ -258,7 +249,6 @@ export default compose( [
 		return {
 			isTweetStorm,
 			isSelectedTweetBoundary,
-			contentAttributesChanged,
 			boundaries,
 			blockStyles,
 			popoverWarnings,
@@ -266,7 +256,7 @@ export default compose( [
 			currentAnnotations,
 		};
 	} ),
-	withDispatch( ( dispatch, { childProps, contentAttributesChanged }, { select } ) => {
+	withDispatch( ( dispatch, { childProps }, { select } ) => {
 		return {
 			updateTweets: () => dispatch( 'jetpack/publicize' ).refreshTweets(),
 			updateAnnotations: () => {
@@ -288,7 +278,7 @@ export default compose( [
 					return tweet.blocks.find( block => block.clientId === childProps.clientId );
 				}, false );
 
-				if ( contentAttributesChanged( blockCopy.attributes, childProps.attributes ) ) {
+				if ( contentAttributesChanged( blockCopy, childProps ) ) {
 					return;
 				}
 
