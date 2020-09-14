@@ -23,6 +23,12 @@ jobs:
     - name: Checkout Jetpack
       uses: actions/checkout@master
 
+    - run: |
+        node -v
+        command -v nvm
+        which nvm
+        nvm -v
+
     - name: Build jetpack
       run: |
         export NVM_DIR="$HOME/.nvm"
