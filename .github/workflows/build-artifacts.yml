@@ -22,11 +22,10 @@ jobs:
     steps:
     - name: Checkout Jetpack
       uses: actions/checkout@master
-
     - name: Build jetpack
       run: |
         BRANCH=${GITHUB_REF:11}
-        . ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
+        ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
     - name: Upload jetpack build
       uses: actions/upload-artifact@v2
       with:
