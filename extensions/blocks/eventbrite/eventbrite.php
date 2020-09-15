@@ -49,9 +49,6 @@ function render_block( $attr, $content ) {
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
-	// Add CSS to hide direct link.
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-
 	// Show the embedded version.
 	if ( empty( $attr['useModal'] ) && ( empty( $attr['style'] ) || 'modal' !== $attr['style'] ) ) {
 		return render_embed_block( $attr, $content );
@@ -63,13 +60,14 @@ function render_block( $attr, $content ) {
 /**
  * Render block with embed style.
  *
- * @param array  $attr    Eventbrite block attributes.
- * @param string $content Rendered embed element (without scripts) from the block editor.
- *
+ * @param array $attr Eventbrite block attributes.
  * @return string Rendered block.
  */
-function render_embed_block( $attr, $content ) {
+function render_embed_block( $attr ) {
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
+
+	// Add CSS to hide direct link.
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	wp_add_inline_script(
 		'eventbrite-widget',
@@ -84,17 +82,15 @@ function render_embed_block( $attr, $content ) {
 	// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
 	$classes = Blocks::classes( FEATURE_NAME, $attr );
 
-	$content .= sprintf(
-		'<div id="%1$s" class="%2$s"></div>',
-		esc_attr( $widget_id ),
-		esc_attr( $classes )
-	);
-
 	return sprintf(
-		'%s<noscript><a href="%s" rel="noopener noreferrer" target="_blank">%s</a></noscript>',
-		$content,
-		esc_url( $attr['url'] ),
-		esc_html__( 'Register on Eventbrite', 'jetpack' )
+		'<div id="%1$s" class="%2$s">%3$s</div>',
+		esc_attr( $widget_id ),
+		esc_attr( $classes ),
+		sprintf(
+			'<a href="%s" rel="noopener noreferrer" target="_blank" class="eventbrite__direct-link">%s</a>',
+			esc_url( $attr['url'] ),
+			esc_html__( 'Register on Eventbrite', 'jetpack' )
+		)
 	);
 }
 
@@ -103,7 +99,6 @@ function render_embed_block( $attr, $content ) {
  *
  * @param array  $attr    Eventbrite block attributes.
  * @param string $content Rendered embed element (without scripts) from the block editor.
- *
  * @return string Rendered block.
  */
 function render_modal_block( $attr, $content ) {

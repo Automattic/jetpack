@@ -1,4 +1,5 @@
-.eventbrite__direct-link {
+// Hide the link if an iframe got appended to the container.
+.eventbrite__direct-link:not(:only-child) {
 	display: none;
 }
 
