@@ -18,6 +18,144 @@ namespace Automattic\Jetpack;
  */
 class Blocks {
 	/**
+	 * Wrapper function to safely register a gutenberg block type
+	 *
+	 * @param string $slug Slug of the block.
+	 * @param array  $args Arguments that are passed into register_block_type.
+	 *
+	 * @see register_block_type
+	 *
+	 * @since 6.7.0
+	 *
+	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
+	 */
+	public static function jetpack_register_block( $slug, $args = array() ) {
+		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
+			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
+			$slug = 'jetpack/' . $slug;
+		}
+
+		if ( isset( $args['version_requirements'] )
+			&& ! self::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
+			return false;
+		}
+
+		// Checking whether block is registered to ensure it isn't registered twice.
+		if ( self::is_registered( $slug ) ) {
+			return false;
+		}
+
+		$feature_name = self::remove_extension_prefix( $slug );
+
+		// This is only useful in Jetpack.
+		if ( class_exists( 'Jetpack_Gutenberg' ) ) {
+			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
+			if (
+				isset( $args['plan_check'] )
+				&& true === $args['plan_check']
+			) {
+				if ( isset( $args['render_callback'] ) ) {
+					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
+				}
+				$method_name = 'set_availability_for_plan';
+			} else {
+				$method_name = 'set_extension_available';
+			}
+
+			add_action(
+				'jetpack_register_gutenberg_extensions',
+				function() use ( $feature_name, $method_name ) {
+					call_user_func( array( 'Jetpack_Gutenberg', $method_name ), $feature_name );
+				}
+			);
+		}
+		return register_block_type( $slug, $args );
+	}
+
+	/**
+	 * Check if an extension/block is already registered
+	 *
+	 * @since 7.2
+	 *
+	 * @param string $slug Name of extension/block to check.
+	 *
+	 * @return bool
+	 */
+	public static function is_registered( $slug ) {
+		return \WP_Block_Type_Registry::get_instance()->is_registered( $slug );
+	}
+
+	/**
+	 * Remove the 'jetpack/' or jetpack-' prefix from an extension name
+	 *
+	 * @param string $extension_name The extension name.
+	 *
+	 * @return string The unprefixed extension name.
+	 */
+	public static function remove_extension_prefix( $extension_name ) {
+		if ( 0 === strpos( $extension_name, 'jetpack/' ) || 0 === strpos( $extension_name, 'jetpack-' ) ) {
+			return substr( $extension_name, strlen( 'jetpack/' ) );
+		}
+		return $extension_name;
+	}
+
+	/**
+	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
+	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
+	 * optionally fall back to that.
+	 *
+	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
+	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @return boolean True if the version of gutenberg required by the block or plugin is available.
+	 */
+	public static function is_gutenberg_version_available( $version_requirements, $slug ) {
+		global $wp_version;
+
+		// Bail if we don't at least have the gutenberg version requirement, the WP version is optional.
+		if ( empty( $version_requirements['gutenberg'] ) ) {
+			return false;
+		}
+
+		// If running a local dev build of gutenberg plugin GUTENBERG_DEVELOPMENT_MODE is set so assume correct version.
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+			return true;
+		}
+
+		$version_available = false;
+
+		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise if WP version
+		// with required version of Gutenberg is known check that.
+		if ( defined( 'GUTENBERG_VERSION' ) ) {
+			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg'], '>=' );
+		} elseif ( ! empty( $version_requirements['wp'] ) ) {
+			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
+		}
+
+		if (
+			! $version_available
+			&& class_exists( 'Jetpack_Gutenberg' ) // This is only useful in Jetpack.
+		) {
+			\Jetpack_Gutenberg::set_extension_unavailable(
+				$slug,
+				'incorrect_gutenberg_version',
+				array(
+					'required_feature' => $slug,
+					'required_version' => $version_requirements,
+					'current_version'  => array(
+						'wp'        => $wp_version,
+						'gutenberg' => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
+					),
+				)
+			);
+		}
+
+		return $version_available;
+	}
+
+	/**
 	 * Get CSS classes for a block.
 	 *
 	 * @since 9.0.0
