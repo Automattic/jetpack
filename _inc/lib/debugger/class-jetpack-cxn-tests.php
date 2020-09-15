@@ -141,6 +141,14 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array
 	 */
 	protected function test__blog_token_if_exists() {
+		if ( ! $this->helper_is_jetpack_connected() ) {
+			return self::skipped_test(
+				array(
+					'name'              => __FUNCTION__,
+					'short_description' => __( 'Jetpack is not connected. No blog token to check.', 'jetpack' ),
+				)
+			);
+		}
 		$blog_token = $this->helper_get_blog_token();
 
 		if ( $blog_token ) {
