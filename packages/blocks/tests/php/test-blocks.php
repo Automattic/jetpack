@@ -45,6 +45,20 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
+	 * Test for invalid alignment values.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::classes
+	 */
+	public function test_block_classes_invalid_align() {
+		$attr          = array( 'align' => 'test' );
+		$block_classes = Blocks::classes( 'test', $attr );
+
+		$this->assertNotContains( 'aligntest', $block_classes );
+	}
+
+	/**
 	 * Test whether we can detect an AMP view.
 	 *
 	 * @since 9.0.0
