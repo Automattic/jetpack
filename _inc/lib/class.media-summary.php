@@ -94,6 +94,9 @@ class Jetpack_Media_Summary {
 		$extract = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::ALL );
 
 		if ( empty( $extract['has'] ) ) {
+			if ( $switched ) {
+				restore_current_blog();
+			}
 			return $return;
 		}
 
