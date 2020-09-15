@@ -783,6 +783,10 @@ class Jetpack_PostImages {
 			return false;
 		}
 
+		if ( wp_attachment_is( 'video', $attachment_id ) || wp_attachment_is( 'audio', $attachment_id ) ) {
+			return false;
+		}
+
 		$meta = wp_get_attachment_metadata( $attachment_id );
 
 		// The image must be larger than 200x200.
