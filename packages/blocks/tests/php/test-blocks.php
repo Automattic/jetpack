@@ -67,10 +67,10 @@ class Test_Blocks extends TestCase {
 	 */
 	public function test_is_amp_request() {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-
-		$this->assertTrue( Blocks::is_amp_request() );
-
+		$is_amp = Blocks::is_amp_request();
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
+
+		$this->assertTrue( $is_amp );
 	}
 
 	/**
