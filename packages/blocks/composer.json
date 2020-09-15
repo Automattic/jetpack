@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "dev-master",
+		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
 	},
 	"autoload": {
 		"classmap": [

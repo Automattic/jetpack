@@ -21,6 +21,12 @@ use Jetpack_Gutenberg;
 class Blocks {
 	/**
 	 * Wrapper function to safely register a Gutenberg block type
+	 * Default asset version used when no other constant is defined.
+	 */
+	const DEFAULT_BLOCK_ASSET_VERSION = '1.0.0';
+
+	/**
+	 * Wrapper function to safely register a gutenberg block type
 	 *
 	 * @see register_block_type
 	 * @see Automattic\Jetpack\Blocks::is_gutenberg_version_available
@@ -169,6 +175,160 @@ class Blocks {
 		}
 
 		return $version_available;
+	}
+
+	/**
+	 * Return the Gutenberg extensions (blocks and plugins) directory
+	 *
+	 * @return string The Gutenberg extensions directory
+	 */
+	public static function get_blocks_directory() {
+		if ( defined( '\\JETPACK__VERSION' ) ) {
+			/**
+			 * Filter to select Gutenberg blocks directory
+			 *
+			 * @since 6.9.0
+			 *
+			 * @param string default: '_inc/blocks/'
+			 */
+			return apply_filters( 'jetpack_blocks_directory', '_inc/blocks/' );
+		}
+
+		// For standalone blocks, we build in the build directory.
+		return 'build/';
+	}
+
+	/**
+	 * Return the filesystem directory path (with trailing slash) for the current plugin.
+	 *
+	 * @return string filesystem directory path
+	 */
+	public static function get_plugin_dir_path() {
+		if ( defined( '\\JETPACK__PLUGIN_DIR' ) ) {
+			return JETPACK__PLUGIN_DIR;
+		}
+		return plugin_dir_path( __FILE__ );
+	}
+
+	/**
+	 * Check if an asset exists for a block.
+	 *
+	 * @param string $file Path of the file we are looking for.
+	 *
+	 * @return bool $block_has_asset Does the file exist.
+	 */
+	public static function block_has_asset( $file ) {
+		return file_exists( self::get_plugin_dir_path() . $file );
+	}
+
+	/**
+	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
+	 *
+	 * @param string $file Path of the file we are looking for.
+	 * @param string $name Slug of the block.
+	 *
+	 * @return string $script_version Version number.
+	 */
+	public static function get_asset_version( $file, $name = '' ) {
+		$block_version_constant = '\\JETPACK_' . strtoupper( $name ) . '_BLOCK__VERSION';
+
+		if ( defined( '\\JETPACK__VERSION' ) ) {
+			$plugin_version = constant( '\\JETPACK__VERSION' );
+		} elseif ( defined( $block_version_constant ) ) {
+			$plugin_version = constant( $block_version_constant );
+		} else {
+			$plugin_version = self::DEFAULT_BLOCK_ASSET_VERSION;
+		}
+
+		return ! preg_match( '/^\d+(\.\d+)+$/', $plugin_version ) && self::block_has_asset( $file )
+			? filemtime( self::get_plugin_dir_path() . $file )
+			: $plugin_version;
+	}
+
+	/**
+	 * Only enqueue block assets when needed.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param string $type                Slug of the block.
+	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
+	 *                                         detected script dependencies from the webpack build.
+	 *
+	 * @return void
+	 */
+	public static function load_assets_as_required( $type, $script_dependencies = array() ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
+
+		$type = sanitize_title_with_dashes( $type );
+		self::load_styles_as_required( $type );
+		self::load_scripts_as_required( $type, $script_dependencies );
+	}
+
+	/**
+	 * Only enqueue block styles when needed.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param string $type Slug of the block.
+	 *
+	 * @return void
+	 */
+	public static function load_styles_as_required( $type ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
+
+		// Enqueue styles.
+		$style_relative_path = self::get_blocks_directory() . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		if ( self::block_has_asset( $style_relative_path ) ) {
+			$style_version = self::get_asset_version( $style_relative_path, $type );
+			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+		}
+
+	}
+
+	/**
+	 * Only enqueue block scripts when needed.
+	 *
+	 * @param string $type                Slug of the block.
+	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
+	 *                                         detected script dependencies from the webpack build.
+	 *
+	 * @since 7.2.0
+	 *
+	 * @return void
+	 */
+	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
+
+		// Enqueue script.
+		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
+		$script_deps_path      = self::get_plugin_dir_path() . self::get_blocks_directory() . $type . '/view.asset.php';
+		$script_dependencies[] = 'wp-polyfill';
+		if ( file_exists( $script_deps_path ) ) {
+			$asset_manifest      = include $script_deps_path;
+			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
+		}
+
+		if ( ! self::is_amp_request() && self::block_has_asset( $script_relative_path ) ) {
+			$script_version = self::get_asset_version( $script_relative_path, $type );
+			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+		}
+
+		wp_localize_script(
+			'jetpack-block-' . $type,
+			'Jetpack_Block_Assets_Base_Url',
+			plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE )
+		);
 	}
 
 	/**

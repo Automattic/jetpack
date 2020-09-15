@@ -10,12 +10,13 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Blocks;
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
+use \WorDBless\Load;
 
 /**
  * Class Test_Blocks
  */
-class Test_Blocks extends TestCase {
+class Test_Blocks extends BaseTestCase {
 	/**
 	 * Test block name.
 	 *
@@ -213,5 +214,55 @@ class Test_Blocks extends TestCase {
 	public function test_jetpack_register_block_without_jetpack() {
 		$result = Blocks::jetpack_register_block( 'doing-it-wrong' );
 		$this->assertEquals( 'jetpack/doing-it-wrong', $result->name );
+	}
+
+	/**
+	 * Tests asset version when in a standalone plugin.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_asset_version
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_get_asset_version_standalone_plugin() {
+		$name    = 'apple';
+		$version = '3';
+		$file    = Blocks::get_blocks_directory() . $name . '/view.css';
+
+		defined( 'JETPACK_APPLE_BLOCK__VERSION' ) || define( 'JETPACK_APPLE_BLOCK__VERSION', $version );
+
+		$asset_version = Blocks::get_asset_version( $file, $name );
+		$this->assertEquals( $version, $asset_version );
+	}
+
+	/**
+	 * Tests asset version when in Jetpack.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_asset_version
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_get_asset_version_jetpack_plugin() {
+		$name    = 'apple';
+		$version = '4';
+		$file    = Blocks::get_blocks_directory() . $name . '/view.css';
+
+		defined( 'JETPACK__VERSION' ) || define( 'JETPACK__VERSION', $version );
+
+		$asset_version = Blocks::get_asset_version( $file, $name );
+		$this->assertEquals( $version, $asset_version );
+	}
+
+	/**
+	 * Tests asset version when no constant is provided.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_asset_version
+	 */
+	public function test_get_asset_version_default() {
+		$name    = 'apple';
+		$version = Blocks::DEFAULT_BLOCK_ASSET_VERSION;
+		$file    = Blocks::get_blocks_directory() . $name . '/view.css';
+
+		$asset_version = Blocks::get_asset_version( $file, $name );
+		$this->assertEquals( $version, $asset_version );
 	}
 }
