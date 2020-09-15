@@ -62,7 +62,7 @@ class Blocks {
 	/**
 	 * Does the page return AMP content.
 	 *
-	 * @return bool $is_amp_request Are we on am AMP view.
+	 * @return bool $is_amp_request Are we on an AMP view.
 	 */
 	public static function is_amp_request() {
 		$is_amp_request = ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() );
@@ -71,5 +71,4 @@ class Blocks {
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
 	}
 }
-
 
