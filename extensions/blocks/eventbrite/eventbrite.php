@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\Eventbrite;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
+use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'eventbrite';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -27,6 +28,25 @@ function register_block() {
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
+
+/**
+ * Get current URL.
+ *
+ * @return string Current URL.
+ */
+function get_current_url() {
+	if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+		$host = wp_unslash( $_SERVER['HTTP_HOST'] );
+	} else {
+		$host = wp_parse_url( home_url(), PHP_URL_HOST );
+	}
+	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+		$path = wp_unslash( $_SERVER['REQUEST_URI'] );
+	} else {
+		$path = '/';
+	}
+	return esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . $host . $path );
+}
 
 /**
  * Eventbrite block registration/dependency delclaration.
@@ -47,8 +67,6 @@ function render_block( $attr, $content ) {
 		true
 	);
 
-	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
-
 	// Show the embedded version.
 	if ( empty( $attr['useModal'] ) && ( empty( $attr['style'] ) || 'modal' !== $attr['style'] ) ) {
 		return render_embed_block( $attr, $content );
@@ -65,6 +83,34 @@ function render_block( $attr, $content ) {
  */
 function render_embed_block( $attr ) {
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
+
+	$is_amp = Jetpack_AMP_Support::is_amp_request();
+
+	$direct_link = sprintf(
+		'<a href="%s" rel="noopener noreferrer" target="_blank" class="eventbrite__direct-link" %s>%s</a>',
+		esc_url( $attr['url'] ),
+		$is_amp ? 'placeholder fallback' : '',
+		esc_html__( 'Register on Eventbrite', 'jetpack' ),
+	);
+
+	if ( $is_amp ) {
+		return sprintf(
+			'<amp-iframe src="%s" layout="responsive" resizable width="1" height="1" sandbox="allow-scripts allow-same-origin allow-forms"><button overflow>%s</button>%s</amp-iframe>',
+			esc_url(
+				add_query_arg(
+					array(
+						'eid'    => $attr['eventId'],
+						'parent' => rawurlencode( get_current_url() ),
+					),
+					'https://www.eventbrite.com/checkout-external'
+				)
+			),
+			esc_html__( 'Expand', 'jetpack' ),
+			$direct_link
+		);
+	}
+
+	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
 	// Add CSS to hide direct link.
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
@@ -86,11 +132,7 @@ function render_embed_block( $attr ) {
 		'<div id="%1$s" class="%2$s">%3$s</div>',
 		esc_attr( $widget_id ),
 		esc_attr( $classes ),
-		sprintf(
-			'<a href="%s" rel="noopener noreferrer" target="_blank" class="eventbrite__direct-link">%s</a>',
-			esc_url( $attr['url'] ),
-			esc_html__( 'Register on Eventbrite', 'jetpack' )
-		)
+		$direct_link
 	);
 }
 
