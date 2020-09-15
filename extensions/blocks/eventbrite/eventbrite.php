@@ -69,7 +69,7 @@ function render_block( $attr, $content ) {
 
 	// Show the embedded version.
 	if ( empty( $attr['useModal'] ) && ( empty( $attr['style'] ) || 'modal' !== $attr['style'] ) ) {
-		return render_embed_block( $attr, $content );
+		return render_embed_block( $attr );
 	} else {
 		return render_modal_block( $attr, $content );
 	}
@@ -86,6 +86,12 @@ function render_embed_block( $attr ) {
 
 	$is_amp = Jetpack_AMP_Support::is_amp_request();
 
+	// $content contains a fallback link to the event that's saved in the post_content.
+	// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
+	$classes = Blocks::classes( FEATURE_NAME, $attr );
+
+	$classes .= ' wp-block-jetpack-eventbrite--embed';
+
 	$direct_link = sprintf(
 		'<a href="%s" rel="noopener noreferrer" target="_blank" class="eventbrite__direct-link" %s>%s</a>',
 		esc_url( $attr['url'] ),
@@ -94,7 +100,7 @@ function render_embed_block( $attr ) {
 	);
 
 	if ( $is_amp ) {
-		return sprintf(
+		$embed = sprintf(
 			'<amp-iframe src="%s" layout="responsive" resizable width="1" height="1" sandbox="allow-scripts allow-same-origin allow-forms"><button overflow>%s</button>%s</amp-iframe>',
 			esc_url(
 				add_query_arg(
@@ -108,31 +114,29 @@ function render_embed_block( $attr ) {
 			esc_html__( 'Expand', 'jetpack' ),
 			$direct_link
 		);
-	}
+	} else {
+		$embed = $direct_link;
 
-	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
+		wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
-	// Add CSS to hide direct link.
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+		// Add CSS to hide direct link.
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	wp_add_inline_script(
-		'eventbrite-widget',
-		"window.EBWidgets.createWidget( {
+		wp_add_inline_script(
+			'eventbrite-widget',
+			"window.EBWidgets.createWidget( {
 				widgetType: 'checkout',
 				eventId: " . absint( $attr['eventId'] ) . ",
 				iframeContainerId: '" . esc_js( $widget_id ) . "',
 			} );"
-	);
-
-	// $content contains a fallback link to the event that's saved in the post_content.
-	// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
-	$classes = Blocks::classes( FEATURE_NAME, $attr );
+		);
+	}
 
 	return sprintf(
 		'<div id="%1$s" class="%2$s">%3$s</div>',
 		esc_attr( $widget_id ),
 		esc_attr( $classes ),
-		$direct_link
+		$embed
 	);
 }
 
@@ -145,6 +149,64 @@ function render_embed_block( $attr ) {
  */
 function render_modal_block( $attr, $content ) {
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
+
+	$is_amp = Jetpack_AMP_Support::is_amp_request();
+
+	if ( $is_amp ) {
+		$lightbox_id = "{$widget_id}-lightbox";
+
+		// Add CSS to for lightbox.
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
+		$content = preg_replace(
+			'/\shref="#" target="_blank/',
+			sprintf( ' on="%s" ', esc_attr( "tap:{$lightbox_id}.open" ) ),
+			$content
+		);
+
+		$iframe_src = add_query_arg(
+			array(
+				// Note that modal=1 is intentionally omitted here since we need to put the close button inside the amp-lightbox.
+				'eid'    => $attr['eventId'],
+				'parent' => rawurlencode( get_current_url() ),
+			),
+			'https://www.eventbrite.com/checkout-external'
+		);
+
+		$lightbox = sprintf(
+			'<amp-lightbox id="%s" class="eventbrite__lightbox" layout="nodisplay">%s</amp-lightbox>',
+			esc_attr( $lightbox_id ),
+			sprintf(
+				'
+					<div class="eventbrite__lighbox-inside">
+						<div class="eventbrite__lighbox-iframe-wrapper">
+							<amp-iframe class="eventbrite__lighbox-iframe" src="%s" layout="fill" sandbox="allow-scripts allow-same-origin allow-forms">
+								<span placeholder=""></span>
+							</amp-iframe>
+							<span class="eventbrite__lighbox-close" on="%s" role="button" tabindex="0" aria-label="%s">
+								<svg viewBox="0 0 24 24">
+									<path d="M13.4 12l3.5-3.5-1.4-1.4-3.5 3.5-3.5-3.5-1.4 1.4 3.5 3.5-3.5 3.5 1.4 1.4 3.5-3.5 3.5 3.5 1.4-1.4z"></path>
+								</svg>
+							</span>
+						</div>
+					</div>
+				',
+				esc_url( $iframe_src ),
+				esc_attr( "tap:{$lightbox_id}.close" ),
+				esc_attr__( 'Close', 'jetpack' )
+			)
+		);
+
+		$content = preg_replace(
+			':(?=</div>\s*$):',
+			$lightbox,
+			$content
+		);
+
+		return $content;
+	}
+
+	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
 	// Show the modal version.
 	wp_add_inline_script(
