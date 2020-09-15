@@ -81,6 +81,16 @@ class MyPlanBody extends React.Component {
 	render() {
 		let planCard = '';
 		const planClass = 'offline' !== this.props.plan ? getPlanClass( this.props.plan ) : 'offline';
+		const isPlanPremiumOrBetter = includes(
+			[
+				'is-premium-plan',
+				'is-business-plan',
+				'is-daily-security-plan',
+				'is-realtime-security-plan',
+				'is-complete-plan',
+			],
+			planClass
+		);
 		const premiumThemesActive = includes(
 				this.props.activeFeatures,
 				FEATURE_UNLIMITED_PREMIUM_THEMES
@@ -270,7 +280,10 @@ class MyPlanBody extends React.Component {
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
+			case 'is-daily-security-plan':
+			case 'is-realtime-security-plan':
 			case 'is-business-plan':
+			case 'is-complete-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
@@ -339,7 +352,7 @@ class MyPlanBody extends React.Component {
 							</div>
 						</div>
 
-						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						{ isPlanPremiumOrBetter &&
 							'inactive' !== this.props.getModuleOverride( 'videopress' ) && (
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
@@ -409,92 +422,90 @@ class MyPlanBody extends React.Component {
 							</div>
 						</div>
 
-						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
-							'inactive' !== this.props.getModuleOverride( 'wordads' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + '/jetpack-wordads.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __( 'A chart showing an healthy increase in earnings', 'jetpack' ) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Monetize your site with ads', 'jetpack' ) }
-										</h3>
-										<p>
-											{ __(
-												'WordAds lets you earn money by displaying promotional content. Start earning today.',
-												'jetpack'
-											) }
-										</p>
-										{ this.props.isModuleActivated( 'wordads' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'view_earnings' ) }
-												href={ getRedirectUrl( 'wpcom-ads-earnings', {
-													site: this.props.siteRawUrl,
-												} ) }
-											>
-												{ __( 'View your earnings', 'jetpack' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activateAds }
-												disabled={ this.props.isActivatingModule( 'wordads' ) }
-											>
-												{ __( 'Start earning', 'jetpack' ) }
-											</Button>
-										) }
-									</div>
+						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'wordads' ) && (
+							<div className="jp-landing__plan-features-card">
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + '/jetpack-wordads.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'A chart showing an healthy increase in earnings', 'jetpack' ) }
+									/>
 								</div>
-							) }
-
-						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
-							'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + '/jetpack-performance-icon.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __(
-												'Site stats showing an evolution in traffic and engagement',
-												'jetpack'
-											) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">
-											{ __( 'SEO Tools', 'jetpack' ) }
-										</h3>
-										<p>
-											{ __(
-												'Advanced SEO tools to help your site get found when people search for relevant content.',
-												'jetpack'
-											) }
-										</p>
-										{ this.props.isModuleActivated( 'seo-tools' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
-												href={ getRedirectUrl( 'calypso-marketing-traffic', {
-													site: this.props.siteRawUrl,
-												} ) }
-											>
-												{ __( 'Configure site SEO', 'jetpack' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activateSeo }
-												disabled={ this.props.isActivatingModule( 'seo-tools' ) }
-											>
-												{ __( 'Activate SEO tools', 'jetpack' ) }
-											</Button>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Monetize your site with ads', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'WordAds lets you earn money by displaying promotional content. Start earning today.',
+											'jetpack'
 										) }
-									</div>
+									</p>
+									{ this.props.isModuleActivated( 'wordads' ) ? (
+										<Button
+											onClick={ this.handleButtonClickForTracking( 'view_earnings' ) }
+											href={ getRedirectUrl( 'wpcom-ads-earnings', {
+												site: this.props.siteRawUrl,
+											} ) }
+										>
+											{ __( 'View your earnings', 'jetpack' ) }
+										</Button>
+									) : (
+										<Button
+											onClick={ this.activateAds }
+											disabled={ this.props.isActivatingModule( 'wordads' ) }
+										>
+											{ __( 'Start earning', 'jetpack' ) }
+										</Button>
+									) }
 								</div>
-							) }
+							</div>
+						) }
 
-						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
+						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && (
+							<div className="jp-landing__plan-features-card">
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + '/jetpack-performance-icon.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __(
+											'Site stats showing an evolution in traffic and engagement',
+											'jetpack'
+										) }
+									/>
+								</div>
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'SEO Tools', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'Advanced SEO tools to help your site get found when people search for relevant content.',
+											'jetpack'
+										) }
+									</p>
+									{ this.props.isModuleActivated( 'seo-tools' ) ? (
+										<Button
+											onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
+											href={ getRedirectUrl( 'calypso-marketing-traffic', {
+												site: this.props.siteRawUrl,
+											} ) }
+										>
+											{ __( 'Configure site SEO', 'jetpack' ) }
+										</Button>
+									) : (
+										<Button
+											onClick={ this.activateSeo }
+											disabled={ this.props.isActivatingModule( 'seo-tools' ) }
+										>
+											{ __( 'Activate SEO tools', 'jetpack' ) }
+										</Button>
+									) }
+								</div>
+							</div>
+						) }
+
+						{ isPlanPremiumOrBetter &&
 							'inactive' !== this.props.getModuleOverride( 'google-analytics' ) && (
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
@@ -569,46 +580,45 @@ class MyPlanBody extends React.Component {
 							</div>
 						) }
 
-						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
-							'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + '/jetpack-marketing.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">
-											{ __( 'Marketing Automation', 'jetpack' ) }
-										</h3>
-										<p>
-											{ __(
-												'Schedule unlimited tweets, Facebook posts, and other social posts in advance.',
-												'jetpack'
-											) }
-										</p>
-										{ this.props.isModuleActivated( 'publicize' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
-												href={ getRedirectUrl( 'calypso-edit-posts', {
-													site: this.props.siteRawUrl,
-												} ) }
-											>
-												{ __( 'Schedule posts', 'jetpack' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activatePublicize }
-												disabled={ this.props.isActivatingModule( 'publicize' ) }
-											>
-												{ __( 'Activate Publicize', 'jetpack' ) }
-											</Button>
-										) }
-									</div>
+						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
+							<div className="jp-landing__plan-features-card">
+								<div className="jp-landing__plan-features-img">
+									<img
+										src={ imagePath + '/jetpack-marketing.svg' }
+										className="jp-landing__plan-features-icon"
+										alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
+									/>
 								</div>
-							) }
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Marketing Automation', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'Schedule unlimited tweets, Facebook posts, and other social posts in advance.',
+											'jetpack'
+										) }
+									</p>
+									{ this.props.isModuleActivated( 'publicize' ) ? (
+										<Button
+											onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
+											href={ getRedirectUrl( 'calypso-edit-posts', {
+												site: this.props.siteRawUrl,
+											} ) }
+										>
+											{ __( 'Schedule posts', 'jetpack' ) }
+										</Button>
+									) : (
+										<Button
+											onClick={ this.activatePublicize }
+											disabled={ this.props.isActivatingModule( 'publicize' ) }
+										>
+											{ __( 'Activate Publicize', 'jetpack' ) }
+										</Button>
+									) }
+								</div>
+							</div>
+						) }
 					</div>
 				);
 				break;
