@@ -859,6 +859,18 @@ class Jetpack_PostImages {
 			foreach ( $block['attrs']['ids'] as $img_id ) {
 				$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
 			}
+		} elseif (
+			/**
+			 * Parse content from Jetpack's Story block.
+			 */
+			'jetpack/story' === $block['blockName']
+			&& ! empty( $block['attrs']['mediaFiles'] )
+		) {
+			foreach ( $block['attrs']['mediaFiles'] as $media_file ) {
+				if ( ! empty( $media_file['id'] ) ) {
+					$images[] = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
+				}
+			}
 		}
 
 		return $images;
