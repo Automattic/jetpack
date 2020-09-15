@@ -10,7 +10,6 @@ import { withPreferredColorScheme } from '@wordpress/compose';
 import save from './save';
 import simpleInput from '../../../shared/simple-input';
 
-import stylesEditor from '../editor.scss';
 import styles from '../style.scss';
 
 const EmailEdit = props => {
@@ -20,12 +19,12 @@ const EmailEdit = props => {
 		styles.placeholderDark
 	);
 	const textColors = getStylesFromColorScheme(
-		styles.blockEditorPlainTextColor,
-		styles.blockEditorPlainTextColorDark
+		styles.blockEditorPlainText,
+		styles.blockEditorPlainTextDark
 	);
 	const nativeProps = {
 		keyboardType: 'email-address',
-		style: { ...stylesEditor.blockEditorPlainText, ...textColors },
+		style: textColors,
 		placeholderTextColor,
 	};
 	return simpleInput(

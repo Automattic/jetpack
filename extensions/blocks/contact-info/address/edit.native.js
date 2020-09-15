@@ -24,7 +24,6 @@ class AddressEdit extends Component {
 	preventEnterKey( event ) {
 		if ( event.key === 'Enter' ) {
 			event.preventDefault();
-			return;
 		}
 	}
 
@@ -102,15 +101,14 @@ class AddressEdit extends Component {
 			styles.placeholderDark
 		);
 		const textColors = getStylesFromColorScheme(
-			styles.blockEditorPlainTextColor,
-			styles.blockEditorPlainTextColorDark
+			styles.blockEditorPlainText,
+			styles.blockEditorPlainTextDark
 		);
 		const textInput = ( value, placeholder, key ) => (
 			<PlainText
 				style={ {
-					...stylesEditor.blockEditorPlainText,
-					...stylesEditor.addressPadding,
 					...textColors,
+					...stylesEditor.addressPadding,
 				} }
 				value={ value }
 				placeholder={ placeholder }
