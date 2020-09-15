@@ -208,16 +208,16 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "v1.4.0",
+            "version": "v1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-config.git",
-                "reference": "9773c98b357d5d192fdb814bcd07c5b69635d694"
+                "reference": "d247236a6fb30c6747dd8328d8f6fde6847cc0f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-config/zipball/9773c98b357d5d192fdb814bcd07c5b69635d694",
-                "reference": "9773c98b357d5d192fdb814bcd07c5b69635d694",
+                "url": "https://api.github.com/repos/Automattic/jetpack-config/zipball/d247236a6fb30c6747dd8328d8f6fde6847cc0f6",
+                "reference": "d247236a6fb30c6747dd8328d8f6fde6847cc0f6",
                 "shasum": ""
             },
             "type": "library",
@@ -231,7 +231,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
-            "time": "2020-08-26T16:16:10+00:00"
+            "time": "2020-09-15T17:08:05+00:00"
         },
         {
             "name": "automattic/jetpack-connection",
