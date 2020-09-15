@@ -37,6 +37,8 @@ class Test_Blocks extends TestCase {
 		$this->assertContains( 'wp-block-jetpack-foo', $block_classes ); // a general class is created from the block name.
 		$this->assertNotContains( 'bar', $block_classes ); // The extra 'bar' attribute should be dropped.
 		$this->assertNotContains( 'baz', $block_classes ); // The extra 'baz' attribute should be dropped.
+		$this->assertNotContains( 'align ', $block_classes ); // The align attribute should only be used to create a new attribute.
+		$this->assertNotContains( 'className', $block_classes ); // The className attribute should be dropped, only the editorclass value should remain.
 		$this->assertContains( 'alignwide', $block_classes ); // an alignment class is created.
 		$this->assertContains( 'editorclass', $block_classes ); // className classes are passed.
 		$this->assertContains( 'extraclass', $block_classes ); // Extra class remains.
