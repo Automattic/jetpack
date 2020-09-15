@@ -93,10 +93,10 @@
   dependencies:
     "@automattic/popup-monitor" "^1.0.0"
 
-"@automattic/social-previews@1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@automattic/social-previews/-/social-previews-1.0.4.tgz#45a88e2b23323e342b076f6fa74e6f893ec3c006"
-  integrity sha512-zcegNu7+XUUBArhjJY4bs7VR3XSOpjiD1AJT4vEQU0Y9LGlH/EfudPcV8xpGMt0HPTofUMROGIbeZTb9c7Hrqg==
+"@automattic/social-previews@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@automattic/social-previews/-/social-previews-1.1.0.tgz#7259110330b80bf1a8aa8719740a49c29650429c"
+  integrity sha512-mCQuE20kq25o3gqNkBAkMEX/7TO9CJIuf+NLlDoB+ZHr38UJDXqFhxhI8F/9km7LbWci1NELzP0myvz7VhiOLA==
   dependencies:
     "@babel/runtime" "^7.11.1"
     lodash "^4.17.15"
