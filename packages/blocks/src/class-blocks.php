@@ -43,12 +43,12 @@ class Blocks {
 			! empty( $attr['align'] )
 			&& in_array( $attr['align'], array( 'left', 'center', 'right', 'wide', 'full' ), true )
 		) {
-			array_push( $classes, 'align' . $attr['align'] );
+			$classes[] = 'align' . $attr['align'];
 		}
 
 		// Add custom classes if provided in the block editor.
 		if ( ! empty( $attr['className'] ) ) {
-			array_push( $classes, $attr['className'] );
+			$classes[] = $attr['className'];
 		}
 
 		// Add any extra classes.
