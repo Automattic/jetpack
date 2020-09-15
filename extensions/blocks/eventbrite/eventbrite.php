@@ -123,5 +123,15 @@ function render_block( $attr, $content ) {
 	// Fallback for block version deprecated/v2.
 	$content = preg_replace( '/eventbrite-widget-\d+/', esc_attr( $widget_id ), $content );
 
+	// Inject URL to event in case the JS for the lightbox fails to load.
+	$content = preg_replace(
+		'/\shref="#"/',
+		sprintf(
+			' href="%s" rel="noopener noreferrer" target="_blank"',
+			esc_url( $attr['url'] )
+		),
+		$content
+	);
+
 	return $content;
 }
