@@ -34,7 +34,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @param array  $attr    Eventbrite block attributes.
  * @param string $content Rendered embed element (without scripts) from the block editor.
  *
- * @return string
+ * @return string Rendered block.
  */
 function render_block( $attr, $content ) {
 	if ( is_admin() || empty( $attr['eventId'] ) || empty( $attr['url'] ) ) {
@@ -47,8 +47,6 @@ function render_block( $attr, $content ) {
 		true
 	);
 
-	$widget_id = wp_unique_id( 'eventbrite-widget-' );
-
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
 	// Add CSS to hide direct link.
@@ -56,32 +54,60 @@ function render_block( $attr, $content ) {
 
 	// Show the embedded version.
 	if ( empty( $attr['useModal'] ) && ( empty( $attr['style'] ) || 'modal' !== $attr['style'] ) ) {
-		wp_add_inline_script(
-			'eventbrite-widget',
-			"window.EBWidgets.createWidget( {
+		return render_embed_block( $attr, $content );
+	} else {
+		return render_modal_block( $attr, $content );
+	}
+}
+
+/**
+ * Render block with embed style.
+ *
+ * @param array  $attr    Eventbrite block attributes.
+ * @param string $content Rendered embed element (without scripts) from the block editor.
+ *
+ * @return string Rendered block.
+ */
+function render_embed_block( $attr, $content ) {
+	$widget_id = wp_unique_id( 'eventbrite-widget-' );
+
+	wp_add_inline_script(
+		'eventbrite-widget',
+		"window.EBWidgets.createWidget( {
 				widgetType: 'checkout',
 				eventId: " . absint( $attr['eventId'] ) . ",
 				iframeContainerId: '" . esc_js( $widget_id ) . "',
 			} );"
-		);
+	);
 
-		// $content contains a fallback link to the event that's saved in the post_content.
-		// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
-		$classes = Blocks::classes( FEATURE_NAME, $attr );
+	// $content contains a fallback link to the event that's saved in the post_content.
+	// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
+	$classes = Blocks::classes( FEATURE_NAME, $attr );
 
-		$content .= sprintf(
-			'<div id="%1$s" class="%2$s"></div>',
-			esc_attr( $widget_id ),
-			esc_attr( $classes )
-		);
+	$content .= sprintf(
+		'<div id="%1$s" class="%2$s"></div>',
+		esc_attr( $widget_id ),
+		esc_attr( $classes )
+	);
 
-		return sprintf(
-			'%s<noscript><a href="%s" rel="noopener noreferrer" target="_blank">%s</a></noscript>',
-			$content,
-			esc_url( $attr['url'] ),
-			esc_html__( 'Register on Eventbrite', 'jetpack' )
-		);
-	}
+	return sprintf(
+		'%s<noscript><a href="%s" rel="noopener noreferrer" target="_blank">%s</a></noscript>',
+		$content,
+		esc_url( $attr['url'] ),
+		esc_html__( 'Register on Eventbrite', 'jetpack' )
+	);
+}
+
+/**
+ * Render block with modal style.
+ *
+ * @param array  $attr    Eventbrite block attributes.
+ * @param string $content Rendered embed element (without scripts) from the block editor.
+ *
+ * @return string Rendered block.
+ */
+function render_modal_block( $attr, $content ) {
+	$widget_id = wp_unique_id( 'eventbrite-widget-' );
 
 	// Show the modal version.
 	wp_add_inline_script(
