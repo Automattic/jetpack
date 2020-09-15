@@ -28,7 +28,7 @@ class Blocks {
 	 *
 	 * @return string $classes List of CSS classes for a block.
 	 */
-	public static function classes( $slug = '', $attr, $extra = array() ) {
+	public static function classes( $slug, $attr, $extra = array() ) {
 		if ( empty( $slug ) ) {
 			return '';
 		}
