@@ -1722,11 +1722,32 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
+	 * Determines whether the legacy AMP Reader post templates are being used.
+	 *
+	 * @return bool
+	 */
+	private function is_amp_legacy_reader_mode() {
+		if ( function_exists( 'amp_is_legacy' ) ) {
+			// Available since AMP v2.0, this will return false if a theme like Twenty Twenty is selected as the Reader theme.
+			return amp_is_legacy();
+		}
+		if ( method_exists( 'AMP_Options_Manager', 'get_option' ) ) {
+			// In versions prior to v2.0, checking the template mode as being 'reader' is sufficient.
+			return 'reader' === AMP_Options_Manager::get_option( 'theme_support' );
+		}
+		return false;
+	}
+
+	/**
 	 * Load AMP specific hooks.
 	 *
 	 * @return void
 	 */
 	public function amp_load_hooks() {
+		if ( $this->is_amp_legacy_reader_mode() ) {
+			return;
+		}
+
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			$template = self::get_settings()->render;
 
