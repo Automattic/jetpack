@@ -11,10 +11,18 @@ namespace Automattic\Jetpack\Extensions\Eventbrite;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
-use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'eventbrite';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Determine whether the page will be AMP.
+ *
+ * @return bool
+ */
+function is_amp_request() {
+	return class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
+}
 
 /**
  * Registers the block for use in Gutenberg
@@ -84,7 +92,7 @@ function render_block( $attr, $content ) {
 function render_embed_block( $attr ) {
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
 
-	$is_amp = Jetpack_AMP_Support::is_amp_request();
+	$is_amp = is_amp_request();
 
 	// $content contains a fallback link to the event that's saved in the post_content.
 	// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
@@ -150,7 +158,7 @@ function render_embed_block( $attr ) {
 function render_modal_block( $attr, $content ) {
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
 
-	$is_amp = Jetpack_AMP_Support::is_amp_request();
+	$is_amp = is_amp_request();
 
 	if ( $is_amp ) {
 		$lightbox_id = "{$widget_id}-lightbox";
