@@ -85,31 +85,42 @@ class Autoloader_Handler {
 	}
 
 	/**
-	 * Checks whether the autoloader should be reset. The autoloader should be reset
-	 * when a plugin is activating via a method other than a request, for example
-	 * using WP-CLI. When this occurs, the activating plugin was not known when
-	 * the autoloader selected the package versions for the classmap and filemap
-	 * globals, so the autoloader must reselect the versions.
+	 * Checks whether the autoloader should be reset. The autoloader should be reset:
+	 *
+	 *  - When a plugin is activated via a method other than a request, for example using WP-CLI.
+	 *  - When the active plugins list changes between autoloader checks, for example when filtered by a plugin.
+	 *
+	 * We perform this reset because the manifest files for the plugin will have been initially unknown when
+	 * selecting versions for classes and files.
 	 *
 	 * If the current plugin is not already known, this method will add it to the
 	 * $jetpack_autoloader_activating_plugins_paths global.
+	 * The $jetpack_autoloader_cached_plugin_paths global will store a cache of the
+	 * active plugin paths when last changed.
 	 *
-	 * @return boolean True if the autoloder must be reset, else false.
+	 * @return boolean True if the autoloader must be reset, else false.
 	 */
 	public function should_autoloader_reset() {
 		global $jetpack_autoloader_activating_plugins_paths;
-		if ( ! isset( $jetpack_autoloader_activating_plugins_paths ) ) {
-			$jetpack_autoloader_activating_plugins_paths = array();
-		}
+		global $jetpack_autoloader_cached_plugin_paths;
 
 		$plugin_unknown = ! in_array( $this->current_plugin_path, $this->active_plugin_paths, true );
 		if ( $plugin_unknown ) {
+			if ( ! isset( $jetpack_autoloader_activating_plugins_paths ) ) {
+				$jetpack_autoloader_activating_plugins_paths = array();
+			}
+
 			// If the current plugin isn't known, add it to the activating plugins list.
 			$jetpack_autoloader_activating_plugins_paths[] = $this->current_plugin_path;
 			$this->active_plugin_paths[]                   = $this->current_plugin_path;
 		}
 
-		return $plugin_unknown;
+		$cache_invalidated = $jetpack_autoloader_cached_plugin_paths !== $this->active_plugin_paths;
+		if ( $cache_invalidated ) {
+			$jetpack_autoloader_cached_plugin_paths = $this->active_plugin_paths;
+		}
+
+		return $plugin_unknown || $cache_invalidated;
 	}
 
 	/**
