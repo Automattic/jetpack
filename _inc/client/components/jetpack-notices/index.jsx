@@ -19,6 +19,7 @@ import {
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
+	isReconnectingSite,
 	getConnectUrl as _getConnectUrl,
 } from 'state/connection';
 import {
@@ -214,6 +215,7 @@ class JetpackNotices extends React.Component {
 				<NoticesList />
 				{ this.props.siteConnectionStatus &&
 					this.props.userCanConnectSite &&
+					! this.props.isReconnectingSite &&
 					( this.props.connectionErrors.length > 0 || siteDataErrors.length > 0 ) && (
 						<JetpackConnectionErrors
 							errors={ this.props.connectionErrors.concat( siteDataErrors ) }
@@ -234,13 +236,15 @@ class JetpackNotices extends React.Component {
 				/>
 				<PlanConflictWarning />
 				<DismissableNotices />
-				{ ! siteDataErrors.length && ! this.props.connectionErrors.length && (
-					<UserUnlinked
-						connectUrl={ this.props.connectUrl }
-						siteConnected={ true === this.props.siteConnectionStatus }
-						isLinked={ this.props.isLinked }
-					/>
-				) }
+				{ ! this.props.isReconnectingSite &&
+					! siteDataErrors.length &&
+					! this.props.connectionErrors.length && (
+						<UserUnlinked
+							connectUrl={ this.props.connectUrl }
+							siteConnected={ true === this.props.siteConnectionStatus }
+							isLinked={ this.props.isLinked }
+						/>
+					) }
 				{ ! this.props.siteConnectionStatus && ! this.props.userCanConnectSite && (
 					<SimpleNotice
 						showDismiss={ false }
@@ -269,5 +273,6 @@ export default connect( state => {
 		isInIdentityCrisis: isInIdentityCrisis( state ),
 		connectionErrors: getConnectionErrors( state ),
 		siteDataErrors: getSiteDataErrors( state ),
+		isReconnectingSite: isReconnectingSite( state ),
 	};
 } )( JetpackNotices );
