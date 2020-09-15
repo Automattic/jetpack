@@ -133,6 +133,27 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $object_terms, $server_object_terms );
 	}
 
+	/**
+	 * Validate filter_set_object_terms_no_update filters out set_object_terms without changes.
+	 */
+	public function test_filter_set_object_terms_no_update() {
+		$anther_term = wp_insert_term( 'mouse', $this->taxonomy );
+		wp_set_post_terms( $this->post_id, array( $anther_term['term_id'] ), $this->taxonomy, false );
+
+		// Sync actions.
+		$this->sender->do_sync();
+		// Verify set_object_terms was triggered.
+		$this->assertNotFalse( $this->server_event_storage->get_most_recent_event( 'set_object_terms' ) );
+		// Reset event (actions) storage.
+		$this->server_event_storage->reset();
+
+		// Re-trigger and Sync actions.
+		wp_set_post_terms( $this->post_id, array( $anther_term['term_id'] ), $this->taxonomy, false );
+		$this->sender->do_sync();
+		// Verify set_object_terms was *not* triggered.
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'set_object_terms' ) );
+	}
+
 	public function test_filters_out_blacklisted_taxonomies() {
 		register_taxonomy( 'bloginfo_rss', 'post' );
 
