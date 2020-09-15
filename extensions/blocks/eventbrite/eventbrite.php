@@ -75,24 +75,26 @@ function render_block( $attr, $content ) {
 		true
 	);
 
+	$widget_id = wp_unique_id( 'eventbrite-widget-' );
+	$is_amp    = is_amp_request();
+
 	// Show the embedded version.
 	if ( empty( $attr['useModal'] ) && ( empty( $attr['style'] ) || 'modal' !== $attr['style'] ) ) {
-		return render_embed_block( $attr );
+		return render_embed_block( $widget_id, $is_amp, $attr );
 	} else {
-		return render_modal_block( $attr, $content );
+		return render_modal_block( $widget_id, $is_amp, $attr, $content );
 	}
 }
 
 /**
  * Render block with embed style.
  *
- * @param array $attr Eventbrite block attributes.
+ * @param string $widget_id Widget ID to use.
+ * @param bool   $is_amp    Whether AMP page.
+ * @param array  $attr      Eventbrite block attributes.
  * @return string Rendered block.
  */
-function render_embed_block( $attr ) {
-	$widget_id = wp_unique_id( 'eventbrite-widget-' );
-
-	$is_amp = is_amp_request();
+function render_embed_block( $widget_id, $is_amp, $attr ) {
 
 	// $content contains a fallback link to the event that's saved in the post_content.
 	// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
@@ -151,14 +153,13 @@ function render_embed_block( $attr ) {
 /**
  * Render block with modal style.
  *
- * @param array  $attr    Eventbrite block attributes.
- * @param string $content Rendered embed element (without scripts) from the block editor.
+ * @param string $widget_id Widget ID to use.
+ * @param bool   $is_amp    Whether AMP page.
+ * @param array  $attr      Eventbrite block attributes.
+ * @param string $content   Rendered embed element (without scripts) from the block editor.
  * @return string Rendered block.
  */
-function render_modal_block( $attr, $content ) {
-	$widget_id = wp_unique_id( 'eventbrite-widget-' );
-
-	$is_amp = is_amp_request();
+function render_modal_block( $widget_id, $is_amp, $attr, $content ) {
 
 	if ( $is_amp ) {
 		$lightbox_id = "{$widget_id}-lightbox";
