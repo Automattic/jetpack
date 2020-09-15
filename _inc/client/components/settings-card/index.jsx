@@ -86,11 +86,21 @@ export const SettingsCard = props => {
 				'Upgrade',
 				'A caption for a button to upgrade an existing paid feature to a higher tier.',
 				'jetpack'
+			),
+			hasPremiumOrBetter = includes(
+				[
+					'is-premium-plan',
+					'is-business-plan',
+					'is-daily-security-plan',
+					'is-realtime-security-plan',
+					'is-complete-plan',
+				],
+				planClass
 			);
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( 'is-premium-plan' === planClass || 'is-business-plan' === planClass ) {
+				if ( hasPremiumOrBetter ) {
 					return '';
 				}
 
@@ -107,8 +117,7 @@ export const SettingsCard = props => {
 
 			case FEATURE_WORDADS_JETPACK:
 				if (
-					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass ||
+					hasPremiumOrBetter ||
 					-1 !== props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return '';
@@ -126,7 +135,12 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( backupsEnabled || 'is-business-plan' === planClass || props.multisite ) {
+				if (
+					backupsEnabled ||
+					'is-business-plan' === planClass ||
+					'is-complete-plan' === planClass ||
+					props.multisite
+				) {
 					return '';
 				}
 
@@ -155,7 +169,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
+				if ( hasPremiumOrBetter ) {
 					return '';
 				}
 
@@ -173,7 +187,7 @@ export const SettingsCard = props => {
 					/>
 				);
 			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
+				if ( hasPremiumOrBetter ) {
 					return '';
 				}
 
@@ -192,7 +206,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( props.hasActiveSearchPurchase ) {
+				if ( props.hasActiveSearchPurchase || 'is-complete-plan' === planClass ) {
 					return '';
 				}
 
@@ -214,7 +228,8 @@ export const SettingsCard = props => {
 				if (
 					props.isCheckingAkismetKey ||
 					props.isAkismetKeyValid ||
-					includes( [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ], planClass )
+					'is-personal-plan' === planClass ||
+					hasPremiumOrBetter
 				) {
 					return '';
 				}
@@ -239,7 +254,17 @@ export const SettingsCard = props => {
 			return true;
 		}
 
-		const planClass = getPlanClass( props.sitePlan.product_slug );
+		const planClass = getPlanClass( props.sitePlan.product_slug ),
+			hasPremiumOrBetter = includes(
+				[
+					'is-premium-plan',
+					'is-business-plan',
+					'is-daily-security-plan',
+					'is-realtime-security-plan',
+					'is-complete-plan',
+				],
+				planClass
+			);
 
 		switch ( feature ) {
 			case FEATURE_SECURITY_SCANNING_JETPACK:
@@ -251,8 +276,7 @@ export const SettingsCard = props => {
 
 			case FEATURE_WORDADS_JETPACK:
 				if (
-					'is-premium-plan' !== planClass &&
-					'is-business-plan' !== planClass &&
+					! hasPremiumOrBetter ||
 					-1 === props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return false;
@@ -261,7 +285,7 @@ export const SettingsCard = props => {
 				break;
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
+				if ( ! hasPremiumOrBetter ) {
 					return false;
 				}
 

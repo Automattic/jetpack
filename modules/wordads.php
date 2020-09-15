@@ -8,7 +8,7 @@
  * Auto Activate: No
  * Module Tags: Traffic, Appearance
  * Additional Search Queries: advertising, ad codes, ads
- * Plans: premium, business
+ * Plans: premium, business, security, complete
  *
  * @package Jetpack
  */
