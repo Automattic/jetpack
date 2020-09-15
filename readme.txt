@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: avoid deprecation PHP notices when used with WooCommerce 4.4+.
 * Image CDN: avoid PHP warning when replacing URLs by their image CDN equivalent.
 * Search: fix a bug where no results appear when using Jetpack's Instant Search interface.
+* Site Health Tools: skip a connection status test when in offline mode.
 
 = 8.9 =
 
