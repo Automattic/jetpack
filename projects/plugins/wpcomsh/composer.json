@@ -8,7 +8,7 @@
     "automattic/custom-fonts": "1.0.7",
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/text-media-widget-styles": "~1.0",
-    "automattic/wc-calypso-bridge": "1.3.0",
+    "automattic/wc-calypso-bridge": "1.4.0",
     "wordpress/classic-editor-plugin": "1.5"
   },
   "require-dev": {
