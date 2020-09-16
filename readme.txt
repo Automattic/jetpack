@@ -100,6 +100,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Release date: September 16, 2020
 
+**Enhancements**
+
+* Jetpack Dashboard: add support for new Jetpack plans.
+
 **Bug fixes**
 
 * General: avoid deprecation PHP notices when used with WooCommerce 4.4+.
