@@ -1725,15 +1725,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => __( 'site_id_missing', 'jetpack' ) ) );
 		}
 
-		$args = array( 'headers' => array() );
-
-		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
-		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
-			$secret                    = $_COOKIE['store_sandbox'];
-			$args['headers']['Cookie'] = "store_sandbox=$secret;";
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1' );
 		$body     = wp_remote_retrieve_body( $response );
 		$data     = $body ? json_decode( $body ) : null;
 
