@@ -166,7 +166,18 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
+				if (
+					includes(
+						[
+							'is-premium-plan',
+							'is-business-plan',
+							'is-daily-security-plan',
+							'is-realtime-security-plan',
+							'is-complete-plan',
+						],
+						planClass
+					)
+				) {
 					return '';
 				}
 
@@ -184,7 +195,18 @@ export const SettingsCard = props => {
 					/>
 				);
 			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
+				if (
+					includes(
+						[
+							'is-premium-plan',
+							'is-business-plan',
+							'is-daily-security-plan',
+							'is-realtime-security-plan',
+							'is-complete-plan',
+						],
+						planClass
+					)
+				) {
 					return '';
 				}
 
@@ -203,7 +225,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( props.hasActiveSearchPurchase ) {
+				if ( props.hasActiveSearchPurchase || 'is-complete-plan' === planClass ) {
 					return '';
 				}
 
@@ -262,9 +284,18 @@ export const SettingsCard = props => {
 
 			case FEATURE_WORDADS_JETPACK:
 				if (
-					'is-premium-plan' !== planClass &&
-					'is-business-plan' !== planClass &&
-					-1 === props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
+					! includes(
+						[
+							'is-premium-plan',
+							'is-business-plan',
+							'is-daily-security-plan',
+							'is-realtime-security-plan',
+							'is-complete-plan',
+						],
+						planClass
+					) -
+						1 ===
+					props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return false;
 				}
@@ -272,7 +303,18 @@ export const SettingsCard = props => {
 				break;
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
+				if (
+					! includes(
+						[
+							'is-premium-plan',
+							'is-business-plan',
+							'is-daily-security-plan',
+							'is-realtime-security-plan',
+							'is-complete-plan',
+						],
+						planClass
+					)
+				) {
 					return false;
 				}
 
