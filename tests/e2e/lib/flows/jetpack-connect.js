@@ -72,12 +72,12 @@ async function doClassicConnection( mockPlanData ) {
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();
 	if ( mockPlanData ) {
-		await ( await PickAPlanPage.init( page ) ).selectFreePlan();
+		await ( await PickAPlanPage.init( page ) ).select( 'free' );
 	} else {
-		await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
+		await ( await PickAPlanPage.init( page ) ).select( 'complete' );
 		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
+		await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 	}
-	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 }
 
@@ -86,14 +86,14 @@ export async function doInPlaceConnection() {
 	await jetpackPage.connect();
 
 	await ( await InPlaceAuthorizeFrame.init( page ) ).approve();
-	await ( await PickAPlanPage.init( page ) ).selectFreePlan();
-	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
-	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+	await ( await PickAPlanPage.init( page ) ).select( 'free' );
+	// await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
+	// await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 	await ( await Sidebar.init( page ) ).selectJetpack();
 }
 
 export async function syncJetpackPlanData( plan, mockPlanData = true ) {
-	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_business';
+	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
 	await persistPlanData( planType );
 
 	const siteUrl = getNgrokSiteUrl();
