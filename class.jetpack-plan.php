@@ -36,7 +36,7 @@ class Jetpack_Plan {
 	const SITE_PRODUCTS_OPTION = 'jetpack_site_products';
 
 	const PLAN_DATA = array(
-		'free'           => array(
+		'free'     => array(
 			'plans'    => array(
 				'jetpack_free',
 			),
@@ -51,7 +51,7 @@ class Jetpack_Plan {
 				'core/audio',
 			),
 		),
-		'personal'       => array(
+		'personal' => array(
 			'plans'    => array(
 				'jetpack_personal',
 				'jetpack_personal_monthly',
@@ -64,7 +64,7 @@ class Jetpack_Plan {
 				'recurring-payments',
 			),
 		),
-		'premium'        => array(
+		'premium'  => array(
 			'plans'    => array(
 				'jetpack_premium',
 				'jetpack_premium_monthly',
@@ -79,7 +79,7 @@ class Jetpack_Plan {
 				'videopress',
 			),
 		),
-		'security-daily' => array(
+		'security' => array(
 			'plans'    => array(
 				'jetpack_security_daily',
 				'jetpack_security_daily_monthly',
@@ -88,7 +88,7 @@ class Jetpack_Plan {
 			),
 			'supports' => array(),
 		),
-		'business'       => array(
+		'business' => array(
 			'plans'    => array(
 				'jetpack_business',
 				'jetpack_business_monthly',
@@ -103,7 +103,7 @@ class Jetpack_Plan {
 			'supports' => array(),
 		),
 
-		'complete'       => array(
+		'complete' => array(
 			'plans'    => array(
 				'jetpack_complete',
 				'jetpack_complete_monthly',
