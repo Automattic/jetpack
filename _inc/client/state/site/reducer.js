@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import {
+	getPlanClass,
 	isJetpackProduct,
 	isJetpackBackup,
 	isJetpackScan,
@@ -321,7 +322,10 @@ export function getActiveSearchPurchase( state ) {
 }
 
 export function hasActiveSearchPurchase( state ) {
-	return !! getActiveSearchPurchase( state );
+	return (
+		!! getActiveSearchPurchase( state ) ||
+		'is-complete-plan' === getPlanClass( getSitePlan( state ).product_slug )
+	);
 }
 
 export function getSiteID( state ) {
