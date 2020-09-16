@@ -36,9 +36,9 @@ class Jetpack_Plan {
 	const SITE_PRODUCTS_OPTION = 'jetpack_site_products';
 
 	const PLAN_DATA = array(
-		'free'     => array(
+		'free'           => array(
 			'plans'    => array(
-				PLAN_JETPACK_FREE,
+				'jetpack_free',
 			),
 			'supports' => array(
 				'opentable',
@@ -51,26 +51,26 @@ class Jetpack_Plan {
 				'core/audio',
 			),
 		),
-		'personal' => array(
+		'personal'       => array(
 			'plans'    => array(
-				PLAN_JETPACK_PERSONAL,
-				PLAN_JETPACK_PERSONAL_MONTHLY,
-				PLAN_PERSONAL,
-				PLAN_PERSONAL_MONTHLY,
-				PLAN_PERSONAL_2_YEARS,
+				'jetpack_personal',
+				'jetpack_personal_monthly',
+				'personal-bundle',
+				'personal-bundle-monthly',
+				'personal-bundle-2y',
 			),
 			'supports' => array(
 				'akismet',
 				'recurring-payments',
 			),
 		),
-		'premium'  => array(
+		'premium'        => array(
 			'plans'    => array(
-				PLAN_JETPACK_PREMIUM,
-				PLAN_JETPACK_PREMIUM_MONTHLY,
-				PLAN_PREMIUM,
-				PLAN_PREMIUM_MONTHLY,
-				PLAN_PREMIUM_2_YEARS,
+				'jetpack_premium',
+				'jetpack_premium_monthly',
+				'value_bundle',
+				'value_bundle-monthly',
+				'value_bundle-2y',
 			),
 			'supports' => array(
 				'donations',
@@ -79,37 +79,37 @@ class Jetpack_Plan {
 				'videopress',
 			),
 		),
-		'security' => array(
-			'plans' => array(
-				PLAN_JETPACK_SECURITY_DAILY,
-				PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
-				PLAN_JETPACK_SECURITY_REALTIME,
-				PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
-			),
-			'supports' => array(),
-		),
-		'business' => array(
+		'security-daily' => array(
 			'plans'    => array(
-				PLAN_JETPACK_BUSINESS,
-				PLAN_JETPACK_BUSINESS_MONTHLY,
-				PLAN_BUSINESS,
-				PLAN_BUSINESS_MONTHLY,
-				PLAN_BUSINESS_2_YEARS,
-				PLAN_ECOMMERCE,
-				PLAN_ECOMMERCE_MONTHLY,
-				PLAN_ECOMMERCE_2_YEARS,
-				PLAN_VIP,
+				'jetpack_security_daily',
+				'jetpack_security_daily_monthly',
+				'jetpack_security_realtime',
+				'jetpack_security_realtime_monthly',
 			),
 			'supports' => array(),
 		),
-		'complete' => array(
-			'plans' => array(
-				PLAN_JETPACK_COMPLETE,
-				PLAN_JETPACK_COMPLETE_MONTHLY
+		'business'       => array(
+			'plans'    => array(
+				'jetpack_business',
+				'jetpack_business_monthly',
+				'business-bundle',
+				'business-bundle-monthly',
+				'business-bundle-2y',
+				'ecommerce-bundle',
+				'ecommerce-bundle-monthly',
+				'ecommerce-bundle-2y',
+				'vip',
 			),
 			'supports' => array(),
 		),
 
+		'complete'       => array(
+			'plans'    => array(
+				'jetpack_complete',
+				'jetpack_complete_monthly',
+			),
+			'supports' => array(),
+		),
 	);
 
 	/**
@@ -218,7 +218,7 @@ class Jetpack_Plan {
 		$plan = wp_parse_args(
 			$plan,
 			array(
-				'product_slug' => PLAN_JETPACK_FREE,
+				'product_slug' => 'jetpack_free',
 				'class'        => 'free',
 				'features'     => array(
 					'active' => array(),
@@ -316,7 +316,7 @@ class Jetpack_Plan {
 		// Manually mapping WordPress.com features to Jetpack module slugs.
 		foreach ( $plan['features']['active'] as $wpcom_feature ) {
 			switch ( $wpcom_feature ) {
-				case FEATURE_WORDADS_JETPACK:
+				case 'wordads-jetpack':
 					// WordAds are supported for this site.
 					if ( 'wordads' === $feature ) {
 						return true;
