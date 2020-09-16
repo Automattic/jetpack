@@ -151,6 +151,15 @@ class Jetpack_Simple_Payments {
 
 		$data['id'] = $attrs['id'];
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/lib/display-context.php';
+			$context = \A8C\Display_Context\get_current_context();
+			if ( \A8C\Display_Context\EMAIL === $context ) {
+				// Avoid enqueueing unsupported files by emails.
+				return $this->output_shortcode( $data );
+			}
+		}
+
 		if( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
 			wp_enqueue_style( 'jetpack-simple-payments' );
 		}
@@ -192,6 +201,15 @@ class Jetpack_Simple_Payments {
 		$items = '';
 		$css_prefix = self::$css_classname_prefix;
 
+		$is_paypal_button_visible = true;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/lib/display-context.php';
+			$context = \A8C\Display_Context\get_current_context();
+			if ( \A8C\Display_Context\EMAIL === $context ) {
+				$is_paypal_button_visible = false;
+			}
+		}
+
 		if ( $data['multiple'] ) {
 			$items = sprintf( '
 				<div class="%1$s">
@@ -203,12 +221,29 @@ class Jetpack_Simple_Payments {
 				esc_attr( "{$data['dom_id']}_number" )
 			);
 		}
+
 		$image = "";
 		if( has_post_thumbnail( $data['id'] ) ) {
 			$image = sprintf( '<div class="%1$s"><div class="%2$s">%3$s</div></div>',
 				esc_attr( "${css_prefix}-product-image" ),
 				esc_attr( "${css_prefix}-image" ),
 				get_the_post_thumbnail( $data['id'], 'full' )
+			);
+		}
+
+		if ( $is_paypal_button_visible ) {
+			$purchase_box = sprintf(
+				'<div class="%1$s">%2$s<div class="%3$s" id="%4$s"></div></div>',
+				esc_attr( "${css_prefix}-purchase-box" ),
+				$items,
+				esc_attr( "${css_prefix}-button" ),
+				esc_attr( "{$data['dom_id']}_button" )
+			);
+		} else {
+			$purchase_box = sprintf(
+				'<a href="%1$s" target="_blank">%2$s</a>',
+				esc_url( get_permalink( get_the_ID() ) ),
+				__( 'Visit the site to purchase.', 'jetpack' )
 			);
 		}
 		return sprintf( '
@@ -220,10 +255,7 @@ class Jetpack_Simple_Payments {
 			<div class="%7$s"><p>%8$s</p></div>
 			<div class="%9$s"><p>%10$s</p></div>
 			<div class="%11$s" id="%12$s"></div>
-			<div class="%13$s">
-				%14$s
-				<div class="%15$s" id="%16$s"></div>
-			</div>
+			%13$s
 		</div>
 	</div>
 </div>
@@ -240,10 +272,7 @@ class Jetpack_Simple_Payments {
 			esc_html( $data['price'] ),
 			esc_attr( "${css_prefix}-purchase-message" ),
 			esc_attr( "{$data['dom_id']}-message-container" ),
-			esc_attr( "${css_prefix}-purchase-box" ),
-			$items,
-			esc_attr( "${css_prefix}-button" ),
-			esc_attr( "{$data['dom_id']}_button" )
+			$purchase_box
 		);
 	}
 
