@@ -3,7 +3,6 @@
  */
 import React, { Fragment, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -80,42 +79,41 @@ function Search( props ) {
 			>
 				<p>{ SEARCH_DESCRIPTION } </p>
 				{ props.isLoading && __( 'Loading…', 'jetpack' ) }
-				{ ! props.isLoading &&
-					( props.isBusinessOrCompletePlan || props.hasActiveSearchPurchase ) && (
-						<Fragment>
-							<ModuleToggle
-								activated={ isModuleEnabled }
-								compact
-								slug="search"
-								toggleModule={ toggleModule }
-								toggling={ props.isSavingAnyOption( 'search' ) }
-							>
-								{ __( 'Enable Search', 'jetpack' ) }
-							</ModuleToggle>
+				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
+					<Fragment>
+						<ModuleToggle
+							activated={ isModuleEnabled }
+							compact
+							slug="search"
+							toggleModule={ toggleModule }
+							toggling={ props.isSavingAnyOption( 'search' ) }
+						>
+							{ __( 'Enable Search', 'jetpack' ) }
+						</ModuleToggle>
 
-							<FormFieldset>
-								<CompactFormToggle
-									checked={ isInstantSearchEnabled }
-									disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
-									onChange={ toggleInstantSearch }
-									toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
-									</span>
-								</CompactFormToggle>
-								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-									{ __(
-										'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
-										'jetpack'
-									) }
-								</p>
-							</FormFieldset>
-						</Fragment>
-					) }
+						<FormFieldset>
+							<CompactFormToggle
+								checked={ isInstantSearchEnabled }
+								disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
+								onChange={ toggleInstantSearch }
+								toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+								</span>
+							</CompactFormToggle>
+							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
+								{ __(
+									'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
+									'jetpack'
+								) }
+							</p>
+						</FormFieldset>
+					</Fragment>
+				) }
 			</SettingsGroup>
 			{ ! props.isLoading &&
-				( props.isBusinessOrCompletePlan || props.hasActiveSearchPurchase ) &&
+				( props.isBusinessPlan || props.hasActiveSearchPurchase ) &&
 				isModuleEnabled &&
 				! isInstantSearchEnabled && (
 					<Card
@@ -144,7 +142,7 @@ export default connect( state => {
 	return {
 		isLoading: isFetchingSitePurchases( state ),
 		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
-		isBusinessOrCompletePlan: 'is-business-plan' === planClass || 'is-complete-plan' === planClass,
+		isBusinessPlan: 'is-business-plan' === planClass,
 		failedToEnableSearch:
 			! isSettingActivated( state, 'search' ) &&
 			! isUpdatingSetting( state, 'search' ) &&
