@@ -88,6 +88,7 @@ class AutoloadProcessor {
 			}
 		}
 
+		// PSR-0 namespaces are converted to classmaps for both optimized and unoptimized autoloaders.
 		if ( ! empty( $autoloads['psr-0'] ) ) {
 			foreach ( $autoloads['psr-0'] as $namespace => $sources ) {
 				$namespace = empty( $namespace ) ? null : $namespace;
