@@ -106,7 +106,7 @@ function render_embed_block( $widget_id, $is_amp, $attr ) {
 		'<a href="%s" rel="noopener noreferrer" target="_blank" class="eventbrite__direct-link" %s>%s</a>',
 		esc_url( $attr['url'] ),
 		$is_amp ? 'placeholder fallback' : '',
-		esc_html__( 'Register on Eventbrite', 'jetpack' ),
+		esc_html__( 'Register on Eventbrite', 'jetpack' )
 	);
 
 	if ( $is_amp ) {
