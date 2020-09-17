@@ -5,7 +5,7 @@
 /**
  * Internal dependencies
  */
-import { getTweetStorm, getTweetsForBlock, getTwitterCardForURLs, twitterCardIsCached } from '../selectors';
+import { getTweetStorm, getTweetsForBlock, getTwitterCardForURLs, twitterCardIsCached, checkForTagsInContentAttributes } from '../selectors';
 
 /**
  * getTweetstorm() adds a tweet to the start and the end of the thread, but
@@ -246,5 +246,56 @@ describe( 'twitterCardIsCached', () => {
 			},
 		};
 		expect( twitterCardIsCached( state, 'foo' ) ).toEqual( true );
+	} );
+} );
+
+describe( 'checkForTagsInContentAttributes', () => {
+	it( 'should return false for unsupported blocks', () => {
+		const props = {
+			attributes: {
+				content: '<strong>bar</strong>',
+			},
+			name: 'fake/block',
+		};
+		const tags = [ 'strong' ];
+
+		expect( checkForTagsInContentAttributes( props, tags ) ).toBeFalsy();
+	} );
+
+	it( 'should return false if the tags are not in the content', () => {
+		const props = {
+			attributes: {
+				content: '<i>bar</i>',
+			},
+			name: 'core/paragraph',
+		};
+		const tags = [ 'strong', 'em', 'b' ];
+
+		expect( checkForTagsInContentAttributes( props, tags ) ).toBeFalsy();
+	} );
+
+	it( 'should return true if the tags are in the content', () => {
+		const props = {
+			attributes: {
+				content: '<i>bar</i>',
+			},
+			name: 'core/paragraph',
+		};
+		const tags = [ 'strong', 'em', 'b', 'i' ];
+
+		expect( checkForTagsInContentAttributes( props, tags ) ).toBeTruthy();
+	} );
+
+	it( 'should return true if the tags are in only one attribute', () => {
+		const props = {
+			attributes: {
+				value: '<s>bar</s>',
+				citation: '<i>bar</i>',
+			},
+			name: 'core/quote',
+		};
+		const tags = [ 'strong', 'em', 'b', 'i' ];
+
+		expect( checkForTagsInContentAttributes( props, tags ) ).toBeTruthy();
 	} );
 } );

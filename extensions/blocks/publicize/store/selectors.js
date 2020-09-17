@@ -347,7 +347,7 @@ export function getBoundaryStyleSelectors( state, clientId ) {
  * @param {Array} tags - An array of the tag names to look for.
  * @returns {boolean} Whether or not any of the given tags were found.
  */
-function checkForTagsInContentAttributes( props, tags ) {
+export function checkForTagsInContentAttributes( props, tags ) {
 	if ( 0 === tags.length ) {
 		return false;
 	}
