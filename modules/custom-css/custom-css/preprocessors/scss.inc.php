@@ -2380,7 +2380,7 @@ class scssc {
 	/**
 	 * CSS Colors
 	 *
-	 * @see https://www.w3.org/TR/css-color-3/
+	 * @see https://www.w3.org/TR/css-color-4/
 	 */
 	static protected $cssColors = array(
 		'aliceblue' => '240,248,255',
