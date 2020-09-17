@@ -51,15 +51,15 @@ class Nonce_Handler {
 			return static::$nonces_used_this_request[ "$timestamp:$nonce" ];
 		}
 
-		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce.
+		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp and $nonce.
 		$timestamp = (int) $timestamp;
 		$nonce     = esc_sql( $nonce );
 
 		// Raw query so we can avoid races: add_option will also update.
-		$show_errors = $wpdb->show_errors( false );
+		$show_errors = $wpdb->hide_errors();
 
 		$old_nonce = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
+			$wpdb->prepare( "SELECT 1 FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
 		);
 
 		if ( is_null( $old_nonce ) ) {
@@ -86,7 +86,7 @@ class Nonce_Handler {
 			$return = false;
 		}
 
-		$wpdb->show_errors( $show_errors );
+		$show_errors && $wpdb->show_errors();
 
 		static::$nonces_used_this_request[ "$timestamp:$nonce" ] = $return;
 
@@ -94,7 +94,8 @@ class Nonce_Handler {
 	}
 
 	/**
-	 * Removing all the nonces.
+	 * Removing [almost] all the nonces.
+	 * Capped at 1 million records to avoid breaking the site.
 	 *
 	 * @param int $cutoff_timestamp All nonces added before this timestamp will be removed.
 	 *

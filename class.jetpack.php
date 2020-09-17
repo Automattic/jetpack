@@ -508,9 +508,7 @@ class Jetpack {
 				}
 
 				// Upgrade to Jetpack 9.0.0, cleaning up nonces during runtime.
-				if ( wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-					wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-				}
+				wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 			}
 		}
 	}
@@ -5570,21 +5568,6 @@ endif;
 	public function wp_rest_authentication_errors( $value ) {
 		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenication_errors' );
 		return Connection_Rest_Authentication::init()->wp_rest_authentication_errors( $value );
-	}
-
-	/**
-	 * Add our nonce to this request.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::add_nonce()
-	 *
-	 * @param int    $timestamp Timestamp of the request.
-	 * @param string $nonce     Nonce string.
-	 */
-	public function add_nonce( $timestamp, $nonce ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::add_nonce' );
-
-		return Nonce_Handler::add( $timestamp, $nonce );
 	}
 
 	/**
