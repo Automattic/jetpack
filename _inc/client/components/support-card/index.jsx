@@ -81,7 +81,10 @@ class SupportCard extends React.Component {
 						<h3 className="jp-support-card__header">{ __( "We're here to help", 'jetpack' ) }</h3>
 						<p className="jp-support-card__description">
 							{ noPrioritySupport
-								? __( 'Jetpack comes with free, basic support for all users.', 'jetpack' )
+								? __(
+										'Jetpack offers support via community forums for any site without a paid product.',
+										'jetpack'
+								  )
 								: __(
 										'Your paid plan gives you access to prioritized Jetpack support.',
 										'jetpack'
