@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { SUPPORTED_BLOCKS } from '../twitter';
+import { SUPPORTED_BLOCKS, SUPPORTED_CONTAINER_BLOCKS } from '../twitter';
 
 // Links and media attached to tweets take up 24 characters each.
 const ATTACHMENT_MESSAGE_PADDING = 24;
@@ -399,7 +399,7 @@ export function getPopoverWarnings( state, props ) {
 	}
 
 	const popoverWarnings = [];
-	if ( ! SUPPORTED_BLOCKS[ props.name ] ) {
+	if ( ! SUPPORTED_BLOCKS[ props.name ] && ! SUPPORTED_CONTAINER_BLOCKS[ props.name ] ) {
 		popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
 	} else {
 		if ( 'core/gallery' === props.name && props.attributes.images.length > 4 ) {

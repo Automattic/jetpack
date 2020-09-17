@@ -9,7 +9,7 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { SUPPORTED_BLOCKS } from '../twitter';
+import { SUPPORTED_BLOCKS, SUPPORTED_CONTAINER_BLOCKS } from '../twitter';
 
 /**
  * Effect handler which will refresh the connection test results.
@@ -38,7 +38,11 @@ export const computeTweetBlocks = ( blocks = [] ) => {
 			return block;
 		}
 
-		return computeTweetBlocks( block.innerBlocks );
+		if ( SUPPORTED_CONTAINER_BLOCKS.includes( block.name ) ) {
+			return computeTweetBlocks( block.innerBlocks );
+		}
+
+		return [];
 	} );
 };
 

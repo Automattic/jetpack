@@ -50,6 +50,8 @@ export const SUPPORTED_BLOCKS = {
 	},
 };
 
+export const SUPPORTED_CONTAINER_BLOCKS = [ 'core/column', 'core/columns', 'core/group' ];
+
 /**
  * Intercepts the registration of all blocks, allowing us to add our Tweet divider
  * when it's needed.
