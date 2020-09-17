@@ -6,15 +6,16 @@
  * External dependencies
  */
 import { mount } from 'enzyme';
-import { useSelect } from '@wordpress/data';
+import { useSelect, __unstableUseDispatchWithMap } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import PublicizeTwitterOptions from '../options';
 
-// Override useSelect(), so we can return mock state data.
-jest.mock( '@wordpress/data/build/components/use-select/', () => jest.fn() );
+// Override data handlers, so we can control data changes.
+jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+jest.mock( '@wordpress/data/build/components/use-dispatch/use-dispatch-with-map', () => jest.fn() );
 
 describe( 'PublicizeTwitterOptions', () => {
 	it( 'should expose the options component', () => {
@@ -58,5 +59,35 @@ describe( 'PublicizeTwitterOptions', () => {
 
 		expect( wrapper.find( 'input' ).at( 0 ).props().checked ).toBeFalsy();
 		expect( wrapper.find( 'input' ).at( 1 ).props().checked ).toBeTruthy();
+	} );
+
+	it( 'should trigger change event when the selected option changes', () => {
+		useSelect.mockImplementation( () => {
+			return {
+				connections: [ { service_name: 'twitter' } ],
+				isTweetStorm: false,
+			}
+		} );
+
+		const mockSetTweetstorm = jest.fn();
+		__unstableUseDispatchWithMap.mockImplementation( () => {
+			return {
+				setTweetstorm: mockSetTweetstorm,
+			};
+		} );
+
+		const wrapper = mount( <PublicizeTwitterOptions /> );
+
+		wrapper.find( 'input' ).at( 0 ).simulate( 'change' );
+
+		expect( mockSetTweetstorm ).toHaveBeenCalledTimes( 1 );
+		expect( mockSetTweetstorm ).toHaveBeenCalledWith( false );
+
+		mockSetTweetstorm.mockClear();
+
+		wrapper.find( 'input' ).at( 1 ).simulate( 'change' );
+
+		expect( mockSetTweetstorm ).toHaveBeenCalledTimes( 1 );
+		expect( mockSetTweetstorm ).toHaveBeenCalledWith( true );
 	} );
 } );
