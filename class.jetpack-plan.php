@@ -79,6 +79,15 @@ class Jetpack_Plan {
 				'videopress',
 			),
 		),
+		'security' => array(
+			'plans'    => array(
+				'jetpack_security_daily',
+				'jetpack_security_daily_monthly',
+				'jetpack_security_realtime',
+				'jetpack_security_realtime_monthly',
+			),
+			'supports' => array(),
+		),
 		'business' => array(
 			'plans'    => array(
 				'jetpack_business',
@@ -90,6 +99,14 @@ class Jetpack_Plan {
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
 				'vip',
+			),
+			'supports' => array(),
+		),
+
+		'complete' => array(
+			'plans'    => array(
+				'jetpack_complete',
+				'jetpack_complete_monthly',
 			),
 			'supports' => array(),
 		),
