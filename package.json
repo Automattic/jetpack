@@ -78,7 +78,11 @@
 		"test-dangerci-and-adminpage-and-extensions": "yarn danger ci && yarn test-adminpage && yarn test-extensions",
 		"test-search": "jest modules/search",
 		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
-		"version-packages": "bash ./bin/version-packages.sh"
+		"version-packages": "bash ./bin/version-packages.sh",
+		"tunnel": "[ -f ./docker/bin/jt/tunnel.sh ] && ./docker/bin/jt/tunnel.sh",
+		"tunnel:break": "[ -f ./docker/bin/jt/tunnel.sh ] && ./docker/bin/jt/tunnel.sh break",
+		"tunnel:config": "[ -f ./docker/bin/jt/config.sh ] && ./docker/bin/jt/config.sh",
+		"tunnel:install": "echo 'Auto-install is not available at the moment. Please visit https://github.com/Automattic/jurassic-tube for installation instructions.'"
 	},
 	"husky": {
 		"hooks": {
