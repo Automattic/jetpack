@@ -241,7 +241,7 @@ class Jetpack_Simple_Payments {
 			);
 		} else {
 			$purchase_box = sprintf(
-				'<a href="%1$s" target="_blank">%2$s</a>',
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 				esc_url( get_permalink( get_the_ID() ) ),
 				__( 'Visit the site to purchase.', 'jetpack' )
 			);
