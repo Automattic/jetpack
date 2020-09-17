@@ -39,7 +39,7 @@ const cardCredentials = config.get( 'testCardCredentials' );
  */
 export async function connectThroughWPAdminIfNeeded( {
 	wpcomUser = 'defaultUser',
-	plan = 'pro',
+	plan = 'complete',
 	mockPlanData = false,
 } = {} ) {
 	await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
@@ -77,8 +77,8 @@ async function doClassicConnection( mockPlanData ) {
 		await ( await PickAPlanPage.init( page ) ).select( 'complete' );
 		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 		await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
+		await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 	}
-	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 }
 
 export async function doInPlaceConnection() {
