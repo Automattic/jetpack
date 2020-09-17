@@ -72,13 +72,12 @@ async function doClassicConnection( mockPlanData ) {
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();
 	if ( mockPlanData ) {
-		await ( await PickAPlanPage.init( page ) ).select( 'free' );
-	} else {
-		await ( await PickAPlanPage.init( page ) ).select( 'complete' );
-		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
-		await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
-		await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+		return await ( await PickAPlanPage.init( page ) ).select( 'free' );
 	}
+	await ( await PickAPlanPage.init( page ) ).select( 'complete' );
+	await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
+	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
+	return await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 }
 
 export async function doInPlaceConnection() {
@@ -153,7 +152,7 @@ async function isBlogTokenSet() {
 
 export async function connectThroughJetpackStart( {
 	wpcomUser = 'defaultUser',
-	plan = 'pro',
+	plan = 'complete',
 } = {} ) {
 	// remove Sandbox cookie
 	await page.deleteCookie( {
