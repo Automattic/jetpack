@@ -52,6 +52,7 @@ import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
+import ReconnectModal from 'components/reconnect-modal';
 
 const setupRoutes = [
 	'/setup',
@@ -74,6 +75,10 @@ const settingsRoutes = [
 ];
 
 class Main extends React.Component {
+	state = {
+		showReconnectModal: false,
+	};
+
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
@@ -100,6 +105,11 @@ class Main extends React.Component {
 		if ( connectReactContainer && fullScreenContainer.length > 0 ) {
 			fullScreenContainer.prependTo( connectReactContainer );
 		}
+
+		//Handle reconnect
+		if ( '/reconnect' === this.props.location.pathname ) {
+			this.handleReconnect();
+		}
 	}
 
 	/*
@@ -118,6 +128,26 @@ class Main extends React.Component {
 			return true;
 		}
 		return false;
+	};
+
+	/*
+	 * Shows the confirmation dialog to reconnect Jetpack and replaces
+	 * the current history entry in response to user 'reconnect' action.
+	 */
+	handleReconnect = () => {
+		this.setState( {
+			showReconnectModal: true,
+		} );
+
+		// Update the state object or URL of the current history entry
+		// in response to user 'reconnect' action.
+		// If we didn't do this, we'd get in an endless loop due to window reloading
+		// after reconnection.
+		// This needs to happen outside an existing state transition (such as within `render`).
+		this.props.history.replace( {
+			pathname: '/dashboard',
+			state: { showReconnectModal: true },
+		} );
 	};
 
 	initializeAnalytics = () => {
@@ -195,6 +225,7 @@ class Main extends React.Component {
 
 		switch ( route ) {
 			case '/dashboard':
+			case '/reconnect':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -202,18 +233,6 @@ class Main extends React.Component {
 						rewindStatus={ this.props.rewindStatus }
 					/>
 				);
-				break;
-			case '/reconnect':
-				// Trigger actual reconnect if is not already happening.
-				if ( this.props.isSiteConnected && ! this.props.isReconnectingSite ) {
-					this.props.reconnectSite();
-				}
-				// Update the state object or URL of the current history entry
-				// in response to user 'reconnect' action.
-				// If we didn't do this, we'd get in an endless loop due to window reloading
-				// after reconnection.
-				this.props.history.replace( '/dashboard' );
-				pageComponent = this.getAtAGlance();
 				break;
 			case '/my-plan':
 				pageComponent = (
@@ -334,9 +353,29 @@ class Main extends React.Component {
 		return this.props.isReconnectingSite;
 	}
 
+	shouldShowReconnectModal() {
+		const { showReconnectModal } = this.state;
+		return showReconnectModal;
+	}
+
+	closeReconnectModal() {
+		this.setState( {
+			showReconnectModal: false,
+		} );
+	}
+
 	render() {
 		return (
 			<div>
+				{ this.shouldShowReconnectModal() && (
+					<ReconnectModal
+						show={ true }
+						// eslint-disable-next-line react/jsx-no-bind, semi
+						onHide={ () => {
+							this.closeReconnectModal();
+						} }
+					/>
+				) }
 				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 				<div className="jp-lower">
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
