@@ -388,7 +388,7 @@ if (
 						return $this->get_async_code( $settings, $poll_link, $poll_url );
 					} else {
 						if ( 1 === $attributes['cb'] ) {
-							$attributes['cb'] = '?cb=' . mktime();
+							$attributes['cb'] = '?cb=' . time();
 						} else {
 							$attributes['cb'] = false;
 						}
