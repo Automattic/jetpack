@@ -124,6 +124,15 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * Returns the translated text for failing tests due to timeouts.
+	 *
+	 * @return string The translated timeout text.
+	 */
+	protected static function helper_get_timeout_text() {
+		return __( 'The test timed out which may sometimes indicate a failure or may be a false failure. Please relaunch tests.', 'jetpack' );
+	}
+
+	/**
 	 * Gets translated reconnect long description.
 	 *
 	 * @param string $connection_error The connection specific error.
@@ -508,18 +517,20 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		if ( is_wp_error( $response ) ) {
 			if ( false !== strpos( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
-				return self::skipped_test(
+				$result = self::skipped_test(
 					array(
 						'name'              => $name,
-						'short_description' => __( 'The test timed out which may sometimes indicate a failure or may be a false failure.', 'jetpack' ),
+						'short_description' => self::helper_get_timeout_text(),
 					)
 				);
+			} else {
+				/* translators: %1$s is the error code, %2$s is the error message */
+				$message = sprintf( __( 'Connection test failed (#%1$s: %2$s)', 'jetpack' ), $response->get_error_code(), $response->get_error_message() );
+
+				$result = self::connection_failing_test( $name, $message );
 			}
 
-			/* translators: %1$s is the error code, %2$s is the error message */
-			$message = sprintf( __( 'Connection test failed (#%1$s: %2$s)', 'jetpack' ), $response->get_error_code(), $response->get_error_message() );
-
-			return self::connection_failing_test( $name, $message );
+			return $result;
 		}
 
 		$body = wp_remote_retrieve_body( $response );
@@ -875,16 +886,16 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ), PHP_INT_MAX - 1 );
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
-			return self::passing_test( array( 'name' => $name ) );
+			$result = self::passing_test( array( 'name' => $name ) );
 		} elseif ( is_wp_error( $response ) && false !== strpos( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
-			return self::skipped_test(
+			$result = self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'The test timed out which may sometimes indicate a failure or may be a false failure.', 'jetpack' ),
+					'short_description' => self::helper_get_timeout_text(),
 				)
 			);
 		} else {
-			return self::failing_test(
+			$result = self::failing_test(
 				array(
 					'name'              => $name,
 					'short_description' => sprintf(
@@ -897,5 +908,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				)
 			);
 		}
+
+		return $result;
 	}
 }
