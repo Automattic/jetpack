@@ -244,5 +244,4 @@
 		"**/gulp/gulp-cli/yargs/yargs-parser": "^13.1.2",
 		"**/node-fetch": "^2.6.1"
 	}
-
 }
