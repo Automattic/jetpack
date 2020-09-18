@@ -105,7 +105,8 @@ class Nonce_Handler {
 	 * @return true
 	 */
 	public static function clean_all( $cutoff_timestamp = PHP_INT_MAX ) {
-		for ( $i = 0; $i < 1000; ++$i ) {
+		// phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+		for ( $start_time = time(), $i = 0; $i < 1000 && time() < $start_time + 20; ++$i ) {
 			$result = static::delete( static::CLEAN_ALL_LIMIT_PER_BATCH, $cutoff_timestamp );
 
 			if ( ! $result ) {
