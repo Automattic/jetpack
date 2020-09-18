@@ -76,19 +76,13 @@ class Test_Nonce_Handler extends TestCase {
 	public function test_add_existing() {
 		$query_filter_run = false;
 
-		$nonce_object = (object) array(
-			'option_id'    => '12345',
-			'option_name'  => 'jetpack_nonce_' . static::TIMESTAMP . '_' . static::NONCE,
-			'option_value' => static::TIMESTAMP,
-			'autoload'     => 'no',
-		);
-
-		$query_filter = function( $result, $query ) use ( &$query_filter_run, $nonce_object ) {
+		$query_filter = function( $result, $query ) use ( &$query_filter_run ) {
 			if ( ! $query_filter_run && false !== strpos( $query, 'jetpack_nonce_' ) ) {
 				$query_filter_run = true;
-				$this->assertEquals( "SELECT 1 FROM `options` WHERE option_name = '{$nonce_object->option_name}'", $query );
+				$nonce_name       = 'jetpack_nonce_' . static::TIMESTAMP . '_' . static::NONCE;
+				$this->assertEquals( "SELECT 1 FROM `options` WHERE option_name = '{$nonce_name}'", $query );
 
-				return array( $nonce_object );
+				return array( (object) array( 1 => '1' ) );
 			}
 
 			return $result;

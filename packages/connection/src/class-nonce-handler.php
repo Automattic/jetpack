@@ -58,35 +58,38 @@ class Nonce_Handler {
 		// Raw query so we can avoid races: add_option will also update.
 		$show_errors = $wpdb->hide_errors();
 
-		$old_nonce = $wpdb->get_row(
-			$wpdb->prepare( "SELECT 1 FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
-		);
-
-		if ( is_null( $old_nonce ) ) {
-			$return = (bool) $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
-					"jetpack_nonce_{$timestamp}_{$nonce}",
-					time(),
-					'no'
-				)
+		// Running try...finally to make sure.
+		try {
+			$old_nonce = $wpdb->get_row(
+				$wpdb->prepare( "SELECT 1 FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
 			);
 
-			/**
-			 * Use the filter to disable the nonce cleanup that happens at shutdown after adding a new nonce.
-			 *
-			 * @since 9.0.0
-			 *
-			 * @param int $limit How many old nonces to remove at shutdown.
-			 */
-			if ( apply_filters( 'jetpack_connection_add_nonce_cleanup', $run_cleanup ) ) {
-				add_action( 'shutdown', array( __CLASS__, 'clean_runtime' ) );
-			}
-		} else {
-			$return = false;
-		}
+			if ( is_null( $old_nonce ) ) {
+				$return = (bool) $wpdb->query(
+					$wpdb->prepare(
+						"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
+						"jetpack_nonce_{$timestamp}_{$nonce}",
+						time(),
+						'no'
+					)
+				);
 
-		$show_errors && $wpdb->show_errors();
+				/**
+				 * Use the filter to disable the nonce cleanup that happens at shutdown after adding a new nonce.
+				 *
+				 * @since 9.0.0
+				 *
+				 * @param int $limit How many old nonces to remove at shutdown.
+				 */
+				if ( apply_filters( 'jetpack_connection_add_nonce_cleanup', $run_cleanup ) ) {
+					add_action( 'shutdown', array( __CLASS__, 'clean_runtime' ) );
+				}
+			} else {
+				$return = false;
+			}
+		} finally {
+			$wpdb->show_errors( $show_errors );
+		}
 
 		static::$nonces_used_this_request[ "$timestamp:$nonce" ] = $return;
 
@@ -119,6 +122,9 @@ class Nonce_Handler {
 	 * @return bool True if the cleanup query has been run, false if the table is locked.
 	 */
 	public static function clean_runtime() {
+		// If the table is currently in use, we do nothing.
+		// We don't really care if the cleanup is occasionally skipped,
+		// as long as we can run the cleanup at least once every ten attempts.
 		if ( static::is_table_locked() ) {
 			return false;
 		}
@@ -184,6 +190,7 @@ class Nonce_Handler {
 
 	/**
 	 * Check if the options table is locked.
+	 * Subject to race condition, the table may appear locked when a fast database query is performing.
 	 *
 	 * @return bool
 	 */
