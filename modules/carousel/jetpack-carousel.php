@@ -684,6 +684,9 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_check_blog_user_privileges' );
 
 		if ( ! comments_open( $_post_id ) ) {
+			if ( $switched ) {
+				restore_current_blog();
+			}
 			die( json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
 		}
 
@@ -695,6 +698,9 @@ class Jetpack_Carousel {
 			$url          = $user->user_url;
 
 			if ( empty( $user_id ) ) {
+				if ( $switched ) {
+					restore_current_blog();
+				}
 				die( json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
 			}
 		} else {
@@ -705,14 +711,23 @@ class Jetpack_Carousel {
 
 			if ( get_option( 'require_name_email' ) ) {
 				if ( empty( $display_name ) ) {
+					if ( $switched ) {
+						restore_current_blog();
+					}
 					die( json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
 				}
 
 				if ( empty( $email ) ) {
+					if ( $switched ) {
+						restore_current_blog();
+					}
 					die( json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
 				}
 
 				if ( ! is_email( $email ) ) {
+					if ( $switched ) {
+						restore_current_blog();
+					}
 					die( json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
 				}
 			}
