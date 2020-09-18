@@ -465,7 +465,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = __FUNCTION__;
 
 		$m                = new Connection_Manager();
-		$validated_tokens = $m->validate_tokens( get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id() );
+		$user_id          = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
+		$validated_tokens = $m->validate_tokens( $user_id );
 
 		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
 			return self::skipped_test(
@@ -559,10 +560,12 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$message      = $result->message . ': ' . wp_remote_retrieve_response_code( $response );
 
 		if ( $is_connected ) {
-			return self::passing_test( array( 'name' => $name ) );
+			$res = self::passing_test( array( 'name' => $name ) );
 		} else {
-			return self::connection_failing_test( $name, $message );
+			$res = self::connection_failing_test( $name, $message );
 		}
+
+		return $res;
 	}
 
 	/**
