@@ -19,10 +19,28 @@ describe( 'computeTweetBlocks', () => {
 		expect( computeTweetBlocks( blocks ) ).toEqual( blocks );
 	} );
 
-	it( 'returns a supported child block of an unsupported block', () => {
+	it( 'does not return a supported child block of an unsupported container block', () => {
 		const blocks = [
 			{
-				name: 'jetpack/fake-container-block',
+				name: 'jetpack/contact-form',
+				clientId: 'uuid-1',
+				innerBlocks: [
+					{
+						name: 'core/paragraph',
+						clientId: 'uuid-2',
+						innerBlocks: [],
+					},
+				],
+			},
+		];
+
+		expect( computeTweetBlocks( blocks ) ).toEqual( [] );
+	} );
+
+	it( 'returns a supported child block of a supported container block', () => {
+		const blocks = [
+			{
+				name: 'core/column',
 				clientId: 'uuid-1',
 				innerBlocks: [
 					{
@@ -52,7 +70,7 @@ describe( 'computeTweetBlocks', () => {
 				innerBlocks: [],
 			},
 			{
-				name: 'jetpack/fake-container-block',
+				name: 'core/group',
 				clientId: 'uuid-2',
 				innerBlocks: [
 					{
