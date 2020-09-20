@@ -94,7 +94,63 @@ function load_assets( $attr, $content ) {
 			$content = str_replace( $base_url, $url, $content );
 		}
 
-		if ( ! $is_amp_request ) {
+		if ( $is_amp_request ) {
+			$content = sprintf(
+				'<div class="%1$s" id="%2$s">',
+				esc_attr( $classes ),
+				esc_attr( $block_id )
+			);
+
+			$src = add_query_arg(
+				array(
+					'embed_domain' => wp_parse_url( home_url(), PHP_URL_HOST ),
+					'embed_type'   => 'PopupText',
+				),
+				$url
+			);
+
+			$lightbox_id = wp_unique_id( 'calendly-lightbox' );
+
+			if ( preg_match( '#<a\s[^>]+?>.*?</a>#', $content, $matches ) ) {
+				$lightbox_button = preg_replace(
+					'/href=".+?" target="_blank"/',
+					sprintf(
+						'on="%s"',
+						esc_attr( "tap:$lightbox_id.open" )
+					),
+					$matches[0]
+				);
+			} else {
+				$lightbox_button = sprintf(
+					'<a class="wp-block-button__link" on="%s" role="button">%s</a>',
+					esc_attr( "tap:$lightbox_id.open" ),
+					esc_html__( 'Schedule time with me', 'jetpack' )
+				);
+			}
+
+			$iframe = sprintf(
+				'<amp-iframe src="%s" layout="fill" class="wp-block-jetpack-calendly__lightbox-iframe" sandbox="allow-scripts allow-forms allow-same-origin"><span placeholder></span></amp-iframe>',
+				esc_url( $src )
+			);
+
+			$close_button = sprintf(
+				'<div class="calendly-popup-close" on="%s" tabindex="0" role="button" aria-label="%s"></div>',
+				esc_attr( "tap:$lightbox_id.close" ),
+				esc_attr__( 'Close', 'jetpack' )
+			);
+
+			$content .= sprintf(
+				'<amp-lightbox id="%s" on="%s" tabindex="0" layout="nodisplay" class="wp-block-jetpack-calendly__lightbox"><div class="calendly-lightbox-iframe-wrapper">%s%s</div></amp-lightbox>',
+				esc_attr( $lightbox_id ),
+				esc_attr( "tap:$lightbox_id.close" ),
+				$iframe,
+				$close_button
+			);
+
+			$content .= $lightbox_button;
+			$content .= '</div>';
+
+		} else {
 			wp_add_inline_script(
 				'jetpack-calendly-external-js',
 				sprintf( "calendly_attach_link_events( '%s' )", esc_js( $block_id ) )
