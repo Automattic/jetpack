@@ -140,6 +140,7 @@ function load_assets( $attr, $content ) {
 				esc_attr__( 'Close', 'jetpack' )
 			);
 
+			$content .= $lightbox_button;
 			$content .= sprintf(
 				'<amp-lightbox id="%s" on="%s" tabindex="0" layout="nodisplay" class="wp-block-jetpack-calendly__lightbox"><div class="calendly-lightbox-iframe-wrapper">%s%s</div></amp-lightbox>',
 				esc_attr( $lightbox_id ),
@@ -148,7 +149,6 @@ function load_assets( $attr, $content ) {
 				$close_button
 			);
 
-			$content .= $lightbox_button;
 			$content .= '</div>';
 
 		} else {
