@@ -129,8 +129,9 @@ function load_assets( $attr, $content ) {
 			}
 
 			$iframe = sprintf(
-				'<amp-iframe src="%s" layout="fill" class="wp-block-jetpack-calendly__lightbox-iframe" sandbox="allow-scripts allow-forms allow-same-origin"><span placeholder></span></amp-iframe>',
-				esc_url( $src )
+				'<amp-iframe src="%s" layout="fill" class="wp-block-jetpack-calendly__lightbox-iframe" sandbox="allow-scripts allow-forms allow-same-origin"><em placeholder>%s</em></amp-iframe>',
+				esc_url( $src ),
+				esc_html__( 'Loading...', 'jetpack' )
 			);
 
 			$close_button = sprintf(
