@@ -101,29 +101,46 @@ function load_assets( $attr, $content ) {
 			);
 		}
 	} else { // Inline style.
+
+		$content = sprintf(
+			'<div class="%1$s" id="%2$s">',
+			esc_attr( $classes ),
+			esc_attr( $block_id )
+		);
+
+		$fallback_link = sprintf(
+			'<a href="%1$s" %2$s role="button" target="_blank">%3$s</a>',
+			esc_js( $url ),
+			$is_amp_request ? 'fallback placeholder' : '',
+			wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
+		);
+
 		if ( $is_amp_request ) {
-			$content = sprintf(
-				'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
-				esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
-				esc_attr( $block_id ),
-				esc_js( $url ),
-				wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
+			$src = add_query_arg(
+				array(
+					'embed_domain' => wp_parse_url( home_url(), PHP_URL_HOST ),
+					'embed_type'   => 'Inline',
+				),
+				$url
+			);
+
+			$content .= sprintf(
+				'<amp-iframe src="%s" layout="fill" sandbox="allow-scripts allow-forms allow-same-origin">%s</amp-iframe>',
+				esc_url( $src ),
+				$fallback_link
 			);
 		} else {
-			$content = sprintf(
-				'<div class="%1$s" id="%2$s"></div>',
-				esc_attr( $classes ),
-				esc_attr( $block_id )
+			$script = sprintf(
+				'Calendly.initInlineWidget({ url: %s, parentElement: document.getElementById( %s ), inlineStyles: false });',
+				wp_json_encode( $url ),
+				wp_json_encode( $block_id )
 			);
-			$script  = <<<JS_END
-Calendly.initInlineWidget({
-	url: '%s',
-	parentElement: document.getElementById('%s'),
-	inlineStyles: false,
-});
-JS_END;
-			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
+			wp_add_inline_script( 'jetpack-calendly-external-js', $script );
+			$content .= sprintf( '<noscript>%s</noscript>', $fallback_link );
 		}
+
+
+		$content .= '</div>';
 	}
 
 	return $content;
