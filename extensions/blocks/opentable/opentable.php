@@ -68,11 +68,6 @@ function load_assets( $attributes ) {
 		$classes[] = sprintf( 'is-style-%s', $style );
 	}
 
-	$is_multi = false; // @todo Temp.
-	if ( array_key_exists( 'rid', $attributes ) && is_array( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
-		$classes[] = 'is-multi';
-		$is_multi  = true; // @todo Temp.
-	}
 	if ( array_key_exists( 'negativeMargin', $attributes ) && $attributes['negativeMargin'] ) {
 		$classes[] = 'has-no-margin';
 	}
@@ -87,24 +82,13 @@ function load_assets( $attributes ) {
 
 		$src = "https://www.opentable.com/widget/reservation/canvas?$url_query";
 
-		// @todo This is temporary workaround! The height should not be needed, and otherwise it should just have layout=fill. To replace once https://github.com/ampproject/amphtml/issues/29398 fixed.
-		$height = $is_multi ? 361 : 301;
 		$params = array();
 		wp_parse_str( $url_query, $params );
-		if ( 'tall' === $params['theme'] ) {
-			$height = $is_multi ? 550 : 490;
-		} elseif ( 'wide' === $params['theme'] ) {
-			$height = 150;
-		} elseif ( 'button' === $params['theme'] ) {
-			$height = 113;
-		}
-		$layout_attrs = sprintf( 'layout="fixed-height" height="%d"', $height );
 
 		// Note an iframe is similarly constructed in the block edit function.
 		$content .= sprintf(
-			'<amp-iframe src="%s" %s sandbox="allow-scripts allow-forms allow-same-origin allow-popups">%s</amp-iframe>',
+			'<amp-iframe src="%s" layout="fill" sandbox="allow-scripts allow-forms allow-same-origin allow-popups">%s</amp-iframe>',
 			esc_url( $src ),
-			$layout_attrs,
 			sprintf(
 				'<a placeholder href="%s">%s</a>',
 				esc_url(
