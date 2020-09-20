@@ -183,8 +183,9 @@ function render_modal_block( $widget_id, $is_amp, $attr, $content ) {
 		);
 
 		$lightbox = sprintf(
-			'<amp-lightbox id="%s" class="eventbrite__lightbox" layout="nodisplay">%s</amp-lightbox>',
+			'<amp-lightbox id="%1$s" on="%2$s" class="eventbrite__lightbox" layout="nodisplay">%3$s</amp-lightbox>',
 			esc_attr( $lightbox_id ),
+			esc_attr( "tap:{$lightbox_id}.close" ),
 			sprintf(
 				'
 					<div class="eventbrite__lighbox-inside">
