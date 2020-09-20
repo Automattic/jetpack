@@ -68,6 +68,9 @@ function load_assets( $attributes ) {
 		$classes[] = sprintf( 'is-style-%s', $style );
 	}
 
+	if ( array_key_exists( 'rid', $attributes ) && is_array( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
+		$classes[] = 'is-multi';
+	}
 	if ( array_key_exists( 'negativeMargin', $attributes ) && $attributes['negativeMargin'] ) {
 		$classes[] = 'has-no-margin';
 	}
