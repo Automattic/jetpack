@@ -1206,7 +1206,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $plugins, $plugins_synced );
 
-		add_filter( 'all_plugins', array( $this, 'randomize_array_keys' ), 100, 1 );
+		add_filter( 'all_plugins', array( $this, 'reorder_array_keys' ), 100, 1 );
 		do_action( 'jetpack_sync_unlock_sync_callable' );
 		$this->server_event_storage->reset();
 		$this->sender->do_sync();
@@ -1216,25 +1216,23 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Randomize the get_plugins array keys.
+	 * Reorder the get_plugins array keys.
 	 *
 	 * @param array $plugins array of plugins.
 	 *
 	 * @return array
 	 */
-	public function randomize_array_keys( $plugins ) {
+	public function reverse_array_keys( $plugins ) {
 		// First plugin in array.
 		$plugin_key = array_keys( $plugins )[0];
 
-		// sort the plugin's array entries.
-		$keys = array_keys( $plugins[ $plugin_key ] );
-		shuffle( $keys );
-		$random = array();
-		foreach ( $keys as $key ) {
-			$random[ $key ] = $plugins[ $plugin_key ][ $key ];
-		}
-		$plugins[ $plugin_key ] = $random;
-		return $plugins;
+		// reverse the plugin's array entries.
+		$keys                   = array_keys( $plugins[ $plugin_key ] );
+		$keys                   = array_reverse( $keys );
+		$plugins[ $plugin_key ] = $keys;
+
+		// reverse the full array.
+		return array_reverse( $plugins );
 	}
 
 	/**
