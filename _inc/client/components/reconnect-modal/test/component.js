@@ -14,16 +14,22 @@ import { ReconnectModal } from '../index';
 
 describe( 'ReconnectModal', () => {
 
-	let testProps = {
-		show:               true,
-		onHide:             noop,
-		isSiteConnected:    true,
-		isReconnectingSite: false,
-	};
+	let defaultTestProps, wrapper = {};
+
+	before( () => {
+		defaultTestProps = {
+			show:               true,
+			onHide:             noop,
+			isSiteConnected:    true,
+			isReconnectingSite: false,
+		};
+	} );
 
 	describe( 'Initially', () => {
 
-		const wrapper = shallow( <ReconnectModal { ...testProps } /> );
+		before( () => {
+			wrapper = shallow( <ReconnectModal { ...defaultTestProps } /> );
+		} );		
 
 		it( 'renders the modal', () => {
 			expect( wrapper.find( 'Modal' ) ).to.have.length( 1 );
@@ -42,12 +48,6 @@ describe( 'ReconnectModal', () => {
 		} );
 
 		it( 'when clicked, closeModal() is called once', () => {
-			const currentTestProps = {
-				show:               true,
-				isSiteConnected:    true,
-				isReconnectingSite: false,
-			};
-
 			const closeModal = sinon.spy();
 
 			class ReconnectModalMock extends ReconnectModal {
@@ -56,12 +56,9 @@ describe( 'ReconnectModal', () => {
 					this.closeModal = closeModal;
 				}
 			}
-			// We need to set the testProps again here, to make sure they are not affected by
-			// other tests running in between.
-			Object.assign( testProps, currentTestProps );
-			const wrapper = shallow( <ReconnectModalMock { ...testProps } /> );
+			const mockWrapper = shallow( <ReconnectModalMock { ...defaultTestProps } /> );
 
-			wrapper.find( '.reconnect__modal-cancel'  ).simulate('click', { preventDefault: () => undefined });
+			mockWrapper.find( '.reconnect__modal-cancel'  ).simulate('click', { preventDefault: () => undefined });
 			expect( closeModal.calledOnce ).to.be.true;
 		} );
 
@@ -78,12 +75,6 @@ describe( 'ReconnectModal', () => {
 		} );
 
 		it( 'when clicked, clickReconnectSite() is called once', () => {
-			const currentTestProps = {
-				show:               true,
-				isSiteConnected:    true,
-				isReconnectingSite: false,
-			};
-
 			const clickReconnectSite = sinon.spy();
 
 			class ReconnectModalMock extends ReconnectModal {
@@ -92,23 +83,22 @@ describe( 'ReconnectModal', () => {
 					this.clickReconnectSite = clickReconnectSite;
 				}
 			}
-			// We need to set the testProps again here, to make sure they are not affected by
-			// other tests running in between.
-			Object.assign( testProps, currentTestProps );
-			const wrapper = shallow( <ReconnectModalMock { ...testProps } /> );
+			const mockWrapper = shallow( <ReconnectModalMock { ...defaultTestProps } /> );
 
-			wrapper.find( '.reconnect__modal-reconnect'  ).simulate('click', { preventDefault: () => undefined });
+			mockWrapper.find( '.reconnect__modal-reconnect'  ).simulate('click', { preventDefault: () => undefined });
 			expect( clickReconnectSite.calledOnce ).to.be.true;
 		} );
 	} );
 
 	describe( 'When the site is not connected', () => {
 
-		Object.assign( testProps, {
-			isSiteConnected: false,
+		before( () => {
+			const testProps = {
+				isSiteConnected: false,
+			};
+			const props = { ...defaultTestProps, ...testProps };
+			wrapper = shallow( <ReconnectModal { ...props } /> );
 		} );
-
-		const wrapper = shallow( <ReconnectModal { ...testProps } /> );
 
 		it( 'doesn\'t render the modal', () => {
 			expect( wrapper.find( 'Modal' ) ).to.have.length( 0 );
@@ -118,11 +108,13 @@ describe( 'ReconnectModal', () => {
 
 	describe( 'When a reconnect is already in progress', () => {
 
-		Object.assign( testProps, {
-			isReconnectingSite: true,
+		before( () => {
+			const testProps = {
+				isReconnectingSite: true,
+			};
+			const props = { ...defaultTestProps, ...testProps };
+			wrapper = shallow( <ReconnectModal { ...props } /> );
 		} );
-
-		const wrapper = shallow( <ReconnectModal { ...testProps } /> );
 
 		it( 'doesn\'t render the modal', () => {
 			expect( wrapper.find( 'Modal' ) ).to.have.length( 0 );
@@ -132,11 +124,13 @@ describe( 'ReconnectModal', () => {
 
 	describe( 'When `show` is false', () => {
 
-		Object.assign( testProps, {
-			show: false,
+		before( () => {
+			const testProps = {
+				show: false,
+			} ;
+			const props = { ...defaultTestProps, ...testProps };
+			wrapper = shallow( <ReconnectModal { ...props } /> );
 		} );
-
-		const wrapper = shallow( <ReconnectModal { ...testProps } /> );
 
 		it( 'doesn\'t render the modal', () => {
 			expect( wrapper.find( 'Modal' ) ).to.have.length( 0 );
