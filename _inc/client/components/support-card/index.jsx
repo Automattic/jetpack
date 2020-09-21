@@ -19,7 +19,7 @@ import getRedirectUrl from 'lib/jp-redirect';
 import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
-import { PLAN_JETPACK_PERSONAL } from 'lib/plans/constants';
+import { PLAN_JETPACK_SECURITY_DAILY } from 'lib/plans/constants';
 
 class SupportCard extends React.Component {
 	static displayName = 'SupportCard';
@@ -114,7 +114,7 @@ class SupportCard extends React.Component {
 				{ this.props.siteConnectionStatus && noPrioritySupport && (
 					<JetpackBanner
 						title={ __( 'Get a faster resolution to your support questions.', 'jetpack' ) }
-						plan={ PLAN_JETPACK_PERSONAL }
+						plan={ PLAN_JETPACK_SECURITY_DAILY }
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						onClick={ this.trackBannerClick }
 						href={ this.props.supportUpgradeUrl }

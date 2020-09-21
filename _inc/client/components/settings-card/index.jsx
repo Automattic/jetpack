@@ -13,10 +13,11 @@ import { __, _x } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import {
-	PLAN_JETPACK_PREMIUM,
-	PLAN_JETPACK_BUSINESS,
-	PLAN_JETPACK_PERSONAL,
 	PLAN_JETPACK_SEARCH,
+	PLAN_JETPACK_SECURITY,
+	PLAN_JETPACK_BACKUP,
+	PLAN_JETPACK_SCAN,
+	PLAN_JETPACK_ANTISPAM,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
@@ -106,9 +107,9 @@ export const SettingsCard = props => {
 
 				return (
 					<JetpackBanner
-						title={ __( 'Host fast, high-quality, ad-free video.', 'jetpack' ) }
+						title={ __( 'Get unlimited, ad-free video hosting.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
-						plan={ PLAN_JETPACK_PREMIUM }
+						plan={ PLAN_JETPACK_SECURITY }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.videoPremiumUpgradeUrl }
@@ -127,7 +128,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						title={ __( 'Generate income with high-quality ads.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
-						plan={ PLAN_JETPACK_PREMIUM }
+						plan={ PLAN_JETPACK_SECURITY }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.adsUpgradeUrl }
@@ -147,8 +148,11 @@ export const SettingsCard = props => {
 				if ( 'is-premium-plan' === planClass ) {
 					return (
 						<JetpackBanner
-							title={ __( 'Real-time site backups and automatic threat resolution.', 'jetpack' ) }
-							plan={ PLAN_JETPACK_BUSINESS }
+							title={ __(
+								'Save every change and get back online quickly with one-click restores.',
+								'jetpack'
+							) }
+							plan={ PLAN_JETPACK_BACKUP }
 							callToAction={ upgradeLabel }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
@@ -160,8 +164,11 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Protect against data loss, malware, and malicious attacks.', 'jetpack' ) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						title={ __(
+							'Automated scanning and one-click fixes keep your site ahead of security threats.',
+							'jetpack'
+						) }
+						plan={ PLAN_JETPACK_SCAN }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.securityPremiumUpgradeUrl }
@@ -176,11 +183,8 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __(
-							'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.',
-							'jetpack'
-						) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						title={ __( 'Connect your site to Google Analytics.', 'jetpack' ) }
+						plan={ PLAN_JETPACK_SECURITY }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.gaUpgradeUrl }
@@ -194,11 +198,8 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __(
-							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium or Professional.',
-							'jetpack'
-						) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						title={ __( 'Boost your search engine ranking', 'jetpack' ) }
+						plan={ PLAN_JETPACK_SECURITY }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.seoUpgradeUrl }
@@ -237,8 +238,8 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Protect your site from spam.', 'jetpack' ) }
-						plan={ PLAN_JETPACK_PERSONAL }
+						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
+						plan={ PLAN_JETPACK_ANTISPAM }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
 					/>

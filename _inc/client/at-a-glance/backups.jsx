@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import { getPlanClass, PLAN_JETPACK_BACKUP } from 'lib/plans/constants';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -145,7 +145,7 @@ class DashBackups extends Component {
 						href={ this.props.upgradeUrl }
 						eventFeature="backups"
 						path="dashboard"
-						plan={ PLAN_JETPACK_PREMIUM }
+						plan={ PLAN_JETPACK_BACKUP }
 						icon="history"
 					/>
 				),

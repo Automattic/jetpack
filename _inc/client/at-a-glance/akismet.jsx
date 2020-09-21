@@ -14,7 +14,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import { PLAN_JETPACK_ANTI_SPAM } from 'lib/plans/constants';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import restApi from 'rest-api';
@@ -101,16 +101,13 @@ class DashAkismet extends Component {
 			return (
 				<JetpackBanner
 					callToAction={ __( 'Upgrade', 'jetpack' ) }
-					title={ __(
-						'Automatically clear spam from your comments and forms so you can get back to your business.',
-						'jetpack'
-					) }
+					title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 					description={ description }
 					disableHref="false"
 					href={ this.props.upgradeUrl }
 					eventFeature="akismet"
 					path="dashboard"
-					plan={ PLAN_JETPACK_PREMIUM }
+					plan={ PLAN_JETPACK_ANTI_SPAM }
 					icon="flag"
 				/>
 			);
