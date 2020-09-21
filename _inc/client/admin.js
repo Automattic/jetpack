@@ -4,7 +4,7 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { HashRouter, Route, Switch } from 'react-router-dom';
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { assign } from 'lodash';
 import { _x } from '@wordpress/i18n';
 
@@ -46,6 +46,9 @@ function render() {
 					<Switch>
 						<Route path="/dashboard">
 							<Main routeName={ getRouteName( '/dashboard' ) } />
+						</Route>
+						<Route path="/reconnect">
+							<Main routeName={ getRouteName( '/reconnect' ) } />
 						</Route>
 						<Route path="/setup">
 							<Main routeName={ getRouteName( '/setup' ) } />
