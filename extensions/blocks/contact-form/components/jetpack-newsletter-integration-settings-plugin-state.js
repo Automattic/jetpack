@@ -15,14 +15,15 @@ export const pluginStateEnum = Object.freeze( {
 } );
 
 const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
+	const btnTxt = isActivating ? __( 'Installing…', 'jetpack' ) : __( 'Activating…', 'jetpack' );
 	return (
 		<Button
 			isSecondary
 			icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> }
 			disabled
+			aria-label={ btnTxt }
 		>
-			{ ! isActivating && __( 'Installing…', 'jetpack' ) }
-			{ isActivating && __( 'Activating…', 'jetpack' ) }
+			{ btnTxt }
 		</Button>
 	);
 };
@@ -39,10 +40,9 @@ const CreativeMailPluginIsNotInstalled = ( {
 					'jetpack'
 				) }
 				<br />
-				<br />
 				{ isInstalling && <CreativeMailPluginIsInstalling /> }
 				{ ! isInstalling && (
-					<Button isLink onClick={ installAndActivateCreativeMailPlugin }>
+					<Button isSecondary onClick={ installAndActivateCreativeMailPlugin }>
 						{ __( 'Install Creative Mail plugin', 'jetpack' ) }
 					</Button>
 				) }
@@ -61,7 +61,6 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 				) }
 			</em>
 			<br />
-			<br />
 			{ isInstalling && <CreativeMailPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
 				<Button isSecondary onClick={ activateCreativeMailPlugin }>
@@ -78,7 +77,6 @@ const CreativeMailPluginIsActive = () => {
 			<em>
 				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack' ) }
 				<br />
-				<br />
 				<ExternalLink href="/wp-admin/admin.php?page=creativemail">
 					{ __( 'Open Creative Mail settings', 'jetpack' ) }
 				</ExternalLink>
@@ -89,7 +87,7 @@ const CreativeMailPluginIsActive = () => {
 
 const CreativeMailPluginState = ( { pluginState, onCreativeMailPluginClick, isInstalling } ) => {
 	return (
-		<>
+		<div aria-live="polite">
 			{ pluginStateEnum.ACTIVE === pluginState && <CreativeMailPluginIsActive /> }
 			{ pluginStateEnum.INSTALLED === pluginState && (
 				<CreativeMailPluginIsInstalled
@@ -107,7 +105,7 @@ const CreativeMailPluginState = ( { pluginState, onCreativeMailPluginClick, isIn
 					isInstalling={ isInstalling }
 				/>
 			) }
-		</>
+		</div>
 	);
 };
 
