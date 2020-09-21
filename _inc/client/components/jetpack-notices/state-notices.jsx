@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getCurrentVersion } from 'state/initial-state';
+import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
@@ -242,7 +242,7 @@ class JetpackStateNotices extends React.Component {
 						'jetpack'
 					),
 					{
-						a: <a href="site-health.php" />,
+						a: <a href={ this.props.siteAdminUrl + 'site-health.php' } />,
 					}
 				);
 				status = 'is-success';
@@ -316,5 +316,6 @@ export default connect( state => {
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
 		jetpackStateNoticesMessageContent: getJetpackStateNoticesMessageContent( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( JetpackStateNotices );
