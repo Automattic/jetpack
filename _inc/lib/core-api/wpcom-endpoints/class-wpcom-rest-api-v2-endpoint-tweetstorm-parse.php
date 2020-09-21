@@ -38,7 +38,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 			array(
 				'args'                                  => array(
 					'blocks' => array(
-						'description' => __( 'An array of serialised blocks, and editor-specific block information.', 'jetpack' ),
+						'description' => __( 'An array of serialized blocks, and editor-specific block information.', 'jetpack' ),
 						'type'        => 'array',
 						'required'    => true,
 					),
