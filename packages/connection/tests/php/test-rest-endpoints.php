@@ -612,13 +612,12 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * Test changing the connection owner with the required capability.
+	 * Test changing the connection owner with the required capability and no owner parameter.
 	 */
 	public function test_change_owner_with_permission() {
 		$user = wp_get_current_user();
 		$user->add_cap( 'jetpack_disconnect' );
 
-		// Attempt owner change with bad user.
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner' );
 		$request->set_header( 'Content-Type', 'application/json' );
 

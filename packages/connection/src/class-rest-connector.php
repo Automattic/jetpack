@@ -368,7 +368,7 @@ class REST_Connector {
 		if ( $updated && ! $xml->isError() ) {
 
 			// Track it.
-			if ( class_exists( 'Automattic\Jetpack\Tracking' ) ) {
+			if ( class_exists( Tracking::class ) ) {
 				$tracking = new Tracking();
 				$tracking->record_user_event( 'set_connection_owner_success' );
 			}

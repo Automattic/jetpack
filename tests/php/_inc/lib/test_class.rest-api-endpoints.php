@@ -960,24 +960,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test changing the master user without the owner parameter.
-	 *
-	 * @since 9.9.0 Split into multiple tests.
-	 */
-	public function test_change_owner_with_invalid_param() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_disconnect' );
-		wp_set_current_user( $user->ID );
-
-		// Attempt request without owner parameter.
-		$response = $this->create_and_get_request( 'connection/owner', array(), 'POST' );
-		$this->assertResponseStatus( 400, $response );
-		$this->assertEquals( 'invalid_param', $response->get_data()['code'] );
-	}
-
-	/**
-	 * Test changing the master user to a non-existent user.
+	 * Test changing the connection owner to a non-existent user.
 	 *
 	 * @since 9.9.0
 	 */
@@ -994,7 +977,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test changing the master user to the same user.
+	 * Test changing the connection owner to the current connection owner.
 	 *
 	 * @since 9.9.0
 	 */
@@ -1011,7 +994,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test changing the master user to a valid user.
+	 * Test changing the connection owner to a valid user.
 	 *
 	 * @since 9.9.0
 	 */

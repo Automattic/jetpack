@@ -67,9 +67,7 @@ class Owner {
 
 		// Track it!
 		$tracking = new Tracking();
-		if ( method_exists( $tracking, 'record_user_event' ) ) {
-			$tracking->record_user_event( 'delete_connection_owner_notice_view' );
-		}
+		$tracking->record_user_event( 'delete_connection_owner_notice_view' );
 
 		$connected_admins = $connection_manager->get_connected_users( 'jetpack_disconnect' );
 		$user             = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
@@ -115,6 +113,8 @@ class Owner {
 						var submitBtn = document.getElementById( 'jp-switch-connection-owner-submit' );
 						var results = document.getElementById( 'jp-switch-user-results' );
 
+						results.innerHTML = '';
+						results.classList.remove( 'error-message' );
 						submitBtn.disabled = true;
 
 						$.ajax( {
@@ -130,9 +130,12 @@ class Owner {
 									$( '#jetpack-notice-switch-connection-owner' ).hide( 'slow' );
 								}, 1000 );
 							},
-						} ).done( function() {
+						} ).always( function() {
 							submitBtn.disabled = false;
-						} );
+						} ).fail( function() {
+							results.classList.add( 'error-message' );
+							results.innerHTML = "<?php esc_html_e( 'Something went wrong. Please try again.', 'jetpack' ); ?>";
+						});
 
 						e.preventDefault();
 						return false;
