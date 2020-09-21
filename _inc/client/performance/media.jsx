@@ -31,7 +31,16 @@ class Media extends React.Component {
 		const videoPress = this.props.module( 'videopress' ),
 			planClass = getPlanClass( this.props.sitePlan.product_slug );
 
-		const videoPressSettings = includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) && (
+		const videoPressSettings = includes(
+			[
+				'is-premium-plan',
+				'is-business-plan',
+				'is-daily-security-plan',
+				'is-realtime-security-plan',
+				'is-complete-plan',
+			],
+			planClass
+		) && (
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode

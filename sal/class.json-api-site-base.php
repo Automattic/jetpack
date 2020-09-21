@@ -689,4 +689,8 @@ abstract class SAL_Site {
 	function get_site_creation_flow() {
 		return get_option( 'site_creation_flow' );
 	}
+
+	public function get_selected_features() {
+		return get_option( 'selected_features' );
+	}
 }
