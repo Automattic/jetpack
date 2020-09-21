@@ -8,13 +8,27 @@ import { Text, View } from 'react-native';
 import {
 	Image,
 } from '@wordpress/components';
+import {
+	// BlockCaption,
+	// MediaPlaceholder,
+	// MediaUpload,
+	MediaUploadProgress,
+	MEDIA_TYPE_IMAGE,
+	StoryUpdateProgress,
+	// BlockControls,
+	// InspectorControls,
+	// BlockAlignmentToolbar,
+	// BlockStyles,
+} from '@wordpress/block-editor';
+import { __, sprintf } from '@wordpress/i18n';
 
 import {
 	// TODO implement the similar / following bridge signals
 	// requestImageFailedRetryDialog,
 	// requestImageUploadCancelDialog,
 	// requestImageFullscreenPreview,
-	// mediaUploadSync,
+	mediaUploadSync,
+	storySaveSync,
 	requestStoryCreatorLoad,
 } from '@wordpress/react-native-bridge';
 
@@ -66,6 +80,40 @@ const StoryEdit = ({
 						url={ mediaFiles[0].url } // just select the first one // TODO see how to handle video
 						style={ styles['wp-story-image'] }
 					/>
+					<StoryUpdateProgress
+						coverUrl={ mediaFiles[0].url } // just select the first one // TODO see how to handle video
+						// mediaId={ id }
+						mediaFiles = { mediaFiles}
+						onUpdateMediaProgress={ this.updateMediaProgress }
+						onFinishMediaUploadWithSuccess={
+							this.finishMediaUploadWithSuccess
+						}
+						onFinishMediaUploadWithFailure={
+							this.finishMediaUploadWithFailure
+						}
+						onMediaUploadStateReset={
+							this.mediaUploadStateReset
+						}
+						renderContent={ ( {
+							isUploadInProgress,
+							isUploadFailed,
+							retryMessage,
+						} ) => {
+							return (
+								<Image
+									isSelected={ isSelected }
+									isUploadFailed={ isUploadFailed }
+									isUploadInProgress={
+										isUploadInProgress
+									}
+									retryMessage={ retryMessage }
+									url={ mediaFiles[0].url } // just select the first one // TODO see how to handle video
+									style={ styles['wp-story-image'] }
+								/>
+							);
+						} }
+					/>
+
 				</View>
 			}
 		</View>
