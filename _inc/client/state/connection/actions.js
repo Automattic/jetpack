@@ -286,9 +286,6 @@ export const reconnectSite = () => {
 					} );
 					dispatch( authorizeUserInPlace() );
 				} else {
-					dispatch( {
-						type: SITE_RECONNECT_SUCCESS,
-					} );
 					window.location.reload();
 				}
 			} )

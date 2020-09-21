@@ -45,11 +45,8 @@ function set_up_autoloader() {
 		$version_selector
 	);
 
+	// The autoloader must be reset when a plugin that was previously unknown is detected.
 	if ( $autoloader_handler->should_autoloader_reset() ) {
-		/*
-		 * The autoloader must be reset when an activating plugin that was
-		 * previously unknown is detected.
-		 */
 		$jetpack_autoloader_latest_version = null;
 		$jetpack_autoloader_loader         = null;
 	}

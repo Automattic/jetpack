@@ -17,6 +17,9 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 	}
 
 	protected function result() {
+		// Disable Sync as this is a read-only operation and triggered by sync activity.
+		\Automattic\Jetpack\Sync\Actions::mark_sync_read_only();
+
 		$comment = get_comment( $this->comment_id );
 		if ( empty( $comment ) ) {
 			return new WP_Error( 'comment_not_found', __( 'Comment not found', 'jetpack' ), 404 );

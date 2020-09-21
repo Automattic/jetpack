@@ -12,7 +12,7 @@ import { catchBeforeAll, step } from '../lib/setup-env';
 
 describe( 'Paid blocks', () => {
 	catchBeforeAll( async () => {
-		await syncJetpackPlanData( 'pro' );
+		await syncJetpackPlanData( 'complete' );
 
 		await activateModule( page, 'publicize' );
 		await activateModule( page, 'wordads' );
@@ -43,7 +43,7 @@ describe( 'Paid blocks', () => {
 
 			await blockEditor.viewPost();
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( MailchimpBlock );
+			expect( await frontend.isRenderedBlockPresent( MailchimpBlock ) ).toBeTruthy();
 		} );
 	} );
 
@@ -74,7 +74,7 @@ describe( 'Paid blocks', () => {
 				await blockEditor.viewPost();
 
 				const frontend = await PostFrontendPage.init( page );
-				await frontend.isRenderedBlockPresent( SimplePaymentBlock );
+				expect( await frontend.isRenderedBlockPresent( SimplePaymentBlock ) ).toBeTruthy();
 			}
 		);
 	} );
@@ -102,7 +102,7 @@ describe( 'Paid blocks', () => {
 			await blockEditor.viewPost();
 
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( WordAdsBlock );
+			expect( await frontend.isRenderedBlockPresent( WordAdsBlock ) ).toBeTruthy();
 		} );
 	} );
 } );

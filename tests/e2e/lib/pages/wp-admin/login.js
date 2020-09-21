@@ -27,7 +27,9 @@ export default class WPLoginPage extends Page {
 		await waitAndType( this.page, '#user_login', username );
 		await waitAndType( this.page, '#user_pass', password );
 
-		await this.page.click( '#wp-submit' );
+		const navigationPromise = this.page.waitForNavigation();
+		await waitAndClick( this.page, '#wp-submit' );
+		await navigationPromise;
 
 		try {
 			await waitForSelector( this.page, this.expectedSelector, {
