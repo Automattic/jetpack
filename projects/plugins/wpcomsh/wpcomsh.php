@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.146
+ * Version: 2.4.147
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.146' );
+define( 'WPCOMSH_VERSION', '2.4.147' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -69,6 +69,7 @@ require_once( 'endpoints/rest-api.php' );
 // Load feature plugin overrides
 require_once( 'feature-plugins/full-site-editing.php' );
 require_once( 'feature-plugins/gutenberg-mods.php' );
+require_once( 'feature-plugins/coblocks-mods.php' );
 require_once( 'feature-plugins/autosave-revision.php' );
 require_once( 'feature-plugins/seo.php' );
 
