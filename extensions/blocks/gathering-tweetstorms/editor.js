@@ -81,3 +81,5 @@ const addTweetstormToTweets = blockSettings => {
 };
 
 addFilter( 'blocks.registerBlockType', 'jetpack/gathering-tweetstorms', addTweetstormToTweets );
+
+export default addTweetstormToTweets;
