@@ -11,7 +11,7 @@ use Automattic\Jetpack\Connection\Client;
  * Jetpack Search: Makes authenticated requests to the site search API using blog tokens.
  * This endpoint will only be used when trying to search private Jetpack and WordPress.com sites.
  *
- * @since 8.10
+ * @since 9.0.0
  */
 class WPCOM_REST_API_V2_Endpoint_Search extends WP_REST_Controller {
 	/**
