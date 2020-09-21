@@ -20,7 +20,6 @@ import {
 	getFilterQuery,
 	getSearchQuery,
 	getSortQuery,
-	getResultFormatQuery,
 	hasFilter,
 	setSearchQuery,
 	setSortQuery,
@@ -53,6 +52,7 @@ class SearchApp extends Component {
 		this.getResults.flush();
 
 		this.addEventListeners();
+		this.disableAutocompletion();
 
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
@@ -88,6 +88,13 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
+		} );
+	}
+
+	disableAutocompletion() {
+		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+			input.setAttribute( 'autocomplete', 'off' );
+			input.form.setAttribute( 'autocomplete', 'off' );
 		} );
 	}
 
