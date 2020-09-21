@@ -1222,14 +1222,12 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 *
 	 * @return array
 	 */
-	public function reverse_array_keys( $plugins ) {
+	public function reorder_array_keys( $plugins ) {
 		// First plugin in array.
 		$plugin_key = array_keys( $plugins )[0];
 
-		// reverse the plugin's array entries.
-		$keys                   = array_keys( $plugins[ $plugin_key ] );
-		$keys                   = array_reverse( $keys );
-		$plugins[ $plugin_key ] = $keys;
+		// reverse the 1st plugin's array entries.
+		$plugins[ $plugin_key ] = array_reverse( $plugins[ $plugin_key ] );
 
 		// reverse the full array.
 		return array_reverse( $plugins );
