@@ -235,7 +235,18 @@ class JetpackStateNotices extends React.Component {
 					</NoticeAction>
 				);
 				break;
-
+			case 'reconnection_completed':
+				message = jetpackCreateInterpolateElement(
+					__(
+						'Jetpack successfully reconnected! You can check your Jetpack Connection health by visiting the <a>Site Health tool</a>.',
+						'jetpack'
+					),
+					{
+						a: <a href="site-health.php" />,
+					}
+				);
+				status = 'is-success';
+				break;
 			default:
 				message = key;
 		}

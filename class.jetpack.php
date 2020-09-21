@@ -4954,7 +4954,7 @@ endif;
 	 * unhealthy blog token.
 	 */
 	public static function reconnection_completed() {
-		self::state( 'message', esc_html__( 'Jetpack successfully reconnected.', 'jetpack' ) );
+		self::state( 'message', 'reconnection_completed' );
 	}
 
 	/**
