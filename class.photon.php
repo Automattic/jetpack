@@ -542,7 +542,7 @@ class Jetpack_Photon {
 
 						// If present, replace the link href with a Photoned URL for the full-size image.
 						if ( ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-							$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
+							$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
 						}
 
 						// Supplant the original source value with our Photon URL.
@@ -600,7 +600,7 @@ class Jetpack_Photon {
 						$content = str_replace( $tag, $new_tag, $content );
 					}
 				} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-					$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
+					$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
 
 					$content = str_replace( $tag, $new_tag, $content );
 				}

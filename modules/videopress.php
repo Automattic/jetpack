@@ -9,7 +9,7 @@
  * Module Tags: Photos and Videos
  * Feature: Writing
  * Additional Search Queries: video, videos, videopress, video gallery, video player, videoplayer, mobile video, vimeo, youtube, html5 video, stream
- * Plans: business, premium
+ * Plans: business, premium, security, complete
  */
 
 include_once dirname( __FILE__ ) . '/videopress/shortcode.php';

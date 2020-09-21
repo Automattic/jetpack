@@ -17,7 +17,8 @@ export default class PostFrontendPage extends Page {
 	 * @param {Object} args An object of any additional instance values required by the class `isRendered` method
 	 */
 	async isRenderedBlockPresent( BlockClass, args ) {
-		return await BlockClass.isRendered( this.page, args );
+		await BlockClass.isRendered( this.page, args );
+		return true;
 	}
 
 	async logout() {

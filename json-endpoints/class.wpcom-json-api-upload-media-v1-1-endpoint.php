@@ -108,7 +108,8 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		// Normal WPCOM upload processing
 		if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
-			add_filter( 'wp_handle_upload_prefilter', array( $this, 'check_upload_size' ), 9 );
+			add_filter( 'wp_handle_upload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for direct media uploads.
+			add_filter( 'wp_handle_sideload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for uploading media via url.
 
 			$create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
 			$media_ids = $create_media['media_ids'];
@@ -173,7 +174,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return $file;
 		}
 
-		if ( '0' != $file['error'] ) { // There's already an error.
+		if ( isset( $file['error'] ) && $file['error'] > 0 ) { // There's already an error. Error Codes Reference: https://www.php.net/manual/en/features.file-upload.errors.php .
 			return $file;
 		}
 
@@ -196,10 +197,6 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		if ( upload_is_user_over_quota( false ) ) {
 			$file['error'] = 'rest_upload_user_quota_exceeded|' . __( 'You have used your space quota. Please delete files before uploading.', 'default' );
-		}
-
-		if ( '0' != $file['error'] && ! isset( $_POST['html-upload'] ) && ! wp_doing_ajax() ) {
-			wp_die( $file['error'] . ' <a href="javascript:history.go(-1)">' . __( 'Back', 'default' ) . '</a>' );
 		}
 
 		return $file;

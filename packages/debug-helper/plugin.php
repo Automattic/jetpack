@@ -17,7 +17,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '1.0' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '1.0.1' );
 
 /**
  * Include file names from the modules directory here.
@@ -36,6 +36,11 @@ $jetpack_dev_debug_modules = array(
 	'rest-api-tester' => array(
 		'file'        => 'class-rest-api-tester.php',
 		'name'        => 'REST API Tester',
+		'description' => '',
+	),
+	'mocker'          => array(
+		'file'        => 'class-mocker.php',
+		'name'        => 'Mocker',
 		'description' => '',
 	),
 );

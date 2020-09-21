@@ -48,8 +48,8 @@ class Partner {
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Partner();
-			add_filter( 'jetpack_build_connection_url', array( self::$instance, 'add_subsidiary_id_as_query_arg' ) );
-			add_filter( 'jetpack_build_connection_url', array( self::$instance, 'add_affiliate_code_as_query_arg' ) );
+			add_filter( 'jetpack_build_authorize_url', array( self::$instance, 'add_subsidiary_id_as_query_arg' ) );
+			add_filter( 'jetpack_build_authorize_url', array( self::$instance, 'add_affiliate_code_as_query_arg' ) );
 		}
 
 		return self::$instance;

@@ -101,47 +101,6 @@ class PluginsHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Tests should_autoloader_reset() with an already active plugin.
-	 *
-	 * @covers Plugins_Handler::should_autoloader_reset
-	 */
-	public function test_should_autoloader_reset_known_plugin() {
-		global $jetpack_autoloader_activating_plugins_paths;
-
-		// '/var/www/wp-content/plugins/test_1' is in self::DEFAULT_ACTIVE_PLUGINS.
-		$this->plugins_handler
-			->method( 'get_current_plugin_path' )
-			->willReturn( '/var/www/wp-content/plugins/test_1' );
-
-		$this->set_up_mocks();
-
-		$this->assertFalse( $this->plugins_handler->should_autoloader_reset() );
-		$this->assertEmpty( $jetpack_autoloader_activating_plugins_paths );
-	}
-
-	/**
-	 * Tests should_autoloader_reset() with an activating, unknown plugin.
-	 *
-	 * @covers Plugins_Handler::should_autoloader_reset
-	 */
-	public function test_should_autoloader_reset_unknown_plugin() {
-		global $jetpack_autoloader_activating_plugins_paths;
-
-		$current_plugin = '/var/www/wp-content/plugins/test_unkown/';
-
-		// 'unknown' is not in self::DEFAULT_ACTIVE_PLUGINS.
-		$this->plugins_handler
-			->method( 'get_current_plugin_path' )
-			->willReturn( $current_plugin );
-
-		$this->set_up_mocks();
-
-		$this->assertTrue( $this->plugins_handler->should_autoloader_reset() );
-		$this->assertCount( 1, $jetpack_autoloader_activating_plugins_paths );
-		$this->assertEquals( $current_plugin, $jetpack_autoloader_activating_plugins_paths[0] );
-	}
-
-	/**
 	 * Tests get_all_active_plugins_paths() with activating plugins (via request and
 	 * non-request methods) and a list of active plugins.
 	 *

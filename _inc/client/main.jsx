@@ -20,6 +20,7 @@ import {
 	isSiteConnected,
 	isAuthorizingUserInPlace,
 	isReconnectingSite,
+	reconnectSite,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -60,7 +61,7 @@ const setupRoutes = [
 	'/setup/features',
 ];
 
-const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
+const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
 const settingsRoutes = [
 	'/settings',
 	'/security',
@@ -201,6 +202,18 @@ class Main extends React.Component {
 						rewindStatus={ this.props.rewindStatus }
 					/>
 				);
+				break;
+			case '/reconnect':
+				// Trigger actual reconnect if is not already happening.
+				if ( this.props.isSiteConnected && ! this.props.isReconnectingSite ) {
+					this.props.reconnectSite();
+				}
+				// Update the state object or URL of the current history entry
+				// in response to user 'reconnect' action.
+				// If we didn't do this, we'd get in an endless loop due to window reloading
+				// after reconnection.
+				this.props.history.replace( '/dashboard' );
+				pageComponent = this.getAtAGlance();
 				break;
 			case '/my-plan':
 				pageComponent = (
@@ -380,6 +393,9 @@ export default connect(
 		},
 		clearUnsavedSettingsFlag: () => {
 			return dispatch( clearUnsavedSettingsFlag() );
+		},
+		reconnectSite: () => {
+			return dispatch( reconnectSite() );
 		},
 	} )
 )( withRouter( Main ) );

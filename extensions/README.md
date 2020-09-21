@@ -156,7 +156,7 @@ To test extensions for a Simple site in Calypso, sandbox the simple site URL (`e
 
 ## Paid blocks
 
-Blocks can be restricted to specific paid plans in both WordPress.com and Jetpack. When registering a block using `jetpack_register_block`, pass `plan_check => true` as a key in the second argument. When the block is registerd we check the plan data to see if the user's plan supports this block. For example:
+Blocks can be restricted to specific paid plans in both WordPress.com and Jetpack. When registering a block using `jetpack_register_block`, pass `plan_check => true` as a key in the second argument. When the block is registered we check the plan data to see if the user's plan supports this block. For example:
 
 ```php
 function register_block() {
@@ -170,7 +170,9 @@ function register_block() {
 }
 ```
 
-Sometimes blocks are paid for WordPress.com users but free for Jetpack users. In these cases it is still necessary to add the block to the plan data for both environments, for example:
+This approach applies to both blocks and sidebar extensions.
+
+Sometimes blocks are paid for WordPress.com users but free for Jetpack users. In these cases it is still necessary to add the block to the plan data for _both_ environments, for example:
 
 ```php
 const PLAN_DATA = array(
@@ -187,7 +189,7 @@ const PLAN_DATA = array(
 
 The plan data is found in `class.jetpack-plan.php` for Jetpack and an example of adding the features to WordPress.com plans is in D43206-code.
 
-### Upgrades
+### Upgrades for Blocks
 Paid blocks that aren't supported by a user's plan will still be registered for use in the block editor, but will not be displayed by default.
 
 You can, however, use the following filter:
@@ -197,6 +199,53 @@ add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 ```
 
 This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block.
+
+### Upgrades for Jetpack sidebar extensions
+
+Unlike blocks, adding an extension for the Jetpack sidebar requires calling `registerJetpackPlugin` (a high level wrapper around Gutenberg's `registerPlugin`) to register the Plugin with Gutenberg.
+
+This function [contains a conditional which checks whether the extension is available on the current plan](https://github.com/Automattic/jetpack/blob/f76d346a180c65a45aaf8be5802ae03d0e8d3355/extensions/shared/register-jetpack-plugin.js#L19-L22) and if it is not then the Plugin is _not_ registered and will not be available in the Jetpack sidebar.
+
+This means that for extensions which are gated by Plan, users who are _not_ on the appropriate plan will not know they are missing out on the extension.
+
+Therefore, in a similar way to ["Upgrades for Blocks"](#upgrades-for-blocks) you may wish to provide a fallback experience (eg: an upgrade nudge) for users who are not on an appropriate plan.
+
+To do this, you can check whether your extension is available on the current plan using the [`getJetpackExtensionAvailability` helper function](https://github.com/Automattic/jetpack/blob/f76d346a180c65a45aaf8be5802ae03d0e8d3355/extensions/shared/get-jetpack-extension-availability.js) and if it is _not_ available then you can conditionally register a fallback extension _directly with Gutenberg_ by calling `registerPlugin`. This bypasses the availability checks and ensures your fallback experience is always rendered _if_ the user is not on an appropriate plan.
+
+An example of this pattern is provided below:
+
+```jsx
+const extensionName = 'my-extension-name';
+
+
+/*
+ * Register the main "social-previews" extension if the feature is available
+ * on the current plan.
+ */
+registerJetpackPlugin( extensionName, {
+	render: () => <MyExtensionComponent />
+} );
+
+/*
+ * If the social previews extension is not available on this plan (WP.com only)
+ * then manually register a near identical Plugin which shows the upgrade nudge.
+ */
+const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' )?.available;
+
+if ( ! extensionAvailableOnPlan ) {
+	/*
+	 * When registering directly we must manually prepend the 'jetpack-'
+	 * prefix to the block slug and the `-fallback` suffix in order to
+	 * identify it as the fallback extension.
+	 */
+	registerPlugin( `jetpack-${ extensionName }-fallback`, {
+		render: <MyExtensionComponent isFallback={true} />
+	} );
+}
+```
+
+For a working example please see the [Social Previews extension](https://github.com/Automattic/jetpack/blob/f76d346a180c65a45aaf8be5802ae03d0e8d3355/extensions/blocks/social-previews/editor.js):
+
 
 ### Terminology
 Blocks can be registered but not available:

@@ -18,8 +18,6 @@ export default class JetpackConnectionErrors extends React.Component {
 	getAction( action, message, code ) {
 		switch ( action ) {
 			case 'reconnect':
-			case 'refresh_blog_token':
-			case 'refresh_user_token':
 				return <ErrorNoticeCycleConnection text={ message } errorCode={ code } action={ action } />;
 			case 'display':
 				return (

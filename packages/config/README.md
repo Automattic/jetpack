@@ -124,3 +124,9 @@ you need for the package to run is present, and then it adds the hook
 handlers that initialize your class. After that you can use the config
 package's interface in a Jetpack package consumer application and load
 your package as shown in the first section of this README.
+
+# Config Package Dependencies
+
+The Config package does not have any composer package dependencies. The consumer plugins must require the packages that they need.
+
+Before using a package class, the Config package will verify that the class exists using the `Config::ensure_class()` method. This allows the consumer plugins to use the Config package to enable and initialize Jetpack features while requiring only the packages that they need.

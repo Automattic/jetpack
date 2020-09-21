@@ -7,11 +7,15 @@
 
 namespace Automattic\Jetpack;
 
+/*
+ * The Config package does not require the composer packages that
+ * contain the package classes shown below. The consumer plugin
+ * must require the corresponding packages to use these features.
+ */
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\Connection\Plugin;
-use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
 /**
@@ -32,8 +36,6 @@ class Config {
 		'jitm'       => false,
 		'connection' => false,
 		'sync'       => false,
-		'tracking'   => false,
-		'tos'        => false,
 	);
 
 	/**
@@ -78,12 +80,6 @@ class Config {
 		if ( $this->config['connection'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Connection\Manager' )
 				&& $this->ensure_feature( 'connection' );
-		}
-
-		if ( $this->config['tracking'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\Terms_Of_Service' )
-				&& $this->ensure_class( 'Automattic\Jetpack\Tracking' )
-				&& $this->ensure_feature( 'tracking' );
 		}
 
 		if ( $this->config['sync'] ) {
@@ -160,35 +156,6 @@ class Config {
 		do_action( 'jetpack_feature_' . $feature . '_enabled' );
 
 		return self::FEATURE_ENSURED;
-	}
-
-	/**
-	 * Dummy method to enable Terms of Service.
-	 */
-	protected function enable_tos() {
-		return true;
-	}
-
-	/**
-	 * Enables the tracking feature. Depends on the Terms of Service package, so enables it too.
-	 */
-	protected function enable_tracking() {
-
-		// Enabling dependencies.
-		$this->ensure_feature( 'tos' );
-
-		$terms_of_service = new Terms_Of_Service();
-		$tracking         = new Plugin_Tracking();
-		if ( $terms_of_service->has_agreed() ) {
-			add_action( 'init', array( $tracking, 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
-		}
-
-		return true;
 	}
 
 	/**

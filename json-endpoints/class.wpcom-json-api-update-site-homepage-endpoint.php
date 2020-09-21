@@ -14,11 +14,13 @@ new WPCOM_JSON_API_Update_Site_Homepage_Endpoint( array (
 		'is_page_on_front' => '(bool) True if we will use a page as the homepage; false to use a blog page as the homepage.',
 		'page_on_front_id' => '(int) Optional. The ID of the page to use as the homepage if is_page_on_front is true.',
 		'page_for_posts_id' => '(int) Optional. The ID of the page to use as the blog page if is_page_on_front is true.',
+		'wpcom_public_coming_soon_page_id' => '(int) Optional. The ID of the page to use as the coming soon page page.',
 	),
 	'response_format'  => array(
 		'is_page_on_front' => '(bool) True if we will use a page as the homepage; false to use a blog page as the homepage.',
 		'page_on_front_id' => '(int) The ID of the page to use as the homepage if is_page_on_front is true.',
 		'page_for_posts_id' => '(int) The ID of the page to use as the blog page if is_page_on_front is true.',
+		'wpcom_public_coming_soon_page_id' => '(int) The ID of the page to use as the coming soon page.',
 	),
 	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/homepage',
 	'example_request_data' => array(
@@ -27,9 +29,10 @@ new WPCOM_JSON_API_Update_Site_Homepage_Endpoint( array (
 			'is_page_on_front' => true,
 			'page_on_front_id' => 1,
 			'page_for_posts_id' => 0,
+			'wpcom_public_coming_soon_page_id' => 0,
 		),
 	),
-	'example_response' => '{"is_page_on_front":true,"page_on_front_id":1,"page_for_posts_id":0}'
+	'example_response' => '{"is_page_on_front":true,"page_on_front_id":1,"page_for_posts_id":0,"wpcom_public_coming_soon_page_id":0}',
 ) );
 
 class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoint {
@@ -59,6 +62,9 @@ class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoi
 		if ( isset( $args['page_for_posts_id'] ) ) {
 			update_option( 'page_for_posts', $args['page_for_posts_id'] );
 		}
+		if ( isset( $args['wpcom_public_coming_soon_page_id'] ) ) {
+			update_option( 'wpcom_public_coming_soon_page_id', $args['wpcom_public_coming_soon_page_id'] );
+		}
 
 		return $this->get_current_settings();
 	}
@@ -67,11 +73,13 @@ class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoi
 		$is_page_on_front = ( get_option( 'show_on_front' ) === 'page' );
 		$page_on_front_id = get_option( 'page_on_front' );
 		$page_for_posts_id = get_option( 'page_for_posts' );
+		$wpcom_public_coming_soon_page_id = get_option( 'wpcom_public_coming_soon_page_id' );
 
 		return array(
 			'is_page_on_front' => $is_page_on_front,
 			'page_on_front_id' => $page_on_front_id,
 			'page_for_posts_id' => $page_for_posts_id,
+			'wpcom_public_coming_soon_page_id' => $wpcom_public_coming_soon_page_id,
 		);
 	}
 }

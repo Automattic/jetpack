@@ -10,6 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import { DEFAULT_CURRENCY } from './constants';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import save from './save';
 
@@ -24,6 +25,13 @@ import simplePaymentsExample1 from './simple-payments_example-1.jpg';
 import './editor.scss';
 
 export const name = 'simple-payments';
+
+export const icon = (
+	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+		<Path fill="none" d="M0 0h24v24H0V0z" />
+		<Path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" />
+	</SVG>
+);
 
 const supportLink =
 	isSimpleSite() || isAtomicSite()
@@ -48,12 +56,10 @@ export const settings = {
 		</Fragment>
 	),
 
-	icon: (
-		<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-			<Path fill="none" d="M0 0h24v24H0V0z" />
-			<Path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" />
-		</SVG>
-	),
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 
 	category: 'earn',
 

@@ -4,7 +4,7 @@
 		margin: 0 auto;
 	}
 
-	&.is-style-standard {
+	&.is-style-standard, &.is-style-wide.is-style-mobile {
 		height: 301px;
 
 		&.is-multi {
@@ -30,8 +30,19 @@
 
 	&.is-style-wide {
 		height: 150px;
-		&.aligncenter iframe {
+		iframe {
 			width: 840px !important;
+		}
+
+		&.alignleft {
+			max-width: 840px;
+			right: auto;
+			margin-left: 2rem;
+		}
+
+		&.alignright {
+			max-width: 840px;
+			left: calc( 100% - 840px - 2rem );
 		}
 	}
 

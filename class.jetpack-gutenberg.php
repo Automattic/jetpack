@@ -775,6 +775,7 @@ class Jetpack_Gutenberg {
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 				),
 				'siteFragment'     => $site_fragment,
+				'adminUrl'         => esc_url( admin_url() ),
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
 				'allowedMimeTypes' => wp_get_mime_types(),

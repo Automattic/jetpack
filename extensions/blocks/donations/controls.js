@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { CURRENCIES } from '@automattic/format-currency';
+
+/**
  * WordPress dependencies
  */
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
@@ -20,10 +25,10 @@ import { DOWN } from '@wordpress/keycodes';
  * Internal dependencies
  */
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
-import { CURRENCIES } from '@automattic/format-currency';
+import getSiteFragment from '../../shared/get-site-fragment';
 
 const Controls = props => {
-	const { attributes, setAttributes, siteSlug } = props;
+	const { attributes, setAttributes } = props;
 	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
 
 	const toggleDonation = ( interval, show ) => {
@@ -108,7 +113,7 @@ const Controls = props => {
 						onChange={ value => setAttributes( { showCustomAmount: value } ) }
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 					/>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ siteSlug }` }>
+					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
 						{ __( 'View donation earnings', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>

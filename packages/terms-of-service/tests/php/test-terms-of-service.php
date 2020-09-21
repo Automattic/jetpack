@@ -24,7 +24,7 @@ class Test_Terms_Of_Service extends TestCase {
 	public function setUp() {
 		$this->terms_of_service = $this->createPartialMock(
 			__NAMESPACE__ . '\\Terms_Of_Service',
-			array( 'get_raw_has_agreed', 'is_offline_mode', 'set_agree', 'is_active', 'set_reject' )
+			array( 'get_raw_has_agreed', 'is_offline_mode', 'set_agree', 'set_reject' )
 		);
 	}
 
@@ -79,21 +79,6 @@ class Test_Terms_Of_Service extends TestCase {
 		$this->terms_of_service->method( 'get_raw_has_agreed' )->willReturn( true );
 		$this->terms_of_service->expects( $this->once() )->method( 'is_offline_mode' )->willReturn( true );
 		$this->assertFalse( $this->terms_of_service->has_agreed() );
-	}
-
-	/**
-	 * Tests has_agreed if active but not agreed.
-	 *
-	 * @covers Automattic\Jetpack\Terms_Of_Service
-	 */
-	public function test_returns_true_if_active_even_if_not_agreed() {
-		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
-		$this->terms_of_service->expects( $this->once() )->method( 'is_offline_mode' )->willReturn( false );
-
-		// Jetpack is active.
-		$this->terms_of_service->expects( $this->once() )->method( 'is_active' )->willReturn( true );
-
-		$this->assertTrue( $this->terms_of_service->has_agreed() );
 	}
 
 	/**

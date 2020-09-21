@@ -51,11 +51,11 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Team
 
-Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @brbrr, @dereksmart, @chaosexanima, @jeherve, @kbrown9, @kraftbj, @mdawaffe, and @zinigor.
+Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @anomiex, @bisko, @brbrr, @dereksmart, @fgiannar, @jeherve, @kbrown9, @kraftbj, @leogermani, @mdbitz, @sergeymitr and @zinigor.
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @briancolinger, @cfinke, @daniloercoli, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jeherve, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @kraftbj, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
+@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @briancolinger, @cfinke, @daniloercoli, @chaosexanima, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jeherve, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @kraftbj, @lancewillett, @lezama, @martinremy, @mdawaffe, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
 
 Our _awesome_ happiness engineers are @a8ck3n, @aheckler, @almoyen, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @chickenn00dle, @coder-karen, @codestor4, @csonnek, @danjjohnson, @dericleeyy, @gaurav1984, @gsmumbo, @htdat, @jenhooks, @jeremypaavola, @joeboydston, @joendotcom, @lizthefair, @macmanx2, @madhattermattic, @mbhthompson, @mzakariya, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @snowmads, @stefmattana, and @tmmbecker.
 

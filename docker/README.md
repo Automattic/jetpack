@@ -20,7 +20,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 * [Docker](https://hub.docker.com/search/?type=edition&offering=community)
 * [NodeJS](https://nodejs.org)
-* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
+* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than what is noted in the [development environment documentation](../docs/development-environment.md#minimum-required-versions): `yarn --version`
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites; you will need to open up Docker to install its dependencies.
@@ -79,7 +79,7 @@ Customizations should go into a `./docker/.env` file you create, though, not in 
 
 You can use the file `docker/compose-extras.yml` to add mounts or alter the configuration provided by `docker/docker-compose.yml`.
 
-Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
+You can use the file `docker/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
 
 ## Working with containers
 
@@ -162,6 +162,16 @@ For a specific package's tests
 yarn docker:phpunit:package autoloader
 ```
 
+If you need to clear out a particular package's composer.lock
+```sh
+yarn docker:phpunit:package autoloader -c
+```
+
+To run all package unit tests and clear all composer.lock files within
+```sh
+yarn docker:phpunit:package -c
+```
+
 ### Starting over
 
 To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
@@ -217,6 +227,12 @@ You can also see your database files via local file system at `./docker/data/mys
 
 You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
+Another way to accessing the database is MySQL client using the following command:
+```sh
+yarn docker:db
+```  
+This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
+
 ## SFTP access
 
 You can access WordPress and Jetpack files via SFTP server container.
@@ -227,9 +243,13 @@ You can access WordPress and Jetpack files via SFTP server container.
 - Pass: `wordpress`
 - WordPress path: `/var/www/html`
 
-You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
+You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/). If you intend to do so, change the password in the `SFTP_USERS` variable in `./docker/.env`!
 
 Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backup/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+
+### SFTP keys
+
+To allow SFTP login using a key, place the public key files (e.g. `id_rsa.pub`) in `./docker/data/ssh.keys`.
 
 ## Must Use Plugins directory
 
@@ -346,16 +366,7 @@ Jetpack Docker environment can be wonderful for developing your own plugins and 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
 1. First ensure your containers are stopped (`yarn docker:stop`).
-2. Edit `docker/compose-extras.yml`. This file will be generated when running `yarn docker:up`, containing commented out content from a sample file `docker/compose-extras.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
-   ```yml
-   version: '3.3'
-   services:
-     wordpress:
-       volumes:
-        - /Users/myself/checkouts/vaultpress:/var/www/html/wp-content/plugins/vaultpress
-   ```
-
-   What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `/Users/myself/checkouts/vaultpress` with the path to your own plugin or theme.
+2. Edit `docker/compose-volumes.yml`. This file will be generated when running `yarn docker:up`, containing content from a sample file `docker/compose-volumes.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
 3. Start containers and include your custom volumes by running:
    ```bash
    yarn docker:up
@@ -374,6 +385,14 @@ To `tail -f` the PHP error log, run:
 ```sh
 yarn docker:tail
 ```
+
+#### MySQL Slow Query Log
+
+The MySQL Server is configured to log any queries that take longer than 0.5 second to execute.
+
+Path to the slow query log: `docker/logs/mysql/slow.log`.
+
+We recommend to regularly review the log to make sure performance issues don't go unnoticed.
 
 ### Debugging emails
 

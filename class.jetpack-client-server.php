@@ -102,10 +102,18 @@ class Jetpack_Client_Server {
 		return Jetpack::connection()->get_token( $data );
 	}
 
+	/**
+	 * Returns an instance of the Jetpack object.
+	 *
+	 * @return Automattic\Jetpack
+	 */
 	public function get_jetpack() {
 		return Jetpack::init();
 	}
 
+	/**
+	 * Kills the current process.
+	 */
 	public function do_exit() {
 		exit;
 	}

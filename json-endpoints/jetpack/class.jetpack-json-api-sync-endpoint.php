@@ -10,7 +10,13 @@ use Automattic\Jetpack\Sync\Settings;
 
 // POST /sites/%s/sync
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
+
+	/**
+	 * Sync endpoints allow authentication via a blog token therefore require no user capabilities.
+	 *
+	 * @var array
+	 */
+	protected $needed_capabilities = array();
 
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
 		return parent::validate_call( $_blog_id, $capability, false );

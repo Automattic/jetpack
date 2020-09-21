@@ -68,7 +68,7 @@ matrix:
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
       - ./tests/setup-travis.sh
-      - nvm install 10
+      - nvm install 12
       - yarn install
     script:
       - ./tests/run-travis.sh

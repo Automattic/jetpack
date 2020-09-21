@@ -165,7 +165,7 @@ class Defaults {
 		'jetpack_publicize_options',
 		'jetpack_connection_active_plugins',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
-		'ce4wp_referred_by', // Creative Mail. See pbtFPC-H5-p2
+		'ce4wp_referred_by', // Creative Mail. See pbtFPC-H5-p2 .
 	);
 
 	/**
@@ -301,6 +301,8 @@ class Defaults {
 		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
 		'paused_themes'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
+		'theme_support'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
+
 	);
 
 
@@ -892,7 +894,6 @@ class Defaults {
 		'promote_users',
 		'delete_themes',
 		'export',
-		'edit_comment',
 		'upload_plugins',
 		'upload_themes',
 	);

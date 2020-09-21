@@ -17,6 +17,9 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 	}
 
 	protected function result() {
+		// Disable Sync as this is a read-only operation and triggered by sync activity.
+		\Automattic\Jetpack\Sync\Actions::mark_sync_read_only();
+
 		$user = get_user_by( 'id', $this->user_id );
 		if ( empty( $user ) ) {
 			return new WP_Error( 'user_not_found', __( 'User not found', 'jetpack' ), 404 );

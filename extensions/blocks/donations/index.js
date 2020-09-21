@@ -10,6 +10,7 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import GridiconHeart from 'gridicons/dist/heart-outline';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -22,7 +23,10 @@ export const icon = <GridiconHeart />;
 export const settings = {
 	title,
 	description: __( 'Collect one-time, monthly, or annually recurring donations.', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'earn',
 	keywords: [ __( 'Donations', 'jetpack' ) ],
 	supports: {

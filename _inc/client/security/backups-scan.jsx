@@ -90,10 +90,7 @@ class BackupsScanRewind extends Component {
 				return {
 					title: __( 'Active', 'jetpack' ),
 					icon: 'checkmark-circle',
-					description: __(
-						'Your site is being backed up in real time and regularly scanned for security threats.',
-						'jetpack'
-					),
+					description: __( 'Your site is connected to Jetpack Backup and Scan.', 'jetpack' ),
 					url: getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
 				};
 			default:
@@ -192,7 +189,10 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 						</div>
 					);
 				}
-				return __( 'Your site is being backed up and monitored for threats.', 'jetpack' );
+				return __(
+					'Your site is connected to VaultPress for backups and security scanning.',
+					'jetpack'
+				);
 			}
 
 			// Only return here if backups enabled and site on on free/personal plan, or if Jetpack Backup is in use.
@@ -204,7 +204,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					planClass
 				)
 			) {
-				return __( 'Your site is being backed up.', 'jetpack' );
+				return __( 'Your site is connected to VaultPress for backups.', 'jetpack' );
 			}
 
 			// Nothing is enabled. We can show upgrade/setup text now.

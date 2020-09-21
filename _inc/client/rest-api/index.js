@@ -104,10 +104,8 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		reconnect: action =>
-			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams, {
-				body: JSON.stringify( { action: action } ),
-			} )
+		reconnect: () =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -168,6 +166,20 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/module/vaultpress/data`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+
+		installPlugin: ( slug, source ) => {
+			const props = { slug, status: 'active' };
+
+			if ( source ) {
+				props.source = source;
+			}
+
+			return postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
+				body: JSON.stringify( props ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse );
+		},
 
 		activateAkismet: () =>
 			postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {

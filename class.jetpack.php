@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
@@ -46,8 +47,6 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 class Jetpack {
 	public $xmlrpc_server = null;
-
-	private $rest_authentication_status = null;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
@@ -680,8 +679,8 @@ class Jetpack {
 		add_filter( 'login_url', array( $this, 'login_url' ), 10, 2 );
 		add_action( 'login_init', array( $this, 'login_init' ) );
 
-		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
-		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
@@ -793,8 +792,6 @@ class Jetpack {
 		foreach (
 			array(
 				'sync',
-				'tracking',
-				'tos',
 			)
 			as $feature
 		) {
@@ -850,6 +847,15 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
+		}
+
+		if ( ( new Tracking( $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
+		} else {
+			/**
+			 * Initialize tracking right after the user agrees to the terms of service.
+			 */
+			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
 	}
 
@@ -4794,7 +4800,14 @@ endif;
 			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 		}
 
-		return $url;
+		/**
+		 * Filter the URL used when authorizing a user to a WordPress.com account.
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param string $url Connection URL.
+		 */
+		return apply_filters( 'jetpack_build_authorize_url', $url );
 	}
 
 	/**
@@ -5452,15 +5465,13 @@ endif;
 
 	/**
 	 * Resets the saved authentication state in between testing requests.
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Connection\Rest_Authentication::reset_saved_auth_state()
 	 */
 	public function reset_saved_auth_state() {
-		$this->rest_authentication_status = null;
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		$this->connection_manager->reset_saved_auth_state();
+		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::reset_saved_auth_state' );
+		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 	}
 
 	/**
@@ -5511,82 +5522,30 @@ endif;
 		return $this->connection_manager->authenticate_jetpack( $user, $username, $password );
 	}
 
-	// Authenticates requests from Jetpack server to WP REST API endpoints.
-	// Uses the existing XMLRPC request signing implementation.
+	/**
+	 * Authenticates requests from Jetpack server to WP REST API endpoints.
+	 * Uses the existing XMLRPC request signing implementation.
+	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authenticate()
+	 */
 	function wp_rest_authenticate( $user ) {
-		if ( ! empty( $user ) ) {
-			// Another authentication method is in effect.
-			return $user;
-		}
-
-		if ( ! isset( $_GET['_for'] ) || $_GET['_for'] !== 'jetpack' ) {
-			// Nothing to do for this authentication method.
-			return null;
-		}
-
-		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
-			// Nothing to do for this authentication method.
-			return null;
-		}
-
-		// Only support specific request parameters that have been tested and
-		// are known to work with signature verification.  A different method
-		// can be passed to the WP REST API via the '?_method=' parameter if
-		// needed.
-		if ( $_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This request method is not supported.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This request method does not support body parameters.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		$verified = $this->connection_manager->verify_xml_rpc_signature();
-
-		if (
-			$verified &&
-			isset( $verified['type'] ) &&
-			'user' === $verified['type'] &&
-			! empty( $verified['user_id'] )
-		) {
-			// Authentication successful.
-			$this->rest_authentication_status = true;
-			return $verified['user_id'];
-		}
-
-		// Something else went wrong.  Probably a signature error.
-		$this->rest_authentication_status = new WP_Error(
-			'rest_invalid_signature',
-			__( 'The request is not signed correctly.', 'jetpack' ),
-			array( 'status' => 400 )
-		);
-		return null;
+		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenticate' );
+		return Connection_Rest_Authentication::init()->wp_rest_authenticate( $user );
 	}
 
 	/**
 	 * Report authentication status to the WP REST API.
 	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authentication_errors()
+	 *
 	 * @param  WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
 	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
 	 */
 	public function wp_rest_authentication_errors( $value ) {
-		if ( $value !== null ) {
-			return $value;
-		}
-		return $this->rest_authentication_status;
+		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenication_errors' );
+		return Connection_Rest_Authentication::init()->wp_rest_authentication_errors( $value );
 	}
 
 	/**
@@ -5825,9 +5784,15 @@ endif;
 	/**
 	 * Helper method for multicall XMLRPC.
 	 *
+	 * @deprecated since 8.9.0
+	 * @see Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call()
+	 *
 	 * @param ...$args Args for the async_call.
 	 */
 	public static function xmlrpc_async_call( ...$args ) {
+
+		_deprecated_function( 'Jetpack::xmlrpc_async_call', 'jetpack-8.9.0', 'Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call' );
+
 		global $blog_id;
 		static $clients = array();
 
@@ -6303,8 +6268,8 @@ endif;
 		}
 
 		/**
-		 * Allows sites to opt in to IDC mitigation which blocks the site from syncing to WordPress.com when the home
-		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
+		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects. The default value is either true, or the value of
 		 * JETPACK_SYNC_IDC_OPTIN constant if set.
 		 *
 		 * @since 4.3.2
@@ -7209,18 +7174,6 @@ endif;
 			default:
 				return 'https://wordpress.com/';
 		}
-	}
-
-	/**
-	 * Checks whether or not TOS has been agreed upon.
-	 * Will return true if a user has clicked to register, or is already connected.
-	 */
-	public static function jetpack_tos_agreed() {
-		_deprecated_function( 'Jetpack::jetpack_tos_agreed', 'Jetpack 7.9.0', '\Automattic\Jetpack\Terms_Of_Service->has_agreed' );
-
-		$terms_of_service = new Terms_Of_Service();
-		return $terms_of_service->has_agreed();
-
 	}
 
 	/**

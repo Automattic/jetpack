@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
+import { get, rest } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
+import restApi from 'rest-api';
 import { getVaultPressData, isAkismetKeyValid } from 'state/at-a-glance';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting, updateSettings } from 'state/settings';
 import {
@@ -21,6 +22,7 @@ import {
 	hasActiveScanPurchase,
 	hasActiveSearchPurchase,
 } from 'state/site';
+import { fetchPluginsData, isPluginActive } from 'state/site/plugins';
 
 function getInfoString( productName ) {
 	return sprintf(
@@ -35,12 +37,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-ads-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -74,6 +79,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ].includes(
 				planClass
@@ -82,13 +88,17 @@ const features = {
 			let optionsLink;
 			let isOptionsLinkExternal = false;
 			if ( inCurrentPlan ) {
-				optionsLink = getRedirectUrl( 'jetpack-setup-wizard-anti-spam-get-started' );
+				optionsLink = getRedirectUrl( 'jetpack-setup-wizard-anti-spam-get-started', {
+					site: siteRawUrl,
+				} );
 				isOptionsLinkExternal = true;
 			}
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-antispam-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -115,6 +125,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 			const isBackupsPurchased =
 				hasActiveBackupPurchase( state ) ||
 				[
@@ -132,7 +143,9 @@ const features = {
 
 			let upgradeLink;
 			if ( ! isBackupsPurchased ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-backups-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -293,6 +306,41 @@ const features = {
 		},
 	},
 
+	'creative-mail': {
+		mapStateToProps: state => {
+			const isCreativeMailActive = isPluginActive(
+				state,
+				'creative-mail-by-constant-contact/creative-mail-plugin.php'
+			);
+			const siteAdminUrl = getSiteAdminUrl( state );
+			const creativeMailConfigureLink = siteAdminUrl + 'admin.php?page=creativemail';
+
+			return {
+				feature: 'creative-mail',
+				title: __( 'Creative Mail by Constant Contact', 'jetpack' ),
+				details: __( 'Turn visitors into subscribers with email marketing.', 'jetpack' ),
+				checked: isCreativeMailActive,
+				isDisabled: true,
+				isPaid: true,
+				configureLink: isCreativeMailActive ? creativeMailConfigureLink : null,
+				learnMoreLink:
+					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
+				isLearnMoreLinkExternal: true,
+			};
+		},
+		mapDispatchToProps: dispatch => {
+			const installAndRefreshPluginData = () => {
+				restApi.installPlugin( 'creative-mail-by-constant-contact', 'setup-wizard' ).then( () => {
+					dispatch( fetchPluginsData() );
+				} );
+			};
+
+			return {
+				onInstallClick: () => installAndRefreshPluginData(),
+			};
+		},
+	},
+
 	'custom-css': {
 		mapStateToProps: state => {
 			return {
@@ -354,12 +402,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-google-analytics-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -671,6 +722,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 			const isScanPurchased =
 				hasActiveScanPurchase( state ) ||
 				[ 'is-premium-plan', 'is-business-plan', 'is-scan-plan' ].includes( planClass );
@@ -682,7 +734,9 @@ const features = {
 
 			let upgradeLink;
 			if ( ! isScanPurchased ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-scan-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -711,11 +765,14 @@ const features = {
 			let upgradeLink;
 			let optionsLink;
 			const sitePlan = getSitePlan( state );
+			const siteRawUrl = getSiteRawUrl( state );
 			if (
 				'is-business-plan' !== getPlanClass( sitePlan.product_slug ) &&
 				! hasActiveSearchPurchase( state )
 			) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-search-upgrade', {
+					site: siteRawUrl,
+				} );
 			} else {
 				optionsLink = '#/settings?term=search';
 			}
@@ -765,6 +822,7 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
@@ -775,7 +833,9 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-seo-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			return {
@@ -877,12 +937,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-block-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;
@@ -890,7 +953,9 @@ const features = {
 			let isButtonLinkExternal = false;
 			if ( inCurrentPlan ) {
 				info = getInfoString( sitePlan.product_name );
-				configureLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-support' );
+				configureLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-support', {
+					site: siteRawUrl,
+				} );
 				isButtonLinkExternal = true;
 			}
 
@@ -1044,12 +1109,15 @@ const features = {
 		mapStateToProps: state => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
+			const siteRawUrl = getSiteRawUrl( state );
 
 			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-videopress-upgrade', {
+					site: siteRawUrl,
+				} );
 			}
 
 			let info;

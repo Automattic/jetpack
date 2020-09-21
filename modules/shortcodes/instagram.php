@@ -198,6 +198,27 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 }
 
 /**
+ * Fetches a Facebook API access token used for query for Instagram embed information, if one is set.
+ *
+ * @return string The access token or ''
+ */
+function jetpack_instagram_get_access_token() {
+	/**
+	 * Filters the Instagram embed token that is used for querying the Facebook API.
+	 *
+	 * When this token is set, requests are not proxied through the WordPress.com API. Instead, a request is made directly to the
+	 * Facebook API to query for information about the embed which should provide a performance benefit.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since  9.0.0
+	 *
+	 * @param string string The access token set via the JETPACK_INSTAGRAM_EMBED_TOKEN constant.
+	 */
+	return (string) apply_filters( 'jetpack_instagram_embed_token', (string) Constants::get_constant( 'JETPACK_INSTAGRAM_EMBED_TOKEN' ) );
+}
+
+/**
  * Given a URL, will output an HTML comment and the linked URL.
  *
  * @param string $url The URL that was attempted to embed.
@@ -248,14 +269,19 @@ function jetpack_instagram_use_cache( $matches, $atts, $passed_url ) {
  * @return mixed An object if successful or a WP_Error object
  */
 function jetpack_instagram_fetch_embed( $args ) {
-	if ( Constants::is_defined( 'IS_WPCOM' ) && Constants::get_constant( 'IS_WPCOM' ) ) {
-		$url      = esc_url_raw(
+	$access_token = jetpack_instagram_get_access_token();
+
+	// If an access token exists, which will be the case for WPCOM, then we will call the Facebook API directly.
+	// Otherwise, proxy the request through the WordPress.com API using the blog token to sign the request.
+	if ( ! empty( $access_token ) ) {
+		$args['access_token'] = $access_token;
+		$url                  = esc_url_raw(
 			add_query_arg(
 				$args,
-				'https://api.instagram.com/oembed/'
+				'https://graph.facebook.com/v5.0/instagram_oembed/'
 			)
 		);
-		$response = wp_remote_get( $url, array( 'redirection' => 0 ) );
+		$response             = wp_remote_get( $url, array( 'redirection' => 0 ) );
 	} else {
 		if ( ! Jetpack::is_active_and_not_offline_mode() ) {
 			return new WP_Error(

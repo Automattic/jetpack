@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Terms_Of_Service;
-
 /**
  * The Tracking class, used to record events in wpcom
  */
@@ -103,8 +101,9 @@ class Tracking {
 			return false;
 		}
 		$terms_of_service = new Terms_Of_Service();
-		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
-		if ( ! $terms_of_service->has_agreed() ) {
+		$status           = new Status();
+		// Don't track users who have not agreed to our TOS.
+		if ( ! $this->should_enable_tracking( $terms_of_service, $status ) ) {
 			return false;
 		}
 
@@ -115,6 +114,22 @@ class Tracking {
 		}
 
 		return $event_obj->record();
+	}
+
+	/**
+	 * Determines whether tracking should be enabled.
+	 *
+	 * @param Automattic\Jetpack\Terms_Of_Service $terms_of_service A Terms_Of_Service object.
+	 * @param Automattic\Jetpack\Status           $status A Status object.
+	 *
+	 * @return boolean True if tracking should be enabled, else false.
+	 */
+	public function should_enable_tracking( $terms_of_service, $status ) {
+		if ( $status->is_offline_mode() ) {
+			return false;
+		}
+
+		return $terms_of_service->has_agreed() || $this->connection->is_user_connected();
 	}
 
 	/**

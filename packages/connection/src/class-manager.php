@@ -79,12 +79,7 @@ class Manager {
 	public static function configure() {
 		$manager = new self();
 
-		add_filter(
-			'jetpack_constant_default_value',
-			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
-			10,
-			2
-		);
+		Utils::init_default_constants();
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1873,13 +1868,6 @@ class Manager {
 			return new \WP_Error( 'scope', 'current_user_cannot', $code );
 		}
 
-		/**
-		 * Fires after user has successfully received an auth token.
-		 *
-		 * @since 3.9.0
-		 */
-		do_action( 'jetpack_user_authorized' );
-
 		return (string) $json->access_token;
 	}
 
@@ -2051,6 +2039,13 @@ class Manager {
 		$is_master_user = ! $this->is_active();
 
 		Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
+
+		/**
+		 * Fires after user has successfully received an auth token.
+		 *
+		 * @since 3.9.0
+		 */
+		do_action( 'jetpack_user_authorized' );
 
 		if ( ! $is_master_user ) {
 			/**

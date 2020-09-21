@@ -6,6 +6,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getIconColor } from '../../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
@@ -27,7 +28,10 @@ export const settings = {
 		'Let your visitors send you a message on WhatsApp with the tap of a button.',
 		'jetpack'
 	),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'grow',
 	parent: [ 'jetpack/send-a-message' ],
 	keywords: [

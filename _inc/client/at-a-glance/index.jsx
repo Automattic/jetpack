@@ -19,7 +19,6 @@ import DashMonitor from './monitor';
 import DashScan from './scan';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
-import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashSearch from './search';
 import DashConnections from './connections';
@@ -96,7 +95,6 @@ class AtAGlance extends Component {
 			);
 		}
 		securityCards.push( <DashAkismet { ...urls } /> );
-		securityCards.push( <DashPluginUpdates { ...settingsProps } { ...urls } /> );
 
 		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );

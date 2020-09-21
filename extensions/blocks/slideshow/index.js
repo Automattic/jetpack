@@ -10,6 +10,7 @@ import { Path, SVG } from '@wordpress/components';
 import edit from './edit';
 import save from './save';
 import transforms from './transforms';
+import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 /**
@@ -124,7 +125,10 @@ export const settings = {
 		align: [ 'center', 'wide', 'full' ],
 		html: false,
 	},
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	edit,
 	save,
 	transforms,
