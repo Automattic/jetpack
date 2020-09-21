@@ -22,12 +22,18 @@ import { BlockControls } from '@wordpress/editor';
  * @returns {object} The blockSettings, with our extra functionality inserted.
  */
 const addTweetstormToTweets = blockSettings => {
-	// Bail if this is not the Twitter embed block, or if the hook has been triggered by a deprecation.
-	if ( 'core-embed/twitter' !== blockSettings.name || blockSettings.isDeprecation ) {
+	// Bail if the hook has been triggered by a deprecation.
+	if ( blockSettings.isDeprecation ) {
 		return blockSettings;
 	}
 
-	const { edit: CoreTweetEdit } = blockSettings;
+	// Allow hooking into the Twitter embed block pre and post Gutenberg 8.8.
+	// @todo The 'core-embed/twitter' check can be removed when WordPress 5.6 is the minimum version.
+	if ( 'core-embed/twitter' !== blockSettings.name && 'core/embed' !== blockSettings.name ) {
+		return blockSettings;
+	}
+
+	const { edit: CoreEdit } = blockSettings;
 
 	return {
 		...blockSettings,
@@ -37,6 +43,15 @@ const addTweetstormToTweets = blockSettings => {
 			const { isGatheringStorm, unleashStorm } = useGatherTweetstorm( {
 				onReplace,
 			} );
+
+			// Only wrap the Twitter variant of the core/embed block.
+			// @todo The core/embed' check can be removed when WordPress 5.6 is the minimum version.
+			if (
+				'core/embed' === blockSettings.name &&
+				'twitter' !== props.attributes.providerNameSlug
+			) {
+				return <CoreEdit { ...props } />;
+			}
 
 			return (
 				<>
@@ -58,7 +73,7 @@ const addTweetstormToTweets = blockSettings => {
 							{ isGatheringStorm && <Spinner /> }
 						</ToolbarGroup>
 					</BlockControls>
-					<CoreTweetEdit { ...props } />
+					<CoreEdit { ...props } />
 				</>
 			);
 		} ),
