@@ -31,6 +31,17 @@ describe( 'addTweetstormToTweets', () => {
 		expect( wrappedBlock ).toEqual( block );
 	} );
 
+	it( 'should not add the wrapper when passed an unsupported block type', () => {
+		const block = {
+			name: 'core/paragraph',
+			edit: baseEditFunction,
+		};
+
+		const wrappedBlock = addTweetstormToTweets( block );
+
+		expect( wrappedBlock ).toEqual( block );
+	} );
+
 	it( 'should add the wrapper when passed core-embed/twitter block definition', () => {
 		const block = {
 			name: 'core-embed/twitter',
