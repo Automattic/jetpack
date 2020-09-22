@@ -360,10 +360,25 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - WordPress installation path: `/var/www/html`
 
 ## Jurassic Tube Tunneling Service
-If you are an Automattician, you can use Jurassic Tube as an alternative to Ngrok.
-It is an in-house tunneling service with similar functionality.
+If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
 
-More information: `PCYsg-snO-fg`. 
+It is also free and developed internally, so you can review the source code and participate in adding new features.
+
+* Start the tunnel: `yarn docker:jt-up your-username your-subdomain`
+* Break the connection: `yarn docker:jt-down`
+
+You can also set default values:
+
+```shell script
+yarn docker:jt-config username your-username
+yarn docker:jt-config subdomain your-subdomain
+```
+That will let you omit those parameters while initiating the connection:
+```shell script
+yarn docker:jt-up
+```
+
+More information: PCYsg-snO-p2. 
 
 ## Custom plugins & themes in the container
 
