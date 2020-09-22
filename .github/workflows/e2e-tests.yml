@@ -15,13 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-    - run: |
-        echo $GITHUB_RUN_NUMBER
-        echo $GITHUB_RUN_ID
-        echo $GITHUB_ACTION
-        cat $GITHUB_EVENT_PATH
-
     - uses: actions/checkout@v2
 
     - name: Use yarn cache
