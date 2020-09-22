@@ -30,7 +30,7 @@ defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCA
  * This means Jetpack can't function properly on servers that can't send outbound HTTPS requests.
  * The constant is no longer used.
  *
- * @deprecated 9.0.0
+ * @deprecated 9.1.0
  */
 defined( 'JETPACK_CLIENT__HTTPS' ) || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 
@@ -43,7 +43,7 @@ defined( 'JETPACK__WPCOM_JSON_API_BASE' ) || define( 'JETPACK__WPCOM_JSON_API_BA
  * WP.com API no longer supports `http://` protocol.
  * Use `JETPACK__WPCOM_JSON_API_BASE` instead, which has the protocol hardcoded.
  *
- * @deprecated 9.0.0
+ * @deprecated 9.1.0
  */
 defined( 'JETPACK__WPCOM_JSON_API_HOST' ) || define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 

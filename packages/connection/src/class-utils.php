@@ -24,10 +24,10 @@ class Utils {
 	 * @param string $url The url.
 	 * @return string The exact same url.
 	 *
-	 * @deprecated 9.0.0 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
+	 * @deprecated 9.1.0 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.0.0' );
+		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
 		return $url;
 	}
 
