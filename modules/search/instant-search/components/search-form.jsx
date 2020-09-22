@@ -64,7 +64,7 @@ class SearchForm extends Component {
 						onChangeQuery={ this.onChangeQuery }
 						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
-						shouldRestoreFocus={ this.props.overlayTrigger !== 'immediate' }
+						shouldRestoreFocus
 						showFilters={ this.state.showFilters }
 						sort={ this.props.sort }
 						toggleFilters={ this.toggleFilters }
