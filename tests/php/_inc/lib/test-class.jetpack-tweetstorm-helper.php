@@ -708,6 +708,39 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that other space characters will be used when splitting sentences up into words.
+	 */
+	public function test_long_sentence_with_nbsp() {
+		$test_content = 'This&nbsp;is&nbsp;22&nbsp;characters&nbsp;';
+		$blocks       = array(
+			$this->generateParagraphData( str_repeat( $test_content, 13 ) ),
+		);
+
+		$expected_text = array(
+			// The parser will decode the HTML entities.
+			html_entity_decode( str_repeat( $test_content, 12 ) . 'This&nbsp;is&nbsp;22…', ENT_QUOTES ),
+			html_entity_decode( '…characters&nbsp;', ENT_QUOTES ),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 274, 275, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
+		);
+	}
+
+	/**
 	 * Test that short sentences are split up correctly when they're following a long sentence
 	 * which has been split into two tweets.
 	 */

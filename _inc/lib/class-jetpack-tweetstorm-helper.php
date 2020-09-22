@@ -439,9 +439,9 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// Split the long sentence into words.
-				$words      = explode( ' ', $current_sentence );
+				$words      = preg_split( '/(\p{Z})/u', $current_sentence, -1, PREG_SPLIT_DELIM_CAPTURE );
 				$word_total = count( $words );
-				for ( $word_count = 0; $word_count < $word_total; $word_count++ ) {
+				for ( $word_count = 0; $word_count < $word_total; $word_count += 2 ) {
 					// Make sure we have the most recent tweet.
 					$current_tweet = self::get_current_tweet();
 
@@ -455,7 +455,9 @@ class Jetpack_Tweetstorm_Helper {
 
 					// Can we add this word to the current tweet?
 					if ( self::is_valid_tweet( "{$current_tweet['text']} {$words[ $word_count ]}…" ) ) {
-						$current_tweet['text'] .= " {$words[ $word_count ]}";
+						$space = isset( $words[ $word_count - 1 ] ) ? $words[ $word_count - 1 ] : ' ';
+
+						$current_tweet['text'] .= $space . $words[ $word_count ];
 
 						self::save_current_tweet( $current_tweet, $block );
 						continue;
@@ -1354,7 +1356,8 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				if ( $opened !== $closed ) {
-					// We're currently in a tag, with some content.
+					// We're currently in a tag, with some content. Start by decoding any HTML entities.
+					$token = html_entity_decode( $token, ENT_QUOTES );
 
 					// Find any URLs in this content, and replace them with a placeholder.
 					preg_match_all( Twitter_Regex::getValidUrlMatcher(), $token, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE );
@@ -1471,7 +1474,7 @@ class Jetpack_Tweetstorm_Helper {
 				// We always want to append the found value, even if we didn't "find" a matching attribute.
 				// An empty string in the return value means that we found the tag, but the attribute was
 				// either empty, or not set.
-				$values[] = $found_value;
+				$values[] = html_entity_decode( $found_value, ENT_QUOTES );
 			}
 		}
 
