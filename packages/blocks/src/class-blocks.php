@@ -31,7 +31,7 @@ class Blocks {
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
 		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
-			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
+			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 7.1.0' );
 			$slug = 'jetpack/' . $slug;
 		}
 
