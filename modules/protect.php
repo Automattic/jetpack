@@ -864,6 +864,8 @@ class Jetpack_Protect_Module {
 	 * @deprecated 9.0.0 Use constant `JETPACK_PROTECT__API_HOST` instead.
 	 */
 	function get_api_host() {
+		_deprecated_function( __METHOD__, 'jetpack-9.0.0' );
+
 		return JETPACK_PROTECT__API_HOST;
 	}
 

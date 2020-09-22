@@ -446,6 +446,8 @@ class Client {
 	 * @deprecated 9.0.0 WP.com API no longer supports requests using `http://`.
 	 */
 	public static function protocol() {
+		_deprecated_function( __METHOD__, 'jetpack-9.0.0' );
+
 		return 'https';
 	}
 }
