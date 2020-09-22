@@ -63,7 +63,8 @@ function load_assets( $attr, $content ) {
 	$text_color              = get_attribute( $attr, 'textColor' );
 	$primary_color           = get_attribute( $attr, 'primaryColor' );
 	$classes                 = Blocks::classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
-	$block_id                = wp_unique_id( 'calendly-block-' );
+	$block_id                = wp_unique_id();
+	$html_id                 = 'calendly-block-' . $block_id;
 	$is_amp_request          = Blocks::is_amp_request();
 
 	if ( ! wp_script_is( 'jetpack-calendly-external-js' ) && ! $is_amp_request ) {
@@ -88,24 +89,29 @@ function load_assets( $attr, $content ) {
 
 		// Render deprecated version of Calendly block if needed. New markup block button class before rendering here.
 		if ( false === strpos( $content, 'wp-block-jetpack-button' ) ) {
-			$content = deprecated_render_button_v1( $attr, $block_id, $classes, $url );
+			$content = deprecated_render_button_v1( $attr, $html_id, $classes, $url );
 		} else {
-			$content = str_replace( 'calendly-widget-id', esc_attr( $block_id ), $content );
+			$content = str_replace( 'calendly-widget-id', esc_attr( $html_id ), $content );
 			$content = str_replace( $base_url, $url, $content );
 		}
 
 		if ( ! $is_amp_request ) {
 			wp_add_inline_script(
 				'jetpack-calendly-external-js',
-				sprintf( "calendly_attach_link_events( '%s' )", esc_js( $block_id ) )
+				sprintf( "calendly_attach_link_events( '%s' )", esc_js( $html_id ) )
 			);
 		}
 	} else { // Inline style.
 		if ( $is_amp_request ) {
 			$content = sprintf(
 				'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
+<<<<<<< HEAD
 				esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 				esc_attr( $block_id ),
+=======
+				esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr ) ),
+				esc_attr( $html_id ),
+>>>>>>> Add the unique block id to each Calendly call to call a different function for each Calendly block on the page
 				esc_js( $url ),
 				wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
 			);
@@ -113,30 +119,29 @@ function load_assets( $attr, $content ) {
 			$content = sprintf(
 				'<div class="%1$s" id="%2$s"></div>',
 				esc_attr( $classes ),
-				esc_attr( $block_id )
+				esc_attr( $html_id )
 			);
-			$script  = <<<JS_END
-// Initialize function as an array object
+			$escaped_block_id = esc_js( $block_id );
+			$script           = <<<JS_END
+// Call function with block id in name
 // to allow for multiple widgets.
-var jetpackInitCalendly = [
-	function() {
-		Calendly.initInlineWidget({
-			url: '%s',
-			parentElement: document.getElementById('%s'),
-			inlineStyles: false,
-		})
-	}
-];
+function jetpackInitCalendly{$escaped_block_id}() {
+	Calendly.initInlineWidget({
+		url: '%s',
+		parentElement: document.getElementById('%s'),
+		inlineStyles: false,
+	});
+};
 // For P2s only: wait until after o2 has
 // replaced main#content to initialize widget.
 if ( window.jQuery && window.o2 ) {
-	jQuery( 'body' ).on( 'ready.o2', jetpackInitCalendly[0] );
+	jQuery( 'body' ).on( 'ready.o2', jetpackInitCalendly{$escaped_block_id} );
 // Else initialize widget without waiting.
 } else {
-	jetpackInitCalendly[0]();
+	jetpackInitCalendly{$escaped_block_id}();
 }
 JS_END;
-			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
+			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $html_id ) ) );
 		}
 	}
 
@@ -210,13 +215,13 @@ function enqueue_calendly_js() {
  * Renders a deprecated legacy version of the button HTML.
  *
  * @param array  $attributes Array containing the Calendly block attributes.
- * @param string $block_id  The value for the ID attribute of the link.
+ * @param string $html_id  The value for the ID attribute of the link.
  * @param string $classes   The CSS classes for the wrapper div.
  * @param string $url       Calendly URL for the link HREF.
  *
  * @return string
  */
-function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
+function deprecated_render_button_v1( $attributes, $html_id, $classes, $url ) {
 	// This is the legacy version, so create the full link content.
 	$submit_button_text             = get_attribute( $attributes, 'submitButtonText' );
 	$submit_button_classes          = get_attribute( $attributes, 'submitButtonClasses' );
@@ -231,7 +236,7 @@ function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
 	if ( ! empty( $submit_button_text_color ) || ! empty( $submit_button_background_color ) ) {
 		$inline_styles = sprintf(
 			'#%1$s{%2$s%3$s}',
-			esc_attr( $block_id ),
+			esc_attr( $html_id ),
 			! empty( $submit_button_text_color )
 				? 'color:#' . sanitize_hex_color_no_hash( $submit_button_text_color ) . ';'
 				: '',
@@ -245,7 +250,7 @@ function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
 	return sprintf(
 		'<div class="wp-block-button %1$s"><a id="%2$s" class="%3$s" href="%4$s" role="button">%5$s</a></div>',
 		esc_attr( $classes ),
-		esc_attr( $block_id ),
+		esc_attr( $html_id ),
 		! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
 		esc_js( $url ),
 		wp_kses_post( $submit_button_text )
