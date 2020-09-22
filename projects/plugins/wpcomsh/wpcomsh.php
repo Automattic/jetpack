@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.147
+ * Version: 2.4.148
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.147' );
+define( 'WPCOMSH_VERSION', '2.4.148' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -72,6 +72,7 @@ require_once( 'feature-plugins/gutenberg-mods.php' );
 require_once( 'feature-plugins/coblocks-mods.php' );
 require_once( 'feature-plugins/autosave-revision.php' );
 require_once( 'feature-plugins/seo.php' );
+require_once( 'feature-plugins/masterbar.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
@@ -739,22 +740,6 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 }
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
 
-function wpcomsh_activate_masterbar_module() {
-	if ( ! defined( 'JETPACK__VERSION' ) ) {
-		return;
-	}
-
-	// Masterbar was introduced in Jetpack 4.8
-	if ( version_compare( JETPACK__VERSION, '4.8', '<' ) ) {
-		return;
-	}
-
-	if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
-		Jetpack::activate_module( 'masterbar', false, false );
-	}
-}
-add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
-
 function require_lib( $slug ) {
 	if ( ! preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
 		return;
@@ -1213,7 +1198,7 @@ function wpcomsh_upgrade_transferred_db() {
 }
 add_action( 'muplugins_loaded', 'wpcomsh_upgrade_transferred_db' );
 
-function wpcomsh_amp_dev_tools_enabled_default_user_metadata( $value, $object_id, $meta_key, $single, $meta_type ) { 
+function wpcomsh_amp_dev_tools_enabled_default_user_metadata( $value, $object_id, $meta_key, $single, $meta_type ) {
 	if ( 'amp_dev_tools_enabled' === $meta_key && '' === $value ) {
 		return false;
 	}
