@@ -110,10 +110,10 @@ AUTOLOADER_COMMENT;
 	 * This function differs from the composer parseAutoloadsType in that beside returning the path.
 	 * It also return the path and the version of a package.
 	 *
-	 * Currently supports only psr-4 and clasmap parsing.
+	 * Supports PSR-4, PSR-0, and classmap parsing.
 	 *
 	 * @param array            $packageMap Map of all the packages.
-	 * @param string           $type Type of autoloader to use, currently not used, since we only support psr-4.
+	 * @param string           $type Type of autoloader to use.
 	 * @param PackageInterface $mainPackage Instance of the Package Object.
 	 *
 	 * @return array
@@ -121,7 +121,7 @@ AUTOLOADER_COMMENT;
 	protected function parseAutoloadsType( array $packageMap, $type, PackageInterface $mainPackage ) {
 		$autoloads = array();
 
-		if ( 'psr-4' !== $type && 'classmap' !== $type && 'files' !== $type ) {
+		if ( 'psr-4' !== $type && 'classmap' !== $type && 'files' !== $type && 'psr-0' !== $type ) {
 			return parent::parseAutoloadsType( $packageMap, $type, $mainPackage );
 		}
 
@@ -137,8 +137,8 @@ AUTOLOADER_COMMENT;
 				$installPath = substr( $installPath, 0, -strlen( '/' . $package->getTargetDir() ) );
 			}
 
-			if ( 'psr-4' === $type && isset( $autoload['psr-4'] ) && is_array( $autoload['psr-4'] ) ) {
-				foreach ( $autoload['psr-4'] as $namespace => $paths ) {
+			if ( in_array( $type, array( 'psr-4', 'psr-0' ), true ) && isset( $autoload[ $type ] ) && is_array( $autoload[ $type ] ) ) {
+				foreach ( $autoload[ $type ] as $namespace => $paths ) {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
 						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
@@ -182,8 +182,13 @@ AUTOLOADER_COMMENT;
 	/**
 	 * Given Composer's autoloads this will convert them to a version that we can use to generate the manifests.
 	 *
+	 * When the $scanPsrPackages argument is true, PSR-4 namespaces are converted to classmaps. When $scanPsrPackages
+	 * is false, PSR-4 namespaces are not converted to classmaps.
+	 *
+	 * PSR-0 namespaces are always converted to classmaps.
+	 *
 	 * @param array  $autoloads The autoloads we want to process.
-	 * @param bool   $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
+	 * @param bool   $scanPsrPackages Whether or not PSR-4 packages should be converted to a classmap.
 	 * @param string $vendorPath The path to the vendor directory.
 	 * @param string $basePath The path to the current directory.
 	 *

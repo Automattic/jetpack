@@ -43,9 +43,27 @@ Working with Development Versions of Packages
 
 The autoloader will attempt to use the package with the latest semantic version.
 
-During development, you can force the autoloader to use development package versions by setting the `JETPACK_AUTOLOAD_DEV` constant to true. When `JETPACK_AUTOLOAD_DEV` is true, the autoloader will prefer the following versions over semantic version:
+During development, you can force the autoloader to use development package versions by setting the `JETPACK_AUTOLOAD_DEV` constant to true. When `JETPACK_AUTOLOAD_DEV` is true, the autoloader will prefer the following versions over semantic versions:
   - `9999999-dev`
   - Versions with a `dev-` prefix.
+
+
+Autoloading Standards
+----
+
+All new Jetpack package development should use classmap autoloading, which allows the class and file names to comply with the WordPress Coding Standards.
+
+### Optimized Autoloader
+
+An optimized autoloader is generated when:
+ * `composer install` or `composer update` is called with `-o` or `--optimize-autoloader`
+ * `composer dump-autoload` is called with `-o` or `--optimize`
+
+PSR-4 and PSR-0 namespaces are converted to classmaps.
+
+### Unoptimized Autoloader
+
+Supports PSR-4 autoloading. PSR-0 namespaces are converted to classmaps.
 
 
 Autoloader Limitations
