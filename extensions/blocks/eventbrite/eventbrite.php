@@ -44,12 +44,12 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function get_current_url() {
 	if ( isset( $_SERVER['HTTP_HOST'] ) ) {
-		$host = wp_unslash( $_SERVER['HTTP_HOST'] );
+		$host = wp_unslash( $_SERVER['HTTP_HOST'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	} else {
 		$host = wp_parse_url( home_url(), PHP_URL_HOST );
 	}
 	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-		$path = wp_unslash( $_SERVER['REQUEST_URI'] );
+		$path = wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	} else {
 		$path = '/';
 	}
