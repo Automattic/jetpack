@@ -105,13 +105,8 @@ function load_assets( $attr, $content ) {
 		if ( $is_amp_request ) {
 			$content = sprintf(
 				'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
-<<<<<<< HEAD
 				esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
-				esc_attr( $block_id ),
-=======
-				esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr ) ),
 				esc_attr( $html_id ),
->>>>>>> Add the unique block id to each Calendly call to call a different function for each Calendly block on the page
 				esc_js( $url ),
 				wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
 			);
