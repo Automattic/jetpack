@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Calendly;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'calendly';
@@ -61,9 +62,9 @@ function load_assets( $attr, $content ) {
 	$background_color        = get_attribute( $attr, 'backgroundColor' );
 	$text_color              = get_attribute( $attr, 'textColor' );
 	$primary_color           = get_attribute( $attr, 'primaryColor' );
-	$classes                 = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
+	$classes                 = Blocks::classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
 	$block_id                = wp_unique_id( 'calendly-block-' );
-	$is_amp_request          = class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
+	$is_amp_request          = Blocks::is_amp_request();
 
 	if ( ! wp_script_is( 'jetpack-calendly-external-js' ) && ! $is_amp_request ) {
 		enqueue_calendly_js();
@@ -103,7 +104,7 @@ function load_assets( $attr, $content ) {
 		if ( $is_amp_request ) {
 			$content = sprintf(
 				'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
-				esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr ) ),
+				esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 				esc_attr( $block_id ),
 				esc_js( $url ),
 				wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )

@@ -9,8 +9,8 @@
 
 namespace Automattic\Jetpack\Extensions\Instagram_Gallery;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack;
-use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;
 use Jetpack_Instagram_Gallery_Helper;
 
@@ -51,7 +51,7 @@ function render_block( $attributes, $content ) {
 	$is_stacked_on_mobile = get_instagram_gallery_attribute( 'isStackedOnMobile', $attributes );
 	$spacing              = get_instagram_gallery_attribute( 'spacing', $attributes );
 
-	$grid_classes = Jetpack_Gutenberg::block_classes(
+	$grid_classes = Blocks::classes(
 		FEATURE_NAME,
 		$attributes,
 		array(
@@ -83,7 +83,7 @@ function render_block( $attributes, $content ) {
 		$message = $error_message
 			. '<br />'
 			. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
-		return Jetpack_Gutenberg::notice( $message, 'error', Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ) );
+		return Jetpack_Gutenberg::notice( $message, 'error', Blocks::classes( FEATURE_NAME, $attributes ) );
 	}
 
 	if ( empty( $gallery->images ) ) {
@@ -92,13 +92,11 @@ function render_block( $attributes, $content ) {
 
 	$images = array_slice( $gallery->images, 0, $count );
 
-	$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
-
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	ob_start();
 	?>
-	<?php if ( $is_amp_request ) : ?>
+	<?php if ( Blocks::is_amp_request() ) : ?>
 		<style>
 			.wp-block-jetpack-instagram-gallery__grid .wp-block-jetpack-instagram-gallery__grid-post amp-img img {
 				object-fit: cover;

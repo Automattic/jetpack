@@ -6,6 +6,7 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
@@ -649,7 +650,7 @@ class Jetpack_Gutenberg {
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
 		}
 
-		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
+		if ( ! Blocks::is_amp_request() && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
@@ -841,34 +842,8 @@ class Jetpack_Gutenberg {
 	 * @return string $classes List of CSS classes for a block.
 	 */
 	public static function block_classes( $slug = '', $attr, $extra = array() ) {
-		if ( empty( $slug ) ) {
-			return '';
-		}
-
-		// Basic block name class.
-		$classes = array(
-			'wp-block-jetpack-' . $slug,
-		);
-
-		// Add alignment if provided.
-		if (
-			! empty( $attr['align'] )
-			&& in_array( $attr['align'], array( 'left', 'center', 'right', 'wide', 'full' ), true )
-		) {
-			array_push( $classes, 'align' . $attr['align'] );
-		}
-
-		// Add custom classes if provided in the block editor.
-		if ( ! empty( $attr['className'] ) ) {
-			array_push( $classes, $attr['className'] );
-		}
-
-		// Add any extra classes.
-		if ( is_array( $extra ) && ! empty( $extra ) ) {
-			$classes = array_merge( $classes, array_filter( $extra ) );
-		}
-
-		return implode( ' ', $classes );
+		_deprecated_function( __METHOD__, '9.0.0', 'Automattic\\Jetpack\\Blocks::classes' );
+		return Blocks::classes( $slug, $attr, $extra );
 	}
 
 	/**

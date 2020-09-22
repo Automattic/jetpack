@@ -9,10 +9,10 @@
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
+use Automattic\Jetpack\Blocks;
 use WP_Error;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
-use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -138,8 +138,8 @@ function render_player( $player_data, $attributes ) {
 	$player_inline_style  = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
 	$player_inline_style .= get_css_vars( $attributes );
 
-	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
-	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
+	$block_classname = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
+	$is_amp          = Blocks::is_amp_request();
 
 	ob_start();
 	?>
