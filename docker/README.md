@@ -362,7 +362,7 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 ## Jurassic Tube Tunneling Service
 If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
 
-It is also free and developed internally, so you can review the source code and participate in adding new features.
+As it is developed internally, you can review the source code and participate in adding new features.
 
 * Start the tunnel: `yarn docker:jt-up your-username your-subdomain`
 * Break the connection: `yarn docker:jt-down`
