@@ -98,7 +98,7 @@ class Nonce_Handler {
 
 	/**
 	 * Removing [almost] all the nonces.
-	 * Capped at 1 million records to avoid breaking the site.
+	 * Capped at 20 seconds to avoid breaking the site.
 	 *
 	 * @param int $cutoff_timestamp All nonces added before this timestamp will be removed.
 	 *
@@ -106,7 +106,7 @@ class Nonce_Handler {
 	 */
 	public static function clean_all( $cutoff_timestamp = PHP_INT_MAX ) {
 		// phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
-		for ( $start_time = time(), $i = 0; $i < 1000 && time() < $start_time + 20; ++$i ) {
+		for ( $end_time = time() + 20; time() < $end_time; ) {
 			$result = static::delete( static::CLEAN_ALL_LIMIT_PER_BATCH, $cutoff_timestamp );
 
 			if ( ! $result ) {
