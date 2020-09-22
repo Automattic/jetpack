@@ -269,6 +269,12 @@ class REST_Connector {
 				break;
 			case 'completed':
 				$response['status'] = 'completed';
+				/**
+				 * Action fired when reconnection has completed successfully.
+				 *
+				 * @since 9.0.0
+				 */
+				do_action( 'jetpack_reconnection_completed' );
 				break;
 			case 'failed':
 				$response = new WP_Error( 'Reconnect failed' );

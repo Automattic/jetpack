@@ -780,6 +780,9 @@ class Jetpack {
 		add_filter( 'jetpack_token_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
+
+		// Actions for successful reconnect.
+		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
 	}
 
 	/**
@@ -4941,6 +4944,17 @@ endif;
 		$do_redirect_on_error = ( 'client' === $data['auth_type'] );
 
 		self::handle_post_authorization_actions( $activate_sso, $do_redirect_on_error );
+	}
+
+	/**
+	 * This action fires at the end of the REST_Connector connection_reconnect method when the
+	 * reconnect process is completed.
+	 * Note that this currently only happens when we don't need the user to re-authorize
+	 * their WP.com account, eg in cases where we are restoring a connection with
+	 * unhealthy blog token.
+	 */
+	public static function reconnection_completed() {
+		self::state( 'message', 'reconnection_completed' );
 	}
 
 	/**
