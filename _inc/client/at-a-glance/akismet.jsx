@@ -14,7 +14,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import { PLAN_JETPACK_ANTI_SPAM } from 'lib/plans/constants';
+import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import restApi from 'rest-api';
@@ -107,8 +107,7 @@ class DashAkismet extends Component {
 					href={ this.props.upgradeUrl }
 					eventFeature="akismet"
 					path="dashboard"
-					plan={ PLAN_JETPACK_ANTI_SPAM }
-					icon="flag"
+					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 				/>
 			);
 		};

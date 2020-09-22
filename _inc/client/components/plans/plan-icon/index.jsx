@@ -8,6 +8,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { imagePath } from 'constants/urls';
 import {
 	PLAN_FREE,
 	PLAN_PREMIUM,
@@ -24,8 +25,22 @@ import {
 	PLAN_PERSONAL,
 	PLAN_PERSONAL_2_YEARS,
 	PLAN_VIP,
+	PLAN_JETPACK_BACKUP_DAILY,
+	PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
+	PLAN_JETPACK_BACKUP_REALTIME,
+	PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
+	PLAN_JETPACK_SCAN,
+	PLAN_JETPACK_SCAN_MONTHLY,
+	PLAN_JETPACK_ANTI_SPAM,
+	PLAN_JETPACK_ANTI_SPAM_MONTHLY,
 	PLAN_JETPACK_SEARCH,
 	PLAN_JETPACK_SEARCH_MONTHLY,
+	PLAN_JETPACK_SECURITY_DAILY,
+	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+	PLAN_JETPACK_SECURITY_REALTIME,
+	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+	PLAN_JETPACK_COMPLETE,
+	PLAN_JETPACK_COMPLETE_MONTHLY,
 	PLAN_WPCOM_SEARCH,
 	PLAN_WPCOM_SEARCH_MONTHLY,
 	getPlanClass,
@@ -206,6 +221,60 @@ export default class PlanIcon extends Component {
 	}
 	/* eslint-enable max-len, react/jsx-space-before-closing */
 
+	getSecurityIcon() {
+		return (
+			<img src={ imagePath + '/plans/plan-security-daily.svg' } width={ 32 } height={ 32 } alt="" />
+		);
+	}
+
+	getCompleteIcon() {
+		return <img src={ imagePath + '/plans/plan-complete.svg' } width={ 32 } height={ 32 } alt="" />;
+	}
+
+	getBackupIcon() {
+		return (
+			<img
+				src={ imagePath + '/products/product-jetpack-backup.svg' }
+				width={ 32 }
+				height={ 32 }
+				alt=""
+			/>
+		);
+	}
+
+	getScanIcon() {
+		return (
+			<img
+				src={ imagePath + '/products/product-jetpack-scan.svg' }
+				width={ 32 }
+				height={ 32 }
+				alt=""
+			/>
+		);
+	}
+
+	getAntiSpamIcon() {
+		return (
+			<img
+				src={ imagePath + '/products/product-jetpack-anti-spam.svg' }
+				width={ 32 }
+				height={ 32 }
+				alt=""
+			/>
+		);
+	}
+
+	getJetpackSearchIcon() {
+		return (
+			<img
+				src={ imagePath + '/products/product-jetpack-search.svg' }
+				width={ 32 }
+				height={ 32 }
+				alt=""
+			/>
+		);
+	}
+
 	render() {
 		const { plan } = this.props;
 		switch ( plan ) {
@@ -225,11 +294,31 @@ export default class PlanIcon extends Component {
 			case PLAN_JETPACK_BUSINESS_MONTHLY:
 			case PLAN_VIP:
 				return this.getBusinessIcon();
-			case PLAN_JETPACK_SEARCH:
-			case PLAN_JETPACK_SEARCH_MONTHLY:
 			case PLAN_WPCOM_SEARCH:
 			case PLAN_WPCOM_SEARCH_MONTHLY:
 				return this.getSearchIcon();
+			case PLAN_JETPACK_SECURITY_DAILY:
+			case PLAN_JETPACK_SECURITY_DAILY_MONTHLY:
+			case PLAN_JETPACK_SECURITY_REALTIME:
+			case PLAN_JETPACK_SECURITY_REALTIME_MONTHLY:
+				return this.getSecurityIcon();
+			case PLAN_JETPACK_COMPLETE:
+			case PLAN_JETPACK_COMPLETE_MONTHLY:
+				return this.getCompleteIcon();
+			case PLAN_JETPACK_BACKUP_DAILY:
+			case PLAN_JETPACK_BACKUP_DAILY_MONTHLY:
+			case PLAN_JETPACK_BACKUP_REALTIME:
+			case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
+				return this.getBackupIcon();
+			case PLAN_JETPACK_SCAN:
+			case PLAN_JETPACK_SCAN_MONTHLY:
+				return this.getScanIcon();
+			case PLAN_JETPACK_ANTI_SPAM:
+			case PLAN_JETPACK_ANTI_SPAM_MONTHLY:
+				return this.getAntiSpamIcon();
+			case PLAN_JETPACK_SEARCH:
+			case PLAN_JETPACK_SEARCH_MONTHLY:
+				return this.getJetpackSearchIcon();
 			default:
 				return this.getDefaultIcon();
 		}
@@ -244,6 +333,16 @@ PlanIcon.propTypes = {
 		PLAN_PREMIUM_2_YEARS,
 		PLAN_BUSINESS,
 		PLAN_BUSINESS_2_YEARS,
+		PLAN_JETPACK_BACKUP_DAILY,
+		PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
+		PLAN_JETPACK_BACKUP_REALTIME,
+		PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
+		PLAN_JETPACK_SCAN,
+		PLAN_JETPACK_SCAN_MONTHLY,
+		PLAN_JETPACK_ANTI_SPAM,
+		PLAN_JETPACK_ANTI_SPAM_MONTHLY,
+		PLAN_JETPACK_SEARCH,
+		PLAN_JETPACK_SEARCH_MONTHLY,
 		PLAN_JETPACK_FREE,
 		PLAN_JETPACK_BUSINESS,
 		PLAN_JETPACK_BUSINESS_MONTHLY,
@@ -251,6 +350,12 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_PREMIUM_MONTHLY,
 		PLAN_JETPACK_PERSONAL,
 		PLAN_JETPACK_PERSONAL_MONTHLY,
+		PLAN_JETPACK_SECURITY_DAILY,
+		PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+		PLAN_JETPACK_SECURITY_REALTIME,
+		PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+		PLAN_JETPACK_COMPLETE,
+		PLAN_JETPACK_COMPLETE_MONTHLY,
 		PLAN_PERSONAL,
 		PLAN_PERSONAL_2_YEARS,
 		PLAN_VIP,
