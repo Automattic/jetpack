@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { get } from 'lodash';
+import { get, isEqual } from 'lodash';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
@@ -159,6 +159,26 @@ export function getLastTweet( state ) {
 		// be the last thing in the tweet text.
 		text: __( "I've also published this thread on my site:", 'jetpack' ) + ` ${ url }`,
 	};
+}
+
+/**
+ * If the passed block type is supported, returns the supported block definition.
+ *
+ * @param {object} state - State object.
+ * @param {string} blockName - The name of the registered block type.
+ * @returns {object} The supported block definition. If the block type is unsupported, returns undefined.
+ */
+export function getSupportedBlockType( state, blockName ) {
+	if ( SUPPORTED_BLOCKS[ blockName ] ) {
+		return SUPPORTED_BLOCKS[ blockName ];
+	}
+
+	// @todo This is a fallback definition, it can be removed when WordPress 5.6 is the minimum supported version.
+	if ( blockName.startsWith( 'core-embed/' ) ) {
+		return SUPPORTED_BLOCKS[ 'core/embed' ];
+	}
+
+	return undefined;
 }
 
 /**
@@ -343,27 +363,31 @@ export function getBoundaryStyleSelectors( state, clientId ) {
  * Helper function to check whether or not there are any tags in the content attributes
  * for this particular block.
  *
+ * @param {object} state - State object.
  * @param {object} props - The block props.
  * @param {Array} tags - An array of the tag names to look for.
  * @returns {boolean} Whether or not any of the given tags were found.
  */
-export function checkForTagsInContentAttributes( props, tags ) {
+export function checkForTagsInContentAttributes( state, props, tags ) {
 	if ( 0 === tags.length ) {
 		return false;
 	}
 
-	if ( ! SUPPORTED_BLOCKS[ props.name ]?.contentAttributes ) {
+	if ( ! getSupportedBlockType( state, props.name )?.contentAttributes ) {
 		return false;
 	}
 
 	const tagRegexp = new RegExp( `<(${ tags.join( '|' ) })( |>|/>)`, 'gi' );
-	return SUPPORTED_BLOCKS[ props.name ].contentAttributes.reduce( ( found, attribute ) => {
-		if ( found ) {
-			return true;
-		}
+	return getSupportedBlockType( state, props.name ).contentAttributes.reduce(
+		( found, attribute ) => {
+			if ( found ) {
+				return true;
+			}
 
-		return tagRegexp.test( props.attributes[ attribute ] );
-	}, false );
+			return tagRegexp.test( props.attributes[ attribute ] );
+		},
+		false
+	);
 }
 
 /**
@@ -399,7 +423,10 @@ export function getPopoverWarnings( state, props ) {
 	}
 
 	const popoverWarnings = [];
-	if ( ! SUPPORTED_BLOCKS[ props.name ] && ! SUPPORTED_CONTAINER_BLOCKS[ props.name ] ) {
+	if (
+		! getSupportedBlockType( state, props.name ) &&
+		! SUPPORTED_CONTAINER_BLOCKS[ props.name ]
+	) {
 		popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
 	} else {
 		if ( 'core/gallery' === props.name && props.attributes.images.length > 4 ) {
@@ -407,7 +434,7 @@ export function getPopoverWarnings( state, props ) {
 		}
 
 		if (
-			checkForTagsInContentAttributes( props, [
+			checkForTagsInContentAttributes( state, props, [
 				'strong',
 				'bold',
 				'em',
@@ -421,7 +448,7 @@ export function getPopoverWarnings( state, props ) {
 			popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
 		}
 
-		if ( checkForTagsInContentAttributes( props, [ 'a' ] ) ) {
+		if ( checkForTagsInContentAttributes( state, props, [ 'a' ] ) ) {
 			popoverWarnings.push( __( 'Links will be posted seperately.', 'jetpack' ) );
 		}
 	}
@@ -443,7 +470,7 @@ export function isSelectedTweetBoundary( state, props ) {
 		return false;
 	}
 
-	const supportedBlock = !! SUPPORTED_BLOCKS[ props.name ];
+	const supportedBlock = getSupportedBlockType( state, props.name );
 	const tweets = getTweetsForBlock( state, props.clientId );
 
 	if ( ! tweets || tweets.length === 0 ) {
@@ -459,5 +486,29 @@ export function isSelectedTweetBoundary( state, props ) {
 		( isBlockSelected( props.clientId ) && ! supportedBlock ) ||
 		( lastTweet.blocks[ lastTweet.blocks.length - 1 ].clientId === props.clientId &&
 			tweets.some( tweet => tweet.blocks.some( block => isBlockSelected( block.clientId ) ) ) )
+	);
+}
+
+/**
+ * Checks whether or not the content attributes have changed, given the prevProps, and props.
+ *
+ * @param {object} state - State object.
+ * @param {object} prevProps - The previous props.
+ * @param {object} props - The current props.
+ * @returns {boolean} Whether or not the content attributes in this block have changed.
+ */
+export function contentAttributesChanged( state, prevProps, props ) {
+	const supportedBlockType = getSupportedBlockType( state, props.name );
+	if ( ! supportedBlockType ) {
+		return false;
+	}
+
+	const attributeNames = supportedBlockType.contentAttributes;
+	return ! isEqual(
+		attributeNames.map( attribute => ( {
+			attribute,
+			content: prevProps.attributes[ attribute ],
+		} ) ),
+		attributeNames.map( attribute => ( { attribute, content: props.attributes[ attribute ] } ) )
 	);
 }

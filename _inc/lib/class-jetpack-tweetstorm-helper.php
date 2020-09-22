@@ -276,7 +276,7 @@ class Jetpack_Tweetstorm_Helper {
 		self::start_new_tweet();
 
 		foreach ( $blocks as $block ) {
-			$block_def = self::$supported_blocks[ $block['name'] ];
+			$block_def = self::get_block_definition( $block['name'] );
 
 			// Grab the most recent tweet.
 			$current_tweet = self::get_current_tweet();
@@ -303,9 +303,28 @@ class Jetpack_Tweetstorm_Helper {
 	}
 
 	/**
+	 * If the passed block name is supported, return the block definition.
+	 *
+	 * @param string $block_name The registered block name.
+	 * @return array|null The block definition, if it's supported.
+	 */
+	private static function get_block_definition( $block_name ) {
+		if ( isset( self::$supported_blocks[ $block_name ] ) ) {
+			return self::$supported_blocks[ $block_name ];
+		}
+
+		// @todo This is a fallback definition, it can be removed when WordPress 5.6 is the minimum supported version.
+		if ( 0 === strpos( $block_name, 'core-embed/' ) ) {
+			return self::$supported_blocks['core/embed'];
+		}
+
+		return null;
+	}
+
+	/**
 	 * If the block has any text, process it, and add it to the tweet list.
 	 *
-	 * @param array $block  The block to process.
+	 * @param array $block The block to process.
 	 */
 	private static function add_text_to_tweets( $block ) {
 		// This is a text block, is there any text?
@@ -313,7 +332,7 @@ class Jetpack_Tweetstorm_Helper {
 			return;
 		}
 
-		$block_def = self::$supported_blocks[ $block['name'] ];
+		$block_def = self::get_block_definition( $block['name'] );
 
 		// Grab the most recent tweet, so we can append to that if we can.
 		$current_tweet = self::get_current_tweet();
@@ -614,7 +633,7 @@ class Jetpack_Tweetstorm_Helper {
 		$block_count = count( $blocks );
 
 		for ( $ii = 0; $ii < $block_count; $ii++ ) {
-			if ( ! isset( self::$supported_blocks[ $blocks[ $ii ]['block']['blockName'] ] ) ) {
+			if ( ! self::get_block_definition( $blocks[ $ii ]['block']['blockName'] ) ) {
 				unset( $blocks[ $ii ] );
 				continue;
 			}
@@ -680,7 +699,7 @@ class Jetpack_Tweetstorm_Helper {
 		$tweet['changed'] = true;
 
 		if ( isset( $block ) ) {
-			$block_def = self::$supported_blocks[ $block['name'] ];
+			$block_def = self::get_block_definition( $block['name'] );
 
 			// Check if this block type will be forcing a new tweet.
 			if ( $block_def['force_finished'] ) {
@@ -832,7 +851,7 @@ class Jetpack_Tweetstorm_Helper {
 			return false;
 		}
 
-		$block_def = self::$supported_blocks[ $block['name'] ];
+		$block_def = self::get_block_definition( $block['name'] );
 
 		if ( isset( $block_def['content'] ) && count( $block_def['content'] ) > 0 ) {
 			$tags = $block_def['content'];
@@ -1020,7 +1039,7 @@ class Jetpack_Tweetstorm_Helper {
 			return '';
 		}
 
-		$block_def = self::$supported_blocks[ $block['blockName'] ];
+		$block_def = self::get_block_definition( $block['blockName'] );
 
 		// We currently only support extracting text from HTML text nodes.
 		if ( ! isset( $block_def['content_location'] ) || 'html' !== $block_def['content_location'] ) {
@@ -1092,7 +1111,7 @@ class Jetpack_Tweetstorm_Helper {
 	 * }
 	 */
 	private static function extract_media_from_block( $block ) {
-		$block_def = self::$supported_blocks[ $block['blockName'] ];
+		$block_def = self::get_block_definition( $block['blockName'] );
 
 		$media = array();
 
@@ -1156,6 +1175,11 @@ class Jetpack_Tweetstorm_Helper {
 			return $block['attrs']['url'];
 		}
 
+		// @todo This fallback can be removed when WordPress 5.6 is the minimum supported version.
+		if ( 'core-embed/twitter' === $block['blockName'] ) {
+			return $block['attrs']['url'];
+		}
+
 		return '';
 	}
 
@@ -1166,7 +1190,7 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return string The URL. Empty string if there is none available.
 	 */
 	private static function extract_embed_from_block( $block ) {
-		$block_def = self::$supported_blocks[ $block['blockName'] ];
+		$block_def = self::get_block_definition( $block['blockName'] );
 
 		if ( 'embed' !== $block_def['type'] ) {
 			return '';
@@ -1174,6 +1198,11 @@ class Jetpack_Tweetstorm_Helper {
 
 		// Twitter embeds are handled in ::extract_tweet_from_block().
 		if ( 'core/embed' === $block['blockName'] && 'twitter' === $block['attrs']['providerNameSlug'] ) {
+			return '';
+		}
+
+		// @todo This fallback can be removed when WordPress 5.6 is the minimum supported version.
+		if ( 'core-embed/twitter' === $block['blockName'] ) {
 			return '';
 		}
 

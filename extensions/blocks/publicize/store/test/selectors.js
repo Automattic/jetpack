@@ -259,7 +259,7 @@ describe( 'checkForTagsInContentAttributes', () => {
 		};
 		const tags = [ 'strong' ];
 
-		expect( checkForTagsInContentAttributes( props, tags ) ).toBeFalsy();
+		expect( checkForTagsInContentAttributes( {}, props, tags ) ).toBeFalsy();
 	} );
 
 	it( 'should return false if the tags are not in the content', () => {
@@ -271,7 +271,7 @@ describe( 'checkForTagsInContentAttributes', () => {
 		};
 		const tags = [ 'strong', 'em', 'b' ];
 
-		expect( checkForTagsInContentAttributes( props, tags ) ).toBeFalsy();
+		expect( checkForTagsInContentAttributes( {}, props, tags ) ).toBeFalsy();
 	} );
 
 	it( 'should return true if the tags are in the content', () => {
@@ -283,7 +283,7 @@ describe( 'checkForTagsInContentAttributes', () => {
 		};
 		const tags = [ 'strong', 'em', 'b', 'i' ];
 
-		expect( checkForTagsInContentAttributes( props, tags ) ).toBeTruthy();
+		expect( checkForTagsInContentAttributes( {}, props, tags ) ).toBeTruthy();
 	} );
 
 	it( 'should return true if the tags are in only one attribute', () => {
@@ -296,6 +296,6 @@ describe( 'checkForTagsInContentAttributes', () => {
 		};
 		const tags = [ 'strong', 'em', 'b', 'i' ];
 
-		expect( checkForTagsInContentAttributes( props, tags ) ).toBeTruthy();
+		expect( checkForTagsInContentAttributes( {}, props, tags ) ).toBeTruthy();
 	} );
 } );

@@ -33,8 +33,14 @@ export async function refreshConnectionTestResults() {
  * @returns {Array} The blocks that can be turned into tweets.
  */
 export const computeTweetBlocks = ( blocks = [] ) => {
+	const { getSupportedBlockType } = select( 'jetpack/publicize' );
 	return flatMap( blocks, ( block = {} ) => {
-		if ( SUPPORTED_BLOCKS[ block.name ] ) {
+		if ( getSupportedBlockType( block.name ) ) {
+			return block;
+		}
+
+		// core-embed/* blocks are a special case.
+		if ( block.name.startsWith( 'core-embed/' ) ) {
 			return block;
 		}
 

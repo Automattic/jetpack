@@ -11,8 +11,6 @@ import { Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { SocialServiceIcon } from '../../../shared/icons';
-import { SUPPORTED_BLOCKS } from './index';
-import { contentAttributesChanged } from './utils';
 
 import './editor.scss';
 
@@ -36,13 +34,15 @@ class TweetDivider extends Component {
 			isTweetStorm,
 			updateAnnotations,
 			updateTweets,
+			supportedBlockType,
+			contentAttributesChanged,
 		} = this.props;
 
 		if ( ! isTweetStorm ) {
 			return;
 		}
 
-		if ( ! SUPPORTED_BLOCKS[ childProps.name ] ) {
+		if ( ! supportedBlockType ) {
 			return;
 		}
 
@@ -130,6 +130,8 @@ export default compose( [
 			getBoundariesForBlock,
 			getBoundaryStyleSelectors,
 			isSelectedTweetBoundary,
+			getSupportedBlockType,
+			contentAttributesChanged,
 		} = select( 'jetpack/publicize' );
 
 		const currentAnnotations = select( 'core/annotations' ).__experimentalGetAllAnnotationsForBlock(
@@ -143,14 +145,17 @@ export default compose( [
 			boundaryStylesSelectors: getBoundaryStyleSelectors( childProps.clientId ),
 			popoverWarnings: getPopoverWarnings( childProps ),
 			currentAnnotations,
+			supportedBlockType: getSupportedBlockType( childProps.name ),
+			contentAttributesChanged,
 		};
 	} ),
 	withDispatch( ( dispatch, { childProps }, { select } ) => {
 		return {
 			updateTweets: () => dispatch( 'jetpack/publicize' ).refreshTweets(),
 			updateAnnotations: () => {
+				const { contentAttributesChanged, getTweetsForBlock } = select( 'jetpack/publicize' );
 				// If this block hasn't been assigned to a tweet, skip annotation work.
-				const tweets = select( 'jetpack/publicize' ).getTweetsForBlock( childProps.clientId );
+				const tweets = getTweetsForBlock( childProps.clientId );
 				if ( ! tweets || tweets.length === 0 ) {
 					return;
 				}
