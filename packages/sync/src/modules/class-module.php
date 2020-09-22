@@ -273,6 +273,7 @@ abstract class Module {
 	 * @return array|object|null
 	 */
 	public function get_next_chunk( $config, $status, $chunk_size ) {
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		global $wpdb;
 		return $wpdb->get_col(
 			<<<SQL
@@ -284,6 +285,7 @@ ORDER BY {$this->id_field()}
 DESC LIMIT {$chunk_size}
 SQL
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
