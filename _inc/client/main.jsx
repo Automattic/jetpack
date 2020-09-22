@@ -52,6 +52,7 @@ import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
+import ReconnectModal from 'components/reconnect-modal';
 
 const setupRoutes = [
 	'/setup',
@@ -74,6 +75,11 @@ const settingsRoutes = [
 ];
 
 class Main extends React.Component {
+	constructor( props ) {
+		super( props );
+		this.closeReconnectModal = this.closeReconnectModal.bind( this );
+	}
+
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
@@ -195,6 +201,7 @@ class Main extends React.Component {
 
 		switch ( route ) {
 			case '/dashboard':
+			case '/reconnect':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -202,18 +209,6 @@ class Main extends React.Component {
 						rewindStatus={ this.props.rewindStatus }
 					/>
 				);
-				break;
-			case '/reconnect':
-				// Trigger actual reconnect if is not already happening.
-				if ( this.props.isSiteConnected && ! this.props.isReconnectingSite ) {
-					this.props.reconnectSite();
-				}
-				// Update the state object or URL of the current history entry
-				// in response to user 'reconnect' action.
-				// If we didn't do this, we'd get in an endless loop due to window reloading
-				// after reconnection.
-				this.props.history.replace( '/dashboard' );
-				pageComponent = this.getAtAGlance();
 				break;
 			case '/my-plan':
 				pageComponent = (
@@ -334,9 +329,20 @@ class Main extends React.Component {
 		return this.props.isReconnectingSite;
 	}
 
+	shouldShowReconnectModal() {
+		return '/reconnect' === this.props.location.pathname;
+	}
+
+	closeReconnectModal() {
+		this.props.history.replace( '/dashboard' );
+	}
+
 	render() {
 		return (
 			<div>
+				{ this.shouldShowReconnectModal() && (
+					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
+				) }
 				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 				<div className="jp-lower">
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
