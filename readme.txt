@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Embeds: update song.link oEmbed to support more formats.
 * Instant Search: optimize images displayed in Search results thanks to Jetpack's Image CDN.
 * OpenTable Block: display wide style widget as standard on mobile.
+* Site Health: add new test for testing blog and current user's token health.
 * Site Health: refine information shared when using the "Copy site info to clipboard" button.
 
 **Improved compatibility**
