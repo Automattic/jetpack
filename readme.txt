@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Autoloader: add support for non-optimized PSR-4 namespace loading.
+* Autoloader: add PSR-0 support.
 * Autoloader: add handling for filtered `active_plugins` options that would otherwise have left classes out.
 * Dashboard: remove plugin autoupdate settings from the dashboard now that WordPress itself handles this feature.
 * Embeds: solve PHP 8 compatibility issues with Crowdsignal embeds.
