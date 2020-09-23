@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Blocks: update icon color for all blocks provided by Jetpack.
+* Custom CSS: add support for the `clip-path` property.
 * Dashboard: clarify Backup & Scan settings and alerts.
 * Dashboard: improve the reconnecting process for site owners willing to disconnect and then reconnect Jetpack to WordPress.com.
 * Embeds: update song.link oEmbed to support more formats.
