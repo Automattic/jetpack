@@ -16,15 +16,6 @@ const FEATURE_NAME = 'eventbrite';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
- * Determine whether the page will be AMP.
- *
- * @return bool
- */
-function is_amp_request() {
-	return class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
-}
-
-/**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
@@ -76,13 +67,12 @@ function render_block( $attr, $content ) {
 	);
 
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
-	$is_amp    = is_amp_request();
 
 	// Show the embedded version.
 	if ( empty( $attr['useModal'] ) && ( empty( $attr['style'] ) || 'modal' !== $attr['style'] ) ) {
-		return render_embed_block( $widget_id, $is_amp, $attr );
+		return render_embed_block( $widget_id, Blocks::is_amp_request(), $attr );
 	} else {
-		return render_modal_block( $widget_id, $is_amp, $attr, $content );
+		return render_modal_block( $widget_id, Blocks::is_amp_request(), $attr, $content );
 	}
 }
 
