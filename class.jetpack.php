@@ -6181,7 +6181,18 @@ endif;
 			$local_options = self::get_sync_error_idc_option();
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
-				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+
+				// If the WP.com expected home and siteurl match local home and siteurl it is not valid IDC.
+				if (
+						isset( $sync_error['wpcom_home'] ) &&
+						isset( $sync_error['wpcom_siteurl'] ) &&
+						$sync_error['wpcom_home'] === $local_options['home'] &&
+						$sync_error['wpcom_siteurl'] === $local_options['siteurl']
+				) {
+					$is_valid = false;
+					// Enable migrate_for_idc so that sync actions are accepted.
+					Jetpack_Options::update_option( 'migrate_for_idc', true );
+				} elseif ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
 				}
 			}
