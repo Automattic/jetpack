@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Dashboard: clarify Backup & Scan settings and alerts.
+* Site Health: refine information shared when using the "Copy site info to clipboard" button.
 
 **Improved compatibility**
 
