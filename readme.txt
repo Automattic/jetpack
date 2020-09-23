@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Google Analytics: move the legacy variant from the HTML body to head.
 * Instant Search: optimize images displayed in Search results thanks to Jetpack's Image CDN.
 * Instant Search: improve layout of search results on mobile devices.
+* Instant Search: trigger the search overlay upon typing into the search input.
 * Pay with PayPal Block: display more helpful content in subscription emails.
 * OpenTable Block: display wide style widget as standard on mobile.
 * Site Health: add new test for testing blog and current user's token health.
