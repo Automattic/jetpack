@@ -29,13 +29,11 @@ const UpgradePlanBanner = ( {
 		requiredPlan,
 		onRedirect
 	);
-	if ( ! visible ) {
-		return null;
-	}
 
 	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', {
 		'wp-block': context === 'editor-canvas',
 		'block-editor-block-list__block': context === 'editor-canvas',
+		'jetpack-upgrade-plan__hidden': ! visible,
 	} );
 
 	const redirectingText = __( 'Redirecting…', 'jetpack' );
@@ -51,19 +49,23 @@ const UpgradePlanBanner = ( {
 					</strong>
 				) }
 				{ description && (
-					<span className={ `${ className }__description banner-description` }>{ description }</span>
+					<span className={ `${ className }__description banner-description` }>
+						{ description }
+					</span>
 				) }
-				{ checkoutUrl && (
+				{
 					<Button
 						href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ goToCheckoutPage }
 						target="_top"
-						className="is-primary"
+						className={ classNames( 'is-primary', {
+							'jetpack-upgrade-plan__hidden': ! checkoutUrl,
+						} ) }
 						isBusy={ isRedirecting }
 					>
 						{ isRedirecting ? redirectingText : buttonText }
 					</Button>
-				) }
+				}
 			</div>
 		</div>
 	);
