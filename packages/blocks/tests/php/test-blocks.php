@@ -125,7 +125,7 @@ class Test_Blocks extends TestCase {
 			),
 			'gated_block'
 		);
-		$this->assertEquals( false, $version_gated );
+		$this->assertFalse( false, $version_gated );
 	}
 
 	/**
@@ -141,7 +141,7 @@ class Test_Blocks extends TestCase {
 			),
 			'ungated_block'
 		);
-		$this->assertEquals( true, $version_gated );
+		$this->assertTrue( true, $version_gated );
 	}
 
 	/**
