@@ -18,7 +18,7 @@ namespace Automattic\Jetpack;
  */
 class Blocks {
 	/**
-	 * Wrapper function to safely register a gutenberg block type
+	 * Wrapper function to safely register a Gutenberg block type
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into register_block_type.
@@ -105,28 +105,28 @@ class Blocks {
 	 * optionally fall back to that.
 	 *
 	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
-	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
+	 * @param string $slug The slug of the block or plugin that has the Gutenberg version requirement.
 	 *
 	 * @since 8.3.0
 	 *
-	 * @return boolean True if the version of gutenberg required by the block or plugin is available.
+	 * @return boolean True if the version of Gutenberg required by the block or plugin is available.
 	 */
 	public static function is_gutenberg_version_available( $version_requirements, $slug ) {
 		global $wp_version;
 
-		// Bail if we don't at least have the gutenberg version requirement, the WP version is optional.
+		// Bail if we don't at least have the Gutenberg version requirement, the WP version is optional.
 		if ( empty( $version_requirements['gutenberg'] ) ) {
 			return false;
 		}
 
-		// If running a local dev build of gutenberg plugin GUTENBERG_DEVELOPMENT_MODE is set so assume correct version.
+		// If running a local dev build of Gutenberg plugin GUTENBERG_DEVELOPMENT_MODE is set so assume correct version.
 		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
 			return true;
 		}
 
 		$version_available = false;
 
-		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise if WP version
+		// If running a production build of the Gutenberg plugin then GUTENBERG_VERSION is set, otherwise if WP version
 		// with required version of Gutenberg is known check that.
 		if ( defined( 'GUTENBERG_VERSION' ) ) {
 			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg'], '>=' );
@@ -209,4 +209,3 @@ class Blocks {
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
 	}
 }
-
