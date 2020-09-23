@@ -20,18 +20,24 @@ class Blocks {
 	/**
 	 * Wrapper function to safely register a Gutenberg block type
 	 *
-	 * @param string $slug Slug of the block.
-	 * @param array  $args Arguments that are passed into register_block_type.
-	 *
 	 * @see register_block_type
 	 *
-	 * @since 6.7.0
+	 * @since 9.0.0
+	 *
+	 * @param string $slug Slug of the block.
+	 * @param array  $args {
+	 *     Arguments that are passed into register_block_type.
+	 *     See register_block_type for full list of arguments.
+	 *     Can also include 2 extra arguments not currently supported by register_block_type.
+	 *
+	 *     @type array $version_requirements Array containing required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
+	 *     @type bool  $plan_check           Should we check for a specific plan before registering the block.
 	 *
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
 		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
-			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 7.1.0' );
+			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
 		}
 
@@ -75,7 +81,7 @@ class Blocks {
 	/**
 	 * Check if an extension/block is already registered
 	 *
-	 * @since 7.2
+	 * @since 9.0.0
 	 *
 	 * @param string $slug Name of extension/block to check.
 	 *
@@ -87,6 +93,8 @@ class Blocks {
 
 	/**
 	 * Remove the 'jetpack/' or jetpack-' prefix from an extension name
+	 *
+	 * @since 9.0.0
 	 *
 	 * @param string $extension_name The extension name.
 	 *
@@ -104,10 +112,10 @@ class Blocks {
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
 	 *
+	 * @since 9.0.0
+	 *
 	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 * @param string $slug The slug of the block or plugin that has the Gutenberg version requirement.
-	 *
-	 * @since 8.3.0
 	 *
 	 * @return boolean True if the version of Gutenberg required by the block or plugin is available.
 	 */
@@ -199,6 +207,8 @@ class Blocks {
 
 	/**
 	 * Does the page return AMP content.
+	 *
+	 * @since 9.0.0
 	 *
 	 * @return bool $is_amp_request Are we on an AMP view.
 	 */
