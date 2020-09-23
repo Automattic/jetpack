@@ -142,6 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Activity Log: avoid potential duplicate entries.
 * Connection Flow: resolve conflicts where "staging" connection errors were wrongly detected for some sites.
 * Copy Post: ensure categories can be copied properly on sites using an old database schema.
 * Donations / Payments: fix link to WordPress.com on sites where WordPress is installed in a subdirectory.
