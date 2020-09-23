@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Synchronization: ensure theme information is correctly synchronized with WordPress.com.
 * WordPress.com REST API: improve messaging when uploading a media file via the API fails.
 
 --------
