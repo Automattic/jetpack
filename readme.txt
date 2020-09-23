@@ -120,6 +120,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Autoloader: add support for non-optimized PSR-4 namespace loading.
 * Dashboard: remove plugin autoupdate settings from the dashboard now that WordPress itself handles this feature.
+* Infinite Scroll: ensure Infinite Scroll works on AMP views as well for the Twenty Nineteen and Twenty Twenty themes.
+* Infinite Scroll: add tools allowing theme authors to implement Infinite Scroll on AMP views in their own theme.
 * Pinterest Block: ensure full compatibility with the AMP plugin.
 * Security Scanning: avoid validation issues when using the AMP plugin and when notified of a security threat on your site.
 * Slideshow Block: ensure images are displayed properly when using the Swell theme.
