@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants/urls';
 import Card from 'components/card';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
