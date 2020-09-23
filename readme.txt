@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: clarify Backup & Scan settings and alerts.
 * Dashboard: improve the reconnecting process for site owners willing to disconnect and then reconnect Jetpack to WordPress.com.
 * Embeds: update song.link oEmbed to support more formats.
+* Embeds: allow Instagram embeds to keep working via the WordPress.com REST API.
 * Google Analytics: move the legacy variant from the HTML body to head.
 * Instant Search: optimize images displayed in Search results thanks to Jetpack's Image CDN.
 * OpenTable Block: display wide style widget as standard on mobile.
