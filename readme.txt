@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Blocks: update icon color for all blocks provided by Jetpack.
 * Dashboard: clarify Backup & Scan settings and alerts.
 * Instant Search: optimize images displayed in Search results thanks to Jetpack's Image CDN.
 * Site Health: refine information shared when using the "Copy site info to clipboard" button.
