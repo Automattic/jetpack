@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * OpenTable Block: display wide style widget as standard on mobile.
 * Site Health: add new test for testing blog and current user's token health.
 * Site Health: refine information shared when using the "Copy site info to clipboard" button.
+* Site Health: offer more information and help in failing tests.
 
 **Improved compatibility**
 
