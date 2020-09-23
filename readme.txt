@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: remove plugin autoupdate settings from the dashboard now that WordPress itself handles this feature.
 * Pinterest Block: ensure full compatibility with the AMP plugin.
 * Security Scanning: avoid validation issues when using the AMP plugin and when notified of a security threat on your site.
+* Slideshow Block: ensure images are displayed properly when using the Swell theme.
 
 **Bug fixes**
 
