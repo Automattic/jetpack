@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Dashboard: clarify Backup & Scan settings and alerts.
 
 **Improved compatibility**
 
