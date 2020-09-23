@@ -253,8 +253,27 @@ add_action(
 	11 // Priority 11 so it runs after VaultPress `admin_head` hook
 );
 
-// Disable core auto updates for plugins because Jetpack handles plugin updates
-add_filter( 'plugins_auto_update_enabled', '__return_false' );
+function wpcomsh_set_up_auto_update_policy() {
+	if ( is_callable( 'Jetpack::is_active' ) && Jetpack::is_active() ) {
+		// Disable core auto updates for plugins because Jetpack updates plugins more safely and quickly
+		add_filter( 'plugins_auto_update_enabled', '__return_false' );
+	} else {
+		// Filter to act as if all unmanaged plugins are auto-updated
+		add_filter( 'pre_option_auto_update_plugins', 'wpcomsh_list_unmanaged_plugins_for_auto_update' );
+
+		// Let's avoid saving auto updated plugins since we're auto updating all unmanaged plugins
+		add_filter( 'pre_update_option_auto_update_plugins', '__return_empty_array' );
+	}
+}
+add_action( 'plugins_loaded', 'wpcomsh_set_up_auto_update_policy' );
+
+function wpcomsh_list_unmanaged_plugins_for_auto_update() {
+	$all_plugins = array_keys( get_plugins() );
+	$unmanaged_plugins = array_filter( $all_plugins, function ( $plugin ) {
+		return ! wpcomsh_is_managed_plugin( $plugin );
+	} );
+	return $unmanaged_plugins;
+}
 
 function wpcomsh_atomic_managed_theme_template_auto_update_label() {
 	/* translators: Message about how a managed theme is updated. */
@@ -334,10 +353,8 @@ function wpcomsh_hide_update_notice_for_managed_plugins() {
 add_action( 'load-plugins.php', 'wpcomsh_hide_update_notice_for_managed_plugins', 25 );
 
 function wpcomsh_is_managed_plugin( $plugin_file ) {
-	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		if ( class_exists( 'Atomic_Platform_Mu_Plugin' ) ) {
-			return ( new Atomic_Platform_Mu_Plugin() )->is_managed_plugin( $plugin_file );
-		}
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && class_exists( 'Atomic_Platform_Mu_Plugin' ) ) {
+		return Atomic_Platform_Mu_Plugin::is_managed_plugin( $plugin_file );
 	}
 
 	return false;
