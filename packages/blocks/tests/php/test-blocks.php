@@ -195,15 +195,6 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
-	 * Test to ensure blocks are registered.
-	 *
-	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
-	 */
-	public function test_jetpack_register_block() {
-		$this->assertEquals( 'jetpack/apple', $this->block_name );
-	}
-
-	/**
 	 * Ensure blocks cannot be registered twice.
 	 *
 	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
