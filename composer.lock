@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/a8c-mc-stats",
@@ -39,7 +39,7 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
@@ -75,7 +75,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -111,11 +111,11 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "b9eb7c8e38782d3715568382ea97462c5608bd92"
+                "reference": "557195e755ff951fe3f8544056c5696eecc4d2cb"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -151,7 +151,7 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
@@ -176,7 +176,7 @@
         },
         {
             "name": "automattic/jetpack-blocks",
-            "version": "dev-master",
+            "version": "dev-add/nonce-removal",
             "dist": {
                 "type": "path",
                 "url": "./packages/blocks",
@@ -211,7 +211,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -246,7 +246,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/config",
@@ -268,15 +268,14 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "ccbf1b70e17ee389082c8aaa1cf625582fd9b373"
+                "reference": "bb68aeb045a837fe2fe4784ca41ac667fe5b6fa5"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-heartbeat": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -316,7 +315,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -348,7 +347,7 @@
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/device-detection",
@@ -380,7 +379,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
@@ -411,7 +410,7 @@
         },
         {
             "name": "automattic/jetpack-heartbeat",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/heartbeat",
@@ -446,7 +445,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -490,14 +489,13 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/lazy-images",
-                "reference": "b42d4c093ea12c89dd16c713c07e5a2c15c8ff5d"
+                "reference": "16409fc61cce65c8b914b08c80cae2cc0662ca2d"
             },
             "require": {
-                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
@@ -529,7 +527,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -561,7 +559,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -590,7 +588,7 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
@@ -624,7 +622,7 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
@@ -655,7 +653,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -687,7 +685,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -720,7 +718,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -749,13 +747,14 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "723788a4aa7c508746f7c425f99c645c2a057598"
+                "reference": "f97241d09352c4ca44eab26520cac4c1903d08d3"
             },
             "require": {
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
@@ -785,7 +784,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
