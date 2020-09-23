@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Copy Post: ensure categories can be copied properly on sites using an old database schema.
 * Donations / Payments: fix link to WordPress.com on sites where WordPress is installed in a subdirectory.
+* Stats: do not track visits when site is in staging mode.
 * Synchronization: ensure theme information is correctly synchronized with WordPress.com.
 * WordPress.com REST API: improve messaging when uploading a media file via the API fails.
 
