@@ -38,20 +38,24 @@ class WP_Test_Jetpack_Shortcodes_Loom extends WP_UnitTestCase {
 		$actual = ob_get_clean();
 
 		$this->assertContains( $expected['title'], $actual );
-		$this->assertContains( $expected['src'], $actual );
+		$this->assertContains( $expected['title'], $actual );
+		$this->assertContains( $expected['webkitallowfullscreen'], $actual );
+		$this->assertContains( $expected['mozallowfullscreen'], $actual );
+		$this->assertContains( $expected['allowfullscreen'], $actual );
 	}
 
 	/**
 	 * Test embeds for the Loom service.
-	 * Use this function is a chance to add more tests,
-	 * simply filling the array with more paired  
+	 * Use this method is an oportunity to add more tests,
+	 * simply filling the array with more paired link and expected data.
 	 *
 	 * @since 9.0.0
 	 */
 	public function get_loom_data() {
-		return array (
+		return array(
 			'how-to-install-wordpress-plugin' => array(
-				'https://www.loom.com/share/e3dcec661c37487b818b8e3b8225ec27', array(
+				'https://www.loom.com/share/e3dcec661c37487b818b8e3b8225ec27',
+				array(
 					'title'                 => 'title="How To Install a WordPress Plugin"',
 					'src'                   => 'src="https://www.loom.com/embed/e3dcec661c37487b818b8e3b8225ec27"',
 					'webkitallowfullscreen' => 'webkitallowfullscreen',
@@ -62,3 +66,4 @@ class WP_Test_Jetpack_Shortcodes_Loom extends WP_UnitTestCase {
 		);
 	}
 }
+
