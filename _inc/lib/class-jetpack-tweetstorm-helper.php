@@ -8,8 +8,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
-
-require_once 'class-twitter-regex.php';
+use Twitter\Text\Regex as Twitter_Regex;
 
 /**
  * Class Jetpack_Tweetstorm_Helper
