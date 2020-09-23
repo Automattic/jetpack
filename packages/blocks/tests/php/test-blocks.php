@@ -157,7 +157,7 @@ class Test_Blocks extends TestCase {
 	public function test_remove_extension_prefix( $extension_slug, $expected_short_slug ) {
 		$short_slug = Blocks::remove_extension_prefix( $extension_slug );
 
-		$this->assertEquals( $short_slug, $expected_short_slug );
+		$this->assertEquals( $expected_short_slug, $short_slug );
 	}
 
 	/**
