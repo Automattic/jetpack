@@ -117,6 +117,7 @@ class AddressEdit extends Component {
 				onChange={ newValue => setAttributes( { [ key ]: newValue } ) }
 				onKeyDown={ this.preventEnterKey }
 				onFocus={ onFocus }
+				key={ `address-child-${ key }` }
 			/>
 		);
 		return (
