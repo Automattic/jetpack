@@ -41,8 +41,10 @@ class Blocks {
 			$slug = 'jetpack/' . $slug;
 		}
 
-		if ( isset( $args['version_requirements'] )
-			&& ! self::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
+		if (
+			isset( $args['version_requirements'] )
+			&& ! self::is_gutenberg_version_available( $args['version_requirements'], $slug )
+		) {
 			return false;
 		}
 
