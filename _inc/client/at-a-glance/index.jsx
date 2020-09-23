@@ -24,12 +24,14 @@ import DashSearch from './search';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
 	isMultisite,
 	userCanManageModules,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
+import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
@@ -84,7 +86,18 @@ class AtAGlance extends Component {
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
 		const securityCards = [];
-		securityCards.push( <DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+
+		// Show the Scan card for "regular" sites, but not multi-sites
+		// ... unless they're using VaultPress
+		const hasVaultPress = get(
+			this.props.vaultPressData,
+			[ 'data', 'features', 'security' ],
+			false
+		);
+		if ( ! this.props.multisite || hasVaultPress ) {
+			securityCards.push( <DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+		}
+
 		if ( ! this.props.multisite ) {
 			securityCards.push(
 				<DashBackups
@@ -138,6 +151,7 @@ class AtAGlance extends Component {
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
+					<QueryVaultPressData />
 					<DashStats { ...settingsProps } { ...urls } />
 					{ renderPairs( pairs ) }
 					{ connections }
@@ -185,5 +199,6 @@ export default connect( state => {
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
+		vaultPressData: getVaultPressData( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
