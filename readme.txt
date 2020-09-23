@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: update icon color for all blocks provided by Jetpack.
 * Dashboard: clarify Backup & Scan settings and alerts.
+* Dashboard: improve the reconnecting process for site owners willing to disconnect and then reconnect Jetpack to WordPress.com.
 * Embeds: update song.link oEmbed to support more formats.
 * Instant Search: optimize images displayed in Search results thanks to Jetpack's Image CDN.
 * OpenTable Block: display wide style widget as standard on mobile.
