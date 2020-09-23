@@ -11,6 +11,8 @@
 
 namespace Automattic\Jetpack;
 
+use Jetpack_Gutenberg;
+
 /**
  * Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.
  *
@@ -56,7 +58,7 @@ class Blocks {
 		$feature_name = self::remove_extension_prefix( $slug );
 
 		// This is only useful in Jetpack.
-		if ( class_exists( 'Jetpack_Gutenberg' ) ) {
+		if ( class_exists( Jetpack_Gutenberg::class ) ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if (
 				isset( $args['plan_check'] )
@@ -146,9 +148,9 @@ class Blocks {
 
 		if (
 			! $version_available
-			&& class_exists( 'Jetpack_Gutenberg' ) // This is only useful in Jetpack.
+			&& class_exists( Jetpack_Gutenberg::class ) // This is only useful in Jetpack.
 		) {
-			\Jetpack_Gutenberg::set_extension_unavailable(
+			Jetpack_Gutenberg::set_extension_unavailable(
 				$slug,
 				'incorrect_gutenberg_version',
 				array(
