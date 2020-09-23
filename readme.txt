@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* WordPress.com REST API: improve messaging when uploading a media file via the API fails.
 
 --------
 
