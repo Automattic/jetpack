@@ -135,6 +135,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Security Scanning: avoid validation issues when using the AMP plugin and when notified of a security threat on your site.
 * Slideshow Block: ensure images are displayed properly when using the Swell theme.
 * Synchronization: ensure review comments are properly synchronized with WordPress.com.
+* Twitter Threads Block: add support for unrolling threads when Gutenberg 8.8+ is activated.
 * WordPress.com REST API: improved PHP 8.0 support.
 
 **Bug fixes**
