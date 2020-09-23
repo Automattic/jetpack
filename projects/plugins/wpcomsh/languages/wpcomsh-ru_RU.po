@@ -11,13 +11,26 @@ msgstr ""
 "Language: ru\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "Переподключитесь к Instagram, чтобы продолжить работу с этим виджетом."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "<a href=\"%s\">Переподключитесь к Instagram</a>, чтобы продолжить работу с этим виджетом."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "Это приватный сайт. Вам нужно авторизов
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Это приватный сайт. Вам нужно войти в учётную запись пользователя с соответствующими правами доступа, чтобы просматривать его."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "Создайте свой веб-сайт"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Создайте сайт, продавайте свои товары и услуги, заведите блог и многое другое. "
 
@@ -39,45 +52,13 @@ msgstr "Создайте сайт, продавайте свои товары и
 msgid "Coming Soon"
 msgstr "Скоро запуск"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "Выделенный объем дисковой памяти"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "Использованный объем дисковой памяти"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>Подключенная учетная запись Instagram</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">удалить</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "Возникли трудности? Попробуйте сначала <a href=\"%s\" target=\"_blank\">войти в свою учетную запись</a> на Instagram.com."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Предоставление доступа к Instagram"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Возникли проблемы с подключением к Instagram. Повторите попытку позже."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "Подключение..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>Важно. Чтобы активировать виджет, <em>перед</em> подключением учетной записи необходимо нажать \"Сохранить\".</strong> После сохранения виджета нажмите кнопку ниже, чтобы подключить учетную запись Instagram."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "Ключ безопасности nonce отсутствует или недопустим."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "Для удаления этого виджета Instagram его нужно сначала <a href=\"%s\">настроить</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "Облако меток"
 msgid "A cloud of your most used tags."
 msgstr "Облако часто используемых меток."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Мобильные приложения"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "Новые изображения могут появляться на вашем сайте с задержкой до %d минут."
@@ -278,10 +263,6 @@ msgstr "Показывать ваши последние фото из Instagram
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "Мобильные приложения"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "Закрытый сайт"
 msgid "This site is private."
 msgstr "Это закрытый сайт."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Войти"
@@ -856,10 +837,6 @@ msgstr "Создать логотип"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "Добавьте логотип для отображения на вашем сайте. Нет логотипа? Купите профессиональный логотип от Looka — нажмите «Создать логотип», чтобы приступить к его созданию."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "WordPress.com предоставляет функциональность и инструменты"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

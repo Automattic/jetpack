@@ -11,13 +11,26 @@ msgstr ""
 "Language: ko_KR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "이 위젯을 계속 사용하려면 인스타그램에 다시 연결해야 합니다."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "이 위젯을 계속 사용하려면 <a href=\"%s\">인스타그램에 다시 연결</a>해야 합니다."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "비공개 사이트입니다. 이 사이트를 보려면 로그인해야
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "비공개 사이트입니다. 사용 권한이 있는 아이디로 로그인해야 미리보기 할 수 있습니다."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "웹사이트 만들기"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "웹사이트 제작. 상품 판매. 블로그 글 작성. 무엇이든 가능합니다."
 
@@ -39,45 +52,13 @@ msgstr "웹사이트 제작. 상품 판매. 블로그 글 작성. 무엇이든 �
 msgid "Coming Soon"
 msgstr "Coming Soon"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "디스크 공간 할당량"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "사용된 디스크 공간"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>연결된 인스타그램 계정</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">제거</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "문제가 있으신가요? Instagram.com에서 먼저 <a href=\"%s\" target=\"_blank\">올바른 계정에 로그인</a>해 봅니다."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Instagram 액세스 승인"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "현재 인스타그램 연결에 문제가 있습니다. 나중에 다시 연결을 시도하세요."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "연결 중..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>중요: 계정을 연결하기 <em>전에</em> 먼저 저장을 클릭하여 이 위젯을 활성화해야 합니다.</strong> 위젯을 저장한 후 아래 버튼을 클릭하여 인스타그램 계정을 연결하세요."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "보안 논스가 없거나 유효하지 않습니다."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "이 Instagram 위젯을 사용하려면 먼저 <a href=\"%s\">Instagram 위젯을 구성</a>해야 합니다."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "태그 구름"
 msgid "A cloud of your most used tags."
 msgstr "가장 많이 사용한 태그 클라우드."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "앱"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "새 이미지를 사이트에 표시하는 데 최대 %d분이 걸릴 수 있습니다."
@@ -278,10 +263,6 @@ msgstr "최신 Instagram 사진을 표시합니다."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "앱"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "비공개 사이트"
 msgid "This site is private."
 msgstr "이 사이트는 비공개 상태입니다."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "로그인"
@@ -856,10 +837,6 @@ msgstr "로고 만들기"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "사이트에 표시할 로고를 추가하세요. 로고가 없나요? Looka에서 전문 로고를 구입할 수 있습니다. 시작하려면 “로고 만들기”를 클릭하세요."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "워드프레스닷컴에서 제공하는 기능 및 도구"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

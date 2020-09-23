@@ -11,13 +11,26 @@ msgstr ""
 "Language: fr_CH\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "Pour continuer à utiliser ce widget, vous devez vous reconnecter à Instagram."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr "WordPress.com fournissait une fonctionnalité et des outils préinstallés et activés sur tous les sites Atomic"
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "Pour continuer à utiliser ce widget, vous devez vous <a href=\"%s\">reconnecter à Instagram</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr "Mises à jour gérées par WordPress.com"
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Le plan Business pour <strong>%3$s</strong> expire dans %2$s. <a href=\"%1$s\">Renouvelez votre plan</a> pour conserver les fonctionnalités de votre plan Business, comme les extensions et les thèmes personnalisés, SFTP et l’accès phpMyAdmin."
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Le plan eCommerce pour <strong>%3$s</strong> expire dans %2$s. <a href=\"%1$s\">Renouvelez votre plan</a> pour conserver les fonctionnalités de votre plan eCommerce, comme les extensions et les thèmes personnalisés, SFTP et l’accès phpMyAdmin."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "Ce site est privé. Vous devez vous connecter à l'aperçu pour l'affich
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Ce site est privé. Vous devez vous connecter en tant qu'utilisateur autorisé avant de pouvoir le prévisualiser."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "Lancer votre site Web"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Concevez un site Web. Vendez vos produits. Rédigez un blog. Et tant d'autres possibilités."
 
@@ -39,45 +52,13 @@ msgstr "Concevez un site Web. Vendez vos produits. Rédigez un blog. Et tant d'a
 msgid "Coming Soon"
 msgstr "À venir prochainement"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "Quota d'espace disque"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "Espace disque utilisé"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>Compte Instagram connecté</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">supprimer</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "En cas de problème, essayez d’abord de <a href=\"%s\" target=\"_blank\">vous connecter sur Instagram.com</a> avec le compte que vous souhaitez utiliser."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Autoriser l’accès à Instagram"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Instagram rencontre en ce moment des problèmes de connectivité. Merci de réessayer plus tard."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "Connexion en cours..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>Important : Vous devez d'abord cliquer sur Publier pour activer ce widget <em>avant</em> de connecter votre compte.</strong> Après avoir sauvegardé le widget, cliquez sur le bouton ci-dessous pour autoriser votre compte Instagram."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "Nonce de s&eacute;curit&eacute; manquant ou invalide."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "Avant de pouvoir utiliser ce widget  Instagram, il faut <a href=\"%s\">le configurer</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "Nuage de mots-clefs"
 msgid "A cloud of your most used tags."
 msgstr "Un nuage de vos étiquettes les plus utilisées."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Applications"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "L&rsquo;apparition des nouvelles images sur votre site peut prendre jusqu&rsquo;&agrave; %d minutes"
@@ -278,10 +263,6 @@ msgstr "Afficher vos derni&egrave;res photos Instagram."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "Applications"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "Site privé"
 msgid "This site is private."
 msgstr "Ce site est privé."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Connexion"
@@ -856,10 +837,6 @@ msgstr "Créer un logo"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "Ajoutez un logo à afficher sur votre site. Vous n'avez pas de logo ? Cliquez sur « Créer un logo » pour concevoir un logo professionnel sur Looka."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "Fonctionnalité et outils fournis par WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

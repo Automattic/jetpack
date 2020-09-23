@@ -11,13 +11,26 @@ msgstr ""
 "Language: tr\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "Bu pencere öğesini kullanmaya devam etmek için Instagram'a tekrar bağlanmanız gerekir."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "Bu pencere öğesini kullanmaya devam etmek için <a href=\"%s\">Instagram'a tekrar bağlanmanız gerekir</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "Bu, özel bir site. Görüntülemek için önizlemeye giriş yapmalısı
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Bu, özel bir site.  Görüntüleyebilmek için izinli bir kullanıcı hesabından giriş yapmanız gerekiyor."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "Sitenizi kurmaya başlayın"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Bir site kurun. Ürünlerinizi satın. Blog yazın. Ve daha fazlası."
 
@@ -39,45 +52,13 @@ msgstr "Bir site kurun. Ürünlerinizi satın. Blog yazın. Ve daha fazlası."
 msgid "Coming Soon"
 msgstr "Çok Yakında"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "Disk alanı kotası"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "Kullanılan disk alanı"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>Bağlı Instagram Hesabı</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">kaldır</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "Sorun mu yaşıyorsunuz? Önce Instagram.com’daki <a href=\"%s\" target=\"_blank\">doğru hesapta oturum açmaya</a> çalışın."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Instagram Erişimine İzin Ver"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Instagram bağlantı sorunları yaşıyor, bağlanmak için sonra tekrar deneyiniz."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "Bağlanıyor…"
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong> Önemli: Hesabınızı bağlamadan <em>önce</em> Kaydet'i tıklayarak bu eklentiyi aktive etmeniz gerekmektedir. </strong> Eklentiyi kaydettikten sonra Instagram hesabınızı bağlamak için aşağıdaki düğmeyi tıklayın."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "Şu an için eksik veya geçersiz güvenlik."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "Bu Instagram bileşenini kullanmak için önce bileşeni <a href=\"%s\">yapılandırmak</a> gerekiyor."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "Etiket Bulutu"
 msgid "A cloud of your most used tags."
 msgstr "En çok kullanılan etiketlerden oluşan etiket bulutu."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Uygulamalar"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "Yeni resimlerinizin sitenizde görünmesi %d dakika kadar vakit alabilir."
@@ -278,10 +263,6 @@ msgstr "En yeni Instagram fotoğraflarınızı görüntüleyin."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "Uygulamalar"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "Özel Site"
 msgid "This site is private."
 msgstr "Bu site özel."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Giriş"
@@ -856,10 +837,6 @@ msgstr "Logo oluştur"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "Sitenize bir logo ekleyin. Logonuz yok mu? Looka'dan profesyonel bir logo satın alın. Başlamak için “Logo oluştur” seçeneğine tıklayın."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "WordPress.com tarafından sağlanan işlev ve araçlar"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

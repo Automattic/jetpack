@@ -11,13 +11,26 @@ msgstr ""
 "Language: ro\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "Pentru a folosi în continuare această piesă, trebuie să te reconectezi la Instagram."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "Pentru a folosi în continuare această piesă, trebuie <a href=\"%s\">să te reconectezi la Instagram</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "Acest site este privat. Trebuie să te autentifici în previzualizare pe
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Acest site este privat. Înainte de a-l previzualiza, trebuie să te autentifici ca utilizator cu permisiuni."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "Începe-ți site-ul web"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Construiești un site web. Vinzi produse și alte lucruri. Scrii pe un blog. Și multe altele."
 
@@ -39,45 +52,13 @@ msgstr "Construiești un site web. Vinzi produse și alte lucruri. Scrii pe un b
 msgid "Coming Soon"
 msgstr "În curând"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "Cotă spațiu pe disc"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "Spațiu utilizat pe disc"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>Contul Instagram este conectat</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">înlătură</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "Ai probleme? Încercă mai întâi <a href=\"%s\" target=\"_blank\">autentificarea în contul corect</a> pe Instagram.com."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Conectează contul Instagram"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Instagram se confruntă în prezent cu probleme la conectare, te rog reîncearcă conectarea mai târziu."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "Conectez..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>Important: pentru a activa această piesă, mai întâi trebuie să dai clic pe Salvează <em>înainte</em> de a-ți conecta contul.</strong> După salvarea piesei, dă clic pe butonul de mai jos pentru a-ți conecta contul Instagram."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "Nunicul de securitate lipsește sau este invalid."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "Pentru a folosi această piesă Instagram, trebuie mai întâi <a href=\"%s\">configurată</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "Nor de etichete"
 msgid "A cloud of your most used tags."
 msgstr "Un nor a celor mai folosite etichete ale tale."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Aplicații"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "Poate dura până la %d minute până când noile imagini apar pe site."
@@ -278,10 +263,6 @@ msgstr "Afișează ultimele tale poze Instagram."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "Aplicații"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "Site privat"
 msgid "This site is private."
 msgstr "Acest site este privat."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Autentificare"
@@ -856,10 +837,6 @@ msgstr "Creează logo"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "Adaugă un logo pentru a-l afișa pe site-ul tău. Nu ai un logo? Cumpără unul Pro de la Looka - pentru a începe dă clic pe „Creează logo”."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "WordPress.com a oferit funcționalități și unelte"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

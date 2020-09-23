@@ -11,13 +11,26 @@ msgstr ""
 "Language: zh_CN\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "要继续使用此小工具，您必须重新连接到 Instagram。"
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "要继续使用此小工具，您必须<a href=\"%s\">重新连接到 Instagram</a>。"
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "此站点是私人站点。您需要登录才能预览并查看。"
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "此站点是私人站点。您需要以拥有相应权限的用户身份登录才能预览。"
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "开始打造您的网站"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "创建网站。销售商品。撰写博客。还有更多用途待您发掘。"
 
@@ -39,45 +52,13 @@ msgstr "创建网站。销售商品。撰写博客。还有更多用途待您发
 msgid "Coming Soon"
 msgstr "快来了"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "磁盘空间配额"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "已用磁盘空间"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>已连接的 Instagram 帐户</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">移除</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "遇到问题？首先尝试在 Instagram.com 上<a href=\"%s\" target=\"_blank\">登录正确的帐户</a>。"
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "授予 Instagram 访问权限"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Instagram 目前遇到连接问题，请稍后再尝试连接。"
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "正在连接…"
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>重要提示：在连接您的帐户<em>之前</em>，您必须先点击“保存”以激活此小工具。</strong>保存该小工具之后，点击下方按钮以连接您的 Instagram 帐户。"
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "安全 Nonce 缺失或无效"
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "为了使用此 Instagram 小工具，您必须先对其进行<a href=\"%s\">配置</a>。"
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "标签云"
 msgid "A cloud of your most used tags."
 msgstr "您最常使用的标签云。"
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "应用程序"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "新图像最多可能需要 %d 分钟才能显示在您的站点上。"
@@ -278,10 +263,6 @@ msgstr "显示最新的 Instagram 照片。"
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "应用程序"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "私人站点"
 msgid "This site is private."
 msgstr "此站点是私人站点。"
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "登录"
@@ -856,10 +837,6 @@ msgstr "创建徽标"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "添加要在站点上显示的徽标。还没有徽标?在 Looka 中购买专业徽标 - 点击“创建徽标”即可开始创建。"
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "WordPress.com 提供了功能和工具"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

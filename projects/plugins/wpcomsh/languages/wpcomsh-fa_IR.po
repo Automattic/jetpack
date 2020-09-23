@@ -11,13 +11,26 @@ msgstr ""
 "Language: fa\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "برای استفاده از این ابزارک شما باید مجددا به اینستاگرام متصل شوید."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "برایِ ادامهٔ استفاده از این ابزارک باید <a href=\"%s\">مجدداً به اینستاگرام وصل شوید</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "این سایت خصوصی است.برای دیدن آن نیازمند 
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "این سایت خصوصی است. شما به عنوان کاربری که دسترسی دارد نیازمند ورود هستید."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "سایت خود را بسازید"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "یک وبسایت بسازید. چیزهایی بفروشید. یک وبلاگ بنویسید و موارد بسیار بیشتر."
 
@@ -39,45 +52,13 @@ msgstr "یک وبسایت بسازید. چیزهایی بفروشید. یک وب
 msgid "Coming Soon"
 msgstr "به زودی"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "میزان فضای دیسک"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "حجم فضای استفاده شده"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>حساب اینستاگرام متصل شده</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">حذف</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "مشکلی دارید؟ ابتدا  <a href=\"%s\" target=\"_blank\">ورود به حساب کاربری فعلی</a> را در instagram.com امتحان کنید."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "مجاز دانستن دسترسی اینستاگرام"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "در حال حاضر اینستاگرام با مشکلات اتصال مواجه است، لطفا برای اتصال مجدد بعدا امتحان کنید."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "در حال اتصال..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>نکته مهم: شما ابتدا باید روی دکمه ذخیره و فعال کردن ابزارک <em>پیش از</em> اتصال در حساب خود، کلیک کنید.</strong> پس از ذخیره کردن ابزارک، بر روی دکمه زیر برای اتصال به حساب اینستاگرام خود کلیک کنید."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "کد امنیتی نامعتبر یا گم شده است."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "برای استفاده از ابزارک اینستاگرام، نخست باید آن را <a href=\"%s\">تایید</a> کنید."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "ابر برچسب"
 msgid "A cloud of your most used tags."
 msgstr "ابری از برچسب‌هایی که بیشتر استفاده کرده‌اید."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "برنامه‌ها"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "تصاویر جدید ممکن است تا %d دقیقه طول بکشد تا در وب‌گاه شما نشان داده شود."
@@ -278,10 +263,6 @@ msgstr "نمایش آخرین تصاویر اینستاگرام شما."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "اینستاگرام"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "برنامه‌ها"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "سایت خصوصی"
 msgid "This site is private."
 msgstr "این سایت خصوصی است."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "ورود"
@@ -841,10 +822,6 @@ msgstr "ساخت نماد"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "افزودن یک نماد (لوگو) برای نمایش در سایت خود. نمادی ندارید؟ یک ماد حرفه‌ای را از Looka خریداری کنید - برای شروع روی «Create Logo» کلیک کنید."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "عملکرد و ابزارها‌ ارائه شده از WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

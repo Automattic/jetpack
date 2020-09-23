@@ -11,13 +11,26 @@ msgstr ""
 "Language: nl\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "Om deze widget te kunnen blijven gebruiken, moet je opnieuw verbinding maken met Instagram."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "Om deze widget te kunnen blijven gebruiken, moet je <a href=\"%s\">opnieuw verbinding maken met Instagram</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "Deze site is privé. Je moet inloggen op het voorbeeld om deze te zien."
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Deze site is privé. Je moet inloggen als een gebruiker met rechten voordat je dit kunt bekijken."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "Start je eigen site"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Bouw een website. Verkoop je spullen. Schrijf een blog. En nog veel meer."
 
@@ -39,45 +52,13 @@ msgstr "Bouw een website. Verkoop je spullen. Schrijf een blog. En nog veel meer
 msgid "Coming Soon"
 msgstr "Binnenkort beschikbaar"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "Schijfruimte-quota"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "Schijfruimte gebruikt"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>Gekoppeld Instagram-account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">verwijderen</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "Zijn er nog problemen? Probeer je eerst <a href=\"%s\" target=\"_blank\">in te loggen op het juiste account</a> op Instagram.com."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Toegang van Instagram toestaan"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Instagram ondervindt momenteel verbindingsproblemen. Probeer later opnieuw verbinding te maken."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "Verbinden ..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>Belangrijk: Je moet eerst op Opslaan klikken om deze widget te activeren <em>voordat</em> je je account koppelt.</strong> Nadat je de widget hebt opgeslagen, klik je op de knop hieronder om je Instagram-account te koppelen."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "Ontbrekende of ongeldige beveiligings-nonce."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "Om deze Instagram-widget te kunnen gebruiken, moet je <a href=\"%s\">deze eerst configureren</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "Tagwolk"
 msgid "A cloud of your most used tags."
 msgstr "Een wolk van de meest gebruikte tags."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Apps"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "Het kan tot %d minuten duren voordat nieuwe afbeeldingen op je site worden weergegeven."
@@ -278,10 +263,6 @@ msgstr "Laat je nieuwste Instagram-foto's zien."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "Apps"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "Privésite"
 msgid "This site is private."
 msgstr "Deze site is prive."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Inloggen"
@@ -856,10 +837,6 @@ msgstr "Maak logo"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "Voeg een logo toe aan je site. Heb je geen logo? Koop een professioneel logo bij Looka — Klik \"Maak logo\" om te starten."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "Functies en tools van WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

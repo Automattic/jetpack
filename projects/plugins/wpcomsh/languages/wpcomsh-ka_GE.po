@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-04-14 18:40:49+0000\n"
+"PO-Revision-Date: 2020-09-11 09:31:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,12 +11,25 @@ msgstr ""
 "Language: ka_GE\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
 msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
@@ -27,11 +40,11 @@ msgstr ""
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr ""
 
@@ -39,44 +52,12 @@ msgstr ""
 msgid "Coming Soon"
 msgstr ""
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr ""
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
-msgstr ""
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr ""
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr ""
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr ""
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr ""
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr ""
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
 msgstr ""
 
 #: widgets/category-cloud.php:167
@@ -239,6 +220,10 @@ msgstr "ტეგების ღრუბელი"
 msgid "A cloud of your most used tags."
 msgstr "ყველაზე გამოყენებადი იარლიყების ღრუბელი."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr ""
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr ""
@@ -277,10 +262,6 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
-
-#: widgets/aboutme.php:148
-msgid "Apps"
 msgstr ""
 
 #: widgets/aboutme.php:141
@@ -541,7 +522,7 @@ msgstr ""
 
 #: widgets/reservations.php:25
 msgid "Message"
-msgstr ""
+msgstr "გზავნილი"
 
 #: widgets/reservations.php:24
 msgid "Phone"
@@ -794,7 +775,7 @@ msgstr ""
 msgid "This site is private."
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "შესვლა"
@@ -840,10 +821,6 @@ msgstr ""
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
 msgstr ""
 
 #. Plugin Name of the plugin

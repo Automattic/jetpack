@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-22 12:12:02+0000\n"
+"PO-Revision-Date: 2020-09-21 11:39:55+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,13 +11,26 @@ msgstr ""
 "Language: sv_SE\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "För att fortsätta använda denna widget måste du ansluta till Instagram igen."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "För att fortsätta använda denna widget måste du <a href=\"%s\">ansluta till Instagram igen</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr "Uppdateringar hanteras av WordPress.com"
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "Denna webbplats är privat. Du måste logga in på förhandsgranskningen
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Denna webbplats är privat. Du måste logga in som användare med behörighet innan du kan förhandsgranska den."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "Starta din webbplats"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Skapa en webbplats. Sälj dina grejer. Skriv en blogg. Och mycket mer."
 
@@ -39,45 +52,13 @@ msgstr "Skapa en webbplats. Sälj dina grejer. Skriv en blogg. Och mycket mer."
 msgid "Coming Soon"
 msgstr "Kommer snart"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "Diskutrymmeskvot"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "Använt diskutrymme"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>Anslutet Instagram-konto</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">ta bort</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "Har du problem? Försök med att först <a href=\"%s\" target=\"_blank\">logga in på rätt konto</a> på Instagram.com."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Anslut Instagram-konto"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Instagram har för närvarande anslutningsproblem. Prova igen senare för att ansluta."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "Ansluter..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>Viktigt: Du måste först klicka på Spara för att aktivera den här widgeten <em>innan</em> du ansluter till ditt konto.</strong> När widgeten har sparats, klicka på knappen nedan för att ansluta till ditt Instagram-konto."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "Säkerhets-nonce saknas eller är ogiltig."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "För att kunna använda den här Instagram-widgeten måste du först <a href=\"%s\">konfigurera den</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -101,11 +82,11 @@ msgstr "Kategori-IDn, separerade med kommatecken."
 
 #: widgets/category-cloud.php:141
 msgid "Exclude:"
-msgstr "Uteslut:"
+msgstr "Exkludera:"
 
 #: widgets/category-cloud.php:134
 msgid "Maximum number of categories to show:"
-msgstr "Maximalt antal inlägg att visa:"
+msgstr "Maximalt antal kategorier att visa:"
 
 #: widgets/category-cloud.php:108
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
@@ -169,7 +150,7 @@ msgstr "Dölj Tweets från Offentliggör"
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
-msgstr "Göm svar"
+msgstr "Dölj svar"
 
 #: widgets/twitter.php:371
 msgid "Maximum number of Tweets to show:"
@@ -233,11 +214,15 @@ msgstr "Etiketter"
 
 #: widgets/tag-cloud-widget.php:21
 msgid "Tag Cloud"
-msgstr "Taggmoln"
+msgstr "Etikettmoln"
 
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
-msgstr "Ett moln av dina mest använda taggar."
+msgstr "Ett moln av dina mest använda etiketter."
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Appar"
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
@@ -249,7 +234,7 @@ msgstr "Antal kolumner:"
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
-msgstr "Utseende"
+msgstr "Layout"
 
 #: widgets/instagram/instagram.php:226
 msgid "Number to display:"
@@ -261,7 +246,7 @@ msgstr "Bilder"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
-msgstr "Widgettitel"
+msgstr "Widget-rubrik"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
@@ -278,10 +263,6 @@ msgstr "Visa dina senaste Instagram-bilder."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "Appar"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -301,7 +282,7 @@ msgstr "Visa inte namn"
 
 #: widgets/aboutme.php:121
 msgid "Display Small"
-msgstr "Visa litet"
+msgstr "Visa liten"
 
 #: widgets/aboutme.php:119
 msgid "Display Medium"
@@ -309,11 +290,11 @@ msgstr "Visa medium"
 
 #: widgets/aboutme.php:117
 msgid "Display Large"
-msgstr "Visa stort"
+msgstr "Visa stor"
 
 #: widgets/aboutme.php:115
 msgid "Display X-Large"
-msgstr "Visa extrastort"
+msgstr "Visa extra stor"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
@@ -321,7 +302,7 @@ msgstr "Din about.me URL"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
-msgstr "Widgettitel"
+msgstr "Widget-rubrik"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
@@ -376,7 +357,7 @@ msgstr "Skapa en webbplats eller blogg på WordPress.com"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr "Fotnotsinformation"
+msgstr "Erkännande i sidfot"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"
@@ -440,7 +421,7 @@ msgstr "Hantera inställningarna för webbplatssynlighet"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr "Plugin-programmet installerades av WordPress.com och erbjuder funktioner som finns i din paketprenumeration."
+msgstr "Detta tillägg installerades av WordPress.com och erbjuder funktioner som erbjuds i din paketprenumeration."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
@@ -573,15 +554,15 @@ msgstr "Textens bakgrundsfärg:"
 
 #: widgets/recent-comments-widget.php:373
 msgid "Avatar background color:"
-msgstr "Avatarens bakgrundsfärg:"
+msgstr "Profilbildens bakgrundsfärg:"
 
 #: widgets/recent-comments-widget.php:362
 msgid "No Avatars"
-msgstr "Inga avatarer"
+msgstr "Inga profilbilder"
 
 #: widgets/recent-comments-widget.php:355
 msgid "(at most 15)"
-msgstr "(max 15)"
+msgstr "(som mest 15)"
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
@@ -589,7 +570,7 @@ msgstr "Antal kommentarer att visa:"
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
-msgstr "Det finns inga offentliga kommentarer att visa."
+msgstr "Det finns inga offentliga kommentarer tillgängliga att visa."
 
 #. translators: comments widget: 1: comment author, 2: post link
 #: widgets/recent-comments-widget.php:275
@@ -625,7 +606,7 @@ msgstr "%1$s på %2$s"
 
 #: widgets/posts-i-like.php:113
 msgid "Author's likes to display:"
-msgstr "Författare vill visa:"
+msgstr "Författarens antal ”Gilla”-markeringar som ska visas:"
 
 #: widgets/posts-i-like.php:98
 msgid "Grid"
@@ -794,7 +775,7 @@ msgstr "Privat webbplats"
 msgid "This site is private."
 msgstr "Denna webbplats är privat."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Logga in"
@@ -855,11 +836,7 @@ msgstr "Skapa en logga"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr "Lägg till en logotyp att visa på din webbplats. Ingen logga? Köp en proffsig från Looka – Klicka på ”Skapa logotyp” för att komma igång."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "WordPress.com ger dig funktionalitet och verktyg"
+msgstr "Lägg till en logga att visa på din webbplats. Ingen logga? Köp en professionell från Looka – Klicka på ”Skapa logga” för att komma igång."
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

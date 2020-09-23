@@ -11,13 +11,26 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: widgets/instagram/instagram.php:357
-msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr "Untuk dapat terus menggunakan widget ini, Anda harus terhubung kembali dengan Instagram."
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr ""
 
-#: widgets/instagram/instagram.php:265
-msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr "Untuk dapat terus menggunakan widget ini, Anda harus <a href=\"%s\">terhubung kembali dengan Instagram</a>."
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+msgid "Updates managed by WordPress.com"
+msgstr ""
+
+#: notices/plan-notices.php:44
+msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:38
+msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -27,11 +40,11 @@ msgstr "Situs ini bersifat pribadi. Anda harus login ke pratinjau untuk melihatn
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr "Situs ini bersifat pribadi. Anda harus login sebagai pengguna berizin untuk melihat pratinjau."
 
-#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-coming-soon-template.php:53
 msgid "Start your website"
 msgstr "Buat situs web Anda"
 
-#: private-site/access-denied-coming-soon-template.php:48
+#: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Buat situs web. Jual barang Anda. Tulis blog. Dan masih banyak lagi."
 
@@ -39,45 +52,13 @@ msgstr "Buat situs web. Jual barang Anda. Tulis blog. Dan masih banyak lagi."
 msgid "Coming Soon"
 msgstr "Segera Hadir"
 
-#: wpcomsh.php:936
+#: wpcomsh.php:980
 msgid "Disk space quota"
 msgstr "Kuota ruang disk"
 
-#: wpcomsh.php:932
+#: wpcomsh.php:976
 msgid "Disk space used"
 msgstr "Ruang disk digunakan"
-
-#: widgets/instagram/instagram.php:450
-msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr "<strong>Akun Instagram Terhubung</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">hapus</a>"
-
-#: widgets/instagram/instagram.php:425
-msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "Mengalami masalah? Coba <a href=\"%s\" target=\"_blank\">login ke akun yang benar</a> di Instagram.com lebih dulu."
-
-#: widgets/instagram/instagram.php:417
-msgid "Connect Instagram Account"
-msgstr "Otorisasi Akses Instagram"
-
-#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
-msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr "Instagram sedang mengalami masalah konektivitas, silakan coba lagi nanti untuk menghubungkan."
-
-#: widgets/instagram/instagram.php:388
-msgid "Connecting…"
-msgstr "Menghubungkan..."
-
-#: widgets/instagram/instagram.php:361
-msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr "<strong>Penting: Anda harus mengklik Simpan untuk mengaktifkan widget ini <em>sebelum</em> menghubungkan akun Anda.</strong> Setelah menyimpan widget, klik tombol di bawah untuk menghubungkan ke akun Instagram Anda."
-
-#: widgets/instagram/instagram.php:335
-msgid "Missing or invalid security nonce."
-msgstr "Nonce keamanan kosong atau tidak valid."
-
-#: widgets/instagram/instagram.php:271
-msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr "Agar bisa menggunakan widget Instagram ini, Anda harus <a href=\"%s\">mengonfigurasikannya</a> lebih dulu."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -239,6 +220,10 @@ msgstr "Awan Tag"
 msgid "A cloud of your most used tags."
 msgstr "Awan tag yang paling sering Anda pakai."
 
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Aplikasi"
+
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
 msgstr "Gambar baru mungkin memerlukan waktu hingga %d menit agar bisa ditampilkan di situs Anda."
@@ -278,10 +263,6 @@ msgstr "Tampilkan foto Instagram terbaru Anda."
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr "Instagram"
-
-#: widgets/aboutme.php:148
-msgid "Apps"
-msgstr "Aplikasi"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
@@ -794,7 +775,7 @@ msgstr "Situs Pribadi"
 msgid "This site is private."
 msgstr "Situs ini bersifat pribadi."
 
-#: private-site/access-denied-coming-soon-template.php:51
+#: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Masuk"
@@ -856,10 +837,6 @@ msgstr "Buat logo"
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
 msgstr "Tambahkan logo untuk ditampilkan di situs Anda. Belum punya logo? Beli versi pro dari Looka — Klik “Buat logo” untuk memulai."
-
-#. Description of the plugin
-msgid "WordPress.com provided functionality & tools"
-msgstr "WordPress.com memberikan fungsionalitas & alat"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
