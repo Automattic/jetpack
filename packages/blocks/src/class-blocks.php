@@ -60,10 +60,7 @@ class Blocks {
 		// This is only useful in Jetpack.
 		if ( class_exists( Jetpack_Gutenberg::class ) ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
-			if (
-				isset( $args['plan_check'] )
-				&& true === $args['plan_check']
-			) {
+			if ( ! empty( $args['plan_check'] ) ) {
 				if ( isset( $args['render_callback'] ) ) {
 					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
 				}
