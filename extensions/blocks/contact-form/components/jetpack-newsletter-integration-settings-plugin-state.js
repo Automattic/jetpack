@@ -4,6 +4,8 @@
 import { Button, ExternalLink, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
+import getJetpackData from './../../../shared/get-jetpack-data';
+import { get } from 'lodash';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
 const pluginSlug = 'creative-mail-by-constant-contact';
@@ -15,7 +17,7 @@ export const pluginStateEnum = Object.freeze( {
 } );
 
 const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
-	const btnTxt = isActivating ? __( 'Installing…', 'jetpack' ) : __( 'Activating…', 'jetpack' );
+	const btnTxt = isActivating ? __( 'Activating…', 'jetpack' ) : __( 'Installing…', 'jetpack' );
 	return (
 		<Button
 			isSecondary
@@ -71,13 +73,18 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 	);
 };
 
+const getCreativeMailPluginUrl = () => {
+	const adminUrl = get( getJetpackData(), 'adminUrl', false );
+	return `${ adminUrl }admin.php?page=creativemail`;
+};
+
 const CreativeMailPluginIsActive = () => {
 	return (
 		<p>
 			<em>
 				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack' ) }
 				<br />
-				<ExternalLink href="/wp-admin/admin.php?page=creativemail">
+				<ExternalLink href={ getCreativeMailPluginUrl() }>
 					{ __( 'Open Creative Mail settings', 'jetpack' ) }
 				</ExternalLink>
 			</em>
