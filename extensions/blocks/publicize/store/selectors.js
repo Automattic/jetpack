@@ -4,6 +4,7 @@
 import { get, isEqual } from 'lodash';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import createSelector from 'rememo';
 
 /**
  * Internal dependencies
@@ -189,15 +190,18 @@ export function getSupportedBlockType( state, blockName ) {
  *
  * @returns {Array} The tweets.
  */
-export function getTweetsForBlock( state, clientId ) {
-	return state.tweets.filter( tweet => {
-		if ( tweet.blocks.find( block => block.clientId === clientId ) ) {
-			return true;
-		}
+export const getTweetsForBlock = createSelector(
+	( state, clientId ) => {
+		return state.tweets.filter( tweet => {
+			if ( tweet.blocks.find( block => block.clientId === clientId ) ) {
+				return true;
+			}
 
-		return false;
-	} );
-}
+			return false;
+		} );
+	},
+	state => [ state.tweets ]
+);
 
 /**
  * Given a list of URLs, this will find the first available Twitter card.
@@ -294,19 +298,22 @@ export function isTweetStorm() {
  * @param {string} clientId - The block clientId.
  * @returns {Array} The boundary definitions.
  */
-export function getBoundariesForBlock( state, clientId ) {
-	if ( ! isTweetStorm() ) {
-		return [];
-	}
+export const getBoundariesForBlock = createSelector(
+	( state, clientId ) => {
+		if ( ! isTweetStorm() ) {
+			return [];
+		}
 
-	const tweets = getTweetsForBlock( state, clientId );
+		const tweets = getTweetsForBlock( state, clientId );
 
-	if ( ! tweets || tweets.length === 0 ) {
-		return [];
-	}
+		if ( ! tweets || tweets.length === 0 ) {
+			return [];
+		}
 
-	return tweets.filter( tweet => tweet.boundary ).map( tweet => tweet.boundary );
-}
+		return tweets.filter( tweet => tweet.boundary ).map( tweet => tweet.boundary );
+	},
+	state => [ state.tweets ]
+);
 
 /**
  * Helper function for computing an exact selector for the given element within a block.
@@ -334,30 +341,33 @@ function computeSelector( element, clientId ) {
  * @param {string} clientId - The clientId of the containing block.
  * @returns {Array} An array of CSS selectors.
  */
-export function getBoundaryStyleSelectors( state, clientId ) {
-	const boundaries = getBoundariesForBlock( state, clientId );
+export const getBoundaryStyleSelectors = createSelector(
+	( state, clientId ) => {
+		const boundaries = getBoundariesForBlock( state, clientId );
 
-	const blockElement = document.getElementById( `block-${ clientId }` );
+		const blockElement = document.getElementById( `block-${ clientId }` );
 
-	return boundaries
-		.filter( boundary => 'end-of-line' === boundary.type )
-		.map( boundary => {
-			// When switching from code to visual editor, the block may not've been re-added to the DOM yet.
-			if ( ! blockElement ) {
+		return boundaries
+			.filter( boundary => 'end-of-line' === boundary.type )
+			.map( boundary => {
+				// When switching from code to visual editor, the block may not've been re-added to the DOM yet.
+				if ( ! blockElement ) {
+					return false;
+				}
+
+				const line = blockElement.getElementsByTagName( 'li' ).item( boundary.line );
+
+				// Confirm that the line hasn't been deleted since this boundary was calculated.
+				if ( line ) {
+					return computeSelector( line, clientId );
+				}
+
 				return false;
-			}
-
-			const line = blockElement.getElementsByTagName( 'li' ).item( boundary.line );
-
-			// Confirm that the line hasn't been deleted since this boundary was calculated.
-			if ( line ) {
-				return computeSelector( line, clientId );
-			}
-
-			return false;
-		} )
-		.filter( style => !! style );
-}
+			} )
+			.filter( style => !! style );
+	},
+	state => [ state.tweets ]
+);
 
 /**
  * Helper function to check whether or not there are any tags in the content attributes
@@ -398,63 +408,66 @@ export function checkForTagsInContentAttributes( state, props, tags ) {
  * @param {object} props - The props for the block to check for warnings.
  * @returns {Array} An array of warnings to show.
  */
-export function getPopoverWarnings( state, props ) {
-	const {
-		isTyping,
-		isDraggingBlocks,
-		isMultiSelecting,
-		hasMultiSelection,
-		isCaretWithinFormattedText,
-	} = select( 'core/block-editor' );
+export const getPopoverWarnings = createSelector(
+	( state, props ) => {
+		const {
+			isTyping,
+			isDraggingBlocks,
+			isMultiSelecting,
+			hasMultiSelection,
+			isCaretWithinFormattedText,
+		} = select( 'core/block-editor' );
 
-	if ( ! isTweetStorm() ) {
-		return [];
-	}
-
-	// Don't show any popovers if the author is doing something else.
-	if (
-		isTyping() ||
-		isDraggingBlocks() ||
-		isMultiSelecting() ||
-		hasMultiSelection() ||
-		isCaretWithinFormattedText()
-	) {
-		return [];
-	}
-
-	const popoverWarnings = [];
-	if (
-		! getSupportedBlockType( state, props.name ) &&
-		! SUPPORTED_CONTAINER_BLOCKS[ props.name ]
-	) {
-		popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
-	} else {
-		if ( 'core/gallery' === props.name && props.attributes.images.length > 4 ) {
-			popoverWarnings.push( __( 'Twitter displays the first four images.', 'jetpack' ) );
+		if ( ! isTweetStorm() ) {
+			return [];
 		}
 
+		// Don't show any popovers if the author is doing something else.
 		if (
-			checkForTagsInContentAttributes( state, props, [
-				'strong',
-				'bold',
-				'em',
-				'i',
-				'sup',
-				'sub',
-				'span',
-				's',
-			] )
+			isTyping() ||
+			isDraggingBlocks() ||
+			isMultiSelecting() ||
+			hasMultiSelection() ||
+			isCaretWithinFormattedText()
 		) {
-			popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
+			return [];
 		}
 
-		if ( checkForTagsInContentAttributes( state, props, [ 'a' ] ) ) {
-			popoverWarnings.push( __( 'Links will be posted seperately.', 'jetpack' ) );
-		}
-	}
+		const popoverWarnings = [];
+		if (
+			! getSupportedBlockType( state, props.name ) &&
+			! SUPPORTED_CONTAINER_BLOCKS[ props.name ]
+		) {
+			popoverWarnings.push( __( 'This block is not exportable to Twitter', 'jetpack' ) );
+		} else {
+			if ( 'core/gallery' === props.name && props.attributes.images.length > 4 ) {
+				popoverWarnings.push( __( 'Twitter displays the first four images.', 'jetpack' ) );
+			}
 
-	return popoverWarnings;
-}
+			if (
+				checkForTagsInContentAttributes( state, props, [
+					'strong',
+					'bold',
+					'em',
+					'i',
+					'sup',
+					'sub',
+					'span',
+					's',
+				] )
+			) {
+				popoverWarnings.push( __( 'Twitter removes all text formatting.', 'jetpack' ) );
+			}
+
+			if ( checkForTagsInContentAttributes( state, props, [ 'a' ] ) ) {
+				popoverWarnings.push( __( 'Links will be posted seperately.', 'jetpack' ) );
+			}
+		}
+
+		return popoverWarnings;
+	},
+	state => [ state.tweets ]
+);
 
 /**
  * Determines whether the passed block is the boundary for the tweet containing the currently selected block.
