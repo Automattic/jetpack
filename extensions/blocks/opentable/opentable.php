@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\Extensions\OpenTable;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
-use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'opentable';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -79,7 +78,7 @@ function load_assets( $attributes ) {
 
 	$script_url = build_embed_url( $attributes );
 
-	if ( Jetpack_AMP_Support::is_amp_request() ) {
+	if ( Blocks::is_amp_request() ) {
 		// Extract params from URL since it had jetpack_opentable_block_url filters applied.
 		$url_query = \wp_parse_url( $script_url, PHP_URL_QUERY ) . '&overlay=false&disablega=false';
 
