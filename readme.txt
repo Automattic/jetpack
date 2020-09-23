@@ -112,7 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Dashboard: remove plugin autoupdate settings from the dashboard now that WordPress itself handles this feature.
 
 **Bug fixes**
 
