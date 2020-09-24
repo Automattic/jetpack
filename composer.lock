@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d99f2087c792c7d1102844480e714c30",
+    "content-hash": "129f9f9d2d04df628f2f7883c82d0223",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -527,17 +527,18 @@
         },
         {
             "name": "automattic/jetpack-licensing",
-            "version": "dev-master",
+            "version": "dev-add/license-support",
             "dist": {
                 "type": "path",
                 "url": "./packages/licensing",
-                "reference": "4b935ee0476090cdaef3f6e55fbbcc8cd6c6f7bf"
+                "reference": "0b3150892c93b9bdb252933500b80db692a1d1e9"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
+                "automattic/wordbless": "@dev",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -551,6 +552,9 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
