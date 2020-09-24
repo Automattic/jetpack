@@ -105,7 +105,7 @@ export const settings = {
 			default: false,
 		},
 		postLink: {
-			type: 'number',
+			type: 'string',
 		},
 		price: {
 			type: 'number',
