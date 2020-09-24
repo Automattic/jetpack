@@ -34,6 +34,7 @@ class Blocks {
 	 *
 	 *     @type array $version_requirements Array containing required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 *     @type bool  $plan_check           Should we check for a specific plan before registering the block.
+	 * }
 	 *
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
