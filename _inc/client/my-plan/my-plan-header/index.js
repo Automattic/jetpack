@@ -46,7 +46,7 @@ class MyPlanHeader extends React.Component {
 		switch ( getPlanClass( productSlug ) ) {
 			case 'is-free-plan':
 				return {
-					icon: imagePath + '/plans/plan-free.svg',
+					icon: imagePath + '/plans/jetpack-free.svg',
 					tagLine: jetpackCreateInterpolateElement(
 						__(
 							'Worried about security? Get backups, automated security fixes and more: <a>Upgrade now</a>',
@@ -68,7 +68,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-personal-plan':
 				return {
 					details: expiration,
-					icon: imagePath + '/plans/plan-personal.svg',
+					icon: imagePath + '/plans/jetpack-personal.svg',
 					tagLine: displayBackups
 						? __( 'Daily backups, spam filtering, and priority support.', 'jetpack' )
 						: __( 'Spam filtering and priority support.', 'jetpack' ),
@@ -78,7 +78,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-premium-plan':
 				return {
 					details: expiration,
-					icon: imagePath + '/plans/plan-premium.svg',
+					icon: imagePath + '/plans/jetpack-premium.svg',
 					tagLine: __(
 						'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.',
 						'jetpack'
@@ -89,7 +89,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-business-plan':
 				return {
 					details: expiration,
-					icon: imagePath + '/plans/plan-business.svg',
+					icon: imagePath + '/plans/jetpack-professional.svg',
 					tagLine: __(
 						'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, and priority support.',
 						'jetpack'
@@ -100,7 +100,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-daily-security-plan':
 				return {
 					details: expiration,
-					icon: imagePath + '/plans/plan-security-daily.svg',
+					icon: imagePath + '/plans/jetpack-security.svg',
 					tagLine: __(
 						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
 						'jetpack'
@@ -111,7 +111,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-realtime-security-plan':
 				return {
 					details: expiration,
-					icon: imagePath + '/plans/plan-security-realtime.svg',
+					icon: imagePath + '/plans/jetpack-security.svg',
 					tagLine: __(
 						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
 						'jetpack'
@@ -122,7 +122,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-complete-plan':
 				return {
 					details: expiration,
-					icon: imagePath + '/plans/plan-complete.svg',
+					icon: imagePath + '/plans/jetpack-complete.svg',
 					tagLine: __(
 						'The most powerful WordPress sites: Top-tier security bundle, enhanced search.',
 						'jetpack'

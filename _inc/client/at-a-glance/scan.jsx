@@ -23,7 +23,11 @@ import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
-import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import {
+	getPlanClass,
+	getJetpackProductUpsellByFeature,
+	FEATURE_SECURITY_SCANNING_JETPACK,
+} from 'lib/plans/constants';
 import getRedirectUrl from 'lib/jp-redirect';
 
 /**
@@ -180,13 +184,15 @@ class DashScan extends Component {
 		return (
 			<JetpackBanner
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
-				title={ __( 'Find threats early so we can help fix them fast.', 'jetpack' ) }
+				title={ __(
+					'Automated scanning and one-click fixes keep your site ahead of security threats.',
+					'jetpack'
+				) }
 				disableHref="false"
 				href={ this.props.upgradeUrl }
 				eventFeature="scan"
 				path="dashboard"
-				plan={ PLAN_JETPACK_PREMIUM }
-				icon="lock"
+				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 			/>
 		);
 	}
