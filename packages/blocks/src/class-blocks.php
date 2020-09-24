@@ -116,7 +116,12 @@ class Blocks {
 	 *
 	 * @since 9.0.0
 	 *
-	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
+	 * @param array  $version_requirements {
+	 *     An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
+	 *
+	 *     @type string $gutenberg Gutenberg version.
+	 *     @type string $wp        Optional. WordPress version.
+	 * }
 	 * @param string $slug The slug of the block or plugin that has the Gutenberg version requirement.
 	 *
 	 * @return boolean True if the version of Gutenberg required by the block or plugin is available.
