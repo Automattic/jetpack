@@ -71,6 +71,7 @@ function Search( props ) {
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
 			<SettingsGroup
+				disableInOfflineMode
 				hasChild
 				module={ { module: 'search' } }
 				support={ {
