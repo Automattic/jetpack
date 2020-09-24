@@ -46,22 +46,22 @@ function load_assets( $attr ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	if ( empty( $url ) ) {
-		return;
+		return '';
 	}
 
-	if ( Blocks::is_amp_request() ) {
-		return sprintf(
-			'<div class="%1$s"><amp-iframe src="%2$s" frameborder="0" style="border:0" scrolling="no" height="%3$d" sandbox="allow-scripts allow-same-origin" layout="responsive"></amp-iframe></div>',
-			esc_attr( $classes ),
-			esc_url( $url ),
-			absint( $height )
-		);
-	} else {
-		return sprintf(
-			'<div class="%1$s"><iframe src="%2$s" frameborder="0" style="border:0" scrolling="no" height="%3$d"></iframe></div>',
-			esc_attr( $classes ),
-			esc_url( $url ),
-			absint( $height )
-		);
-	}
+	$placeholder = sprintf(
+		'<a href="%s" %s>%s</a>',
+		esc_url( $url ),
+		Blocks::is_amp_request() ? 'placeholder' : '',
+		esc_html__( 'Google Calendar', 'jetpack' )
+	);
+
+	$iframe = sprintf(
+		'<iframe src="%1$s" frameborder="0" style="border:0" scrolling="no" height="%2$d" width="100%%">%3$s</iframe>',
+		esc_url( $url ),
+		absint( $height ),
+		$placeholder
+	);
+
+	return sprintf( '<div class="%s">%s</div>', esc_attr( $classes ), $iframe );
 }
