@@ -94,6 +94,16 @@ const StoryEdit = ({
 						onMediaUploadStateReset={
 							this.mediaUploadStateReset
 						}
+						onUpdateMediaSaveProgress={ this.updateMediaSaveProgress }
+						onFinishMediaSaveWithSuccess={
+							this.finishMediaSaveWithSuccess
+						}
+						onFinishMediaUploadWithFailure={
+							this.finishMediaSaveWithFailure
+						}
+						onMediaSaveStateReset={
+							this.mediaSaveStateReset
+						}
 						renderContent={ ( {
 							isUploadInProgress,
 							isUploadFailed,
