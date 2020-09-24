@@ -23,6 +23,7 @@ class Blocks {
 	 * Wrapper function to safely register a Gutenberg block type
 	 *
 	 * @see register_block_type
+	 * @see Automattic\Jetpack\Blocks::is_gutenberg_version_available
 	 *
 	 * @since 9.0.0
 	 *
