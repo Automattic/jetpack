@@ -27,6 +27,7 @@ import {
 	getPlanClass,
 } from 'lib/plans/constants';
 
+import { isOfflineMode } from 'state/connection';
 import {
 	getSiteAdminUrl,
 	getUpgradeUrl,
@@ -342,7 +343,8 @@ export const SettingsCard = props => {
 	};
 
 	const children = showChildren() && props.children;
-	const banner = ! props.fetchingSiteData && ! featureIsOverriden() && getBanner();
+	const banner =
+		! props.fetchingSiteData && ! featureIsOverriden() && ! props.inOfflineMode && getBanner();
 
 	if ( ! children && ! banner ) {
 		return null;
@@ -417,5 +419,6 @@ export default connect( state => {
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
 		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
+		inOfflineMode: isOfflineMode( state ),
 	};
 } )( SettingsCard );

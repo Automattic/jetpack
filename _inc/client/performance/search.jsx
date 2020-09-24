@@ -13,6 +13,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
 import { FormFieldset } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
+import { isOfflineMode } from 'state/connection';
 import {
 	getSitePlan,
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
@@ -77,7 +78,11 @@ function Search( props ) {
 					link: getRedirectUrl( 'jetpack-support-search' ),
 				} }
 			>
-				<p>{ SEARCH_DESCRIPTION } </p>
+				<p>
+					{ props.inOfflineMode
+						? __( 'Unavailable in Offline Mode', 'jetpack' )
+						: SEARCH_DESCRIPTION }
+				</p>
 				{ props.isLoading && __( 'Loading…', 'jetpack' ) }
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
 					<Fragment>
@@ -141,6 +146,7 @@ export default connect( state => {
 	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
 		isLoading: isFetchingSitePurchases( state ),
+		inOfflineMode: isOfflineMode( state ),
 		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		isBusinessPlan: 'is-business-plan' === planClass,
 		failedToEnableSearch:
