@@ -148,10 +148,10 @@ function runPHPCSChanged( phpFilesToCheck ) {
  * Check that composer.lock doesn't refer to monorepo packages as "dev-master"
  */
 function checkComposerLock() {
-	var obj = JSON.parse( fs.readFileSync( 'composer.lock', 'utf8' ) );
-	var changed = [];
+	const obj = JSON.parse( fs.readFileSync( 'composer.lock', 'utf8' ) );
+	const changed = [];
 
-	var checkPackage = function ( p ) {
+	const checkPackage = function ( p ) {
 		if (
 			p.dist.type === 'path' &&
 			p.dist.url.startsWith( './packages/' ) &&
