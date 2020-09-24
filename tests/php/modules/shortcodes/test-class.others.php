@@ -49,6 +49,40 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test a post including a Loom link.
+	 *
+	 * @since 9.0.0
+	 */
+	public function test_shortcodes_loom() {
+		// 'How To Install a WordPress Plugin' example.
+		$embed_id = 'e3dcec661c37487b818b8e3b8225ec27';
+		global $post;
+		$post = $this->factory()->post->create_and_get(
+			array(
+				'post_content' => sprintf(
+					'https://www.loom.com/share/%s',
+					$embed_id
+				),
+			)
+		);
+		setup_postdata( $post );
+		// Test HTML version.
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
+
+		// Test different attributes of the loom markup.
+		$this->assertContains(
+			sprintf( 'src="https://www.loom.com/embed/%s" frameborder="0"', $embed_id ),
+			$actual
+		);
+		$this->assertContains( 'title="How To Install a WordPress Plugin"', $actual );
+		$this->assertContains( 'webkitallowfullscreen', $actual );
+		$this->assertContains( 'mozallowfullscreen', $actual );
+		$this->assertContains( 'allowfullscreen', $actual );
+	}
+
+	/**
 	 * Test embeds for the Odesli service.
 	 *
 	 * @since 9.0.0
