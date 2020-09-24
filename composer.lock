@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "129f9f9d2d04df628f2f7883c82d0223",
+    "content-hash": "9ac5e4e05b7d798cbccd18d14ed8d40d",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -713,12 +713,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-add/publishing-tweetstorms",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/2eadb24679a3a2353f063f35a5d48b68bcecee6f",
-                "reference": "2eadb24679a3a2353f063f35a5d48b68bcecee6f",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/sync",
+                "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
