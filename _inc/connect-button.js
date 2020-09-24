@@ -92,7 +92,6 @@ jQuery( document ).ready( function ( $ ) {
 			loadingText.after( spinner );
 		},
 		handleConnectionSuccess: function ( data ) {
-			jetpackConnectButton.fetchPlanType();
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
 			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
 			jetpackConnectIframe.on( 'load', function () {
@@ -110,7 +109,7 @@ jQuery( document ).ready( function ( $ ) {
 			document.head.appendChild( link );
 		},
 		fetchPlanType: function () {
-			$.ajax( {
+			return $.ajax( {
 				url: jpConnect.apiBaseUrl + '/site',
 				type: 'GET',
 				data: {
@@ -145,13 +144,26 @@ jQuery( document ).ready( function ( $ ) {
 		handleAuthorizationComplete: function () {
 			jetpackConnectButton.isRegistering = false;
 
-			if ( jetpackConnectButton.isPaidPlan ) {
-				window.location.assign( jpConnect.dashboardUrl );
-				// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
-				window.location.reload( true );
-			} else {
-				window.location.assign( jpConnect.plansPromptUrl );
-			}
+			// Fetch plan type late to make sure any stored license keys have been
+			// attached to the site during the connection.
+			jetpackConnectButton.fetchPlanType()
+				.always( function () {
+					if ( ! jetpackConnectButton.isPaidPlan ) {
+						window.location.assign( jpConnect.plansPromptUrl );
+						return;
+					}
+
+					var parser = document.createElement('a');
+					parser.href = jpConnect.dashboardUrl;
+					var reload = window.location.pathname === parser.pathname && window.location.hash !== parser.hash;
+
+					window.location.assign( jpConnect.dashboardUrl );
+
+					if ( reload ) {
+						// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
+						window.location.reload( true );
+					}
+				} );
 		},
 		handleConnectionError: function ( error ) {
 			jetpackConnectButton.isRegistering = false;

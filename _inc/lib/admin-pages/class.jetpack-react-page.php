@@ -1,6 +1,7 @@
 <?php
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
 
@@ -331,6 +332,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
 			'isSafari'                    => $is_safari,
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
+			'licensing'                   => array(
+				'error' => Licensing::instance()->last_error(),
+			),
 		);
 	}
 
