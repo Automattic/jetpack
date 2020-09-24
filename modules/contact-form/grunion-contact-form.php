@@ -149,6 +149,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		add_action( 'loop_start', array( 'Grunion_Contact_Form', '_style_on' ) );
+		add_action( 'pre_amp_render_post', array( 'Grunion_Contact_Form', '_style_on' ) );
 
 		add_action( 'wp_ajax_grunion-contact-form', array( $this, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_grunion-contact-form', array( $this, 'ajax_request' ) );
