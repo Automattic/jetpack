@@ -39,7 +39,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	if ( Blocks::is_amp_request() ) {
-		return render_amp( $attr );
+		$content = preg_replace(
+			'#<div class="juxtapose".+?</div>#s',
+			render_amp( $attr ),
+			$content
+		);
 	}
 
 	return $content;
@@ -51,7 +55,7 @@ function load_assets( $attr, $content ) {
  *
  * @param array $attr Array containing the image-compare block attributes.
  *
- * @return string
+ * @return string Markup for amp-image-slider.
  */
 function render_amp( $attr ) {
 	$img_before = $attr['imageBefore'];
