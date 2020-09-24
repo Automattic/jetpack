@@ -104,6 +104,9 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		postLink: {
+			type: 'number',
+		},
 		price: {
 			type: 'number',
 		},

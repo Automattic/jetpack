@@ -44,6 +44,7 @@ class Jetpack_Simple_Payments {
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_frontend_assets' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
@@ -65,7 +66,12 @@ class Jetpack_Simple_Payments {
 
 	function register_gutenberg_block() {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
-			jetpack_register_block( 'jetpack/simple-payments' );
+			jetpack_register_block(
+				'jetpack/simple-payments',
+				array(
+					'render_callback' => 'render_gutenberg_block',
+				)
+			);
 		} else {
 			Jetpack_Gutenberg::set_extension_unavailable(
 				'jetpack/simple-payments',
@@ -76,6 +82,57 @@ class Jetpack_Simple_Payments {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Enqueue the static assets needed in the frontend.
+	 */
+	public function enqueue_frontend_assets() {
+		if ( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
+			wp_enqueue_style( 'jetpack-simple-payments' );
+		}
+
+		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
+			wp_enqueue_script( 'paypal-express-checkout' );
+		}
+	}
+
+	/**
+	 * Add an inline script for setting up the PayPal checkout button.
+	 *
+	 * @param int     $id Product ID.
+	 * @param int     $dom_id ID of the DOM element with the purchase message.
+	 * @param boolean $is_multiple Whether multiple items of the same product can be purchased.
+	 */
+	public function setup_paypal_checkout_button( $id, $dom_id, $is_multiple ) {
+		wp_add_inline_script(
+			'paypal-express-checkout',
+			sprintf(
+				"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
+				esc_js( $this->get_blog_id() ),
+				esc_js( $id ),
+				esc_js( $dom_id ),
+				esc_js( $is_multiple )
+			)
+		);
+	}
+
+	/**
+	 * Render callback of the Pay with PayPal block.
+	 *
+	 * @param array  $attributes Block attributes.
+	 * @param string $content string Block content.
+	 *
+	 * @return mixed
+	 */
+	public function render_gutenberg_block( $attributes, $content ) {
+		$product_id = $attributes['productId'];
+		$this->setup_paypal_checkout_button(
+			$product_id,
+			uniqid( self::$css_classname_prefix . '-' . $product_id . '_', true ),
+			get_post_meta( $product_id, 'spay_multiple', true ) || '0'
+		);
+		return $content;
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {
@@ -160,10 +217,6 @@ class Jetpack_Simple_Payments {
 			}
 		}
 
-		if( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
-			wp_enqueue_style( 'jetpack-simple-payments' );
-		}
-
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
 			if ( ! is_feed() ) {
 				return $this->output_admin_warning( $data );
@@ -171,17 +224,8 @@ class Jetpack_Simple_Payments {
 			return;
 		}
 
-		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
-			wp_enqueue_script( 'paypal-express-checkout' );
-		}
-
-		wp_add_inline_script( 'paypal-express-checkout', sprintf(
-			"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
-			esc_js( $data['blog_id'] ),
-			esc_js( $attrs['id'] ),
-			esc_js( $data['dom_id'] ),
-			esc_js( $data['multiple'] )
-		) );
+		$this->enqueue_frontend_assets();
+		$this->setup_paypal_checkout_button( $attrs['id'], $data['dom_id'], $data['multiple'] );
 
 		return $this->output_shortcode( $data );
 	}

@@ -26,7 +26,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
 }
 
 /* Higher specificity in order to trump theme's style */
-body .jetpack-simple-payments-wrapper .jetpack-simple-payments-product-image .jetpack-simple-payments-image img.size-full {
+body .jetpack-simple-payments-wrapper .jetpack-simple-payments-product-image .jetpack-simple-payments-image img {
 	border: 0;
 	border-radius: 0;
 	height: auto;
