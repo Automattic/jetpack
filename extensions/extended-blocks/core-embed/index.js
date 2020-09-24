@@ -1,0 +1,5 @@
+
+/**
+ * Internal dependencies
+ */
+import './variations';
