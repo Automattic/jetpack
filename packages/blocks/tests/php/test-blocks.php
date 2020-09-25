@@ -17,6 +17,33 @@ use PHPUnit\Framework\TestCase;
  */
 class Test_Blocks extends TestCase {
 	/**
+	 * Test block name.
+	 *
+	 * @var string
+	 */
+	public $block_name = 'jetpack/apple';
+
+	/**
+	 * Setup runs before each test.
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		// Register a test block.
+		Blocks::jetpack_register_block( $this->block_name );
+	}
+
+	/**
+	 * Teardown runs after each test.
+	 */
+	public function tearDown() {
+		parent::tearDown();
+
+		// Unregister the test Jetpack block we may have created for our tests.
+		unregister_block_type( $this->block_name );
+	}
+
+	/**
 	 * Test the different inputs and matching output for Classes.
 	 *
 	 * @since 9.0.0
@@ -83,5 +110,108 @@ class Test_Blocks extends TestCase {
 	 */
 	public function test_is_not_amp_request() {
 		$this->assertFalse( Blocks::is_amp_request() );
+	}
+
+	/**
+	 * Test WordPress and Gutenberg version requirements.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
+	 */
+	public function test_returns_false_if_core_wp_version_less_than_minimum() {
+		$version_gated = Blocks::is_gutenberg_version_available(
+			array(
+				'wp'        => '999999',
+				'gutenberg' => '999999',
+			),
+			'gated_block'
+		);
+		$this->assertFalse( false, $version_gated );
+	}
+
+	/**
+	 * Test WordPress and Gutenberg version requirements.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_gutenberg_version_available
+	 */
+	public function test_returns_true_if_core_wp_version_greater_or_equal_to_minimum() {
+		$version_gated = Blocks::is_gutenberg_version_available(
+			array(
+				'wp'        => '1',
+				'gutenberg' => '999999',
+			),
+			'ungated_block'
+		);
+		$this->assertTrue( true, $version_gated );
+	}
+
+	/**
+	 * Testing removing the Jetpack prefix from a block slug.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::remove_extension_prefix
+	 *
+	 * @dataProvider get_extension_name_provider
+	 *
+	 * @param string $extension_slug      Block / Extension name.
+	 * @param string $expected_short_slug Extension name without Jetpack prefix.
+	 */
+	public function test_remove_extension_prefix( $extension_slug, $expected_short_slug ) {
+		$short_slug = Blocks::remove_extension_prefix( $extension_slug );
+
+		$this->assertEquals( $expected_short_slug, $short_slug );
+	}
+
+	/**
+	 * Get different possible block names.
+	 *
+	 * Data provider for test_remove_extension_prefix.
+	 */
+	public function get_extension_name_provider() {
+		return array(
+			'not_jetpack'    => array(
+				'woocommerce/product-best-sellers',
+				'woocommerce/product-best-sellers',
+			),
+			'jetpack_dash'   => array(
+				'jetpack/shortlinks',
+				'shortlinks',
+			),
+			'jetpack_hyphen' => array(
+				'jetpack-shortlinks',
+				'shortlinks',
+			),
+		);
+	}
+
+	/**
+	 * Test to ensure that an extension is returned as registered.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_registered
+	 */
+	public function test_is_extension_registered() {
+		// Test for the block that is registered for all tests here.
+		$this->assertTrue( Blocks::is_registered( $this->block_name ) );
+		// Test for a non-existing block.
+		$this->assertFalse( Blocks::is_registered( 'foo/bar' ) );
+	}
+
+	/**
+	 * Ensure blocks cannot be registered twice.
+	 *
+	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 */
+	public function test_jetpack_register_block_twice() {
+		$result = Blocks::jetpack_register_block( $this->block_name );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test to ensure blocks without a Jetpack prefix are registered, but with a jetpack prefix.
+	 *
+	 * @expectedIncorrectUsage Automattic\Jetpack\Blocks::jetpack_register_block
+	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 */
+	public function test_jetpack_register_block_without_jetpack() {
+		$result = Blocks::jetpack_register_block( 'doing-it-wrong' );
+		$this->assertEquals( 'jetpack/doing-it-wrong', $result->name );
 	}
 }
