@@ -12,7 +12,6 @@ It diverges from the default Composer autoloader setup in the following ways:
 * It creates `jetpack_autoload_classmap.php` and `jetpack_autoload_filemap.php` files in the `vendor/composer` directory.
 * This file includes the version numbers from each package that is used. 
 * The autoloader will only load the latest version of the library no matter what plugin loads the library. 
-* Only call the library classes after all the plugins have loaded and the `plugins_loaded` action has fired.
 
 
 Usage
