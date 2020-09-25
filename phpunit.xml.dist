@@ -9,6 +9,9 @@
 		<testsuite name="php-lint">
 			<file>tests/php/test_php-lint.php</file>
 		</testsuite>
+		<testsuite name="composer-lint">
+			<file>tests/php/test-composer-lint.php</file>
+		</testsuite>
 		<testsuite name="core-api">
 			<directory prefix="test" suffix=".php">tests/php/core-api</directory>
 		</testsuite>

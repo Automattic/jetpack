@@ -18,9 +18,11 @@ php:
 - "7.4snapshot"
 
 env:
-  # Global variable is re-defined in matrix-include -list
   global:
+  # Global variable is re-defined in matrix-include -list
   - WP_TRAVISCI=phpunit
+  # Tell Composer that the version is "dev-master" to avoid it guessing for the monorepo packages.
+  - COMPOSER_ROOT_VERSION=dev-master
   # Run phpunit in Travis matrix for these combinations
   matrix:
   - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
