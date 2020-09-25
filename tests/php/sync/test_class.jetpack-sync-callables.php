@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
@@ -63,7 +64,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::init();
-		jetpack_register_block( 'jetpack/test' );
+		Blocks::jetpack_register_block( 'jetpack/test' );
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),

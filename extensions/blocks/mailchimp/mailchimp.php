@@ -27,7 +27,7 @@ function register_block() {
 		( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		|| Jetpack::is_active()
 	) {
-		jetpack_register_block(
+		Blocks::jetpack_register_block(
 			BLOCK_NAME,
 			array(
 				'render_callback' => __NAMESPACE__ . '\load_assets',
