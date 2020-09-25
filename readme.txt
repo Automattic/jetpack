@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Autoloader: add support for non-optimized PSR-4 namespace loading.
 * Autoloader: add PSR-0 support.
 * Autoloader: add handling for filtered `active_plugins` options that would otherwise have left classes out.
+* Contact Form: ensure that forms are displayed correctly in legacy AMP Reader views.
 * Dashboard: remove plugin autoupdate settings from the dashboard now that WordPress itself handles this feature.
 * Embeds: solve PHP 8 compatibility issues with Crowdsignal embeds.
 * EventBrite Block: ensure full compatibility with the AMP plugin.
