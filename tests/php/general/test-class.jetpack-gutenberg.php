@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Blocks;
+
 class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	public $master_user_id = false;
@@ -77,11 +79,11 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function register_block() {
-		jetpack_register_block( 'jetpack/apple' );
+		Blocks::jetpack_register_block( 'jetpack/apple' );
 	}
 
 	function test_registered_block_is_available() {
-		jetpack_register_block( 'jetpack/apple' );
+		Blocks::jetpack_register_block( 'jetpack/apple' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertTrue( $availability['apple']['available'] );
 	}
@@ -94,7 +96,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function test_registered_block_is_not_available_when_not_defined_in_whitelist() {
-		jetpack_register_block( 'jetpack/durian' );
+		Blocks::jetpack_register_block( 'jetpack/durian' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertArrayNotHasKey( 'durian', $availability, 'durian is available!' );
 	}
