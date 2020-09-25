@@ -245,15 +245,6 @@ class Jetpack_Simple_Payments {
 		$items = '';
 		$css_prefix = self::$css_classname_prefix;
 
-		$is_paypal_button_visible = true;
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/lib/display-context.php';
-			$context = \A8C\Display_Context\get_current_context();
-			if ( \A8C\Display_Context\EMAIL === $context ) {
-				$is_paypal_button_visible = false;
-			}
-		}
-
 		if ( $data['multiple'] ) {
 			$items = sprintf( '
 				<div class="%1$s">
@@ -275,21 +266,13 @@ class Jetpack_Simple_Payments {
 			);
 		}
 
-		if ( $is_paypal_button_visible ) {
-			$purchase_box = sprintf(
-				'<div class="%1$s">%2$s<div class="%3$s" id="%4$s"></div></div>',
-				esc_attr( "${css_prefix}-purchase-box" ),
-				$items,
-				esc_attr( "${css_prefix}-button" ),
-				esc_attr( "{$data['dom_id']}_button" )
-			);
-		} else {
-			$purchase_box = sprintf(
-				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-				esc_url( get_permalink( get_the_ID() ) ),
-				__( 'Visit the site to purchase.', 'jetpack' )
-			);
-		}
+		$purchase_box = sprintf(
+			'<div class="%1$s">%2$s<div class="%3$s" id="%4$s"></div></div>',
+			esc_attr( "${css_prefix}-purchase-box" ),
+			$items,
+			esc_attr( "${css_prefix}-button" ),
+			esc_attr( "{$data['dom_id']}_button" )
+		);
 		return sprintf( '
 <div class="%1$s">
 	<div class="%2$s">
