@@ -111,7 +111,7 @@ function load_assets( $attr, $content ) {
 				wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
 			);
 		} else {
-			$content = sprintf(
+			$content          = sprintf(
 				'<div class="%1$s" id="%2$s"></div>',
 				esc_attr( $classes ),
 				esc_attr( $html_id )
