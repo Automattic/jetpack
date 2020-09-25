@@ -39,9 +39,15 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content ) {
+	// Do nothing if block content has been generated from the `simple-payments` shortcode.
+	if ( false !== strpos( $content, 'jetpack-simple-payments-shortcode' ) ) {
+		return $content;
+	}
+
 	$simple_payments = Jetpack_Simple_Payments::getInstance();
 	$simple_payments->enqueue_frontend_assets();
 
+	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
 	if ( ! jetpack_is_frontend() ) {
 		return $content;
 	}

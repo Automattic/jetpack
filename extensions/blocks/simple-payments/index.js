@@ -13,6 +13,7 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import save from './save';
+import deprecatedV1 from './depecrated/v1';
 
 /**
  * Example image
@@ -181,4 +182,6 @@ export const settings = {
 		// https://github.com/Automattic/jetpack/issues/11789
 		reusable: false,
 	},
+
+	deprecated: [ deprecatedV1 ],
 };

@@ -26,13 +26,15 @@ export default function Save( { attributes } ) {
 	return (
 		<div className={ `jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }` }>
 			<div className="jetpack-simple-payments-product">
-				<div className="jetpack-simple-payments-product-image">
-					<div className="jetpack-simple-payments-image">
-						<figure>
-							<img src={ featuredMediaUrl } alt={ featuredMediaTitle } />
-						</figure>
+				{ featuredMediaUrl && (
+					<div className="jetpack-simple-payments-product-image">
+						<div className="jetpack-simple-payments-image">
+							<figure>
+								<img src={ featuredMediaUrl } alt={ featuredMediaTitle } />
+							</figure>
+						</div>
 					</div>
-				</div>
+				) }
 				<div className="jetpack-simple-payments-details">
 					<div className="jetpack-simple-payments-title">
 						<p>{ title }</p>
