@@ -65,6 +65,8 @@ class StoryEdit extends React.Component {
 		);
 		this.updateMediaSaveProgress = this.updateMediaSaveProgress.bind( this );
 
+		this.onStorySaveResult = this.onStorySaveResult.bind( this );
+
 		this.state = {
 			isUploadInProgress: false,
 			isSaveInProgress: false,
@@ -182,6 +184,12 @@ class StoryEdit extends React.Component {
 		this.setState( { isSaveInProgress: false } );
 	}
 
+	onStorySaveResult() {
+		const { setAttributes } = this.props;
+		setAttributes( { id: null, src: null } );
+		this.setState( { isSaveInProgress: false } );
+	}
+
 	render() {
 		const { setAttributes, attributes, isSelected } = this.props;
 		const { mediaFiles } = attributes;
@@ -231,6 +239,9 @@ class StoryEdit extends React.Component {
 							}
 							onMediaSaveStateReset={
 								this.mediaSaveStateReset
+							}
+							onStorySaveResult={
+								this.onStorySaveResult
 							}
 							renderContent={ ( {
 								isUploadInProgress,
