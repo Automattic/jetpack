@@ -267,7 +267,7 @@ class Jetpack_Simple_Payments {
 	</div>
 </div>
 ',
-			esc_attr( "{$data['class']} ${css_prefix}-wrapper ${css_prefix}-shortcode" ),
+			esc_attr( "{$data['class']} ${css_prefix}-wrapper" ),
 			esc_attr( "${css_prefix}-product" ),
 			$image,
 			esc_attr( "${css_prefix}-details" ),

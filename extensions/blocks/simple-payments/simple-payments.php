@@ -39,8 +39,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content ) {
-	// Do nothing if block content has been generated from the `simple-payments` shortcode.
-	if ( false !== strpos( $content, 'jetpack-simple-payments-shortcode' ) ) {
+	// Do nothing if block content is a `simple-payment` shortcode.
+	if ( preg_match( '/\[simple-payment(.*)]/', $content ) ) {
 		return $content;
 	}
 
