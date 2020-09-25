@@ -136,6 +136,7 @@ if ( window.jQuery && window.o2 ) {
 } else {
 	jetpackInitCalendly[0]();
 }
+
 JS_END;
 			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 		}
