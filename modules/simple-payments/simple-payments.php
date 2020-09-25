@@ -43,8 +43,6 @@ class Jetpack_Simple_Payments {
 
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
-		add_action( 'enqueue_block_assets', array( $this, 'enqueue_frontend_assets' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
@@ -62,26 +60,6 @@ class Jetpack_Simple_Payments {
 		$this->setup_cpts();
 
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
-	}
-
-	function register_gutenberg_block() {
-		if ( $this->is_enabled_jetpack_simple_payments() ) {
-			jetpack_register_block(
-				'jetpack/simple-payments',
-				array(
-					'render_callback' => 'render_gutenberg_block',
-				)
-			);
-		} else {
-			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/simple-payments',
-				'missing_plan',
-				array(
-					'required_feature' => 'simple-payments',
-					'required_plan'    => self::$required_plan,
-				)
-			);
-		}
 	}
 
 	/**
@@ -115,24 +93,6 @@ class Jetpack_Simple_Payments {
 				esc_js( $is_multiple )
 			)
 		);
-	}
-
-	/**
-	 * Render callback of the Pay with PayPal block.
-	 *
-	 * @param array  $attributes Block attributes.
-	 * @param string $content string Block content.
-	 *
-	 * @return mixed
-	 */
-	public function render_gutenberg_block( $attributes, $content ) {
-		$product_id = $attributes['productId'];
-		$this->setup_paypal_checkout_button(
-			$product_id,
-			uniqid( self::$css_classname_prefix . '-' . $product_id . '_', true ),
-			get_post_meta( $product_id, 'spay_multiple', true ) || '0'
-		);
-		return $content;
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {
@@ -241,11 +201,19 @@ class Jetpack_Simple_Payments {
 		) );
 	}
 
-	function output_shortcode( $data ) {
+	/**
+	 * Get the HTML output to use as PayPal purchase box.
+	 *
+	 * @param string  $dom_id ID of the DOM element with the purchase message.
+	 * @param boolean $is_multiple Whether multiple items of the same product can be purchased.
+	 *
+	 * @return string
+	 */
+	public function output_purchase_box( $dom_id, $is_multiple ) {
 		$items = '';
 		$css_prefix = self::$css_classname_prefix;
 
-		if ( $data['multiple'] ) {
+		if ( $is_multiple ) {
 			$items = sprintf( '
 				<div class="%1$s">
 					<input class="%2$s" type="number" value="1" min="1" id="%3$s" />
@@ -253,9 +221,29 @@ class Jetpack_Simple_Payments {
 				',
 				esc_attr( "${css_prefix}-items" ),
 				esc_attr( "${css_prefix}-items-number" ),
-				esc_attr( "{$data['dom_id']}_number" )
+				esc_attr( "{$dom_id}_number" )
 			);
 		}
+
+		return sprintf(
+			'<div class="%1$s" id="%2$s"></div><div class="%3$s">%4$s<div class="%5$s" id="%6$s"></div></div>',
+			esc_attr( "${css_prefix}-purchase-message" ),
+			esc_attr( "{$dom_id}-message-container" ),
+			esc_attr( "${css_prefix}-purchase-box" ),
+			$items,
+			esc_attr( "${css_prefix}-button" ),
+			esc_attr( "{$dom_id}_button" )
+		);
+	}
+
+	/**
+	 * Get the HTML output to replace the `simple-payments` shortcode.
+	 *
+	 * @param array $data Product data.
+	 * @return string
+	 */
+	public function output_shortcode( $data ) {
+		$css_prefix = self::$css_classname_prefix;
 
 		$image = "";
 		if( has_post_thumbnail( $data['id'] ) ) {
@@ -266,13 +254,6 @@ class Jetpack_Simple_Payments {
 			);
 		}
 
-		$purchase_box = sprintf(
-			'<div class="%1$s">%2$s<div class="%3$s" id="%4$s"></div></div>',
-			esc_attr( "${css_prefix}-purchase-box" ),
-			$items,
-			esc_attr( "${css_prefix}-button" ),
-			esc_attr( "{$data['dom_id']}_button" )
-		);
 		return sprintf( '
 <div class="%1$s">
 	<div class="%2$s">
@@ -281,8 +262,7 @@ class Jetpack_Simple_Payments {
 			<div class="%5$s"><p>%6$s</p></div>
 			<div class="%7$s"><p>%8$s</p></div>
 			<div class="%9$s"><p>%10$s</p></div>
-			<div class="%11$s" id="%12$s"></div>
-			%13$s
+			%11$s
 		</div>
 	</div>
 </div>
@@ -297,9 +277,7 @@ class Jetpack_Simple_Payments {
 			wp_kses( $data['description'], wp_kses_allowed_html( 'post' ) ),
 			esc_attr( "${css_prefix}-price" ),
 			esc_html( $data['price'] ),
-			esc_attr( "${css_prefix}-purchase-message" ),
-			esc_attr( "{$data['dom_id']}-message-container" ),
-			$purchase_box
+			$this->output_purchase_box( $data['dom_id'], $data['multiple'] )
 		);
 	}
 

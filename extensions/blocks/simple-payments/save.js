@@ -43,7 +43,12 @@ export default function Save( { attributes } ) {
 					<div className="jetpack-simple-payments-price">
 						<p>{ formatPrice( price, currency ) }</p>
 					</div>
-					<a href={ postLink } target="_blank" rel="noopener noreferrer">
+					<a
+						className="jetpack-simple-payments-purchase"
+						href={ postLink }
+						target="_blank"
+						rel="noopener noreferrer"
+					>
 						{ __( 'Visit the site to purchase.', 'jetpack' ) }
 					</a>
 				</div>

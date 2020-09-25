@@ -82,6 +82,8 @@ export const settings = {
 		},
 		content: {
 			type: 'string',
+			source: 'html',
+			selector: '.jetpack-simple-payments-description p',
 			default: '',
 		},
 		email: {
@@ -94,10 +96,16 @@ export const settings = {
 		},
 		featuredMediaUrl: {
 			type: 'string',
+			source: 'attribute',
+			selector: '.jetpack-simple-payments-image img',
+			attribute: 'src',
 			default: null,
 		},
 		featuredMediaTitle: {
 			type: 'string',
+			source: 'attribute',
+			selector: '.jetpack-simple-payments-image img',
+			attribute: 'alt',
 			default: null,
 		},
 		multiple: {
@@ -106,6 +114,9 @@ export const settings = {
 		},
 		postLink: {
 			type: 'string',
+			source: 'attribute',
+			selector: '.jetpack-simple-payments-purchase',
+			attribute: 'href',
 		},
 		price: {
 			type: 'number',
@@ -115,6 +126,8 @@ export const settings = {
 		},
 		title: {
 			type: 'string',
+			source: 'html',
+			selector: '.jetpack-simple-payments-title p',
 			default: '',
 		},
 	},
