@@ -10,10 +10,9 @@
             "name": "automattic/jetpack-a8c-mc-stats",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-a8c-mc-stats/zipball/9daa7d933679f7c3c38f1a2a1eaeaa87d7b43e37",
-                "reference": "9daa7d933679f7c3c38f1a2a1eaeaa87d7b43e37",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/a8c-mc-stats",
+                "reference": "72e8464c053658a730113aa3cfb6d8b292cd16e2"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -33,16 +32,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Used to record internal usage stats for Automattic. Not visible to site owners."
+            "description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-abtest",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-abtest/zipball/6a03c7ccfe0fe550d6ec3274ddf19989a4916c2a",
-                "reference": "6a03c7ccfe0fe550d6ec3274ddf19989a4916c2a",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/abtest",
+                "reference": "8295c4e5fe6e61ad3f2848f294763398f966e8e9"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -67,16 +68,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Provides an interface to the WP.com A/B tests."
+            "description": "Provides an interface to the WP.com A/B tests.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-assets",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/737ff45b3e42acbec461bcd598d0c07ef5f00ed5",
-                "reference": "737ff45b3e42acbec461bcd598d0c07ef5f00ed5",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/assets",
+                "reference": "2e25ad7667693395602e6a1962357901c842b067"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -101,7 +104,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Asset management utilities for Jetpack ecosystem packages"
+            "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-autoloader",
@@ -144,10 +150,9 @@
             "name": "automattic/jetpack-backup",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/ea2aaa9be3697d8b885a74a11411c7818fba5a75",
-                "reference": "ea2aaa9be3697d8b885a74a11411c7818fba5a75",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/backup",
+                "reference": "69733464fcefcb51342908dcdd6db6feb285c180"
             },
             "type": "library",
             "autoload": {
@@ -161,16 +166,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tools to assist with backing up Jetpack sites."
+            "description": "Tools to assist with backing up Jetpack sites.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-blocks",
             "version": "dev-add/nonce-removal",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-blocks/zipball/c7903d979584a336f60019128bf9749c5a4b1595",
-                "reference": "c7903d979584a336f60019128bf9749c5a4b1595",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/blocks",
+                "reference": "057e0ecae8c03cbc335bb5ea488f67b51603fd7a"
             },
             "require-dev": {
                 "automattic/wordbless": "dev-master",
@@ -194,16 +201,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more."
+            "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-compat",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-compat/zipball/e6e38c62b68294b074fb7a78360d77e33156715c",
-                "reference": "e6e38c62b68294b074fb7a78360d77e33156715c",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/compat",
+                "reference": "68d64fff654a688bab6db5d79d1609c9ec288701"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -227,16 +236,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Compatibility layer with previous versions of Jetpack"
+            "description": "Compatibility layer with previous versions of Jetpack",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-config",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-config/zipball/9282b4ddc7a65d6be04bc530d6f75935a11fff52",
-                "reference": "9282b4ddc7a65d6be04bc530d6f75935a11fff52",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/config",
+                "reference": "2276f5efe5e29fff5c373e9b7a272d7d007005f4"
             },
             "type": "library",
             "autoload": {
@@ -247,7 +258,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage."
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-connection",
@@ -297,10 +311,9 @@
             "name": "automattic/jetpack-constants",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/9827a2f446b8c4faafaf1c740483031c073a381d",
-                "reference": "9827a2f446b8c4faafaf1c740483031c073a381d",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/constants",
+                "reference": "d8c1e77b35ab7d05f228ddd1bef563fabeb0628b"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -321,16 +334,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for defining constants in a more testable way."
+            "description": "A wrapper for defining constants in a more testable way.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-device-detection",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-device-detection/zipball/37f4f554ec0aa5f2271b0b4f81d0c000cad8c4d3",
-                "reference": "37f4f554ec0aa5f2271b0b4f81d0c000cad8c4d3",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/device-detection",
+                "reference": "235a1225b76554ca04daece6ca94bcf28dd23399"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -351,16 +366,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A way to detect device types based on User-Agent header."
+            "description": "A way to detect device types based on User-Agent header.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-error",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-error/zipball/8ebe103c86f6a423e3abffb2812d787600bf9ea0",
-                "reference": "8ebe103c86f6a423e3abffb2812d787600bf9ea0",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/error",
+                "reference": "a4c523b50f710b69579f95b2c9de8a4f97d976d6"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -380,16 +397,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Jetpack Error - a wrapper around WP_Error."
+            "description": "Jetpack Error - a wrapper around WP_Error.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-heartbeat",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-heartbeat/zipball/ba43cccc851ae29b0a5e7afbfd4294b841d59ede",
-                "reference": "ba43cccc851ae29b0a5e7afbfd4294b841d59ede",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/heartbeat",
+                "reference": "ad4ce7ae64a1881dea8f09a7f94c789a02956f00"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -413,16 +432,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day"
+            "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-jitm",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/4e6b89be7a1094a1f80c0d2751cbedab8bcb43b5",
-                "reference": "4e6b89be7a1094a1f80c0d2751cbedab8bcb43b5",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/jitm",
+                "reference": "705eb87a82f661570e546e65671dddf6f80035fa"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -455,7 +476,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Just in time messages for Jetpack"
+            "description": "Just in time messages for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-lazy-images",
@@ -536,10 +560,9 @@
             "name": "automattic/jetpack-logo",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/4e209e3515f43f1586b25755c626cc3ec8e7b06c",
-                "reference": "4e209e3515f43f1586b25755c626cc3ec8e7b06c",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/logo",
+                "reference": "c62a9f8e0d4a881097cc7c65500badd5065f80b6"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -560,16 +583,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack"
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-options",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-options/zipball/a9c9fd14d6f4cb01ef50fb8d3d61fbee04a32839",
-                "reference": "a9c9fd14d6f4cb01ef50fb8d3d61fbee04a32839",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/options",
+                "reference": "6602d93381bb43d69627484fb8d7af5ce939d880"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -587,16 +612,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options."
+            "description": "A wrapper for wp-options to manage specific Jetpack options.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-partner",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-partner/zipball/f5202664f0d26115b27c7daeacb9e89043c9f079",
-                "reference": "f5202664f0d26115b27c7daeacb9e89043c9f079",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/partner",
+                "reference": "14332b26281567bc6691096875176862fba01300"
             },
             "require-dev": {
                 "brain/monkey": "2.4.0",
@@ -619,16 +646,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Support functions for Jetpack hosting partners."
+            "description": "Support functions for Jetpack hosting partners.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-redirect",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-redirect/zipball/798a47199cc265fd82b642e6c4ab22b227eebc28",
-                "reference": "798a47199cc265fd82b642e6c4ab22b227eebc28",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/redirect",
+                "reference": "84327fef3be2e9321aa99d081b71ac3013f06dc7"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -648,16 +677,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities to build URLs to the jetpack.com/redirect/ service"
+            "description": "Utilities to build URLs to the jetpack.com/redirect/ service",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-roles",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-roles/zipball/242f03921c818dfc1e263bdc3d1ff090d9d7555c",
-                "reference": "242f03921c818dfc1e263bdc3d1ff090d9d7555c",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/roles",
+                "reference": "139dfbbf05e2f6c45682a9c8bf13ef29c9f9bd83"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -678,16 +709,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities, related with user roles and capabilities."
+            "description": "Utilities, related with user roles and capabilities.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-status",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/6e5bcfdcf6e99006d7c4c9c43d526abd4f2884a8",
-                "reference": "6e5bcfdcf6e99006d7c4c9c43d526abd4f2884a8",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/status",
+                "reference": "65e70cc54dc8141a328e6d43fbe9bb4286281afb"
             },
             "require-dev": {
                 "brain/monkey": "2.4.0",
@@ -709,7 +742,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-sync",
@@ -775,10 +811,9 @@
             "name": "automattic/jetpack-tracking",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-tracking/zipball/37eb804403476287189a79af7df29fc660037c49",
-                "reference": "37eb804403476287189a79af7df29fc660037c49",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/tracking",
+                "reference": "b2686165f1137a485f5f923c170d9d5b00871fe0"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -804,7 +839,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tracking for Jetpack"
+            "description": "Tracking for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "nojimage/twitter-text-php",
