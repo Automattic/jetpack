@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Custom CSS: add rebeccapurple color to the list of colors that can be processed by the SCSS and LESS preprocessors.
 * Dashboard: clarify Backup & Scan settings and alerts.
 * Dashboard: improve the reconnecting process for site owners willing to disconnect and then reconnect Jetpack to WordPress.com.
+* Dashboard: do not display option to purchase a plan when in Offline mode.
 * Embeds: add Loom.com as a new embed option.
 * Embeds: update song.link oEmbed to support more formats.
 * Embeds: allow Instagram embeds to keep working via the WordPress.com REST API.
