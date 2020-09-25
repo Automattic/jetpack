@@ -94,8 +94,11 @@ let FeatureToggle = props => {
 		setIsInstalling( true );
 		onInstallClick().then( () => {
 			setIsInstalling( false );
+			analytics.tracks.recordEvent( 'jetpack_wizard_feature_install', {
+				feature,
+			} );
 		} );
-	} );
+	}, [ feature ] );
 
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
