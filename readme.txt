@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Autoloader: add handling for filtered `active_plugins` options that would otherwise have left classes out.
 * Dashboard: remove plugin autoupdate settings from the dashboard now that WordPress itself handles this feature.
 * Embeds: solve PHP 8 compatibility issues with Crowdsignal embeds.
+* Image Compare Block: improve display on AMP views.
 * Infinite Scroll: ensure Infinite Scroll works on AMP views as well for the Twenty Nineteen and Twenty Twenty themes.
 * Infinite Scroll: add tools allowing theme authors to implement Infinite Scroll on AMP views in their own theme.
 * Pinterest Block: ensure full compatibility with the AMP plugin.
