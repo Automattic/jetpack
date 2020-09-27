@@ -14,6 +14,7 @@ export default async function waitMediaReady( mediaElement, fullLoad = false ) {
 		} );
 	} else if ( 'video' === elementTag || 'audio' === elementTag ) {
 		const src = mediaElement.src;
+
 		// only load the full video if it's on the same origin
 		if ( fullLoad && src && src.startsWith( window.location.origin ) ) {
 			mediaElement.src = '';
@@ -22,18 +23,14 @@ export default async function waitMediaReady( mediaElement, fullLoad = false ) {
 			if ( mediaElement.type ) {
 				requestHeaders.append( 'Content-Type', mediaElement.type );
 			}
-			return fetch( videoRequest, {
+			const response = await fetch( videoRequest, {
 				method: 'GET',
 				headers: requestHeaders,
 				mode: 'no-cors',
 				cache: 'default',
-			} )
-				.then( response => {
-					return response.blob();
-				} )
-				.then( blob => {
-					mediaElement.src = URL.createObjectURL( blob );
-				} );
+			} );
+			const videoAsBlob = await response.blob();
+			mediaElement.src = URL.createObjectURL( videoAsBlob );
 		}
 		if ( mediaElement.HAVE_ENOUGH_DATA === mediaElement.readyState ) {
 			return;

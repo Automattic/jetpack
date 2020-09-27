@@ -11,9 +11,9 @@ import {
 	isMuted,
 	isPlaying,
 	isCurrentSlideReady,
-	hasCurrentSlideEnded,
 	getCurrentMediaElement,
 	getCurrentMediaDuration,
+	getPreviousSlideMediaElement,
 } from './selectors';
 
 const isVideo = mediaElement =>
@@ -25,8 +25,13 @@ function syncWithMediaElement( action, store ) {
 
 	const muted = isMuted( getState(), playerId );
 	const playing = isPlaying( getState(), playerId );
-	const ended = hasCurrentSlideEnded( getState(), playerId );
 	const mediaElement = getCurrentMediaElement( getState(), playerId );
+	const previousMediaElement = getPreviousSlideMediaElement( getState(), playerId );
+
+	if ( action.type === 'SHOW_SLIDE' && isVideo( previousMediaElement ) ) {
+		previousMediaElement.currentTime = 0;
+		previousMediaElement.pause();
+	}
 
 	if ( ! isVideo( mediaElement ) ) {
 		return;
@@ -42,11 +47,6 @@ function syncWithMediaElement( action, store ) {
 	if ( playing ) {
 		mediaElement.play();
 	} else {
-		mediaElement.pause();
-	}
-
-	if ( ended ) {
-		mediaElement.currentTime = 0;
 		mediaElement.pause();
 	}
 }
@@ -67,7 +67,6 @@ export function trackProgress( action, store ) {
 	const playing = isPlaying( getState(), playerId );
 	const currentSlideProgress = getCurrentSlideProgress( getState(), playerId );
 	clearTimeout( currentSlideProgress.timeout );
-	syncWithMediaElement( action, store );
 
 	if ( ! playing || ! ready ) {
 		// reset lastUpdate on pause
@@ -85,12 +84,13 @@ export function trackProgress( action, store ) {
 	const mediaElement = getCurrentMediaElement( getState(), playerId );
 	const duration = getCurrentMediaDuration( getState(), playerId );
 
-	const delta = currentSlideProgress.lastUpdate
+	const renderIntervalMs = 100;
+	const deltaMs = currentSlideProgress.lastUpdate
 		? Date.now() - currentSlideProgress.lastUpdate
-		: 100;
+		: renderIntervalMs;
 	const currentTime = isVideo( mediaElement )
 		? mediaElement.currentTime
-		: currentSlideProgress.currentTime + delta;
+		: currentSlideProgress.currentTime + deltaMs / 1000;
 
 	if ( currentTime >= duration ) {
 		dispatch( setCurrentSlideEnded( playerId ) );
@@ -99,7 +99,7 @@ export function trackProgress( action, store ) {
 
 	dispatch(
 		setCurrentSlideProgress( playerId, {
-			timeout: setTimeout( () => trackProgress( action, store ), delta ),
+			timeout: setTimeout( () => trackProgress( action, store ), renderIntervalMs ),
 			lastUpdate: Date.now(),
 			duration,
 			currentTime,
@@ -111,5 +111,5 @@ export default {
 	SET_PLAYING: [ trackProgress, syncWithMediaElement ],
 	SLIDE_READY: [ trackProgress, syncWithMediaElement ],
 	SET_MUTED: syncWithMediaElement,
-	END_CURRENT_SLIDE: syncWithMediaElement,
+	SHOW_SLIDE: syncWithMediaElement,
 };

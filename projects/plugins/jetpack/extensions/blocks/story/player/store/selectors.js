@@ -102,3 +102,14 @@ export function hasCurrentSlideEnded( state, playerId ) {
 export function isCurrentSlideReady( state, playerId ) {
 	return state[ playerId ].currentSlide.ready;
 }
+
+/**
+ * Returns the previous slide media element
+ *
+ * @param {Object} state State object.
+ *
+ * @return {Number} underlying media element for the previous slide.
+ */
+export function getPreviousSlideMediaElement( state, playerId ) {
+	return state[ playerId ].previousSlide?.mediaElement;
+}

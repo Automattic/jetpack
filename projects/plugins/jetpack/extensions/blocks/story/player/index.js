@@ -26,7 +26,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 );
 
 const defaultSettings = {
-	imageTime: 5000,
+	imageTime: 5, // in sec
 	startMuted: false,
 	playInFullscreen: true,
 	playOnNextSlide: true,

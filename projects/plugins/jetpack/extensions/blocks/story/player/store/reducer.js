@@ -16,6 +16,7 @@ const defaultCurrentSlideState = {
 
 const defaultPlayerState = {
 	currentSlide: defaultCurrentSlideState,
+	previousSlide: null, // used to reset the media that was just played
 	muted: false,
 	playing: false,
 };
@@ -29,6 +30,7 @@ export function player( state = defaultPlayerState, action ) {
 					...defaultCurrentSlideState,
 					index: action.index,
 				},
+				previousSlide: state.currentSlide,
 			};
 		case 'SLIDE_READY':
 			return {
@@ -39,6 +41,7 @@ export function player( state = defaultPlayerState, action ) {
 					duration: action.duration,
 					ready: true,
 				},
+				previousSlide: null,
 			};
 		case 'SET_CURRENT_SLIDE_PROGRESS':
 			return {
