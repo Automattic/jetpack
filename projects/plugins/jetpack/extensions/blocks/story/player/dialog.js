@@ -1,12 +1,7 @@
 /**
  * WordPress dependencies
  */
-import {
-	createElement,
-	useCallback,
-	useEffect,
-	useRef,
-} from '@wordpress/element';
+import { createElement, useCallback, useEffect, useRef } from '@wordpress/element';
 import { IsolatedEventContainer, withConstrainedTabbing } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
 
@@ -24,12 +19,15 @@ export default withConstrainedTabbing(
 	} ) => {
 		const dialogRef = useRef();
 
-		const onKeyDown = useCallback( event => {
-			if ( event.keyCode === ESCAPE && shouldCloseOnEsc ) {
-				event.stopPropagation();
-				onRequestClose( event );
-			}
-		} );
+		const onKeyDown = useCallback(
+			event => {
+				if ( event.keyCode === ESCAPE && shouldCloseOnEsc ) {
+					event.stopPropagation();
+					onRequestClose( event );
+				}
+			},
+			[ shouldCloseOnEsc, onRequestClose ]
+		);
 
 		useEffect( () => {
 			if ( focusOnMount && dialogRef.current ) {

@@ -31,8 +31,16 @@ function renderPlayer( rootElement, settings ) {
 		metadata = parseMeta( metaWrapper );
 	}
 
+	const id = parseId( rootElement );
+
 	render(
-		<StoryPlayer slides={ slides } metadata={ metadata } disabled={ false } { ...settings } />,
+		<StoryPlayer
+			id={ id }
+			slides={ slides }
+			metadata={ metadata }
+			disabled={ false }
+			{ ...settings }
+		/>,
 		rootElement
 	);
 }
@@ -60,6 +68,10 @@ function parseMeta( metaWrapper ) {
 		storyTitle,
 		siteIconUrl,
 	};
+}
+
+function parseId( rootElement ) {
+	return rootElement.getAttribute( 'aria-labelledby' );
 }
 
 if ( typeof window !== 'undefined' ) {

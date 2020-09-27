@@ -7,14 +7,19 @@ import { createElement } from '@wordpress/element';
  * Internal dependencies
  */
 import { Bullet } from './components';
+import { useSelect } from '@wordpress/data';
 
-export const ProgressBar = ( {
-	slides,
-	fullscreen,
-	currentSlideIndex,
-	currentSlideProgress,
-	onSlideSeek,
-} ) => {
+export const ProgressBar = ( { playerId, slides, fullscreen, onSlideSeek } ) => {
+	const { currentSlideIndex, currentSlideProgressPercentage } = useSelect(
+		select => ( {
+			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
+			currentSlideProgressPercentage: select(
+				'jetpack/story/player'
+			).getCurrentSlideProgressPercentage( playerId ),
+		} ),
+		[]
+	);
+
 	return (
 		<div className="wp-story-pagination wp-story-pagination-bullets" role="tablist">
 			{ slides.map( ( slide, index ) => {
@@ -24,7 +29,7 @@ export const ProgressBar = ( {
 				} else if ( index > currentSlideIndex ) {
 					progress = 0;
 				} else {
-					progress = currentSlideProgress;
+					progress = currentSlideProgressPercentage;
 				}
 				return (
 					<Bullet

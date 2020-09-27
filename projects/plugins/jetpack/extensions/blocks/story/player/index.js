@@ -7,12 +7,14 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement, useLayoutEffect, useRef, useState } from '@wordpress/element';
+import { createElement, useMemo, useLayoutEffect, useRef, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
+import './store';
 import { Player } from './player';
 import ShadowRoot from './lib/shadow-root';
 import * as fullscreenAPI from './lib/fullscreen-api';
@@ -25,7 +27,6 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 const defaultSettings = {
 	imageTime: 5000,
-	renderInterval: 50,
 	startMuted: false,
 	playInFullscreen: true,
 	playOnNextSlide: true,
@@ -45,12 +46,18 @@ const defaultSettings = {
 	volume: 0.5,
 };
 
-export default function StoryPlayer( { slides, metadata, disabled, ...settings } ) {
+export default function StoryPlayer( { id, slides, metadata, disabled, ...settings } ) {
 	const playerSettings = merge( {}, defaultSettings, settings );
 
 	const rootElementRef = useRef();
+	const playerId = useMemo( () => id || Math.random().toString( 36 ), [ id ] );
 	const [ fullscreen, setFullscreen ] = useState( false );
 	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
+
+	const { init } = useDispatch( 'jetpack/story/player' );
+
+	// Make sure the store is initialized for this player instance
+	init( playerId );
 
 	useLayoutEffect( () => {
 		if ( fullscreen ) {
@@ -60,10 +67,10 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 				// position: fixed does not work as expected on mobile safari
 				// To fix that we need to add a fixed positioning to body,
 				// retain the current scroll position and restore it when we exit fullscreen
-				/*setLastScrollPosition( [
+				setLastScrollPosition( [
 					document.documentElement.scrollLeft,
 					document.documentElement.scrollTop,
-				] );*/
+				] );
 				document.body.classList.add( 'wp-story-in-fullscreen' );
 				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
 			}
@@ -73,9 +80,9 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 				fullscreenAPI.exit();
 			} else {
 				document.body.classList.remove( 'wp-story-in-fullscreen' );
-				/*if ( lastScrollPosition ) {
+				if ( lastScrollPosition ) {
 					window.scrollTo( ...lastScrollPosition );
-				}*/
+				}
 				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
 			}
 		}
@@ -94,6 +101,7 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 					className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
 				>
 					<Player
+						id={ playerId }
 						fullscreen={ fullscreen }
 						setFullscreen={ setFullscreen }
 						slides={ slides }
