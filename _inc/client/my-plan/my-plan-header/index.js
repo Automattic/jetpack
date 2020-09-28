@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants/urls';
 import Card from 'components/card';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
@@ -25,8 +24,13 @@ class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
 		const { displayBackups, purchases } = this.props;
 
+		const productProps = {
+			productSlug,
+		};
+
 		if ( ! productSlug ) {
 			return {
+				...productProps,
 				isPlaceholder: true,
 			};
 		}
@@ -46,7 +50,7 @@ class MyPlanHeader extends React.Component {
 		switch ( getPlanClass( productSlug ) ) {
 			case 'is-free-plan':
 				return {
-					icon: imagePath + '/plans/jetpack-free.svg',
+					...productProps,
 					tagLine: jetpackCreateInterpolateElement(
 						__(
 							'Worried about security? Get backups, automated security fixes and more: <a>Upgrade now</a>',
@@ -67,8 +71,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-personal-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/plans/jetpack-personal.svg',
 					tagLine: displayBackups
 						? __( 'Daily backups, spam filtering, and priority support.', 'jetpack' )
 						: __( 'Spam filtering and priority support.', 'jetpack' ),
@@ -77,8 +81,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-premium-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/plans/jetpack-premium.svg',
 					tagLine: __(
 						'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.',
 						'jetpack'
@@ -88,8 +92,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-business-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/plans/jetpack-professional.svg',
 					tagLine: __(
 						'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, and priority support.',
 						'jetpack'
@@ -99,8 +103,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-daily-security-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/plans/jetpack-security.svg',
 					tagLine: __(
 						'Enjoy the peace of mind of complete site protection. Great for brochure sites, restaurants, blogs, and resume sites.',
 						'jetpack'
@@ -110,8 +114,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-realtime-security-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/plans/jetpack-security.svg',
 					tagLine: __(
 						'Additional security for sites with 24/7 activity. Recommended for eCommerce stores, news organizations, and online forums.',
 						'jetpack'
@@ -121,8 +125,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-complete-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/plans/jetpack-complete.svg',
 					tagLine: __(
 						'The most powerful WordPress sites: Top-tier security bundle, enhanced search.',
 						'jetpack'
@@ -132,8 +136,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-daily-backup-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/products/product-jetpack-backup.svg',
 					tagLine: __(
 						'Your data is being securely backed up every day with a 30-day archive.',
 						'jetpack'
@@ -148,8 +152,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-realtime-backup-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/products/product-jetpack-backup.svg',
 					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
 					title: jetpackCreateInterpolateElement(
 						__( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ),
@@ -161,16 +165,16 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-search-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: imagePath + '/products/product-jetpack-search.svg',
 					tagLine: __( 'Fast, highly relevant search results and powerful filtering.', 'jetpack' ),
 					title: __( 'Jetpack Search', 'jetpack' ),
 				};
 
 			case 'is-scan-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: `${ imagePath }/products/product-jetpack-scan.svg`,
 					tagLine: __(
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
 						'jetpack'
@@ -182,8 +186,8 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-anti-spam-plan':
 				return {
+					...productProps,
 					details: expiration,
-					icon: `${ imagePath }/products/product-jetpack-anti-spam.svg`,
 					tagLine: __(
 						'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.',
 						'jetpack'
@@ -193,6 +197,7 @@ class MyPlanHeader extends React.Component {
 
 			default:
 				return {
+					...productProps,
 					isPlaceholder: true,
 				};
 		}
