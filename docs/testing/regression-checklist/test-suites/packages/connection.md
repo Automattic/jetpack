@@ -7,3 +7,7 @@
 - [ ] Disconnect/reconnect connection
 - [ ] Secondary user connection
 - [ ] Connection on multisite
+
+Verify that the changes are compatible with the plugins that use the connection package.
+- [ ] WooCommerce Payments
+- [ ] Previous versions of Jetpack
