@@ -279,7 +279,7 @@ function youtube_id( $url ) {
 		$src  = add_query_arg(
 			array(
 				'list' => $id,
-				'hl'   => 'en_US',
+				'hl'   => get_locale(),
 			),
 			'https://www.youtube.com/embed/videoseries'
 		);
