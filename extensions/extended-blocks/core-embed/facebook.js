@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { addFilter } from '@wordpress/hooks';
+import { registerBlockVariation, unregisterBlockVariation } from '@wordpress/blocks';
 import { Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -31,14 +33,14 @@ const facebookVariation = {
 };
 
 /**
- * Re-activates the Facebook and Instagram embed block variations by
- * making them appear in the inserter and their URL patterns parseable again.
+ * Re-enable the Facebook embed block variation by making it appear in the inserter
+ * and its URL pattern parseable again.
  *
- * Relevant for Gutenberg >= 9.0, where the aforementioned blocks were deprecated*[0] because
+ * Relevant for Gutenberg >= 9.0, where the aforementioned block was deprecated*[0] because
  * they do not support the oEmbed changes that Facebook is going to implement on Oct. 24th, 2020,
- * and core has currently no plans to support it.
+ * and Core has currently no plans to support it.
  *
- * However, we do plan on keeping support for them in Jetpack and WordPress.com by sending an
+ * However, we do plan on keeping support for these embeds in Jetpack and WordPress.com by sending an
  * access token alongside the oEmbed API request.
  *
  * Our goal is for this go unnoticed by our end-users, as this is only an implementation detail.
@@ -54,8 +56,22 @@ function reactivateFacebookEmbedBlockVariation( settings, name ) {
 		return settings;
 	}
 
-	const variations = settings.variations.filter( variation => variation.name !== 'facebook' );
-	settings.variations = [ ...variations, facebookVariation ];
+	// Only enable the embed variation if it's supported by the backend,
+	// i.e. if the `shortcodes` modules is enabled.
+	apiFetch( { path: '/jetpack/v4/module/shortcodes' } ).then( shortcodesModule => {
+		if ( ! shortcodesModule.activated ) {
+			return;
+		}
+
+		// If `addFilter` supported async functions, we could do the following:
+		//
+		// const variations = settings.variations.filter( variation => variation.name !== facebookVariation.name );
+		// settings.variations = [ ...variations, facebookVariation ];
+
+		// Alas, it doesn't (yet), so we have to do it like this:
+		unregisterBlockVariation( 'core/embed', facebookVariation.name );
+		registerBlockVariation( 'core/embed', facebookVariation );
+	} );
 
 	return settings;
 }
