@@ -13,8 +13,6 @@ import {
 	// BlockCaption,
 	// MediaPlaceholder,
 	// MediaUpload,
-	MediaUploadProgress,
-	MEDIA_TYPE_IMAGE,
 	StoryUpdateProgress,
 	// BlockControls,
 	// InspectorControls,
@@ -165,10 +163,24 @@ class StoryEdit extends React.Component {
 		}
 	}
 
+	replaceMediaUrlInMediaFilesById( mediaId, mediaUrl ) {
+		const { setAttributes, attributes } = this.props;
+		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
+			for (i = 0; i < attributes.mediaFiles.length; i++) {
+				if (attributes.mediaFiles[i].id === mediaId) {
+					attributes.mediaFiles[i].url = mediaUrl;
+					attributes.mediaFiles[i].link = mediaUrl;
+				}
+			}
+		}
+		return attributes.mediaFiles;
+	}
+
 	finishMediaSaveWithSuccess( payload ) {
 		const { setAttributes } = this.props;
-		// TODO probably have to set the localid here? but this is a story, it's a list of media.
-		setAttributes( { src: payload.mediaUrl } );
+		// find the mediaFiles item that needs to change via its id, and apply the new URL
+		var updatedMediaFiles = this.replaceMediaUrlInMediaFilesById( payload.mediaId, payload.mediaUrl);
+		setAttributes( { mediaFiles: updatedMediaFiles } );
 		this.setState( { isSaveInProgress: false } );
 	}
 
@@ -180,7 +192,7 @@ class StoryEdit extends React.Component {
 
 	mediaSaveStateReset() {
 		const { setAttributes } = this.props;
-		setAttributes( { id: null, src: null } );
+		// setAttributes( { id: null, src: null } );
 		this.setState( { isSaveInProgress: false } );
 	}
 
