@@ -56,14 +56,20 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
-			'jetpack.verifyAction'    => array( $this, 'verify_action' ),
-			'jetpack.getUser'         => array( $this, 'get_user' ),
-			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
-			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
+			'jetpack.verifyAction'     => array( $this, 'verify_action' ),
+			'jetpack.getUser'          => array( $this, 'get_user' ),
+			'jetpack.remoteRegister'   => array( $this, 'remote_register' ),
+			'jetpack.remoteProvision'  => array( $this, 'remote_provision' ),
+			'jetpack.testAPIUserCode'  => array( $this, 'test_api_user_code' ),
+			'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
+			'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
 		);
 
 		if ( class_exists( 'Jetpack' ) ) {
-			$jetpack_methods['jetpack.jsonAPI'] = array( $this, 'json_api' );
+			$jetpack_methods['jetpack.jsonAPI']           = array( $this, 'json_api' );
+			$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
+			$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
+			$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
 		}
 
 		$this->user = $this->login();
@@ -72,18 +78,9 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.testAPIUserCode'  => array( $this, 'test_api_user_code' ),
-					'jetpack.disconnectBlog'   => array( $this, 'disconnect_blog' ),
-					'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
-					'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
+					'jetpack.disconnectBlog' => array( $this, 'disconnect_blog' ),
 				)
 			);
-
-			if ( class_exists( 'Jetpack' ) ) {
-				$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
-				$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
-				$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
-			}
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
 				$jetpack_methods['metaWeblog.newMediaObject']      = $core_methods['metaWeblog.newMediaObject'];
@@ -735,9 +732,13 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Unlink a user from WordPress.com
 	 *
-	 * This will fail if called by the Master User.
+	 * If $user_id is not informed, it will try to disconnect the current logged in user. This will fail if called by the Master User.
+	 *
+	 * If $user_id is informed, it will try to disconnect the informed user, even if it's the Master User.
+	 *
+	 * @param integer $user_id The user ID to disconnect from this site.
 	 */
-	public function unlink_user() {
+	public function unlink_user( $user_id = null ) {
 		/**
 		 * Fired when we want to log an event to the Jetpack event log.
 		 *
@@ -747,7 +748,7 @@ class Jetpack_XMLRPC_Server {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
-		return Connection_Manager::disconnect_user();
+		return Connection_Manager::disconnect_user( $user_id, is_null( $user_id ) ? false : true );
 	}
 
 	/**
