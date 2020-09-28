@@ -369,6 +369,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				&& ( new Status() )->is_offline_mode()
 			) {
 				$module['activated'] = false;
+			} elseif ( Jetpack::is_module_active( $request['slug'] ) ) { // TODO: Move into `Jetpack::get_module()`?
+				$module['activated'] = true;
 			}
 
 			$i18n = jetpack_get_module_i18n( $request['slug'] );
