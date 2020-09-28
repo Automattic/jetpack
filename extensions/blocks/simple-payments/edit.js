@@ -59,12 +59,16 @@ class SimplePaymentsEdit extends Component {
 			this.saveProduct();
 		}
 
-		if ( postLinkUrl && postLinkUrl !== attributes.postLinkUrl ) {
-			setAttributes( { postLinkUrl } );
-		}
-
-		if ( ! attributes.postLinkText ) {
-			setAttributes( { postLinkText: __( 'Visit the site to purchase.', 'jetpack' ) } );
+		const shouldUpdatePostLinkUrl =
+			postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl;
+		const shouldUpdatePostLinkText = ! this.props.attributes.postLinkText;
+		if ( shouldUpdatePostLinkUrl || shouldUpdatePostLinkText ) {
+			setAttributes( {
+				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
+				...( shouldUpdatePostLinkText && {
+					postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
+				} ),
+			} );
 		}
 	}
 
@@ -88,12 +92,16 @@ class SimplePaymentsEdit extends Component {
 			this.validateAttributes();
 		}
 
-		if ( postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl ) {
-			setAttributes( { postLinkUrl } );
-		}
-
-		if ( ! this.props.attributes.postLinkText ) {
-			setAttributes( { postLinkText: __( 'Visit the site to purchase.', 'jetpack' ) } );
+		const shouldUpdatePostLinkUrl =
+			postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl;
+		const shouldUpdatePostLinkText = ! this.props.attributes.postLinkText;
+		if ( shouldUpdatePostLinkUrl || shouldUpdatePostLinkText ) {
+			setAttributes( {
+				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
+				...( shouldUpdatePostLinkText && {
+					postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
+				} ),
+			} );
 		}
 	}
 
