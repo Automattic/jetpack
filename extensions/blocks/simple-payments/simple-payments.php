@@ -54,7 +54,7 @@ function render_block( $attr, $content ) {
 
 	// Augment block UI with a PayPal button if rendered on the frontend.
 	$product_id  = $attr['productId'];
-	$dom_id      = uniqid( "jetpack-simple-payments-{$product_id}_", true );
+	$dom_id      = wp_unique_id( "jetpack-simple-payments-{$product_id}_" );
 	$is_multiple = get_post_meta( $product_id, 'spay_multiple', true ) || '0';
 
 	$simple_payments->setup_paypal_checkout_button( $product_id, $dom_id, $is_multiple );
