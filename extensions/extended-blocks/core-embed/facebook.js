@@ -2,6 +2,33 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
+import { Path, SVG } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+
+const embedFacebookIcon = {
+	foreground: '#3b5998',
+	src: (
+		<SVG viewBox="0 0 24 24">
+			<Path d="M20 3H4c-.6 0-1 .4-1 1v16c0 .5.4 1 1 1h8.6v-7h-2.3v-2.7h2.3v-2c0-2.3 1.4-3.6 3.5-3.6 1 0 1.8.1 2.1.1v2.4h-1.4c-1.1 0-1.3.5-1.3 1.3v1.7h2.7l-.4 2.8h-2.3v7H20c.5 0 1-.4 1-1V4c0-.6-.4-1-1-1z" />
+		</SVG>
+	),
+};
+
+const facebookVariation = {
+	// Deprecate Facebook Embed per FB policy
+	// See: https://developers.facebook.com/docs/plugins/oembed-legacy
+	name: 'facebook',
+	title: 'Facebook',
+	icon: embedFacebookIcon,
+	keywords: [ __( 'social' ) ],
+	description: __( 'Embed a Facebook post.' ),
+	patterns: [ /^https?:\/\/www\.facebook.com\/.+/i ],
+	attributes: {
+		providerNameSlug: 'facebook',
+		previewable: false,
+		responsive: true,
+	},
+};
 
 /**
  * Re-activates the Facebook and Instagram embed block variations by
@@ -27,18 +54,8 @@ function reactivateFacebookEmbedBlockVariation( settings, name ) {
 		return settings;
 	}
 
-	/**
-	 * Given the variation name and the pattern regex (the attribute that was removed from the deprecated
-	 * variations) returns a new "patched" variation object that essentially reverts the deprecation changes
-	 * made in https://github.com/WordPress/gutenberg/pull/24472.
-	 */
-	settings.variations.forEach( function ( variation ) {
-		if ( variation.name !== 'facebook' ) {
-			return settings;
-		}
-		variation.patterns = [ /^https?:\/\/www\.facebook.com\/.+/i ];
-		delete variation.scope;
-	} );
+	const variations = settings.variations.filter( variation => variation.name !== 'facebook' );
+	settings.variations = [ ...variations, facebookVariation ];
 
 	return settings;
 }
