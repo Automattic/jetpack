@@ -512,7 +512,7 @@ function jetpack_is_frontend() {
 	 *
 	 * @since  9.0.0
 	 *
-	 * @param bool|string $is_frontend Whether the current request is for accessing the frontend.
+	 * @param bool $is_frontend Whether the current request is for accessing the frontend.
 	 */
-	return apply_filters( 'jetpack_is_frontend', $is_frontend );
+	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
 }
