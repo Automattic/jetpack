@@ -502,6 +502,7 @@ function jetpack_is_frontend() {
 		wp_is_xml_request() ||
 		is_feed() ||
 		( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
+		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
 		( defined( 'WP_CLI' ) && WP_CLI )
 	) {
 		$is_frontend = false;
