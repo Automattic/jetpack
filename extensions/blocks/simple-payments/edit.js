@@ -122,7 +122,7 @@ class SimplePaymentsEdit extends Component {
 			email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
 			featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
 			featuredMediaUrl: get( featuredMedia, 'url', featuredMediaUrl ),
-			featuredMediaTitle: get( featuredMedia, 'titleckcc', featuredMediaTitle ),
+			featuredMediaTitle: get( featuredMedia, 'title', featuredMediaTitle ),
 			multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
 			price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
 			title: get( simplePayment, [ 'title', 'raw' ], title ),
