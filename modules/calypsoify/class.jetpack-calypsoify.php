@@ -37,7 +37,7 @@ class Jetpack_Calypsoify {
 	public function setup() {
 		$this->is_calypsoify_enabled = 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
 		if ( isset( $_GET['calypsoify'] ) ) {
-			$this->is_calypsoify_enabled = (int) $_GET['calypsoify'];
+			$this->is_calypsoify_enabled = 1 === (int) $_GET['calypsoify'];
 		}
 		
 		add_action( 'admin_init', array( $this, 'check_param' ), 4 );
