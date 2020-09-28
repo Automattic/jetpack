@@ -17,9 +17,33 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_Google_AMP_Analytics {
 	/**
-	 * Add hooks.
+	 * Constructor method.
 	 */
 	public function __construct() {
+		$this->maybe_load_hooks();
+	}
+
+	/**
+	 * Maybe load the hooks.
+	 * Checks if its AMP request, if WooCommerce is available, if there's tracking code and in tracking is enabled.
+	 */
+	public function maybe_load_hooks() {
+		if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::has_tracking_code() ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
+			return;
+		}
+
 		add_action( 'woocommerce_add_to_cart', array( $this, 'amp_add_to_cart' ), 10, 6 );
 		add_action( 'woocommerce_thankyou', array( $this, 'amp_after_purchase' ), 10, 1 );
 		add_action( 'wp_footer', array( $this, 'amp_send_ga_events' ) );
@@ -36,10 +60,6 @@ class Jetpack_Google_AMP_Analytics {
 	 * @param object $cart_item_data Cart item data.
 	 */
 	public function amp_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
-		if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
-			return;
-		}
-
 		$product = wc_get_product( $product_id );
 		if ( $product ) {
 			$product_sku  = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
@@ -65,10 +85,6 @@ class Jetpack_Google_AMP_Analytics {
 	 * @param int $order_id The Order ID.
 	 */
 	public function amp_after_purchase( $order_id ) {
-		if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
-			return;
-		}
-
 		$events      = WC()->session->get( 'wc_ga_events' );
 		$order       = wc_get_order( $order_id );
 		$order_total = $order->get_total();
@@ -102,10 +118,6 @@ class Jetpack_Google_AMP_Analytics {
 	 * Send the stored events to GA.
 	 */
 	public function amp_send_ga_events() {
-		if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
-			return;
-		}
-
 		if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			return;
 		}
