@@ -72,6 +72,6 @@ class Jetpack_CRM_Data {
 			return zeroBSCRM_extension_install_jetpackforms();
 		}
 
-		return new WP_Error( 'jp_forms_extension_activation_failed', 'The Jetpack Forms extension could not be activated.' );
+		return new WP_Error( 'jp_forms_extension_activation_failed', esc_html__( 'The Jetpack Forms extension could not be activated.', 'jetpack' );
 	}
 }
