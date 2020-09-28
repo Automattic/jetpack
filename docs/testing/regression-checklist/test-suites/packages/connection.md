@@ -10,4 +10,5 @@
 
 Verify that the changes are compatible with the plugins that use the connection package.
 - [ ] WooCommerce Payments
+- [ ] Jetpack Boost
 - [ ] Previous versions of Jetpack
