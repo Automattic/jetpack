@@ -174,6 +174,13 @@ class Jetpack_Tweetstorm_Helper {
 	private static $line_separator = "\xE2\x80\xA8";
 
 	/**
+	 * Special inline placeholder character, for inline tags that change content length in the RichText..
+	 *
+	 * @var string
+	 */
+	private static $inline_placeholder = "\xE2\x81\xA3";
+
+	/**
 	 * URLs always take up a fixed length from the text limit.
 	 *
 	 * @var int
@@ -1245,6 +1252,9 @@ class Jetpack_Tweetstorm_Helper {
 					}
 				}
 
+				// Remove any inline placeholders.
+				$tweet['text'] = str_replace( self::$inline_placeholder, '', $tweet['text'] );
+
 				// Tidy up the whitespace.
 				$tweet['text'] = trim( $tweet['text'] );
 				$tweet['text'] = preg_replace( '/[ \t]+\n/', "\n", $tweet['text'] );
@@ -1359,6 +1369,11 @@ class Jetpack_Tweetstorm_Helper {
 						$values[ $tag ][ $opened ] .= ' (' . self::generate_url_placeholder( $current_url ) . ')';
 
 						$current_url = '';
+					}
+
+					// We don't return inline images, but they technically take up 1 character in the RichText.
+					if ( 0 === strpos( $token, '<img ' ) ) {
+						$values[ $tag ][ $opened ] .= self::$inline_placeholder;
 					}
 				}
 

@@ -1015,6 +1015,81 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that inline images don't show up in the tweet.
+	 */
+	public function test_inline_images_dont_show_in_tweets() {
+		$test_content = 'This is some text and an image, <img src="foo.jpg" />friend.';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$expected_text = array(
+			wp_strip_all_tags( $test_content ),
+		);
+
+		$expected_boundaries = array( false );
+
+		$expected_blocks = array( $blocks );
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
+		);
+	}
+
+	/**
+	 * Test that inline images are accounted for when generating boundaries.
+	 */
+	public function test_inline_images_are_counted_for_boundaries() {
+		$test_content = 'This is a sentence that takes up some space. ';
+
+		$blocks = array(
+			$this->generateParagraphData(
+				trim( str_repeat( $test_content, 4 ) ) .
+				// Test that the boundary doesn't appear on an image immediately after a period.
+				'<img src="1.jpg" />' .
+				// Test that a mid-sentence image is counted properly.
+				' This is a <img src="2.jpg" />sentence that takes up some space. ' .
+				// Test that the boundary doesn't appear on an image immediately before the next sentence.
+				'<img src="3.jpg" />' .
+				trim( $test_content ) .
+				// Test that an image that replaces the space between sentences is handled.
+				'<img src="4.jpg" />' .
+				trim( str_repeat( $test_content, 4 ) )
+			),
+		);
+
+		$expected_text = array(
+			trim( str_repeat( $test_content, 3 ) ),
+			// There's no space inserted when 4.jpg is removed.
+			trim( str_repeat( $test_content, 3 ) ) . trim( str_repeat( $test_content, 3 ) ),
+			trim( $test_content ),
+		);
+
+		$expected_boundaries = array(
+			$this->generateNormalBoundary( 134, 135, 'content' ),
+			$this->generateNormalBoundary( 407, 408, 'content' ),
+			false,
+		);
+
+		$expected_blocks = array(
+			$blocks,
+			$blocks,
+			$blocks,
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			$expected_text,
+			$expected_boundaries,
+			$expected_blocks
+		);
+	}
+
+	/**
 	 * Test that a boundary will be set at the end of the short items, and correct
 	 * boundaries will be set inside the long item.
 	 */
