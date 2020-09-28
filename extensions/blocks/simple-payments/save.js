@@ -14,7 +14,8 @@ export default function Save( { attributes } ) {
 		currency,
 		featuredMediaUrl,
 		featuredMediaTitle,
-		postLink,
+		postLinkUrl,
+		postLinkText,
 		price,
 		productId,
 		title,
@@ -47,11 +48,11 @@ export default function Save( { attributes } ) {
 					</div>
 					<a
 						className="jetpack-simple-payments-purchase"
-						href={ postLink }
+						href={ postLinkUrl }
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						{ __( 'Visit the site to purchase.', 'jetpack' ) }
+						{ postLinkText }
 					</a>
 				</div>
 			</div>

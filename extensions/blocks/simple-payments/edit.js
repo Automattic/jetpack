@@ -50,7 +50,7 @@ class SimplePaymentsEdit extends Component {
 		// Try to get the simplePayment loaded into attributes if possible.
 		this.injectPaymentAttributes();
 
-		const { attributes, hasPublishAction, postLink, setAttributes } = this.props;
+		const { attributes, hasPublishAction, postLinkUrl, setAttributes } = this.props;
 		const { productId } = attributes;
 
 		// If the user can publish save an empty product so that we have an ID and can save
@@ -59,13 +59,13 @@ class SimplePaymentsEdit extends Component {
 			this.saveProduct();
 		}
 
-		if ( postLink && postLink !== attributes.postLink ) {
-			setAttributes( { postLink } );
+		if ( postLinkUrl && postLinkUrl !== attributes.postLinkUrl ) {
+			setAttributes( { postLinkUrl } );
 		}
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { hasPublishAction, isSelected, postLink, setAttributes } = this.props;
+		const { hasPublishAction, isSelected, postLinkUrl, setAttributes } = this.props;
 
 		if ( ! isEqual( prevProps.simplePayment, this.props.simplePayment ) ) {
 			this.injectPaymentAttributes();
@@ -84,8 +84,8 @@ class SimplePaymentsEdit extends Component {
 			this.validateAttributes();
 		}
 
-		if ( postLink && postLink !== this.props.attributes.postLink ) {
-			setAttributes( { postLink } );
+		if ( postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl ) {
+			setAttributes( { postLinkUrl } );
 		}
 	}
 
@@ -577,7 +577,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 		isSaving: !! isSavingPost(),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
-		postLink: post.link,
+		postLinkUrl: post.link,
 	};
 } );
 

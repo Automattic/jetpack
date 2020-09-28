@@ -113,11 +113,17 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
-		postLink: {
+		postLinkUrl: {
 			type: 'string',
 			source: 'attribute',
 			selector: '.jetpack-simple-payments-purchase',
 			attribute: 'href',
+		},
+		postLinkText: {
+			type: 'string',
+			source: 'html',
+			selector: '.jetpack-simple-payments-purchase',
+			default: __( 'Visit the site to purchase.', 'jetpack' ),
 		},
 		price: {
 			type: 'number',
