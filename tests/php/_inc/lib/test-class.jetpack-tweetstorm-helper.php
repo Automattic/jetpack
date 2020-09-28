@@ -2189,4 +2189,116 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
+
+	/**
+	 * Test that a single Twitter card generates correctly.
+	 *
+	 * @group external-http
+	 */
+	public function test_generating_twitter_card() {
+		$urls = array( 'https://publicizetests.wpsandbox.me/2015/03/26/hello-world/' );
+
+		$expected = array(
+			'https://publicizetests.wpsandbox.me/2015/03/26/hello-world/' => array(
+				'creator'     => '@wpcomrestapi',
+				'description' => 'Kindly do not delete this post or modify it',
+				'image'       => 'https://i2.wp.com/publicizetests.wpsandbox.me/wp-content/uploads/2015/05/keep-calm-its-almost-party-time.png?fit=600%2C700&ssl=1&w=640',
+				'title'       => 'Hello world!',
+				'type'        => 'summary_large_image',
+			),
+		);
+
+		$cards = Jetpack_Tweetstorm_Helper::generate_cards( $urls );
+
+		$this->assertEqualSetsWithIndex( $expected, $cards );
+	}
+
+	/**
+	 * Test that multiple cards generate correctly, and are returned attached to the correct URL.
+	 *
+	 * @group external-http
+	 */
+	public function test_generating_multiple_twitter_cards() {
+		$urls = array(
+			'https://publicizetests.wpsandbox.me/2015/05/16/contributor-test/',
+			'https://publicizetests.wpsandbox.me/2015/06/29/unsupported-shortcodes-test/',
+			'https://publicizetests.wpsandbox.me/',
+		);
+
+		$expected = array(
+			'https://publicizetests.wpsandbox.me/2015/05/16/contributor-test/' => array(
+				'description' => 'Post Written By Contributor.',
+				'image'       => 'https://s0.wp.com/i/blank.jpg',
+				'title'       => 'Contributor test',
+				'type'        => 'summary',
+			),
+			'https://publicizetests.wpsandbox.me/2015/06/29/unsupported-shortcodes-test/' => array(
+				'creator'     => '@wpcomrestapi',
+				'description' => '[:en]English: It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-le…',
+				'image'       => 'https://s0.wp.com/i/blank.jpg',
+				'title'       => 'Unsupported Shortcodes test',
+				'type'        => 'summary',
+			),
+			'https://publicizetests.wpsandbox.me/' => array(
+				'creator'     => '@wpcomrestapi',
+				'description' => 'Just another WordPress site',
+				'image'       => 'https://s0.wp.com/i/blank.jpg',
+				'title'       => 'Publicize Jetpack',
+			),
+		);
+
+		$cards = Jetpack_Tweetstorm_Helper::generate_cards( $urls );
+
+		$this->assertEqualSetsWithIndex( $expected, $cards );
+	}
+
+	/**
+	 * Test that a site that doesn't contain Twitter card data won't produce a card.
+	 *
+	 * @group external-http
+	 */
+	public function test_site_with_no_twitter_card() {
+		$urls = array( 'https://www.google.com/' );
+
+		$expected = array(
+			'https://www.google.com/' => array(
+				'error' => 'no_og_data',
+			),
+		);
+
+		$cards = Jetpack_Tweetstorm_Helper::generate_cards( $urls );
+
+		$this->assertEqualSetsWithIndex( $expected, $cards );
+	}
+
+	/**
+	 * Test that a URL which redirects will still get the Twitter card.
+	 *
+	 * @group external-http
+	 */
+	public function test_twitter_card_with_redirect() {
+		$urls = array(
+			'https://jetpack.me/',
+			'https://jetpack.com/',
+		);
+
+		$expected = array(
+			'https://jetpack.me/'  => array(
+				'description' => 'Essential Security & Performance for WordPress',
+				'image'       => 'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png?w=240',
+				'title'       => 'Jetpack',
+				'type'        => 'summary',
+			),
+			'https://jetpack.com/' => array(
+				'description' => 'Essential Security & Performance for WordPress',
+				'image'       => 'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png?w=240',
+				'title'       => 'Jetpack',
+				'type'        => 'summary',
+			),
+		);
+
+		$cards = Jetpack_Tweetstorm_Helper::generate_cards( $urls );
+
+		$this->assertEqualSetsWithIndex( $expected, $cards );
+	}
 }
