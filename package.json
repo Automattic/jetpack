@@ -209,7 +209,7 @@
 		"eslint-plugin-jsx-a11y": "6.3.1",
 		"eslint-plugin-lodash": "7.1.0",
 		"eslint-plugin-prettier": "3.1.4",
-		"eslint-plugin-react": "7.20.6",
+		"eslint-plugin-react": "7.21.2",
 		"eslint-plugin-wpcalypso": "5.0.0",
 		"glob": "7.1.6",
 		"husky": "4.3.0",
