@@ -256,25 +256,43 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 *
 	 * @param string $provider The embed provider name.
 	 * @param string $url      The url of the embed.
+	 * @param bool   $classic  Whether to use the pre-WordPress 5.6 embed block format.
 	 *
 	 * @return array The embed blob of data.
 	 */
-	public function generateCoreEmbedData( $provider, $url ) {
-		return array(
-			'attributes' => array(
-				'providerNameSlug' => $provider,
-				'url'              => $url,
-			),
-			'block'      => array(
-				'attrs'     => array(
+	public function generateCoreEmbedData( $provider, $url, $classic ) {
+		// @todo This is a fallback definition, it can be removed when WordPress 5.6 is the minimum supported version.
+		if ( $classic ) {
+			return array(
+				'attributes' => array(
+					'url' => $url,
+				),
+				'block'      => array(
+					'attrs'     => array(
+						'url' => $url,
+					),
+					'blockName' => "core-embed/$provider",
+					'innerHTML' => '',
+				),
+				'clientId'   => wp_generate_uuid4(),
+			);
+		} else {
+			return array(
+				'attributes' => array(
 					'providerNameSlug' => $provider,
 					'url'              => $url,
 				),
-				'blockName' => 'core/embed',
-				'innerHTML' => '',
-			),
-			'clientId'   => wp_generate_uuid4(),
-		);
+				'block'      => array(
+					'attrs'     => array(
+						'providerNameSlug' => $provider,
+						'url'              => $url,
+					),
+					'blockName' => 'core/embed',
+					'innerHTML' => '',
+				),
+				'clientId'   => wp_generate_uuid4(),
+			);
+		}
 	}
 
 	/**
@@ -1714,7 +1732,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$blocks = array(
 			$this->generateParagraphData( $test_content ),
-			$this->generateCoreEmbedData( 'twitter', $test_url ),
+			$this->generateCoreEmbedData( 'twitter', $test_url, false ),
+			$this->generateParagraphData( $test_content ),
+			$this->generateCoreEmbedData( 'twitter', $test_url, true ),
 		);
 
 		$expected_content = array(
@@ -1722,9 +1742,20 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'text'  => $test_content,
 				'tweet' => $test_url,
 			),
+			array(
+				'text'  => $test_content,
+				'tweet' => $test_url,
+			),
 		);
 
-		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+		$expected_boundaries = array( false, false );
+
+		$expected_blocks = array(
+			array_slice( $blocks, 0, 2 ),
+			array_slice( $blocks, 2, 2 ),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
 
 	/**
@@ -1736,7 +1767,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$blocks = array(
 			$this->generateParagraphData( $test_content ),
-			$this->generateCoreEmbedData( 'youtube', $test_url ),
+			$this->generateCoreEmbedData( 'youtube', $test_url, false ),
+			$this->generateParagraphData( $test_content ),
+			$this->generateCoreEmbedData( 'youtube', $test_url, true ),
 		);
 
 		$expected_content = array(
@@ -1744,9 +1777,20 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'text' => "$test_content $test_url",
 				'urls' => array( $test_url ),
 			),
+			array(
+				'text' => "$test_content $test_url",
+				'urls' => array( $test_url ),
+			),
 		);
 
-		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+		$expected_boundaries = array( false, false );
+
+		$expected_blocks = array(
+			array_slice( $blocks, 0, 2 ),
+			array_slice( $blocks, 2, 2 ),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
 	}
 
 	/**
@@ -1780,7 +1824,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$blocks = array(
 			$this->generateParagraphData( $test_content ),
-			$this->generateCoreEmbedData( 'youtube', $test_embed ),
+			$this->generateCoreEmbedData( 'youtube', $test_embed, false ),
+			$this->generateParagraphData( $test_content ),
+			$this->generateCoreEmbedData( 'youtube', $test_embed, true ),
 		);
 
 		$expected_content = array(
@@ -1792,13 +1838,23 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				'text' => $test_embed,
 				'urls' => array( $test_embed ),
 			),
+			array(
+				'text' => "The joker ($test_url).",
+				'urls' => array( $test_url ),
+			),
+			array(
+				'text' => $test_embed,
+				'urls' => array( $test_embed ),
+			),
 		);
 
-		$expected_boundaries = array( false, false );
+		$expected_boundaries = array( false, false, false, false );
 
 		$expected_blocks = array(
 			array( $blocks[0] ),
 			array( $blocks[1] ),
+			array( $blocks[2] ),
+			array( $blocks[3] ),
 		);
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
