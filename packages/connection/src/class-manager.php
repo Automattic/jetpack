@@ -28,6 +28,15 @@ class Manager {
 	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
 
 	/**
+	 * Constant used to fetch the master user token. Deprecated.
+	 *
+	 * @deprecated 9.0.0
+	 * @see Manager::MASTER_USER
+	 * @var boolean
+	 */
+	const JETPACK_MASTER_USER = true; //phpcs:ignore ..Jetpack_Sniffs_MasterUserConstant.ShouldNotBeUsed
+
+	/**
 	 * For internal use only. If you need to get the connection owner, use the provided methods
 	 * get_connection_owner_id, get_connection_owner and is_get_connection_owner
 	 *
