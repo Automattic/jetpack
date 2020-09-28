@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { RawHTML } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 export default {
 	attributes: {
@@ -54,4 +55,8 @@ export default {
 		const { productId } = attributes;
 		return productId ? <RawHTML>{ `[simple-payment id="${ productId }"]` }</RawHTML> : null;
 	},
+	migrate: attributes => ( {
+		...attributes,
+		postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
+	} ),
 };
