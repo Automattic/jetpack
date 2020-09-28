@@ -11,6 +11,26 @@
 class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
+	 * Setting up.
+	 */
+	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- This is cloning the internal behaviour of Requests.
+		Requests::$transport[ serialize( array() ) ] = 'Tweetstorm_Requests_Transport_Override';
+	}
+
+	/**
+	 * Tearing down.
+	 */
+	public static function tearDownAfterClass() {
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- This is cloning the internal behaviour of Requests.
+		unset( Requests::$transport[ serialize( array() ) ] );
+
+		parent::tearDownAfterClass();
+	}
+
+	/**
 	 * Helper function. Given a string of text, it will generate the blob of data
 	 * that the parser expects to receive for a paragraph block.
 	 *
@@ -2192,8 +2212,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Test that a single Twitter card generates correctly.
-	 *
-	 * @group external-http
 	 */
 	public function test_generating_twitter_card() {
 		$urls = array( 'https://publicizetests.wpsandbox.me/2015/03/26/hello-world/' );
@@ -2215,8 +2233,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Test that multiple cards generate correctly, and are returned attached to the correct URL.
-	 *
-	 * @group external-http
 	 */
 	public function test_generating_multiple_twitter_cards() {
 		$urls = array(
@@ -2254,8 +2270,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 	/**
 	 * Test that a site that doesn't contain Twitter card data won't produce a card.
-	 *
-	 * @group external-http
 	 */
 	public function test_site_with_no_twitter_card() {
 		$urls = array( 'https://www.google.com/' );

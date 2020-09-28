@@ -137,6 +137,9 @@ require dirname( __FILE__ ) . '/attachment_test_case.php';
 // Load WPCOM-shared helper functions.
 require dirname( __FILE__ ) . '/lib/wpcom-helper-functions.php';
 
+// Load the Tweetstorm Requests override class.
+require __DIR__ . '/_inc/lib/class-tweetstorm-requests-transport-override.php';
+
 function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
