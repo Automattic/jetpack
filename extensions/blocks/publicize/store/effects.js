@@ -86,7 +86,7 @@ async function __refreshTweets() {
 }
 
 /**
- * Effect handler which will refreshing the state of the tweets. Tweet refreshes are throttled
+ * Effect handler which will refresh the state of the tweets. Tweet refreshes are throttled
  * to once ever 2 seconds.
  *
  * @param {object} action - Action which had initiated the effect handler.
