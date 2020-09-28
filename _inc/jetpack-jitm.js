@@ -116,7 +116,7 @@ jQuery( document ).ready( function ( $ ) {
 				$.ajax( {
 					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
 					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
-					beforeSend: function( xhr ) {
+					beforeSend: function ( xhr ) {
 						xhr.setRequestHeader( 'X-WP-Nonce', window.jitm_config.nonce );
 					},
 					data: {
@@ -134,7 +134,10 @@ jQuery( document ).ready( function ( $ ) {
 			template = 'default';
 		}
 
-		response.url = response.url + '&redirect=' + redirect;
+		// Check for pre-existing redirect query var.
+		if ( response.url.indexOf( '&redirect' ) < 0 ) {
+			response.url = response.url + '&redirect=' + redirect;
+		}
 
 		var $template = templates[ template ]( response );
 		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
