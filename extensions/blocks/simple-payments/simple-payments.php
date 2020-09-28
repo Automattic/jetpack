@@ -44,13 +44,13 @@ function render_block( $attr, $content ) {
 		return $content;
 	}
 
-	$simple_payments = Jetpack_Simple_Payments::getInstance();
-	$simple_payments->enqueue_frontend_assets();
-
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
 	if ( ! jetpack_is_frontend() ) {
 		return $content;
 	}
+
+	$simple_payments = Jetpack_Simple_Payments::getInstance();
+	$simple_payments->enqueue_frontend_assets();
 
 	// Augment block UI with a PayPal button if rendered on the frontend.
 	$product_id  = $attr['productId'];
