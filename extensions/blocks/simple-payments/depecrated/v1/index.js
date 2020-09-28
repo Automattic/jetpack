@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { RawHTML } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 
 export default {
 	attributes: {
