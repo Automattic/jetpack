@@ -24,7 +24,7 @@ class Pre_Connection_JITM extends JITM {
 				'message_path'   => '/wp:edit-post:admin_notices/',
 				'message'        => __( 'Do you know which of these posts gets the most traffic?', 'jetpack' ),
 				'description'    => __( 'Set up Jetpack to get in-depth stats about your content and visitors.', 'jetpack' ),
-				'button_link'    => \Jetpack::admin_url( '#/setup' ),
+				'button_link'    => $this->build_setup_url( admin_url( 'edit.php' ), 'connect-jitm-posts' ),
 				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
 			),
 			array(
@@ -32,7 +32,7 @@ class Pre_Connection_JITM extends JITM {
 				'message_path'   => '/wp:upload:admin_notices/',
 				'message'        => __( 'Do you want lightning-fast images?', 'jetpack' ),
 				'description'    => __( 'Set up Jetpack, enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' ),
-				'button_link'    => \Jetpack::admin_url( '#/setup' ),
+				'button_link'    => $this->build_setup_url( admin_url( 'upload.php' ), 'connect-jitm-media' ),
 				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
 			),
 			array(
@@ -40,10 +40,23 @@ class Pre_Connection_JITM extends JITM {
 				'message_path'   => '/wp:widgets:admin_notices/',
 				'message'        => __( 'Looking for even more widgets?', 'jetpack' ),
 				'description'    => __( 'Set up Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
-				'button_link'    => \Jetpack::admin_url( '#/setup' ),
+				'button_link'    => $this->build_setup_url( admin_url( 'widgets.php' ), 'connect-jitm-widgets' ),
 				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
 			),
 		);
+	}
+
+	/**
+	 * Builds JITM Jetpack connection URL.
+	 */
+	private function build_setup_url( $redirect, $from = 'connect-jitm' ) {
+		$register_url = \Jetpack::init()->build_connect_url(
+			true,
+			$redirect,
+			$from,
+			true
+		);
+		return add_query_arg( 'auth_approved', 'true', $register_url );
 	}
 
 	/**
