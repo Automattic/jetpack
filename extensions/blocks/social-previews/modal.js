@@ -109,7 +109,7 @@ export default withSelect( ( select, props ) => {
 	};
 
 	let tweets = [];
-	if ( isTweetStorm ) {
+	if ( isTweetStorm() ) {
 		tweets = getTweetStorm();
 	} else {
 		tweets.push( {
