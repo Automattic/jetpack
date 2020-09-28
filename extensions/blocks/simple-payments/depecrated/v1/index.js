@@ -55,8 +55,4 @@ export default {
 		const { productId } = attributes;
 		return productId ? <RawHTML>{ `[simple-payment id="${ productId }"]` }</RawHTML> : null;
 	},
-	migrate: attributes => ( {
-		...attributes,
-		postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
-	} ),
 };

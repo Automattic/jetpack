@@ -62,6 +62,10 @@ class SimplePaymentsEdit extends Component {
 		if ( postLinkUrl && postLinkUrl !== attributes.postLinkUrl ) {
 			setAttributes( { postLinkUrl } );
 		}
+
+		if ( ! attributes.postLinkText ) {
+			setAttributes( { postLinkText: __( 'Visit the site to purchase.', 'jetpack' ) } );
+		}
 	}
 
 	componentDidUpdate( prevProps ) {
@@ -86,6 +90,10 @@ class SimplePaymentsEdit extends Component {
 
 		if ( postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl ) {
 			setAttributes( { postLinkUrl } );
+		}
+
+		if ( ! this.props.attributes.postLinkText ) {
+			setAttributes( { postLinkText: __( 'Visit the site to purchase.', 'jetpack' ) } );
 		}
 	}
 
