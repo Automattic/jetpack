@@ -65,6 +65,8 @@ class StoryEdit extends React.Component {
 
 		this.onStorySaveResult = this.onStorySaveResult.bind( this );
 
+		this.onMediaModelCreated = this.onMediaModelCreated.bind( this );
+
 		this.state = {
 			isUploadInProgress: false,
 			isSaveInProgress: false,
@@ -176,6 +178,20 @@ class StoryEdit extends React.Component {
 		return attributes.mediaFiles;
 	}
 
+	replaceNewIdInMediaFilesByOldId( oldId, mediaId, mediaUrl ) {
+		const { setAttributes, attributes } = this.props;
+		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
+			for (i = 0; i < attributes.mediaFiles.length; i++) {
+				if (attributes.mediaFiles[i].id === oldId) {
+					attributes.mediaFiles[i].id = mediaId;
+					attributes.mediaFiles[i].url = mediaUrl;
+					attributes.mediaFiles[i].link = mediaUrl;
+				}
+			}
+		}
+		return attributes.mediaFiles;
+	}
+
 	finishMediaSaveWithSuccess( payload ) {
 		const { setAttributes } = this.props;
 		// find the mediaFiles item that needs to change via its id, and apply the new URL
@@ -199,6 +215,13 @@ class StoryEdit extends React.Component {
 	onStorySaveResult() {
 		const { setAttributes } = this.props;
 		setAttributes( { id: null, src: null } );
+		this.setState( { isSaveInProgress: false } );
+	}
+
+	onMediaModelCreated( payload ) {
+		const { setAttributes } = this.props;
+		var updatedMediaFiles = this.replaceNewIdInMediaFilesByOldId( payload.mediaId, payload.newId, payload.mediaUrl);
+		setAttributes( { mediaFiles: updatedMediaFiles } );
 		this.setState( { isSaveInProgress: false } );
 	}
 
@@ -254,6 +277,9 @@ class StoryEdit extends React.Component {
 							}
 							onStorySaveResult={
 								this.onStorySaveResult
+							}
+							onMediaModelCreated={
+								this.onMediaModelCreated
 							}
 							renderContent={ ( {
 								isUploadInProgress,
