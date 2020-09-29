@@ -34,7 +34,7 @@ import {
  */
 import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
-import CRMConnectionSettings from './components/jetpack-crm-connection-settings';
+import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import { isSimpleSite } from '../../shared/site-type-utils';
 
@@ -323,7 +323,7 @@ function JetpackContactFormEdit( {
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
 				{ ! isSimpleSite() && (
 					<Fragment>
-						<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+						<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 						<NewsletterIntegrationSettings />
 					</Fragment>
 				) }
