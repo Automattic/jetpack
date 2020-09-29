@@ -8,7 +8,6 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getIconColor } from '../../shared/block-icons';
-import isActive from '../../shared/is-active';
 
 const instagramVariation = {
 	name: 'instagram',
@@ -46,7 +45,7 @@ const instagramVariation = {
  * @returns {object} The settings for the given block with the patched variations.
  */
 function reactivateInstagramEmbedBlockVariation( settings, name ) {
-	if ( name !== 'core/embed' || ! settings.variations || ! isActive() ) {
+	if ( name !== 'core/embed' || ! settings.variations ) {
 		return settings;
 	}
 
