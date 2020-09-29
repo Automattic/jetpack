@@ -144,6 +144,10 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message 
 		padding-top: 0;
 	}
 
+	.jetpack-simple-payments-image figure {
+		margin: 0;
+	}
+
 	.jetpack-simple-payments-details {
 		display: table-cell;
 		width: 70%;
