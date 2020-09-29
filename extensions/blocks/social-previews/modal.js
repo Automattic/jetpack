@@ -29,6 +29,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	description,
 	url,
 	author,
+	isTweetStorm,
+	tweets,
 } ) {
 	// Inject the service icon into the title
 	const tabs = AVAILABLE_SERVICES.map( service => {
@@ -55,6 +57,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 				<TabPanel
 					className="jetpack-social-previews__modal-previews"
 					tabs={ tabs }
+					initialTabName={ isTweetStorm ? 'twitter' : null }
 					orientation="vertical"
 				>
 					{ tab => (
@@ -65,6 +68,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 								url={ url }
 								author={ author }
 								image={ image }
+								isTweetStorm={ isTweetStorm }
+								tweets={ tweets }
 							/>
 						</div>
 					) }
@@ -82,12 +87,15 @@ export default withSelect( ( select, props ) => {
 
 	const { getMedia, getUser } = select( 'core' );
 	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
+	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } = select(
+		'jetpack/publicize'
+	);
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
 	const user = authorId && getUser( authorId );
 
-	return {
+	const postData = {
 		post: getCurrentPost(),
 		title: getEditedPostAttribute( 'title' ),
 		description:
@@ -98,5 +106,25 @@ export default withSelect( ( select, props ) => {
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image: !! featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ) ),
+	};
+
+	let tweets = [];
+	if ( isTweetStorm() ) {
+		tweets = getTweetStorm();
+	} else {
+		tweets.push( {
+			...getTweetTemplate(),
+			text: getShareMessage(),
+			card: {
+				...postData,
+				type: postData.image ? 'summary_large_image' : 'summary',
+			},
+		} );
+	}
+
+	return {
+		...postData,
+		tweets,
+		isTweetStorm,
 	};
 } )( SocialPreviewsModal );

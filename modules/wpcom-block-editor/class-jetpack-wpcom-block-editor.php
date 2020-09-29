@@ -290,6 +290,7 @@ class Jetpack_WPCOM_Block_Editor {
 			array(
 				'jquery',
 				'lodash',
+				'wp-annotations',
 				'wp-compose',
 				'wp-data',
 				'wp-editor',

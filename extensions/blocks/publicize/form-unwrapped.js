@@ -20,8 +20,6 @@ import { uniqueId } from 'lodash';
 import PublicizeConnection from './connection';
 import PublicizeSettingsButton from './settings-button';
 
-export const MAXIMUM_MESSAGE_LENGTH = 256;
-
 class PublicizeFormUnwrapped extends Component {
 	state = {
 		hasEditedShareMessage: false,
@@ -41,13 +39,6 @@ class PublicizeFormUnwrapped extends Component {
 		return this.props.connections.every( connection => ! connection.toggleable );
 	}
 
-	getShareMessage() {
-		const { shareMessage, defaultShareMessage } = this.props;
-		return ! this.state.hasEditedShareMessage && shareMessage === ''
-			? defaultShareMessage
-			: shareMessage;
-	}
-
 	onMessageChange = event => {
 		const { messageChange } = this.props;
 		this.setState( { hasEditedShareMessage: true } );
@@ -55,9 +46,8 @@ class PublicizeFormUnwrapped extends Component {
 	};
 
 	render() {
-		const { connections, toggleConnection, refreshCallback } = this.props;
-		const shareMessage = this.getShareMessage();
-		const charactersRemaining = MAXIMUM_MESSAGE_LENGTH - shareMessage.length;
+		const { connections, toggleConnection, refreshCallback, shareMessage, maxLength } = this.props;
+		const charactersRemaining = maxLength - shareMessage.length;
 		const characterCountClass = classnames( 'jetpack-publicize-character-count', {
 			'wpas-twitter-length-limit': charactersRemaining <= 0,
 		} );
@@ -89,7 +79,7 @@ class PublicizeFormUnwrapped extends Component {
 								value={ shareMessage }
 								onChange={ this.onMessageChange }
 								disabled={ this.isDisabled() }
-								maxLength={ MAXIMUM_MESSAGE_LENGTH }
+								maxLength={ maxLength }
 								placeholder={ __(
 									"Write a message for your audience here. If you leave this blank, we'll use an excerpt of the post content as the message.",
 									'jetpack'
