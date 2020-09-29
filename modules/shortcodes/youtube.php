@@ -173,8 +173,7 @@ endif;
  * @param string $url Youtube URL.
  */
 function youtube_id( $url ) {
-	$id   = jetpack_get_youtube_id( $url );
-	$list = null;
+	$id = jetpack_get_youtube_id( $url );
 
 	if ( ! $id ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: bad URL entered', 'jetpack' ) );
@@ -189,14 +188,14 @@ function youtube_id( $url ) {
 	}
 
 	// Account for URL having both v and list, where jetpack_get_youtube_id() only accounts for one or the other.
+	if ( isset( $args['list'] ) && $args['list'] === $id ) {
+		$id = null;
+	}
 	if ( isset( $args['v'] ) ) {
 		$id = $args['v'];
 	}
-	if ( isset( $args['list'] ) ) {
-		$list = $args['list'];
-		if ( $id === $list ) {
-			$id = null;
-		}
+	if ( ! $id && empty( $args['list'] ) ) {
+		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: missing id and/or list', 'jetpack' ) );
 	}
 
 	list( $w, $h ) = jetpack_shortcode_youtube_dimensions( $args );
