@@ -10,14 +10,7 @@ import {
 	Image,
 } from '@wordpress/components';
 import {
-	// BlockCaption,
-	// MediaPlaceholder,
-	// MediaUpload,
 	StoryUpdateProgress,
-	// BlockControls,
-	// InspectorControls,
-	// BlockAlignmentToolbar,
-	// BlockStyles,
 } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getProtocol } from '@wordpress/url';
