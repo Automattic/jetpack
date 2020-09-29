@@ -289,7 +289,9 @@ function youtube_id( $url ) {
 		$params['autoplay'] = (int) $args['autoplay'];
 	}
 
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() && $id ) {
+	$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
+	if ( $is_amp && $id ) {
 		// Note that <amp-youtube> currently is not well suited for playlists that don't have an individual video selected, hence the $id check above.
 		$placeholder = sprintf(
 			'<a href="%1$s" placeholder><amp-img src="%2$s" alt="%3$s" layout="fill" object-fit="cover"><noscript><img src="%2$s" loading="lazy" decoding="async" alt="%3$s"></noscript></amp-img></a>',
@@ -329,7 +331,9 @@ function youtube_id( $url ) {
 			$src
 		);
 
-		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
+		$layout = $is_amp ? ' layout="responsive" ' : '';
+
+		$html = "<iframe class='youtube-player' width='$w' height='$h' $layout src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' data-amp-layout='responsive' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed.
