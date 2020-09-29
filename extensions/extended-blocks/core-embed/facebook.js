@@ -12,8 +12,6 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 
 const facebookVariation = {
-	// Deprecate Facebook Embed per FB policy
-	// See: https://developers.facebook.com/docs/plugins/oembed-legacy
 	name: 'facebook',
 	title: 'Facebook',
 	icon: {
