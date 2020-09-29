@@ -10,7 +10,6 @@
  * Module Tags: Social, Appearance
  * Feature: Traffic
  * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
- * Plans: business, premium, security, complete
  */
 
 include dirname( __FILE__ ) . '/seo-tools/jetpack-seo.php';
