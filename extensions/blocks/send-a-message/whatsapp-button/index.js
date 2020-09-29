@@ -43,6 +43,7 @@ export const settings = {
 	supports: {
 		html: false,
 		reusable: false,
+		align: [ 'left', 'center', 'right' ],
 	},
 	attributes,
 	edit,
