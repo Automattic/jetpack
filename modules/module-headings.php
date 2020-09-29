@@ -99,7 +99,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'monitor' => array(
 				'name' => _x( 'Monitor', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Jetpack’s downtime monitoring will continuously watch your site, and alert you the moment that downtime is detected.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Jetpack’s downtime monitoring will continuously watch your site and alert you the moment that downtime is detected.', 'Module Description', 'jetpack' ),
 			),
 
 			'notes' => array(
