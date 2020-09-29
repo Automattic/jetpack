@@ -22,8 +22,8 @@ const facebookVariation = {
 	name: 'facebook',
 	title: 'Facebook',
 	icon: embedFacebookIcon,
-	keywords: [ __( 'social' ) ],
-	description: __( 'Embed a Facebook post.' ),
+	keywords: [ _x( 'social', 'block search term', 'jetpack' ) ],
+	description: __( 'Embed a Facebook post.', 'jetpack' ),
 	patterns: [ /^https?:\/\/www\.facebook.com\/.+/i ],
 	attributes: {
 		providerNameSlug: 'facebook',
