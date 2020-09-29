@@ -137,7 +137,11 @@ class StoryEdit extends React.Component {
 
 	finishMediaUploadWithSuccess( payload ) {
 		const { setAttributes } = this.props;
-		setAttributes( { src: payload.mediaUrl, id: payload.mediaServerId } );
+		// setAttributes( { src: payload.mediaUrl, id: payload.mediaServerId } );
+		// find the mediaFiles item that needs to change via its id, and apply the new URL
+		// var updatedMediaFiles = this.replaceMediaUrlInMediaFilesById( payload.mediaId, payload.mediaUrl);
+		var updatedMediaFiles = this.replaceNewIdInMediaFilesByOldId( payload.mediaId, payload.mediaServerId, payload.mediaUrl);
+		setAttributes( { mediaFiles: updatedMediaFiles } );
 		this.setState( { isUploadInProgress: false } );
 	}
 
@@ -169,7 +173,7 @@ class StoryEdit extends React.Component {
 		const { setAttributes, attributes } = this.props;
 		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
 			for (i = 0; i < attributes.mediaFiles.length; i++) {
-				if (attributes.mediaFiles[i].id === mediaId) {
+				if (attributes.mediaFiles[i].id === mediaId.toString()) {
 					attributes.mediaFiles[i].url = mediaUrl;
 					attributes.mediaFiles[i].link = mediaUrl;
 				}
@@ -182,7 +186,7 @@ class StoryEdit extends React.Component {
 		const { setAttributes, attributes } = this.props;
 		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
 			for (i = 0; i < attributes.mediaFiles.length; i++) {
-				if (attributes.mediaFiles[i].id === oldId) {
+				if (attributes.mediaFiles[i].id === oldId.toString()) {
 					attributes.mediaFiles[i].id = mediaId;
 					attributes.mediaFiles[i].url = mediaUrl;
 					attributes.mediaFiles[i].link = mediaUrl;
@@ -214,6 +218,7 @@ class StoryEdit extends React.Component {
 
 	onStorySaveResult() {
 		const { setAttributes } = this.props;
+		// TODO here set success or fail overlay
 		setAttributes( { id: null, src: null } );
 		this.setState( { isSaveInProgress: false } );
 	}
