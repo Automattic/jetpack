@@ -795,13 +795,15 @@ class Themes extends Module {
 			$theme = wp_get_theme();
 		}
 
+		if ( $send_full_theme_data ) {
+			return Functions::get_theme_support( $theme );
+		}
+
 		$theme_support['name']    = $theme->get( 'Name' );
 		$theme_support['version'] = $theme->get( 'Version' );
 		$theme_support['slug']    = $theme->get_stylesheet();
 		$theme_support['uri']     = $theme->get( 'ThemeURI' );
-		if ( $send_full_theme_data ) {
-			return array_merge( Functions::get_theme_support(), $theme_support );
-		}
+
 		return $theme_support;
 	}
 

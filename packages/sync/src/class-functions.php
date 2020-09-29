@@ -630,18 +630,29 @@ class Functions {
 	 * Return the theme's supported features.
 	 * Used for syncing the supported feature that we care about.
 	 *
+	 * @param WP_Theme $theme Theme Object.
+	 *
 	 * @return array List of features that the theme supports.
 	 */
-	public static function get_theme_support() {
+	public static function get_theme_support( $theme = null ) {
 		global $_wp_theme_features;
 
 		$theme_support = array();
+
+		if ( ! $theme instanceof WP_Theme ) {
+			$theme = wp_get_theme();
+		}
 		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
 			$has_support = current_theme_supports( $theme_feature );
 			if ( $has_support ) {
 				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
 			}
 		}
+
+		$theme_support['name']    = $theme->get( 'Name' );
+		$theme_support['version'] = $theme->get( 'Version' );
+		$theme_support['slug']    = $theme->get_stylesheet();
+		$theme_support['uri']     = $theme->get( 'ThemeURI' );
 
 		return $theme_support;
 	}
