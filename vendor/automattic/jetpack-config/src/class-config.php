@@ -7,11 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-/*
- * The Config package does not require the composer packages that
- * contain the package classes shown below. The consumer plugin
- * must require the corresponding packages to use these features.
- */
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\JITM as JITM;
