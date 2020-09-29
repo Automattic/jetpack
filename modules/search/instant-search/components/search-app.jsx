@@ -280,6 +280,7 @@ class SearchApp extends Component {
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.state.isLoading }
+					isPrivateSite={ this.props.options.isPrivateSite }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
 					onChangeSort={ this.onChangeSort }
