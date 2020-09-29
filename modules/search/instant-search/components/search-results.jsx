@@ -166,15 +166,15 @@ class SearchResults extends Component {
 				aria-live="polite"
 				className="jetpack-instant-search__search-results"
 			>
-				<a
+				<button
 					className="jetpack-instant-search__overlay-close"
 					onClick={ this.closeOverlay }
 					onKeyPress={ this.onKeyPressHandler }
-					role="button"
 					tabIndex="0"
+					aria-label={ __( 'Close search results', 'jetpack' ) }
 				>
 					<Gridicon icon="cross" size="24" />
-				</a>
+				</button>
 				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }
 				</div>

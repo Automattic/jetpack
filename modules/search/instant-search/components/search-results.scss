@@ -22,6 +22,10 @@
 		.jetpack-instant-search__overlay-close svg {
 			fill: #000;
 		}
+
+		.jetpack-instant-search__overlay-close:focus {
+			outline-color: #000;
+		}
 	}
 
 	.jetpack-instant-search__overlay--dark & {
@@ -33,6 +37,10 @@
 
 		.jetpack-instant-search__overlay-close svg {
 			fill: #fff;
+		}
+
+		.jetpack-instant-search__overlay-close:focus {
+			outline-color: #fff;
 		}
 	}
 
@@ -120,4 +128,19 @@
 	.jetpack-instant-search__sort-select {
 		font-size: 0.9em;
 	}
+}
+
+.jetpack-instant-search__overlay-close {
+    background: none;
+    border: none;
+    display: inline-block;
+    margin: 0;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    &:focus {
+    	outline: 1px solid;
+    }
 }
