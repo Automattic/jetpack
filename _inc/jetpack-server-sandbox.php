@@ -30,7 +30,6 @@ function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
 				1
 			);
 
-			l( 'WEHERE' );
 			if ( defined( 'JETPACK__SANDBOX_PROFILE' ) && JETPACK__SANDBOX_PROFILE ) {
 				$query = wp_parse_url( $url, PHP_URL_QUERY );
 
