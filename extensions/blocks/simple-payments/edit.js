@@ -50,7 +50,7 @@ class SimplePaymentsEdit extends Component {
 		// Try to get the simplePayment loaded into attributes if possible.
 		this.injectPaymentAttributes();
 
-		const { attributes, hasPublishAction } = this.props;
+		const { attributes, hasPublishAction, postLinkUrl, setAttributes } = this.props;
 		const { productId } = attributes;
 
 		// If the user can publish save an empty product so that we have an ID and can save
@@ -58,10 +58,22 @@ class SimplePaymentsEdit extends Component {
 		if ( ! productId && hasPublishAction ) {
 			this.saveProduct();
 		}
+
+		const shouldUpdatePostLinkUrl =
+			postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl;
+		const shouldUpdatePostLinkText = ! this.props.attributes.postLinkText;
+		if ( shouldUpdatePostLinkUrl || shouldUpdatePostLinkText ) {
+			setAttributes( {
+				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
+				...( shouldUpdatePostLinkText && {
+					postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
+				} ),
+			} );
+		}
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { hasPublishAction, isSelected } = this.props;
+		const { hasPublishAction, isSelected, postLinkUrl, setAttributes } = this.props;
 
 		if ( ! isEqual( prevProps.simplePayment, this.props.simplePayment ) ) {
 			this.injectPaymentAttributes();
@@ -79,6 +91,18 @@ class SimplePaymentsEdit extends Component {
 			// Validate on block deselect
 			this.validateAttributes();
 		}
+
+		const shouldUpdatePostLinkUrl =
+			postLinkUrl && postLinkUrl !== this.props.attributes.postLinkUrl;
+		const shouldUpdatePostLinkText = ! this.props.attributes.postLinkText;
+		if ( shouldUpdatePostLinkUrl || shouldUpdatePostLinkText ) {
+			setAttributes( {
+				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
+				...( shouldUpdatePostLinkText && {
+					postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
+				} ),
+			} );
+		}
 	}
 
 	injectPaymentAttributes() {
@@ -90,19 +114,31 @@ class SimplePaymentsEdit extends Component {
 		 * overwrite changes that the user has made with stale state from the previous save.
 		 */
 
-		const { simplePayment } = this.props;
+		const { simplePayment, featuredMedia } = this.props;
 		if ( ! this.shouldInjectPaymentAttributes || isEmpty( simplePayment ) ) {
 			return;
 		}
 
 		const { attributes, setAttributes } = this.props;
-		const { content, currency, email, featuredMediaId, multiple, price, title } = attributes;
+		const {
+			content,
+			currency,
+			email,
+			featuredMediaId,
+			featuredMediaUrl,
+			featuredMediaTitle,
+			multiple,
+			price,
+			title,
+		} = attributes;
 
 		setAttributes( {
 			content: get( simplePayment, [ 'content', 'raw' ], content ),
 			currency: get( simplePayment, [ 'meta', 'spay_currency' ], currency ),
 			email: get( simplePayment, [ 'meta', 'spay_email' ], email ),
 			featuredMediaId: get( simplePayment, [ 'featured_media' ], featuredMediaId ),
+			featuredMediaUrl: get( featuredMedia, 'url', featuredMediaUrl ),
+			featuredMediaTitle: get( featuredMedia, 'title', featuredMediaTitle ),
 			multiple: Boolean( get( simplePayment, [ 'meta', 'spay_multiple' ], Boolean( multiple ) ) ),
 			price: get( simplePayment, [ 'meta', 'spay_price' ], price || undefined ),
 			title: get( simplePayment, [ 'title', 'raw' ], title ),
@@ -341,10 +377,6 @@ class SimplePaymentsEdit extends Component {
 		this.setState( { fieldEmailError: null } );
 	};
 
-	handleFeaturedMediaSelect = media => {
-		this.props.setAttributes( { featuredMediaId: get( media, 'id', 0 ) } );
-	};
-
 	handleContentChange = content => {
 		this.props.setAttributes( { content } );
 	};
@@ -382,31 +414,19 @@ class SimplePaymentsEdit extends Component {
 
 	render() {
 		const { fieldEmailError, fieldPriceError, fieldTitleError } = this.state;
-		const {
-			attributes,
-			featuredMedia,
-			instanceId,
-			isSelected,
-			setAttributes,
-			simplePayment,
-		} = this.props;
+		const { attributes, instanceId, isSelected, setAttributes, simplePayment } = this.props;
 		const {
 			content,
 			currency,
 			email,
 			featuredMediaId,
-			featuredMediaUrl: featuredMediaUrlAttribute,
-			featuredMediaTitle: featuredMediaTitleAttribute,
+			featuredMediaUrl,
+			featuredMediaTitle,
 			multiple,
 			price,
 			productId,
 			title,
 		} = attributes;
-
-		const featuredMediaUrl =
-			featuredMediaUrlAttribute || ( featuredMedia && featuredMedia.source_url );
-		const featuredMediaTitle =
-			featuredMediaTitleAttribute || ( featuredMedia && featuredMedia.alt_text );
 
 		/**
 		 * The only disabled state that concerns us is when we expect a product but don't have it in
@@ -566,11 +586,14 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 		? pick( getEntityRecord( 'postType', SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, productId ), fields )
 		: undefined;
 
+	const post = getCurrentPost();
+
 	return {
-		hasPublishAction: !! get( getCurrentPost(), [ '_links', 'wp:action-publish' ] ),
+		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
 		isSaving: !! isSavingPost(),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
+		postLinkUrl: post.link,
 	};
 } );
 

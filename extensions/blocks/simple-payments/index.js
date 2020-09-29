@@ -13,6 +13,7 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import save from './save';
+import deprecatedV1 from './depecrated/v1';
 
 /**
  * Example image
@@ -82,6 +83,8 @@ export const settings = {
 		},
 		content: {
 			type: 'string',
+			source: 'html',
+			selector: '.jetpack-simple-payments-description p',
 			default: '',
 		},
 		email: {
@@ -94,15 +97,33 @@ export const settings = {
 		},
 		featuredMediaUrl: {
 			type: 'string',
+			source: 'attribute',
+			selector: '.jetpack-simple-payments-image img',
+			attribute: 'src',
 			default: null,
 		},
 		featuredMediaTitle: {
 			type: 'string',
+			source: 'attribute',
+			selector: '.jetpack-simple-payments-image img',
+			attribute: 'alt',
 			default: null,
 		},
 		multiple: {
 			type: 'boolean',
 			default: false,
+		},
+		postLinkUrl: {
+			type: 'string',
+			source: 'attribute',
+			selector: '.jetpack-simple-payments-purchase',
+			attribute: 'href',
+		},
+		postLinkText: {
+			type: 'string',
+			source: 'html',
+			selector: '.jetpack-simple-payments-purchase',
+			default: __( 'Visit the site to purchase.', 'jetpack' ),
 		},
 		price: {
 			type: 'number',
@@ -112,6 +133,8 @@ export const settings = {
 		},
 		title: {
 			type: 'string',
+			source: 'html',
+			selector: '.jetpack-simple-payments-title p',
 			default: '',
 		},
 	},
@@ -165,4 +188,6 @@ export const settings = {
 		// https://github.com/Automattic/jetpack/issues/11789
 		reusable: false,
 	},
+
+	deprecated: [ deprecatedV1 ],
 };

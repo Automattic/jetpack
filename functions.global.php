@@ -484,3 +484,36 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	 */
 	return apply_filters( 'jetpack_is_mobile', $return, $kind, $return_matched_agent );
 }
+
+/**
+ * Determine whether the current request is for accessing the frontend.
+ *
+ * @return bool True if it's a frontend request, false otherwise.
+ */
+function jetpack_is_frontend() {
+	$is_frontend = true;
+
+	if (
+		is_admin() ||
+		wp_doing_ajax() ||
+		wp_doing_cron() ||
+		wp_is_json_request() ||
+		wp_is_jsonp_request() ||
+		wp_is_xml_request() ||
+		is_feed() ||
+		( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
+		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
+		( defined( 'WP_CLI' ) && WP_CLI )
+	) {
+		$is_frontend = false;
+	}
+
+	/**
+	 * Filter whether the current request is for accessing the frontend.
+	 *
+	 * @since  9.0.0
+	 *
+	 * @param bool $is_frontend Whether the current request is for accessing the frontend.
+	 */
+	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
+}
