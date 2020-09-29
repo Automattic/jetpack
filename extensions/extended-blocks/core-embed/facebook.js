@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockVariation, unregisterBlockVariation } from '@wordpress/blocks';
 import { Path, SVG } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 const embedFacebookIcon = {
 	foreground: '#3b5998',
