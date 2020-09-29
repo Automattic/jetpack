@@ -56,7 +56,7 @@ function render_block( $attr, $content ) {
 	// For AMP requests, make sure the purchase link redirects to the non-AMP post URL.
 	if ( Blocks::is_amp_request() ) {
 		$non_amp_link = sprintf(
-			'<a rel="noamphtml" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			'<a href="%1$s" target="_blank" rel="noamphtml noopener noreferrer">%2$s</a>',
 			esc_url( get_permalink( get_the_ID() ) ),
 			__( 'View the non-AMP version to purchase.', 'jetpack' )
 		);
