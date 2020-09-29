@@ -19,8 +19,8 @@ const instagramVariation = {
 	name: 'instagram',
 	title: 'Instagram',
 	icon: embedInstagramIcon,
-	keywords: [ __( 'image' ), __( 'social' ) ],
-	description: __( 'Embed an Instagram post.' ),
+	keywords: [ _x( 'image', 'block search term', 'jetpack' ), _x( 'social', 'block search term', 'jetpack' ) ],
+	description: __( 'Embed an Instagram post.', 'jetpack' ),
 	patterns: [ /^https?:\/\/(www\.)?instagr(\.am|am\.com)\/.+/i ],
 	attributes: { providerNameSlug: 'instagram', responsive: true },
 };
