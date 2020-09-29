@@ -189,6 +189,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_amp_youtube_data
 	 * @covers ::jetpack_amp_youtube_shortcode
+	 * @expectedDeprecated jetpack_amp_youtube_shortcode()
 	 *
 	 * @param array  $url The shortcode URL.
 	 * @param string $expected The expected shortcode returned from the function.
