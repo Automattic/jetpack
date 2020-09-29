@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Publicize: add the ability to publish the entire content of posts to Twitter as threads.
 
 **Enhancements**
 
