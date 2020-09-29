@@ -1,0 +1,21 @@
+<phpunit backupGlobals="true"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         syntaxCheck="true">
+
+  <testsuites>
+    <testsuite name="twitter">
+      <directory suffix=".php">tests/TestCase</directory>
+    </testsuite>
+  </testsuites>
+
+  <filter>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">lib/Twitter</directory>
+    </whitelist>
+  </filter>
+
+</phpunit>

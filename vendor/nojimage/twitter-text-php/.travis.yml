@@ -1,0 +1,58 @@
+language: php
+
+php:
+  - 7.2
+  - 7.3
+  - 7.4
+
+dist: bionic
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+env:
+  global:
+    - DEFAULT=1
+
+matrix:
+  fast_finish: true
+
+  include:
+  - php: 5.3
+    dist: precise
+  - php: 5.4
+    dist: trusty
+  - php: 5.5
+    dist: trusty
+  - php: 5.6
+    dist: xenial
+  - php: 7.0
+    dist: xenial
+  - php: 7.1
+    dist: xenial
+  - php: 7.4
+    env: TLD_TEST=1 DEFAULT=0
+  - php: 7.4
+    env: PHPCS=1 DEFAULT=0
+  - php: 7.4
+    env: CODECOVERAGE=1 DEFAULT=0
+
+install:
+  - composer install --prefer-dist --no-interaction
+
+before_script:
+  - if [ $PHPCS -eq 1 ]; then composer require squizlabs/php_codesniffer; fi
+
+script:
+  - if [ $DEFAULT -eq 1 ]; then vendor/bin/phpunit --exclude-group deprecated,tld --stderr; fi
+  - if [ $TLD_TEST -eq 1 ]; then vendor/bin/phpunit --group tld --stderr; fi
+  - if [ $PHPCS -eq 1 ]; then vendor/bin/phpcs -psn --extensions=php --standard=PSR12 ./lib ./tests; fi
+  - if [ $CODECOVERAGE -eq 1 ]; then vendor/bin/phpunit --exclude-group deprecated,tld --stderr --coverage-clover=coverage.xml; fi
+
+after_success:
+  - if [[ $CODECOVERAGE -eq 1 ]]; then bash <(curl -s https://codecov.io/bash); fi
+
+notifications:
+  email: false
