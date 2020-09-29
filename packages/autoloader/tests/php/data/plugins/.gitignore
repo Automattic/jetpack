@@ -1,9 +1,0 @@
-# We are intentionally including autoloader files in this directory in order to
-# make it possible for us to test all of the autoloader classes correctly.
-!jetpack_autoload_classmap.php
-!jetpack_autoload_psr4.php
-!jetpack_autoload_filemap.php
-!autoload_functions.php
-!autoload_packages.php
-!vendor/
-test-manifest.php
