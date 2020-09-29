@@ -173,8 +173,6 @@ endif;
  * @param string $url Youtube URL.
  */
 function youtube_id( $url ) {
-	$original_url = $url;
-
 	$id   = jetpack_get_youtube_id( $url );
 	$list = null;
 
