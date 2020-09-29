@@ -1,4 +1,4 @@
-## 8.9
+## 9.0
 
 ### Before you start
 
@@ -8,37 +8,53 @@
 
 ### Blocks
 
-#### Donations
+We've made changes and fixed bugs for multiple blocks in this release. Give them a try, and see that they still work for you:
 
-The new Donations Block allows you to easily accept and process donations on your site.
+- EventBrite
+- OpenTable
+- Pay With PayPal
+- Slideshow
+- Google Calendar
+- Image Compare
+- Pinterest
+- Donations
 
-To give it a try, open the Block editor and try to add a Donations block to your post. Let us know what you think!
+You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
 
-#### Social Previews
+### Embeds
 
-You can now preview how your posts will look on Facebook, Twitter, and Google Search Results even before you hit the Publish button.
+Facebook and Instagram are planning on making a number of changes to the way their embeds work. As a result, their embds will stop working on most sites in the near future. On our end, we've made changes to Jetpack's Shortcodes feature to ensure that embeds keep working for everyone using the feature.
 
-Check this out from the Jetpack sidebar appearing in the block editor.
+To test this, you can try to embed any of the following things, either in the block editor or the classic editor, with or without the Gutenberg plugin active:
 
-#### Form
+```
+https://www.instagram.com/tv/BkQjCfsBIzi/
+[instagram url=https://www.instagram.com/p/BnMOk_FFsxg/]
+[instagram url=https://www.instagram.com/p/BZoonmAHvHf/ width=320]
+https://www.facebook.com/VenusWilliams/posts/10151647007373076
+https://www.facebook.com/video.php?v=2836814009877992
+https://www.facebook.com/watch/?v=2836814009877992
+https://www.facebook.com/WhiteHouse/videos/10153398464269238/
+```
 
-In this release, we've added 3 things to the Form block:
-- A new "Consent" field you can add to any new or existing form.
-- A new "Newsletter Sign-up" form option offered to you when you create a new form, to save you some time if you plan to use your form to collect email addresses.
-- A new panel in the block's sidebar to help you integrate the Form block with a plugin that handles newsletter sign-ups, Creative Mail. In that panel, you will have the option to install and activate the plugin if you do not use it on your site yet.
+### Publicize
 
-You can try to use those new options and let us know if everything works well.
+This release introduces a new Publicize feature: you can now publish the entire content of posts to Twitter as a thread. To test this, try the following:
 
-### Connection
+1. Go to Jetpack > Settings > Sharing, and enable Publicize
+2. Connect your site to a Twitter account
+3. Go to Posts > Add New (using the block editor).
+4. Write a post, with different types of blocks. You can try as many different blocks as you can.
+5. In the Jetpack sidebar, access Publicize options and you should see the option to publish to Twitter as one tweet, or a thread.
+6. If you choose the thread option, you'll have more information in the block editor itself, showing you where paragraphs will get split in multiple tweets, and showing you what blocks will not be ported to Twitter.
+7. Publish your post, and see what happens on your Twitter account!
 
-##### Connection flow
+Let us know what you think about the process, and let us know if you find any bugs.
 
-When you connect your site to WordPress.com, you should now be redirected to WordPress.com after the connection process, and offered a plan there. Give that a try and let us know if it all works properly.
+### Site Health
 
-##### Other features
+We've made a number of improvements to the Jetpack tests available under Tools > Site Health. Give them a try, and let us know if you find any test results that seem out of place.
 
-We've made a number of changes to better couple your site's connection to WordPress.com with the status of features like Protect, Monitor, SSO, Subscriptions, or Stats on your site.
-
-To test this, on a new or existing site, ensure that toggling those features on and off still works, and that the features themselves still work.
+As part of those changes, we've also made it easier and faster to reconnect your site to WordPress.com if there are any connection issues found during a site health test. If your site is not properly connected to WordPress.com, you should see a link to reconnect in the site heatlh test. Give that a try, and let us know how it goes!
 
 **Thank you for all your help!**
