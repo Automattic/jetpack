@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\SimplePayments;
 
 use Jetpack_Simple_Payments;
+use Automattic\Jetpack\Blocks;
 
 const FEATURE_NAME = 'simple-payments';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -51,6 +52,17 @@ function render_block( $attr, $content ) {
 
 	$simple_payments = Jetpack_Simple_Payments::getInstance();
 	$simple_payments->enqueue_frontend_assets();
+
+	// For AMP requests, make sure the purchase link redirects to the non-AMP post URL.
+	if ( Blocks::is_amp_request() ) {
+		$non_amp_link = sprintf(
+			'<a rel="noamphtml" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( get_permalink( get_the_ID() ) ),
+			__( 'View the non-AMP version to purchase.', 'jetpack' )
+		);
+		$content      = preg_replace( '#<a class="jetpack-simple-payments-purchase(.*)</a>#i', $non_amp_link, $content );
+		return $content;
+	}
 
 	// Augment block UI with a PayPal button if rendered on the frontend.
 	$product_id  = $attr['productId'];
