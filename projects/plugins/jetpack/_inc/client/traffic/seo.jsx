@@ -50,26 +50,16 @@ class SeoComponent extends React.Component {
 						) }
 					</span>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInOfflineMode( 'seo-tools' ) &&
-					includes(
-						[
-							'is-premium-plan',
-							'is-business-plan',
-							'is-daily-security-plan',
-							'is-realtime-security-plan',
-							'is-complete-plan',
-						],
-						planClass
-					) && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href={ this.props.configureUrl }
-						>
-							{ __( 'Customize your SEO settings', 'jetpack' ) }
-						</Card>
-					) }
+				{ ! this.props.isUnavailableInOfflineMode( 'seo-tools' ) && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						onClick={ this.trackConfigureClick }
+						href={ this.props.configureUrl }
+					>
+						{ __( 'Customize your SEO settings', 'jetpack' ) }
+					</Card>
+				) }
 			</SettingsCard>
 		);
 	}

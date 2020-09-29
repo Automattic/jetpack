@@ -847,7 +847,7 @@ const features = {
 				checked: getSetting( state, 'seo-tools' ),
 				configureLink,
 				upgradeLink,
-				isPaid: true,
+				isPaid: false,
 			};
 		},
 		mapDispatchToProps: dispatch => {

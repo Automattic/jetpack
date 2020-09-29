@@ -462,7 +462,7 @@ class MyPlanBody extends React.Component {
 							</div>
 						) }
 
-						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && (
+						{ 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && (
 							<div className="jp-landing__plan-features-card">
 								<div className="jp-landing__plan-features-img">
 									<img
