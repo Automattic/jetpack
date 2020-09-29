@@ -9,14 +9,17 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { FacebookIcon } from '../../shared/icons';
+import { getIconColor } from '../../shared/block-icons';
 
 const facebookVariation = {
 	// Deprecate Facebook Embed per FB policy
 	// See: https://developers.facebook.com/docs/plugins/oembed-legacy
 	name: 'facebook',
 	title: 'Facebook',
-	icon: FacebookIcon,
+	icon: {
+		src: 'facebook',
+		foreground: getIconColor(),
+	},
 	keywords: [ _x( 'social', 'block search term', 'jetpack' ) ],
 	description: __( 'Embed a Facebook post.', 'jetpack' ),
 	patterns: [ /^https?:\/\/www\.facebook.com\/.+/i ],

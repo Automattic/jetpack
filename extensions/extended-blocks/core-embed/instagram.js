@@ -9,12 +9,15 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { InstagramIcon } from '../../shared/icons';
+import { getIconColor } from '../../shared/block-icons';
 
 const instagramVariation = {
 	name: 'instagram',
 	title: 'Instagram',
-	icon: InstagramIcon,
+	icon: {
+		src: 'instagram',
+		foreground: getIconColor(),
+	},
 	keywords: [
 		_x( 'image', 'block search term', 'jetpack' ),
 		_x( 'social', 'block search term', 'jetpack' ),
