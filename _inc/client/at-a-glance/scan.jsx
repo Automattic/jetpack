@@ -111,6 +111,24 @@ class DashScan extends Component {
 	getVPContent() {
 		const { vaultPressData } = this.props;
 
+		// The VaultPress plugin is active but not registered, or we can't connect
+		if ( vaultPressData?.code === 'not_registered' ) {
+			return renderCard( {
+				className: 'jp-dash-item__is-inactive',
+				status: 'not-registered',
+				content: jetpackCreateInterpolateElement(
+					__(
+						"VaultPress is having trouble connecting. Make sure you've <keyLink>entered your registration key</keyLink>, or <supportLink>contact support</supportLink> if you still need help.",
+						'jetpack'
+					),
+					{
+						keyLink: <a href="admin.php?page=vaultpress" />,
+						supportLink: <a href={ getRedirectUrl( 'vaultpress-help' ) } />,
+					}
+				),
+			} );
+		}
+
 		// The VaultPress plugin is active and we received scanning data
 		const scanEnabled = get( vaultPressData, [ 'data', 'features', 'security' ], false );
 		if ( scanEnabled ) {
@@ -128,16 +146,12 @@ class DashScan extends Component {
 					content: __( "No threats found, you're good to go!", 'jetpack' ),
 				} );
 			}
-
-			// NOTE: Not sure how to handle other cases here; if everything is active and enabled,
-			// but `vaultPressData.code` is a non-success, what should we do?
 		}
 
 		// At this point, either the plugin isn't active/installed, or we're not receiving scan data.
 		// We need to know this site's current plan for decision-making past this point.
 		if ( this.props.fetchingSiteData ) {
 			return renderCard( {
-				status: '',
 				content: __( 'Loading…', 'jetpack' ),
 			} );
 		}
