@@ -49,6 +49,11 @@ $connected_tools = array(
 	'simple-payments/simple-payments.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',
+	// These oEmbed providers are available when connected to WordPress.com.
+	// Starting from 2020-10-24, they need an authentication token, and that token is stored on WordPress.com.
+	// More information: https://developers.facebook.com/docs/instagram/oembed/.
+	'shortcodes/facebook.php',
+	'shortcodes/instagram.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.
