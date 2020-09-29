@@ -168,11 +168,15 @@ endif;
  *    http://www.youtube.com/v/jF-kELmmvgA
  *    http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *    http://youtu.be/Rrohlqeir5E
+ *    https://www.youtube.com/watch?v=GJNxoe-iSb4&list=PLAVZ4NFtZX0fE54mDSqNKym-o_rz-8xmk
  *
  * @param string $url Youtube URL.
  */
 function youtube_id( $url ) {
-	$id = jetpack_get_youtube_id( $url );
+	$original_url = $url;
+
+	$id   = jetpack_get_youtube_id( $url );
+	$list = null;
 
 	if ( ! $id ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: bad URL entered', 'jetpack' ) );
@@ -184,6 +188,17 @@ function youtube_id( $url ) {
 	$args = jetpack_shortcode_youtube_args( $url );
 	if ( empty( $args ) ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: empty URL args', 'jetpack' ) );
+	}
+
+	// Account for URL having both v and list, where jetpack_get_youtube_id() only accounts for one or the other.
+	if ( isset( $args['v'] ) ) {
+		$id = $args['v'];
+	}
+	if ( isset( $args['list'] ) ) {
+		$list = $args['list'];
+		if ( $id === $list ) {
+			$id = null;
+		}
 	}
 
 	list( $w, $h ) = jetpack_shortcode_youtube_dimensions( $args );
@@ -259,6 +274,11 @@ function youtube_id( $url ) {
 		$params['theme'] = $args['theme'];
 	}
 
+	if ( isset( $args['list'] ) ) {
+		$params['listType'] = 'playlist';
+		$params['list']     = $args['list'];
+	}
+
 	/**
 	 * Allow YouTube videos to start playing automatically.
 	 *
@@ -272,19 +292,8 @@ function youtube_id( $url ) {
 		$params['autoplay'] = (int) $args['autoplay'];
 	}
 
-	if (
-		( isset( $url['path'] ) && '/videoseries' === $url['path'] )
-		|| isset( $args['list'] )
-	) {
-		$src  = add_query_arg(
-			array(
-				'list' => $id,
-				'hl'   => get_locale(),
-			),
-			'https://www.youtube.com/embed/videoseries'
-		);
-		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
-	} elseif ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() && $id ) {
+		// Note that <amp-youtube> currently is not well suited for playlists that don't have an individual video selected, hence the $id check above.
 		$placeholder = sprintf(
 			'<a href="%1$s" placeholder><amp-img src="%2$s" alt="%3$s" layout="fill" object-fit="cover"><noscript><img src="%2$s" loading="lazy" decoding="async" alt="%3$s"></noscript></amp-img></a>',
 			esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
@@ -310,14 +319,20 @@ function youtube_id( $url ) {
 			$placeholder
 		);
 	} else {
-		$src  = add_query_arg(
+		// In AMP, the AMP_Iframe_Sanitizer will convert into <amp-iframe> as required.
+		$src = 'https://www.youtube.com/embed';
+		if ( $id ) {
+			$src .= "/$id";
+		}
+		$src = add_query_arg(
 			array_merge(
 				array( 'version' => 3 ),
 				$params
 			),
-			"https://www.youtube.com/embed/$id"
+			$src
 		);
-		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+
+		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed.
@@ -361,7 +376,7 @@ function youtube_id( $url ) {
  *
  * @since 8.0.0
  *
- * @param string $url The URL of the shortcode.
+ * @param array $url The parsed URL of the shortcode.
  *
  * @return array|false The query args of the URL, or false.
  */
