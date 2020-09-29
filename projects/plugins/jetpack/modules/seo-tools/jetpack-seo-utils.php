@@ -36,7 +36,7 @@ class Jetpack_SEO_Utils {
 		}
 
 		if ( function_exists( 'has_any_blog_stickers' ) ) {
-			// For WPCOM sites
+			// For WPCOM sites.
 			if ( empty( $site_id ) ) {
 				$site_id = get_current_blog_id();
 			}
@@ -44,7 +44,7 @@ class Jetpack_SEO_Utils {
 			return has_any_blog_stickers( array( 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 
-		// For all Jetpack sites
+		// For all Jetpack sites.
 		return true;
 	}
 
