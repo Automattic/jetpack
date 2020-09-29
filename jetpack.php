@@ -30,6 +30,7 @@ defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', 'https://jetpack.
 defined( 'JETPACK_PROTECT__API_HOST' ) || define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' ) || define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 defined( 'JETPACK__SANDBOX_DOMAIN' ) || define( 'JETPACK__SANDBOX_DOMAIN', '' );
+defined( 'JETPACK__SANDBOX_PROFILE' ) || define( 'JETPACK__SANDBOX_PROFILE', false );
 defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) || define(
 	'JETPACK__DEBUGGER_PUBLIC_KEY',
 	"\r\n" . '-----BEGIN PUBLIC KEY-----' . "\r\n"
