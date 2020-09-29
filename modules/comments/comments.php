@@ -364,6 +364,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			// @todo Implement AMP support.
+			return;
+		}
+
 		$url_origin = 'https://jetpack.wordpress.com';
 		?>
 
