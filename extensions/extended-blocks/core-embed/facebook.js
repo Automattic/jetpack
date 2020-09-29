@@ -4,24 +4,19 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockVariation, unregisterBlockVariation } from '@wordpress/blocks';
-import { Path, SVG } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 
-const embedFacebookIcon = {
-	foreground: '#3b5998',
-	src: (
-		<SVG viewBox="0 0 24 24">
-			<Path d="M20 3H4c-.6 0-1 .4-1 1v16c0 .5.4 1 1 1h8.6v-7h-2.3v-2.7h2.3v-2c0-2.3 1.4-3.6 3.5-3.6 1 0 1.8.1 2.1.1v2.4h-1.4c-1.1 0-1.3.5-1.3 1.3v1.7h2.7l-.4 2.8h-2.3v7H20c.5 0 1-.4 1-1V4c0-.6-.4-1-1-1z" />
-		</SVG>
-	),
-};
+/**
+ * Internal dependencies
+ */
+import { FacebookIcon } from '../../shared/icons';
 
 const facebookVariation = {
 	// Deprecate Facebook Embed per FB policy
 	// See: https://developers.facebook.com/docs/plugins/oembed-legacy
 	name: 'facebook',
 	title: 'Facebook',
-	icon: embedFacebookIcon,
+	icon: FacebookIcon,
 	keywords: [ _x( 'social', 'block search term', 'jetpack' ) ],
 	description: __( 'Embed a Facebook post.', 'jetpack' ),
 	patterns: [ /^https?:\/\/www\.facebook.com\/.+/i ],

@@ -9,7 +9,7 @@ import { colors as PALETTE } from '@automattic/color-studio';
  * Internal dependencies
  */
 import './icons.scss';
-import { getIconColor } from "./block-icons";
+import { getIconColor } from './block-icons';
 
 /**
  * Constants
@@ -107,7 +107,7 @@ export const JetpackLogo = ( { size = 24, className } ) => (
 // Currently we can't directly import icons from there, because all icons are bundled in a single file.
 // This means that to import an icon from there, we'll need to add the entire bundle with all icons to our build.
 // In the future we'd want to export each icon in that repo separately, and then import them separately here.
-const FacebookIcon = (
+export const FacebookIcon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Rect x="0" fill="none" width="24" height="24" />
 		<G>
