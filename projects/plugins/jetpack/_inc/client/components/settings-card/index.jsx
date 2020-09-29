@@ -189,21 +189,6 @@ export const SettingsCard = props => {
 						href={ props.gaUpgradeUrl }
 					/>
 				);
-			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( hasPremiumOrBetter ) {
-					return '';
-				}
-
-				return (
-					<JetpackBanner
-						callToAction={ upgradeLabel }
-						title={ __( 'Boost your search engine ranking', 'jetpack' ) }
-						plan={ getJetpackProductUpsellByFeature( FEATURE_SEO_TOOLS_JETPACK ) }
-						feature={ feature }
-						onClick={ handleClickForTracking( feature ) }
-						href={ props.seoUpgradeUrl }
-					/>
-				);
 
 			case FEATURE_SEARCH_JETPACK:
 				if ( props.hasActiveSearchPurchase || 'is-complete-plan' === planClass ) {
