@@ -1145,6 +1145,27 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
+	 * Tests that Photon ignores percentage dimensions. It should fall back to e.g. a "size-foo" class.
+	 *
+	 * @covers Jetpack_Photon::filter_the_content
+	 */
+	public function test_photon_filter_the_content_percentage_width_and_height() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="45%" height="55%" />';
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertEquals( '1024', $attributes['width']['value'] );
+		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertEquals( '1024', $attributes['height']['value'] );
+
+		$this->assertArrayHasKey( 'fit', $query_params );
+		$this->assertEquals( '1024,1024', $query_params['fit'] );
+	}
+
+	/**
 	 * Tests that Photon will filter for an AMP response.
 	 *
 	 * @author westonruter
