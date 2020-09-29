@@ -12,7 +12,6 @@ import { __, _n } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Card from 'components/card';
-import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -330,12 +329,13 @@ class DashScan extends Component {
 
 		// Wait until we know everything about the site's VaultPress/Rewind scan
 		// status before showing any "real" content
+
+		// ASSUMPTION: QueryVaultPressData and QueryScanStatus have been invoked
+		//             elsewhere on the page.
 		const isLoading = this.props.fetchingScanStatus || this.props.fetchingVaultPressData;
 		return (
 			<div>
-				<QueryVaultPressData />
-				{ isLoading && renderCard( { content: __( 'Loading…', 'jetpack' ) } ) }
-				{ ! isLoading && this.getContent() }
+				{ isLoading ? renderCard( { content: __( 'Loading…', 'jetpack' ) } ) : this.getContent() }
 			</div>
 		);
 	}
