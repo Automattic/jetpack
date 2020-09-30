@@ -14,6 +14,9 @@ export const getValidatedAttributes = ( attributeDetails, attributesToValidate )
 	reduce(
 		attributesToValidate,
 		( ret, attribute, attributeKey ) => {
+			console.log( 'attribute', attribute );
+			console.log( 'attributeKey', attributeKey );
+			console.log( 'ret', ret );
 			if ( undefined === attributeDetails[ attributeKey ] ) {
 				return ret;
 			}

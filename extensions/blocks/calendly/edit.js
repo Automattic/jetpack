@@ -120,6 +120,7 @@ function CalendlyEdit( props ) {
 		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
 			.then( resolvedUrl => {
 				console.log( 'attributeDetails', attributeDetails );
+				console.log( 'newAttributes', newAttributes );
 				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
 					...newAttributes,
 					url: resolvedUrl,
