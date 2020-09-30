@@ -1,5 +1,6 @@
-
 /**
  * Internal dependencies
  */
-import './variations';
+import './facebook';
+import './instagram';
+import './loom';

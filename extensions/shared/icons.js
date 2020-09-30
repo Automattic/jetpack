@@ -9,7 +9,7 @@ import { colors as PALETTE } from '@automattic/color-studio';
  * Internal dependencies
  */
 import './icons.scss';
-import { getIconColor } from "./block-icons";
+import { getIconColor } from './block-icons';
 
 /**
  * Constants
