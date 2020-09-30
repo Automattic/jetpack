@@ -19,7 +19,9 @@ $tools = array(
 	'custom-post-types/nova.php',
 	'geo-location.php',
 	// Those oEmbed providers are always available.
+	'shortcodes/facebook.php',
 	'shortcodes/others.php',
+	// Theme Tools.
 	'theme-tools.php',
 	'theme-tools/social-links.php',
 	'theme-tools/random-redirect.php',
@@ -49,6 +51,10 @@ $connected_tools = array(
 	'simple-payments/simple-payments.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',
+	// These oEmbed providers are available when connected to WordPress.com.
+	// Starting from 2020-10-24, they need an authentication token, and that token is stored on WordPress.com.
+	// More information: https://developers.facebook.com/docs/instagram/oembed/.
+	'shortcodes/instagram.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.
