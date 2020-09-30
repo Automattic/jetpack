@@ -73,7 +73,7 @@ class SimplePaymentsEdit extends Component {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
 				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Click here purchase.', 'jetpack' ),
+					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
 				} ),
 			} );
 		}
@@ -106,7 +106,7 @@ class SimplePaymentsEdit extends Component {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
 				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Click here purchase.', 'jetpack' ),
+					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
 				} ),
 			} );
 		}
