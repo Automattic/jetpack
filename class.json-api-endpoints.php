@@ -2052,6 +2052,21 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
 	}
 
+	/**
+	 * Whether this endpoint allows site based authentication.
+	 * If we made it to this point, it means we have a signed request with a Jetpack token,
+	 * so all we need to do in order to determine that a blog token is used is check if a
+	 * logged-in user exists.
+	 *
+	 * @since 8.9.1
+	 *
+	 * @return bool true, if Jetpack blog token is used (aka no logged-in user exists) and `allow_jetpack_site_auth` is true, false otherwise.
+	 */
+	public function allows_site_based_authentication() {
+		return $this->allow_jetpack_site_auth &&
+			0 === get_current_user_id();
+	}
+
 	function get_platform() {
 		return wpcom_get_sal_platform( $this->api->token_details );
 	}
