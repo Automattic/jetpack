@@ -29,6 +29,7 @@ div.wp-block-jetpack-whatsapp-button {
 	}
 
 	&.alignleft {
+		float: none;
 		justify-content: flex-start;
 	}
 
@@ -37,6 +38,7 @@ div.wp-block-jetpack-whatsapp-button {
 	}
 
 	&.alignright {
+		float: none;
 		justify-content: flex-end;
 	}
 
