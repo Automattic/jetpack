@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
 
 class Jetpack_Connection_Banner {
@@ -100,7 +101,12 @@ class Jetpack_Connection_Banner {
 			return;
 		}
 
-		add_action( 'admin_notices', array( $this, 'render_banner' ) );
+		if ( ! empty( Licensing::instance()->stored_licenses() ) ) {
+			add_action( 'admin_notices', array( $this, 'render_license_aware_banner' ) );
+		} else {
+			add_action( 'admin_notices', array( $this, 'render_banner' ) );
+		}
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
@@ -289,6 +295,74 @@ class Jetpack_Connection_Banner {
 								<a
 										href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
 										class="dops-button is-primary jp-banner__alt-connect-button">
+									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+								</a>
+							</div>
+
+						</div>
+					</div> <!-- end slide 1 -->
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Renders the license-away version of the connection banner.
+	 *
+	 * @since 9.0.0
+	 */
+	public function render_license_aware_banner() {
+		?>
+		<div id="message" class="updated jp-wpcom-connect__container">
+			<div class="jp-wpcom-connect__inner-container">
+				<div class="jp-wpcom-connect__content-container">
+					<!-- slide 1: intro -->
+					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
+
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
+							<?php echo ( new Logo() )->render(); ?>
+							<img
+								src="<?php echo esc_url( plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ) ); ?>"
+								class="jp-wpcom-connect__hide-phone-and-smaller"
+								alt="
+								<?php
+								esc_attr_e(
+									'Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income.',
+									'jetpack'
+								);
+								?>
+								"
+								height="auto"
+								width="225"
+								/>
+						</div>
+
+						<div class="jp-wpcom-connect__slide-text">
+							<h2 class="jp-wpcom-connect__quest">
+								<svg class="gridicon gridicons-notice jp-wpcom-connect__quest-marker" height="38" width="38" viewBox="0 0 24 24">
+									<g>
+										<rect x="8" y="6" width="8" height="12" style="fill:#000000" />
+										<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"></path>
+									</g>
+								</svg>
+								<?php esc_html_e( 'Your Jetpack purchase needs completion! Please set up the plugin for your subscription.', 'jetpack' ); ?>
+							</h2>
+
+							<p>
+								<?php
+								esc_html_e(
+									'Jetpack offers security, performance, and marketing tools made for WordPress sites by the WordPress experts. Set up Jetpack to enable new features for this site; don\'t let your subscription go to waste!',
+									'jetpack'
+								);
+								?>
+							</p>
+
+							<div class="jp-banner__button-container">
+								<span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
+								<a
+									href="<?php echo esc_url( $this->build_connect_url_for_slide( '90' ) ); ?>"
+									class="dops-button is-primary jp-banner__alt-connect-button">
 									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 								</a>
 							</div>

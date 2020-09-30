@@ -472,3 +472,16 @@
 		}
 	}
 }
+
+.jp-wpcom-connect__quest {
+	position: relative;
+	padding-left: rem(45px);
+	font-size: $font-title-small;
+}
+
+.jp-wpcom-connect__quest-marker.gridicon {
+	position: absolute;
+	left: 0;
+	top: rem(-3px);
+	fill: #eec74f;
+}
