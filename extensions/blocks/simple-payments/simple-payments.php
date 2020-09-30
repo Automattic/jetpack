@@ -55,12 +55,11 @@ function render_block( $attr, $content ) {
 
 	// For AMP requests, make sure the purchase link redirects to the non-AMP post URL.
 	if ( Blocks::is_amp_request() ) {
-		$non_amp_link = sprintf(
-			'<a href="%1$s" target="_blank" rel="noamphtml noopener noreferrer">%2$s</a>',
-			esc_url( get_permalink( get_the_ID() ) ),
-			__( 'View the non-AMP version to purchase.', 'jetpack' )
+		$content = preg_replace(
+			'#(<a class="jetpack-simple-payments-purchase")(.*)rel="(.*)"(.*>).*(</a>)#i',
+			'$1$2rel="$3 noamphtml"$4' . __( 'Click here to purchase.', 'jetpack' ) . '$5',
+			$content
 		);
-		$content      = preg_replace( '#<a class="jetpack-simple-payments-purchase(.*)</a>#i', $non_amp_link, $content );
 		return $content;
 	}
 
@@ -76,3 +75,22 @@ function render_block( $attr, $content ) {
 
 	return $content;
 }
+
+/**
+ * Determine if AMP should be disabled on posts having "Pay with PayPal" blocks.
+ *
+ * @param bool    $skip Skipped.
+ * @param int     $post_id Post ID.
+ * @param WP_Post $post Post.
+ *
+ * @return bool Whether to skip the post from AMP.
+ */
+function amp_skip_post( $skip, $post_id, $post ) {
+	// When AMP is on standard mode, there are no non-AMP posts to link to where the purchase can be completed, so let's
+	// prevent the post from being available in AMP.
+	if ( amp_is_canonical() && has_block( 'jetpack/simple-payments', $post->post_content ) ) {
+		return true;
+	}
+	return $skip;
+}
+add_filter( 'amp_skip_post', __NAMESPACE__ . '\amp_skip_post', 10, 3 );
