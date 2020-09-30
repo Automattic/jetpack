@@ -127,3 +127,29 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message 
 		padding-left: 1em;
 	}
 }
+
+@media only email {
+	.jetpack-simple-payments-product {
+		display: table;
+		width: 100%;
+	}
+
+	.jetpack-simple-payments-product-image {
+		display: table-cell;
+		width: 30%;
+		vertical-align: top;
+	}
+
+	.jetpack-simple-payments-image {
+		padding-top: 0;
+	}
+
+	.jetpack-simple-payments-image figure {
+		margin: 0;
+	}
+
+	.jetpack-simple-payments-product-image + .jetpack-simple-payments-details {
+		display: table-cell;
+		width: 70%;
+	}
+}
