@@ -56,8 +56,8 @@ function render_block( $attr, $content ) {
 	// For AMP requests, make sure the purchase link redirects to the non-AMP post URL.
 	if ( Blocks::is_amp_request() ) {
 		$content = preg_replace(
-			'#(<a class="jetpack-simple-payments-purchase")(.*)rel="(.*)"(.*>).*(</a>)#i',
-			'$1$2rel="$3 noamphtml"$4' . __( 'Click here to purchase.', 'jetpack' ) . '$5',
+			'#(<a class="jetpack-simple-payments-purchase".*)rel="(.*)"(.*>.*</a>)#i',
+			'$1rel="$2 noamphtml"$3',
 			$content
 		);
 		return $content;

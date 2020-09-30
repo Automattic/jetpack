@@ -123,7 +123,7 @@ export const settings = {
 			type: 'string',
 			source: 'html',
 			selector: '.jetpack-simple-payments-purchase',
-			default: __( 'Visit the site to purchase.', 'jetpack' ),
+			default: __( 'Click here purchase.', 'jetpack' ),
 		},
 		price: {
 			type: 'number',
