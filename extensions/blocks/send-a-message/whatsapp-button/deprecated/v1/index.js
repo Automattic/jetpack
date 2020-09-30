@@ -7,10 +7,16 @@ import { RichText } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
-import { whatsAppURL } from './index';
+import { whatsAppURL } from '../../index';
+import attributes from '../../attributes';
 
 export default {
-	save: function ( { attributes, className } ) {
+	attributes,
+	supports: {
+		html: false,
+		reusable: false,
+	},
+	save: function ( { attr, className } ) {
 		const {
 			countryCode,
 			phoneNumber,
@@ -19,7 +25,7 @@ export default {
 			buttonText,
 			backgroundColor,
 			openInNewTab,
-		} = attributes;
+		} = attr;
 
 		const target = openInNewTab ? '_blank' : '_self';
 
