@@ -45,7 +45,7 @@ class Jetpack_Widget_Conditions {
 
 		$categories = get_categories(
 			array(
-				'number'  => 1000,
+				'number'  => apply_filters( 'jetpack_widget_visibility_max_number_categories', 1000 ),
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)
@@ -88,7 +88,7 @@ class Jetpack_Widget_Conditions {
 
 		$tags = get_tags(
 			array(
-				'number'  => 1000,
+				'number'  => apply_filters( 'jetpack_widget_visibility_max_number_tags', 1000 ),
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)
