@@ -2896,6 +2896,20 @@
     "@babel/runtime" "^7.8.3"
     "@wordpress/dom-ready" "^2.7.0"
 
+"@wordpress/annotations@1.12.2":
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/@wordpress/annotations/-/annotations-1.12.2.tgz#01593f73faeaed01355954d65066892525994f2a"
+  integrity sha512-CQ0dprLQT9MHfOMk1m86U2m2XX1h179cN1HmpY2a3rTXFsOp2ZBYjIhgsED1o1Mcdus6PSPS/Fdn021cZLAWdA==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    "@wordpress/data" "^4.14.2"
+    "@wordpress/hooks" "^2.7.0"
+    "@wordpress/i18n" "^3.9.0"
+    "@wordpress/rich-text" "^3.12.2"
+    lodash "^4.17.15"
+    rememo "^3.0.0"
+    uuid "^3.3.2"
+
 "@wordpress/api-fetch@^3.11.0":
   version "3.11.0"
   resolved "https://registry.yarnpkg.com/@wordpress/api-fetch/-/api-fetch-3.11.0.tgz#795e14b58d13f53284bfdf5ff875d0dbdbc8f53c"
