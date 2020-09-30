@@ -6520,6 +6520,10 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
+			'jetpack_can_make_outbound_https'   => array(
+				'replacement' => null,
+				'version'     => 'jetpack-9.1.0',
+			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {

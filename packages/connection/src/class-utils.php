@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * Provides utility methods for the Connection package.
  */
