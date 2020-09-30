@@ -726,34 +726,36 @@ class MyPlanBody extends React.Component {
 									) }
 								/>
 							</div>
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Increase traffic to your site', 'jetpack' ) }
-								</h3>
-								<p>
-									{ __(
-										'Reach a wider audience by automatically sharing your posts on social media.',
-										'jetpack'
+							{ 'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Increase traffic to your site', 'jetpack' ) }
+									</h3>
+									<p>
+										{ __(
+											'Reach a wider audience by automatically sharing your posts on social media.',
+											'jetpack'
+										) }
+									</p>
+									{ this.props.isModuleActivated( 'publicize' ) ? (
+										<Button
+											onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
+											href={ getRedirectUrl( 'calypso-marketing-connections', {
+												site: this.props.siteRawUrl,
+											} ) }
+										>
+											{ __( 'Start sharing', 'jetpack' ) }
+										</Button>
+									) : (
+										<Button
+											onClick={ this.activatePublicize }
+											disabled={ this.props.isActivatingModule( 'publicize' ) }
+										>
+											{ __( 'Activate Publicize', 'jetpack' ) }
+										</Button>
 									) }
-								</p>
-								{ this.props.isModuleActivated( 'publicize' ) ? (
-									<Button
-										onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-										href={ getRedirectUrl( 'calypso-marketing-connections', {
-											site: this.props.siteRawUrl,
-										} ) }
-									>
-										{ __( 'Start sharing', 'jetpack' ) }
-									</Button>
-								) : (
-									<Button
-										onClick={ this.activatePublicize }
-										disabled={ this.props.isActivatingModule( 'publicize' ) }
-									>
-										{ __( 'Activate Publicize', 'jetpack' ) }
-									</Button>
-								) }
-							</div>
+								</div>
+							) }
 						</div>
 
 						<div className="jp-landing__plan-features-card">
