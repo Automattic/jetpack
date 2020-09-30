@@ -91,9 +91,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		// Sync all registered theme features.
 		$registered_theme_features = array_keys( get_registered_theme_features() );
 		$not_synced_theme_features = array_diff( $registered_theme_features, Defaults::$default_theme_support_whitelist );
+		// We want to make sure we keep up with the latest theme_supports data that gets registered.
 		$this->assertTrue(
 			empty( $not_synced_theme_features ),
-			'Theme Sync error, please add the following ' . implode( ', ', $not_synced_theme_features )
+			'Theme Sync Error. Please add the following ' . implode( ', ', $not_synced_theme_features ) . ' to Defaults::$default_theme_support_whitelist'
 		);
 
 		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
