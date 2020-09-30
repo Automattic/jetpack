@@ -180,7 +180,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_master_user_returns_false_when_no_master_user() {
 		Jetpack_Options::delete_option( 'master_user' );
-		$token = $this->connection->get_access_token( Connection_Manager::MASTER_USER );
+		$token = $this->connection->get_access_token( Connection_Manager::CONNECTION_OWNER );
 
 		$this->assertFalse( $token );
 	}
