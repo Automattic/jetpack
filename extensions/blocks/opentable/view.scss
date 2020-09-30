@@ -1,4 +1,10 @@
 .wp-block-jetpack-opentable {
+	position: relative; /* For sake of amp-iframe with layout=fill */
+
+	> iframe {
+		background: transparent; /* Override AMP Reader mode gray background for iframes in legacy post templates. */
+		margin: 0; /* Override margins in AMP legacy Reader mode. */
+	}
 
 	&.aligncenter iframe {
 		margin: 0 auto;
