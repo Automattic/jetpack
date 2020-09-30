@@ -736,14 +736,23 @@ class MyPlanBody extends React.Component {
 										'jetpack'
 									) }
 								</p>
-								<Button
-									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-									href={ getRedirectUrl( 'calypso-marketing-connections', {
-										site: this.props.siteRawUrl,
-									} ) }
-								>
-									{ __( 'Start sharing', 'jetpack' ) }
-								</Button>
+								{ this.props.isModuleActivated( 'publicize' ) ? (
+									<Button
+										onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
+										href={ getRedirectUrl( 'calypso-marketing-connections', {
+											site: this.props.siteRawUrl,
+										} ) }
+									>
+										{ __( 'Start sharing', 'jetpack' ) }
+									</Button>
+								) : (
+									<Button
+										onClick={ this.activatePublicize }
+										disabled={ this.props.isActivatingModule( 'publicize' ) }
+									>
+										{ __( 'Activate Publicize', 'jetpack' ) }
+									</Button>
+								) }
 							</div>
 						</div>
 
