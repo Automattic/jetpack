@@ -15,14 +15,14 @@ import Card from 'components/card';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import { getPlanClass } from 'lib/plans/constants';
-import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
+import { getUpgradeUrl, getSiteRawUrl, getDateFormat, showBackups } from 'state/initial-state';
 import ChecklistCta from './checklist-cta';
 import ChecklistProgress from './checklist-progress-card';
 import MyPlanCard from '../my-plan-card';
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
-		const { displayBackups, purchases } = this.props;
+		const { displayBackups, dateFormat, purchases } = this.props;
 
 		const productProps = {
 			productSlug,
@@ -40,6 +40,7 @@ class MyPlanHeader extends React.Component {
 		if ( purchase ) {
 			expiration = (
 				<ProductExpiration
+					dateFormat={ dateFormat }
 					expiryDate={ purchase.expiry_date }
 					purchaseDate={ purchase.subscribed_date }
 					isRefundable={ purchase.is_refundable }
@@ -253,6 +254,7 @@ MyPlanHeader.propTypes = {
 
 	// From connect HoC
 	siteSlug: PropTypes.string,
+	dateFormat: PropTypes.string,
 	displayBackups: PropTypes.bool,
 	plansMainTopUpgradeUrl: PropTypes.string,
 	purchases: PropTypes.array,
@@ -261,6 +263,7 @@ MyPlanHeader.propTypes = {
 export default connect( state => {
 	return {
 		siteSlug: getSiteRawUrl( state ),
+		dateFormat: getDateFormat( state ),
 		displayBackups: showBackups( state ),
 		plansMainTopUpgradeUrl: getUpgradeUrl( state, 'plans-main-top' ),
 	};
