@@ -148,7 +148,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message 
 		margin: 0;
 	}
 
-	.jetpack-simple-payments-details {
+	.jetpack-simple-payments-product-image + .jetpack-simple-payments-details {
 		display: table-cell;
 		width: 70%;
 	}
