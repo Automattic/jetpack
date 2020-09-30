@@ -39,6 +39,7 @@ import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
 import testEmbedUrl from '../../shared/test-embed-url';
 
 function CalendlyEdit( props ) {
+	console.log( 'calendly' );
 	const {
 		attributes,
 		className,
@@ -47,9 +48,11 @@ function CalendlyEdit( props ) {
 		noticeOperations,
 		noticeUI,
 		setAttributes,
+		isSelected,
 	} = props;
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
+	console.log( 'isSelected', isSelected );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -115,8 +118,14 @@ function CalendlyEdit( props ) {
 		}
 
 		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
-			.then( () => {
-				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+			.then( resolvedUrl => {
+				console.log( 'attributeDetails', attributeDetails );
+				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
+					...newAttributes,
+					url: resolvedUrl,
+				} );
+				console.log( 'newValidatedAttributes', newValidatedAttributes );
+
 				setAttributes( newValidatedAttributes );
 				setIsEditingUrl( false );
 				noticeOperations.removeAllNotices();
@@ -298,6 +307,8 @@ function CalendlyEdit( props ) {
 	if ( isResolvingUrl ) {
 		return blockEmbedding;
 	}
+	console.log( 'classname', className );
+	console.log( 'style', style );
 
 	const classes = `${ className } calendly-style-${ style }`;
 
