@@ -602,6 +602,8 @@ class Jetpack_XMLRPC_Server {
 			return false;
 		}
 
+		wp_set_current_user( $user->ID );
+
 		return $user;
 	}
 
