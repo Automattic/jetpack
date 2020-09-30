@@ -748,7 +748,10 @@ class Jetpack_XMLRPC_Server {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
-		return Connection_Manager::disconnect_user( $user_id, is_null( $user_id ) ? false : true );
+		return Connection_Manager::disconnect_user(
+			empty( $user_id ) ? null : $user_id,
+			is_null( $user_id ) ? false : true
+		);
 	}
 
 	/**
