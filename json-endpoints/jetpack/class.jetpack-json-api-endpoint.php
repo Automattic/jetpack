@@ -94,6 +94,11 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return bool|WP_Error
 	 */
 	protected function check_capability( $capability ) {
+		// If this endpoint allows site based authentication (aka Jetpack blog token) skip
+		// capabilities check.
+		if ( $this->allows_site_based_authentication() ) {
+			return true;
+		}
 		if ( is_array( $capability ) ) {
 			// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
 			$capabilities = ( isset( $capability['capabilities'] ) ? $capability['capabilities'] : $capability );
