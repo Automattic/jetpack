@@ -140,13 +140,15 @@ class StoryEdit extends React.Component {
 
 	finishMediaUploadWithFailure( payload ) {
 		const { setAttributes } = this.props;
-		setAttributes( { id: payload.mediaId } );
+		// TODO change this
+		// setAttributes( { id: payload.mediaId } );
 		this.setState( { isUploadInProgress: false } );
 	}
 
 	mediaUploadStateReset() {
 		const { setAttributes } = this.props;
-		setAttributes( { id: null, src: null } );
+		// TODO change this
+		// setAttributes( { id: null, src: null } );
 		this.setState( { isUploadInProgress: false } );
 	}
 
@@ -199,12 +201,14 @@ class StoryEdit extends React.Component {
 
 	finishMediaSaveWithFailure( payload ) {
 		const { setAttributes } = this.props;
-		setAttributes( { id: payload.mediaId } );
+		// TODO change this
+		// setAttributes( { id: payload.mediaId } );
 		this.setState( { isSaveInProgress: false } );
 	}
 
 	mediaSaveStateReset() {
 		const { setAttributes } = this.props;
+		// TODO change this
 		// setAttributes( { id: null, src: null } );
 		this.setState( { isSaveInProgress: false } );
 	}
@@ -212,7 +216,7 @@ class StoryEdit extends React.Component {
 	onStorySaveResult() {
 		const { setAttributes } = this.props;
 		// TODO here set success or fail overlay
-		setAttributes( { id: null, src: null } );
+		// setAttributes( { id: null, src: null } );
 		this.setState( { isSaveInProgress: false } );
 	}
 
@@ -251,7 +255,6 @@ class StoryEdit extends React.Component {
 						) }
 						<StoryUpdateProgress
 							coverUrl={ mediaFiles[0].url } // just select the first one // TODO see how to handle video
-							// mediaId={ id }
 							mediaFiles = { mediaFiles}
 							onUpdateMediaUploadProgress={ this.updateMediaUploadProgress }
 							onFinishMediaUploadWithSuccess={
