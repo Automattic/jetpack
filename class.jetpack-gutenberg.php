@@ -13,7 +13,7 @@ use Automattic\Jetpack\Status;
 /**
  * Wrapper function to safely register a gutenberg block type
  *
- * @deprecated 9.1.0 Use Automattic\\Jetpack\\Blocks::Blocks::jetpack_register_block instead
+ * @deprecated 9.1.0 Use Automattic\\Jetpack\\Blocks::jetpack_register_block instead
  *
  * @see register_block_type
  *
