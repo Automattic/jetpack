@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Sync\Defaults;
+
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 //Mock object requiered for test_theme_update()
@@ -85,31 +88,19 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
 
-		$theme_features = array(
-			'post-thumbnails',
-			'post-formats',
-			'custom-header',
-			'custom-background',
-			'custom-logo',
-			'menus',
-			'automatic-feed-links',
-			'editor-style',
-			'widgets',
-			'html5',
-			'title-tag',
-			'jetpack-social-menu',
-			'jetpack-responsive-videos',
-			'infinite-scroll',
-			'site-logo',
-			'editor-color-palette',
-			'editor-gradient-presets',
+		// Sync all registered theme features.
+		$registered_theme_features = array_keys( get_registered_theme_features() );
+		$not_synced_theme_features = array_diff( $registered_theme_features, Defaults::$default_theme_support_whitelist );
+		$this->assertTrue(
+			empty( $not_synced_theme_features ),
+			'Theme Sync error, please add the following ' . implode( ', ', $not_synced_theme_features )
 		);
 
-		foreach ( $theme_features as $theme_feature ) {
+		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
 			$this->assertEquals(
 				current_theme_supports( $theme_feature ),
 				isset( $theme_supports[ $theme_feature ] ),
-				'Feature(s) not synced' . $theme_feature
+				'Default Feature(s) not synced ' . $theme_feature
 			);
 		}
 	}
