@@ -10,6 +10,7 @@ import { getIconColor } from '../../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
+import deprecated from './deprecated';
 import icon from './icon';
 import './editor.scss';
 
@@ -53,4 +54,5 @@ export const settings = {
 			phoneNumber: '555-123-4567',
 		},
 	},
+	deprecated,
 };
