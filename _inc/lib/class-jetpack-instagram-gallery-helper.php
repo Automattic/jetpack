@@ -72,7 +72,10 @@ class Jetpack_Instagram_Gallery_Helper {
 		$cached_gallery = get_transient( $transient_key );
 		if ( $cached_gallery ) {
 			$decoded_cached_gallery = json_decode( $cached_gallery );
-			$cached_count           = count( $decoded_cached_gallery->images );
+			// `images` can be an array of images or a string 'ERROR'.
+			// 'ERROR' seems to be cached to limit the number of repeated API requests when there's a problem
+			// retrieving images.
+			$cached_count = is_array( $decoded_cached_gallery->images ) ? count( $decoded_cached_gallery->images ) : 0;
 			if ( $cached_count >= $count ) {
 				return $decoded_cached_gallery;
 			}
