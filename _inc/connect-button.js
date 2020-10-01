@@ -52,8 +52,9 @@ jQuery( document ).ready( function ( $ ) {
 		handleConnectInPlaceFlow: function () {
 			// Alternative connection buttons should redirect to the main one for the "connect in place" flow.
 			if ( connectButton.hasClass( 'jp-banner__alt-connect-button' ) ) {
-				// Make sure we don't lose the `from` parameter.
-				window.location = jpConnect.connectInPlaceUrl + '&from=' + connectButtonFrom;
+				// Make sure we don't lose the `from` parameter, if set.
+				var fromParam = ( connectButtonFrom && '&from=' + connectButtonFrom ) || '';
+				window.location = jpConnect.connectInPlaceUrl + fromParam;
 				return;
 			}
 
