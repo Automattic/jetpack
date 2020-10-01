@@ -1,6 +1,6 @@
 # Security Policy
 
-Full details of the Automattic Security Policy can be found on [HackerOne](https://hackerone.com/automattic).
+Full details of the Automattic Security Policy can be found on [automattic.com](https://automattic.com/security/).
 
 ## Supported Versions
 
@@ -10,7 +10,7 @@ Generally, only the latest version of Jetpack has continued support. If a critic
 
 [Jetpack](https://jetpack.com/) is an open-source plugin for WordPress. Our HackerOne program covers the plugin software, as well as a variety of related projects and infrastructure.
 
-**All vulnerabilities should be reported via [HackerOne](https://hackerone.com/automattic)**. Any reports submitted via other means will not be eligible for a bounty.
+**For responsible disclosure of security issues and to be eligible for our bug bounty program, please submit your report via the  [HackerOne](https://hackerone.com/automattic) portal.**
 
 Our most critical targets are:
 
@@ -23,15 +23,11 @@ For more targets, see the `In Scope` section on [HackerOne](https://hackerone.co
 
 _Please note that the **WordPress software is a separate entity** from Automattic. Please report vulnerabilities for WordPress or the WordPress mobile apps through [the WordPress Foundation's HackerOne page](https://hackerone.com/wordpress)._
 
-## Qualifying Vulnerabilities
-
-See [HackerOne](https://hackerone.com/automattic).
-
 ## Guidelines
 
 We're committed to working with security researchers to resolve the vulnerabilities they discover. You can help us by following these guidelines:
 
-*   Follow [<span>HackerOne's disclosure guidelines</span>](https://www.hackerone.com/disclosure-guidelines).
+*   Follow [HackerOne's disclosure guidelines](https://www.hackerone.com/disclosure-guidelines).
 *   Pen-testing Production:
     *   Please **setup a local environment** instead whenever possible. Most of our code is open source (see above).
     *   If that's not possible, **limit any data access/modification** to the bare minimum necessary to reproduce a PoC.
