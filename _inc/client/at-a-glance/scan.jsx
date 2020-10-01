@@ -12,6 +12,8 @@ import { __, _n } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Card from 'components/card';
+import restApi from 'rest-api';
+import analytics from 'lib/analytics';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { isPluginInstalled } from 'state/site/plugins';
@@ -25,6 +27,7 @@ import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	getPlanClass,
 	getJetpackProductUpsellByFeature,
@@ -109,6 +112,33 @@ class DashScan extends Component {
 		fetchingSiteData: false,
 	};
 
+	onActivateVaultPressClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'activate-link',
+			target: 'at-a-glance',
+			feature: 'vaultpress',
+		} );
+
+		this.props.createNotice( 'is-info', __( 'Activating VaultPress…', 'jetpack' ), {
+			id: 'activating-vaultpress',
+		} );
+
+		restApi
+			.activateVaultPress()
+			.then( () => {
+				this.props.removeNotice( 'activating-vaultpress' );
+				window.location.href = this.props.siteAdminUrl + 'admin.php?page=vaultpress';
+			} )
+			.catch( () => {
+				this.props.removeNotice( 'activating-vaultpress' );
+				this.props.createNotice( 'is-error', __( 'Could not activate VaultPress.', 'jetpack' ), {
+					id: 'activate-vaultpress-failure',
+				} );
+			} );
+
+		return false;
+	};
+
 	getVPContent() {
 		const { vaultPressData } = this.props;
 
@@ -185,7 +215,7 @@ class DashScan extends Component {
 								'jetpack'
 							),
 							{
-								a: <a href={ this.props.siteAdminUrl + 'plugins.php' } />,
+								a: <a href="javascript:void(0)" onClick={ this.onActivateVaultPressClick } />,
 							}
 						) }
 					</p>,
@@ -363,21 +393,27 @@ class DashScan extends Component {
 	}
 }
 
-export default connect( state => {
-	const sitePlan = getSitePlan( state );
+export default connect(
+	state => {
+		const sitePlan = getSitePlan( state );
 
-	return {
-		isOfflineMode: isOfflineMode( state ),
-		scanStatus: getScanStatus( state ),
-		fetchingScanStatus: isFetchingScanStatus( state ),
-		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-		fetchingVaultPressData: isFetchingVaultPressData( state ),
-		vaultPressData: getVaultPressData( state ),
-		scanThreats: getVaultPressScanThreatCount( state ),
-		fetchingSiteData: isFetchingSiteData( state ),
-		sitePlan,
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
-		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
-	};
-} )( DashScan );
+		return {
+			isOfflineMode: isOfflineMode( state ),
+			scanStatus: getScanStatus( state ),
+			fetchingScanStatus: isFetchingScanStatus( state ),
+			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+			fetchingVaultPressData: isFetchingVaultPressData( state ),
+			vaultPressData: getVaultPressData( state ),
+			scanThreats: getVaultPressScanThreatCount( state ),
+			fetchingSiteData: isFetchingSiteData( state ),
+			sitePlan,
+			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
+			showBackups: showBackups( state ),
+			upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+		};
+	},
+	{
+		createNotice,
+		removeNotice,
+	}
+)( DashScan );
