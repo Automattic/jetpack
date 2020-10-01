@@ -175,6 +175,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							playing={ playing }
 							uploading={ uploading }
 							muted={ muted }
+							setMuted={ setMuted }
 							ended={ ended }
 							onProgress={ setCurrentSlideProgress }
 							onEnd={ tryNextSlide }

@@ -22,6 +22,7 @@ export const Slide = ( {
 	uploading,
 	ended,
 	muted,
+	setMuted,
 	onEnd,
 	onProgress,
 	settings,
@@ -41,24 +42,14 @@ export const Slide = ( {
 		timeout: null,
 	} );
 
-	// Sync playing state with underlying HTMLMediaElement
-	// AJAX loading will pause the video when the video src attribute is modified
-	useEffect( () => {
-		if ( isVideo() ) {
-			if ( currentSlidePlaying ) {
-				mediaRef.current.play();
-			} else {
-				mediaRef.current.pause();
-			}
+	const playVideoWithFallback = async mediaElement => {
+		try {
+			await mediaElement.play();
+		} catch ( err ) {
+			// try playing again when muted is set
+			setMuted( true );
 		}
-	}, [ currentSlidePlaying, loading ] );
-
-	// Display end of video on last slide when story ends
-	useLayoutEffect( () => {
-		if ( isVideo() && ended && visible ) {
-			mediaRef.current.currentTime = mediaRef.current.duration;
-		}
-	}, [ ended, visible ] );
+	};
 
 	// Sync muted state with underlying HTMLMediaElement
 	useEffect( () => {
@@ -69,6 +60,25 @@ export const Slide = ( {
 			}
 		}
 	}, [ muted ] );
+
+	// Sync playing state with underlying HTMLMediaElement
+	// AJAX loading will pause the video when the video src attribute is modified
+	useEffect( () => {
+		if ( isVideo() ) {
+			if ( currentSlidePlaying ) {
+				playVideoWithFallback( mediaRef.current );
+			} else {
+				mediaRef.current.pause();
+			}
+		}
+	}, [ currentSlidePlaying, loading, muted ] );
+
+	// Display end of video on last slide when story ends
+	useLayoutEffect( () => {
+		if ( isVideo() && ended && visible ) {
+			mediaRef.current.currentTime = mediaRef.current.duration;
+		}
+	}, [ ended, visible ] );
 
 	// Reset progress state for slides that aren't being displayed
 	useEffect( () => {
