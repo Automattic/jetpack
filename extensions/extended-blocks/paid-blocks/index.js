@@ -29,6 +29,11 @@ import paidBlockMediaReplaceFlow from './media-replace-flow';
 const stylesByPaidBlocks = [];
 
 const jetpackPaidBlock = ( settings, name ) => {
+	// if (name === 'jetpack/calendly') {
+	console.log( 'hellooo', isUpgradable( name ) );
+	console.log( 'name', name );
+	console.log( 'stylesbypaid', stylesByPaidBlocks );
+	// }
 	if ( isUpgradable( name ) ) {
 		if ( ! stylesByPaidBlocks.includes( name ) ) {
 			stylesByPaidBlocks.push( name );

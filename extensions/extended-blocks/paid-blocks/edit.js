@@ -13,6 +13,8 @@ import { trackUpgradeClickEvent } from './utils';
 
 export default OriginalBlockEdit => props => {
 	const requiredPlan = getRequiredPlan( props?.name );
+	console.log( 'requiredPlan', requiredPlan );
+	console.log( 'props.name', props.name );
 	if ( ! requiredPlan ) {
 		return <OriginalBlockEdit { ...props } />;
 	}

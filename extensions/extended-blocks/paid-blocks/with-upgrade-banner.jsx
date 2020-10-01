@@ -25,6 +25,7 @@ import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
 		const requiredPlan = getRequiredPlan( props?.name );
+		console.log( 'createhigher requiredPlan', requiredPlan );
 		if ( ! requiredPlan ) {
 			return <BlockListBlock { ...props } />;
 		}
@@ -71,6 +72,8 @@ export default createHigherOrderComponent(
 		const listBlockCSSClass = classNames( props?.className, {
 			'is-upgradable': isBannerVisible,
 		} );
+		console.log( 'hello' );
+		console.log( 'isBannerVisible', isBannerVisible );
 
 		return (
 			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible }>
