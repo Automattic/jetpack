@@ -337,8 +337,8 @@ function render_block( $attributes ) {
 					<div class="wp-story-wrapper">
 						%7$s
 					</div>
-					<a class="wp-story-overlay" href="%8$s">
-						%9$s
+					<a class="wp-story-overlay" href="%8$s" title="%9$s">
+						%10$s
 					</a>
 					%10$s
 				</div>
@@ -353,6 +353,7 @@ function render_block( $attributes ) {
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
 		render_top_right_icon( $settings ),
+		__( 'Play story in new tab', 'jetpack' ),
 		render_pagination( $settings )
 	);
 }
