@@ -17,7 +17,15 @@
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.4' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
 define( 'JETPACK__VERSION', '9.0-alpha' );
+
+/**
+ * Constant used to fetch the connection owner token
+ *
+ * @deprecated 9.0.0
+ * @var boolean
+ */
 define( 'JETPACK_MASTER_USER', true );
+
 define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE', __FILE__ );

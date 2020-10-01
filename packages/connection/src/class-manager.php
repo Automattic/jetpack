@@ -26,7 +26,25 @@ class Manager {
 	const SECRETS_EXPIRED        = 'secrets_expired';
 	const SECRETS_OPTION_NAME    = 'jetpack_secrets';
 	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
-	const JETPACK_MASTER_USER    = true;
+
+	/**
+	 * Constant used to fetch the master user token. Deprecated.
+	 *
+	 * @deprecated 9.0.0
+	 * @see Manager::CONNECTION_OWNER
+	 * @var boolean
+	 */
+	const JETPACK_MASTER_USER = true; //phpcs:ignore ..Jetpack_Sniffs_MasterUserConstant.ShouldNotBeUsed
+
+	/**
+	 * For internal use only. If you need to get the connection owner, use the provided methods
+	 * get_connection_owner_id, get_connection_owner and is_get_connection_owner
+	 *
+	 * @todo Add private visibility once PHP 7.1 is the minimum supported verion.
+	 *
+	 * @var boolean
+	 */
+	const CONNECTION_OWNER = true;
 
 	/**
 	 * The procedure that should be run to generate secrets.
@@ -494,7 +512,7 @@ class Manager {
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
-		return (bool) $this->get_access_token( self::JETPACK_MASTER_USER );
+		return (bool) $this->get_access_token( self::CONNECTION_OWNER );
 	}
 
 	/**
@@ -546,7 +564,7 @@ class Manager {
 	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
 	 */
 	public function get_connection_owner_id() {
-		$user_token       = $this->get_access_token( self::JETPACK_MASTER_USER );
+		$user_token       = $this->get_access_token( self::CONNECTION_OWNER );
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
 			$connection_owner = $user_token->external_user_id;
@@ -621,7 +639,7 @@ class Manager {
 	 * @return object|false False if no connection owner found.
 	 */
 	public function get_connection_owner() {
-		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::CONNECTION_OWNER );
 
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
@@ -643,7 +661,7 @@ class Manager {
 			$user_id = get_current_user_id();
 		}
 
-		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::CONNECTION_OWNER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
 	}
@@ -2190,7 +2208,7 @@ class Manager {
 			if ( ! $user_tokens ) {
 				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
 			}
-			if ( self::JETPACK_MASTER_USER === $user_id ) {
+			if ( self::CONNECTION_OWNER === $user_id ) {
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
 					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );

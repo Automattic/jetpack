@@ -5776,7 +5776,7 @@ endif;
 		$client_blog_id = is_multisite() ? $blog_id : 0;
 
 		if ( ! isset( $clients[ $client_blog_id ] ) ) {
-			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => JETPACK_MASTER_USER ) );
+			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => Connection_Manager::CONNECTION_OWNER ) );
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
