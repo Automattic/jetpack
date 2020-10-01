@@ -16,8 +16,6 @@ import './style.scss';
 import { Player } from './player';
 import ShadowRoot from './lib/shadow-root';
 import * as fullscreenAPI from './lib/fullscreen-api';
-import Dialog from './dialog';
-import { __ } from '@wordpress/i18n';
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	window.navigator.userAgent
@@ -83,26 +81,19 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 
 	return (
 		<ShadowRoot { ...playerSettings.shadowDOM }>
-			<Dialog
-				contentLabel={ __( 'Story' ) }
-				aria={ { describedby: 'hello', labelledby: 'hello world' } }
-				isOpened={ fullscreen }
-				onRequestClose={ () => setFullscreen( false ) }
+			<div
+				ref={ rootElementRef }
+				className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
 			>
-				<div
-					ref={ rootElementRef }
-					className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
-				>
-					<Player
-						fullscreen={ fullscreen }
-						setFullscreen={ setFullscreen }
-						slides={ slides }
-						metadata={ metadata }
-						disabled={ disabled }
-						{ ...playerSettings }
-					/>
-				</div>
-			</Dialog>
+				<Player
+					fullscreen={ fullscreen }
+					setFullscreen={ setFullscreen }
+					slides={ slides }
+					metadata={ metadata }
+					disabled={ disabled }
+					{ ...playerSettings }
+				/>
+			</div>
 		</ShadowRoot>
 	);
 }
