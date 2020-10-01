@@ -29,7 +29,7 @@ if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',

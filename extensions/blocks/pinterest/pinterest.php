@@ -22,7 +22,7 @@ const URL_PATTERN  = '#^https?://(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+/pin
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);

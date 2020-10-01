@@ -156,11 +156,12 @@ To test extensions for a Simple site in Calypso, sandbox the simple site URL (`e
 
 ## Paid blocks
 
-Blocks can be restricted to specific paid plans in both WordPress.com and Jetpack. When registering a block using `jetpack_register_block`, pass `plan_check => true` as a key in the second argument. When the block is registered we check the plan data to see if the user's plan supports this block. For example:
+Blocks can be restricted to specific paid plans in both WordPress.com and Jetpack. When registering a block using `Blocks::jetpack_register_block`, pass `plan_check => true` as a key in the second argument. When the block is registered we check the plan data to see if the user's plan supports this block. For example:
 
 ```php
+use Automattic\Jetpack\Blocks;
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
