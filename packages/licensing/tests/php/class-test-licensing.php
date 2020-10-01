@@ -320,7 +320,7 @@ class Test_Licensing extends BaseTestCase {
 
 		$licensing->expects( $this->once() )
 			->method( 'log_error' )
-			->with( 'The following Jetpack licenses are invalid, already in use or revoked: foo, baz' );
+			->with( 'The following Jetpack licenses are invalid, already in use, or revoked: foo, baz' );
 
 		$licensing->attach_stored_licenses();
 	}
