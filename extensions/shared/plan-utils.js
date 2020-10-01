@@ -97,6 +97,8 @@ export function getRequiredPlan( name ) {
 
 	const blockName = /^jetpack\//.test( name ) ? name.substr( 8, name.length ) : name;
 	const { details, unavailableReason } = getJetpackExtensionAvailability( blockName );
+	console.log( 'details', details );
+	console.log( 'unavailableReason', unavailableReason );
 
 	return requiresPaidPlan( unavailableReason, details );
 }

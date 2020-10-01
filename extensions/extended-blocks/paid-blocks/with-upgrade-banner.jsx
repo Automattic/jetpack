@@ -24,6 +24,9 @@ import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
+		console.log( 'props', props );
+		console.log( 'blockListBlock', BlockListBlock );
+		console.log( 'name', props.name );
 		const requiredPlan = getRequiredPlan( props?.name );
 		console.log( 'createhigher requiredPlan', requiredPlan );
 		if ( ! requiredPlan ) {
