@@ -850,16 +850,16 @@
         },
         {
             "name": "nojimage/twitter-text-php",
-            "version": "v3.1.0",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nojimage/twitter-text-php.git",
-                "reference": "8e03a5a0ad5da010049e3bad843cb720052d4765"
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/8e03a5a0ad5da010049e3bad843cb720052d4765",
-                "reference": "8e03a5a0ad5da010049e3bad843cb720052d4765",
+                "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/7f466b331cebfdd00e3568acaf45f2e90a39a320",
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320",
                 "shasum": ""
             },
             "require": {
@@ -912,7 +912,7 @@
                 "text",
                 "twitter"
             ],
-            "time": "2020-04-22T12:10:15+00:00"
+            "time": "2020-09-30T13:30:59+00:00"
         }
     ],
     "packages-dev": [
