@@ -217,6 +217,7 @@ function CalendlyEdit( props ) {
 						...innerButtonBlock.attributes,
 						...embedButtonAttributes,
 						passthroughAttributes: { url: 'url' },
+						parentName: 'jetpack/calendly'
 					},
 				],
 			] }
