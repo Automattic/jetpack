@@ -36,8 +36,10 @@ function ButtonEdit( {
 	setBackgroundColor,
 	setTextColor,
 	textColor,
+	...rest
 } ) {
 	const { borderRadius, element, placeholder, text } = attributes;
+	console.log('rest', rest)
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
 

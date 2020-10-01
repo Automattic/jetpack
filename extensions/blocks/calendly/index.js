@@ -67,6 +67,7 @@ export const settings = {
 	},
 	providesContext: {
 		parentName: 'name',
+		'calendly/name': 'name',
 	},
 	transforms: {
 		from: [

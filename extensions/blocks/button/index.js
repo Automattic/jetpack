@@ -28,7 +28,7 @@ export const settings = {
 		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
 		{ name: 'outline', label: __( 'Outline', 'jetpack' ) },
 	],
-	usesContext:['parentName'],
+	usesContext:['parentName', 'calendly/name'],
 	attributes,
 	edit,
 	save,
