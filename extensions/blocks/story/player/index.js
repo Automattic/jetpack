@@ -58,10 +58,10 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 				// position: fixed does not work as expected on mobile safari
 				// To fix that we need to add a fixed positioning to body,
 				// retain the current scroll position and restore it when we exit fullscreen
-				/*setLastScrollPosition( [
+				setLastScrollPosition( [
 					document.documentElement.scrollLeft,
 					document.documentElement.scrollTop,
-				] );*/
+				] );
 				document.body.classList.add( 'wp-story-in-fullscreen' );
 				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
 			}
@@ -71,9 +71,9 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 				fullscreenAPI.exit();
 			} else {
 				document.body.classList.remove( 'wp-story-in-fullscreen' );
-				/*if ( lastScrollPosition ) {
+				if ( lastScrollPosition ) {
 					window.scrollTo( ...lastScrollPosition );
-				}*/
+				}
 				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
 			}
 		}
