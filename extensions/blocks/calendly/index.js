@@ -65,6 +65,9 @@ export const settings = {
 		},
 		innerBlocks: [ innerButtonBlock ],
 	},
+	providesContext: {
+		parentName: 'name',
+	},
 	transforms: {
 		from: [
 			{
