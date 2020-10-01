@@ -21,6 +21,7 @@ const Header = memo(
 		link,
 		track,
 		children,
+		showEpisodeTitle,
 		showCoverArt,
 		showEpisodeDescription,
 		colors,
@@ -37,7 +38,7 @@ const Header = memo(
 					</div>
 				) }
 
-				{ !! ( title || ( track && track.title ) ) && (
+				{ showEpisodeTitle && !! ( title || ( track && track.title ) ) && (
 					<Title
 						playerId={ playerId }
 						title={ title }
