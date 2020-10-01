@@ -86,6 +86,7 @@ const renderActiveCard = message => {
 class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
+		siteAdminUrl: PropTypes.string.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -99,6 +100,7 @@ class DashScan extends Component {
 
 	static defaultProps = {
 		siteRawUrl: '',
+		siteAdminUrl: '',
 		vaultPressData: '',
 		scanThreats: 0,
 		sitePlan: '',
@@ -121,7 +123,7 @@ class DashScan extends Component {
 						'jetpack'
 					),
 					{
-						keyLink: <a href="admin.php?page=vaultpress" />,
+						keyLink: <a href={ this.props.siteAdminUrl + 'admin.php?page=vaultpress' } />,
 						supportLink: <a href={ getRedirectUrl( 'vaultpress-help' ) } />,
 					}
 				),

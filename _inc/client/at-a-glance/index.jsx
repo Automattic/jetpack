@@ -91,7 +91,7 @@ class AtAGlance extends Component {
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
 		if ( ! this.props.multisite || hasVaultPressScanning ) {
-			securityCards.push( <DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+			securityCards.push( <DashScan { ...settingsProps } { ...urls } /> );
 		}
 
 		if ( ! this.props.multisite ) {
