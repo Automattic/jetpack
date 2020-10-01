@@ -1,4 +1,9 @@
 <?php
+/**
+ * Adds preprocessor functionality to Custom CSS
+ *
+ * @package Jetpack
+ */
 
 use ScssPhp\ScssPhp\Compiler as Scss_Compiler;
 
@@ -17,16 +22,15 @@ use ScssPhp\ScssPhp\Compiler as Scss_Compiler;
  * @param array $preprocessors The list of preprocessors added thus far.
  * @return array
  */
-
 function jetpack_register_css_preprocessors( $preprocessors ) {
 	$preprocessors['less'] = array(
-		'name' => 'LESS',
-		'callback' => 'jetpack_less_css_preprocess'
+		'name'     => 'LESS',
+		'callback' => 'jetpack_less_css_preprocess',
 	);
 
 	$preprocessors['sass'] = array(
-		'name' => 'Sass (SCSS Syntax)',
-		'callback' => 'jetpack_sass_css_preprocess'
+		'name'     => 'Sass (SCSS Syntax)',
+		'callback' => 'jetpack_sass_css_preprocess',
 	);
 
 	return $preprocessors;
@@ -34,8 +38,15 @@ function jetpack_register_css_preprocessors( $preprocessors ) {
 
 add_filter( 'jetpack_custom_css_preprocessors', 'jetpack_register_css_preprocessors' );
 
+/**
+ * Passes CSS to LESS processor.
+ *
+ * @param string $less LESS code.
+ *
+ * @return false|string Resulting CSS.
+ */
 function jetpack_less_css_preprocess( $less ) {
-	require_once( dirname( __FILE__ ) . '/preprocessors/lessc.inc.php' );
+	require_once dirname( __FILE__ ) . '/preprocessors/lessc.inc.php';
 
 	$compiler = new lessc();
 
@@ -46,6 +57,13 @@ function jetpack_less_css_preprocess( $less ) {
 	}
 }
 
+/**
+ * Passes CSS to SASS processor.
+ *
+ * @param string $sass SASS code.
+ *
+ * @return string Resulting CSS.
+ */
 function jetpack_sass_css_preprocess( $sass ) {
 	$compiler = new Scss_Compiler();
 	$compiler->setFormatter( 'ScssPhp\ScssPhp\Formatter\Expanded' );
