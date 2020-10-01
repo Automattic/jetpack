@@ -1,5 +1,7 @@
 <?php
 
+use ScssPhp\ScssPhp\Compiler as Scss_Compiler;
+
 /**
  * CSS preprocessor registration.
  *
@@ -45,10 +47,8 @@ function jetpack_less_css_preprocess( $less ) {
 }
 
 function jetpack_sass_css_preprocess( $sass ) {
-	require_once( dirname( __FILE__ ) . '/preprocessors/scss.inc.php' );
-
-	$compiler = new scssc();
-	$compiler->setFormatter( 'scss_formatter' );
+	$compiler = new Scss_Compiler();
+	$compiler->setFormatter( 'ScssPhp\ScssPhp\Formatter\Expanded' );
 
 	try {
 		return $compiler->compile( $sass );

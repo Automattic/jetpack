@@ -36,7 +36,8 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev",
 		"automattic/jetpack-tracking": "@dev",
-		"nojimage/twitter-text-php": "^3.1"
+		"nojimage/twitter-text-php": "^3.1",
+		"scssphp/scssphp": "^1.2"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
