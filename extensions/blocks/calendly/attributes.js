@@ -34,4 +34,8 @@ export default {
 		type: 'string',
 		validator: urlValidator,
 	},
+	parentName: {
+		type: 'string',
+		default: false
+	}
 };
