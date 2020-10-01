@@ -150,7 +150,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param int    $max_id Maximum post ID.
 	 * @return array Array of posts.
 	 */
-	public function get_posts( $status = null, $min_id = null, $max_id = null ) {
+	public function get_posts( $status = null, $min_id = null, $max_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$args = array(
 			'orderby'        => 'ID',
 			'posts_per_page' => -1,
@@ -185,7 +185,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param \WP_Post $post   Post object.
 	 * @param bool     $silent Whether to perform a silent action. Not used in this implementation.
 	 */
-	public function upsert_post( $post, $silent = false ) {
+	public function upsert_post( $post, $silent = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $wpdb;
 
 		// Reject the post if it's not a \WP_Post.
@@ -358,7 +358,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param int    $max_id Maximum comment ID.
 	 * @return array Array of comments.
 	 */
-	public function get_comments( $status = null, $min_id = null, $max_id = null ) {
+	public function get_comments( $status = null, $min_id = null, $max_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$args = array(
 			'orderby' => 'ID',
 			'status'  => 'all',
@@ -576,14 +576,13 @@ class Replicastore implements Replicastore_Interface {
 	}
 
 	/**
-	 * Change the features that the current theme supports.
-	 * Intentionally not implemented in this replicastore.
+	 * Change the info of the current theme.
 	 *
 	 * @access public
 	 *
-	 * @param array $theme_support Features that the theme supports.
+	 * @param array $theme_info Theme info array.
 	 */
-	public function set_theme_support( $theme_support ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function set_theme_info( $theme_info ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Noop.
 	}
 
@@ -884,7 +883,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param bool   $is_term_id Whether this is a `term_id` or a `term_taxonomy_id`.
 	 * @return \WP_Term|\WP_Error Term object on success, \WP_Error object on failure.
 	 */
-	public function get_term( $taxonomy, $term_id, $is_term_id = true ) {
+	public function get_term( $taxonomy, $term_id, $is_term_id = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$t = $this->ensure_taxonomy( $taxonomy );
 		if ( ! $t || is_wp_error( $t ) ) {
 			return $t;
