@@ -50,6 +50,7 @@ function CalendlyEdit( props ) {
 		setAttributes,
 		isSelected,
 	} = props;
+	console.log('calendlyEdit Props', props)
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
 	console.log( 'isSelected', isSelected );
