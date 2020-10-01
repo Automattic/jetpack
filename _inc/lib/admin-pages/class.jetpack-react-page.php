@@ -187,6 +187,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_initial_state() ) ) . '"));', 'before' );
+
+		// This will set the default URL of the jp_redirects lib.
+		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . Jetpack::build_raw_urls( get_home_url() ) . '" };', 'before' );
 	}
 
 	function get_initial_state() {
