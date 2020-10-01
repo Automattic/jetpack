@@ -88,6 +88,19 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
 
+		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
+			$this->assertEquals(
+				current_theme_supports( $theme_feature ),
+				isset( $theme_supports[ $theme_feature ] ),
+				'Default Feature(s) not synced ' . $theme_feature
+			);
+		}
+
+		if ( ! function_exists( 'get_registered_theme_features' ) ) {
+			// get_registered_theme_features got intorduced in WP 5.5 so any tests that use the previous version of WP fail.
+			return;
+		}
+
 		// Sync all registered theme features.
 		$registered_theme_features = array_keys( get_registered_theme_features() );
 		$not_synced_theme_features = array_diff( $registered_theme_features, Defaults::$default_theme_support_whitelist );
@@ -96,14 +109,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			empty( $not_synced_theme_features ),
 			'Theme Sync Error. Please add the following ' . implode( ', ', $not_synced_theme_features ) . ' to Defaults::$default_theme_support_whitelist'
 		);
-
-		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
-			$this->assertEquals(
-				current_theme_supports( $theme_feature ),
-				isset( $theme_supports[ $theme_feature ] ),
-				'Default Feature(s) not synced ' . $theme_feature
-			);
-		}
 	}
 
 	public function test_network_enable_disable_theme_sync() {
