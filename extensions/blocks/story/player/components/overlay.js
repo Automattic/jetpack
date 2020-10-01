@@ -58,7 +58,7 @@ export default function Overlay( {
 			) }
 			{ ! icon && (
 				<div className="wp-story-embed-icon-expand">
-					<GridiconFullscreen />
+					<GridiconFullscreen role="img" />
 				</div>
 			) }
 			{ hasPrevious && (
