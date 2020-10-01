@@ -22,7 +22,7 @@ export const settings = {
 	supports: {
 		html: false,
 		inserter: false,
-		align: [ 'left', 'right' ],
+		align: [ 'left', 'center', 'right' ],
 	},
 	styles: [
 		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
