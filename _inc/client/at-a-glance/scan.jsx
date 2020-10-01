@@ -119,7 +119,7 @@ class DashScan extends Component {
 				status: 'not-registered',
 				content: jetpackCreateInterpolateElement(
 					__(
-						"VaultPress is having trouble connecting. Make sure you've <keyLink>entered your registration key</keyLink>, or <supportLink>contact support</supportLink> if you still need help.",
+						'VaultPress is having difficulties scanning. Please make sure your <keyLink>registration key is entered</keyLink>. If you require further assistance please <supportLink>contact support</supportLink>.',
 						'jetpack'
 					),
 					{
@@ -172,17 +172,37 @@ class DashScan extends Component {
 			} );
 		}
 
-		// We know this site has a plan with scanning included, so the plugin must not be active;
-		// show the corresponding status for whether it's not installed or just not activated
-		const status = this.props.isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled';
+		// VaultPress is installed, just not activated
+		if ( this.props.isVaultPressInstalled ) {
+			return renderCard( {
+				className: 'jp-dash-item__is-inactive',
+				status: 'pro-inactive',
+				content: [
+					<p className="jp-dash-item__description" key="inactive-scanning">
+						{ jetpackCreateInterpolateElement(
+							__(
+								'VaultPress is not active, <a>please activate</a> to enable automatic scanning for security for threats.',
+								'jetpack'
+							),
+							{
+								a: <a href={ this.props.siteAdminUrl + 'plugins.php' } />,
+							}
+						) }
+					</p>,
+				],
+			} );
+		}
+
+		// By the process of elimination, we can assume now
+		// that VaultPress isn't installed at all
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
-			status,
+			status: 'pro-uninstalled',
 			content: [
 				<p className="jp-dash-item__description" key="inactive-scanning">
 					{ jetpackCreateInterpolateElement(
 						__(
-							'For automated, comprehensive scanning of security threats, please <a>install and activate</a> VaultPress.',
+							'VaultPress is not installed, <a>please install</a> to enable automatic scanning for security for threats.',
 							'jetpack'
 						),
 						{
@@ -205,7 +225,7 @@ class DashScan extends Component {
 			<JetpackBanner
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
 				title={ __(
-					'Automated scanning and one-click fixes keep your site ahead of security threats.',
+					'Purchase Jetpack Scan to protect your site from security threats with automated scanning.',
 					'jetpack'
 				) }
 				disableHref="false"
@@ -225,8 +245,8 @@ class DashScan extends Component {
 					<p className="jp-dash-item__description">
 						{ jetpackCreateInterpolateElement(
 							_n(
-								'Security threat found. Please <a>fix it</a> as soon as possible.',
-								'Security threats found. Please <a>fix these</a> as soon as possible.',
+								'Security threat found. <a>Click here</a> to fix them immediately.',
+								'Security threats found. <a>Click here</a> to fix them immediately.',
 								numberOfThreats,
 								'jetpack'
 							),
@@ -256,7 +276,7 @@ class DashScan extends Component {
 			return (
 				<>
 					{ renderActiveCard(
-						__( "You need to enter your server's credentials to finish the setup.", 'jetpack' )
+						__( 'Please finish your setup by entering your server’s credentials.', 'jetpack' )
 					) }
 					{ renderAction(
 						getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
@@ -277,7 +297,7 @@ class DashScan extends Component {
 					<>
 						{ renderActiveCard(
 							__(
-								'We are making sure your site stays free of security threats. You will be notified if we find one.',
+								'No security threats found. Your site will continue to be monitored for future threats.',
 								'jetpack'
 							)
 						) }
