@@ -70,26 +70,46 @@ class StoryEdit extends React.Component {
 
 	componentDidMount() {
 		const { attributes } = this.props;
-		if ( attributes.id && getProtocol( attributes.src ) === 'file:' ) {
-			mediaUploadSync();
+		if ( attributes.mediaFiles !== undefined ) {
+			for (i = 0; i < attributes.mediaFiles.length; i++) {
+				var protocolForUrl = getProtocol(attributes.mediaFiles[i].url);
+				if (attributes.mediaFiles[i].id && protocolForUrl !== 'http:'  || protocolForUrl !== 'https:') {
+					mediaUploadSync();
+					storySaveSync();
+					return;
+				}
+			}
 		}
+
 	}
 
 	componentWillUnmount() {
 		// this action will only exist if the user pressed the trash button on the block holder
+		// TODO check whether blocks.onRemoveBlockCheckUpload really is being set elsewhere
+		// and ditch / fix if not
 		if (
 			hasAction( 'blocks.onRemoveBlockCheckUpload' ) &&
 			(this.state.isUploadInProgress || this.state.isSaveInProgress)
 		) {
-			doAction(
-				'blocks.onRemoveBlockCheckUpload',
-				this.props.attributes.id
-			);
+			const { attributes } = this.props;
+			if ( attributes.mediaFiles !== undefined ) {
+				for (i = 0; i < attributes.mediaFiles.length; i++) {
+					var protocolForUrl = getProtocol(attributes.mediaFiles[i].url);
+					if (attributes.mediaFiles[i].id && protocolForUrl !== 'http:'  || protocolForUrl !== 'https:') {
+						doAction(
+							'blocks.onRemoveBlockCheckUpload',
+							attributes.mediaFiles[i].id
+						);
+					}
+				}
+			}
 		}
 	}
 
 	onEditButtonTapped() {
 		const { attributes, clientId } = this.props;
+
+		// TODO review states and dialog mechanism
 
 		// if ( this.state.isUploadInProgress ) {
 		// 	requestImageUploadCancelDialog( attributes.id );
@@ -165,7 +185,7 @@ class StoryEdit extends React.Component {
 	}
 
 	replaceMediaUrlInMediaFilesById( mediaId, mediaUrl ) {
-		const { setAttributes, attributes } = this.props;
+		const { attributes } = this.props;
 		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
 			for (i = 0; i < attributes.mediaFiles.length; i++) {
 				if (attributes.mediaFiles[i].id === mediaId.toString()) {
@@ -178,7 +198,7 @@ class StoryEdit extends React.Component {
 	}
 
 	replaceNewIdInMediaFilesByOldId( oldId, mediaId, mediaUrl ) {
-		const { setAttributes, attributes } = this.props;
+		const { attributes } = this.props;
 		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
 			for (i = 0; i < attributes.mediaFiles.length; i++) {
 				if (attributes.mediaFiles[i].id === oldId.toString()) {
@@ -228,7 +248,7 @@ class StoryEdit extends React.Component {
 	}
 
 	render() {
-		const { setAttributes, attributes, isSelected } = this.props;
+		const { attributes, isSelected } = this.props;
 		const { mediaFiles } = attributes;
 		const hasContent = !! mediaFiles.length;
 		const {
