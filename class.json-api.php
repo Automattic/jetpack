@@ -595,7 +595,7 @@ class WPCOM_JSON_API {
 		 * 1. In case of user based authentication, we need to check if the logged-in user has the 'read' capability.
 		 * 2. In case of site based authentication, make sure the endpoint allows it and no user is logged-in.
 		 */
-		if ( '-1' === get_option( 'blog_public' ) &&
+		if ( -1 === get_option( 'blog_public' ) &&
 			! current_user_can( 'read' ) &&
 			! $this->endpoint->allows_site_based_authentication()
 		) {
