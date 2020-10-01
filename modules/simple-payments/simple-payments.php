@@ -176,17 +176,8 @@ class Jetpack_Simple_Payments {
 
 		$data['id'] = $attrs['id'];
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/lib/display-context.php';
-			$context = \A8C\Display_Context\get_current_context();
-			if ( \A8C\Display_Context\EMAIL === $context ) {
-				// Avoid enqueueing unsupported files by emails.
-				return $this->output_shortcode( $data );
-			}
-		}
-
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			if ( ! is_feed() ) {
+			if ( jetpack_is_frontend() ) {
 				return $this->output_admin_warning( $data );
 			}
 			return;

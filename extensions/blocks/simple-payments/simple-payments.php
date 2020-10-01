@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\SimplePayments;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Simple_Payments;
+use Automattic\Jetpack\Blocks;
 
 const FEATURE_NAME = 'simple-payments';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -53,6 +54,16 @@ function render_block( $attr, $content ) {
 	$simple_payments = Jetpack_Simple_Payments::getInstance();
 	$simple_payments->enqueue_frontend_assets();
 
+	// For AMP requests, make sure the purchase link redirects to the non-AMP post URL.
+	if ( Blocks::is_amp_request() ) {
+		$content = preg_replace(
+			'#(<a class="jetpack-simple-payments-purchase".*)rel="(.*)"(.*>.*</a>)#i',
+			'$1rel="$2 noamphtml"$3',
+			$content
+		);
+		return $content;
+	}
+
 	// Augment block UI with a PayPal button if rendered on the frontend.
 	$product_id  = $attr['productId'];
 	$dom_id      = wp_unique_id( "jetpack-simple-payments-{$product_id}_" );
@@ -65,3 +76,22 @@ function render_block( $attr, $content ) {
 
 	return $content;
 }
+
+/**
+ * Determine if AMP should be disabled on posts having "Pay with PayPal" blocks.
+ *
+ * @param bool    $skip Skipped.
+ * @param int     $post_id Post ID.
+ * @param WP_Post $post Post.
+ *
+ * @return bool Whether to skip the post from AMP.
+ */
+function amp_skip_post( $skip, $post_id, $post ) {
+	// When AMP is on standard mode, there are no non-AMP posts to link to where the purchase can be completed, so let's
+	// prevent the post from being available in AMP.
+	if ( amp_is_canonical() && has_block( 'jetpack/simple-payments', $post->post_content ) ) {
+		return true;
+	}
+	return $skip;
+}
+add_filter( 'amp_skip_post', __NAMESPACE__ . '\amp_skip_post', 10, 3 );

@@ -3,20 +3,27 @@
  */
 import classNames from 'classnames';
 import emailValidator from 'email-validator';
+import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
+import { getCurrencyDefaults } from '@automattic/format-currency';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
-import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
-import { getCurrencyDefaults } from '@automattic/format-currency';
 import {
+	BaseControl,
 	Disabled,
 	ExternalLink,
+	PanelBody,
 	SelectControl,
 	TextareaControl,
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
+import { InspectorControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -66,7 +73,7 @@ class SimplePaymentsEdit extends Component {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
 				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
+					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
 				} ),
 			} );
 		}
@@ -99,7 +106,7 @@ class SimplePaymentsEdit extends Component {
 			setAttributes( {
 				...( shouldUpdatePostLinkUrl && { postLinkUrl } ),
 				...( shouldUpdatePostLinkText && {
-					postLinkText: __( 'Visit the site to purchase.', 'jetpack' ),
+					postLinkText: __( 'Click here to purchase.', 'jetpack' ),
 				} ),
 			} );
 		}
@@ -412,6 +419,29 @@ class SimplePaymentsEdit extends Component {
 		return { value, label };
 	} );
 
+	renderSettings = () => (
+		<InspectorControls>
+			<PanelBody title={ __( 'Settings', 'jetpack' ) } initialOpen={ false }>
+				<BaseControl
+					label={ __( 'Purchase link text', 'jetpack' ) }
+					help={ __(
+						'Enter the text you want to display on a purchase link used as fallback when the PayPal button cannot be used (e.g. emails, AMP, etc.)',
+						'jetpack'
+					) }
+					className="jetpack-simple-payments__purchase-link-text"
+				>
+					<TextControl
+						placeholder={ __( 'Click here to purchase', 'jetpack' ) }
+						onChange={ newPostLinkText =>
+							this.props.setAttributes( { postLinkText: newPostLinkText } )
+						}
+						value={ this.props.attributes.postLinkText }
+					/>
+				</BaseControl>
+			</PanelBody>
+		</InspectorControls>
+	);
+
 	render() {
 		const { fieldEmailError, fieldPriceError, fieldTitleError } = this.state;
 		const { attributes, instanceId, isSelected, setAttributes, simplePayment } = this.props;
@@ -473,6 +503,7 @@ class SimplePaymentsEdit extends Component {
 
 		return (
 			<Wrapper className="wp-block-jetpack-simple-payments">
+				{ this.renderSettings() }
 				<FeaturedMedia
 					{ ...{ featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAttributes } }
 				/>
