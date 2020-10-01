@@ -34,6 +34,7 @@ export default createHigherOrderComponent(
 		}
 
 		const isDualMode = isStillUsableWithFreePlan( props.name );
+		console.log( 'isDualMode', isDualMode );
 		const usableBlocksProps = getUsableBlockProps( props.name );
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
