@@ -289,6 +289,17 @@ export function isMultisite( state ) {
 }
 
 /**
+ * Get the site's date format, in format accepted by DateTimeInterface::format().
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {string} Date format of the site.
+ */
+export function getDateFormat( state ) {
+	return get( state.jetpack.initialState.siteData, 'dateFormat', false );
+}
+
+/**
  * Returns the affiliate code, if it exists. Otherwise an empty string.
  *
  * @param {object} state Global state tree

@@ -309,6 +309,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
+				'dateFormat'                 => get_option( 'date_format' ),
 			),
 			'themeData'                   => array(
 				'name'      => $current_theme->get( 'Name' ),

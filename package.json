@@ -108,6 +108,7 @@
 		"@wordpress/browserslist-config": "2.6.0",
 		"@wordpress/compose": "3.11.0",
 		"@wordpress/data": "4.14.2",
+		"@wordpress/date": "3.11.1",
 		"@wordpress/element": "2.16.0",
 		"@wordpress/i18n": "3.9.0",
 		"@wordpress/url": "2.11.0",
