@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\Extensions\SimplePayments;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Simple_Payments;
-use Automattic\Jetpack\Blocks;
 
 const FEATURE_NAME = 'simple-payments';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
