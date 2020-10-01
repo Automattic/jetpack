@@ -152,6 +152,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 			<div
 				role={ disabled ? 'presentation' : 'button' }
 				aria-label={ __( 'Play story' ) }
+				tabIndex={ fullscreen ? -1 : 0 }
 				className={ classNames( 'wp-story-container', {
 					'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
 					'wp-story-fullscreen': fullscreen,
