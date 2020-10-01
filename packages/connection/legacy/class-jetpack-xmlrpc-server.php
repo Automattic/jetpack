@@ -311,9 +311,7 @@ class Jetpack_XMLRPC_Server {
 		$nonce = sanitize_text_field( $request['nonce'] );
 		unset( $request['nonce'] );
 
-		$api_url  = Connection_Utils::fix_url_for_bad_hosts(
-			$this->connection->api_url( 'partner_provision_nonce_check' )
-		);
+		$api_url  = $this->connection->api_url( 'partner_provision_nonce_check' );
 		$response = Client::_wp_remote_request(
 			esc_url_raw( add_query_arg( 'nonce', $nonce, $api_url ) ),
 			array( 'method' => 'GET' ),

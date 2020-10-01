@@ -1131,7 +1131,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			'method'  => 'POST',
 		);
 
-		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%s/partner-cancel', $this->get_api_host(), $site_identifier );
+		$url = sprintf( '%s/rest/v1.3/jpphp/%s/partner-cancel', $this->get_api_host(), $site_identifier );
 		if ( ! empty( $named_args ) && ! empty( $named_args['partner_tracking_id'] ) ) {
 			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner_tracking_id'], $url ) );
 		}
@@ -1790,7 +1790,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 	private function get_api_host() {
 		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
-		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
+		return $env_api_host ? 'https://' . $env_api_host : JETPACK__WPCOM_JSON_API_BASE;
 	}
 
 	private function partner_provision_error( $error ) {
