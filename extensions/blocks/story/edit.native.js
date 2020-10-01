@@ -24,12 +24,12 @@ import {
 import styles from './editor.scss';
 import StoryEditingButton from './story-editing-button';
 
-const StoryEdit = ({
+const StoryEdit = ( {
 		attributes,
 		isSelected,
 		clientId,
 		editButton = true,
-}) => {
+} ) => {
 	const { mediaFiles } = attributes;
 	const hasContent = !! mediaFiles.length;
 
@@ -48,14 +48,14 @@ const StoryEdit = ({
 	};
 
 	return (
-		<View style={ styles['wp-story-container'] }>
-			{!hasContent && 
-				<Text style={ styles['wp-story-wrapper'] }>
+		<View style={ styles[ 'wp-story-container' ] }>
+			{!hasContent &&
+				<Text style={ styles[ 'wp-story-wrapper' ] }>
 						Empty Story placeholder here
 				</Text>
-			}	
-			{ hasContent && 
-				<View style={ styles['wp-story-wrapper'] }>
+			}
+			{ hasContent &&
+				<View style={ styles[ 'wp-story-wrapper' ] }>
 					{ editButton &&
 						isSelected && (
 						<StoryEditingButton
@@ -63,8 +63,8 @@ const StoryEdit = ({
 						/>
 					) }
 					<Image
-						url={ mediaFiles[0].url } // just select the first one // TODO see how to handle video
-						style={ styles['wp-story-image'] }
+						url={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
+						style={ styles[ 'wp-story-image' ] }
 					/>
 				</View>
 			}
