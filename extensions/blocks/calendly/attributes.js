@@ -37,5 +37,5 @@ export default {
 	parentName: {
 		type: 'string',
 		default: false,
-	}
+	},
 };
