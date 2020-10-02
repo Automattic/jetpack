@@ -8,14 +8,19 @@ import { __experimentalGetSettings } from '@wordpress/date';
  *
  * @returns {string} Formatted Site locale (e.g. `en-US` or `fr-FR`).
  */
-export const getLocale = () => {
+const getLocale = () => {
 	const {
 		l10n: { locale },
 	} = __experimentalGetSettings();
 
 	if ( locale ) {
-		// WP uses underscores, but browsers use hyphens.
-		return locale.replace( '_', '-' );
+		return (
+			locale
+				// Keep only the basic locale (WP locales can have variants, such as de_DE_formal).
+				.replace( /(\w{2})?(_)?(\w{2})?(?:_)?(?:\w*)?/, '$1$2$3' )
+				// Replace the underscore used in WP locale by an hyphen.
+				.replace( '_', '-' )
+		);
 	}
 
 	// Fallback to the browser locale if necessary.
