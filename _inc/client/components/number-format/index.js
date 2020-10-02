@@ -4,6 +4,23 @@
 import { __experimentalGetSettings } from '@wordpress/date';
 
 /**
+ * Clean up WP locale so it matches the format expected by browsers.
+ *
+ * @param {string} locale - Locale given by WordPress.
+ *
+ * @returns {string} Browser-formatted locale.
+ */
+export const cleanLocale = locale => {
+	return (
+		locale
+			// Keep only the basic locale (WP locales can have variants, such as de_DE_formal).
+			.replace( /(\w{2})?(_)?(\w{2})?(?:_)?(?:\w*)?/, '$1$2$3' )
+			// Replace the underscore used in WP locale by an hyphen.
+			.replace( '_', '-' )
+	);
+};
+
+/**
  * Site locale, or browser locale as fallback.
  *
  * @returns {string} Formatted Site locale (e.g. `en-US` or `fr-FR`).
@@ -14,13 +31,7 @@ const getLocale = () => {
 	} = __experimentalGetSettings();
 
 	if ( locale ) {
-		return (
-			locale
-				// Keep only the basic locale (WP locales can have variants, such as de_DE_formal).
-				.replace( /(\w{2})?(_)?(\w{2})?(?:_)?(?:\w*)?/, '$1$2$3' )
-				// Replace the underscore used in WP locale by an hyphen.
-				.replace( '_', '-' )
-		);
+		return cleanLocale( locale );
 	}
 
 	// Fallback to the browser locale if necessary.
