@@ -192,7 +192,8 @@ Blocks are the individual sections that make up a page. There are many block typ
 * Map Block - The Map Block allows you to add a map to any post or page on your site.
 * Markdown Block - With the Markdown block you can create formatted content using only regular characters and some punctuation marks.
 * OpenTable Block - With the OpenTable block, you can add a reservation form on posts or pages.
-* Pay with PayPal - Pay with PayPal lets you add a payment button to any post or page, and immediately start taking PayPal payments for physical products, digital goods, or a donation.
+* Pay with PayPal Block - Pay with PayPal lets you add a payment button to any post or page, and immediately start taking PayPal payments for physical products, digital goods, or a donation.
+
 * Payments Block - The Recurring Payments Block lets you add a payment button using Stripe as the payment gateway. It works for one-time and recurring payments or donations.
 * Pinterest Block - The Pinterest block is the easiest way to embed Pinterest content to your site: it allows you to embed boards, profiles, and pins.
 * Podcast Player Block - Jetpack's Podcast Player block allows you to easily show your visitors a listing of recent episodes from a podcast and play them on your website.
