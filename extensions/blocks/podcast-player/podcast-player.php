@@ -41,6 +41,10 @@ function register_block() {
 					'type'    => 'boolean',
 					'default' => true,
 				),
+				'showEpisodeTitle'       => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
 				'showEpisodeDescription' => array(
 					'type'    => 'boolean',
 					'default' => true,

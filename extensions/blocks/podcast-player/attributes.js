@@ -25,6 +25,10 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
+	showEpisodeTitle: {
+		type: 'boolean',
+		default: true,
+	},
 	showEpisodeDescription: {
 		type: 'boolean',
 		default: true,
