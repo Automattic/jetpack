@@ -249,7 +249,7 @@ function render_top_right_icon( $settings ) {
 		// Render the Fullscreen Gridicon.
 		return (
 			'<div class="wp-story-embed-icon-expand">
-				<svg class="gridicon gridicons-fullscreen" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<svg class="gridicon gridicons-fullscreen" role="img" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<g>
 						<path d="M21 3v6h-2V6.41l-3.29 3.3-1.42-1.42L17.59 5H15V3zM3 3v6h2V6.41l3.29 3.3 1.42-1.42L6.41 5H9V3zm18 18v-6h-2v2.59l-3.29-3.29-1.41 1.41L17.59 19H15v2zM9 21v-2H6.41l3.29-3.29-1.41-1.42L5 17.59V15H3v6z"></path>
 					</g>
@@ -340,7 +340,7 @@ function render_block( $attributes ) {
 					<a class="wp-story-overlay" href="%8$s" title="%9$s">
 						%10$s
 					</a>
-					%10$s
+					%11$s
 				</div>
 			</div>
 		</div>',
@@ -352,8 +352,8 @@ function render_block( $attributes ) {
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
-		render_top_right_icon( $settings ),
 		__( 'Play story in new tab', 'jetpack' ),
+		render_top_right_icon( $settings ),
 		render_pagination( $settings )
 	);
 }

@@ -10,6 +10,7 @@ import GridiconFullscreen from 'gridicons/dist/fullscreen';
  * WordPress dependencies
  */
 import { createElement, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -63,14 +64,22 @@ export default function Overlay( {
 			) }
 			{ hasPrevious && (
 				<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
-					<DecoratedButton size={ 44 } label="Previous Slide" className="outlined-w">
+					<DecoratedButton
+						size={ 44 }
+						label={ __( 'Previous Slide', 'jetpack' ) }
+						className="outlined-w"
+					>
 						<NavigateBeforeIcon size={ 24 } />
 					</DecoratedButton>
 				</div>
 			) }
 			{ hasNext && (
 				<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
-					<DecoratedButton size={ 44 } label="Next Slide" className="outlined-w">
+					<DecoratedButton
+						size={ 44 }
+						label={ __( 'Next Slide', 'jetpack' ) }
+						className="outlined-w"
+					>
 						<NavigateNextIcon size={ 24 } />
 					</DecoratedButton>
 				</div>

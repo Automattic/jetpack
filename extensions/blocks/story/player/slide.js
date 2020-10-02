@@ -43,6 +43,9 @@ export const Slide = ( {
 	} );
 
 	const playVideoWithFallback = async mediaElement => {
+		if ( ! mediaElement.paused ) {
+			return;
+		}
 		try {
 			await mediaElement.play();
 		} catch ( err ) {
