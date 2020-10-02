@@ -46,7 +46,20 @@
 
 	<arg name="colors"/>
 
+	<!-- Ignore external libraries -->
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/vendor/*</exclude-pattern>
+
+	<!-- Ignore WordPress and such checked out for Docker -->
+	<exclude-pattern>/docker/mu-plugins/0-sandbox.php</exclude-pattern>
+	<exclude-pattern>/docker/wordpress-develop/*</exclude-pattern>
+	<exclude-pattern>/docker/wordpress/*</exclude-pattern>
+
+	<!-- Ignore WordPress included in packages -->
 	<exclude-pattern>/packages/*/wordpress/*</exclude-pattern>
+
+	<!-- Ignore built files -->
+	<exclude-pattern>/_inc/blocks/*</exclude-pattern>
+	<exclude-pattern>/_inc/build/*</exclude-pattern>
+
 </ruleset>
