@@ -115,8 +115,8 @@ export const Slide = ( {
 	}, [ currentSlidePlaying, ended ] );
 
 	// Sync progressState with underlying media playback progress
-	useLayoutEffect( () => {
-		clearTimeout( progressState.timeout );
+	useEffect( () => {
+		cancelAnimationFrame( progressState.timeout );
 		if ( loading ) {
 			return;
 		}
@@ -126,10 +126,8 @@ export const Slide = ( {
 			if ( progressState.currentTime >= duration ) {
 				return;
 			}
-			progressState.timeout = setTimeout( () => {
-				const delta = progressState.lastUpdate
-					? Date.now() - progressState.lastUpdate
-					: settings.renderInterval;
+			progressState.timeout = requestAnimationFrame( () => {
+				const delta = progressState.lastUpdate ? Date.now() - progressState.lastUpdate : 0;
 				const currentTime = video ? video.currentTime : progressState.currentTime + delta;
 				updateProgressState( {
 					...progressState,
@@ -137,7 +135,7 @@ export const Slide = ( {
 					duration,
 					currentTime,
 				} );
-			}, settings.renderInterval );
+			} );
 		}
 		const paused = visible && ! playing;
 		if ( paused && progressState.lastUpdate ) {
@@ -153,7 +151,8 @@ export const Slide = ( {
 		if ( ! currentSlidePlaying || ended || progressState.duration === null ) {
 			return;
 		}
-		const percentage = Math.round( ( 100 * progressState.currentTime ) / progressState.duration );
+		const percentage =
+			Math.round( ( 1000 * progressState.currentTime ) / progressState.duration ) / 10;
 		if ( percentage >= 100 ) {
 			onProgress( 100 );
 			onEnd();

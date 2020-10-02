@@ -23,7 +23,6 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 const defaultSettings = {
 	imageTime: 5000,
-	renderInterval: 50,
 	startMuted: false,
 	playInFullscreen: true,
 	playOnNextSlide: true,
