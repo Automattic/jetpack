@@ -11,8 +11,8 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Device_Detection;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Disable direct access.

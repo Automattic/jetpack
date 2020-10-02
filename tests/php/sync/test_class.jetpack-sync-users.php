@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Users;
 
 /**
  * Testing CRUD on Users

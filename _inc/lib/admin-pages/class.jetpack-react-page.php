@@ -1,9 +1,9 @@
 <?php
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Licensing;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Status;
 
 include_once( 'class.jetpack-admin-page.php' );
 

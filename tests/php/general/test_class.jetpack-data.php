@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * @covers Jetpack_Data

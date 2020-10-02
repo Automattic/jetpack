@@ -8,13 +8,13 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 use WP_User;
-use Automattic\Jetpack\Heartbeat;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com

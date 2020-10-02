@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack\Analyzer\Invocations;
 
-use PhpParser\NodeVisitorAbstract;
-use PhpParser\Node;
 use Automattic\Jetpack\Analyzer\Utils;
+use PhpParser\Node;
+use PhpParser\NodeVisitorAbstract;
 
 class Visitor extends NodeVisitorAbstract {
 	private $invocations;

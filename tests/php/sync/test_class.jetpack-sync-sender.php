@@ -1,8 +1,8 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Settings;
 

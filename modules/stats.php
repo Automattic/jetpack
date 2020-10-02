@@ -14,11 +14,11 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Tracking;
 
 if ( defined( 'STATS_VERSION' ) ) {
 	return;

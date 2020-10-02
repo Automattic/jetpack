@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Abtest;
-use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class Test_Abtest

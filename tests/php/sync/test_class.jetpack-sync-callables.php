@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;

@@ -1,10 +1,10 @@
 <?php
 
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
-use Automattic\Jetpack\Sync\Health;
 
 if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	function jetpack_foo_full_sync_callable() {

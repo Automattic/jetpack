@@ -1,8 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
 

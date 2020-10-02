@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\Jetpack\Sync\Settings;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Class to handle sync for comments.

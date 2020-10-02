@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Status;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {

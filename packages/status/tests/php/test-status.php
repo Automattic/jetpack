@@ -8,12 +8,12 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Status;
-use PHPUnit\Framework\TestCase;
+use Brain\Monkey;
+use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use phpmock\Mock;
 use phpmock\MockBuilder;
-use Brain\Monkey;
-use Brain\Monkey\Functions;
-use Brain\Monkey\Filters;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Status test suite.

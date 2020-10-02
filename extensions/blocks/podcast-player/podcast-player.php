@@ -10,9 +10,9 @@
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 use Automattic\Jetpack\Blocks;
-use WP_Error;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
+use WP_Error;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;

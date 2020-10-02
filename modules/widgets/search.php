@@ -8,8 +8,8 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 

@@ -1,9 +1,9 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;

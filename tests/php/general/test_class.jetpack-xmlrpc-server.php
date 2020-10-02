@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Sync\Sender;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	static $xmlrpc_admin = 0;

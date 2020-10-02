@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Constants;
 
 /**

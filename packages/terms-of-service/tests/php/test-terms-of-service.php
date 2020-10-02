@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack;
 
-use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class Test_Terms_Of_Service

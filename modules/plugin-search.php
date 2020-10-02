@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Disable direct access and execution.

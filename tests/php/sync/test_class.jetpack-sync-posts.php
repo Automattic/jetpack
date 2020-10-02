@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
 /**

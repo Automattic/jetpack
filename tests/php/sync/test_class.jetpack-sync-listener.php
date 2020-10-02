@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
-use Automattic\Jetpack\Sync\Settings;
 use Automattic\Jetpack\Sync\Health;
+use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {

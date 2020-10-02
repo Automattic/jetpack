@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Sync\Replicastore_Interface;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Replicastore_Interface;
 
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore

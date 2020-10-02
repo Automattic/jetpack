@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack\Analyzer\Invocations;
 
-use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 use Automattic\Jetpack\Analyzer\Declarations\Class_Property;
+use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 
 /**
  * Instantiation of a class

@@ -2,10 +2,10 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
-use PhpParser\ParserFactory;
-use PhpParser\NodeTraverser;
 use PhpParser\NodeDumper;
+use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\ParserFactory;
 
 
 /**

@@ -9,10 +9,10 @@ namespace Automattic\Jetpack\JITMS;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\JITMS\JITM;
 
 /**
  * Jetpack just in time messaging through out the admin

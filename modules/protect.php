@@ -12,8 +12,8 @@
  * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Constants;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 

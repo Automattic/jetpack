@@ -7,10 +7,10 @@ use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
 use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
+use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
 use WP_REST_Request;
 use WP_REST_Server;
-use Requests_Utility_CaseInsensitiveDictionary;
 use WP_User;
 
 /**

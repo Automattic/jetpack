@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Redirect;
 
 class Jetpack_Custom_CSS {
 	static function init() {

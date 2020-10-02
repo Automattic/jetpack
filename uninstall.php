@@ -5,8 +5,8 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Backup\Helper_Script_Manager;
+use Automattic\Jetpack\Sync\Sender;
 
 if (
 	!defined( 'WP_UNINSTALL_PLUGIN' )
