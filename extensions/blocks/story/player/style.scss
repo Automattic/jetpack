@@ -396,6 +396,10 @@
 			transition: none !important;
 		}
 
+		&:focus {
+			outline: none;
+		}
+
 		&:before {
 			box-shadow: none;
 
