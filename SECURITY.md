@@ -10,7 +10,7 @@ Generally, only the latest version of Jetpack has continued support. If a critic
 
 [Jetpack](https://jetpack.com/) is an open-source plugin for WordPress. Our HackerOne program covers the plugin software, as well as a variety of related projects and infrastructure.
 
-**For responsible disclosure of security issues and to be eligible for our bug bounty program, please submit your report via the  [HackerOne](https://hackerone.com/automattic) portal.**
+**For responsible disclosure of security issues and to be eligible for our bug bounty program, please submit your report via the [HackerOne](https://hackerone.com/automattic) portal.**
 
 Our most critical targets are:
 
