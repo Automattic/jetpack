@@ -88,7 +88,7 @@ function render_block( $attr, $content ) {
 function amp_skip_post( $skip, $post_id, $post ) {
 	// When AMP is on standard mode, there are no non-AMP posts to link to where the purchase can be completed, so let's
 	// prevent the post from being available in AMP.
-	if ( Blocks::amp_is_canonical() && has_block( 'jetpack/simple-payments', $post->post_content ) ) {
+	if ( Blocks::is_amp_canonical() && has_block( 'jetpack/simple-payments', $post->post_content ) ) {
 		return true;
 	}
 	return $skip;
