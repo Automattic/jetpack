@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { forEach, get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { numberFormat } from 'i18n-calypso';
 
 /**
  * WordPress dependencies
@@ -21,7 +20,6 @@ import Button from 'components/button';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import DashSectionHeader from 'components/dash-section-header';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import DashStatsBottom from './dash-stats-bottom';
 import { emptyStatsCardDismissed } from 'state/settings';
 import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
@@ -30,7 +28,9 @@ import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 
 import { imagePath } from 'constants/urls';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import { numberFormat } from 'components/number-format';
 import QueryStatsData from 'components/data/query-stats-data';
 import Spinner from 'components/spinner';
 

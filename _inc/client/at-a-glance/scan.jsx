@@ -4,8 +4,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { numberFormat } from 'i18n-calypso';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _n } from '@wordpress/i18n';
 
 /**
@@ -34,6 +36,7 @@ import {
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
 import getRedirectUrl from 'lib/jp-redirect';
+import { numberFormat } from 'components/number-format';
 
 /**
  * Displays a card for Security Scan based on the props given.

@@ -2,13 +2,17 @@
  * External dependencies
  */
 import React from 'react';
-import { numberFormat } from 'i18n-calypso';
+
+/**
+ * WordPress dependencies
+ */
 import { _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import InfoPopover from 'components/info-popover';
+import { numberFormat } from 'components/number-format';
 
 function getSearchLabel( recordCount ) {
 	return sprintf(
