@@ -8,7 +8,7 @@
 	<rule ref="WordPress-Docs" />
 	<rule ref="WordPress-Extra" />
 	<rule ref="VariableAnalysis" />
-	<rule ref="bin/PHPCSSniffs" />
+	<rule ref="./bin/PHPCSStandards/Jetpack" />
 
 	<!-- Elevate undefined variables to an Error instead of a Warning. -->
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
