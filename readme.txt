@@ -54,7 +54,8 @@ Quickly customize your site to make it stand out — no coding needed.
 * Themes — Simple themes to get started or pick a professional theme to make your site stand out.
 * Related posts — Keep visitors on your site by automatically showing them related content they will be interested in.
 * Gallery and Slideshow tools — Image galleries, carousel slider, header, and slideshows for WP sites and stores.
-* Subscriptions — Make it easy for visitors to sign up to receive notifications of your latest content, posts, and comments.
+* Subscriptions — Make it easy for visitors to sign up to receive notifications of your latest posts and comments.
+
 * Contact form — Easily build unlimited contact forms for free without any coding. Receive email notifications for each response. Integrate with mail solutions like Creative Mail or Mailchimp to reach your customers and leads quickly. Connect to Jetpack Anti spam (powered by Akismet) to filter submissions.
 * oEmbed Support — easily embed images, posts, and links from Facebook and Instagram.
 
