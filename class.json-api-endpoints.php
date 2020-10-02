@@ -2055,7 +2055,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Whether this endpoint allows site based authentication.
 	 *
-	 * @since 8.9.1
+	 * @since 9.1.0
 	 *
 	 * @return bool true, if Jetpack blog token is used and `allow_jetpack_site_auth` is true,
 	 * false otherwise.

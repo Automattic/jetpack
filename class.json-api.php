@@ -147,8 +147,9 @@ class WPCOM_JSON_API {
 
 	/**
 	 * Checks if the current request is authorized with a blog token.
+	 * This method is overridden by a child class in WPCOM.
 	 *
-	 * @since 8.9.1
+	 * @since 9.1.0
 	 *
 	 * @param  boolean|number $site_id The site id.
 	 * @return boolean
