@@ -226,4 +226,14 @@ class Blocks {
 		/** This filter is documented in 3rd-party/class.jetpack-amp-support.php */
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
 	}
+
+	/**
+	 * Is the page in AMP 'canonical mode'.
+	 * Used when themes register support for AMP with `add_theme_support( 'amp' )`.
+	 *
+	 * @return bool is_amp_canonical
+	 */
+	public static function is_amp_canonical() {
+		return function_exists( 'amp_is_canonical' ) && amp_is_canonical();
+	}
 }
