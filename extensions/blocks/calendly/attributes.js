@@ -36,6 +36,6 @@ export default {
 	},
 	parentName: {
 		type: 'string',
-		default: false
+		default: false,
 	}
 };
