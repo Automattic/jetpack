@@ -752,7 +752,7 @@ class Jetpack_XMLRPC_Server {
 		do_action( 'jetpack_event_log', 'unlink' );
 		return Connection_Manager::disconnect_user(
 			empty( $user_id ) ? null : $user_id,
-			is_null( $user_id ) ? false : true
+			empty( $user_id ) ? false : true
 		);
 	}
 
