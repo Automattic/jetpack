@@ -145,6 +145,39 @@ class WPCOM_JSON_API {
 		$this->token_details['blog_id'] = Jetpack_Options::get_option( 'id' );
 	}
 
+	/**
+	 * Checks if the current request is authorized with a blog token.
+	 *
+	 * @since 8.9.1
+	 *
+	 * @param  boolean|number $site_id The site id.
+	 * @return boolean
+	 */
+	public function is_jetpack_authorized_for_site( $site_id = false ) {
+		if ( ! $this->token_details ) {
+			return false;
+		}
+
+		$token_details = (object) $this->token_details;
+
+		$site_in_token = (int) $token_details->blog_id;
+
+		if ( $site_in_token < 1 ) {
+			return false;
+		}
+
+		if ( $site_id && $site_in_token !== (int) $site_id ) {
+			return false;
+		}
+
+		if ( (int) get_current_user_id() !== 0 ) {
+			// If Jetpack blog token is used, no logged-in user should exist.
+			return false;
+		}
+
+		return true;
+	}
+
 	function serve( $exit = true ) {
 		ini_set( 'display_errors', false );
 
