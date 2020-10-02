@@ -237,8 +237,9 @@ You can easily comply with GDPR with our Cookie and Consent Banner. The European
 
 == Screenshots ==
 
-1. Jetpack Security provides easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection
-2. Save every change with real-time backups and get back online quickly with one-click restores
+1. Jetpack Security provides easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.
+2. Save every change with real-time backups and get back online quickly with one-click restores.
+
 3. Automated malware scanning and one-click fixes keep your site one step ahead of security threats.
 4. Promote your newest posts, pages, and products across your social media channels.
 
