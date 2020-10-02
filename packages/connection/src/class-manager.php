@@ -34,7 +34,7 @@ class Manager {
 	 * @see Manager::CONNECTION_OWNER
 	 * @var boolean
 	 */
-	const JETPACK_MASTER_USER = true; //phpcs:ignore ..Jetpack_Sniffs_MasterUserConstant.ShouldNotBeUsed
+	const JETPACK_MASTER_USER = true; //phpcs:ignore Jetpack.Constants.MasterUserConstant.ShouldNotBeUsed
 
 	/**
 	 * For internal use only. If you need to get the connection owner, use the provided methods
