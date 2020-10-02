@@ -157,7 +157,7 @@ export function getLastTweet( state ) {
 	const message =
 		state.tweets.length > 100
 			? __( 'The rest of this thread can be read here:', 'jetpack' )
-			: __( 'This thread can also be read here:', 'jetpack' );
+			: __( 'This thread can be read here:', 'jetpack' );
 
 	return {
 		...getFirstTweet( state ),
