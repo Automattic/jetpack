@@ -1129,7 +1129,7 @@ add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
  * p9o2xV-XY-p2
  */
 function wpcomsh_footer_rum_js() {
-	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='atomic' src='https://s0.wp.com/wp-content/js/bilmur.min.js'></script>\n";
+	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='atomic' src='https://s0.wp.com/wp-content/js/bilmur.min.js?m=" . gmdate( 'YW' ). "'></script>\n";
 }
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 
