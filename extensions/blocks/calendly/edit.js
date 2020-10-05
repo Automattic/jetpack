@@ -122,9 +122,7 @@ function CalendlyEdit( props ) {
 			.then( () => {
 				console.log( 'attributeDetails', attributeDetails );
 				console.log( 'newAttributes', newAttributes );
-				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
-					newAttributes,
-				} );
+				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes);
 				console.log( 'newValidatedAttributes', newValidatedAttributes );
 
 				setAttributes( newValidatedAttributes );
