@@ -23,7 +23,7 @@
 
 function latex_markup( $content ) {
 	$textarr = wp_html_split( $content );
-	
+
 	$regex = '%
 		\$latex(?:=\s*|\s+)
 		((?:
@@ -33,7 +33,7 @@ function latex_markup( $content ) {
 		)+)
 		(?<!\\\\)\$ # Dollar preceded by zero slashes
 	%ix';
-	
+
 	foreach ( $textarr as &$element ) {
 		if ( '' == $element || '<' === $element[0] ) {
 			continue;
@@ -83,12 +83,37 @@ function latex_entity_decode( $latex ) {
 	return str_replace( array( '&lt;', '&gt;', '&quot;', '&#039;', '&#038;', '&amp;', "\n", "\r" ), array( '<', '>', '"', "'", '&', '&', ' ', ' ' ), $latex );
 }
 
+/**
+ * Returns the URL for the server-side rendered image of LaTeX.
+ *
+ * @param string $latex LaTeX string.
+ * @param string $fg Foreground color.
+ * @param string $bg Background color.
+ * @param int    $s Matches.
+ *
+ * @return string Image URL for the rendered LaTeX.
+ */
 function latex_render( $latex, $fg, $bg, $s = 0 ) {
-	$url = "//s0.wp.com/latex.php?latex=" . urlencode( $latex ) . "&bg=" . $bg . "&fg=" . $fg . "&s=" . $s;
-	$url = esc_url( $url );
+	$url = add_query_arg(
+		urlencode_deep(
+			array(
+				'latex' => $latex,
+				'bg'    => $bg,
+				'fg'    => $fg,
+				's'     => $s,
+				'c'     => '20201002', // cache buster. Added 2020-10-02 after server migration caused faulty rendering.
+			)
+		),
+		( is_ssl() ? 'https://' : 'http://' ) . 's0.wp.com/latex.php'
+	);
+
 	$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
 
-	return '<img src="' . $url . '" alt="' . $alt . '" title="' . $alt . '" class="latex" />';
+	return sprintf(
+		'<img src="%1$s" alt="%2$s" title="%2$s" class="latex" />',
+		esc_url( $url ),
+		$alt
+	);
 }
 
 /**
