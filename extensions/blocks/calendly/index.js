@@ -65,10 +65,6 @@ export const settings = {
 		},
 		innerBlocks: [ innerButtonBlock ],
 	},
-	providesContext: {
-		parentName: 'name',
-		'calendly/name': 'name',
-	},
 	transforms: {
 		from: [
 			{

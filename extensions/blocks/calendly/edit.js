@@ -50,7 +50,7 @@ function CalendlyEdit( props ) {
 		setAttributes,
 		isSelected,
 	} = props;
-	console.log('calendlyEdit Props', props)
+	console.log( 'calendlyEdit Props', props );
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
 	console.log( 'isSelected', isSelected );
@@ -119,12 +119,11 @@ function CalendlyEdit( props ) {
 		}
 
 		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
-			.then( resolvedUrl => {
+			.then( () => {
 				console.log( 'attributeDetails', attributeDetails );
 				console.log( 'newAttributes', newAttributes );
 				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
-					...newAttributes,
-					url: resolvedUrl,
+					newAttributes,
 				} );
 				console.log( 'newValidatedAttributes', newValidatedAttributes );
 
@@ -217,7 +216,6 @@ function CalendlyEdit( props ) {
 						...innerButtonBlock.attributes,
 						...embedButtonAttributes,
 						passthroughAttributes: { url: 'url' },
-						parentName: 'jetpack/calendly'
 					},
 				],
 			] }
