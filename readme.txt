@@ -300,6 +300,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Bug fixes**
 
 * Activity Log: avoid potential duplicate entries.
+* Beautiful Math: resolve incorrectly rendered LaTeX images cached during a server migration.
 * Connection Flow: resolve conflicts where "staging" connection errors were wrongly detected for some sites.
 * Copy Post: ensure categories can be copied properly on sites using an old database schema.
 * Donations / Payments: fix link to WordPress.com on sites where WordPress is installed in a subdirectory.
