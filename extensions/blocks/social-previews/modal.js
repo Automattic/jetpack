@@ -125,6 +125,6 @@ export default withSelect( ( select, props ) => {
 	return {
 		...postData,
 		tweets,
-		isTweetStorm,
+		isTweetStorm: isTweetStorm(),
 	};
 } )( SocialPreviewsModal );
