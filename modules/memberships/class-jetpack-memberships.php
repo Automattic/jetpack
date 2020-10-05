@@ -80,8 +80,8 @@ class Jetpack_Memberships {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
-			// Yes, `personal-bundle` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
+			// Yes, `personal-bundle` with a dash, `jetpack_security_daily` with an underscore. Check the v1.5 endpoint to verify.
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_security_daily';
 		}
 
 		return self::$instance;
