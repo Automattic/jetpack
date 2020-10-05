@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -13,13 +14,23 @@ import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 
 const Edit = props => {
-	const { attributes, className } = props;
-	const { currency } = attributes;
+	const { attributes, className, setAttributes } = props;
+	const { currency, fallbackLinkText } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
 	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
 	const [ products, setProducts ] = useState( [] );
+
+	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+	useEffect( () => {
+		setAttributes( {
+			fallbackLinkUrl: post.link,
+			...( ! fallbackLinkText && {
+				fallbackLinkText: __( 'Click here to donate.', 'jetpack' ),
+			} ),
+		} );
+	}, [ post.link, fallbackLinkText, setAttributes ] );
 
 	const apiError = message => {
 		setLoadingError( message );

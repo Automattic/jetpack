@@ -53,4 +53,16 @@ export default {
 		type: 'string',
 		default: __( 'Or enter a custom amount', 'jetpack' ),
 	},
+	fallbackLinkUrl: {
+		type: 'string',
+		source: 'attribute',
+		selector: '.jetpack-donations-fallback-link',
+		attribute: 'href',
+	},
+	fallbackLinkText: {
+		type: 'string',
+		source: 'html',
+		selector: '.jetpack-donations-fallback-link',
+		default: __( 'Click here to donate.', 'jetpack' ),
+	},
 };
