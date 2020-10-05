@@ -60,7 +60,6 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.getUser'          => array( $this, 'get_user' ),
 			'jetpack.remoteRegister'   => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision'  => array( $this, 'remote_provision' ),
-			'jetpack.testAPIUserCode'  => array( $this, 'test_api_user_code' ),
 			'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
 			'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
 		);
@@ -78,7 +77,8 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.disconnectBlog' => array( $this, 'disconnect_blog' ),
+					'jetpack.disconnectBlog'  => array( $this, 'disconnect_blog' ),
+					'jetpack.testAPIUserCode' => array( $this, 'test_api_user_code' ),
 				)
 			);
 
