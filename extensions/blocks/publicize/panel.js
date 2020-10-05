@@ -22,7 +22,7 @@ import PublicizeForm from './form';
 import PublicizeSettingsButton from './settings-button';
 import PublicizeTwitterOptions from './twitter/options';
 
-const PublicizePanel = ( { connections, refreshConnections } ) => (
+const PublicizePanel = ( { connections, refreshConnections, prePublish } ) => (
 	<Fragment>
 		{ connections && connections.some( connection => connection.enabled ) && (
 			<PublicizeConnectionVerify />
@@ -33,7 +33,7 @@ const PublicizePanel = ( { connections, refreshConnections } ) => (
 		{ connections && connections.length > 0 && (
 			<PublicizeForm refreshCallback={ refreshConnections } />
 		) }
-		<PublicizeTwitterOptions />
+		<PublicizeTwitterOptions prePublish={ prePublish } />
 		{ connections && 0 === connections.length && (
 			<PublicizeSettingsButton
 				className="jetpack-publicize-add-connection-wrapper"
