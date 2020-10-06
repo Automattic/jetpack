@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, BlockContextProvider } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -12,10 +12,12 @@ import { getRequiredPlan } from '../../shared/plan-utils';
 import { trackUpgradeClickEvent } from './utils';
 
 export default OriginalBlockEdit => props => {
-	const requiredPlan = getRequiredPlan( props?.name );
+	const requiredPlan = getRequiredPlan( props?.name )
+	console.log('props original block edit', props)
+	console.log('original', OriginalBlockEdit)
 	console.log( 'requiredPlan', requiredPlan );
 	console.log( 'props.name', props.name );
-	if ( ! requiredPlan ) {
+	if ( ! requiredPlan && !props?.context?.parentRequiredPlan ) {
 		return <OriginalBlockEdit { ...props } />;
 	}
 	const bannerContext = 'sidebar';
@@ -36,8 +38,9 @@ export default OriginalBlockEdit => props => {
 					}
 				/>
 			</InspectorControls>
-
-			<OriginalBlockEdit { ...props } />
+			<BlockContextProvider value={requiredPlan} parentRequiredPlan={requiredPlan}>
+			  <OriginalBlockEdit { ...props } />
+			</BlockContextProvider>
 		</Fragment>
 	);
 };
