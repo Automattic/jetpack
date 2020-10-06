@@ -49,6 +49,7 @@ function CalendlyEdit( props ) {
 		noticeUI,
 		setAttributes,
 		isSelected,
+		context,
 	} = props;
 	console.log( 'calendlyEdit Props', props );
 	const defaultClassName = getBlockDefaultClassName( name );
@@ -72,7 +73,7 @@ function CalendlyEdit( props ) {
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const [ embedButtonAttributes, setEmbedButtonAttributes ] = useState( {} );
-
+	console.log('embedCode', embedCode)
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice(
@@ -97,8 +98,10 @@ function CalendlyEdit( props ) {
 		}
 
 		event.preventDefault();
+		console.log('embedCode in parsedEmbedCode', embedCode)
 
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
+		console.log('newAttributes button', newAttributes)
 		if ( ! newAttributes ) {
 			setErrorNotice();
 			return;
@@ -111,7 +114,7 @@ function CalendlyEdit( props ) {
 				innerButtons[ 0 ].innerBlocks.forEach( block => {
 					dispatch( 'core/editor' ).updateBlockAttributes(
 						block.clientId,
-						newAttributes.buttonAttributes
+						{ ...newAttributes.buttonAttributes, context }
 					);
 				} );
 			}
@@ -213,6 +216,7 @@ function CalendlyEdit( props ) {
 					{
 						...innerButtonBlock.attributes,
 						...embedButtonAttributes,
+						context,
 						passthroughAttributes: { url: 'url' },
 					},
 				],

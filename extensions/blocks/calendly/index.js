@@ -29,6 +29,7 @@ export const innerButtonBlock = {
 		text: __( 'Schedule time with me', 'jetpack' ),
 		uniqueId: 'calendly-widget-id',
 		url: CALENDLY_EXAMPLE_URL,
+		parentName: 'jetpack/calendly',
 	},
 };
 

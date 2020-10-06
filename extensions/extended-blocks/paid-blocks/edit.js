@@ -13,11 +13,11 @@ import { trackUpgradeClickEvent } from './utils';
 
 export default OriginalBlockEdit => props => {
 	const requiredPlan = getRequiredPlan( props?.name )
-	console.log('props original block edit', props)
+	console.log('props original block editzzz', props)
 	console.log('original', OriginalBlockEdit)
 	console.log( 'requiredPlan', requiredPlan );
 	console.log( 'props.name', props.name );
-	if ( ! requiredPlan && !props?.context?.parentRequiredPlan ) {
+	if ( ! requiredPlan ) {
 		return <OriginalBlockEdit { ...props } />;
 	}
 	const bannerContext = 'sidebar';
@@ -38,7 +38,7 @@ export default OriginalBlockEdit => props => {
 					}
 				/>
 			</InspectorControls>
-			<BlockContextProvider value={requiredPlan} parentRequiredPlan={requiredPlan}>
+			<BlockContextProvider value="bloo" blah="asdf" parentRequiredPlan={requiredPlan}>
 			  <OriginalBlockEdit { ...props } />
 			</BlockContextProvider>
 		</Fragment>
