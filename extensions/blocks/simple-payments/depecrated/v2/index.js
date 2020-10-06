@@ -8,25 +8,11 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { DEFAULT_CURRENCY } from './constants';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
-import { getIconColor } from '../../shared/block-icons';
+import { DEFAULT_CURRENCY } from '../../constants';
+import { isAtomicSite, isSimpleSite } from '../../../../shared/site-type-utils';
+import { getIconColor } from '../../../../shared/block-icons';
 import edit from './edit';
 import save from './save';
-import deprecatedV1 from './depecrated/v1';
-import deprecatedV2 from './depecrated/v2';
-
-/**
- * Example image
- */
-import simplePaymentsExample1 from './simple-payments_example-1.jpg';
-
-/**
- * Styles
- */
-import './editor.scss';
-
-export const name = 'simple-payments';
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -40,7 +26,7 @@ const supportLink =
 		? 'https://wordpress.com/support/pay-with-paypal/'
 		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal/';
 
-export const settings = {
+const settings = {
 	title: __( 'Pay with PayPal', 'jetpack' ),
 
 	description: (
@@ -168,19 +154,6 @@ export const settings = {
 
 	save,
 
-	example: {
-		attributes: {
-			price: 25.0,
-			title: __( 'Jetpack t-shirt', 'jetpack' ),
-			content: __(
-				'Take flight in ultimate comfort with this stylish t-shirt featuring the Jetpack logo.',
-				'jetpack'
-			),
-			email: 'jetpack@jetpack.com',
-			featuredMediaUrl: simplePaymentsExample1,
-		},
-	},
-
 	supports: {
 		className: false,
 		customClassName: false,
@@ -189,6 +162,6 @@ export const settings = {
 		// https://github.com/Automattic/jetpack/issues/11789
 		reusable: false,
 	},
-
-	deprecated: [ deprecatedV1, deprecatedV2 ],
 };
+
+export default settings;
