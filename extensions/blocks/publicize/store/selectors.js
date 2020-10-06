@@ -293,7 +293,7 @@ export function getShareMessageMaxLength() {
  * @returns {boolean} Whether or not it's a tweetstorm.
  */
 export function isTweetStorm() {
-	return !! select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
+	return !! select( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_is_tweetstorm;
 }
 
 /**
