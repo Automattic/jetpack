@@ -21,7 +21,6 @@ return array(
     'Automattic\\Jetpack\\Connection\\Error_Handler' => $vendorDir . '/automattic/jetpack-connection/src/class-error-handler.php',
     'Automattic\\Jetpack\\Connection\\Manager' => $vendorDir . '/automattic/jetpack-connection/src/class-manager.php',
     'Automattic\\Jetpack\\Connection\\Manager_Interface' => $vendorDir . '/automattic/jetpack-connection/src/interface-manager.php',
-    'Automattic\\Jetpack\\Connection\\Nonce_Handler' => $vendorDir . '/automattic/jetpack-connection/src/class-nonce-handler.php',
     'Automattic\\Jetpack\\Connection\\Plugin' => $vendorDir . '/automattic/jetpack-connection/src/class-plugin.php',
     'Automattic\\Jetpack\\Connection\\Plugin_Storage' => $vendorDir . '/automattic/jetpack-connection/src/class-plugin-storage.php',
     'Automattic\\Jetpack\\Connection\\REST_Connector' => $vendorDir . '/automattic/jetpack-connection/src/class-rest-connector.php',

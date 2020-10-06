@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInita1222ec05002192634ff765055ba9433
+class ComposerStaticInitacc00ebcd28ded2c94b94c169e27e56b
 {
     public static $files = array (
         'bce4ecd6aabb2a2948e06d0e2c4ea9a6' => __DIR__ . '/..' . '/automattic/jetpack-connection/legacy/load-ixr.php',
@@ -52,7 +52,6 @@ class ComposerStaticInita1222ec05002192634ff765055ba9433
         'Automattic\\Jetpack\\Connection\\Error_Handler' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-error-handler.php',
         'Automattic\\Jetpack\\Connection\\Manager' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-manager.php',
         'Automattic\\Jetpack\\Connection\\Manager_Interface' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/interface-manager.php',
-        'Automattic\\Jetpack\\Connection\\Nonce_Handler' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-nonce-handler.php',
         'Automattic\\Jetpack\\Connection\\Plugin' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-plugin.php',
         'Automattic\\Jetpack\\Connection\\Plugin_Storage' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-plugin-storage.php',
         'Automattic\\Jetpack\\Connection\\REST_Connector' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-rest-connector.php',
@@ -148,10 +147,10 @@ class ComposerStaticInita1222ec05002192634ff765055ba9433
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInita1222ec05002192634ff765055ba9433::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInita1222ec05002192634ff765055ba9433::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInita1222ec05002192634ff765055ba9433::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInita1222ec05002192634ff765055ba9433::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitacc00ebcd28ded2c94b94c169e27e56b::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitacc00ebcd28ded2c94b94c169e27e56b::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitacc00ebcd28ded2c94b94c169e27e56b::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitacc00ebcd28ded2c94b94c169e27e56b::$classMap;
 
         }, null, ClassLoader::class);
     }
