@@ -120,7 +120,7 @@ class Nonce_Handler {
 	/**
 	 * Clean up the expired nonces on shutdown.
 	 *
-	 * @return bool True if the cleanup query has been run, false if the table is locked.
+	 * @return bool True if the cleanup query has been run.
 	 */
 	public static function clean_runtime() {
 		/**
