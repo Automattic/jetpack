@@ -145,28 +145,4 @@ class Test_Nonce_Handler extends TestCase {
 		self::assertTrue( $query_filter_delete_run, "The SQL query assertions haven't run." );
 	}
 
-	/**
-	 * Make sure the runtime cleanup doesn't get run when the table is locked, and gets run otherwise.
-	 */
-	public function test_cleanup_locked() {
-		$query_filter = function( $result, $query ) {
-			if ( 0 === strpos( $query, 'SHOW OPEN TABLES WHERE In_use > 0' ) ) {
-				return array( 'something' );
-			}
-
-			return $result;
-		};
-
-		add_filter( 'wordbless_wpdb_query_results', $query_filter, 10, 2 );
-
-		$cleanup_skipped = ! Nonce_Handler::clean_runtime();
-
-		remove_filter( 'wordbless_wpdb_query_results', $query_filter );
-
-		$cleanup_ran = Nonce_Handler::clean_runtime();
-
-		self::assertTrue( $cleanup_skipped, 'The cleanup was run over a locked table' );
-		self::assertTrue( $cleanup_ran, 'The cleanup was not run over an unlocked table' );
-	}
-
 }

@@ -123,13 +123,6 @@ class Nonce_Handler {
 	 * @return bool True if the cleanup query has been run, false if the table is locked.
 	 */
 	public static function clean_runtime() {
-		// If the table is currently in use, we do nothing.
-		// We don't really care if the cleanup is occasionally skipped,
-		// as long as we can run the cleanup at least once every ten attempts.
-		if ( static::is_table_locked() ) {
-			return false;
-		}
-
 		/**
 		 * Adjust the number of old nonces that are cleaned up at shutdown.
 		 *
@@ -187,20 +180,6 @@ class Nonce_Handler {
 		static::$nonces_used_this_request = array();
 
 		return true;
-	}
-
-	/**
-	 * Check if the options table is locked.
-	 * Subject to race condition, the table may appear locked when a fast database query is performing.
-	 *
-	 * @return bool
-	 */
-	protected static function is_table_locked() {
-		global $wpdb;
-
-		$result = $wpdb->get_results( "SHOW OPEN TABLES WHERE In_use > 0 AND `Table` = '{$wpdb->options}'" );
-
-		return is_array( $result ) && count( $result );
 	}
 
 }
