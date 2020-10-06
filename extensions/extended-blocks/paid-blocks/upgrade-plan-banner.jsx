@@ -30,6 +30,10 @@ const UpgradePlanBanner = ( {
 		onRedirect
 	);
 
+	console.log('requiredPlan upgradelplanbanner', requiredPlan)
+	console.log('requiredPlan context', context)
+
+
 	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', {
 		'wp-block': context === 'editor-canvas',
 		'block-editor-block-list__block': context === 'editor-canvas',
