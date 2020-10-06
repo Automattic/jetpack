@@ -279,6 +279,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Enhancements**
 
+* Button Block: add a center alignment option to all Jetpack button blocks.
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
 * WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
 
