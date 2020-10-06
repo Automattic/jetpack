@@ -275,6 +275,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Major Enhancements**
 
+* Content Options: add new filter to allow theme and plugin authors to disable featured image removal for their Custom Post Types.
 * Dashboard: improve the display of dates in the Jetpack Plan screen.
 * Podcast Player Block: add option to hide the episode title.
 
