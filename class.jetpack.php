@@ -4,7 +4,6 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -507,9 +506,6 @@ class Jetpack {
 						array( __CLASS__, 'upgrade_on_load' )
 					);
 				}
-
-				// Upgrade to Jetpack 9.0.0, cleaning up nonces during runtime.
-				wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 			}
 		}
 	}
@@ -3306,13 +3302,10 @@ p {
 	 * @static
 	 */
 	public static function disconnect( $update_activated_state = true ) {
-		// The hook is not being set since Jetpack 9.0.0,
-		// but we're removing it just in case it wasn't properly cleaned up after the plugin update.
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
-		Nonce_Handler::clean_all();
-
 		$connection = self::connection();
+		$connection->clean_nonces( true );
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
@@ -6011,7 +6004,7 @@ endif;
 			$this->connection_manager = new Connection_Manager();
 		}
 
-		if ( ! Nonce_Handler::add( $timestamp, $nonce ) ) {
+		if ( ! $this->connection_manager->add_nonce( $timestamp, $nonce ) ) {
 			// De-nonce the nonce, at least for 5 minutes.
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
