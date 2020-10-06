@@ -154,6 +154,7 @@
 		"plugin-error": "1.0.1",
 		"postcss-custom-properties": "9.2.0",
 		"preact": "10.5.3",
+		"progress-event": "1.0.0",
 		"prop-types": "15.7.2",
 		"q-flat": "1.0.7",
 		"qss": "2.0.3",
@@ -173,9 +174,9 @@
 		"uglify-save-license": "0.4.1",
 		"unfetch": "4.1.0",
 		"url-polyfill": "1.1.10",
+		"uuid": "7.0.3",
 		"webpack": "4.44.2",
-		"webpack-cli": "3.3.12",
-		"wpcom-proxy-request": "5.0.2"
+		"webpack-cli": "3.3.12"
 	},
 	"optionalDependencies": {
 		"react": "16.13.1",

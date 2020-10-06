@@ -247,7 +247,7 @@ export function search( options ) {
 
 	const { apiNonce, apiRoot, isPrivateSite, isWpcom } = window[ SERVER_OBJECT_NAME ];
 	if ( isPrivateSite && isWpcom ) {
-		return import( 'wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
+		return import( '../external/wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
 			return promiseifedProxyRequest( proxyRequest, pathForPublicApi, options.query )
 				.catch( errorHandler )
 				.then( responseHandler );
