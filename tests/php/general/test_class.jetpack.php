@@ -931,10 +931,19 @@ EXPECTED;
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.jsonAPI',
+			'jetpack.idcUrlValidation',
+			'jetpack.unlinkUser',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
 		);
 
-		// Nothing else is allowed.
-		$allowed = array();
+		$allowed = array(
+			'jetpack.getHeartbeatData',
+			'jetpack.syncObject',
+			'jetpack.updatePublicizeConnections',
+			'jetpack.getBlog',
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
