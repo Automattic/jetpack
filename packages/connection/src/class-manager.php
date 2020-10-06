@@ -113,6 +113,11 @@ class Manager {
 
 		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
 
+		add_action( 'jetpack_clean_nonces', array( $manager, 'clean_nonces' ) );
+		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		}
+
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
 
 		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
@@ -464,7 +469,7 @@ class Manager {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
-		if ( ! Nonce_Handler::add( $timestamp, $nonce ) ) {
+		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
@@ -1038,28 +1043,73 @@ class Manager {
 	 * @param int    $timestamp the current request timestamp.
 	 * @param string $nonce the nonce value.
 	 * @return bool whether the nonce is unique or not.
-	 *
-	 * @deprecated since 9.0.0
 	 */
 	public function add_nonce( $timestamp, $nonce ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.0.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::add' );
+		global $wpdb;
+		static $nonces_used_this_request = array();
 
-		return Nonce_Handler::add( $timestamp, $nonce );
+		if ( isset( $nonces_used_this_request[ "$timestamp:$nonce" ] ) ) {
+			return $nonces_used_this_request[ "$timestamp:$nonce" ];
+		}
+
+		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce.
+		$timestamp = (int) $timestamp;
+		$nonce     = esc_sql( $nonce );
+
+		// Raw query so we can avoid races: add_option will also update.
+		$show_errors = $wpdb->show_errors( false );
+
+		$old_nonce = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
+		);
+
+		if ( is_null( $old_nonce ) ) {
+			$return = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
+					"jetpack_nonce_{$timestamp}_{$nonce}",
+					time(),
+					'no'
+				)
+			);
+		} else {
+			$return = false;
+		}
+
+		$wpdb->show_errors( $show_errors );
+
+		$nonces_used_this_request[ "$timestamp:$nonce" ] = $return;
+
+		return $return;
 	}
 
 	/**
 	 * Cleans nonces that were saved when calling ::add_nonce.
 	 *
+	 * @todo Properly prepare the query before executing it.
+	 *
 	 * @param bool $all whether to clean even non-expired nonces.
-	 *
-	 * @deprecated since 9.0.0
-	 *
-	 * @see Nonce_Handler::clean_all()
 	 */
 	public function clean_nonces( $all = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.0.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
+		global $wpdb;
 
-		Nonce_Handler::clean_all( $all ? PHP_INT_MAX : time() - Nonce_Handler::LIFETIME );
+		$sql      = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
+		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
+
+		if ( true !== $all ) {
+			$sql       .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
+			$sql_args[] = time() - 3600;
+		}
+
+		$sql .= ' ORDER BY `option_id` LIMIT 100';
+
+		$sql = $wpdb->prepare( $sql, $sql_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		for ( $i = 0; $i < 1000; $i++ ) {
+			if ( ! $wpdb->query( $sql ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				break;
+			}
+		}
 	}
 
 	/**
