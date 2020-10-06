@@ -276,6 +276,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Major Enhancements**
 
 * Dashboard: improve the display of dates in the Jetpack Plan screen.
+* Podcast Player Block: add option to hide the episode title.
 
 **Enhancements**
 
