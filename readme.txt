@@ -279,7 +279,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Enhancements**
 
-*
+* WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
 
 **Improved compatibility**
 
