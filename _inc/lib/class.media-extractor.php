@@ -248,6 +248,11 @@ class Jetpack_Media_Meta_Extractor {
 						continue;
 					}
 
+					// Reject invalid URLs.
+					if ( ! isset( $url['scheme'] ) || ! isset( $url['host'] ) ) {
+						continue;
+					}
+
 					// Remove large (and likely invalid) links.
 					if ( 4096 < strlen( $link_raw ) ) {
 						continue;
