@@ -275,7 +275,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Major Enhancements**
 
-*
+* Dashboard: improve the display of dates in the Jetpack Plan screen.
 
 **Enhancements**
 
