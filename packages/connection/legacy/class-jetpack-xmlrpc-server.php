@@ -100,7 +100,7 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		/**
-		 * Filters the XML-RPC methods available to Jetpack for unauthenticated users.
+		 * Filters the XML-RPC methods available to Jetpack for requests signed only with a blog token and without an authenticated user.
 		 *
 		 * @since 3.0.0
 		 *
@@ -734,13 +734,15 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Unlink a user from WordPress.com
 	 *
-	 * If $user_id is not informed, it will try to disconnect the current logged in user. This will fail if called by the Master User.
+	 * When the request is done without any parameter, this XMLRPC callback gets an empty array as input.
 	 *
-	 * If $user_id is informed, it will try to disconnect the informed user, even if it's the Master User.
+	 * If $user_id is not an integer, it will try to disconnect the current logged in user. This will fail if called by the Master User.
 	 *
-	 * @param integer $user_id The user ID to disconnect from this site.
+	 * If $user_id is an integer, it will try to disconnect the informed user, even if it's the Master User.
+	 *
+	 * @param int|array $user_id The user ID to disconnect from this site.
 	 */
-	public function unlink_user( $user_id = null ) {
+	public function unlink_user( $user_id = array() ) {
 		/**
 		 * Fired when we want to log an event to the Jetpack event log.
 		 *
@@ -751,8 +753,8 @@ class Jetpack_XMLRPC_Server {
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
 		return Connection_Manager::disconnect_user(
-			empty( $user_id ) ? null : $user_id,
-			empty( $user_id ) ? false : true
+			$user_id,
+			! (bool) $user_id
 		);
 	}
 
