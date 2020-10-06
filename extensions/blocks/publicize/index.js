@@ -45,7 +45,7 @@ export const settings = {
 					</span>
 				}
 			>
-				<PublicizePanel />
+				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>
 		</PostTypeSupportCheck>
 	),

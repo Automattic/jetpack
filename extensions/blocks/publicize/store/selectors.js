@@ -78,7 +78,7 @@ export function getTweetStorm( state ) {
 
 	const thread = [
 		getFirstTweet( state ),
-		...state.tweets.map( tweet => ( {
+		...state.tweets.slice( 0, 100 ).map( tweet => ( {
 			...tweetTemplate,
 			text: tweet.text,
 			media: tweet.media,
@@ -154,11 +154,16 @@ export function getLastTweet( state ) {
 	const { getEditedPostAttribute } = select( 'core/editor' );
 	const url = getEditedPostAttribute( 'link' );
 
+	const message =
+		state.tweets.length > 100
+			? __( 'The rest of this thread can be read here:', 'jetpack' )
+			: __( 'This thread can be read here:', 'jetpack' );
+
 	return {
 		...getFirstTweet( state ),
 		// The URL is deliberately not included in the translatable string, as it must always
 		// be the last thing in the tweet text.
-		text: __( "I've also published this thread on my site:", 'jetpack' ) + ` ${ url }`,
+		text: `${ message } ${ url }`,
 	};
 }
 
@@ -288,7 +293,7 @@ export function getShareMessageMaxLength() {
  * @returns {boolean} Whether or not it's a tweetstorm.
  */
 export function isTweetStorm() {
-	return !! select( 'core/editor' ).getEditedPostAttribute( 'meta' ).jetpack_is_tweetstorm;
+	return !! select( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_is_tweetstorm;
 }
 
 /**

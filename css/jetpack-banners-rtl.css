@@ -501,4 +501,17 @@ https://github.com/thoughtbot/bourbon
   box-shadow: 0 0 0 1px white, 0 0 0 3px #008b1d;
 }
 
+.jp-wpcom-connect__quest {
+  position: relative;
+  padding-right: 2.8125rem;
+  font-size: 1.25rem;
+}
+
+.jp-wpcom-connect__quest-marker.gridicon {
+  position: absolute;
+  right: 0;
+  top: -0.1875rem;
+  fill: #eec74f;
+}
+
 /*# sourceMappingURL=jetpack-banners-rtl.css.map */

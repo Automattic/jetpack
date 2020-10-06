@@ -6,16 +6,25 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { RadioControl } from '@wordpress/components';
+import { NoticeList, RadioControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
+// Because the wp-annotations script isn't loaded by default in the block editor, importing
+// it here tells webpack to add it as a dependency to be loaded before Jetpack blocks.
+import '@wordpress/annotations';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
 
-const PublicizeTwitterOptions = ( { connections, isTweetStorm, setTweetstorm } ) => {
+const PublicizeTwitterOptions = ( {
+	connections,
+	isTweetStorm,
+	tweetStormLength,
+	setTweetstorm,
+	prePublish,
+} ) => {
 	if ( ! connections.some( connection => 'twitter' === connection.service_name ) ) {
 		return null;
 	}
@@ -27,6 +36,37 @@ const PublicizeTwitterOptions = ( { connections, isTweetStorm, setTweetstorm } )
 			setTweetstorm( false );
 		}
 	};
+
+	const notices = [];
+
+	if ( tweetStormLength >= 102 ) {
+		notices.push( {
+			id: 'jetpack-publicize-twitter-tweetstorm-too-long',
+			status: 'error',
+			content: __(
+				'Only the first 100 tweets of this post will be published in the Twitter thread.',
+				'jetpack'
+			),
+			isDismissible: false,
+		} );
+	} else if ( tweetStormLength >= 22 ) {
+		notices.push( {
+			id: 'jetpack-publicize-twitter-tweetstorm-a-bit-long',
+			status: 'warning',
+			content: __( 'This post will create a Twitter thread more than 20 tweets long.', 'jetpack' ),
+			isDismissible: false,
+		} );
+	} else if ( prePublish && tweetStormLength <= 2 ) {
+		notices.push( {
+			id: 'jetpack-publicize-twitter-tweetstorm-too-short',
+			status: 'warning',
+			content: __(
+				'None of the content in this post could be transformed into tweets, it may be better to share as a single tweet.',
+				'jetpack'
+			),
+			isDismissible: false,
+		} );
+	}
 
 	return (
 		<>
@@ -50,15 +90,24 @@ const PublicizeTwitterOptions = ( { connections, isTweetStorm, setTweetstorm } )
 				] }
 				onChange={ tweetTypeChange }
 			/>
+			{ isTweetStorm && (
+				<NoticeList className="jetpack-publicize-twitter-options__notices" notices={ notices } />
+			) }
 		</>
 	);
 };
 
 export default compose( [
-	withSelect( select => ( {
-		connections: select( 'core/editor' ).getEditedPostAttribute( 'jetpack_publicize_connections' ),
-		isTweetStorm: select( 'jetpack/publicize' ).isTweetStorm(),
-	} ) ),
+	withSelect( select => {
+		const { isTweetStorm, getTweetStorm } = select( 'jetpack/publicize' );
+		return {
+			connections: select( 'core/editor' ).getEditedPostAttribute(
+				'jetpack_publicize_connections'
+			),
+			isTweetStorm: isTweetStorm(),
+			tweetStormLength: getTweetStorm().length,
+		};
+	} ),
 	withDispatch( dispatch => ( {
 		setTweetstorm: value => {
 			dispatch( 'core/editor' ).editPost( { meta: { jetpack_is_tweetstorm: value } } );

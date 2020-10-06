@@ -33,28 +33,28 @@
     },
     {
         "name": "automattic/jetpack-abtest",
-        "version": "v1.7.0",
-        "version_normalized": "1.7.0.0",
+        "version": "v1.7.1",
+        "version_normalized": "1.7.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-abtest.git",
-            "reference": "4a403312457e3554febf574ffe66b89210010527"
+            "reference": "ff3516ef120b29ddc802b1461d8cd009c4d4460f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-abtest/zipball/4a403312457e3554febf574ffe66b89210010527",
-            "reference": "4a403312457e3554febf574ffe66b89210010527",
+            "url": "https://api.github.com/repos/Automattic/jetpack-abtest/zipball/ff3516ef120b29ddc802b1461d8cd009c4d4460f",
+            "reference": "ff3516ef120b29ddc802b1461d8cd009c4d4460f",
             "shasum": ""
         },
         "require": {
-            "automattic/jetpack-connection": "1.18.0",
+            "automattic/jetpack-connection": "1.18.1",
             "automattic/jetpack-error": "1.2.0"
         },
         "require-dev": {
             "php-mock/php-mock": "^2.1",
             "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
         },
-        "time": "2020-09-29T11:10:02+00:00",
+        "time": "2020-10-01T14:00:05+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -278,17 +278,17 @@
     },
     {
         "name": "automattic/jetpack-connection",
-        "version": "v1.18.0",
-        "version_normalized": "1.18.0.0",
+        "version": "v1.18.1",
+        "version_normalized": "1.18.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-connection.git",
-            "reference": "a4a3f32e8ddeecd22808c7338ccef23374e8e719"
+            "reference": "cbd4e5d0c7f8cf6aad681307ec8ba77fb26529d8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/a4a3f32e8ddeecd22808c7338ccef23374e8e719",
-            "reference": "a4a3f32e8ddeecd22808c7338ccef23374e8e719",
+            "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/cbd4e5d0c7f8cf6aad681307ec8ba77fb26529d8",
+            "reference": "cbd4e5d0c7f8cf6aad681307ec8ba77fb26529d8",
             "shasum": ""
         },
         "require": {
@@ -304,7 +304,7 @@
             "php-mock/php-mock": "^2.1",
             "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
         },
-        "time": "2020-09-29T11:08:51+00:00",
+        "time": "2020-10-01T13:57:38+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -458,22 +458,22 @@
     },
     {
         "name": "automattic/jetpack-jitm",
-        "version": "v1.10.0",
-        "version_normalized": "1.10.0.0",
+        "version": "v1.10.1",
+        "version_normalized": "1.10.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-jitm.git",
-            "reference": "e39c1a6a28c67375b2e573944c35f148fc780817"
+            "reference": "e4c801b443e59311e388b0d7622ff5e7bfb61060"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/e39c1a6a28c67375b2e573944c35f148fc780817",
-            "reference": "e39c1a6a28c67375b2e573944c35f148fc780817",
+            "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/e4c801b443e59311e388b0d7622ff5e7bfb61060",
+            "reference": "e4c801b443e59311e388b0d7622ff5e7bfb61060",
             "shasum": ""
         },
         "require": {
             "automattic/jetpack-assets": "1.8.0",
-            "automattic/jetpack-connection": "1.18.0",
+            "automattic/jetpack-connection": "1.18.1",
             "automattic/jetpack-constants": "1.5.0",
             "automattic/jetpack-logo": "1.4.0",
             "automattic/jetpack-options": "1.9.0",
@@ -487,7 +487,7 @@
             "php-mock/php-mock": "^2.1",
             "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
         },
-        "time": "2020-09-29T11:13:40+00:00",
+        "time": "2020-10-01T14:01:42+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -540,21 +540,21 @@
     },
     {
         "name": "automattic/jetpack-licensing",
-        "version": "v1.1.0",
-        "version_normalized": "1.1.0.0",
+        "version": "v1.1.1",
+        "version_normalized": "1.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-licensing.git",
-            "reference": "03f99a2e480dd51e8326bdb8ba40f2336ede98db"
+            "reference": "39c344ed9307e90ee5c6c4c9ef57e98e332be2b8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-licensing/zipball/03f99a2e480dd51e8326bdb8ba40f2336ede98db",
-            "reference": "03f99a2e480dd51e8326bdb8ba40f2336ede98db",
+            "url": "https://api.github.com/repos/Automattic/jetpack-licensing/zipball/39c344ed9307e90ee5c6c4c9ef57e98e332be2b8",
+            "reference": "39c344ed9307e90ee5c6c4c9ef57e98e332be2b8",
             "shasum": ""
         },
         "require": {
-            "automattic/jetpack-connection": "1.18.0",
+            "automattic/jetpack-connection": "1.18.1",
             "automattic/jetpack-options": "1.9.0"
         },
         "require-dev": {
@@ -562,7 +562,7 @@
             "php-mock/php-mock": "^2.1",
             "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
         },
-        "time": "2020-09-29T11:16:49+00:00",
+        "time": "2020-10-01T13:58:57+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -781,27 +781,27 @@
     },
     {
         "name": "automattic/jetpack-sync",
-        "version": "v1.16.0",
-        "version_normalized": "1.16.0.0",
+        "version": "v1.16.1",
+        "version_normalized": "1.16.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-sync.git",
-            "reference": "d91ad1524e0375e28285d8b050601fd39ec899f0"
+            "reference": "2dae6db486552ea41ddb49f7b61243a33e46aaca"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/d91ad1524e0375e28285d8b050601fd39ec899f0",
-            "reference": "d91ad1524e0375e28285d8b050601fd39ec899f0",
+            "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/2dae6db486552ea41ddb49f7b61243a33e46aaca",
+            "reference": "2dae6db486552ea41ddb49f7b61243a33e46aaca",
             "shasum": ""
         },
         "require": {
-            "automattic/jetpack-connection": "1.18.0",
+            "automattic/jetpack-connection": "1.18.1",
             "automattic/jetpack-constants": "1.5.0",
             "automattic/jetpack-options": "1.9.0",
             "automattic/jetpack-roles": "1.3.0",
             "automattic/jetpack-status": "1.4.0"
         },
-        "time": "2020-09-29T11:11:36+00:00",
+        "time": "2020-10-01T14:00:56+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -893,17 +893,17 @@
     },
     {
         "name": "nojimage/twitter-text-php",
-        "version": "v3.1.0",
-        "version_normalized": "3.1.0.0",
+        "version": "v3.1.1",
+        "version_normalized": "3.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/nojimage/twitter-text-php.git",
-            "reference": "8e03a5a0ad5da010049e3bad843cb720052d4765"
+            "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/8e03a5a0ad5da010049e3bad843cb720052d4765",
-            "reference": "8e03a5a0ad5da010049e3bad843cb720052d4765",
+            "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/7f466b331cebfdd00e3568acaf45f2e90a39a320",
+            "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320",
             "shasum": ""
         },
         "require": {
@@ -917,7 +917,7 @@
             "symfony/yaml": "^2.6.0|^3.4.0|^4.4.0|^5.0.0",
             "twitter/twitter-text": "^3.0.0"
         },
-        "time": "2020-04-22T12:10:15+00:00",
+        "time": "2020-09-30T13:30:59+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

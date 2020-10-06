@@ -41,6 +41,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true
+		"sort-packages": true,
+		"platform": {
+			"ext-intl": "0.0.0"
+		}
 	}
 }
