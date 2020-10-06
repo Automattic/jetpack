@@ -15,7 +15,6 @@ module.exports = {
 		reporter: true,
 		jasmine: true,
 	},
-
 	rules: {
 		'arrow-parens': [ 0, 'as-needed' ],
 		'wpcalypso/import-docblock': 0,
