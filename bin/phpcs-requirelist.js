@@ -15,7 +15,7 @@ module.exports = [
 	'class.jetpack-twitter-cards.php',
 	'class-jetpack-wizard-banner.php',
 	'class.photon.php',
-	'docker',
+	'docker/',
 	'extensions/',
 	'functions.cookies.php',
 	'functions.global.php',
@@ -86,5 +86,5 @@ module.exports = [
 	'tests/php/general/test-class.jetpack-network.php',
 	'tests/php/test_class.jetpack_photon.php',
 	'views/admin/deactivation-dialog.php',
-	'bin/PHPCSSniffs',
+	'bin/PHPCSStandards',
 ];
