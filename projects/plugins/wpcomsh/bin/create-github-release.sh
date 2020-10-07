@@ -9,6 +9,7 @@ COLOR_RESET='\033[0m';
 
 error () {
 	echo "\n🤯 ${RED_BOLD}$1${COLOR_RESET}\n"
+	exit 1
 }
 status () {
 	echo "\n👩‍💻 ${BLUE_BOLD}$1${COLOR_RESET}\n"
@@ -34,19 +35,19 @@ echo "Version that will be built and released is ${VERSION}"
 status "Making the build artifact"
 make build
 
-ZIP_FILE="build/build.${VERSION}.zip"
+ZIP_FILE="build/wpcomsh.${VERSION}.zip"
 
-if [ ! -r $ZIP_FILE ]
-then
+if [ ! -r $ZIP_FILE ]; then
 	error "The build artifact could not be found at ${ZIP_FILE}"
-	exit 1
 fi
 
 status "Creating the release and attaching the build artifact"
 BRANCH="build/${VERSION}"
 git checkout -b $BRANCH
-hub release create -m $VERSION -m "Release of version $VERSION. See README.md for details." "v${VERSION}" --attach "${ZIP_FILE}"
+hub release create -m $VERSION -m "Release of version $VERSION. See README.md for details." "v${VERSION}" --attach="${ZIP_FILE}" \
+	|| error "Failed creating a release for ${VERSION}."
 
+git checkout -D $BRANCH
 git checkout $CURRENTBRANCH
 
 success "GitHub release complete."
