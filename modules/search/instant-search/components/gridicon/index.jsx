@@ -16,6 +16,10 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 
 class Gridicon extends Component {
+	static defaultProps = {
+		'aria-hidden': false,
+	};
+
 	needsOffset( icon, size ) {
 		const iconNeedsOffset = [
 			'gridicons-calendar',
@@ -200,6 +204,7 @@ class Gridicon extends Component {
 				viewBox="0 0 24 24"
 				width={ size }
 				xmlns="http://www.w3.org/2000/svg"
+				aria-hidden={ this.props[ 'aria-hidden' ] }
 			>
 				{ this.getSVGTitle( icon ) }
 				{ this.renderIcon( icon ) }

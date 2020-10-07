@@ -137,8 +137,7 @@
     margin: 0;
     text-decoration: none;
     cursor: pointer;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    appearance: none;
 
     &:focus {
     	outline: 1px dotted;
