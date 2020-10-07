@@ -25,7 +25,9 @@ const PublicizeTwitterOptions = ( {
 	setTweetstorm,
 	prePublish,
 } ) => {
-	if ( ! connections?.some( connection => 'twitter' === connection.service_name ) ) {
+	if (
+		! connections?.some( connection => 'twitter' === connection.service_name && connection.enabled )
+	) {
 		return null;
 	}
 
