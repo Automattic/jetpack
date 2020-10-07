@@ -39,6 +39,16 @@ const PublicizeTwitterOptions = ( {
 		}
 	};
 
+	const generateLabel = ( label, help ) => {
+		return (
+			<>
+				<strong>{ label }</strong>
+				<br />
+				{ help }
+			</>
+		);
+	};
+
 	const notices = [];
 
 	if ( tweetStormLength >= 102 ) {
@@ -80,22 +90,16 @@ const PublicizeTwitterOptions = ( {
 				selected={ isTweetStorm ? 'tweetstorm' : 'single' }
 				options={ [
 					{
-						label: (
-							<>
-								<strong>{ __( 'Single Tweet', 'jetpack' ) }</strong>
-								<br />
-								{ __( 'Share a link to this post to Twitter.', 'jetpack' ) }
-							</>
+						label: generateLabel(
+							__( 'Single Tweet', 'jetpack' ),
+							__( 'Share a link to this post to Twitter.', 'jetpack' )
 						),
 						value: 'single',
 					},
 					{
-						label: (
-							<>
-								<strong>{ __( 'Twitter Thread', 'jetpack' ) }</strong>
-								<br />
-								{ __( 'Share the content of this post as a Twitter thread.', 'jetpack' ) }
-							</>
+						label: generateLabel(
+							__( 'Twitter Thread', 'jetpack' ),
+							__( 'Share the content of this post as a Twitter thread.', 'jetpack' )
 						),
 						value: 'tweetstorm',
 					},
