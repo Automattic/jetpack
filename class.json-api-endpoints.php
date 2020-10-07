@@ -2053,7 +2053,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Whether this endpoint accepts site based authentication.
+	 * Whether this endpoint accepts site based authentication for the current request.
 	 *
 	 * @since 9.1.0
 	 *
