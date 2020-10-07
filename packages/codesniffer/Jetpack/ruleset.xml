@@ -8,6 +8,37 @@
 	<rule ref="WordPress-Extra" />
 	<rule ref="VariableAnalysis" />
 
+	<!-- We only include some rules from mediawiki/mediawiki-codesniffer -->
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/AlternativeSyntax/LeadingZeroInFloatSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Classes/UnsortedUseStatementsSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Classes/UnusedUseStatementSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/ExtraCharacters/ParenthesesAroundKeywordSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/DirUsageSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/DoubleNotOperatorSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/InArrayUsageSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/MagicConstantClosureSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/NestedFunctionsSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/PHPUnitAssertEqualsSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/PlusStringConcatSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/ReferenceThisSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/WhiteSpace/MultipleEmptyLinesSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/WhiteSpace/SpaceAfterClosureSniff.php" />
+	<!-- Maybe in the future
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/IsNullSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/AlternativeSyntax/UnicodeEscapeSniff.php" />
+	<rule ref="../../../vendor/mediawiki/mediawiki-codesniffer/MediaWiki/Sniffs/Usage/NullableTypeSniff.php" />
+	-->
+
+	<!-- Redundant to MediaWiki.ExtraCharacters.ParenthesesAroundKeyword, which checks more keywords -->
+	<rule ref="PEAR.Files.IncludingFile.BracketsNotRequired">
+		<exclude name="PEAR.Files.IncludingFile.BracketsNotRequired" />
+	</rule>
+
+	<!-- Redundant to MediaWiki.WhiteSpace.MultipleEmptyLines, which checks more -->
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
+		<exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
+	</rule>
+
 	<!-- Elevate undefined variables to an Error instead of a Warning. -->
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
 		<type>error</type>
