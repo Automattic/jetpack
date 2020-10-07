@@ -86,5 +86,4 @@ module.exports = [
 	'tests/php/general/test-class.jetpack-network.php',
 	'tests/php/test_class.jetpack_photon.php',
 	'views/admin/deactivation-dialog.php',
-	'bin/PHPCSStandards',
 ];
