@@ -13,7 +13,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr ""
+msgstr "WordPress.com hat auf allen Atomic-Websites Funktionen und Tools vorinstalliert und aktiviert"
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -22,15 +22,15 @@ msgstr ""
 #. purposes.
 #: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
 msgid "Updates managed by WordPress.com"
-msgstr ""
+msgstr "Updates werden von WordPress.com verwaltet"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Der Business-Tarif für <strong>%3$s</strong> läuft in %2$s ab. <a href=\"%1$s\">Verlängere deinen Tarif</a>, um die Funktionen des Business-Tarifs, wie individuelle Plugins und Themes, SFTP und Zugang zu phpMyAdmin, weiterhin nutzen zu können."
 
 #: notices/plan-notices.php:38
 msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Der E-Commerce-Tarif für <strong>%3$s</strong> läuft in %2$s ab. <a href=\"%1$s\">Verlängere deinen Tarif</a>, um die Funktionen des  E-Commerce-Tarifs, wie individuelle Plugins und Themes, SFTP und Zugang zu phpMyAdmin, weiterhin nutzen zu können."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-16 15:54:04+0000\n"
+"PO-Revision-Date: 2020-09-24 14:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr ""
+msgstr "WordPress.com heeft functionaliteit en tools vooraf geïnstalleerd en geactiveerd op alle Atomic-sites"
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -22,15 +22,15 @@ msgstr ""
 #. purposes.
 #: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
 msgid "Updates managed by WordPress.com"
-msgstr ""
+msgstr "Updates beheerd door WordPress.com"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Het Business abonnement voor <strong>%3$s</strong> verloopt over %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Business abonnement te behouden, zoals aangepaste plugins en thema's, SFTP en toegang tot phpMyAdmin."
 
 #: notices/plan-notices.php:38
 msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Het eCommerce abonnement voor <strong>%3$s</strong> verloopt over %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het eCommerce abonnement te behouden, zoals aangepaste plugins en thema's, SFTP en toegang tot phpMyAdmin."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."

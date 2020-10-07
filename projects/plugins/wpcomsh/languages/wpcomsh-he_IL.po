@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-22 12:11:02+0000\n"
+"PO-Revision-Date: 2020-09-24 08:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr ""
+msgstr "הפלטפורמה של WordPress.com מספקת פונקציונליות וכלים שמותקנים מראש ומופיעים בכל האתרים של Atomic."
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -22,7 +22,7 @@ msgstr ""
 #. purposes.
 #: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
 msgid "Updates managed by WordPress.com"
-msgstr ""
+msgstr "העדכונים מנוהלים על ידי WordPress.com"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."

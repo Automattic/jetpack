@@ -20,7 +20,10 @@ warning () {
 	echo "\n${YELLOW_BOLD}$1${COLOR_RESET}\n"
 }
 
-status "Create GitHub release"
+# We want to be in the root `wpcomsh` dir
+cd `dirname "$0"` && cd ..
+
+status "Creating GitHub release"
 
 CURRENTBRANCH=`git rev-parse --abbrev-ref HEAD`
 
@@ -29,7 +32,7 @@ VERSION=`awk '/[^[:graph:]]Version/{print $NF}' wpcomsh.php`
 echo "Version that will be built and released is ${VERSION}"
 
 status "Making the build artifact"
-bin/make-build.sh
+make build
 
 ZIP_FILE="build/build.${VERSION}.zip"
 

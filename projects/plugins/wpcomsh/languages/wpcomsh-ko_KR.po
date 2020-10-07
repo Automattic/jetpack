@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-17 08:54:04+0000\n"
+"PO-Revision-Date: 2020-09-24 08:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr ""
+msgstr "모든 Atomic 사이트에 사전 설치되고 활성화된 기능과 도구를 제공하는 워드프레스닷컴"
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -22,15 +22,15 @@ msgstr ""
 #. purposes.
 #: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
 msgid "Updates managed by WordPress.com"
-msgstr ""
+msgstr "업데이트 관리: 워드프레스닷컴"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong>의 비즈니스 요금제가 %2$s 후에 만료됩니다. <a href=\"%1$s\">요금제를 갱신</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 액세스와 같은 비즈니스 요금제 기능을 계속 사용하세요."
 
 #: notices/plan-notices.php:38
 msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong>의 전자상거래 요금제가 %2$s 후에 만료됩니다. <a href=\"%1$s\">요금제를 갱신</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 액세스와 같은 전자상거래 요금제 기능을 계속 사용하세요."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-17 12:54:04+0000\n"
+"PO-Revision-Date: 2020-09-24 15:54:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr ""
+msgstr "WordPress.com, tüm Atomik Sitelerde önceden yüklenmiş ve etkinleştirilmiş işlevsellikler ve araçlar sağladı"
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -22,15 +22,15 @@ msgstr ""
 #. purposes.
 #: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
 msgid "Updates managed by WordPress.com"
-msgstr ""
+msgstr "WordPress.com tarafından yönetilen güncellemeler"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong> için Business paketinin süresi %2$s tarihinde sona eriyor. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi Business paketi özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">paketinizi yenileyin </a>."
 
 #: notices/plan-notices.php:38
 msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong> için eCommerce paketinin süresi %2$s tarihinde sona eriyor. Özel eklentiler ve temalar, SFTP ve phpMyAdmin erişimi gibi eCommerce paketi özelliklerini kullanmaya devam etmek için <a href=\"%1$s\">paketinizi yenileyin</a>."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."

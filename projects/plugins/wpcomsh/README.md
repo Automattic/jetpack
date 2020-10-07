@@ -99,11 +99,18 @@ In order for WordPress to load the test site correctly, you'll need to access th
 
 - Run `bin/update-version.sh` and provide the new version. This will update the versions in `package.json` and `wpcomsh.php`. Commit the changes and create a PR.
 - Wait for the PR to be approved and merged
-- Optional but encouraged: use `make i18n` to update translatable strings and translations and create a new PR.
 - Checkout latest `master`
 - Tag the release with `make tag`
 - Build a new release zip and create a GH release with `bin/create-github-release.sh`. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step. 
 - New version will be deployed when our monitoring detects it has been released.
+
+### Deploying new languages (optional, and mostly Atomic team)
+
+After every deployment, as described above, please create a new
+branch and run:
+
+- `make i18n` to update translatable strings and translations and create a new PR
+- Follow Deployment instructions 
 
 ## Troubleshooting
 
