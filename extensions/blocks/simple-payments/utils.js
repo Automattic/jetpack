@@ -4,6 +4,7 @@
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
 import { select } from '@wordpress/data';
+import { getLocaleSlug } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -40,7 +41,7 @@ export const formatPriceFallback = ( price, currency, withSymbol = true ) => {
 // Display prices using Intl.NumberFormat - supported in 95.75% of browsers as of Oct 2020.
 const formatPriceIntlNumberFormat = ( price, currency, withSymbol = true ) => {
 	const { siteLocale } = select( 'core/block-editor' ).getSettings();
-	const tryLocales = [ siteLocale, getNavigatorLanguage(), 'en-US' ];
+	const tryLocales = [ getLocaleSlug(), siteLocale, getNavigatorLanguage(), 'en-US' ];
 
 	let formatOptions = {};
 	if ( withSymbol ) {
