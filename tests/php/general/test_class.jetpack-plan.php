@@ -38,22 +38,22 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 
 	public function get_update_from_sites_response_data() {
 		return array(
-			'is_errored_response'            => array(
+			'is_errored_response'                    => array(
 				$this->get_errored_sites_response(),
 				'jetpack_free',
 				false,
 			),
-			'response_is_empty'              => array(
+			'response_is_empty'                      => array(
 				$this->get_mocked_response( 200, '' ),
 				'jetpack_free',
 				false,
 			),
-			'response_does_not_have_body'    => array(
+			'response_does_not_have_body'            => array(
 				array( 'code' => 400 ),
 				'jetpack_free',
 				false,
 			),
-			'response_does_not_have_plan'    => array(
+			'response_does_not_have_plan'            => array(
 				array(
 					'code' => 200,
 					array(),
@@ -61,27 +61,39 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 				'jetpack_free',
 				false,
 			),
-			'initially_empty_option_to_free' => array(
+			'initially_empty_option_to_free'         => array(
 				$this->get_response_free_plan(),
 				'jetpack_free',
 				true,
 			),
-			'initially_empty_to_personal'    => array(
+			'initially_empty_to_personal'            => array(
 				$this->get_response_personal_plan(),
 				'jetpack_personal',
 				true,
 			),
-			'initially_free_to_personal'     => array(
+			'initially_free_to_personal'             => array(
 				$this->get_response_personal_plan(),
 				'jetpack_personal',
 				true,
 				$this->get_free_plan(),
 			),
-			'initially_personal_to_free'     => array(
+			'initially_personal_to_free'             => array(
 				$this->get_response_free_plan(),
 				'jetpack_free',
 				true,
 				$this->get_personal_plan(),
+			),
+			'initially_free_no_change'               => array(
+				$this->get_response_free_plan(),
+				'jetpack_free',
+				false,
+				$this->get_free_plan(),
+			),
+			'initially_personal_to_changed_personal' => array(
+				$this->get_response_changed_personal_plan(),
+				'jetpack_personal',
+				true,
+				$this->get_response_personal_plan(),
 			),
 		);
 	}
@@ -92,6 +104,10 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 
 	private function get_response_personal_plan() {
 		return $this->get_successful_plan_response( $this->get_personal_plan() );
+	}
+
+	private function get_response_changed_personal_plan() {
+		return $this->get_successful_plan_response( $this->get_changed_personal_plan() );
 	}
 
 	private function get_successful_plan_response( $plan_response ) {
@@ -187,6 +203,13 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 				),
 			),
 		);
+	}
+
+	private function get_changed_personal_plan() {
+		$changed_personal_plan = $this->get_personal_plan();
+
+		$changed_personal_plan['features']['available']['test_feature'] = array( 'jetpack_free' );
+		return $changed_personal_plan;
 	}
 
 	private function get_personal_plan() {
