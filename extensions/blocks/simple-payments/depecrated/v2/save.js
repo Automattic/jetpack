@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { formatPriceFallback } from '../..//utils';
+import { formatPriceFallback } from '../../utils';
 
 export default function Save( { attributes } ) {
 	const {
