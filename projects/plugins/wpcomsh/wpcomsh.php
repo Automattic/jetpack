@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.149
+ * Version: 2.4.150
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.149' );
+define( 'WPCOMSH_VERSION', '2.4.150' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -913,27 +913,6 @@ function wpcomsh_get_at_site_info() {
 	}
 
 	return $site_info;
-}
-
-function wpcomsh_get_site_persistent_data() {
-	$persistent_data_file = sys_get_temp_dir() . '/.at-persistent-data';
-
-	if ( ! is_file( $persistent_data_file ) ) {
-		return [];
-	}
-
-	$persistent_data_json = file_get_contents( $persistent_data_file );
-
-	if ( empty( $persistent_data_json ) ) {
-		return [];
-	}
-
-	$persistent_data = json_decode( $persistent_data_json, true );
-	if ( empty( $persistent_data ) ) {
-		return [];
-	}
-
-	return $persistent_data;
 }
 
 function wpcomsh_display_disk_space_usage() {

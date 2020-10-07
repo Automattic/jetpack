@@ -11,9 +11,9 @@ function wpcomsh_plan_notices() {
 		'https://wordpress.com/checkout/business-bundle,ecommerce-bundle/renew/0/' . $domain
 	);
 
-	$persistent_data = wpcomsh_get_site_persistent_data();
-	$wpcom_plan = $persistent_data['WPCOM_PLAN'] ?? null;
-	$wpcom_plan_expiration = $persistent_data['WPCOM_PLAN_EXPIRATION'] ?? null;
+	$persistent_data = new Atomic_Persistent_Data();
+	$wpcom_plan = $persistent_data->WPCOM_PLAN;
+	$wpcom_plan_expiration = $persistent_data->WPCOM_PLAN_EXPIRATION;
 
 	/* No need for now, but will need it soon. :)
 	if ( Atomic_Plan_Manager::FREE_PLAN_SLUG === $wpcom_plan ) {
