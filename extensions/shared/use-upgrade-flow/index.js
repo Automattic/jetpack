@@ -24,10 +24,18 @@ function redirect( url, callback ) {
 	window.top.location.href = url;
 }
 
+function isCheckoutOverlayAvailable() {
+	try {
+		return window.wp.hooks.hasAction( 'a8c.wpcom-block-editor.openCheckoutModal' );
+	} catch ( err ) {
+		return false;
+	}
+}
+
 export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
 
-	const { checkoutUrl, isAutosaveablePost, isDirtyPost } = useSelect( select => {
+	const { checkoutUrl, isAutosaveablePost, isDirtyPost, planData } = useSelect( select => {
 		const editorSelector = select( 'core/editor' );
 		const planSelector = select( 'wordpress-com/plans' );
 
@@ -38,6 +46,7 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 			checkoutUrl: getUpgradeUrl( { plan, planSlug, postId, postType } ),
 			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
 			isDirtyPost: editorSelector.isEditedPostDirty(),
+			planData: plan,
 		};
 	}, [] );
 
@@ -45,6 +54,13 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const savePost = dispatch( 'core/editor' ).savePost;
 
 	const goToCheckoutPage = async event => {
+		// If checkout overlay is enabled, use it. Otherwise contiue to redirect method.
+		if ( isCheckoutOverlayAvailable() ) {
+			event.preventDefault();
+			window.wp.hooks.doAction( 'a8c.wpcom-block-editor.openCheckoutModal', { products: [planData] } );
+			return;
+		}
+
 		if ( ! window?.top?.location?.href ) {
 			return;
 		}
@@ -59,9 +75,9 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		setIsRedirecting( true );
 
 		/*
-		 * If there are not unsaved values, redirect.
-		 * If the post is not auto-savable, redirect.
-		 */
+		* If there are not unsaved values, redirect.
+		* If the post is not auto-savable, redirect.
+		*/
 		if ( ! isDirtyPost || ! isAutosaveablePost ) {
 			return redirect( checkoutUrl, onRedirect );
 		}
