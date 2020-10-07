@@ -22,11 +22,11 @@ export const decimalPlaces = number => {
 	return Math.max( 0, ( match[ 1 ] ? match[ 1 ].length : 0 ) - ( match[ 2 ] ? +match[ 2 ] : 0 ) );
 };
 
-const getNavigatorLanguage = () => {
+const getNavigatorLanguage = ( defaultLang = 'en-US' ) => {
 	if ( navigator.languages && navigator.languages.length ) {
 		return navigator.languages[ 0 ];
 	}
-	return navigator.userLanguage || navigator.language || navigator.browserLanguage || 'en';
+	return navigator.userLanguage || navigator.language || navigator.browserLanguage || defaultLang;
 };
 
 // Legacy method of displaying prices.
@@ -37,31 +37,23 @@ export const formatPriceFallback = ( price, currency, withSymbol = true ) => {
 	return withSymbol ? `${ value } ${ trimEnd( symbol, '.' ) }` : value;
 };
 
-// Display prices using Intl.NumberFormat if availablel - supported in 95.75% of browsers as of Oct 2020.
+// Display prices using Intl.NumberFormat if available - supported in 95.75% of browsers as of Oct 2020.
 export const formatPrice = ( price, currency, withSymbol = true ) => {
 	if ( ! window.Intl || 'function' !== typeof Intl.NumberFormat ) {
 		return formatPriceFallback( price, currency, withSymbol );
 	}
 
-	const { siteLocale } = select( 'core/block-editor' ).getSettings();
-	const tryLocales = [ siteLocale, getNavigatorLanguage(), 'en-US' ];
+	const locale = getNavigatorLanguage();
 
 	let formatOptions = {};
 	if ( withSymbol ) {
 		formatOptions = { style: 'currency', currency };
 	}
 
-	// We're not 100% certain that the siteLocale or the navigatorLanguage line up with Intl.NumberFormat ("best effort" API).
-	// Try them in order, fallback to "en-US".
-	let locale;
-	for ( locale of tryLocales ) {
-		try {
-			return Intl.NumberFormat( locale, formatOptions ).format( price );
-		} catch {
-			continue;
-		}
+	try {
+		return Intl.NumberFormat( locale, formatOptions ).format( price );
+	} catch {
+		// "Shouldn't" reach here - maybe Intl.Numberformat rejected the currency. Fallback.
+		return formatPriceFallback( price, currency, withSymbol );
 	}
-
-	// "Shouldn't" reach here - maybe Intl.Numberformat rejected the currency. Fallback.
-	return formatPriceFallback( price, currency, withSymbol );
 };
