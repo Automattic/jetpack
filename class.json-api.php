@@ -151,7 +151,7 @@ class WPCOM_JSON_API {
 	 *
 	 * @since 9.1.0
 	 *
-	 * @param  boolean|number $site_id The site id.
+	 * @param  boolean|int $site_id The site id.
 	 * @return boolean
 	 */
 	public function is_jetpack_authorized_for_site( $site_id = false ) {
