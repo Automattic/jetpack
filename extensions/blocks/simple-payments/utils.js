@@ -4,7 +4,6 @@
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
 import { select } from '@wordpress/data';
-import { getLocaleSlug } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -45,7 +44,7 @@ export const formatPrice = ( price, currency, withSymbol = true ) => {
 	}
 
 	const { siteLocale } = select( 'core/block-editor' ).getSettings();
-	const tryLocales = [ getLocaleSlug(), siteLocale, getNavigatorLanguage(), 'en-US' ];
+	const tryLocales = [ siteLocale, getNavigatorLanguage(), 'en-US' ];
 
 	let formatOptions = {};
 	if ( withSymbol ) {
