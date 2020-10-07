@@ -173,7 +173,7 @@ class SearchResults extends Component {
 					tabIndex="0"
 					aria-label={ __( 'Close search results', 'jetpack' ) }
 				>
-					<Gridicon icon="cross" size="24" aria-hidden="true" />
+					<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
 				</button>
 				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }

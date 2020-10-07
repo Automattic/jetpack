@@ -17,7 +17,8 @@ import './style.scss';
 
 class Gridicon extends Component {
 	static defaultProps = {
-		'aria-hidden': false,
+		'aria-hidden': 'false',
+		focusable: 'true',
 	};
 
 	needsOffset( icon, size ) {
@@ -197,7 +198,7 @@ class Gridicon extends Component {
 		return (
 			<svg
 				className={ iconClass }
-				focusable="false"
+				focusable={ this.props.focusable }
 				height={ size }
 				onClick={ this.props.onClick }
 				style={ { height: size, width: size } }
