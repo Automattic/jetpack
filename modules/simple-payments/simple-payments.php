@@ -7,8 +7,6 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Blocks;
-
 /**
  * Jetpack_Simple_Payments
  */
