@@ -74,16 +74,26 @@ const PublicizeTwitterOptions = ( {
 				{ __( 'Twitter settings', 'jetpack' ) }
 			</h3>
 			<RadioControl
+				className="jetpack-publicize-twitter-options__type"
 				selected={ isTweetStorm ? 'tweetstorm' : 'single' }
 				options={ [
 					{
-						label: __( 'Share your blog post as a link in a single tweet', 'jetpack' ),
+						label: (
+							<>
+								<strong>{ __( 'Single Tweet', 'jetpack' ) }</strong>
+								<br />
+								{ __( 'Share a link to this post to Twitter.', 'jetpack' ) }
+							</>
+						),
 						value: 'single',
 					},
 					{
-						label: __(
-							'Share your entire blog post as a Twitter thread in multiple Tweets',
-							'jetpack'
+						label: (
+							<>
+								<strong>{ __( 'Twitter Thread', 'jetpack' ) }</strong>
+								<br />
+								{ __( 'Share the content of this post as a Twitter thread.', 'jetpack' ) }
+							</>
 						),
 						value: 'tweetstorm',
 					},
