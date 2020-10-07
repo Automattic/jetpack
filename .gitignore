@@ -3,6 +3,7 @@
 /node_modules
 vendor/bin
 vendor/dealerdirect
+vendor/mediawiki/mediawiki-codesniffer
 vendor/phpcompatibility
 vendor/sirbrillig
 vendor/squizlabs
