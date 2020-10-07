@@ -38,8 +38,12 @@ export const formatPriceFallback = ( price, currency, withSymbol = true ) => {
 	return withSymbol ? `${ value } ${ trimEnd( symbol, '.' ) }` : value;
 };
 
-// Display prices using Intl.NumberFormat - supported in 95.75% of browsers as of Oct 2020.
-const formatPriceIntlNumberFormat = ( price, currency, withSymbol = true ) => {
+// Display prices using Intl.NumberFormat if availablel - supported in 95.75% of browsers as of Oct 2020.
+export const formatPrice = ( price, currency, withSymbol = true ) => {
+	if ( ! window.Intl || 'function' !== typeof Intl.NumberFormat ) {
+		return formatPriceFallback( price, currency, withSymbol );
+	}
+
 	const { siteLocale } = select( 'core/block-editor' ).getSettings();
 	const tryLocales = [ getLocaleSlug(), siteLocale, getNavigatorLanguage(), 'en-US' ];
 
@@ -60,13 +64,5 @@ const formatPriceIntlNumberFormat = ( price, currency, withSymbol = true ) => {
 	}
 
 	// "Shouldn't" reach here - maybe Intl.Numberformat rejected the currency. Fallback.
-	return formatPriceFallback( price, currency, withSymbol );
-};
-
-// Format a price with Intl.NumberFormat if available, but fall back to old method if not.
-export const formatPrice = ( price, currency, withSymbol = true ) => {
-	if ( window.Intl && 'function' === typeof Intl.NumberFormat ) {
-		return formatPriceIntlNumberFormat( price, currency, withSymbol );
-	}
 	return formatPriceFallback( price, currency, withSymbol );
 };
