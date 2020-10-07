@@ -627,11 +627,11 @@ class WPCOM_JSON_API {
 		/**
 		 * If this is a private site we check for 2 things:
 		 * 1. In case of user based authentication, we need to check if the logged-in user has the 'read' capability.
-		 * 2. In case of site based authentication, make sure the endpoint allows it and no user is logged-in.
+		 * 2. In case of site based authentication, make sure the endpoint accepts it.
 		 */
 		if ( -1 === (int) get_option( 'blog_public' ) &&
 			! current_user_can( 'read' ) &&
-			! $this->endpoint->allows_site_based_authentication()
+			! $this->endpoint->accepts_site_based_authentication()
 		) {
 			return new WP_Error( 'unauthorized', 'User cannot access this private blog.', 403 );
 		}

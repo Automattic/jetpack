@@ -58,18 +58,18 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests allows_site_based_authentication method.
+	 * Tests accepts_site_based_authentication method.
 	 *
 	 * @author fgiannar
-	 * @covers WPCOM_JSON_API_Endpoint allows_site_based_authentication
+	 * @covers WPCOM_JSON_API_Endpoint accepts_site_based_authentication
 	 * @group json-api
-	 * @dataProvider data_provider_test_allows_site_based_authentication
+	 * @dataProvider data_provider_test_accepts_site_based_authentication
 	 *
 	 * @param bool $allow_jetpack_site_auth The endpoint's `allow_jetpack_site_auth` value.
 	 * @param bool $is_user_logged_in If a user is logged in.
 	 * @param bool $result The expected result.
 	 */
-	public function test_allows_site_based_authentication( $allow_jetpack_site_auth, $is_user_logged_in, $result ) {
+	public function test_accepts_site_based_authentication( $allow_jetpack_site_auth, $is_user_logged_in, $result ) {
 
 		$endpoint = new Jetpack_JSON_API_Dummy_Endpoint(
 			array(
@@ -82,7 +82,7 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 			wp_set_current_user( self::$admin_user_id );
 		}
 
-		$this->assertEquals( $result, $endpoint->allows_site_based_authentication() );
+		$this->assertEquals( $result, $endpoint->accepts_site_based_authentication() );
 	}
 
 	/**
@@ -219,9 +219,9 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider for test_allows_site_based_authentication.
+	 * Data provider for test_accepts_site_based_authentication.
 	 */
-	public function data_provider_test_allows_site_based_authentication() {
+	public function data_provider_test_accepts_site_based_authentication() {
 		return array(
 			'allow_jetpack_site_auth: true; logged_in_user: false;'  => array( true, false, true ),
 			'allow_jetpack_site_auth: false; logged_in_user: false;' => array( false, false, false ),
@@ -267,7 +267,7 @@ class Jetpack_JSON_API_Dummy_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
 	 * Only accessible to admins.
 	 *
-	 * @var array
+	 * @var array|string
 	 */
 	protected $needed_capabilities = 'manage_options';
 

@@ -2053,14 +2053,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Whether this endpoint allows site based authentication.
+	 * Whether this endpoint accepts site based authentication.
 	 *
 	 * @since 9.1.0
 	 *
 	 * @return bool true, if Jetpack blog token is used and `allow_jetpack_site_auth` is true,
 	 * false otherwise.
 	 */
-	public function allows_site_based_authentication() {
+	public function accepts_site_based_authentication() {
 		return $this->allow_jetpack_site_auth &&
 			$this->api->is_jetpack_authorized_for_site();
 	}
