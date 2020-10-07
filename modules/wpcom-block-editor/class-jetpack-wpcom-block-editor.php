@@ -40,6 +40,13 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
+		jetpack_require_lib( 'functions.classic-editor' );
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		if ( ! is_plugin_active( 'classic-editor/classic-editor.php' ) || false === has_filter( 'block_editor_settings', array( 'Classic_Editor', 'remember_block_editor' ) ) ) {
+			add_action( 'edit_form_top', 'Jetpack\ClassicEditor\remember_classic_editor' );
+			add_filter( 'block_editor_settings', 'Jetpack\ClassicEditor\remember_block_editor', 10, 2 );
+		}
+
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
