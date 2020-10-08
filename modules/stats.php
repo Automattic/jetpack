@@ -58,7 +58,7 @@ function stats_load() {
 		add_action( 'admin_init', 'stats_merged_widget_admin_init' );
 	}
 
-	add_filter( 'jetpack_xmlrpc_methods', 'stats_xmlrpc_methods' );
+	add_filter( 'jetpack_xmlrpc_unauthenticated_methods', 'stats_xmlrpc_methods' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
