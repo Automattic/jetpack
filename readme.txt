@@ -249,6 +249,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Media Extractor: prevent PHP notice for some URLs.
 * Publicize: avoid block editor errors when no Publicize connections are available.
 * WordPress.com REST API: avoid errors when uploading images from a URL.
 
