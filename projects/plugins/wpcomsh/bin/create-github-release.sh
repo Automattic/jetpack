@@ -47,7 +47,7 @@ git checkout -b $BRANCH
 hub release create -m $VERSION -m "Release of version $VERSION. See README.md for details." "v${VERSION}" --attach="${ZIP_FILE}" \
 	|| error "Failed creating a release for ${VERSION}."
 
-git branch -D $BRANCH
 git checkout $CURRENTBRANCH
+git branch -D $BRANCH
 
 success "GitHub release complete."
