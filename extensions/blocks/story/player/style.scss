@@ -3,6 +3,10 @@
 @import './variables.scss';
 @import '~@wordpress/components/src/spinner/style';
 
+.wp-story-display-contents {
+	display: contents;
+}
+
 .wp-story-container {
 	height: 320px;
 	width: 180px;
@@ -36,6 +40,10 @@
 		text-shadow: none;
 		background-color: transparent;
 		border: 0;
+	}
+
+	button {
+		cursor:pointer;
 	}
 
 	&.wp-story-initialized {
@@ -250,11 +258,12 @@
 	.wp-story-pagination-bullets {
 		display: flex;
 		position: absolute;
-		padding: 7px 10px;
+		margin: 7px 10px;
 		top: auto;
 		right: 0;
 		left: 0;
 		bottom: 0;
+		overflow: hidden;
 
 		.wp-story-pagination-bullet {
 			flex: 1;
@@ -387,6 +396,10 @@
 			transition: none !important;
 		}
 
+		&:focus {
+			outline: none;
+		}
+
 		&:before {
 			box-shadow: none;
 
@@ -436,6 +449,7 @@
 				background-color: #fff;
 				width: 40px;
 				height: 40px;
+				flex-shrink: 0;
 				margin: 0 16px 0 0;
 				border: 2px solid #fff;
 				border-radius: 4px;
@@ -547,6 +561,7 @@
 			bottom: 42px;
 			top: auto;
 			padding: 14px 0;
+			margin: 0;
 
 			.wp-story-pagination-bullet {
 				justify-content: space-between;
@@ -631,6 +646,7 @@
 
 html.wp-story-in-fullscreen {
 	overflow: hidden;
+	scroll-behavior: auto;
 }
 
 body.wp-story-in-fullscreen {

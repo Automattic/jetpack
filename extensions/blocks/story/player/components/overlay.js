@@ -10,11 +10,13 @@ import GridiconFullscreen from 'gridicons/dist/fullscreen';
  * WordPress dependencies
  */
 import { createElement, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { DecoratedButton } from './button';
+import { NavigateBeforeIcon, NavigateNextIcon } from './icons';
 
 export default function Overlay( {
 	ended,
@@ -57,29 +59,29 @@ export default function Overlay( {
 			) }
 			{ ! icon && (
 				<div className="wp-story-embed-icon-expand">
-					<GridiconFullscreen />
+					<GridiconFullscreen role="img" />
 				</div>
 			) }
 			{ hasPrevious && (
 				<div className="wp-story-prev-slide" onClick={ onPreviousSlideHandler }>
 					<DecoratedButton
 						size={ 44 }
-						iconSize={ 24 }
-						label="Previous Slide"
-						icon="navigate_before"
+						label={ __( 'Previous Slide', 'jetpack' ) }
 						className="outlined-w"
-					/>
+					>
+						<NavigateBeforeIcon size={ 24 } />
+					</DecoratedButton>
 				</div>
 			) }
 			{ hasNext && (
 				<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
 					<DecoratedButton
 						size={ 44 }
-						iconSize={ 24 }
-						label="Next Slide"
-						icon="navigate_next"
+						label={ __( 'Next Slide', 'jetpack' ) }
 						className="outlined-w"
-					/>
+					>
+						<NavigateNextIcon size={ 24 } />
+					</DecoratedButton>
 				</div>
 			) }
 		</div>
