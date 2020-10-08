@@ -8,6 +8,7 @@ import { noop } from 'lodash';
  */
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { doAction, hasAction } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -22,14 +23,6 @@ function redirect( url, callback ) {
 		callback( url );
 	}
 	window.top.location.href = url;
-}
-
-function isCheckoutOverlayAvailable() {
-	try {
-		return window.wp.hooks.hasAction( 'a8c.wpcom-block-editor.openCheckoutModal' );
-	} catch ( err ) {
-		return false;
-	}
 }
 
 export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
@@ -54,10 +47,11 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const savePost = dispatch( 'core/editor' ).savePost;
 
 	const goToCheckoutPage = async event => {
-		// If checkout overlay is enabled, use it. Otherwise contiue to redirect method.
-		if ( isCheckoutOverlayAvailable() ) {
+		// If this action is available, the feature is enabled to open the checkout
+		// in a modal rather than redirect the user there, away from the editor.
+		if ( hasAction( 'a8c.wpcom-block-editor.openCheckoutModal' ) ) {
 			event.preventDefault();
-			window.wp.hooks.doAction( 'a8c.wpcom-block-editor.openCheckoutModal', { products: [planData] } );
+			doAction( 'a8c.wpcom-block-editor.openCheckoutModal', { products: [planData] } );
 			return;
 		}
 
