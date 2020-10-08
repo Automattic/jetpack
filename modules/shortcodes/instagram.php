@@ -282,6 +282,21 @@ function jetpack_instagram_fetch_embed( $args ) {
 			)
 		);
 		$response             = wp_remote_get( $url, array( 'redirection' => 0 ) );
+
+		// Unset before calling the action below.
+		unset( $args['access_token'] );
+
+		/**
+		 * Fires after making a request for an Instagram embed.
+		 *
+		 * @module shortcodes
+		 *
+		 * @since  9.1.0
+		 *
+		 * @param array $response The response from the embed request.
+		 * @param array $url      The arguments sent with the request.
+		 */
+		do_action( 'jetpack_instagram_embed_request', $response, $args );
 	} else {
 		if ( ! Jetpack::is_active_and_not_offline_mode() ) {
 			return new WP_Error(
