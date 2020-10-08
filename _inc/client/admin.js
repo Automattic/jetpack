@@ -47,6 +47,9 @@ function render() {
 						<Route path="/dashboard">
 							<Main routeName={ getRouteName( '/dashboard' ) } />
 						</Route>
+						<Route path="/reconnect">
+							<Main routeName={ getRouteName( '/reconnect' ) } />
+						</Route>
 						<Route path="/setup">
 							<Main routeName={ getRouteName( '/setup' ) } />
 						</Route>

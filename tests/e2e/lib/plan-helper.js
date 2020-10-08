@@ -8,7 +8,7 @@ import fs from 'fs';
 import { getNgrokSiteUrl, execWpCommand } from './utils-helper';
 import logger from './logger';
 
-export async function persistPlanData( planType = 'jetpack_business' ) {
+export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteUrl = getNgrokSiteUrl();
 	const siteId = await getSiteId();
@@ -245,139 +245,244 @@ function getPlanData(
  * @return {JSON} JSON Jetpack plan object.
  */
 function getPlan( type ) {
-	if ( type === 'jetpack_business' ) {
-		return {
-			product_id: 2001,
-			product_slug: 'jetpack_business',
-			product_name: 'Jetpack Professional',
-			product_name_short: 'Professional',
-			expired: false,
-			user_is_owner: false,
-			is_free: false,
-			features: {
-				active: [
-					'premium-themes',
-					'akismet',
-					'vaultpress-backups',
-					'vaultpress-backup-archive',
-					'vaultpress-storage-space',
-					'vaultpress-automated-restores',
-					'vaultpress-security-scanning',
-					'polldaddy',
-					'simple-payments',
-					'support',
-					'wordads-jetpack',
-				],
-				available: {
-					akismet: [
-						'jetpack_free',
-						'jetpack_premium',
-						'jetpack_personal',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-						'jetpack_personal_monthly',
-					],
-					'vaultpress-backups': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'vaultpress-backup-archive': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'vaultpress-storage-space': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'vaultpress-automated-restores': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'simple-payments': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					support: [
-						'jetpack_premium',
-						'jetpack_personal',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-						'jetpack_personal_monthly',
-					],
-					'premium-themes': [ 'jetpack_business_monthly' ],
-					'vaultpress-security-scanning': [ 'jetpack_business_monthly' ],
-					polldaddy: [ 'jetpack_business_monthly' ],
+	switch ( type ) {
+		case 'jetpack_free':
+			return {
+				product_id: 2002,
+				product_slug: 'jetpack_free',
+				product_name: 'Jetpack Free',
+				product_name_short: 'Free',
+				expired: false,
+				user_is_owner: false,
+				is_free: true,
+				features: {
+					active: [ 'akismet' ],
+					available: {
+						akismet: [
+							'jetpack_free',
+							'jetpack_premium',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+						],
+						'vaultpress-backups': [
+							'jetpack_premium',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'vaultpress-backup-archive': [
+							'jetpack_premium',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'vaultpress-storage-space': [
+							'jetpack_premium',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'vaultpress-automated-restores': [
+							'jetpack_premium',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'simple-payments': [
+							'jetpack_premium',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						support: [
+							'jetpack_premium',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+						],
+						'premium-themes': [ 'jetpack_business_monthly' ],
+						'vaultpress-security-scanning': [ 'jetpack_business_monthly' ],
+						polldaddy: [ 'jetpack_business_monthly' ],
+					},
 				},
-			},
-		};
-	}
+			};
 
-	if ( type === 'jetpack_free' ) {
-		return {
-			product_id: 2002,
-			product_slug: 'jetpack_free',
-			product_name: 'Jetpack Free',
-			product_name_short: 'Free',
-			expired: false,
-			user_is_owner: false,
-			is_free: true,
-			features: {
-				active: [ 'akismet' ],
-				available: {
-					akismet: [
-						'jetpack_free',
-						'jetpack_premium',
-						'jetpack_personal',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-						'jetpack_personal_monthly',
+		case 'jetpack_complete':
+			return {
+				product_id: 2014,
+				product_slug: 'jetpack_complete',
+				product_name: 'Jetpack Complete',
+				product_name_short: 'Complete',
+				expired: false,
+				user_is_owner: false,
+				is_free: false,
+				features: {
+					active: [
+						'akismet',
+						'send-a-message',
+						'social-previews',
+						'donations',
+						'core/audio',
+						'premium-content/container',
+						'support',
+						'wordads-jetpack',
 					],
-					'vaultpress-backups': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'vaultpress-backup-archive': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'vaultpress-storage-space': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'vaultpress-automated-restores': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					'simple-payments': [
-						'jetpack_premium',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					],
-					support: [
-						'jetpack_premium',
-						'jetpack_personal',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-						'jetpack_personal_monthly',
-					],
-					'premium-themes': [ 'jetpack_business_monthly' ],
-					'vaultpress-security-scanning': [ 'jetpack_business_monthly' ],
-					polldaddy: [ 'jetpack_business_monthly' ],
+					available: {
+						akismet: [
+							'jetpack_free',
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+							'jetpack_security_daily',
+							'jetpack_security_daily_monthly',
+							'jetpack_security_realtime',
+							'jetpack_security_realtime_monthly',
+							'jetpack_complete_monthly',
+						],
+						'send-a-message': [
+							'jetpack_free',
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+							'jetpack_security_daily',
+							'jetpack_security_daily_monthly',
+							'jetpack_security_realtime',
+							'jetpack_security_realtime_monthly',
+							'jetpack_complete_monthly',
+						],
+						'social-previews': [
+							'jetpack_free',
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+							'jetpack_security_daily',
+							'jetpack_security_daily_monthly',
+							'jetpack_security_realtime',
+							'jetpack_security_realtime_monthly',
+							'jetpack_complete_monthly',
+						],
+						'vaultpress-backups': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'vaultpress-backup-archive': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'vaultpress-storage-space': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'vaultpress-automated-restores': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'simple-payments': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						calendly: [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						opentable: [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						donations: [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+							'jetpack_security_daily',
+							'jetpack_security_daily_monthly',
+							'jetpack_security_realtime',
+							'jetpack_security_realtime_monthly',
+							'jetpack_complete_monthly',
+						],
+						'core/video': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'core/cover': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+						],
+						'core/audio': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+							'jetpack_security_daily',
+							'jetpack_security_daily_monthly',
+							'jetpack_security_realtime',
+							'jetpack_security_realtime_monthly',
+							'jetpack_complete_monthly',
+						],
+						'premium-content/container': [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+							'jetpack_security_daily',
+							'jetpack_security_daily_monthly',
+							'jetpack_security_realtime',
+							'jetpack_security_realtime_monthly',
+							'jetpack_complete_monthly',
+						],
+						support: [
+							'jetpack_premium',
+							'jetpack_business',
+							'jetpack_personal',
+							'jetpack_premium_monthly',
+							'jetpack_business_monthly',
+							'jetpack_personal_monthly',
+							'jetpack_security_daily',
+							'jetpack_security_daily_monthly',
+							'jetpack_security_realtime',
+							'jetpack_security_realtime_monthly',
+							'jetpack_complete_monthly',
+						],
+						'premium-themes': [ 'jetpack_business', 'jetpack_business_monthly' ],
+						'vaultpress-security-scanning': [ 'jetpack_business', 'jetpack_business_monthly' ],
+						polldaddy: [ 'jetpack_business', 'jetpack_business_monthly' ],
+					},
 				},
-			},
-		};
+			};
+		default:
+			throw new Error( `${ type } is not yet supported. Add it yourself!` );
 	}
-
-	throw new Error( `${ type } is not yet supported. Add it yourself!` );
 }
 
 export async function syncPlanData( page ) {

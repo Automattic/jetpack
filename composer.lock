@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "47b37ad7ddee294cec6da18fcee814dc",
+    "content-hash": "31c2399fec4166dba523747a45bc3e63",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -128,9 +128,9 @@
                 "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
             },
             "autoload": {
-			    "classmap": [
-				  "src/AutoloadGenerator.php"
-				],
+                "classmap": [
+                    "src/AutoloadGenerator.php"
+                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Autoloader\\": "src"
                 }
@@ -170,6 +170,41 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tools to assist with backing up Jetpack sites.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-blocks",
+            "version": "dev-add/nonce-removal",
+            "dist": {
+                "type": "path",
+                "url": "./packages/blocks",
+                "reference": "057e0ecae8c03cbc335bb5ea488f67b51603fd7a"
+            },
+            "require-dev": {
+                "automattic/wordbless": "dev-master",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
             "transport-options": {
                 "relative": true
             }
@@ -491,6 +526,46 @@
             }
         },
         {
+            "name": "automattic/jetpack-licensing",
+            "version": "dev-add/license-support",
+            "dist": {
+                "type": "path",
+                "url": "./packages/licensing",
+                "reference": "0b3150892c93b9bdb252933500b80db692a1d1e9"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-options": "@dev"
+            },
+            "require-dev": {
+                "automattic/wordbless": "@dev",
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything needed to manage Jetpack licenses client-side.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-logo",
             "version": "dev-add/jetpack-lazy-images-package",
             "dist": {
@@ -683,11 +758,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-add/publishing-tweetstorms",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "c79e43785c0f1b6f0e9f8873bb6e588ecda5f61b"
+                "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -783,6 +858,72 @@
             "transport-options": {
                 "relative": true
             }
+        },
+        {
+            "name": "nojimage/twitter-text-php",
+            "version": "v3.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nojimage/twitter-text-php.git",
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/7f466b331cebfdd00e3568acaf45f2e90a39a320",
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320",
+                "shasum": ""
+            },
+            "require": {
+                "ext-intl": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "phpunit/phpunit": "4.8.*|5.7.*|6.5.*",
+                "symfony/yaml": "^2.6.0|^3.4.0|^4.4.0|^5.0.0",
+                "twitter/twitter-text": "^3.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Twitter\\Text\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Sanford",
+                    "email": "matt@mzsanford.com",
+                    "homepage": "http://mzsanford.com"
+                },
+                {
+                    "name": "Mike Cochrane",
+                    "email": "mikec@mikenz.geek.nz",
+                    "homepage": "http://mikenz.geek.nz"
+                },
+                {
+                    "name": "Nick Pope",
+                    "email": "git@nickpope.me.uk",
+                    "homepage": "http://www.nickpope.me.uk"
+                },
+                {
+                    "name": "Takashi Nojima",
+                    "homepage": "http://php-tips.com"
+                }
+            ],
+            "description": "A library of PHP classes that provide auto-linking and extraction of usernames, lists, hashtags and URLs from tweets.",
+            "homepage": "https://github.com/nojimage/twitter-text-php",
+            "keywords": [
+                "autolink",
+                "extract",
+                "text",
+                "twitter"
+            ],
+            "time": "2020-09-30T13:30:59+00:00"
         }
     ],
     "packages-dev": [
@@ -1220,6 +1361,7 @@
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
+        "automattic/jetpack-blocks": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
@@ -1229,6 +1371,7 @@
         "automattic/jetpack-heartbeat": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-lazy-images": 20,
+        "automattic/jetpack-licensing": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
@@ -1247,5 +1390,8 @@
         "ext-openssl": "*"
     },
     "platform-dev": [],
+    "platform-overrides": {
+        "ext-intl": "0.0.0"
+    },
     "plugin-api-version": "1.1.0"
 }

@@ -172,4 +172,15 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		( new Lock() )->remove( 'full_sync' );
 	}
 
+	/**
+	 * Validate that mark_sync_read_only sets JETPACK_SYNC_READ_ONLY constant.
+	 */
+	public function test_mark_sync_read_only() {
+		$this->assertFalse( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) );
+
+		Actions::mark_sync_read_only();
+		$this->assertTrue( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
+	}
+
 }

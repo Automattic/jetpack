@@ -4,11 +4,6 @@
 /* CORE UI */
 @import 'gutenberg-styles/button.scss';
 
-/* Hides the Fullscreen option from the View modes */
-.edit-post-more-menu__content .components-menu-group:first-child .components-menu-item__button:last-child {
-  display: none;
-}
-
 .edit-post-sidebar__panel-tab {
 	&.is-active {
 		border-color: $color-primary;

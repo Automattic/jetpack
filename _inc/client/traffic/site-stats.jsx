@@ -221,7 +221,7 @@ class SiteStatsComponent extends React.Component {
 									{ __( 'Hide the stats smiley face image', 'jetpack' ) }
 								</span>
 								<span className="jp-form-setting-explanation">
-									{ __( 'The image helps collect stats, but should work when hidden.', 'jetpack' ) }
+									{ __( 'The image helps collect stats but should work when hidden.', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>

@@ -6,59 +6,27 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
 /**
  * Wrapper function to safely register a gutenberg block type
  *
- * @param string $slug Slug of the block.
- * @param array  $args Arguments that are passed into register_block_type.
+ * @deprecated 9.1.0 Use Automattic\\Jetpack\\Blocks::jetpack_register_block instead
  *
  * @see register_block_type
  *
  * @since 6.7.0
  *
+ * @param string $slug Slug of the block.
+ * @param array  $args Arguments that are passed into register_block_type.
+ *
  * @return WP_Block_Type|false The registered block type on success, or false on failure.
  */
 function jetpack_register_block( $slug, $args = array() ) {
-	if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
-		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
-		$slug = 'jetpack/' . $slug;
-	}
-
-	if ( isset( $args['version_requirements'] )
-		&& ! Jetpack_Gutenberg::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
-		return false;
-	}
-
-	// Checking whether block is registered to ensure it isn't registered twice.
-	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
-		return false;
-	}
-
-	$feature_name = Jetpack_Gutenberg::remove_extension_prefix( $slug );
-	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
-	if (
-		isset( $args['plan_check'] )
-		&& true === $args['plan_check']
-	) {
-		if ( isset( $args['render_callback'] ) ) {
-			$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
-		}
-		$method_name = 'set_availability_for_plan';
-	} else {
-		$method_name = 'set_extension_available';
-	}
-
-	add_action(
-		'jetpack_register_gutenberg_extensions',
-		function() use ( $feature_name, $method_name ) {
-			call_user_func( array( 'Jetpack_Gutenberg', $method_name ), $feature_name );
-		}
-	);
-
-	return register_block_type( $slug, $args );
+	_deprecated_function( __METHOD__, '9.1.0', 'Automattic\\Jetpack\\Blocks::jetpack_register_block' );
+	return Blocks::jetpack_register_block( $slug, $args );
 }
 
 /**
@@ -206,20 +174,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Register a block
-	 *
-	 * @deprecated 7.1.0 Use jetpack_register_block() instead
-	 *
-	 * @param string $slug Slug of the block.
-	 * @param array  $args Arguments that are passed into register_block_type().
-	 */
-	public static function register_block( $slug, $args ) {
-		_deprecated_function( __METHOD__, '7.1', 'jetpack_register_block' );
-
-		jetpack_register_block( 'jetpack/' . $slug, $args );
-	}
-
-	/**
 	 * Register a plugin
 	 *
 	 * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_available() instead
@@ -230,25 +184,6 @@ class Jetpack_Gutenberg {
 		_deprecated_function( __METHOD__, '7.1', 'Jetpack_Gutenberg::set_extension_available' );
 
 		self::set_extension_available( $slug );
-	}
-
-	/**
-	 * Register a block
-	 *
-	 * @deprecated 7.0.0 Use jetpack_register_block() instead
-	 *
-	 * @param string $slug Slug of the block.
-	 * @param array  $args Arguments that are passed into the register_block_type.
-	 * @param array  $availability array containing if a block is available and the reason when it is not.
-	 */
-	public static function register( $slug, $args, $availability ) {
-		_deprecated_function( __METHOD__, '7.0', 'jetpack_register_block' );
-
-		if ( isset( $availability['available'] ) && ! $availability['available'] ) {
-			self::set_extension_unavailability_reason( $slug, $availability['unavailable_reason'] );
-		} else {
-			self::register_block( $slug, $args );
-		}
 	}
 
 	/**
@@ -501,7 +436,7 @@ class Jetpack_Gutenberg {
 		/**
 		 * Fires before Gutenberg extensions availability is computed.
 		 *
-		 * In the function call you supply, use `jetpack_register_block()` to set a block as available.
+		 * In the function call you supply, use `Blocks::jetpack_register_block()` to set a block as available.
 		 * Alternatively, use `Jetpack_Gutenberg::set_extension_available()` (for a non-block plugin), and
 		 * `Jetpack_Gutenberg::set_extension_unavailable()` (if the block or plugin should not be registered
 		 * but marked as unavailable).
@@ -649,7 +584,7 @@ class Jetpack_Gutenberg {
 			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
 		}
 
-		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
+		if ( ! Blocks::is_amp_request() && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
@@ -841,34 +776,8 @@ class Jetpack_Gutenberg {
 	 * @return string $classes List of CSS classes for a block.
 	 */
 	public static function block_classes( $slug = '', $attr, $extra = array() ) {
-		if ( empty( $slug ) ) {
-			return '';
-		}
-
-		// Basic block name class.
-		$classes = array(
-			'wp-block-jetpack-' . $slug,
-		);
-
-		// Add alignment if provided.
-		if (
-			! empty( $attr['align'] )
-			&& in_array( $attr['align'], array( 'left', 'center', 'right', 'wide', 'full' ), true )
-		) {
-			array_push( $classes, 'align' . $attr['align'] );
-		}
-
-		// Add custom classes if provided in the block editor.
-		if ( ! empty( $attr['className'] ) ) {
-			array_push( $classes, $attr['className'] );
-		}
-
-		// Add any extra classes.
-		if ( is_array( $extra ) && ! empty( $extra ) ) {
-			$classes = array_merge( $classes, array_filter( $extra ) );
-		}
-
-		return implode( ' ', $classes );
+		_deprecated_function( __METHOD__, '9.0.0', 'Automattic\\Jetpack\\Blocks::classes' );
+		return Blocks::classes( $slug, $attr, $extra );
 	}
 
 	/**

@@ -37,9 +37,10 @@ class SearchResultProduct extends Component {
 				</h3>
 				{ firstImage && (
 					<PhotonImage
-						className="jetpack-instant-search__search-result-product-img"
-						src={ `//${ firstImage }` }
 						alt=""
+						className="jetpack-instant-search__search-result-product-img"
+						isPrivateSite={ this.props.isPrivateSite }
+						src={ `//${ firstImage }` }
 					/>
 				) }
 				<div

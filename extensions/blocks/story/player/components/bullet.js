@@ -7,18 +7,25 @@
  */
 import { createElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 
-export default function Bullet( { index, progress, onClick } ) {
+export default function Bullet( { disabled, index, isSelected, progress, onClick } ) {
+	const label = isSelected
+		? sprintf( __( 'Slide %d, currently selected.', 'jetpack' ), index + 1 )
+		: sprintf( __( 'Slide %d', 'jetpack' ), index + 1 );
 	return (
-		<button
+		<Button
+			role={ disabled ? 'presentation' : 'tab' }
 			key={ index }
 			className="wp-story-pagination-bullet"
-			aria-label={ sprintf( __( 'Go to slide %d', 'jetpack' ), index ) }
-			onClick={ onClick }
+			aria-label={ label }
+			aria-disabled={ disabled || isSelected }
+			onClick={ ! disabled && ! isSelected ? onClick : undefined }
+			disabled={ disabled }
 		>
 			<div className="wp-story-pagination-bullet-bar">
 				<div
@@ -26,6 +33,6 @@ export default function Bullet( { index, progress, onClick } ) {
 					style={ { width: `${ progress }%` } }
 				></div>
 			</div>
-		</button>
+		</Button>
 	);
 }

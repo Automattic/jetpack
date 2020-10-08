@@ -9,8 +9,8 @@
 
 namespace Automattic\Jetpack\Extensions\Mailchimp;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack;
-use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;
 use Jetpack_Options;
 
@@ -27,7 +27,7 @@ function register_block() {
 		( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		|| Jetpack::is_active()
 	) {
-		jetpack_register_block(
+		Blocks::jetpack_register_block(
 			BLOCK_NAME,
 			array(
 				'render_callback' => __NAMESPACE__ . '\load_assets',
@@ -56,9 +56,9 @@ function load_assets( $attr, $content ) {
 		? get_current_blog_id()
 		: Jetpack_Options::get_option( 'id' );
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	$classes         = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
+	$classes         = Blocks::classes( FEATURE_NAME, $attr );
 	$amp_form_action = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
-	$is_amp_request  = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+	$is_amp_request  = Blocks::is_amp_request();
 
 	ob_start();
 	?>

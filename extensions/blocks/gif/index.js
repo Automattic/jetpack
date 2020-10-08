@@ -8,6 +8,7 @@ import { Path, SVG } from '@wordpress/components';
  * Internal dependencies
  */
 import edit from './edit';
+import { getIconColor } from '../../shared/block-icons';
 
 // Ordering is important! Editor overrides style!
 import './style.scss';
@@ -25,7 +26,10 @@ export const icon = (
 
 export const settings = {
 	title,
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'embed',
 	keywords: [
 		_x( 'animated', 'block search term', 'jetpack' ),

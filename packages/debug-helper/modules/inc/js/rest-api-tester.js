@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import loaderButton from './loader.js';
+
 class Jetpack_Debug_REST_API_Tester {
 	interval = null;
 
@@ -48,6 +53,7 @@ class Jetpack_Debug_REST_API_Tester {
 	}
 
 	submit() {
+		const loader = loaderButton( this.submitElement );
 		const method = this.methodElement.value.toUpperCase();
 		let body = null;
 
@@ -65,14 +71,14 @@ class Jetpack_Debug_REST_API_Tester {
 
 		request.onreadystatechange = () => {
 			if ( request.readyState === XMLHttpRequest.DONE ) {
-				this.switchLoader( 'off' );
+				loader.off();
 				this.handleResponse( request );
 			}
 		};
 
 		request.send( body );
 
-		this.switchLoader( 'on' );
+		loader.on();
 
 		this.responseElement.innerHTML = '';
 		this.responseElement.classList.add( 'block-hide' );
@@ -98,34 +104,6 @@ ${ this.escapeHtml( request.getAllResponseHeaders() ) }
 ${ this.escapeHtml( responseText ) }</pre>`;
 
 		this.responseElement.classList.remove( 'block-hide' );
-	}
-
-	switchLoader( status ) {
-		switch ( status ) {
-			case 'on':
-				if ( null === this.interval ) {
-					this.submitElement.setAttribute( 'disabled', 'disabled' );
-					this.submitElement.innerHTML = '.';
-					let dotCount = 1;
-
-					this.interval = setInterval( () => {
-						if ( dotCount > 3 ) {
-							dotCount = 0;
-							this.submitElement.innerHTML = '';
-						}
-
-						++dotCount;
-						this.submitElement.innerHTML += '.';
-					}, 500 );
-				}
-				break;
-			case 'off':
-				clearInterval( this.interval );
-				this.interval = null;
-				this.submitElement.innerHTML = 'Send';
-				this.submitElement.removeAttribute( 'disabled' );
-				break;
-		}
 	}
 
 	escapeHtml( html ) {

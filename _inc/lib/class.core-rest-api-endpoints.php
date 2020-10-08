@@ -1,10 +1,13 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
+
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -610,6 +613,60 @@ class Jetpack_Core_Json_Api_Endpoints {
 							'required'          => false,
 							'type'              => 'string',
 							'validate_callback' => __CLASS__ . '::validate_string',
+						),
+					),
+				),
+			)
+		);
+
+		/*
+		 * Get and update the last licensing error message.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/error',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_licensing_error',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_licensing_error',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'args'                => array(
+						'error' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
+			)
+		);
+
+		/*
+		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'jetpack_crm',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_jetpack_crm_data',
+					'permission_callback' => __CLASS__ . '::jetpack_crm_data_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::activate_crm_jetpack_forms_extension',
+					'permission_callback' => __CLASS__ . '::activate_crm_extensions_permission_check',
+					'args'                => array(
+						'extension' => array(
+							'required' => true,
+							'type'     => 'text',
 						),
 					),
 				),
@@ -3764,4 +3821,95 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 	}
+
+	/**
+	 * Get the last licensing error message, if any.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @return string Licensing error message or empty string.
+	 */
+	public static function get_licensing_error() {
+		return Licensing::instance()->last_error();
+	}
+
+	/**
+	 * Update the last licensing error message.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return bool true.
+	 */
+	public static function update_licensing_error( $request ) {
+		Licensing::instance()->log_error( $request['error'] );
+
+		return true;
+	}
+
+	/**
+	 * Returns the Jetpack CRM data.
+	 *
+	 * @return WP_REST_Response A response object containing the Jetpack CRM data.
+	 */
+	public static function get_jetpack_crm_data() {
+		$jetpack_crm_data = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->get_crm_data();
+		return rest_ensure_response( $jetpack_crm_data );
+	}
+
+	/**
+	 * Activates Jetpack CRM's Jetpack Forms extension.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @return WP_REST_Response|WP_Error A response object if the extension activation was successful, or a WP_Error object if it failed.
+	 */
+	public static function activate_crm_jetpack_forms_extension( $request ) {
+		if ( ! isset( $request['extension'] ) || 'jetpackforms' !== $request['extension'] ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Missing or invalid extension parameter.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		$result = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->activate_crm_jetpackforms_extension();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( array( 'code' => 'success' ) );
+	}
+
+	/**
+	 * Verifies that the current user has the required permission for accessing the CRM data.
+	 *
+	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
+	 */
+	public static function jetpack_crm_data_permission_check() {
+		if ( current_user_can( 'publish_posts' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_jetpack_crm_data',
+			self::$user_permissions_error_msg,
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Verifies that the current user has the required capability for activating Jetpack CRM extensions.
+	 *
+	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
+	 */
+	public static function activate_crm_extensions_permission_check() {
+		if ( current_user_can( 'admin_zerobs_manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_activate_jetpack_crm_ext',
+			self::$user_permissions_error_msg,
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
 } // class end

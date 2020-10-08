@@ -62,7 +62,9 @@ export default connect(
 	},
 	dispatch => {
 		return {
-			reconnectSite: action => dispatch( reconnectSite( action ) ),
+			reconnectSite: () => {
+				return dispatch( reconnectSite() );
+			},
 		};
 	}
 )( NoticeActionReconnect );

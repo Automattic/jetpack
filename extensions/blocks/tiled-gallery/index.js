@@ -19,6 +19,7 @@ import {
 	LAYOUT_STYLES,
 } from './constants';
 import { isSimpleSite } from '../../shared/site-type-utils';
+import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 /**
@@ -208,7 +209,10 @@ export const settings = {
 		( ! isSimpleSite()
 			? ' ' + __( "Serves images using Jetpack's fast global network of servers.", 'jetpack' )
 			: '' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	keywords: [
 		_x( 'columns', 'block search term', 'jetpack' ),
 		_x( 'images', 'block search term', 'jetpack' ),

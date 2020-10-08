@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Extensions\WhatsApp_Button;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack;
 use Jetpack_Gutenberg;
 
@@ -20,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);

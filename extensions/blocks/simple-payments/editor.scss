@@ -60,3 +60,13 @@
 		min-height: 32px;
 	}
 }
+
+.jetpack-simple-payments__purchase-link-text {
+	.components-base-control {
+		margin-bottom: 0;
+	}
+
+	input.components-text-control__input {
+		margin-bottom: 5px;
+	}
+}

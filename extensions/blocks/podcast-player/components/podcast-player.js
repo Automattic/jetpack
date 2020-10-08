@@ -212,6 +212,7 @@ export class PodcastPlayer extends Component {
 			customBackgroundColor,
 			hexBackgroundColor,
 			showCoverArt,
+			showEpisodeTitle,
 			showEpisodeDescription,
 		} = attributes;
 		const { playerState, currentTrack } = this.state;
@@ -268,6 +269,7 @@ export class PodcastPlayer extends Component {
 					cover={ cover }
 					track={ this.getTrack( currentTrack ) }
 					showCoverArt={ showCoverArt }
+					showEpisodeTitle={ showEpisodeTitle }
 					showEpisodeDescription={ showEpisodeDescription }
 					colors={ colors }
 				>
@@ -323,6 +325,7 @@ PodcastPlayer.defaultProps = {
 		url: null,
 		itemsToShow: 5,
 		showCoverArt: true,
+		showEpisodeTitle: true,
 		showEpisodeDescription: true,
 	},
 	tracks: [],

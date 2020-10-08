@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
@@ -63,7 +64,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::init();
-		jetpack_register_block( 'jetpack/test' );
+		Blocks::jetpack_register_block( 'jetpack/test' );
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),
@@ -1192,6 +1193,45 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 
 		restore_current_blog();
+	}
+
+	/**
+	 * Verify get_check_sum is consistent for differently ordered arrays.
+	 */
+	public function test_sync_does_not_send_updates_if_array_order_is_only_change() {
+		$plugins = Functions::get_plugins();
+
+		// Let's see if the original values get synced.
+		$this->sender->do_sync();
+		$plugins_synced = $this->server_replica_storage->get_callable( 'get_plugins' );
+
+		$this->assertEquals( $plugins, $plugins_synced );
+
+		add_filter( 'all_plugins', array( $this, 'reorder_array_keys' ), 100, 1 );
+		do_action( 'jetpack_sync_unlock_sync_callable' );
+		$this->server_event_storage->reset();
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		$this->assertFalse( $event );
+	}
+
+	/**
+	 * Reorder the get_plugins array keys.
+	 *
+	 * @param array $plugins array of plugins.
+	 *
+	 * @return array
+	 */
+	public function reorder_array_keys( $plugins ) {
+		// First plugin in array.
+		$plugin_key = array_keys( $plugins )[0];
+
+		// reverse the 1st plugin's array entries.
+		$plugins[ $plugin_key ] = array_reverse( $plugins[ $plugin_key ] );
+
+		// reverse the full array.
+		return array_reverse( $plugins );
 	}
 
 	/**

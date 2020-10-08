@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { includes } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -50,7 +51,16 @@ class SeoComponent extends React.Component {
 					</span>
 				</SettingsGroup>
 				{ ! this.props.isUnavailableInOfflineMode( 'seo-tools' ) &&
-					( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+					includes(
+						[
+							'is-premium-plan',
+							'is-business-plan',
+							'is-daily-security-plan',
+							'is-realtime-security-plan',
+							'is-complete-plan',
+						],
+						planClass
+					) && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"

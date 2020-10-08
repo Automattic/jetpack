@@ -58,8 +58,8 @@ class Test_REST_Endpoints extends TestCase {
 		$user = wp_get_current_user();
 		$user->add_cap( 'jetpack_reconnect' );
 
-		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' );
-		Constants::$set_constants['JETPACK__WPCOM_JSON_API_HOST'] = 'public-api.wordpress.com';
+		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
 
 		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
 
@@ -77,7 +77,7 @@ class Test_REST_Endpoints extends TestCase {
 		$user = wp_get_current_user();
 		$user->remove_cap( 'jetpack_reconnect' );
 
-		Constants::$set_constants['JETPACK__WPCOM_JSON_API_HOST'] = $this->api_host_original;
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = $this->api_host_original;
 
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 
@@ -519,7 +519,6 @@ class Test_REST_Endpoints extends TestCase {
 	private function build_reconnect_request() {
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/reconnect' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
-		$this->request->set_body( wp_json_encode( array( 'action' => 'reconnect' ) ) );
 
 		return $this->request;
 	}

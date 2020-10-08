@@ -14,7 +14,11 @@ import { noop } from 'lodash';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
-import { getPlanClass, PLAN_JETPACK_SEARCH } from 'lib/plans/constants';
+import {
+	getPlanClass,
+	getJetpackProductUpsellByFeature,
+	FEATURE_SEARCH_JETPACK,
+} from 'lib/plans/constants';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
@@ -104,7 +108,7 @@ class DashSearch extends Component {
 						href={ this.props.upgradeUrl }
 						eventFeature="search"
 						path="dashboard"
-						plan={ PLAN_JETPACK_SEARCH }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						icon="search"
 					/>
 				),

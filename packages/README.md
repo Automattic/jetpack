@@ -80,7 +80,9 @@ You may run unit tests locally for any given package by running `composer phpuni
 via Jetpack Docker with the command `yarn docker:phpunit:package` for all package unit tests or 
 `yarn docker:phpunit:package packagename` for a specific one. 
 
-## Should my code be in a Package? 
+## Creating a New Package
+
+### Should my code be in a Package?
 
 Not sure if your code should be in a Package? Here are some general guidelines we follow when deciding: 
 
@@ -92,3 +94,8 @@ Not sure if your code should be in a Package? Here are some general guidelines w
 | ✅ | Other plugins will find this code useful. |
 | ✅ | You are building a completely new plugin. |
 | ✅ | Your code has dependencies that are only within itself or other Packages. |
+
+
+### Package Autoloading
+
+All new Jetpack package development should use classmap autoloading, which allows the class and file names to comply with the WordPress Coding Standards.

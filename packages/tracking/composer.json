@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev"
 	},
 	"require-dev": {

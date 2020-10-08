@@ -12,6 +12,7 @@ import save from './save';
 import imgExampleAfter from './img-example-after.png';
 import imgExampleBefore from './img-example-before.png';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'image-compare';
 
@@ -22,7 +23,10 @@ export const settings = {
 		'jetpack'
 	),
 
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: getCategoryWithFallbacks( 'media', 'layout' ),
 	keywords: [
 		_x( 'juxtapose', 'block search term', 'jetpack' ),

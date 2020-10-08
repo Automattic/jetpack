@@ -8,6 +8,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import edit from './edit';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'instagram-gallery';
 
@@ -17,7 +18,10 @@ export const settings = {
 		'Display an automatically updating list of the latest posts from your Instagram feed.',
 		'jetpack'
 	),
-	icon: 'instagram',
+	icon: {
+		src: 'instagram',
+		foreground: getIconColor(),
+	},
 	category: 'embed',
 	keywords: [
 		_x( 'images', 'block search term', 'jetpack' ),

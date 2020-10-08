@@ -7,14 +7,16 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
+use Automattic\Jetpack\Blocks;
+
+Blocks::jetpack_register_block(
 	'jetpack/contact-info',
 	array(
 		'render_callback' => array( 'Jetpack_Contact_Info_Block', 'render' ),
 	)
 );
 
-jetpack_register_block(
+Blocks::jetpack_register_block(
 	'jetpack/address',
 	array(
 		'parent'          => array( 'jetpack/contact-info' ),
@@ -22,7 +24,7 @@ jetpack_register_block(
 	)
 );
 
-jetpack_register_block(
+Blocks::jetpack_register_block(
 	'jetpack/email',
 	array(
 		'parent'          => array( 'jetpack/contact-info' ),
@@ -30,7 +32,7 @@ jetpack_register_block(
 	)
 );
 
-jetpack_register_block(
+Blocks::jetpack_register_block(
 	'jetpack/phone',
 	array(
 		'parent'          => array( 'jetpack/contact-info' ),

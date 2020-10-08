@@ -6,6 +6,8 @@
  * @since      7.3.0
  */
 
+use Automattic\Jetpack\Blocks;
+
 /**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
@@ -359,7 +361,7 @@ class Jetpack_Memberships {
 		}
 
 		if ( self::is_enabled_jetpack_recurring_payments() ) {
-			jetpack_register_block(
+			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
 					'render_callback' => array( $this, 'render_button' ),

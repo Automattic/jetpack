@@ -64,6 +64,9 @@ class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_
 	protected function result() {
 		global $wpdb;
 
+		// Disable Sync as this is a read-only operation and triggered by sync activity.
+		\Automattic\Jetpack\Sync\Actions::mark_sync_read_only();
+
 		$table    = $wpdb->prefix . $this->object_type['table'];
 		$id_field = $this->object_type['id_field'];
 

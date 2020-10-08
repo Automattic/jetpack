@@ -492,9 +492,8 @@ function is_videopress_attachment( $post_id ) {
  */
 function videopress_make_video_get_path( $guid ) {
 	return sprintf(
-		'%s://%s/rest/v%s/videos/%s',
-		'https',
-		JETPACK__WPCOM_JSON_API_HOST,
+		'%s/rest/v%s/videos/%s',
+		JETPACK__WPCOM_JSON_API_BASE,
 		Client::WPCOM_JSON_API_VERSION,
 		$guid
 	);

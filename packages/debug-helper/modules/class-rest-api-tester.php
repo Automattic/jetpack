@@ -44,6 +44,19 @@ class REST_API_Tester {
 		if ( strpos( $hook, 'jetpack-debug_page_rest-api-tester' ) === 0 ) {
 			wp_enqueue_style( 'rest_api_tester_style', plugin_dir_url( __FILE__ ) . 'inc/css/rest-api-tester.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 			wp_enqueue_script( 'rest_api_tester_script', plugin_dir_url( __FILE__ ) . 'inc/js/rest-api-tester.js', array( 'wp-api' ), JETPACK_DEBUG_HELPER_VERSION, true );
+
+			add_filter(
+				'script_loader_tag',
+				function( $tag, $handle ) {
+					if ( 'rest_api_tester_script' === $handle ) {
+						$tag = str_replace( '<script ', '<script type="module" ', $tag );
+					}
+
+					return $tag;
+				},
+				10,
+				2
+			);
 		}
 	}
 

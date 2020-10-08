@@ -1,63 +1,40 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
+import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
 import { createElement } from '@wordpress/element';
+import { Button } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
-import './icons.scss';
+import './button.scss';
 
-export const MaterialIcon = ( { icon, size = 24 } ) => (
-	<i className={ `jetpack-material-icons ${ icon }` } style={ { fontSize: size } }></i>
+export const DecoratedButton = ( { className, size, ...extraProps } ) => (
+	<Button
+		className={ classNames(
+			'jetpack-mdc-icon-button',
+			'circle-icon',
+			'outlined',
+			'bordered',
+			className
+		) }
+		style={ {
+			width: `${ size }px`,
+			height: `${ size }px`,
+		} }
+		{ ...extraProps }
+	/>
 );
 
-export const Button = ( {
-	label,
-	icon,
-	onClick,
-	size = 24,
-	iconSize = 24,
-	className = null,
-	circled = false,
-	outlined = false,
-	bordered = false,
-} ) => {
-	return (
-		<button
-			className={ classnames( {
-				'jetpack-mdc-icon-button': true,
-				'circle-icon': circled,
-				outlined: outlined,
-				bordered: bordered,
-				[ className ]: !! className,
-			} ) }
-			style={ {
-				width: `${ size }px`,
-				height: `${ size }px`,
-			} }
-			aria-label={ label }
-			aria-pressed="false"
-			onClick={ onClick }
-		>
-			{ typeof icon === 'function' ? (
-				<icon size={ iconSize } />
-			) : (
-				<MaterialIcon icon={ icon } size={ iconSize } />
-			) }
-		</button>
-	);
-};
-
-export const DecoratedButton = props => (
-	<Button circled outlined bordered size={ 64 } iconSize={ 36 } { ...props } />
-);
-
-export const SimpleButton = ( { size = 24, ...props } ) => (
-	<Button size={ size } iconSize={ size } { ...props } />
+export const SimpleButton = ( { className, size = 24, ...extraProps } ) => (
+	<Button
+		className={ classNames( 'jetpack-mdc-icon-button', className ) }
+		style={ {
+			width: `${ size }px`,
+			height: `${ size }px`,
+		} }
+		{ ...extraProps }
+	/>
 );

@@ -6,11 +6,16 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 /**
+ * Internal dependencies
+ */
+import PlanIcon from 'components/plans/plan-icon/index';
+
+/**
  * Style dependencies
  */
 import './style.scss';
 
-const MyPlanCard = ( { action, isError, isPlaceholder, details, icon, tagLine, title } ) => {
+const MyPlanCard = ( { productSlug, action, isError, isPlaceholder, details, tagLine, title } ) => {
 	const cardClassNames = classNames( 'my-plan-card', {
 		'is-placeholder': isPlaceholder,
 		'has-action-only': action && ! details && ! isPlaceholder,
@@ -20,7 +25,9 @@ const MyPlanCard = ( { action, isError, isPlaceholder, details, icon, tagLine, t
 	return (
 		<div className={ cardClassNames }>
 			<div className="my-plan-card__primary">
-				<div className="my-plan-card__icon">{ icon && <img src={ icon } alt={ title } /> }</div>
+				<div className="my-plan-card__icon">
+					<PlanIcon plan={ productSlug } alt={ title } />
+				</div>
 				<div className="my-plan-card__header">
 					{ title && <h2 className="my-plan-card__title">{ title }</h2> }
 					{ tagLine && <p className="my-plan-card__tag-line">{ tagLine }</p> }
@@ -37,11 +44,11 @@ const MyPlanCard = ( { action, isError, isPlaceholder, details, icon, tagLine, t
 };
 
 MyPlanCard.propTypes = {
+	productSlug: PropTypes.string.isRequired,
 	action: PropTypes.oneOfType( [ PropTypes.node, PropTypes.element ] ),
 	isError: PropTypes.bool,
 	isPlaceholder: PropTypes.bool,
 	details: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
-	icon: PropTypes.string,
 	tagLine: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 };

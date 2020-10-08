@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Monitor
- * Module Description: Jetpack’s downtime monitoring will continuously watch your site, and alert you the moment that downtime is detected.
+ * Module Description: Jetpack’s downtime monitoring will continuously watch your site and alert you the moment that downtime is detected.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6

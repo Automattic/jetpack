@@ -280,11 +280,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item_id => $order_item ) {
-			$product = $order->get_product_from_item( $order_item );
+			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
 			$this->record_event(
 				'woocommerceanalytics_product_purchase',
-				$product->get_id(),
+				$product_id,
 				array(
 					'oi' => $order->get_order_number(),
 					'pq' => $order_item->get_quantity(),

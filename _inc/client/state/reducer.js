@@ -29,6 +29,7 @@ import { reducer as siteVerify } from 'state/site-verify/reducer';
 import { reducer as disconnectSurvey } from 'state/disconnect-survey/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
 import { reducer as mobile } from 'state/mobile/reducer';
+import { reducer as licensing } from 'state/licensing/reducer';
 
 const jetpackReducer = combineReducers( {
 	checklist,
@@ -53,6 +54,7 @@ const jetpackReducer = combineReducers( {
 	disconnectSurvey,
 	trackingSettings,
 	mobile,
+	licensing,
 } );
 
 export default combineReducers( {

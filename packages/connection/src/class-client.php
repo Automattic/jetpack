@@ -23,12 +23,7 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
-		add_filter(
-			'jetpack_constant_default_value',
-			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
-			10,
-			2
-		);
+		Utils::init_default_constants();
 
 		$defaults = array(
 			'url'           => '',
@@ -138,7 +133,6 @@ class Client {
 		}
 
 		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
-		$url = Utils::fix_url_for_bad_hosts( $url );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
@@ -178,7 +172,6 @@ class Client {
 	 * The option is checked on each request.
 	 *
 	 * @internal
-	 * @see Utils::fix_url_for_bad_hosts()
 	 *
 	 * @param String  $url the request URL.
 	 * @param array   $args request arguments.
@@ -333,9 +326,8 @@ class Client {
 		$args['user_id'] = get_current_user_id();
 		$args['method']  = isset( $args['method'] ) ? strtoupper( $args['method'] ) : 'GET';
 		$args['url']     = sprintf(
-			'%s://%s/%s/v%s/%s',
-			self::protocol(),
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 			$base_api_path,
 			$version,
 			$path
@@ -389,9 +381,8 @@ class Client {
 		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
 
 		$url = sprintf(
-			'%s://%s/%s/v%s/%s',
-			self::protocol(),
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 			$base_api_path,
 			$version,
 			$_path
@@ -445,18 +436,13 @@ class Client {
 	/**
 	 * Gets protocol string.
 	 *
-	 * @return string `https` (if possible), else `http`.
+	 * @return string Always 'https'.
+	 *
+	 * @deprecated 9.1.0 WP.com API no longer supports requests using `http://`.
 	 */
 	public static function protocol() {
-		/**
-		 * Determines whether Jetpack can send outbound https requests to the WPCOM api.
-		 *
-		 * @since 3.6.0
-		 *
-		 * @param bool $proto Defaults to true.
-		 */
-		$https = apply_filters( 'jetpack_can_make_outbound_https', true );
+		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
 
-		return $https ? 'https' : 'http';
+		return 'https';
 	}
 }

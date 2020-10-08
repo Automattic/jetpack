@@ -71,6 +71,9 @@ module.exports = [
 									permissions: {},
 								},
 							},
+							licensing: {
+								error: '',
+							},
 						},
 					},
 				},

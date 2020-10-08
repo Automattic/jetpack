@@ -11,7 +11,12 @@ import { noop, size } from 'lodash';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import { getPlanClass } from 'lib/plans/constants';
+import {
+	getPlanClass,
+	isJetpackProduct,
+	isJetpackBundle,
+	isJetpackOfferResetPlan,
+} from 'lib/plans/constants';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
@@ -139,7 +144,10 @@ class Banner extends Component {
 			{ 'has-call-to-action': callToAction },
 			{ 'is-upgrade-personal': 'is-personal-plan' === planClass },
 			{ 'is-upgrade-premium': 'is-premium-plan' === planClass },
-			{ 'is-upgrade-business': 'is-business-plan' === planClass }
+			{ 'is-upgrade-business': 'is-business-plan' === planClass },
+			{ 'is-product': isJetpackProduct( plan ) },
+			{ 'is-bundle': isJetpackBundle( plan ) },
+			{ 'is-plan': isJetpackOfferResetPlan( plan ) }
 		);
 
 		return (
