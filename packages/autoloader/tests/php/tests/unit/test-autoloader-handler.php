@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the Autoloader handler.
  */
-class WP_Test_Autoloader_Handler extends TestCase {
+class Test_Autoloader_Handler extends TestCase {
 
 	/**
 	 * Tests that the latest autoloader can be recognized as the current.

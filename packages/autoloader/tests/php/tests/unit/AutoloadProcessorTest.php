@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the Autoload processor.
  */
-class WP_Test_AutoloadProcessor extends TestCase {
+class AutoloadProcessorTest extends TestCase {
 
 	/**
 	 * Tests that all of the process functions are safe when not given an autoload they're expecting.

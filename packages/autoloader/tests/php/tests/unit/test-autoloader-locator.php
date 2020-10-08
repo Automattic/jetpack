@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the Autoloader locator.
  */
-class WP_Test_Autoloader_Locator extends TestCase {
+class Test_Autoloader_Locator extends TestCase {
 
 	/**
 	 * The locator we are testing.

@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for verifying that manifests we generate can also be read correctly.
  */
-class WP_Test_Integration_Manifest extends TestCase {
+class Test_Loading_Generated_Manifests extends TestCase {
 
 	/**
 	 * The path to the test manifest we want to operate on.

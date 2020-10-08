@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for verifying that parsed manifests can be put into the loader and used.
  */
-class WP_Test_Integration_Loader extends TestCase {
+class Test_Version_Loading_From_Manifests extends TestCase {
 
 	/**
 	 * A manifest handler configured for a single plugin.

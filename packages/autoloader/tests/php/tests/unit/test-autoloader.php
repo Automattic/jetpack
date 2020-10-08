@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the Autoloader.
  */
-class WP_Test_Autoloader extends TestCase {
+class Test_Autoloader extends TestCase {
 
 	/**
 	 * Setup runs before each test.

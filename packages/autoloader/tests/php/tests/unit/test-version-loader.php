@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the Autoloader part that handles file loading.
  */
-class WP_Test_Version_Loader extends TestCase {
+class Test_Version_Loader extends TestCase {
 
 	/**
 	 * Tests that `find_class_file` returns null when the given class is not known.

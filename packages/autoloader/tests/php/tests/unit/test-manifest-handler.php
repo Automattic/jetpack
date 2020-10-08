@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the Autoloader part that handles file loading.
  */
-class WP_Test_Manifest_Handler extends TestCase {
+class Test_Manifest_Handler extends TestCase {
 
 	/**
 	 * Tests whether registering a manifest file registers the individual class file.

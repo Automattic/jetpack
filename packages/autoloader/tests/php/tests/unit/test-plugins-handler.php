@@ -12,7 +12,7 @@ define( 'WP_PLUGIN_DIR', '/var/www/wp-content/plugins' );
 /**
  * Provides unit tests for the methods in the Plugins_Handler class.
  */
-class PluginsHandlerTest extends TestCase {
+class Test_Plugins_Handler extends TestCase {
 
 	const DEFAULT_ACTIVE_PLUGINS = array(
 		'/var/www/wp-content/plugins/test_1',

@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Provides unit tests for the methods in the Version_Selector class.
  */
-class VersionSelectorTest extends TestCase {
+class Test_Version_Selector extends TestCase {
 
 	/**
 	 * This is called before each test.
@@ -46,7 +46,7 @@ class VersionSelectorTest extends TestCase {
 	 * @param Boolean $expected The expected Version_Selector::is_version_update_required() output.
 	 *
 	 * @covers Version_Selector::is_version_update_required
-	 * @dataProvider VersionSelectorTest::is_version_update_required_provider
+	 * @dataProvider Test_Version_Selector::is_version_update_required_provider
 	 * @dataProvider is_version_update_required_with_dev_constant_provider
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

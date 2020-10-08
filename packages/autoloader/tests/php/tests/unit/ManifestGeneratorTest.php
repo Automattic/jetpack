@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the manifest generator
  */
-class WP_Test_ManifestGenerator extends TestCase {
+class ManifestGeneratorTest extends TestCase {
 
 	/**
 	 * Tests that all of the manifest generation methods do nothing without content.
