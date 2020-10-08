@@ -1420,13 +1420,16 @@ class Jetpack_Tweetstorm_Helper {
 
 						// If we're in a link with a URL set, there's no need to keep two copies of the same link.
 						if ( ! empty( $current_url ) ) {
-							if ( $url === $current_url ) {
+							$lower_url         = strtolower( $url );
+							$lower_current_url = strtolower( $current_url );
+
+							if ( $lower_url === $lower_current_url ) {
 								$current_url = '';
 							}
 
 							// Check that the link text isn't just a shortened version of the href value.
-							$trimmed_current_url = preg_replace( '|^https?://|', '', $current_url );
-							if ( $url === $trimmed_current_url || trim( $trimmed_current_url, '/' ) === $url ) {
+							$trimmed_current_url = preg_replace( '|^https?://|', '', $lower_current_url );
+							if ( $lower_url === $trimmed_current_url || trim( $trimmed_current_url, '/' ) === $lower_url ) {
 								$current_url = '';
 							}
 						}

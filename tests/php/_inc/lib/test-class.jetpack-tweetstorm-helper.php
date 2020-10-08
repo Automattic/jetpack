@@ -2004,7 +2004,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public function test_links_handled() {
 		$test_urls = array(
 			'https://jetpack.com',
-			'https://wordpress.org/',
+			'https://WordPress.org/',
 			'https://jetpack.com',
 		);
 
@@ -2229,25 +2229,28 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * that have been typed into text (but aren't necessarily linked) are counted correctly.
 	 */
 	public function test_text_urls_are_counted_correctly() {
-		$test_content = 'https://jetpack.com ';
+		$test_content = 'https://jetpack.com https://Jetpack.com jetpack.com ';
 
 		$blocks = array(
-			$this->generateParagraphData( trim( str_repeat( $test_content, 12 ) ) ),
+			$this->generateParagraphData( trim( str_repeat( $test_content, 4 ) ) ),
 		);
 
 		$expected_content = array(
 			array(
-				'text' => trim( str_repeat( $test_content, 11 ) ) . '…',
-				'urls' => array_fill( 0, 11, trim( $test_content ) ),
+				'text' => trim( str_repeat( $test_content, 3 ) ) . ' https://jetpack.com https://Jetpack.com…',
+				'urls' => array_merge(
+					array_merge( ...array_fill( 0, 3, array( 'https://jetpack.com', 'https://Jetpack.com', 'jetpack.com' ) ) ),
+					array( 'https://jetpack.com', 'https://Jetpack.com' )
+				),
 			),
 			array(
-				'text' => '…' . trim( $test_content ),
-				'urls' => array( trim( $test_content ) ),
+				'text' => '…jetpack.com',
+				'urls' => array( 'jetpack.com' ),
 			),
 		);
 
 		$expected_boundaries = array(
-			$this->generateNormalBoundary( 219, 220, 'content' ),
+			$this->generateNormalBoundary( 195, 196, 'content' ),
 			false,
 		);
 
@@ -2268,7 +2271,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			'https://wordpress.org/',
 		);
 
-		$test_content = "Visiting <a href='$test_urls[0]'>$test_urls[0]</a> is good, so is visiting <a href='$test_urls[1]'>wordpress.org</a>.";
+		$test_content = "Visiting <a href='$test_urls[0]'>$test_urls[0]</a> is good, so is visiting <a href='$test_urls[1]'>WordPress.org</a>.";
 
 		$blocks = array(
 			$this->generateParagraphData( $test_content ),
@@ -2276,10 +2279,10 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$expected_content = array(
 			array(
-				'text' => "Visiting $test_urls[0] is good, so is visiting wordpress.org.",
+				'text' => "Visiting $test_urls[0] is good, so is visiting WordPress.org.",
 				'urls' => array(
 					$test_urls[0],
-					'wordpress.org',
+					'WordPress.org',
 				),
 			),
 		);
