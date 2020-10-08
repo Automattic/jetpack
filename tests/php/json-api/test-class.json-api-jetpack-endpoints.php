@@ -43,13 +43,13 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 	}
 
 	public function setUp() {
+		parent::setUp();
+
 		global $blog_id;
 
 		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
 			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 		}
-
-		parent::setUp();
 
 		$this->set_globals();
 
