@@ -250,6 +250,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Bug fixes**
 
 * Publicize: avoid block editor errors when no Publicize connections are available.
+* WordPress.com REST API: avoid errors when uploading images from a URL.
 
 = 9.0.1 =
 
