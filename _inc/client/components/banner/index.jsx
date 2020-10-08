@@ -21,7 +21,7 @@ import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import PlanIcon from 'components/plans/plan-icon';
-import { getCurrentVersion } from 'state/initial-state';
+import { getCurrentVersion, getUserWpComLogin, userIsMaster } from 'state/initial-state';
 
 import './style.scss';
 
@@ -41,6 +41,8 @@ class Banner extends Component {
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
 		title: PropTypes.string.isRequired,
+		wpcomUserLogin: PropTypes.string,
+		isConnectionOwner: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -71,6 +73,8 @@ class Banner extends Component {
 				target: 'banner',
 				type: 'upgrade',
 				current_version: currentVersion,
+				wpcom_connected: this.props.wpcomUserLogin ? 'yes' : 'no',
+				is_connection_owner: this.props.isConnectionOwner ? 'yes' : 'no',
 				...eventFeatureProp,
 				...pathProp,
 			};
@@ -165,4 +169,6 @@ class Banner extends Component {
 
 export default connect( state => ( {
 	currentVersion: getCurrentVersion( state ),
+	wpcomUserLogin: getUserWpComLogin( state ),
+	isConnectionOwner: userIsMaster( state ),
 } ) )( Banner );
