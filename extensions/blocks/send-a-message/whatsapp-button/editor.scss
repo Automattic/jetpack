@@ -43,3 +43,9 @@
 		padding: 12px;
 	}
 }
+
+.wp-block[data-align="center"] {
+	.wp-block-jetpack-whatsapp-button {
+		justify-content: center;
+	}
+}
