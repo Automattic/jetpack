@@ -29,6 +29,7 @@ module.exports = [
 	'_inc/lib/class.jetpack-password-checker.php',
 	'_inc/lib/class-jetpack-wizard.php',
 	'_inc/lib/components.php',
+	'_inc/lib/functions.classic-editor.php',
 	'_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-external-media.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-instagram-gallery.php',
