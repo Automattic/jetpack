@@ -1425,7 +1425,7 @@ class Jetpack_Tweetstorm_Helper {
 							}
 
 							// Check that the link text isn't just a shortened version of the href value.
-							$trimmed_current_url = preg_replace( '|^https://|', '', $current_url );
+							$trimmed_current_url = preg_replace( '|^https?://|', '', $current_url );
 							if ( $url === $trimmed_current_url || trim( $trimmed_current_url, '/' ) === $url ) {
 								$current_url = '';
 							}
