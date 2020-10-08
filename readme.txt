@@ -247,6 +247,10 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Release date: October 9, 2020
 
+**Enhancements**
+
+* Publicize: improve handling of URLs when generating Twitter threads.
+
 **Bug fixes**
 
 * Media Extractor: prevent PHP notice for some URLs.
