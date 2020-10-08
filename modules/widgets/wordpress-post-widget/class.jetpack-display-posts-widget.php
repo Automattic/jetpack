@@ -17,7 +17,6 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 	 */
 	public static $cron_name = 'jetpack_display_posts_widget_cron_update';
 
-
 	// DATA STORE
 
 	/**
@@ -83,7 +82,6 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		return $new_data;
 	}
 
-
 	// WIDGET API
 
 	public function update( $new_instance, $old_instance ) {
@@ -98,7 +96,6 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 
 		return $instance;
 	}
-
 
 	// CRON
 
@@ -229,7 +226,6 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		return $urls;
 
 	}
-
 
 	// MOCKABLES
 

@@ -891,4 +891,4 @@ class Jetpack_Subscriptions {
 
 Jetpack_Subscriptions::init();
 
-include dirname( __FILE__ ) . '/subscriptions/views.php';
+include __DIR__ . '/subscriptions/views.php';

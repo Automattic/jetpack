@@ -2,7 +2,7 @@
 
 defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
 
-require_once dirname( __FILE__ ) . '/sal/class.json-api-platform.php';
+require_once __DIR__ . '/sal/class.json-api-platform.php';
 
 class WPCOM_JSON_API {
 	static $self = null;
@@ -386,7 +386,6 @@ class WPCOM_JSON_API {
 			header( 'Access-Control-Allow-Origin: ' . wp_unslash( $this->amp_source_origin ) );
 			header( 'Access-Control-Allow-Credentials: true' );
 		}
-
 
 		if ( is_null( $response ) ) {
 			$response = new stdClass();

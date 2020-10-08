@@ -4,12 +4,15 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
@@ -18,9 +21,6 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /*
 Options:
@@ -741,7 +741,7 @@ class Jetpack {
 
 		add_action(
 			'plugins_loaded',
-			function() {
+			function () {
 				if ( User_Agent_Info::is_mobile_app() ) {
 					add_filter( 'get_edit_post_link', '__return_empty_string' );
 				}
@@ -2670,7 +2670,6 @@ class Jetpack {
 		return $data;
 	}
 
-
 	/**
 	 * Return translated module tag.
 	 *
@@ -3172,7 +3171,7 @@ p {
 		}
 
 		// For firing one-off events (notices) immediately after activation
-		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
+		set_transient( 'activated_jetpack', true, 0.1 * MINUTE_IN_SECONDS );
 
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
@@ -5916,7 +5915,6 @@ endif;
 		);
 	}
 
-
 	/**
 	 * Verifies the request by checking the signature
 	 *
@@ -6780,7 +6778,6 @@ endif;
 
 		return $filtered_data;
 	}
-
 
 	/*
 	 * This method is used to organize all options that can be reset

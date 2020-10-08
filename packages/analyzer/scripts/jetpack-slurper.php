@@ -28,7 +28,7 @@
  * affected by the changes.
  */
 
-require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
+require dirname( __DIR__ ) . '/vendor/autoload.php';
 
 $base_path = dirname( dirname( dirname( __DIR__ ) ) );
 

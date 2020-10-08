@@ -251,7 +251,6 @@ class scssc {
 						$k > 0 ? array_slice($new, $k) : $new,
 						$after);
 
-
 					if ($result == $selector) continue;
 					$out[] = $result;
 
@@ -3114,7 +3113,6 @@ class scss_parser {
 
 		return false;
 	}
-
 
 	protected function valueList(&$out) {
 		return $this->genericList($out, "spaceList", ",");

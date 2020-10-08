@@ -67,7 +67,6 @@ function videopress_get_video_details( $guid ) {
 	return apply_filters( 'videopress_get_video_details', $data, $guid );
 }
 
-
 /**
  * Get an attachment ID given a URL.
  *
@@ -328,7 +327,6 @@ function videopress_create_new_media_item( $title, $guid = null ) {
 	return $media_id;
 }
 
-
 /**
  * @param array $current_status
  * @param array $new_meta
@@ -397,7 +395,6 @@ function videopress_is_finished_processing( $post_id ) {
 
 	return true;
 }
-
 
 /**
  * Update the meta information  status for the given video post.
@@ -547,7 +544,6 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 
 	return $video_info;
 }
-
 
 /**
  * Check that a VideoPress video format has finished processing.
@@ -768,7 +764,7 @@ function jetpack_videopress_flash_embed_filter( $content ) {
 	$regex   = '%<embed[^>]*+>(?:\s*</embed>)?%i';
 	$content = preg_replace_callback(
 		$regex,
-		function( $matches, $orig_html = null ) {
+		function ( $matches, $orig_html = null ) {
 			$embed_code  = $matches[0];
 			$url_matches = array();
 

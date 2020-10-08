@@ -33,7 +33,6 @@ Author URI: https://automattic.com/
 
 class WPCom_Markdown {
 
-
 	const POST_OPTION = 'wpcom_publish_posts_with_markdown';
 	const COMMENT_OPTION = 'wpcom_publish_comments_with_markdown';
 	const POST_TYPE_SUPPORT = 'wpcom-markdown';
@@ -45,7 +44,6 @@ class WPCom_Markdown {
 	// to ensure that our munged posts over xml-rpc are removed from the cache
 	public $posts_to_uncache = array();
 	private $monitoring = array( 'post' => array(), 'parent' => array() );
-
 
 	/**
 	 * Yay singletons!
@@ -711,7 +709,7 @@ jQuery( function() {
 			&& false === strpos( $raw_post_data, 'wp.getPage' ) ) {
 			return;
 		}
-		include_once( ABSPATH . WPINC . '/class-IXR.php' );
+		include_once ABSPATH . WPINC . '/class-IXR.php';
 		$message = new IXR_Message( $raw_post_data );
 		$message->parse();
 		$post_id_position = 'metaWeblog.getPost' === $message->methodName ? 0 : 1;
@@ -761,7 +759,6 @@ jQuery( function() {
 		$post->post_content = $markdown;
 		return $post;
 	}
-
 
 	/**
 	 * We munge the post cache to serve proper markdown content to XML-RPC clients.

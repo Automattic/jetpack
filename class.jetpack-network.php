@@ -5,10 +5,8 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
 /**

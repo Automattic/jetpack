@@ -43,7 +43,6 @@ class Jetpack_Search_Options {
 		return true === (bool) get_option( 'instant_search_enabled' );
 	}
 
-
 	/**
 	 * Returns a boolean for whether the current site has a VIP index.
 	 *
@@ -68,6 +67,5 @@ class Jetpack_Search_Options {
 		 */
 		return apply_filters( 'jetpack_search_has_vip_index', $has_vip_index );
 	}
-
 
 }

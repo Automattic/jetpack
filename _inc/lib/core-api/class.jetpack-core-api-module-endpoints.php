@@ -190,7 +190,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 * @return array Array of Jetpack modules.
 	 */
 	public function get_modules() {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 
 		$modules = Jetpack_Admin::init()->get_modules();
 		foreach ( $modules as $slug => $properties ) {
@@ -661,7 +661,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					if ( ! function_exists( 'request_filesystem_credentials' ) ) {
-						require_once( ABSPATH . 'wp-admin/includes/file.php' );
+						require_once ABSPATH . 'wp-admin/includes/file.php';
 					}
 
 					if ( ! function_exists( 'wp_download_language_pack' ) ) {
@@ -771,7 +771,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'sharing_services':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
@@ -784,7 +784,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'button_style':
 				case 'sharing_label':
 				case 'show':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
@@ -795,7 +795,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'custom':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
@@ -807,7 +807,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'sharing_delete_service':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
@@ -1435,7 +1435,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		}
 
 		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
-			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
+			require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
 		}
 
 		switch ( $range ) {

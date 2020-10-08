@@ -255,7 +255,6 @@ class Nova_Restaurant {
 		) );
 	}
 
-
 	/**
 	 * Update messages for the Menu Item admin.
 	 */
@@ -289,7 +288,6 @@ class Nova_Restaurant {
 		return $messages;
 	}
 
-
 	/**
 	 * Nova Styles and Scripts
 	 */
@@ -304,7 +302,6 @@ class Nova_Restaurant {
 		wp_enqueue_style( 'nova-font',  plugins_url( 'css/nova-font.css', __FILE__ ), array(), $this->version );
 	}
 
-
 	/**
 	 * Change ‘Enter Title Here’ text for the Menu Item.
 	 */
@@ -316,7 +313,6 @@ class Nova_Restaurant {
 
 		return $title;
 	}
-
 
 	/**
 	 * Add to Dashboard At A Glance
@@ -338,7 +334,6 @@ class Nova_Restaurant {
 
 		echo '<li class="nova-menu-count">' . $number_menu_items_published . '</li>';
 	}
-
 
 	/**
 	 * Query
@@ -411,7 +406,6 @@ class Nova_Restaurant {
 		return $return;
 	}
 
-
 	/**
 	 * Add Many Items
 	 */
@@ -436,7 +430,6 @@ class Nova_Restaurant {
 			ksort( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
 		}
 
-
 		$this->setup_menu_item_columns();
 
 		wp_register_script(
@@ -450,7 +443,6 @@ class Nova_Restaurant {
 			true
 		);
 	}
-
 
 	/**
 	 * Custom Nova Icon CSS

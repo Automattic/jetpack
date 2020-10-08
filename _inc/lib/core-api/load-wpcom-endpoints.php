@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function wpcom_rest_api_v2_load_plugin_files( $file_pattern ) {
-	$plugins = glob( dirname( __FILE__ ) . '/' . $file_pattern );
+	$plugins = glob( __DIR__ . '/' . $file_pattern );
 
 	if ( ! is_array( $plugins ) ) {
 		return;
@@ -40,7 +40,7 @@ function wpcom_rest_api_v2_load_plugin( $class_name ) {
 	}
 }
 
-require dirname( __FILE__ ) . '/class-wpcom-rest-field-controller.php';
+require __DIR__ . '/class-wpcom-rest-field-controller.php';
 
 /**
  * Load the REST API v2 plugin files during the plugins_loaded action.

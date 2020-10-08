@@ -208,7 +208,6 @@ class Jetpack_VideoPress {
 		return $config;
 	}
 
-
 	/**
 	 * Helper function to determine if the media uploader should be overridden.
 	 *

@@ -78,7 +78,6 @@ if ( ! function_exists( 'wp_startswith' ) ) :
 	}
 endif;
 
-
 if ( ! function_exists( 'wp_endswith' ) ) :
 	function wp_endswith( $haystack, $needle ) {
 		return $needle === substr( $haystack, -strlen( $needle ));

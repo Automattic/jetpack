@@ -1,7 +1,7 @@
 <?php
 
 // The repo root path.
-$path = dirname( dirname( __FILE__ ) ) . '/';
+$path = dirname( __DIR__ ) . '/';
 
 // Build an iterator over all files in the repo that match the regex in the RegexIterator.
 $directory = new RecursiveDirectoryIterator( $path );

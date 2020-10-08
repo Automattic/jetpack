@@ -48,7 +48,6 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		remove_filter( 'option_'. $option_name, array( $this, 'get_test_option_from_cache' ) );
 	}
 
-
 	function test_raw_option_with_constant_does_not_by_pass_wp_cache_filters() {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true);
 		$option_name = 'test_option_with_constant';

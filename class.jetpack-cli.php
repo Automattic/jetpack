@@ -1917,7 +1917,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						: $title,
 					'keywords'    => $hasKeywords
 					? array_map(
-						function( $keyword ) {
+						function ( $keyword ) {
 								// Construction necessary for Mustache lists
 								return array( 'keyword' => trim( $keyword ) );
 						},

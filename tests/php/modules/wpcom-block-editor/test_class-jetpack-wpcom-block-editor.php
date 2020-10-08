@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
-require_once dirname( __FILE__ ) . '/../../../../modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
+require_once __DIR__ . '/../../../../modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 
 /**
  * Class WP_Test_Jetpack_WPCOM_Block_Editor.

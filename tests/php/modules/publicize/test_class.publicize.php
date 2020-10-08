@@ -1,12 +1,11 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
+require __DIR__ . '/../../../../modules/publicize.php';
 
 /**
  * @group publicize
  * @covers Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
-
 
 	private $in_publish_filter = false;
 	private $publicized_post_id = null;
@@ -403,7 +402,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		// Get connection list again now that filter has been added.
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 
-		$this->assertEquals(
+		$this->assertSame(
 			1,
 			count( $connection_list ),
 			'Connection list should be 1 long after \'facebook\' (Normal) connection removed.'

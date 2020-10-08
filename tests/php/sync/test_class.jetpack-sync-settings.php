@@ -41,9 +41,9 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( Settings::is_sync_enabled() );
 
 		// generating posts should no longer affect queue size
-		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
+		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 		$post_id = $this->factory->post->create();
-		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
+		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 
 		// syncing sends no data
 		$this->sender->do_sync();
@@ -67,9 +67,9 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'network_disable' => 1 ) );
 
 		// generating posts should no longer affect queue size
-		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
+		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 		$post_id = $this->factory->post->create();
-		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
+		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 
 		// syncing sends no data
 		$this->sender->do_sync();
@@ -81,14 +81,14 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 	function test_setting_network_option_on_single_site_does_not_work() {
 		if ( is_multisite() ) {
 			Settings::update_settings( array( 'network_disable' => 1 ) );
-			$this->assertEquals( 1, Settings::get_setting( 'network_disable' ) );
+			$this->assertSame( 1, Settings::get_setting( 'network_disable' ) );
 			$this->assertFalse( Settings::is_sync_enabled() );
 			Settings::update_settings( array( 'network_disable' => 0 ) ); // reset things
 			$this->assertTrue( Settings::is_sync_enabled() );
 		} else {
 			Settings::update_settings( array( 'network_disable' => 1 ) );
 			// Notice that the value is unchanged
-			$this->assertEquals( 0, Settings::get_setting( 'network_disable' ) );
+			$this->assertSame( 0, Settings::get_setting( 'network_disable' ) );
 			$this->assertTrue( Settings::is_sync_enabled() );
 		}
 	}

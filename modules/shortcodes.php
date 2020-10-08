@@ -47,7 +47,7 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 function jetpack_load_shortcodes() {
 	$shortcode_includes = array();
 
-	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/shortcodes' ) as $file ) {
+	foreach ( Jetpack::glob_php( __DIR__ . '/shortcodes' ) as $file ) {
 		$filename = substr( basename( $file ), 0, -4 );
 
 		$shortcode_includes[ $filename ] = $file;

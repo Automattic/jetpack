@@ -16,7 +16,7 @@ class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 
 		$result = $update_data['counts'];
 
-		include( ABSPATH . WPINC . '/version.php' ); // $wp_version;
+		include ABSPATH . WPINC . '/version.php'; // $wp_version;
 		$result['wp_version'] = isset( $wp_version ) ? $wp_version : null;
 
 		if ( ! empty( $result['wordpress'] ) ) {

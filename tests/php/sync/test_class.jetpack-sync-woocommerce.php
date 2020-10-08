@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		self::$woo_enabled = true;
 
-		$woo_tests_dir = dirname( __FILE__ ) . '/../../../../woocommerce/tests';
+		$woo_tests_dir = __DIR__ . '/../../../../woocommerce/tests';
 
 		if( ! file_exists( $woo_tests_dir ) ) {
 			error_log('PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );
@@ -30,30 +30,30 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		// This is taken from WooCommerce's bootstrap.php file
 
 		// framework
-		require_once( $woo_tests_dir . '/framework/class-wc-unit-test-factory.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-mock-session-handler.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-mock-wc-data.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-mock-wc-object-query.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-mock-payment-gateway.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-payment-token-stub.php' );
+		require_once $woo_tests_dir . '/framework/class-wc-unit-test-factory.php';
+		require_once $woo_tests_dir . '/framework/class-wc-mock-session-handler.php';
+		require_once $woo_tests_dir . '/framework/class-wc-mock-wc-data.php';
+		require_once $woo_tests_dir . '/framework/class-wc-mock-wc-object-query.php';
+		require_once $woo_tests_dir . '/framework/class-wc-mock-payment-gateway.php';
+		require_once $woo_tests_dir . '/framework/class-wc-payment-token-stub.php';
 		// require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
 
 		// test cases
-		require_once( $woo_tests_dir . '/includes/wp-http-testcase.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-unit-test-case.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-api-unit-test-case.php' );
-		require_once( $woo_tests_dir . '/framework/class-wc-rest-unit-test-case.php' );
+		require_once $woo_tests_dir . '/includes/wp-http-testcase.php';
+		require_once $woo_tests_dir . '/framework/class-wc-unit-test-case.php';
+		require_once $woo_tests_dir . '/framework/class-wc-api-unit-test-case.php';
+		require_once $woo_tests_dir . '/framework/class-wc-rest-unit-test-case.php';
 
 		// Helpers
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-product.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-coupon.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-fee.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-customer.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-order.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping-zones.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-payment-token.php' );
-		require_once( $woo_tests_dir . '/framework/helpers/class-wc-helper-settings.php' );
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-product.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-coupon.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-fee.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-customer.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-order.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping-zones.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-payment-token.php';
+		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-settings.php';
 	}
 
 	public function setUp() {
@@ -66,7 +66,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_module_is_enabled() {
-		$this->assertTrue( !! Modules::get_module( "woocommerce" ) );
+		$this->assertTrue( (bool) Modules::get_module( "woocommerce" ) );
 	}
 
 	// Incremental sync
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$order_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_new_order' );
 
-		$this->assertTrue( !! $order_event );
+		$this->assertTrue( (bool) $order_event );
 		$this->assertEquals( $order->get_id(), $order_event->args[0] );
 	}
 
@@ -93,7 +93,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$order_status_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_order_status_changed' );
 
-		$this->assertTrue( !! $order_status_event );
+		$this->assertTrue( (bool) $order_status_event );
 		$this->assertEquals( $order->get_id(), $order_status_event->args[0] );
 		$this->assertEquals( 'pending', $order_status_event->args[1] );
 		$this->assertEquals( 'custom', $order_status_event->args[2] );
@@ -107,13 +107,13 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		// just for fun
 		$this->assertEquals( 'completed', $order->get_status() );
-		$this->assertEquals( '12345', $order->get_transaction_id() );
+		$this->assertSame( '12345', $order->get_transaction_id() );
 
 		$this->sender->do_sync();
 
 		$payment_complete_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_payment_complete' );
 
-		$this->assertTrue( !! $payment_complete_event );
+		$this->assertTrue( (bool) $payment_complete_event );
 		$this->assertEquals( $order->get_id(), $payment_complete_event->args[0] );
 	}
 
@@ -126,7 +126,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$create_order_item_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_new_order_item' );
 
-		$this->assertTrue( !! $create_order_item_event );
+		$this->assertTrue( (bool) $create_order_item_event );
 		$this->assertEquals( $order_item->get_id(), $create_order_item_event->args[0] );
 		$this->assertHasOrderItemProperties( $create_order_item_event->args[1], $order_item );
 		$this->assertEquals( $order->get_id(), $create_order_item_event->args[2] );
@@ -145,7 +145,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$update_order_item_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_update_order_item' );
 
-		$this->assertTrue( !! $update_order_item_event );
+		$this->assertTrue( (bool) $update_order_item_event );
 		$this->assertEquals( $order_item->get_id(), $update_order_item_event->args[0] );
 		$this->assertHasOrderItemProperties( $update_order_item_event->args[1], $order_item );
 		$this->assertEquals( $order->get_id(), $update_order_item_event->args[2] );
@@ -163,13 +163,13 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$added_order_item_meta_event = $this->server_event_storage->get_most_recent_event( 'added_order_item_meta' );
-		$this->assertTrue( !! $added_order_item_meta_event );
+		$this->assertTrue( (bool) $added_order_item_meta_event );
 
 		$updated_order_item_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_order_item_meta' );
-		$this->assertTrue( !! $updated_order_item_meta_event );
+		$this->assertTrue( (bool) $updated_order_item_meta_event );
 
 		$deleted_order_item_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_order_item_meta' );
-		$this->assertTrue( !! $deleted_order_item_meta_event );
+		$this->assertTrue( (bool) $deleted_order_item_meta_event );
 	}
 
 	public function test_approving_a_review_is_synced() {
@@ -186,16 +186,16 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
+		$this->assertSame( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$review->comment_approved = 1;
 		wp_update_comment( (array) $review );
 
 		$this->sender->do_sync();
 
 		//Test both sync actions we're expecting
-		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
+		$this->assertSame( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$remote_comment = $this->server_replica_storage->get_comment( $review->comment_ID );
-		$this->assertEquals( 1, $remote_comment->comment_approved );
+		$this->assertSame( 1, $remote_comment->comment_approved );
 		$comment_approved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_review' );
 		$this->assertTrue( (bool) $comment_approved_event );
 
@@ -223,16 +223,16 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
+		$this->assertSame( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$review->comment_approved = 0;
 		wp_update_comment( (array) $review );
 
 		$this->sender->do_sync();
 
 		//Test both sync actions we're expecting
-		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
+		$this->assertSame( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$remote_comment = $this->server_replica_storage->get_comment( $review->comment_ID );
-		$this->assertEquals( 0, $remote_comment->comment_approved );
+		$this->assertSame( 0, $remote_comment->comment_approved );
 		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_review' );
 		$this->assertTrue( (bool) $comment_unapproved_event );
 
@@ -273,7 +273,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$full_sync_order_items = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_woocommerce_order_items' );
 
-		$this->assertTrue( !! $full_sync_order_items );
+		$this->assertTrue( (bool) $full_sync_order_items );
 		$synced_order_items = $full_sync_order_items->args[0];
 
 		$found_order_item_1 = $found_order_item_2 = false;

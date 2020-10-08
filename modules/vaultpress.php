@@ -28,6 +28,6 @@ function vaultpress_jetpack_module_free_text() {
 }
 
 function vaultpress_jetpack_configure_url() {
-	include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+	include_once ABSPATH . '/wp-admin/includes/plugin.php';
 	return menu_page_url( 'vaultpress', false );
 }

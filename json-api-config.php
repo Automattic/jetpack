@@ -1,6 +1,5 @@
 <?php
 
-
 define( 'WPCOM_JSON_API__CURRENT_VERSION', '1.1' );
 global $wpcom_json_api_production_versions, $wpcom_json_api_dev_versions;
 

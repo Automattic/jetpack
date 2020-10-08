@@ -54,7 +54,6 @@ function jetpack_load_theme_compat() {
 }
 add_action( 'after_setup_theme', 'jetpack_load_theme_compat', -1 );
 
-
 /**
  * Requires a file once, if the passed key exists in the files array.
  *

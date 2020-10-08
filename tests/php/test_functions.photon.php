@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	public function test_photonizing_https_image_adds_ssl_query_arg() {
 		$url = jetpack_photon_url( 'https://example.com/images/photon.jpg' );
 		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
-		$this->assertEquals( '1', $args['ssl'], 'HTTPS image sources should have a ?ssl=1 query string.' );
+		$this->assertSame( '1', $args['ssl'], 'HTTPS image sources should have a ?ssl=1 query string.' );
 	}
 
 	/**

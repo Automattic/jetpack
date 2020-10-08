@@ -10,7 +10,6 @@ Any new features should go into modules/widgets/social-icons.php instead.
 
 */
 
-
 /**
  * WPCOM_social_media_icons_widget class.
  *
@@ -33,7 +32,6 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	 * @access private
 	 */
 	private $services;
-
 
 	/**
 	 * __construct function.

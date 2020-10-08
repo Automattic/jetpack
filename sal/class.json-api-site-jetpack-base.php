@@ -1,5 +1,5 @@
 <?php
-require_once dirname( __FILE__ ) . '/class.json-api-site-base.php';
+require_once __DIR__ . '/class.json-api-site-base.php';
 
 abstract class Abstract_Jetpack_Site extends SAL_Site {
 	abstract protected function get_constant( $name );
@@ -36,7 +36,6 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	protected function wp_max_memory_limit() {
 		return $this->get_constant( 'WP_MAX_MEMORY_LIMIT' );
 	}
-
 
 	function after_render( &$response ) {
 		// Add the updates only make them visible if the user has manage options permission and the site is the main site of the network

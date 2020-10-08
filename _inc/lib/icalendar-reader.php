@@ -872,7 +872,6 @@ class iCalendarReader {
 
 }
 
-
 /**
  * Wrapper function for iCalendarReader->get_events()
  *

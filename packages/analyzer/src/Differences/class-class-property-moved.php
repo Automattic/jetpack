@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Analyzer\Differences;
 
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
-use Automattic\Jetpack\Analyzer\Invocations\Static_Property;
 use Automattic\Jetpack\Analyzer\Warnings\Warning; // TODO - subclasses?
 
 /**

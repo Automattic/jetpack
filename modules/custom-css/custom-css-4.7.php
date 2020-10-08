@@ -519,7 +519,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			$csstidy->set_cfg( 'discard_invalid_properties', true );
 			$csstidy->set_cfg( 'css_level',                  'CSS3.0' );
 			$csstidy->set_cfg( 'preserve_css',               true );
-			$csstidy->set_cfg( 'template',                   dirname( __FILE__ ) . '/csstidy/wordpress-standard.tpl' );
+			$csstidy->set_cfg( 'template',                   __DIR__ . '/csstidy/wordpress-standard.tpl' );
 
 			// Test for some preg_replace stuff.
 			{
@@ -1140,7 +1140,7 @@ if ( ! function_exists( 'safecss_class' ) ) :
 			return;
 		}
 
-		require_once( dirname( __FILE__ ) . '/csstidy/class.csstidy.php' );
+		require_once __DIR__ . '/csstidy/class.csstidy.php';
 
 		/**
 		 * Class safecss

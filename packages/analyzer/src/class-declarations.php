@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
-use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\ParserFactory;
 
 class Declarations extends PersistentList {
 

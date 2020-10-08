@@ -33,7 +33,7 @@ function jetpack_register_css_preprocessors( $preprocessors ) {
 add_filter( 'jetpack_custom_css_preprocessors', 'jetpack_register_css_preprocessors' );
 
 function jetpack_less_css_preprocess( $less ) {
-	require_once( dirname( __FILE__ ) . '/preprocessors/lessc.inc.php' );
+	require_once __DIR__ . '/preprocessors/lessc.inc.php';
 
 	$compiler = new lessc();
 
@@ -45,7 +45,7 @@ function jetpack_less_css_preprocess( $less ) {
 }
 
 function jetpack_sass_css_preprocess( $sass ) {
-	require_once( dirname( __FILE__ ) . '/preprocessors/scss.inc.php' );
+	require_once __DIR__ . '/preprocessors/scss.inc.php';
 
 	$compiler = new scssc();
 	$compiler->setFormatter( 'scss_formatter' );

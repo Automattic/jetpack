@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 		// Retrieve the original categories of the post.
 		$post_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 
-		$this->assertEquals( 1, count( $post_terms ) );
+		$this->assertSame( 1, count( $post_terms ) );
 		$this->assertEquals( $this->taxonomy, $post_terms[0]->taxonomy );
 		$this->assertEquals( 'uncategorized', $post_terms[0]->slug );
 
@@ -100,7 +100,7 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 		$this->sender->do_full_sync();
 
 		$post_terms_after_sync = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
-		$this->assertEquals( 1, count( $post_terms_after_sync ) );
+		$this->assertSame( 1, count( $post_terms_after_sync ) );
 		$this->assertEquals( $this->taxonomy, $post_terms_after_sync[0]->taxonomy );
 		$this->assertEquals( 'uncategorized', $post_terms_after_sync[0]->slug );
 	}

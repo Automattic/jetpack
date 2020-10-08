@@ -8,7 +8,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->pre_http_req_function = function( $preempt, $parsed_args, $url ) {
+		$this->pre_http_req_function = function ( $preempt, $parsed_args, $url ) {
 			if ( 'https://embedr.flickr.com/photos/49931239842' === $url ) {
 				return array(
 					'body' => '<div class="slide slide-video" data-rapid="video" data-slideshow-position="" >

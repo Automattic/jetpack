@@ -92,7 +92,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$this->assertFalse( $meta_values['is_public'] );
 		$this->assertNull( $meta_values['latitude'] );
 		$this->assertNull( $meta_values['longitude'] );
-		$this->assertEquals( '', $meta_values['label'] );
+		$this->assertSame( '', $meta_values['label'] );
 		$this->assertFalse( $meta_values['is_populated'] );
 	}
 
@@ -111,7 +111,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$this->assertFalse( $meta_values['is_public'] );
 		$this->assertNull( $meta_values['latitude'] );
 		$this->assertNull( $meta_values['longitude'] );
-		$this->assertEquals( '', $meta_values['label'] );
+		$this->assertSame( '', $meta_values['label'] );
 		$this->assertFalse( $meta_values['is_populated'] );
 	}
 
@@ -183,7 +183,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->wp_head();
 		$output = ob_get_clean();
 
-		$this->assertEquals( '', trim( $output ) );
+		$this->assertSame( '', trim( $output ) );
 	}
 
 	public function test_wp_head_aborts_when_meta_values_are_private() {
@@ -195,7 +195,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->wp_head();
 		$output = ob_get_clean();
 
-		$this->assertEquals( '', trim( $output ) );
+		$this->assertSame( '', trim( $output ) );
 	}
 
 	public function test_wp_head_renders_public_meta_values() {

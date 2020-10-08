@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Redirect;
 
 class Jetpack_Custom_CSS {
 	static function init() {
@@ -213,7 +213,7 @@ class Jetpack_Custom_CSS {
 		$csstidy->set_cfg( 'discard_invalid_properties', true );
 		$csstidy->set_cfg( 'css_level',                  'CSS3.0' );
 		$csstidy->set_cfg( 'preserve_css',               true );
-		$csstidy->set_cfg( 'template',                   dirname( __FILE__ ) . '/csstidy/wordpress-standard.tpl' );
+		$csstidy->set_cfg( 'template',                   __DIR__ . '/csstidy/wordpress-standard.tpl' );
 
 		$css = $orig = $args['css'];
 
@@ -1824,7 +1824,7 @@ function safecss_class() {
 	if ( class_exists('safecss') )
 		return;
 
-	require_once( dirname( __FILE__ ) . '/csstidy/class.csstidy.php' );
+	require_once __DIR__ . '/csstidy/class.csstidy.php';
 
 	class safecss extends csstidy_optimise {
 
@@ -1869,4 +1869,4 @@ if ( ! function_exists( 'safecss_filter_attr' ) ) {
 	}
 }
 
-include_once dirname( __FILE__ ) . '/custom-css/preprocessors.php';
+include_once __DIR__ . '/custom-css/preprocessors.php';

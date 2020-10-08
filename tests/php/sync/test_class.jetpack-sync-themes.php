@@ -326,7 +326,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
 
-
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_added' );
 
 		$this->assertEquals( $event->args[0], $sidebar_id, 'Added to sidebar not found' );

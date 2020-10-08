@@ -517,8 +517,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	}
 
-
-
 	function win8_gallery_shortcode( $attr ) {
 		global $post;
 

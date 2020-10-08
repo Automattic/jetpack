@@ -952,7 +952,7 @@ class Replicastore implements Replicastore_Interface {
 			)
 		);
 		if ( ! $exists ) {
-			$term_object   = sanitize_term( clone( $term_object ), $taxonomy, 'db' );
+			$term_object   = sanitize_term( clone $term_object, $taxonomy, 'db' );
 			$term          = array(
 				'term_id'    => $term_object->term_id,
 				'name'       => $term_object->name,

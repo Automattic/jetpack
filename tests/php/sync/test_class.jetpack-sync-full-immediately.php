@@ -1,10 +1,10 @@
 <?php
 
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
-use Automattic\Jetpack\Sync\Health;
 
 if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	function jetpack_foo_full_sync_callable() {
@@ -73,15 +73,15 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+		$this->assertSame( 1, $this->server_replica_storage->post_count() );
 
 		$this->sender->send_action( 'jetpack_full_sync_start' );
-		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
+		$this->assertSame( 0, $this->server_replica_storage->post_count() );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
-		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+		$this->assertSame( 1, $this->server_replica_storage->post_count() );
 	}
 
 	function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
@@ -106,7 +106,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start();
 
-		$this->assertEquals( 1, $this->started_sync_count );
+		$this->assertSame( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
 		$prefix = Full_Sync::STATUS_OPTION_PREFIX;
@@ -431,7 +431,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' ) );
+		$this->assertNull( $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -455,7 +455,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->server_event_storage->reset();
 		// Do Sync shouldn't send anything becuase the checksums are up to date.
 		$this->sender->do_sync();
-		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'FOO_SYNC_ALL_CONSTANTS' ) );
+		$this->assertNull( $this->server_replica_storage->get_constant( 'FOO_SYNC_ALL_CONSTANTS' ) );
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_constant' );
 		$this->assertTrue( empty( $events ) );
 	}
@@ -467,7 +467,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+		$this->assertNull( $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -481,7 +481,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+		$this->assertNull( $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -491,7 +491,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->resetCallableAndConstantTimeouts();
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+		$this->assertNull( $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_callable' );
 		$this->assertTrue( empty( $events ) );
 
@@ -513,15 +513,15 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// confirm sync worked as expected
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' ) );
+		$this->assertNull( $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+		$this->assertNull( $this->server_replica_storage->get_option( 'non_existant' ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_option' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_prefix_value' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' ) );
+		$this->assertNull( $this->server_replica_storage->get_option( 'my_option' ) );
+		$this->assertNull( $this->server_replica_storage->get_option( 'my_prefix_value' ) );
+		$this->assertNull( $this->server_replica_storage->get_option( 'non_existant' ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -533,8 +533,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' ) );
+		$this->assertNull( $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+		$this->assertNull( $this->server_replica_storage->get_option( 'non_existant' ) );
 	}
 
 	// to test run phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_all_network_options
@@ -556,20 +556,20 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// confirm sync worked as expected
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ), '' );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
+		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_site_option( 'my_option' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
+		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_option' ) );
+		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ), 'Network options not synced during full sync' );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
+		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
 	}
 
 	function test_full_sync_sends_all_post_meta() {
@@ -591,8 +591,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_array', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_array', true ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -621,25 +621,25 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		add_post_meta( $post_id, 'a_public_meta', 'foo5' );
 
 		$this->sender->do_sync();
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
 		$this->assertEquals( 'foo4', $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_key', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, '_test_meta_array', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'snapTW', true ) );
 		$this->assertEquals( 'foo4', $this->server_replica_storage->get_metadata( 'post', $post_id, '_wp_attachment_metadata', true ) );
 		$this->assertEquals( 'foo5', $this->server_replica_storage->get_metadata( 'post', $post_id, 'a_public_meta', true ) );
 	}
@@ -655,7 +655,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag', 'Not empty' ) );
+		$this->assertNull( $this->server_replica_storage->get_the_terms( $post_id, 'post_tag', 'Not empty' ) );
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
@@ -679,7 +679,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'comment', $comment_id, 'test_meta_key', true ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -1050,7 +1050,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
 
 		$posts = $synced_posts_event->args[0];
-		$this->assertEquals( 1, count( $posts ) );
+		$this->assertSame( 1, count( $posts ) );
 		$this->assertEquals( $keep_post_id, $posts[0]->ID );
 	}
 
@@ -1069,7 +1069,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$synced_comments_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
 
 		$comments = $synced_comments_event->args[0];
-		$this->assertEquals( 1, count( $comments ) );
+		$this->assertSame( 1, count( $comments ) );
 		$this->assertEquals( $keep_comment_id, $comments[0]->comment_ID );
 	}
 
@@ -1138,7 +1138,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
-		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
+		$this->assertSame( 0, $this->server_replica_storage->user_count() );
 		$user_ids = Modules::get_module( 'users' )->get_initial_sync_user_config();
 		$this->assertEquals( 3, count( $user_ids ) );
 		$this->full_sync->start( array( 'users' => 'initial' ) );
@@ -1162,7 +1162,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 			$full_sync_status['config']
 		);
 	}
-
 
 	function test_full_sync_sends_previous_interval_end_on_posts() {
 		$this->factory->post->create_many( 25 );
@@ -1254,7 +1253,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 	function _do_cron() {
 		$_GET['check'] = wp_hash( '187425' );
-		require( ABSPATH . '/wp-cron.php' );
+		require ABSPATH . '/wp-cron.php';
 	}
 
 	function upgrade_terms_to_pass_test( $term ) {

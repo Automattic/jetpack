@@ -15,11 +15,11 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 if ( ! function_exists( 'sharing_init' ) ) {
-	require dirname( __FILE__ ) . '/sharedaddy/sharedaddy.php';
+	require __DIR__ . '/sharedaddy/sharedaddy.php';
 }
 
 add_action( 'jetpack_modules_loaded', 'sharedaddy_loaded' );

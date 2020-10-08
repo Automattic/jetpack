@@ -143,8 +143,8 @@ class VideoPress_Shortcode {
 		// Register VideoPress scripts
 		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery', 'swfobject' ), '1.09' );
 
-		require_once dirname( __FILE__ ) . '/class.videopress-video.php';
-		require_once dirname( __FILE__ ) . '/class.videopress-player.php';
+		require_once __DIR__ . '/class.videopress-video.php';
+		require_once __DIR__ . '/class.videopress-player.php';
 
 		$player = new VideoPress_Player( $guid, $attr['width'], $options );
 

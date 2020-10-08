@@ -51,7 +51,6 @@ new WPCOM_JSON_API_Add_Widgets_Endpoint( array (
 	}'
 ) );
 
-
 class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * API callback.

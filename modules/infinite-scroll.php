@@ -115,16 +115,16 @@ class Jetpack_Infinite_Scroll_Extras {
 			return;
 
 		/** This filter is already documented in modules/infinite-scroll/infinity.php */
-		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
+		$customization_file = apply_filters( 'infinite_scroll_customization_file', __DIR__ . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
 
 		if ( is_readable( $customization_file ) ) {
-			require_once( $customization_file );
+			require_once $customization_file;
 		}
 		elseif ( ! empty( $theme['Template'] ) ) {
-			$customization_file = dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Template']}.php";
+			$customization_file = __DIR__ . "/infinite-scroll/themes/{$theme['Template']}.php";
 
 			if ( is_readable( $customization_file ) )
-				require_once( $customization_file );
+				require_once $customization_file;
 		}
 	}
 
@@ -222,7 +222,7 @@ Jetpack_Infinite_Scroll_Extras::instance();
 /**
  * Load main IS file
  */
-require_once( dirname( __FILE__ ) . "/infinite-scroll/infinity.php" );
+require_once __DIR__ . "/infinite-scroll/infinity.php";
 
 /**
  * Remove the IS annotation loading function bundled with the IS plugin in favor of the Jetpack-specific version in Jetpack_Infinite_Scroll_Extras::action_after_setup_theme();

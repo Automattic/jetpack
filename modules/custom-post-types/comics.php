@@ -520,7 +520,6 @@ class Jetpack_Comic {
 
 add_action( 'init', array( 'Jetpack_Comic', 'init' ) );
 
-
 function comics_welcome_email( $welcome_email, $blog_id, $user_id, $password, $title, $meta ) {
 	if ( ( isset( $meta['vertical'] ) && 'comics' == $meta['vertical'] ) || has_blog_sticker( 'vertical-comics', $blog_id ) ) {
 		return __( "Welcome! Ready to publish your first strip?

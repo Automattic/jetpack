@@ -56,7 +56,6 @@ function latex_src( $matches ) {
 	$fg = latex_get_default_color( 'text', '000' );
 	$s = 0;
 
-
 	$latex = latex_entity_decode( $latex );
 	if ( preg_match( '/.+(&fg=[0-9a-f]{6}).*/i', $latex, $fg_matches ) ) {
 		$fg = substr( $fg_matches[1], 4 );

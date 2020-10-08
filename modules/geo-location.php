@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/geo-location/class.jetpack-geo-location.php';
+require_once __DIR__ . '/geo-location/class.jetpack-geo-location.php';
 
 /**
  * Geo-location shortcode for display of location data associated with a post.

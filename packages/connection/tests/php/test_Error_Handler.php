@@ -62,11 +62,11 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$stored_errors = $this->error_handler->get_stored_errors();
 
-		$this->assertEquals( 1, count( $stored_errors ) );
+		$this->assertSame( 1, count( $stored_errors ) );
 
 		$this->arrayHasKey( 'invalid_token', $stored_errors );
 
-		$this->assertEquals( 1, count( $stored_errors['invalid_token'] ) );
+		$this->assertSame( 1, count( $stored_errors['invalid_token'] ) );
 
 		$this->arrayHasKey( '1', $stored_errors['invalid_token'] );
 
@@ -99,8 +99,8 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->arrayHasKey( 'invalid_token', $stored_errors );
 
-		$this->assertEquals( 1, count( $stored_errors['invalid_token'] ) );
-		$this->assertEquals( 1, count( $stored_errors['unknown_user'] ) );
+		$this->assertSame( 1, count( $stored_errors['invalid_token'] ) );
+		$this->assertSame( 1, count( $stored_errors['unknown_user'] ) );
 
 		$this->arrayHasKey( '1', $stored_errors['unknown_user'] );
 
@@ -135,7 +135,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->arrayHasKey( 'invalid_token', $stored_errors );
 
-		$this->assertEquals( 1, count( $stored_errors['invalid_token'] ) );
+		$this->assertSame( 1, count( $stored_errors['invalid_token'] ) );
 		$this->assertEquals( 2, count( $stored_errors['unknown_user'] ) );
 
 		$this->arrayHasKey( '2', $stored_errors['unknown_user'] );
@@ -241,7 +241,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertEquals( $expected, $this->error_handler->get_user_id_from_token( $token ) );
 	}
 
-
 	/**
 	 * Test get_error_by_nonce
 	 */
@@ -310,7 +309,7 @@ class Error_Handler_Test extends BaseTestCase {
 		// Manipulate the timestamps directly in the database.
 		$saved_options = get_option( Error_Handler::STORED_ERRORS_OPTION );
 		$this->assertEquals( 3, count( $saved_options ) );
-		$this->assertEquals( 1, count( $saved_options['no_user_tokens'] ) );
+		$this->assertSame( 1, count( $saved_options['no_user_tokens'] ) );
 		$saved_options['invalid_token'][4]['timestamp']  = time() - DAY_IN_SECONDS * 4;
 		$saved_options['no_user_tokens'][6]['timestamp'] = time() - DAY_IN_SECONDS * 4;
 		update_option( Error_Handler::STORED_ERRORS_OPTION, $saved_options );
@@ -323,7 +322,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'no_user_tokens', $errors );
 		$this->assertArrayNotHasKey( 'invalid_token', $errors );
 
-		$this->assertEquals( 1, count( $errors['no_user_tokens'] ) );
+		$this->assertSame( 1, count( $errors['no_user_tokens'] ) );
 
 	}
 }

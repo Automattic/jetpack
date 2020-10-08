@@ -64,7 +64,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_plugins', $current );
 
 		// Only 1 event should be recorded..
-		$this->assertEquals( 1, sizeof( $events ) );
+		$this->assertSame( 1, sizeof( $events ) );
 		$this->assertEquals( $events[0]->args[0], $response );
 		$this->assertTrue( (bool) $has_action );
 	}
@@ -126,7 +126,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_plugins', $current );
 
 		// Only 1 event should be recorded..
-		$this->assertEquals( 1, sizeof( $events ) );
+		$this->assertSame( 1, sizeof( $events ) );
 		$this->assertEquals( $events[0]->args[0], $response );
 		$this->assertTrue( (bool) $has_action );
 	}
@@ -193,7 +193,6 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'automatic_updates_complete' );
 		$this->assertTrue( (bool) $event );
 	}
-
 
 	public function test_network_core_update_sync_action() {
 		if ( ! is_multisite() ) {

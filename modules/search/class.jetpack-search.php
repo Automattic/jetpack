@@ -10,7 +10,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 
-require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
+require_once __DIR__ . '/class-jetpack-search-options.php';
 
 /**
  * The main class for the Jetpack Search module.
@@ -140,7 +140,7 @@ class Jetpack_Search {
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
 			if ( Jetpack_Search_Options::is_instant_enabled() ) {
-				require_once dirname( __FILE__ ) . '/class-jetpack-instant-search.php';
+				require_once __DIR__ . '/class-jetpack-instant-search.php';
 				self::$instance = new Jetpack_Instant_Search();
 			} else {
 				self::$instance = new Jetpack_Search();
@@ -199,8 +199,8 @@ class Jetpack_Search {
 	 * Loads the PHP common to all search. Should be called from extending classes.
 	 */
 	protected function base_load_php() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
+		require_once __DIR__ . '/class.jetpack-search-helpers.php';
+		require_once __DIR__ . '/class.jetpack-search-template-tags.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 	}
 
@@ -804,7 +804,7 @@ class Jetpack_Search {
 	 * @module search
 	 */
 	public function action__widgets_init() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php';
+		require_once __DIR__ . '/class.jetpack-search-widget-filters.php';
 
 		register_widget( 'Jetpack_Search_Widget_Filters' );
 	}

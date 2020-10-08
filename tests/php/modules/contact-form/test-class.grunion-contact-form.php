@@ -85,7 +85,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -118,7 +118,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -148,7 +148,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -174,7 +174,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -199,7 +199,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -224,7 +224,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -253,7 +253,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -285,7 +285,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved
 		$submission = $feedback[0];
@@ -300,7 +300,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$email_body = $email_body[0];
 
-		$this->assertEquals( 0, strpos( $expected, $email_body ) );
+		$this->assertSame( 0, strpos( $expected, $email_body ) );
 	}
 
 	/**
@@ -337,7 +337,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
 		$email_body = $email_body[0];
 
-		$this->assertEquals( 0, strpos( $expected, $email_body ) );
+		$this->assertSame( 0, strpos( $expected, $email_body ) );
 	}
 
 	/**
@@ -418,7 +418,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( '***SPAM***', $args['subject'] );
 	}
 
-
 	/**
 	 * @author tonykova
 	 * @covers ::grunion_delete_old_spam
@@ -431,7 +430,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		) );
 
 		grunion_delete_old_spam();
-		$this->assertEquals( null, get_post( $post_id ), 'An old spam feedback should be deleted' );
+		$this->assertNull( get_post( $post_id ), 'An old spam feedback should be deleted' );
 	}
 
 	/**
@@ -816,7 +815,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			);
 		}
 
-
 	}
 
 	public function assertValidCheckboxField( $html, $attributes ) {
@@ -828,7 +826,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$input = $this->getFirstElement( $label, 'input' );
 
 		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label '.$attributes['type'], 'label class doesn\'t match' );
-
 
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
 		$this->assertEquals( $input->getAttribute( 'value' ), 'Yes', 'Input value doesn\'t match' );
@@ -930,7 +927,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
-
 		$get_post_meta_for_csv_export_map = array(
 			array(
 				15,
@@ -984,7 +980,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		     ->method( 'get_post_meta_for_csv_export' )
 		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
 
-
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'get_parsed_field_contents_of_post' )
 		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
@@ -1013,7 +1008,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 	}
 
-
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for post meta
 	 *
@@ -1032,7 +1026,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
-
 		$get_post_meta_for_csv_export_map = array(
 			array( 15, null ),
 			array(
@@ -1050,7 +1043,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			array( 15, array( '_feedback_subject' => 'subj1' ) ),
 			array( 16, array( '_feedback_subject' => 'subj2' ) ),
 		);
-
 
 		$get_post_content_for_csv_export_map = array(
 			array( 15, 'This is my test 15' ),
@@ -1125,7 +1117,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		             ->disableOriginalConstructor()
 		             ->getMock();
 
-
 		$get_post_meta_for_csv_export_map = array(
 			array( 15, null ),
 			array( 16, null ),
@@ -1135,7 +1126,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			array( 15, array( '_feedback_subject' => 'subj1' ) ),
 			array( 16, array( '_feedback_subject' => 'subj2' ) ),
 		);
-
 
 		$get_post_content_for_csv_export_map = array(
 			array( 15, 'This is my test 15' ),
@@ -1163,7 +1153,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		     ->method( 'get_post_meta_for_csv_export' )
 		     ->will( $this->returnValueMap( $get_post_meta_for_csv_export_map ) );
 
-
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'get_parsed_field_contents_of_post' )
 		     ->will( $this->returnValueMap( $get_parsed_field_contents_of_post_map ) );
@@ -1172,11 +1161,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		     ->method( 'get_post_content_for_csv_export' )
 		     ->will( $this->returnValueMap( $get_post_content_for_csv_export_map ) );
 
-
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'map_parsed_field_contents_of_post_to_field_names' )
 		     ->will( $this->returnValueMap( $mapped_fields_contents_map ) );
-
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1187,7 +1174,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected_result, $result );
 	}
-
 
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
@@ -1207,7 +1193,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		                           ) )
 		             ->disableOriginalConstructor()
 		             ->getMock();
-
 
 		$get_post_meta_for_csv_export_map = array(
 			array(
@@ -1288,7 +1273,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 	}
 
-
 	/**
 	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
 	 *
@@ -1314,7 +1298,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$mock->expects( $this->never() )
 		     ->method( 'get_post_meta_for_csv_export' );
-
 
 		$mock->expects( $this->exactly( 2 ) )
 		     ->method( 'get_parsed_field_contents_of_post' )
@@ -1348,7 +1331,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$plugin = Grunion_Contact_Form_Plugin::init();
 
 		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
-
 
 		$expected_result = array(
 			'Contact Form' => 'This is my form',
@@ -1468,7 +1450,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'name'  => 'Jane Doe Again',
 			'email' => 'jane@example.com',
 		) );
-
 
 		$form = new Grunion_Contact_Form(
 			array(

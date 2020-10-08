@@ -2,7 +2,6 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
 
@@ -92,7 +91,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 		$sort_value = Jetpack::sort_modules( $first_file, $second_file );
 
-		$this->assertEquals( 0, $sort_value );
+		$this->assertSame( 0, $sort_value );
 	}
 
 	/**
@@ -108,7 +107,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		$sort_value = Jetpack::sort_modules( $first_file, $second_file );
 		$reversed_sort_value = Jetpack::sort_modules( $second_file, $first_file );
 
-		$this->assertEquals( 1, $sort_value );
+		$this->assertSame( 1, $sort_value );
 		$this->assertEquals( -1, $reversed_sort_value );
 	}
 
@@ -308,7 +307,7 @@ EXPECTED;
 		delete_transient( 'jetpack_other_linked_admins' );
 		$other_admins = Jetpack::get_other_linked_admins();
 		$this->assertFalse( $other_admins );
-		$this->assertEquals( 0, get_transient( 'jetpack_other_linked_admins' ) );
+		$this->assertSame( 0, get_transient( 'jetpack_other_linked_admins' ) );
 	}
 
 	public function test_get_other_linked_admins_more_than_one_not_false() {
@@ -1124,7 +1123,7 @@ EXPECTED;
 		Partner::init();
 		add_filter(
 			$option_name,
-			function() use ( $test_code ) {
+			function () use ( $test_code ) {
 				return $test_code;
 			}
 		);
@@ -1184,7 +1183,7 @@ EXPECTED;
 	public function test_login_init_redirect() {
 		tests_add_filter(
 			'wp_redirect',
-			function( $location ) {
+			function ( $location ) {
 				$expected_location = add_query_arg(
 					array(
 						'forceInstall' => 1,

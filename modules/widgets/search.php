@@ -7,9 +7,8 @@
  * @since      5.0.0
  */
 
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
@@ -117,7 +116,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function activate_search() {
 		Jetpack::activate_module( 'search', false, false );
 	}
-
 
 	/**
 	 * Enqueues the scripts and styles needed for the customizer.
@@ -534,7 +532,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 		echo '</div>';
 		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
-
 
 	/**
 	 * Renders JavaScript for the sorting controls on the frontend.

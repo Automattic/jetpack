@@ -1,11 +1,11 @@
 <?php
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Licensing;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Status;
 
-include_once( 'class.jetpack-admin-page.php' );
+include_once 'class.jetpack-admin-page.php';
 
 // Builds the landing page and its menu
 class Jetpack_React_Page extends Jetpack_Admin_Page {
@@ -159,7 +159,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( $this->is_redirecting ) {
 			return; // No need for scripts on a fallback page
 		}
-
 
 		$is_offline_mode     = ( new Status() )->is_offline_mode();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
@@ -360,7 +359,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
 	}
-
 
 	/**
 	 * Returns a boolean for whether the Setup Wizard should be displayed or not.

@@ -1,13 +1,11 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
-
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -922,8 +920,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 	}
 
-
-
 	public static function verify_site( $request ) {
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
@@ -1588,7 +1584,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return object
 	 */
 	public static function get_user_connection_data() {
-		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 
 		$response = array(
 //			'othersLinked'    => Jetpack::get_other_linked_admins(),
@@ -2960,7 +2956,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 		$sharer = new Sharing_Service();
@@ -3000,7 +2996,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 
@@ -3028,7 +3024,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( "%s must be a string prefixed with 'custom-' and followed by a numeric ID.", 'jetpack' ), $param ) );
 		}
 
-		if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+		if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Failed loading required dependency Sharing_Service.', 'jetpack' ) );
 		}
 		$sharer = new Sharing_Service();
@@ -3191,7 +3187,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				// Protect
 				$options['jetpack_protect_key']['current_value'] = get_site_option( 'jetpack_protect_key', false );
 				if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {
-					include_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
+					include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 				}
 				$options['jetpack_protect_global_whitelist']['current_value'] = jetpack_protect_format_whitelist();
 				break;
@@ -3217,7 +3213,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'sharedaddy':
 				// It's local, but it must be broken apart since it's saved as an array.
-				if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+				if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 					break;
 				}
 				$sharer = new Sharing_Service();
@@ -3234,7 +3230,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'stats':
 				// It's local, but it must be broken apart since it's saved as an array.
 				if ( ! function_exists( 'stats_get_options' ) ) {
-					include_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
+					include_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
 				}
 				$options = self::split_options( $options, stats_get_options() );
 				break;
@@ -3359,7 +3355,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		switch ( $module ) {
 			case 'monitor':
 				// Load the class to use the method. If class can't be found, do nothing.
-				if ( ! class_exists( 'Jetpack_Monitor' ) && ! include_once( Jetpack::get_module_path( $module ) ) ) {
+				if ( ! class_exists( 'Jetpack_Monitor' ) && ! include_once Jetpack::get_module_path( $module ) ) {
 					return false;
 				}
 				$value = Jetpack_Monitor::user_receives_notifications( false );
@@ -3367,7 +3363,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'post-by-email':
 				// Load the class to use the method. If class can't be found, do nothing.
-				if ( ! class_exists( 'Jetpack_Post_By_Email' ) && ! include_once( Jetpack::get_module_path( $module ) ) ) {
+				if ( ! class_exists( 'Jetpack_Post_By_Email' ) && ! include_once Jetpack::get_module_path( $module ) ) {
 					return false;
 				}
 				$value = Jetpack_Post_By_Email::init()->get_post_by_email_address();
@@ -3417,7 +3413,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error( 'not_found', esc_html__( 'Could not check updates for plugins on this site.', 'jetpack' ), array( 'status' => 404 ) );
 	}
-
 
 	/**
 	 * Deprecated - Get third party plugin API keys.

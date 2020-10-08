@@ -5,7 +5,7 @@
  * @package Jetpack
  */
 
-require dirname( __FILE__ ) . '/../../../../modules/widgets/twitter-timeline.php';
+require __DIR__ . '/../../../../modules/widgets/twitter-timeline.php';
 
 /**
  * Test Jetpack_Twitter_Timeline_Widget.

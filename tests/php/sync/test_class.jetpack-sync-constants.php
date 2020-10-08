@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Constants;
 
 /**
@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		foreach ( Defaults::$default_constants_whitelist as $constant ) {
-			$this->assertEquals( null, $this->server_replica_storage->get_constant( $constant ) );
+			$this->assertNull( $this->server_replica_storage->get_constant( $constant ) );
 		}
 	}
 
@@ -76,6 +76,6 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		delete_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'TEST_ABC' ) );
+		$this->assertNull( $this->server_replica_storage->get_constant( 'TEST_ABC' ) );
 	}
 }

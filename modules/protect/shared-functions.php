@@ -172,8 +172,6 @@ function jetpack_protect_get_ip() {
 		return false;
 	}
 
-
-
 	$ips = explode( ',', $ip );
 	if ( ! isset( $segments ) || ! $segments ) {
 		$segments = 1;

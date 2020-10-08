@@ -205,7 +205,6 @@ class Jetpack_Widgets {
 	public static function get_widgets_in_sidebar( $sidebar ) {
 		$sidebars = self::get_all_sidebars();
 
-
 		if ( ! $sidebars || ! is_array( $sidebars ) ) {
 			return null;
 		}

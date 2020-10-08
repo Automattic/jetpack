@@ -28,7 +28,6 @@ class VideoPress_Scheduler {
 	// ),
 	);
 
-
 	/**
 	 * Private VideoPress_Scheduler constructor.
 	 *

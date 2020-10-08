@@ -1,16 +1,15 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Main;
+use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Modules\Constants;
+use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
-use Automattic\Jetpack\Sync\Modules\Posts;
 
-$sync_server_dir = dirname( __FILE__ ) . '/server/';
+$sync_server_dir = __DIR__ . '/server/';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';

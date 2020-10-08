@@ -49,7 +49,6 @@ function load_assets( $attr, $content ) {
 	return $content;
 }
 
-
 /**
  * Render image compare block for AMP
  *

@@ -58,7 +58,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		 * @param string $path Template name.
 		 * @param array $context Context array passed to the template.
 		 */
-		require apply_filters( 'jetpack_tiled_gallery_template', dirname( __FILE__ ) . "/templates/$name.php", $name, $context );
+		require apply_filters( 'jetpack_tiled_gallery_template', __DIR__ . "/templates/$name.php", $name, $context );
 	}
 
 	private function partial( $name, $context = null ) {
@@ -80,7 +80,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		 * @param string $path Partial name.
 		 * @param array $context Context array passed to the partial.
 		 */
-		require apply_filters( 'jetpack_tiled_gallery_partial', dirname( __FILE__ ) . "/templates/partials/$name.php", $name, $context );
+		require apply_filters( 'jetpack_tiled_gallery_partial', __DIR__ . "/templates/partials/$name.php", $name, $context );
 	}
 
 	protected function get_container_extra_data() {

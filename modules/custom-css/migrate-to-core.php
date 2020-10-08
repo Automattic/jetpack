@@ -18,7 +18,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		add_action( 'init', array( __CLASS__, 'register_legacy_post_type' ) );
 		add_action( 'admin_init', array( __CLASS__, 'do_migration' ) );
 
-		include_once( dirname( __FILE__ ) . '/custom-css.php' );
+		include_once __DIR__ . '/custom-css.php';
 		if ( ! is_admin() ) {
 			add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
 		}

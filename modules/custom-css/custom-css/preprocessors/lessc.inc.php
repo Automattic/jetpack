@@ -10,7 +10,6 @@
  * Licensed under MIT or GPLv3, see LICENSE
  */
 
-
 /**
  * The LESS compiler and parser.
  *
@@ -440,7 +439,6 @@ class lessc {
 		return $selectors;
 	}
 
-
 	// multiply $selectors against the nearest selectors in env
 	protected function multiplySelectors($selectors) {
 		// find parent selectors
@@ -806,7 +804,6 @@ class lessc {
 			$this->throwError("unknown op: {$prop[0]}\n");
 		}
 	}
-
 
 	/**
 	 * Compiles a primitive value into a CSS property value.
@@ -1270,7 +1267,6 @@ class lessc {
 	    return (0.2126 * $color[0] / 255) + (0.7152 * $color[1] / 255) + (0.0722 * $color[2] / 255);
 	}
 
-
 	public function assertColor($value, $error = "expected color value") {
 		$color = $this->coerceColor($value);
 		if (is_null($color)) $this->throwError($error);
@@ -1551,7 +1547,6 @@ class lessc {
 		return $value;
 	}
 
-
 	// coerce a value for use in color operation
 	protected function coerceColor($value) {
 		switch($value[0]) {
@@ -1669,7 +1664,6 @@ class lessc {
 		}
 	}
 
-
 	// make sure a color's components don't go out of bounds
 	protected function fixColor($c) {
 		foreach (range(1, 3) as $i) {
@@ -1750,7 +1744,6 @@ class lessc {
 		return $color[3];
 	}
 
-
 	// operator on two numbers
 	protected function op_number_number($op, $left, $right) {
 		$unit = empty($left[2]) ? $right[2] : $left[2];
@@ -1788,7 +1781,6 @@ class lessc {
 		return array("number", $value, $unit);
 	}
 
-
 	/* environment functions */
 
 	protected function makeOutputBlock($type, $selectors = null) {
@@ -1823,7 +1815,6 @@ class lessc {
 	protected function set($name, $value) {
 		$this->env->store[$name] = $value;
 	}
-
 
 	// get the highest occurrence entry for a name
 	protected function get($name) {
@@ -2419,7 +2410,6 @@ class lessc_parser {
 			$this->seek($s);
 		}
 
-
 		// look for special css blocks
 		if ($this->literal('@', false)) {
 			$this->count--;
@@ -2635,7 +2625,6 @@ class lessc_parser {
 					}
 				}
 
-
 				$whiteAfter = isset($this->buffer[$this->count - 1]) &&
 					ctype_space($this->buffer[$this->count - 1]);
 
@@ -2799,7 +2788,6 @@ class lessc_parser {
 		} else {
 			$this->seek($s);
 		}
-
 
 		if (!empty($mediaType) && !$this->literal("and")) {
 			// ~
@@ -3046,7 +3034,6 @@ class lessc_parser {
 					$values[] = array("lit", $value);
 				}
 			}
-
 
 			if (!$this->literal($delim)) {
 				if ($delim == "," && $this->literal(";")) {
@@ -3464,7 +3451,6 @@ class lessc_parser {
 
 		return true;
 	}
-
 
 	// advance counter to next occurrence of $what
 	// $until - don't include $what in advance

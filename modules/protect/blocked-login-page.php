@@ -45,7 +45,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return self::$__instance;
 	}
 
-
 	function __construct( $ip_address ) {
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
@@ -264,7 +263,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$this->email_address = $email;
 		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
 
-
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
@@ -315,7 +313,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 	function render_recovery_success() {
 		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 	}
-
 
 	function get_html_blocked_login_message() {
 		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';

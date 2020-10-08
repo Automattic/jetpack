@@ -1,12 +1,12 @@
 <?php
 
-$json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/';
+$json_jetpack_endpoints_dir = __DIR__ . '/';
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-endpoint.php';
 
 // THEMES
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-active-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-active-endpoint.php';
 
 new Jetpack_JSON_API_Themes_Active_Endpoint( array(
 	'description'     => 'Get the active theme of your blog',
@@ -51,7 +51,7 @@ new Jetpack_JSON_API_Themes_Active_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/mine'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-list-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-list-endpoint.php';
 
 new Jetpack_JSON_API_Themes_List_Endpoint( array(
 	'description'     => 'Get WordPress.com Themes allowed on your blog',
@@ -74,8 +74,8 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-get-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-new-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-get-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-new-endpoint.php';
 
 // POST /sites/%s/themes/%new
 new Jetpack_JSON_API_Themes_New_Endpoint( array(
@@ -99,8 +99,6 @@ new Jetpack_JSON_API_Themes_New_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/new'
 ) );
 
-
-
 new Jetpack_JSON_API_Themes_Get_Endpoint( array(
 	'description'     => 'Get a single theme on a jetpack blog',
 	'group'           => '__do_not_document',
@@ -120,7 +118,7 @@ new Jetpack_JSON_API_Themes_Get_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-modify-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-modify-endpoint.php';
 new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 	'description'     => 'Modify a single theme on a jetpack blog',
 	'group'           => '__do_not_document',
@@ -179,7 +177,7 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-install-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-install-endpoint.php';
 // POST /sites/%s/themes/%s/install
 new Jetpack_JSON_API_Themes_Install_Endpoint( array(
 	'description'     => 'Install a theme to your jetpack blog',
@@ -200,7 +198,7 @@ new Jetpack_JSON_API_Themes_Install_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/install'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-delete-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-delete-endpoint.php';
 // POST /sites/%s/themes/%s/delete
 new Jetpack_JSON_API_Themes_Delete_Endpoint( array(
 	'description'     => 'Delete/Uninstall a theme from your jetpack blog',
@@ -221,22 +219,21 @@ new Jetpack_JSON_API_Themes_Delete_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/delete'
 ) );
 
-
 // PLUGINS
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-get-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-new-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-install-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-delete-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-get-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-new-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-install-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-delete-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php';
 
 // PLUGINS V1.2
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-v1-2-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-v1-2-endpoint.php';
 
 // Jetpack Modules
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-get-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-get-endpoint.php';
 
 new Jetpack_JSON_API_Modules_Get_Endpoint( array(
 	'description'     => 'Get the info about a Jetpack Module on your Jetpack Site',
@@ -256,7 +253,7 @@ new Jetpack_JSON_API_Modules_Get_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-modify-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-modify-endpoint.php';
 
 new Jetpack_JSON_API_Modules_Modify_Endpoint( array(
 	'description'     => 'Modify the status of a Jetpack Module on your Jetpack Site',
@@ -282,7 +279,7 @@ new Jetpack_JSON_API_Modules_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-list-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-list-endpoint.php';
 
 new Jetpack_JSON_API_Modules_List_Endpoint( array(
 	'description'     => 'Get the list of available Jetpack modules on your site',
@@ -304,7 +301,7 @@ new Jetpack_JSON_API_Modules_List_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-updates-status-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-updates-status-endpoint.php';
 
 new Jetpack_JSON_API_Updates_Status( array(
 	'description'     => 'Get counts for available updates',
@@ -332,10 +329,9 @@ new Jetpack_JSON_API_Updates_Status( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/updates'
 ) );
 
-
 // Jetpack Extras
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-check-capabilities-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-check-capabilities-endpoint.php';
 
 new Jetpack_JSON_API_Check_Capabilities_Endpoint( array(
 	'description'     => 'Check if the current user has a certain capability over a Jetpack site',
@@ -357,10 +353,9 @@ new Jetpack_JSON_API_Check_Capabilities_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/me/capability'
 ) );
 
-
 // CORE
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-modify-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-modify-endpoint.php';
 
 new Jetpack_JSON_API_Core_Endpoint( array(
 	'description'     => 'Gets info about a Jetpack blog\'s core installation',
@@ -431,7 +426,7 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-sync-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-sync-endpoint.php';
 
 // POST /sites/%s/sync
 new Jetpack_JSON_API_Sync_Endpoint( array(
@@ -494,7 +489,6 @@ new Jetpack_JSON_API_Sync_Status_Endpoint(
 		'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status',
 	)
 );
-
 
 // GET /sites/%s/data-checksums
 new Jetpack_JSON_API_Sync_Check_Endpoint( array(
@@ -632,7 +626,6 @@ new Jetpack_JSON_API_Sync_Now_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/now?queue=full_sync'
 ) );
 
-
 // POST /sites/%s/sync/unlock
 new Jetpack_JSON_API_Sync_Unlock_Endpoint( array(
 	'description'     => 'Unlock the queue in case it gets locked by a process.',
@@ -721,7 +714,7 @@ new Jetpack_JSON_API_Sync_Close_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/close'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-log-endpoint.php';
 
 new Jetpack_JSON_API_Jetpack_Log_Endpoint( array(
 	'description'     => 'Get the Jetpack log',
@@ -741,7 +734,7 @@ new Jetpack_JSON_API_Jetpack_Log_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/jetpack-log'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-maybe-auto-update-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-maybe-auto-update-endpoint.php';
 
 new Jetpack_JSON_API_Maybe_Auto_Update_Endpoint( array(
 	'description'     => 'Maybe Auto Update Core, Plugins, Themes and Languages',
@@ -758,8 +751,8 @@ new Jetpack_JSON_API_Maybe_Auto_Update_Endpoint( array(
 
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-modify-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-endpoint.php';
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-translations-modify-endpoint.php';
 
 new Jetpack_JSON_API_Translations_Endpoint( array(
 	'description'     => 'Gets info about a Jetpack blog\'s core installation',
@@ -829,7 +822,7 @@ new Jetpack_JSON_API_Translations_Modify_Endpoint( array(
 ) );
 
 // Options
-require_once( $json_jetpack_endpoints_dir . 'class.wpcom-json-api-get-option-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.wpcom-json-api-get-option-endpoint.php';
 
 new WPCOM_JSON_API_Get_Option_Endpoint( array (
 	'method' => 'GET',
@@ -853,7 +846,7 @@ new WPCOM_JSON_API_Get_Option_Endpoint( array (
 	),
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.wpcom-json-api-update-option-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.wpcom-json-api-update-option-endpoint.php';
 
 new WPCOM_JSON_API_Update_Option_Endpoint( array (
 	'method' => 'POST',
@@ -884,8 +877,7 @@ new WPCOM_JSON_API_Update_Option_Endpoint( array (
 	),
 ) );
 
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-cron-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-cron-endpoint.php';
 
 // GET /sites/%s/cron
 new Jetpack_JSON_API_Cron_Endpoint( array(
@@ -995,7 +987,7 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 //	BACKUPS
 
 // GET /sites/%s/database-object/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-database-object-backup-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-database-object-backup-endpoint.php';
 new Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint( array(
 	'description'    => 'Fetch a backup of a database object, along with all of its metadata',
 	'group'          => '__do_not_document',
@@ -1024,7 +1016,7 @@ new Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint( array(
 ) );
 
 // GET /sites/%s/comments/%d/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-comment-backup-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-comment-backup-endpoint.php';
 new Jetpack_JSON_API_Get_Comment_Backup_Endpoint( array(
 	'description'    => 'Fetch a backup of a comment, along with all of its metadata',
 	'group'          => '__do_not_document',
@@ -1049,7 +1041,7 @@ new Jetpack_JSON_API_Get_Comment_Backup_Endpoint( array(
 ) );
 
 // GET /sites/%s/options/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-option-backup-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-option-backup-endpoint.php';
 new Jetpack_JSON_API_Get_Option_Backup_Endpoint( array(
 	'description'    => 'Fetch a backup of an option',
 	'group'          => '__do_not_document',
@@ -1075,7 +1067,7 @@ new Jetpack_JSON_API_Get_Option_Backup_Endpoint( array(
 ) );
 
 // GET /sites/%s/posts/%d/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-post-backup-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-post-backup-endpoint.php';
 new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	'description'    => 'Fetch a backup of a post, along with all of its metadata',
 	'group'          => '__do_not_document',
@@ -1101,7 +1093,7 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 ) );
 
 // GET /sites/%s/terms/%d/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-term-backup-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-term-backup-endpoint.php';
 new Jetpack_JSON_API_Get_Term_Backup_Endpoint( array(
 	'description'    => 'Fetch a backup of a term, along with all of its metadata',
 	'group'          => '__do_not_document',
@@ -1126,7 +1118,7 @@ new Jetpack_JSON_API_Get_Term_Backup_Endpoint( array(
 ) );
 
 // GET /sites/%s/users/%d/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-user-backup-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-user-backup-endpoint.php';
 new Jetpack_JSON_API_Get_User_Backup_Endpoint( array(
 	'description'    => 'Fetch a backup of a user, along with all of its metadata',
 	'group'          => '__do_not_document',
@@ -1152,7 +1144,7 @@ new Jetpack_JSON_API_Get_User_Backup_Endpoint( array(
 
 // USERS
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-connect-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-connect-endpoint.php';
 
 // POST /sites/%s/users/%d/connect
 new Jetpack_JSON_API_User_Connect_Endpoint( array(
@@ -1186,7 +1178,7 @@ new Jetpack_JSON_API_User_Connect_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/6/connect'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-create-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-create-endpoint.php';
 
 // POST /sites/%s/users/create
 new Jetpack_JSON_API_User_Create_Endpoint( array(
@@ -1233,7 +1225,7 @@ new Jetpack_JSON_API_User_Create_Endpoint( array(
 
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-jps-woocommerce-connect-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class.jetpack-json-api-jps-woocommerce-connect-endpoint.php';
 
 // POST /sites/%s/jps/woo-connect
 new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
@@ -1271,7 +1263,7 @@ new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
 ) );
 
 // POST /sites/%s/install-backup-helper-script
-require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-backup-helper-script-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-backup-helper-script-endpoint.php';
 new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
 	'description'             => 'Setup a Helper Script, to allow Jetpack Backup to connect to this site',
 	'group'                   => '__do_not_document',
@@ -1299,7 +1291,7 @@ new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
 ) );
 
 // POST /sites/%s/delete-backup-helper-script
-require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-delete-backup-helper-script-endpoint.php' );
+require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-delete-backup-helper-script-endpoint.php';
 new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint( array(
 	'description'             => 'Delete a Helper Script',
 	'group'                   => '__do_not_document',

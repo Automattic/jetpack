@@ -157,7 +157,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				}
 			} else {
 				echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
-				require( dirname( __FILE__ ) . '/flickr/widget.php' );
+				require __DIR__ . '/flickr/widget.php';
 			}
 			echo $args['after_widget'];
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
@@ -171,7 +171,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		 */
 		public function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
-			require( dirname( __FILE__ ) . '/flickr/form.php' );
+			require __DIR__ . '/flickr/form.php';
 		}
 
 		/**

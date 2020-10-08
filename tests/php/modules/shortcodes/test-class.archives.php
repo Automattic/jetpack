@@ -187,7 +187,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 		$archives = archives_shortcode( $attr );
 
-		$this->assertEquals( 1, substr_count( $archives, '<li>' ) );
+		$this->assertSame( 1, substr_count( $archives, '<li>' ) );
 	}
 
 	/**

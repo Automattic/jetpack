@@ -124,14 +124,12 @@ class WPCOM_JSON_API_Site_Settings_V1_2_Endpoint extends WPCOM_JSON_API_Site_Set
 		'settings'       => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
 	);
 
-
 	function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'site_settings_endpoint_update_locale', array( $this, 'update_locale' ) );
 		add_filter( 'site_settings_endpoint_get',           array( $this, 'return_locale' ) );
 		add_filter( 'site_settings_site_format',            array( $this, 'site_format' ) );
 		return parent::callback( $path, $blog_id );
 	}
-
 
 	protected function get_locale( $key ) {
 		if ( 'locale' == $key ) {

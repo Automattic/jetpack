@@ -49,7 +49,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'style.css', __FILE__ ) );
 	}
 
-
 	// DATA STORE: Must implement
 
 	/**
@@ -69,7 +68,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 	 * @return array - the new data
 	 */
 	abstract public function update_instance( $site );
-
 
 	// WIDGET API
 
@@ -206,7 +204,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$featured_image     = ( isset( $instance['featured_image'] ) ) ? $instance['featured_image'] : false;
 		$show_excerpts      = ( isset( $instance['show_excerpts'] ) ) ? $instance['show_excerpts'] : false;
 
-
 		/**
 		 * Check if the widget instance has errors available.
 		 *
@@ -331,7 +328,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$instance['url']   = preg_replace( "!^https?://!is", "", $instance['url'] );
 		$instance['url']   = untrailingslashit( $instance['url'] );
 
-
 		/**
 		 * Check if the URL should be with or without the www prefix before saving.
 		 */
@@ -365,7 +361,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 
 		return $instance;
 	}
-
 
 	// DATA PROCESSING
 
@@ -443,13 +438,11 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			);
 		}
 
-
 		/**
 		 * Extract service response body from the request.
 		 */
 
 		$service_response_body = wp_remote_retrieve_body( $service_response );
-
 
 		/**
 		 * No body has been set in the response. This should be pretty bad.
@@ -685,7 +678,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$site_info_raw_data    = $this->fetch_site_info( $site );
 		$site_info_parsed_data = $this->parse_site_info_response( $site_info_raw_data );
 
-
 		/**
 		 * If there is an error with the fetched site info, save the error and update the checked time.
 		 */
@@ -707,7 +699,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			$widget_data['site_info']['error']       = null;
 		}
 
-
 		/**
 		 * If only site data is needed, return it here, don't fetch posts data.
 		 */
@@ -722,7 +713,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 
 		$site_posts_raw_data    = $this->fetch_posts_for_site( $site_info_parsed_data->ID );
 		$site_posts_parsed_data = $this->parse_posts_response( $site_posts_raw_data );
-
 
 		/**
 		 * If there is an error with the fetched posts, save the error and update the checked time.
@@ -762,7 +752,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			'debug'   => '',
 			'where'   => '',
 		);
-
 
 		/**
 		 * When the cache result is an error. Usually when the cache is empty.

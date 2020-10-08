@@ -33,28 +33,28 @@
  *
  * @version 1.0
  */
-require_once( dirname( __FILE__ ) . '/class.csstidy_ctype.php' );
+require_once __DIR__ . '/class.csstidy_ctype.php';
 
 /**
  * Various CSS data needed for correct optimisations etc.
  *
  * @version 1.3
  */
-require( dirname( __FILE__ ) . '/data.inc.php' );
+require __DIR__ . '/data.inc.php';
 
 /**
  * Contains a class for printing CSS code
  *
  * @version 1.0
  */
-require( dirname( __FILE__ ) . '/class.csstidy_print.php' );
+require __DIR__ . '/class.csstidy_print.php';
 
 /**
  * Contains a class for optimising CSS code
  *
  * @version 1.0
  */
-require( dirname( __FILE__ ) . '/class.csstidy_optimise.php' );
+require __DIR__ . '/class.csstidy_optimise.php';
 
 /**
  * CSS Parser class
@@ -470,7 +470,7 @@ class csstidy {
 		if (!is_dir('temp')) {
 			$madedir = mkdir('temp');
 			if (!$madedir) {
-				print 'Could not make directory "temp" in ' . dirname(__FILE__);
+				print 'Could not make directory "temp" in ' . __DIR__;
 				exit;
 			}
 		}
@@ -499,7 +499,6 @@ class csstidy {
 			$this->template = $predefined_templates[$content];
 			return;
 		}
-
 
 		if ($from_file) {
 			$content = strip_tags(file_get_contents($content), '<span>');

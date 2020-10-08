@@ -6,7 +6,7 @@ use Automattic\Jetpack\Constants;
  * Test pluggable functionality for bruteprotect
  */
 
-require_once dirname( __FILE__ ) . '/../../../modules/protect.php';
+require_once __DIR__ . '/../../../modules/protect.php';
 
 class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
@@ -45,6 +45,6 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_valid_failed_login_attempt' );
 
-		$this->assertEquals( '', $action->args[0]['login'] );
+		$this->assertSame( '', $action->args[0]['login'] );
 	}
 }

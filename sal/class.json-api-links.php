@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../class.json-api.php';
+require_once __DIR__ . '/../class.json-api.php';
 
 class WPCOM_JSON_API_Links {
 	private $api;

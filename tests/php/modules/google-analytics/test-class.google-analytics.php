@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		// Hijack the option for Jetpack_Google_Analytics_Options::get_tracking_code().
 		add_filter(
 			'pre_option_jetpack_wga',
-			function( $option ) {
+			function ( $option ) {
 				$option['code'] = self::GA_ID;
 				return $option;
 			}

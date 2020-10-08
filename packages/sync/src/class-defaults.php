@@ -305,7 +305,6 @@ class Defaults {
 
 	);
 
-
 	/**
 	 * Array of post type attributes synced.
 	 *

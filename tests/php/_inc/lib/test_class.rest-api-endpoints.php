@@ -8,7 +8,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 
-require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
+require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	protected function load_rest_endpoints_direct() {
-		require_once dirname( __FILE__ ) . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
+		require_once __DIR__ . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
 	}
 
 	/**
@@ -1025,7 +1025,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			'POST'
 		);
 		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( true, $response->get_data() );
+		$this->assertTrue( $response->get_data() );
 
 		$response = $this->create_and_get_request( 'setup/questionnaire', array(), 'GET' );
 		$this->assertResponseStatus( 200, $response );
@@ -1047,7 +1047,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
 		$response = $this->server->dispatch( $request );
 		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( '', $response->get_data() );
+		$this->assertSame( '', $response->get_data() );
 
 		// Should accept updates.
 		$response = $this->create_and_get_request(
@@ -1058,7 +1058,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			'POST'
 		);
 		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( true, $response->get_data() );
+		$this->assertTrue( $response->get_data() );
 
 		// Should return updated value.
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );

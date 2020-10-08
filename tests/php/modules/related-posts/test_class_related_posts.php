@@ -1,6 +1,6 @@
 <?php
 
-require dirname( __FILE__ ) . '/../../../../modules/related-posts.php';
+require __DIR__ . '/../../../../modules/related-posts.php';
 
 class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 

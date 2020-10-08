@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
@@ -10,7 +10,6 @@ use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
-
 
 require_once 'test_class.jetpack-sync-base.php';
 
@@ -50,7 +49,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$updates = $this->server_replica_storage->get_callable( 'updates' );
 		$this->assertEqualsObject( Jetpack::get_updates(), $updates, 'The updates object should match' );
 	}
-
 
 	function test_wp_version_is_synced() {
 		global $wp_version;
@@ -166,7 +164,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+		$this->assertNull( $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 	}
 
 	/**
@@ -322,9 +320,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'home_url' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'main_network_site' ) );
+		$this->assertNull( $this->server_replica_storage->get_callable( 'home_url' ) );
+		$this->assertNull( $this->server_replica_storage->get_callable( 'site_url' ) );
+		$this->assertNull( $this->server_replica_storage->get_callable( 'main_network_site' ) );
 
 		// Third, let's test that values get syncd with the option set
 		Jetpack_Options::update_option( 'migrate_for_idc', true );
@@ -505,7 +503,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			if ( in_array( $callable, $always_updated, true ) ) {
 				$this->assertNotNull( $this->server_replica_storage->get_callable( $callable ) );
 			} else {
-				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
+				$this->assertNull( $this->server_replica_storage->get_callable( $callable ) );
 			}
 		}
 
@@ -533,7 +531,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			if ( in_array( $callable, $always_updated, true ) ) {
 				$this->assertNotNull( $this->server_replica_storage->get_callable( $callable ) );
 			} else {
-				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
+				$this->assertNull( $this->server_replica_storage->get_callable( $callable ) );
 			}
 		}
 
@@ -637,13 +635,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	function assert_sanitized_post_type_default( $sanitized, $label ) {
 		$this->assertEquals( $label, $sanitized->name );
 		$this->assertEquals( 'Posts', $sanitized->label );
-		$this->assertEquals( '', $sanitized->description );
+		$this->assertSame( '', $sanitized->description );
 		$this->assertEquals( $label, $sanitized->rewrite['slug'] );
 		$this->assertEquals( $label, $sanitized->query_var );
 		$this->assertEquals( 'post', $sanitized->capability_type );
 		$this->assertEquals( array(), $sanitized->taxonomies );
 		$this->assertEquals( array(), $sanitized->supports );
-		$this->assertEquals( '', $sanitized->_edit_link );
+		$this->assertSame( '', $sanitized->_edit_link );
 
 		$this->assertFalse( $sanitized->public );
 		$this->assertFalse( $sanitized->has_archive );
@@ -725,7 +723,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_register_post_types_callback_error() {
-		register_post_type( 'testing', array( 'register_meta_box_cb' => function() {} ) );
+		register_post_type( 'testing', array( 'register_meta_box_cb' => function () {} ) );
 		$this->sender->do_sync();
 
 		$post_types =  $this->server_replica_storage->get_callable( 'post_types' );

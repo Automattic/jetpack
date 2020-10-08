@@ -7,11 +7,10 @@
 
 namespace Automattic\Jetpack;
 
-use PHPUnit\Framework\TestCase;
-
 use Brain\Monkey;
-use Brain\Monkey\Functions;
 use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class Partner_Test

@@ -7,13 +7,12 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
-use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Settings as Sync_Settings;
-use Automattic\Jetpack\Sync\Health as Sync_Health;
-use Automattic\Jetpack\Sync\Sender as Sync_Sender;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Health as Sync_Health;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Sender as Sync_Sender;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.

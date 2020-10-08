@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Constants;
 
-require_once dirname( __FILE__ ) . '/test_class.jetpack-sync-plugins.php';
-require_once dirname( __FILE__ ) . '/class.silent-upgrader-skin.php';
+require_once __DIR__ . '/test_class.jetpack-sync-plugins.php';
+require_once __DIR__ . '/class.silent-upgrader-skin.php';
 
 /**
  * Testing CRUD on Plugins

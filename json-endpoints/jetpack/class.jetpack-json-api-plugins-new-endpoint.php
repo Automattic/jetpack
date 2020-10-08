@@ -3,7 +3,6 @@
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 
-
 // POST /sites/%s/plugins/new
 new Jetpack_JSON_API_Plugins_New_Endpoint(
 	array(
@@ -29,7 +28,6 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
 		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/new'
 	)
 );
-
 
 new Jetpack_JSON_API_Plugins_New_Endpoint(
 	array(

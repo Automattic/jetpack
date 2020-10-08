@@ -907,7 +907,6 @@ class Share_Twitter extends Sharing_Source {
 	}
 }
 
-
 class Share_Reddit extends Sharing_Source {
 	public $shortname = 'reddit';
 	public $icon = '\f222';

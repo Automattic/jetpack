@@ -11,4 +11,4 @@
  * Additional Search Queries: widget visibility, logic, conditional, widgets, widget
  */
 
-include dirname( __FILE__ ) . "/widget-visibility/widget-conditions.php";
+include __DIR__ . "/widget-visibility/widget-conditions.php";

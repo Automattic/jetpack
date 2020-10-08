@@ -98,7 +98,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_attachment( $post_id );
 
-		$this->assertEquals( 1, count( $images ) );
+		$this->assertSame( 1, count( $images ) );
 		$this->assertEquals( $img_url, $images[0]['src'] );
 		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
 	}
@@ -290,15 +290,15 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 6.9.0
 	 */
 	public function test_get_attachment_data_returns_false_on_unavailable_data() {
-		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( PHP_INT_MAX, '', 200, 200 ) );
+		$this->assertFalse( Jetpack_PostImages::get_attachment_data( PHP_INT_MAX, '', 200, 200 ) );
 
 		$post = $this->get_post_with_image_block();
 
 		// Testing the height condition.
-		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( $post['post_id'], '', 200, PHP_INT_MAX ) );
+		$this->assertFalse( Jetpack_PostImages::get_attachment_data( $post['post_id'], '', 200, PHP_INT_MAX ) );
 
 		// Testing the width condition.
-		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( $post['post_id'], '', PHP_INT_MAX, 200 ) );
+		$this->assertFalse( Jetpack_PostImages::get_attachment_data( $post['post_id'], '', PHP_INT_MAX, 200 ) );
 	}
 
 	/**

@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Sync\Replicastore_Interface;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Replicastore_Interface;
 
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
@@ -323,8 +323,6 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 	}
 
-
-
 	// constants
 	public function get_constant( $constant ) {
 		if ( ! isset( $this->constants[ get_current_blog_id() ][ $constant ] ) ) {
@@ -573,7 +571,6 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	function delete_user( $user_id ) {
 		unset( $this->users[ get_current_blog_id() ][ $user_id ] );
 	}
-
 
 	function checksum_all() {
 		$post_meta_checksum = $this->checksum_histogram( 'post_meta', 1 );

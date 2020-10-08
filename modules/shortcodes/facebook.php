@@ -12,7 +12,6 @@ define( 'JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?faceb
 define( 'JETPACK_FACEBOOK_VIDEO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/(?:video.php|watch\/?)\?([^\s]+)#' );
 define( 'JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/videos/([^/]+)?#' );
 
-
 /*
  * Example URL: https://www.facebook.com/VenusWilliams/posts/10151647007373076
  */

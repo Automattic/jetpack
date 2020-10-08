@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Disable direct access and execution.
@@ -10,7 +10,6 @@ use Automattic\Jetpack\Redirect;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
 
 if (
 	is_admin() &&
@@ -244,7 +243,7 @@ class Jetpack_Plugin_Search {
 		$data = get_transient( 'jetpack_plugin_data' );
 
 		if ( false === $data || is_wp_error( $data ) ) {
-			include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
+			include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			$data = plugins_api( 'plugin_information', array(
 				'slug' => 'jetpack',
 				'is_ssl' => is_ssl(),

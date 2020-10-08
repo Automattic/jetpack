@@ -211,7 +211,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'twitter_timeline' );
 	}
 
-
 	/**
 	 * Sanitize widget form values as they are saved.
 	 *

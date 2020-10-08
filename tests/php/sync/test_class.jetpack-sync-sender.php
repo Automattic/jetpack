@@ -1,11 +1,10 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Settings;
-
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;
@@ -27,7 +26,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertEquals( true, $this->action_ran );
+		$this->assertTrue( $this->action_ran );
 		$this->assertEquals( 'deflate-json-array', $this->action_codec );
 		$this->assertNotNull( $this->action_timestamp );
 		$this->assertTrue( $this->action_timestamp > $start_test_timestamp );
@@ -125,7 +124,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// evenstore should have the first item
-		$this->assertEquals( 1, count( $this->server_event_storage->get_all_events( 'my_expanding_action' ) ) );
+		$this->assertSame( 1, count( $this->server_event_storage->get_all_events( 'my_expanding_action' ) ) );
 
 		// ... then the second
 		$this->sender->do_sync();
@@ -353,7 +352,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		set_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
 		$this->sender->do_sync();
 
-		$this->assertEquals( 0, $this->sender->get_sync_queue()->size() );
+		$this->assertSame( 0, $this->sender->get_sync_queue()->size() );
 
 		$this->sender->set_max_dequeue_time( 4 );
 
@@ -372,7 +371,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// should have aborted after 2 actions
-		$this->assertEquals( 1, $this->sender->get_sync_queue()->size() );
+		$this->assertSame( 1, $this->sender->get_sync_queue()->size() );
 
 		remove_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ) );
 	}

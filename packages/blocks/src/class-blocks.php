@@ -73,7 +73,7 @@ class Blocks {
 
 			add_action(
 				'jetpack_register_gutenberg_extensions',
-				function() use ( $feature_name, $method_name ) {
+				function () use ( $feature_name, $method_name ) {
 					call_user_func( array( 'Jetpack_Gutenberg', $method_name ), $feature_name );
 				}
 			);

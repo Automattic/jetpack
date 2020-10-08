@@ -9,7 +9,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Blocks;
 use PHPUnit\Framework\TestCase;
 
 /**

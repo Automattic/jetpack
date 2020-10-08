@@ -51,7 +51,7 @@ if ( '1' != getenv( 'WP_MULTISITE' ) &&
 if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	echo "To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1" . PHP_EOL;
 } else {
-	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', dirname( __FILE__ ) . '/../../../woocommerce' );
+	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', __DIR__ . '/../../../woocommerce' );
 }
 
 if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
@@ -70,7 +70,7 @@ function _manually_load_plugin() {
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
-	require dirname( __FILE__ ) . '/../../jetpack.php';
+	require __DIR__ . '/../../jetpack.php';
 	$jetpack = Jetpack::init();
 	$jetpack->configure();
 }
@@ -80,7 +80,7 @@ function _manually_install_woocommerce() {
 	// clean existing install first
 	define( 'WP_UNINSTALL_PLUGIN', true );
 	define( 'WC_REMOVE_ALL_DATA', true );
-	include( JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php' );
+	include JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
 
 	WC_Install::install();
 
@@ -128,14 +128,14 @@ require $test_root . '/includes/bootstrap.php';
 
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
-	require dirname( __FILE__ ) . '/../../modules/shortcodes.php';
+	require __DIR__ . '/../../modules/shortcodes.php';
 }
 
 // Load attachment helper methods.
-require dirname( __FILE__ ) . '/attachment_test_case.php';
+require __DIR__ . '/attachment_test_case.php';
 
 // Load WPCOM-shared helper functions.
-require dirname( __FILE__ ) . '/lib/wpcom-helper-functions.php';
+require __DIR__ . '/lib/wpcom-helper-functions.php';
 
 // Load the Tweetstorm Requests override class.
 require __DIR__ . '/_inc/lib/class-tweetstorm-requests-transport-override.php';

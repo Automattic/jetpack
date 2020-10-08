@@ -49,7 +49,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	public function test_sitemap_librarian_delete_unset_row_returns_false() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$result = $librarian->delete_sitemap_data( 'unset', 'unset' );
-		$this->assertEquals( false, $result );
+		$this->assertFalse( $result );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, 'contents', '1970-01-01 00:00:00' );
 		$result = $librarian->delete_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
-		$this->assertEquals( true, $result );
+		$this->assertTrue( $result );
 	}
 
 	/**

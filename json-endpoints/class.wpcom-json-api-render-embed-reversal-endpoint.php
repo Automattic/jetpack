@@ -78,7 +78,6 @@ class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Rende
 
 		$render = $this->process_render( array( $this, 'render_shortcode_reversal' ), array( 'shortcode_reversal' => $ksesed_content, 'is_shortcode' => $is_shortcode, 'is_embed' => $is_embed ) );
 
-
 		// if nothing happened, then the shortcode does not exist.
 		global $wp_embed;
 		if ( empty( $render ) || empty( $render['result'] ) || $ksesed_content == $render['result'] || $wp_embed->maybe_make_link( $maybe_embed ) == $render['result'] ) {

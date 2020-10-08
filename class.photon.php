@@ -627,7 +627,6 @@ class Jetpack_Photon {
 		return $galleries;
 	}
 
-
 	/**
 	 * Runs the image widget through photon.
 	 *

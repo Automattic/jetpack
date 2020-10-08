@@ -1,6 +1,5 @@
 <?php
 
-
 abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public $comment_object_format = array(
 		// explicitly document and cast all output

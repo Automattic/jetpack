@@ -82,7 +82,6 @@
 
 <?php
 
-
 ?>
 
 <?php // Hidden input to hold the selected image ids as a csv list ?>

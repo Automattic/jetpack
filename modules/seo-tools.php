@@ -13,8 +13,8 @@
  * Plans: business, premium, security, complete
  */
 
-include dirname( __FILE__ ) . '/seo-tools/jetpack-seo.php';
-include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+include __DIR__ . '/seo-tools/jetpack-seo.php';
+include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 // Suppress SEO Tools output if any of the following plugins is active.
 $jetpack_seo_conflicting_plugins = array(

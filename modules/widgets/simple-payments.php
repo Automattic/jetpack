@@ -366,7 +366,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			echo '<div class="jetpack-simple-payments-content">';
 
 			if ( ! empty( $instance['form_action'] ) && in_array( $instance['form_action'], array( 'add', 'edit' ) ) && is_customize_preview() ) {
-				require( dirname( __FILE__ ) . '/simple-payments/widget.php' );
+				require __DIR__ . '/simple-payments/widget.php';
 			} else {
 				$jsp                    = Jetpack_Simple_Payments::getInstance();
 				$simple_payments_button = $jsp->parse_shortcode(
@@ -523,7 +523,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				return;
 			}
 			if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
-				require dirname( __FILE__ ) . '/simple-payments/admin-warning.php';
+				require __DIR__ . '/simple-payments/admin-warning.php';
 				return;
 			}
 
@@ -538,7 +538,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				)
 			);
 
-			require dirname( __FILE__ ) . '/simple-payments/form.php';
+			require __DIR__ . '/simple-payments/form.php';
 		}
 	}
 

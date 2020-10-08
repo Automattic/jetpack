@@ -616,7 +616,6 @@ abstract class Publicize_Base {
 
 				$unique_id = $this->get_connection_unique_id( $connection );
 
-
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
 					// New flags

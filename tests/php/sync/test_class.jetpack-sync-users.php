@@ -1,8 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Users;
 
 /**
  * Testing CRUD on Users
@@ -586,7 +586,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $event->args[1]['locale_changed'] );
 
 		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
-		$this->assertEquals( '', $server_user_local );
+		$this->assertSame( '', $server_user_local );
 	}
 
 	public function test_delete_user_from_network() {
@@ -778,7 +778,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			$this->assertArrayNotHasKey( 'warning', $value );
 		}
 	}
-
 
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison

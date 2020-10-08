@@ -206,7 +206,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
 	}
 
-
 	protected function get_file_mod_capabilities() {
 		$reasons_can_not_autoupdate = array();
 		$reasons_can_not_modify_files = array();
@@ -303,7 +302,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 		return true;
 	}
-
 
 	protected function validate_plugin( $plugin ) {
 		if ( ! isset( $plugin) || empty( $plugin ) ) {

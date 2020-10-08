@@ -113,7 +113,6 @@ class Jetpack_User_Agent_Info {
 		return ( new User_Agent_Info() )->is_iphoneOrIpod();
 	}
 
-
 	/**
 	 *  Detects if the current UA is iPhone Mobile Safari or another iPhone or iPod Touch Browser.
 	 *
@@ -283,7 +282,6 @@ class Jetpack_User_Agent_Info {
 		return User_Agent_Info::is_opera_mobile();
 	}
 
-
 	/**
 	 * Detects if the current browser is Opera Mini
 	 *
@@ -348,7 +346,6 @@ class Jetpack_User_Agent_Info {
 		return User_Agent_Info::is_windows_phone_8();
 	}
 
-
 	/**
 	 * Detects if the current browser is on a Palm device running the new WebOS. This EXCLUDES TouchPad.
 	 *
@@ -374,7 +371,6 @@ class Jetpack_User_Agent_Info {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_TouchPad from the `automattic/jetpack-device-detection` package' );
 		return User_Agent_Info::is_TouchPad();
 	}
-
 
 	/**
 	 * Detects if the current browser is the Series 60 Open Source Browser.
@@ -426,7 +422,6 @@ class Jetpack_User_Agent_Info {
 		return User_Agent_Info::is_J2ME_platform();
 	}
 
-
 	/**
 	 * Detects if the current UA is on one of the Maemo-based Nokia Internet Tablets.
 	 *
@@ -446,7 +441,6 @@ class Jetpack_User_Agent_Info {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_MeeGo from the `automattic/jetpack-device-detection` package' );
 		return User_Agent_Info::is_MeeGo();
 	}
-
 
 	/**
 	 * The is_webkit() method can be used to check the User Agent for an webkit generic browser.
@@ -469,7 +463,6 @@ class Jetpack_User_Agent_Info {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_android from the `automattic/jetpack-device-detection` package' );
 		return User_Agent_Info::is_android();
 	}
-
 
 	/**
 	 * Detects if the current browser is the Native Android Tablet browser.
@@ -512,7 +505,6 @@ class Jetpack_User_Agent_Info {
 		_deprecated_function( __METHOD__, 'Jetpack 8.7', '\Automattic\Jetpack\Device_Detection\User_Agent_Info::is_kindle_touch from the `automattic/jetpack-device-detection` package' );
 		return User_Agent_Info::is_kindle_touch();
 	}
-
 
 	/**
 	 * Detect if user agent is the WordPress.com Windows 8 app (used ONLY on the custom oauth stylesheet)

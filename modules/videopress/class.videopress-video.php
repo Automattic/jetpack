@@ -317,7 +317,6 @@ class VideoPress_Video {
 		return wp_parse_url( esc_url_raw( $url ), PHP_URL_HOST );
 	}
 
-
 	/**
 	 * Request data from WordPress.com for the given guid, maxwidth, and calculated blog hostname.
 	 *

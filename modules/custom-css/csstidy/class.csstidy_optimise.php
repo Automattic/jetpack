@@ -517,7 +517,6 @@ class csstidy_optimise {
 		}
 		$values = explode(' ', $value);
 
-
 		$return = array();
 		if (count($values) == 4) {
 			for ($i = 0; $i < 4; $i++) {

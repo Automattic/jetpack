@@ -22,7 +22,7 @@ class WP_Test_Jetpack_Shortcodes_Kickstarter extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
-		$this->assertEquals( '', $shortcode_content );
+		$this->assertSame( '', $shortcode_content );
 	}
 
 	/**

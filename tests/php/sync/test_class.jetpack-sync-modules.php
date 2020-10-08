@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
 		$event = $events[0];
 		$this->assertEquals( 'jetpack_deactivate_module', $event->action );
 		$this->assertEquals( 'stuff', $event->args[0] );
-		$this->assertEquals( 1, count( $events ) );
+		$this->assertSame( 1, count( $events ) );
 	}
 
 }

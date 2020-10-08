@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
-use Automattic\Jetpack\Sync\Settings;
 use Automattic\Jetpack\Sync\Health;
+use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {
@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->factory->post->create();
 
-		$this->assertEquals( 0, $queue->size() );
+		$this->assertSame( 0, $queue->size() );
 	}
 
 	function test_never_queues_if_staging() {
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->factory->post->create();
 
-		$this->assertEquals( 0, $queue->size() );
+		$this->assertSame( 0, $queue->size() );
 	}
 
 	// This is trickier than you would expect because we only check against
@@ -54,14 +54,14 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 2, $this->listener->get_queue_size_limit() );
 		$this->assertEquals( 3, $this->listener->get_queue_lag_limit() );
-		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
+		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 
 		// now let's try exceeding the new limit
 		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
 
 		$this->listener->force_recheck_queue_limit();
 		do_action( 'my_action' );
-		$this->assertEquals( 1, $this->listener->get_sync_queue()->size() );
+		$this->assertSame( 1, $this->listener->get_sync_queue()->size() );
 
 		$this->listener->force_recheck_queue_limit();
 		do_action( 'my_action' );

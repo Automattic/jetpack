@@ -81,7 +81,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		$classes = implode( ' ', $classes );
 
 		if ( 'carousel' == $instance['link'] ) {
-			require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../carousel/jetpack-carousel.php' ) ) . 'jetpack-carousel.php';
+			require_once plugin_dir_path( realpath( __DIR__ . '/../carousel/jetpack-carousel.php' ) ) . 'jetpack-carousel.php';
 
 			if ( class_exists( 'Jetpack_Carousel' ) ) {
 				// Create new carousel so we can use the enqueue_assets() method. Not ideal, but there is a decent amount
@@ -239,7 +239,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function slideshow_widget( $args, $instance ) {
 		global $content_width;
 
-		require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../shortcodes/slideshow.php' ) ) . 'slideshow.php';
+		require_once plugin_dir_path( realpath( __DIR__ . '/../shortcodes/slideshow.php' ) ) . 'slideshow.php';
 
 		if ( ! class_exists( 'Jetpack_Slideshow_Shortcode' ) ) {
 			return;
@@ -315,7 +315,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
 
-		include dirname( __FILE__ ) . '/gallery/templates/form.php';
+		include __DIR__ . '/gallery/templates/form.php';
 	}
 
 	public function update( $new_instance, $old_instance ) {

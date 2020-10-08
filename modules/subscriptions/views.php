@@ -661,7 +661,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$instance               = wp_parse_args( (array) $instance, $this->defaults() );
 		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
 
-
 		if ( self::is_wpcom() ) {
 			$title               = esc_attr( stripslashes( $instance['title'] ) );
 			$title_following     = esc_attr( stripslashes( $instance['title_following'] ) );

@@ -172,7 +172,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// first, show that term is being synced
-		$this->assertTrue( !! $this->server_replica_storage->get_term( 'filter_me', $term_id ) );
+		$this->assertTrue( (bool) $this->server_replica_storage->get_term( 'filter_me', $term_id ) );
 
 		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
 

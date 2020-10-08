@@ -37,7 +37,7 @@ class WPCOM_JSON_API_List_Embeds_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$output = array( 'embeds' => array() );
 
 		if ( ! function_exists( '_wp_oembed_get_object' ) ) {
-			require_once( ABSPATH . WPINC . '/class-oembed.php' );
+			require_once ABSPATH . WPINC . '/class-oembed.php';
 		}
 
 		global $wp_embed;

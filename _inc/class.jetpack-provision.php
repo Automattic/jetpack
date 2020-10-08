@@ -25,7 +25,7 @@ class Jetpack_Provision { //phpcs:ignore
 			if ( isset( $named_args[ $url_arg ] ) ) {
 				add_filter(
 					$url_arg,
-					function() use ( $url_arg, $named_args ) {
+					function () use ( $url_arg, $named_args ) {
 						return $named_args[ $url_arg ];
 					},
 					11
@@ -46,7 +46,6 @@ class Jetpack_Provision { //phpcs:ignore
 				__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
 			);
 		}
-
 
 		if ( ! Jetpack::connection()->is_registered() || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.

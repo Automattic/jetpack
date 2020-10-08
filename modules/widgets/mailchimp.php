@@ -60,7 +60,6 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			do_action( 'jetpack_stats_extra', 'widget_view', 'mailchimp_subscriber_popup' );
 		}
 
-
 		/**
 		 * Deals with the settings when they are saved by the admin.
 		 *
@@ -75,7 +74,6 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 			return $instance;
 		}
-
 
 		/**
 		 * Displays the form for this widget on the Widgets page of the WP Admin area.

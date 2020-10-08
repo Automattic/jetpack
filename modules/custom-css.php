@@ -20,7 +20,7 @@ function jetpack_load_custom_css() {
 			wp_die( 'Please run a SVN up to get the latest version of trunk, or update to at least 4.7 RC1' );
 		}
 		if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) {
-			include_once dirname( __FILE__ ) . '/custom-css/migrate-to-core.php';
+			include_once __DIR__ . '/custom-css/migrate-to-core.php';
 		}
 
 		// TODO: DELETE THIS
@@ -35,12 +35,12 @@ function jetpack_load_custom_css() {
 		}
 		// TODO: END DELETE THIS
 
-		include_once dirname( __FILE__ ) . '/custom-css/custom-css/preprocessors.php';
-		include_once dirname( __FILE__ ) . '/custom-css/custom-css-4.7.php';
+		include_once __DIR__ . '/custom-css/custom-css/preprocessors.php';
+		include_once __DIR__ . '/custom-css/custom-css-4.7.php';
 		return;
 	}
 
-	include_once dirname( __FILE__ ) . "/custom-css/custom-css.php";
+	include_once __DIR__ . "/custom-css/custom-css.php";
 	add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
 }
 
@@ -63,6 +63,5 @@ function jetpack_custom_css_configuration_url( $default_url ) {
 		array( 'return_url' => wp_get_referer() )
 	);
 }
-
 
 jetpack_load_custom_css();

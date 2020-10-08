@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_add_post_syncs_post_data() {
 		// post stored by server should equal post in client
-		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
+		$this->assertSame( 1, $this->server_replica_storage->post_count() );
 
 		$post_sync_module = Modules::get_module( "posts" );
 
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_trash_post_trashes_data() {
-		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->assertSame( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 
@@ -77,8 +77,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_event_storage->reset();
 
-		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
-		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'trash' ) );
+		$this->assertSame( 0, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->assertSame( 1, $this->server_replica_storage->post_count( 'trash' ) );
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
 
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_post_event_includes_previous_state() {
-		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->assertSame( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
@@ -100,14 +100,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_delete_post_deletes_data() {
-		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->assertSame( 1, $this->server_replica_storage->post_count( 'publish' ) );
 
 		wp_delete_post( $this->post->ID, true );
 
 		$this->sender->do_sync();
 
 		// there should be no posts at all
-		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
+		$this->assertSame( 0, $this->server_replica_storage->post_count() );
 	}
 
 	public function test_delete_post_syncs_event() {
@@ -128,7 +128,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
-		$this->assertEquals( false, $event->args[3]['is_gutenberg_meta_box_update'] );
+		$this->assertFalse( $event->args[3]['is_gutenberg_meta_box_update'] );
 	}
 
 	public function test_update_post_updates_data() {
@@ -177,7 +177,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_attachment_is_synced() {
-		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
+		$filename = __DIR__ . '/../files/jetpack.jpg';
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( basename( $filename ), null );
@@ -201,7 +201,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertAttachmentSynced( $attach_id );
 		// Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
 
-		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		require_once ABSPATH . 'wp-admin/includes/image.php';
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 		set_post_thumbnail( $this->post->ID, $attach_id );
@@ -220,7 +220,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_attachment_update_is_synced() {
-		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
+		$filename = __DIR__ . '/../files/jetpack.jpg';
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( basename( $filename ), null );
@@ -249,7 +249,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( (bool) $update_attachment_event );
 
 		$this->server_event_storage->reset();
-
 
 		$this->assertAttachmentSynced( $attach_id );
 
@@ -280,7 +279,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_attach_attachment_to_post() {
-		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
+		$filename = __DIR__ . '/../files/jetpack.jpg';
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( basename( $filename ), null );
@@ -298,13 +297,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		);
 
 		// Give attachment a parent id
-		$post_id = wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg' );
+		$post_id = wp_insert_attachment( $attachment, __DIR__ . '/../files/jetpack.jpg' );
 		$attachment['ID'] = $post_id;
 
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
 
-		$post_id = wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg', 1000 );
+		$post_id = wp_insert_attachment( $attachment, __DIR__ . '/../files/jetpack.jpg', 1000 );
 
 		$this->sender->do_sync();
 
@@ -334,8 +333,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_attachment_delete_is_synced() {
-		$filename      = dirname( __FILE__ ) . '/../files/jetpack.jpg';
-		$filename_copy = dirname( __FILE__ ) . '/../files/jetpack-copy.jpg';
+		$filename      = __DIR__ . '/../files/jetpack.jpg';
+		$filename_copy = __DIR__ . '/../files/jetpack-copy.jpg';
 		@copy( $filename, $filename_copy );
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
@@ -372,8 +371,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_attachment_force_delete_is_synced() {
-		$filename      = dirname( __FILE__ ) . '/../files/jetpack.jpg';
-		$filename_copy = dirname( __FILE__ ) . '/../files/jetpack-copy.jpg';
+		$filename      = __DIR__ . '/../files/jetpack.jpg';
+		$filename_copy = __DIR__ . '/../files/jetpack-copy.jpg';
 		@copy( $filename, $filename_copy );
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
@@ -561,8 +560,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
 		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
-		$this->assertEquals( '', $synced_post->post_content_filtered );
-		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+		$this->assertSame( '', $synced_post->post_content_filtered );
+		$this->assertSame( '', $synced_post->post_excerpt_filtered );
 
 		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
 
@@ -572,8 +571,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
 		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
-		$this->assertEquals( '', $synced_post->post_content_filtered );
-		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+		$this->assertSame( '', $synced_post->post_content_filtered );
+		$this->assertSame( '', $synced_post->post_excerpt_filtered );
 		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
 	}
 
@@ -600,7 +599,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
 		$this->assertEquals( 'post', $post->post_type );
-
 
 		// Since the filter is not there any more the sync should happen as expected.
 		$this->post->post_content = "foo bar";
@@ -688,7 +686,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
+		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
 
 	}
 
@@ -700,7 +698,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// first, show that post is being synced
-		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
+		$this->assertTrue( (bool) $this->server_replica_storage->get_post( $post_id ) );
 
 		Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
 
@@ -993,8 +991,8 @@ POST_CONTENT;
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
-		$this->assertEquals( '', $synced_post->post_content_filtered );
-		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+		$this->assertSame( '', $synced_post->post_content_filtered );
+		$this->assertSame( '', $synced_post->post_excerpt_filtered );
 
 	}
 
@@ -1155,7 +1153,7 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
-		$this->assertEquals( 1, count( $events ) );
+		$this->assertSame( 1, count( $events ) );
 
 		$post_flags = $events[0]->args[1];
 		$this->assertTrue( $post_flags['send_subscription'] );
@@ -1177,7 +1175,7 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
-		$this->assertEquals( 1, count( $events ) );
+		$this->assertSame( 1, count( $events ) );
 
 		$post_flags = $events[0]->args[1];
 		$this->assertFalse( $post_flags['send_subscription'] );
@@ -1294,7 +1292,6 @@ That was a cool video.';
 
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );
 	}
-
 
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {

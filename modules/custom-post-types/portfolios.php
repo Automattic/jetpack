@@ -600,7 +600,6 @@ class Jetpack_Portfolio {
 
 		$atts['showposts'] = intval( $atts['showposts'] );
 
-
 		if ( $atts['order'] ) {
 			$atts['order'] = urldecode( $atts['order'] );
 			$atts['order'] = strtoupper( $atts['order'] );
@@ -807,7 +806,6 @@ class Jetpack_Portfolio {
 		} elseif ( ( $portfolio_index_number % $columns ) == ( $columns - 1 ) ) {
 			$class[] = 'portfolio-entry-last-item-row';
 		}
-
 
 		/**
 		 * Filter the class applied to project div in the portfolio

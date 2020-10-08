@@ -1,6 +1,6 @@
 <?php
 
-require dirname( __FILE__ ) . '/base.php';
+require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**

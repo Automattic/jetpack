@@ -15,14 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require dirname( __FILE__ ) . '/wordpress-post-widget/class.jetpack-display-posts-widget-base.php';
-require dirname( __FILE__ ) . '/wordpress-post-widget/class.jetpack-display-posts-widget.php';
+require __DIR__ . '/wordpress-post-widget/class.jetpack-display-posts-widget-base.php';
+require __DIR__ . '/wordpress-post-widget/class.jetpack-display-posts-widget.php';
 
 add_action( 'widgets_init', 'jetpack_display_posts_widget' );
 function jetpack_display_posts_widget() {
 	register_widget( 'Jetpack_Display_Posts_Widget' );
 }
-
 
 /**
  * Cron tasks
@@ -103,7 +102,6 @@ function jetpack_display_posts_widget_conditionally_activate_cron() {
 /**
  * End of cron activation handling.
  */
-
 
 /**
  * Handle deactivation procedures where they are needed.

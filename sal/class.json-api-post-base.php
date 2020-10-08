@@ -7,9 +7,9 @@
  * ridden class dynamically).
  **/
 
-require_once dirname( __FILE__ ) . '/class.json-api-metadata.php';
-require_once dirname( __FILE__ ) . '/class.json-api-date.php';
-require_once ( ABSPATH . "wp-includes/post.php" );
+require_once __DIR__ . '/class.json-api-metadata.php';
+require_once __DIR__ . '/class.json-api-date.php';
+require_once ABSPATH . "wp-includes/post.php";
 
 abstract class SAL_Post {
 	public $post;
@@ -28,7 +28,7 @@ abstract class SAL_Post {
 
 	public function __get( $key ) {
 		if ( $key === 'links' ) {
-			require_once dirname( __FILE__ ) . '/class.json-api-links.php';
+			require_once __DIR__ . '/class.json-api-links.php';
 			return WPCOM_JSON_API_Links::getInstance();
 		}
 		return $this->post->{ $key };

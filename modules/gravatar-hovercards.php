@@ -101,7 +101,6 @@ function grofiles_hovercard_option_sanitize( $val ) {
 	return $val ? 'enabled' : 'disabled';
 }
 
-
 /* Hovercard Display */
 
 /**
@@ -321,7 +320,6 @@ function grofiles_hovercards_data_html( $author ) {
 	</div>
 <?php
 }
-
 
 /* API */
 

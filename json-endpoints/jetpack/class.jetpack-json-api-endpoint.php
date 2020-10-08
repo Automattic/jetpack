@@ -11,7 +11,6 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected $expected_actions = array();
 	protected $action;
 
-
 	public function callback( $path = '', $blog_id = 0, $object = null ) {
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, $this->needed_capabilities ) ) ) {
 			return $error;

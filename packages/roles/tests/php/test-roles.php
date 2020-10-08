@@ -7,10 +7,9 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Roles;
-use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class Test_Roles
@@ -62,7 +61,7 @@ class Test_Roles extends TestCase {
 	public function test_current_user_to_role_with_no_match() {
 		$this->mock_function( 'current_user_can', false );
 
-		$this->assertEquals( false, $this->roles->translate_current_user_to_role() );
+		$this->assertFalse( $this->roles->translate_current_user_to_role() );
 	}
 
 	/**
@@ -98,7 +97,7 @@ class Test_Roles extends TestCase {
 		$user_mock = $this->getMockBuilder( 'WP_User' )->getMock();
 		$this->mock_function( 'user_can', false );
 
-		$this->assertEquals( false, $this->roles->translate_user_to_role( $user_mock ) );
+		$this->assertFalse( $this->roles->translate_user_to_role( $user_mock ) );
 	}
 
 	/**
@@ -116,7 +115,7 @@ class Test_Roles extends TestCase {
 	 * @covers Automattic\Jetpack\Roles::translate_role_to_cap
 	 */
 	public function test_role_to_cap_non_existing_role() {
-		$this->assertEquals( false, $this->roles->translate_role_to_cap( 'follower' ) );
+		$this->assertFalse( $this->roles->translate_role_to_cap( 'follower' ) );
 	}
 
 	/**
@@ -134,7 +133,7 @@ class Test_Roles extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
 			->setFunction(
-				function( $arg_1, $arg_2 = null ) use ( &$return_value, &$arg_1_value, &$arg_2_value ) {
+				function ( $arg_1, $arg_2 = null ) use ( &$return_value, &$arg_1_value, &$arg_2_value ) {
 					// Return the value if we don't care about arguments.
 					if ( is_null( $arg_1 ) && is_null( $arg_2 ) ) {
 						return $return_value;

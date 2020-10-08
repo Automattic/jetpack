@@ -47,7 +47,7 @@ class Milestone_Widget extends WP_Widget {
 			$widget
 		);
 
-		self::$dir = trailingslashit( dirname( __FILE__ ) );
+		self::$dir = trailingslashit( __DIR__ );
 		self::$url = plugin_dir_url( __FILE__ );
 
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );

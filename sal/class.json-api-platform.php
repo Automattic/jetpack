@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.json-api-token.php';
+require_once __DIR__ . '/class.json-api-token.php';
 
 abstract class SAL_Platform {
 	public $token;
@@ -19,7 +19,7 @@ abstract class SAL_Platform {
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once dirname( __FILE__ ) . '/class.json-api-platform-wpcom.php';
+	require_once __DIR__ . '/class.json-api-platform-wpcom.php';
 } else {
-	require_once dirname( __FILE__ ) . '/class.json-api-platform-jetpack.php';
+	require_once __DIR__ . '/class.json-api-platform-jetpack.php';
 }

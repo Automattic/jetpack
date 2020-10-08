@@ -12,7 +12,7 @@ function init_jetpack_search_debug_bar( $panels ) {
 		return $panels;
 	}
 
-	require_once dirname( __FILE__ ) . '/debug-bar/class.jetpack-search-debug-bar.php';
+	require_once __DIR__ . '/debug-bar/class.jetpack-search-debug-bar.php';
 	$panels[] = Jetpack_Search_Debug_Bar::instance();
 	return $panels;
 }

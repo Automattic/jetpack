@@ -1,6 +1,5 @@
 <?php
 
-
 class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 	/**

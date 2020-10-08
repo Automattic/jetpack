@@ -1443,7 +1443,6 @@ EOT;
 			if ( empty( $cache ) )
 				$cache = array();
 
-
 			// Cache is valid! Return cached value.
 			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
 				return $cache[ $cache_key ][ 'payload' ];

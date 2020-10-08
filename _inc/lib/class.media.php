@@ -1,6 +1,6 @@
 <?php
 
-require_once( JETPACK__PLUGIN_DIR . 'sal/class.json-api-date.php' );
+require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-date.php';
 
 /**
  * Class to handle different actions related to media.

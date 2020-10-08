@@ -18,7 +18,6 @@ abstract class WPCOM_JSON_API_Menus_Abstract_Endpoint extends WPCOM_JSON_API_End
 		return $site_id;
 	}
 
-
 	protected function get_locations() {
 		$locations = array();
 		$menus = get_registered_nav_menus();
@@ -167,7 +166,6 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 		if ( ! isset( $item['items'] ) || ! is_array( $item['items'] ) ) {
 			return;
 		}
-
 
 		foreach( $item['items'] as &$it ) {
 			$this->remove_item_keys( $it );

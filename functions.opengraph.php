@@ -402,7 +402,6 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 	return $image;
 }
 
-
 /**
  * Validate the width and height against required width and height
  *

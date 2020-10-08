@@ -1,12 +1,12 @@
 <?php
 
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Redirect;
 
-require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
-require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php';
 
 /**
  * Module Name: Secure Sign On

@@ -56,7 +56,6 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
 	);
 
-
 	function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'sites_site_format', array( $this, 'site_format' ) );
 

@@ -14,11 +14,11 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Tracking;
 
 if ( defined( 'STATS_VERSION' ) ) {
 	return;
@@ -197,7 +197,6 @@ function stats_template_redirect() {
 
 }
 
-
 /**
  * Stats Build View Data.
  *
@@ -232,7 +231,6 @@ function stats_build_view_data() {
 
 	return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
 }
-
 
 /**
  * Stats Footer.
@@ -498,7 +496,6 @@ function stats_reports_css() {
 </style>
 <?php
 }
-
 
 /**
  * Detect if JS is on.  If so, remove cookie so next page load is via JS.

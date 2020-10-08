@@ -1,8 +1,8 @@
 <?php
 namespace Automattic\Jetpack\Plugin;
 
-use Automattic\Jetpack\Tracking as Tracks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Tracking as Tracks;
 
 class Tracking {
 	/**

@@ -1,10 +1,10 @@
 <?php
 
-use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Tracking;
 
-include_once( 'class.jetpack-admin-page.php' );
-include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
+include_once 'class.jetpack-admin-page.php';
+include_once JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php';
 
 // Builds the settings page and its menu
 class Jetpack_Settings_Page extends Jetpack_Admin_Page {

@@ -160,7 +160,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			),
 			'gated_block'
 		);
-		$this->assertEquals( false, $version_gated );
+		$this->assertFalse( $version_gated );
 	}
 
 	/**
@@ -174,7 +174,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			),
 			'ungated_block'
 		);
-		$this->assertEquals( true, $version_gated );
+		$this->assertTrue( $version_gated );
 	}
 
 	/**

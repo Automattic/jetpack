@@ -7,9 +7,7 @@
  * @since      5.8.0
  */
 
-use Automattic\Jetpack\Constants;
-
-require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
+require_once __DIR__ . '/class-jetpack-search-options.php';
 
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
@@ -713,7 +711,6 @@ class Jetpack_Search_Helpers {
 			? filemtime( JETPACK__PLUGIN_DIR . $file )
 			: JETPACK__VERSION;
 	}
-
 
 	/**
 	 * Generates a customizer settings ID for a given post type.

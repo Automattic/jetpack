@@ -61,7 +61,6 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 		$this->assertEquals( '<a class="twitter-timeline" data-partner="jetpack" data-width="450" data-height="282" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>', $shortcode_content );
 	}
 
-
 	public function test_shortcodes_twitter_timeline_html() {
 		$content = '[twitter-timeline id="297487559557251073" username="wordpressdotcom"]';
 

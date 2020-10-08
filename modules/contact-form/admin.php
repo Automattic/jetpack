@@ -577,10 +577,8 @@ function grunion_ajax_shortcode_to_json() {
 	die( json_encode( $out ) );
 }
 
-
 add_action( 'wp_ajax_grunion_shortcode', 'grunion_ajax_shortcode' );
 add_action( 'wp_ajax_grunion_shortcode_to_json', 'grunion_ajax_shortcode_to_json' );
-
 
 // process row-action spam/not spam clicks
 add_action( 'wp_ajax_grunion_ajax_spam', 'grunion_ajax_spam' );
@@ -597,7 +595,7 @@ function grunion_ajax_spam() {
 		wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
 	}
 
-	require_once dirname( __FILE__ ) . '/grunion-contact-form.php';
+	require_once __DIR__ . '/grunion-contact-form.php';
 
 	$current_menu = '';
 	if ( isset( $_POST['sub_menu'] ) && preg_match( '|post_type=feedback|', $_POST['sub_menu'] ) ) {

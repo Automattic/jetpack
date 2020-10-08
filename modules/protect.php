@@ -13,7 +13,6 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -63,13 +62,13 @@ class Jetpack_Protect_Module {
 
 		// Load math fallback after math page form submission
 		if ( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			include_once __DIR__ . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
 		}
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
-		require_once( JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php' );
+		require_once JETPACK__PLUGIN_DIR . '/modules/protect/transient-cleanup.php';
 	}
 
 	/**
@@ -137,7 +136,7 @@ class Jetpack_Protect_Module {
 	public function maybe_display_security_warning() {
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
-				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+				require_once ABSPATH . '/wp-admin/includes/plugin.php';
 			}
 
 			if ( ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_FILE ) ) ) {
@@ -348,7 +347,6 @@ class Jetpack_Protect_Module {
 		$this->protect_call( 'successful_login', array ( 'roles' => $user->roles ) );
 	}
 
-
 	/**
 	 * Checks for loginability BEFORE authentication so that bots don't get to go around the log in form.
 	 *
@@ -369,7 +367,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			include_once __DIR__ . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
 
@@ -476,7 +474,7 @@ class Jetpack_Protect_Module {
 			$response = $this->protect_call( $action = 'check_ip' );
 
 			if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
-				include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+				include_once __DIR__ . '/protect/math-fallback.php';
 				new Jetpack_Protect_Math_Authenticate;
 
 				return false;
@@ -582,7 +580,7 @@ class Jetpack_Protect_Module {
 		if ( ! $allow_math_fallback_on_fail  ) {
 			$this->kill_login();
 		}
-		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+		include_once __DIR__ . '/protect/math-fallback.php';
 		new Jetpack_Protect_Math_Authenticate;
 
 		return false;
@@ -624,7 +622,7 @@ class Jetpack_Protect_Module {
 			);
 		}
 
-		require_once dirname( __FILE__ ) . '/protect/blocked-login-page.php';
+		require_once __DIR__ . '/protect/blocked-login-page.php';
 		$blocked_login_page = Jetpack_Protect_Blocked_Login_Page::instance( $ip );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
@@ -640,7 +638,7 @@ class Jetpack_Protect_Module {
 	public function check_use_math() {
 		$use_math = $this->get_transient( 'brute_use_math' );
 		if ( $use_math ) {
-			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			include_once __DIR__ . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
 		}
 	}
@@ -728,7 +726,6 @@ class Jetpack_Protect_Module {
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
 		}
-
 
 		/**
 		 * Filter controls maximum timeout in waiting for reponse from Protect servers.

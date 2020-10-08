@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\JITMS;
 
-use Automattic\Jetpack\JITMS\JITM;
-
 /**
  * Jetpack pre-connection just in time messaging through out the admin.
  */

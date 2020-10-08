@@ -50,7 +50,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		// gets called via callable.
 		$this->assertEquals( get_option( 'uninstall_plugins', array() ), $this->server_replica_storage->get_option( 'uninstall_plugins', array() ) );
 
-
 		// Remove plugin
 		self::remove_plugin();
 		$this->sender->do_sync();
@@ -108,8 +107,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'hello.php', $event->args[0] );
 		$this->assertEquals( $plugins['hello.php'], $event->args[1] );
 	}
-
-
 
 	public function test_activate_and_deactivating_plugin_is_synced() {
 		activate_plugin( 'hello.php' );

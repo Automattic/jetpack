@@ -15,7 +15,7 @@
 use Automattic\Jetpack\Redirect;
 
 function jetpack_load_custom_post_types() {
-	include dirname( __FILE__ ) . "/custom-post-types/portfolios.php";
+	include __DIR__ . "/custom-post-types/portfolios.php";
 }
 
 function jetpack_custom_post_types_loaded() {

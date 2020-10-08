@@ -24,8 +24,8 @@ Assets::add_resource_hint(
 	'dns-prefetch'
 );
 
-include_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
-include_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
+include_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';
+include_once __DIR__ . '/likes/jetpack-likes-settings.php';
 
 class Jetpack_Likes {
 	public static function init() {
@@ -120,7 +120,6 @@ class Jetpack_Likes {
 		delete_option( 'social_notifications_like' );
 	}
 
-
 	/**
 	 * Overrides default configuration url
 	 *
@@ -149,7 +148,6 @@ class Jetpack_Likes {
 			$this->register_scripts();
 		}
 	}
-
 
 	/**
      * Stub for is_post_likeable, since some wpcom functions call this directly on the class
@@ -392,8 +390,8 @@ class Jetpack_Likes {
 				);
 			} else {
 				wp_enqueue_script( 'jquery.wpcom-proxy-request', "/wp-content/js/jquery/jquery.wpcom-proxy-request.js", array('jquery'), NULL, true );
-				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __FILE__ ) ), array( 'jquery' ), JETPACK__VERSION );
-				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', dirname( __FILE__ ) ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION );
+				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', __DIR__ ), array( 'jquery' ), JETPACK__VERSION );
+				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', __DIR__ ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION );
 			}
 		}
 	}

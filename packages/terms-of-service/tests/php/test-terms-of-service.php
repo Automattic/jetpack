@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack;
 
-use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class Test_Terms_Of_Service
@@ -95,7 +95,7 @@ class Test_Terms_Of_Service extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 				->setName( $function_name )
 				->setFunction(
-					function( $value ) use ( &$return_value, $called_with ) {
+					function ( $value ) use ( &$return_value, $called_with ) {
 						if ( $called_with ) {
 							$this->assertEquals( $value, $called_with );
 						}

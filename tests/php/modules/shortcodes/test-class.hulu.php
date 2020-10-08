@@ -126,7 +126,6 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$this->assertContains( 'it=i' . $thumbnail, $shortcode_content );
 	}
 
-
 	public function test_hulu_embed_to_shortcode() {
 		$embed     = '<iframe width="512" height="288" src="http://www.hulu.com/embed.html?eid=' . $this->video_eid . '&et=20&st=10&it=i11" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>';
 		$shortcode = apply_filters( 'pre_kses', $embed, 'post', wp_allowed_protocols() );

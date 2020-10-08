@@ -86,7 +86,7 @@ class Jetpack_Carousel {
 		}
 
 		if ( $this->in_jetpack ) {
-			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
+			Jetpack::enable_module_configurable( dirname( __DIR__ ) . '/carousel.php' );
 		}
 	}
 
@@ -577,7 +577,7 @@ class Jetpack_Carousel {
 
 		return preg_replace_callback(
 			'#(<a[^>]* href=(["\']?)(\S+)\2>)\s*(<img[^>]*)(class=(["\']?)[^>]*wp-image-[0-9]+[^>]*\6.*>)\s*</a>#is',
-			static function( $matches ) {
+			static function ( $matches ) {
 				if ( ! preg_match( '#\.\w+$#', $matches[3] ) ) {
 					// The a[href] doesn't end in a file extension like .jpeg, so this is not a link to the media file, and should get a lightbox.
 					return $matches[4] . ' data-amp-lightbox="true" lightbox="true" ' . $matches[5]; // https://github.com/ampproject/amp-wp/blob/1094ea03bd5dc92889405a47a8c41de1a88908de/includes/sanitizers/class-amp-img-sanitizer.php#L419.

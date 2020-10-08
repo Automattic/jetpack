@@ -65,7 +65,6 @@ function sharing_email_send_post( $data ) {
 	wp_mail( $data['target'], $subject, $content, $headers );
 }
 
-
 /* Checks for spam using akismet if available. */
 /* Return $data as it if email about to be send out is not spam. */
 function sharing_email_check_for_spam_via_akismet( $data ) {
@@ -148,7 +147,6 @@ function sharing_add_meta_box() {
 	}
 }
 
-
 function sharing_meta_box_content( $post ) {
 	/**
 	 * Fires before the sharing meta box content.
@@ -220,7 +218,7 @@ function sharing_plugin_settings( $links ) {
 }
 
 function sharing_add_plugin_settings($links, $file) {
-	if ( $file == basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ) ) {
+	if ( $file == basename( __DIR__ ).'/'.basename( __FILE__ ) ) {
 		$links[] = '<a href="options-general.php?page=sharing.php">' . __( 'Settings', 'jetpack' ) . '</a>';
 		$links[] = '<a href="https://support.wordpress.com/sharing/" rel="noopener noreferrer" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
 	}
@@ -280,7 +278,7 @@ add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
 add_filter( 'sharing_email_can_send', 'sharing_email_check_for_spam_via_akismet' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
-add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
+add_action( 'plugin_action_links_'.basename( __DIR__ ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
 
 if ( defined( 'RECAPTCHA_PUBLIC_KEY' ) && defined( 'RECAPTCHA_PRIVATE_KEY' ) ) {

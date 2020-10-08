@@ -2022,10 +2022,10 @@ function the_neverending_home_page_theme_support() {
 	 * @param string $str IS compatibility file path.
 	 * @param string $theme_name Theme name.
 	 */
-	$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/themes/{$theme_name}.php", $theme_name );
+	$customization_file = apply_filters( 'infinite_scroll_customization_file', __DIR__ . "/themes/{$theme_name}.php", $theme_name );
 
 	if ( is_readable( $customization_file ) )
-		require_once( $customization_file );
+		require_once $customization_file;
 }
 add_action( 'after_setup_theme', 'the_neverending_home_page_theme_support', 5 );
 

@@ -82,7 +82,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'updating_jetpack_version' );
-		$this->assertEquals( '4.3', $event->args[0] );
+		$this->assertSame( '4.3', $event->args[0] );
 		$this->assertEquals( '4.2.1', $event->args[1] );
 	}
 
@@ -147,7 +147,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 			$this->assertGreaterThan( 1, array_unique( $values ) );
 
 		} else {
-			$this->assertEquals( 0, Actions::get_start_time_offset() );
+			$this->assertSame( 0, Actions::get_start_time_offset() );
 		}
 	}
 
@@ -155,12 +155,12 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		Settings::get_settings();
 
-		$this->assertEquals( 1, Settings::get_setting( 'render_filtered_content' ) );
+		$this->assertSame( 1, Settings::get_setting( 'render_filtered_content' ) );
 
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.5', '4.3' );
 
-		$this->assertEquals( 0, Settings::get_setting( 'render_filtered_content' ) );
+		$this->assertSame( 0, Settings::get_setting( 'render_filtered_content' ) );
 	}
 
 	function test_disable_sending_incremental_sync() {

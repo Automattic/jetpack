@@ -143,7 +143,6 @@ class VideoPress_Edit_Attachment {
 		return $post;
 	}
 
-
 	/**
 	 * Get the upload api path.
 	 *
@@ -158,7 +157,6 @@ class VideoPress_Edit_Attachment {
 			$guid
 		);
 	}
-
 
 	/**
 	 * Creates an array of video fields to edit based on transcoded videos.

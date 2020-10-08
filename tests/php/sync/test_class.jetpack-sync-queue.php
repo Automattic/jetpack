@@ -14,18 +14,18 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_add_queue_items() {
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 
 		$this->queue->add( 'foo' );
 
-		$this->assertEquals( 1, $this->queue->size() );
+		$this->assertSame( 1, $this->queue->size() );
 		$this->assertEquals( array( 'foo' ), $this->queue->flush_all() );
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 	}
 
 	function test_add_queue_item_is_not_set_to_autoload() {
 		global $wpdb;
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 		$this->queue->add( 'foo' );
 
 		$queue = $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
@@ -155,11 +155,11 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$buffer = $this->queue->checkout_with_memory_limit( 10 ); // way smaller
 
 		// shouldn't be false or null or anything else falsy
-		$this->assertTrue( ! ! $buffer );
+		$this->assertTrue( (bool) $buffer );
 
 		$buffer_items = $buffer->get_item_values();
 
-		$this->assertEquals( 1, count( $buffer_items ) );
+		$this->assertSame( 1, count( $buffer_items ) );
 
 		$this->assertEquals( $large_string, $buffer_items[0] );
 	}
@@ -236,11 +236,11 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	function test_reset_removes_all_items() {
 		$this->queue->add( 'foo' );
-		$this->assertEquals( 1, $this->queue->size() );
+		$this->assertSame( 1, $this->queue->size() );
 
 		$this->queue->reset();
 
-		$this->assertEquals( 0, $this->queue->size() );
+		$this->assertSame( 0, $this->queue->size() );
 	}
 
 	function test_checkout_returns_false_if_checkout_zero_items() {
@@ -255,7 +255,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->queue->close( $buffer );
 
 		$buffer = $this->queue->checkout( 2 );
-		$this->assertEquals( false, $buffer );
+		$this->assertFalse( $buffer );
 	}
 
 	/**

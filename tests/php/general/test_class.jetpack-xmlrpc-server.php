@@ -1,6 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {

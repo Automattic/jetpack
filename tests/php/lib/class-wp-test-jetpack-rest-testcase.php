@@ -1,7 +1,7 @@
 <?php
 
 // This is WP_Test_REST_Controller_Testcase without the unneeded abstract methods.
-require_once dirname( __FILE__ ) . '/class-wp-test-spy-rest-server.php';
+require_once __DIR__ . '/class-wp-test-spy-rest-server.php';
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once dirname( __FILE__, 4 ) . '/core/includes/testcase-rest-api.php';

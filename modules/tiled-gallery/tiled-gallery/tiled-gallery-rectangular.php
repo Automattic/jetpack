@@ -1,7 +1,7 @@
 <?php
-require_once dirname( __FILE__ ) . '/tiled-gallery-layout.php';
-require_once dirname( __FILE__ ) . '/tiled-gallery-shape.php';
-require_once dirname( __FILE__ ) . '/tiled-gallery-item.php';
+require_once __DIR__ . '/tiled-gallery-layout.php';
+require_once __DIR__ . '/tiled-gallery-shape.php';
+require_once __DIR__ . '/tiled-gallery-item.php';
 
 class Jetpack_Tiled_Gallery_Layout_Rectangular extends Jetpack_Tiled_Gallery_Layout {
 	protected $type = 'rectangular';

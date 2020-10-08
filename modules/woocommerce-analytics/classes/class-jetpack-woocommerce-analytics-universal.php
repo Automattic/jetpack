@@ -65,7 +65,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		echo '<script>window._wca = window._wca || [];</script>' . "\r\n";
 	}
 
-
 	/**
 	 * Place script to call s.js, Store Analytics.
 	 */

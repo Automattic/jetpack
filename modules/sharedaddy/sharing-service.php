@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Settings;
 
-include_once dirname( __FILE__ ) . '/sharing-sources.php';
+include_once __DIR__ . '/sharing-sources.php';
 
 define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
 

@@ -24,7 +24,7 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 		$find = 'find . -path ' . join( ' -prune -o -path ', array_map( 'escapeshellarg', $exclude_paths ) ) . " -prune -o -name '*.php' -print0";
 		// only output lint results for a file if the lint fails.
 		$lint_all = $find . ' | while IFS= read -r -d "" file; do OUTPUT=$( php -l "$file" ); if [ 0 -ne $? ]; then echo "$OUTPUT"; fi; done';
-		$lint_all_in_jetpack = sprintf( 'cd %s; %s', escapeshellarg( dirname( dirname( dirname( __FILE__ ) ) ) ), $lint_all );
+		$lint_all_in_jetpack = sprintf( 'cd %s; %s', escapeshellarg( dirname( dirname( __DIR__ ) ) ), $lint_all );
 
 		// read -d is a bashism
 		$command = sprintf( 'bash -c %s', escapeshellarg( $lint_all_in_jetpack ) );

@@ -13,7 +13,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0, true ); // 500 x 500
+		$this->icon_id = self::_create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
 
@@ -83,7 +83,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		// A test shortcode that should be removed from descriptions.
 		add_shortcode(
 			'foo',
-			function() {
+			function () {
 				return 'bar';
 			}
 		);

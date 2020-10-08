@@ -12,7 +12,7 @@
  * Additional Search Queries: md, markdown
  */
 
-include dirname( __FILE__ ) . '/markdown/easy-markdown.php';
+include __DIR__ . '/markdown/easy-markdown.php';
 
 /**
  * Remove checkbox set in modules/markdown/easy-markdown.php.

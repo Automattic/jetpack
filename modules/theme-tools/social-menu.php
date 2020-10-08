@@ -45,7 +45,7 @@ function jetpack_social_menu_init() {
 
 	// Load SVG icons related functions and filters
 	if ( 'svg' === jetpack_social_menu_get_type() ) {
-		require dirname( __FILE__ ) . '/social-menu/icon-functions.php';
+		require __DIR__ . '/social-menu/icon-functions.php';
 	}
 }
 add_action( 'after_setup_theme', 'jetpack_social_menu_init', 99 );

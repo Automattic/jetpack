@@ -5,12 +5,12 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Functions;
-use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Sender;
 
 /**
  * Class Jetpack_Debug_Data

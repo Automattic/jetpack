@@ -10,7 +10,7 @@ class WP_Test_Jetpack_Sync_Backward_Compatibility extends WP_Test_Jetpack_Sync_B
 	}
 
 	public function test_backwards_compatibility_sync_options() {
-		require_once( JETPACK__PLUGIN_DIR . '3rd-party/polldaddy.php' );
+		require_once JETPACK__PLUGIN_DIR . '3rd-party/polldaddy.php';
 		$this->setExpectedDeprecated( 'Jetpack_Sync::sync_options' );
 		Jetpack_Sync::sync_options( __FILE__, 'foo_option', 'bar_option' );
 	}

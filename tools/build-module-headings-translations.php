@@ -15,7 +15,7 @@ function jetpack_get_module_i18n( \$key ) {
 \tif ( ! isset( \$modules ) ) {
 \t\t\$modules = array(";
 
-$jp_dir = dirname( dirname( __FILE__ ) ) . '/';
+$jp_dir = dirname( __DIR__ ) . '/';
 
 $files  = glob( "{$jp_dir}modules/*.php" );
 $tags   = array(

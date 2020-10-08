@@ -91,7 +91,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 	public function test_mediasummary_get_word_count_empty() {
 		$content = '';
 
-		$this->assertEquals( 0, Jetpack_Media_Summary::get_word_count( $content ) );
+		$this->assertSame( 0, Jetpack_Media_Summary::get_word_count( $content ) );
 	}
 
 	/**
@@ -113,7 +113,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 	public function test_mediasummary_get_link_count_empty() {
 		$content = '';
 
-		$this->assertEquals( 0, Jetpack_Media_Summary::get_link_count( $content ) );
+		$this->assertSame( 0, Jetpack_Media_Summary::get_link_count( $content ) );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 	public function test_mediasummary_get_link_count_simple() {
 		$content = '<a href="' . WP_TESTS_DOMAIN . '"></a>';
 
-		$this->assertEquals( 1, Jetpack_Media_Summary::get_link_count( $content ) );
+		$this->assertSame( 1, Jetpack_Media_Summary::get_link_count( $content ) );
 	}
 
 	/**
@@ -135,7 +135,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 	public function test_mediasummary_get_link_count_invalid_tag() {
 		$content = '<abbr title="Canada">CA</abbr>';
 
-		$this->assertEquals( 0, Jetpack_Media_Summary::get_link_count( $content ) );
+		$this->assertSame( 0, Jetpack_Media_Summary::get_link_count( $content ) );
 	}
 
 }

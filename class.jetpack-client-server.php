@@ -1,8 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
 

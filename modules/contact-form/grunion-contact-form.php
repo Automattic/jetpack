@@ -3379,7 +3379,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 	}
 
-
 	/**
 	 * Check the default value for options field
 	 *

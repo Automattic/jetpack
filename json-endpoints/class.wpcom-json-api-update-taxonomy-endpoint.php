@@ -266,7 +266,6 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		if ( !empty( $input['name'] ) )
 			$update['name'] = addslashes( $input['name'] );
 
-
 		$data     = wp_update_term( $taxonomy->term_id, $taxonomy_type, $update );
 		$taxonomy = get_term_by( 'id', $data['term_id'], $taxonomy_type );
 

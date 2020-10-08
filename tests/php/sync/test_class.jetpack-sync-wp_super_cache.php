@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_module_is_enabled() {
-		$this->assertTrue( !! Modules::get_module( "wp-super-cache" ) );
+		$this->assertTrue( (bool) Modules::get_module( "wp-super-cache" ) );
 	}
 
 	function test_constants_are_synced() {
