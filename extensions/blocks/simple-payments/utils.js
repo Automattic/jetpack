@@ -42,18 +42,26 @@ export const formatPrice = ( price, currency, withSymbol = true ) => {
 	if ( ! window.Intl || 'function' !== typeof Intl.NumberFormat ) {
 		return formatPriceFallback( price, currency, withSymbol );
 	}
-
-	const locale = getNavigatorLanguage();
+	const { siteLocale } = select( 'core/block-editor' ).getSettings();
+	const tryLocales = [ siteLocale, getNavigatorLanguage(), 'en-US' ];
 
 	let formatOptions = {};
 	if ( withSymbol ) {
 		formatOptions = { style: 'currency', currency };
 	}
 
-	try {
-		return Intl.NumberFormat( locale, formatOptions ).format( price );
-	} catch {
-		// "Shouldn't" reach here - maybe Intl.Numberformat rejected the currency. Fallback.
-		return formatPriceFallback( price, currency, withSymbol );
+	// We're not 100% certain that the siteLocale or the navigatorLanguage line
+	// up with Intl.NumberFormat ("best effort" API).  Try them in order,
+	// fallback to "en-US".
+	let locale;
+	for ( locale of tryLocales ) {
+		try {
+			return Intl.NumberFormat( locale, formatOptions ).format( price );
+		} catch {
+			continue;
+		}
 	}
+
+	// "Shouldn't" reach here - maybe Intl.Numberformat rejected the currency. Fallback.
+	return formatPriceFallback( price, currency, withSymbol );
 };
