@@ -21,3 +21,4 @@ require_once __DIR__ . '/../../src/class-version-selector.php';
 require_once __DIR__ . '/../../src/class-manifest-handler.php';
 require_once __DIR__ . '/../../src/class-version-loader.php';
 require_once __DIR__ . '/../../src/class-autoloader-handler.php';
+require_once __DIR__ . '/../../src/class-plugin-guesser.php';
