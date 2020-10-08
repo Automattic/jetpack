@@ -260,6 +260,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 				preserveWhiteSpace={ false }
 				style={ {
 					backgroundColor: backgroundColor,
+					color: 'dark' === colorClass ? '#fff' : '#465B64',
 				} }
 			/>
 		</div>
