@@ -23,10 +23,11 @@ export const decimalPlaces = number => {
 };
 
 const getNavigatorLanguage = ( defaultLang = 'en-US' ) => {
-	if ( navigator.languages && navigator.languages.length ) {
-		return navigator.languages[ 0 ];
+	const nav = global?.window?.navigator;
+	if ( nav?.languages?.length ) {
+		return nav.languages[ 0 ];
 	}
-	return navigator.userLanguage || navigator.language || navigator.browserLanguage || defaultLang;
+	return nav?.userLanguage ?? nav?.language ?? nav?.browserLanguage ?? defaultLang;
 };
 
 // Legacy method of displaying prices.
