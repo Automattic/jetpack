@@ -108,8 +108,10 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		// Normal WPCOM upload processing
 		if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
-			add_filter( 'wp_handle_upload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for direct media uploads.
-			add_filter( 'wp_handle_sideload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for uploading media via url.
+			if ( is_multisite() ) { // Do not check for available space in non multisites.
+				add_filter( 'wp_handle_upload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for direct media uploads.
+				add_filter( 'wp_handle_sideload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for uploading media via url.
+			}
 
 			$create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
 			$media_ids = $create_media['media_ids'];
