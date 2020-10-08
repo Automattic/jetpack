@@ -7,7 +7,7 @@ const requirelist = require( './phpcs-requirelist' );
 
 requirelist.forEach( function ( fileToProcess ) {
 	if ( 'docker/' === fileToProcess ) {
-		console.log( chalk.yellow( 'Skipping docker/. It takes forever.' ) );
+		console.log( chalk.yellow( 'Skipping docker/. It takes forever.' ) ); // Remove after #17405 is merged.
 		return;
 	}
 	console.log( chalk.yellow( 'Processing ' + fileToProcess ) );
@@ -15,8 +15,21 @@ requirelist.forEach( function ( fileToProcess ) {
 		shell: true,
 		stdio: 'inherit',
 	} );
+} );
 
-	spawnSync( 'composer', [ 'php:lint:errors', fileToProcess ], {
+console.log(
+	chalk.yellow(
+		'PHPCBF completed. Now running PHPCS. Please be patient and thank you for developing Jetpack.'
+	)
+);
+
+requirelist.forEach( function ( fileToProcess ) {
+	if ( 'docker/' === fileToProcess ) {
+		console.log( chalk.yellow( 'Skipping docker/. It takes forever.' ) ); // Remove after #17405 is merged.
+		return;
+	}
+
+	spawnSync( 'vendor/bin/phpcs', [ '-s', fileToProcess ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
