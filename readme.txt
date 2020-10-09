@@ -253,6 +253,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Instagram Embeds: ensure that Instagram URLs with additional URL parameters can be embedded as well.
 * Media Extractor: prevent PHP notice for some URLs.
 * Publicize: avoid block editor errors when no Publicize connections are available.
 * Synchronization flow: avoid potential Fatal errors when updating the plugin from the Dashboard > Updates screen.
