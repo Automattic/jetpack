@@ -126,10 +126,7 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	$access_token = jetpack_instagram_get_access_token();
 
 	if ( ! empty( $access_token ) ) {
-		return add_query_arg(
-			compact( 'access_token' ),
-			$provider
-		);
+		return add_query_arg( 'access_token', $access_token, $provider );
 	}
 
 	// If we don't have an access token, we go through the WP.com proxy instead.
