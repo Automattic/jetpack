@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
-Stable tag: 9.0.1
+Stable tag: 9.0.2
 Requires at least: 5.4
 Requires PHP: 5.6
 Tested up to: 5.5
@@ -32,7 +32,7 @@ Get blazing fast site speed with Jetpack, the premier WP plugin built to leverag
 
 * Jetpack has partnered with Google AMP to create the best, highest performance all-in-one toolkit for WordPress. By using Jetpack and AMP together, you get all the features you need to build a beautiful, fast, modern website with no coding required.
 * Image CDN for images and static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
-* Lazy load images for a super fast experience, even on mobile. Jetpack’s lazy loading automatically delays the loading of media on your posts and pages until your visitors scroll down to where they appear on the page. 
+* Lazy load images for a super fast experience, even on mobile. Jetpack’s lazy loading automatically delays the loading of media on your posts and pages until your visitors scroll down to where they appear on the page.
 * Unlimited, high speed, ad free video hosting keeps the focus on your content, not on ads or recommendations that lead people off site.
 * Custom site search is incredibly powerful and customizable. Helps your visitors instantly find the right content so they read and buy more. Works great with WooCommerce / eCommerce sites to help filter products so customers get what they want on your site faster.
 * Recommended to use with WP Super Cache for ultimate WordPress site speed.
@@ -119,7 +119,7 @@ Once you’ve installed Jetpack, your stats will be available on your Jetpack da
 
 There are opportunities for developers at all levels to contribute. [Learn more about contributing to Jetpack](https://jetpack.com/contribute) or consider [joining our beta program](https://jetpack.com/beta).
 
-= Is Jetpack CRM included in the Jetpack plugin? = 
+= Is Jetpack CRM included in the Jetpack plugin? =
 
 No, please download the separate Jetpack CRM plugin to use Jetpack CRM.
 
@@ -204,7 +204,7 @@ Blocks are the individual sections that make up a page. There are many block typ
 * Tiled Gallery Block - With Tiled Galleries you can display your image galleries in four styles: tiled mosaic, circular grid, square tiles, and tiled columns.
 * Video Block - The Video block enhances the existing WordPress Video block and allows you to upload videos from your computer to be hosted on WordPress.com, rather than on your host’s servers.
 * WhatsApp Button Block - The WhatsAPP Button block will allow your customers to send them a message to enquire about their product or services, or ask for support. Clicking on the button will open WhatsApp and pre-fill the phone number and initial message.
- 
+
 Jetpack has also created extensions for some WordPress core blocks:
 
 * Unrolling Tweet Threads – This extension to the Twitter block allows you to import an entire Tweet thread into the editor as native blocks.
@@ -213,21 +213,21 @@ Jetpack has also created extensions for some WordPress core blocks:
 = Do I need an SSL certificate? =
 
 You don’t need an SSL Certificate to run Jetpack on your WordPress website. However, it’s recommended to integrate them both into your overall security strategy. An SSL certificate (Secure Sockets Layer certificate) creates a secure connection between your website and your site visitors’ browsers. It encrypts any data shared on your site — like addresses, emails, phone numbers, and credit card information — and protects that data from hackers.
- 
+
 If you don’t have an SSL certificate, your site will show a “not secure” warning on users’ browsers, which can reduce your legitimacy in their eyes. SSL certificates also have a positive impact on search engine rankings.
- 
+
 The process of setting up an SSL certificate will depend on your hosting provider. Some hosts include free certificates, while others charge annually.
 
 = How does Jetpack work with WP Super Cache? =
 
-WP Super Cache works by caching your WordPress pages as static HTML pages so that page requests, for an already cached page, do not need to be processed by the WordPress PHP scripts. Typically, most visitors of your site will view cached versions of the WordPress pages, so your server will have more processing power to serve an increased number of users. 
- 
+WP Super Cache works by caching your WordPress pages as static HTML pages so that page requests, for an already cached page, do not need to be processed by the WordPress PHP scripts. Typically, most visitors of your site will view cached versions of the WordPress pages, so your server will have more processing power to serve an increased number of users.
+
 Jetpack has an image CDN that works by caching and serving your WordPress images globally from its own servers. These plugins are both maintained by Automattic and work together to give you ultimate site speed.
 
 = What version of PHP do I need? =
 
 Sites must be built on PHP 5.6 or greater, but Jetpack always supports the latest version of PHP.
- 
+
 = Can Jetpack help my site comply with GDPR? =
 
 Our Cookie and Consent Banner can help you comply with GDPR. The European Union’s ePrivacy Directive (often referred to as the ‘cookie law’) and General Data Protection Regulation (GDPR) place requirements on website owners and operators to provide information about, and gain consent for their use of cookies.
@@ -242,6 +242,23 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Union�
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
+
+= 9.0.2 =
+
+* Release date: October 9, 2020
+
+**Enhancements**
+
+* Publicize: improve handling of URLs when generating Twitter threads.
+
+**Bug fixes**
+
+* Instagram Embeds: ensure that Instagram URLs with additional URL parameters can be embedded as well.
+* Media Extractor: prevent PHP notice for some URLs.
+* Publicize: avoid block editor errors when no Publicize connections are available.
+* Synchronization flow: avoid potential fatal errors when updating the plugin from the Dashboard > Updates screen.
+* Sharing: avoid PHP notices when a post object is invalid.
+* WordPress.com REST API: avoid errors when uploading images from a URL.
 
 = 9.0.1 =
 

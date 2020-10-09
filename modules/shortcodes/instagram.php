@@ -102,9 +102,6 @@ wp_embed_register_handler(
 function jetpack_instagram_handler( $matches, $atts, $url ) {
 	global $content_width;
 
-	// keep a copy of the passed-in URL since it's modified below.
-	$passed_url = $url;
-
 	$max_width = 698;
 	$min_width = 320;
 
@@ -144,17 +141,8 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 		$atts['width'] = $min_width;
 	}
 
-	// remove the modal param from the URL.
-	$url = remove_query_arg( 'modal', $url );
-
-	// force .com instead of .am for https support.
-	$url = str_replace( 'instagr.am', 'instagram.com', $url );
-
-	// The oembed endpoint expects HTTP, but HTTP requests 301 to HTTPS.
-	$instagram_http_url = str_replace( 'https://', 'http://', $url );
-
 	$url_args = array(
-		'url'        => $instagram_http_url,
+		'url'        => $url,
 		'maxwidth'   => $atts['width'],
 		'omitscript' => 1,
 	);
@@ -163,7 +151,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 		$url_args['hidecaption'] = 'true';
 	}
 
-	$use_cache     = jetpack_instagram_use_cache( $matches, $atts, $passed_url );
+	$use_cache     = jetpack_instagram_use_cache( $matches, $atts, $url );
 	$cache_key     = 'oembed_response_body_' . md5( add_query_arg( $url_args, 'https://api.instagram.com/oembed/' ) );
 	$response_body = $use_cache
 		? wp_cache_get( $cache_key, 'instagram_embeds' )
@@ -271,6 +259,13 @@ function jetpack_instagram_use_cache( $matches, $atts, $passed_url ) {
 function jetpack_instagram_fetch_embed( $args ) {
 	$access_token = jetpack_instagram_get_access_token();
 
+	// Attempt to clean query params from the URL since Facebook's new API for Instagram
+	// embeds does not like query parameters. See p7H4VZ-2DU-p2.
+	$parsed_url = wp_parse_url( $args['url'] );
+	if ( $parsed_url ) {
+		$args['url'] = 'https://www.instagram.com' . $parsed_url['path'];
+	}
+
 	// If an access token exists, which will be the case for WPCOM, then we will call the Facebook API directly.
 	// Otherwise, proxy the request through the WordPress.com API using the blog token to sign the request.
 	if ( ! empty( $access_token ) ) {
@@ -282,6 +277,21 @@ function jetpack_instagram_fetch_embed( $args ) {
 			)
 		);
 		$response             = wp_remote_get( $url, array( 'redirection' => 0 ) );
+
+		// Unset before calling the action below.
+		unset( $args['access_token'] );
+
+		/**
+		 * Fires after making a request for an Instagram embed.
+		 *
+		 * @module shortcodes
+		 *
+		 * @since  9.1.0
+		 *
+		 * @param array $response The response from the embed request.
+		 * @param array $url      The arguments sent with the request.
+		 */
+		do_action( 'jetpack_instagram_embed_request', $response, $args );
 	} else {
 		if ( ! Jetpack::is_active_and_not_offline_mode() ) {
 			return new WP_Error(

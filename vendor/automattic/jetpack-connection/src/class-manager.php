@@ -97,7 +97,12 @@ class Manager {
 	public static function configure() {
 		$manager = new self();
 
-		Utils::init_default_constants();
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
