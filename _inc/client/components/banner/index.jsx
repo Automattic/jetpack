@@ -73,7 +73,7 @@ class Banner extends Component {
 				target: 'banner',
 				type: 'upgrade',
 				current_version: currentVersion,
-				wpcom_connected: this.props.wpcomUserLogin ? 'yes' : 'no',
+				is_user_wpcom_connected: this.props.wpcomUserLogin ? 'yes' : 'no',
 				is_connection_owner: this.props.isConnectionOwner ? 'yes' : 'no',
 				...eventFeatureProp,
 				...pathProp,

@@ -43,7 +43,7 @@ class SupportCard extends React.Component {
 			target: 'banner-click',
 			feature: 'support',
 			page: this.props.path,
-			wpcom_connected: this.props.wpcomUserLogin ? 'yes' : 'no',
+			is_user_wpcom_connected: this.props.wpcomUserLogin ? 'yes' : 'no',
 			is_connection_owner: this.props.isConnectionOwner ? 'yes' : 'no',
 		} );
 	};
