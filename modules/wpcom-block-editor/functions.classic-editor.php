@@ -24,8 +24,9 @@ function remember_classic_editor( $post ) {
 /**
  * Remember when the block editor was used to edit a post.
  *
- * @param object $editor_settings This is hooked into a filter and this is the settings that are passed in.
- * @param object $post            The post being editted.
+ * @param  object $editor_settings This is hooked into a filter and this is the settings that are passed in.
+ * @param  object $post            The post being editted.
+ * @return object                  The unmodified $editor_settings parameter.
  */
 function remember_block_editor( $editor_settings, $post ) {
 	$post_type = get_post_type( $post );
@@ -52,7 +53,8 @@ function remember_editor( $post_id, $editor ) {
 /**
  * Checks whether the block editor can be used with the given post type.
  *
- * @param string $post_type The post type to check.
+ * @param  string $post_type The post type to check.
+ * @return bool              Whether the block editor can be used to edit the supplied post type.
  */
 function classic_editor_can_edit_post_type( $post_type ) {
 	$can_edit = false;
