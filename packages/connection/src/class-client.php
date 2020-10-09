@@ -299,7 +299,7 @@ class Client {
 	 * @param  string $path             REST API path.
 	 * @param  string $version          REST API version. Default is `2`.
 	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
-	 * @param  string $base_api_path    REST API root. Default is `rest`.
+	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
 	 *
 	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
 	 */
@@ -307,7 +307,7 @@ class Client {
 		$path,
 		$version = '2',
 		$args = array(),
-		$base_api_path = 'rest'
+		$base_api_path = 'wpcom'
 	) {
 		$base_api_path = trim( $base_api_path, '/' );
 		$version       = ltrim( $version, 'v' );
