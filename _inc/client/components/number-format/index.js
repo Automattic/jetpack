@@ -11,12 +11,20 @@ import { __experimentalGetSettings } from '@wordpress/date';
  * @returns {string} Browser-formatted locale.
  */
 export const cleanLocale = locale => {
+	const regex = /^([a-z]{2,3})(_[a-zA-Z]*?)?(?:_.*)?$/i;
+
+	// Search for the correct locale format:
+	// e.g. af, arq, fr_FR, pap_CW, de_DE_formal, art_xpirate
+	const localeRegex = locale.match( regex );
+
+	// No locale found, fallback to en-US.
+	if ( ! localeRegex ) {
+		return 'en-US';
+	}
+
 	return (
-		locale
-			// Keep only the basic locale (WP locales can have variants, such as de_DE_formal).
-			.replace( /(\w{2})?(_)?(\w{2})?(?:_)?(?:\w*)?/, '$1$2$3' )
-			// Replace the underscore used in WP locale by an hyphen.
-			.replace( '_', '-' )
+		// Keep only the language and the region, and replace the underscore used in WP locale by an hyphen.
+		`${ localeRegex[ 1 ] }${ localeRegex[ 2 ] ? localeRegex[ 2 ] : '' }`.replace( '_', '-' )
 	);
 };
 
