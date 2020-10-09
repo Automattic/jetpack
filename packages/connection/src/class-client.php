@@ -296,11 +296,12 @@ class Client {
 	/**
 	 * Validate and build arguments for a WordPress.com REST API request.
 	 *
-	 * @param String $path The API endpoint relative path.
-	 * @param String $version The API version.
-	 * @param array  $args Request arguments.
-	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
-	 * @return array|WP_Error $response Data.
+	 * @param  string $path             REST API path.
+	 * @param  string $version          REST API version.
+	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
+	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
+	 *
+	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
 	 */
 	public static function validate_args_for_wpcom_json_api_request(
 		$path,
