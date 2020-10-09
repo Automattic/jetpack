@@ -58,19 +58,27 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 */
 	protected function get_connection_schema_properties() {
 		return array(
-			'id'           => array(
+			'id'                   => array(
 				'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
 				'type'        => 'string',
 			),
-			'service_name' => array(
+			'service_name'         => array(
 				'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
 				'type'        => 'string',
 			),
-			'display_name' => array(
+			'display_name'         => array(
 				'description' => __( 'Username of the connected account', 'jetpack' ),
 				'type'        => 'string',
 			),
-			'global'       => array(
+			'profile_display_name' => array(
+				'description' => __( 'The name to display in the profile of the connected account', 'jetpack' ),
+				'type'        => 'string',
+			),
+			'profile_picture'      => array(
+				'description' => __( 'Profile picture of the connected account', 'jetpack' ),
+				'type'        => 'string',
+			),
+			'global'               => array(
 				'description' => __( 'Is this connection available to all users?', 'jetpack' ),
 				'type'        => 'boolean',
 			),
@@ -109,11 +117,13 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 				$connection_data = $connection_meta['connection_data'];
 
 				$items[] = array(
-					'id'           => (string) $publicize->get_connection_unique_id( $connection ),
-					'service_name' => $service_name,
-					'display_name' => $publicize->get_display_name( $service_name, $connection ),
-					// We expect an integer, but do loose comparison below in case some other type is stored
-					'global'       => 0 == $connection_data['user_id'],
+					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
+					'service_name'         => $service_name,
+					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
+					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',
+					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
+					// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- We expect an integer, but do loose comparison below in case some other type is stored.
+					'global'               => 0 == $connection_data['user_id'],
 				);
 			}
 		}

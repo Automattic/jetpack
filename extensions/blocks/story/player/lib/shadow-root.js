@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { createPortal, useRef, useEffect, useState } from '@wordpress/element';
+import { createPortal, useCallback, useRef, useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -13,6 +13,15 @@ import { createPortal, useRef, useEffect, useState } from '@wordpress/element';
 
 export const shadowRootSupported =
 	window && window.Element && window.Element.prototype.hasOwnProperty( 'attachShadow' );
+
+function useHookWithRefCallback() {
+	const ref = useRef( null );
+	const setRef = useCallback( node => {
+		ref.current = node;
+	}, [] );
+
+	return [ setRef ];
+}
 
 export default function ShadowRoot( {
 	enabled,
@@ -22,7 +31,15 @@ export default function ShadowRoot( {
 	adoptedStyleSheets = null,
 	children,
 } ) {
-	const placeholder = useRef();
+	// component could be unmounted and remounted somewhere else (eg modal)
+	// so we need to track ref changes in the placeholder
+	const [ placeholder, setPlaceholder ] = useState( null );
+	const placeholderRef = useCallback( element => {
+		if ( element !== null ) {
+			setPlaceholder( element );
+		}
+	}, [] );
+
 	const [ shadowRoot, setShadowRoot ] = useState( false );
 	const styleElements =
 		typeof globalStyleElements === 'string'
@@ -31,11 +48,17 @@ export default function ShadowRoot( {
 	const useShadow = shadowRootSupported && enabled && styleElements.length > 0;
 
 	useEffect( () => {
-		if ( ! placeholder.current ) {
+		if ( ! placeholder ) {
 			return;
 		}
 
-		const shadowElement = placeholder.current.parentNode.attachShadow( {
+		// try to reuse existing shadowRoot
+		if ( placeholder.parentNode.shadowRoot ) {
+			setShadowRoot( placeholder.parentNode.shadowRoot );
+			return;
+		}
+
+		const shadowElement = placeholder.parentNode.attachShadow( {
 			delegatesFocus,
 			mode,
 		} );
@@ -46,10 +69,10 @@ export default function ShadowRoot( {
 		}
 
 		setShadowRoot( shadowElement );
-	}, [ placeholder.current ] );
+	}, [ placeholder ] );
 
 	if ( useShadow && ! shadowRoot ) {
-		return <span ref={ placeholder }></span>;
+		return <span ref={ placeholderRef }></span>;
 	}
 
 	const App = (

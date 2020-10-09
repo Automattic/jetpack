@@ -44,7 +44,7 @@ const JetpackColophon = props => {
 		<div className="jetpack-instant-search__jetpack-colophon">
 			<a
 				href={ url }
-				rel="external noopener noreferrer"
+				rel="external noopener noreferrer nofollow"
 				target="_blank"
 				className="jetpack-instant-search__jetpack-colophon-link"
 			>

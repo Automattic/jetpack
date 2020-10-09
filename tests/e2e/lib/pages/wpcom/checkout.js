@@ -6,49 +6,55 @@ import { waitAndType, waitForSelector, waitAndClick, isEventuallyVisible } from 
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.checkout__secure-payment-form';
+		const expectedSelector = '.checkout__content .wp-checkout__review-order-step';
 		super( page, { expectedSelector } );
 	}
 
-	async processPurchase( cardDetails ) {
-		await this.payWithStoredCardIfPossible( cardDetails );
+	async processPurchase( cardCredentials ) {
+		// Enter billing info
+		await this.page.select( `select#country-selector`, cardCredentials.cardCountryCode );
+		await waitAndType( this.page, '#contact-postal-code', cardCredentials.cardPostCode, {
+			delay: 10,
+		} );
+		await waitAndClick( this.page, '.checkout-step.is-active .checkout-button' );
+
+		// Pick a payment method
+		const isExistingCard = await isEventuallyVisible(
+			this.page,
+			'label[for*="existingCard"]',
+			2000
+		);
+
+		if ( ! isExistingCard ) {
+			await waitAndClick( this.page, 'label[for="card"]' );
+			await this.enterTestCreditCardDetails( cardCredentials );
+		}
+
 		await this.submitPaymentDetails();
 		return await this.waitToDisappear();
 	}
 
-	async enterTestCreditCardDetails( {
-		cardHolder,
-		cardNumber,
-		cardExpiry,
-		cardCVV,
-		cardCountryCode,
-		cardPostCode,
-	} ) {
-		await waitAndType( this.page, '#name', cardHolder, { delay: 10 } );
+	async enterTestCreditCardDetails( { cardHolder, cardNumber, cardExpiry, cardCVV } ) {
+		await waitAndType( this.page, '#cardholder-name', cardHolder, { delay: 10 } );
 
 		await this.waitAndTypeInIframe( '.number', "input[name='cardnumber']", cardNumber );
 		await this.waitAndTypeInIframe( '.cvv', "input[name='cvc']", cardCVV );
-		await this.waitAndTypeInIframe( '.expiration-date', "input[name='exp-date']", cardExpiry );
-
-		await this.page.select( `div.country select`, cardCountryCode );
-		return await waitAndType( this.page, '#postal-code', cardPostCode, {
-			delay: 10,
-		} );
+		return await this.waitAndTypeInIframe(
+			'.expiration-date',
+			"input[name='exp-date']",
+			cardExpiry
+		);
 	}
 
 	async submitPaymentDetails() {
-		const disabledPaymentButton = '.credit-card-payment-box button[disabled]';
-		const paymentButtonSelector = '.credit-card-payment-box button.is-primary:not([disabled])';
+		const paymentButtonSelector = '.checkout-submit-button button';
 
-		await waitForSelector( this.page, disabledPaymentButton, {
-			hidden: true,
-		} );
 		await waitAndClick( this.page, paymentButtonSelector );
 		return await this.waitForPaymentProcessing();
 	}
 
 	async waitForPaymentProcessing() {
-		const progressBarSelector = '.checkout__credit-card-payment-box-progress-bar';
+		const progressBarSelector = '.checkout-submit-button .is-busy';
 		await waitForSelector( this.page, progressBarSelector );
 		await waitForSelector( this.page, progressBarSelector, {
 			hidden: true,
@@ -61,14 +67,6 @@ export default class CheckoutPage extends Page {
 			hidden: true,
 			timeout: 5 * 30000,
 		} );
-	}
-
-	async payWithStoredCardIfPossible( cardCredentials ) {
-		const storedCardSelector = '.credit-card__stored-card';
-		if ( await isEventuallyVisible( this.page, storedCardSelector ) ) {
-			return await waitAndClick( this.page, storedCardSelector );
-		}
-		await this.enterTestCreditCardDetails( cardCredentials );
 	}
 
 	// Switches to credit-card specific iframe and type the value into relative input

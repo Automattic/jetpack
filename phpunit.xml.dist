@@ -9,6 +9,9 @@
 		<testsuite name="php-lint">
 			<file>tests/php/test_php-lint.php</file>
 		</testsuite>
+		<testsuite name="composer-lint">
+			<file>tests/php/test-composer-lint.php</file>
+		</testsuite>
 		<testsuite name="core-api">
 			<directory prefix="test" suffix=".php">tests/php/core-api</directory>
 		</testsuite>
@@ -85,6 +88,9 @@
 		</testsuite>
 		<testsuite name="uninstall">
 			<directory prefix="test_" suffix=".php">tests/php/uninstall</directory>
+		</testsuite>
+		<testsuite name="lib">
+			<directory prefix="test" suffix=".php">tests/php/_inc/lib</directory>
 		</testsuite>
 		<testsuite name="restapi">
 			<directory prefix="test_class.rest-api" suffix=".php">tests/php/_inc/lib</directory>

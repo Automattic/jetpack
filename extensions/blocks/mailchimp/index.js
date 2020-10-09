@@ -11,6 +11,7 @@ import { Path, SVG, G } from '@wordpress/components';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import './editor.scss';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'mailchimp';
 
@@ -41,7 +42,10 @@ export const innerButtonBlock = {
 
 export const settings = {
 	title: __( 'Mailchimp', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
 	category: 'grow',
 	keywords: [

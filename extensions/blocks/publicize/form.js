@@ -8,27 +8,22 @@
 /**
  * External dependencies
  */
-import { get } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import PublicizeFormUnwrapped, { MAXIMUM_MESSAGE_LENGTH } from './form-unwrapped';
+import PublicizeFormUnwrapped from './form-unwrapped';
 
 const PublicizeForm = compose( [
 	withSelect( select => {
-		const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
-		const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
-		const message = get( meta, [ 'jetpack_publicize_message' ], '' );
-
 		return {
 			connections: select( 'core/editor' ).getEditedPostAttribute(
 				'jetpack_publicize_connections'
 			),
-			defaultShareMessage: postTitle.substr( 0, MAXIMUM_MESSAGE_LENGTH ),
-			shareMessage: message.substr( 0, MAXIMUM_MESSAGE_LENGTH ),
+			shareMessage: select( 'jetpack/publicize' ).getShareMessage(),
+			maxLength: select( 'jetpack/publicize' ).getShareMessageMaxLength(),
 		};
 	} ),
 	withDispatch( ( dispatch, { connections } ) => ( {

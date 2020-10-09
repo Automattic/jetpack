@@ -11,6 +11,7 @@ import { Fragment } from '@wordpress/element';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -27,7 +28,10 @@ export const settings = {
 			<ExternalLink href="#">{ __( 'Learn more about {{ title }}', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'jetpack',
 	keywords: [{{#keywords}}_x( '{{ keyword }}', 'block search term', 'jetpack' ), {{/keywords}}],
 	supports: {

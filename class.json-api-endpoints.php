@@ -2052,6 +2052,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
 	}
 
+	/**
+	 * Whether this endpoint accepts site based authentication for the current request.
+	 *
+	 * @since 9.1.0
+	 *
+	 * @return bool true, if Jetpack blog token is used and `allow_jetpack_site_auth` is true,
+	 * false otherwise.
+	 */
+	public function accepts_site_based_authentication() {
+		return $this->allow_jetpack_site_auth &&
+			$this->api->is_jetpack_authorized_for_site();
+	}
+
 	function get_platform() {
 		return wpcom_get_sal_platform( $this->api->token_details );
 	}

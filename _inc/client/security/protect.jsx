@@ -161,7 +161,7 @@ export const Protect = withModuleSettingsFormHelpers(
 								</FormLabel>
 								<span className="jp-form-setting-explanation">
 									{ __(
-										'You may always allow an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
+										'You may mark an IP address (or series of addresses) as "Always allowed", preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
 										'jetpack'
 									) }
 								</span>

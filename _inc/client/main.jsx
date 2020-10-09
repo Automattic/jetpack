@@ -20,6 +20,7 @@ import {
 	isSiteConnected,
 	isAuthorizingUserInPlace,
 	isReconnectingSite,
+	reconnectSite,
 } from 'state/connection';
 import {
 	setInitialState,
@@ -51,6 +52,7 @@ import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
+import ReconnectModal from 'components/reconnect-modal';
 
 const setupRoutes = [
 	'/setup',
@@ -60,7 +62,7 @@ const setupRoutes = [
 	'/setup/features',
 ];
 
-const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
+const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
 const settingsRoutes = [
 	'/settings',
 	'/security',
@@ -73,6 +75,11 @@ const settingsRoutes = [
 ];
 
 class Main extends React.Component {
+	constructor( props ) {
+		super( props );
+		this.closeReconnectModal = this.closeReconnectModal.bind( this );
+	}
+
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
@@ -194,6 +201,7 @@ class Main extends React.Component {
 
 		switch ( route ) {
 			case '/dashboard':
+			case '/reconnect':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -321,9 +329,20 @@ class Main extends React.Component {
 		return this.props.isReconnectingSite;
 	}
 
+	shouldShowReconnectModal() {
+		return '/reconnect' === this.props.location.pathname;
+	}
+
+	closeReconnectModal() {
+		this.props.history.replace( '/dashboard' );
+	}
+
 	render() {
 		return (
 			<div>
+				{ this.shouldShowReconnectModal() && (
+					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
+				) }
 				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 				<div className="jp-lower">
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
@@ -380,6 +399,9 @@ export default connect(
 		},
 		clearUnsavedSettingsFlag: () => {
 			return dispatch( clearUnsavedSettingsFlag() );
+		},
+		reconnectSite: () => {
+			return dispatch( reconnectSite() );
 		},
 	} )
 )( withRouter( Main ) );

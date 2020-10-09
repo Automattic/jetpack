@@ -1,9 +1,15 @@
-<?php
-/*
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
  * Simple Payments lets users embed a PayPal button fully integrated with wpcom to sell products on the site.
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
  * into module that can be enabled/disabled.
-*/
+ *
+ * @package Jetpack
+ */
+
+/**
+ * Jetpack_Simple_Payments
+ */
 class Jetpack_Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
 	static $post_type_order = 'jp_pay_order';
@@ -43,7 +49,6 @@ class Jetpack_Simple_Payments {
 
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
@@ -63,19 +68,37 @@ class Jetpack_Simple_Payments {
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
 	}
 
-	function register_gutenberg_block() {
-		if ( $this->is_enabled_jetpack_simple_payments() ) {
-			jetpack_register_block( 'jetpack/simple-payments' );
-		} else {
-			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/simple-payments',
-				'missing_plan',
-				array(
-					'required_feature' => 'simple-payments',
-					'required_plan'    => self::$required_plan,
-				)
-			);
+	/**
+	 * Enqueue the static assets needed in the frontend.
+	 */
+	public function enqueue_frontend_assets() {
+		if ( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
+			wp_enqueue_style( 'jetpack-simple-payments' );
 		}
+
+		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
+			wp_enqueue_script( 'paypal-express-checkout' );
+		}
+	}
+
+	/**
+	 * Add an inline script for setting up the PayPal checkout button.
+	 *
+	 * @param int     $id Product ID.
+	 * @param int     $dom_id ID of the DOM element with the purchase message.
+	 * @param boolean $is_multiple Whether multiple items of the same product can be purchased.
+	 */
+	public function setup_paypal_checkout_button( $id, $dom_id, $is_multiple ) {
+		wp_add_inline_script(
+			'paypal-express-checkout',
+			sprintf(
+				"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
+				esc_js( $this->get_blog_id() ),
+				esc_js( $id ),
+				esc_js( $dom_id ),
+				esc_js( $is_multiple )
+			)
+		);
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {
@@ -151,28 +174,15 @@ class Jetpack_Simple_Payments {
 
 		$data['id'] = $attrs['id'];
 
-		if( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
-			wp_enqueue_style( 'jetpack-simple-payments' );
-		}
-
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			if ( ! is_feed() ) {
+			if ( jetpack_is_frontend() ) {
 				return $this->output_admin_warning( $data );
 			}
 			return;
 		}
 
-		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
-			wp_enqueue_script( 'paypal-express-checkout' );
-		}
-
-		wp_add_inline_script( 'paypal-express-checkout', sprintf(
-			"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
-			esc_js( $data['blog_id'] ),
-			esc_js( $attrs['id'] ),
-			esc_js( $data['dom_id'] ),
-			esc_js( $data['multiple'] )
-		) );
+		$this->enqueue_frontend_assets();
+		$this->setup_paypal_checkout_button( $attrs['id'], $data['dom_id'], $data['multiple'] );
 
 		return $this->output_shortcode( $data );
 	}
@@ -188,11 +198,19 @@ class Jetpack_Simple_Payments {
 		) );
 	}
 
-	function output_shortcode( $data ) {
+	/**
+	 * Get the HTML output to use as PayPal purchase box.
+	 *
+	 * @param string  $dom_id ID of the DOM element with the purchase message.
+	 * @param boolean $is_multiple Whether multiple items of the same product can be purchased.
+	 *
+	 * @return string
+	 */
+	public function output_purchase_box( $dom_id, $is_multiple ) {
 		$items = '';
 		$css_prefix = self::$css_classname_prefix;
 
-		if ( $data['multiple'] ) {
+		if ( $is_multiple ) {
 			$items = sprintf( '
 				<div class="%1$s">
 					<input class="%2$s" type="number" value="1" min="1" id="%3$s" />
@@ -200,9 +218,30 @@ class Jetpack_Simple_Payments {
 				',
 				esc_attr( "${css_prefix}-items" ),
 				esc_attr( "${css_prefix}-items-number" ),
-				esc_attr( "{$data['dom_id']}_number" )
+				esc_attr( "{$dom_id}_number" )
 			);
 		}
+
+		return sprintf(
+			'<div class="%1$s" id="%2$s"></div><div class="%3$s">%4$s<div class="%5$s" id="%6$s"></div></div>',
+			esc_attr( "${css_prefix}-purchase-message" ),
+			esc_attr( "{$dom_id}-message-container" ),
+			esc_attr( "${css_prefix}-purchase-box" ),
+			$items,
+			esc_attr( "${css_prefix}-button" ),
+			esc_attr( "{$dom_id}_button" )
+		);
+	}
+
+	/**
+	 * Get the HTML output to replace the `simple-payments` shortcode.
+	 *
+	 * @param array $data Product data.
+	 * @return string
+	 */
+	public function output_shortcode( $data ) {
+		$css_prefix = self::$css_classname_prefix;
+
 		$image = "";
 		if( has_post_thumbnail( $data['id'] ) ) {
 			$image = sprintf( '<div class="%1$s"><div class="%2$s">%3$s</div></div>',
@@ -211,6 +250,7 @@ class Jetpack_Simple_Payments {
 				get_the_post_thumbnail( $data['id'], 'full' )
 			);
 		}
+
 		return sprintf( '
 <div class="%1$s">
 	<div class="%2$s">
@@ -219,11 +259,7 @@ class Jetpack_Simple_Payments {
 			<div class="%5$s"><p>%6$s</p></div>
 			<div class="%7$s"><p>%8$s</p></div>
 			<div class="%9$s"><p>%10$s</p></div>
-			<div class="%11$s" id="%12$s"></div>
-			<div class="%13$s">
-				%14$s
-				<div class="%15$s" id="%16$s"></div>
-			</div>
+			%11$s
 		</div>
 	</div>
 </div>
@@ -238,12 +274,7 @@ class Jetpack_Simple_Payments {
 			wp_kses( $data['description'], wp_kses_allowed_html( 'post' ) ),
 			esc_attr( "${css_prefix}-price" ),
 			esc_html( $data['price'] ),
-			esc_attr( "${css_prefix}-purchase-message" ),
-			esc_attr( "{$data['dom_id']}-message-container" ),
-			esc_attr( "${css_prefix}-purchase-box" ),
-			$items,
-			esc_attr( "${css_prefix}-button" ),
-			esc_attr( "{$data['dom_id']}_button" )
+			$this->output_purchase_box( $data['dom_id'], $data['multiple'] )
 		);
 	}
 

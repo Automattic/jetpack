@@ -67,7 +67,7 @@ class Heartbeat {
 			wp_schedule_event( time(), 'daily', $this->cron_name );
 		}
 
-		add_filter( 'jetpack_xmlrpc_methods', array( __CLASS__, 'jetpack_xmlrpc_methods' ) );
+		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( __CLASS__, 'jetpack_xmlrpc_methods' ) );
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command( 'jetpack-heartbeat', array( $this, 'cli_callback' ) );

@@ -22,6 +22,7 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
  */
 $attributes               = (array) $template_props['attributes']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 $show_cover_art           = (bool) $attributes['showCoverArt'];
+$show_episode_title       = (bool) $attributes['showEpisodeTitle'];
 $show_episode_description = (bool) $attributes['showEpisodeDescription'];
 
 // Current track.
@@ -38,6 +39,7 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 		<?php endif; ?>
 
 		<?php
+		if ( $show_episode_title ) {
 			render(
 				'podcast-header-title',
 				array(
@@ -48,7 +50,8 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 					'primary_colors' => $primary_colors,
 				)
 			);
-			?>
+		}
+		?>
 	</div>
 
 	<?php

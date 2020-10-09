@@ -36,6 +36,10 @@ class Jetpack_Calypsoify {
 
 	public function setup() {
 		$this->is_calypsoify_enabled = 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
+		if ( isset( $_GET['calypsoify'] ) ) {
+			$this->is_calypsoify_enabled = 1 === (int) $_GET['calypsoify'];
+		}
+		
 		add_action( 'admin_init', array( $this, 'check_param' ), 4 );
 
 		if ( $this->is_calypsoify_enabled ) {
@@ -450,10 +454,6 @@ class Jetpack_Calypsoify {
 			} else {
 				update_user_meta( get_current_user_id(), 'calypsoify', 0 );
 			}
-
-			$page = remove_query_arg( 'calypsoify', wp_basename( $_SERVER['REQUEST_URI'] ) );
-
-			wp_safe_redirect( admin_url( $page ) );
 		}
 	}
 

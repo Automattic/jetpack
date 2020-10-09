@@ -10,6 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import edit from './edit';
 import { DEFAULT_FORMAT } from './constants';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'wordads';
 export const title = __( 'Ad', 'jetpack' );
@@ -36,7 +37,10 @@ export const settings = {
 		</Fragment>
 	),
 
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	attributes: {
 		align: {
 			type: 'string',

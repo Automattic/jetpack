@@ -112,7 +112,7 @@ class Jetpack_Copy_Post {
 			'post_excerpt'   => $source_post->post_excerpt,
 			'comment_status' => $source_post->comment_status,
 			'ping_status'    => $source_post->ping_status,
-			'post_category'  => $source_post->post_category,
+			'post_category'  => wp_get_post_categories( $source_post->ID ),
 			'post_password'  => $source_post->post_password,
 			'tags_input'     => $source_post->tags_input,
 		);

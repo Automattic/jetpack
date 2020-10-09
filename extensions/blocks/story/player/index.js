@@ -7,7 +7,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement, render, useLayoutEffect, useRef, useState } from '@wordpress/element';
+import { createElement, useLayoutEffect, useRef, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -23,7 +23,6 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 const defaultSettings = {
 	imageTime: 5000,
-	renderInterval: 50,
 	startMuted: false,
 	playInFullscreen: true,
 	playOnNextSlide: true,
@@ -82,8 +81,8 @@ export default function StoryPlayer( { slides, metadata, disabled, ...settings }
 	return (
 		<ShadowRoot { ...playerSettings.shadowDOM }>
 			<div
-				className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
 				ref={ rootElementRef }
+				className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
 			>
 				<Player
 					fullscreen={ fullscreen }

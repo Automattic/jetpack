@@ -16,6 +16,7 @@ import {
 	useCallback,
 } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -150,6 +151,8 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 			{ resizeListener }
 			<div
 				role={ disabled ? 'presentation' : 'button' }
+				aria-label={ __( 'Play story', 'jetpack' ) }
+				tabIndex={ fullscreen ? -1 : 0 }
 				className={ classNames( 'wp-story-container', {
 					'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
 					'wp-story-fullscreen': fullscreen,
@@ -175,6 +178,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 							playing={ playing }
 							uploading={ uploading }
 							muted={ muted }
+							setMuted={ setMuted }
 							ended={ ended }
 							onProgress={ setCurrentSlideProgress }
 							onEnd={ tryNextSlide }

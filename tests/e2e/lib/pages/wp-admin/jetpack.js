@@ -25,13 +25,13 @@ export default class JetpackPage extends Page {
 		return await isEventuallyVisible( this.page, freePlanImage, 20000 );
 	}
 
-	async isPremium() {
-		const premiumPlanImage = ".my-plan-card__icon img[src*='premium']";
+	async isComplete() {
+		const premiumPlanImage = ".my-plan-card__icon img[src*='complete']";
 		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
 	}
 
-	async isProfessional() {
-		const proPlanImage = ".my-plan-card__icon img[src*='business']";
+	async isSecurity() {
+		const proPlanImage = ".my-plan-card__icon img[src*='security']";
 		return await isEventuallyVisible( this.page, proPlanImage, 20000 );
 	}
 
@@ -44,10 +44,10 @@ export default class JetpackPage extends Page {
 		switch ( plan ) {
 			case 'free':
 				return await this.isFree();
-			case 'premium':
-				return await this.isPremium();
-			case 'pro':
-				return await this.isProfessional();
+			case 'security':
+				return await this.isSecurity();
+			case 'complete':
+				return await this.isComplete();
 			default:
 				throw new Error( 'Invalid plan string: ' + plan );
 		}

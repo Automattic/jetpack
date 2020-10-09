@@ -1032,4 +1032,38 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseData( $test_data, $response );
 	}
 
+	/**
+	 * Test saving and retrieving the Setup Wizard questionnaire responses.
+	 *
+	 * @since 9.0.0
+	 */
+	public function test_licensing_error() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_admin_page' );
+		wp_set_current_user( $user->ID );
+
+		// Should be empty by default.
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
+		$response = $this->server->dispatch( $request );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( '', $response->get_data() );
+
+		// Should accept updates.
+		$response = $this->create_and_get_request(
+			'licensing/error',
+			array(
+				'error' => 'foo',
+			),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( true, $response->get_data() );
+
+		// Should return updated value.
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
+		$response = $this->server->dispatch( $request );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( 'foo', $response->get_data() );
+	}
 } // class end

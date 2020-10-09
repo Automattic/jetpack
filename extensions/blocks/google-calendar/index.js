@@ -11,6 +11,7 @@ import edit from './edit';
 import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';
 import icon from './icon';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
@@ -24,7 +25,10 @@ export const settings = {
 		_x( 'schedule', 'block search term', 'jetpack' ),
 		_x( 'appointments', 'block search term', 'jetpack' ),
 	],
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'embed',
 	supports: {
 		align: true,

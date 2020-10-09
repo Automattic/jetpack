@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.14
+// @version      1.16
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -86,6 +86,10 @@
 							name: 'classic-editor',
 						},
 						{
+							label: 'AMP',
+							name: 'amp',
+						},
+						{
 							label: 'WooCommerce',
 							name: 'woocommerce',
 						},
@@ -120,6 +124,10 @@
 						{
 							label: 'WP Job Manager',
 							name: 'wp-job-manager',
+						},
+						{
+							label: 'Jetpack CRM',
+							name: 'zero-bs-crm',
 						},
 					],
 					33

@@ -9,7 +9,7 @@ import { encode } from 'qss';
  */
 import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC, VALID_SORT_KEYS } from './constants';
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
-import { decode } from './query-string-decode';
+import { decode } from '../external/query-string-decode';
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ), false, false );

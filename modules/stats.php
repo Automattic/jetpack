@@ -18,6 +18,7 @@ use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 if ( defined( 'STATS_VERSION' ) ) {
 	return;
@@ -57,7 +58,7 @@ function stats_load() {
 		add_action( 'admin_init', 'stats_merged_widget_admin_init' );
 	}
 
-	add_filter( 'jetpack_xmlrpc_methods', 'stats_xmlrpc_methods' );
+	add_filter( 'jetpack_xmlrpc_unauthenticated_methods', 'stats_xmlrpc_methods' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -175,6 +176,12 @@ function stats_template_redirect() {
 	global $current_user;
 
 	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
+		return;
+	}
+
+	// Staging Sites should not generate tracking stats.
+	$status = new Status();
+	if ( $status->is_staging_site() ) {
 		return;
 	}
 

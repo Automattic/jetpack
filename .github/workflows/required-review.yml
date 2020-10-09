@@ -9,5 +9,5 @@ jobs:
       - name: Check for required review approval
         uses: automattic/action-required-review@master
         env:
-          REQUIRED_REVIEW_TEAM_ID: "2787210"
+          REQUIRED_REVIEW_TEAM_ID: "4107760"
           GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}

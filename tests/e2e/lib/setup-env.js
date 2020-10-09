@@ -166,7 +166,7 @@ jasmine.getEnv().describe = wrap( jasmine.getEnv().describe, ( func, ...args ) =
  * @param {Function} func
  */
 global.it = async ( name, func ) => {
-	return await test( name, async () => {
+	return await test( `${ name }`, async () => {
 		try {
 			await func();
 		} catch ( error ) {

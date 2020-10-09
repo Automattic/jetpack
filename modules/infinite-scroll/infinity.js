@@ -374,6 +374,9 @@
 				responseCheck = 'undefined' !== typeof response.html;
 
 			if ( ! response || ! httpCheck || ! responseCheck ) {
+				if ( self.click_handle ) {
+					loader.parentNode.removeChild( loader );
+				}
 				return;
 			}
 

@@ -98,6 +98,7 @@ export default function SearchResultExpanded( props ) {
 						<PhotonImage
 							alt=""
 							className="jetpack-instant-search__result-expanded__image"
+							isPrivateSite={ this.props.isPrivateSite }
 							src={ `//${ firstImage }` }
 							useDiv
 						/>

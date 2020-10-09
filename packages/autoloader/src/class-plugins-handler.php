@@ -81,7 +81,9 @@ class Plugins_Handler {
 	 */
 	private function get_plugins_activating_via_request() {
 
-		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : false;
 		$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : false;
@@ -109,6 +111,8 @@ class Plugins_Handler {
 		}
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		return array();
 	}
 

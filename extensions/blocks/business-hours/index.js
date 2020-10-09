@@ -11,6 +11,7 @@ import './editor.scss';
 import './style.scss';
 import BusinessHours from './edit';
 import renderMaterialIcon from '../../shared/render-material-icon';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Block Registrations:
@@ -81,7 +82,10 @@ export const icon = renderMaterialIcon(
 export const settings = {
 	title: __( 'Business Hours', 'jetpack' ),
 	description: __( 'Display opening hours for your business.', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	category: 'grow',
 	supports: {
 		html: true,

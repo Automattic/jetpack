@@ -1,6 +1,7 @@
 <?php
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
 
@@ -186,6 +187,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_initial_state() ) ) . '"));', 'before' );
+
+		// This will set the default URL of the jp_redirects lib.
+		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . Jetpack::build_raw_urls( get_home_url() ) . '" };', 'before' );
 	}
 
 	function get_initial_state() {
@@ -308,6 +312,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
+				'dateFormat'                 => get_option( 'date_format' ),
 			),
 			'themeData'                   => array(
 				'name'      => $current_theme->get( 'Name' ),
@@ -331,6 +336,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
 			'isSafari'                    => $is_safari,
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
+			'licensing'                   => array(
+				'error' => Licensing::instance()->last_error(),
+			),
 		);
 	}
 

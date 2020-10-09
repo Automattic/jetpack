@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Revue;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'revue';
@@ -20,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
@@ -49,8 +50,8 @@ function render_block( $attributes, $content ) {
 	$last_name_placeholder  = get_revue_attribute( 'lastNamePlaceholder', $attributes );
 	$last_name_show         = get_revue_attribute( 'lastNameShow', $attributes );
 	$url                    = sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $attributes['revueUsername'] );
-	$base_class             = Jetpack_Gutenberg::block_classes( FEATURE_NAME, array() ) . '__';
-	$classes                = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
+	$base_class             = Blocks::classes( FEATURE_NAME, array() ) . '__';
+	$classes                = Blocks::classes( FEATURE_NAME, $attributes );
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 

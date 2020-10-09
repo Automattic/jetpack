@@ -61,6 +61,8 @@ class WP_Test_Autoloader_Handler extends TestCase {
 	 */
 	public function test_should_autoloader_reset_known_plugin() {
 		global $jetpack_autoloader_activating_plugins_paths;
+		global $jetpack_autoloader_cached_plugin_paths;
+		$jetpack_autoloader_cached_plugin_paths = array( TEST_DATA_PATH . '/plugins/plugin_current' );
 
 		$autoloader_handler = new Autoloader_Handler(
 			TEST_DATA_PATH . '/plugins/plugin_current',
@@ -89,6 +91,24 @@ class WP_Test_Autoloader_Handler extends TestCase {
 		$this->assertTrue( $autoloader_handler->should_autoloader_reset() );
 		$this->assertCount( 1, $jetpack_autoloader_activating_plugins_paths );
 		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current', $jetpack_autoloader_activating_plugins_paths[0] );
+	}
+
+	/**
+	 * Tests should_autoloader_reset() with an old cache set of plugin paths.
+	 */
+	public function test_should_autoloader_reset_invalid_cache() {
+		global $jetpack_autoloader_cached_plugin_paths;
+		$jetpack_autoloader_cached_plugin_paths = array();
+
+		$autoloader_handler = new Autoloader_Handler(
+			TEST_DATA_PATH . '/plugins/plugin_current',
+			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			new Autoloader_Locator( new Version_Selector() ),
+			new Version_Selector()
+		);
+
+		$this->assertTrue( $autoloader_handler->should_autoloader_reset() );
+		$this->assertEquals( array( TEST_DATA_PATH . '/plugins/plugin_current' ), $jetpack_autoloader_cached_plugin_paths );
 	}
 
 	/**

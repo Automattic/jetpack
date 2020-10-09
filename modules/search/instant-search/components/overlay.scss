@@ -1,4 +1,6 @@
 $overlay-vertical-padding: 3.5em;
+$overlay-horizontal-padding: 1em;
+$overlay-horizontal-padding-small-viewport: 0.5em;
 
 .jetpack-instant-search__overlay {
 	position: fixed;
@@ -7,12 +9,16 @@ $overlay-vertical-padding: 3.5em;
 	z-index: 9999999999999;
 	width: 100vw;
 	height: 100vh;
-	padding: $overlay-vertical-padding 1em;
+	padding: $overlay-vertical-padding $overlay-horizontal-padding-small-viewport;
 	background: rgba( 255, 255, 255, 0.975 );
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: opacity 0.15s ease-in-out;
 	box-sizing: border-box;
+
+	@include break-small() {
+		padding: $overlay-vertical-padding $overlay-horizontal-padding;
+	}
 
 	&.is-hidden {
 		transform: translateX( 100vw );

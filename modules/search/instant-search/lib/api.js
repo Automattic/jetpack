@@ -11,7 +11,7 @@ import Cache from 'cache';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS } from './constants';
+import { MINUTE_IN_MILLISECONDS, SERVER_OBJECT_NAME } from './constants';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
@@ -144,33 +144,17 @@ function mapSortToApiValue( sort ) {
 	return SORT_QUERY_MAP.get( sort, 'score_default' );
 }
 
-export function search( {
+function generateApiQueryString( {
 	aggregations,
 	excludedPostTypes,
 	filter,
 	pageHandle,
 	query,
 	resultFormat,
-	siteId,
 	sort,
 	postsPerPage = 10,
 	adminQueryFilter,
 } ) {
-	const key = stringify( Array.from( arguments ) );
-
-	// Use cached value from the last 30 minutes if browser is offline
-	if ( ! navigator.onLine && backupCache.get( key ) ) {
-		return backupCache
-			.get( key )
-			.then( data => ( { _isCached: true, _isError: false, _isOffline: true, ...data } ) );
-	}
-	// Use cached value from the last 5 minutes
-	if ( cache.get( key ) ) {
-		return cache
-			.get( key )
-			.then( data => ( { _isCached: true, _isError: false, _isOffline: false, ...data } ) );
-	}
-
 	let fields = [
 		'date',
 		'permalink.url.raw',
@@ -188,7 +172,7 @@ export function search( {
 			fields = fields.concat( [ 'wc.price' ] );
 	}
 
-	const queryString = encode(
+	return encode(
 		flatten( {
 			aggregations,
 			fields,
@@ -200,23 +184,90 @@ export function search( {
 			size: postsPerPage,
 		} )
 	);
+}
 
-	return fetch(
-		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
-	)
-		.catch( error => {
-			// TODO: Display a message about falling back to a cached value in the interface
-			// Fallback to either cache if we run into any errors
-			const fallbackValue = cache.get( key ) || backupCache.get( key );
-			if ( fallbackValue ) {
-				return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
+function promiseifedProxyRequest( proxyRequest, path, query ) {
+	return new Promise( function ( resolve, reject ) {
+		proxyRequest( { path, query, apiVersion: '1.3' }, function ( err, body, headers ) {
+			if ( err ) {
+				reject( err );
 			}
-			throw error;
-		} )
-		.then( response => {
-			const json = response.json();
-			cache.put( key, json );
-			backupCache.put( key, json );
-			return json;
+			resolve( body, headers );
 		} );
+	} );
+}
+
+function errorHandlerFactory( cacheKey ) {
+	return function errorHandler( error ) {
+		// TODO: Display a message about falling back to a cached value in the interface
+		// Fallback to either cache if we run into any errors
+		const fallbackValue = cache.get( cacheKey ) || backupCache.get( cacheKey );
+		if ( fallbackValue ) {
+			return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
+		}
+		throw error;
+	};
+}
+
+function responseHandlerFactory( cacheKey ) {
+	return function responseHandler( responseJson ) {
+		cache.put( cacheKey, responseJson );
+		backupCache.put( cacheKey, responseJson );
+		return responseJson;
+	};
+}
+
+export function search( options ) {
+	const key = stringify( Array.from( arguments ) );
+
+	// Use cached value from the last 30 minutes if browser is offline
+	if ( ! navigator.onLine && backupCache.get( key ) ) {
+		return Promise.resolve( backupCache.get( key ) ).then( data => ( {
+			_isCached: true,
+			_isError: false,
+			_isOffline: true,
+			...data,
+		} ) );
+	}
+	// Use cached value from the last 5 minutes
+	if ( cache.get( key ) ) {
+		return Promise.resolve( cache.get( key ) ).then( data => ( {
+			_isCached: true,
+			_isError: false,
+			_isOffline: false,
+			...data,
+		} ) );
+	}
+
+	const queryString = generateApiQueryString( options );
+	const errorHandler = errorHandlerFactory( key );
+	const responseHandler = responseHandlerFactory( key );
+
+	const pathForPublicApi = `/sites/${ options.siteId }/search?${ queryString }`;
+
+	const { apiNonce, apiRoot, isPrivateSite, isWpcom } = window[ SERVER_OBJECT_NAME ];
+	if ( isPrivateSite && isWpcom ) {
+		return import( '../external/wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
+			return promiseifedProxyRequest( proxyRequest, pathForPublicApi, options.query )
+				.catch( errorHandler )
+				.then( responseHandler );
+		} );
+	}
+
+	// NOTE: Both atomic and Jetpack sites can be set to "private".
+	const urlForPublicApi = `https://public-api.wordpress.com/rest/v1.3${ pathForPublicApi }`;
+	const urlForPrivateApi = `${ apiRoot }wpcom/v2/search?${ queryString }`;
+	const url = isPrivateSite ? urlForPrivateApi : urlForPublicApi;
+
+	// NOTE: API Nonce is necessary to authenticate requests to class-wpcom-rest-api-v2-endpoint-search.php.
+	return fetch( url, { headers: isPrivateSite ? { 'X-WP-Nonce': apiNonce } : {} } )
+		.then( response => {
+			if ( ! response.ok || response.status !== 200 ) {
+				throw new Error( `Unexpected response from API with status code ${ response.status }.` );
+			}
+			return response;
+		} )
+		.catch( errorHandler )
+		.then( r => r.json() )
+		.then( responseHandler );
 }

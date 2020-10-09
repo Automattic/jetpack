@@ -330,9 +330,11 @@ const features = {
 		},
 		mapDispatchToProps: dispatch => {
 			const installAndRefreshPluginData = () => {
-				restApi.installPlugin( 'creative-mail-by-constant-contact', 'setup-wizard' ).then( () => {
-					dispatch( fetchPluginsData() );
-				} );
+				return restApi
+					.installPlugin( 'creative-mail-by-constant-contact', 'setup-wizard' )
+					.then( () => {
+						dispatch( fetchPluginsData() );
+					} );
 			};
 
 			return {

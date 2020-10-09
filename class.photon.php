@@ -369,19 +369,14 @@ class Jetpack_Photon {
 					$width  = false;
 					$height = false;
 
-					// First, check the image tag.
+					// First, check the image tag. Note we only check for pixel sizes now; HTML4 percentages have never been correctly
+					// supported, so we stopped pretending to support them in JP 9.1.0.
 					if ( preg_match( '#[\s|"|\']width=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $width_string ) ) {
-						$width = $width_string[1];
+						$width = false === strpos( $width_string[1], '%' ) ? $width_string[1] : false;
 					}
 
 					if ( preg_match( '#[\s|"|\']height=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
-						$height = $height_string[1];
-					}
-
-					// Can't pass both a relative width and height, so unset the height in favor of not breaking the horizontal layout.
-					if ( false !== strpos( $width, '%' ) && false !== strpos( $height, '%' ) ) {
-						$width  = false;
-						$height = false;
+						$height = false === strpos( $height_string[1], '%' ) ? $height_string[1] : false;
 					}
 
 					// Detect WP registered image size from HTML class.
@@ -466,13 +461,11 @@ class Jetpack_Photon {
 					$transform_orig = $transform;
 
 					// If width is available, constrain to $content_width.
-					if ( false !== $width && false === strpos( $width, '%' ) && is_numeric( $content_width ) ) {
-						if ( $width > $content_width && false !== $height && false === strpos( $height, '%' ) ) {
+					if ( false !== $width && is_numeric( $content_width ) && $width > $content_width ) {
+						if ( false !== $height ) {
 							$height = round( ( $content_width * $height ) / $width );
-							$width  = $content_width;
-						} elseif ( $width > $content_width ) {
-							$width = $content_width;
 						}
+						$width = $content_width;
 					}
 
 					// Set a width if none is found and $content_width is available.
@@ -498,7 +491,7 @@ class Jetpack_Photon {
 					// Build array of Photon args and expose to filter before passing to Photon URL function.
 					$args = array();
 
-					if ( false !== $width && false !== $height && false === strpos( $width, '%' ) && false === strpos( $height, '%' ) ) {
+					if ( false !== $width && false !== $height ) {
 						$args[ $transform ] = $width . ',' . $height;
 					} elseif ( false !== $width ) {
 						$args['w'] = $width;
@@ -542,7 +535,7 @@ class Jetpack_Photon {
 
 						// If present, replace the link href with a Photoned URL for the full-size image.
 						if ( ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-							$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
+							$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
 						}
 
 						// Supplant the original source value with our Photon URL.
@@ -561,8 +554,9 @@ class Jetpack_Photon {
 						}
 
 						// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove
-						// the width and height arguments from the image to prevent distortion. Even if $args['w'] and $args['h']
-						// are present, Photon does not crop to those dimensions. Instead, it appears to favor height.
+						// the width and height arguments (including HTML4 percentages) from the image to prevent distortion.
+						// Even if $args['w'] and $args['h'] are present, Photon does not crop to those dimensions. Instead,
+						// it appears to favor height.
 						//
 						// If we are transforming the image via one of those methods, let's update the width and height attributes.
 						if ( empty( $args['resize'] ) && empty( $args['fit'] ) && empty( $args['lb'] ) ) {
@@ -584,7 +578,7 @@ class Jetpack_Photon {
 
 							// (?<=\s)         - Ensure width or height attribute is preceded by a space
 							// (width=["|\']?) - Matches, and captures, width=, width=", or width='
-							// [\d%]+          - Matches 1 or more digits
+							// [\d%]+          - Matches 1 or more digits or percent signs
 							// (["|\']?)       - Matches, and captures, ", ', or empty string
 							// \s              - Ensures there's a space after the attribute
 							$new_tag = preg_replace( '#(?<=\s)(width=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[0] ), $new_tag );
@@ -600,7 +594,7 @@ class Jetpack_Photon {
 						$content = str_replace( $tag, $new_tag, $content );
 					}
 				} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-					$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
+					$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
 
 					$content = str_replace( $tag, $new_tag, $content );
 				}

@@ -616,6 +616,10 @@ abstract class SAL_Site {
 		return (int) get_option( 'page_for_posts' );
 	}
 
+	public function get_wpcom_public_coming_soon_page_id() {
+		return (int) get_option( 'wpcom_public_coming_soon_page_id' );
+	}
+
 	function is_headstart() {
 		return get_option( 'headstart' );
 	}
@@ -684,5 +688,9 @@ abstract class SAL_Site {
 
 	function get_site_creation_flow() {
 		return get_option( 'site_creation_flow' );
+	}
+
+	public function get_selected_features() {
+		return get_option( 'selected_features' );
 	}
 }

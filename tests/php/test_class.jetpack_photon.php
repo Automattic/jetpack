@@ -87,6 +87,13 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 
+		/**
+		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
+		 */
+		$instance = new ReflectionProperty( 'Jetpack_Photon', 'image_sizes' );
+		$instance->setAccessible( true );
+		$instance->setValue( null );
+
 		parent::tearDown();
 	}
 
@@ -227,6 +234,27 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'a-tags-without-images.html' );
 
 		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+	}
+
+	/**
+	 * Tests Photon's HTML parsing.
+	 *
+	 * @author biskobe
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 3.2
+	 */
+	public function test_photon_parse_images_from_html_a_tags_with_hash_in_href() {
+		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'a-tags-with-hash-href.html' );
+
+		// Make sure we're not going to get any weird modifications due to auto-detected widths/heights and other props.
+		$args_reset_callback = function () {
+			return array();
+		};
+		add_filter( 'jetpack_photon_post_image_args', $args_reset_callback, 10, 0 );
+
+		$this->assertEquals( trim( $expected ), trim( Jetpack_Photon::instance()->filter_the_content( $sample_html ) ) );
+
+		remove_filter( 'jetpack_photon_post_image_args', $args_reset_callback );
 	}
 
 	/**
@@ -1114,6 +1142,27 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 				false,
 			),
 		);
+	}
+
+	/**
+	 * Tests that Photon ignores percentage dimensions. It should fall back to e.g. a "size-foo" class.
+	 *
+	 * @covers Jetpack_Photon::filter_the_content
+	 */
+	public function test_photon_filter_the_content_percentage_width_and_height() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="45%" height="55%" />';
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertEquals( '1024', $attributes['width']['value'] );
+		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertEquals( '1024', $attributes['height']['value'] );
+
+		$this->assertArrayHasKey( 'fit', $query_params );
+		$this->assertEquals( '1024,1024', $query_params['fit'] );
 	}
 
 	/**
