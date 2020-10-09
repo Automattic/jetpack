@@ -40,7 +40,7 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
-		jetpack_require_lib( 'functions.classic-editor' );
+		require_once dirname( __FILE__ ) . '/functions.classic-editor.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if ( ! is_plugin_active( 'classic-editor/classic-editor.php' ) || false === has_filter( 'block_editor_settings', array( 'Classic_Editor', 'remember_block_editor' ) ) ) {
 			add_action( 'edit_form_top', 'Jetpack\ClassicEditor\remember_classic_editor' );
