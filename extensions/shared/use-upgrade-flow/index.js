@@ -18,6 +18,8 @@ import { doAction, hasAction } from '@wordpress/hooks';
 import '../components/upgrade-nudge/store';
 import { getUpgradeUrl } from '../plan-utils';
 
+const HOOK_OPEN_CHECKOUT_MODAL = 'a8c.wpcom-block-editor.openCheckoutModal';
+
 function redirect( url, callback ) {
 	if ( callback ) {
 		callback( url );
@@ -49,9 +51,9 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const goToCheckoutPage = async event => {
 		// If this action is available, the feature is enabled to open the checkout
 		// in a modal rather than redirect the user there, away from the editor.
-		if ( hasAction( 'a8c.wpcom-block-editor.openCheckoutModal' ) ) {
+		if ( hasAction( HOOK_OPEN_CHECKOUT_MODAL ) ) {
 			event.preventDefault();
-			doAction( 'a8c.wpcom-block-editor.openCheckoutModal', { products: [planData] } );
+			savePost( event ).then( () => doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [planData] } ) );
 			return;
 		}
 
