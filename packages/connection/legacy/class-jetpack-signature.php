@@ -75,7 +75,7 @@ class Jetpack_Signature {
 		}
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
-		$host_port = intval( $host_port );
+		$host_port = (int) $host_port;
 
 		/**
 		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.

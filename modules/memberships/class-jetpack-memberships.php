@@ -213,7 +213,7 @@ class Jetpack_Memberships {
 		if ( empty( $attrs['planId'] ) ) {
 			return;
 		}
-		$plan_id = intval( $attrs['planId'] );
+		$plan_id = (int) $attrs['planId'];
 		$product = get_post( $plan_id );
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;

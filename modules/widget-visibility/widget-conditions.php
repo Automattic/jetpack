@@ -467,7 +467,7 @@ class Jetpack_Widget_Conditions {
 				// Find the conditions for this widget.
 				if ( preg_match( '/^(.+?)-(\d+)$/', $widget_id, $matches ) ) {
 					$id_base       = $matches[1];
-					$widget_number = intval( $matches[2] );
+					$widget_number = (int) $matches[2];
 				} else {
 					$id_base       = $widget_id;
 					$widget_number = null;

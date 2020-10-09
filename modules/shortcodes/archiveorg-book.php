@@ -67,13 +67,13 @@ function jetpack_archiveorg_book_shortcode( $atts ) {
 	if ( ! $atts['width'] ) {
 		$width = absint( $content_width );
 	} else {
-		$width = intval( $atts['width'] );
+		$width = (int) $atts['width'];
 	}
 
 	if ( ! $atts['height'] ) {
 		$height = round( ( $width / 640 ) * 360 );
 	} else {
-		$height = intval( $atts['height'] );
+		$height = (int) $atts['height'];
 	}
 
 	$url = esc_url( "https://archive.org/stream/{$id}?ui=embed#mode/1up" );

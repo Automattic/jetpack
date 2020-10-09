@@ -123,7 +123,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 				$db_status
 			)
 		);
-		return intval( $result );
+		return (int) $result;
 	}
 
 	/**

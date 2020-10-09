@@ -60,7 +60,7 @@ class Client {
 
 		$method = strtoupper( $args['method'] );
 
-		$timeout = intval( $args['timeout'] );
+		$timeout = (int) $args['timeout'];
 
 		$redirection = $args['redirection'];
 		$stream      = $args['stream'];

@@ -127,11 +127,11 @@ class Replicastore implements Replicastore_Interface {
 		}
 
 		if ( ! empty( $min_id ) ) {
-			$where .= ' AND ID >= ' . intval( $min_id );
+			$where .= ' AND ID >= ' . (int) $min_id;
 		}
 
 		if ( ! empty( $max_id ) ) {
-			$where .= ' AND ID <= ' . intval( $max_id );
+			$where .= ' AND ID <= ' . (int) $max_id;
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -308,11 +308,11 @@ class Replicastore implements Replicastore_Interface {
 		}
 
 		if ( ! empty( $min_id ) ) {
-			$where .= ' AND comment_ID >= ' . intval( $min_id );
+			$where .= ' AND comment_ID >= ' . (int) $min_id;
 		}
 
 		if ( ! empty( $max_id ) ) {
-			$where .= ' AND comment_ID <= ' . intval( $max_id );
+			$where .= ' AND comment_ID <= ' . (int) $max_id;
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -1317,7 +1317,7 @@ class Replicastore implements Replicastore_Interface {
 				return false;
 		}
 
-		$bucket_size     = intval( ceil( $object_count / $buckets ) );
+		$bucket_size     = (int) ceil( $object_count / $buckets );
 		$previous_max_id = 0;
 		$histogram       = array();
 
@@ -1325,11 +1325,11 @@ class Replicastore implements Replicastore_Interface {
 		$where = $where_sql;
 
 		if ( $start_id ) {
-			$where .= " AND $id_field >= " . intval( $start_id );
+			$where .= " AND $id_field >= " . (int) $start_id;
 		}
 
 		if ( $end_id ) {
-			$where .= " AND $id_field <= " . intval( $end_id );
+			$where .= " AND $id_field <= " . (int) $end_id;
 		}
 
 		do {
@@ -1397,22 +1397,22 @@ class Replicastore implements Replicastore_Interface {
 
 		if ( null !== $min_id && null !== $max_id ) {
 			if ( $min_id === $max_id ) {
-				$min_id     = intval( $min_id );
+				$min_id     = (int) $min_id;
 				$where_sql .= " AND $id_column = $min_id LIMIT 1";
 			} else {
-				$min_id     = intval( $min_id );
-				$max_id     = intval( $max_id );
+				$min_id     = (int) $min_id;
+				$max_id     = (int) $max_id;
 				$size       = $max_id - $min_id;
 				$where_sql .= " AND $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
 			}
 		} else {
 			if ( null !== $min_id ) {
-				$min_id     = intval( $min_id );
+				$min_id     = (int) $min_id;
 				$where_sql .= " AND $id_column >= $min_id";
 			}
 
 			if ( null !== $max_id ) {
-				$max_id     = intval( $max_id );
+				$max_id     = (int) $max_id;
 				$where_sql .= " AND $id_column <= $max_id";
 			}
 		}
@@ -1459,11 +1459,11 @@ ENDSQL;
 		global $wpdb;
 
 		if ( ! empty( $min_id ) ) {
-			$where_sql .= ' AND meta_id >= ' . intval( $min_id );
+			$where_sql .= ' AND meta_id >= ' . (int) $min_id;
 		}
 
 		if ( ! empty( $max_id ) ) {
-			$where_sql .= ' AND meta_id <= ' . intval( $max_id );
+			$where_sql .= ' AND meta_id <= ' . (int) $max_id;
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

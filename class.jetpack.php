@@ -4747,7 +4747,7 @@ endif;
 
 			// Let's check the existing blog token to see if we need to re-register. We only check once per minute
 			// because otherwise this logic can get us in to a loop.
-			$last_connect_url_check = intval( Jetpack_Options::get_raw_option( 'jetpack_last_connect_url_check' ) );
+			$last_connect_url_check = (int) Jetpack_Options::get_raw_option( 'jetpack_last_connect_url_check' );
 			if ( ! $last_connect_url_check || ( time() - $last_connect_url_check ) > MINUTE_IN_SECONDS ) {
 				Jetpack_Options::update_raw_option( 'jetpack_last_connect_url_check', time() );
 

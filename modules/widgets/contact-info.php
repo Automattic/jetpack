@@ -203,7 +203,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( ! isset( $new_instance['showmap'] ) ) {
 				$instance['showmap'] = 0;
 			} else {
-				$instance['showmap'] = intval( $new_instance['showmap'] );
+				$instance['showmap'] = (int) $new_instance['showmap'];
 			}
 
 			$instance['goodmap'] = $this->update_goodmap( $old_instance, $instance );

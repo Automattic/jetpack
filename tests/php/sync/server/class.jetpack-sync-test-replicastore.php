@@ -656,7 +656,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 
 		sort( $all_ids );
-		$bucket_size = intval( ceil( count( $all_ids ) / $buckets ) );
+		$bucket_size = (int) ceil( count( $all_ids ) / $buckets );
 
 		if ( $bucket_size === 0 ) {
 			return array();

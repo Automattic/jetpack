@@ -272,7 +272,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
 		$second_batch_terms = $event->args['terms'];
 		$previous_interval_end = $event->args['previous_end'];
-		$this->assertEquals( intval( $previous_interval_end ), $last_term->term_taxonomy_id );
+		$this->assertEquals( (int) $previous_interval_end, $last_term->term_taxonomy_id );
 
 		$last_term = end( $second_batch_terms );
 		$this->full_sync->continue_enqueuing();
@@ -280,7 +280,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
 		$previous_interval_end = $event->args['previous_end'];
-		$this->assertEquals( intval( $previous_interval_end ), $last_term->term_taxonomy_id );
+		$this->assertEquals( (int) $previous_interval_end, $last_term->term_taxonomy_id );
 
 		$this->full_sync->reset_data();
 	}
@@ -337,7 +337,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// 28
 		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 		// ceil(28/4) = 7
-		$total_items = intval( ceil( $original_number_of_term_relationships  / $sync_item_size ) );
+		$total_items = (int) ceil( $original_number_of_term_relationships  / $sync_item_size );
 
 		$this->full_sync->start( array( 'term_relationships' => true ) );
 		$this->sender->do_full_sync(); // empty the queue since – "full_sync_start" takes one item in the queue
@@ -425,8 +425,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
 		$second_batch_terms = $event->args['term_relationships'];
 		$previous_interval_end = $event->args['previous_end'];
-		$this->assertEquals( intval( $previous_interval_end['object_id'] ), $last_term['object_id'] );
-		$this->assertEquals( intval( $previous_interval_end['term_taxonomy_id'] ), $last_term['term_taxonomy_id'] );
+		$this->assertEquals( (int) $previous_interval_end['object_id'], $last_term['object_id'] );
+		$this->assertEquals( (int) $previous_interval_end['term_taxonomy_id'], $last_term['term_taxonomy_id'] );
 
 		$last_term = end( $second_batch_terms );
 		$this->full_sync->continue_enqueuing();
@@ -434,8 +434,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
 		$previous_interval_end = $event->args['previous_end'];
-		$this->assertEquals( intval( $previous_interval_end['object_id'] ), $last_term['object_id'] );
-		$this->assertEquals( intval( $previous_interval_end['term_taxonomy_id'] ), $last_term['term_taxonomy_id'] );
+		$this->assertEquals( (int) $previous_interval_end['object_id'], $last_term['object_id'] );
+		$this->assertEquals( (int) $previous_interval_end['term_taxonomy_id'], $last_term['term_taxonomy_id'] );
 
 		$this->full_sync->reset_data();
 	}
@@ -501,7 +501,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$second_batch_users = $event->args['users'];
 		$previous_interval_end = $event->args['previous_end'];
 
-		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
+		$this->assertEquals( (int) $previous_interval_end, $last_user->ID );
 
 		$last_user = end( $second_batch_users );
 		$this->full_sync->continue_enqueuing();
@@ -510,7 +510,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
 		$previous_interval_end = $event->args['previous_end'];
 
-		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
+		$this->assertEquals( (int) $previous_interval_end, $last_user->ID );
 
 		Settings::reset_data();
 		$this->full_sync->reset_data();
@@ -1621,7 +1621,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
 		list( $second_batch_posts, $meta, $taxonomy, $previous_interval_end ) = $event->args;
-		$this->assertEquals( intval( $previous_interval_end ), $last_post->ID );
+		$this->assertEquals( (int) $previous_interval_end, $last_post->ID );
 
 		$last_post = end( $second_batch_posts );
 		$this->full_sync->continue_enqueuing();
@@ -1629,7 +1629,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
 		list( $third_batch_posts, $meta, $taxonomy, $previous_interval_end ) = $event->args;
-		$this->assertEquals( intval( $previous_interval_end ), $last_post->ID );
+		$this->assertEquals( (int) $previous_interval_end, $last_post->ID );
 
 		$this->full_sync->reset_data();
 	}

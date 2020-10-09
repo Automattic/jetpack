@@ -57,7 +57,7 @@ class Comments extends Module {
 	 * @return \WP_Comment|bool Filtered \WP_Comment object, or false if the object is not a comment.
 	 */
 	public function get_object_by_id( $object_type, $id ) {
-		$comment_id = intval( $id );
+		$comment_id = (int) $id;
 		if ( 'comment' === $object_type ) {
 			$comment = get_comment( $comment_id );
 			if ( $comment ) {

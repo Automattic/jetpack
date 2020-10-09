@@ -190,7 +190,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			}
 
 			if ( isset( $new_instance['items'] ) ) {
-				$instance['items'] = intval( $new_instance['items'] );
+				$instance['items'] = (int) $new_instance['items'];
 			}
 
 			if ( isset( $new_instance['target'] ) ) {

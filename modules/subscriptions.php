@@ -432,7 +432,7 @@ class Jetpack_Subscriptions {
 	 * @since 8.1
 	 */
 	public function social_notifications_subscribe_field() {
-		$checked = intval( 'on' === get_option( 'social_notifications_subscribe', 'on' ) );
+		$checked = (int) ( 'on' === get_option( 'social_notifications_subscribe', 'on' ) );
 		?>
 
 		<label>
@@ -834,7 +834,7 @@ class Jetpack_Subscriptions {
 	 * @param bool $subscribe_to_blog Whether the user chose to subscribe to all new posts on the blog.
 	 */
 	function set_cookies( $subscribe_to_post = false, $post_id = null, $subscribe_to_blog = false ) {
-		$post_id = intval( $post_id );
+		$post_id = (int) $post_id;
 
 		/** This filter is already documented in core/wp-includes/comment-functions.php */
 		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime',       30000000 );

@@ -726,7 +726,7 @@ class Manager {
 			return false;
 		}
 
-		$user_id = empty( $user_id ) ? get_current_user_id() : intval( $user_id );
+		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
 		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
 			return false;
@@ -989,7 +989,7 @@ class Manager {
 			$registration_response = false;
 		}
 
-		$code_type = intval( $code / 100 );
+		$code_type = (int) ($code / 100);
 		if ( 5 === $code_type ) {
 			return new \WP_Error( 'wpcom_5??', $code );
 		} elseif ( 408 === $code ) {

@@ -7,7 +7,7 @@ class Jetpack_JSON_API_Jetpack_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected function result() {
 		$args = $this->input();
 		$event = ( isset( $args['event'] ) && is_string( $args['event'] ) ) ? $code : false;
-		$num  = ( isset( $args['num'] ) ) ? intval( $num ) : false;
+		$num  = ( isset( $args['num'] ) ) ? (int) $num : false;
 
 		return array(
 			'log' => Jetpack::get_log( $event, $num )

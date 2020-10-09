@@ -303,7 +303,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			foreach ( $histogram as $range => $checksum ) {
 				list( $min_id, $max_id ) = explode( '-', $range );
 
-				$range_histogram = $store->checksum_histogram( $object_type, 1, intval( $min_id ), intval( $max_id ) );
+				$range_histogram = $store->checksum_histogram( $object_type, 1, (int) $min_id, (int) $max_id );
 				$range_checksum  = array_pop( $range_histogram );
 
 				$this->assertEquals( $checksum, $range_checksum );

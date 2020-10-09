@@ -202,7 +202,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 
 	function test_extend_auth_cookie_casts_to_int() {
 		add_filter( 'jetpack_sso_auth_cookie_expiration', array( $this, '__return_string_value' ) );
-		$this->assertSame( intval( $this->__return_string_value() ), Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
+		$this->assertSame( (int) $this->__return_string_value() , Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
 		remove_filter( 'jetpack_sso_auth_cookie_expiration', array( $this, '__return_string_value' ) );
 	}
 

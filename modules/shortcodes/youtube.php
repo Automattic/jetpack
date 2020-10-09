@@ -192,7 +192,7 @@ function youtube_id( $url ) {
 	$info          = ( isset( $args['showinfo'] ) && '0' === $args['showinfo'] ) ? 0 : 1;
 	$iv            = ( isset( $args['iv_load_policy'] ) && '3' === $args['iv_load_policy'] ) ? 3 : 1;
 
-	$fmt = ( isset( $args['fmt'] ) && intval( $args['fmt'] ) ) ? '&fmt=' . (int) $args['fmt'] : '';
+	$fmt = ( isset( $args['fmt'] ) && (int) $args['fmt'] ) ? '&fmt=' . (int) $args['fmt'] : '';
 
 	if ( ! isset( $args['autohide'] ) || ( $args['autohide'] < 0 || 2 < $args['autohide'] ) ) {
 		$autohide = '&autohide=2';
@@ -202,7 +202,7 @@ function youtube_id( $url ) {
 
 	$start = 0;
 	if ( isset( $args['start'] ) ) {
-		$start = intval( $args['start'] );
+		$start = (int) $args['start'];
 	} elseif ( isset( $args['t'] ) ) {
 		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
@@ -223,8 +223,8 @@ function youtube_id( $url ) {
 	}
 
 	$start = $start ? '&start=' . $start : '';
-	$end   = ( isset( $args['end'] ) && intval( $args['end'] ) ) ? '&end=' . (int) $args['end'] : '';
-	$hd    = ( isset( $args['hd'] ) && intval( $args['hd'] ) ) ? '&hd=' . (int) $args['hd'] : '';
+	$end   = ( isset( $args['end'] ) && (int) $args['end'] ) ? '&end=' . (int) $args['end'] : '';
+	$hd    = ( isset( $args['hd'] ) && (int) $args['hd'] ) ? '&hd=' . (int) $args['hd'] : '';
 
 	$vq = ( isset( $args['vq'] ) && in_array( $args['vq'], array( 'hd720', 'hd1080' ), true ) ) ? '&vq=' . $args['vq'] : '';
 
@@ -384,8 +384,8 @@ function jetpack_amp_youtube_shortcode( $url ) {
 function jetpack_shortcode_youtube_dimensions( $query_args ) {
 	global $content_width;
 
-	$input_w = ( isset( $query_args['w'] ) && intval( $query_args['w'] ) ) ? intval( $query_args['w'] ) : 0;
-	$input_h = ( isset( $query_args['h'] ) && intval( $query_args['h'] ) ) ? intval( $query_args['h'] ) : 0;
+	$input_w = ( isset( $query_args['w'] ) && (int) $query_args['w'] ) ? (int) $query_args['w'] : 0;
+	$input_h = ( isset( $query_args['h'] ) && (int) $query_args['h'] ) ? (int) $query_args['h'] : 0;
 
 	// If we have $content_width, use it.
 	if ( ! empty( $content_width ) ) {
@@ -404,7 +404,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 		$w = $input_w;
 		$h = $input_h;
 	} elseif ( 0 === $input_w && 0 === $input_h ) {
-		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 		} else {
 			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
@@ -414,7 +414,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 		$w = $input_w;
 		$h = ceil( ( $w / 16 ) * 9 );
 	} else {
-		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 		} else {
 			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );

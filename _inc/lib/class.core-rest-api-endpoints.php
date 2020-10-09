@@ -1270,7 +1270,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$signature_data = wp_json_encode(
 			array(
 				'rest_route' => $_GET['rest_route'],
-				'timestamp' => intval( $_GET['timestamp'] ),
+				'timestamp' => (int) $_GET['timestamp'],
 				'url' => wp_unslash( $_GET['url'] ),
 			)
 		);
@@ -1287,7 +1287,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// signature timestamp must be within 5min of current time
-		if ( abs( time() - intval( $_GET['timestamp'] ) ) > 300 ) {
+		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
 			return false;
 		}
 

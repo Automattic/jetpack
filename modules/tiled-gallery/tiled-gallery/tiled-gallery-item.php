@@ -53,12 +53,12 @@ abstract class Jetpack_Tiled_Gallery_Item {
 
 	public function meta_width() {
 		$meta = wp_get_attachment_metadata( $this->image->ID );
-		return isset( $meta['width'] ) ? intval( $meta['width'] ) : '';
+		return isset( $meta['width'] ) ? (int) $meta['width'] : '';
 	}
 
 	public function meta_height() {
 		$meta = wp_get_attachment_metadata( $this->image->ID );
-		return isset( $meta['height'] ) ? intval( $meta['height'] ) : '';
+		return isset( $meta['height'] ) ? (int) $meta['height'] : '';
 	}
 
 	public function medium_file() {

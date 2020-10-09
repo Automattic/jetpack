@@ -274,7 +274,7 @@ class Milestone_Widget extends WP_Widget {
 			$data['refresh'] = 0; // No need to refresh, the milestone has been reached
 		} else {
 			$interval_text = $this->get_interval_in_units( $diff, $data['unit'] );
-			$interval = intval( $interval_text );
+			$interval = (int) $interval_text;
 
 			if ( 'since' === $type ) {
 

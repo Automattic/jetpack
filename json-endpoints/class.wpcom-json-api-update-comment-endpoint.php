@@ -232,7 +232,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 					! $auth_required
 					&& $user->ID
 					&& (
-						$author = get_user_by( 'id', intval( $user->ID ) )
+						$author = get_user_by( 'id', (int) $user->ID )
 					)
 				) {
 					$user = $author;
