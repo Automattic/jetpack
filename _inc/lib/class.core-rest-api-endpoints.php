@@ -1843,7 +1843,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$error_message = sprintf( esc_html__( 'Failed fetching site data from WordPress.com (%s). If the problem persists, try reconnecting Jetpack.', 'jetpack' ), $error_data['api_error_code'] );
 		}
 
-		return new WP_Error( $site_data->get_error_code(), $error_message, array( 'status' => 400 ) );
+		return new WP_Error(
+			$site_data->get_error_code(),
+			$error_message,
+			array(
+				'status'         => 400,
+				'api_error_code' => empty( $error_data['api_error_code'] ) ? null : $error_data['api_error_code'],
+			)
+		);
 	}
 
 	/**
