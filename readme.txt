@@ -257,6 +257,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Media Extractor: prevent PHP notice for some URLs.
 * Publicize: avoid block editor errors when no Publicize connections are available.
 * Synchronization flow: avoid potential Fatal errors when updating the plugin from the Dashboard > Updates screen.
+* Sharing: avoid PHP notices when a post object is invalid.
 * WordPress.com REST API: avoid errors when uploading images from a URL.
 
 = 9.0.1 =
