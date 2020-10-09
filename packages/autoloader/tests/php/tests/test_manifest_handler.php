@@ -89,7 +89,7 @@ class WP_Test_Manifest_Handler extends TestCase {
 			),
 			new Version_Selector()
 		);
-		defined( 'JETPACK_AUTOLOAD_DEV' ) || define( 'JETPACK_AUTOLOAD_DEV', true );
+		define( 'JETPACK_AUTOLOAD_DEV', true );
 
 		$manifest_handler->register_plugin_manifests( 'vendor/composer/jetpack_autoload_classmap.php', $input_array );
 

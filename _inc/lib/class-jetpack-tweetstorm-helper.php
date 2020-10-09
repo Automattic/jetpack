@@ -9,6 +9,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 use Twitter\Text\Regex as Twitter_Regex;
+use Twitter\Text\Validator as Twitter_Validator;
 
 /**
  * Class Jetpack_Tweetstorm_Helper
@@ -612,9 +613,12 @@ class Jetpack_Tweetstorm_Helper {
 
 		$current_tweet = self::get_current_tweet();
 
+		$reserved_characters  = count( $current_tweet['media'] ) * self::$characters_per_media;
+		$reserved_characters += 1 + self::$characters_per_url;
+
 		// We can only attach an embed to the previous tweet if it doesn't already
-		// have any URLs in it.
-		if ( preg_match( '/url-placeholder-\d+-*/', $current_tweet['text'] ) ) {
+		// have any URLs in it. Also, we can't attach it if it'll make the tweet too long.
+		if ( preg_match( '/url-placeholder-\d+-*/', $current_tweet['text'] ) || ! self::is_valid_tweet( $current_tweet['text'], $reserved_characters ) ) {
 			$current_tweet         = self::start_new_tweet();
 			$current_tweet['text'] = self::generate_url_placeholder( $block['embed'] );
 		} else {
@@ -1314,6 +1318,8 @@ class Jetpack_Tweetstorm_Helper {
 
 		$tokens = wp_html_split( $html );
 
+		$validator = new Twitter_Validator();
+
 		foreach ( $tags as $tag ) {
 			$values[ $tag ] = array();
 
@@ -1356,7 +1362,7 @@ class Jetpack_Tweetstorm_Helper {
 					// A link has opened, grab the URL for inserting later.
 					if ( 0 === strpos( $token, '<a ' ) ) {
 						$href_values = self::extract_attr_content_from_html( 'a', 'href', $token );
-						if ( ! empty( $href_values[0] ) ) {
+						if ( ! empty( $href_values[0] ) && $validator->isValidURL( $href_values[0] ) ) {
 							// Remember the URL.
 							$current_url = $href_values[0];
 						}
@@ -1413,8 +1419,19 @@ class Jetpack_Tweetstorm_Helper {
 						$offset += self::$characters_per_url - strlen( $url );
 
 						// If we're in a link with a URL set, there's no need to keep two copies of the same link.
-						if ( $url === $current_url ) {
-							$current_url = '';
+						if ( ! empty( $current_url ) ) {
+							$lower_url         = strtolower( $url );
+							$lower_current_url = strtolower( $current_url );
+
+							if ( $lower_url === $lower_current_url ) {
+								$current_url = '';
+							}
+
+							// Check that the link text isn't just a shortened version of the href value.
+							$trimmed_current_url = preg_replace( '|^https?://|', '', $lower_current_url );
+							if ( $lower_url === $trimmed_current_url || trim( $trimmed_current_url, '/' ) === $lower_url ) {
+								$current_url = '';
+							}
 						}
 					}
 
