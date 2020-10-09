@@ -106,12 +106,21 @@ wp_oembed_add_provider(
  * @since 9.1.0
  *
  * @param string $provider URL of the oEmbed provider.
+ * @param string $url      URL of the content to be embedded.
  *
  * @return string
  */
-function jetpack_instagram_oembed_fetch_url( $provider ) {
+function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	if ( ! wp_startswith( $provider, 'https://graph.facebook.com/v5.0/instagram_oembed/' ) ) {
 		return $provider;
+	}
+
+	// Attempt to clean query params from the URL since Facebook's new API for Instagram
+	// embeds does not like query parameters. See p7H4VZ-2DU-p2.
+	$parsed_url = wp_parse_url( $url );
+	if ( $parsed_url ) {
+		$clean_url = 'https://www.instagram.com' . $parsed_url['path'];
+		$provider  = add_query_arg( 'url', rawurlencode( $clean_url ), remove_query_arg( 'url', $provider ) );
 	}
 
 	$access_token = jetpack_instagram_get_access_token();
@@ -135,7 +144,7 @@ function jetpack_instagram_oembed_fetch_url( $provider ) {
 	$wpcom_oembed_proxy = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/oembed-proxy/instagram/';
 	return str_replace( 'https://graph.facebook.com/v5.0/instagram_oembed/', $wpcom_oembed_proxy, $provider );
 }
-add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 1 );
+add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 2 );
 
 
 /**
