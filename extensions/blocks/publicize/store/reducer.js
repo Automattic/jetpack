@@ -17,7 +17,7 @@ export default function ( state = DEFAULT_STATE, action ) {
 		case 'SET_CONNECTION_TEST_RESULTS':
 			return {
 				...state,
-				connections: action.results,
+				connections: action.results || [],
 			};
 		case 'REFRESH_CONNECTION_TEST_RESULTS':
 			return {
