@@ -1275,7 +1275,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array(
-			'id'          => strval( $media_item->ID ),
+			'id'          => (string) $media_item->ID,
 			'date'        => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
 			'parent'      => $media_item->post_parent,
 			'link'        => wp_get_attachment_url( $media_item->ID ),
