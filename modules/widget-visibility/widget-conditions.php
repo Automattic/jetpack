@@ -74,6 +74,7 @@ class Jetpack_Widget_Conditions {
 			array(
 				'orderby' => 'name',
 				'who'     => 'authors',
+				'fields'  => array( 'ID', 'display_name' ),
 			)
 		);
 
@@ -132,10 +133,23 @@ class Jetpack_Widget_Conditions {
 
 		$widget_conditions_data['page'][] = array( __( 'Post type Archives:', 'jetpack' ), $widget_conditions_post_type_archives );
 
-		$pages_dropdown = preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) );
+		$pages = self::get_pages();
 
+		$dropdown_tree_args = array(
+			'depth'                 => 0,
+			'child_of'              => 0,
+			'selected'              => 0,
+			'echo'                  => false,
+			'name'                  => 'page_id',
+			'id'                    => '',
+			'class'                 => '',
+			'show_option_none'      => '',
+			'show_option_no_change' => '',
+			'option_none_value'     => '',
+			'value_field'           => 'ID',
+		);
+		$pages_dropdown = walk_page_dropdown_tree( $pages, 0, $dropdown_tree_args );
 		preg_match_all( '/value=.([0-9]+).[^>]*>([^<]+)</', $pages_dropdown, $page_ids_and_titles, PREG_SET_ORDER );
-
 		$static_pages = array();
 
 		foreach ( $page_ids_and_titles as $page_id_and_title ) {
@@ -187,7 +201,7 @@ class Jetpack_Widget_Conditions {
 		wp_localize_script( 'widget-conditions', 'widget_conditions_data', $widget_conditions_data );
 
 		// Save a list of the IDs of all pages that have children for dynamically showing the "Include children" checkbox.
-		$all_pages   = get_pages();
+		$all_pages   = self::get_pages();
 		$all_parents = array();
 
 		foreach ( $all_pages as $page ) {
@@ -203,6 +217,19 @@ class Jetpack_Widget_Conditions {
 		}
 
 		wp_localize_script( 'widget-conditions', 'widget_conditions_parent_pages', $all_parents );
+	}
+
+	public static function get_pages() {
+		global $wpdb;
+
+		$last_changed = wp_cache_get_last_changed( 'posts' );
+		$cache_key    = "get_pages:$last_changed";
+		$pages        = wp_cache_get( $cache_key, 'widget_conditions' );
+		if ( false === $pages ) {
+			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_parent, {$wpdb->posts}.post_title FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_date DESC" );
+			wp_cache_set( $cache_key, $pages, 'widget_conditions' );
+		}
+		return $pages;
 	}
 
 	/**
