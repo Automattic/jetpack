@@ -345,7 +345,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 						height="<?php echo esc_attr( $height ); ?>"
 					<?php else : ?>
 						name="jetpack_remote_comment"
-						style="width:100%; height: <?php echo $height; ?>px; border:0;"
+						style="width:100%; height: <?php echo esc_attr( $height ); ?>px; border:0;"
 					<?php endif; ?>
 					class="jetpack_remote_comment"
 					id="jetpack_remote_comment"
