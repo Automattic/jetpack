@@ -18,7 +18,9 @@ import {
 	// requestImageFullscreenPreview,
 	mediaUploadSync,
 	mediaSaveSync,
-	requestStoryCreatorLoad,
+	// requestStoryCreatorLoad,
+	sendActionButtonPressedAction,
+	actionButtons,
 } from '@wordpress/react-native-bridge';
 
 /**
@@ -124,7 +126,12 @@ class StoryEdit extends React.Component {
 		// }
 		// requestStoryCreatorLoad( id );
 		// let's open the Story Creator and load this block in there
-		requestStoryCreatorLoad( attributes.mediaFiles, clientId );
+		// requestStoryCreatorLoad( attributes.mediaFiles, clientId );
+		sendActionButtonPressedAction(
+			actionButtons.mediaFilesEditorActionButton,
+			clientId,
+			attributes.mediaFiles
+		);
 	}
 
 	// upload state handling methods
