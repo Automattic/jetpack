@@ -18,7 +18,7 @@ import {
 	// requestImageFullscreenPreview,
 	mediaUploadSync,
 	mediaSaveSync,
-	requestStoryCreatorLoad,
+	requestMediaFilesEditorLoad,
 } from '@wordpress/react-native-bridge';
 
 /**
@@ -122,9 +122,9 @@ class StoryEdit extends React.Component {
 		// } else if ( isImage && url ) {
 		// 	requestImageFullscreenPreview( url );
 		// }
-		// requestStoryCreatorLoad( id );
+		// requestMediaFilesEditorLoad( id );
 		// let's open the Story Creator and load this block in there
-		requestStoryCreatorLoad( attributes.mediaFiles, clientId );
+		requestMediaFilesEditorLoad( attributes.mediaFiles, clientId );
 	}
 
 	// upload state handling methods
