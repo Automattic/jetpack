@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, TouchableWithoutFeedback } from 'react-native';
 /**
  * WordPress dependencies
  */
@@ -15,7 +15,6 @@ import {
 	// TODO implement the similar / following bridge signals
 	// requestImageFailedRetryDialog,
 	// requestImageUploadCancelDialog,
-	// requestImageFullscreenPreview,
 	mediaUploadSync,
 	mediaSaveSync,
 	requestMediaFilesEditorLoad,
@@ -47,6 +46,8 @@ class StoryEdit extends React.Component {
 		this.onStorySaveResult = this.onStorySaveResult.bind( this );
 
 		this.onMediaModelCreated = this.onMediaModelCreated.bind( this );
+
+		this.onStoryPressed = this.onStoryPressed.bind( this );
 
 		this.state = {
 			isUploadInProgress: false,
@@ -140,7 +141,6 @@ class StoryEdit extends React.Component {
 
 	finishMediaUploadWithSuccess( payload ) {
 		const { setAttributes } = this.props;
-		// setAttributes( { src: payload.mediaUrl, id: payload.mediaServerId } );
 		// find the mediaFiles item that needs to change via its id, and apply the new URL
 		// var updatedMediaFiles = this.replaceMediaUrlInMediaFilesById( payload.mediaId, payload.mediaUrl);
 		const updatedMediaFiles = this.replaceNewIdInMediaFilesByOldId(
@@ -153,16 +153,11 @@ class StoryEdit extends React.Component {
 	}
 
 	finishMediaUploadWithFailure( payload ) {
-		const { setAttributes } = this.props;
-		// TODO change this
-		// setAttributes( { id: payload.mediaId } );
+		// should anything be done on media upload failure, do it here
 		this.setState( { isUploadInProgress: false } );
 	}
 
 	mediaUploadStateReset() {
-		const { setAttributes } = this.props;
-		// TODO change this
-		// setAttributes( { id: null, src: null } );
 		this.setState( { isUploadInProgress: false } );
 	}
 
@@ -216,24 +211,17 @@ class StoryEdit extends React.Component {
 	}
 
 	finishMediaSaveWithFailure( payload ) {
-		const { setAttributes } = this.props;
-		// TODO change this
-		// setAttributes( { id: payload.mediaId } );
+		// should anything be done on save failure on one single item in the media collection, do it here
 		this.setState( { isSaveInProgress: false } );
 	}
 
 	mediaSaveStateReset() {
-		const { setAttributes } = this.props;
-		// TODO change this
-		// setAttributes( { id: null, src: null } );
 		this.setState( { isSaveInProgress: false } );
 	}
 
-	onStorySaveResult() {
-		const { setAttributes } = this.props;
-		// TODO here set success or fail overlay
-		// setAttributes( { id: null, src: null } );
-		this.setState( { isSaveInProgress: false } );
+	onStorySaveResult( payload ) {
+		// when story result ends up in failure, the failed overlay will be set in BlockMediaUpdateProgress
+		this.setState( { isSaveInProgress: false, didSaveFail: ! payload.success } );
 	}
 
 	onMediaModelCreated( payload ) {
@@ -247,6 +235,20 @@ class StoryEdit extends React.Component {
 		this.setState( { isSaveInProgress: false } );
 	}
 
+	onStoryPressed() {
+		const { attributes } = this.props;
+
+		if ( this.state.isUploadInProgress ) {
+			// TODO requestImageUploadCancelDialog, and issue cancellation for all media files involved
+			// requestImageUploadCancelDialog( attributes.id );
+		} else if ( this.state.isSaveInProgress ) {
+			// TODO: show some toast that the Story is being saved and can't be edited
+		} else {
+			// open the editor
+			this.onEditButtonTapped();
+		}
+	}
+
 	render() {
 		const { attributes, isSelected } = this.props;
 		const { mediaFiles } = attributes;
@@ -254,46 +256,57 @@ class StoryEdit extends React.Component {
 		const { isUploadInProgress, isSaveInProgress, didUploadFail, didSaveFail } = this.state;
 
 		return (
-			<View style={ styles[ 'wp-story-container' ] }>
-				{ ! hasContent && (
-					<Text style={ styles[ 'wp-story-wrapper' ] }>Empty Story placeholder here</Text>
-				) }
-				{ hasContent && (
-					<View style={ { flex: 1 } }>
-						{ ! isUploadInProgress && ! isSaveInProgress && isSelected && (
-							<StoryEditingButton onEditButtonTapped={ this.onEditButtonTapped } />
-						) }
-						<BlockMediaUpdateProgress
-							coverUrl={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
-							mediaFiles={ mediaFiles }
-							onUpdateMediaUploadProgress={ this.updateMediaUploadProgress }
-							onFinishMediaUploadWithSuccess={ this.finishMediaUploadWithSuccess }
-							onFinishMediaUploadWithFailure={ this.finishMediaUploadWithFailure }
-							onMediaUploadStateReset={ this.mediaUploadStateReset }
-							onUpdateMediaSaveProgress={ this.updateMediaSaveProgress }
-							onFinishMediaSaveWithSuccess={ this.finishMediaSaveWithSuccess }
-							onFinishMediaSaveWithFailure={ this.finishMediaSaveWithFailure }
-							onMediaSaveStateReset={ this.mediaSaveStateReset }
-							onFinalSaveResult={ this.onStorySaveResult }
-							onMediaModelCreated={ this.onMediaModelCreated }
-							renderContent={ ( {
-								isUploadInProgress,
-								isUploadFailed,
-								isSaveInProgress,
-								isSaveFailed,
-								retryMessage,
-							} ) => {
-								return (
-									<Image
-										url={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
-										style={ styles[ 'wp-story-image' ] }
-									/>
-								);
-							} }
-						/>
-					</View>
-				) }
-			</View>
+			<TouchableWithoutFeedback
+				accessible={ ! isSelected }
+				onPress={ this.onStoryPressed }
+				disabled={ ! isSelected }
+			>
+				<View style={ styles[ 'wp-story-container' ] }>
+					{ ! hasContent && (
+						<Text style={ styles[ 'wp-story-wrapper' ] }>
+							This Story is empty. Tap to add media.
+						</Text>
+					) }
+					{ hasContent && (
+						<View style={ { flex: 1 } }>
+							{ ! isUploadInProgress && ! isSaveInProgress && isSelected && (
+								<StoryEditingButton onEditButtonTapped={ this.onEditButtonTapped } />
+							) }
+							<BlockMediaUpdateProgress
+								coverUrl={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
+								mediaFiles={ mediaFiles }
+								onUpdateMediaUploadProgress={ this.updateMediaUploadProgress }
+								onFinishMediaUploadWithSuccess={ this.finishMediaUploadWithSuccess }
+								onFinishMediaUploadWithFailure={ this.finishMediaUploadWithFailure }
+								onMediaUploadStateReset={ this.mediaUploadStateReset }
+								onUpdateMediaSaveProgress={ this.updateMediaSaveProgress }
+								onFinishMediaSaveWithSuccess={ this.finishMediaSaveWithSuccess }
+								onFinishMediaSaveWithFailure={ this.finishMediaSaveWithFailure }
+								onMediaSaveStateReset={ this.mediaSaveStateReset }
+								onFinalSaveResult={ this.onStorySaveResult }
+								onMediaModelCreated={ this.onMediaModelCreated }
+								renderContent={ ( {
+									isUploadInProgress,
+									isUploadFailed,
+									isSaveInProgress,
+									isSaveFailed,
+									retryMessage,
+								} ) => {
+									return (
+										<Image
+											isUploadFailed={ isUploadFailed || isSaveFailed }
+											isUploadInProgress={ isUploadInProgress || isSaveInProgress }
+											retryMessage={ retryMessage }
+											url={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
+											style={ styles[ 'wp-story-image' ] }
+										/>
+									);
+								} }
+							/>
+						</View>
+					) }
+				</View>
+			</TouchableWithoutFeedback>
 		);
 	}
 }
