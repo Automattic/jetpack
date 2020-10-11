@@ -46,7 +46,9 @@
 	}
 
 	+ .jp-dash-item__description {
+		margin: auto 0;
 		max-width: 61%;
+		padding-bottom: 6px; // account for 6px bottom margin on count box
 	}
 	&.is-alert {
 		color: $white;
