@@ -119,8 +119,9 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	// embeds does not like query parameters. See p7H4VZ-2DU-p2.
 	$parsed_url = wp_parse_url( $url );
 	if ( $parsed_url ) {
-		$clean_url = 'https://www.instagram.com' . $parsed_url['path'];
-		$provider  = add_query_arg( 'url', rawurlencode( $clean_url ), remove_query_arg( 'url', $provider ) );
+		$clean_url            = 'https://www.instagram.com' . $parsed_url['path'];
+		$provider_without_url = remove_query_arg( 'url', $provider );
+		$provider             = add_query_arg( 'url', rawurlencode( $clean_url ), $provider_without_url );
 	}
 
 	$access_token = jetpack_instagram_get_access_token();
