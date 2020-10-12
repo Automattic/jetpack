@@ -24,6 +24,9 @@ class Client {
 	 */
 	public static function remote_request( $args, $body = null ) {
 		$result = self::build_signed_request( $args, $body );
+		if ( ! $result || is_wp_error( $result ) ) {
+			return $result;
+		}
 		return self::_wp_remote_request( $result['url'], $result['request'] );
 	}
 
@@ -32,7 +35,7 @@ class Client {
 	 *
 	 * @param array        $args the arguments for the remote request.
 	 * @param array|String $body the request body.
-	 * @return array {
+	 * @return WP_Error|array {
 	 *     An array containing URL and request items.
 	 *
 	 *     @type String $url     The request URL.
