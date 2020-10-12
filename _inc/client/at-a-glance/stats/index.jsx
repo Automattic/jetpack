@@ -70,7 +70,7 @@ export class DashStats extends Component {
 		const longMonthFormat = __( 'F jS', 'jetpack' );
 
 		/* translators: long month/year format, such as: January, 2021. */
-		const longMonthYearFormat = __( 'F, Y', 'jetpack' );
+		const longMonthYearFormat = __( 'F Y', 'jetpack' );
 
 		if ( 'object' !== typeof props.statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };
