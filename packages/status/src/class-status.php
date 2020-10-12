@@ -122,6 +122,12 @@ class Status {
 	public function is_local_site() {
 		// Check for localhost and sites using an IP only first.
 		$is_local = site_url() && false === strpos( site_url(), '.' );
+		
+		// @todo Remove function_exists when WP 5.5 is the minimum version.
+		// Use Core's environment check, if available.  Added in 5.5.0 / 5.5.1 (for `local` return value)
+		if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
+			$is_local = true;
+		}
 
 		// Then check for usual usual domains used by local dev tools.
 		$known_local = array(
@@ -141,12 +147,6 @@ class Status {
 					break;
 				}
 			}
-		}
-
-		// @todo Remove function_exists when WP 5.5 is the minimum version.
-		// Use Core's environment check, if available.  Added in 5.5.0 / 5.5.1 (for `local` return value)
-		if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
-			$is_local = true;
 		}
 
 		/**
