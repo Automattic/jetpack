@@ -53,7 +53,8 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		// in a modal rather than redirect the user there, away from the editor.
 		if ( hasAction( HOOK_OPEN_CHECKOUT_MODAL ) ) {
 			event.preventDefault();
-			savePost( event ).then( () => doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [planData] } ) );
+			savePost( event );
+			doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [planData] } );
 			return;
 		}
 
