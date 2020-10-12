@@ -333,7 +333,7 @@ function youtube_id( $url ) {
 
 		$layout = $is_amp ? ' layout="responsive" ' : '';
 
-		$html = "<iframe class='youtube-player' width='$w' height='$h' $layout src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' data-amp-layout='responsive' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
+		$html = "<iframe class='youtube-player' width='$w' height='$h' $layout src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed.
