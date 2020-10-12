@@ -203,7 +203,7 @@ function youtube_id( $url ) {
 	$params = array(
 		'rel'            => ( isset( $args['rel'] ) && '0' === $args['rel'] ) ? 0 : 1,
 		'showsearch'     => ( isset( $args['showsearch'] ) && '1' === $args['showsearch'] ) ? 1 : 0, // Now deprecated. See https://developers.google.com/youtube/player_parameters#march-29,-2012.
-		'showinfo'       => ( isset( $args['showinfo'] ) && '1' === $args['showinfo'] ) ? 1 : 0, // Now obsolete. See https://developers.google.com/youtube/player_parameters#showinfo.
+		'showinfo'       => ( isset( $args['showinfo'] ) && '0' === $args['showinfo'] ) ? 0 : 1, // Now obsolete. See https://developers.google.com/youtube/player_parameters#showinfo.
 		'iv_load_policy' => ( isset( $args['iv_load_policy'] ) && '3' === $args['iv_load_policy'] ) ? 3 : 1,
 		'fs'             => 1,
 	);
