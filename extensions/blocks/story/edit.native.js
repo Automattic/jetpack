@@ -15,6 +15,8 @@ import {
 	// TODO implement the similar / following bridge signals
 	// requestImageFailedRetryDialog,
 	// requestImageUploadCancelDialog,
+	requestMediaFilesFailedRetryDialog,
+	requestMediaFilesUploadCancelDialog,
 	mediaUploadSync,
 	mediaSaveSync,
 	requestMediaFilesEditorLoad,
@@ -154,7 +156,7 @@ class StoryEdit extends React.Component {
 
 	finishMediaUploadWithFailure( payload ) {
 		// should anything be done on media upload failure, do it here
-		this.setState( { isUploadInProgress: false } );
+		this.setState( { isUploadInProgress: false, didUploadFail: true } );
 	}
 
 	mediaUploadStateReset() {
@@ -241,8 +243,11 @@ class StoryEdit extends React.Component {
 		if ( this.state.isUploadInProgress ) {
 			// TODO requestImageUploadCancelDialog, and issue cancellation for all media files involved
 			// requestImageUploadCancelDialog( attributes.id );
+			requestMediaFilesUploadCancelDialog( attributes.mediaFiles );
 		} else if ( this.state.isSaveInProgress ) {
 			// TODO: show some toast that the Story is being saved and can't be edited
+		} else if ( this.state.didUploadFail ) {
+			requestMediaFilesFailedRetryDialog( attributes.mediaFiles );
 		} else {
 			// open the editor
 			this.onEditButtonTapped();
