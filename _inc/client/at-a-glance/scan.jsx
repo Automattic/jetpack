@@ -29,6 +29,7 @@ import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	getPlanClass,
