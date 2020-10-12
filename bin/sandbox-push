@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+
+const { execSync } = require( 'child_process' );
+const program = require( 'commander' );
+
+// The sandbox host
+const host = process.env.WPCOM_SANDBOX;
+const destinations = [
+	{
+		name: 'Blocks',
+		id: 'blocks',
+		local: '_inc/blocks/',
+		remote: 'public_html/wp-content/mu-plugins/jetpack/_inc/blocks/',
+		isDirectory: true,
+	},
+];
+const excludes = [ '.DS_Store' ];
+
+if ( ! host ) {
+	throw new Error( 'Sandbox host is not set' );
+}
+
+program
+	.option(
+		'-k, --keep-deleted',
+		'Keep deleted files/folders in the target if they were deleted' + ' locally.'
+	)
+	.parse( process.argv );
+
+push( host, program.keepDeleted );
+
+process.stderr.write( '\nComplete\n' );
+
+function sync( origin, destination, isDirectory, keepDeleted ) {
+	const deleteFlag = keepDeleted ? '' : '--delete';
+	const excludeStr = excludes.map( item => `'${ item }'` ).join( ',' );
+
+	execSync( `rsync -azb --exclude={${ excludeStr }} ${ origin } ${ destination } ${ deleteFlag }` );
+}
+
+function push( host, keepDeleted ) {
+	destinations.forEach( item => {
+		//makeLocalDirectory( item );
+		process.stderr.write( `\nUploading ${ item.name } to sandbox ${ host }` );
+		sync( item.local, `${ host }:${ item.remote }`, keepDeleted );
+	} );
+}

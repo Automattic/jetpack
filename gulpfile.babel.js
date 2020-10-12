@@ -3,7 +3,8 @@
  */
 import gulp from 'gulp';
 import log from 'fancy-log';
-import { spawn } from 'child_process';
+import minimist from 'minimist';
+import { exec, spawn } from 'child_process';
 
 /**
  * Internal dependencies
@@ -16,6 +17,31 @@ import {
 	build as sass_build,
 	watchPackages as sass_watch_packages,
 } from './tools/builder/sass';
+
+const argv = minimist( process.argv.slice( 2 ) );
+const { s: sandbox } = argv;
+
+/**
+ * Like gulp.series but allows receiving falsy arguments so to ignore them
+ *
+ * Useful for conditionally adding a subtask to gulp task.
+ *
+ * @param  {...any} taskArray - Array of tasks to be passed to gulp.series if not falsy.
+ * @returns {Array} - The filtered tasks
+ */
+function conditionalSeries( ...taskArray ) {
+	const truthyTasks = taskArray.filter( task => task );
+	return gulp.series( ...truthyTasks );
+}
+
+/**
+ * Pushes built code to sandbox for testing.
+ *
+ * @returns {null} - Returns nothing
+ */
+function pushToSandbox() {
+	return exec( `./bin/sandbox -s ${ sandbox } push` );
+}
 
 gulp.task( 'old-styles:watch', function () {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
@@ -65,13 +91,16 @@ gulp.task(
 );
 gulp.task(
 	'watch',
-	gulp.parallel(
-		react_watch,
-		sass_watch,
-		sass_watch_packages,
-		'old-styles:watch',
-		'blocks:watch',
-		'search:watch'
+	conditionalSeries(
+		gulp.parallel(
+			react_watch,
+			sass_watch,
+			sass_watch_packages,
+			'old-styles:watch',
+			'blocks:watch',
+			'search:watch'
+		),
+		sandbox && pushToSandbox
 	)
 );
 

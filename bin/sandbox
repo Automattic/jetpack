@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+const program = require( 'commander' );
+
+program
+	.version( '0.0.1' )
+	.option( '-s, --sandbox <host>', 'Your WordPress.com sandbox host' )
+	.command(
+		'push',
+		'Upload source code to appropriate paths in your sandbox'
+	)
+	.command( 'pull', 'Pull source code from your sandbox' );
+
+program.on( 'option:sandbox', ( host ) => {
+	process.env.WPCOM_SANDBOX = host;
+} );
+
+program.parse( process.argv );
