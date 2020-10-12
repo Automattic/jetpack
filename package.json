@@ -170,7 +170,7 @@
 		"static-site-generator-webpack-plugin": "3.4.2",
 		"strip": "3.0.0",
 		"swiper": "6.2.0",
-		"tinycolor2": "1.4.1",
+		"tinycolor2": "1.4.2",
 		"uglify-save-license": "0.4.1",
 		"unfetch": "4.1.0",
 		"url-polyfill": "1.1.10",
