@@ -59,6 +59,27 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 
 		$path = wp_parse_url( $api_query_args['url'], PHP_URL_PATH );
 
+		// Does the URL itself include any query args?
+		$url_query      = wp_parse_url( $api_query_args['url'], PHP_URL_QUERY );
+		$url_query_args = null;
+		wp_parse_str( $url_query, $url_query_args );
+
+		if ( ! empty( $url_query_args ) ) {
+			$error = array(
+				'code'             => 100,
+				'error_subcode'    => 2207047,
+				'error_user_msg'   => "The request parameter 'url' is malformed or does not refer to an embeddable media.",
+				'error_user_title' => 'Invalid URL',
+				'fbtrace_id'       => 'ARkblahblahblah',
+				'is_transient'     => false,
+				'message'          => 'Invalid parameter',
+				'type'             => 'OAuthException',
+			);
+
+			$response['body'] = wp_json_encode( compact( 'error' ) );
+			return $response;
+		}
+
 		switch ( $path ) {
 			case '/p/BnMO9vRleEx/' :
 			case '/jeherve/p/BnMO9vRleEx/' :
@@ -147,6 +168,33 @@ BODY;
 
 		$this->assertContains(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
+			$actual
+		);
+	}
+
+	/**
+	 * @covers ::jetpack_instagram_handler
+	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
+	 */
+	public function test_instagram_replace_image_url_with_embed_and_remove_query_args() {
+		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped( 'must be revisited.' );
+		}
+		global $post;
+
+		$instagram_url                 = 'https://www.instagram.com/p/BnMO9vRleEx/';
+		$instagram_url_with_query_args = $instagram_url . '?utm_source=ig_web_copy_link';
+
+		$post = $this->factory->post->create_and_get( array( 'post_content' => $instagram_url_with_query_args ) );
+
+		setup_postdata( $post );
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
+		wp_reset_postdata();
+
+		$this->assertContains(
+			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url . '"',
 			$actual
 		);
 	}

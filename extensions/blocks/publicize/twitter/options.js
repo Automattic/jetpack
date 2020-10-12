@@ -25,7 +25,9 @@ const PublicizeTwitterOptions = ( {
 	setTweetstorm,
 	prePublish,
 } ) => {
-	if ( ! connections?.some( connection => 'twitter' === connection.service_name ) ) {
+	if (
+		! connections?.some( connection => 'twitter' === connection.service_name && connection.enabled )
+	) {
 		return null;
 	}
 
@@ -35,6 +37,16 @@ const PublicizeTwitterOptions = ( {
 		} else {
 			setTweetstorm( false );
 		}
+	};
+
+	const generateLabel = ( label, help ) => {
+		return (
+			<>
+				<strong>{ label }</strong>
+				<br />
+				{ help }
+			</>
+		);
 	};
 
 	const notices = [];
@@ -74,16 +86,20 @@ const PublicizeTwitterOptions = ( {
 				{ __( 'Twitter settings', 'jetpack' ) }
 			</h3>
 			<RadioControl
+				className="jetpack-publicize-twitter-options__type"
 				selected={ isTweetStorm ? 'tweetstorm' : 'single' }
 				options={ [
 					{
-						label: __( 'Share your blog post as a link in a single tweet', 'jetpack' ),
+						label: generateLabel(
+							__( 'Single Tweet', 'jetpack' ),
+							__( 'Share a link to this post to Twitter.', 'jetpack' )
+						),
 						value: 'single',
 					},
 					{
-						label: __(
-							'Share your entire blog post as a Twitter thread in multiple Tweets',
-							'jetpack'
+						label: generateLabel(
+							__( 'Twitter Thread', 'jetpack' ),
+							__( 'Share the content of this post as a Twitter thread.', 'jetpack' )
 						),
 						value: 'tweetstorm',
 					},

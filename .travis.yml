@@ -154,6 +154,10 @@ script: ./tests/run-travis.sh
 sudo: false
 
 notifications:
+   slack:
+     on_success: change # default: always
+     if: branch = master
+     secure: WWKijFuetJgC7Gam4RkZALUf5lhDPWOkXCD2ignA4qLzlATUbi8lNjkBxMEq0Y8wKBLdHdRostmZl1eBXdWF4J6PEX1pbKrTweBlEG0Ka7QEW+62/eMnCJzWazKmtZvr5ILKGz8zf7ig+q/URoEejWSmkbN1HMHvDCT2DtIZN7I=
    webhooks:
      urls:
        - https://betadownload.jetpack.me/travis.php
@@ -171,7 +175,6 @@ notifications:
        - beau@automattic.com
        # Encrypted Slack notification address
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
-
 addons:
   code_climate:
     repo_token: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
