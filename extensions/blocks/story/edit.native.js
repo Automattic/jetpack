@@ -12,10 +12,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getProtocol } from '@wordpress/url';
 import { doAction, hasAction } from '@wordpress/hooks';
 import {
-	// TODO implement the similar / following bridge signals
-	// requestImageFailedRetryDialog,
-	// requestImageUploadCancelDialog,
 	requestMediaFilesFailedRetryDialog,
+	requestMediaFilesSaveCancelDialog,
 	requestMediaFilesUploadCancelDialog,
 	mediaUploadSync,
 	mediaSaveSync,
@@ -265,11 +263,10 @@ class StoryEdit extends React.Component {
 		const { attributes } = this.props;
 
 		if ( this.state.isUploadInProgress ) {
-			// TODO requestImageUploadCancelDialog, and issue cancellation for all media files involved
-			// requestImageUploadCancelDialog( attributes.id );
+			// issue cancellation for all media files involved
 			requestMediaFilesUploadCancelDialog( attributes.mediaFiles );
 		} else if ( this.state.isSaveInProgress ) {
-			// TODO: show some toast that the Story is being saved and can't be edited
+			requestMediaFilesSaveCancelDialog( attributes.mediaFiles );
 		} else if ( this.state.didUploadFail ) {
 			requestMediaFilesFailedRetryDialog( attributes.mediaFiles );
 		} else {
