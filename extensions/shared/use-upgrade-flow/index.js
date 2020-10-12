@@ -70,10 +70,10 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 
 		setIsRedirecting( true );
 
-		/*
-		* If there are not unsaved values, redirect.
-		* If the post is not auto-savable, redirect.
-		*/
+		/**
+		 * If there are not unsaved values, redirect.
+		 * If the post is not auto-savable, redirect.
+		 */
 		if ( ! isDirtyPost || ! isAutosaveablePost ) {
 			return redirect( checkoutUrl, onRedirect );
 		}
