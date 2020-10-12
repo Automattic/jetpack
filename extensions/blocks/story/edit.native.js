@@ -176,29 +176,53 @@ class StoryEdit extends React.Component {
 
 	replaceMediaUrlInMediaFilesById( mediaId, mediaUrl ) {
 		const { attributes } = this.props;
-		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
-			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
-				if ( attributes.mediaFiles[ i ].id === mediaId.toString() ) {
-					attributes.mediaFiles[ i ].url = mediaUrl;
-					attributes.mediaFiles[ i ].link = mediaUrl;
+		const newMediaFiles = this.deepCopyMediaFiles();
+		if ( mediaId !== undefined && newMediaFiles !== undefined ) {
+			for ( let i = 0; i < newMediaFiles.length; i++ ) {
+				if ( newMediaFiles[ i ].id === mediaId.toString() ) {
+					newMediaFiles[ i ].url = mediaUrl;
+					newMediaFiles[ i ].link = mediaUrl;
+					return newMediaFiles;
 				}
 			}
 		}
-		return attributes.mediaFiles;
+		return newMediaFiles;
+	}
+
+	deepCopyMediaFiles() {
+		const { attributes } = this.props;
+		const newMediaFiles = [];
+		if ( attributes.mediaFiles !== undefined ) {
+			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
+				// copy to new object
+				newMediaFiles[ i ] = {
+					id: attributes.mediaFiles[ i ].id,
+					url: attributes.mediaFiles[ i ].url,
+					link: attributes.mediaFiles[ i ].link,
+					alt: attributes.mediaFiles[ i ].alt,
+					caption: attributes.mediaFiles[ i ].caption,
+					mime: attributes.mediaFiles[ i ].mime,
+					type: attributes.mediaFiles[ i ].type,
+				};
+			}
+		}
+		return newMediaFiles;
 	}
 
 	replaceNewIdInMediaFilesByOldId( oldId, mediaId, mediaUrl ) {
 		const { attributes } = this.props;
-		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
-			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
-				if ( attributes.mediaFiles[ i ].id === oldId.toString() ) {
-					attributes.mediaFiles[ i ].id = mediaId;
-					attributes.mediaFiles[ i ].url = mediaUrl;
-					attributes.mediaFiles[ i ].link = mediaUrl;
+		const newMediaFiles = this.deepCopyMediaFiles();
+		if ( mediaId !== undefined && newMediaFiles !== undefined ) {
+			for ( let i = 0; i < newMediaFiles.length; i++ ) {
+				if ( newMediaFiles[ i ].id === oldId.toString() ) {
+					newMediaFiles[ i ].id = mediaId;
+					newMediaFiles[ i ].url = mediaUrl;
+					newMediaFiles[ i ].link = mediaUrl;
+					return newMediaFiles;
 				}
 			}
 		}
-		return attributes.mediaFiles;
+		return newMediaFiles;
 	}
 
 	finishMediaSaveWithSuccess( payload ) {
