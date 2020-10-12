@@ -222,6 +222,7 @@
 		"jest-puppeteer": "4.4.0",
 		"lodash": "4.17.20",
 		"markdown-spellcheck": "1.3.1",
+		"minimist": "1.2.5",
 		"mocha": "8.1.3",
 		"mockery": "2.1.0",
 		"nock": "13.0.4",
