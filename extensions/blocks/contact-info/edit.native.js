@@ -13,9 +13,9 @@ const ALLOWED_BLOCKS = [
 	'jetpack/address',
 	'jetpack/email',
 	'jetpack/phone',
-  'core/heading',
-  'core/separator',
-  'core/spacer',
+	'core/heading',
+	'core/separator',
+	'core/spacer',
 ];
 
 const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address' ] ];
