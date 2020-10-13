@@ -2384,7 +2384,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 						$val =  array_filter( $val, array( __CLASS__, 'remove_empty' ) ); // removes any empty strings
 						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( array( __CLASS__, 'esc_shortcode_val' ), $val ) ) . '"';
 					} elseif ( is_bool( $val ) ) {
-						$att_strs[] = esc_html( $att ) . '="' . self::esc_shortcode_val( $val ? '1' : '' ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . ( $val ? '1' : '' ) . '"';
 					} else {
 						$att_strs[] = esc_html( $att ) . '="' . self::esc_shortcode_val( $val ) . '"';
 					}

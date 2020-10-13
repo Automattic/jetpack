@@ -722,8 +722,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'class'   => 'lalala',
 			'default' => 'option 1',
 			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2', 'option 3, or 4' ),
-			'values'  => array( 'option 1', 'option 2', 'option [34]' ),
+			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
@@ -742,8 +742,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'class'   => 'lalala',
 			'default' => 'option 1',
 			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2', 'option 3, or 4' ),
-			'values'  => array( 'o1', 'o2', 'option [34]' ),
+			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'select' ) );
@@ -917,7 +917,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$n      = is_array( $labels ) ? count( $labels ) - 1 : $labels->length - 1;
 			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
 			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
-			for ( $i = 1; $i < $n; $i++ ) {
+			for ( $i = 0; $i < $n; $i++ ) {
 				$item_label = is_array( $labels ) ? $labels[ $i + 1 ] : $labels->item( $i + 1 );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $item_label->nodeValue, ' ' . $attributes['options'][ $i ] ); // extra space added for a padding.
