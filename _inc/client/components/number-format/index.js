@@ -17,7 +17,7 @@ export const cleanLocale = locale => {
 	// e.g. af, arq, fr_FR, pap_CW, de_DE_formal, art_xpirate
 	const localeRegex = locale.match( regex );
 
-	// No locale found, fallback to en-US.
+	// Locale was set to something that seems invalid, fallback to en-US.
 	if ( ! localeRegex ) {
 		return 'en-US';
 	}
