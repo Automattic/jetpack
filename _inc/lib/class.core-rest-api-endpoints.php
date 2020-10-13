@@ -1795,15 +1795,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$data     = $body ? json_decode( $body ) : null;
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$api_error_code = null;
+			$error_info = array(
+				'api_error_code' => null,
+				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
+			);
 
 			if ( is_wp_error( $response ) ) {
-				$api_error_code = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
 			} elseif ( $data && ! empty( $data->error ) ) {
-				$api_error_code = $data->error;
+				$error_info['api_error_code'] = $data->error;
 			}
 
-			return new WP_Error( 'site_data_fetch_failed', '', array( 'api_error_code' => $api_error_code ) );
+			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
 		}
 
 		Jetpack_Plan::update_from_sites_response( $response );
@@ -1849,6 +1852,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'status'         => 400,
 				'api_error_code' => empty( $error_data['api_error_code'] ) ? null : $error_data['api_error_code'],
+				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
 			)
 		);
 	}

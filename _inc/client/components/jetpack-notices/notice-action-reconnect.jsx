@@ -30,8 +30,13 @@ class NoticeActionReconnect extends React.Component {
 			eventProps.error_code = this.props.errorCode;
 		}
 
-		if ( this.props.errorData && this.props.errorData.api_error_code ) {
-			eventProps.api_error_code = this.props.errorData.api_error_code;
+		if ( this.props.errorData ) {
+			if ( this.props.errorData.api_error_code ) {
+				eventProps.api_error_code = this.props.errorData.api_error_code;
+			}
+			if ( this.props.errorData.api_http_code ) {
+				eventProps.api_http_code = this.props.errorData.api_http_code;
+			}
 		}
 
 		return eventProps;
