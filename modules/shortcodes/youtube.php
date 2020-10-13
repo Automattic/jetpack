@@ -206,6 +206,7 @@ function youtube_id( $url ) {
 		'showinfo'       => ( isset( $args['showinfo'] ) && '0' === $args['showinfo'] ) ? 0 : 1, // Now obsolete. See https://developers.google.com/youtube/player_parameters#showinfo.
 		'iv_load_policy' => ( isset( $args['iv_load_policy'] ) && '3' === $args['iv_load_policy'] ) ? 3 : 1,
 		'fs'             => 1,
+		'hl'             => str_replace( '_', '-', get_locale() ),
 	);
 	if ( isset( $args['fmt'] ) && intval( $args['fmt'] ) ) {
 		$params['fmt'] = (int) $args['fmt']; // Apparently an obsolete parameter. Not referenced on https://developers.google.com/youtube/player_parameters.
