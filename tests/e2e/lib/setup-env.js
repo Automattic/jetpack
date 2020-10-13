@@ -15,7 +15,7 @@ import logger from './logger';
 import { execWpCommand } from './utils-helper';
 import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
 
-const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
+const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML, SKIP_CONNECT } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
@@ -141,6 +141,22 @@ function observeConsoleLogging() {
 	} );
 }
 
+async function maybePreConnect() {
+	if ( SKIP_CONNECT ) {
+		return;
+	}
+
+	const status = await connectThroughWPAdminIfNeeded( {
+		mockPlanData: true,
+		plan: 'free',
+	} );
+
+	if ( status !== 'already_connected' ) {
+		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
+		fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
+	}
+}
+
 // The Jest timeout is increased because these tests are a bit slow
 jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );
 if ( E2E_DEBUG ) {
@@ -199,15 +215,7 @@ catchBeforeAll( async () => {
 	await enablePageDialogAccept();
 	observeConsoleLogging();
 
-	const status = await connectThroughWPAdminIfNeeded( {
-		mockPlanData: true,
-		plan: 'free',
-	} );
-
-	if ( status !== 'already_connected' ) {
-		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
-		fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
-	}
+	await maybePreConnect();
 } );
 
 afterEach( async () => {
