@@ -1,7 +1,3 @@
-.admin-bar .calendly-overlay .calendly-popup-close {
-	top: 47px;
-}
-
 .wp-block-jetpack-calendly.calendly-style-inline {
 	height: 630px;
 	position: relative;
@@ -17,4 +13,64 @@
 
 .wp-block-jetpack-calendly .wp-block-jetpack-button {
 	color: #ffffff;
+}
+
+.wp-block-jetpack-calendly__lightbox {
+	background: rgba(31, 31, 31, 0.4);
+}
+
+.wp-block-jetpack-calendly__lightbox-iframe {
+	/* Styles adapted from https://assets.calendly.com/assets/external/widget.css */
+	box-sizing: border-box;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translateY(-50%) translateX(-50%);
+	transform: translateY(-50%) translateX(-50%);
+	width: 80%;
+	min-width: 900px;
+	max-width: 1000px;
+	height: 90%;
+	max-height: 680px;
+	margin: 0;
+}
+
+.calendly-popup-close {
+	/* Styles adapted from https://assets.calendly.com/assets/external/widget.css */
+	position: absolute;
+	top: 25px;
+	right: 25px;
+	color: #fff;
+	width: 19px;
+	height: 19px;
+	cursor: pointer;
+	background: url(https://assets.calendly.com/assets/external/close-icon.svg) no-repeat;
+	background-size: contain;
+}
+
+.admin-bar .calendly-popup-close {
+	top: 47px
+}
+
+@media (max-width: 975px) {
+	.wp-block-jetpack-calendly__lightbox-iframe {
+		/* Styles adapted from https://assets.calendly.com/assets/external/widget.css */
+		position: fixed;
+		top: 50px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		-webkit-transform: none;
+		transform: none;
+		width: 100%;
+		height: auto;
+		min-width: 0;
+		max-height: none;
+	}
+
+	.calendly-popup-close,
+	.admin-bar .calendly-popup-close {
+		top: 15px;
+		right: 15px;
+	}
 }
