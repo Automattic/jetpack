@@ -46,7 +46,7 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     name: "Build dashboard & extensions"
     language: node_js
-    env: WP_TRAVISCI="yarn build"
+    env: WP_TRAVISCI="yarn build-concurrently"
 
   # Disable for now until we fix all the spelling issues
   # - name: "Spell check Markdown files"
@@ -91,7 +91,7 @@ matrix:
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
     - nvm install
-    - yarn build-production
+    - yarn build-production-concurrently
     - ./tests/e2e/bin/env.sh start
     - yarn test-decrypt-config
     script:
@@ -113,7 +113,7 @@ matrix:
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
     - nvm install
-    - yarn build-production
+    - yarn build-production-concurrently
     - ./tests/e2e/bin/env.sh start
     - yarn test-decrypt-config
     script:
