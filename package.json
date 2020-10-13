@@ -113,6 +113,7 @@
 		"@wordpress/date": "3.11.1",
 		"@wordpress/element": "2.16.0",
 		"@wordpress/i18n": "3.9.0",
+		"@wordpress/icons": "2.7.0",
 		"@wordpress/url": "2.11.0",
 		"babel-jest": "26.3.0",
 		"babel-loader": "8.0.6",
