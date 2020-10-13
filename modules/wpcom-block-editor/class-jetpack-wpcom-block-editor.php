@@ -312,11 +312,6 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcom-block-editor-default-editor-script',
 			'wpcomGutenberg',
 			array(
-				'switchToClassic' => array(
-					'isVisible' => $this->is_iframed_block_editor() && ! isset( $_GET['in-editor-deprecation-group'] ), // phpcs:ignore WordPress.Security.NonceVerification
-					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
-					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
-				),
 				'richTextToolbar' => array(
 					'justify'   => __( 'Justify', 'jetpack' ),
 					'underline' => __( 'Underline', 'jetpack' ),
