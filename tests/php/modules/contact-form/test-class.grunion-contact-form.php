@@ -765,10 +765,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	public function getFirstElement( $dom, $tag, $index = 0) {
 		$elements = $dom->getElementsByTagName( $tag );
-		if ( ! is_array( $elements ) ) {
-			return $elements->item( $index );
-		}
-		return $elements[ $index ];
+		return $elements->item( $index );
 	}
 
 	public function assertCommonValidHtml( $wrapperDiv, $attributes ) {
@@ -896,11 +893,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
-			$n       = is_array( $options ) ? count( $options ) : $options->length;
+			$n       = $options->length;
 			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
 			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$option = is_array( $options ) ? $options[ $i ] : $options->item( $i );
+				$option = $options->item( $i );
 				$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
 				if ( 0 === $i ) {
 					$this->assertEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is not selected' );
@@ -914,11 +911,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label', 'label class doesn\'t match' );
 			// Radio and Checkboxes.
 			$labels = $wrapper_div->getElementsByTagName( 'label' );
-			$n      = is_array( $labels ) ? count( $labels ) - 1 : $labels->length - 1;
+			$n      = $labels->length - 1;
 			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
 			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$item_label = is_array( $labels ) ? $labels[ $i + 1 ] : $labels->item( $i + 1 );
+				$item_label = $labels->item( $i + 1 );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $item_label->nodeValue, ' ' . $attributes['options'][ $i ] ); // extra space added for a padding.
 
