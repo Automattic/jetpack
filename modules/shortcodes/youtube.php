@@ -215,7 +215,7 @@ function youtube_id( $url ) {
 	if ( ! isset( $args['autohide'] ) || ( $args['autohide'] < 0 || 2 < $args['autohide'] ) ) {
 		$params['autohide'] = 2;
 	} else {
-		$params['autohide'] = absint( $args['autohide'] );
+		$params['autohide'] = (int) $args['autohide'];
 	}
 
 	$start = 0;
@@ -331,9 +331,9 @@ function youtube_id( $url ) {
 			$src
 		);
 
-		$layout = $is_amp ? ' layout="responsive" ' : '';
+		$layout = $is_amp ? 'layout="responsive" ' : '';
 
-		$html = "<iframe class='youtube-player' width='$w' height='$h' $layout src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
+		$html = "<iframe class='youtube-player' width='$w' height='$h' {$layout}src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed.
