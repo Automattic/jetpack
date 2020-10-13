@@ -45,7 +45,7 @@ class StoryEdit extends React.Component {
 
 		this.onStorySaveResult = this.onStorySaveResult.bind( this );
 
-		this.onMediaModelCreated = this.onMediaModelCreated.bind( this );
+		this.onMediaIdChanged = this.onMediaIdChanged.bind( this );
 
 		this.onStoryPressed = this.onStoryPressed.bind( this );
 
@@ -248,7 +248,7 @@ class StoryEdit extends React.Component {
 		this.setState( { isSaveInProgress: false, didSaveFail: ! payload.success } );
 	}
 
-	onMediaModelCreated( payload ) {
+	onMediaIdChanged( payload ) {
 		const { setAttributes } = this.props;
 		const updatedMediaFiles = this.replaceNewIdInMediaFilesByOldId(
 			payload.mediaId,
@@ -310,7 +310,7 @@ class StoryEdit extends React.Component {
 								onFinishMediaSaveWithFailure={ this.finishMediaSaveWithFailure }
 								onMediaSaveStateReset={ this.mediaSaveStateReset }
 								onFinalSaveResult={ this.onStorySaveResult }
-								onMediaModelCreated={ this.onMediaModelCreated }
+								onMediaIdChanged={ this.onMediaIdChanged }
 								renderContent={ ( {
 									isUploadInProgress,
 									isUploadFailed,
