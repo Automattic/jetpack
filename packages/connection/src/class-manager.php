@@ -2333,9 +2333,9 @@ class Manager {
 		if ( ! $valid_token ) {
 			if ( $user_id ) {
 				// translators: %d is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
 			} else {
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', __( 'Invalid blog token', 'jetpack' ) );
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack' ) );
 			}
 		}
 
