@@ -131,15 +131,34 @@
 }
 
 .jetpack-instant-search__overlay-close {
-    background: none;
-    border: none;
-    display: inline-block;
-    margin: 0;
-    text-decoration: none;
-    cursor: pointer;
-    appearance: none;
+	appearance: none;
+	background: none;
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: fixed;
+	top: 0;
+	right: 0;
+	z-index: 20;
+	width: 40px;
+	height: 40px;
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+	cursor: pointer;
+	text-decoration: none;
 
-    &:focus {
+	@include break-medium() {
+		position: absolute;
+		top: -$overlay-vertical-padding;
+		right: 8px;
+		width: 64px;
+		height: 64px;
+		padding: 20px;
+	}
+
+	&:focus {
     	outline: 1px dotted;
     }
 }
