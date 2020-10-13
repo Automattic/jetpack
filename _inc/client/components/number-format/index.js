@@ -11,7 +11,7 @@ import { __experimentalGetSettings } from '@wordpress/date';
  * @returns {string} Browser-formatted locale.
  */
 export const cleanLocale = locale => {
-	const regex = /^([a-z]{2,3})(_[a-zA-Z]*?)?(?:_.*)?$/i;
+	const regex = /^([a-z]{2,3})(_[a-z]{2}|_[a-z][a-z0-9]{4,7})?(?:_.*)?$/i;
 
 	// Search for the correct locale format:
 	// e.g. af, arq, fr_FR, pap_CW, de_DE_formal, art_xpirate

@@ -19,7 +19,8 @@ describe( 'cleanLocale', () => {
 		[ 'art_xemoji', 'art-xemoji' ],
 		[ 'pt_PT_ao90', 'pt-PT' ],
 		[ 'deDE', 'en-US' ],
-		[ 'foobarde_DE', 'en-US' ],
+		[ 'foobarde_DE', 'en-US' ], // Language should never be more than 3 chars long.
+		[ 'en_alotofchars', 'en' ], // region or variant tags should not be more than 8 chars.
 	];
 
 	testLocales.forEach( function ( testLocale ) {
