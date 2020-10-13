@@ -18,8 +18,8 @@ describe( 'cleanLocale', () => {
 		[ 'art_xpirate', 'art-xpirate' ],
 		[ 'art_xemoji', 'art-xemoji' ],
 		[ 'pt_PT_ao90', 'pt-PT' ],
-		[ 'enUS', 'en-US' ],
-		[ 'foobaren_US', 'en-US' ],
+		[ 'deDE', 'en-US' ],
+		[ 'foobarde_DE', 'en-US' ],
 	];
 
 	testLocales.forEach( function ( testLocale ) {
