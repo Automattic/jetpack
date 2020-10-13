@@ -18,7 +18,7 @@
 	},
 	"scripts": {
 		"watch": "yarn build && yarn gulp watch",
-		"clean": "yarn clean-client && yarn clean-extensions && yarn clean-composer",
+		"clean": "yarn concurrently 'yarn clean-client' 'yarn clean-extensions' 'yarn clean-composer'",
 		"clean-client": "rm -rf _inc/build/ css/",
 		"clean-composer": "rm -rf vendor/",
 		"clean-extensions": "rm -rf _inc/blocks/ ",
@@ -80,7 +80,7 @@
 		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='!(docker|node_modules|tests|tools|vendor){*.php,**/*.php}'",
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
-		"test-dangerci-and-adminpage-and-extensions-and-search": "yarn danger ci && yarn test-adminpage && yarn test-extensions && yarn test-search",
+		"test-dangerci-and-adminpage-and-extensions-and-search": "yarn concurrently 'yarn danger ci' 'yarn test-adminpage' 'yarn test-extensions' 'yarn test-search'",
 		"test-search": "jest modules/search",
 		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
 		"version-packages": "bash ./bin/version-packages.sh"
