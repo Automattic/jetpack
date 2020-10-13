@@ -79,6 +79,7 @@ module.exports = [
 	'modules/woocommerce-analytics.php',
 	'modules/wordads/',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
+	'modules/wpcom-block-editor/functions.classic-editor.php',
 	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',
 	'tests/e2e/plugins',
