@@ -247,7 +247,7 @@ function youtube_id( $url ) {
 		$params['end'] = (int) $args['end'];
 	}
 	if ( isset( $args['hd'] ) && intval( $args['hd'] ) ) {
-		$params['hd'] = (int) $args['hd']; // Now obseolete per https://developers.google.com/youtube/player_parameters#march-29,-2012.
+		$params['hd'] = (int) $args['hd']; // Now obsolete per https://developers.google.com/youtube/player_parameters#march-29,-2012.
 	}
 	if ( isset( $args['vq'] ) && in_array( $args['vq'], array( 'hd720', 'hd1080' ), true ) ) {
 		$params['vq'] = $args['vq']; // Note, this appears to be obsolete. Not referenced on https://developers.google.com/youtube/player_parameters.
