@@ -29,11 +29,11 @@ export const cleanLocale = locale => {
 };
 
 /**
- * Site locale, or browser locale as fallback.
+ * Current user locale, or browser locale as fallback.
  *
- * @returns {string} Formatted Site locale (e.g. `en-US` or `fr-FR`).
+ * @returns {string} Formatted user locale (e.g. `en-US` or `fr-FR`).
  */
-const getLocale = () => {
+const getUserLocale = () => {
 	const {
 		l10n: { locale },
 	} = __experimentalGetSettings();
@@ -49,14 +49,14 @@ const getLocale = () => {
 };
 
 /**
- * Format a number using the locale in use on the site.
+ * Format a number using the locale in use by the user viewing the page.
  *
  * @param {number} number - The number to format.
  *
  * @returns {string} Formatted number.
  */
 export const numberFormat = number => {
-	const locale = getLocale();
+	const locale = getUserLocale();
 
 	return new Intl.NumberFormat( locale ).format( number );
 };
