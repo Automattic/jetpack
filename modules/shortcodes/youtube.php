@@ -421,7 +421,7 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
  * @return string The AMP-compatible rendered shortcode.
  */
 function jetpack_amp_youtube_shortcode( $url ) {
-	_deprecated_function( __FUNCTION__, '9.0', 'youtube_id' );
+	_deprecated_function( __FUNCTION__, 'jetpack-9.1.0', 'youtube_id' );
 	$video_id = jetpack_get_youtube_id( $url );
 	if ( empty( $video_id ) ) {
 		return sprintf(
