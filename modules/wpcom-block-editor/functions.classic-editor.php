@@ -42,7 +42,7 @@ function remember_block_editor( $editor_settings, $post ) {
  * Sets the metadata for the specified post and editor.
  *
  * @param int    $post_id The ID of the post to set the metadata for.
- * @param string $editor  String name of the editor, 'classic' or 'gutenberg'.
+ * @param string $editor  String name of the editor, 'classic-editor' or 'block-editor'.
  */
 function remember_editor( $post_id, $editor ) {
 	if ( get_post_meta( $post_id, 'classic-editor-remember', true ) !== $editor ) {
