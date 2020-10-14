@@ -40,7 +40,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @var string Assets version.
 	 */
-	const ASSETS_VERSION = '1.0.0';
+	const ASSETS_VERSION = '1.0.1';
 
 	/**
 	 * Class instance.
@@ -485,9 +485,16 @@ class Jetpack_Lazy_Images {
 	 */
 	public function enqueue_assets() {
 		wp_enqueue_script(
+			'jetpack-lazy-images-polyfill-intersectionobserver',
+			Assets::get_file_url_for_environment( 'js/intersectionobserver-polyfill.min.js', 'js/intersectionobserver-polyfill.js', __FILE__ ),
+			array(),
+			self::ASSETS_VERSION,
+			true
+		);
+		wp_enqueue_script(
 			'jetpack-lazy-images',
 			Assets::get_file_url_for_environment( 'js/lazy-images.min.js', 'js/lazy-images.js', __FILE__ ),
-			array(),
+			array( 'jetpack-lazy-images-polyfill-intersectionobserver' ),
 			self::ASSETS_VERSION,
 			true
 		);
