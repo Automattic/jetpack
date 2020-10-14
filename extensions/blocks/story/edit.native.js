@@ -100,30 +100,6 @@ class StoryEdit extends React.Component {
 	onEditButtonTapped() {
 		const { attributes, clientId } = this.props;
 
-		// TODO review states and dialog mechanism
-
-		// if ( this.state.isUploadInProgress ) {
-		// 	requestImageUploadCancelDialog( attributes.id );
-		// } else if (
-		// 	attributes.id &&
-		// 	getProtocol( attributes.src ) === 'file:'
-		// ) {
-		// 	requestImageFailedRetryDialog( attributes.id );
-		// }
-
-		// this.setState( {
-		// 	isCaptionSelected: false,
-		// } );
-
-		// TODO decide which course of action to take depending on current state for this Story block
-		// if ( isUploadInProgress ) {
-		// 	requestImageUploadCancelDialog( id );
-		// } else if ( shouldShowFailure ) {
-		// 	requestImageFailedRetryDialog( id );
-		// } else if ( isImage && url ) {
-		// 	requestImageFullscreenPreview( url );
-		// }
-		// requestMediaFilesEditorLoad( id );
 		// let's open the Story Creator and load this block in there
 		requestMediaFilesEditorLoad( attributes.mediaFiles, clientId );
 	}
