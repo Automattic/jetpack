@@ -6,8 +6,7 @@ import { waitAndClick } from '../../page-helper';
 
 export default class PickAPlanPage extends Page {
 	constructor( page ) {
-		// const expectedSelector = '.plan-features__table button.is-premium-plan:not([disabled])';
-		const expectedSelector = '.plans-v2__columns .jetpack-product-card__price';
+		const expectedSelector = '.jetpack-product-card-alt .jetpack-product-card-alt__raw-price';
 		super( page, { expectedSelector } );
 	}
 
