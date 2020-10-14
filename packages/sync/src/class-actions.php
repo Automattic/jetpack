@@ -691,12 +691,11 @@ class Actions {
 		 * @param string $hook
 		 * @param string $schedule
 		 */
-		return (int)
-			apply_filters(
-				'jetpack_sync_cron_start_time_offset',
-				$start_time_offset,
-				$hook,
-				$schedule
+		return (int) apply_filters(
+			'jetpack_sync_cron_start_time_offset',
+			$start_time_offset,
+			$hook,
+			$schedule
 			);
 	}
 
