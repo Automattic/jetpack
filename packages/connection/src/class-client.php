@@ -419,6 +419,14 @@ class Client {
 	) {
 		$validated_args            = self::validate_args_for_wpcom_json_api_request( $path, $version, $args, $base_api_path );
 		$validated_args['blog_id'] = (int) \Jetpack_Options::get_option( 'id' );
+
+		// For Simple sites get the response directly without any HTTP requests.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_filter( 'is_jetpack_authorized_for_site', '__return_true' );
+			require_lib( 'wpcom-api-direct' );
+			return \WPCOM_API_Direct::do_request( $validated_args );
+		}
+
 		return self::remote_request( $validated_args, $body );
 	}
 
