@@ -23,22 +23,23 @@ export default class PickAPlanPage extends Page {
 	}
 
 	async selectFreePlan() {
-		const freePlanButton = 'a.jetpack-free-card__button';
+		const freePlanButton = '.jetpack-free-card-alt__main a';
 		return await waitAndClick( this.page, freePlanButton );
 	}
 
 	async selectComplete() {
-		const buttonSelector = 'div[data-icon="jetpack_complete_v2"] .jetpack-product-card__button';
+		const buttonSelector = 'div[data-icon="jetpack_complete_v2"] .jetpack-product-card-alt__button';
+		// [data-icon="jetpack_complete_v2"] .jetpack-product-card-alt__button
 		return await waitAndClick( this.page, buttonSelector );
 	}
 
 	async selectSecurity( type ) {
-		const buttonSelector = 'div[data-icon="jetpack_security_v2"] .jetpack-product-card__button';
+		const buttonSelector = 'div[data-icon="jetpack_security_v2"] .jetpack-product-card-alt__button';
 		await waitAndClick( this.page, buttonSelector );
 
 		// We actually redirecting to new view, so lets wait for a expected selector here.
 		await this.waitForPage();
-		const securityTypeSelector = `[data-icon="jetpack_security_${ type }_v2"] .jetpack-product-card__button`;
+		const securityTypeSelector = `[data-icon="jetpack_security_${ type }_v2"] .jetpack-product-card-alt__button`;
 		return await waitAndClick( this.page, securityTypeSelector );
 	}
 }
