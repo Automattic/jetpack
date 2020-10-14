@@ -989,7 +989,7 @@ class Manager {
 			$registration_response = false;
 		}
 
-		$code_type = (int) ($code / 100);
+		$code_type = (int) ( $code / 100 );
 		if ( 5 === $code_type ) {
 			return new \WP_Error( 'wpcom_5??', $code );
 		} elseif ( 408 === $code ) {
