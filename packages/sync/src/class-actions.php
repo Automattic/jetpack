@@ -696,7 +696,7 @@ class Actions {
 			$start_time_offset,
 			$hook,
 			$schedule
-			);
+		);
 	}
 
 	/**
