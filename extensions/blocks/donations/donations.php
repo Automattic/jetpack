@@ -50,45 +50,6 @@ function render_block( $attr, $content ) {
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 	add_thickbox();
 
-	$donations = array();
-	foreach (
-		array(
-			'one-time' => $attr['oneTimeDonation'],
-			'monthly'  => $attr['monthlyDonation'],
-			'annual'   => $attr['annualDonation'],
-		) as $interval => $donation
-	) {
-		if ( ! $donation['show'] ) {
-			continue;
-		}
-		$donations[ $interval ] = $donation;
-	}
-
-	/*
-	$tabs = '';
-	if ( count( $donations ) > 1 ) {
-		$tabs .= '<div className="donations__nav">';
-		foreach ( $donations as $interval => $donation ) {
-			$tabs .= '<div role="button" tabIndex={ 0 } className="donations__nav-item" data-interval="' . $interval . '">' . $interval . '</div>
-		}
-		$tabs .= '</div>';
-	}
-	*/
-
-	foreach ( $donations as $interval => $donation ) {
-		if ( ! $donation['show'] ) {
-			continue;
-		}
-		$plan_id = (int) $donation['planId'];
-		$plan    = get_post( $plan_id );
-		if ( ! $plan || is_wp_error( $plan ) ) {
-			continue;
-		}
-
-		$url     = \Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id );
-		$content = preg_replace( '/(donations__donate-button donations__' . $interval . '-item")/i', '$1 href="' . esc_url( $url ) . '"', $content );
-	}
-
 	return $content;
 }
 

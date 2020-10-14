@@ -15,7 +15,7 @@ import fetchStatus from './fetch-status';
 
 const Edit = props => {
 	const { attributes, className, setAttributes } = props;
-	const { currency, fallbackLinkText } = attributes;
+	const { currency } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
@@ -24,13 +24,8 @@ const Edit = props => {
 
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
 	useEffect( () => {
-		setAttributes( {
-			fallbackLinkUrl: post.link,
-			...( ! fallbackLinkText && {
-				fallbackLinkText: __( 'Click here to donate.', 'jetpack' ),
-			} ),
-		} );
-	}, [ post.link, fallbackLinkText, setAttributes ] );
+		setAttributes( { fallbackLinkUrl: post.link } );
+	}, [ post.link, setAttributes ] );
 
 	const apiError = message => {
 		setLoadingError( message );

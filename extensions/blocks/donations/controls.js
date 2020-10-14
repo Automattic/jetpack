@@ -115,22 +115,6 @@ const Controls = props => {
 						onChange={ value => setAttributes( { showCustomAmount: value } ) }
 						label={ __( 'Show custom amount option', 'jetpack' ) }
 					/>
-					<BaseControl
-						label={ __( 'Fallback link text', 'jetpack' ) }
-						help={ __(
-							'Enter the text you want to display on a link used as fallback when the block cannot be rendered (e.g. emails, AMP, etc.)',
-							'jetpack'
-						) }
-						className="jetpack-donations-fallback-link-text"
-					>
-						<TextControl
-							placeholder={ __( 'Click here to purchase', 'jetpack' ) }
-							onChange={ newFallbackLinkText =>
-								this.props.setAttributes( { fallbackLinkText: newFallbackLinkText } )
-							}
-							value={ this.props.attributes.fallbackLinkText }
-						/>
-					</BaseControl>
 					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
 						{ __( 'View donation earnings', 'jetpack' ) }
 					</ExternalLink>

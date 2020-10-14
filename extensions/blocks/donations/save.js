@@ -4,38 +4,54 @@
 import { RichText } from '@wordpress/block-editor';
 
 const Save = ( { attributes } ) => {
-	const {
-		fallbackLinkUrl,
-		fallbackLinkText,
-		oneTimeDonation,
-		monthlyDonation,
-		annualDonation,
-	} = attributes;
+	const { fallbackLinkUrl, oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 
 	if ( ! oneTimeDonation || ! oneTimeDonation.show || oneTimeDonation.planId === -1 ) {
 		return null;
 	}
 
-	const isOneTimeOnly = ! monthlyDonation.show && ! annualDonation.show;
-
 	return (
 		<div>
-			<div className="donations__container">
-				{ isOneTimeOnly && (
-					<>
-						<RichText.Content tagName="h4" value={ oneTimeDonation.heading } />
-						<RichText.Content tagName="p" value={ oneTimeDonation.extraText } />
-					</>
-				) }
-				<a
-					className="jetpack-donations-fallback-link"
-					href={ fallbackLinkUrl }
-					target="_blank"
-					rel="noopener noreferrer noamphtml"
-				>
-					{ fallbackLinkText }
-				</a>
-			</div>
+			<RichText.Content tagName="h4" value={ oneTimeDonation.heading } />
+			<RichText.Content tagName="p" value={ oneTimeDonation.extraText } />
+			<RichText.Content
+				tagName="a"
+				className="jetpack-donations-fallback-link"
+				href={ fallbackLinkUrl }
+				rel="noopener noreferrer noamphtml"
+				target="_blank"
+				value={ oneTimeDonation.buttonText }
+			/>
+			{ monthlyDonation.show && (
+				<>
+					<hr className="donations__separator" />
+					<RichText.Content tagName="h4" value={ monthlyDonation.heading } />
+					<RichText.Content tagName="p" value={ monthlyDonation.extraText } />
+					<RichText.Content
+						tagName="a"
+						className="jetpack-donations-fallback-link"
+						href={ fallbackLinkUrl }
+						rel="noopener noreferrer noamphtml"
+						target="_blank"
+						value={ monthlyDonation.buttonText }
+					/>
+				</>
+			) }
+			{ annualDonation.show && (
+				<>
+					<hr className="donations__separator" />
+					<RichText.Content tagName="h4" value={ annualDonation.heading } />
+					<RichText.Content tagName="p" value={ annualDonation.extraText } />
+					<RichText.Content
+						tagName="a"
+						className="jetpack-donations-fallback-link"
+						href={ fallbackLinkUrl }
+						rel="noopener noreferrer noamphtml"
+						target="_blank"
+						value={ annualDonation.buttonText }
+					/>
+				</>
+			) }
 		</div>
 	);
 };

@@ -59,10 +59,4 @@ export default {
 		selector: '.jetpack-donations-fallback-link',
 		attribute: 'href',
 	},
-	fallbackLinkText: {
-		type: 'string',
-		source: 'html',
-		selector: '.jetpack-donations-fallback-link',
-		default: __( 'Click here to donate.', 'jetpack' ),
-	},
 };
