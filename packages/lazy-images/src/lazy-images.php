@@ -40,7 +40,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @var string Assets version.
 	 */
-	const ASSETS_VERSION = '1.0.1';
+	const ASSETS_VERSION = '1.1.0';
 
 	/**
 	 * Class instance.
@@ -497,6 +497,13 @@ class Jetpack_Lazy_Images {
 			array( 'jetpack-lazy-images-polyfill-intersectionobserver' ),
 			self::ASSETS_VERSION,
 			true
+		);
+		wp_localize_script(
+			'jetpack-lazy-images',
+			'objectL10n',
+			array(
+				'loading_warning' => __( 'Images are still loading. Please cancel your print and try again.', 'jetpack' ),
+			)
 		);
 	}
 }
