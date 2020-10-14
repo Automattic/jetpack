@@ -5,9 +5,13 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { forEach, get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { numberFormat, moment } from 'i18n-calypso';
+import { numberFormat } from 'i18n-calypso';
+
+/**
+ * WordPress dependencies
+ */
 import { __, sprintf } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
 
 /**
  * Internal dependencies
@@ -17,9 +21,10 @@ import Button from 'components/button';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import DashSectionHeader from 'components/dash-section-header';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import DashStatsBottom from './dash-stats-bottom';
 import { emptyStatsCardDismissed } from 'state/settings';
-import { getInitialStateStatsData } from 'state/initial-state';
+import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { imagePath } from 'constants/urls';
@@ -58,6 +63,15 @@ export class DashStats extends Component {
 
 		let totalViews = 0;
 
+		/* translators: short date format, such as: Jan 12. */
+		const shortMonthFormat = __( 'M j', 'jetpack' );
+
+		/* translators: long date format, such as: January 12th. */
+		const longMonthFormat = __( 'F jS', 'jetpack' );
+
+		/* translators: long month/year format, such as: January, 2021. */
+		const longMonthYearFormat = __( 'F Y', 'jetpack' );
+
 		if ( 'object' !== typeof props.statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };
 		}
@@ -72,19 +86,19 @@ export class DashStats extends Component {
 			totalViews += views;
 
 			if ( 'day' === unit ) {
-				chartLabel = moment( date ).format( 'MMM D' );
-				tooltipLabel = moment( date ).format( 'MMMM Do' );
+				chartLabel = dateI18n( shortMonthFormat, date );
+				tooltipLabel = dateI18n( longMonthFormat, date );
 			} else if ( 'week' === unit ) {
 				date = date.replace( /W/g, '-' );
-				chartLabel = moment( date ).format( 'MMM D' );
+				chartLabel = dateI18n( shortMonthFormat, date );
 				tooltipLabel = sprintf(
 					/* translators: placeholder is a date. */
 					__( 'Week of %s', 'jetpack' ),
-					moment( date ).format( 'MMMM Do' )
+					dateI18n( longMonthFormat, date )
 				);
 			} else if ( 'month' === unit ) {
-				chartLabel = moment( date ).format( 'MMM' );
-				tooltipLabel = moment( date ).format( 'MMMM, YYYY' );
+				chartLabel = dateI18n( 'M', date );
+				tooltipLabel = dateI18n( longMonthYearFormat, date );
 			}
 
 			s.push( {
@@ -139,6 +153,7 @@ export class DashStats extends Component {
 						siteAdminUrl={ this.props.siteAdminUrl }
 						isLinked={ this.props.isLinked }
 						connectUrl={ this.props.connectUrl }
+						dateFormat={ this.props.dateFormat }
 					/>
 				</div>
 			</div>
@@ -358,6 +373,7 @@ export default connect(
 	state => ( {
 		isModuleAvailable: isModuleAvailable( state, 'stats' ),
 		activeTab: getActiveStatsTab( state ),
+		dateFormat: getDateFormat( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isLinked: isCurrentUserLinked( state ),
 		connectUrl: getConnectUrl( state ),

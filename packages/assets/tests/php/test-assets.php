@@ -159,15 +159,15 @@ class AssetsTest extends TestCase {
 	public function get_file_url_for_environment_data_provider() {
 		return array(
 			'script-debug-true'  => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				true,
 				'non_min_path',
 				'min_path',
 			),
 			'script-debug-false' => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				false,
 				'min_path',
 				'non_min_path',

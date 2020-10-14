@@ -1889,6 +1889,49 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that embeds which would make the tweet to long start a new tweet.
+	 */
+	public function test_embed_after_long_text_starts_new_tweet() {
+		$test_content = trim( str_repeat( 'a. ', 90 ) );
+		$test_url     = 'https://jetpack.com';
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+			$this->generateCoreEmbedData( 'wordpress', $test_url, false ),
+			$this->generateParagraphData( $test_content ),
+			$this->generateCoreEmbedData( 'wordpress', $test_url, true ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => $test_content,
+			),
+			array(
+				'text' => $test_url,
+				'urls' => array( $test_url ),
+			),
+			array(
+				'text' => $test_content,
+			),
+			array(
+				'text' => $test_url,
+				'urls' => array( $test_url ),
+			),
+		);
+
+		$expected_boundaries = array( false, false, false, false );
+
+		$expected_blocks = array(
+			array( $blocks[0] ),
+			array( $blocks[1] ),
+			array( $blocks[2] ),
+			array( $blocks[3] ),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
+	}
+
+	/**
 	 * Test that Jetpack GIF embeds will be appended as URLs, with the URL re-written correctly.
 	 */
 	public function test_jetpack_gif_is_appended() {
@@ -1961,7 +2004,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public function test_links_handled() {
 		$test_urls = array(
 			'https://jetpack.com',
-			'https://wordpress.org/',
+			'https://WordPress.org/',
 			'https://jetpack.com',
 		);
 
@@ -1976,6 +2019,41 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			array(
 				'text' => $expected_text,
 				'urls' => $test_urls,
+			),
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_content, array( false ), array( $blocks ) );
+	}
+
+	/**
+	 * Test that unsupported URL formats in links are ignored.
+	 */
+	public function test_invalid_links_ignored() {
+		$test_urls = array(
+			'aaa' => 'mailto:foo@bar.com',
+			'bbb' => 'ftp://foo.com',
+		);
+
+		$test_content = implode(
+			' ',
+			array_map(
+				function ( $text, $url ) {
+					return "<a href='$url'>$text</a>";
+				},
+				array_keys( $test_urls ),
+				array_values( $test_urls )
+			)
+		);
+
+		$expected_text = trim( implode( ' ', array_keys( $test_urls ) ) );
+
+		$blocks = array(
+			$this->generateParagraphData( $test_content ),
+		);
+
+		$expected_content = array(
+			array(
+				'text' => $expected_text,
 			),
 		);
 
@@ -2047,7 +2125,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	/**
 	 * Test that URLs appearing in long and varied lists are counted correctly.
 	 */
-	public function test_many_urls_in_diferent_list_items() {
+	public function test_many_urls_in_different_list_items() {
 		$test_url = 'https://jetpack.com/';
 
 		$test_content  = "This is <a href='$test_url'>some text</a> for testing. ";
@@ -2151,25 +2229,28 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * that have been typed into text (but aren't necessarily linked) are counted correctly.
 	 */
 	public function test_text_urls_are_counted_correctly() {
-		$test_content = 'https://jetpack.com ';
+		$test_content = 'https://jetpack.com https://Jetpack.com jetpack.com ';
 
 		$blocks = array(
-			$this->generateParagraphData( trim( str_repeat( $test_content, 12 ) ) ),
+			$this->generateParagraphData( trim( str_repeat( $test_content, 4 ) ) ),
 		);
 
 		$expected_content = array(
 			array(
-				'text' => trim( str_repeat( $test_content, 11 ) ) . '…',
-				'urls' => array_fill( 0, 11, trim( $test_content ) ),
+				'text' => trim( str_repeat( $test_content, 3 ) ) . ' https://jetpack.com https://Jetpack.com…',
+				'urls' => array_merge(
+					array_merge( ...array_fill( 0, 3, array( 'https://jetpack.com', 'https://Jetpack.com', 'jetpack.com' ) ) ),
+					array( 'https://jetpack.com', 'https://Jetpack.com' )
+				),
 			),
 			array(
-				'text' => '…' . trim( $test_content ),
-				'urls' => array( trim( $test_content ) ),
+				'text' => '…jetpack.com',
+				'urls' => array( 'jetpack.com' ),
 			),
 		);
 
 		$expected_boundaries = array(
-			$this->generateNormalBoundary( 219, 220, 'content' ),
+			$this->generateNormalBoundary( 195, 196, 'content' ),
 			false,
 		);
 
@@ -2185,8 +2266,12 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * If the text of the link is the same as the href, we should only include one in the tweet.
 	 */
 	public function test_text_urls_inside_links_are_deduplicated() {
-		$test_url     = 'https://jetpack.com';
-		$test_content = "Visiting <a href='$test_url'>$test_url</a> is good for your soul.";
+		$test_urls = array(
+			'https://jetpack.com',
+			'https://wordpress.org/',
+		);
+
+		$test_content = "Visiting <a href='$test_urls[0]'>$test_urls[0]</a> is good, so is visiting <a href='$test_urls[1]'>WordPress.org</a>.";
 
 		$blocks = array(
 			$this->generateParagraphData( $test_content ),
@@ -2194,8 +2279,11 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$expected_content = array(
 			array(
-				'text' => "Visiting $test_url is good for your soul.",
-				'urls' => array( $test_url ),
+				'text' => "Visiting $test_urls[0] is good, so is visiting WordPress.org.",
+				'urls' => array(
+					$test_urls[0],
+					'WordPress.org',
+				),
 			),
 		);
 

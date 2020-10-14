@@ -116,11 +116,7 @@ function load_assets( $attr, $content ) {
 				esc_attr( $block_id )
 			);
 			$script  = <<<JS_END
-Calendly.initInlineWidget({
-	url: '%s',
-	parentElement: document.getElementById('%s'),
-	inlineStyles: false,
-});
+jetpackInitCalendly( '%s', '%s' );
 JS_END;
 			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 		}
@@ -173,7 +169,25 @@ function enqueue_calendly_js() {
 
 	wp_add_inline_script(
 		'jetpack-calendly-external-js',
-		"function calendly_attach_link_events( elementId ) {
+		"function jetpackInitCalendly( url, elementId ) {
+			function initCalendlyWidget() {
+				Calendly.initInlineWidget({
+					url: url,
+					parentElement: document.getElementById( elementId ),
+					inlineStyles: false,
+				});
+			};
+			// For P2s only: wait until after o2 has
+			// replaced main#content to initialize widget.
+			if ( window.jQuery && window.o2 ) {
+				jQuery( 'body' ).on( 'ready.o2', function() { initCalendlyWidget() } );
+			// Else initialize widget without waiting.
+			} else {
+				initCalendlyWidget();
+			}
+		};
+
+		function calendly_attach_link_events( elementId ) {
 			var widget = document.getElementById( elementId );
 			if ( widget ) {
 				widget.addEventListener( 'click', function( event ) {
