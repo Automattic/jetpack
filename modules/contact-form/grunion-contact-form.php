@@ -1700,7 +1700,74 @@ class Grunion_Contact_Form_Plugin {
 	public static function get_ip_address() {
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
 	}
-}
+
+	/**
+	 * Uses a feedback post to reproduce the original form's fields.
+	 *
+	 * @param int   $feedback_post_id The id of the feedback post.
+	 * @param int   $form_post_id The id of the form post.
+	 * @param array $akismet_values The array of Akismet data.
+	 *
+	 * @return array|false An array containing the form's fields. False if the form fields
+	 *                     could not be reproduced.
+	 */
+	public static function convert_feedback_to_form_fields( $feedback_post_id, $form_post_id, $akismet_values ) {
+		$form_hash   = self::get_feedback_post_form_hash( $feedback_post_id, $akismet_values );
+		$form_fields = get_post_meta( $form_post_id, '_g_feedback_shortcode_' . $form_hash );
+		$form_attrs  = get_post_meta( $form_post_id, '_g_feedback_shortcode_atts_' . $form_hash );
+
+		if ( ! $form_hash || ! $form_fields || ! $form_attrs ) {
+			return false;
+		}
+
+		$form = new Grunion_Contact_Form( $form_attrs[0], $form_fields[0] );
+
+		$parsed_feedback_fields = self::parse_fields_from_content( $feedback_post_id )['_feedback_all_fields'];
+
+		$field_ids = $form->get_field_ids()['all'];
+
+		$i = 1;
+		foreach ( $field_ids as $field_id ) {
+			$field = $form->fields[ $field_id ];
+			$label = $i . '_' . $field->get_attribute( 'label' );
+
+			if ( isset( $parsed_feedback_fields[ $label ] ) ) {
+				$field->value = $parsed_feedback_fields[ $label ];
+			}
+			$i++;
+		}
+		return $form->fields;
+	}
+
+	/**
+	 * Obtains the contact form hash value for a feedback post.
+	 *
+	 * @param int   $feedback_post_id The post id of the feedback post.
+	 * @param array $akismet_values The Akismet data values.
+	 *
+	 * @return string|false Returns the contact form hash value as a string. If the hash isn't availabe, returns false.
+	 */
+	private static function get_feedback_post_form_hash( $feedback_post_id, $akismet_values ) {
+		$form_hash_from_meta = get_post_meta( $feedback_post_id, '_contact_form_shortcode_hash', true );
+
+		if ( $form_hash_from_meta ) {
+			return $form_hash_from_meta;
+		}
+
+		/*
+		 * Older feedback posts won't have the form hash meta data, so try to get the form hash
+		 * from the Akismet referrer url.
+		 */
+		if ( ! is_array( $akismet_values ) || ! isset( $akismet_values['referrer'] ) ) {
+			return false;
+		}
+
+		wp_parse_str( wp_parse_url( $akismet_values['referrer'], PHP_URL_QUERY ), $query );
+		$form_hash = isset( $query['contact-form-hash'] ) ? $query['contact-form-hash'] : false;
+		return $form_hash;
+	}
+
+} // End Grunion_Contact_Form_Plugin class.
 
 /**
  * Generic shortcode class.
@@ -2915,6 +2982,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+		update_post_meta( $post_id, '_contact_form_shortcode_hash', $this->hash );
 
 		if ( 'publish' == $feedback_status ) {
 			// Increase count of unread feedback.
@@ -2927,11 +2995,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		/**
-		 * Fires after the feedback post for the contact form submission has been inserted.
+		 * Fires after the feedback post for the contact form submission has been inserted into the feedback messages.
+		 * Also fires after the user marks the feedback as 'Not Spam'.
 		 *
 		 * @module contact-form
 		 *
 		 * @since 8.6.0
+		 * @since 9.2.0 Also fires after the feedback has been marked as "Not Spam".
 		 *
 		 * @param integer $post_id The post id that contains the contact form data.
 		 * @param array   $this->fields An array containg the form's Grunion_Contact_Form_Field objects.

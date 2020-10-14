@@ -1545,4 +1545,178 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
 		$this->assertSame( 0, count( $posts ), 'posts count matches after deleting the other feedback responder' );
 	}
+
+	/**
+	 * Tests the Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields method in the following environment:
+	 *    - The form hash is in the feedback post '_contact_form_shortcode_hash' meta data.
+	 *    - The form fields are in the form post meta data.
+	 *    - The form attributes are in the form post meta data.
+	 *
+	 * Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields should return an array containing the form's fields.
+	 */
+	public function test_convert_feedback_to_form_fields_hash_in_meta_success() {
+		global $post;
+		$post = null;
+
+		list( $feedback_post_id, $form_post_id, $form_attrs, $form_fields, $form ) = $this->create_posts_for_convert_feedback_tests();
+
+		add_post_meta( $feedback_post_id, '_contact_form_shortcode_hash', $form->hash );
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_' . $form->hash, $form_fields );
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_atts_' . $form->hash, $form_attrs );
+
+		$this->assertEquals(
+			$form->fields,
+			Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields( $feedback_post_id, $form_post_id, array() )
+		);
+	}
+
+	/**
+	 * Tests the Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields method in the following environment:
+	 *    - The form hash is in the feedback post '_feedback_akismet_values' meta data.
+	 *    - The form fields are in the form post meta data.
+	 *    - The form attributes are in the form post meta data.
+	 *
+	 * Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields should return an array containing the form's fields.
+	 */
+	public function test_convert_feedback_to_form_fields_hash_in_akismet_success() {
+		global $post;
+		$post = null;
+
+		list( $feedback_post_id, $form_post_id, $form_attrs, $form_fields, $form ) = $this->create_posts_for_convert_feedback_tests();
+
+		$akismet_values = array(
+			'referrer' => 'https://example.com/test_contact_form/?contact-form-hash=' . $form->hash,
+		);
+
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_' . $form->hash, $form_fields );
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_atts_' . $form->hash, $form_attrs );
+
+		$this->assertEquals(
+			$form->fields,
+			Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields( $feedback_post_id, $form_post_id, $akismet_values )
+		);
+	}
+
+	/**
+	 * Tests the Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields method in the following environment:
+	 *    - The form hash not available in the feedback post's meta data.
+	 *    - The form fields are in the form post meta data.
+	 *    - The form attributes are in the form post meta data.
+	 *
+	 * Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields should return false.
+	 */
+	public function test_convert_feedback_to_form_fields_missing_form_hash() {
+		global $post;
+		$post = null;
+
+		list( $feedback_post_id, $form_post_id, $form_attrs, $form_fields, $form ) = $this->create_posts_for_convert_feedback_tests();
+
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_' . $form->hash, $form_fields );
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_atts_' . $form->hash, $form_attrs );
+
+		$this->assertFalse( Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields( $feedback_post_id, $form_post_id, array() ) );
+	}
+
+	/**
+	 * Tests the Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields method in the following environment:
+	 *    - The form hash not available in the feedback post's meta data.
+	 *    - The form fields are not in the form post meta data.
+	 *    - The form attributes are in the form post meta data.
+	 *
+	 * Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields should return false.
+	 */
+	public function test_convert_feedback_to_form_fields_missing_form_fields() {
+		global $post;
+		$post = null;
+
+		list( $feedback_post_id, $form_post_id, $form_attrs, , $form ) = $this->create_posts_for_convert_feedback_tests();
+
+		add_post_meta( $feedback_post_id, '_contact_form_shortcode_hash', $form->hash );
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_atts_' . $form->hash, $form_attrs );
+
+		$this->assertFalse( Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields( $feedback_post_id, $form_post_id, array() ) );
+	}
+
+	/**
+	 * Tests the Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields method in the following environment:
+	 *    - The form hash not available in the feedback post's meta data.
+	 *    - The form fields are in the form post meta data.
+	 *    - The form attributes are not in the form post meta data.
+	 *
+	 * Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields should return false.
+	 */
+	public function test_convert_feedback_to_form_fields_missing_form_attrs() {
+		global $post;
+		$post = null;
+
+		list( $feedback_post_id, $form_post_id, , $form_fields, $form ) = $this->create_posts_for_convert_feedback_tests();
+
+		add_post_meta( $feedback_post_id, '_contact_form_shortcode_hash', $form->hash );
+		add_post_meta( $form_post_id, '_g_feedback_shortcode_' . $form->hash, $form_fields );
+
+		$this->assertFalse( Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields( $feedback_post_id, $form_post_id, array() ) );
+	}
+
+	/**
+	 * Creates a test feedback post and a test contact form post for the 'test_convert_feedback_to_form_fields_' tests.
+	 */
+	private function create_posts_for_convert_feedback_tests() {
+		$feedback_post_id = $this->factory->post->create(
+			array(
+				'post_content' => 'test message.
+					<!--more-->
+					AUTHOR: test name
+					AUTHOR EMAIL: test@example.com
+					AUTHOR URL:
+					SUBJECT: test subject line
+					IP: 127.0.0.1
+					Array
+					(
+						[1_Name] => Test Name
+						[2_Email] => test@example.com
+						[3_Message] => Test Message.
+						[email_marketing_consent] =>
+						[entry_title] => Test Contact Form
+						[entry_permalink] => https://example.com/test_contact_form/
+						[feedback_id] => 123456789abcdef
+					)',
+			)
+		);
+
+		$form_post_id = $this->factory->post->create();
+
+		$form_attrs = array(
+			'to'                     => 'test@example.com',
+			'subject'                => 'test subject line',
+			'show_subject'           => 'no',
+			'widget'                 => 0,
+			'id'                     => $form_post_id,
+			'submit_button_text'     => 'Submit',
+			'customThankyou'         => '',
+			'customThankyouMessage'  => 'Thank you for your submission!',
+			'customThankyouRedirect' => '',
+			'jetpackCRM'             => 1,
+		);
+
+		$form_fields = '[contact-field required="1" type="name" label="Name"/]
+				[contact-field required="1" type="email" label="Email"/]
+				[contact-field type="textarea" label="Message"/]
+				[contact-field type="textarea" label="Test Label"/]
+				<div class="wp-block-jetpack-button"><button class="wp-block-button__link" style="" data-id-attr="placeholder" type="submit">Contact Us</button></div>';
+
+		// Create the test form and add the expected field values to match the feedback post.
+		Grunion_Contact_Form_Plugin::init();
+		$form = new Grunion_Contact_Form( $form_attrs, $form_fields );
+		$form->fields[ 'g' . $form_post_id . '-name' ]->value    = 'Test Name';
+		$form->fields[ 'g' . $form_post_id . '-email' ]->value   = 'test@example.com';
+		$form->fields[ 'g' . $form_post_id . '-message' ]->value = 'Test Message.';
+
+		// Clear out the exisitng post meta.
+		delete_post_meta( $feedback_post_id, '_contact_form_shortcode_hash' );
+		delete_post_meta( $form_post_id, '_g_feedback_shortcode_' . $form->hash );
+		delete_post_meta( $form_post_id, '_g_feedback_shortcode_atts_' . $form->hash );
+
+		return array( $feedback_post_id, $form_post_id, $form_attrs, $form_fields, $form );
+	}
+
 } // end class

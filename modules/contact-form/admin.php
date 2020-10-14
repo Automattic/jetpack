@@ -613,6 +613,7 @@ function grunion_ajax_spam() {
 	$post             = get_post( $post_id );
 	$post_type_object = get_post_type_object( $post->post_type );
 	$akismet_values   = get_post_meta( $post_id, '_feedback_akismet_values', true );
+
 	if ( $_POST['make_it'] == 'spam' ) {
 		$post->post_status = 'spam';
 		$status            = wp_insert_post( $post );
@@ -634,6 +635,16 @@ function grunion_ajax_spam() {
 		// resend the original email
 		$email          = get_post_meta( $post_id, '_feedback_email', true );
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		$keys         = array( 'entry_title', 'entry_permalink', 'feedback_id' );
+		$entry_values = array_intersect_key( $content_fields['_feedback_all_fields'], array_flip( $keys ) );
+		$form_post_id = url_to_postid( $entry_values['entry_permalink'] );
+
+		$form_fields = Grunion_Contact_Form_Plugin::convert_feedback_to_form_fields( $post_id, $form_post_id, $akismet_values );
+		if ( $form_fields ) {
+			/** This action is already documented in modules/contact-form/grunion-contact-form.php */
+			do_action( 'grunion_after_feedback_post_inserted', $form_post_id, $form_fields, false, $entry_values );
+		}
 
 		if ( ! empty( $email ) && ! empty( $content_fields ) ) {
 			if ( isset( $content_fields['_feedback_author_email'] ) ) {
@@ -677,7 +688,6 @@ function grunion_ajax_spam() {
 			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
 			 */
 			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
-
 			Grunion_Contact_Form::wp_mail( $to, $subject, $message, $headers );
 		}
 	} elseif ( $_POST['make_it'] == 'publish' ) {
