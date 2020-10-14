@@ -3,6 +3,7 @@
  */
 import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { media } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -59,7 +60,7 @@ function MediaButtonMenu( props ) {
 				renderContent={ () => (
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
-							<MenuItem icon="admin-media" onClick={ open }>
+							<MenuItem icon={ media } onClick={ open }>
 								{ __( 'Media Library', 'jetpack' ) }
 							</MenuItem>
 

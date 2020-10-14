@@ -34,6 +34,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 		'external-media/replace-media-upload',
 		OriginalComponent => props => {
 			const allowedBlocks = [
+				'core/cover',
 				'core/image',
 				'core/gallery',
 				'core/media-text',

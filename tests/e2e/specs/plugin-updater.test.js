@@ -12,6 +12,9 @@ import {
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 
+// Disable pre-connect for this test suite
+process.env.SKIP_CONNECT = true;
+
 describe( 'Jetpack updater', () => {
 	catchBeforeAll( async () => {
 		await prepareUpdaterTest();

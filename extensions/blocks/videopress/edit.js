@@ -33,6 +33,7 @@ import { get } from 'lodash';
  */
 import Loading from './loading';
 import { getVideoPressUrl } from './url';
+import { getClassNames } from './utils';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -295,6 +296,11 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			const { html, scripts } = preview;
+			const sandboxClassnames = getClassNames(
+				html,
+				classnames( className, 'wp-block-embed', 'is-type-video' ),
+				true
+			);
 
 			// Disabled because the overlay div doesn't actually have a role or functionality
 			// as far as the user is concerned. We're just catching the first click so that
@@ -303,11 +309,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper
-						className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }
-					>
+					<BlockFigureWrapper className={ sandboxClassnames }>
 						<div className="wp-block-embed__wrapper">
-							<SandBox html={ html } scripts={ scripts } />
+							<SandBox html={ html } scripts={ scripts } type={ sandboxClassnames } />
 						</div>
 
 						{

@@ -23,6 +23,26 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		$result = self::build_signed_request( $args, $body );
+		if ( ! $result || is_wp_error( $result ) ) {
+			return $result;
+		}
+		return self::_wp_remote_request( $result['url'], $result['request'] );
+	}
+
+	/**
+	 * Adds authorization signature to a remote request using Jetpack_Signature
+	 *
+	 * @param array        $args the arguments for the remote request.
+	 * @param array|String $body the request body.
+	 * @return WP_Error|array {
+	 *     An array containing URL and request items.
+	 *
+	 *     @type String $url     The request URL.
+	 *     @type array  $request Request arguments.
+	 * }
+	 */
+	public static function build_signed_request( $args, $body = null ) {
 		add_filter(
 			'jetpack_constant_default_value',
 			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
@@ -163,7 +183,7 @@ class Client {
 			$url = add_query_arg( 'signature', rawurlencode( $signature ), $url );
 		}
 
-		return self::_wp_remote_request( $url, $request );
+		return compact( 'url', 'request' );
 	}
 
 	/**
@@ -294,6 +314,61 @@ class Client {
 	}
 
 	/**
+	 * Validate and build arguments for a WordPress.com REST API request.
+	 *
+	 * @param  string $path             REST API path.
+	 * @param  string $version          REST API version. Default is `2`.
+	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
+	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
+	 *
+	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
+	 */
+	public static function validate_args_for_wpcom_json_api_request(
+		$path,
+		$version = '2',
+		$args = array(),
+		$base_api_path = 'wpcom'
+	) {
+		$base_api_path = trim( $base_api_path, '/' );
+		$version       = ltrim( $version, 'v' );
+		$path          = ltrim( $path, '/' );
+
+		$filtered_args = array_intersect_key(
+			$args,
+			array(
+				'headers'     => 'array',
+				'method'      => 'string',
+				'timeout'     => 'int',
+				'redirection' => 'int',
+				'stream'      => 'boolean',
+				'filename'    => 'string',
+				'sslverify'   => 'boolean',
+			)
+		);
+
+		// Use GET by default whereas `remote_request` uses POST.
+		$request_method = isset( $filtered_args['method'] ) ? strtoupper( $filtered_args['method'] ) : 'GET';
+
+		$url = sprintf(
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
+			$base_api_path,
+			$version,
+			$path
+		);
+
+		$validated_args = array_merge(
+			$filtered_args,
+			array(
+				'url'    => $url,
+				'method' => $request_method,
+			)
+		);
+
+		return $validated_args;
+	}
+
+	/**
 	 * Queries the WordPress.com REST API with a user token.
 	 *
 	 * @param  string $path             REST API path.
@@ -311,32 +386,8 @@ class Client {
 		$body = null,
 		$base_api_path = 'wpcom'
 	) {
-		$base_api_path = trim( $base_api_path, '/' );
-		$version       = ltrim( $version, 'v' );
-		$path          = ltrim( $path, '/' );
-
-		$args = array_intersect_key(
-			$args,
-			array(
-				'headers'     => 'array',
-				'method'      => 'string',
-				'timeout'     => 'int',
-				'redirection' => 'int',
-				'stream'      => 'boolean',
-				'filename'    => 'string',
-				'sslverify'   => 'boolean',
-			)
-		);
-
+		$args            = self::validate_args_for_wpcom_json_api_request( $path, $version, $args, $base_api_path );
 		$args['user_id'] = get_current_user_id();
-		$args['method']  = isset( $args['method'] ) ? strtoupper( $args['method'] ) : 'GET';
-		$args['url']     = sprintf(
-			'%s/%s/v%s/%s',
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
-			$base_api_path,
-			$version,
-			$path
-		);
 
 		if ( isset( $body ) && ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
@@ -366,41 +417,15 @@ class Client {
 		$body = null,
 		$base_api_path = 'rest'
 	) {
-		$filtered_args = array_intersect_key(
-			$args,
-			array(
-				'headers'     => 'array',
-				'method'      => 'string',
-				'timeout'     => 'int',
-				'redirection' => 'int',
-				'stream'      => 'boolean',
-				'filename'    => 'string',
-				'sslverify'   => 'boolean',
-			)
-		);
+		$validated_args            = self::validate_args_for_wpcom_json_api_request( $path, $version, $args, $base_api_path );
+		$validated_args['blog_id'] = (int) \Jetpack_Options::get_option( 'id' );
 
-		// unprecedingslashit.
-		$_path = preg_replace( '/^\//', '', $path );
-
-		// Use GET by default whereas `remote_request` uses POST.
-		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
-
-		$url = sprintf(
-			'%s/%s/v%s/%s',
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
-			$base_api_path,
-			$version,
-			$_path
-		);
-
-		$validated_args = array_merge(
-			$filtered_args,
-			array(
-				'url'     => $url,
-				'blog_id' => (int) \Jetpack_Options::get_option( 'id' ),
-				'method'  => $request_method,
-			)
-		);
+		// For Simple sites get the response directly without any HTTP requests.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_filter( 'is_jetpack_authorized_for_site', '__return_true' );
+			require_lib( 'wpcom-api-direct' );
+			return \WPCOM_API_Direct::do_request( $validated_args );
+		}
 
 		return self::remote_request( $validated_args, $body );
 	}
