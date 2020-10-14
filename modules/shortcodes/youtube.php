@@ -274,7 +274,7 @@ function youtube_id( $url ) {
 
 	if ( isset( $args['list'] ) ) {
 		$params['listType'] = 'playlist';
-		$params['list']     = $args['list'];
+		$params['list']     = preg_replace( '|[^_a-z0-9-]|i', '', $args['list'] );
 	}
 
 	/**
