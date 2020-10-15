@@ -28,25 +28,29 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 		props.unstableFeaturedImageFlow ||
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
 
+	const isAllowedBlock = ( name, render ) => {
+		const allowedBlocks = [
+			'core/cover',
+			'core/image',
+			'core/gallery',
+			'core/media-text',
+			'jetpack/image-compare',
+			'jetpack/slideshow',
+			'jetpack/tiled-gallery',
+		];
+
+		return allowedBlocks.indexOf( name ) > -1 && render.toString().indexOf( 'coblocks' ) === -1;
+	};
+
 	// Register the new 'browse media' button.
 	addFilter(
 		'editor.MediaUpload',
 		'external-media/replace-media-upload',
 		OriginalComponent => props => {
-			const allowedBlocks = [
-				'core/cover',
-				'core/image',
-				'core/gallery',
-				'core/media-text',
-				'jetpack/image-compare',
-				'jetpack/slideshow',
-				'jetpack/tiled-gallery',
-			];
-
 			const { name } = useBlockEditContext();
 			let { render } = props;
 
-			if ( allowedBlocks.indexOf( name ) > -1 || isFeaturedImage( props ) ) {
+			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {
 				const { allowedTypes, gallery = false, value = [] } = props;
 
 				// Only replace button for components that expect images, except existing galleries.
