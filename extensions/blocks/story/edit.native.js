@@ -56,15 +56,16 @@ class StoryEdit extends React.Component {
 		};
 	}
 
+	isUrlRemote( protocolForUrl ) {
+		return protocolForUrl === 'http:' || protocolForUrl === 'https:';
+	}
+
 	componentDidMount() {
 		const { attributes } = this.props;
 		if ( attributes.mediaFiles !== undefined ) {
 			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
 				const protocolForUrl = getProtocol( attributes.mediaFiles[ i ].url );
-				if (
-					( attributes.mediaFiles[ i ].id && protocolForUrl !== 'http:' ) ||
-					protocolForUrl !== 'https:'
-				) {
+				if ( attributes.mediaFiles[ i ].id && ! this.isUrlRemote( protocolForUrl ) ) {
 					mediaUploadSync();
 					mediaSaveSync();
 					return;
@@ -85,10 +86,7 @@ class StoryEdit extends React.Component {
 			if ( attributes.mediaFiles !== undefined ) {
 				for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
 					const protocolForUrl = getProtocol( attributes.mediaFiles[ i ].url );
-					if (
-						( attributes.mediaFiles[ i ].id && protocolForUrl !== 'http:' ) ||
-						protocolForUrl !== 'https:'
-					) {
+					if ( attributes.mediaFiles[ i ].id && ! this.isUrlRemote( protocolForUrl ) ) {
 						doAction( 'blocks.onRemoveBlockCheckUpload', attributes.mediaFiles[ i ].id );
 					}
 				}
