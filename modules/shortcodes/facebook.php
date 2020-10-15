@@ -50,9 +50,10 @@ wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_AL
 /**
  * Callback to modify output of embedded Facebook posts.
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
+ * @return string Facebook embed markup.
  */
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	if (
