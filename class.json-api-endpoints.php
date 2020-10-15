@@ -834,7 +834,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 <?php endif; ?>
 
 		<?php if ( true === $this->deprecated ) { ?>
-<p><strong>This endpoint is deprecated in favor of version <?php echo (float) $this->new_version ; ?></strong></p>
+<p><strong>This endpoint is deprecated in favor of version <?php echo (float) $this->new_version; ?></strong></p>
 <?php } ?>
 
 <section class="resource-info">

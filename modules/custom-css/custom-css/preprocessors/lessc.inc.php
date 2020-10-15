@@ -1396,7 +1396,7 @@ class lessc {
 			$i = 0;
 			foreach ($rawComponents as $c) {
 				$val = $this->reduce($c);
-				$val = isset($val[1]) ? (float) $val[1] : 0;
+				$val = isset( $val[1] ) ? (float) $val[1] : 0;
 
 				if ($i == 0) $clamp = 360;
 				elseif ($i < 3) $clamp = 100;
@@ -3759,4 +3759,3 @@ class lessc_formatter_lessjs extends lessc_formatter_classic {
 	public $assignSeparator = ": ";
 	public $selectorSeparator = ",";
 }
-
