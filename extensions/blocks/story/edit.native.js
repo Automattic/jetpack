@@ -28,25 +28,25 @@ import styles from './editor.scss';
 import StoryEditingButton from './story-editing-button';
 
 class StoryEdit extends React.Component {
-	constructor( props ) {
-		super( props );
+	constructor(props) {
+		super(props);
 
-		this.onEditButtonTapped = this.onEditButtonTapped.bind( this );
+		this.onEditButtonTapped = this.onEditButtonTapped.bind(this);
 
-		this.mediaUploadStateReset = this.mediaUploadStateReset.bind( this );
-		this.finishMediaUploadWithSuccess = this.finishMediaUploadWithSuccess.bind( this );
-		this.finishMediaUploadWithFailure = this.finishMediaUploadWithFailure.bind( this );
-		this.updateMediaUploadProgress = this.updateMediaUploadProgress.bind( this );
+		this.mediaUploadStateReset = this.mediaUploadStateReset.bind(this);
+		this.finishMediaUploadWithSuccess = this.finishMediaUploadWithSuccess.bind(this);
+		this.finishMediaUploadWithFailure = this.finishMediaUploadWithFailure.bind(this);
+		this.updateMediaUploadProgress = this.updateMediaUploadProgress.bind(this);
 
 		// save progress bindings
-		this.mediaSaveStateReset = this.mediaSaveStateReset.bind( this );
-		this.finishMediaSaveWithSuccess = this.finishMediaSaveWithSuccess.bind( this );
-		this.finishMediaSaveWithFailure = this.finishMediaSaveWithFailure.bind( this );
-		this.updateMediaSaveProgress = this.updateMediaSaveProgress.bind( this );
+		this.mediaSaveStateReset = this.mediaSaveStateReset.bind(this);
+		this.finishMediaSaveWithSuccess = this.finishMediaSaveWithSuccess.bind(this);
+		this.finishMediaSaveWithFailure = this.finishMediaSaveWithFailure.bind(this);
+		this.updateMediaSaveProgress = this.updateMediaSaveProgress.bind(this);
 
-		this.onStorySaveResult = this.onStorySaveResult.bind( this );
+		this.onStorySaveResult = this.onStorySaveResult.bind(this);
 
-		this.onMediaModelCreated = this.onMediaModelCreated.bind( this );
+		this.onMediaModelCreated = this.onMediaModelCreated.bind(this);
 
 		this.state = {
 			isUploadInProgress: false,
@@ -56,21 +56,15 @@ class StoryEdit extends React.Component {
 		};
 	}
 
-	isUrlRemote( protocolForUrl ) {
+	isUrlRemote(protocolForUrl) {
 		return protocolForUrl === 'http:' || protocolForUrl === 'https:';
 	}
 
 	componentDidMount() {
 		const { attributes } = this.props;
-		if ( attributes.mediaFiles !== undefined ) {
-			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
-				const protocolForUrl = getProtocol( attributes.mediaFiles[ i ].url );
-				if ( attributes.mediaFiles[ i ].id && ! this.isUrlRemote( protocolForUrl ) ) {
-					mediaUploadSync();
-					mediaSaveSync();
-					return;
-				}
-			}
+		if (attributes.mediaFiles !== undefined) {
+			mediaUploadSync();
+			mediaSaveSync();
 		}
 	}
 
@@ -79,15 +73,15 @@ class StoryEdit extends React.Component {
 		// TODO check whether blocks.onRemoveBlockCheckUpload really is being set elsewhere
 		// and ditch / fix if not
 		if (
-			hasAction( 'blocks.onRemoveBlockCheckUpload' ) &&
-			( this.state.isUploadInProgress || this.state.isSaveInProgress )
+			hasAction('blocks.onRemoveBlockCheckUpload') &&
+			(this.state.isUploadInProgress || this.state.isSaveInProgress)
 		) {
 			const { attributes } = this.props;
-			if ( attributes.mediaFiles !== undefined ) {
-				for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
-					const protocolForUrl = getProtocol( attributes.mediaFiles[ i ].url );
-					if ( attributes.mediaFiles[ i ].id && ! this.isUrlRemote( protocolForUrl ) ) {
-						doAction( 'blocks.onRemoveBlockCheckUpload', attributes.mediaFiles[ i ].id );
+			if (attributes.mediaFiles !== undefined) {
+				for (let i = 0; i < attributes.mediaFiles.length; i++) {
+					const protocolForUrl = getProtocol(attributes.mediaFiles[i].url);
+					if (attributes.mediaFiles[i].id && !this.isUrlRemote(protocolForUrl)) {
+						doAction('blocks.onRemoveBlockCheckUpload', attributes.mediaFiles[i].id);
 					}
 				}
 			}
@@ -122,21 +116,21 @@ class StoryEdit extends React.Component {
 		// }
 		// requestMediaFilesEditorLoad( id );
 		// let's open the Story Creator and load this block in there
-		requestMediaFilesEditorLoad( attributes.mediaFiles, clientId );
+		requestMediaFilesEditorLoad(attributes.mediaFiles, clientId);
 	}
 
 	// upload state handling methods
-	updateMediaUploadProgress( payload ) {
+	updateMediaUploadProgress(payload) {
 		const { setAttributes } = this.props;
-		if ( payload.mediaUrl ) {
-			setAttributes( { url: payload.mediaUrl } );
+		if (payload.mediaUrl) {
+			setAttributes({ url: payload.mediaUrl });
 		}
-		if ( ! this.state.isUploadInProgress ) {
-			this.setState( { isUploadInProgress: true } );
+		if (!this.state.isUploadInProgress) {
+			this.setState({ isUploadInProgress: true });
 		}
 	}
 
-	finishMediaUploadWithSuccess( payload ) {
+	finishMediaUploadWithSuccess(payload) {
 		const { setAttributes } = this.props;
 		// setAttributes( { src: payload.mediaUrl, id: payload.mediaServerId } );
 		// find the mediaFiles item that needs to change via its id, and apply the new URL
@@ -146,151 +140,151 @@ class StoryEdit extends React.Component {
 			payload.mediaServerId,
 			payload.mediaUrl
 		);
-		setAttributes( { mediaFiles: updatedMediaFiles } );
-		this.setState( { isUploadInProgress: false } );
+		setAttributes({ mediaFiles: updatedMediaFiles });
+		this.setState({ isUploadInProgress: false });
 	}
 
-	finishMediaUploadWithFailure( payload ) {
+	finishMediaUploadWithFailure(payload) {
 		const { setAttributes } = this.props;
 		// TODO change this
 		// setAttributes( { id: payload.mediaId } );
-		this.setState( { isUploadInProgress: false } );
+		this.setState({ isUploadInProgress: false });
 	}
 
 	mediaUploadStateReset() {
 		const { setAttributes } = this.props;
 		// TODO change this
 		// setAttributes( { id: null, src: null } );
-		this.setState( { isUploadInProgress: false } );
+		this.setState({ isUploadInProgress: false });
 	}
 
 	// save state handling methods
-	updateMediaSaveProgress( payload ) {
+	updateMediaSaveProgress(payload) {
 		const { setAttributes } = this.props;
-		if ( payload.mediaUrl ) {
-			setAttributes( { url: payload.mediaUrl } );
+		if (payload.mediaUrl) {
+			setAttributes({ url: payload.mediaUrl });
 		}
-		if ( ! this.state.isSaveInProgress ) {
-			this.setState( { isSaveInProgress: true } );
+		if (!this.state.isSaveInProgress) {
+			this.setState({ isSaveInProgress: true });
 		}
 	}
 
-	replaceMediaUrlInMediaFilesById( mediaId, mediaUrl ) {
+	replaceMediaUrlInMediaFilesById(mediaId, mediaUrl) {
 		const { attributes } = this.props;
-		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
-			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
-				if ( attributes.mediaFiles[ i ].id === mediaId.toString() ) {
-					attributes.mediaFiles[ i ].url = mediaUrl;
-					attributes.mediaFiles[ i ].link = mediaUrl;
+		if (mediaId !== undefined && attributes.mediaFiles !== undefined) {
+			for (let i = 0; i < attributes.mediaFiles.length; i++) {
+				if (attributes.mediaFiles[i].id === mediaId.toString()) {
+					attributes.mediaFiles[i].url = mediaUrl;
+					attributes.mediaFiles[i].link = mediaUrl;
 				}
 			}
 		}
 		return attributes.mediaFiles;
 	}
 
-	replaceNewIdInMediaFilesByOldId( oldId, mediaId, mediaUrl ) {
+	replaceNewIdInMediaFilesByOldId(oldId, mediaId, mediaUrl) {
 		const { attributes } = this.props;
-		if ( mediaId !== undefined && attributes.mediaFiles !== undefined ) {
-			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
-				if ( attributes.mediaFiles[ i ].id === oldId.toString() ) {
-					attributes.mediaFiles[ i ].id = mediaId;
-					attributes.mediaFiles[ i ].url = mediaUrl;
-					attributes.mediaFiles[ i ].link = mediaUrl;
+		if (mediaId !== undefined && attributes.mediaFiles !== undefined) {
+			for (let i = 0; i < attributes.mediaFiles.length; i++) {
+				if (attributes.mediaFiles[i].id === oldId.toString()) {
+					attributes.mediaFiles[i].id = mediaId;
+					attributes.mediaFiles[i].url = mediaUrl;
+					attributes.mediaFiles[i].link = mediaUrl;
 				}
 			}
 		}
 		return attributes.mediaFiles;
 	}
 
-	finishMediaSaveWithSuccess( payload ) {
+	finishMediaSaveWithSuccess(payload) {
 		const { setAttributes } = this.props;
 		// find the mediaFiles item that needs to change via its id, and apply the new URL
 		const updatedMediaFiles = this.replaceMediaUrlInMediaFilesById(
 			payload.mediaId,
 			payload.mediaUrl
 		);
-		setAttributes( { mediaFiles: updatedMediaFiles } );
-		this.setState( { isSaveInProgress: false } );
+		setAttributes({ mediaFiles: updatedMediaFiles });
+		this.setState({ isSaveInProgress: false });
 	}
 
-	finishMediaSaveWithFailure( payload ) {
+	finishMediaSaveWithFailure(payload) {
 		const { setAttributes } = this.props;
 		// TODO change this
 		// setAttributes( { id: payload.mediaId } );
-		this.setState( { isSaveInProgress: false } );
+		this.setState({ isSaveInProgress: false });
 	}
 
 	mediaSaveStateReset() {
 		const { setAttributes } = this.props;
 		// TODO change this
 		// setAttributes( { id: null, src: null } );
-		this.setState( { isSaveInProgress: false } );
+		this.setState({ isSaveInProgress: false });
 	}
 
 	onStorySaveResult() {
 		const { setAttributes } = this.props;
 		// TODO here set success or fail overlay
 		// setAttributes( { id: null, src: null } );
-		this.setState( { isSaveInProgress: false } );
+		this.setState({ isSaveInProgress: false });
 	}
 
-	onMediaModelCreated( payload ) {
+	onMediaModelCreated(payload) {
 		const { setAttributes } = this.props;
 		const updatedMediaFiles = this.replaceNewIdInMediaFilesByOldId(
 			payload.mediaId,
 			payload.newId,
 			payload.mediaUrl
 		);
-		setAttributes( { mediaFiles: updatedMediaFiles } );
-		this.setState( { isSaveInProgress: false } );
+		setAttributes({ mediaFiles: updatedMediaFiles });
+		this.setState({ isSaveInProgress: false });
 	}
 
 	render() {
 		const { attributes, isSelected } = this.props;
 		const { mediaFiles } = attributes;
-		const hasContent = !! mediaFiles.length;
+		const hasContent = !!mediaFiles.length;
 		const { isUploadInProgress, isSaveInProgress, didUploadFail, didSaveFail } = this.state;
 
 		return (
-			<View style={ styles[ 'wp-story-container' ] }>
-				{ ! hasContent && (
-					<Text style={ styles[ 'wp-story-wrapper' ] }>Empty Story placeholder here</Text>
-				) }
-				{ hasContent && (
-					<View style={ { flex: 1 } }>
-						{ ! isUploadInProgress && ! isSaveInProgress && isSelected && (
-							<StoryEditingButton onEditButtonTapped={ this.onEditButtonTapped } />
-						) }
+			<View style={styles['wp-story-container']}>
+				{!hasContent && (
+					<Text style={styles['wp-story-wrapper']}>Empty Story placeholder here</Text>
+				)}
+				{hasContent && (
+					<View style={{ flex: 1 }}>
+						{!isUploadInProgress && !isSaveInProgress && isSelected && (
+							<StoryEditingButton onEditButtonTapped={this.onEditButtonTapped} />
+						)}
 						<BlockMediaUpdateProgress
-							coverUrl={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
-							mediaFiles={ mediaFiles }
-							onUpdateMediaUploadProgress={ this.updateMediaUploadProgress }
-							onFinishMediaUploadWithSuccess={ this.finishMediaUploadWithSuccess }
-							onFinishMediaUploadWithFailure={ this.finishMediaUploadWithFailure }
-							onMediaUploadStateReset={ this.mediaUploadStateReset }
-							onUpdateMediaSaveProgress={ this.updateMediaSaveProgress }
-							onFinishMediaSaveWithSuccess={ this.finishMediaSaveWithSuccess }
-							onFinishMediaSaveWithFailure={ this.finishMediaSaveWithFailure }
-							onMediaSaveStateReset={ this.mediaSaveStateReset }
-							onFinalSaveResult={ this.onStorySaveResult }
-							onMediaModelCreated={ this.onMediaModelCreated }
-							renderContent={ ( {
+							coverUrl={mediaFiles[0].url} // just select the first one // TODO see how to handle video
+							mediaFiles={mediaFiles}
+							onUpdateMediaUploadProgress={this.updateMediaUploadProgress}
+							onFinishMediaUploadWithSuccess={this.finishMediaUploadWithSuccess}
+							onFinishMediaUploadWithFailure={this.finishMediaUploadWithFailure}
+							onMediaUploadStateReset={this.mediaUploadStateReset}
+							onUpdateMediaSaveProgress={this.updateMediaSaveProgress}
+							onFinishMediaSaveWithSuccess={this.finishMediaSaveWithSuccess}
+							onFinishMediaSaveWithFailure={this.finishMediaSaveWithFailure}
+							onMediaSaveStateReset={this.mediaSaveStateReset}
+							onFinalSaveResult={this.onStorySaveResult}
+							onMediaModelCreated={this.onMediaModelCreated}
+							renderContent={({
 								isUploadInProgress,
 								isUploadFailed,
 								isSaveInProgress,
 								isSaveFailed,
 								retryMessage,
-							} ) => {
+							}) => {
 								return (
 									<Image
-										url={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
-										style={ styles[ 'wp-story-image' ] }
+										url={mediaFiles[0].url} // just select the first one // TODO see how to handle video
+										style={styles['wp-story-image']}
 									/>
 								);
-							} }
+							}}
 						/>
 					</View>
-				) }
+				)}
 			</View>
 		);
 	}
