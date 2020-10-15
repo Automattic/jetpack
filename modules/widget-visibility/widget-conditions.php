@@ -229,6 +229,28 @@ class Jetpack_Widget_Conditions {
 			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_parent, {$wpdb->posts}.post_title FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_title ASC" );
 			wp_cache_set( $cache_key, $pages, 'widget_conditions' );
 		}
+
+		// Copy-pasted from the get_pages function. For usage in the `get_pages` filter.
+		$parsed_args = array(
+			'child_of'     => 0,
+			'sort_order'   => 'ASC',
+			'sort_column'  => 'post_title',
+			'hierarchical' => 1,
+			'exclude'      => array(),
+			'include'      => array(),
+			'meta_key'     => '',
+			'meta_value'   => '',
+			'authors'      => '',
+			'parent'       => -1,
+			'exclude_tree' => array(),
+			'number'       => '',
+			'offset'       => 0,
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+		);
+		/** This filter is documented in wp-includes/post.php */
+		$pages = apply_filters( 'get_pages', $pages, $parsed_args );
+
 		return $pages;
 	}
 
