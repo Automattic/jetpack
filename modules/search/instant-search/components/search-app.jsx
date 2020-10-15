@@ -148,12 +148,11 @@ class SearchApp extends Component {
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
-
-		if ( event.target.dataset.filterType ) {
-			if ( event.target.dataset.filterType === 'taxonomy' ) {
-				setFilterQuery( event.target.dataset.taxonomy, event.target.dataset.val );
+		if ( event.currentTarget.dataset.filterType ) {
+			if ( event.currentTarget.dataset.filterType === 'taxonomy' ) {
+				setFilterQuery( event.currentTarget.dataset.taxonomy, event.currentTarget.dataset.val );
 			} else {
-				setFilterQuery( event.target.dataset.filterType, event.target.dataset.val );
+				setFilterQuery( event.currentTarget.dataset.filterType, event.currentTarget.dataset.val );
 			}
 		}
 		this.showResults();
