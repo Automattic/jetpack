@@ -272,7 +272,7 @@ class Functions {
 		}
 		$updater = new \WP_Automatic_Updater();
 
-		return (bool) strval( $updater->is_vcs_checkout( ABSPATH ) );
+		return (bool) (string) $updater->is_vcs_checkout( ABSPATH );
 	}
 
 	/**

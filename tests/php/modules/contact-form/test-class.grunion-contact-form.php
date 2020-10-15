@@ -38,7 +38,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$post_id = $this->factory->post->create( array(
 			'post_status' => 'draft',
-			'post_author' => strval( $author_id )
+			'post_author' => (string) $author_id,
 		) );
 
 		global $post;

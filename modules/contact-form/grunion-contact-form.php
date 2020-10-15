@@ -107,8 +107,8 @@ class Grunion_Contact_Form_Plugin {
 	public static function strip_tags( $data_with_tags ) {
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
-				$index = sanitize_text_field( strval( $index ) );
-				$value = wp_kses( strval( $value ), array() );
+				$index = sanitize_text_field( (string) $index );
+				$value = wp_kses( (string) $value, array() );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
 
 				$data_without_tags[ $index ] = $value;
