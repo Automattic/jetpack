@@ -834,7 +834,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 <?php endif; ?>
 
 		<?php if ( true === $this->deprecated ) { ?>
-<p><strong>This endpoint is deprecated in favor of version <?php echo floatval( $this->new_version ); ?></strong></p>
+<p><strong>This endpoint is deprecated in favor of version <?php echo (float) $this->new_version; ?></strong></p>
 <?php } ?>
 
 <section class="resource-info">
@@ -863,7 +863,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$version = $this->max_version;
 			}
 			?>
-			<td class="type api-index-item-title">https://public-api.wordpress.com/rest/v<?php echo floatval( $version ); ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
+			<td class="type api-index-item-title">https://public-api.wordpress.com/rest/v<?php echo (float) $version; ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
 		</tr>
 
 		<tr class="api-index-item">
