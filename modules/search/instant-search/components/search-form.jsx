@@ -19,6 +19,7 @@ import {
 	setSearchQuery,
 } from '../lib/query-string';
 import PreselectedSearchFilters from './preselected-search-filters';
+import './search-form.scss';
 
 const noop = event => event.preventDefault();
 

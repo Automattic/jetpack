@@ -14,6 +14,7 @@ import uniqueId from 'lodash/uniqueId';
  */
 import Gridicon from './gridicon';
 import SearchSort from './search-sort';
+import './search-box.scss';
 
 let initiallyFocusedElement = null;
 const stealFocusWithInput = inputElement => () => {

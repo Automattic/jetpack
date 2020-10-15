@@ -11,6 +11,7 @@ import { h, Component } from 'preact';
 import Gridicon from './gridicon';
 import PostTypeIcon from './post-type-icon';
 import SearchResultComments from './search-result-comments';
+import './search-result-minimal.scss';
 
 class SearchResultMinimal extends Component {
 	getIconSize() {

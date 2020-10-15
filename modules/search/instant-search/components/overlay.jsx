@@ -9,6 +9,7 @@ import { useEffect } from 'preact/hooks';
 /**
  * Internal dependencies
  */
+import './overlay.scss';
 
 const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
