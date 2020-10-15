@@ -42,9 +42,9 @@ export async function connectThroughWPAdminIfNeeded( {
 	plan = 'complete',
 	mockPlanData = false,
 } = {} ) {
-	await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
+	// await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
 
-	await loginToWpSite( mockPlanData );
+	// await loginToWpSite( mockPlanData );
 
 	if ( await isBlogTokenSet() ) {
 		return 'already_connected';
