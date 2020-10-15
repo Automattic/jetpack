@@ -13,9 +13,13 @@ import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
 import { execWpCommand } from './utils-helper';
-import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
+import {
+	connectThroughWPAdminIfNeeded,
+	loginToWpcomIfNeeded,
+	loginToWpSite,
+} from './flows/jetpack-connect';
 
-const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML, SKIP_CONNECT } = process.env;
+const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
@@ -142,14 +146,18 @@ function observeConsoleLogging() {
 }
 
 async function maybePreConnect() {
-	if ( SKIP_CONNECT ) {
+	const wpcomUser = 'defaultUser';
+	const mockPlanData = true;
+	const plan = 'free';
+
+	await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
+	await loginToWpSite( mockPlanData );
+
+	if ( process.env.SKIP_CONNECT ) {
 		return;
 	}
 
-	const status = await connectThroughWPAdminIfNeeded( {
-		mockPlanData: true,
-		plan: 'free',
-	} );
+	const status = await connectThroughWPAdminIfNeeded( { wpcomUser, mockPlanData, plan } );
 
 	if ( status !== 'already_connected' ) {
 		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );

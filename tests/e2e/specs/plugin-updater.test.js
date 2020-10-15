@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { catchBeforeAll, step } from '../lib/setup-env';
-import { loginToWpSite, connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
+import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
@@ -34,7 +34,6 @@ describe( 'Jetpack updater', () => {
 
 	it( 'Plugin updater', async () => {
 		await step( 'Can login and navigate to Plugins page', async () => {
-			await loginToWpSite();
 			await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 			await PluginsPage.init( page );
 		} );
