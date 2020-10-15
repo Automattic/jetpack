@@ -143,7 +143,7 @@ class SearchApp extends Component {
 			this.showResults();
 		}
 
-		setSearchQuery( event.target.value );
+		setSearchQuery( event.currentTarget.value );
 	}, 200 );
 
 	handleFilterInputClick = event => {
@@ -184,7 +184,7 @@ class SearchApp extends Component {
 		} );
 	};
 
-	onChangeQuery = event => setSearchQuery( event.target.value );
+	onChangeQuery = event => setSearchQuery( event.currentTarget.value );
 
 	onPopstate = () => {
 		this.onChangeQueryString();
