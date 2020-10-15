@@ -72,6 +72,11 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 		$embed = sprintf( '<div class="fb-post" data-href="%s" data-width="%s"></div>', esc_url( $url ), esc_attr( $width ) );
 	}
 
+	// Skip rendering scripts in an AMP context.
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		return $embed;
+	}
+
 	// since Facebook is a faux embed, we need to load the JS SDK in the wpview embed iframe.
 	if (
 		defined( 'DOING_AJAX' )
