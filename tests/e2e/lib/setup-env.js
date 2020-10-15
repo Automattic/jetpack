@@ -19,7 +19,7 @@ import {
 	loginToWpSite,
 } from './flows/jetpack-connect';
 
-const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML, SKIP_CONNECT } = process.env;
+const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
