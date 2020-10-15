@@ -1,3 +1,4 @@
+@import '../lib/style-helpers';
 $arrow-height: 10px;
 
 .jetpack-instant-search__search-form-filters {
@@ -20,14 +21,14 @@ $arrow-height: 10px;
 
 	.jetpack-instant-search__overlay--light & {
 		background: #fff;
-		border: 1px solid rgba(0, 0, 0, 0.1);
-		box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba( 0, 0, 0, 0.1 );
+		box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
 	}
 
 	.jetpack-instant-search__overlay--dark & {
 		background: #222;
-		border: 1px solid rgba(140, 140, 140, 0.1);
-		box-shadow: 0 2px 3px rgba(140, 140, 140, 0.1);
+		border: 1px solid rgba( 140, 140, 140, 0.1 );
+		box-shadow: 0 2px 3px rgba( 140, 140, 140, 0.1 );
 	}
 
 	@include break-small() {
@@ -60,11 +61,11 @@ $arrow-height: 10px;
 		top: 0;
 
 		.jetpack-instant-search__overlay--light & {
-			border-bottom-color: rgba(0, 0, 0, 0.1 );
+			border-bottom-color: rgba( 0, 0, 0, 0.1 );
 		}
 
 		.jetpack-instant-search__overlay--dark & {
-			border-bottom-color: rgba(140, 140, 140, 0.25 );
+			border-bottom-color: rgba( 140, 140, 140, 0.25 );
 		}
 	}
 
@@ -79,7 +80,7 @@ $arrow-height: 10px;
 			border-bottom-color: #222;
 		}
 	}
-	
+
 	@include break-medium() {
 		display: none;
 	}
