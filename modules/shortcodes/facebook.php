@@ -69,7 +69,7 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 			$width = min( $width, $content_width );
 		}
 
-		$embed = sprintf( '<fb:post href="%s" data-width="%s"></fb:post>', esc_url( $url ), esc_attr( $width ) );
+		$embed = sprintf( '<div class="fb-post" data-href="%s" data-width="%s"></div>', esc_url( $url ), esc_attr( $width ) );
 	}
 
 	// since Facebook is a faux embed, we need to load the JS SDK in the wpview embed iframe.
