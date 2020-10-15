@@ -142,7 +142,7 @@ function observeConsoleLogging() {
 }
 
 async function maybePreConnect() {
-	if ( SKIP_CONNECT ) {
+	if ( process.env.SKIP_CONNECT ) {
 		return;
 	}
 
