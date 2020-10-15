@@ -34,7 +34,6 @@ describe( 'Jetpack updater', () => {
 
 	it( 'Plugin updater', async () => {
 		await step( 'Can login and navigate to Plugins page', async () => {
-			// await loginToWpSite();
 			await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 			await PluginsPage.init( page );
 		} );
