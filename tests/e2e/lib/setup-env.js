@@ -148,7 +148,7 @@ function observeConsoleLogging() {
 async function maybePreConnect() {
 	const wpcomUser = 'defaultUser';
 	const mockPlanData = true;
-	const plan = true;
+	const plan = 'free';
 
 	await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
 	await loginToWpSite( mockPlanData );
