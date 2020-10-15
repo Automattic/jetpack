@@ -130,7 +130,7 @@ class Jetpack_Custom_CSS {
 
 		// Prevent content filters running on CSS when restoring revisions
 		if ( isset( $_REQUEST[ 'action' ] ) && 'restore' === $_REQUEST[ 'action' ] && false !== strstr( $_SERVER[ 'REQUEST_URI' ], 'revision.php' ) ) {
-			$parent_post = get_post( wp_get_post_parent_id( (int) $_REQUEST[ 'revision' ] ) );
+			$parent_post = get_post( wp_get_post_parent_id( (int) $_REQUEST['revision'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			if ( $parent_post && ! is_wp_error( $parent_post ) && 'safecss' === $parent_post->post_type ) {
 				// Remove wp_filter_post_kses, this causes CSS escaping issues
 				remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
@@ -167,10 +167,18 @@ class Jetpack_Custom_CSS {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( $args['content_width'] && (int) $args['content_width'] > 0 && ( ! isset( $GLOBALS['content_width'] ) || $args['content_width'] != $GLOBALS['content_width'] ) )
+		if (
+			$args['content_width']
+			&& (int) $args['content_width'] > 0
+			&& (
+				! isset( $GLOBALS['content_width'] )
+				|| $args['content_width'] !== $GLOBALS['content_width']
+			)
+		) {
 			$args['content_width'] = (int) $args['content_width'];
-		else
+		} else {
 			$args['content_width'] = false;
+		}
 
 		// Remove wp_filter_post_kses, this causes CSS escaping issues
 		remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
@@ -281,7 +289,7 @@ class Jetpack_Custom_CSS {
 			$safecss_revision_id = Jetpack_Custom_CSS::save_revision( $css, true, $args['preprocessor'] );
 
 			// Cache Buster
-			update_option( 'safecss_preview_rev', (int) get_option( 'safecss_preview_rev' ) + 1);
+			update_option( 'safecss_preview_rev', (int) get_option( 'safecss_preview_rev' ) + 1 );
 
 			update_metadata( 'post', $safecss_revision_id, 'custom_css_add', $add_to_existing );
 			update_metadata( 'post', $safecss_revision_id, 'content_width', $args['content_width'] );
@@ -1084,7 +1092,23 @@ class Jetpack_Custom_CSS {
 					$current_theme = wp_get_theme()->Name;
 
 					?>
-					<p><?php printf( _n( 'The default content width for the %s theme is %d pixel.', 'The default content width for the %s theme is %d pixels.', (int) $GLOBALS['content_width'], 'jetpack' ), $current_theme, (int) $GLOBALS['content_width'] ); ?></p>
+					<p>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %1$s is the theme name, %2$d is an amount of pixels. */
+							_n(
+								'The default content width for the %1$s theme is %2$d pixel.',
+								'The default content width for the %1$s theme is %2$d pixels.',
+								(int) $GLOBALS['content_width'],
+								'jetpack'
+							),
+							$current_theme,
+							(int) $GLOBALS['content_width']
+						)
+					);
+					?>
+					</p>
 					<?php
 				}
 
