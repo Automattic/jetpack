@@ -288,6 +288,7 @@ class Jetpack_Portfolio {
 				'wpcom-markdown',
 				'revisions',
 				'excerpt',
+				'custom-fields',
 			),
 			'rewrite' => array(
 				'slug'       => 'portfolio',

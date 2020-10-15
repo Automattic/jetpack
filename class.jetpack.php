@@ -6490,6 +6490,8 @@ endif;
 			'jetpack_mobile_theme_menu'                    => null,
 			'minileven_show_featured_images'               => null,
 			'minileven_attachment_size'                    => null,
+			// Removed in Jetpack 9.1.0.
+			'instagram_cache_oembed_api_response_body'     => null,
 		);
 
 		// This is a silly loop depth. Better way?

@@ -313,7 +313,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				$errors->add( 'post_title', __( "People need to know what they're paying for! Please add a brief title.", 'jetpack' ) );
 			}
 
-			if ( empty( $params['price'] ) || ! is_numeric( $params['price'] ) || floatval( $params['price'] ) <= 0 ) {
+			if ( empty( $params['price'] ) || ! is_numeric( $params['price'] ) || (float) $params['price'] <= 0 ) {
 				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.', 'jetpack' ) );
 			}
 

@@ -152,7 +152,7 @@ class Queue {
 		// Break apart the item name to get the timestamp.
 		$matches = null;
 		if ( preg_match( '/^jpsq_' . $this->id . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
-			return $now - floatval( $matches[1] );
+			return $now - (float) $matches[1];
 		} else {
 			return 0;
 		}

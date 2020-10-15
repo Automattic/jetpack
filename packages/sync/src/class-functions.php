@@ -584,7 +584,7 @@ class Functions {
 
 		$gmt_offset = get_option( 'gmt_offset', 0 );
 
-		$formatted_gmt_offset = sprintf( '%+g', floatval( $gmt_offset ) );
+		$formatted_gmt_offset = sprintf( '%+g', (float) $gmt_offset );
 
 		$formatted_gmt_offset = str_replace(
 			array( '.25', '.5', '.75' ),
