@@ -7,7 +7,7 @@
  */
 class Jetpack_Modules_Overrides {
 	/**
-	 * Used to cache module overrides so that we minimize how many times we appy the
+	 * Used to cache module overrides so that we minimize how many times we apply the
 	 * option_jetpack_active_modules filter.
 	 *
 	 * @var null|array

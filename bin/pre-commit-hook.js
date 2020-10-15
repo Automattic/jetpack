@@ -145,6 +145,47 @@ function runPHPCSChanged( phpFilesToCheck ) {
 }
 
 /**
+ * Check that composer.lock doesn't refer to monorepo packages as "dev-master"
+ */
+function checkComposerLock() {
+	const obj = JSON.parse( fs.readFileSync( 'composer.lock', 'utf8' ) );
+	const changed = [];
+
+	const checkPackage = function ( p ) {
+		if (
+			p.dist.type === 'path' &&
+			p.dist.url.startsWith( './packages/' ) &&
+			p.version === 'dev-master'
+		) {
+			p.version = 'dev-monorepo';
+			changed.push( p.name );
+		}
+	};
+
+	obj.packages.forEach( checkPackage );
+	obj[ 'packages-dev' ].forEach( checkPackage );
+
+	if ( changed.length > 0 ) {
+		if ( checkFileAgainstDirtyList( 'composer.lock', dirtyFiles ) ) {
+			fs.writeFileSync( 'composer.lock', JSON.stringify( obj, null, 4 ) + '\n' );
+			execSync( `git add composer.lock` );
+			console.log(
+				chalk.yellow( 'Monorepo package versions automatically fixed.' ),
+				'\n\nAffected packages: ' + changed.join( ', ' )
+			);
+		} else {
+			console.log(
+				chalk.red( 'COMMIT ABORTED:' ),
+				'composer.lock must not refer to packages in the monorepo with version "dev-master".\n' +
+					'This could not be fixed automatically because composer.lock is dirty.',
+				'\n\nAffected packages: ' + changed.join( ', ' )
+			);
+			exitCode = 1;
+		}
+	}
+}
+
+/**
  * Exit
  *
  * @param {Number} exitCodePassed Shell exit code.
@@ -231,4 +272,5 @@ if ( phpcsResult && phpcsResult.status ) {
 }
 
 runPHPCSChanged( phpFiles );
+checkComposerLock();
 exit( exitCode );

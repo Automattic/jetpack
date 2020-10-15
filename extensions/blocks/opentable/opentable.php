@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\OpenTable;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'opentable';
@@ -20,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
@@ -72,13 +73,44 @@ function load_assets( $attributes ) {
 	if ( array_key_exists( 'negativeMargin', $attributes ) && $attributes['negativeMargin'] ) {
 		$classes[] = 'has-no-margin';
 	}
-	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, $classes );
+	$classes = Blocks::classes( FEATURE_NAME, $attributes, $classes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 
-	// The OpenTable script uses multiple `rid` paramters,
-	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
-	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	$content .= '<script type="text/javascript" src="' . esc_url( build_embed_url( $attributes ) ) . '"></script>';
+	$script_url = build_embed_url( $attributes );
+
+	if ( Blocks::is_amp_request() ) {
+		// Extract params from URL since it had jetpack_opentable_block_url filters applied.
+		$url_query = \wp_parse_url( $script_url, PHP_URL_QUERY ) . '&overlay=false&disablega=false';
+
+		$src = "https://www.opentable.com/widget/reservation/canvas?$url_query";
+
+		$params = array();
+		wp_parse_str( $url_query, $params );
+
+		// Note an iframe is similarly constructed in the block edit function.
+		$content .= sprintf(
+			'<amp-iframe src="%s" layout="fill" sandbox="allow-scripts allow-forms allow-same-origin allow-popups">%s</amp-iframe>',
+			esc_url( $src ),
+			sprintf(
+				'<a placeholder href="%s">%s</a>',
+				esc_url(
+					add_query_arg(
+						array(
+							'rid' => $params['rid'],
+						),
+						'https://www.opentable.com/restref/client/'
+					)
+				),
+				esc_html__( 'Make a reservation', 'jetpack' )
+			)
+		);
+	} else {
+		// The OpenTable script uses multiple `rid` paramters,
+		// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$content .= '<script src="' . esc_url( $script_url ) . '"></script>';
+	}
+
 	$content .= '</div>';
 
 	return $content;

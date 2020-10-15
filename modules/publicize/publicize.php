@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 use Automattic\Jetpack\Redirect;
 
@@ -21,6 +22,14 @@ abstract class Publicize_Base {
 	*/
 	public $ADMIN_PAGE        = 'wpas';
 	public $POST_MESS         = '_wpas_mess';
+
+	/**
+	 * Post meta key for flagging when the post is a tweetstorm.
+	 *
+	 * @var string
+	 */
+	public $POST_TWEETSTORM = '_wpas_is_tweetstorm';
+
 	public $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
 	public $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
 	public $USER_AUTH         = 'wpas_authorize';
@@ -852,18 +861,29 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Registers the ->POST_MESS post_meta for use in the REST API.
+	 * Registers the post_meta for use in the REST API.
 	 *
 	 * Registers for each post type that with `publicize` feature support.
 	 */
 	function register_post_meta() {
-		$args = array(
-			'type' => 'string',
-			'description' => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
-			'single' => true,
-			'default' => '',
-			'show_in_rest' => array(
-				'name' => 'jetpack_publicize_message'
+		$message_args = array(
+			'type'          => 'string',
+			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
+			'single'        => true,
+			'default'       => '',
+			'show_in_rest'  => array(
+				'name' => 'jetpack_publicize_message',
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		$tweetstorm_args = array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether or not the post should be treated as a Twitter thread.', 'jetpack' ),
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => array(
+				'name' => 'jetpack_is_tweetstorm',
 			),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
@@ -873,9 +893,11 @@ abstract class Publicize_Base {
 				continue;
 			}
 
-			$args['object_subtype'] = $post_type;
+			$message_args['object_subtype']    = $post_type;
+			$tweetstorm_args['object_subtype'] = $post_type;
 
-			register_meta( 'post', $this->POST_MESS, $args );
+			register_meta( 'post', $this->POST_MESS, $message_args );
+			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 		}
 	}
 

@@ -32,3 +32,8 @@ $grid-size-large: 16px;
 .jetpack-search-filters-widget__filter-list {
 	list-style-type: none;
 }
+
+// Hide the search modal in the TwentyTwenty theme
+.theme-twentytwenty .cover-modal.show-modal.search-modal {
+	display: none;
+}

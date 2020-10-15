@@ -40,10 +40,12 @@
 			margin: 0;
 			line-height: normal;
 		}
+		ul.wp-block-jetpack-slideshow_swiper-wrapper {
+			display: flex;
+		}
 	}
 
 	.wp-block-jetpack-slideshow_slide {
-		background: rgba( 0, 0, 0, 0.1 );
 		display: flex;
 		height: 100%;
 		width: 100%;

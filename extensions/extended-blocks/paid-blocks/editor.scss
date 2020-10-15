@@ -67,6 +67,10 @@ $icon-background-color: #fff;
 	}
 }
 
+.jetpack-upgrade-plan__hidden {
+	opacity: 0;
+}
+
 // Tweak Banner depending on the context.
 // Tweak Banner: Inspector Controls.
 .editor-styles-wrapper [data-block].is-upgradable,

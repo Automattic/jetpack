@@ -1098,7 +1098,7 @@ class lessc {
 		}
 		list($color, $delta) = $args[2];
 		$color = $this->assertColor($color);
-		$delta = floatval($delta[1]);
+		$delta = (float) $delta[1];
 
 		return array($color, $delta);
 	}
@@ -1396,7 +1396,7 @@ class lessc {
 			$i = 0;
 			foreach ($rawComponents as $c) {
 				$val = $this->reduce($c);
-				$val = isset($val[1]) ? floatval($val[1]) : 0;
+				$val = isset( $val[1] ) ? (float) $val[1] : 0;
 
 				if ($i == 0) $clamp = 360;
 				elseif ($i < 3) $clamp = 100;
@@ -1418,13 +1418,13 @@ class lessc {
 					if ($c[0] == "number" && $c[2] == "%") {
 						$components[] = 255 * ($c[1] / 100);
 					} else {
-						$components[] = floatval($c[1]);
+						$components[] = (float) $c[1];
 					}
 				} elseif ($i == 4) {
 					if ($c[0] == "number" && $c[2] == "%") {
 						$components[] = 1.0 * ($c[1] / 100);
 					} else {
-						$components[] = floatval($c[1]);
+						$components[] = (float) $c[1];
 					}
 				} else break;
 
@@ -2229,6 +2229,7 @@ class lessc {
 		'plum' => '221,160,221',
 		'powderblue' => '176,224,230',
 		'purple' => '128,0,128',
+		'rebeccapurple' => '102,51,153',
 		'red' => '255,0,0',
 		'rosybrown' => '188,143,143',
 		'royalblue' => '65,105,225',
@@ -3758,4 +3759,3 @@ class lessc_formatter_lessjs extends lessc_formatter_classic {
 	public $assignSeparator = ": ";
 	public $selectorSeparator = ",";
 }
-

@@ -73,6 +73,13 @@ class Rest_Authentication {
 			return $user;
 		}
 
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
+
 		if ( ! isset( $_GET['_for'] ) || 'jetpack' !== $_GET['_for'] ) {
 			// Nothing to do for this authentication method.
 			return null;

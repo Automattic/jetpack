@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Rating_Star;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'rating-star';
@@ -23,7 +24,7 @@ require_once __DIR__ . '/rating-meta.php';
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',

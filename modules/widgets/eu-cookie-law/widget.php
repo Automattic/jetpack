@@ -1,3 +1,11 @@
+<?php // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+/**
+ * Widget for Cookies and Consent.
+ *
+ * @package Jetpack
+ */
+?>
+
 <div
 	class="<?php echo implode( ' ', $classes ); ?>"
 	data-hide-timeout="<?php echo intval( $instance['hide-timeout'] ); ?>"
@@ -14,12 +22,12 @@
 		echo nl2br( esc_html( $instance['customtext'] ) );
 	} ?>
 
-	<a href="<?php
-		$policy_link_text = 'default' === $instance['policy-url'] || empty( $instance['custom-policy-url'] )
-			? $instance['default-policy-url']
-			: $instance['custom-policy-url'];
-		echo esc_url( $policy_link_text );
-	?>" >
+	<?php
+	$is_default_policy = 'default' === $instance['policy-url'] || empty( $instance['custom-policy-url'] );
+	$policy_link_url   = $is_default_policy ? $instance['default-policy-url'] : $instance['custom-policy-url'];
+	$policy_link_rel   = $is_default_policy ? 'nofollow' : '';
+	?>
+	<a href="<?php echo esc_url( $policy_link_url ); ?>" rel="<?php echo esc_attr( $policy_link_rel ); ?>">
 		<?php echo esc_html( $instance['policy-link-text'] ); ?>
 	</a>
 </div>

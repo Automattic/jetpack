@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Calendly;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'calendly';
@@ -20,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
@@ -61,9 +62,9 @@ function load_assets( $attr, $content ) {
 	$background_color        = get_attribute( $attr, 'backgroundColor' );
 	$text_color              = get_attribute( $attr, 'textColor' );
 	$primary_color           = get_attribute( $attr, 'primaryColor' );
-	$classes                 = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
+	$classes                 = Blocks::classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
 	$block_id                = wp_unique_id( 'calendly-block-' );
-	$is_amp_request          = class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
+	$is_amp_request          = Blocks::is_amp_request();
 
 	if ( ! wp_script_is( 'jetpack-calendly-external-js' ) && ! $is_amp_request ) {
 		enqueue_calendly_js();
@@ -103,7 +104,7 @@ function load_assets( $attr, $content ) {
 		if ( $is_amp_request ) {
 			$content = sprintf(
 				'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
-				esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr ) ),
+				esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 				esc_attr( $block_id ),
 				esc_js( $url ),
 				wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
@@ -115,11 +116,7 @@ function load_assets( $attr, $content ) {
 				esc_attr( $block_id )
 			);
 			$script  = <<<JS_END
-Calendly.initInlineWidget({
-	url: '%s',
-	parentElement: document.getElementById('%s'),
-	inlineStyles: false,
-});
+jetpackInitCalendly( '%s', '%s' );
 JS_END;
 			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 		}
@@ -172,7 +169,25 @@ function enqueue_calendly_js() {
 
 	wp_add_inline_script(
 		'jetpack-calendly-external-js',
-		"function calendly_attach_link_events( elementId ) {
+		"function jetpackInitCalendly( url, elementId ) {
+			function initCalendlyWidget() {
+				Calendly.initInlineWidget({
+					url: url,
+					parentElement: document.getElementById( elementId ),
+					inlineStyles: false,
+				});
+			};
+			// For P2s only: wait until after o2 has
+			// replaced main#content to initialize widget.
+			if ( window.jQuery && window.o2 ) {
+				jQuery( 'body' ).on( 'ready.o2', function() { initCalendlyWidget() } );
+			// Else initialize widget without waiting.
+			} else {
+				initCalendlyWidget();
+			}
+		};
+
+		function calendly_attach_link_events( elementId ) {
 			var widget = document.getElementById( elementId );
 			if ( widget ) {
 				widget.addEventListener( 'click', function( event ) {

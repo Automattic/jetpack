@@ -3,8 +3,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { moment } from 'i18n-calypso';
 import { __, sprintf } from '@wordpress/i18n';
+import { dateI18n, isInTheFuture } from '@wordpress/date';
 
 class ProductExpiration extends React.PureComponent {
 	static propTypes = {
@@ -18,7 +18,7 @@ class ProductExpiration extends React.PureComponent {
 		expiryDate: '',
 		purchaseDate: '',
 		isRefundable: false,
-		dateFormat: 'LL',
+		dateFormat: 'F j, Y',
 	};
 
 	render() {
@@ -31,30 +31,31 @@ class ProductExpiration extends React.PureComponent {
 
 		// Return the subscription date if we don't have the expiry date or the plan is refundable.
 		if ( ! expiryDate || isRefundable ) {
-			const purchaseMoment = moment( purchaseDate );
-			if ( purchaseMoment.isValid() ) {
+			const purchaseDateObj = new Date( purchaseDate );
+			if ( purchaseDateObj.toString() !== 'Invalid Date' ) {
 				return sprintf(
 					/* translators: placeholder is a date. */
 					__( 'Purchased on %s.', 'jetpack' ),
-					purchaseMoment.format( dateFormat )
+					dateI18n( dateFormat, purchaseDateObj )
 				);
 			}
+
 			return null;
 		}
 
-		const expiryMoment = moment( expiryDate );
+		const expiryDateObj = new Date( expiryDate );
 
 		// Return null if date is not parsable.
-		if ( ! expiryMoment.isValid() ) {
+		if ( expiryDateObj.toString() === 'Invalid Date' ) {
 			return null;
 		}
 
 		// If the expiry date is in the past, show the expiration date.
-		if ( expiryMoment.diff( new Date() ) < 0 ) {
+		if ( ! isInTheFuture( expiryDateObj ) ) {
 			return sprintf(
 				/* translators: placeholder is a date. */
 				__( 'Expired on %s.', 'jetpack' ),
-				expiryMoment.format( dateFormat )
+				dateI18n( dateFormat, expiryDateObj )
 			);
 		}
 
@@ -62,7 +63,7 @@ class ProductExpiration extends React.PureComponent {
 		return sprintf(
 			/* translators: placeholder is a date. */
 			__( 'Renews on %s.', 'jetpack' ),
-			expiryMoment.format( dateFormat )
+			dateI18n( dateFormat, expiryDateObj )
 		);
 	}
 }

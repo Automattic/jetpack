@@ -205,8 +205,9 @@ class Jetpack_Network {
 			if ( ! in_array( 'jetpack/jetpack.php', $active_plugins, true ) ) {
 				Jetpack::disconnect();
 			}
+			restore_current_blog();
 		}
-		restore_current_blog();
+
 	}
 
 	/**

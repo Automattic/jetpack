@@ -46,6 +46,7 @@ const SearchBox = props => {
 						<Gridicon icon="search" size={ 24 } />
 					</div>
 					<input
+						autocomplete="off"
 						id={ inputId }
 						className="search-field jetpack-instant-search__box-input"
 						onInput={ props.onChangeQuery }

@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack;
 use Jetpack_Gutenberg;
 
@@ -56,7 +57,7 @@ class WordAds {
 	 */
 	public static function register() {
 		if ( self::is_available() ) {
-			jetpack_register_block(
+			Blocks::jetpack_register_block(
 				self::BLOCK_NAME,
 				array(
 					'render_callback' => array( __CLASS__, 'gutenblock_render' ),

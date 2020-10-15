@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * Provides utility methods for the Connection package.
  */
@@ -18,24 +16,16 @@ class Utils {
 	const DEFAULT_JETPACK__API_BASE    = 'https://jetpack.wordpress.com/jetpack.';
 
 	/**
-	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
-	 * This method sets the URL scheme to HTTP when HTTPS requests can't be made.
+	 * This method used to set the URL scheme to HTTP when HTTPS requests can't be made.
+	 * Now it returns the exact same URL you pass as an argument.
 	 *
 	 * @param string $url The url.
-	 * @return string The url with the required URL scheme.
+	 * @return string The exact same url.
+	 *
+	 * @deprecated 9.1.0 Jetpack can't function properly on servers that don't support outbound HTTPS requests.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		// If we receive an http url, return it.
-		if ( 'http' === wp_parse_url( $url, PHP_URL_SCHEME ) ) {
-			return $url;
-		}
-
-		// If the url should never be https, ensure it isn't https.
-		if ( 'NEVER' === Constants::get_constant( 'JETPACK_CLIENT__HTTPS' ) ) {
-			return set_url_scheme( $url, 'http' );
-		}
-
-		// Otherwise, return the https url.
+		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
 		return $url;
 	}
 
@@ -81,5 +71,17 @@ class Utils {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Add a filter to initialize default values of the constants.
+	 */
+	public static function init_default_constants() {
+		add_filter(
+			'jetpack_constant_default_value',
+			array( __CLASS__, 'jetpack_api_constant_filter' ),
+			10,
+			2
+		);
 	}
 }

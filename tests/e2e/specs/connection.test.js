@@ -7,6 +7,9 @@ import { execWpCommand } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
+// Disable pre-connect for this test suite
+process.env.SKIP_CONNECT = true;
+
 describe( 'Connection', () => {
 	catchBeforeAll( async () => {
 		await execWpCommand( 'wp option delete jetpack_private_options' );

@@ -76,7 +76,6 @@ class Jetpack_Client {
 	 * The option is checked on each request.
 	 *
 	 * @internal
-	 * @see Utils::fix_url_for_bad_hosts()
 	 *
 	 * @param String  $url the request URL.
 	 * @param array   $args request arguments.

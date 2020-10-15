@@ -37,7 +37,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
 							text: __(
-								'Jetpack will continuously monitor your site, and alert you the moment downtime is detected.',
+								'Jetpack will continuously monitor your site and alert you the moment downtime is detected.',
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-monitor' ),

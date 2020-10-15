@@ -72,33 +72,11 @@ class Jetpack_Instagram_Gallery_Helper {
 		$cached_gallery = get_transient( $transient_key );
 		if ( $cached_gallery ) {
 			$decoded_cached_gallery = json_decode( $cached_gallery );
-			$cached_count           = count( $decoded_cached_gallery->images );
+			// `images` can be an array of images or a string 'ERROR'.
+			$cached_count = is_array( $decoded_cached_gallery->images ) ? count( $decoded_cached_gallery->images ) : 0;
 			if ( $cached_count >= $count ) {
 				return $decoded_cached_gallery;
 			}
-		}
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
-				\jetpack_require_lib( 'instagram-gallery-helper' );
-			}
-
-			$gallery = WPCOM_Instagram_Gallery_Helper::get_gallery( $access_token, $count );
-			if ( is_wp_error( $gallery ) ) {
-				return $gallery;
-			}
-
-			$encoded_gallery = wp_json_encode( $gallery );
-
-			// Make sure the gallery is an object.
-			$gallery_object = json_decode( $encoded_gallery );
-
-			// Avoid caching the gallery if the fetch failed for unknown reasons.
-			if ( property_exists( $gallery_object, 'images' ) && 'ERROR' !== $gallery_object->images ) {
-				set_transient( $transient_key, $encoded_gallery, HOUR_IN_SECONDS );
-			}
-
-			return $gallery_object;
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(

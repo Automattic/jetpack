@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Feature: Search
  * Additional Search Queries: search, elastic, elastic search, elasticsearch, fast search, search results, search performance, google search
- * Plans: business
+ * Plans: business, complete
  */
 
 require_once( dirname( __FILE__ ) . '/search/class.jetpack-search.php' );

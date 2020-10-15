@@ -81,6 +81,20 @@ class Jetpack_Sync_Debug_Helper {
 	 * @return array
 	 */
 	public static function store_sync_error( $data, $codec_name, $sent_timestamp, $queue_id ) {
+		if ( is_wp_error( $data ) ) {
+			update_option(
+				self::LAST_SYNC_ERROR,
+				array(
+					'error_code' => $data->get_error_code(),
+					'queue'      => $queue_id,
+					'timestamp'  => $sent_timestamp,
+					'codec'      => $codec_name,
+				)
+			);
+
+			// Not going any further to avoid fatal errors if $data is an object.
+			return $data;
+		}
 		if ( isset( $data['error_code'] ) && ! self::$saved_error ) {
 			update_option(
 				self::LAST_SYNC_ERROR,

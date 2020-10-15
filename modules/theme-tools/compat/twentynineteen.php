@@ -124,3 +124,87 @@ function twentynineteen_jetpack_body_classes( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'twentynineteen_jetpack_body_classes' );
+
+/**
+ * Load AMP theme specific hooks for infinite scroll.
+ *
+ * @return void
+ */
+function amp_twentynineteen_infinite_scroll_render_hooks() {
+	add_filter( 'jetpack_amp_infinite_footers', 'twentynineteen_amp_infinite_footers', 10, 2 );
+	add_filter( 'jetpack_amp_infinite_output', 'twentynineteen_amp_infinite_output' );
+	add_filter( 'jetpack_amp_infinite_older_posts', 'twentynineteen_amp_infinite_older_posts' );
+}
+
+/**
+ * Get the theme specific footers.
+ *
+ * @param array  $footers The footers of the themes.
+ * @param string $buffer  Contents of the output buffer.
+ *
+ * @return mixed
+ */
+function twentynineteen_amp_infinite_footers( $footers, $buffer ) {
+	// Collect the footer wrapper.
+	preg_match(
+		'/<footer id="colophon".*<!-- #colophon -->/s',
+		$buffer,
+		$footer
+	);
+	$footers[] = reset( $footer );
+
+	return $footers;
+}
+
+/**
+ * Hide and remove various elements from next page load.
+ *
+ * @param string $buffer Contents of the output buffer.
+ *
+ * @return string
+ */
+function twentynineteen_amp_infinite_output( $buffer ) {
+	// Hide site header on next page load.
+	$buffer = preg_replace(
+		'/id="masthead"/',
+		'$0 next-page-hide',
+		$buffer
+	);
+
+	// Hide pagination on next page load.
+	$buffer = preg_replace(
+		'/class=".*navigation pagination.*"/',
+		'$0 next-page-hide hidden',
+		$buffer
+	);
+
+	// Remove the footer as it will be added back to amp next page footer.
+	$buffer = preg_replace(
+		'/<footer id="colophon".*<!-- #colophon -->/s',
+		'',
+		$buffer
+	);
+
+	return $buffer;
+}
+
+/**
+ * Filter the AMP infinite scroll older posts button
+ *
+ * @return string
+ */
+function twentynineteen_amp_infinite_older_posts() {
+	ob_start();
+	?>
+<div id="infinite-handle" style="text-align: center;">
+	<span>
+		<a href="{{url}}">
+			<button>
+				<?php esc_html_e( 'Older posts', 'jetpack' ); ?>
+			</button>
+		</a>
+	</span>
+</div>
+	<?php
+	return ob_get_clean();
+}

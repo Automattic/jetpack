@@ -17,16 +17,16 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			array_push( $this->compat_fields, 'all_items' );
 		}
 
-		$this->items = $this->all_items = Jetpack_Admin::init()->get_modules();
-		$this->items = $this->filter_displayed_table_items( $this->items );
 		/**
 		 * Filters the list of modules available to be displayed in the Jetpack Settings screen.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param array $this->items Array of Jetpack modules.
+		 * @param array $modules Array of Jetpack modules.
 		 */
-		$this->items           = apply_filters( 'jetpack_modules_list_table_items', $this->items );
+		$this->all_items       = apply_filters( 'jetpack_modules_list_table_items', Jetpack_Admin::init()->get_modules() );
+		$this->items           = $this->all_items;
+		$this->items           = $this->filter_displayed_table_items( $this->items );
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
 		$modal_info            = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
@@ -132,7 +132,8 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	function get_views() {
-		$modules              = Jetpack_Admin::init()->get_modules();
+		/** This filter is already documented in class.jetpack-modules-list-table.php */
+		$modules              = apply_filters( 'jetpack_modules_list_table_items', Jetpack_Admin::init()->get_modules() );
 		$array_of_module_tags = wp_list_pluck( $modules, 'module_tags' );
 		$module_tags          = call_user_func_array( 'array_merge', $array_of_module_tags );
 		$module_tags_unique   = array_count_values( $module_tags );

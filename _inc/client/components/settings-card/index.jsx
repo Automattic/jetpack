@@ -13,11 +13,8 @@ import { __, _x } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import {
-	PLAN_JETPACK_PREMIUM,
-	PLAN_JETPACK_BUSINESS,
-	PLAN_JETPACK_PERSONAL,
-	PLAN_JETPACK_SEARCH,
 	FEATURE_SECURITY_SCANNING_JETPACK,
+	FEATURE_SITE_BACKUPS_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
@@ -25,8 +22,10 @@ import {
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
 	getPlanClass,
+	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
 
+import { isOfflineMode } from 'state/connection';
 import {
 	getSiteAdminUrl,
 	getUpgradeUrl,
@@ -86,19 +85,29 @@ export const SettingsCard = props => {
 				'Upgrade',
 				'A caption for a button to upgrade an existing paid feature to a higher tier.',
 				'jetpack'
+			),
+			hasPremiumOrBetter = includes(
+				[
+					'is-premium-plan',
+					'is-business-plan',
+					'is-daily-security-plan',
+					'is-realtime-security-plan',
+					'is-complete-plan',
+				],
+				planClass
 			);
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( 'is-premium-plan' === planClass || 'is-business-plan' === planClass ) {
+				if ( hasPremiumOrBetter ) {
 					return '';
 				}
 
 				return (
 					<JetpackBanner
-						title={ __( 'Host fast, high-quality, ad-free video.', 'jetpack' ) }
+						title={ __( 'Get unlimited, ad-free video hosting.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
-						plan={ PLAN_JETPACK_PREMIUM }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.videoPremiumUpgradeUrl }
@@ -107,8 +116,7 @@ export const SettingsCard = props => {
 
 			case FEATURE_WORDADS_JETPACK:
 				if (
-					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass ||
+					hasPremiumOrBetter ||
 					-1 !== props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return '';
@@ -118,7 +126,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						title={ __( 'Generate income with high-quality ads.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
-						plan={ PLAN_JETPACK_PREMIUM }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.adsUpgradeUrl }
@@ -126,15 +134,24 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( backupsEnabled || 'is-business-plan' === planClass || props.multisite ) {
+				if (
+					backupsEnabled ||
+					[ 'is-business-plan', 'is-realtime-security-plan', 'is-complete-plan' ].includes(
+						planClass
+					) ||
+					props.multisite
+				) {
 					return '';
 				}
 
-				if ( 'is-premium-plan' === planClass ) {
+				if ( [ 'is-premium-plan', 'is-daily-security-plan' ].includes( planClass ) ) {
 					return (
 						<JetpackBanner
-							title={ __( 'Real-time site backups and automatic threat resolution.', 'jetpack' ) }
-							plan={ PLAN_JETPACK_BUSINESS }
+							title={ __(
+								'Save every change and get back online quickly with one-click restores.',
+								'jetpack'
+							) }
+							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
 							callToAction={ upgradeLabel }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
@@ -146,8 +163,11 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Protect against data loss, malware, and malicious attacks.', 'jetpack' ) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						title={ __(
+							'Automated scanning and one-click fixes keep your site ahead of security threats.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.securityPremiumUpgradeUrl }
@@ -155,36 +175,30 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
+				if ( hasPremiumOrBetter ) {
 					return '';
 				}
 
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __(
-							'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.',
-							'jetpack'
-						) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						title={ __( 'Connect your site to Google Analytics.', 'jetpack' ) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.gaUpgradeUrl }
 					/>
 				);
 			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
+				if ( hasPremiumOrBetter ) {
 					return '';
 				}
 
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __(
-							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium or Professional.',
-							'jetpack'
-						) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						title={ __( 'Boost your search engine ranking', 'jetpack' ) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SEO_TOOLS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.seoUpgradeUrl }
@@ -192,7 +206,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( props.hasActiveSearchPurchase ) {
+				if ( props.hasActiveSearchPurchase || 'is-complete-plan' === planClass ) {
 					return '';
 				}
 
@@ -203,7 +217,7 @@ export const SettingsCard = props => {
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 							'jetpack'
 						) }
-						plan={ PLAN_JETPACK_SEARCH }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
@@ -214,7 +228,8 @@ export const SettingsCard = props => {
 				if (
 					props.isCheckingAkismetKey ||
 					props.isAkismetKeyValid ||
-					includes( [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ], planClass )
+					'is-personal-plan' === planClass ||
+					hasPremiumOrBetter
 				) {
 					return '';
 				}
@@ -222,8 +237,8 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Protect your site from spam.', 'jetpack' ) }
-						plan={ PLAN_JETPACK_PERSONAL }
+						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
 					/>
@@ -239,7 +254,17 @@ export const SettingsCard = props => {
 			return true;
 		}
 
-		const planClass = getPlanClass( props.sitePlan.product_slug );
+		const planClass = getPlanClass( props.sitePlan.product_slug ),
+			hasPremiumOrBetter = includes(
+				[
+					'is-premium-plan',
+					'is-business-plan',
+					'is-daily-security-plan',
+					'is-realtime-security-plan',
+					'is-complete-plan',
+				],
+				planClass
+			);
 
 		switch ( feature ) {
 			case FEATURE_SECURITY_SCANNING_JETPACK:
@@ -251,8 +276,7 @@ export const SettingsCard = props => {
 
 			case FEATURE_WORDADS_JETPACK:
 				if (
-					'is-premium-plan' !== planClass &&
-					'is-business-plan' !== planClass &&
+					! hasPremiumOrBetter ||
 					-1 === props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return false;
@@ -261,7 +285,7 @@ export const SettingsCard = props => {
 				break;
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
+				if ( ! hasPremiumOrBetter ) {
 					return false;
 				}
 
@@ -318,7 +342,8 @@ export const SettingsCard = props => {
 	};
 
 	const children = showChildren() && props.children;
-	const banner = ! props.fetchingSiteData && ! featureIsOverriden() && getBanner();
+	const banner =
+		! props.fetchingSiteData && ! featureIsOverriden() && ! props.inOfflineMode && getBanner();
 
 	if ( ! children && ! banner ) {
 		return null;
@@ -393,5 +418,6 @@ export default connect( state => {
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
 		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
+		inOfflineMode: isOfflineMode( state ),
 	};
 } )( SettingsCard );

@@ -42,6 +42,7 @@ if ( program.args.length ) {
 			userData: {},
 			dismissedNotices: {},
 			locale: '{}',
+			licensing: { error: '' },
 		};
 
 		switch ( program.args[ 0 ] ) {

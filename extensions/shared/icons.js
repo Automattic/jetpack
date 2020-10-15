@@ -9,6 +9,7 @@ import { colors as PALETTE } from '@automattic/color-studio';
  * Internal dependencies
  */
 import './icons.scss';
+import { getIconColor } from './block-icons';
 
 /**
  * Constants
@@ -22,14 +23,14 @@ export const MediaLibraryIcon = () => (
 	</SVG>
 );
 
-export const GooglePhotosIcon = () => (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+export const GooglePhotosIcon = props => (
+	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" { ...props }>
 		<Path d="M6.3 7l-4.4 4.5c0 .1-.1.2-.1.3-.1.1 0 .2.2.2h7c1.1 0 2-.9 2-2V7H6.3zM22 12h-7c-1.1 0-2 .9-2 2v3h4.7l4.4-4.5c0-.1.1-.2.1-.3.1-.1 0-.2-.2-.2zM12.5 1.9c-.1 0-.2-.1-.3-.1-.1-.1-.2 0-.2.2v7c0 1.1.9 2 2 2h3V6.3l-4.5-4.4zM10 13H7v4.7l4.5 4.4c.1 0 .2.1.3.1.2 0 .3-.1.3-.3v-7c-.1-1-1-1.9-2.1-1.9z" />
 	</SVG>
 );
 
-export const PexelsIcon = () => (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+export const PexelsIcon = props => (
+	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" { ...props }>
 		<Path d="M14 7H9v10h3.9v-3.8H14c1.7 0 3.1-1.4 3.1-3.1C17.2 8.4 15.8 7 14 7z" />
 		<Path d="M20.5 2h-17C2.7 2 2 2.7 2 3.5v17c0 .8.7 1.5 1.5 1.5h17c.8 0 1.5-.7 1.5-1.5v-17c0-.8-.7-1.5-1.5-1.5zm-5.6 13.2V19H7V5h7c2.8 0 5.1 2.3 5.1 5.1.1 2.5-1.8 4.7-4.2 5.1z" />
 	</SVG>
@@ -145,6 +146,15 @@ const GoogleIcon = (
 		</G>
 	</SVG>
 );
+
+export const LoomIcon = {
+	foreground: getIconColor(),
+	src: (
+		<SVG viewBox="0 0 100 100">
+			<Path d="M100,44H72.4l23.9-13.8l-6-10.4L66.4,33.6L80.2,9.7l-10.4-6L56,27.59V0H44v27.6L30.2,3.7l-10.4,6l13.8,23.9 L9.7,19.8l-6,10.4L27.6,44H0V56h27.6L3.7,69.8l6,10.4l23.9-13.8L19.8,90.3l10.4,6L44,72.4V100H56V72.41l13.8,23.9l10.4-6L66.4,66.4 l23.9,13.8l6-10.4L72.4,56H100V44z M50,65.23c-8.41,0-15.23-6.82-15.23-15.23c0-8.41,6.82-15.23,15.23-15.23S65.23,41.59,65.23,50 C65.23,58.41,58.41,65.23,50,65.23z" />
+		</SVG>
+	),
+};
 
 export const SocialServiceIcon = ( { serviceName, className } ) => {
 	const defaultProps = {

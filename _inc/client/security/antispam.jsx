@@ -110,18 +110,21 @@ export const Antispam = withModuleSettingsFormHelpers(
 				foldableHeader = __( 'Your site is protected from spam.', 'jetpack' );
 				explanation = __( 'It looks like your API key has been set globally.', 'jetpack' );
 				akismetStatus = (
-					<FormInputValidation text={ __( 'Your Antispam key is valid.', 'jetpack' ) } />
+					<FormInputValidation text={ __( 'Your Anti-spam key is valid.', 'jetpack' ) } />
 				);
 			} else if ( '' === this.state.apiKey ) {
 				textProps.value = '';
-				foldableHeader = __( 'Your site needs an Antispam key.', 'jetpack' );
+				foldableHeader = __( 'Your site needs an Anti-spam key.', 'jetpack' );
 			} else if ( ! this.state.delayKeyCheck && ! this.props.isCheckingAkismetKey ) {
 				if ( false === this.props.isAkismetKeyValid ) {
 					akismetStatus = (
 						<FormInputValidation
 							isError
 							text={ jetpackCreateInterpolateElement(
-								__( "There's a problem with your Antispam API key. <a>Learn more</a>.", 'jetpack' ),
+								__(
+									"There's a problem with your Anti-spam API key. <a>Learn more</a>.",
+									'jetpack'
+								),
 								{
 									a: <a href={ 'https://docs.akismet.com/getting-started/api-key/' } />,
 								}
@@ -132,7 +135,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 					foldableHeader = __( 'Your site is not protected from spam.', 'jetpack' );
 				} else {
 					akismetStatus = (
-						<FormInputValidation text={ __( 'Your Antispam key is valid.', 'jetpack' ) } />
+						<FormInputValidation text={ __( 'Your Anti-spam key is valid.', 'jetpack' ) } />
 					);
 					textProps.isValid = true;
 					foldableHeader = __( 'Your site is protected from spam.', 'jetpack' );

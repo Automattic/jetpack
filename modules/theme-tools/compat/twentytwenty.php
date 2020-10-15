@@ -160,3 +160,116 @@ function twentytwenty_infinity_accent_color_css() {
 	wp_add_inline_style( 'twentytwenty-jetpack', $custom_css );
 }
 add_action( 'wp_enqueue_scripts', 'twentytwenty_infinity_accent_color_css' );
+
+/**
+ * Load AMP theme specific hooks for infinite scroll.
+ *
+ * @return void
+ */
+function amp_twentytwenty_infinite_scroll_render_hooks() {
+	add_filter( 'jetpack_amp_infinite_footers', 'twentytwenty_amp_infinite_footers', 10, 2 );
+	add_filter( 'jetpack_amp_infinite_output', 'twentytwenty_amp_infinite_output' );
+	add_filter( 'jetpack_amp_infinite_separator', 'twentytwenty_amp_infinite_separator' );
+	add_filter( 'jetpack_amp_infinite_older_posts', 'twentytwenty_amp_infinite_older_posts' );
+}
+
+/**
+ * Get the theme specific footers.
+ *
+ * @param array  $footers The footers of the themes.
+ * @param string $buffer  Contents of the output buffer.
+ *
+ * @return mixed
+ */
+function twentytwenty_amp_infinite_footers( $footers, $buffer ) {
+	// Collect the footer wrapper.
+	preg_match(
+		'/<div class="footer-nav-widgets-wrapper.*<!-- .footer-nav-widgets-wrapper -->/s',
+		$buffer,
+		$footer
+	);
+	$footers[] = reset( $footer );
+
+	// Collect the footer wrapper.
+	preg_match(
+		'/<footer id="site-footer".*<!-- #site-footer -->/s',
+		$buffer,
+		$footer
+	);
+	$footers[] = reset( $footer );
+
+	return $footers;
+}
+
+/**
+ * Hide and remove various elements from next page load.
+ *
+ * @param string $buffer Contents of the output buffer.
+ *
+ * @return string
+ */
+function twentytwenty_amp_infinite_output( $buffer ) {
+	// Hide site header on next page load.
+	$buffer = preg_replace(
+		'/id="site-header"/',
+		'$0 next-page-hide',
+		$buffer
+	);
+
+	// Hide pagination on next page load.
+	$buffer = preg_replace(
+		'/class=".*pagination-wrapper.*"/',
+		'$0 next-page-hide hidden',
+		$buffer
+	);
+
+	// Remove the footer as it will be added back to amp next page footer.
+	$buffer = preg_replace(
+		'/<div class="footer-nav-widgets-wrapper.*<!-- .footer-nav-widgets-wrapper -->/s',
+		'',
+		$buffer
+	);
+
+	// Remove the footer as it will be added back to amp next page footer.
+	$buffer = preg_replace(
+		'/<footer id="site-footer".*<!-- #site-footer -->/s',
+		'',
+		$buffer
+	);
+
+	return $buffer;
+}
+
+/**
+ * Filter the AMP infinite scroll separator
+ *
+ * @return string
+ */
+function twentytwenty_amp_infinite_separator() {
+	ob_start();
+	?>
+<hr class="post-separator styled-separator is-style-wide section-inner" aria-hidden="true">
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Filter the AMP infinite scroll older posts button
+ *
+ * @return string
+ */
+function twentytwenty_amp_infinite_older_posts() {
+	ob_start();
+	?>
+<div id="infinite-handle" class="read-more-button-wrap">
+	<span>
+		<a href="{{url}}" class="more-link" rel="amphtml">
+			<span class="faux-button">
+				<?php esc_html_e( 'Older posts', 'jetpack' ); ?>
+			</span>
+		</a>
+	</span>
+</div>
+	<?php
+	return ob_get_clean();
+}

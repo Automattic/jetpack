@@ -152,9 +152,8 @@ class VideoPress_Edit_Attachment {
 	 */
 	public function make_video_api_path( $guid ) {
 		return sprintf(
-			'%s://%s/rest/v%s/videos/%s',
-			'https',
-			'public-api.wordpress.com', // JETPACK__WPCOM_JSON_API_HOST,
+			'%s/rest/v%s/videos/%s',
+			JETPACK__WPCOM_JSON_API_BASE,
 			Client::WPCOM_JSON_API_VERSION,
 			$guid
 		);
@@ -295,11 +294,11 @@ class VideoPress_Edit_Attachment {
 <div class="misc-pub-section misc-pub-shortcode">
 	<strong>Shortcode</strong><br>
 	{$shortcode}
-</div> 
+</div>
 <div class="misc-pub-section misc-pub-url">
 	<strong>Url</strong>
 	{$url}
-</div> 
+</div>
 <div class="misc-pub-section misc-pub-poster">
 	<strong>Poster</strong>
 	{$poster}
@@ -317,10 +316,10 @@ class VideoPress_Edit_Attachment {
 			jQuery.ajax( {
 				type: 'post',
 				url: 'admin-ajax.php',
-				data: { 
+				data: {
 					action: 'videopress-update-transcoding-status',
 					post_id: '{$post_id}',
-					_ajax_nonce: '{$nonce}' 
+					_ajax_nonce: '{$nonce}'
 				},
 				complete: function( response ) {
 					if ( 200 === response.status ) {

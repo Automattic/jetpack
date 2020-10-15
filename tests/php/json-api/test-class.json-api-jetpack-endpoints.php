@@ -1,4 +1,9 @@
 <?php
+/**
+ * Tests for /sites/%s/categories/slug:%s
+ *
+ * @package Jetpack
+ */
 
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
@@ -6,8 +11,10 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR'
 
 require_jetpack_file( 'class.json-api-endpoints.php' );
 
+/**
+ * Tests for /sites/%s/categories/slug:%s
+ */
 class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
-
 	/**
 	 * Inserts globals needed to initialize the endpoint.
 	 */
@@ -17,35 +24,52 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 		$_SERVER['REQUEST_URI']    = '/';
 	}
 
+	/**
+	 *  Called before every test.
+	 */
 	public function setUp() {
+		parent::setUp();
+
+		global $blog_id;
+
 		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
 			define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
 		}
 
-		parent::setUp();
-
 		$this->set_globals();
-	}
 
-	public function create_get_category_endpoint() {
-		// From json-endpoints/class.wpcom-json-api-get-taxonomy-endpoint.php :(
-		return new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
-			'description' => 'Get information about a single category.',
-			'group'       => 'taxonomy',
-			'stat'        => 'categories:1',
-
-			'method'      => 'GET',
-			'path'        => '/sites/%s/categories/slug:%s',
-			'path_labels' => array(
-				'$site'     => '(int|string) Site ID or domain',
-				'$category' => '(string) The category slug'
-			),
-
-			'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/categories/slug:community'
-		) );
+		// Initialize some missing stuff for the API.
+		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
 	}
 
 	/**
+	 * Creates a WPCOM_JSON_API_Get_Taxonomy_Endpoint
+	 *
+	 * @author nylen
+	 *
+	 * @return WPCOM_JSON_API_Get_Taxonomy_Endpoint
+	 */
+	public function create_get_category_endpoint() {
+		// From json-endpoints/class.wpcom-json-api-get-taxonomy-endpoint.php :( .
+		return new WPCOM_JSON_API_Get_Taxonomy_Endpoint(
+			array(
+				'description'     => 'Get information about a single category.',
+				'group'           => 'taxonomy',
+				'stat'            => 'categories:1',
+				'method'          => 'GET',
+				'path'            => '/sites/%s/categories/slug:%s',
+				'path_labels'     => array(
+					'$site'     => '(int|string) Site ID or domain',
+					'$category' => '(string) The category slug',
+				),
+				'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/categories/slug:community',
+			)
+		);
+	}
+
+	/**
+	 * Tests get term feed url with pretty permalinks.
+	 *
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
@@ -54,14 +78,12 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 		global $blog_id;
 
 		$this->set_permalink_structure( '/%year%/%monthnum%/%postname%/' );
-		// Reset taxonomy URL structure after changing permalink structure
+		// Reset taxonomy URL structure after changing permalink structure.
 		create_initial_taxonomies();
 
 		$category = wp_insert_term( 'test_category', 'category' );
 
 		$endpoint = $this->create_get_category_endpoint();
-		// Initialize some missing stuff for the API
-		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
 
 		$response = $endpoint->callback(
 			sprintf( '/sites/%d/categories/slug:test_category', $blog_id ),
@@ -76,6 +98,8 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests get term feed url with ugly permalinks.
+	 *
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
@@ -84,14 +108,12 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 		global $blog_id;
 
 		$this->set_permalink_structure( '' );
-		// Reset taxonomy URL structure after changing permalink structure
+		// Reset taxonomy URL structure after changing permalink structure.
 		create_initial_taxonomies();
 
 		$category = wp_insert_term( 'test_category', 'category' );
 
 		$endpoint = $this->create_get_category_endpoint();
-		// Initialize some missing stuff for the API
-		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
 
 		$response = $endpoint->callback(
 			sprintf( '/sites/%d/categories/slug:test_category', $blog_id ),

@@ -16,6 +16,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
+		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
@@ -25,6 +26,7 @@
 		"automattic/jetpack-heartbeat": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-lazy-images": "@dev",
+		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-partner": "@dev",
@@ -33,13 +35,14 @@
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev",
-		"automattic/jetpack-tracking": "@dev"
+		"automattic/jetpack-tracking": "@dev",
+		"nojimage/twitter-text-php": "3.1.1"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
 		"sirbrillig/phpcs-changed": "2.5.1",
-		"sirbrillig/phpcs-variable-analysis": "2.8.3",
+		"sirbrillig/phpcs-variable-analysis": "2.9.0",
 		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"scripts": {
@@ -63,6 +66,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true
+		"sort-packages": true,
+		"platform": {
+			"ext-intl": "0.0.0"
+		}
 	}
 }

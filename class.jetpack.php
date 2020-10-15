@@ -8,6 +8,7 @@ use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -705,7 +706,7 @@ class Jetpack {
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
 		add_action( 'wp_head', array( $this, 'check_open_graph' ), 1 );
-		add_action( 'amp_story_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'web_stories_story_head', array( $this, 'check_open_graph' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
@@ -780,6 +781,12 @@ class Jetpack {
 		add_filter( 'jetpack_token_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
+
+		// Actions for successful reconnect.
+		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
+
+		// Actions for licensing.
+		Licensing::instance()->initialize();
 	}
 
 	/**
@@ -792,8 +799,6 @@ class Jetpack {
 		foreach (
 			array(
 				'sync',
-				'tracking',
-				'tos',
 			)
 			as $feature
 		) {
@@ -849,6 +854,15 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
+		}
+
+		if ( ( new Tracking( $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
+		} else {
+			/**
+			 * Initialize tracking right after the user agrees to the terms of service.
+			 */
+			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
 	}
 
@@ -3289,6 +3303,7 @@ p {
 	 */
 	public static function disconnect( $update_activated_state = true ) {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+
 		$connection = self::connection();
 		$connection->clean_nonces( true );
 
@@ -3552,18 +3567,13 @@ p {
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
-			$args       = array();
-			$connection = self::connection();
-			Client::_wp_remote_request(
-				Connection_Utils::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
-				$args,
-				true
-			);
+			$args = array();
+			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
 		Jetpack_Wizard_Banner::init();
 
-		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
+		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
 		}
 
@@ -4937,6 +4947,17 @@ endif;
 	}
 
 	/**
+	 * This action fires at the end of the REST_Connector connection_reconnect method when the
+	 * reconnect process is completed.
+	 * Note that this currently only happens when we don't need the user to re-authorize
+	 * their WP.com account, eg in cases where we are restoring a connection with
+	 * unhealthy blog token.
+	 */
+	public static function reconnection_completed() {
+		self::state( 'message', 'reconnection_completed' );
+	}
+
+	/**
 	 * Get our assumed site creation date.
 	 * Calculated based on the earlier date of either:
 	 * - Earliest admin user registration date.
@@ -5032,13 +5053,14 @@ endif;
 	}
 
 	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::fix_url_for_bad_hosts() instead.
+	 * @deprecated 8.0
 	 *
-	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
+	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
+	 * But we no longer fix "bad hosts" anyway, outbound HTTPS is required for Jetpack to function.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::fix_url_for_bad_hosts' );
-		return Connection_Utils::fix_url_for_bad_hosts( $url );
+		_deprecated_function( __METHOD__, 'jetpack-8.0' );
+		return $url;
 	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
@@ -5147,32 +5169,19 @@ endif;
 			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
 				$ssl = 0;
 			} else {
-				switch ( JETPACK_CLIENT__HTTPS ) {
-					case 'NEVER':
-						$ssl     = 0;
-						$message = __( 'JETPACK_CLIENT__HTTPS is set to NEVER', 'jetpack' );
-						break;
-					case 'ALWAYS':
-					case 'AUTO':
-					default:
-						$ssl = 1;
-						break;
-				}
+				$ssl = 1;
 
-				// If it's not 'NEVER', test to see
-				if ( $ssl ) {
-					if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+				if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+					$ssl     = 0;
+					$message = __( 'WordPress reports no SSL support', 'jetpack' );
+				} else {
+					$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
+					if ( is_wp_error( $response ) ) {
 						$ssl     = 0;
 						$message = __( 'WordPress reports no SSL support', 'jetpack' );
-					} else {
-						$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
-						if ( is_wp_error( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'WordPress reports no SSL support', 'jetpack' );
-						} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
-						}
+					} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
+						$ssl     = 0;
+						$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
 					}
 				}
 			}
@@ -5184,7 +5193,7 @@ endif;
 	}
 
 	/*
-	 * Displays an admin_notice, alerting the user to their JETPACK_CLIENT__HTTPS constant being 'AUTO' but SSL isn't working.
+	 * Displays an admin_notice, alerting the user that outbound SSL isn't working.
 	 */
 	public function alert_auto_ssl_fail() {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -5542,25 +5551,6 @@ endif;
 	}
 
 	/**
-	 * Add our nonce to this request.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::add_nonce()
-	 *
-	 * @param int    $timestamp Timestamp of the request.
-	 * @param string $nonce     Nonce string.
-	 */
-	public function add_nonce( $timestamp, $nonce ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::add_nonce' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->add_nonce( $timestamp, $nonce );
-	}
-
-	/**
 	 * In some setups, $HTTP_RAW_POST_DATA can be emptied during some IXR_Server paths since it is passed by reference to various methods.
 	 * Capture it here so we can verify the signature later.
 	 *
@@ -5635,19 +5625,6 @@ endif;
 		}
 
 		return $this->connection_manager->xmlrpc_options( $options );
-	}
-
-	/**
-	 * Cleans nonces that were saved when calling ::add_nonce.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::clean_nonces()
-	 *
-	 * @param bool $all whether to clean even non-expired nonces.
-	 */
-	public static function clean_nonces( $all = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::clean_nonces' );
-		return self::connection()->clean_nonces( $all );
 	}
 
 	/**
@@ -5792,7 +5769,7 @@ endif;
 		$client_blog_id = is_multisite() ? $blog_id : 0;
 
 		if ( ! isset( $clients[ $client_blog_id ] ) ) {
-			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => JETPACK_MASTER_USER ) );
+			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => Connection_Manager::CONNECTION_OWNER ) );
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
@@ -6160,7 +6137,18 @@ endif;
 			$local_options = self::get_sync_error_idc_option();
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
-				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+
+				// If the WP.com expected home and siteurl match local home and siteurl it is not valid IDC.
+				if (
+						isset( $sync_error['wpcom_home'] ) &&
+						isset( $sync_error['wpcom_siteurl'] ) &&
+						$sync_error['wpcom_home'] === $local_options['home'] &&
+						$sync_error['wpcom_siteurl'] === $local_options['siteurl']
+				) {
+					$is_valid = false;
+					// Enable migrate_for_idc so that sync actions are accepted.
+					Jetpack_Options::update_option( 'migrate_for_idc', true );
+				} elseif ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
 				}
 			}
@@ -6502,6 +6490,8 @@ endif;
 			'jetpack_mobile_theme_menu'                    => null,
 			'minileven_show_featured_images'               => null,
 			'minileven_attachment_size'                    => null,
+			// Removed in Jetpack 9.1.0.
+			'instagram_cache_oembed_api_response_body'     => null,
 		);
 
 		// This is a silly loop depth. Better way?
@@ -6536,6 +6526,10 @@ endif;
 			'atd_load_scripts'                  => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
+			),
+			'jetpack_can_make_outbound_https'   => array(
+				'replacement' => null,
+				'version'     => 'jetpack-9.1.0',
 			),
 		);
 

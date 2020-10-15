@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getCurrentVersion } from 'state/initial-state';
+import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
@@ -235,7 +235,18 @@ class JetpackStateNotices extends React.Component {
 					</NoticeAction>
 				);
 				break;
-
+			case 'reconnection_completed':
+				message = jetpackCreateInterpolateElement(
+					__(
+						'Jetpack successfully reconnected! You can check your Jetpack Connection health by visiting the <a>Site Health tool</a>.',
+						'jetpack'
+					),
+					{
+						a: <a href={ this.props.siteAdminUrl + 'site-health.php' } />,
+					}
+				);
+				status = 'is-success';
+				break;
 			default:
 				message = key;
 		}
@@ -305,5 +316,6 @@ export default connect( state => {
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
 		jetpackStateNoticesMessageContent: getJetpackStateNoticesMessageContent( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( JetpackStateNotices );

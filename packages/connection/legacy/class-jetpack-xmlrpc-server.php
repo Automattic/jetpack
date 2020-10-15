@@ -56,14 +56,19 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
-			'jetpack.verifyAction'    => array( $this, 'verify_action' ),
-			'jetpack.getUser'         => array( $this, 'get_user' ),
-			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
-			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
+			'jetpack.verifyAction'     => array( $this, 'verify_action' ),
+			'jetpack.getUser'          => array( $this, 'get_user' ),
+			'jetpack.remoteRegister'   => array( $this, 'remote_register' ),
+			'jetpack.remoteProvision'  => array( $this, 'remote_provision' ),
+			'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
+			'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
 		);
 
 		if ( class_exists( 'Jetpack' ) ) {
-			$jetpack_methods['jetpack.jsonAPI'] = array( $this, 'json_api' );
+			$jetpack_methods['jetpack.jsonAPI']           = array( $this, 'json_api' );
+			$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
+			$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
+			$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
 		}
 
 		$this->user = $this->login();
@@ -72,18 +77,10 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.testAPIUserCode'  => array( $this, 'test_api_user_code' ),
-					'jetpack.disconnectBlog'   => array( $this, 'disconnect_blog' ),
-					'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
-					'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
+					'jetpack.disconnectBlog'  => array( $this, 'disconnect_blog' ),
+					'jetpack.testAPIUserCode' => array( $this, 'test_api_user_code' ),
 				)
 			);
-
-			if ( class_exists( 'Jetpack' ) ) {
-				$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
-				$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
-				$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
-			}
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
 				$jetpack_methods['metaWeblog.newMediaObject']      = $core_methods['metaWeblog.newMediaObject'];
@@ -103,7 +100,7 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		/**
-		 * Filters the XML-RPC methods available to Jetpack for unauthenticated users.
+		 * Filters the XML-RPC methods available to Jetpack for requests signed only with a blog token.
 		 *
 		 * @since 3.0.0
 		 *
@@ -311,9 +308,7 @@ class Jetpack_XMLRPC_Server {
 		$nonce = sanitize_text_field( $request['nonce'] );
 		unset( $request['nonce'] );
 
-		$api_url  = Connection_Utils::fix_url_for_bad_hosts(
-			$this->connection->api_url( 'partner_provision_nonce_check' )
-		);
+		$api_url  = $this->connection->api_url( 'partner_provision_nonce_check' );
 		$response = Client::_wp_remote_request(
 			esc_url_raw( add_query_arg( 'nonce', $nonce, $api_url ) ),
 			array( 'method' => 'GET' ),
@@ -605,6 +600,8 @@ class Jetpack_XMLRPC_Server {
 			return false;
 		}
 
+		wp_set_current_user( $user->ID );
+
 		return $user;
 	}
 
@@ -735,9 +732,19 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Unlink a user from WordPress.com
 	 *
-	 * This will fail if called by the Master User.
+	 * When the request is done without any parameter, this XMLRPC callback gets an empty array as input.
+	 *
+	 * If $user_id is not provided, it will try to disconnect the current logged in user. This will fail if called by the Master User.
+	 *
+	 * If $user_id is is provided, it will try to disconnect the informed user, even if it's the Master User.
+	 *
+	 * @param mixed $user_id The user ID to disconnect from this site.
 	 */
-	public function unlink_user() {
+	public function unlink_user( $user_id = array() ) {
+		$user_id = (int) $user_id;
+		if ( $user_id < 1 ) {
+			$user_id = null;
+		}
 		/**
 		 * Fired when we want to log an event to the Jetpack event log.
 		 *
@@ -747,7 +754,10 @@ class Jetpack_XMLRPC_Server {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
-		return Connection_Manager::disconnect_user();
+		return Connection_Manager::disconnect_user(
+			$user_id,
+			(bool) $user_id
+		);
 	}
 
 	/**

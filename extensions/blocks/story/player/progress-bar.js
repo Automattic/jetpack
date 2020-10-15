@@ -16,7 +16,7 @@ export const ProgressBar = ( {
 	onSlideSeek,
 } ) => {
 	return (
-		<div className="wp-story-pagination wp-story-pagination-bullets">
+		<div className="wp-story-pagination wp-story-pagination-bullets" role="tablist">
 			{ slides.map( ( slide, index ) => {
 				let progress;
 				if ( index < currentSlideIndex ) {
@@ -26,13 +26,16 @@ export const ProgressBar = ( {
 				} else {
 					progress = currentSlideProgress;
 				}
-				const onClick = () => {
-					if ( ! fullscreen ) {
-						return null;
-					}
-					onSlideSeek( index );
-				};
-				return <Bullet key={ index } index={ index } progress={ progress } onClick={ onClick } />;
+				return (
+					<Bullet
+						key={ index }
+						index={ index }
+						progress={ progress }
+						disabled={ ! fullscreen }
+						isSelected={ currentSlideIndex === index }
+						onClick={ () => onSlideSeek( index ) }
+					/>
+				);
 			} ) }
 		</div>
 	);

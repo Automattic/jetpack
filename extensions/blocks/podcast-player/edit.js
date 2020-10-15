@@ -82,6 +82,7 @@ const PodcastPlayerEdit = ( {
 		url,
 		itemsToShow,
 		showCoverArt,
+		showEpisodeTitle,
 		showEpisodeDescription,
 		exampleFeedData,
 	} = validatedAttributes;
@@ -287,6 +288,12 @@ const PodcastPlayerEdit = ( {
 						label={ __( 'Show Cover Art', 'jetpack' ) }
 						checked={ showCoverArt }
 						onChange={ value => setAttributes( { showCoverArt: value } ) }
+					/>
+
+					<ToggleControl
+						label={ __( 'Show Episode Title', 'jetpack' ) }
+						checked={ showEpisodeTitle }
+						onChange={ value => setAttributes( { showEpisodeTitle: value } ) }
 					/>
 
 					<ToggleControl

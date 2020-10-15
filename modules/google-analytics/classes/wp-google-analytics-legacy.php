@@ -19,7 +19,7 @@ class Jetpack_Google_Analytics_Legacy {
 	public function __construct() {
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_track_purchases' ) );
-		add_action( 'wp_footer', array( $this, 'insert_code' ) );
+		add_action( 'wp_head', array( $this, 'insert_code' ), 999 );
 		add_action( 'wp_footer', array( $this, 'jetpack_wga_classic_track_add_to_cart' ) );
 	}
 
@@ -55,7 +55,7 @@ class Jetpack_Google_Analytics_Legacy {
 
 	/**
 	 * This injects the Google Analytics code into the footer of the page.
-	 * Called exclusively by wp_footer action
+	 * Called exclusively by wp_head action
 	 */
 	public function insert_code() {
 		$tracking_id = Jetpack_Google_Analytics_Options::get_tracking_code();

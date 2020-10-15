@@ -422,6 +422,44 @@ EXPECTED;
 		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
 	}
 
+	/**
+	 * Verify that validate_sync_error returns false if wpcom_ is set and matches expected.
+	 */
+	public function test_sync_error_idc_validation_returns_false_when_wpcom_option_matches_expected() {
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		$option                  = Jetpack::get_sync_error_idc_option();
+		$option['wpcom_home']    = $option['home'];
+		$option['wpcom_siteurl'] = $option['siteurl'];
+		Jetpack_Options::update_option( 'sync_error_idc', $option );
+		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+
+		// Verify the migrate_for_idc is set.
+		$this->assertTrue( Jetpack_Options::get_option( 'migrate_for_idc' ) );
+
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		Jetpack_Options::delete_option( 'migrate_for_idc' );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+	}
+
+	/**
+	 * Verify that validate_sync_error returns true if wpcom_ is set and does not match.
+	 */
+	public function test_sync_error_idc_validation_returns_true_when_wpcom_option_does_not_match_expected() {
+		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
+		$option                  = Jetpack::get_sync_error_idc_option();
+		$option['wpcom_home']    = $option['home'];
+		$option['wpcom_siteurl'] = 'coolrunnings.test';
+		Jetpack_Options::update_option( 'sync_error_idc', $option );
+		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+
+		// Verify the migrate_for_idc is not set.
+		$this->assertNotTrue( Jetpack_Options::get_option( 'migrate_for_idc' ) );
+
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		Jetpack_Options::delete_option( 'migrate_for_idc' );
+		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
+	}
+
 	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
 		Jetpack_Options::update_option( 'sync_error_idc', array(
 			'home'    => 'coolsite.com/',
@@ -770,15 +808,15 @@ EXPECTED;
 	function get_file_url_for_environment_data_provider() {
 		return array(
 			'script-debug-true' => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				true,
 				'non_min_path',
 				'min_path'
 			),
 			'script-debug-false' => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				false,
 				'min_path',
 				'non_min_path'
@@ -893,10 +931,19 @@ EXPECTED;
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.jsonAPI',
+			'jetpack.idcUrlValidation',
+			'jetpack.unlinkUser',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
 		);
 
-		// Nothing else is allowed.
-		$allowed = array();
+		$allowed = array(
+			'jetpack.getHeartbeatData',
+			'jetpack.syncObject',
+			'jetpack.updatePublicizeConnections',
+			'jetpack.getBlog',
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}

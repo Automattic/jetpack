@@ -227,6 +227,12 @@ You can also see your database files via local file system at `./docker/data/mys
 
 You can also access it via phpMyAdmin at [http://localhost:8181](http://localhost:8181).
 
+Another way to accessing the database is MySQL client using the following command:
+```sh
+yarn docker:db
+```  
+This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
+
 ## SFTP access
 
 You can access WordPress and Jetpack files via SFTP server container.
@@ -353,6 +359,27 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
 
+## Jurassic Tube Tunneling Service
+If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
+
+As it is developed internally, you can review the source code and participate in adding new features.
+
+* Start the tunnel: `yarn docker:jt-up your-username your-subdomain`
+* Break the connection: `yarn docker:jt-down`
+
+You can also set default values:
+
+```shell script
+yarn docker:jt-config username your-username
+yarn docker:jt-config subdomain your-subdomain
+```
+That will let you omit those parameters while initiating the connection:
+```shell script
+yarn docker:jt-up
+```
+
+More information: PCYsg-snO-p2. 
+
 ## Custom plugins & themes in the container
 
 Jetpack Docker environment can be wonderful for developing your own plugins and themes, too.
@@ -379,6 +406,14 @@ To `tail -f` the PHP error log, run:
 ```sh
 yarn docker:tail
 ```
+
+#### MySQL Slow Query Log
+
+The MySQL Server is configured to log any queries that take longer than 0.5 second to execute.
+
+Path to the slow query log: `docker/logs/mysql/slow.log`.
+
+We recommend to regularly review the log to make sure performance issues don't go unnoticed.
 
 ### Debugging emails
 

@@ -104,10 +104,8 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		reconnect: action =>
-			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams, {
-				body: JSON.stringify( { action: action } ),
-			} )
+		reconnect: () =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -160,6 +158,13 @@ function JetpackRestApiClient( root, nonce ) {
 		resetOptions: options =>
 			postRequest( `${ apiRoot }jetpack/v4/options/${ options }`, postParams, {
 				body: JSON.stringify( { reset: true } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		activateVaultPress: () =>
+			postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
+				body: JSON.stringify( { slug: 'vaultpress', status: 'active' } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
@@ -328,6 +333,13 @@ function JetpackRestApiClient( root, nonce ) {
 
 		saveSetupQuestionnaire: props =>
 			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
+				body: JSON.stringify( props ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		updateLicensingError: props =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/error`, postParams, {
 				body: JSON.stringify( props ),
 			} )
 				.then( checkStatus )

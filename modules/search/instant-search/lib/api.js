@@ -245,22 +245,21 @@ export function search( options ) {
 
 	const pathForPublicApi = `/sites/${ options.siteId }/search?${ queryString }`;
 
-	// TODO: Remove eslint exception when adding atomic private site support
-	// eslint-disable-next-line no-unused-vars
 	const { apiNonce, apiRoot, isPrivateSite, isWpcom } = window[ SERVER_OBJECT_NAME ];
 	if ( isPrivateSite && isWpcom ) {
-		return import( 'wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
+		return import( '../external/wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
 			return promiseifedProxyRequest( proxyRequest, pathForPublicApi, options.query )
 				.catch( errorHandler )
 				.then( responseHandler );
 		} );
 	}
 
-	// NOTE: This urlForPrivateApi will be enabled once locally proxied API route for private sites is complete.
+	// NOTE: Both atomic and Jetpack sites can be set to "private".
 	const urlForPublicApi = `https://public-api.wordpress.com/rest/v1.3${ pathForPublicApi }`;
-	// const urlForPrivateApi = `${ apiRoot }wpcom/v2/search?${ queryString }`;
-	const url = urlForPublicApi;
+	const urlForPrivateApi = `${ apiRoot }wpcom/v2/search?${ queryString }`;
+	const url = isPrivateSite ? urlForPrivateApi : urlForPublicApi;
 
+	// NOTE: API Nonce is necessary to authenticate requests to class-wpcom-rest-api-v2-endpoint-search.php.
 	return fetch( url, { headers: isPrivateSite ? { 'X-WP-Nonce': apiNonce } : {} } )
 		.then( response => {
 			if ( ! response.ok || response.status !== 200 ) {

@@ -17,9 +17,23 @@ function stripQueryString( url ) {
 	return url.split( '?', 1 )[ 0 ];
 }
 
-const PhotonImage = ( { useDiv, src, maxWidth = 300, maxHeight = 300, alt, ...otherProps } ) => {
-	const photonSrc = photon( stripQueryString( src ), { resize: `${ maxWidth },${ maxHeight }` } );
-	const srcToDisplay = photonSrc !== null ? photonSrc : src;
+const PhotonImage = ( {
+	useDiv,
+	src,
+	maxWidth = 300,
+	maxHeight = 300,
+	alt,
+	isPrivateSite,
+	...otherProps
+} ) => {
+	let srcToDisplay = src;
+
+	if ( ! isPrivateSite ) {
+		const photonSrc = photon( stripQueryString( src ), { resize: `${ maxWidth },${ maxHeight }` } );
+		if ( photonSrc !== null ) {
+			srcToDisplay = photonSrc;
+		}
+	}
 
 	return useDiv ? (
 		<div

@@ -1,3 +1,4 @@
+/* global jetpack_redirects */
 /**
  * Builds an URL using the jetpack.com/redirect/ service
  *
@@ -5,7 +6,7 @@
  *
  * If $source is a full URL, starting with https://, it will be sent using the url query parameter. e.g. jetpack.com/redirect/?url=https://wordpress.com
  *
- * Note: if using full URL, query parameters and anchor must be passed in $args. Any querystring of url fragment in the URL will be discarded.
+ * Note: if using full URL, query parameters and anchor must be passed in args. Any querystring of url fragment in the URL will be discarded.
  *
  * @since 8.5.0
  *
@@ -14,7 +15,7 @@
  *
  * 		Additional arguments to build the url
  *
- * 		@type {string} site URL of the current site.
+ * 		@type {string} site URL of the current site. Will default to the value of jetpack_redirects.currentSiteRawUrl, if available.
  * 		@type {string} path Additional path to be appended to the URL
  * 		@type {string} query Query parameters to be added to the URL
  * 		@type {string} anchor Anchor to be added to the URL
@@ -42,6 +43,14 @@ export default function getRedirectUrl( source, args = {} ) {
 			queryVars[ argName ] = encodeURIComponent( args[ argName ] );
 		}
 	} );
+
+	if (
+		! Object.keys( queryVars ).includes( 'site' ) &&
+		typeof jetpack_redirects !== 'undefined' &&
+		jetpack_redirects.hasOwnProperty( 'currentSiteRawUrl' )
+	) {
+		queryVars.site = jetpack_redirects.currentSiteRawUrl;
+	}
 
 	const queryString = Object.keys( queryVars )
 		.map( key => key + '=' + queryVars[ key ] )

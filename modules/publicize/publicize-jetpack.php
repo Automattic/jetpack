@@ -7,7 +7,7 @@ class Publicize extends Publicize_Base {
 	function __construct() {
 		parent::__construct();
 
-		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'register_update_publicize_connections_xmlrpc_method' ) );
+		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( $this, 'register_update_publicize_connections_xmlrpc_method' ) );
 
 		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
 
