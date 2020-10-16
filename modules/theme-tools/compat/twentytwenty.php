@@ -167,78 +167,39 @@ add_action( 'wp_enqueue_scripts', 'twentytwenty_infinity_accent_color_css' );
  * @return void
  */
 function amp_twentytwenty_infinite_scroll_render_hooks() {
-	add_filter( 'jetpack_amp_infinite_footers', 'twentytwenty_amp_infinite_footers', 10, 2 );
-	add_filter( 'jetpack_amp_infinite_output', 'twentytwenty_amp_infinite_output' );
 	add_filter( 'jetpack_amp_infinite_separator', 'twentytwenty_amp_infinite_separator' );
 	add_filter( 'jetpack_amp_infinite_older_posts', 'twentytwenty_amp_infinite_older_posts' );
 }
 
 /**
- * Get the theme specific footers.
+ * Add arguments to the infinite scroll sanitizer.
  *
- * @param array  $footers The footers of the themes.
- * @param string $buffer  Contents of the output buffer.
- *
- * @return mixed
+ * @param array $sanitizers Sanitizers.
+ * @return array Sanitizers.
  */
-function twentytwenty_amp_infinite_footers( $footers, $buffer ) {
-	// Collect the footer wrapper.
-	preg_match(
-		'/<div class="footer-nav-widgets-wrapper.*<!-- .footer-nav-widgets-wrapper -->/s',
-		$buffer,
-		$footer
-	);
-	$footers[] = reset( $footer );
+function twentytwenty_filter_amp_infinite_scroll_sanitizers( $sanitizers ) {
+	if ( ! array_key_exists( 'Jetpack_AMP_Infinite_Scroll_Sanitizer', $sanitizers ) ) {
+		return $sanitizers;
+	}
 
-	// Collect the footer wrapper.
-	preg_match(
-		'/<footer id="site-footer".*<!-- #site-footer -->/s',
-		$buffer,
-		$footer
+	$sanitizers['Jetpack_AMP_Infinite_Scroll_Sanitizer'] = array_merge(
+		$sanitizers['Jetpack_AMP_Infinite_Scroll_Sanitizer'],
+		array(
+			// Formerly twentynineteen_amp_infinite_footers.
+			'footer_xpaths'         => array(
+				'//div[ contains( @class, "footer-nav-widgets-wrapper" ) ]',
+				'//footer[ @id = "site-footer" ]',
+			),
+			'next_page_hide_xpaths' => array(
+				'//*[ @id = "site-header" ]',
+				'//*[ contains( @class, "pagination-wrapper" ) ]',
+			),
+		)
 	);
-	$footers[] = reset( $footer );
 
-	return $footers;
+	return $sanitizers;
 }
-
-/**
- * Hide and remove various elements from next page load.
- *
- * @param string $buffer Contents of the output buffer.
- *
- * @return string
- */
-function twentytwenty_amp_infinite_output( $buffer ) {
-	// Hide site header on next page load.
-	$buffer = preg_replace(
-		'/id="site-header"/',
-		'$0 next-page-hide',
-		$buffer
-	);
-
-	// Hide pagination on next page load.
-	$buffer = preg_replace(
-		'/class=".*pagination-wrapper.*"/',
-		'$0 next-page-hide hidden',
-		$buffer
-	);
-
-	// Remove the footer as it will be added back to amp next page footer.
-	$buffer = preg_replace(
-		'/<div class="footer-nav-widgets-wrapper.*<!-- .footer-nav-widgets-wrapper -->/s',
-		'',
-		$buffer
-	);
-
-	// Remove the footer as it will be added back to amp next page footer.
-	$buffer = preg_replace(
-		'/<footer id="site-footer".*<!-- #site-footer -->/s',
-		'',
-		$buffer
-	);
-
-	return $buffer;
-}
+add_filter( 'amp_content_sanitizers', 'twentytwenty_filter_amp_infinite_scroll_sanitizers' );
 
 /**
  * Filter the AMP infinite scroll separator
