@@ -78,7 +78,11 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div className={ classes } data-mode={ orientation || 'horizontal' }>
+			<div
+				className={ classes }
+				data-mode={ orientation || 'horizontal' }
+				data-control-label={ __( 'Slide to compare images.', 'jetpack' ) }
+			>
 				<Placeholder label={ null }>
 					<div className="image-compare__image-before">
 						<ImgUpload
