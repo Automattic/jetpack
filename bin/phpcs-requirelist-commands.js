@@ -4,15 +4,15 @@
 const spawnSync = require( 'child_process' ).spawnSync;
 const requirelist = require( './phpcs-requirelist' );
 
-console.log( 'PHPCBF... Please expect this to take minutes.' );
-spawnSync( 'vendor/bin/phpcbf', [ ...requirelist ], {
+console.log( 'Running PHPCBF. Please standby as it makes code beautiful.' );
+spawnSync( 'vendor/bin/phpcbf', [ '-p', ...requirelist ], {
 	shell: true,
 	stdio: 'inherit',
 } );
 
-console.log( 'PHPCS... Please expect this to take minutes.' );
+console.log( 'Running PHPCS.' );
 
-spawnSync( 'vendor/bin/phpcs', [ '-s', ...requirelist ], {
+spawnSync( 'vendor/bin/phpcs', [ '-ps', ...requirelist ], {
 	shell: true,
 	stdio: 'inherit',
 } );
