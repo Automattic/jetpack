@@ -186,9 +186,6 @@ BODY;
 	 * @covers ::jetpack_instagram_oembed_fetch_url
 	 */
 	public function test_instagram_replace_image_url_with_embed_and_remove_query_args() {
-		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped( 'must be revisited.' );
-		}
 		global $post;
 
 		$instagram_url                 = 'https://www.instagram.com/p/BnMO9vRleEx/';
