@@ -48,7 +48,7 @@
 	margin-bottom: 0.25em;
 	float: none;
 	font-weight: bold;
-	display: block;
+	display: inline-block;
 }
 
 .contact-form label.consent-implicit input {
