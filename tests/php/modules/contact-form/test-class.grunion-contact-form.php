@@ -38,7 +38,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$post_id = $this->factory->post->create( array(
 			'post_status' => 'draft',
-			'post_author' => strval( $author_id )
+			'post_author' => (string) $author_id,
 		) );
 
 		global $post;
@@ -531,6 +531,33 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests shortcode with commas and brackets.
+	 *
+	 * @covers Grunion_Contact_Form_Field
+	 */
+	public function test_array_values_with_commas_and_brackets() {
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		$shortcode = "[contact-field type='radio' options='\"foo\",bar&#044; baz,&#091;b&#092;rackets&#093;' label='fun &#093;&#091; times'/]";
+		$html      = do_shortcode( $shortcode );
+		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
+	}
+
+	/**
+	 * Tests Gutenblock input with commas and brackets.
+	 *
+	 * @covers Grunion_Contact_Form_Field
+	 */
+	public function test_array_values_with_commas_and_brackets_from_gutenblock() {
+		$attr = array(
+			'type'    => 'radio',
+			'options' => array( '"foo"', 'bar, baz', '[b\\rackets]' ),
+			'label'   => 'fun ][ times',
+		);
+		$html = Grunion_Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '' );
+		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
+	}
+
+	/**
 	 * Test for text field_renders
 	 *
 	 * @covers Grunion_Contact_Form_Field
@@ -690,13 +717,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 */
 	public function test_make_sure_radio_field_renders_as_expected() {
 		$attributes = array(
-			'label' => 'fun',
-			'type' => 'radio',
-			'class' => 'lalala',
+			'label'   => 'fun',
+			'type'    => 'radio',
+			'class'   => 'lalala',
 			'default' => 'option 1',
-			'id' => 'funID',
-			'options' => array( 'option 1', 'option 2' ),
-			'values' => array( 'option 1', 'option 2' ),
+			'id'      => 'funID',
+			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
@@ -710,13 +737,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 */
 	public function test_make_sure_select_field_renders_as_expected() {
 		$attributes = array(
-			'label' => 'fun',
-			'type' => 'select',
-			'class' => 'lalala',
+			'label'   => 'fun',
+			'type'    => 'select',
+			'class'   => 'lalala',
 			'default' => 'option 1',
-			'id' => 'funID',
-			'options' => array( 'option 1', 'option 2' ),
-			'values' => array( 'o1', 'o2' ),
+			'id'      => 'funID',
+			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'select' ) );
@@ -842,17 +869,17 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	public function assertValidFieldMultiField( $html, $attributes ) {
 
-		$wrapperDiv = $this->getCommonDiv( $html );
-		$this->assertCommonValidHtml( $wrapperDiv, $attributes );
+		$wrapper_div = $this->getCommonDiv( $html );
+		$this->assertCommonValidHtml( $wrapper_div, $attributes );
 
 		// Get label
-		$label = $this->getFirstElement( $wrapperDiv, 'label' );
+		$label = $this->getFirstElement( $wrapper_div, 'label' );
 
 		//Inputs
 		if ( $attributes['type'] === 'select' ) {
 			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label select', 'label class doesn\'t match' );
 
-			$select = $this->getFirstElement( $wrapperDiv, 'select' );
+			$select = $this->getFirstElement( $wrapper_div, 'select' );
 			$this->assertEquals(
 				$label->getAttribute( 'for' ),
 				$select->getAttribute( 'id' ),
@@ -867,28 +894,49 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 			$this->assertEquals( $select->getAttribute( 'class' ), 'select '. $attributes['class'], ' select class does not match expected' );
 
-			// First Option
-			$option = $this->getFirstElement( $select, 'option' );
-			$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][0], 'Input value doesn\'t match' );
-			$this->assertEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is not selected' );
-			$this->assertEquals( $option->nodeValue, $attributes['options'][0], 'Input does not match the option' );
-
+			// Options.
+			$options = $select->getElementsByTagName( 'option' );
+			$n       = is_array( $options ) ? count( $options ) : $options->length;
+			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
+			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
+			for ( $i = 0; $i < $n; $i++ ) {
+				$option = is_array( $options ) ? $options[ $i ] : $options->item( $i );
+				$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
+				if ( 0 === $i ) {
+					$this->assertEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is not selected' );
+				} else {
+					$this->assertNotEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is selected' );
+				}
+				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
+			}
 		} else {
 			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label', 'label class doesn\'t match' );
-			// Radio and Checkboxes
-			$second_label = $this->getFirstElement( $wrapperDiv, 'label', 1 );
-			$this->assertEquals( $second_label->nodeValue, ' ' . $attributes['options'][0] ); // extra space added for a padding
+			// Radio and Checkboxes.
+			$labels = $wrapper_div->getElementsByTagName( 'label' );
+			$n      = is_array( $labels ) ? count( $labels ) - 1 : $labels->length - 1;
+			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
+			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
+			for ( $i = 0; $i < $n; $i++ ) {
+				$item_label = is_array( $labels ) ? $labels[ $i + 1 ] : $labels->item( $i + 1 );
+				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$this->assertEquals( $item_label->nodeValue, ' ' . $attributes['options'][ $i ] ); // extra space added for a padding.
 
-			$input = $this->getFirstElement( $second_label, 'input' );
-			$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
-			if (  $attributes['input_type'] === 'radio' ) {
-				$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
-			} else {
-				$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
+				$input = $this->getFirstElement( $item_label, 'input' );
+				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
+				if ( 'radio' === $attributes['input_type'] ) {
+					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
+				} else {
+					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
+				}
+				$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
+				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'], 'Input class doesn\'t match' );
+				if ( 0 === $i ) {
+					$this->assertEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+				} else {
+					$this->assertNotEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+				}
 			}
-			$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][0], 'Input value doesn\'t match' );
-			$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' '. $attributes['class'], 'Input class doesn\'t match' );
-			$this->assertEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
 		}
 	}
 

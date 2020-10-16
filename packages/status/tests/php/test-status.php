@@ -101,6 +101,71 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test when wp_get_environment_type is local.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_local_site
+	 */
+	public function test_is_local_wp_get_environment_type_local() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
+
+		Filters\expectApplied( 'jetpack_is_local_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertTrue( $this->status->is_local_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is local.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_local() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status->is_staging_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is staging.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_staging() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'staging' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertTrue( $this->status->is_staging_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is production.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_production() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status->is_staging_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is a random value.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_random() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'random_string' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertTrue( $this->status->is_staging_site() ); // We assume a site is a staging site for any non-local or non-production value.
+	}
+
+	/**
 	 * Test when using the constant to set dev mode
 	 *
 	 * @covers Automattic\Jetpack\Status::is_offline_mode

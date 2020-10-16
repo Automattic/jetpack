@@ -38,14 +38,9 @@ const cardCredentials = config.get( 'testCardCredentials' );
  * @param {boolean} o.mockPlanData
  */
 export async function connectThroughWPAdminIfNeeded( {
-	wpcomUser = 'defaultUser',
 	plan = 'complete',
 	mockPlanData = false,
 } = {} ) {
-	await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
-
-	await loginToWpSite( mockPlanData );
-
 	if ( await isBlogTokenSet() ) {
 		return 'already_connected';
 	}

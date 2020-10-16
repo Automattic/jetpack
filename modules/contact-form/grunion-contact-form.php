@@ -107,8 +107,8 @@ class Grunion_Contact_Form_Plugin {
 	public static function strip_tags( $data_with_tags ) {
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
-				$index = sanitize_text_field( strval( $index ) );
-				$value = wp_kses( strval( $value ), array() );
+				$index = sanitize_text_field( (string) $index );
+				$value = wp_kses( (string) $value, array() );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
 
 				$data_without_tags[ $index ] = $value;
@@ -2367,6 +2367,34 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Escape a shortcode value.
+	 *
+	 * Shortcode attribute values have a number of unfortunate restrictions, which fortunately we
+	 * can get around by adding some extra HTML encoding.
+	 *
+	 * The output HTML will have a few extra escapes, but that makes no functional difference.
+	 *
+	 * @since 9.1.0
+	 * @param string $val Value to escape.
+	 * @return string
+	 */
+	private static function esc_shortcode_val( $val ) {
+		return strtr(
+			esc_html( $val ),
+			array(
+				// Brackets in attribute values break the shortcode parser.
+				'['  => '&#091;',
+				']'  => '&#093;',
+				// Shortcode parser screws up backslashes too, thanks to calls to `stripcslashes`.
+				'\\' => '&#092;',
+				// The existing code here represents arrays as comma-separated strings.
+				// Rather than trying to change representations now, just escape the commas in values.
+				','  => '&#044;',
+			)
+		);
+	}
+
+	/**
 	 * The contact-field shortcode processor
 	 * We use an object method here instead of a static Grunion_Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
 	 *
@@ -2384,18 +2412,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
-					$att_strs[] = esc_html( $val );
+					$att_strs[] = self::esc_shortcode_val( $val );
 				} elseif ( isset( $val ) ) { // A regular attr - value pair
 					if ( ( $att === 'options' || $att === 'values' ) && is_string( $val ) ) { // remove any empty strings
 						$val = explode( ',', $val );
 					}
- 					if ( is_array( $val ) ) {
+					if ( is_array( $val ) ) {
 						$val =  array_filter( $val, array( __CLASS__, 'remove_empty' ) ); // removes any empty strings
-						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( 'esc_html', $val ) ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( array( __CLASS__, 'esc_shortcode_val' ), $val ) ) . '"';
 					} elseif ( is_bool( $val ) ) {
-						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ? '1' : '' ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . ( $val ? '1' : '' ) . '"';
 					} else {
-						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . self::esc_shortcode_val( $val ) . '"';
 					}
 				}
 			}

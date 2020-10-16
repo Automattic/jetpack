@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { catchBeforeAll, step } from '../lib/setup-env';
-import { loginToWpSite, connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
+import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
@@ -11,6 +11,9 @@ import {
 } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
+
+// Disable pre-connect for this test suite
+process.env.SKIP_CONNECT = true;
 
 describe( 'Jetpack updater', () => {
 	catchBeforeAll( async () => {
@@ -31,7 +34,6 @@ describe( 'Jetpack updater', () => {
 
 	it( 'Plugin updater', async () => {
 		await step( 'Can login and navigate to Plugins page', async () => {
-			await loginToWpSite();
 			await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 			await PluginsPage.init( page );
 		} );

@@ -7,9 +7,10 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		// Note: This forces the tests below to use the WPCOM/legacy flow. This means that
-		// the call to the /oembed-proxy endpoint isn't covered with tests. We should create
-		// at least one test below that specifically covers that.
+		// Note: This forces the tests below to use the flow that's used when an auth token
+		// for the Instagram oEmbed REST API is set. This means that the call to the /oembed-proxy
+		// endpoint isn't covered with tests. We should create at least one test below that
+		// specifically covers that.
 		Constants::set_constant( 'JETPACK_INSTAGRAM_EMBED_TOKEN', 'test' );
 
 		// Back compat for PHPUnit 3!
@@ -40,7 +41,7 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
-		if ( 0 !== strpos( $url, 'https://graph.facebook.com/v5.0/instagram_oembed/?url=' ) ) {
+		if ( ! wp_startswith( $url, 'https://graph.facebook.com/v5.0/instagram_oembed/' ) ) {
 			return $response;
 		}
 
@@ -53,11 +54,45 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 		$api_query = wp_parse_url( $url, PHP_URL_QUERY );
 		$api_query_args = null;
 		wp_parse_str( $api_query, $api_query_args );
+
+		if ( ! isset( $api_query_args['access_token'] ) ) {
+			$error = array(
+				'code'       => 104,
+				'fbtrace_id' => 'A3Rblahblahblah',
+				'message'    => 'An access token is required to request this resource.',
+				'type'       => 'OAuthException',
+			);
+
+			$response['body'] = wp_json_encode( compact( 'error' ) );
+			return $response;
+		}
+
 		if ( ! isset( $api_query_args['url'] ) ) {
 			return $response;
 		}
 
 		$path = wp_parse_url( $api_query_args['url'], PHP_URL_PATH );
+
+		// Does the URL itself include any query args?
+		$url_query      = wp_parse_url( $api_query_args['url'], PHP_URL_QUERY );
+		$url_query_args = null;
+		wp_parse_str( $url_query, $url_query_args );
+
+		if ( ! empty( $url_query_args ) ) {
+			$error = array(
+				'code'             => 100,
+				'error_subcode'    => 2207047,
+				'error_user_msg'   => "The request parameter 'url' is malformed or does not refer to an embeddable media.",
+				'error_user_title' => 'Invalid URL',
+				'fbtrace_id'       => 'ARkblahblahblah',
+				'is_transient'     => false,
+				'message'          => 'Invalid parameter',
+				'type'             => 'OAuthException',
+			);
+
+			$response['body'] = wp_json_encode( compact( 'error' ) );
+			return $response;
+		}
 
 		switch ( $path ) {
 			case '/p/BnMO9vRleEx/' :
@@ -127,13 +162,9 @@ BODY;
 	}
 
 	/**
-	 * @covers ::jetpack_instagram_handler
-	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
+	 * @covers ::jetpack_instagram_oembed_fetch_url
 	 */
 	public function test_instagram_replace_image_url_with_embed() {
-		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped( 'must be revisited.' );
-		}
 		global $post;
 
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
@@ -152,13 +183,32 @@ BODY;
 	}
 
 	/**
-	 * @covers ::jetpack_instagram_handler
-	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
+	 * @covers ::jetpack_instagram_oembed_fetch_url
+	 */
+	public function test_instagram_replace_image_url_with_embed_and_remove_query_args() {
+		global $post;
+
+		$instagram_url                 = 'https://www.instagram.com/p/BnMO9vRleEx/';
+		$instagram_url_with_query_args = $instagram_url . '?utm_source=ig_web_copy_link';
+
+		$post = $this->factory->post->create_and_get( array( 'post_content' => $instagram_url_with_query_args ) );
+
+		setup_postdata( $post );
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
+		wp_reset_postdata();
+
+		$this->assertContains(
+			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url . '"',
+			$actual
+		);
+	}
+
+	/**
+	 * @covers ::jetpack_instagram_oembed_fetch_url
 	 */
 	public function test_instagram_replace_video_url_with_embed() {
-		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped( 'must be revisited.' );
-		}
 		global $post;
 
 		$instagram_url = 'https://www.instagram.com/tv/BkQjCfsBIzi/';
@@ -177,13 +227,9 @@ BODY;
 	}
 
 	/**
-	 * @covers ::jetpack_instagram_handler
-	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
+	 * @covers ::jetpack_instagram_oembed_fetch_url
 	 */
 	public function test_instagram_replace_profile_image_url_with_embed() {
-		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped( 'must be revisited.' );
-		}
 		global $post;
 
 		$instagram_username      = 'jeherve';
@@ -205,13 +251,9 @@ BODY;
 	}
 
 	/**
-	 * @covers ::jetpack_instagram_handler
-	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
+	 * @covers ::jetpack_instagram_oembed_fetch_url
 	 */
 	public function test_instagram_replace_profile_video_url_with_embed() {
-		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped( 'must be revisited.' );
-		}
 		global $post;
 
 		$instagram_username      = 'instagram';

@@ -40,6 +40,13 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
+		require_once dirname( __FILE__ ) . '/functions.classic-editor.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		if ( ! is_plugin_active( 'classic-editor/classic-editor.php' ) || false === has_filter( 'block_editor_settings', array( 'Classic_Editor', 'remember_block_editor' ) ) ) {
+			add_action( 'edit_form_top', 'Jetpack\ClassicEditor\remember_classic_editor' );
+			add_filter( 'block_editor_settings', 'Jetpack\ClassicEditor\remember_block_editor', 10, 2 );
+		}
+
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
@@ -305,11 +312,6 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcom-block-editor-default-editor-script',
 			'wpcomGutenberg',
 			array(
-				'switchToClassic' => array(
-					'isVisible' => $this->is_iframed_block_editor() && ! isset( $_GET['in-editor-deprecation-group'] ), // phpcs:ignore WordPress.Security.NonceVerification
-					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
-					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
-				),
 				'richTextToolbar' => array(
 					'justify'   => __( 'Justify', 'jetpack' ),
 					'underline' => __( 'Underline', 'jetpack' ),
