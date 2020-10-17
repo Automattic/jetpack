@@ -822,28 +822,39 @@ class Jetpack_PostImages {
 			return false;
 		}
 
-		if ( wp_attachment_is( 'video', $attachment_id ) || wp_attachment_is( 'audio', $attachment_id ) ) {
-			return false;
-		}
-
 		$meta = wp_get_attachment_metadata( $attachment_id );
 
-		// The image must be larger than 200x200.
-		if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
-			return false;
-		}
-		if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
+		if ( empty( $meta ) ) {
 			return false;
 		}
 
-		$url = wp_get_attachment_url( $attachment_id );
+		if ( ! empty( $meta['videopress'] ) ) {
+			// Use poster image for VideoPress videos.
+			$url         = $meta['videopress']['poster'];
+			$meta_width  = $meta['videopress']['width'];
+			$meta_height = $meta['videopress']['height'];
+		} elseif ( wp_attachment_is( 'video', $attachment_id ) ) {
+			// We don't have thumbnail images for non-VideoPress videos - skip them.
+			return false;
+		} else {
+			if ( ! isset( $meta['width'] ) || ! isset( $meta['height'] ) ) {
+				return false;
+			}
+			$url         = wp_get_attachment_url( $attachment_id );
+			$meta_width  = $meta['width'];
+			$meta_height = $meta['height'];
+		}
+
+		if ( $meta_width < $width || $meta_height < $height ) {
+			return false;
+		}
 
 		return array(
 			'type'       => 'image',
 			'from'       => 'story',
 			'src'        => $url,
-			'src_width'  => $meta['width'],
-			'src_height' => $meta['height'],
+			'src_width'  => $meta_width,
+			'src_height' => $meta_height,
 			'href'       => $post_url,
 			'alt_text'   => self::get_alt_text( $attachment_id ),
 		);
