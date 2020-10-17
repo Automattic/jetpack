@@ -176,7 +176,7 @@
 		"tinycolor2": "1.4.2",
 		"uglify-save-license": "0.4.1",
 		"unfetch": "4.2.0",
-		"url-polyfill": "1.1.10",
+		"url-polyfill": "1.1.11",
 		"uuid": "7.0.3",
 		"webpack": "4.44.2",
 		"webpack-cli": "3.3.12"
