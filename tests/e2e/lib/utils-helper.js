@@ -29,9 +29,13 @@ export function execSyncShellCommand( cmd ) {
 }
 
 export function getNgrokSiteUrl() {
-	const cmd =
-		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	return execSyncShellCommand( cmd ).trim();
+	// const cmd =
+	// 	'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
+	// return execSyncShellCommand( cmd ).trim();
+
+	const url = global.tunnel.url.replace( 'http:', 'https:' );
+
+	return url;
 }
 
 export async function resetWordpressInstall() {

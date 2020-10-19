@@ -113,16 +113,16 @@ kill_ngrok() {
 start_env() {
 	yarn wp-env start
 
-	check_for_ngrok
-	check_for_jq
-	start_ngrok
+	# check_for_ngrok
+	# check_for_jq
+	# start_ngrok
 
 	configure_wp_env
 }
 
 reset_env() {
 	yarn wp-env clean
-	restart_ngrok
+	# restart_ngrok
 
 	configure_wp_env
 }
@@ -138,8 +138,8 @@ configure_wp_env() {
 	yarn wp-env run tests-wordpress touch wp-content/debug.log
 	yarn wp-env run tests-wordpress chown www-data:www-data wp-content/debug.log
 
-	yarn wp-env run tests-cli wp option set siteurl "$WP_SITE_URL"
-	yarn wp-env run tests-cli wp option set home "$WP_SITE_URL"
+	# yarn wp-env run tests-cli wp option set siteurl "$WP_SITE_URL"
+	# yarn wp-env run tests-cli wp option set home "$WP_SITE_URL"
 
 	if [ -n "$LATEST_GUTENBERG" ]; then
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate

@@ -39,8 +39,6 @@ export default class LoginPage extends Page {
 		await waitAndType( this.page, passwordSelector, password );
 		this.page.waitFor( 1000 );
 
-		await waitAndType( this.page, passwordSelector, password );
-
 		const submitButton = await waitForSelector( this.page, submitButtonSelector );
 		await submitButton.press( 'Enter' );
 
