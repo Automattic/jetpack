@@ -3,23 +3,9 @@
 	<config name="minimum_supported_wp_version" value="5.4" />
 	<config name="testVersion" value="5.6-"/>
 
-	<rule ref="PHPCompatibilityWP"/>
-	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
-	<rule ref="WordPress-Extra" />
-	<rule ref="VariableAnalysis" />
-	<rule ref="./bin/PHPCSStandards/Jetpack" />
-
-	<!-- Elevate undefined variables to an Error instead of a Warning. -->
-	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
-		<type>error</type>
-	</rule>
+	<rule ref="Jetpack" />
 
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
-		<properties>
-			<property name="allowWordPressPassByRefFunctions" value="true" />
-		</properties>
-
 		<!-- Template files use extracted variables. -->
 		<exclude-pattern>/extensions/blocks/podcast-player/templates/*</exclude-pattern>
 	</rule>

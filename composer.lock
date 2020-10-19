@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1fb44b62143c40a6ce29ea8cedd246ed",
+    "content-hash": "efff4548a1ae7ce5242533ce98017806",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -928,6 +928,43 @@
     ],
     "packages-dev": [
         {
+            "name": "automattic/jetpack-codesniffer",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "./packages/codesniffer",
+                "reference": "32f787cf2b42f5b1b4ef00244557f289bc5f5756"
+            },
+            "require": {
+                "dealerdirect/phpcodesniffer-composer-installer": "0.*",
+                "phpcompatibility/phpcompatibility-wp": "2.1.0",
+                "sirbrillig/phpcs-variable-analysis": "2.9.0",
+                "wp-coding-standards/wpcs": "2.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "phpcodesniffer-standard",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v0.7.0",
             "source": {
@@ -1380,7 +1417,8 @@
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-tracking": 20
+        "automattic/jetpack-tracking": 20,
+        "automattic/jetpack-codesniffer": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
