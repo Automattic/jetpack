@@ -14,6 +14,7 @@
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -166,7 +167,6 @@ domReady( function () {
 			makeResponsive: true,
 			startingPosition: '50%',
 			mode: 'horizontal',
-			controlLabel: '',
 			callback: null, // pass a callback function if you like
 		};
 
@@ -356,7 +356,7 @@ domReady( function () {
 				this.controller.setAttribute( 'aria-valuenow', 50 );
 				this.controller.setAttribute( 'aria-valuemin', 0 );
 				this.controller.setAttribute( 'aria-valuemax', 100 );
-				this.controller.setAttribute( 'aria-label', this.options.controlLabel );
+				this.controller.setAttribute( 'aria-label', __( 'Slide to compare images.', 'jetpack' ) );
 
 				this.handle.appendChild( this.leftArrow );
 				this.handle.appendChild( this.control );
@@ -502,9 +502,6 @@ domReady( function () {
 		}
 		if ( w.getAttribute( 'data-makeresponsive' ) ) {
 			options.mode = w.getAttribute( 'data-makeresponsive' );
-		}
-		if ( w.getAttribute( 'data-control-label' ) ) {
-			options.controlLabel = w.getAttribute( 'data-control-label' );
 		}
 
 		const specificClass = 'juxtapose-' + idx;
