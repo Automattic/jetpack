@@ -1,4 +1,4 @@
-/* global objectL10n */
+/* global jetpackLazyImagesL10n */
 
 const jetpackLazyImagesModule = function () {
 	const config = {
@@ -108,7 +108,7 @@ const jetpackLazyImagesModule = function () {
 			loadingWarning = document.createElement( 'div' );
 			loadingWarning.id = 'loadingWarning';
 			loadingWarning.style.fontWeight = 'bold';
-			loadingWarning.innerText = objectL10n.loading_warning;
+			loadingWarning.innerText = jetpackLazyImagesL10n.loading_warning;
 
 			const s = document.createElement( 'style' );
 			s.innerHTML =
@@ -125,7 +125,7 @@ const jetpackLazyImagesModule = function () {
 		// May as well try an alert() too. The browser may block it, but if not
 		// it could save them some trouble.
 		if ( loadingWarning ) {
-			alert( objectL10n.loading_warning );
+			alert( jetpackLazyImagesL10n.loading_warning );
 		}
 	}
 

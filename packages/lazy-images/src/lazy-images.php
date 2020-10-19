@@ -40,7 +40,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @var string Assets version.
 	 */
-	const ASSETS_VERSION = '1.1.0';
+	const ASSETS_VERSION = '1.1.1';
 
 	/**
 	 * Class instance.
@@ -500,7 +500,7 @@ class Jetpack_Lazy_Images {
 		);
 		wp_localize_script(
 			'jetpack-lazy-images',
-			'objectL10n',
+			'jetpackLazyImagesL10n',
 			array(
 				'loading_warning' => __( 'Images are still loading. Please cancel your print and try again.', 'jetpack' ),
 			)
