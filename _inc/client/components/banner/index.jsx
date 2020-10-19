@@ -15,7 +15,7 @@ import {
 	getPlanClass,
 	isJetpackProduct,
 	isJetpackBundle,
-	isJetpackOfferResetPlan,
+	isJetpackLegacyPlan,
 } from 'lib/plans/constants';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -141,17 +141,19 @@ class Banner extends Component {
 	render() {
 		const { callToAction, className, plan } = this.props;
 		const planClass = getPlanClass( plan );
+		const isLegacy = isJetpackLegacyPlan( plan );
+		const isProduct = isJetpackProduct( plan );
 
 		const classes = classNames(
 			'dops-banner',
 			className,
 			{ 'has-call-to-action': callToAction },
-			{ 'is-upgrade-personal': 'is-personal-plan' === planClass },
-			{ 'is-upgrade-premium': 'is-premium-plan' === planClass },
-			{ 'is-upgrade-business': 'is-business-plan' === planClass },
-			{ 'is-product': isJetpackProduct( plan ) },
-			{ 'is-bundle': isJetpackBundle( plan ) },
-			{ 'is-plan': isJetpackOfferResetPlan( plan ) }
+			{ 'is-upgrade-personal': isLegacy && 'is-personal-plan' === planClass },
+			{ 'is-upgrade-premium': isLegacy && 'is-premium-plan' === planClass },
+			{ 'is-upgrade-business': isLegacy && 'is-business-plan' === planClass },
+			{ 'is-product': isProduct },
+			{ 'is-plan': ! isProduct },
+			{ 'is-bundle': ! isProduct && isJetpackBundle( plan ) }
 		);
 
 		return (
