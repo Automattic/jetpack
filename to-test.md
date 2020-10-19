@@ -1,4 +1,4 @@
-## 9.0
+## 9.1
 
 ### Before you start
 
@@ -10,51 +10,21 @@
 
 We've made changes and fixed bugs for multiple blocks in this release. Give them a try, and see that they still work for you:
 
-- EventBrite
-- OpenTable
-- Pay With PayPal
-- Slideshow
-- Google Calendar
-- Image Compare
-- Pinterest
-- Donations
+- 
 
 You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
 
-### Embeds
+### Lazy Images
 
-Facebook and Instagram are planning on making a number of changes to the way their embeds work. As a result, their embds will stop working on most sites in the near future. On our end, we've made changes to Jetpack's Shortcodes feature to ensure that embeds keep working for everyone using the feature.
+This release refactored the JavaScript used for Lazy Images/Deferred Image Loading and resolved an issue where printing could result
+in images not loading.
 
-To test this, you can try to embed any of the following things, either in the block editor or the classic editor, with or without the Gutenberg plugin active:
-
-```
-https://www.instagram.com/tv/BkQjCfsBIzi/
-[instagram url=https://www.instagram.com/p/BnMOk_FFsxg/]
-[instagram url=https://www.instagram.com/p/BZoonmAHvHf/ width=320]
-https://www.facebook.com/VenusWilliams/posts/10151647007373076
-https://www.facebook.com/video.php?v=2836814009877992
-https://www.facebook.com/watch/?v=2836814009877992
-https://www.facebook.com/WhiteHouse/videos/10153398464269238/
-```
-
-### Publicize
-
-This release introduces a new Publicize feature: you can now publish the entire content of posts to Twitter as a thread. To test this, try the following:
-
-1. Go to Jetpack > Settings > Sharing, and enable Publicize
-2. Connect your site to a Twitter account
-3. Go to Posts > Add New (using the block editor).
-4. Write a post, with different types of blocks. You can try as many different blocks as you can.
-5. In the Jetpack sidebar, access Publicize options and you should see the option to publish to Twitter as one tweet, or a thread.
-6. If you choose the thread option, you'll have more information in the block editor itself, showing you where paragraphs will get split in multiple tweets, and showing you what blocks will not be ported to Twitter.
-7. Publish your post, and see what happens on your Twitter account!
-
-Let us know what you think about the process, and let us know if you find any bugs.
-
-### Site Health
-
-We've made a number of improvements to the Jetpack tests available under Tools > Site Health. Give them a try, and let us know if you find any test results that seem out of place.
-
-As part of those changes, we've also made it easier and faster to reconnect your site to WordPress.com if there are any connection issues found during a site health test. If your site is not properly connected to WordPress.com, you should see a link to reconnect in the site heatlh test. Give that a try, and let us know how it goes!
+Steps to test:
+- Create a post with several images.
+- Verify lazy loading still works.
+- Reload, and clear the browser's file cache. Do not trigger loading of images on the reloaded page.
+- Attempt to print. Probably you'll get an alert about images not being loaded yet, and the print preview may show the same message rather than the post's content.
+- Wait for images to finish loading, and try printing again. There should be no alert and the print should print the post as expected.
+- Reload, scroll down to trigger lazy loading of all images, and try printing. Again, if all the images finished loading there should be no alert and normal print output.
 
 **Thank you for all your help!**
