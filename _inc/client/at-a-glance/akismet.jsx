@@ -3,28 +3,32 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { connect } from 'react-redux';
-import { numberFormat } from 'i18n-calypso';
-import { __, _x } from '@wordpress/i18n';
 import { get } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
+
+/**
+ * WordPress dependencies
+ */
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import Card from 'components/card';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import DashItem from 'components/dash-item';
+import { getAkismetData } from 'state/at-a-glance';
+import getRedirectUrl from 'lib/jp-redirect';
+import { getSitePlan } from 'state/site';
+import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
+import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
+import { isOfflineMode } from 'state/connection';
+import JetpackBanner from 'components/jetpack-banner';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { numberFormat } from 'components/number-format';
 import restApi from 'rest-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
-import { getAkismetData } from 'state/at-a-glance';
-import { getSitePlan } from 'state/site';
-import { isOfflineMode } from 'state/connection';
-import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
-import JetpackBanner from 'components/jetpack-banner';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 class DashAkismet extends Component {
 	static propTypes = {

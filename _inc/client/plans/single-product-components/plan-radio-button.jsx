@@ -3,16 +3,18 @@
  */
 import React from 'react';
 import classNames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { numberFormat } from 'components/number-format';
 import PriceGroup from './price-group';
 import './plan-radio-button.scss';
-
-import { numberFormat } from 'i18n-calypso';
-
 import {
 	JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS,
 	JETPACK_SEARCH_TIER_UP_TO_100_RECORDS,
