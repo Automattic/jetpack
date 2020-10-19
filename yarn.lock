@@ -9364,7 +9364,7 @@ hyperlinker@^1.0.0:
   resolved "https://registry.yarnpkg.com/hyperlinker/-/hyperlinker-1.0.0.tgz#23dc9e38a206b208ee49bc2d6c8ef47027df0c0e"
   integrity sha512-Ty8UblRWFEcfSuIaajM34LdPXIhbs1ajEX/BBPv24J+enSVaEVY63xQ6lTO9VRYS5LAoghIG0IDJ+p+IPzKUQQ==
 
-i18n-calypso@4.0.0, i18n-calypso@^4.0.0-alpha.1:
+i18n-calypso@^4.0.0-alpha.1:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/i18n-calypso/-/i18n-calypso-4.0.0.tgz#4d07c0c0ff6a9a70171186778bbe0be09ce0eeec"
   integrity sha512-L1oMtViG/LtwWqGcLfA6FJN+ililsA6r/fPJswxvND8waJAWRONZEDmmjojs6MKratJ1E6cnFjTifiC75zuHHQ==
