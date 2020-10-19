@@ -360,10 +360,10 @@ class WordAds {
 		if ( self::is_amp() ) {
 			return;
 		}
-		$pagetype  = intval( $this->params->get_page_type_ipw() );
+		$pagetype  = (int) $this->params->get_page_type_ipw();
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id   = $this->params->blog_id;
-		$consent   = intval( isset( $_COOKIE['personalized-ads-consent'] ) );
+		$consent   = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
 			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: 2, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?> };

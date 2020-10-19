@@ -218,13 +218,13 @@ if ( ! class_exists( 'Presentations' ) ) :
 
 			// Set the presentation size as specified or with some nicely sized dimensions.
 			if ( '' !== trim( $atts['width'] ) ) {
-				$this->presentation_settings['width'] = intval( $atts['width'] );
+				$this->presentation_settings['width'] = (int) $atts['width'];
 			} else {
 				$this->presentation_settings['width'] = 480;
 			}
 
 			if ( '' !== trim( $atts['height'] ) ) {
-				$this->presentation_settings['height'] = intval( $atts['height'] );
+				$this->presentation_settings['height'] = (int) $atts['height'];
 			} else {
 				$this->presentation_settings['height'] = 370;
 			}

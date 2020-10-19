@@ -227,7 +227,7 @@ class Jetpack_Likes {
 			$option_setting = get_option( $option, 'on' );
 		}
 
-		return intval( 'on' == $option_setting );
+		return (int) ( 'on' == $option_setting );
 	}
 
 	function admin_discussion_likes_settings_field() {

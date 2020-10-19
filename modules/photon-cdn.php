@@ -253,7 +253,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 			}
 			if ( is_numeric( $cache[ $plugin ][ $version ] ) ) {
 				// Cache an empty result for up to 24h.
-				if ( intval( $cache[ $plugin ][ $version ] ) + DAY_IN_SECONDS > time() ) {
+				if ( (int) $cache[ $plugin ][ $version ] + DAY_IN_SECONDS > time() ) {
 					return array();
 				}
 			}

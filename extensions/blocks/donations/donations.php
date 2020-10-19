@@ -54,7 +54,7 @@ function render_block( $attr, $content ) {
 		if ( ! $donation['show'] ) {
 			continue;
 		}
-		$plan_id = intval( $donation['planId'] );
+		$plan_id = (int) $donation['planId'];
 		$plan    = get_post( $plan_id );
 		if ( ! $plan || is_wp_error( $plan ) ) {
 			continue;

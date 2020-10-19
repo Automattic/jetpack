@@ -11,7 +11,7 @@ class Jetpack_JSON_API_Get_Post_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 			return new WP_Error( 'post_id_not_specified', __( 'You must specify a Post ID', 'jetpack' ), 400 );
 		}
 
-		$this->post_id = intval( $post_id );
+		$this->post_id = (int) $post_id;
 
 		return true;
 	}

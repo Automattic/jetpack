@@ -177,7 +177,7 @@ function jetpack_debugger_sync_progress_ajax() {
 		echo 'done';
 		wp_die();
 	}
-	echo intval( $progress_percent );
+	echo (int) $progress_percent;
 	wp_die();
 }
 

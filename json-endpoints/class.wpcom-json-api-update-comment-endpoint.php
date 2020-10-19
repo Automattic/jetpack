@@ -227,13 +227,12 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 					$user->ID = 0;
 				}
 
+				$author = get_user_by( 'id', (int) $user->ID );
 				// If we have a user with an external ID saved, we can use it.
 				if (
 					! $auth_required
 					&& $user->ID
-					&& (
-						$author = get_user_by( 'id', intval( $user->ID ) )
-					)
+					&& $author
 				) {
 					$user = $author;
 				}

@@ -75,7 +75,7 @@ class Users extends Module {
 	 */
 	public function get_object_by_id( $object_type, $id ) {
 		if ( 'user' === $object_type ) {
-			$user = get_user_by( 'id', intval( $id ) );
+			$user = get_user_by( 'id', (int) $id );
 			if ( $user ) {
 				return $this->sanitize_user_and_expand( $user );
 			}
@@ -493,7 +493,7 @@ class Users extends Module {
 			 * that got us to this point so if it's still set then this was a user confirming
 			 * their new email address.
 			 */
-			if ( 1 === intval( get_user_meta( $user->ID, '_new_email', true ) ) ) {
+			if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
 				$this->flags[ $user_id ]['email_changed'] = true;
 			}
 		}

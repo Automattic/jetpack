@@ -301,7 +301,7 @@ class Jetpack_Search {
 		if ( $this->last_query_info ) {
 			printf(
 				'<!-- Jetpack Search took %s ms, ES time %s ms -->',
-				intval( $this->last_query_info['elapsed_time'] ),
+				(int) $this->last_query_info['elapsed_time'],
 				esc_html( $this->last_query_info['es_time'] )
 			);
 
@@ -1374,7 +1374,7 @@ class Jetpack_Search {
 		);
 
 		if ( isset( $aggregation['min_doc_count'] ) ) {
-			$args['min_doc_count'] = intval( $aggregation['min_doc_count'] );
+			$args['min_doc_count'] = (int) $aggregation['min_doc_count'];
 		} else {
 			$args['min_doc_count'] = 1;
 		}

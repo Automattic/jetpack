@@ -631,7 +631,7 @@ class Full_Sync extends Module {
 	private function get_status_option( $name, $default = null ) {
 		$value = \Jetpack_Options::get_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
 
-		return is_numeric( $value ) ? intval( $value ) : $value;
+		return is_numeric( $value ) ? (int) $value : $value;
 	}
 
 	/**

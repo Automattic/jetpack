@@ -151,7 +151,7 @@ class Settings {
 		}
 
 		if ( is_numeric( $value ) ) {
-			$value = intval( $value );
+			$value = (int) $value;
 		}
 		$default_array_value = null;
 		switch ( $setting ) {

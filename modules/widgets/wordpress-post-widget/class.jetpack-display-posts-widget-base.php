@@ -347,7 +347,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			}
 		}
 
-		$instance['number_of_posts']    = ( ! empty( $new_instance['number_of_posts'] ) ) ? intval( $new_instance['number_of_posts'] ) : '';
+		$instance['number_of_posts']    = ( ! empty( $new_instance['number_of_posts'] ) ) ? (int) $new_instance['number_of_posts'] : '';
 		$instance['open_in_new_window'] = ( ! empty( $new_instance['open_in_new_window'] ) ) ? true : '';
 		$instance['featured_image']     = ( ! empty( $new_instance['featured_image'] ) ) ? true : '';
 		$instance['show_excerpts']      = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';

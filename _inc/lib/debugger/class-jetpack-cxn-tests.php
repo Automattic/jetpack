@@ -379,7 +379,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$request = wp_remote_get( preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/' );
 		$code    = wp_remote_retrieve_response_code( $request );
 
-		if ( 200 === intval( $code ) ) {
+		if ( 200 === (int) $code ) {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
 			$result = self::failing_test(
@@ -403,7 +403,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$request = wp_remote_get( preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/' );
 		$code    = wp_remote_retrieve_response_code( $request );
 
-		if ( 200 === intval( $code ) ) {
+		if ( 200 === (int) $code ) {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
 			$result = self::failing_test(
@@ -793,7 +793,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 							_n(
 								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minute.</strong>',
 								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minutes.</strong>',
-								intval( $sync_queue->lag() / MINUTE_IN_SECONDS ),
+								(int) ( $sync_queue->lag() / MINUTE_IN_SECONDS ),
 								'jetpack'
 							),
 							number_format_i18n( $sync_queue->lag() / MINUTE_IN_SECONDS )

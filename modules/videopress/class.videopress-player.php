@@ -629,8 +629,8 @@ class VideoPress_Player {
 		foreach ( $this->options as $option => $value ) {
 			switch ( $option ) {
 				case 'at':
-					if ( intval( $value ) ) {
-						$videopress_options[ $option ] = intval( $value );
+					if ( (int) $value ) {
+						$videopress_options[ $option ] = (int) $value;
 					}
 					break;
 				case 'autoplay':

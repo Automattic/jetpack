@@ -1360,8 +1360,8 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$version_num_major = intval( $version_num[0] );
-		$version_num_minor = intval( $version_num[1] );
+		$version_num_major = (int) $version_num[0];
+		$version_num_minor = (int) $version_num[1];
 
 		if ( 5 === $version_num_major ) {
 			return 'blackberry-5';
@@ -1425,8 +1425,8 @@ class User_Agent_Info {
 				return false;
 			}
 
-			$version_num_major = intval( $version_num[0] );
-			$version_num_minor = intval( $version_num[1] );
+			$version_num_major = (int) $version_num[0];
+			$version_num_minor = (int) $version_num[1];
 
 			if ( 5 === $version_num_major ) {
 				return 'blackberry-5';

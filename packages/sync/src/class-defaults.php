@@ -923,7 +923,7 @@ class Defaults {
 	 * @return float Number of seconds.
 	 */
 	public static function get_max_sync_execution_time() {
-		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
+		$max_exec_time = (int) ini_get( 'max_execution_time' );
 		if ( 0 === $max_exec_time ) {
 			// 0 actually means "unlimited", but let's not treat it that way.
 			$max_exec_time = 60;

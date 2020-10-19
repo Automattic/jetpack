@@ -162,14 +162,14 @@ class Full_Sync_Immediately extends Module {
 		$total_items = array_reduce(
 			array_values( $status['progress'] ),
 			function ( $sum, $sync_item ) {
-				return isset( $sync_item['total'] ) ? ( $sum + intval( $sync_item['total'] ) ) : $sum;
+				return isset( $sync_item['total'] ) ? ( $sum + (int) $sync_item['total'] ) : $sum;
 			},
 			0
 		);
 		$total_sent  = array_reduce(
 			array_values( $status['progress'] ),
 			function ( $sum, $sync_item ) {
-				return isset( $sync_item['sent'] ) ? ( $sum + intval( $sync_item['sent'] ) ) : $sum;
+				return isset( $sync_item['sent'] ) ? ( $sum + (int) $sync_item['sent'] ) : $sum;
 			},
 			0
 		);
