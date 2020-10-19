@@ -407,8 +407,8 @@ class Jetpack_Tweetstorm_Helper {
 				continue;
 			}
 
-			// The line is too long for a single tweet, so split it by sentences.
-			$sentences      = preg_split( '/(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
+			// The line is too long for a single tweet, so split it by sentences, or linebreaks.
+			$sentences      = preg_split( '/(?|(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])|(\n+))/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
 			$sentence_total = count( $sentences );
 
 			// preg_split() puts the blank space between sentences into a seperate entry in the result,
@@ -970,11 +970,26 @@ class Jetpack_Tweetstorm_Helper {
 								$boundary_start += $characters_processed;
 							}
 
+							// Check if the boundary is happening on a line break or a space.
+							if ( "\n" === $line_part_data[ $line_part_byte_boundary - 1 ] ) {
+								$type = 'line-break';
+
+								// A line break boundary can actually be multiple consecutive line breaks,
+								// count them all up so we know how big the annotation needs to be.
+								$matches = array();
+								preg_match( '/\n+$/', substr( $line_part_data, 0, $line_part_byte_boundary ), $matches );
+								$boundary_end    = $boundary_start + 1;
+								$boundary_start -= strlen( $matches[0] ) - 1;
+							} else {
+								$type         = 'normal';
+								$boundary_end = $boundary_start + 1;
+							}
+
 							return array(
 								'start'     => $boundary_start,
-								'end'       => $boundary_start + 1,
+								'end'       => $boundary_end,
 								'container' => $part_name,
-								'type'      => 'normal',
+								'type'      => $type,
 							);
 						} else {
 							$total_bytes_processed += $line_part_bytes;
@@ -1306,6 +1321,13 @@ class Jetpack_Tweetstorm_Helper {
 	 *               appears in the HTML blob, including nested tags.
 	 */
 	private static function extract_tag_content_from_html( $tags, $html ) {
+		// Serialised blocks will sometimes wrap the innerHTML in newlines, but those newlines
+		// are removed when innerHTML is parsed into an attribute. Remove them so we're working
+		// with the same information.
+		if ( "\n" === $html[0] && "\n" === $html[ strlen( $html ) - 1 ] ) {
+			$html = substr( $html, 1, strlen( $html ) - 2 );
+		}
+
 		// Normalise <br>.
 		$html = preg_replace( '/<br\s*\/?>/', '<br>', $html );
 
