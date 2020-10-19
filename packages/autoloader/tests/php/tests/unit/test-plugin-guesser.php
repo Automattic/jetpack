@@ -80,10 +80,42 @@ class Test_Plugin_Guesser extends TestCase {
 	/**
 	 * Tests that it can guess plugins that are stored in an option.
 	 */
-	public function test_using_option_finds_normal_plugin() {
+	public function test_using_option_finds_in_option() {
 		add_test_option(
 			'test_plugin_paths',
 			array( 'plugin_current/plugin_current.php' )
+		);
+
+		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
+
+		$this->assertIsArray( $plugin_paths );
+		$this->assertCount( 1, $plugin_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
+	}
+
+	/**
+	 * Tests that it can find plugins that are stored in a site option.
+	 */
+	public function test_using_option_finds_in_site_option() {
+		add_test_site_option(
+			'test_plugin_paths',
+			array( 'plugin_current/plugin_current.php' )
+		);
+
+		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths', true );
+
+		$this->assertIsArray( $plugin_paths );
+		$this->assertCount( 1, $plugin_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
+	}
+
+	/**
+	 * Tests that it can guess plugins that are stored in an option's key.
+	 */
+	public function test_using_option_finds_plugin_in_key() {
+		add_test_option(
+			'test_plugin_paths',
+			array( 'plugin_current/plugin_current.php' => 123456 )
 		);
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
@@ -184,7 +216,7 @@ class Test_Plugin_Guesser extends TestCase {
 		);
 		add_test_site_option(
 			'active_sitewide_plugins',
-			array( 'plugin_dev/plugin_dev.php' )
+			array( 'plugin_dev/plugin_dev.php' => 123456 )
 		);
 
 		$_REQUEST['_wpnonce'] = '123abc';

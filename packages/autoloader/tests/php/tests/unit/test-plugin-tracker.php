@@ -30,6 +30,11 @@ class Test_Plugin_Tracker extends TestCase {
 
 		$this->tracker = new Plugin_Tracker();
 
+		// Make sure that the cache directory exists.
+		if ( ! is_dir( TEST_DATA_PATH . '/cache' ) ) {
+			mkdir( TEST_DATA_PATH . '/cache' );
+		}
+
 		// Make sure the content directory is set so the cache file can be written/read.
 		define( 'WP_CONTENT_DIR', TEST_DATA_PATH );
 	}

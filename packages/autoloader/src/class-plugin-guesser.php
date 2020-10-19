@@ -30,8 +30,8 @@ class Plugin_Guesser {
 	/**
 	 * Checks a given option for plugin paths.
 	 *
-	 * @param string $option_name The option that we want to check for plugin information.
-	 * @param bool   $site_option Indicates whether or not we want to check the site option.
+	 * @param string $option_name  The option that we want to check for plugin information.
+	 * @param bool   $site_option  Indicates whether or not we want to check the site option.
 	 *
 	 * @return array $plugin_paths The list of absolute paths we've found.
 	 */
@@ -89,7 +89,8 @@ class Plugin_Guesser {
 
 	/**
 	 * Given an array of plugin slugs or paths, this will convert them to absolute paths and filter
-	 * out the plugins that are not directory plugins.
+	 * out the plugins that are not directory plugins. Note that array keys will also be included
+	 * if they are plugin paths!
 	 *
 	 * @param string[] $plugins Plugin paths or slugs to filter.
 	 *
@@ -97,8 +98,13 @@ class Plugin_Guesser {
 	 */
 	private function convert_plugins_to_paths( $plugins ) {
 		$plugin_paths = array();
-		foreach ( $plugins as $plugin ) {
-			$path = $this->guess_plugin_directory( $plugin );
+		foreach ( $plugins as $key => $value ) {
+			$path = $this->guess_plugin_directory( $key );
+			if ( $path ) {
+				$plugin_paths[] = $path;
+			}
+
+			$path = $this->guess_plugin_directory( $value );
 			if ( $path ) {
 				$plugin_paths[] = $path;
 			}
@@ -114,6 +120,11 @@ class Plugin_Guesser {
 	 * @return string|false $plugin_path The absolute path to the plugin or false if none was found.
 	 */
 	private function guess_plugin_directory( $plugin ) {
+		// We shouldn't waste time checking if it isn't a valid plugin file.
+		if ( ! is_string( $plugin ) || substr( $plugin, -4 ) !== '.php' ) {
+			return false;
+		}
+
 		$plugin = str_replace( '\\', '/', $plugin );
 
 		// We may need to resolve an absolute path from a plugin path based out of a directory.
