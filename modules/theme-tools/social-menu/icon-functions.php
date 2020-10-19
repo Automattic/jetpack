@@ -157,6 +157,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'soundcloud.com'  => 'soundcloud',
 			'spotify.com'     => 'spotify',
 			'stumbleupon.com' => 'stumbleupon',
+			'telegram'        => 'telegram',
 			'tumblr.com'      => 'tumblr',
 			'twitch.tv'       => 'twitch',
 			'twitter.com'     => 'twitter',
