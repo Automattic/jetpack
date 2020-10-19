@@ -16,6 +16,11 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 
 class Gridicon extends Component {
+	static defaultProps = {
+		'aria-hidden': 'false',
+		focusable: 'true',
+	};
+
 	needsOffset( icon, size ) {
 		const iconNeedsOffset = [
 			'gridicons-calendar',
@@ -46,7 +51,7 @@ class Gridicon extends Component {
 			case 'gridicons-comment':
 				return <title>{ __( 'Matching comment.', 'jetpack' ) }</title>;
 			case 'gridicons-cross':
-				return <title>{ __( 'Close search overlay', 'jetpack' ) }</title>;
+				return <title>{ __( 'Close search results', 'jetpack' ) }</title>;
 			case 'gridicons-filter':
 				return <title>{ __( 'Toggle search filters.', 'jetpack' ) }</title>;
 			case 'gridicons-folder':
@@ -193,12 +198,14 @@ class Gridicon extends Component {
 		return (
 			<svg
 				className={ iconClass }
+				focusable={ this.props.focusable }
 				height={ size }
 				onClick={ this.props.onClick }
 				style={ { height: size, width: size } }
 				viewBox="0 0 24 24"
 				width={ size }
 				xmlns="http://www.w3.org/2000/svg"
+				aria-hidden={ this.props[ 'aria-hidden' ] }
 			>
 				{ this.getSVGTitle( icon ) }
 				{ this.renderIcon( icon ) }
