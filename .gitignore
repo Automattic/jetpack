@@ -62,7 +62,6 @@ phpcs.xml
 /modules/**/*.min.css
 /modules/**/*-rtl.css
 /css
-_inc/jetpack-strings.php
 /modules/**/*/block.js
 /vendor/automattic/
 /vendor/composer/

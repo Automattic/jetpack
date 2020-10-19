@@ -200,6 +200,7 @@
 		"@wordpress/server-side-render": "1.8.6",
 		"babel-eslint": "10.0.2",
 		"chai": "4.2.0",
+		"chalk": "4.1.0",
 		"commander": "6.1.0",
 		"concurrently": "5.3.0",
 		"config": "3.3.2",
