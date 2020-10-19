@@ -494,6 +494,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public function test_no_content_no_tweets() {
 		$blocks = array(
 			$this->generateParagraphData( '' ),
+			$this->generateHeadingData( '&nbsp;' ),
 			$this->generateHeadingData( '' ),
 			$this->generateListData( '<li></li>' ),
 			$this->generateQuoteData( '', '' ),
@@ -757,7 +758,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_text = array(
 			// The parser will decode the HTML entities.
 			html_entity_decode( str_repeat( $test_content, 12 ) . 'This&nbsp;is&nbsp;22…', ENT_QUOTES ),
-			html_entity_decode( '…characters&nbsp;', ENT_QUOTES ),
+			html_entity_decode( '…characters', ENT_QUOTES ),
 		);
 
 		$expected_boundaries = array(

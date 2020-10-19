@@ -1259,8 +1259,8 @@ class Jetpack_Tweetstorm_Helper {
 				// Remove any inline placeholders.
 				$tweet['text'] = str_replace( self::$inline_placeholder, '', $tweet['text'] );
 
-				// Tidy up the whitespace.
-				$tweet['text'] = trim( $tweet['text'] );
+				// Tidy up the whitespace: using a regex instead of trim(), since the former catches more whitespace characters.
+				$tweet['text'] = preg_replace( '/^\s+|\s+$/u', '', $tweet['text'] );
 				$tweet['text'] = preg_replace( '/[ \t]+\n/', "\n", $tweet['text'] );
 
 				// Remove internal flags.
@@ -1284,6 +1284,11 @@ class Jetpack_Tweetstorm_Helper {
 							unset( $tweet['blocks'][ $ii ][ $key ] );
 						}
 					}
+				}
+
+				// Once we've finished cleaning up, check if there's anything left to be tweeted.
+				if ( empty( $tweet['text'] ) && empty( $tweet['media'] ) && empty( $tweet['tweet'] ) ) {
+					return false;
 				}
 
 				return $tweet;
