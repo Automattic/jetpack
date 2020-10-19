@@ -8,10 +8,8 @@ import { CURRENCIES } from '@automattic/format-currency';
  *
  * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
  *
- * List has to be in sync with the Memberships library in WP.com.
- * @see Memberships_Product::SUPPORTED_CURRENCIES
- *
- * @type { [currency: string]: number }
+ * List has to be in with `Jetpack_Memberships::SUPPORTED_CURRENCIES` in modules/memberships/class-jetpack-memberships.php and
+ * `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
  */
 export const SUPPORTED_CURRENCIES = {
 	USD: 0.5,

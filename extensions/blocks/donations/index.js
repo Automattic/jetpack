@@ -6,7 +6,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import GridiconHeart from 'gridicons/dist/heart-outline';
@@ -34,6 +33,5 @@ export const settings = {
 	},
 	edit,
 	save,
-	attributes,
 	example: {},
 };

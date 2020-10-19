@@ -26,6 +26,63 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			'plan_check'      => true,
+			'attributes'      => array(
+				'currency'         => array(
+					'type'    => 'string',
+					'default' => 'USD',
+				),
+				'oneTimeDonation'  => array(
+					'type'    => 'object',
+					'default' => array(
+						'show'       => true,
+						'planId'     => null,
+						'amounts'    => array( 5, 15, 100 ),
+						'heading'    => __( 'Make a one-time donation', 'jetpack' ),
+						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
+						'buttonText' => __( 'Donate', 'jetpack' ),
+					),
+				),
+				'monthlyDonation'  => array(
+					'type'    => 'object',
+					'default' => array(
+						'show'       => true,
+						'planId'     => null,
+						'amounts'    => array( 5, 15, 100 ),
+						'heading'    => __( 'Make a monthly donation', 'jetpack' ),
+						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
+						'buttonText' => __( 'Donate monthly', 'jetpack' ),
+					),
+				),
+				'annualDonation'   => array(
+					'type'    => 'object',
+					'default' => array(
+						'show'       => true,
+						'planId'     => null,
+						'amounts'    => array( 5, 15, 100 ),
+						'heading'    => __( 'Make a yearly donation', 'jetpack' ),
+						'extraText'  => __( 'Your contribution is appreciated.', 'jetpack' ),
+						'buttonText' => __( 'Donate yearly', 'jetpack' ),
+					),
+				),
+				'showCustomAmount' => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'chooseAmountText' => array(
+					'type'    => 'string',
+					'default' => __( 'Choose an amount', 'jetpack' ),
+				),
+				'customAmountText' => array(
+					'type'    => 'string',
+					'default' => __( 'Or enter a custom amount', 'jetpack' ),
+				),
+				'fallbackLinkUrl'  => array(
+					'type'      => 'string',
+					'source'    => 'attribute',
+					'selector'  => '.jetpack-donations-fallback-link',
+					'attribute' => 'href',
+				),
+			),
 		)
 	);
 }
@@ -47,7 +104,9 @@ function render_block( $attr, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 
-	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	require_once JETPACK__PLUGIN_DIR . 'class-jetpack-currencies.php';
+
 	add_thickbox();
 
 	$donations = array(
@@ -91,7 +150,7 @@ function render_block( $attr, $content ) {
 	$extra_text = '';
 	$buttons    = '';
 	foreach ( $donations as $interval => $donation ) {
-		$plan_id = intval( $donation['planId'] );
+		$plan_id = (int) $donation['planId'];
 		$plan    = get_post( $plan_id );
 		if ( ! $plan || is_wp_error( $plan ) ) {
 			continue;
@@ -118,11 +177,9 @@ function render_block( $attr, $content ) {
 		);
 		foreach ( $donation['amounts'] as $amount ) {
 			$amounts .= sprintf(
-				'<div class="donations__amount" data-amount="%1$s" data-currency="%2$s">%3$s%4$s</div>',
+				'<div class="donations__amount" data-amount="%1$s">%2$s</div>',
 				esc_attr( $amount ),
-				esc_attr( $currency ),
-				$currency,
-				$amount
+				\Jetpack_Currencies::format_price( $amount, $currency )
 			);
 		}
 		$amounts    .= '</div>';
@@ -144,32 +201,34 @@ function render_block( $attr, $content ) {
 
 	$custom_amount = '';
 	if ( $attr['showCustomAmount'] ) {
-		$custom_amount .= sprintf(
-			'<p>%s</div>',
+		$custom_amount        .= sprintf(
+			'<p>%s</p>',
 			$attr['customAmountText']
 		);
-		$custom_amount .= sprintf(
+		$default_custom_amount = \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] * 100;
+		$custom_amount        .= sprintf(
 			'<div class="donations__amount donations__custom-amount">
 				%1$s
-				<div class="donations__amount-value" data-currency="%2$s"></div>
+				<div class="donations__amount-value" data-currency="%2$s" data-empty-text="%3$s"></div>
 			</div>',
+			\Jetpack_Currencies::CURRENCIES[ $attr['currency'] ]['symbol'],
 			$attr['currency'],
-			$attr['currency']
+			\Jetpack_Currencies::format_price( $default_custom_amount, $currency, '' )
 		);
 	}
 
 	return sprintf(
 		'
 <div class="%1$s">
-	<div className="donations__container">
+	<div class="donations__container">
 	%2$s
-	<div className="donations__content">
-		<div className="donations__tab">
+	<div class="donations__content">
+		<div class="donations__tab">
 			%3$s
 			<p>%4$s</p>
 			%5$s
 			%6$s
-			<hr className="donations__separator">
+			<hr class="donations__separator">
 			%7$s
 			%8$s
 		</div>
