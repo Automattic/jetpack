@@ -222,9 +222,7 @@ async function maybeSetupTunnel() {
 	}
 
 	const localtunnelHost = config.get( 'localtunnel' );
-
 	const tunnel = await localtunnel( { port: 8889, host: localtunnelHost } );
-
 	global.tunnel = tunnel;
 	const url = tunnel.url.replace( 'http:', 'https:' );
 
@@ -243,7 +241,12 @@ catchBeforeAll( async () => {
 	observeConsoleLogging();
 
 	await maybeSetupTunnel();
+
 	await maybePreConnect();
+} );
+
+afterAll( async () => {
+	global.tunnel.close();
 } );
 
 afterEach( async () => {
