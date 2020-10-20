@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
  * Provides unit tests for the methods in the Hook_Manager class.
  */
 class Test_Hook_Manager extends TestCase {
+
 	/**
 	 * The hook manager we're testing.
 	 *

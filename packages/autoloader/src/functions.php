@@ -30,13 +30,19 @@ function autoloader( $class_name ) {
 function set_up_autoloader() {
 	global $jetpack_autoloader_latest_version;
 	global $jetpack_autoloader_loader;
+	global $jetpack_autoloader_hooks;
 
+	require_once __DIR__ . '/class-hook-manager.php';
 	require_once __DIR__ . '/class-plugin-locator.php';
 	require_once __DIR__ . '/class-cache-handler.php';
 	require_once __DIR__ . '/class-plugins-handler.php';
 	require_once __DIR__ . '/class-version-selector.php';
 	require_once __DIR__ . '/class-autoloader-locator.php';
 	require_once __DIR__ . '/class-autoloader-handler.php';
+
+	if ( ! isset( $jetpack_autoloader_hooks ) ) {
+		$jetpack_autoloader_hooks = new Hook_Manager();
+	}
 
 	$plugin_locator     = new Plugin_Locator();
 	$cache_handler      = new Cache_Handler();
@@ -51,6 +57,7 @@ function set_up_autoloader() {
 
 	// The autoloader must be reset when a plugin that was previously unknown is detected.
 	if ( $autoloader_handler->should_autoloader_reset() ) {
+		$jetpack_autoloader_hooks->reset();
 		$jetpack_autoloader_latest_version = null;
 		$jetpack_autoloader_loader         = null;
 	}
@@ -67,4 +74,23 @@ function set_up_autoloader() {
 
 	// Now that the autoloader is ready we can load the files in the filemap safely.
 	$jetpack_autoloader_loader->load_filemap();
+
+	// Add a shutdown function to save all of the cached plugin paths.
+	$jetpack_autoloader_hooks->add_action(
+		'shutdown',
+		function () use ( $plugins_handler, $cache_handler ) {
+			// If this is triggered too early we don't want to save a broken cache.
+			if ( ! did_action( 'plugins_loaded' ) ) {
+				return;
+			}
+
+			// Only save the plugins that were confirmed to be activated.
+			$plugin_paths = $plugins_handler->find_all_plugins( false );
+			if ( empty( $plugin_paths ) ) {
+				return;
+			}
+
+			$cache_handler->write_to_cache( Plugins_Handler::CACHE_KEY, $plugin_paths );
+		}
+	);
 }
