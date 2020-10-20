@@ -894,12 +894,17 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * Test that a basic verse maintains spacing.
 	 */
 	public function test_basic_verse() {
-		$test_content = " They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?";
-		$blocks       = array(
+		$test_content = " They say that code \n        is poetry.\n\n    Is indentation poetry,\n  too?";
+
+		$blocks = array(
 			$this->generateVerseData( $test_content ),
 		);
 
-		$this->assertTweetGenerated( $blocks, array( $test_content ), array( false ), array( $blocks ) );
+		$expected_text = array(
+			" They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?",
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_text, array( false ), array( $blocks ) );
 	}
 
 	/**

@@ -1265,7 +1265,7 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// Remove trailing whitespace from every line.
-				$tweet['text'] = preg_replace( '/\s+$/um', "\n", $tweet['text'] );
+				$tweet['text'] = preg_replace( '/\p{Z}+$/um', '', $tweet['text'] );
 
 				// Remove all trailing whitespace (including line breaks) from the end of the text.
 				$tweet['text'] = rtrim( $tweet['text'] );
