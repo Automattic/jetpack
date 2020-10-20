@@ -31,16 +31,20 @@ function set_up_autoloader() {
 	global $jetpack_autoloader_latest_version;
 	global $jetpack_autoloader_loader;
 
+	require_once __DIR__ . '/class-plugin-locator.php';
+	require_once __DIR__ . '/class-cache-handler.php';
 	require_once __DIR__ . '/class-plugins-handler.php';
 	require_once __DIR__ . '/class-version-selector.php';
 	require_once __DIR__ . '/class-autoloader-locator.php';
 	require_once __DIR__ . '/class-autoloader-handler.php';
 
-	$plugins_handler    = new Plugins_Handler();
+	$plugin_locator     = new Plugin_Locator();
+	$cache_handler      = new Cache_Handler();
+	$plugins_handler    = new Plugins_Handler( $plugin_locator, $cache_handler );
 	$version_selector   = new Version_Selector();
 	$autoloader_handler = new Autoloader_Handler(
-		$plugins_handler->get_current_plugin_path(),
-		$plugins_handler->get_all_active_plugins_paths(),
+		$plugins_handler->find_current_plugin(),
+		$plugins_handler->find_all_plugins( true ),
 		new Autoloader_Locator( $version_selector ),
 		$version_selector
 	);

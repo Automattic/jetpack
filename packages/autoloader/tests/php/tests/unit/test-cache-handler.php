@@ -42,8 +42,8 @@ class Test_Cache_Handler extends TestCase {
 
 		// Make sure all of the tests have no cache file.
 		// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
-		@unlink( TEST_DATA_PATH . '/cache/test-cache.json' );
-		@unlink( TEST_DATA_PATH . '/cache/cache/test-cache-constant.json' );
+		@unlink( TEST_DATA_PATH . '/cache/jetpack-autoloader-test-cache.json' );
+		@unlink( TEST_DATA_PATH . '/cache/cache/jetpack-autoloader-test-cache-constant.json' );
 		@rmdir( TEST_DATA_PATH . '/cache/cache' );
 		@rmdir( TEST_DATA_PATH . '/cache' );
 		// phpcs:enable WordPress.PHP.NoSilencedErrors.Discouraged
@@ -53,7 +53,7 @@ class Test_Cache_Handler extends TestCase {
 	 * Tests that nothing is loaded from an empty cache.
 	 */
 	public function test_loads_nothing_from_empty_cache() {
-		$loaded = $this->handler->read_from_cache( 'test-cache.json' );
+		$loaded = $this->handler->read_from_cache( 'test-cache' );
 
 		$this->assertFalse( $loaded );
 	}
@@ -65,7 +65,7 @@ class Test_Cache_Handler extends TestCase {
 		$cache_content = array( 'test' => 'content' );
 
 		$this->handler->write_to_cache( 'test-cache', $cache_content );
-		$this->assertFileExists( TEST_DATA_PATH . '/cache/test-cache.json' );
+		$this->assertFileExists( TEST_DATA_PATH . '/cache/jetpack-autoloader-test-cache.json' );
 
 		$read_cache = $this->handler->read_from_cache( 'test-cache' );
 		$this->assertEquals( $cache_content, $read_cache );
@@ -80,7 +80,7 @@ class Test_Cache_Handler extends TestCase {
 		$cache_content = array( 'test' => 'content' );
 
 		$this->handler->write_to_cache( 'test-cache-constant', $cache_content );
-		$this->assertFileExists( TEST_DATA_PATH . '/cache/cache/test-cache-constant.json' );
+		$this->assertFileExists( TEST_DATA_PATH . '/cache/cache/jetpack-autoloader-test-cache-constant.json' );
 
 		$read_cache = $this->handler->read_from_cache( 'test-cache-constant' );
 		$this->assertEquals( $cache_content, $read_cache );

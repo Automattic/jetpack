@@ -9,7 +9,7 @@ class Manifest_Handler {
 	/**
 	 * An array of the active plugin paths we want to search.
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	private $active_plugin_paths;
 
@@ -23,7 +23,7 @@ class Manifest_Handler {
 	/**
 	 * The constructor.
 	 *
-	 * @param array            $active_plugin_paths An array of the active plugin paths we want to search.
+	 * @param string[]         $active_plugin_paths An array of the active plugin paths we want to search.
 	 * @param Version_Selector $version_selector The Version_Selector object.
 	 */
 	public function __construct( $active_plugin_paths, $version_selector ) {

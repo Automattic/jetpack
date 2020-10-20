@@ -13,12 +13,12 @@ use PHPUnit\Framework\TestCase;
  * @runClassInSeparateProcess
  * @preserveGlobalState disabled
  */
-class Test_Plugin_Guesser extends TestCase {
+class Test_Plugin_Locator extends TestCase {
 
 	/**
 	 * The plugin guesser that we're testing.
 	 *
-	 * @var Plugin_Guesser
+	 * @var Plugin_Locator
 	 */
 	private $guesser;
 
@@ -28,7 +28,7 @@ class Test_Plugin_Guesser extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->guesser = new Plugin_Guesser();
+		$this->guesser = new Plugin_Locator();
 
 		// Make sure the plugin directory points to the test plugins!
 		define( 'WP_PLUGIN_DIR', TEST_DATA_PATH . '/plugins' );
@@ -176,59 +176,5 @@ class Test_Plugin_Guesser extends TestCase {
 		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
-	}
-
-	/**
-	 * Tests that the guesser can find all of the plugins in different options and locations.
-	 */
-	public function test_finds_all_plugins_without_multisite() {
-		set_test_is_multisite( false );
-		add_test_option(
-			'active_plugins',
-			array( 'plugin_current/plugin_current.php' )
-		);
-		// This one should not be present since it is a multisite option!
-		add_test_site_option(
-			'active_sitewide_plugins',
-			array( 'plugin_dev/plugin_dev.php' )
-		);
-
-		$_REQUEST['_wpnonce'] = '123abc';
-		$_REQUEST['action']   = 'activate-selected';
-		$_REQUEST['checked']  = array( 'plugin_newer\\\\plugin_newer.php' );
-
-		$plugin_paths = $this->guesser->find_all_plugins();
-
-		$this->assertIsArray( $plugin_paths );
-		$this->assertCount( 2, $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_newer', $plugin_paths );
-	}
-
-	/**
-	 * Tests that the guesser can find all of the plugins in different options and locations.
-	 */
-	public function test_finds_all_plugins_with_multisite() {
-		set_test_is_multisite( true );
-		add_test_option(
-			'active_plugins',
-			array( 'plugin_current/plugin_current.php' )
-		);
-		add_test_site_option(
-			'active_sitewide_plugins',
-			array( 'plugin_dev/plugin_dev.php' => 123456 )
-		);
-
-		$_REQUEST['_wpnonce'] = '123abc';
-		$_REQUEST['action']   = 'activate-selected';
-		$_REQUEST['checked']  = array( 'plugin_newer\\\\plugin_newer.php' );
-
-		$plugin_paths = $this->guesser->find_all_plugins();
-
-		$this->assertIsArray( $plugin_paths );
-		$this->assertCount( 3, $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_newer', $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_dev', $plugin_paths );
 	}
 }

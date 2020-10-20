@@ -4,28 +4,7 @@
 /**
  * This class scans the WordPress installation to find active plugins.
  */
-class Plugin_Guesser {
-
-	/**
-	 * Attempts to find all of the active plugins by guessing using different techniques.
-	 *
-	 * @return array $plugin_paths The list of absolute paths we've found.
-	 */
-	public function find_all_plugins() {
-		$plugin_paths = array();
-
-		// This option contains all of the plugins that have been activated via the interface.
-		$plugin_paths[] = $this->find_using_option( 'active_plugins' );
-
-		// This option contains all of the multisite plugins that have been network activated via the interface.
-		if ( is_multisite() ) {
-			$plugin_paths[] = $this->find_using_option( 'active_sitewide_plugins', true );
-		}
-
-		$plugin_paths[] = $this->find_activating_this_request();
-
-		return array_unique( array_merge( ...$plugin_paths ) );
-	}
+class Plugin_Locator {
 
 	/**
 	 * Checks a given option for plugin paths.

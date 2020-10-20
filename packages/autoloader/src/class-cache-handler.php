@@ -72,16 +72,16 @@ class Cache_Handler {
 	/**
 	 * Fetches the path to the cache file.
 	 *
-	 * @param string $cache_file The filename of the cache file to read.
+	 * @param string $key The cache key to build a path for.
 	 * @return string
 	 */
-	private function get_cache_file_path( $cache_file ) {
+	private function get_cache_file_path( $key ) {
 		if ( defined( 'JETPACK_AUTOLOAD_CACHE_FOLDER' ) ) {
 			$dir = JETPACK_AUTOLOAD_CACHE_FOLDER;
 		} else {
 			$dir = trailingslashit( WP_CONTENT_DIR ) . 'cache';
 		}
 
-		return trailingslashit( $dir ) . $cache_file . '.json';
+		return trailingslashit( $dir ) . 'jetpack-autoloader-' . $key . '.json';
 	}
 }
