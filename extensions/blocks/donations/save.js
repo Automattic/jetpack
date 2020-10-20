@@ -6,7 +6,12 @@ import { RichText } from '@wordpress/block-editor';
 const Save = ( { attributes } ) => {
 	const { fallbackLinkUrl, oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 
-	if ( ! oneTimeDonation || ! oneTimeDonation.show || oneTimeDonation.planId === -1 ) {
+	if (
+		! oneTimeDonation ||
+		! oneTimeDonation.show ||
+		! oneTimeDonation.planId ||
+		oneTimeDonation.planId === -1
+	) {
 		return null;
 	}
 

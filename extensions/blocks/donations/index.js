@@ -1,6 +1,11 @@
 /**
  * External dependencies
  */
+import GridiconHeart from 'gridicons/dist/heart-outline';
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -8,8 +13,8 @@ import { __ } from '@wordpress/i18n';
  */
 import edit from './edit';
 import save from './save';
-import GridiconHeart from 'gridicons/dist/heart-outline';
 import { getIconColor } from '../../shared/block-icons';
+import deprecatedV1 from './deprecated/v1';
 
 /**
  * Style dependencies
@@ -34,4 +39,5 @@ export const settings = {
 	edit,
 	save,
 	example: {},
+	deprecated: [ deprecatedV1 ],
 };
