@@ -24,3 +24,4 @@ require_once __DIR__ . '/../../src/class-version-loader.php';
 require_once __DIR__ . '/../../src/class-autoloader-handler.php';
 require_once __DIR__ . '/../../src/class-plugin-locator.php';
 require_once __DIR__ . '/../../src/class-cache-handler.php';
+require_once __DIR__ . '/../../src/class-hook-manager.php';

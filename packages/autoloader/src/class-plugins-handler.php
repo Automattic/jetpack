@@ -48,7 +48,7 @@ class Plugins_Handler {
 	/**
 	 * Finds all of the plugins and returns them.
 	 *
-	 * @param boolean $include_cache Indicates whether or not we should include the cached plugin paths in the output.
+	 * @param bool $include_cache Indicates whether or not we should include the cached plugin paths in the output.
 	 *
 	 * @return array $plugin_paths The list of absolute paths to plugins we've found.
 	 */

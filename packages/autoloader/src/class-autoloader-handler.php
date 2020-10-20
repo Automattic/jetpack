@@ -98,7 +98,7 @@ class Autoloader_Handler {
 	 * The $jetpack_autoloader_cached_plugin_paths global will store a cache of the
 	 * active plugin paths when last changed.
 	 *
-	 * @return boolean True if the autoloader must be reset, else false.
+	 * @return bool True if the autoloader must be reset, else false.
 	 */
 	public function should_autoloader_reset() {
 		global $jetpack_autoloader_activating_plugins_paths;

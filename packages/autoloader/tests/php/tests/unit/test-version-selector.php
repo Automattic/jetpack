@@ -22,11 +22,11 @@ class Test_Version_Selector extends TestCase {
 	/**
 	 * Tests is_version_update_required().
 	 *
-	 * @param String  $selected_version The currently selected package version.
-	 * @param String  $compare_version The package version that is being compared to the
-	 *                                 currently selected version to determine if the version
-	 *                                 needs to be updated.
-	 * @param Boolean $expected The expected Version_Selector::is_version_update_required() output.
+	 * @param String $selected_version The currently selected package version.
+	 * @param String $compare_version The package version that is being compared to the
+	 *                                currently selected version to determine if the version
+	 *                                needs to be updated.
+	 * @param bool   $expected The expected Version_Selector::is_version_update_required() output.
 	 *
 	 * @covers Version_Selector::is_version_update_required
 	 * @dataProvider is_version_update_required_provider
@@ -39,11 +39,11 @@ class Test_Version_Selector extends TestCase {
 	/**
 	 * Tests is_version_update_required() with the JETPACK_AUTOLOAD_DEV constant set to true.
 	 *
-	 * @param String  $selected_version The currently selected package version.
-	 * @param String  $compare_version The package version that is being compared to the
-	 *                                 currently selected version to determine if the version
-	 *                                 needs to be updated.
-	 * @param Boolean $expected The expected Version_Selector::is_version_update_required() output.
+	 * @param String $selected_version The currently selected package version.
+	 * @param String $compare_version The package version that is being compared to the
+	 *                                currently selected version to determine if the version
+	 *                                needs to be updated.
+	 * @param bool   $expected The expected Version_Selector::is_version_update_required() output.
 	 *
 	 * @covers Version_Selector::is_version_update_required
 	 * @dataProvider Test_Version_Selector::is_version_update_required_provider

@@ -233,6 +233,125 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 	}
 }
 
+if ( ! function_exists( 'add_action' ) ) {
+	/**
+	 * A drop-in replacement for a WordPress function.
+	 *
+	 * @param string   $tag           The name of the action which is hooked.
+	 * @param callable $callable      The function to call.
+	 * @param int      $priority      Used to specify the priority of the action.
+	 * @param int      $accepted_args Used to specify the number of arguments the callable accepts.
+	 *
+	 * @return true
+	 */
+	function add_action( $tag, $callable, $priority = 10, $accepted_args = 1 ) {
+		return add_filter( $tag, $callable, $priority, $accepted_args );
+	}
+
+	/**
+	 * A drop-in replacement for a WordPress function.
+	 *
+	 * @param string   $tag           The name of the action which is hooked.
+	 * @param callable $callable      The function to call.
+	 * @param int      $priority      Used to specify the priority of the action.
+	 * @param int      $accepted_args Used to specify the number of arguments the callable accepts.
+	 *
+	 * @return true
+	 */
+	function add_filter( $tag, $callable, $priority = 10, $accepted_args = 1 ) {
+		global $test_filters;
+
+		$test_filters[ $tag ][] = array(
+			'callable'      => $callable,
+			'priority'      => $priority,
+			'accepted_args' => $accepted_args,
+		);
+
+		return true;
+	}
+
+	/**
+	 * A drop-in replacement for a WordPress function.
+	 *
+	 * @param string   $tag      The name of the action which is hooked.
+	 * @param callable $callable The function to call.
+	 * @param int      $priority Used to specify the priority of the action.
+	 *
+	 * @return bool True if removed, false if not.
+	 */
+	function remove_action( $tag, $callable, $priority = 10 ) {
+		return remove_filter( $tag, $callable, $priority );
+	}
+
+	/**
+	 * A drop-in replacement for a WordPress function.
+	 *
+	 * @param string   $tag      The name of the filter which is hooked.
+	 * @param callable $callable The function to call.
+	 * @param int      $priority Used to specify the priority of the filter.
+	 *
+	 * @return bool True if removed, false if not.
+	 */
+	function remove_filter( $tag, $callable, $priority = 10 ) {
+		global $test_filters;
+
+		if ( ! isset( $test_filters[ $tag ] ) ) {
+			return false;
+		}
+
+		foreach ( $test_filters[ $tag ] as $key => $record ) {
+			if ( $record['callable'] !== $callable ) {
+				continue;
+			}
+
+			if ( $record['priority'] !== $priority ) {
+				continue;
+			}
+
+			unset( $test_filters[ $tag ][ $key ] );
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks to see if the given filter has been added.
+	 *
+	 * @param string   $tag           The name of the action which is hooked.
+	 * @param callable $callable      The function to call.
+	 * @param int      $priority      Used to specify the priority of the action.
+	 * @param int      $accepted_args Used to specify the number of arguments the callable accepts.
+	 *
+	 * @return bool
+	 */
+	function test_has_filter( $tag, $callable, $priority = 10, $accepted_args = 1 ) {
+		global $test_filters;
+
+		if ( ! isset( $test_filters[ $tag ] ) ) {
+			return false;
+		}
+
+		foreach ( $test_filters[ $tag ] as $record ) {
+			if ( $record['callable'] !== $callable ) {
+				continue;
+			}
+
+			if ( $record['priority'] !== $priority ) {
+				continue;
+			}
+
+			if ( $record['accepted_args'] !== $accepted_args ) {
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+}
+
 /**
  * A function to clean up all of the test data added by the test suite.
  */
@@ -243,4 +362,6 @@ function cleanup_test_wordpress_data() {
 	$test_site_options = array();
 	global $test_is_multisite;
 	$test_is_multisite = false;
+	global $test_filters;
+	$test_filters = array();
 }

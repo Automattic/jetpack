@@ -6,7 +6,7 @@
  *
  * @param string $class_name Class Name to load.
  *
- * @return Boolean Whether the class_name was found in the classmap.
+ * @return bool Whether the class_name was found in the classmap.
  */
 function autoloader( $class_name ) {
 	global $jetpack_autoloader_loader;
