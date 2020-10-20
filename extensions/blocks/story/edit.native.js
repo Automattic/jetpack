@@ -10,7 +10,6 @@ import { BlockIcon, MediaPlaceholder, BlockMediaUpdateProgress } from '@wordpres
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import { getProtocol } from '@wordpress/url';
-import { doAction, hasAction } from '@wordpress/hooks';
 import {
 	requestMediaFilesFailedRetryDialog,
 	requestMediaFilesSaveCancelDialog,
