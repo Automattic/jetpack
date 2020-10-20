@@ -138,6 +138,8 @@ class Jetpack_ReCaptcha {
 			 * This can be useful in cases where the token hostname is expected to be
 			 * different from the get_home_url (ex. AMP recaptcha token contains a different hostname)
 			 *
+			 * @module sharedaddy
+			 *
 			 * @since 9.1.0
 			 *
 			 * @param array [ $url['host'] ] List of the valid hostnames to check against.
