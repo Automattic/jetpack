@@ -145,10 +145,10 @@ class Jetpack_Currencies {
 	 *
 	 * @param  string $price    Price.
 	 * @param  string $currency Currency.
-	 * @param  string $symbol   (Optional) If provided, overrides the default currency symbol.
+	 * @param  bool   $symbol   Whether to display the currency symbol.
 	 * @return string           Formatted price.
 	 */
-	public static function format_price( $price, $currency, $symbol = null ) {
+	public static function format_price( $price, $currency, $symbol = true ) {
 		$currency_details = self::CURRENCIES[ $currency ];
 
 		if ( $currency_details ) {
@@ -159,7 +159,7 @@ class Jetpack_Currencies {
 
 			return sprintf(
 				$currency_details['format'],
-				null !== $symbol ? $symbol : $currency_details['symbol'],
+				$symbol ? $currency_details['symbol'] : '',
 				$amount
 			);
 		}

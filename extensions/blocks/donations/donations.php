@@ -179,7 +179,7 @@ function render_block( $attr, $content ) {
 			$amounts .= sprintf(
 				'<div class="donations__amount" data-amount="%1$s">%2$s</div>',
 				esc_attr( $amount ),
-				\Jetpack_Currencies::format_price( $amount, $currency )
+				esc_html( \Jetpack_Currencies::format_price( $amount, $currency ) )
 			);
 		}
 		$amounts    .= '</div>';
@@ -191,7 +191,7 @@ function render_block( $attr, $content ) {
 		$buttons    .= sprintf(
 			'<a class="wp-block-button__link donations__donate-button %1$s" href="%2$s">%3$s</a>',
 			esc_attr( $donation['class'] ),
-			\Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id ),
+			esc_url( \Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id ) ),
 			$donation['buttonText']
 		);
 	}
@@ -211,9 +211,9 @@ function render_block( $attr, $content ) {
 				%1$s
 				<div class="donations__amount-value" data-currency="%2$s" data-empty-text="%3$s"></div>
 			</div>',
-			\Jetpack_Currencies::CURRENCIES[ $attr['currency'] ]['symbol'],
-			$attr['currency'],
-			\Jetpack_Currencies::format_price( $default_custom_amount, $currency, '' )
+			esc_html( \Jetpack_Currencies::CURRENCIES[ $attr['currency'] ]['symbol'] ),
+			esc_attr( $attr['currency'] ),
+			esc_attr( \Jetpack_Currencies::format_price( $default_custom_amount, $currency, false ) )
 		);
 	}
 
