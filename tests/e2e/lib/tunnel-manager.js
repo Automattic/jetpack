@@ -53,7 +53,7 @@ export default class TunnelManager {
 			urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
 		} catch ( error ) {
 			console.log( error );
-			throw error;
+			// throw error;
 		}
 
 		// use already created subdomain if found
