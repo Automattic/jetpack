@@ -22,8 +22,8 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 	 * @author fgiannar
 	 * @covers ::posts_per_page
 	 *
-	 * @param int $posts_per_page_query_arg The $_REQUEST['query_args']['posts_per_page'] value.
-	 * @param int $expected The expected return value of the posts_per_page method.
+	 * @param mixed $posts_per_page_query_arg The $_REQUEST['query_args']['posts_per_page'] value.
+	 * @param int   $expected The expected return value of the posts_per_page method.
 	 */
 	public function test_max_posts_per_page_in_request( $posts_per_page_query_arg, $expected ) {
 		$_REQUEST['query_args']['posts_per_page'] = $posts_per_page_query_arg;
