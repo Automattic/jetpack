@@ -636,6 +636,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'StumbleUpon',
 			),
 			array(
+				'url'   => array( 'telegram.me', 't.me' ),
+				'icon'  => 'telegram',
+				'label' => 'Telegram',
+			),
+			array(
 				'url'   => array( 'tumblr.com' ),
 				'icon'  => 'tumblr',
 				'label' => 'Tumblr',
