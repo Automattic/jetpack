@@ -236,7 +236,7 @@ catchBeforeAll( async () => {
 	// await execShellCommand( `yarn wp-env run tests-cli wp option get home` );
 	// await maybeSetupTunnel();
 
-	const url = await tunnelManager.create();
+	const url = await tunnelManager.create( process.env.SKIP_CONNECT );
 	global.tunnelUrl = url;
 	await maybePreConnect();
 } );

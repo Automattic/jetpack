@@ -21,12 +21,17 @@ export default class TunnelManager {
 	 * @param {boolean} oneOff Is the tunnel should be reused
 	 */
 	async create( oneOff = false ) {
-		console.log( 'STARTING TO CREATE A TUNNEL!!!' );
-
 		const tunnelConfig = this.getConfig( oneOff );
+
 		const tunnel = await localtunnel( tunnelConfig );
+		tunnel.on( 'close', () => {
+			// tunnels are closed
+			console.log( '!!!!!! TUNNEL is closed for ', tunnel.url );
+		} );
 		this.tunnel = tunnel;
 		const url = tunnel.url.replace( 'http:', 'https:' );
+
+		console.log( '#### CREATING A TUNNEL!!! oneOff: ', oneOff, 'Config: ', tunnelConfig, url );
 
 		await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
 		await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
@@ -44,10 +49,6 @@ export default class TunnelManager {
 			return tunnelConfig;
 		}
 
-		if ( process.env.SKIP_CONNECT ) {
-			return tunnelConfig;
-		}
-
 		let urlFromFile;
 		try {
 			urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
@@ -56,8 +57,10 @@ export default class TunnelManager {
 			// throw error;
 		}
 
+		console.log( urlFromFile );
+
 		// use already created subdomain if found
-		if ( urlFromFile.length > 1 ) {
+		if ( urlFromFile && urlFromFile.length > 1 ) {
 			const subdomain = urlFromFile.replace( /.*?:\/\//g, '' ).split( '.' )[ 0 ];
 			tunnelConfig.subdomain = subdomain;
 		}

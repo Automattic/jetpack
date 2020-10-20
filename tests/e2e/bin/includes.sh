@@ -128,12 +128,7 @@ reset_env() {
 }
 
 configure_wp_env() {
-	WP_SITE_URL=$(get_ngrok_url)
-
-	if [ -z "$WP_SITE_URL" ]; then
-		echo -e $(error_message "WP_SITE_URL is not set after launching an ngrok")
-		exit 1
-	fi
+	rm -rf allure-results e2e_tunnels.txt
 
 	yarn wp-env run tests-wordpress touch wp-content/debug.log
 	yarn wp-env run tests-wordpress chown www-data:www-data wp-content/debug.log
