@@ -68,7 +68,7 @@ export default function SearchResultExpanded( props ) {
 					>
 						{ splitDomainPath( fields[ 'permalink.url.raw' ] ).map( ( piece, index, pieces ) => (
 							<span className="jetpack-instant-search__result-expanded__path-piece">
-								{ piece }
+								{ decodeURIComponent( piece ) }
 								{ index !== pieces.length - 1 ? ' › ' : '' }
 							</span>
 						) ) }
