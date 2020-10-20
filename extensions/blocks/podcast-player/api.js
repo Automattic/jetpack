@@ -30,9 +30,14 @@ export const fetchPodcastFeed = async url => {
 	}
 
 	// Try if we have another block that can embed this URL.
-	const externalEmbed = await apiFetch( {
-		path: addQueryArgs( '/oembed/1.0/proxy', { url } ),
-	} );
+	let externalEmbed;
+	try {
+		externalEmbed = await apiFetch( {
+			path: addQueryArgs( '/oembed/1.0/proxy', { url } ),
+		} );
+	} catch ( err ) {
+		// We don't care about this error.
+	}
 
 	// We can use an embed block for this URL, unless API returned the fallback code.
 	const oEmbedLinkCheck = '<a href="' + url + '">' + url + '</a>';
