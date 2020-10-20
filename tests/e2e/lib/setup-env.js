@@ -239,7 +239,6 @@ catchBeforeAll( async () => {
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
 	observeConsoleLogging();
-
 	await maybeSetupTunnel();
 
 	await maybePreConnect();
