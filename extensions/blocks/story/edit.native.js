@@ -110,7 +110,6 @@ class StoryEdit extends React.Component {
 	finishMediaUploadWithSuccess( payload ) {
 		const { setAttributes } = this.props;
 		// find the mediaFiles item that needs to change via its id, and apply the new URL
-		// var updatedMediaFiles = this.replaceMediaUrlInMediaFilesById( payload.mediaId, payload.mediaUrl);
 		const updatedMediaFiles = this.replaceNewIdInMediaFilesByOldId(
 			payload.mediaId,
 			payload.mediaServerId,
@@ -142,53 +141,32 @@ class StoryEdit extends React.Component {
 
 	replaceMediaUrlInMediaFilesById( mediaId, mediaUrl ) {
 		const { attributes } = this.props;
-		const newMediaFiles = this.deepCopyMediaFiles();
-		if ( mediaId !== undefined && newMediaFiles !== undefined ) {
-			for ( let i = 0; i < newMediaFiles.length; i++ ) {
-				if ( newMediaFiles[ i ].id === mediaId.toString() ) {
-					newMediaFiles[ i ].url = mediaUrl;
-					newMediaFiles[ i ].link = mediaUrl;
-					return newMediaFiles;
+		if ( mediaId !== undefined ) {
+			const newMediaFiles = attributes.mediaFiles.map( mediaFile => {
+				if ( mediaFile.id === mediaId.toString() ) {
+					// we need to deep copy because attributes can't be modified in-place
+					return { ...mediaFile, url: mediaUrl, link: mediaUrl };
 				}
-			}
+				return { ...mediaFile };
+			} );
+			return newMediaFiles;
 		}
-		return newMediaFiles;
-	}
-
-	deepCopyMediaFiles() {
-		const { attributes } = this.props;
-		const newMediaFiles = [];
-		if ( attributes.mediaFiles !== undefined ) {
-			for ( let i = 0; i < attributes.mediaFiles.length; i++ ) {
-				// copy to new object
-				newMediaFiles[ i ] = {
-					id: attributes.mediaFiles[ i ].id,
-					url: attributes.mediaFiles[ i ].url,
-					link: attributes.mediaFiles[ i ].link,
-					alt: attributes.mediaFiles[ i ].alt,
-					caption: attributes.mediaFiles[ i ].caption,
-					mime: attributes.mediaFiles[ i ].mime,
-					type: attributes.mediaFiles[ i ].type,
-				};
-			}
-		}
-		return newMediaFiles;
+		return attributes.mediaFiles;
 	}
 
 	replaceNewIdInMediaFilesByOldId( oldId, mediaId, mediaUrl ) {
 		const { attributes } = this.props;
-		const newMediaFiles = this.deepCopyMediaFiles();
-		if ( mediaId !== undefined && newMediaFiles !== undefined ) {
-			for ( let i = 0; i < newMediaFiles.length; i++ ) {
-				if ( newMediaFiles[ i ].id === oldId.toString() ) {
-					newMediaFiles[ i ].id = mediaId;
-					newMediaFiles[ i ].url = mediaUrl;
-					newMediaFiles[ i ].link = mediaUrl;
-					return newMediaFiles;
+		if ( mediaId !== undefined ) {
+			const newMediaFiles = attributes.mediaFiles.map( mediaFile => {
+				if ( mediaFile.id === oldId.toString() ) {
+					// we need to deep copy because attributes can't be modified in-place
+					return { ...mediaFile, id: mediaId, url: mediaUrl, link: mediaUrl };
 				}
-			}
+				return { ...mediaFile };
+			} );
+			return newMediaFiles;
 		}
-		return newMediaFiles;
+		return attributes.mediaFiles;
 	}
 
 	finishMediaSaveWithSuccess( payload ) {
