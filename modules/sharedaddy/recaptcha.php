@@ -144,7 +144,7 @@ class Jetpack_ReCaptcha {
 			 *
 			 * @param array [ $url['host'] ] List of the valid hostnames to check against.
 			 */
-			$valid_hostnames = apply_filters( 'jetpack_recaptcha_valid_hostnames', [ $url['host'] ] );
+			$valid_hostnames = apply_filters( 'jetpack_recaptcha_valid_hostnames', array( $url['host'] ) );
 
 			if ( ! in_array( $resp_decoded['hostname'], $valid_hostnames, true ) ) {
 				return new WP_Error( 'unexpected-host', $this->error_codes['unexpected-hostname'] );
