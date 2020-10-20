@@ -760,7 +760,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			case 'visibility':
 				// This is needed to fix a bug in WPAndroid where `public: "PUBLIC"` is sent in place of `public: 1`
-				// https://mobileguildp2.wordpress.com/2020/10/20/site-creation-problem-in-wordpress-for-android
 				if ( 'public' === strtolower( $value ) ) {
 					$return[ $key ] = 1;
 				} else if ( 'private' === strtolower( $value ) ) {
