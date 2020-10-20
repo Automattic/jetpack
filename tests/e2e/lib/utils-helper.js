@@ -33,7 +33,7 @@ export function getNgrokSiteUrl() {
 	// 	'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
 	// return execSyncShellCommand( cmd ).trim();
 
-	const url = global.tunnel.url.replace( 'http:', 'https:' );
+	const url = global.tunnelUrl.replace( 'http:', 'https:' );
 
 	return url;
 }
