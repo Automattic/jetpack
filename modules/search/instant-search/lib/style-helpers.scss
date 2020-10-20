@@ -2,6 +2,8 @@ $break-small: 600px;
 $break-medium: 768px;
 $grid-size-large: 16px;
 
+$overlay-vertical-padding: 4em;
+
 @mixin break-small() {
 	@media ( min-width: #{ ( $break-small ) } ) {
 		@content;
