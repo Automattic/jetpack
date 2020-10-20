@@ -5,20 +5,19 @@
 import { wrap, get } from 'lodash';
 import fs from 'fs';
 import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
-import config from 'config';
 /**
  * Internal dependencies
  */
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
-import { execShellCommand, execWpCommand } from './utils-helper';
+import { execWpCommand } from './utils-helper';
 import {
 	connectThroughWPAdminIfNeeded,
 	loginToWpcomIfNeeded,
 	loginToWpSite,
 } from './flows/jetpack-connect';
-import localtunnel from 'localtunnel';
+import TunnelManager from './tunnel-manager';
 
 const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
@@ -214,21 +213,7 @@ jasmine.getEnv().addReporter( {
 	specDone: () => ( jasmine.currentTest = null ),
 } );
 
-async function maybeSetupTunnel() {
-	if ( global.tunnel && global.tunnel.url ) {
-		// For now, all the tests expect that tunnel is _already_ created before tests are triggered.
-		// So we should create a new tunnel only when none exist yet.
-		return;
-	}
-
-	const localtunnelHost = config.get( 'localtunnel' );
-	const tunnel = await localtunnel( { port: 8889, host: localtunnelHost } );
-	global.tunnel = tunnel;
-	const url = tunnel.url.replace( 'http:', 'https:' );
-
-	await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
-	await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
-}
+const tunnelManager = new TunnelManager();
 
 // Before every test suite run, delete all content created by the test. This ensures
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
@@ -239,13 +224,24 @@ catchBeforeAll( async () => {
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
 	observeConsoleLogging();
-	await maybeSetupTunnel();
 
+	// await execShellCommand(
+	// 	`yarn wp-env run tests-cli 'bash -c "wp option get siteurl && wp option get home"'`
+	// );
+
+	// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
+	// await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
+
+	// await execShellCommand( `yarn wp-env run tests-cli wp option get siteurl` );
+	// await execShellCommand( `yarn wp-env run tests-cli wp option get home` );
+	// await maybeSetupTunnel();
+
+	await tunnelManager.create();
 	await maybePreConnect();
 } );
 
 afterAll( async () => {
-	global.tunnel.close();
+	tunnelManager.close();
 } );
 
 afterEach( async () => {
