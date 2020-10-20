@@ -28,7 +28,7 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 	public function test_max_posts_per_page_in_request( $posts_per_page_query_arg, $expected ) {
 		$_REQUEST['query_args']['posts_per_page'] = $posts_per_page_query_arg;
 
-		$posts_per_page = $this->infinite_scroll::posts_per_page();
+		$posts_per_page = The_Neverending_Home_Page::posts_per_page();
 		$this->assertSame( $expected, $posts_per_page );
 	}
 
@@ -41,6 +41,7 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 		$posts_per_page_limit       = The_Neverending_Home_Page::MAX_ALLOWED_POSTS_PER_PAGE_ΙΝ_REQUEST;
 		$posts_per_page_under_limit = The_Neverending_Home_Page::MAX_ALLOWED_POSTS_PER_PAGE_ΙΝ_REQUEST - 1;
 		$posts_per_page_over_limit  = The_Neverending_Home_Page::MAX_ALLOWED_POSTS_PER_PAGE_ΙΝ_REQUEST + 1;
+		$default_posts_per_page     = (int) The_Neverending_Home_Page::get_settings()->posts_per_page;
 
 		return array(
 			'posts_per_page_under_allowed_limit' => array(
@@ -53,23 +54,23 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 			),
 			'posts_per_page_over_allowed_limit'  => array(
 				$posts_per_page_over_limit,
-				0,
+				$default_posts_per_page,
 			),
 			'posts_per_page_numeric'             => array(
-				'10',
-				10,
+				'100',
+				100,
 			),
 			'posts_per_page_not_numeric'         => array(
 				'not-numeric',
-				0,
+				$default_posts_per_page,
 			),
 			'posts_per_page_not_an_integer'      => array(
 				10.5,
 				10,
 			),
 			'posts_per_page_negative'            => array(
-				-10,
-				0,
+				-100,
+				$default_posts_per_page,
 			),
 		);
 	}
