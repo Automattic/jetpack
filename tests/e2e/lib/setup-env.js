@@ -206,6 +206,9 @@ export const step = async ( stepName, fn ) => {
 };
 
 jasmine.getEnv().addReporter( {
+	jasmineStarted() {
+		console.log( '#############', '\n\n\n' );
+	},
 	specStarted( result ) {
 		logger.info( `Spec name: ${ result.fullName }, description: ${ result.description }` );
 		jasmine.currentTest = result;
@@ -224,17 +227,6 @@ catchBeforeAll( async () => {
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
 	observeConsoleLogging();
-
-	// await execShellCommand(
-	// 	`yarn wp-env run tests-cli 'bash -c "wp option get siteurl && wp option get home"'`
-	// );
-
-	// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
-	// await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
-
-	// await execShellCommand( `yarn wp-env run tests-cli wp option get siteurl` );
-	// await execShellCommand( `yarn wp-env run tests-cli wp option get home` );
-	// await maybeSetupTunnel();
 
 	const url = await tunnelManager.create( process.env.SKIP_CONNECT );
 	global.tunnelUrl = url;

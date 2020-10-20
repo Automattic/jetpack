@@ -18,14 +18,19 @@ process.env.SKIP_CONNECT = true;
 describe( 'Jetpack updater', () => {
 	catchBeforeAll( async () => {
 		await prepareUpdaterTest();
-		await execWpCommand( 'wp plugin deactivate jetpack-dev' );
-		await execWpCommand( 'wp plugin install --activate jetpack' );
-		await execWpCommand( 'wp plugin activate e2e-plugin-updater' );
-		await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
 		const url = getNgrokSiteUrl();
+
 		await execWpCommand(
-			`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/uploads/jetpack.zip`
+			`bash -c 'wp plugin deactivate jetpack-dev && wp plugin install --activate jetpack && wp plugin activate e2e-plugin-updater && wp option set e2e_jetpack_upgrader_update_version 8.8-alpha && wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/uploads/jetpack.zip'`
 		);
+
+		// await execWpCommand( 'wp plugin deactivate jetpack-dev' );
+		// await execWpCommand( 'wp plugin install --activate jetpack' );
+		// await execWpCommand( 'wp plugin activate e2e-plugin-updater' );
+		// await execWpCommand( 'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha' );
+		// await execWpCommand(
+		// 	`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/uploads/jetpack.zip`
+		// );
 	} );
 
 	afterAll( async () => {

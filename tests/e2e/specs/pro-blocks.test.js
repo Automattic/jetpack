@@ -19,8 +19,11 @@ describe( 'Paid blocks', () => {
 	} );
 
 	afterAll( async () => {
-		await execWpCommand( 'wp jetpack module deactivate publicize' );
-		await execWpCommand( 'wp jetpack module deactivate wordads' );
+		// await execWpCommand( 'wp jetpack module deactivate publicize' );
+		// await execWpCommand( 'wp jetpack module deactivate wordads' );
+		await execWpCommand(
+			`bash -c 'wp jetpack module deactivate publicize && wp jetpack module deactivate wordads'`
+		);
 	} );
 
 	it( 'MailChimp Block', async () => {
