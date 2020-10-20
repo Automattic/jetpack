@@ -62,21 +62,3 @@ function wpcomsh_add_dom_rect_polyfill( $scripts ) {
 }
 
 add_action( 'wp_default_scripts', 'wpcomsh_add_dom_rect_polyfill', 30 );
-
-/**
- * Enqueues a JS script that contains WPCOM-specific Gutenberg patches that should
- * also be applied to AT sites.
- *
- * @param WP_Scripts $scripts WP_Scripts object.
- */
-function wpcomsh_enqueue_gutenberg_wpcom_mods_script( $scripts ) {
-		wp_enqueue_script(
-			'gutenberg-wpcom-mods',
-			plugins_url( 'assets/gutenberg-wpcom-mods.js', __DIR__ ),
-			array(),
-			gmdate( 'YW' ),
-			true
-		);
-}
-
-add_action( 'admin_enqueue_scripts', 'wpcomsh_enqueue_gutenberg_wpcom_mods_script' );
