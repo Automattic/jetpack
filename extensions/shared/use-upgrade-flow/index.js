@@ -8,6 +8,7 @@ import { noop } from 'lodash';
  */
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { doAction, hasAction } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -16,6 +17,8 @@ import { useState } from '@wordpress/element';
 // Provably we should move this store to somewhere more generic.
 import '../components/upgrade-nudge/store';
 import { getUpgradeUrl } from '../plan-utils';
+
+const HOOK_OPEN_CHECKOUT_MODAL = 'a8c.wpcom-block-editor.openCheckoutModal';
 
 function redirect( url, callback ) {
 	if ( callback ) {
@@ -27,7 +30,7 @@ function redirect( url, callback ) {
 export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
 
-	const { checkoutUrl, isAutosaveablePost, isDirtyPost } = useSelect( select => {
+	const { checkoutUrl, isAutosaveablePost, isDirtyPost, planData } = useSelect( select => {
 		const editorSelector = select( 'core/editor' );
 		const planSelector = select( 'wordpress-com/plans' );
 
@@ -38,6 +41,7 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 			checkoutUrl: getUpgradeUrl( { plan, planSlug, postId, postType } ),
 			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
 			isDirtyPost: editorSelector.isEditedPostDirty(),
+			planData: plan,
 		};
 	}, [] );
 
@@ -45,6 +49,15 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const savePost = dispatch( 'core/editor' ).savePost;
 
 	const goToCheckoutPage = async event => {
+		// If this action is available, the feature is enabled to open the checkout
+		// in a modal rather than redirect the user there, away from the editor.
+		if ( hasAction( HOOK_OPEN_CHECKOUT_MODAL ) ) {
+			event.preventDefault();
+			savePost( event );
+			doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [planData] } );
+			return;
+		}
+
 		if ( ! window?.top?.location?.href ) {
 			return;
 		}
@@ -58,7 +71,7 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 
 		setIsRedirecting( true );
 
-		/*
+		/**
 		 * If there are not unsaved values, redirect.
 		 * If the post is not auto-savable, redirect.
 		 */
