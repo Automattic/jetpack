@@ -14,7 +14,6 @@
  * WordPress dependencies
  */
 import domReady from '@wordpress/dom-ready';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -356,7 +355,10 @@ domReady( function () {
 				this.controller.setAttribute( 'aria-valuenow', 50 );
 				this.controller.setAttribute( 'aria-valuemin', 0 );
 				this.controller.setAttribute( 'aria-valuemax', 100 );
-				this.controller.setAttribute( 'aria-label', __( 'Slide to compare images.', 'jetpack' ) );
+				this.controller.setAttribute(
+					'aria-label',
+					window.imageCompareHandle || 'Slide to compare images'
+				);
 
 				this.handle.appendChild( this.leftArrow );
 				this.handle.appendChild( this.control );

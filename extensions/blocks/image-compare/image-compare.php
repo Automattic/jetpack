@@ -49,6 +49,20 @@ function load_assets( $attr, $content ) {
 	return $content;
 }
 
+/**
+ * Localisation for block
+ *
+ * @return void
+ */
+function block_localization_assets() {
+	?>
+	<script>
+		var imageCompareHandle = '<?php esc_attr_e( 'Slide to compare images', 'jetpack' ); ?>';
+	</script>
+	<?php
+}
+add_action( 'wp_head', __NAMESPACE__ . '\block_localization_assets' );
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\block_localization_assets' );
 
 /**
  * Render image compare block for AMP
