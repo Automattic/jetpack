@@ -74,8 +74,8 @@ class Test_Plugins_Handler extends TestCase {
 	/**
 	 * Tests that the handler is able to find the current plugin.
 	 */
-	public function test_finds_current_plugin() {
-		$current = $this->plugins_handler->find_current_plugin();
+	public function test_gets_current_plugin() {
+		$current = $this->plugins_handler->get_current_plugin();
 
 		// Since we're not in our normal directory structure, just make sure it escapes 3 levels from the plugin's `src` folder.
 		$this->assertEquals( dirname( TEST_PACKAGE_PATH ), $current );
@@ -84,19 +84,18 @@ class Test_Plugins_Handler extends TestCase {
 	/**
 	 * Tests that all plugins are found.
 	 */
-	public function test_finds_all_plugins() {
+	public function test_gets_all_plugins() {
 		global $jetpack_autoloader_activating_plugins_paths;
 		$jetpack_autoloader_activating_plugins_paths = array( TEST_DATA_PATH . '/plugins/plugin_activating' );
-		$this->plugin_locator->method( 'find_using_option' )
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_current' ) );
-		$this->plugin_locator->method( 'find_activating_this_request' )
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_activating_this_request' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
-		$this->cache_handler->method( 'read_from_cache' )
-			->with( Plugins_Handler::CACHE_KEY )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
 
-		$plugin_paths = $this->plugins_handler->find_all_plugins( false );
+		$plugin_paths = $this->plugins_handler->get_all_plugins();
 
 		$this->assertEquals(
 			array(
@@ -107,28 +106,20 @@ class Test_Plugins_Handler extends TestCase {
 			$plugin_paths
 		);
 
-		$plugin_paths = $this->plugins_handler->find_all_plugins( true );
-
-		$this->assertEquals(
-			array(
-				TEST_DATA_PATH . '/plugins/plugin_activating',
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				TEST_DATA_PATH . '/plugins/plugin_dev',
-				TEST_DATA_PATH . '/plugins/plugin_newer',
-			),
-			$plugin_paths
-		);
+		// Subsequent calls should be cached.
+		$this->assertSame( $plugin_paths, $this->plugins_handler->get_all_plugins() );
 	}
 
 	/**
 	 * Tests that all plugins are found when the site is multisite.
 	 */
-	public function test_finds_all_plugins_when_multisite() {
+	public function test_gets_all_plugins_when_multisite() {
 		set_test_is_multisite( true );
 
 		global $jetpack_autoloader_activating_plugins_paths;
 		$jetpack_autoloader_activating_plugins_paths = array( TEST_DATA_PATH . '/plugins/plugin_activating' );
-		$this->plugin_locator->method( 'find_using_option' )
+		$this->plugin_locator->expects( $this->exactly( 2 ) )
+			->method( 'find_using_option' )
 			->withConsecutive(
 				array( 'active_plugins', false ),
 				array( 'active_sitewide_plugins', true )
@@ -137,10 +128,11 @@ class Test_Plugins_Handler extends TestCase {
 				array( TEST_DATA_PATH . '/plugins/plugin_current' ),
 				array( TEST_DATA_PATH . '/plugins/plugin_newer' )
 			);
-		$this->plugin_locator->method( 'find_activating_this_request' )
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_activating_this_request' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
 
-		$plugin_paths = $this->plugins_handler->find_all_plugins( false );
+		$plugin_paths = $this->plugins_handler->get_all_plugins();
 
 		$this->assertEquals(
 			array(
@@ -151,5 +143,76 @@ class Test_Plugins_Handler extends TestCase {
 			),
 			$plugin_paths
 		);
+
+		// Subsequent calls should be cached.
+		$this->assertSame( $plugin_paths, $this->plugins_handler->get_all_plugins() );
+	}
+
+	/**
+	 * Tests that the plugins in the cache are loaded.
+	 */
+	public function test_gets_cached_plugins() {
+		$this->cache_handler->expects( $this->once() )
+			->method( 'read_from_cache' )
+			->with( Plugins_Handler::CACHE_KEY )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+
+		$plugin_paths = $this->plugins_handler->get_cached_plugins();
+
+		$this->assertEquals( array( TEST_DATA_PATH . '/plugins/plugin_newer' ), $plugin_paths );
+
+		// Subsequent calls should be cached.
+		$this->assertSame( $plugin_paths, $this->plugins_handler->get_cached_plugins() );
+	}
+
+	/**
+	 * Tests that the plugins are not updated when they haven't changed
+	 */
+	public function test_updates_cached_plugins_does_nothing_when_identical() {
+		$handler = $this->getMockBuilder( Plugins_Handler::class )
+			->setMethods(
+				array(
+					'get_all_plugins',
+					'get_cached_plugins',
+				)
+			)
+			->setConstructorArgs( array( $this->plugin_locator, $this->cache_handler ) )
+			->getMock();
+
+		$handler->method( 'get_all_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+		$handler->method( 'get_cached_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+
+		$this->cache_handler->expects( $this->never() )
+			->method( 'write_to_cache' );
+
+		$handler->update_plugin_cache();
+	}
+
+	/**
+	 * Tests that the plugins are updated when they have changed.
+	 */
+	public function test_updates_cache_writes_plugins() {
+		$handler = $this->getMockBuilder( Plugins_Handler::class )
+			->setMethods(
+				array(
+					'get_all_plugins',
+					'get_cached_plugins',
+				)
+			)
+			->setConstructorArgs( array( $this->plugin_locator, $this->cache_handler ) )
+			->getMock();
+
+		$handler->method( 'get_all_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+		$handler->method( 'get_cached_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
+
+		$this->cache_handler->expects( $this->once() )
+			->method( 'write_to_cache' )
+			->with( Plugins_Handler::CACHE_KEY, array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+
+		$handler->update_plugin_cache();
 	}
 }

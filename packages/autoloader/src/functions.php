@@ -49,8 +49,8 @@ function set_up_autoloader() {
 	$plugins_handler    = new Plugins_Handler( $plugin_locator, $cache_handler );
 	$version_selector   = new Version_Selector();
 	$autoloader_handler = new Autoloader_Handler(
-		$plugins_handler->find_current_plugin(),
-		$plugins_handler->find_all_plugins( true ),
+		$plugins_handler->get_current_plugin(),
+		array_unique( array_merge( $plugins_handler->get_all_plugins(), $plugins_handler->get_cached_plugins() ) ),
 		new Autoloader_Locator( $version_selector ),
 		$version_selector
 	);
@@ -78,19 +78,13 @@ function set_up_autoloader() {
 	// Add a shutdown function to save all of the cached plugin paths.
 	$jetpack_autoloader_hooks->add_action(
 		'shutdown',
-		function () use ( $plugins_handler, $cache_handler ) {
+		function () use ( $plugins_handler ) {
 			// If this is triggered too early we don't want to save a broken cache.
 			if ( ! did_action( 'plugins_loaded' ) ) {
 				return;
 			}
 
-			// Only save the plugins that were confirmed to be activated.
-			$plugin_paths = $plugins_handler->find_all_plugins( false );
-			if ( empty( $plugin_paths ) ) {
-				return;
-			}
-
-			$cache_handler->write_to_cache( Plugins_Handler::CACHE_KEY, $plugin_paths );
+			$plugins_handler->update_plugin_cache();
 		}
 	);
 }

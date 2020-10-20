@@ -25,6 +25,20 @@ class Plugins_Handler {
 	private $cache_handler;
 
 	/**
+	 * All of the plugins that have been found.
+	 *
+	 * @var string[]
+	 */
+	private $all_plugins;
+
+	/**
+	 * All of the cached plugins that we've loaded.
+	 *
+	 * @var string[]
+	 */
+	private $cached_plugins;
+
+	/**
 	 * The constructor.
 	 *
 	 * @param Plugin_Locator $plugin_locator The locator for finding active plugins.
@@ -36,23 +50,68 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Finds the directory of the current plugin.
+	 * Gets the directory of the current plugin.
 	 *
 	 * @return string
 	 */
-	public function find_current_plugin() {
+	public function get_current_plugin() {
 		// Escape from `vendor/jetpack-autoloader/__FILE__.php` to plugin directory.
 		return dirname( dirname( dirname( __FILE__ ) ) );
 	}
 
 	/**
+	 * Gets all of the active plugins we can find.
+	 *
+	 * @return string[]
+	 */
+	public function get_all_plugins() {
+		if ( ! isset( $this->all_plugins ) ) {
+			$this->all_plugins = $this->find_all_plugins();
+		}
+
+		return $this->all_plugins;
+	}
+
+	/**
+	 * Gets all of the cached plugins if there are any.
+	 *
+	 * @return string[]
+	 */
+	public function get_cached_plugins() {
+		if ( ! isset( $this->cached_plugins ) ) {
+			$cached = $this->cache_handler->read_from_cache( self::CACHE_KEY );
+			if ( is_array( $cached ) ) {
+				$this->cached_plugins = $cached;
+			} else {
+				$this->cached_plugins = array();
+			}
+		}
+
+		return $this->cached_plugins;
+	}
+
+	/**
+	 * Saves the active plugins into the cache so they can be loaded in subsequent requests.
+	 */
+	public function update_plugin_cache() {
+		// Don't waste the time saving if we haven't actually changed anything.
+		$active_plugins = $this->get_all_plugins();
+		$cached_plugins = $this->get_cached_plugins();
+		sort( $active_plugins );
+		sort( $cached_plugins );
+		if ( $active_plugins === $cached_plugins ) {
+			return;
+		}
+
+		$this->cache_handler->write_to_cache( self::CACHE_KEY, $active_plugins );
+	}
+
+	/**
 	 * Finds all of the plugins and returns them.
 	 *
-	 * @param bool $include_cache Indicates whether or not we should include the cached plugin paths in the output.
-	 *
-	 * @return array $plugin_paths The list of absolute paths to plugins we've found.
+	 * @return string[] $plugin_paths The list of absolute paths to plugins we've found.
 	 */
-	public function find_all_plugins( $include_cache ) {
+	protected function find_all_plugins() {
 		$plugin_paths = array();
 
 		// Make sure that plugins which have activated this request are considered as "active" even though
@@ -69,13 +128,6 @@ class Plugins_Handler {
 		}
 
 		$plugin_paths[] = $this->plugin_locator->find_activating_this_request();
-
-		if ( $include_cache ) {
-			$cached = $this->cache_handler->read_from_cache( self::CACHE_KEY );
-			if ( is_array( $cached ) ) {
-				$plugin_paths[] = $cached;
-			}
-		}
 
 		return array_values( array_unique( array_merge( ...$plugin_paths ) ) );
 	}
