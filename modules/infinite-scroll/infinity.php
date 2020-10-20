@@ -253,9 +253,18 @@ class The_Neverending_Home_Page {
 	 * @return int
 	 */
 	static function posts_per_page() {
-		$posts_per_page = self::get_settings()->posts_per_page ? self::get_settings()->posts_per_page : self::wp_query()->get( 'posts_per_page' );
+		$posts_per_page             = self::get_settings()->posts_per_page ? self::get_settings()->posts_per_page : self::wp_query()->get( 'posts_per_page' );
+		$posts_per_page_core_option = get_option( 'posts_per_page' );
 
-		// Take JS query into consideration here
+		// If Infinite Scroll is set to click, and if the site owner changed posts_per_page, let's use that.
+		if (
+			'click' === self::get_settings()->type
+				&& ( '10' !== $posts_per_page_core_option )
+		) {
+			$posts_per_page = $posts_per_page_core_option;
+		}
+
+		// Take JS query into consideration here.
 		if ( true === isset( $_REQUEST['query_args']['posts_per_page'] ) ) {
 			$posts_per_page = $_REQUEST['query_args']['posts_per_page'];
 		}
