@@ -3,10 +3,10 @@ import config from 'config';
 import fs from 'fs';
 
 import { execWpCommand } from './utils-helper';
+import logger from './logger';
 
 export default class TunnelManager {
 	constructor() {
-		console.log( 'QQQQQQ TunnelManager created!!!' );
 		this.host = config.get( 'localtunnel' );
 	}
 
@@ -26,12 +26,12 @@ export default class TunnelManager {
 		const tunnel = await localtunnel( tunnelConfig );
 		tunnel.on( 'close', () => {
 			// tunnels are closed
-			console.log( '!!!!!! TUNNEL is closed for ', tunnel.url );
+			// logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
 		} );
 		this.tunnel = tunnel;
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
-		console.log( '#### CREATING A TUNNEL!!! oneOff: ', oneOff, 'Config: ', tunnelConfig, url );
+		logger.info( '#### CREATING A TUNNEL!!! oneOff: ', oneOff, 'Config: ', tunnelConfig, url );
 
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
@@ -57,11 +57,9 @@ export default class TunnelManager {
 		try {
 			urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
 		} catch ( error ) {
-			console.log( error );
+			// console.log( error );
 			// throw error;
 		}
-
-		console.log( urlFromFile );
 
 		// use already created subdomain if found
 		if ( urlFromFile && urlFromFile.length > 1 ) {
