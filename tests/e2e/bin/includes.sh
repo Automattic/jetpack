@@ -133,11 +133,11 @@ configure_wp_env() {
 	# yarn wp-env run tests-wordpress touch wp-content/debug.log
 	# yarn wp-env run tests-wordpress chown www-data:www-data wp-content/debug.log
 
-if test -f "logs/e2e-wp-config-update.sh"; then
-    rm -rf logs/e2e-wp-config-update.sh
-fi
+	rm -rf e2e-wp-config-update.sh
 
-	cat <<EOT >> logs/e2e-wp-config-update.sh
+	# Hacky way to insert PHP code into a wp-config file
+	# It takes care of different tunnel subdomains
+	cat <<EOT >> e2e-wp-config-update.sh
 #!/bin/bash
 
 touch wp-content/debug.log
@@ -150,7 +150,7 @@ define( 'WP_HOME', E2E_REQUEST_URL );\n\
 " wp-config.php
 EOT
 
-	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/logs/e2e-wp-config-update.sh
+	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/e2e-wp-config-update.sh
 
 	if [ -n "$LATEST_GUTENBERG" ]; then
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
