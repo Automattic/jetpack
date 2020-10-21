@@ -15,6 +15,7 @@ require_once __DIR__ . '/lib/functions-wordpress.php';
 // Load all of the classes for the autoloader.
 // We include these files manually both in the autoloader and here to avoid having them show up in the manifests.
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../src/class-autoloader-container.php';
 require_once __DIR__ . '/../../src/functions.php';
 require_once __DIR__ . '/../../src/class-autoloader-locator.php';
 require_once __DIR__ . '/../../src/class-plugins-handler.php';
