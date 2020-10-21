@@ -7,7 +7,7 @@ import { waitAndClick } from '../../page-helper';
 export default class PickAPlanPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.jetpack-product-card-alt .jetpack-product-card-alt__raw-price';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelector, explicitWaitMS: 40000 } );
 	}
 
 	async select( product = 'free', type = 'daily' ) {

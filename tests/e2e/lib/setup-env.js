@@ -207,7 +207,7 @@ export const step = async ( stepName, fn ) => {
 
 jasmine.getEnv().addReporter( {
 	jasmineStarted() {
-		console.log( '#############', '\n\n\n' );
+		logger.info( '############# \n\n\n' );
 	},
 	specStarted( result ) {
 		logger.info( `Spec name: ${ result.fullName }, description: ${ result.description }` );
