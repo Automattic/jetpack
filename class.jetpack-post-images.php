@@ -833,6 +833,12 @@ class Jetpack_PostImages {
 			$url         = $meta['videopress']['poster'];
 			$meta_width  = $meta['videopress']['width'];
 			$meta_height = $meta['videopress']['height'];
+		} elseif ( ! empty( $meta['thumb'] ) ) {
+			// Use the thumbnail path if it's set.
+			$media_url   = wp_get_attachment_url( $attachment_id );
+			$url         = str_replace( wp_basename( $media_url ), $meta['thumb'], $media_url );
+			$meta_width  = $meta['width'];
+			$meta_height = $meta['height'];
 		} elseif ( wp_attachment_is( 'video', $attachment_id ) ) {
 			// We don't have thumbnail images for non-VideoPress videos - skip them.
 			return false;
