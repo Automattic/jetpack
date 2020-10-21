@@ -50,6 +50,8 @@ fi
 
 cd ..
 cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+# Plugin dir for tests in WP >= 5.6-beta1
+ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$PLUGIN_SLUG"
 cd /tmp/wordpress-$WP_BRANCH
 
 cp wp-tests-config-sample.php wp-tests-config.php
