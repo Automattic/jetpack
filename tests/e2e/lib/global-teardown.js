@@ -23,7 +23,12 @@ async function processSlackLog() {
 	const log = readFileSync( './logs/e2e-slack.log' ).toString();
 
 	if ( log.length === 0 ) {
-		return await sendMessageToSlack( getSuccessMessage() );
+		const response = await sendMessageToSlack( getSuccessMessage() );
+		const options = { thread_ts: response.ts };
+
+		await sendFileToSlack( './logs/e2e-simple.log', options );
+
+		return;
 	}
 
 	const messages = log
