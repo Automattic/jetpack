@@ -12,7 +12,8 @@
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"src/replicastore"
 		]
 	},
 	"repositories": [
