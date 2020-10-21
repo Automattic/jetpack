@@ -7,10 +7,17 @@
 	grid-template-columns: 200px auto;
 	grid-column-gap: 10px;
 
-	.simple-payments__field {
+	.simple-payments__field:not(.simple-payments__field-price) {
 		.components-base-control__label {
-			display: none;
+			clip: rect(0 0 0 0);
+			clip-path: inset(50%);
+			height: 1px;
+			overflow: hidden;
+			position: absolute;
+			white-space: nowrap;
+			width: 1px;
 		}
+
 		.components-base-control__field {
 			margin-bottom: 1em;
 		}
