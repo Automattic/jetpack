@@ -2,7 +2,6 @@ import localtunnel from 'localtunnel';
 import config from 'config';
 import fs from 'fs';
 
-import { execWpCommand } from './utils-helper';
 import logger from './logger';
 
 export default class TunnelManager {
@@ -32,7 +31,9 @@ export default class TunnelManager {
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
 		logger.info(
-			`#### CREATING A TUNNEL!!! oneOff: ${ oneOff } Config: ${ tunnelConfig }. ${ url }`
+			`#### CREATING A TUNNEL! oneOff: ${ oneOff } Config: ${ JSON.stringify(
+				tunnelConfig
+			) }. ${ url }`
 		);
 
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
@@ -72,7 +73,9 @@ export default class TunnelManager {
 		return tunnelConfig;
 	}
 
-	close() {
+	async close() {
 		this.tunnel.close();
+		// wait for tunnel to close properly
+		await new Promise( r => setTimeout( r, 1000 ) );
 	}
 }

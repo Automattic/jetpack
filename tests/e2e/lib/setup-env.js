@@ -234,7 +234,7 @@ catchBeforeAll( async () => {
 } );
 
 afterAll( async () => {
-	tunnelManager.close();
+	await tunnelManager.close();
 } );
 
 afterEach( async () => {
