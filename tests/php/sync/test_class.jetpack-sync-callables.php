@@ -811,6 +811,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	function test_plugin_action_links_get_synced() {
 		// Makes sure that we start fresh
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
+		wp_cache_delete( 'plugins', 'plugins' );
 		$helper_all = new Jetpack_Sync_Test_Helper();
 
 		$helper_all->array_override = array( '<a href="fun.php">fun</a>' );
@@ -835,7 +836,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				'support' => 'https://jetpack.com/support'
 			)
 		);
-
 		$this->assertEquals( get_plugins(), $this->extract_plugins_we_are_testing( $plugins_action_links ) );
 
 		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
