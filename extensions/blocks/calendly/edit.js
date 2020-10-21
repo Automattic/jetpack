@@ -8,7 +8,7 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
-import { BlockControls, BlockIcon, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, InnerBlocks, InspectorControls, BlockPreview } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -22,7 +22,7 @@ import {
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
+import { getBlockDefaultClassName, createBlock } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
 
 /**
@@ -235,7 +235,17 @@ function CalendlyEdit( props ) {
 
 	const styleOptions = [
 		{ value: 'inline', label: __( 'Inline', 'jetpack' ) },
-		{ value: 'link', label: __( 'Link', 'jetpack' ) },
+		{
+			value: 'link',
+			label: __( 'Link', 'jetpack' ),
+			preview: <BlockPreview
+				blocks = { createBlock( innerButtonBlock.name, {
+					...innerButtonBlock.attributes,
+					...embedButtonAttributes,
+					passthroughAttributes: { url: 'url' },
+				} ) }
+			/>
+		},
 	];
 
 	const inspectorControls = (
