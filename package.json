@@ -36,7 +36,7 @@
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client && yarn validate-es5 -- ./_inc/build/",
 		"build-production-extensions": "NODE_ENV=production BABEL_ENV=production yarn build-extensions",
-		"build-production-packages": "NODE_ENV=production BABEL_ENV=production yarn build-packages && yarn validate-es5 -- ./packages/lazy-images/",
+		"build-production-packages": "NODE_ENV=production BABEL_ENV=production yarn build-packages",
 		"build-production-search": "NODE_ENV=production BABEL_ENV=production yarn build-search && yarn validate-es5 -- ./_inc/build/instant-search/",
 		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && yarn build-production-extensions && yarn build-production-search && yarn build-production-packages",
 		"build-production-concurrently": "yarn distclean && yarn install --production=false && yarn concurrently 'yarn build-production-client' 'yarn build-production-php' 'NODE_ENV=production yarn build-extensions' 'NODE_ENV=production yarn build-search' 'NODE_ENV=production yarn build-packages'",
