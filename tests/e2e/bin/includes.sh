@@ -133,7 +133,7 @@ configure_wp_env() {
 	# yarn wp-env run tests-wordpress touch wp-content/debug.log
 	# yarn wp-env run tests-wordpress chown www-data:www-data wp-content/debug.log
 
-rm logs/e2e-wp-config-update.sh
+rm -f logs/e2e-wp-config-update.sh
 
 	cat <<EOT >> logs/e2e-wp-config-update.sh
 #!/bin/bash
