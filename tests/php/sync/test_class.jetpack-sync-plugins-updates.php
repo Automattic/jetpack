@@ -138,7 +138,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		return (object) array(
 			'response' => array(
 				'the/the.php' => (object) array(
-					'package' => ABSPATH . WP_Test_Jetpack_Sync_Plugins::PLUGIN_ZIP
+					'package' => WP_Test_Jetpack_Sync_Plugins::PLUGIN_ZIP,
 				)
 			)
 		);
@@ -155,7 +155,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		return (object) array(
 			'response' => array(
 				'the/the.php' => (object) array(
-					'package' => ABSPATH . WP_Test_Jetpack_Sync_Plugins::PLUGIN_ZIP . '-doesnotexitst.zip'
+					'package' => WP_Test_Jetpack_Sync_Plugins::PLUGIN_ZIP . '-doesnotexitst.zip',
 				)
 			)
 		);
