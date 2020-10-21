@@ -34,8 +34,11 @@
 		"build-search:styles": "gulp sass:instant-search",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative --prefer-dist",
-		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
-		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && NODE_ENV=production yarn build-extensions && NODE_ENV=production yarn build-search && NODE_ENV=production yarn build-packages",
+		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client && yarn validate-es5 -- ./_inc/build/",
+		"build-production-extensions": "NODE_ENV=production BABEL_ENV=production yarn build-extensions",
+		"build-production-packages": "NODE_ENV=production BABEL_ENV=production yarn build-packages && yarn validate-es5 -- ./packages/lazy-images/",
+		"build-production-search": "NODE_ENV=production BABEL_ENV=production yarn build-search && yarn validate-es5 -- ./_inc/build/instant-search/",
+		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && yarn build-production-extensions && yarn build-production-search && yarn build-production-packages",
 		"build-production-concurrently": "yarn distclean && yarn install --production=false && yarn concurrently 'yarn build-production-client' 'yarn build-production-php' 'NODE_ENV=production yarn build-extensions' 'NODE_ENV=production yarn build-search' 'NODE_ENV=production yarn build-packages'",
 		"docker:compose": "yarn docker:env && yarn docker:compose-volumes && yarn docker:compose-extras && docker-compose -f docker/docker-compose.yml -f docker/compose-volumes.built.yml -f docker/compose-extras.yml",
 		"docker:up": "yarn docker:compose up",
@@ -83,6 +86,7 @@
 		"test-dangerci-and-adminpage-and-extensions-and-search": "yarn concurrently 'yarn danger ci' 'yarn test-adminpage' 'yarn test-extensions' 'yarn test-search'",
 		"test-search": "jest modules/search",
 		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
+		"validate-es5": "npx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
 		"version-packages": "bash ./bin/version-packages.sh"
 	},
 	"husky": {
