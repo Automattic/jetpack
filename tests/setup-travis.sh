@@ -49,7 +49,10 @@ if [ $clone_exit_code -ne 0 ]; then
 fi
 
 cd ..
+# Plugin dir for WP <= 5.5.1
 cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+# Plugin dir for WP > 5.5.1
+cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$PLUGIN_SLUG"
 cd /tmp/wordpress-$WP_BRANCH
 
 cp wp-tests-config-sample.php wp-tests-config.php
