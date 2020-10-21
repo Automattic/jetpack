@@ -9,6 +9,8 @@ import { __ } from '@wordpress/i18n';
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import get from 'lodash/get';
+// eslint-disable-next-line lodash/import-scope
+import debounce from 'lodash/debounce';
 
 /**
  * Internal dependencies
@@ -22,8 +24,13 @@ export default class SearchFilters extends Component {
 		showClearFiltersButton: true,
 	};
 
+	scrollToTop = debounce( () => {
+		document.querySelector( '.jetpack-instant-search__overlay' ).scroll( 0, 0 );
+	}, 150 );
+
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
+		this.scrollToTop();
 		this.props.onChange && this.props.onChange();
 	};
 
