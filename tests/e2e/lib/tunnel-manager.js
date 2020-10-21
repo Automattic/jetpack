@@ -31,14 +31,16 @@ export default class TunnelManager {
 		this.tunnel = tunnel;
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
-		logger.info( '#### CREATING A TUNNEL!!! oneOff: ', oneOff, 'Config: ', tunnelConfig, url );
+		logger.info(
+			`#### CREATING A TUNNEL!!! oneOff: ${ oneOff } Config: ${ tunnelConfig }. ${ url }`
+		);
 
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
 
-		await execWpCommand(
-			`bash -c 'wp option set siteurl ${ url } && wp option set home ${ url }'`
-		);
+		// await execWpCommand(
+		// 	`bash -c 'wp option set siteurl ${ url } && wp option set home ${ url }'`
+		// );
 
 		if ( ! oneOff ) {
 			fs.writeFileSync( 'e2e_tunnels.txt', url );

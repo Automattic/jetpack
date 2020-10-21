@@ -130,11 +130,25 @@ reset_env() {
 configure_wp_env() {
 	rm -rf allure-results e2e_tunnels.txt
 
-	yarn wp-env run tests-wordpress touch wp-content/debug.log
-	yarn wp-env run tests-wordpress chown www-data:www-data wp-content/debug.log
+	# yarn wp-env run tests-wordpress touch wp-content/debug.log
+	# yarn wp-env run tests-wordpress chown www-data:www-data wp-content/debug.log
 
-	# yarn wp-env run tests-cli wp option set siteurl "$WP_SITE_URL"
-	# yarn wp-env run tests-cli wp option set home "$WP_SITE_URL"
+rm logs/e2e-wp-config-update.sh
+
+	cat <<EOT >> logs/e2e-wp-config-update.sh
+#!/bin/bash
+
+touch wp-content/debug.log
+chown www-data:www-data wp-content/debug.log
+
+sed -i "/\/\* That's all, stop editing! Happy publishing. \*\//i\
+define( 'E2E_REQUEST_URL', ( ! empty( \\\$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \\\$_SERVER['HTTP_HOST'] ) ? \\\$_SERVER['HTTP_HOST'] : 'localhost' ) );\n\
+define( 'WP_SITEURL', E2E_REQUEST_URL );\n\
+define( 'WP_HOME', E2E_REQUEST_URL );\n\
+" wp-config.php
+EOT
+
+	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/logs/e2e-wp-config-update.sh
 
 	if [ -n "$LATEST_GUTENBERG" ]; then
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
