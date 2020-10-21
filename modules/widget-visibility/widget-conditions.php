@@ -261,8 +261,15 @@ class Jetpack_Widget_Conditions {
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
 		);
-		/** This filter is documented in wp-includes/post.php */
-		$pages = apply_filters( 'get_pages', $pages, $parsed_args );
+
+		/**
+		 * Filters the retrieved list of pages.
+		 *
+		 *
+		 * @param stdClass[] $pages       Array of objects containing only the ID, post_parent, and post_title fields.
+		 * @param array      $parsed_args Array of get_pages() arguments.
+		*/
+		$pages = apply_filters( 'widget_conditions_get_pages', $pages, $parsed_args );
 
 		return $pages;
 	}
