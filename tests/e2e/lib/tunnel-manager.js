@@ -76,6 +76,6 @@ export default class TunnelManager {
 	async close() {
 		this.tunnel.close();
 		// wait for tunnel to close properly
-		await new Promise( r => setTimeout( r, 1000 ) );
+		await new Promise( r => setTimeout( r, 3000 ) );
 	}
 }
