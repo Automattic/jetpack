@@ -511,6 +511,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public function test_no_content_no_tweets() {
 		$blocks = array(
 			$this->generateParagraphData( '' ),
+			$this->generateHeadingData( '&nbsp;' ),
 			$this->generateHeadingData( '' ),
 			$this->generateListData( '<li></li>' ),
 			$this->generateQuoteData( '', '' ),
@@ -791,7 +792,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_text = array(
 			// The parser will decode the HTML entities.
 			html_entity_decode( str_repeat( $test_content, 12 ) . 'This&nbsp;is&nbsp;22…', ENT_QUOTES ),
-			html_entity_decode( '…characters&nbsp;', ENT_QUOTES ),
+			html_entity_decode( '…characters', ENT_QUOTES ),
 		);
 
 		$expected_boundaries = array(
@@ -927,12 +928,17 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * Test that a basic verse maintains spacing.
 	 */
 	public function test_basic_verse() {
-		$test_content = "They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?";
-		$blocks       = array(
+		$test_content = " They say that code \n        is poetry.\n\n    Is indentation poetry,\n  too?";
+
+		$blocks = array(
 			$this->generateVerseData( $test_content ),
 		);
 
-		$this->assertTweetGenerated( $blocks, array( $test_content ), array( false ), array( $blocks ) );
+		$expected_text = array(
+			" They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?",
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_text, array( false ), array( $blocks ) );
 	}
 
 	/**
