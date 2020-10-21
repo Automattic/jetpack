@@ -80,6 +80,11 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
+# Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
+if [ ! -e /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack ]; then
+	ln -s /var/www/html/wp-content/plugins/jetpack /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack
+fi
+
 # Add a PsySH dependency to wp-cli
 echo 'require: /usr/local/bin/psysh' >> /var/www/html/wp-cli.yml
 
