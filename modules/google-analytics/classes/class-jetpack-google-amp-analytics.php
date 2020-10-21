@@ -70,9 +70,9 @@ class Jetpack_Google_AMP_Analytics {
 				'type'      => 'add',
 				'ga_params' => array(
 					'pa'    => 'add',
-					'pr1id' => $product_sku,
-					'pr1nm' => $product_name,
-					'pr1qt' => $quantity,
+					'pr1id' => sanitize_text_field( $product_sku ),
+					'pr1nm' => sanitize_text_field( $product_name ),
+					'pr1qt' => absint( $quantity ),
 				),
 			);
 			WC()->session->set( 'wc_ga_events', $events );
@@ -95,17 +95,17 @@ class Jetpack_Google_AMP_Analytics {
 			'type'      => 'purchase',
 			'ga_params' => array(
 				'pa' => 'purchase',
-				'ti' => $order_id,
-				'tr' => $order_total,
-				'tt' => $order_tax,
+				'ti' => absint( $order_id ),
+				'tr' => (float) $order_total,
+				'tt' => (float) $order_tax,
 			),
 		);
 		foreach ( $order->get_items() as $item_id => $item ) {
 			$product = $item->get_product();
 			if ( $product ) {
-				$event['ga_params'][ 'pr' . $i . 'id' ] = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
-				$event['ga_params'][ 'pr' . $i . 'nm' ] = $item->get_name();
-				$event['ga_params'][ 'pr' . $i . 'qt' ] = $item->get_quantity();
+				$event['ga_params'][ 'pr' . $i . 'id' ] = sanitize_text_field( Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product ) );
+				$event['ga_params'][ 'pr' . $i . 'nm' ] = sanitize_text_field( $item->get_name() );
+				$event['ga_params'][ 'pr' . $i . 'qt' ] = absint( $item->get_quantity() );
 				$i++;
 			}
 		}
