@@ -8,7 +8,6 @@ import { CURRENCIES } from '@automattic/format-currency';
  */
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
-	BaseControl,
 	Button,
 	Dashicon,
 	Dropdown,
@@ -16,7 +15,6 @@ import {
 	MenuGroup,
 	MenuItem,
 	PanelBody,
-	TextControl,
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';

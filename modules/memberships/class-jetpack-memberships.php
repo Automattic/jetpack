@@ -73,8 +73,6 @@ class Jetpack_Memberships {
 	 *
 	 * List has to be in with `SUPPORTED_CURRENCIES` in extensions/shared/currencies.js and
 	 * `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
-	 *
-	 * @type { [currency: string]: number }
 	 */
 	const SUPPORTED_CURRENCIES = array(
 		'USD' => 0.5,

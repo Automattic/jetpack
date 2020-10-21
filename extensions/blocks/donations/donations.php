@@ -77,10 +77,7 @@ function register_block() {
 					'default' => __( 'Or enter a custom amount', 'jetpack' ),
 				),
 				'fallbackLinkUrl'  => array(
-					'type'      => 'string',
-					'source'    => 'attribute',
-					'selector'  => '.jetpack-donations-fallback-link',
-					'attribute' => 'href',
+					'type' => 'string',
 				),
 			),
 		)

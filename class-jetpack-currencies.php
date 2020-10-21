@@ -7,7 +7,7 @@
  */
 
 /**
- * General Gutenberg editor specific functionality
+ * General currencies specific functionality
  */
 class Jetpack_Currencies {
 	/**
@@ -133,6 +133,11 @@ class Jetpack_Currencies {
 			'format'  => '%2$s%1$s', // 1: Symbol 2: currency value
 			'symbol'  => '฿',
 			'decimal' => 2,
+		),
+		'INR' => array(
+			'format'  => '%2$s %1$s', // 1: Symbol 2: currency value
+			'symbol'  => '₹',
+			'decimal' => 0,
 		),
 	);
 
