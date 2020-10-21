@@ -39,12 +39,15 @@
 		display: flex;
 		flex-wrap: wrap;
 
+		.components-input-control__label,
 		.components-base-control__label {
 			height: 27px;
 			line-height: 27px;
 			margin-bottom: 0;
+			font-weight: 400;
 		}
 
+		.components-select-control__input,
 		.components-text-control__input {
 			max-width: 90px;
 
