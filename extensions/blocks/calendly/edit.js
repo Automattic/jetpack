@@ -243,7 +243,9 @@ function CalendlyEdit( props ) {
 					...innerButtonBlock.attributes,
 					...embedButtonAttributes,
 					passthroughAttributes: { url: 'url' },
+					align: 'center',
 				} ) }
+				viewportWidth={ 300 }
 			/>
 		},
 	];
