@@ -230,7 +230,7 @@ class Jetpack_Widget_Conditions {
  	 *
  	 * @see https://core.trac.wordpress.org/ticket/51469
  	 *
- 	 * @return array List of all pages on the site (objects containing ID, post_title, and post_parent only).
+ 	 * @return array List of all pages on the site (stdClass objects containing ID, post_title, and post_parent only).
  	 */
 	public static function get_pages() {
 		global $wpdb;
@@ -243,7 +243,7 @@ class Jetpack_Widget_Conditions {
 			wp_cache_set( $cache_key, $pages, 'widget_conditions' );
 		}
 
-		// Copy-pasted from the get_pages function. For usage in the `get_pages` filter.
+		// Copy-pasted from the get_pages function. For usage in the `widget_conditions_get_pages` filter.
 		$parsed_args = array(
 			'child_of'     => 0,
 			'sort_order'   => 'ASC',
