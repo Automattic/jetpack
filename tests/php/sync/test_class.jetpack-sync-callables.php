@@ -877,7 +877,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		$only_plugins_we_care_about['jetpack/jetpack.php'] = isset( $plugins_action_links['jetpack/jetpack.php'] ) ? $plugins_action_links['jetpack/jetpack.php'] : '';
-		return $only_plugins_we_care_about;
+		return $plugins_action_links;
 	}
 
 	function cause_fatal_error( $actions ) {
