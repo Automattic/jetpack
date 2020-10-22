@@ -36,7 +36,8 @@ export default class LoginPage extends Page {
 
 		// sometimes it failing to type the whole password correctly. Trying to wait for the transition to happen
 		this.page.waitFor( 1000 );
-		await waitAndType( this.page, passwordSelector, password );
+		await waitAndClick( this.page, passwordSelector );
+		await waitAndType( this.page, passwordSelector, password, { delay: 10 } );
 		this.page.waitFor( 1000 );
 
 		const submitButton = await waitForSelector( this.page, submitButtonSelector );
