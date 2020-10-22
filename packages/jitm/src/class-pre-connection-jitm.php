@@ -16,6 +16,9 @@ class Pre_Connection_JITM extends JITM {
 
 	/**
 	 * Returns all the pre-connection messages.
+	 *
+	 * The 'plugin_active' key contains a list of plugins. The JITM will display only when at least one of the plugins
+	 * in the list is active.
 	 */
 	private function get_raw_messages() {
 		$jetpack_setup_url = $this->generate_admin_url(
@@ -33,6 +36,7 @@ class Pre_Connection_JITM extends JITM {
 				'description'    => __( 'Set up Jetpack to get in-depth stats about your content and visitors.', 'jetpack' ),
 				'button_link'    => $jetpack_setup_url,
 				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
+				'plugin_active'  => array( 'jetpack/jetpack.php' ),
 			),
 			array(
 				'id'             => 'jpsetup-upload',
@@ -41,6 +45,7 @@ class Pre_Connection_JITM extends JITM {
 				'description'    => __( 'Set up Jetpack, enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' ),
 				'button_link'    => $jetpack_setup_url,
 				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
+				'plugin_active'  => array( 'jetpack/jetpack.php' ),
 			),
 			array(
 				'id'             => 'jpsetup-widgets',
@@ -49,6 +54,7 @@ class Pre_Connection_JITM extends JITM {
 				'description'    => __( 'Set up Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
 				'button_link'    => $jetpack_setup_url,
 				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
+				'plugin_active'  => array( 'jetpack/jetpack.php' ),
 			),
 		);
 	}
@@ -87,6 +93,10 @@ class Pre_Connection_JITM extends JITM {
 				continue;
 			}
 
+			if ( ! $this->is_matching_active_plugin( $message ) ) {
+				continue;
+			}
+
 			$obj                 = new \stdClass();
 			$obj->CTA            = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'message'   => $message['button_caption'],
@@ -106,6 +116,26 @@ class Pre_Connection_JITM extends JITM {
 		}
 
 		return $formatted_messages;
+	}
+
+	/**
+	 * Returns true when one of the plugins in the message's required active plugin list
+	 * is active.
+	 *
+	 * @param array $message The message array.
+	 *
+	 * @return bool True when a matching plugin is active, else false.
+	 */
+	private function is_matching_active_plugin( $message ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		foreach ( $message['plugin_active'] as $plugin ) {
+			if ( is_plugin_active( $plugin ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
