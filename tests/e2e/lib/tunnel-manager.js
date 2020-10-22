@@ -22,45 +22,41 @@ export default class TunnelManager {
 	async create( oneOff = false ) {
 		const tunnelConfig = this.getConfig( oneOff );
 
-		let tunnel = await localtunnel( tunnelConfig );
+		await this.newTunnel( tunnelConfig );
+		const subdomain = this.getSubdomain( this.url );
 
-		const url = tunnel.url.replace( 'http:', 'https:' );
-
-		logger.info(
-			`#### CREATING A TUNNEL! oneOff: ${ oneOff } Config: ${ JSON.stringify(
-				tunnelConfig
-			) }. ${ url }`
-		);
-
-		const subdomain = this.getSubdomain( url );
 		if ( tunnelConfig.subdomain && subdomain !== tunnelConfig.subdomain ) {
 			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
 			await this.close();
 			await new Promise( r => setTimeout( r, 3000 ) );
 
-			tunnel = await localtunnel( tunnelConfig );
-
-			logger.info(
-				`#### CREATING ANOTHER TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ tunnel.url }`
-			);
+			await this.newTunnel( tunnelConfig );
 		}
-
-		tunnel.on( 'close', () => {
-			logger.info( '!!!!!! TUNNEL is closed for ', this.url );
-		} );
-
-		this.tunnel = tunnel;
 
 		if ( ! oneOff ) {
-			fs.writeFileSync( 'e2e_tunnels.txt', this.tunnel.url );
+			fs.writeFileSync( 'e2e_tunnels.txt', this.url );
 		}
 
-		this.url = this.tunnel.url;
 		return this.url;
 	}
 
+	async newTunnel( tunnelConfig ) {
+		const tunnel = await localtunnel( tunnelConfig );
+		const url = tunnel.url.replace( 'http:', 'https:' );
+
+		tunnel.on( 'close', () => {
+			logger.info( '!!!!!! TUNNEL is closed for ', url );
+		} );
+
+		logger.info( `#### CREATING A TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ url }` );
+
+		this.tunnel = tunnel;
+		this.url = url;
+		return tunnel;
+	}
+
 	getConfig( oneOff ) {
-		const tunnelConfig = { port: 8889, host: this.host };
+		const tunnelConfig = { port: 8889, host: this.host, oneOff };
 
 		if ( oneOff ) {
 			return tunnelConfig;
