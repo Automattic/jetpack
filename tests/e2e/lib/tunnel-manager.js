@@ -25,6 +25,10 @@ export default class TunnelManager {
 		await this.newTunnel( tunnelConfig );
 		const subdomain = this.getSubdomain( this.url );
 
+		console.log(
+			`!!!!!!!!!! tunnelConfig.subdomain: ${ tunnelConfig.subdomain }, subdomain: ${ subdomain }`
+		);
+
 		if ( tunnelConfig.subdomain && subdomain !== tunnelConfig.subdomain ) {
 			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
 			await this.close();
@@ -84,7 +88,7 @@ export default class TunnelManager {
 		this.tunnel.close();
 		this.tunnel.close();
 		// wait for tunnel to close properly
-		await new Promise( r => setTimeout( r, 3000 ) );
+		await new Promise( r => setTimeout( r, 10000 ) );
 	}
 
 	getSubdomain( url ) {
