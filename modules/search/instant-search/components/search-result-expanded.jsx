@@ -8,22 +8,10 @@ import { h } from 'preact';
 /**
  * Internal dependencies
  */
-import Gridicon from './gridicon';
 import PathBreadcrumbs from './path-breadcrumbs';
 import PhotonImage from './photon-image';
 import SearchResultComments from './search-result-comments';
 import './search-result-expanded.scss';
-
-function getGridiconName( postType ) {
-	if ( postType === 'post' || postType === 'page' ) {
-		return `${ postType }s`;
-	}
-	return 'image';
-}
-
-function getPostTypeIcon( postType ) {
-	return <Gridicon icon={ getGridiconName( postType ) } size={ 32 } />;
-}
 
 export default function SearchResultExpanded( props ) {
 	const { result_type, fields, highlight } = props.result;
