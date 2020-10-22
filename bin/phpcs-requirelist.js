@@ -48,6 +48,7 @@ module.exports = [
 	'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php',
 	'load-jetpack.php',
 	'modules/comments.php',
+	'modules/google-analytics/classes/class-jetpack-google-amp-analytics.php',
 	'modules/masterbar/',
 	'modules/memberships/',
 	'modules/module-extras.php',
