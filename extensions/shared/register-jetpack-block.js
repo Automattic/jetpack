@@ -86,16 +86,10 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		return false;
 	}
 
-	const jetpackBlockSettings = {
+	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
-	};
-
-	if ( ! requiredPlan && settings.example ) {
-		jetpackBlockSettings.example = settings.example;
-	}
-
-	const result = registerBlockType( `jetpack/${ name }`, jetpackBlockSettings );
+	} );
 
 	if ( requiredPlan ) {
 		addFilter(
