@@ -28,7 +28,7 @@ class SearchForm extends Component {
 		showFilters: !! this.props.widget,
 	};
 
-	onChangeQuery = event => setSearchQuery( event.target.value );
+	onChangeQuery = event => setSearchQuery( event.currentTarget.value );
 	onChangeSort = sort => {
 		this.props.onChangeSort( sort );
 		this.hideFilters();
