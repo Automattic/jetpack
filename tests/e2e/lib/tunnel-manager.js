@@ -37,7 +37,7 @@ export default class TunnelManager {
 		);
 
 		const subdomain = this.getSubdomain( url );
-		if ( subdomain !== tunnelConfig.subdomain ) {
+		if ( tunnelConfig.subdomain && subdomain !== tunnelConfig.subdomain ) {
 			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
 			this.tunnel.close();
 			return await this.create( oneOff );
