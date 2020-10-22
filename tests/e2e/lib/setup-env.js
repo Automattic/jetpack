@@ -141,7 +141,9 @@ function observeConsoleLogging() {
 		// @wordpress/jest-console matchers, will cause the intended test
 		// failure.
 
-		logger.info( `CONSOLE: ${ type.toUpperCase() }: ${ text } :: ${ JSON.stringify( message ) }` );
+		logger.info(
+			`CONSOLE: ${ type.toUpperCase() }: ${ text } :: ${ JSON.stringify( message.args() ) }`
+		);
 	} );
 }
 
