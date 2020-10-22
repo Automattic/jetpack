@@ -84,7 +84,9 @@
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
 		"test-dangerci-and-adminpage-and-extensions-and-search": "yarn concurrently 'yarn danger ci' 'yarn test-adminpage' 'yarn test-extensions' 'yarn test-search'",
-		"test-search": "jest modules/search",
+		"test-search": "yarn concurrently 'yarn test-search-scripts' 'yarn test-search-size'",
+		"test-search-scripts": "jest modules/search",
+		"test-search-size": "NODE_ENV=production BABEL_ENV=production yarn build-search && size-limit",
 		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
 		"validate-es5": "npx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
 		"version-packages": "bash ./bin/version-packages.sh"
@@ -191,6 +193,7 @@
 	"devDependencies": {
 		"@automattic/color-studio": "2.3.1",
 		"@babel/plugin-transform-runtime": "7.9.0",
+		"@size-limit/preset-app": "4.6.0",
 		"@slack/web-api": "5.12.0",
 		"@testing-library/jest-dom": "5.11.4",
 		"@testing-library/preact": "2.0.0",
@@ -242,6 +245,7 @@
 		"sass-loader": "9.0.3",
 		"sinon": "9.2.0",
 		"sinon-chai": "3.5.0",
+		"size-limit": "4.6.0",
 		"style-loader": "1.3.0",
 		"url-loader": "4.1.1",
 		"winston": "3.3.3"
