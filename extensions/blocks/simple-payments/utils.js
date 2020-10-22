@@ -31,7 +31,7 @@ const getNavigatorLanguage = ( defaultLang = 'en-US' ) => {
 };
 
 // Legacy method of displaying prices.
-export const formatPriceFallback = ( price, currency, withSymbol = true ) => {
+export const formatPriceFallback = ( price = 0, currency, withSymbol = true ) => {
 	const { precision, symbol } = getCurrencyDefaults( currency );
 	const value = price.toFixed( precision );
 	// Trim the dot at the end of symbol, e.g., 'kr.' becomes 'kr'
@@ -39,7 +39,7 @@ export const formatPriceFallback = ( price, currency, withSymbol = true ) => {
 };
 
 // Display prices using Intl.NumberFormat if available - supported in 95.75% of browsers as of Oct 2020.
-export const formatPrice = ( price, currency, withSymbol = true ) => {
+export const formatPrice = ( price = 0, currency, withSymbol = true ) => {
 	if ( ! window.Intl || 'function' !== typeof Intl.NumberFormat ) {
 		return formatPriceFallback( price, currency, withSymbol );
 	}
