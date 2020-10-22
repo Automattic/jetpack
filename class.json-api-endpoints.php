@@ -758,6 +758,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return[ $key ] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 				break;
 
+			case 'visibility':
+				// This is needed to fix a bug in WPAndroid where `public: "PUBLIC"` is sent in place of `public: 1`
+				if ( 'public' === strtolower( $value ) ) {
+					$return[ $key ] = 1;
+				} else if ( 'private' === strtolower( $value ) ) {
+					$return[ $key ] = -1;
+				} else {
+					$return[ $key ] = (int) $value;
+				}
+				break;
+
 			default:
 				$method_name = $type['type'] . '_docs';
 				if ( method_exists( 'WPCOM_JSON_API_Jetpack_Overrides', $method_name ) ) {
