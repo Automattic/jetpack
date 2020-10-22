@@ -156,7 +156,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Yearly visitors.
-		if ( null !== $stats && $stats->stats->visitors > 0 ) {
+		if ( null !== $stats && ! is_wp_error( $stats ) && $stats->stats->visitors > 0 ) {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
 				'title'       => esc_html__( 'Site Stats', 'jetpack' ),
@@ -179,7 +179,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Number of followers.
-		if ( null !== $stats && $stats->stats->followers_blog > 0 && Jetpack::is_module_active( 'subscriptions' ) ) {
+		if ( null !== $stats && ! is_wp_error( $stats ) && $stats->stats->followers_blog > 0 && Jetpack::is_module_active( 'subscriptions' ) ) {
 			$benefits[] = array(
 				'name'        => 'subscribers',
 				'title'       => esc_html__( 'Subscribers', 'jetpack' ),
@@ -270,7 +270,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Total number of shares.
-		if ( null !== $stats && $stats->stats->shares > 0 ) {
+		if ( null !== $stats && ! is_wp_error( $stats ) && $stats->stats->shares > 0 ) {
 			$benefits[] = array(
 				'name'        => 'sharing',
 				'title'       => esc_html__( 'Sharing', 'jetpack' ),
