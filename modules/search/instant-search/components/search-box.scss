@@ -1,3 +1,5 @@
+@import '../lib/style-helpers';
+
 .jetpack-instant-search__box {
 	position: relative;
 }
@@ -18,7 +20,7 @@ input.jetpack-instant-search__box-input.search-field {
 	line-height: 1;
 	text-indent: 32px;
 	vertical-align: middle;
-	-webkit-appearance: none;
+	appearance: none;
 
 	.jetpack-instant-search__overlay--light & {
 		color: #666666;
@@ -32,7 +34,7 @@ input.jetpack-instant-search__box-input.search-field {
 
 		&:focus {
 			color: #000000;
-			border-color: #5A5A5A;
+			border-color: #5a5a5a;
 		}
 	}
 

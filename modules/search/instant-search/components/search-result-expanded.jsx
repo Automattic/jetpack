@@ -11,6 +11,7 @@ import { h } from 'preact';
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
 import Gridicon from './gridicon';
+import './search-result-expanded.scss';
 
 function getGridiconName( postType ) {
 	if ( postType === 'post' || postType === 'page' ) {

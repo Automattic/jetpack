@@ -32,6 +32,14 @@ const sharedWebpackConfig = {
 
 module.exports = {
 	...sharedWebpackConfig,
+
+	performance: isDevelopment
+		? false
+		: {
+				maxAssetSize: 153600,
+				maxEntrypointSize: 153600,
+				hints: 'error',
+		  },
 	plugins: [
 		...sharedWebpackConfig.plugins,
 		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
