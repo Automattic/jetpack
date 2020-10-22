@@ -3,6 +3,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { h } from 'preact';
 import { useEffect } from 'preact/hooks';
 
@@ -27,14 +28,19 @@ const Overlay = props => {
 
 	return (
 		<div
+			aria-labelledby="jetpack-instant-search__overlay-title"
 			className={ [
 				'jetpack-instant-search__overlay',
 				`jetpack-instant-search__overlay--${ colorTheme }`,
 				hasOverlayWidgets ? '' : 'jetpack-instant-search__overlay--no-sidebar',
 				isVisible ? '' : 'is-hidden',
 			].join( ' ' ) }
+			role="dialog"
 			style={ { opacity: isVisible ? opacity / 100 : 0 } }
 		>
+			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
+				{ __( 'Search results' ) }
+			</h1>
 			{ children }
 		</div>
 	);
