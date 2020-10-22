@@ -23,17 +23,14 @@ export default class TunnelManager {
 		const tunnelConfig = this.getConfig( oneOff );
 
 		await this.newTunnel( tunnelConfig );
-		const subdomain = this.getSubdomain( this.url );
 
 		console.log(
-			`!!!!!!!!!! tunnelConfig.subdomain: ${ tunnelConfig.subdomain }, subdomain: ${ subdomain }`
+			`!!!!!!!!!! tunnelConfig.subdomain: ${ tunnelConfig.subdomain }, subdomain: ${ this.subdomain }`
 		);
 
-		if ( tunnelConfig.subdomain && subdomain !== tunnelConfig.subdomain ) {
+		if ( tunnelConfig.subdomain && this.subdomain !== tunnelConfig.subdomain ) {
 			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
 			await this.close();
-			await new Promise( r => setTimeout( r, 3000 ) );
-
 			await this.newTunnel( tunnelConfig );
 		}
 
@@ -56,6 +53,7 @@ export default class TunnelManager {
 
 		this.tunnel = tunnel;
 		this.url = url;
+		this.subdomain = this.getSubdomain( this.url );
 		return tunnel;
 	}
 
@@ -84,11 +82,11 @@ export default class TunnelManager {
 
 	async close() {
 		logger.info( `#### Closing tunnel ${ this.tunnel.url }` );
-		this.tunnel.emit( 'close' );
+
 		this.tunnel.close();
-		this.tunnel.close();
+		await page.goto( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
 		// wait for tunnel to close properly
-		await new Promise( r => setTimeout( r, 10000 ) );
+		await new Promise( r => setTimeout( r, 1000 ) );
 	}
 
 	getSubdomain( url ) {
