@@ -20,7 +20,6 @@ export default class AuthorizePage extends Page {
 				this.waitToDisappear(),
 				this.page.waitForNavigation( { waitUntil: 'networkidle2', timeout: 50000 } ),
 			] );
-			// return await this.waitToDisappear();
 		} catch ( error ) {
 			if ( repeat ) {
 				const message = 'Jetpack connection failed. Retrying once again.';

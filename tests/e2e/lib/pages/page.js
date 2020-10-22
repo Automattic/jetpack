@@ -40,7 +40,8 @@ export default class Page {
 			throw new Error( 'Page URL is not set' );
 		}
 
-		await page.goto( url, { waitFor: 'networkidle2' } );
+		await page.goto( url );
+		// await page.goto( url, { waitFor: 'networkidle2' } );
 		return await this.init( page );
 	}
 

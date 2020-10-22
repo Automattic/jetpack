@@ -23,10 +23,7 @@ export default class TunnelManager {
 		const tunnelConfig = this.getConfig( oneOff );
 
 		let tunnel = await localtunnel( tunnelConfig );
-		tunnel.on( 'close', () => {
-			logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
-		} );
-		this.tunnel = tunnel;
+
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
 		logger.info(
@@ -42,20 +39,24 @@ export default class TunnelManager {
 			await new Promise( r => setTimeout( r, 3000 ) );
 
 			tunnel = await localtunnel( tunnelConfig );
-			tunnel.on( 'close', () => {
-				logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
-			} );
-			this.tunnel = tunnel;
 
 			logger.info(
 				`#### CREATING ANOTHER TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ tunnel.url }`
 			);
 		}
 
+		tunnel.on( 'close', () => {
+			logger.info( '!!!!!! TUNNEL is closed for ', this.url );
+		} );
+
+		this.tunnel = tunnel;
+
 		if ( ! oneOff ) {
 			fs.writeFileSync( 'e2e_tunnels.txt', this.tunnel.url );
 		}
-		return this.tunnel.url;
+
+		this.url = this.tunnel.url;
+		return this.url;
 	}
 
 	getConfig( oneOff ) {
