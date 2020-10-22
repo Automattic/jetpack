@@ -36,6 +36,13 @@ export default class TunnelManager {
 			) }. ${ url }`
 		);
 
+		const subdomain = this.getSubdomain( url );
+		if ( subdomain !== tunnelConfig.subdomain ) {
+			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
+			this.tunnel.close();
+			return await this.create( oneOff );
+		}
+
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
 
@@ -66,7 +73,7 @@ export default class TunnelManager {
 
 		// use already created subdomain if found
 		if ( urlFromFile && urlFromFile.length > 1 ) {
-			const subdomain = urlFromFile.replace( /.*?:\/\//g, '' ).split( '.' )[ 0 ];
+			const subdomain = this.getSubdomain( urlFromFile );
 			tunnelConfig.subdomain = subdomain;
 		}
 
@@ -77,5 +84,9 @@ export default class TunnelManager {
 		this.tunnel.close();
 		// wait for tunnel to close properly
 		await new Promise( r => setTimeout( r, 3000 ) );
+	}
+
+	getSubdomain( url ) {
+		return url.replace( /.*?:\/\//g, '' ).split( '.' )[ 0 ];
 	}
 }
