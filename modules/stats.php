@@ -221,11 +221,15 @@ function stats_build_view_data() {
 		// 2. Set show_on_front = page
 		// 3. Set page_on_front = something
 		// 4. Visit https://example.com/ !
-		$queried_object = ( isset( $wp_the_query->queried_object ) ) ? $wp_the_query->queried_object : null;
-		$queried_object_id = ( isset( $wp_the_query->queried_object_id ) ) ? $wp_the_query->queried_object_id : null;
-		$post = $wp_the_query->get_queried_object_id();
-		$wp_the_query->queried_object = $queried_object;
-		$wp_the_query->queried_object_id = $queried_object_id;
+		$queried_object    = isset( $wp_the_query->queried_object ) ? $wp_the_query->queried_object : null;
+		$queried_object_id = isset( $wp_the_query->queried_object_id ) ? $wp_the_query->queried_object_id : null;
+		try {
+			$post_obj = $wp_the_query->get_queried_object();
+			$post     = $post_obj instanceof WP_Post ? $post_obj->ID : '0';
+		} finally {
+			$wp_the_query->queried_object    = $queried_object;
+			$wp_the_query->queried_object_id = $queried_object_id;
+		}
 	} else {
 		$post = '0';
 	}
