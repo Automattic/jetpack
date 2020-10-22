@@ -24,8 +24,7 @@ export default class TunnelManager {
 
 		let tunnel = await localtunnel( tunnelConfig );
 		tunnel.on( 'close', () => {
-			// tunnels are closed
-			// logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
+			logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
 		} );
 		this.tunnel = tunnel;
 		const url = tunnel.url.replace( 'http:', 'https:' );
@@ -44,8 +43,7 @@ export default class TunnelManager {
 
 			tunnel = await localtunnel( tunnelConfig );
 			tunnel.on( 'close', () => {
-				// tunnels are closed
-				// logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
+				logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
 			} );
 			this.tunnel = tunnel;
 
@@ -53,13 +51,6 @@ export default class TunnelManager {
 				`#### CREATING ANOTHER TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ tunnel.url }`
 			);
 		}
-
-		// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
-		// await execShellCommand( `yarn wp-env run tests-cli wp option set home "${ url }"` );
-
-		// await execWpCommand(
-		// 	`bash -c 'wp option set siteurl ${ url } && wp option set home ${ url }'`
-		// );
 
 		if ( ! oneOff ) {
 			fs.writeFileSync( 'e2e_tunnels.txt', this.tunnel.url );
@@ -78,8 +69,7 @@ export default class TunnelManager {
 		try {
 			urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
 		} catch ( error ) {
-			// console.log( error );
-			// throw error;
+			logger.info( error );
 		}
 
 		// use already created subdomain if found
@@ -92,6 +82,9 @@ export default class TunnelManager {
 	}
 
 	async close() {
+		logger.info( `#### Closing tunnel ${ this.tunnel.url }` );
+		this.tunnel.emit( 'close' );
+		this.tunnel.close();
 		this.tunnel.close();
 		// wait for tunnel to close properly
 		await new Promise( r => setTimeout( r, 3000 ) );
