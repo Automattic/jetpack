@@ -134,6 +134,9 @@ export default compose( [
 				dispatch( 'core/annotations' ).__experimentalRemoveAnnotationsBySource(
 					'jetpack-tweetstorm'
 				);
+				dispatch( 'core/annotations' ).__experimentalRemoveAnnotationsBySource(
+					'jetpack-tweetstorm-line-break'
+				);
 			}
 		},
 	} ) ),

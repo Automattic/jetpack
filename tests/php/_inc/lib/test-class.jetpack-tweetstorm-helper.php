@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			),
 			'block'      => array(
 				'blockName' => 'core/paragraph',
-				'innerHTML' => "<p>$text</p>",
+				'innerHTML' => "\n<p>$text</p>\n",
 			),
 			'clientId'   => wp_generate_uuid4(),
 		);
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			),
 			'block'      => array(
 				'blockName' => 'core/heading',
-				'innerHTML' => "<h2>$text</h2>",
+				'innerHTML' => "\n<h2>$text</h2>\n",
 			),
 			'clientId'   => wp_generate_uuid4(),
 		);
@@ -356,6 +356,23 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Helper function. Generates a line break boundary marker.
+	 *
+	 * @param int    $start     The start position of the marker.
+	 * @param int    $end       The end position of the marker.
+	 * @param string $container The name of the RichText container this boundary is for.
+	 * @return array The boundary marker definition.
+	 */
+	public function generateLineBreakBoundary( $start, $end, $container ) {
+		return array(
+			'start'     => $start,
+			'end'       => $end,
+			'container' => $container,
+			'type'      => 'line-break',
+		);
+	}
+
+	/**
 	 * Helper function. Generates a normal boundary marker.
 	 *
 	 * @param int    $line      The line number of the marker.
@@ -494,6 +511,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public function test_no_content_no_tweets() {
 		$blocks = array(
 			$this->generateParagraphData( '' ),
+			$this->generateHeadingData( '&nbsp;' ),
 			$this->generateHeadingData( '' ),
 			$this->generateListData( '<li></li>' ),
 			$this->generateQuoteData( '', '' ),
@@ -586,6 +604,23 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$blocks,
 			array( trim( str_repeat( $test_content, 12 ) ), trim( $test_content ) ),
 			array( $this->generateNormalBoundary( 275, 276, 'content' ), false ),
+			array( $blocks, $blocks )
+		);
+	}
+
+	/**
+	 * Test that a single long paragraph is split into two tweets, breaking at the end of a line.
+	 */
+	public function test_single_long_paragraph_with_line_breaks() {
+		$test_content = 'This is 21 characters';
+		$blocks       = array(
+			$this->generateParagraphData( str_repeat( "$test_content\n", 7 ) . trim( str_repeat( "$test_content ", 7 ) ) . '.' ),
+		);
+
+		$this->assertTweetGenerated(
+			$blocks,
+			array( trim( str_repeat( "$test_content\n", 7 ) ), trim( str_repeat( "$test_content ", 7 ) ) . '.' ),
+			array( $this->generateLineBreakBoundary( 153, 154, 'content' ), false ),
 			array( $blocks, $blocks )
 		);
 	}
@@ -757,7 +792,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_text = array(
 			// The parser will decode the HTML entities.
 			html_entity_decode( str_repeat( $test_content, 12 ) . 'This&nbsp;is&nbsp;22…', ENT_QUOTES ),
-			html_entity_decode( '…characters&nbsp;', ENT_QUOTES ),
+			html_entity_decode( '…characters', ENT_QUOTES ),
 		);
 
 		$expected_boundaries = array(
@@ -893,12 +928,17 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * Test that a basic verse maintains spacing.
 	 */
 	public function test_basic_verse() {
-		$test_content = "They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?";
-		$blocks       = array(
+		$test_content = " They say that code \n        is poetry.\n\n    Is indentation poetry,\n  too?";
+
+		$blocks = array(
 			$this->generateVerseData( $test_content ),
 		);
 
-		$this->assertTweetGenerated( $blocks, array( $test_content ), array( false ), array( $blocks ) );
+		$expected_text = array(
+			" They say that code\n        is poetry.\n\n    Is indentation poetry,\n  too?",
+		);
+
+		$this->assertTweetGenerated( $blocks, $expected_text, array( false ), array( $blocks ) );
 	}
 
 	/**
