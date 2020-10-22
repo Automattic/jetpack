@@ -22,7 +22,7 @@ export default class TunnelManager {
 	async create( oneOff = false ) {
 		const tunnelConfig = this.getConfig( oneOff );
 
-		const tunnel = await localtunnel( tunnelConfig );
+		let tunnel = await localtunnel( tunnelConfig );
 		tunnel.on( 'close', () => {
 			// tunnels are closed
 			// logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
@@ -39,8 +39,19 @@ export default class TunnelManager {
 		const subdomain = this.getSubdomain( url );
 		if ( tunnelConfig.subdomain && subdomain !== tunnelConfig.subdomain ) {
 			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
-			this.tunnel.close();
-			return await this.create( oneOff );
+			await this.close();
+			await new Promise( r => setTimeout( r, 3000 ) );
+
+			tunnel = await localtunnel( tunnelConfig );
+			tunnel.on( 'close', () => {
+				// tunnels are closed
+				// logger.info( '!!!!!! TUNNEL is closed for ', tunnel.url );
+			} );
+			this.tunnel = tunnel;
+
+			logger.info(
+				`#### CREATING ANOTHER TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ tunnel.url }`
+			);
 		}
 
 		// await execShellCommand( `yarn wp-env run tests-cli wp option set siteurl "${ url }"` );
@@ -51,9 +62,9 @@ export default class TunnelManager {
 		// );
 
 		if ( ! oneOff ) {
-			fs.writeFileSync( 'e2e_tunnels.txt', url );
+			fs.writeFileSync( 'e2e_tunnels.txt', this.tunnel.url );
 		}
-		return url;
+		return this.tunnel.url;
 	}
 
 	getConfig( oneOff ) {
