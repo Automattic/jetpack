@@ -265,10 +265,14 @@ class Jetpack_Widget_Conditions {
 		/**
 		 * Filters the retrieved list of pages.
 		 *
+		 * @since 9.1.0
+		 *
+		 * @module widget-visibility
+		 *
 		 * @param stdClass[] $pages       Array of objects containing only the ID, post_parent, and post_title fields.
 		 * @param array      $parsed_args Array of get_pages() arguments.
 		 */
-		return apply_filters( 'widget_conditions_get_pages', $pages, $parsed_args );
+		return apply_filters( 'jetpack_widget_visibility_get_pages', $pages, $parsed_args );
 	}
 
 	/**
