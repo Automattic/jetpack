@@ -34,6 +34,7 @@ const defaultSettings = {
 	defaultAspectRatio: 720 / 1280,
 	cropUpTo: 0.2, // crop percentage allowed, after which media is displayed in letterbox
 	volume: 0.5,
+	renderInterval: 50, // in ms
 };
 
 export default function StoryPlayer( { slides, metadata, disabled, ...settings } ) {
