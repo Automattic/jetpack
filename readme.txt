@@ -295,6 +295,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
 * Lazy Images: ensure that the feature does not cause issues when trying to print post including lots of images.
 * Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
+* Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
 * Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
 * Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.
 * WhatsApp Block: fix issue when the text color would not be correct.
