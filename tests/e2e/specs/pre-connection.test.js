@@ -13,7 +13,11 @@ process.env.SKIP_CONNECT = true;
 
 describe( 'Jetpack pre-connection', () => {
 	catchBeforeAll( async () => {
-		await execWpCommand( 'wp option delete jetpack_private_options' );
+		await execWpCommand(
+			`bash -c '
+			wp option delete jetpack_private_options &&
+			wp option delete jetpack_sync_error_idc'`
+		);
 		await page.reload();
 	} );
 
