@@ -1,14 +1,8 @@
 /**
- * WordPress dependencies
- */
-// import { createURL } from '@wordpress/e2e-test-utils';
-
-/**
  * Internal dependencies
  */
 import Page from '../page';
 import { waitAndClick, waitAndType, waitForSelector } from '../../page-helper';
-// import { WP_USERNAME, WP_PASSWORD } from '../../setup';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters/screenshot';
 
@@ -19,7 +13,6 @@ export default class WPLoginPage extends Page {
 	}
 
 	async login( username = 'admin', password = 'password', { retry = true } = {} ) {
-		// async login( username = WP_USERNAME, password = WP_PASSWORD, { retry = true } = {} ) {
 		const ssoLoginButton = '.jetpack-sso.button';
 		if ( ( await this.page.$( ssoLoginButton ) ) !== null ) {
 			await this.toggleSSOLogin();

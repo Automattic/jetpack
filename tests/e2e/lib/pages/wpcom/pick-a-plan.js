@@ -29,7 +29,6 @@ export default class PickAPlanPage extends Page {
 
 	async selectComplete() {
 		const buttonSelector = 'div[data-icon="jetpack_complete_v2"] .jetpack-product-card-alt__button';
-		// [data-icon="jetpack_complete_v2"] .jetpack-product-card-alt__button
 		return await waitAndClick( this.page, buttonSelector );
 	}
 

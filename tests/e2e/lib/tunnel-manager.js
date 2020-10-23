@@ -24,10 +24,6 @@ export default class TunnelManager {
 
 		await this.newTunnel( tunnelConfig );
 
-		console.log(
-			`!!!!!!!!!! tunnelConfig.subdomain: ${ tunnelConfig.subdomain }, subdomain: ${ this.subdomain }`
-		);
-
 		if ( tunnelConfig.subdomain && this.subdomain !== tunnelConfig.subdomain ) {
 			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
 			await this.close();
