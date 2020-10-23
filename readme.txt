@@ -257,6 +257,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Content Options: add new filter to allow theme and plugin authors to disable featured image removal for their Custom Post Types.
 * Dashboard: improve the display of dates in the Jetpack Plan screen and in the Stats graph.
 * Dashboard: improve the display of numbers in all languages.
+* Embeds: update Loom logo.
 * External Media: add feature to the Cover block.
 * Instant Search: improve accessibility of the Search modal.
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
