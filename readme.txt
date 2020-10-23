@@ -268,6 +268,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respect Posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
 
 --------
