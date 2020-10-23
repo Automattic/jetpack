@@ -86,6 +86,7 @@ module.exports = [
 	'packages',
 	'tests/e2e/plugins',
 	'tests/php/_inc/lib/test-class.jetpack-tweetstorm-helper.php',
+	'tests/php/core-api/wpcom-endpoints/test_class-wpcom-rest-api-v2-endpoint-admin-menu',
 	'tests/php/general/test-class.jetpack-network.php',
 	'tests/php/test_class.jetpack_photon.php',
 	'views/admin/deactivation-dialog.php',
