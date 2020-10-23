@@ -16,6 +16,12 @@ We've made changes and fixed bugs for multiple blocks in this release. Give them
 
 You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
 
+#### Story Block
+
+This release also introduces a new Story block. This block allows you to create interactive stories from images and videos. It will be a great way to add content to your site from your mobile device.
+
+Testing instructions incoming!
+
 ### Dashboard
 
 We've made some changes to the display of the Backup and Scan cards in the Jetpack dashboard, to better reflect the status of your site. This shoyuld work whether you use WordPress in a single or multisite setup, and if you use VaultPress or Jetpack Backups.
