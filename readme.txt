@@ -295,6 +295,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respect Posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
 * Lazy Images: ensure that the feature does not cause issues when trying to print post including lots of images.
+* Pay with PayPal Block: add default price value.
 * Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
 * Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
 * Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
