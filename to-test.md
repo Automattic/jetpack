@@ -10,7 +10,8 @@
 
 We've made changes and fixed bugs for multiple blocks in this release. Give them a try, and see that they still work for you:
 
-- WhatsApp block
+- WhatsApp Block
+- Form Block -- try using commas, brackets, or backslashes in field labels and value, and ensure that doesn't break the block.
 
 You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
 

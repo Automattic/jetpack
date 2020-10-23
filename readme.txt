@@ -274,6 +274,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Contact Form: selection widgets, radio buttons, and checkboxes can now use commas, brackets, and backslashes in the labels and values without breaking the form.
 * Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
 * Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respect Posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
