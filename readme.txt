@@ -274,6 +274,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Dashboard: better support all states available when using one of Jetpack's Security solutions.
 * Embeds: improve compatibility between Jetpack's Instagram embed and WordPress' own embed.
 * External Media: update iconography and better forward compatibility.
+* General: better detect local development environments.
 * Google Analytics: add support for the AMP plugin to track WooCommerce events.
 * OpenTable Block: ensure full compatibility with the AMP plugin.
 * Pay with PayPal Block: ensure full compatibility with the AMP plugin.
