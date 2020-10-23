@@ -57,7 +57,7 @@ function buildBlockTags( name ) {
  * @returns {string} Block title
  */
 function buildBlockTitle( blockTitle, blockTags = [] ) {
-	if ( ! blockTags?.length ) {
+	if ( ! blockTags.length ) {
 		return blockTitle;
 	}
 	return `${ blockTitle } (${ blockTags.join( ', ' ) })`;
