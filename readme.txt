@@ -263,6 +263,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
+* Comments: avoid AMP validation errors when using Jetpack's Comments feature and the AMP plugin.
 * Dashboard: better support all states available when using one of Jetpack's Security solutions.
 * Google Analytics: add support for the AMP plugin to track WooCommerce events.
 * OpenTable Block: ensure full compatibility with the AMP plugin.
