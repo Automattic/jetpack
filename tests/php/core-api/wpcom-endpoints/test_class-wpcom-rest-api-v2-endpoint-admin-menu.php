@@ -38,6 +38,23 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	}
 
 	/**
+	 * Tests the schema response for OPTIONS requests.
+	 */
+	public function test_schema_request() {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$schema = ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema();
+
+		$this->assertEquals( $schema, $data['schema'] );
+		$this->assertEquals( 'wpcom/v2', $data['namespace'] );
+		$this->assertEquals( array( Requests::GET ), $data['methods'] );
+	}
+
+	/**
 	 * Tests the permission check.
 	 *
 	 * @covers ::get_item_permissions_check
