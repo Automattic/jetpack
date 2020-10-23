@@ -274,6 +274,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Comments: avoid AMP validation errors when using Jetpack's Comments feature and the AMP plugin.
 * Dashboard: better support all states available when using one of Jetpack's Security solutions.
 * Embeds: improve compatibility between Jetpack's Instagram embed and WordPress' own embed.
+* Embeds: ensure Facebook Embeds work well with the AMP plugin.
 * External Media: update iconography and better forward compatibility.
 * General: better detect local development environments.
 * Google Analytics: add support for the AMP plugin to track WooCommerce events.
