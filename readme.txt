@@ -256,6 +256,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Button Block: add a center alignment option to all Jetpack button blocks.
 * Content Options: add new filter to allow theme and plugin authors to disable featured image removal for their Custom Post Types.
 * Dashboard: improve the display of dates in the Jetpack Plan screen.
+* Instant Search: improve accessibility of the Search modal.
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
 * Podcast Player Block: add option to hide the episode title.
 * WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
