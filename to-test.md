@@ -14,6 +14,12 @@ We've made changes and fixed bugs for multiple blocks in this release. Give them
 
 You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
 
+### Dashboard
+
+We've made some changes to the display of the Backup and Scan cards in the Jetpack dashboard, to better reflect the status of your site. This shoyuld work whether you use WordPress in a single or multisite setup, and if you use VaultPress or Jetpack Backups.
+
+You can find detailed testing instructions [here](https://github.com/Automattic/jetpack/pull/17288).
+
 ### Lazy Images
 
 This release refactored the JavaScript used for Lazy Images/Deferred Image Loading and resolved an issue where printing could result
