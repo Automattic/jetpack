@@ -21,16 +21,6 @@ module.exports = async function ( globalConfig ) {
  */
 async function processSlackLog() {
 	const log = readFileSync( './logs/e2e-slack.log' ).toString();
-
-	if ( log.length === 0 ) {
-		const response = await sendMessageToSlack( getSuccessMessage() );
-		const options = { thread_ts: response.ts };
-
-		await sendFileToSlack( './logs/e2e-simple.log', options );
-
-		return;
-	}
-
 	const messages = log
 		.trim()
 		.split( '\n' )
@@ -38,7 +28,13 @@ async function processSlackLog() {
 
 	const failures = messages.filter( json => json.type === 'failure' );
 
-	const response = await sendMessageToSlack( getResultMessage( failures.length ) );
+	let response;
+	if ( failures.length === 0 ) {
+		response = await sendMessageToSlack( getSuccessMessage() );
+	} else {
+		response = await sendMessageToSlack( getResultMessage( failures.length ) );
+	}
+
 	const options = { thread_ts: response.ts };
 
 	for ( const json of messages ) {
