@@ -57,11 +57,10 @@ function buildBlockTags( name ) {
  * @returns {string} Block title
  */
 function buildBlockTitle( blockTitle, blockTags = [] ) {
-	if ( blockTags.length ) {
-		blockTitle = `${ blockTitle } (${ blockTags.join( ', ' ) })`;
+	if ( ! blockTags.length ) {
+		return blockTitle;
 	}
-
-	return blockTitle;
+	return `${ blockTitle } (${ blockTags.join( ', ' ) })`;
 }
 
 /**
@@ -90,7 +89,6 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
-		example: requiredPlan ? undefined : settings.example,
 	} );
 
 	if ( requiredPlan ) {
