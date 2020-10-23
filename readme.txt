@@ -275,6 +275,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * OpenTable Block: ensure full compatibility with the AMP plugin.
 * Pay with PayPal Block: ensure full compatibility with the AMP plugin.
 * Sharing: add support for the Google Web Stories plugin.
+* Widget Visibility: avoid performance impact it may have on the block editor when used with the Gutenber plugin.
 * YouTube embeds: ensure that all YouTube video embeds work well when using the AMP plugin.
 
 **Bug fixes**
