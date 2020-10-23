@@ -21,10 +21,7 @@ module.exports = async function ( globalConfig ) {
  */
 async function processSlackLog() {
 	const log = readFileSync( './logs/e2e-slack.log' ).toString();
-	const messages = log
-		.trim()
-		.split( '\n' )
-		.map( string => JSON.parse( string ) );
+	const messages = getMessages( log );
 
 	const failures = messages.filter( json => json.type === 'failure' );
 
@@ -54,4 +51,16 @@ async function processSlackLog() {
 	}
 
 	await sendFileToSlack( './logs/e2e-simple.log', options );
+}
+
+function getMessages( log ) {
+	if ( log.length === 0 ) {
+		return [ '' ];
+	}
+	const messages = log
+		.trim()
+		.split( '\n' )
+		.map( string => JSON.parse( string ) );
+
+	return messages;
 }
