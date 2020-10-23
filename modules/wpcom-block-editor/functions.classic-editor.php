@@ -45,8 +45,8 @@ function remember_block_editor( $editor_settings, $post ) {
  * @param string $editor  String name of the editor, 'classic-editor' or 'block-editor'.
  */
 function remember_editor( $post_id, $editor ) {
-	if ( get_post_meta( $post_id, 'classic-editor-remember', true ) !== $editor ) {
-		update_post_meta( $post_id, 'classic-editor-remember', $editor );
+	if ( get_post_meta( $post_id, '_last_editor_used', true ) !== $editor ) {
+		update_post_meta( $post_id, '_last_editor_used', $editor );
 	}
 }
 
