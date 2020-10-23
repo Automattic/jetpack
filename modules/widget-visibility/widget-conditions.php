@@ -51,7 +51,16 @@ class Jetpack_Widget_Conditions {
 
 		$categories = get_categories(
 			array(
-				'number'  => 1000,
+				/**
+				 * Specific a maximum number of categories to query for the Widget visibility UI.
+				 *
+				 * @module widget-visibility
+				 *
+				 * @since 9.1.0
+				 *
+				 * @param int $number Maximum number of categories displayed in the Widget visibility UI.
+				 */
+				'number'  => (int) apply_filters( 'jetpack_widget_visibility_max_number_categories', 1000 ),
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)
@@ -95,7 +104,16 @@ class Jetpack_Widget_Conditions {
 
 		$tags = get_tags(
 			array(
-				'number'  => 1000,
+				/**
+				 * Specific a maximum number of tags to query for the Widget visibility UI.
+				 *
+				 * @module widget-visibility
+				 *
+				 * @since 9.1.0
+				 *
+				 * @param int $number Maximum number of tags displayed in the Widget visibility UI.
+				 */
+				'number'  => (int) apply_filters( 'jetpack_widget_visibility_max_number_tags', 1000 ),
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)
