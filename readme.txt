@@ -261,6 +261,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
 * Pay with Paypal Block: improve the display of currencies.
 * Podcast Player Block: add option to hide the episode title.
+* Publicize: improve the usability of the Twitter thread options.
 * REST API: support needed capabilities in Jetpack REST API endpoints that allow site based authentication.
 * WhatsApp Block: add option to change the alignment of the button.
 * WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
