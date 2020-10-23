@@ -274,6 +274,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Google Analytics: add support for the AMP plugin to track WooCommerce events.
 * OpenTable Block: ensure full compatibility with the AMP plugin.
 * Pay with PayPal Block: ensure full compatibility with the AMP plugin.
+* Sharing: add support for the Google Web Stories plugin.
 * YouTube embeds: ensure that all YouTube video embeds work well when using the AMP plugin.
 
 **Bug fixes**
