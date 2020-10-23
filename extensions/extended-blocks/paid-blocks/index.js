@@ -50,19 +50,19 @@ const jetpackPaidBlock = ( settings, name ) => {
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
 
 // Extend BlockEdit.
-addFilter( 'editor.BlockEdit', 'jetpack/paid-block-edit', paidBlockEdit, 20 );
+addFilter( 'editor.BlockEdit', 'jetpack/paid-block-edit', paidBlockEdit, 30 );
 
 // Extend BlockListBlock.
 addFilter( 'editor.BlockListBlock', 'jetpack/paid-block-with-warning', withUpgradeBanner );
 
-// Take the control of the MediaPlaceholder
+// Take the control of the MediaPlaceholder.
 addFilter(
 	'editor.MediaPlaceholder',
 	'jetpack/paid-block-media-placeholder',
 	paidBlockMediaPlaceholder
 );
 
-// Take the control of the MediaReplaceFlow
+// Take the control of the MediaReplaceFlow.
 addFilter(
 	'editor.MediaReplaceFlow',
 	'jetpack/paid-block-media-placeholder',
