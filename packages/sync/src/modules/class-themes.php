@@ -459,18 +459,17 @@ class Themes extends Module {
 	 * @param \WP_Theme $old_theme The previous theme.
 	 */
 	public function sync_theme_support( $new_name, $new_theme = null, $old_theme = null ) {
-		$previous_theme = $this->get_theme_support_info( $old_theme );
+		$previous_theme = $this->get_theme_info( $old_theme );
 
 		/**
 		 * Fires when the client needs to sync theme support info
-		 * Only sends theme support attributes whitelisted in Defaults::$default_theme_support_whitelist
 		 *
 		 * @since 4.2.0
 		 *
 		 * @param array the theme support array
 		 * @param array the previous theme since Jetpack 6.5.0
 		 */
-		do_action( 'jetpack_sync_current_theme_support', $this->get_theme_support_info(), $previous_theme );
+		do_action( 'jetpack_sync_current_theme_support', $this->get_theme_info(), $previous_theme );
 	}
 
 	/**
@@ -556,7 +555,7 @@ class Themes extends Module {
 	 * @return array Theme data.
 	 */
 	public function expand_theme_data() {
-		return array( $this->get_theme_support_info( null, true ) );
+		return array( $this->get_theme_info() );
 	}
 
 	/**
@@ -784,10 +783,10 @@ class Themes extends Module {
 	 * @access private
 	 *
 	 * @param \WP_Theme $theme Theme object. Optional, will default to the current theme.
-	 * @param boolean   $send_full_theme_data Should send additional theme data.
+	 *
 	 * @return array Theme data.
 	 */
-	private function get_theme_support_info( $theme = null, $send_full_theme_data = false ) {
+	private function get_theme_info( $theme = null ) {
 		$theme_support = array();
 
 		// We are trying to get the current theme info.
@@ -799,9 +798,7 @@ class Themes extends Module {
 		$theme_support['version'] = $theme->get( 'Version' );
 		$theme_support['slug']    = $theme->get_stylesheet();
 		$theme_support['uri']     = $theme->get( 'ThemeURI' );
-		if ( $send_full_theme_data ) {
-			return array_merge( Functions::get_theme_support(), $theme_support );
-		}
+
 		return $theme_support;
 	}
 
