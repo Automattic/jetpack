@@ -38,6 +38,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	wp_localize_script(
+		'jetpack-block-' . sanitize_title_with_dashes( FEATURE_NAME ),
+		'imageCompareHandle',
+		__( 'Slide to compare images', 'jetpack' )
+	);
 	if ( Blocks::is_amp_request() ) {
 		$content = preg_replace(
 			'#<div class="juxtapose".+?</div>#s',
@@ -48,21 +53,6 @@ function load_assets( $attr, $content ) {
 
 	return $content;
 }
-
-/**
- * Localisation for block
- *
- * @return void
- */
-function block_localization_assets() {
-	?>
-	<script>
-		var imageCompareHandle = '<?php esc_attr_e( 'Slide to compare images', 'jetpack' ); ?>';
-	</script>
-	<?php
-}
-add_action( 'wp_head', __NAMESPACE__ . '\block_localization_assets' );
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\block_localization_assets' );
 
 /**
  * Render image compare block for AMP
