@@ -10,7 +10,7 @@
 
 We've made changes and fixed bugs for multiple blocks in this release. Give them a try, and see that they still work for you:
 
-- 
+- WhatsApp block
 
 You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
 
