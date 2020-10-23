@@ -259,6 +259,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Instant Search: improve accessibility of the Search modal.
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
 * Podcast Player Block: add option to hide the episode title.
+* REST API: support needed capabilities in Jetpack REST API endpoints that allow site based authentication.
 * WhatsApp Block: add option to change the alignment of the button.
 * WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
 
