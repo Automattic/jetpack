@@ -3,7 +3,7 @@
  * REST API endpoint for admin menus.
  *
  * @package Jetpack
- * @since 8.7.0
+ * @since 9.1.0
  */
 
 /**
