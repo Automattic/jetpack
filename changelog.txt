@@ -2,6 +2,23 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 9.0.2 =
+
+* Release date: October 9, 2020
+
+**Enhancements**
+
+* Publicize: improve handling of URLs when generating Twitter threads.
+
+**Bug fixes**
+
+* Instagram Embeds: ensure that Instagram URLs with additional URL parameters can be embedded as well.
+* Media Extractor: prevent PHP notice for some URLs.
+* Publicize: avoid block editor errors when no Publicize connections are available.
+* Synchronization flow: avoid potential fatal errors when updating the plugin from the Dashboard > Updates screen.
+* Sharing: avoid PHP notices when a post object is invalid.
+* WordPress.com REST API: avoid errors when uploading images from a URL.
+
 = 9.0.1 =
 
 * Release date: October 6, 2020

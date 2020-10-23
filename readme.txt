@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
-Stable tag: 8.9.1
+Stable tag: 9.0.2
 Requires at least: 5.4
 Requires PHP: 5.6
 Tested up to: 5.5
@@ -243,46 +243,21 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
-= 9.0.2 =
-
-* Release date: October 9, 2020
-
-**Enhancements**
-
-* Publicize: improve handling of URLs when generating Twitter threads.
-
-**Bug fixes**
-
-* Instagram Embeds: ensure that Instagram URLs with additional URL parameters can be embedded as well.
-* Media Extractor: prevent PHP notice for some URLs.
-* Publicize: avoid block editor errors when no Publicize connections are available.
-* Synchronization flow: avoid potential fatal errors when updating the plugin from the Dashboard > Updates screen.
-* Sharing: avoid PHP notices when a post object is invalid.
-* WordPress.com REST API: avoid errors when uploading images from a URL.
-
-= 9.0.1 =
-
-* Release date: October 6, 2020
-
-**Bug fixes**
-
-* General: remove a database optimization task that could potentially cause database issues.
-
-= 9.0 =
+= 9.1 =
 
 * Release date: November 3, 2020
 * Release post: https://wp.me/p1moTy-s0E
 
 **Major Enhancements**
 
-* Content Options: add new filter to allow theme and plugin authors to disable featured image removal for their Custom Post Types.
-* Dashboard: improve the display of dates in the Jetpack Plan screen.
-* Podcast Player Block: add option to hide the episode title.
 
 **Enhancements**
 
 * Button Block: add a center alignment option to all Jetpack button blocks.
+* Content Options: add new filter to allow theme and plugin authors to disable featured image removal for their Custom Post Types.
+* Dashboard: improve the display of dates in the Jetpack Plan screen.
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
+* Podcast Player Block: add option to hide the episode title.
 * WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
 
 **Improved compatibility**
