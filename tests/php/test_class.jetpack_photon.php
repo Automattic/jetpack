@@ -75,8 +75,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 */
 	public function tearDown() {
 		// Restoring global variables.
-		global $content_width;
+		global $content_width, $wp_the_query;
 		$content_width = $this->protected_globals['content_width'];
+		$wp_the_query  = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// ... see ::setUp()
 		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
