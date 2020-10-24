@@ -785,45 +785,6 @@ class Jetpack_PostImages {
 
 		$meta = wp_get_attachment_metadata( $attachment_id );
 
-		// The image must be larger than 200x200.
-		if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
-			return false;
-		}
-		if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
-			return false;
-		}
-
-		$url = wp_get_attachment_url( $attachment_id );
-
-		return array(
-			'type'       => 'image',
-			'from'       => 'attachment',
-			'src'        => $url,
-			'src_width'  => $meta['width'],
-			'src_height' => $meta['height'],
-			'href'       => $post_url,
-			'alt_text'   => self::get_alt_text( $attachment_id ),
-		);
-	}
-
-	/**
-	 * Get info about a WordPress attachment in a Story block.
-	 *
-	 * @since 9.1.0
-	 *
-	 * @param int    $attachment_id Attachment ID.
-	 * @param string $post_url      URL of the post, if we have one.
-	 * @param int    $width         Minimum Image width.
-	 * @param int    $height        Minimum Image height.
-	 * @return array|bool           Image data or false if unavailable.
-	 */
-	public static function get_attachment_data_for_story( $attachment_id, $post_url = '', $width, $height ) {
-		if ( empty( $attachment_id ) ) {
-			return false;
-		}
-
-		$meta = wp_get_attachment_metadata( $attachment_id );
-
 		if ( empty( $meta ) ) {
 			return false;
 		}
@@ -858,7 +819,7 @@ class Jetpack_PostImages {
 
 		return array(
 			'type'       => 'image',
-			'from'       => 'story',
+			'from'       => 'attachment',
 			'src'        => $url,
 			'src_width'  => $meta_width,
 			'src_height' => $meta_height,
@@ -929,7 +890,7 @@ class Jetpack_PostImages {
 		) {
 			foreach ( $block['attrs']['mediaFiles'] as $media_file ) {
 				if ( ! empty( $media_file['id'] ) ) {
-					$images[] = self::get_attachment_data_for_story( $media_file['id'], $html_info['post_url'], $width, $height );
+					$images[] = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
 				}
 			}
 		}
