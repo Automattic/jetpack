@@ -180,6 +180,11 @@ function render_amp_pin( $attr ) {
  * @return string
  */
 function load_assets( $attr, $content ) {
+	if ( ! jetpack_is_frontend() ) {
+		$url           = esc_url( $attr['url'] );
+		$block_content = '<a href="' . $url . '">' . $url . '</a>';
+		return $block_content;
+	}
 	if ( Blocks::is_amp_request() ) {
 		return render_amp_pin( $attr );
 	} else {
