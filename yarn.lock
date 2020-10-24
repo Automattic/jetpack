@@ -2240,28 +2240,28 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
   integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
 
-"@size-limit/file@4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@size-limit/file/-/file-4.6.0.tgz#894d96bf8bb98d2d4129cbe54a067b33133c4d1c"
-  integrity sha512-sr5Zu/1bJYL4PeGtmO4XNBM+9++ySwvyaeXEK9L55Rm6WStzlXEKRVrM21jW5hHhEHG7MyZCGpD9mBqUPjL5AA==
+"@size-limit/file@4.6.2":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@size-limit/file/-/file-4.6.2.tgz#21271022e5cfe671d207519f5b46d1e683b9b02d"
+  integrity sha512-ZmYhMnH8Y3xGxZlG77E2Eub7Z8OHSYcm45wnvYEhOxOl86070xp9XQo19rztm2axyp1c4FSOQJnREm5lvvFmQA==
   dependencies:
     semver "7.3.2"
 
-"@size-limit/preset-app@4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@size-limit/preset-app/-/preset-app-4.6.0.tgz#4bfefdb605856a9ce1ece7d76a3ae39f64555a5f"
-  integrity sha512-gV3YAT/7/oKiBKDjruOo6W0qTkrgwh/B3m5rrZbd83Xa086pavQrEWZr1+P90rl8jDpCgHGShEwd1KRgPelx/A==
+"@size-limit/preset-app@4.6.2":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@size-limit/preset-app/-/preset-app-4.6.2.tgz#e3377a4bb1b93e25d2e72aeff752cd90ee8af680"
+  integrity sha512-5EzILDAssk7DhbLKVvw/ep21bmN6BqlbAS0nUPZF67G4IK6yS9TWvfzBbxGL5go+zlotfrNlNova56LrCc1IQw==
   dependencies:
-    "@size-limit/file" "4.6.0"
-    "@size-limit/time" "4.6.0"
+    "@size-limit/file" "4.6.2"
+    "@size-limit/time" "4.6.2"
 
-"@size-limit/time@4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@size-limit/time/-/time-4.6.0.tgz#a18da2656bb7bfe8cde0eccce6d59aba01958471"
-  integrity sha512-a+HIPPF9kZdzc6VK3O+OAA9oTgkxCxwzzw+q1Jq/a8JvNtsZPsLQimnnY2gv5wbfXSSy+w1pNOSPi7tWOBOoGA==
+"@size-limit/time@4.6.2":
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@size-limit/time/-/time-4.6.2.tgz#67b1453ac21256fc4aa07437123b16666b0a2a9a"
+  integrity sha512-1jVZBKIBtutIJRwuqov6YxzDFy1xRKdqqIO445rYf6vLHPYK3X1TrniOh73QR6qb48FID0p4/UaPwnqnhHEbuQ==
   dependencies:
     estimo "^2.2.1"
-    react "^16.13.1"
+    react "^17.0.0"
 
 "@slack/logger@>=1.0.0 <3.0.0":
   version "2.0.0"
@@ -12431,13 +12431,6 @@ mockery@2.1.0:
   resolved "https://registry.yarnpkg.com/mockery/-/mockery-2.1.0.tgz#5b0aef1ff564f0f8139445e165536c7909713470"
   integrity sha512-9VkOmxKlWXoDO/h1jDZaS4lH33aWfRiJiNT/tKj+8OGzrcFDLo8d0syGdbsc3Bc4GvRXPb+NMMvojotmuGJTvA==
 
-moment-timezone@^0.5.16:
-  version "0.5.26"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.26.tgz#c0267ca09ae84631aa3dc33f65bedbe6e8e0d772"
-  integrity sha512-sFP4cgEKTCymBBKgoxZjYzlSovC20Y6J7y3nanDc5RoBIXKlZhoYwBoZGe3flwU6A372AcRwScH8KiwV6zjy1g==
-  dependencies:
-    moment ">= 2.9.0"
-
 moment-timezone@^0.5.31:
   version "0.5.31"
   resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.31.tgz#9c40d8c5026f0c7ab46eda3d63e49c155148de05"
@@ -15004,6 +14997,14 @@ react@16.13.1, "react@^0.14.3 || ^15.1.0 || ^16.0.0", react@^16.13.1, react@^16.
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
+
+react@^17.0.0:
+  version "17.0.1"
+  resolved "https://registry.yarnpkg.com/react/-/react-17.0.1.tgz#6e0600416bd57574e3f86d92edba3d9008726127"
+  integrity sha512-lG9c9UuMHdcAexXtigOZLX8exLWkW0Ku29qPRU8uhF2R9BN96dLCt0psvzPLlHc5OWkgymP3qwTRgbnw5BKx3w==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
 
 read-file@^0.2.0:
   version "0.2.0"
