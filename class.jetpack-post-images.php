@@ -834,7 +834,8 @@ class Jetpack_PostImages {
 			$meta_width  = $meta['videopress']['width'];
 			$meta_height = $meta['videopress']['height'];
 		} elseif ( ! empty( $meta['thumb'] ) ) {
-			// Use the thumbnail path if it's set.
+			// On WordPress.com, VideoPress videos have a 'thumb' property with the
+			// poster image filename instead.
 			$media_url   = wp_get_attachment_url( $attachment_id );
 			$url         = str_replace( wp_basename( $media_url ), $meta['thumb'], $media_url );
 			$meta_width  = $meta['width'];
