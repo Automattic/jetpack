@@ -1,0 +1,103 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  push:
+    branches: [master]
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  e2e-tests:
+    name: All
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use yarn cache
+      uses: actions/cache@v2
+      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      with:
+        path: /home/runner/.cache/yarn/v6
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    - name: Use composer cache
+      uses: actions/cache@v2
+      with:
+        path: /home/runner/.composer/cache/files
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Build Production Jetpack
+      run: yarn && yarn build-production
+
+    - name: Set up environment
+      env:
+        NGROK_KEY: ${{ secrets.NGROK_KEY }}
+        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      run: |
+        yarn test-decrypt-config
+        ./tests/e2e/bin/env.sh start
+
+    - name: Run tests
+      run: yarn test-e2e
+
+    - name: Upload Allure artifacts
+      if: ${{ always() }}
+      continue-on-error: true
+      env:
+        ALLURE_VERSION: 2.13.5
+        ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
+        GH_TEST_REPORT_TOKEN: ${{ secrets.GH_TEST_REPORT_TOKEN }}
+      run: |
+        curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
+        tar -zxf allure.tgz -C /opt/
+        sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
+
+        ./tests/e2e/bin/push-allure-artifacts.sh
+
+  gutenberg-e2e-tests:
+    name: with latest Gutenberg
+    runs-on: ubuntu-latest
+    env:
+      LATEST_GUTENBERG: 1
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use yarn cache
+      uses: actions/cache@v2
+      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      with:
+        path: /home/runner/.cache/yarn/v6
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    - name: Use composer cache
+      uses: actions/cache@v2
+      with:
+        path: /home/runner/.composer/cache/files
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Build Production Jetpack
+      run: yarn && yarn build-production
+
+    - name: Set up environment
+      env:
+        NGROK_KEY: ${{ secrets.NGROK_KEY }}
+        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      run: |
+        yarn test-decrypt-config
+        ./tests/e2e/bin/env.sh start
+
+    - name: Run tests
+      run: yarn test-e2e --testPathIgnorePatterns=updater
