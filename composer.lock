@@ -929,15 +929,15 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-monorepo",
+            "version": "dev-add/phpcs-rules-from-MediaWiki",
             "dist": {
                 "type": "path",
                 "url": "./packages/codesniffer",
-                "reference": "6b39af28536932d4c7270999bca8c48783e4fd79"
+                "reference": "47b6b1560b3c62724e3d2c18ca1b1f5ac7b30e64"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "0.*",
-                "mediawiki/mediawiki-codesniffer": "dev-master",
+                "mediawiki/mediawiki-codesniffer": "32.0.0",
                 "phpcompatibility/phpcompatibility-wp": "2.1.0",
                 "sirbrillig/phpcs-variable-analysis": "2.9.0",
                 "wp-coding-standards/wpcs": "2.3.0"
@@ -1179,16 +1179,16 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "dev-master",
+            "version": "v32.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "dc9ffdfc65b1707a1326e5daaf468d658560cceb"
+                "reference": "928f07dc942e8e049eaeccf0e8a1d35c5dada984"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/dc9ffdfc65b1707a1326e5daaf468d658560cceb",
-                "reference": "dc9ffdfc65b1707a1326e5daaf468d658560cceb",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/928f07dc942e8e049eaeccf0e8a1d35c5dada984",
+                "reference": "928f07dc942e8e049eaeccf0e8a1d35c5dada984",
                 "shasum": ""
             },
             "require": {
@@ -1196,7 +1196,7 @@
                 "composer/spdx-licenses": "~1.5.2",
                 "ext-mbstring": "*",
                 "php": ">=7.2.0",
-                "squizlabs/php_codesniffer": "3.5.6"
+                "squizlabs/php_codesniffer": "3.5.8"
             },
             "require-dev": {
                 "mediawiki/mediawiki-phan-config": "0.10.3",
@@ -1221,7 +1221,7 @@
                 "codesniffer",
                 "mediawiki"
             ],
-            "time": "2020-10-16T15:51:32+00:00"
+            "time": "2020-10-26T15:57:52+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -1487,16 +1487,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.6",
+            "version": "3.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "e97627871a7eab2f70e59166072a6b767d5834e0"
+                "reference": "9d583721a7157ee997f235f327de038e7ea6dac4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/e97627871a7eab2f70e59166072a6b767d5834e0",
-                "reference": "e97627871a7eab2f70e59166072a6b767d5834e0",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/9d583721a7157ee997f235f327de038e7ea6dac4",
+                "reference": "9d583721a7157ee997f235f327de038e7ea6dac4",
                 "shasum": ""
             },
             "require": {
@@ -1534,7 +1534,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2020-08-10T04:50:15+00:00"
+            "time": "2020-10-23T02:01:07+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
