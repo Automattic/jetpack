@@ -7,7 +7,6 @@ fi
 
 phpenv config-rm xdebug.ini
 
-echo "!!!!! Installing PHPUNIT! TRAVIS_PHP_VERSION: $TRAVIS_PHP_VERSION"
 # Configure PHP and PHPUnit environment
 if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
 	composer install --ignore-platform-reqs
@@ -18,7 +17,15 @@ elif [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
 	composer global require "phpunit/phpunit=6.5.*" --no-suggest
 elif [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
   composer install
-  composer global require "phpunit/phpunit=7.5.*" --no-suggest
+	which phpunit
+	phpunit -v
+	echo "!!!!! Installing PHPUNIT! TRAVIS_PHP_VERSION: $TRAVIS_PHP_VERSION"
+
+
+	composer global require "phpunit/phpunit=7.5.*" --no-suggest
+	which phpunit
+	phpunit -v
+
 	echo "!!!!! Installed phpunit/phpunit=7.5.*"
 
 elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
