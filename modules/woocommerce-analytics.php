@@ -17,6 +17,6 @@
  * Load module functionality.
  */
 function jetpack_load_woocommerce_analytics() {
-	require_once dirname( __FILE__ ) . '/woocommerce-analytics/class-jetpack-woocommerce-analytics.php';
+	require_once __DIR__ . '/woocommerce-analytics/class-jetpack-woocommerce-analytics.php';
 }
 jetpack_load_woocommerce_analytics();

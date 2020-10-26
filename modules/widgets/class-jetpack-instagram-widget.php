@@ -369,7 +369,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 * @return bool if this request trying to remove the widgets stored id.
 	 */
 	public function removing_widgets_stored_id( $status ) {
-		return $status['valid'] && isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'];
+		return $status['valid'] && isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**
@@ -599,7 +599,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 add_action(
 	'widgets_init',
-	function() {
+	function () {
 		if ( Jetpack::is_active() ) {
 			register_widget( 'Jetpack_Instagram_Widget' );
 		}

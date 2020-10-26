@@ -1,13 +1,12 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
-use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
-require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
+require_once __DIR__ . '/rtl-admin-bar.php';
 
 /**
  * Custom Admin bar displayed instead of the default WordPress admin bar.

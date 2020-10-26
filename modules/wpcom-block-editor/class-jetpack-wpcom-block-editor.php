@@ -43,7 +43,6 @@ class Jetpack_WPCOM_Block_Editor {
 		require_once dirname( __FILE__ ) . '/functions.editor-type.php';
 		add_action( 'edit_form_top', 'Jetpack\EditorType\remember_classic_editor' );
 		add_filter( 'block_editor_settings', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
-
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );

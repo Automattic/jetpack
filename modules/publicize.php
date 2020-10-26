@@ -38,16 +38,16 @@ class Jetpack_Publicize {
 			Jetpack::enable_module_configurable( __FILE__ );
 		}
 
-		require_once dirname( __FILE__ ) . '/publicize/publicize.php';
+		require_once __DIR__ . '/publicize/publicize.php';
 
 		if ( $this->in_jetpack ) {
-			require_once dirname( __FILE__ ) . '/publicize/publicize-jetpack.php';
+			require_once __DIR__ . '/publicize/publicize-jetpack.php';
 		} else {
-			require_once dirname( dirname( __FILE__ ) ) . '/mu-plugins/keyring/keyring.php';
-			require_once dirname( __FILE__ ) . '/publicize/publicize-wpcom.php';
+			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
+			require_once __DIR__ . '/publicize/publicize-wpcom.php';
 		}
 
-		require_once dirname( __FILE__ ) . '/publicize/ui.php';
+		require_once __DIR__ . '/publicize/ui.php';
 		$publicize_ui             = new Publicize_UI();
 		$publicize_ui->in_jetpack = $this->in_jetpack;
 
@@ -70,7 +70,7 @@ class Jetpack_Publicize {
 			 */
 			add_action(
 				'save_post',
-				function() {
+				function () {
 					$publicize_options = get_option( 'jetpack_publicize_options', array() );
 
 					/**
@@ -112,7 +112,7 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_in
 		global $publicize;
 
 		if ( ! class_exists( 'Publicize' ) ) {
-			require_once dirname( __FILE__ ) . '/publicize/publicize.php';
+			require_once __DIR__ . '/publicize/publicize.php';
 		}
 
 		return $publicize;
