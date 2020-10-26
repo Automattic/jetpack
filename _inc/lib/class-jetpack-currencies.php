@@ -154,27 +154,23 @@ class Jetpack_Currencies {
 	 * @return string           Formatted price.
 	 */
 	public static function format_price( $price, $currency, $symbol = true ) {
-		$currency_details = self::CURRENCIES[ $currency ];
-
-		if ( $currency_details ) {
-			// Ensure USD displays as 1234.56 even in non-US locales.
-			$amount = 'USD' === $currency
-				? number_format( $price, $currency_details['decimal'], '.', ',' )
-				: number_format_i18n( $price, $currency_details['decimal'] );
-
-			return sprintf(
-				$currency_details['format'],
-				$symbol ? $currency_details['symbol'] : '',
-				$amount
-			);
-		}
-
 		// Fall back to unspecified currency symbol like `¤1,234.05`.
 		// @link https://en.wikipedia.org/wiki/Currency_sign_(typography).
-		if ( ! $currency ) {
+		if ( ! array_key_exists( $currency, self::CURRENCIES ) ) {
 			return '¤' . number_format_i18n( $price, 2 );
 		}
 
-		return number_format_i18n( $price, 2 ) . ' ' . $currency;
+		$currency_details = self::CURRENCIES[ $currency ];
+
+		// Ensure USD displays as 1234.56 even in non-US locales.
+		$amount = 'USD' === $currency
+			? number_format( $price, $currency_details['decimal'], '.', ',' )
+			: number_format_i18n( $price, $currency_details['decimal'] );
+
+		return sprintf(
+			$currency_details['format'],
+			$symbol ? $currency_details['symbol'] : '',
+			$amount
+		);
 	}
 }
