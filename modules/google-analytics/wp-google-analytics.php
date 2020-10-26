@@ -31,6 +31,7 @@ require_once( plugin_basename( 'classes/wp-google-analytics-utils.php' ) );
 require_once( plugin_basename( 'classes/wp-google-analytics-options.php' ) );
 require_once( plugin_basename( 'classes/wp-google-analytics-legacy.php' ) );
 require_once( plugin_basename( 'classes/wp-google-analytics-universal.php' ) );
+require_once plugin_basename( 'classes/class-jetpack-google-amp-analytics.php' );
 
 class Jetpack_Google_Analytics {
 
@@ -53,11 +54,12 @@ class Jetpack_Google_Analytics {
 		// At this time, we only leverage universal analytics when enhanced ecommerce is selected and WooCommerce is active.
 		// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
 		if ( class_exists( 'WooCommerce' ) && Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
-			$analytics = new Jetpack_Google_Analytics_Universal();
+			$analytics     = new Jetpack_Google_Analytics_Universal();
+			$amp_analytics = new Jetpack_Google_AMP_Analytics();
+
 		} else {
 			$analytics = new Jetpack_Google_Analytics_Legacy();
 		}
-
 	}
 
 	/**

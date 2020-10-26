@@ -370,8 +370,13 @@ class Callables extends Module {
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links           = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
-			$action_links           = array_filter( $action_links );
+			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			// Verify $action_links is still an array to resolve warnings from filters not returning an array.
+			if ( is_array( $action_links ) ) {
+				$action_links = array_filter( $action_links );
+			} else {
+				$action_links = array();
+			}
 			$formatted_action_links = null;
 			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
 				$dom_doc = new \DOMDocument();

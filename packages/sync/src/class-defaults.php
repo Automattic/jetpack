@@ -805,7 +805,14 @@ class Defaults {
 		'custom-logo',
 		'menus',
 		'automatic-feed-links',
-		'editor-style',
+		'align-wide',
+		'wp-block-styles',
+		'responsive-embeds',
+		'disable-custom-gradients',
+		'disable-custom-font-sizes',
+		'disable-custom-colors',
+		'dark-editor-style',
+		'customize-selective-refresh-widgets',
 		'widgets',
 		'html5',
 		'title-tag',
@@ -815,6 +822,9 @@ class Defaults {
 		'site-logo',
 		'editor-color-palette',
 		'editor-gradient-presets',
+		'editor-font-sizes',
+		'editor-styles',
+		'editor-style', // deprecated.
 	);
 
 	/**
