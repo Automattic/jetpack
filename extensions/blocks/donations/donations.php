@@ -133,13 +133,7 @@ function render_block( $attr, $content ) {
 		);
 	}
 
-	$currency = $attr['currency'];
-
-	$classes = 'wp-block-jetpack-donations';
-	if ( ! empty( $attr['className'] ) ) {
-		$classes .= ' ' . $attr['className'];
-	}
-
+	$currency   = $attr['currency'];
 	$nav        = '';
 	$headings   = '';
 	$amounts    = '';
@@ -231,7 +225,7 @@ function render_block( $attr, $content ) {
 	</div>
 </div>
 ',
-		esc_attr( $classes ),
+		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 		$nav,
 		$headings,
 		$attr['chooseAmountText'],
