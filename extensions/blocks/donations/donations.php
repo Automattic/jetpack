@@ -153,13 +153,13 @@ function render_block( $attr, $content ) {
 			$nav .= sprintf(
 				'<div role="button" tabindex="0" class="donations__nav-item" data-interval="%1$s">%2$s</div>',
 				esc_attr( $interval ),
-				$donation['title']
+				esc_html( $donation['title'] )
 			);
 		}
 		$headings .= sprintf(
 			'<h4 class="%1$s">%2$s</h4>',
 			esc_attr( $donation['class'] ),
-			$donation['heading']
+			wp_kses_post( $donation['heading'] )
 		);
 		$amounts  .= sprintf(
 			'<div class="donations__amounts %s">',
@@ -176,13 +176,13 @@ function render_block( $attr, $content ) {
 		$extra_text .= sprintf(
 			'<p class="%1$s">%2$s</p>',
 			esc_attr( $donation['class'] ),
-			$donation['extraText']
+			wp_kses_post( $donation['extraText'] )
 		);
 		$buttons    .= sprintf(
 			'<a class="wp-block-button__link donations__donate-button %1$s" href="%2$s">%3$s</a>',
 			esc_attr( $donation['class'] ),
 			esc_url( \Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id ) ),
-			$donation['buttonText']
+			wp_kses_post( $donation['buttonText'] )
 		);
 	}
 	if ( $nav ) {
@@ -193,7 +193,7 @@ function render_block( $attr, $content ) {
 	if ( $attr['showCustomAmount'] ) {
 		$custom_amount        .= sprintf(
 			'<p>%s</p>',
-			$attr['customAmountText']
+			wp_kses_post( $attr['customAmountText'] )
 		);
 		$default_custom_amount = \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] * 100;
 		$custom_amount        .= sprintf(
