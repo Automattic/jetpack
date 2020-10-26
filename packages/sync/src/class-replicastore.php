@@ -706,8 +706,7 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @todo Test this out to make sure it works as expected.
-	 * @todo Refactor to not use interpolated values when preparing the SQL query.
+	 * @todo Test this out to make sure it works as expected..
 	 *
 	 * @param string $type       Meta type.
 	 * @param array  $object_ids IDs of the objects.
@@ -720,14 +719,29 @@ class Replicastore implements Replicastore_Interface {
 		if ( ! $table ) {
 			return false;
 		}
-		$column = sanitize_key( $type . '_id' );
+		$meta_key             = esc_html( $meta_key );
+		$column               = sanitize_key( $type . '_id' );
+		$object_ids           = array_map( 'intval', $object_ids );
+		$object_ids_sanatized = implode( ', ', $object_ids );
+
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE $column IN (%s) && meta_key = %s", implode( ',', $object_ids ), $meta_key ) );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE $column IN ($object_ids_sanatized) AND meta_key = %s", $meta_key ) );
 
 		// If we don't have an object ID what do we do - invalidate ALL meta?
 		foreach ( $object_ids as $object_id ) {
-			wp_cache_delete( $object_id, $type . '_meta' );
+			$this->reset_deleted_metadata_mapping( $type, $object_id );
 		}
+	}
+
+	/**
+	 * Delete meta cache of an object.
+	 *
+	 * @param string $type      Meta type.
+	 * @param int    $object_id ID of the object.
+	 * @return void
+	 */
+	private function reset_deleted_metadata_mapping( $type, $object_id ) {
+		wp_cache_delete( $object_id, $type . '_meta' );
 	}
 
 	/**
