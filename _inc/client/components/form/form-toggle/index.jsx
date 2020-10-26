@@ -5,8 +5,13 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
+
+/**
+ * External dependencies
+ */
+import { Disabled, ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -112,39 +117,27 @@ export default class FormToggle extends Component {
 	};
 
 	render() {
-		const id = this.props.id || 'toggle-' + this.id;
+		const DisabledComponent = this.props.disabled ? Disabled : Fragment;
+		const labelContent = (
+			<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
+				{ this.props.children }
+			</span>
+		);
 		const toggleClasses = classNames( 'form-toggle', this.props.className, {
 			'is-toggling': this.props.toggling,
+			id: this.props.id || 'toggle-' + this.id,
 		} );
 
 		return (
-			<span>
-				<input
-					className={ toggleClasses }
-					type="checkbox"
+			<DisabledComponent>
+				<ToggleControl
 					checked={ this.props.checked }
-					readOnly={ true }
-					disabled={ this.props.disabled }
+					className={ toggleClasses }
+					label={ labelContent }
+					onChange={ this.onClick }
 				/>
-				<label className="form-toggle__label" htmlFor={ id }>
-					<span
-						className="form-toggle__switch"
-						disabled={ this.props.disabled }
-						id={ id }
-						onClick={ this.onClick }
-						onKeyDown={ this.onKeyDown }
-						role="checkbox"
-						aria-checked={ this.props.checked }
-						aria-label={ this.props[ 'aria-label' ] }
-						tabIndex={ this.props.disabled ? -1 : 0 }
-						ref="toggleSwitch"
-					/>
-					<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
-						{ this.props.children }
-					</span>
-				</label>
 				{ this.renderPopover() }
-			</span>
+			</DisabledComponent>
 		);
 	}
 }
