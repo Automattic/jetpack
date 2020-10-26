@@ -250,7 +250,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Major Enhancements**
 
-* Story Block: this new block allows you to create and publish a story from the WordPress mobile apps.
+*
 
 **Enhancements**
 
