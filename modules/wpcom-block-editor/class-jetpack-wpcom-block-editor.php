@@ -40,9 +40,9 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
-		require_once dirname( __FILE__ ) . '/functions.classic-editor.php';
-		add_action( 'edit_form_top', 'Jetpack\ClassicEditor\remember_classic_editor' );
-		add_filter( 'block_editor_settings', 'Jetpack\ClassicEditor\remember_block_editor', 10, 2 );
+		require_once dirname( __FILE__ ) . '/functions.editor-type.php';
+		add_action( 'edit_form_top', 'Jetpack\EditorType\remember_classic_editor' );
+		add_filter( 'block_editor_settings', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
 
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
