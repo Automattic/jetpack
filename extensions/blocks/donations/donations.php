@@ -248,7 +248,7 @@ function render_block( $attr, $content ) {
 function amp_skip_post( $skip, $post_id, $post ) {
 	// When AMP is on standard mode, there are no non-AMP posts to link to where the donation can be completed, so let's
 	// prevent the post from being available in AMP.
-	if ( function_exists( 'amp_is_canonical' ) && \amp_is_canonical() && has_block( 'jetpack/donations', $post->post_content ) ) {
+	if ( function_exists( 'amp_is_canonical' ) && \amp_is_canonical() && has_block( BLOCK_NAME, $post->post_content ) ) {
 		return true;
 	}
 	return $skip;
