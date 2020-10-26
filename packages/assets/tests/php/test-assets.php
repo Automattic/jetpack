@@ -7,10 +7,10 @@
 
 namespace Automattic\Jetpack;
 
-use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Retrieves a URL within the plugins or mu-plugins directory.

@@ -5,8 +5,8 @@
  * @package automattic/jetpack-autoloader
  */
 
-use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Autoloader\ManifestGenerator;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test suite class for the manifest generator

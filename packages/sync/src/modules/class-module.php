@@ -360,7 +360,6 @@ SQL
 		return $status;
 	}
 
-
 	/**
 	 * Immediately sends a single item without firing or enqueuing it
 	 *

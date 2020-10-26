@@ -15,11 +15,11 @@
 namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Composer;
+use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
+use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use Composer\Plugin\PluginInterface;
-use Composer\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class CustomAutoloaderPlugin.
@@ -80,7 +80,6 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		 * phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		 */
 	}
-
 
 	/**
 	 * Tell composer to listen for events and do something with them.

@@ -8,8 +8,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-use Automattic\Jetpack\Sync\Codec_Interface;
-
 /**
  * An implementation of Automattic\Jetpack\Sync\Codec_Interface that uses gzip's DEFLATE
  * algorithm to compress objects serialized using json_encode

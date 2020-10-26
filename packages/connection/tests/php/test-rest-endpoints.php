@@ -7,10 +7,10 @@ use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
 use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
+use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
 use WP_REST_Request;
 use WP_REST_Server;
-use Requests_Utility_CaseInsensitiveDictionary;
 use WP_User;
 
 /**
@@ -111,12 +111,12 @@ class Test_REST_Endpoints extends TestCase {
 		);
 
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$options_filter = function( $value ) use ( $secrets ) {
+		$options_filter = function ( $value ) use ( $secrets ) {
 			return $secrets;
 		};
 		add_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
 
-		$user_caps_filter = function( $allcaps, $caps, $args, $user ) {
+		$user_caps_filter = function ( $allcaps, $caps, $args, $user ) {
 			if ( $user instanceof WP_User && self::USER_ID === $user->ID ) {
 				$allcaps['manage_options'] = true;
 				$allcaps['administrator']  = true;
@@ -154,7 +154,7 @@ class Test_REST_Endpoints extends TestCase {
 		$builder->setNamespace( 'Automattic\Jetpack' )
 				->setName( 'apply_filters' )
 				->setFunction(
-					function( $hook, $value ) {
+					function ( $hook, $value ) {
 						return 'jetpack_offline_mode' === $hook ? true : $value;
 					}
 				);
@@ -192,7 +192,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		array_walk(
 			$plugins,
-			function( $plugin ) {
+			function ( $plugin ) {
 				( new Connection_Plugin( $plugin['slug'] ) )->add( $plugin['name'] );
 			}
 		);

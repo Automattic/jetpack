@@ -22,7 +22,6 @@ class UtilsTest extends TestCase {
 		Constants::clear_constants();
 	}
 
-
 	/**
 	 * Tests the Utils::jetpack_api_constant_filter() method.
 	 *
