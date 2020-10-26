@@ -25,11 +25,11 @@ class Plugins_Handler {
 	private $cache_handler;
 
 	/**
-	 * All of the plugins that have been found.
+	 * All of the active plugins that have been found.
 	 *
 	 * @var string[]
 	 */
-	private $all_plugins;
+	private $active_plugins;
 
 	/**
 	 * All of the cached plugins that we've loaded.
@@ -60,16 +60,32 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Gets all of the active plugins we can find.
+	 * Gets all of the active and cached plugins.
 	 *
 	 * @return string[]
 	 */
 	public function get_all_plugins() {
-		if ( ! isset( $this->all_plugins ) ) {
-			$this->all_plugins = $this->find_all_plugins();
+		return array_values(
+			array_unique(
+				array_merge(
+					$this->get_active_plugins(),
+					$this->get_cached_plugins()
+				)
+			)
+		);
+	}
+
+	/**
+	 * Gets all of the active plugins we can find.
+	 *
+	 * @return string[]
+	 */
+	public function get_active_plugins() {
+		if ( ! isset( $this->active_plugins ) ) {
+			$this->active_plugins = $this->find_active_plugins();
 		}
 
-		return $this->all_plugins;
+		return $this->active_plugins;
 	}
 
 	/**
@@ -95,7 +111,7 @@ class Plugins_Handler {
 	 */
 	public function update_plugin_cache() {
 		// Don't waste the time saving if we haven't actually changed anything.
-		$active_plugins = $this->get_all_plugins();
+		$active_plugins = $this->get_active_plugins();
 		$cached_plugins = $this->get_cached_plugins();
 		sort( $active_plugins );
 		sort( $cached_plugins );
@@ -107,11 +123,11 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Finds all of the plugins and returns them.
+	 * Finds all of the active plugins and returns them.
 	 *
 	 * @return string[] $plugin_paths The list of absolute paths to plugins we've found.
 	 */
-	protected function find_all_plugins() {
+	protected function find_active_plugins() {
 		$plugin_paths = array();
 
 		// Make sure that plugins which have activated this request are considered as "active" even though

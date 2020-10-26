@@ -47,14 +47,13 @@ class Autoloader_Handler {
 	/**
 	 * The constructor.
 	 *
-	 * @param string             $current_plugin_path The current plugin path.
-	 * @param array              $active_plugin_paths The active plugin paths.
+	 * @param Plugins_Handler    $plugins_handler    The Plugins_Handler object.
 	 * @param Autoloader_Locator $autoloader_locator The Autoloader_Locator object.
-	 * @param Version_Selector   $version_selector The Version_Selector object.
+	 * @param Version_Selector   $version_selector   The Version_Selector object.
 	 */
-	public function __construct( $current_plugin_path, $active_plugin_paths, $autoloader_locator, $version_selector ) {
-		$this->current_plugin_path = $current_plugin_path;
-		$this->active_plugin_paths = $active_plugin_paths;
+	public function __construct( $plugins_handler, $autoloader_locator, $version_selector ) {
+		$this->current_plugin_path = $plugins_handler->get_current_plugin();
+		$this->active_plugin_paths = $plugins_handler->get_all_plugins();
 		$this->autoloader_locator  = $autoloader_locator;
 		$this->version_selector    = $version_selector;
 	}

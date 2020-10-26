@@ -34,15 +34,7 @@ function set_up_autoloader() {
 	require_once __DIR__ . '/class-autoloader-container.php';
 	$container = new Autoloader_Container();
 
-	$plugins_handler = $container->get( Plugins_Handler::class );
-
-	require_once __DIR__ . '/class-autoloader-handler.php';
-	$autoloader_handler = new Autoloader_Handler(
-		$plugins_handler->get_current_plugin(),
-		array_unique( array_merge( $plugins_handler->get_all_plugins(), $plugins_handler->get_cached_plugins() ) ),
-		$container->get( Autoloader_Locator::class ),
-		$container->get( Version_Selector::class )
-	);
+	$autoloader_handler = $container->get( Autoloader_Handler::class );
 
 	// The autoloader must be reset when a plugin that was previously unknown is detected.
 	if ( $autoloader_handler->should_autoloader_reset() ) {
@@ -67,13 +59,13 @@ function set_up_autoloader() {
 	// Add a shutdown function to save all of the cached plugin paths.
 	$container->get( Hook_Manager::class )->add_action(
 		'shutdown',
-		function () use ( $plugins_handler ) {
+		function () use ( $container ) {
 			// If this is triggered too early we don't want to save a broken cache.
 			if ( ! did_action( 'plugins_loaded' ) ) {
 				return;
 			}
 
-			$plugins_handler->update_plugin_cache();
+			$container->get( Plugins_Handler::class )->update_plugin_cache();
 		}
 	);
 }

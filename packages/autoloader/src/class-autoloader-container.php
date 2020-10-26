@@ -72,6 +72,13 @@ class Autoloader_Container {
 			$this->get( Plugin_Locator::class ),
 			$this->get( Cache_Handler::class )
 		);
+
+		require_once __DIR__ . '/class-autoloader-handler.php';
+		$this->dependencies[ Autoloader_Handler::class ] = new Autoloader_Handler(
+			$this->get( Plugins_Handler::class ),
+			$this->get( Autoloader_Locator::class ),
+			$this->get( Version_Selector::class )
+		);
 	}
 
 	/**

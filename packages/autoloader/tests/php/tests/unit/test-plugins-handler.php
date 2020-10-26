@@ -82,9 +82,39 @@ class Test_Plugins_Handler extends TestCase {
 	}
 
 	/**
-	 * Tests that all plugins are found.
+	 * Tests that the handler is able to get both active and cached plugins together.
 	 */
 	public function test_gets_all_plugins() {
+		$handler = $this->getMockBuilder( Plugins_Handler::class )
+			->setMethods(
+				array(
+					'get_active_plugins',
+					'get_cached_plugins',
+				)
+			)
+			->setConstructorArgs( array( $this->plugin_locator, $this->cache_handler ) )
+			->getMock();
+
+		$handler->method( 'get_active_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+		$handler->method( 'get_cached_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
+
+		$plugin_paths = $handler->get_all_plugins();
+
+		$this->assertEquals(
+			array(
+				TEST_DATA_PATH . '/plugins/plugin_newer',
+				TEST_DATA_PATH . '/plugins/plugin_dev',
+			),
+			$plugin_paths
+		);
+	}
+
+	/**
+	 * Tests that all active plugins are found.
+	 */
+	public function test_gets_active_plugins() {
 		global $jetpack_autoloader_activating_plugins_paths;
 		$jetpack_autoloader_activating_plugins_paths = array( TEST_DATA_PATH . '/plugins/plugin_activating' );
 		$this->plugin_locator->expects( $this->once() )
@@ -95,7 +125,7 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_activating_this_request' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
 
-		$plugin_paths = $this->plugins_handler->get_all_plugins();
+		$plugin_paths = $this->plugins_handler->get_active_plugins();
 
 		$this->assertEquals(
 			array(
@@ -107,13 +137,13 @@ class Test_Plugins_Handler extends TestCase {
 		);
 
 		// Subsequent calls should be cached.
-		$this->assertSame( $plugin_paths, $this->plugins_handler->get_all_plugins() );
+		$this->assertSame( $plugin_paths, $this->plugins_handler->get_active_plugins() );
 	}
 
 	/**
-	 * Tests that all plugins are found when the site is multisite.
+	 * Tests that all active plugins are found when the site is multisite.
 	 */
-	public function test_gets_all_plugins_when_multisite() {
+	public function test_gets_active_plugins_when_multisite() {
 		set_test_is_multisite( true );
 
 		global $jetpack_autoloader_activating_plugins_paths;
@@ -132,7 +162,7 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_activating_this_request' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
 
-		$plugin_paths = $this->plugins_handler->get_all_plugins();
+		$plugin_paths = $this->plugins_handler->get_active_plugins();
 
 		$this->assertEquals(
 			array(
@@ -145,7 +175,7 @@ class Test_Plugins_Handler extends TestCase {
 		);
 
 		// Subsequent calls should be cached.
-		$this->assertSame( $plugin_paths, $this->plugins_handler->get_all_plugins() );
+		$this->assertSame( $plugin_paths, $this->plugins_handler->get_active_plugins() );
 	}
 
 	/**
@@ -172,14 +202,14 @@ class Test_Plugins_Handler extends TestCase {
 		$handler = $this->getMockBuilder( Plugins_Handler::class )
 			->setMethods(
 				array(
-					'get_all_plugins',
+					'get_active_plugins',
 					'get_cached_plugins',
 				)
 			)
 			->setConstructorArgs( array( $this->plugin_locator, $this->cache_handler ) )
 			->getMock();
 
-		$handler->method( 'get_all_plugins' )
+		$handler->method( 'get_active_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
 		$handler->method( 'get_cached_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
@@ -197,14 +227,14 @@ class Test_Plugins_Handler extends TestCase {
 		$handler = $this->getMockBuilder( Plugins_Handler::class )
 			->setMethods(
 				array(
-					'get_all_plugins',
+					'get_active_plugins',
 					'get_cached_plugins',
 				)
 			)
 			->setConstructorArgs( array( $this->plugin_locator, $this->cache_handler ) )
 			->getMock();
 
-		$handler->method( 'get_all_plugins' )
+		$handler->method( 'get_active_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
 		$handler->method( 'get_cached_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );

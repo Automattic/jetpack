@@ -20,8 +20,10 @@ class Test_Autoloader_Handler extends TestCase {
 	 */
 	public function test_is_latest_autoloader_does_nothing_if_this_is_it() {
 		$autoloader_handler = new Autoloader_Handler(
-			TEST_DATA_PATH . '/plugins/plugin_current',
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			$this->prepare_handler(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array( TEST_DATA_PATH . '/plugins/plugin_current' )
+			),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);
@@ -40,10 +42,12 @@ class Test_Autoloader_Handler extends TestCase {
 	 */
 	public function test_is_latest_autoloader_requires_latest_if_this_is_not_it() {
 		$autoloader_handler = new Autoloader_Handler(
-			TEST_DATA_PATH . '/plugins/plugin_current',
-			array(
+			$this->prepare_handler(
 				TEST_DATA_PATH . '/plugins/plugin_current',
-				TEST_DATA_PATH . '/plugins/plugin_newer',
+				array(
+					TEST_DATA_PATH . '/plugins/plugin_current',
+					TEST_DATA_PATH . '/plugins/plugin_newer',
+				)
 			),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
@@ -65,8 +69,10 @@ class Test_Autoloader_Handler extends TestCase {
 		$jetpack_autoloader_cached_plugin_paths = array( TEST_DATA_PATH . '/plugins/plugin_current' );
 
 		$autoloader_handler = new Autoloader_Handler(
-			TEST_DATA_PATH . '/plugins/plugin_current',
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			$this->prepare_handler(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array( TEST_DATA_PATH . '/plugins/plugin_current' )
+			),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);
@@ -82,8 +88,7 @@ class Test_Autoloader_Handler extends TestCase {
 		global $jetpack_autoloader_activating_plugins_paths;
 
 		$autoloader_handler = new Autoloader_Handler(
-			TEST_DATA_PATH . '/plugins/plugin_current',
-			array(),
+			$this->prepare_handler( TEST_DATA_PATH . '/plugins/plugin_current' ),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);
@@ -101,8 +106,10 @@ class Test_Autoloader_Handler extends TestCase {
 		$jetpack_autoloader_cached_plugin_paths = array();
 
 		$autoloader_handler = new Autoloader_Handler(
-			TEST_DATA_PATH . '/plugins/plugin_current',
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			$this->prepare_handler(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array( TEST_DATA_PATH . '/plugins/plugin_current' )
+			),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);
@@ -116,8 +123,10 @@ class Test_Autoloader_Handler extends TestCase {
 	 */
 	public function test_builds_autoloader() {
 		$autoloader_handler = new Autoloader_Handler(
-			TEST_DATA_PATH . '/plugins/plugin_current',
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			$this->prepare_handler(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array( TEST_DATA_PATH . '/plugins/plugin_current' )
+			),
 			new Autoloader_Locator( new Version_Selector() ),
 			new Version_Selector()
 		);
@@ -128,5 +137,31 @@ class Test_Autoloader_Handler extends TestCase {
 
 		$this->assertFileExists( $file );
 		$this->assertContains( 'AutoloadGenerator.php', $file );
+	}
+
+	/**
+	 * Prepares a plugin handler set with the given plugin content.
+	 *
+	 * @param string $current_plugin The current plugin to return.
+	 * @param array  $active_plugins The active plugins to return.
+	 * @param array  $cached_plugins The cached plugins to return.
+	 *
+	 * @return Plugins_Handler|\PHPUnit\Framework\MockObject\MockObject
+	 */
+	private function prepare_handler( $current_plugin, $active_plugins = array(), $cached_plugins = array() ) {
+		$handler = $this->getMockBuilder( Plugins_Handler::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$handler->method( 'get_current_plugin' )->willReturn( $current_plugin );
+		$handler->method( 'get_all_plugins' )->willReturn(
+			array_values(
+				array_unique(
+					array_merge( $active_plugins, $cached_plugins )
+				)
+			)
+		);
+		$handler->method( 'get_active_plugins' )->willReturn( $active_plugins );
+		$handler->method( 'get_cached_plugins' )->willReturn( $cached_plugins );
+		return $handler;
 	}
 }
