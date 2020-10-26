@@ -6,10 +6,17 @@
 	grid-template-columns: 200px auto;
 	grid-column-gap: 10px;
 
-	.simple-payments__field {
+	.simple-payments__field:not(.simple-payments__field-price) {
 		.components-base-control__label {
-			display: none;
+			clip: rect(0 0 0 0);
+			clip-path: inset(50%);
+			height: 1px;
+			overflow: hidden;
+			position: absolute;
+			white-space: nowrap;
+			width: 1px;
 		}
+
 		.components-base-control__field {
 			margin-bottom: 1em;
 		}
@@ -26,21 +33,44 @@
 		}
 	}
 
+	// Adjust price container (currency and price).
 	.simple-payments__price-container {
 		display: flex;
 		flex-wrap: wrap;
-		.simple-payments__field {
-			margin-right: 10px;
+
+		.components-input-control__label,
+		.components-base-control__label {
+			height: 27px;
+			line-height: 27px;
+			margin-bottom: 0;
+			font-weight: 400;
 		}
+
+		.components-select-control__input,
+		.components-text-control__input {
+			max-width: 90px;
+
+			@media screen and (max-width: 782px) {
+				min-height: 30px;
+				height: 30px;
+			}
+		}
+
+		.simple-payments__field-currency {
+			margin-right: 5px;
+			.components-input-control__container {
+				width: calc( 100% - 5px );
+			}
+		}
+
+		.simple-payments__field-price .components-base-control__field {
+			display: flex;
+			flex-direction: column;
+		}
+
 		.help-message {
 			flex: 1 1 100%;
 			margin-top: 0;
-		}
-	}
-
-	.simple-payments__field-price {
-		.components-text-control__input {
-			max-width: 90px;
 		}
 	}
 
