@@ -116,7 +116,7 @@ function amp_carousel( $attr, $block_ordinal ) {
  */
 function slides( $ids = array(), $width = 400, $height = 300 ) {
 	return array_map(
-		function( $id ) use ( $width, $height ) {
+		function ( $id ) use ( $width, $height ) {
 			$caption    = wp_get_attachment_caption( $id );
 			$figcaption = $caption ? sprintf(
 				'<figcaption class="wp-block-jetpack-slideshow_caption gallery-caption">%s</figcaption>',
@@ -151,7 +151,7 @@ function slides( $ids = array(), $width = 400, $height = 300 ) {
  */
 function bullets( $ids = array(), $block_ordinal = 0 ) {
 	$buttons = array_map(
-		function( $index ) {
+		function ( $index ) {
 			$aria_label = sprintf(
 				/* translators: %d: Slide number. */
 				__( 'Go to slide %d', 'jetpack' ),
