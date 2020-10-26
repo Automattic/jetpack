@@ -42,7 +42,6 @@ export default class Page {
 
 		logger.info( `${ it.name } navigating to: ${ url }` );
 		await page.goto( url );
-		// await page.goto( url, { waitFor: 'networkidle2' } );
 		return await this.init( page );
 	}
 

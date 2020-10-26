@@ -8,6 +8,7 @@ import {
 	prepareUpdaterTest,
 	getNgrokSiteUrl,
 	resetWordpressInstall,
+	execMultipleWpCommands,
 } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
@@ -20,14 +21,13 @@ describe( 'Jetpack updater', () => {
 		await prepareUpdaterTest();
 		const url = getNgrokSiteUrl();
 
-		await execWpCommand(
-			`bash -c '
-			wp plugin deactivate jetpack-dev &&
-			wp option delete jetpack_sync_error_idc &&
-			wp plugin install --activate jetpack &&
-			wp plugin activate e2e-plugin-updater &&
-			wp option set e2e_jetpack_upgrader_update_version 8.8-alpha &&
-			wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/uploads/jetpack.zip'`
+		await execMultipleWpCommands(
+			'wp plugin deactivate jetpack-dev',
+			'wp option delete jetpack_sync_error_idc',
+			'wp plugin install --activate jetpack',
+			'wp plugin activate e2e-plugin-updater',
+			'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha',
+			`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/uploads/jetpack.zip`
 		);
 	} );
 
