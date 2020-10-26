@@ -381,7 +381,7 @@ class Jetpack_AMP_Support {
 		}
 
 		$sharing_links = array();
-		foreach ( $sharing_enabled['visible'] as $id => $service ) {
+		foreach ( $sharing_enabled['visible'] as $service ) {
 			$sharing_link = $service->get_amp_display( $post );
 			if ( ! empty( $sharing_link ) ) {
 				$sharing_links[] = $sharing_link;
