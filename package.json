@@ -239,7 +239,7 @@
 		"node-wp-i18n": "1.2.3",
 		"nyc": "15.1.0",
 		"prettier": "npm:wp-prettier@2.0.5",
-		"puppeteer": "5.3.1",
+		"puppeteer": "2.2.1",
 		"react-click-outside": "3.0.1",
 		"react-test-renderer": "16.13.1",
 		"sass-loader": "9.0.3",
