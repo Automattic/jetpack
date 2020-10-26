@@ -706,6 +706,7 @@ class Defaults {
 		'_feedback_extra_fields',
 		'_g_feedback_shortcode',
 		'_jetpack_post_thumbnail',
+		'_last_editor_used_jetpack',
 		'_menu_item_classes',
 		'_menu_item_menu_item_parent',
 		'_menu_item_object',
