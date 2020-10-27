@@ -176,6 +176,15 @@ class Admin_Menu {
 			}
 		}
 
+		if ( jetpack_is_atomic_site() ) {
+			if ( function_exists( 'site_is_private' ) && function_exists( 'site_is_coming_soon' ) && site_is_private() ) {
+				$badge .= sprintf(
+					'<span class="site__badge site__badge-private">%s</span>',
+					site_is_coming_soon() ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
+				);
+			}
+		}
+
 		$site_card = '
 <div class="site__info">
 	<div class="site__title">%1$s</div>
@@ -249,7 +258,7 @@ class Admin_Menu {
 	public function add_stats_menu( $domain ) {
 		$menu_title = __( 'Stats', 'jetpack' );
 
-		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
+		if ( $this->is_wpcom_site() && ! $this->is_api_request ) {
 			$menu_title .= sprintf(
 				'<img class="sidebar-unified__sparkline" width="80" height="20" src="%1$s" alt="%2$s">',
 				esc_url( home_url( 'wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=' . get_current_blog_id() ) ),
