@@ -404,4 +404,194 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$this->assertEmpty( $images );
 	}
+
+	/**
+	 * Create a post with an image block containing a large image attached to another post.
+	 *
+	 * @since 9.1.0
+	 *
+	 * @param array $story_media A representative array of the media in the story. Each is one of 'image', 'video', or 'videopress'.
+	 * @param bool  $wpcom_mode  If true, handles VideoPress videos the way WP.com does. Defaults to false.
+	 * @return array $post_info {
+	 * An array of information about our post.
+	 *  @type int $post_id Post ID.
+	 *  @type array $img_urls Image URLs we'll look to extract.
+	 * }
+	 */
+	protected function get_post_with_story_block( $story_media, $wpcom_mode = false ) {
+		$media_items = array();
+		foreach ( $story_media as $story_media ) {
+			if ( 'image' === $story_media ) {
+				$media_items[] = array(
+					'name'      => 'image.jpg',
+					'mime_type' => 'image/jpeg',
+					'type'      => 'image',
+				);
+			} elseif ( 'videopress' === $story_media ) {
+				$media_items[] = array(
+					'name'      => 'video.mp4',
+					'mime_type' => 'video/videopress',
+					'type'      => 'video',
+				);
+			} elseif ( 'video' === $story_media ) {
+				$media_items[] = array(
+					'name'      => 'video.mp4',
+					'mime_type' => 'video/mp4',
+					'type'      => 'video',
+				);
+			}
+		}
+		$img_dimensions = array(
+			'width'  => 1080,
+			'height' => 1920,
+		);
+
+		$post_id = $this->factory->post->create();
+
+		foreach ( $media_items as $key => $media ) {
+			$attachment_id = $this->factory->attachment->create_object(
+				$media['name'],
+				$post_id,
+				array(
+					'post_mime_type' => $media['mime_type'],
+					'post_type'      => 'attachment',
+				)
+			);
+			wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+
+			if ( 'video/videopress' === $media['mime_type'] ) {
+				if ( $wpcom_mode ) {
+					$videopress_meta = array(
+						'thumb' => str_replace( 'mp4', 'jpg', wp_basename( wp_get_attachment_url( $attachment_id ) ) ),
+					);
+				} else {
+					$videopress_meta = array(
+						'videopress' => array(
+							'poster' => str_replace( 'mp4', 'jpg', wp_get_attachment_url( $attachment_id ) ),
+							'width'  => $img_dimensions['width'],
+							'height' => $img_dimensions['height'],
+						),
+					);
+				}
+
+				wp_update_attachment_metadata( $attachment_id, array_merge( $img_dimensions, $videopress_meta ) );
+			}
+
+			// Update our array to store attachment IDs. We'll need them later.
+			$media['attachment_id'] = $attachment_id;
+			$media['url']           = wp_get_attachment_url( $attachment_id );
+			unset( $media['name'] );
+			$media_items[ $key ] = $media;
+		}
+
+		$story_html = '<!-- wp:jetpack/story {"mediaFiles":[';
+		foreach ( $media_items as $media_item ) {
+			$story_html .= sprintf(
+				'{"alt":"","id":%1$d,"type":"%2$s","mime":"%3$s","caption":"","width":%4$d,"height":%5$d,"url":"%6$s"},',
+				$media_item['attachment_id'],
+				$media_item['type'],
+				$media_item['mime_type'],
+				$media_item['url'],
+				$img_dimensions['width'],
+				$img_dimensions['height']
+			);
+		}
+		$story_html  = rtrim( $story_html, ',' );
+		$story_html .= ']} --><div class="wp-block-jetpack-story wp-story"></div><!-- /wp:jetpack/story -->';
+
+		// Create another post with that story.
+		$second_post_id = $this->factory->post->create( array( 'post_content' => $story_html ) );
+
+		$image_urls = array_map(
+			function( $element ) {
+				return $element['url'];
+			},
+			$media_items
+		);
+
+		return array(
+			'post_id'  => $second_post_id,
+			'img_urls' => $image_urls,
+		);
+	}
+
+	/**
+	 * Test if the array extracted from a Story block includes the correct image URLs.
+	 *
+	 * @covers Jetpack_PostImages::from_blocks
+	 * @since 9.1.0
+	 */
+	public function test_from_story_block_from_post_id_is_correct_array_no_videopress() {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+			return;
+		}
+
+		$media_types = array( 'image', 'video' );
+		$post_info   = $this->get_post_with_story_block( $media_types );
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		// We can't get a preview image for non-VideoPress video, so the video
+		// should have been skipped and only the image extracted.
+		$this->assertEquals( 1, count( $images ) );
+
+		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
+	}
+
+	/**
+	 * Test if the array extracted from a Story block includes the correct image URLs.
+	 *
+	 * For this test we simulate VideoPress being enabled for the site.
+	 *
+	 * @covers Jetpack_PostImages::from_blocks
+	 * @since 9.1.0
+	 */
+	public function test_from_story_block_from_post_id_is_correct_array_videopress() {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+			return;
+		}
+
+		$media_types = array( 'image', 'videopress' );
+		$post_info   = $this->get_post_with_story_block( $media_types );
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		$this->assertEquals( 2, count( $images ) );
+
+		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
+
+		// The second media is a VideoPress video, so expect a poster URL.
+		$expected_poster_url = str_replace( 'mp4', 'jpg', $post_info['img_urls'][1] );
+		$this->assertEquals( $expected_poster_url, $images[1]['src'] );
+	}
+
+	/**
+	 * Test if the array extracted from a Story block includes the correct image URLs.
+	 *
+	 * For this test we simulate 'WP.com mode' for VideoPress, which has a different structure for attachment meta.
+	 *
+	 * @covers Jetpack_PostImages::from_blocks
+	 * @since 9.1.0
+	 */
+	public function test_from_story_block_from_post_id_is_correct_array_videopress_wpcom() {
+		if ( ! function_exists( 'parse_blocks' ) ) {
+			$this->markTestSkipped( 'parse_blocks not available. Block editor not available' );
+			return;
+		}
+
+		$media_types = array( 'image', 'videopress' );
+		$post_info   = $this->get_post_with_story_block( $media_types, true );
+
+		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
+
+		$this->assertEquals( 2, count( $images ) );
+
+		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
+
+		// The second media is a VideoPress video, so expect a poster URL.
+		$expected_poster_url = str_replace( 'mp4', 'jpg', $post_info['img_urls'][1] );
+		$this->assertEquals( $expected_poster_url, $images[1]['src'] );
+	}
 } // end class
