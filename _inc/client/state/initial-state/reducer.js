@@ -165,7 +165,7 @@ export function getUsername( state ) {
  * @returns {int} The user id in wp-admin
  */
 export function getUserId( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, 'id' );
+	return get( state.jetpack.initialState.userData.currentUser, 'id', '' );
 }
 
 export function userCanViewStats( state ) {
@@ -339,7 +339,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	return (
 		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
-		( userId ? `&u=${ userId }` : '' ) +
+		( userId ? `&u=${ userId }` : getUserId( state ) ) +
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
 	);
 };
