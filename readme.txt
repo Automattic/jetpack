@@ -248,10 +248,6 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Release date: November 10, 2020
 * Release post: https://wp.me/p1moTy-s0E
 
-**Major Enhancements**
-
-*
-
 **Enhancements**
 
 * Button Block: add a center alignment option to all Jetpack button blocks.
