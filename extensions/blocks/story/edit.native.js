@@ -7,7 +7,13 @@ import { Text, View, TouchableWithoutFeedback } from 'react-native';
  * WordPress dependencies
  */
 import { Image } from '@wordpress/components';
-import { BlockMediaUpdateProgress } from '@wordpress/block-editor';
+import {
+	BlockIcon,
+	MediaPlaceholder,
+	BlockMediaUpdateProgress,
+	MEDIA_TYPE_IMAGE,
+	MEDIA_TYPE_VIDEO,
+} from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getProtocol } from '@wordpress/url';
 import { doAction, hasAction } from '@wordpress/hooks';
@@ -23,6 +29,7 @@ import {
 /**
  * Internal dependencies
  */
+import { icon } from '.';
 import styles from './editor.scss';
 import StoryEditingButton from './story-editing-button';
 
@@ -227,20 +234,32 @@ class StoryEdit extends React.Component {
 		const hasContent = !! mediaFiles.length;
 		const { isUploadInProgress, isSaveInProgress, didUploadFail, didSaveFail } = this.state;
 
+		const mediaPlaceholder = (
+			// TODO this we are wrapping in a pointerEvents=none because we don't want to
+			// trigger the ADD MEDIA bottom sheet just yet, but only give the placedholder the right appearance.
+			<View pointerEvents="none" style={ styles[ 'content-placeholder' ] }>
+				<MediaPlaceholder
+					icon={ <BlockIcon icon={ icon } /> }
+					labels={ {
+						title: __( 'Story' ),
+						instructions: __( 'ADD MEDIA' ),
+					} }
+					allowedTypes={ [ MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO ] }
+					onFocus={ this.props.onFocus }
+				/>
+			</View>
+		);
+
 		return (
 			<TouchableWithoutFeedback
 				accessible={ ! isSelected }
 				onPress={ this.onStoryPressed }
 				disabled={ ! isSelected }
 			>
-				<View style={ styles[ 'wp-story-container' ] }>
-					{ ! hasContent && (
-						<Text style={ styles[ 'wp-story-wrapper' ] }>
-							This Story is empty. Tap to add media.
-						</Text>
-					) }
+				<View style={ styles[ 'content-placeholder' ] }>
+					{ ! hasContent && mediaPlaceholder }
 					{ hasContent && (
-						<View style={ { flex: 1 } }>
+						<View style={ styles[ 'wp-story-container' ] }>
 							{ ! isUploadInProgress && ! isSaveInProgress && isSelected && (
 								<StoryEditingButton onEditButtonTapped={ this.onEditButtonTapped } />
 							) }
