@@ -302,6 +302,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
 * Lazy Images: ensure that the feature does not cause issues when trying to print post including lots of images.
 * Pay with PayPal Block: add default price value.
+* Pay with PayPal Block: ensure currencies are displayed properly in the editor.
 * Protect: fix handling of IPv6 addresses.
 * Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
 * Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
