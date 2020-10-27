@@ -361,16 +361,18 @@ AUTOLOADER_COMMENT;
 		$this->filesystem->emptyDirectory( $outDir );
 
 		$packageFiles = array(
-			'autoload.php'                 => '../autoload_packages.php',
-			'functions.php'                => 'autoload_functions.php',
-			'class-autoloader-handler.php' => null,
-			'class-autoloader-locator.php' => null,
-			'class-cache-handler.php'      => null,
-			'class-manifest-handler.php'   => null,
-			'class-plugin-locator.php'     => null,
-			'class-plugins-handler.php'    => null,
-			'class-version-loader.php'     => null,
-			'class-version-selector.php'   => null,
+			'autoload.php'                   => '../autoload_packages.php',
+			'functions.php'                  => 'autoload_functions.php',
+			'class-autoloader-container.php' => null,
+			'class-autoloader-handler.php'   => null,
+			'class-autoloader-locator.php'   => null,
+			'class-cache-handler.php'        => null,
+			'class-hook-manager.php'         => null,
+			'class-manifest-handler.php'     => null,
+			'class-plugin-locator.php'       => null,
+			'class-plugins-handler.php'      => null,
+			'class-version-loader.php'       => null,
+			'class-version-selector.php'     => null,
 		);
 
 		foreach ( $packageFiles as $file => $newFile ) {
