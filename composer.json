@@ -54,8 +54,7 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "./packages/*",
-			"canonical": false
+			"url": "./packages/*"
 		}
 	],
 	"autoload": {

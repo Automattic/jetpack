@@ -53,18 +53,11 @@ if [[ ! -f "$CURRENT_DIR/composer.json" ]]; then
     exit 1;
 fi
 
-# composer show --no-dev is required for general usage, only in Composer 2+.
-composer show --no-dev > /dev/null 2>&1
-if [[ $? == 1 ]]; then
-	echo "EXITING: This script requires Composer 2.0.0+"
-	exit 1;
-fi
-
 # Get the list of package names to update.
 # Works in accordance of `composer show`, and will only act on packages prefixed with `automattic/jetpack-`.
 # Using --self because it is agnostic to whether /vendor is populated.
-# Using --no-dev since we don't care about ensuring version of development packages.
-composer show --self --no-dev |
+# --self displays all of the production requires, then "requires (dev)" followed by the dev requirements. If we reach this point, we can finish.
+composer show --self |
     while read -r LINE
     do
         # Only looks for packages labeled @dev
@@ -72,5 +65,8 @@ composer show --self --no-dev |
             PACKAGE=$( echo $LINE | cut -d " " -f1 )
             echo "Updating $PACKAGE in $CURRENT_DIR/composer.json..."
             composer require $PACKAGE $UPDATE
+        fi
+        if [[ $LINE == "requires (dev)" ]]; then
+            exit;
         fi
     done
