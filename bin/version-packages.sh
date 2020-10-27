@@ -57,7 +57,7 @@ fi
 # Works in accordance of `composer show`, and will only act on packages prefixed with `automattic/jetpack-`.
 # Using --self because it is agnostic to whether /vendor is populated.
 # --self displays all of the production requires, then "requires (dev)" followed by the dev requirements.
-# If we get to the `requires (dev)` line, we can flag to install with `--no dev`.
+# If we get to the `requires (dev)` line, we can flag to install with `--dev`.
 DEV='';
 composer show --self |
     while read -r LINE
