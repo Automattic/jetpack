@@ -40,7 +40,6 @@ done
 CURRENT_DIR=$( pwd )
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 JETPACK_ROOT="$(dirname "$SCRIPT_DIR")"
-COMPOSER_VER="$( composer --version | cut -d" " -f3 )"
 
 # If we're only modifying a sub-package.
 if [[ ! -z $PACKAGE ]]; then
@@ -54,7 +53,9 @@ if [[ ! -f "$CURRENT_DIR/composer.json" ]]; then
     exit 1;
 fi
 
-if [[ $COMPOSER_VER == "1."* ]]; then
+# composer show --no-dev is required for general usage, only in Composer 2+.
+composer show --no-dev > /dev/null 2>&1
+if [[ $? == 1 ]]; then
 	echo "EXITING: This script requires Composer 2.0.0+"
 	exit 1;
 fi
