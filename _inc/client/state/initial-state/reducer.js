@@ -333,13 +333,15 @@ export function getPartnerSubsidiaryId( state ) {
 export const getUpgradeUrl = ( state, source, userId = '', planDuration = false ) => {
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
+	const uid = userId || getUserId( state );
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
+
 	return (
 		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
-		( userId ? `&u=${ userId }` : getUserId( state ) ) +
+		( uid ? `&u=${ uid }` : '' ) +
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
 	);
 };
