@@ -56,7 +56,7 @@
 * Donations / Payments Block: fix visual bug in Stripe connection banner.
 * Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
 * Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
-* Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects Posts per page settings.
+* Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
 * Lazy Images: ensure that the feature does not cause issues when trying to print post including lots of images.
 * Pay with PayPal Block: add default price value.
