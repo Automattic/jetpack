@@ -56,17 +56,19 @@ fi
 # Get the list of package names to update.
 # Works in accordance of `composer show`, and will only act on packages prefixed with `automattic/jetpack-`.
 # Using --self because it is agnostic to whether /vendor is populated.
-# --self displays all of the production requires, then "requires (dev)" followed by the dev requirements. If we reach this point, we can finish.
+# --self displays all of the production requires, then "requires (dev)" followed by the dev requirements.
+# If we get to the `requires (dev)` line, we can flag to install with `--no dev`.
+DEV='';
 composer show --self |
     while read -r LINE
     do
+        if [[ $LINE == "requires (dev)" ]]; then
+            DEV='--dev'
+        fi
         # Only looks for packages labeled @dev
         if [[ $LINE == "automattic/jetpack-"*"@dev" ]]; then
             PACKAGE=$( echo $LINE | cut -d " " -f1 )
             echo "Updating $PACKAGE in $CURRENT_DIR/composer.json..."
-            composer require $PACKAGE $UPDATE
-        fi
-        if [[ $LINE == "requires (dev)" ]]; then
-            exit;
+            composer require $DEV $PACKAGE $UPDATE
         fi
     done
