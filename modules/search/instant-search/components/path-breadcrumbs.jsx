@@ -5,7 +5,7 @@
  */
 import { h } from 'preact';
 
-import './path-breadcrumbs';
+import './path-breadcrumbs.scss';
 
 function splitDomainPath( path ) {
 	const splits = path.split( '/' ).filter( piece => piece.length > 0 );
