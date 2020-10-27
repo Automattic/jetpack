@@ -1,8 +1,0 @@
-.form-toggle.is-compact.is-toggling + .form-toggle__label .form-toggle__switch:before,
-.form-toggle.is-compact.is-toggling + .form-toggle__label .form-toggle__switch:after {
-	left: 8px;
-}
-.form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:before,
-.form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:after {
-	left: 0;
-}
