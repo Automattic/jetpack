@@ -13,6 +13,15 @@ define( 'WPCOMSH_VERSION', '2.4.158' );
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
+// This exists only on the Atomic platform. Blank if migrated elsewhere, so it doesn't fatal.
+if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
+	final class Atomic_Persistent_Data {
+		public function __get( $name ) {
+			return null;
+		}
+	}
+}
+
 require_once( 'constants.php' );
 require_once( 'functions.php' );
 require_once( 'i18n.php' );
