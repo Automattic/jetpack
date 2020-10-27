@@ -11,13 +11,13 @@ export default class TunnelManager {
 
 	/**
 	 * Creates a tunnel and returns a tunnel URL.
-	 * * if `oneOff is false, tunnel will try to reuse an existing domain.
-	 *   It is useful for tests that does not require pre-connection state, such as blocks tests
+	 * * if `oneOff` is false, tunnel will try to reuse an existing domain.
+	 *   It is useful for tests that do not require pre-connection state, such as blocks tests
 	 *   The "current" tunnel url is saved in a text file, that allows sharing state between tests
 	 *
-	 * * if `oneOff` is true, new tunnel would be created, it's url would not be persisted.
+	 * * if `oneOff` is true, new tunnel would be created, its url would not be persisted.
 	 *
-	 * @param {boolean} oneOff Is the tunnel should be reused
+	 * @param {boolean} oneOff If the tunnel should be reused.
 	 */
 	async create( oneOff = false ) {
 		const tunnelConfig = this.getConfig( oneOff );

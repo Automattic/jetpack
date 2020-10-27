@@ -56,7 +56,7 @@ export default class LoginPage extends Page {
 		try {
 			await waitForSelector( this.page, this.expectedSelector, {
 				hidden: true,
-				timeout: 30000 /* 1 minute */,
+				timeout: 30000 /* 30 seconds */,
 			} );
 		} catch ( e ) {
 			if ( retry === true ) {
