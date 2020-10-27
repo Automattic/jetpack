@@ -58,7 +58,7 @@
 * Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
 * Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
-* Lazy Images: ensure that the feature does not cause issues when trying to print post including lots of images.
+* Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
 * Pay with PayPal Block: add default price value.
 * Pay with PayPal Block: ensure currencies are displayed properly in the editor.
 * Protect: fix handling of IPv6 addresses.
