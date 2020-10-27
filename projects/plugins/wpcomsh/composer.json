@@ -5,8 +5,8 @@
   "license": "GPLv3",
   "require": {
     "automattic/at-pressable-podcasting": "v1.2.5",
-    "automattic/custom-fonts": "1.0.9",
-    "automattic/custom-fonts-typekit": "1.0.5",
+    "automattic/custom-fonts": "1.1.0",
+    "automattic/custom-fonts-typekit": "1.0.6",
     "automattic/text-media-widget-styles": "~1.0",
     "automattic/wc-calypso-bridge": "1.5.0",
     "wordpress/classic-editor-plugin": "1.5"
