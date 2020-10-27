@@ -269,6 +269,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Publicize: improve the usability of the Twitter thread options.
 * REST API: support needed capabilities in Jetpack REST API endpoints that allow site based authentication.
 * Social Menu & Social Media Icons: add support for Telegram profiles.
+* Synchronization: improve reliability of synchronization of theme changes.
 * WhatsApp Block: add option to change the alignment of the button.
 * Widget Visibility: improve performance on sites with a large number of pages.
 * WordPress.com Block Editor: add option to add metadata to a post indicating the last editor used.
