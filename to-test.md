@@ -10,9 +10,10 @@
 
 We've made changes and fixed bugs for multiple blocks in this release. Give them a try, and see that they still work for you:
 
+- Donations Block -- you can try editing a Donations Block that was created with a previous version of Jetpack.
 - WhatsApp Block
 - Form Block -- try using commas, brackets, or backslashes in field labels and value, and ensure that doesn't break the block.
-- Pay with PayPal block
+- Pay with PayPal block -- we've made some changes to the way currencies are displayed, in the editor and on the frontend. We've also improved how the block looks like outside of WordPress standard views (in subscription emails for example). Like with the Donations block, try editing existing posts with Pay with Paypal blocks, and ensure that the blocks can be updated with no issues.
 
 You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
 
