@@ -262,7 +262,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Instant Search: improve accessibility of the Search modal.
 * Likes: remove jQuery dependency where possible.
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
-* Pay with Paypal Block: improve the display of currencies.
+* Pay with PayPal Block: improve the display of currencies.
 * Podcast Player Block: add option to hide the episode title.
 * Podcast Player Block: display more helpful error messages when a podcast cannot be embedded.
 * Publicize: improve the usability of the Twitter thread options.
@@ -280,13 +280,13 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Dashboard: better support all states available when using one of Jetpack's Security solutions.
 * Embeds: improve compatibility between Jetpack's Instagram embed and WordPress' own embed.
 * Embeds: ensure Facebook Embeds work well with the AMP plugin.
-* External Media: update iconography and better forward compatibility.
+* External Media: update iconography and improve forward compatibility.
 * General: better detect local development environments.
 * Google Analytics: add support for the AMP plugin to track WooCommerce events.
 * OpenTable Block: ensure full compatibility with the AMP plugin.
 * Pay with PayPal Block: ensure full compatibility with the AMP plugin.
 * Sharing: add support for the Google Web Stories plugin.
-* Widget Visibility: avoid performance impact it may have on the block editor when used with the Gutenber plugin.
+* Widget Visibility: avoid performance impact it may have on the block editor when used with the Gutenberg plugin.
 * YouTube embeds: ensure that all YouTube video embeds work well when using the AMP plugin.
 
 **Bug fixes**
@@ -296,15 +296,15 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Donations / Payments Block: fix visual bug in Stripe connection banner.
 * Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
 * Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
-* Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respect Posts per page settings.
+* Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
-* Lazy Images: ensure that the feature does not cause issues when trying to print post including lots of images.
+* Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
 * Pay with PayPal Block: add default price value.
 * Pay with PayPal Block: ensure currencies are displayed properly in the editor.
 * Protect: fix handling of IPv6 addresses.
 * Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
 * Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
-* Publicize: when generating Twitter threads, allow text to be split at line breaks, where appropriate.
+* Publicize: when generating Twitter threads, allow text to be split at line breaks where appropriate.
 * Slideshow Block: fix a bug that prevented the first and last images from displaying when the slideshow loops.
 * Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
 * Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.
