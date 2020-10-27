@@ -40,6 +40,7 @@ done
 CURRENT_DIR=$( pwd )
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 JETPACK_ROOT="$(dirname "$SCRIPT_DIR")"
+COMPOSER_VER="$( composer --version | cut -d" " -f3 )"
 
 # If we're only modifying a sub-package.
 if [[ ! -z $PACKAGE ]]; then
@@ -51,6 +52,11 @@ fi
 if [[ ! -f "$CURRENT_DIR/composer.json" ]]; then
     echo "EXITING: This script must be run from a directory with composer.json at it's root."
     exit;
+fi
+
+if [[ $COMPOSER_VER == "1."* ]]; then
+	echo "EXITING: This script requires Composer 2.0.0+"
+	exit;
 fi
 
 # Get the list of package names to update.
