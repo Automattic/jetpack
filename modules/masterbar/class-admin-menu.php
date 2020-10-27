@@ -39,7 +39,7 @@ class Admin_Menu {
 
 		add_action(
 			'admin_menu',
-			function() {
+			function () {
 				remove_action( 'admin_menu', 'gutenberg_menu', 9 );
 			},
 			0
@@ -411,7 +411,7 @@ class Admin_Menu {
 	 * @param string $domain Site domain.
 	 */
 	public function add_jetpack_menu( $domain ) {
-		if ( ! $this->is_wpcom_site() ) {
+		if ( ! $this->is_wpcom_site() && ! jetpack_is_atomic_site() ) {
 			return;
 		}
 
