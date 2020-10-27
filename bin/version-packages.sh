@@ -51,12 +51,12 @@ fi
 # Bail if no composer.json to check for.
 if [[ ! -f "$CURRENT_DIR/composer.json" ]]; then
     echo "EXITING: This script must be run from a directory with composer.json at it's root."
-    exit;
+    exit 1;
 fi
 
 if [[ $COMPOSER_VER == "1."* ]]; then
 	echo "EXITING: This script requires Composer 2.0.0+"
-	exit;
+	exit 1;
 fi
 
 # Get the list of package names to update.
