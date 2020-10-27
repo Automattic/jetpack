@@ -305,6 +305,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
 * Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
 * Publicize: when generating Twitter threads, allow text to be split at line breaks, where appropriate.
+* Slideshow Block: fix a bug that prevented the first and last images from displaying when the slideshow loops.
 * Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
 * Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.
 * WhatsApp Block: fix issue when the text color would not be correct.
