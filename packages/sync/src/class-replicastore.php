@@ -884,6 +884,12 @@ class Replicastore implements Replicastore_Interface {
 	 * @return \WP_Term|\WP_Error Term object on success, \WP_Error object on failure.
 	 */
 	public function get_term( $taxonomy, $term_id, $is_term_id = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		// Full Sync will pass false for the $taxonomy so a check for term_taxonomy_id is needed before ensure_taxonomy.
+		if ( 'term_taxonomy_id' === $is_term_id ) {
+			return get_term_by( 'term_taxonomy_id', $term_id );
+		}
+
 		$t = $this->ensure_taxonomy( $taxonomy );
 		if ( ! $t || is_wp_error( $t ) ) {
 			return $t;
