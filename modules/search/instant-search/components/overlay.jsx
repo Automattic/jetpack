@@ -39,7 +39,7 @@ const Overlay = props => {
 			style={ { opacity: isVisible ? opacity / 100 : 0 } }
 		>
 			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
-				{ __( 'Search results' ) }
+				{ __( 'Search results', 'jetpack' ) }
 			</h1>
 			{ children }
 		</div>
