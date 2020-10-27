@@ -7,7 +7,13 @@ import { Text, View, TouchableWithoutFeedback } from 'react-native';
  * WordPress dependencies
  */
 import { Image } from '@wordpress/components';
-import { BlockIcon, MediaPlaceholder, BlockMediaUpdateProgress } from '@wordpress/block-editor';
+import {
+	BlockIcon,
+	MediaPlaceholder,
+	BlockMediaUpdateProgress,
+	MEDIA_TYPE_IMAGE,
+	MEDIA_TYPE_VIDEO,
+} from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { getProtocol } from '@wordpress/url';
 import { doAction, hasAction } from '@wordpress/hooks';
@@ -238,7 +244,7 @@ class StoryEdit extends React.Component {
 						title: __( 'Story' ),
 						instructions: __( 'ADD MEDIA' ),
 					} }
-					allowedTypes={ [ 'image', 'video' ] }
+					allowedTypes={ [ MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO ] }
 					onFocus={ this.props.onFocus }
 				/>
 			</View>
