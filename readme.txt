@@ -262,6 +262,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * External Media: add feature to the Cover block.
 * Google Calendar Block: improve the display of the block in the editor.
 * Instant Search: improve accessibility of the Search modal.
+* Likes: remove jQuery dependency where possible.
 * Pay with PayPal Block: improve the styling of the buttons in subscription emails.
 * Pay with Paypal Block: improve the display of currencies.
 * Podcast Player Block: add option to hide the episode title.
