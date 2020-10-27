@@ -293,6 +293,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Calendly and Eventbrite Blocks: fix layout issue when selecting block styles in the editor.
 * Contact Form: selection widgets, radio buttons, and checkboxes can now use commas, brackets, and backslashes in the labels and values without breaking the form.
 * Donations / Payments Block: fix visual bug in Stripe connection banner.
 * Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
