@@ -9,8 +9,17 @@
  * Auto Activate: No
  * Module Tags: General
  * Additional Search Queries: adminbar, masterbar
+ *
+ * @package Jetpack
  */
+
+use Automattic\Jetpack\Admin_Menu;
 
 require dirname( __FILE__ ) . '/masterbar/masterbar.php';
 
 new A8C_WPCOM_Masterbar();
+
+if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+	require_once __DIR__ . '/masterbar/class-admin-menu.php';
+	Admin_Menu::get_instance();
+}
