@@ -56,7 +56,8 @@ fi
 # Get the list of package names to update.
 # Works in accordance of `composer show`, and will only act on packages prefixed with `automattic/jetpack-`.
 # Using --self because it is agnostic to whether /vendor is populated.
-composer show --self |
+# Using --no-dev since we don't care about ensuring version of development packages.
+composer show --self --no-dev |
     while read -r LINE
     do
         # Only looks for packages labeled @dev
