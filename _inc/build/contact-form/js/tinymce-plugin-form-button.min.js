@@ -1,0 +1,3 @@
+/* Do not modify this file directly. It is compiled from other files. */
+/* global grunionEditorView, tinymce */
+tinymce.create("tinymce.plugins.grunion_form",{init:function(n){n.addButton("grunion",{title:grunionEditorView.labels.tinymce_label,cmd:"grunion_add_form",icon:"grunion"}),n.addCommand("grunion_add_form",function(){grunionEditorView.default_form?n.execCommand("mceInsertContent",0,"[contact-form]"+grunionEditorView.default_form+"[/contact-form]"):n.execCommand("mceInsertContent",0,"[contact-form /]")})},createControl:function(){return null},getInfo:function(){return{longname:"Grunion Contact Form",author:"Automattic",version:"1"}}}),tinymce.PluginManager.add("grunion_form",tinymce.plugins.grunion_form);

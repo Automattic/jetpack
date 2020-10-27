@@ -1,0 +1,3 @@
+/* Do not modify this file directly. It is compiled from other files. */
+/* global FB, jpfbembed */
+!function(e){var t=function(){var e,t,n,d;"undefined"!=typeof FB&&FB.XFBML?FB.XFBML.parse():((e=document.createElement("div")).id="fb-root",document.getElementsByTagName("body")[0].appendChild(e),t="//connect.facebook.net/"+jpfbembed.locale+"/sdk.js#xfbml=1",jpfbembed.appid&&(t+="&appId="+jpfbembed.appid),t+="&version=v2.3",(n=document.createElement("script")).setAttribute("src",t),(d=document.querySelector("script")).parentNode.insertBefore(n,d))};e.fbAsyncInit=function(){FB.init({appId:jpfbembed.appid,version:"v2.3"}),FB.XFBML.parse()},"undefined"!=typeof infiniteScroll&&document.body.addEventListener("post-load",t),t()}(this);
