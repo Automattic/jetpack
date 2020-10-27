@@ -17,7 +17,6 @@
 		"automattic/jetpack-autoloader": "^2.5",
 		"automattic/jetpack-backup": "^1.0",
 		"automattic/jetpack-blocks": "^1.1",
-		"automattic/jetpack-codesniffer": "^1.1",
 		"automattic/jetpack-compat": "^1.5",
 		"automattic/jetpack-config": "^1.4",
 		"automattic/jetpack-connection": "^1.19",
@@ -40,7 +39,6 @@
 		"nojimage/twitter-text-php": "3.1.1"
 	},
 	"require-dev": {
-		"automattic/jetpack-codesniffer": "^1.1",
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"sirbrillig/phpcs-changed": "2.5.1"
 	},
