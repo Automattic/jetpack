@@ -44,10 +44,6 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 
 	useEffect( mediaSaveSync, [] );
 
-	function isUrlRemote( protocolForUrl ) {
-		return protocolForUrl === 'http:' || protocolForUrl === 'https:';
-	}
-
 	function onEditButtonTapped() {
 		// let's open the Story Creator and load this block in there
 		requestMediaFilesEditorLoad( mediaFiles, clientId );
