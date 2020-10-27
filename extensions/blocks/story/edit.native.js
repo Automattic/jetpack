@@ -237,7 +237,7 @@ class StoryEdit extends React.Component {
 		const mediaPlaceholder = (
 			// TODO this we are wrapping in a pointerEvents=none because we don't want to
 			// trigger the ADD MEDIA bottom sheet just yet, but only give the placedholder the right appearance.
-			<View pointerEvents="none" style={ styles[ 'wp-story-container' ] }>
+			<View pointerEvents="none" style={ styles[ 'content-placeholder' ] }>
 				<MediaPlaceholder
 					icon={ <BlockIcon icon={ icon } /> }
 					labels={ {
@@ -256,10 +256,10 @@ class StoryEdit extends React.Component {
 				onPress={ this.onStoryPressed }
 				disabled={ ! isSelected }
 			>
-				<View style={ styles[ 'wp-story-container' ] }>
+				<View style={ styles[ 'content-placeholder' ] }>
 					{ ! hasContent && mediaPlaceholder }
 					{ hasContent && (
-						<View style={ { flex: 1 } }>
+						<View style={ styles[ 'wp-story-container' ] }>
 							{ ! isUploadInProgress && ! isSaveInProgress && isSelected && (
 								<StoryEditingButton onEditButtonTapped={ this.onEditButtonTapped } />
 							) }
