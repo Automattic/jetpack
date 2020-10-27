@@ -6,7 +6,13 @@ import { Text, View, TouchableWithoutFeedback } from 'react-native';
  * WordPress dependencies
  */
 import { Image } from '@wordpress/components';
-import { BlockIcon, MediaPlaceholder, BlockMediaUpdateProgress } from '@wordpress/block-editor';
+import {
+	BlockIcon,
+	MediaPlaceholder,
+	BlockMediaUpdateProgress,
+	MEDIA_TYPE_IMAGE,
+	MEDIA_TYPE_VIDEO,
+} from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import { getProtocol } from '@wordpress/url';
@@ -167,14 +173,14 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 	const mediaPlaceholder = (
 		// TODO this we are wrapping in a pointerEvents=none because we don't want to
 		// trigger the ADD MEDIA bottom sheet just yet, but only give the placedholder the right appearance.
-		<View pointerEvents="none" style={ styles[ 'wp-story-container' ] }>
+		<View pointerEvents="none" style={ styles[ 'content-placeholder' ] }>
 			<MediaPlaceholder
 				icon={ <BlockIcon icon={ icon } /> }
 				labels={ {
 					title: __( 'Story' ),
 					instructions: __( 'ADD MEDIA' ),
 				} }
-				allowedTypes={ [ 'image', 'video' ] }
+				allowedTypes={ [ MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO ] }
 				onFocus={ onFocus }
 			/>
 		</View>
@@ -186,10 +192,10 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 			onPress={ onStoryPressed }
 			disabled={ ! isSelected }
 		>
-			<View style={ styles[ 'wp-story-container' ] }>
+			<View style={ styles[ 'content-placeholder' ] }>
 				{ ! hasContent && mediaPlaceholder }
 				{ hasContent && (
-					<View style={ { flex: 1 } }>
+					<View style={ styles[ 'wp-story-container' ] }>
 						{ ! isUploadInProgress && ! isSaveInProgress && isSelected && (
 							<StoryEditingButton onEditButtonTapped={ onEditButtonTapped } />
 						) }
