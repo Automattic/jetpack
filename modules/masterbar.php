@@ -20,3 +20,8 @@ require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php'
 
 new Masterbar();
 new Admin_Color_Schemes();
+
+if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+	require_once __DIR__ . '/masterbar/class-admin-menu.php';
+	Admin_Menu::get_instance();
+}
