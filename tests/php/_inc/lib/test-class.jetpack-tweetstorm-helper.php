@@ -440,7 +440,7 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 			$this->assertEquals( $boundary, $tweet['boundary'] );
 		} else {
 			$this->assertEquals( array(), $tweet['blocks'] );
-			$this->assertEquals( false, $tweet['boundary'] );
+			$this->assertFalse( $tweet['boundary'] );
 		}
 	}
 

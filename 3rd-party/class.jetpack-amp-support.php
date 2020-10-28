@@ -381,7 +381,7 @@ class Jetpack_AMP_Support {
 		}
 
 		$sharing_links = array();
-		foreach ( $sharing_enabled['visible'] as $id => $service ) {
+		foreach ( $sharing_enabled['visible'] as $service ) {
 			$sharing_link = $service->get_amp_display( $post );
 			if ( ! empty( $sharing_link ) ) {
 				$sharing_links[] = $sharing_link;
@@ -416,7 +416,7 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_enqueue_sharing_css() {
 		if ( self::is_amp_request() ) {
-			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
+			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( __DIR__ ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
 		}
 	}
 
