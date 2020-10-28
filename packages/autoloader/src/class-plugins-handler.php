@@ -83,9 +83,6 @@ class Plugins_Handler {
 			$jetpack_autoloader_activating_plugins_paths[] = $current_plugin;
 		}
 
-		// The paths should be sorted for easy comparisons with those loaded from the cache.
-		sort( $plugin_paths );
-
 		return $plugin_paths;
 	}
 

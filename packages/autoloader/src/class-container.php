@@ -26,7 +26,7 @@ class Container {
 	/**
 	 * The constructor.
 	 */
-	public function  __construct() {
+	public function __construct() {
 		$this->dependencies = array();
 
 		$this->register_shared_dependencies();
@@ -97,7 +97,7 @@ class Container {
 
 		require_once __DIR__ . '/class-autoloader-handler.php';
 		$this->dependencies[ Autoloader_Handler::class ] = new Autoloader_Handler(
-			$this->get( Plugins_Handler::class ),
+			$this->get( Hook_Manager::class ),
 			$this->get( Manifest_Reader::class ),
 			$this->get( Version_Selector::class )
 		);
