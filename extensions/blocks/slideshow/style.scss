@@ -238,13 +238,13 @@
 }
 
 @media only email {
-	.wp-block-jetpack-slideshow ul,
-	.wp-block-jetpack-slideshow li {
+	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper,
+	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide {
 		list-style: none;
 		margin-left: auto;
 		margin-right: auto;
 	}
-	.wp-block-jetpack-slideshow ul {
+	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper {
 		display: flex;
 		flex: 1 1 50%;
 	}
