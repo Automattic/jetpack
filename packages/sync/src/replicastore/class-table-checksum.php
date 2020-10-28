@@ -87,8 +87,6 @@ class Table_Checksum {
 		// TODO: Is this safe enough?
 		$result = $wpdb->get_row( "SELECT * FROM {$this->table} LIMIT 1", ARRAY_A );
 
-		var_dump( $result );
-
 		if ( ! is_array( $result ) ) {
 			throw new Exception( 'Unexpected $wpdb->query output: not array' );
 		}
@@ -161,7 +159,7 @@ class Table_Checksum {
 		/**
 		 * We need the GROUP BY only for compound keys
 		 */
-		if ( $granular_result || count( $this->key_fields ) > 1 ) {
+		if ( $granular_result ) {
 			$query .= "
 				GROUP BY {$key_fields}
 			";
