@@ -13,7 +13,7 @@ allure --version
 
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
-git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git
+git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git --depth=1
 
 if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then
 	# master branch
