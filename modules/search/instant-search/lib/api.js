@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import fetch from 'unfetch';
+import axios, { CancelToken } from 'axios';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 import stringify from 'fast-json-stable-stringify';
@@ -12,6 +12,8 @@ import Cache from 'cache';
  */
 import { getFilterKeys } from './filters';
 import { MINUTE_IN_MILLISECONDS, SERVER_OBJECT_NAME } from './constants';
+
+let cancelToken = CancelToken.source();
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
@@ -259,15 +261,23 @@ export function search( options ) {
 	const urlForPrivateApi = `${ apiRoot }wpcom/v2/search?${ queryString }`;
 	const url = isPrivateSite ? urlForPrivateApi : urlForPublicApi;
 
+	cancelToken.cancel( 'New search requested, cancelling previous search requests.' );
+	cancelToken = CancelToken.source();
+
 	// NOTE: API Nonce is necessary to authenticate requests to class-wpcom-rest-api-v2-endpoint-search.php.
-	return fetch( url, { headers: isPrivateSite ? { 'X-WP-Nonce': apiNonce } : {} } )
+	return axios( {
+		url,
+		cancelToken: cancelToken.token,
+		headers: isPrivateSite ? { 'X-WP-Nonce': apiNonce } : {},
+		withCredentials: isPrivateSite,
+	} )
 		.then( response => {
-			if ( ! response.ok || response.status !== 200 ) {
+			if ( response.status !== 200 ) {
 				throw new Error( `Unexpected response from API with status code ${ response.status }.` );
 			}
 			return response;
 		} )
 		.catch( errorHandler )
-		.then( r => r.json() )
+		.then( r => r.data )
 		.then( responseHandler );
 }
