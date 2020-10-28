@@ -571,6 +571,8 @@ class Admin_Menu {
 		if ( current_user_can( 'list_users' ) ) {
 			remove_menu_page( 'users.php' );
 			remove_submenu_page( 'users.php', 'users.php' );
+			remove_submenu_page( 'users.php', 'user-new.php' );
+			remove_submenu_page( 'users.php', 'profile.php' );
 			remove_submenu_page( 'users.php', 'grofiles-editor' );
 			remove_submenu_page( 'users.php', 'grofiles-user-settings' );
 
