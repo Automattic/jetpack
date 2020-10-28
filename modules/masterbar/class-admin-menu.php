@@ -64,13 +64,11 @@ class Admin_Menu {
 
 	/**
 	 * Create the desired menu output.
-	 *
-	 * @see https://docs.google.com/spreadsheets/d/1i640dQt4vs2XYgqRA4YEH69ssR9UNcFJx49HUss0-q0/edit#gid=0
 	 */
 	public function reregister_menu_items() {
 		$domain = wp_parse_url( get_home_url(), PHP_URL_HOST );
 
-		// TODO: Remove once feature has shipped.
+		// TODO: Remove once feature has shipped. See jetpack_parent_file().
 		if ( ! $this->is_api_request ) {
 			$domain = add_query_arg( 'flags', 'nav-unification', $domain );
 		}
@@ -424,15 +422,48 @@ class Admin_Menu {
 			return;
 		}
 
+		global $menu;
+
+		$position = 50;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
+
 		// TODO: Replace with proper SVG data url.
 		$jetpack_icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 32 32' %3E%3Cpath fill='%23a0a5aa' d='M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z'%3E%3C/path%3E%3Cpolygon fill='%23fff' points='15,19 7,19 15,3 '%3E%3C/polygon%3E%3Cpolygon fill='%23fff' points='17,29 17,13 25,13 '%3E%3C/polygon%3E%3C/svg%3E";
+		$jetpack_slug = 'https://wordpress.com/activity-log/' . $domain;
 
-		$this->add_admin_menu_separator( 49, 'manage_options' );
-		add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $domain, null, $jetpack_icon, 50 );
-		add_submenu_page( 'https://wordpress.com/activity-log/' . $domain, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $domain, null, 5 );
-		add_submenu_page( 'https://wordpress.com/activity-log/' . $domain, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $domain, null, 10 );
-		add_submenu_page( 'https://wordpress.com/activity-log/' . $domain, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $domain, null, 15 );
+		$this->add_admin_menu_separator( $position++, 'manage_options' );
+		add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', $jetpack_slug, null, $jetpack_icon, $position );
 
+		// Maintain id for jQuery selector.
+		$menu[ $position ][5] = 'toplevel_page_jetpack'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->migrate_submenus( 'jetpack', $jetpack_slug );
+		remove_menu_page( 'jetpack' );
+
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $domain, null, 5 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $domain, null, 10 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $domain, null, 15 );
+
+		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
+	}
+
+	/**
+	 * Filters the parent file of an admin menu sub-menu item.
+	 *
+	 * @param string $parent_file The parent file.
+	 * @return string Updated parent file.
+	 */
+	public function jetpack_parent_file( $parent_file ) {
+		if ( 'jetpack' === $parent_file ) {
+			$parent_file = 'https://wordpress.com/activity-log/' . wp_parse_url( get_home_url(), PHP_URL_HOST );
+
+			// TODO: Remove once feature has shipped. See reregister_menu_items().
+			$parent_file = add_query_arg( 'flags', 'nav-unification', $parent_file );
+		}
+
+		return $parent_file;
 	}
 
 	/**
