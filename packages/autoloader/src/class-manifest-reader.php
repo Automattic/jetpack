@@ -2,16 +2,9 @@
 /* HEADER */ // phpcs:ignore
 
 /**
- * This class selects the most recent version of a registered path.
+ * This class reads autoloader manifest files.
  */
-class Manifest_Handler {
-
-	/**
-	 * An array of the active plugin paths we want to search.
-	 *
-	 * @var string[]
-	 */
-	private $active_plugin_paths;
+class Manifest_Reader {
 
 	/**
 	 * The Version_Selector object.
@@ -23,28 +16,27 @@ class Manifest_Handler {
 	/**
 	 * The constructor.
 	 *
-	 * @param string[]         $active_plugin_paths An array of the active plugin paths we want to search.
 	 * @param Version_Selector $version_selector The Version_Selector object.
 	 */
-	public function __construct( $active_plugin_paths, $version_selector ) {
-		$this->active_plugin_paths = $active_plugin_paths;
-		$this->version_selector    = $version_selector;
+	public function __construct( $version_selector ) {
+		$this->version_selector = $version_selector;
 	}
 
 	/**
-	 * Registers all of the paths in a given manifest.
+	 * Reads all of the manifests in the given plugin paths.
 	 *
+	 * @param array  $plugin_paths  The paths to the plugins we're loading the manifest in.
 	 * @param string $manifest_path The path that we're loading the manifest from in each plugin.
 	 * @param array  $path_map The path map to add the contents of the manifests to.
 	 *
 	 * @return array $path_map The path map we've built using the manifests in each plugin.
 	 */
-	public function register_plugin_manifests( $manifest_path, &$path_map ) {
+	public function read_manifests( $plugin_paths, $manifest_path, &$path_map ) {
 		$file_paths = array_map(
 			function ( $path ) use ( $manifest_path ) {
 				return trailingslashit( $path ) . $manifest_path;
 			},
-			$this->active_plugin_paths
+			$plugin_paths
 		);
 
 		foreach ( $file_paths as $path ) {

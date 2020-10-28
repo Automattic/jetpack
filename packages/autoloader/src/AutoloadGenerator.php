@@ -342,6 +342,7 @@ AUTOLOADER_COMMENT;
 			'class-files-handler.php',
 			'class-plugins-handler.php',
 			'class-version-selector.php',
+			'jetpack-autoloader/class-manifest-handler.php',
 		);
 		foreach ( $files as $file ) {
 			$this->filesystem->remove( $outDir . '/' . $file );
@@ -360,26 +361,31 @@ AUTOLOADER_COMMENT;
 		// We will remove all autoloader files to generate this again.
 		$this->filesystem->emptyDirectory( $outDir );
 
-		$packageFiles = array(
-			'autoload.php'                   => '../autoload_packages.php',
-			'functions.php'                  => 'autoload_functions.php',
-			'class-autoloader-container.php' => null,
-			'class-autoloader-handler.php'   => null,
-			'class-autoloader-locator.php'   => null,
-			'class-cache-handler.php'        => null,
-			'class-hook-manager.php'         => null,
-			'class-manifest-handler.php'     => null,
-			'class-plugin-locator.php'       => null,
-			'class-plugins-handler.php'      => null,
-			'class-version-loader.php'       => null,
-			'class-version-selector.php'     => null,
+		$renameList = array(
+			'autoload.php' => '../autoload_packages.php',
+		);
+		$ignoreList = array(
+			'AutoloadGenerator.php',
+			'AutoloadProcessor.php',
+			'CustomAutoloaderPlugin.php',
+			'ManifestGenerator.php',
 		);
 
-		foreach ( $packageFiles as $file => $newFile ) {
-			$newFile = isset( $newFile ) ? $newFile : $file;
+		// Copy all of the autoloader files.
+		$files = scandir( __DIR__ );
+		foreach ( $files as $file ) {
+			// Only PHP files will be copied.
+			if ( substr( $file, -4 ) !== '.php' ) {
+				continue;
+			}
+
+			if ( in_array( $file, $ignoreList, true ) ) {
+				continue;
+			}
 
 			$content = $this->getAutoloadPackageFile( $file, $suffix );
 
+			$newFile = isset( $renameList[ $file ] ) ? $renameList[ $file ] : $file;
 			if ( file_put_contents( $outDir . '/' . $newFile, $content ) ) {
 				$this->io->writeError( "  <info>Generated: $newFile</info>" );
 			} else {

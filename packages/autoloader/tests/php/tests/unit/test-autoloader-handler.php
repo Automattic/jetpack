@@ -9,159 +9,90 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Test suite class for the Autoloader handler.
+ *
+ * @runClassInSeparateProcess
+ * @preserveGlobalState disabled
  */
 class Test_Autoloader_Handler extends TestCase {
 
 	/**
-	 * Tests that the latest autoloader can be recognized as the current.
+	 * The hook manager mock;
 	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * @var Hook_Manager|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public function test_is_latest_autoloader_does_nothing_if_this_is_it() {
-		$autoloader_handler = new Autoloader_Handler(
-			$this->prepare_handler(
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				array( TEST_DATA_PATH . '/plugins/plugin_current' )
-			),
-			new Autoloader_Locator( new Version_Selector() ),
-			new Version_Selector()
-		);
-
-		$this->assertTrue( $autoloader_handler->is_latest_autoloader() );
-
-		global $jetpack_autoloader_latest_version;
-		$this->assertEquals( '2.0.0.0', $jetpack_autoloader_latest_version );
-	}
+	private $hook_manager;
 
 	/**
-	 * Tests that the latest autoloader will be required if not this.
+	 * The manifest reader mock.
 	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * @var Manifest_Reader|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public function test_is_latest_autoloader_requires_latest_if_this_is_not_it() {
-		$autoloader_handler = new Autoloader_Handler(
-			$this->prepare_handler(
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				array(
-					TEST_DATA_PATH . '/plugins/plugin_current',
-					TEST_DATA_PATH . '/plugins/plugin_newer',
-				)
-			),
-			new Autoloader_Locator( new Version_Selector() ),
-			new Version_Selector()
-		);
-
-		$this->assertFalse( $autoloader_handler->is_latest_autoloader() );
-
-		global $jetpack_autoloader_latest_version;
-		$this->assertEquals( '2.2.0.0', $jetpack_autoloader_latest_version );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_newer/vendor/autoload_packages.php', get_included_files() );
-	}
+	private $manifest_reader;
 
 	/**
-	 * Tests should_autoloader_reset() with an already active plugin.
-	 */
-	public function test_should_autoloader_reset_known_plugin() {
-		global $jetpack_autoloader_activating_plugins_paths;
-		global $jetpack_autoloader_cached_plugin_paths;
-		$jetpack_autoloader_cached_plugin_paths = array( TEST_DATA_PATH . '/plugins/plugin_current' );
-
-		$autoloader_handler = new Autoloader_Handler(
-			$this->prepare_handler(
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				array( TEST_DATA_PATH . '/plugins/plugin_current' )
-			),
-			new Autoloader_Locator( new Version_Selector() ),
-			new Version_Selector()
-		);
-
-		$this->assertFalse( $autoloader_handler->should_autoloader_reset() );
-		$this->assertEmpty( $jetpack_autoloader_activating_plugins_paths );
-	}
-
-	/**
-	 * Tests should_autoloader_reset() with an activating, unknown plugin.
-	 */
-	public function test_should_autoloader_reset_unknown_plugin() {
-		global $jetpack_autoloader_activating_plugins_paths;
-
-		$autoloader_handler = new Autoloader_Handler(
-			$this->prepare_handler( TEST_DATA_PATH . '/plugins/plugin_current' ),
-			new Autoloader_Locator( new Version_Selector() ),
-			new Version_Selector()
-		);
-
-		$this->assertTrue( $autoloader_handler->should_autoloader_reset() );
-		$this->assertCount( 1, $jetpack_autoloader_activating_plugins_paths );
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current', $jetpack_autoloader_activating_plugins_paths[0] );
-	}
-
-	/**
-	 * Tests should_autoloader_reset() with an old cache set of plugin paths.
-	 */
-	public function test_should_autoloader_reset_invalid_cache() {
-		global $jetpack_autoloader_cached_plugin_paths;
-		$jetpack_autoloader_cached_plugin_paths = array();
-
-		$autoloader_handler = new Autoloader_Handler(
-			$this->prepare_handler(
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				array( TEST_DATA_PATH . '/plugins/plugin_current' )
-			),
-			new Autoloader_Locator( new Version_Selector() ),
-			new Version_Selector()
-		);
-
-		$this->assertTrue( $autoloader_handler->should_autoloader_reset() );
-		$this->assertEquals( array( TEST_DATA_PATH . '/plugins/plugin_current' ), $jetpack_autoloader_cached_plugin_paths );
-	}
-
-	/**
-	 * Tests that the handler is able to build a loader.
-	 */
-	public function test_builds_autoloader() {
-		$autoloader_handler = new Autoloader_Handler(
-			$this->prepare_handler(
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				array( TEST_DATA_PATH . '/plugins/plugin_current' )
-			),
-			new Autoloader_Locator( new Version_Selector() ),
-			new Version_Selector()
-		);
-
-		$loader = $autoloader_handler->build_autoloader();
-
-		$file = $loader->find_class_file( \Automattic\Jetpack\Autoloader\AutoloadGenerator::class );
-
-		$this->assertFileExists( $file );
-		$this->assertContains( 'AutoloadGenerator.php', $file );
-	}
-
-	/**
-	 * Prepares a plugin handler set with the given plugin content.
+	 * The autoloader handler we're testing.
 	 *
-	 * @param string $current_plugin The current plugin to return.
-	 * @param array  $active_plugins The active plugins to return.
-	 * @param array  $cached_plugins The cached plugins to return.
-	 *
-	 * @return Plugins_Handler|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Autoloader_Handler
 	 */
-	private function prepare_handler( $current_plugin, $active_plugins = array(), $cached_plugins = array() ) {
-		$handler = $this->getMockBuilder( Plugins_Handler::class )
+	private $autoloader_handler;
+
+	/**
+	 * Setup runs before each test.
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		$this->hook_manager       = $this->getMockBuilder( Hook_Manager::class )
 			->disableOriginalConstructor()
 			->getMock();
-		$handler->method( 'get_current_plugin' )->willReturn( $current_plugin );
-		$handler->method( 'get_all_plugins' )->willReturn(
-			array_values(
-				array_unique(
-					array_merge( $active_plugins, $cached_plugins )
-				)
-			)
+		$this->manifest_reader    = $this->getMockBuilder( Manifest_Reader::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$version_selector         = $this->getMockBuilder( Version_Selector::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$this->autoloader_handler = new Autoloader_Handler(
+			$this->hook_manager,
+			$this->manifest_reader,
+			$version_selector
 		);
-		$handler->method( 'get_active_plugins' )->willReturn( $active_plugins );
-		$handler->method( 'get_cached_plugins' )->willReturn( $cached_plugins );
-		return $handler;
+	}
+
+	/**
+	 * Tests that the handler is able to initialize the autoloader successfully.
+	 */
+	public function test_init_autoloader() {
+		$plugins = array( TEST_DATA_PATH . '/plugins/plugin_newer' );
+
+		$this->manifest_reader->expects( $this->exactly( 3 ) )
+			->method( 'read_manifests' )
+			->withConsecutive(
+				array( $plugins, 'vendor/composer/jetpack_autoload_psr4.php' ),
+				array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
+				array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
+			);
+
+		$this->autoloader_handler->init_autoloader( $plugins );
+
+		global $jetpack_autoloader_loader;
+		$this->assertInstanceOf( Version_Loader::class, $jetpack_autoloader_loader );
+	}
+
+	/**
+	 * Tests that the handler is able to reset the autoloader successfully.
+	 */
+	public function test_reset_autoloader() {
+		global $jetpack_autoloader_loader;
+		global $jetpack_autoloader_latest_version;
+
+		$jetpack_autoloader_loader         = 'test';
+		$jetpack_autoloader_latest_version = 'test';
+		$this->hook_manager->expects( $this->once() )
+			->method( 'reset' );
+
+		$this->autoloader_handler->reset_autoloader();
+
+		$this->assertNull( $jetpack_autoloader_loader );
+		$this->assertNull( $jetpack_autoloader_latest_version );
 	}
 }

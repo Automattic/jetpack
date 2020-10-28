@@ -23,7 +23,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 	/**
 	 * The manifest handler we're testing.
 	 *
-	 * @var Manifest_Handler
+	 * @var Manifest_Reader
 	 */
 	private $manifest_handler;
 
@@ -33,12 +33,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->manifest_handler = new Manifest_Handler(
-			array(
-				TEST_DATA_PATH . '/plugins/plugin_current',
-			),
-			new Version_Selector()
-		);
+		$this->manifest_handler = new Manifest_Reader( new Version_Selector() );
 
 		// Make sure the test manifest does not exist.
 		if ( file_exists( self::TEST_MANIFEST_PATH ) ) {
@@ -73,7 +68,11 @@ class Test_Loading_Generated_Manifests extends TestCase {
 		);
 
 		$loaded = array();
-		$this->manifest_handler->register_plugin_manifests( 'test-manifest.php', $loaded );
+		$this->manifest_handler->read_manifests(
+			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			'test-manifest.php',
+			$loaded
+		);
 
 		$this->assertEquals(
 			array(
@@ -101,7 +100,11 @@ class Test_Loading_Generated_Manifests extends TestCase {
 		);
 
 		$loaded = array();
-		$this->manifest_handler->register_plugin_manifests( 'test-manifest.php', $loaded );
+		$this->manifest_handler->read_manifests(
+			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			'test-manifest.php',
+			$loaded
+		);
 
 		$this->assertEquals(
 			array(
@@ -129,7 +132,11 @@ class Test_Loading_Generated_Manifests extends TestCase {
 		);
 
 		$loaded = array();
-		$this->manifest_handler->register_plugin_manifests( 'test-manifest.php', $loaded );
+		$this->manifest_handler->read_manifests(
+			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			'test-manifest.php',
+			$loaded
+		);
 
 		$this->assertEquals(
 			array(

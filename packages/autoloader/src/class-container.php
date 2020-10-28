@@ -4,7 +4,7 @@
 /**
  * This class manages the files and dependencies of the autoloader.
  */
-class Autoloader_Container {
+class Container {
 
 	/**
 	 * Since each autoloader's class files exist within their own namespace we need a map to
@@ -26,11 +26,11 @@ class Autoloader_Container {
 	/**
 	 * The constructor.
 	 */
-	public function __construct() {
+	public function  __construct() {
 		$this->dependencies = array();
 
-		$this->register_dependencies();
 		$this->register_shared_dependencies();
+		$this->register_dependencies();
 	}
 
 	/**
@@ -47,6 +47,23 @@ class Autoloader_Container {
 		}
 
 		return $this->dependencies[ $class ];
+	}
+
+	/**
+	 * Registers all of the dependencies that are shared between all instances of the autoloader.
+	 */
+	private function register_shared_dependencies() {
+		global $jetpack_autoloader_container_shared;
+		if ( ! isset( $jetpack_autoloader_container_shared ) ) {
+			$jetpack_autoloader_container_shared = array();
+		}
+
+		$key = self::SHARED_DEPENDENCY_KEYS[ Hook_Manager::class ];
+		if ( ! isset( $jetpack_autoloader_container_shared[ $key ] ) ) {
+			require_once __DIR__ . '/class-hook-manager.php';
+			$jetpack_autoloader_container_shared[ $key ] = new Hook_Manager();
+		}
+		$this->dependencies[ Hook_Manager::class ] = &$jetpack_autoloader_container_shared[ $key ];
 	}
 
 	/**
@@ -67,6 +84,11 @@ class Autoloader_Container {
 			$this->get( Version_Selector::class )
 		);
 
+		require_once __DIR__ . '/class-manifest-reader.php';
+		$this->dependencies[ Manifest_Reader::class ] = new Manifest_Reader(
+			$this->get( Version_Selector::class )
+		);
+
 		require_once __DIR__ . '/class-plugins-handler.php';
 		$this->dependencies[ Plugins_Handler::class ] = new Plugins_Handler(
 			$this->get( Plugin_Locator::class ),
@@ -76,25 +98,19 @@ class Autoloader_Container {
 		require_once __DIR__ . '/class-autoloader-handler.php';
 		$this->dependencies[ Autoloader_Handler::class ] = new Autoloader_Handler(
 			$this->get( Plugins_Handler::class ),
-			$this->get( Autoloader_Locator::class ),
+			$this->get( Manifest_Reader::class ),
 			$this->get( Version_Selector::class )
 		);
-	}
 
-	/**
-	 * Registers all of the dependencies that are shared between all instances of the autoloader.
-	 */
-	private function register_shared_dependencies() {
-		global $jetpack_autoloader_container_shared;
-		if ( ! isset( $jetpack_autoloader_container_shared ) ) {
-			$jetpack_autoloader_container_shared = array();
-		}
+		require_once __DIR__ . '/class-latest-autoloader-guard.php';
+		$this->dependencies[ Latest_Autoloader_Guard::class ] = new Latest_Autoloader_Guard(
+			$this->get( Plugins_Handler::class ),
+			$this->get( Autoloader_Handler::class ),
+			$this->get( Autoloader_Locator::class )
+		);
 
-		$key = self::SHARED_DEPENDENCY_KEYS[ Hook_Manager::class ];
-		if ( ! isset( $jetpack_autoloader_container_shared[ $key ] ) ) {
-			require_once __DIR__ . '/class-hook-manager.php';
-			$jetpack_autoloader_container_shared[ $key ] = new Hook_Manager();
-		}
-		$this->dependencies[ Hook_Manager::class ] = &$jetpack_autoloader_container_shared[ $key ];
+		// Register any classes that we will use elsewhere.
+		require_once __DIR__ . '/class-autoloader.php';
+		require_once __DIR__ . '/class-version-loader.php';
 	}
 }
