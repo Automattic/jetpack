@@ -236,3 +236,16 @@
 		}
 	}
 }
+
+@media only email {
+	.wp-block-jetpack-slideshow ul,
+	.wp-block-jetpack-slideshow li {
+		list-style: none;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.wp-block-jetpack-slideshow ul {
+		display: flex;
+		flex: 1 1 50%;
+	}
+}
