@@ -1,12 +1,15 @@
 @import '../lib/style-helpers';
 
 .jetpack-instant-search__search-results {
+	background: $studio-white;
+	border-radius: 3px;
 	position: relative;
 	display: flex;
 	z-index: 10;
 	max-width: 1080px;
 	margin: 0 auto;
-	padding: 0.125em 0;
+	min-height: 226px;
+	padding: 60px 0 0;
 	text-align: left;
 
 	mark {

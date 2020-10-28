@@ -11,7 +11,7 @@ $overlay-horizontal-padding-small-viewport: 0.5em;
 	width: 100vw;
 	height: 100vh;
 	padding: $overlay-vertical-padding $overlay-horizontal-padding-small-viewport;
-	background: rgba( 255, 255, 255, 0.975 );
+	background: rgba(21, 21, 21, 0.7);
 	opacity: 1;
 	overflow-y: auto;
 	overflow-x: hidden;
@@ -24,14 +24,6 @@ $overlay-horizontal-padding-small-viewport: 0.5em;
 
 	&.is-hidden {
 		transform: translateX( 100vw );
-	}
-
-	&.jetpack-instant-search__overlay--light {
-		background: $studio-white;
-	}
-
-	&.jetpack-instant-search__overlay--dark {
-		background: $studio-gray-100;
 	}
 
 	*,
