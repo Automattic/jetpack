@@ -342,7 +342,6 @@ AUTOLOADER_COMMENT;
 			'class-files-handler.php',
 			'class-plugins-handler.php',
 			'class-version-selector.php',
-			'jetpack-autoloader/class-manifest-handler.php',
 		);
 		foreach ( $files as $file ) {
 			$this->filesystem->remove( $outDir . '/' . $file );
