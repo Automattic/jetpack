@@ -132,37 +132,45 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public $require_rewind_auth = false;
 
+	/**
+	 * Whether this endpoint allows falling back to a blog token for making requests to remote Jetpack sites.
+	 *
+	 * @var bool
+	 */
+	public $allow_fallback_to_jetpack_blog_token = false;
+
 	function __construct( $args ) {
 		$defaults = array(
-			'in_testing'                 => false,
-			'allowed_if_flagged'         => false,
-			'allowed_if_red_flagged'     => false,
-			'allowed_if_deleted'         => false,
-			'description'                => '',
-			'group'                      => '',
-			'method'                     => 'GET',
-			'path'                       => '/',
-			'min_version'                => '0',
-			'max_version'                => WPCOM_JSON_API__CURRENT_VERSION,
-			'force'                      => '',
-			'deprecated'                 => false,
-			'new_version'                => WPCOM_JSON_API__CURRENT_VERSION,
-			'jp_disabled'                => false,
-			'path_labels'                => array(),
-			'request_format'             => array(),
-			'response_format'            => array(),
-			'query_parameters'           => array(),
-			'version'                    => 'v1',
-			'example_request'            => '',
-			'example_request_data'       => '',
-			'example_response'           => '',
-			'required_scope'             => '',
-			'pass_wpcom_user_details'    => false,
-			'custom_fields_filtering'    => false,
-			'allow_cross_origin_request' => false,
-			'allow_unauthorized_request' => false,
-			'allow_jetpack_site_auth'    => false,
-			'allow_upload_token_auth'    => false,
+			'in_testing'                           => false,
+			'allowed_if_flagged'                   => false,
+			'allowed_if_red_flagged'               => false,
+			'allowed_if_deleted'                   => false,
+			'description'                          => '',
+			'group'                                => '',
+			'method'                               => 'GET',
+			'path'                                 => '/',
+			'min_version'                          => '0',
+			'max_version'                          => WPCOM_JSON_API__CURRENT_VERSION,
+			'force'                                => '',
+			'deprecated'                           => false,
+			'new_version'                          => WPCOM_JSON_API__CURRENT_VERSION,
+			'jp_disabled'                          => false,
+			'path_labels'                          => array(),
+			'request_format'                       => array(),
+			'response_format'                      => array(),
+			'query_parameters'                     => array(),
+			'version'                              => 'v1',
+			'example_request'                      => '',
+			'example_request_data'                 => '',
+			'example_response'                     => '',
+			'required_scope'                       => '',
+			'pass_wpcom_user_details'              => false,
+			'custom_fields_filtering'              => false,
+			'allow_cross_origin_request'           => false,
+			'allow_unauthorized_request'           => false,
+			'allow_jetpack_site_auth'              => false,
+			'allow_upload_token_auth'              => false,
+			'allow_fallback_to_jetpack_blog_token' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -195,11 +203,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 
-		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
-		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
-		$this->allow_jetpack_site_auth    = (bool) $args['allow_jetpack_site_auth'];
-		$this->allow_upload_token_auth    = (bool) $args['allow_upload_token_auth'];
-		$this->require_rewind_auth        = isset( $args['require_rewind_auth'] ) ? (bool) $args['require_rewind_auth'] : false;
+		$this->allow_cross_origin_request           = (bool) $args['allow_cross_origin_request'];
+		$this->allow_unauthorized_request           = (bool) $args['allow_unauthorized_request'];
+		$this->allow_jetpack_site_auth              = (bool) $args['allow_jetpack_site_auth'];
+		$this->allow_upload_token_auth              = (bool) $args['allow_upload_token_auth'];
+		$this->allow_fallback_to_jetpack_blog_token = (bool) $args['allow_fallback_to_jetpack_blog_token'];
+		$this->require_rewind_auth                  = isset( $args['require_rewind_auth'] ) ? (bool) $args['require_rewind_auth'] : false;
 
 		$this->version = $args['version'];
 

@@ -11,6 +11,8 @@ new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
 		'$site' => '(int|string) Site ID or domain',
 	),
 
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'query_parameters' => array(
 		'api_queryable' => '(bool) If true, only queryable post types are returned',
 	),
