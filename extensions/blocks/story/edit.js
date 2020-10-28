@@ -27,6 +27,7 @@ const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
 export const pickRelevantMediaFiles = ( media, sizeSlug = 'large' ) => {
 	const mediaProps = pick( media, [
 		'alt',
+		'title',
 		'id',
 		'link',
 		'type',
@@ -43,8 +44,9 @@ export const pickRelevantMediaFiles = ( media, sizeSlug = 'large' ) => {
 		media.url;
 	mediaProps.type = media.media_type || media.type;
 	mediaProps.mime = media.mime_type || media.mime;
-	mediaProps.width = mediaProps.width || get( media, [ 'media_details', 'width' ] );
-	mediaProps.height = mediaProps.height || get( media, [ 'media_details', 'height' ] );
+	mediaProps.title = mediaProps.title?.rendered || mediaProps.title;
+	mediaProps.width = mediaProps.width || media.media_details?.width;
+	mediaProps.height = mediaProps.height || media.media_details?.height;
 	return mediaProps;
 };
 
