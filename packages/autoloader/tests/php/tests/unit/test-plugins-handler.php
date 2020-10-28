@@ -99,10 +99,10 @@ class Test_Plugins_Handler extends TestCase {
 
 		$this->assertEquals(
 			array(
+				dirname( TEST_PACKAGE_PATH ),
 				TEST_DATA_PATH . '/plugins/plugin_activating',
 				TEST_DATA_PATH . '/plugins/plugin_current',
 				TEST_DATA_PATH . '/plugins/plugin_dev',
-				dirname( TEST_PACKAGE_PATH ),
 			),
 			$plugin_paths
 		);
@@ -134,11 +134,11 @@ class Test_Plugins_Handler extends TestCase {
 
 		$this->assertEquals(
 			array(
+				dirname( TEST_PACKAGE_PATH ),
 				TEST_DATA_PATH . '/plugins/plugin_activating',
 				TEST_DATA_PATH . '/plugins/plugin_current',
-				TEST_DATA_PATH . '/plugins/plugin_newer',
 				TEST_DATA_PATH . '/plugins/plugin_dev',
-				dirname( TEST_PACKAGE_PATH ),
+				TEST_DATA_PATH . '/plugins/plugin_newer',
 			),
 			$plugin_paths
 		);
