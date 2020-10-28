@@ -9,7 +9,6 @@
 	max-width: 1080px;
 	margin: 0 auto;
 	min-height: 226px;
-	padding: 60px 0 0;
 	text-align: left;
 
 	mark {
@@ -47,10 +46,6 @@
 		.jetpack-instant-search__overlay-close:focus {
 			outline-color: #fff;
 		}
-	}
-
-	@include break-small() {
-		padding: 0.125em 2em;
 	}
 }
 
@@ -126,9 +121,10 @@
 }
 
 .jetpack-instant-search__search-results-search-form {
-	position: relative;
-	margin-bottom: 1em;
-	font-size: 0.8em;
+	margin: 0;
+	position: absolute;
+	width: 100%;
+	top: 0;
 
 	.jetpack-instant-search__sort-select {
 		font-size: 0.9em;
@@ -156,7 +152,6 @@
 
 	@include break-medium() {
 		position: absolute;
-		top: -$overlay-vertical-padding;
 		right: 8px;
 		width: 64px;
 		height: 64px;
