@@ -12,6 +12,7 @@ class Table_Checksum {
 	public $range_field     = '';
 	public $key_fields      = array();
 	public $checksum_fields = array();
+	public $default_tables  = array();
 
 	public $salt = '';
 
@@ -21,12 +22,15 @@ class Table_Checksum {
 	 * Table_Checksum constructor.
 	 *
 	 * @param string $table
-	 * @param string $range_field
-	 * @param array  $checksum_fields
 	 * @param string $salt
+	 * @param string $range_field
+	 * @param null   $key_fields
+	 * @param null   $filter_field
+	 * @param array  $checksum_fields
 	 */
-	public function __construct( $table, $range_field, $key_fields, $checksum_fields, $salt ) {
-		$this->table           = $table;
+
+	public function __construct( $table, $salt = null, $range_field = null, $key_fields = null, $filter_field = null, $checksum_fields = null ) {
+		// TODO $table, $key_fields, $checksum_fields, $range_field, $filter_field,
 		$this->range_field     = $range_field;
 		$this->checksum_fields = $checksum_fields;
 		$this->key_fields      = $key_fields;
@@ -34,7 +38,7 @@ class Table_Checksum {
 
 		global $wpdb;
 
-		$this->allowed_table_names = array(
+		$this->default_tables = array(
 			'posts'              => $wpdb->posts,
 			'postmeta'           => $wpdb->postmeta,
 			'comments'           => $wpdb->comments,
@@ -46,23 +50,28 @@ class Table_Checksum {
 			'links'              => $wpdb->links,
 			'options'            => $wpdb->options,
 		);
+
+		$this->allowed_table_names = apply_filters( 'jetpack_sync_checksum_allowed_tables', $this->default_tables );
+
+		$this->table = $this->validate_table_name( $table );
+
 	}
 
-	protected function validate_table_name( $table ) {
+	private function validate_table_name( $table ) {
 		if ( empty( $table ) ) {
 			throw new Exception( 'Invalid table name: empty' );
 		}
 
-		if ( ! in_array( $table, $this->allowed_table_names, true ) ) {
+		if ( ! array_key_exists( $table, $this->allowed_table_names ) ) {
 			throw new Exception( 'Invalid table name: not allowed' );
 		}
 
 		// TODO other checks if such are needed.
 
-		return $table;
+		return $this->allowed_table_names[ $table ];
 	}
 
-	public function validate_fields( $fields ) {
+	private function validate_fields( $fields ) {
 		foreach ( $fields as $field ) {
 			if ( ! preg_match( '/^[0-9,a-z,A-Z$_]+$/i', $field ) ) {
 				throw new Exception( "Invalid field name: {$field} is not allowed" );
@@ -72,13 +81,13 @@ class Table_Checksum {
 		}
 	}
 
-	public function validate_fields_against_table( $table, $fields ) {
+	private function validate_fields_against_table( $fields ) {
 		global $wpdb;
 
-		$table = $this->validate_table_name( $table );
-
 		// TODO: Is this safe enough?
-		$result = $wpdb->query( "SELECT * FROM {$table} LIMIT 1", ARRAY_A );
+		$result = $wpdb->get_row( "SELECT * FROM {$this->table} LIMIT 1", ARRAY_A );
+
+		var_dump( $result );
 
 		if ( ! is_array( $result ) ) {
 			throw new Exception( 'Unexpected $wpdb->query output: not array' );
@@ -87,15 +96,22 @@ class Table_Checksum {
 		// Check if the fields are actually contained in the table
 		foreach ( $fields as $field_to_check ) {
 			if ( ! array_key_exists( $field_to_check, $result ) ) {
-				throw new Exception( "Invalid field name: field '{$field_to_check}' doesn't exist in table {$table}" );
+				throw new Exception( "Invalid field name: field '{$field_to_check}' doesn't exist in table {$this->table}" );
 			}
 		}
 
 		return true;
 	}
 
+	private function validate_input() {
+		$fields = array_merge( array( $this->range_field ), $this->key_fields, $this->checksum_fields );
+
+		$this->validate_fields( $fields );
+		$this->validate_fields_against_table( $fields );
+	}
+
 	// TODO make sure the function is described as DOESN'T DO VALIDATION
-	public function build_checksum_query( $table, $key_fields, $checksum_fields, $range_field, $range_from, $range_to, $filter_field, $filter_values, $salt, $granular_result ) {
+	private function build_checksum_query( $range_from, $range_to, $filter_values, $granular_result ) {
 		global $wpdb;
 
 		// Make sure the range makes sense
@@ -103,34 +119,53 @@ class Table_Checksum {
 		$range_end   = max( $range_from, $range_to );
 
 		// Escape the salt
-		$salt = $wpdb->_real_escape( $salt ); // TODO escape or prepare statement
+		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement
 
 		// Prepare the compound key
-		$key_fields = implode( ',', $key_fields );
+		$key_fields = implode( ',', $this->key_fields );
 
 		// Prepare the checksum fields
-		$checksum_fields_string = implode( ',', array_merge( $checksum_fields, array( $salt ) ) );
+		$checksum_fields_string = implode( ',', array_merge( $this->checksum_fields, array( $salt ) ) );
 
-		// Prepare filtering
-		$filter_placeholders       = 'IN(' . implode( ',', array_fill( 0, count( $filter_values ), '%s' ) ) . ')';
-		$filter_prepared_statement = $wpdb->prepare( $filter_placeholders, $filter_values );
+		$filter_prepared_statement = '';
+		if ( ! empty( $filter_values ) ) {
+			// Prepare filtering
+			$filter_placeholders       = "AND {$this->filter_field} IN(" . implode( ',', array_fill( 0, count( $filter_values ), '%s' ) ) . ')';
+			$filter_prepared_statement = $wpdb->prepare( $filter_placeholders, $filter_values );
+		}
+
+		$additional_fields = '';
+		if ( $granular_result ) {
+			// TODO uniq the fields as sometimes(most) range_index is the key and there's no need to select the same field twice
+			$additional_fields = "
+				{$this->range_field} as range_index,
+			    {$key_fields},
+			";
+		}
 
 		$query = "
 			SELECT
-			     {$range_field} as range_index,
-			     {$key_fields},
-			     SUM(
-			         CRC32(
-			                 CONCAT_WS( '#', '%s', {$checksum_fields_string} )
-			             )
-			     )  AS checksum
+				{$additional_fields}
+				SUM(
+					CRC32(
+						CONCAT_WS( '#', {$salt}, {$checksum_fields_string} )
+					)
+				)  AS checksum
 			 FROM
-			    {$table}
+			    {$this->table}
 			 WHERE
-				{$range_field} > {$range_start} AND {$range_field} < {$range_end}
-			   	AND {$filter_field} {$filter_prepared_statement} # Filter example
-			GROUP BY {$key_fields};
+				{$this->range_field} > {$range_start} AND {$this->range_field} < {$range_end}
+		        {$filter_prepared_statement}
 		";
+
+		/**
+		 * We need the GROUP BY only for compound keys
+		 */
+		if ( $granular_result || count( $this->key_fields ) > 1 ) {
+			$query .= "
+				GROUP BY {$key_fields}
+			";
+		}
 
 		return $query;
 
@@ -141,13 +176,11 @@ class Table_Checksum {
 
 		$this->validate_fields( array( $range_col ) );
 
-		// TODO decide if we need the count column or only the range edges. Adding `COUNT(DISTINCT)` is kind of slow
 		$result = $wpdb->get_row(
 			"
 			SELECT
 			       MIN({$range_col}) as min_range,
 			       MAX({$range_col}) as max_range,
-			       COUNT(DISTINCT {$range_col}) as total_count
 			FROM
 			     {$table}
 	     ",
@@ -161,22 +194,20 @@ class Table_Checksum {
 		return $result;
 	}
 
-	public function calculate_checksum( $range_from, $range_to, $salt, $granular_result = false ) {
+	public function calculate_checksum( $range_from, $range_to, $filter_values, $granular_result = false ) {
 		try {
-			$table = $this->validate_table_name( $this->table );
-
-			$fields = array_merge( array( $this->range_field ), $this->key_fields, $this->checksum_fields );
-
-			$this->validate_fields( $fields );
-			$this->validate_fields_against_table( $table, $fields );
-			// TODO validate ranges?
-			// TODO validate salt?
-			// TODO granular/non-granular result
+			$this->validate_input();
 		} catch ( Exception $ex ) {
 			return new WP_error( 'invalid_input', $ex->getMessage() );
 		}
 
-		$query = $this->build_checksum_query( $table, $this->checksum_fields, $this->range_field, $range_from, $range_to, $salt, $granular_result );
+		$query = $this->build_checksum_query( $range_from, $range_to, $filter_values, $granular_result );
+
+		global $wpdb;
+
+		$result = $wpdb->get_results( $query, ARRAY_A );
+
+		var_dump( $result );
 
 		// TODO fix
 		return false;
