@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Tests the AB Test package.
  *
@@ -7,10 +7,9 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Abtest;
-use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class Test_Abtest
@@ -30,7 +29,7 @@ class Test_Abtest extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'is_wp_error' )
 			->setFunction(
-				function( $object ) {
+				function ( $object ) {
 					return is_a( $object, __NAMESPACE__ . '\\Error' );
 				}
 			);

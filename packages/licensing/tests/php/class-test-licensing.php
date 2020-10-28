@@ -8,13 +8,10 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Licensing;
 use Jetpack_IXR_ClientMulticall;
-use Jetpack_Options;
 use stdClass;
 use WorDBless\BaseTestCase;
 use WP_Error;
-use WP_User;
 
 /**
  * Class Test_Licensing

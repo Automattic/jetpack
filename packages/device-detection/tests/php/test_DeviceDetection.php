@@ -7,8 +7,8 @@
  * @phpcs:disable WordPress.Files.FileName
  */
 
-use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Device_Detection;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the Device_Detection class.

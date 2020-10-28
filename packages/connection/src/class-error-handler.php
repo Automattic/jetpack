@@ -465,7 +465,7 @@ class Error_Handler {
 		// Clear empty error codes.
 		$errors = array_filter(
 			$errors,
-			function( $user_errors ) {
+			function ( $user_errors ) {
 				return ! empty( $user_errors );
 			}
 		);

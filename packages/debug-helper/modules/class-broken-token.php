@@ -486,7 +486,6 @@ class Broken_Token {
 
 add_action( 'plugins_loaded', 'register_broken_token', 1000 );
 
-
 /**
  * Load the brokenness.
  */

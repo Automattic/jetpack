@@ -10,9 +10,6 @@ namespace Automattic\Jetpack\JITMS;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Partner;
-use Automattic\Jetpack\JITMS\Post_Connection_JITM;
-use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
 use Automattic\Jetpack\Status;
 
 /**

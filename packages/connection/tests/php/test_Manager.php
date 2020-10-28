@@ -48,7 +48,7 @@ class ManagerTest extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 				->setName( 'apply_filters' )
 				->setFunction(
-					function( $filter_name, $return_value ) {
+					function ( $filter_name, $return_value ) {
 						return $return_value;
 					}
 				);
@@ -60,7 +60,7 @@ class ManagerTest extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 				->setName( 'wp_redirect' )
 				->setFunction(
-					function( $url ) {
+					function ( $url ) {
 						$this->arguments_stack['wp_redirect'] [] = array( $url );
 						return true;
 					}
@@ -73,7 +73,7 @@ class ManagerTest extends TestCase {
 		$builder->setNamespace( 'Automattic\Jetpack' )
 				->setName( 'apply_filters' )
 				->setFunction(
-					function( $filter_name, $value, $name ) {
+					function ( $filter_name, $value, $name ) {
 						return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
 					}
 				);
@@ -170,7 +170,7 @@ class ManagerTest extends TestCase {
 
 		$this->apply_filters->disable();
 
-		$overwrite_filter = function() {
+		$overwrite_filter = function () {
 			$this->arguments_stack['jetpack_api_url'][] = array_merge( array( 'jetpack_api_url' ), func_get_args() );
 			return 'completely overwrite';
 		};
@@ -232,7 +232,6 @@ class ManagerTest extends TestCase {
 
 		$this->assertFalse( $this->manager->is_user_connected( 1 ) );
 	}
-
 
 	/**
 	 * Test the `is_user_connected` functionality.
@@ -340,7 +339,7 @@ class ManagerTest extends TestCase {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
 		add_filter(
 			'jetpack_offline_mode',
-			function() use ( $in_offline_mode ) {
+			function () use ( $in_offline_mode ) {
 				return $in_offline_mode;
 			}
 		);
@@ -468,7 +467,7 @@ class ManagerTest extends TestCase {
 		$builder->setNamespace( $namespace )
 			->setName( $function_name )
 			->setFunction(
-				function() use ( &$return_value ) {
+				function () use ( &$return_value ) {
 					return $return_value;
 				}
 			);

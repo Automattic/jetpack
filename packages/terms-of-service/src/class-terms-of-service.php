@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Status;
-
 /**
  * Class Terms_Of_Service
  *

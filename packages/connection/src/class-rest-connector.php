@@ -176,7 +176,6 @@ class REST_Connector {
 		}
 	}
 
-
 	/**
 	 * Get plugins connected to the Jetpack.
 	 *
@@ -193,7 +192,7 @@ class REST_Connector {
 
 		array_walk(
 			$plugins,
-			function( &$data, $slug ) {
+			function ( &$data, $slug ) {
 				$data['slug'] = $slug;
 			}
 		);
