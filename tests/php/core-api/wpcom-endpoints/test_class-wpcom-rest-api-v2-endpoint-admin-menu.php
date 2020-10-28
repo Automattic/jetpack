@@ -235,6 +235,16 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'',
 				'dashicons-admin-generic',
 			),
+			// Div.
+			array(
+				'div',
+				'dashicons-admin-generic',
+			),
+			// None.
+			array(
+				'none',
+				'dashicons-admin-generic',
+			),
 			// Icon URL.
 			array(
 				'http://example.org/files/jetpack.jpg',
@@ -308,6 +318,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'custom_settings',
 				'admin.php',
+				'http://example.org/wp-admin/admin.php?page=custom_settings',
+			),
+			// Plugin menu item URL without a parent.
+			array(
+				'custom_settings',
+				'',
 				'http://example.org/wp-admin/admin.php?page=custom_settings',
 			),
 		);
