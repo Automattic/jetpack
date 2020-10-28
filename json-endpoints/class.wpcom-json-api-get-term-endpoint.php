@@ -19,7 +19,10 @@ new WPCOM_JSON_API_Get_Term_Endpoint( array(
 		'post_count'  => '(int) The number of posts using this term.',
 		'parent'      => '(int) The parent ID for the term, if hierarchical.',
 	),
-	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tag/terms/slug:wordpresscom'
+
+	'allow_fallback_to_jetpack_blog_token' => true,
+
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tag/terms/slug:wordpresscom',
 ) );
 
 class WPCOM_JSON_API_Get_Term_Endpoint extends WPCOM_JSON_API_Endpoint {
@@ -35,7 +38,7 @@ class WPCOM_JSON_API_Get_Term_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$taxonomy_meta = get_taxonomy( $taxonomy );
-		if ( false === $taxonomy_meta || ( ! $taxonomy_meta->public && 
+		if ( false === $taxonomy_meta || ( ! $taxonomy_meta->public &&
 				! current_user_can( $taxonomy_meta->cap->assign_terms ) ) ) {
 			return new WP_Error( 'invalid_taxonomy', 'The taxonomy does not exist', 400 );
 		}

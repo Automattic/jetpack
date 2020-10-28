@@ -13,6 +13,8 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 		'$post_ID' => '(int) The post ID',
 	),
 
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/7'
 ) );
 
@@ -42,6 +44,8 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 		'$site'      => '(int|string) Site ID or domain',
 		'$post_slug' => '(string) The post slug (a.k.a. sanitized name)',
 	),
+
+	'allow_fallback_to_jetpack_blog_token' => true,
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/slug:blogging-and-stuff',
 ) );
