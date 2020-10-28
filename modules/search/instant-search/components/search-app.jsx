@@ -267,7 +267,6 @@ class SearchApp extends Component {
 				colorTheme={ this.state.overlayOptions.colorTheme }
 				hasOverlayWidgets={ this.props.hasOverlayWidgets }
 				isVisible={ this.state.showResults }
-				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
 					closeOverlay={ this.hideResults }

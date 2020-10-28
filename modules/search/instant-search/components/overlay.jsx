@@ -36,7 +36,7 @@ const Overlay = props => {
 				isVisible ? '' : 'is-hidden',
 			].join( ' ' ) }
 			role="dialog"
-			style={ { opacity: isVisible ? opacity / 100 : 0 } }
+			style={ { opacity: isVisible ? 1 : 0 } }
 		>
 			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
 				{ __( 'Search results', 'jetpack' ) }

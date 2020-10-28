@@ -12,6 +12,7 @@ $overlay-horizontal-padding-small-viewport: 0.5em;
 	height: 100vh;
 	padding: $overlay-vertical-padding $overlay-horizontal-padding-small-viewport;
 	background: rgba( 255, 255, 255, 0.975 );
+	opacity: 1;
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: opacity 0.15s ease-in-out;
