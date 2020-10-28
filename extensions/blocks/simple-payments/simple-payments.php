@@ -45,6 +45,19 @@ function render_block( $attr, $content ) {
 		return $content;
 	}
 
+	$form_errors_markup = '';
+	if ( isset( $attr['price'] ) ) {
+		$price = intval( $attr['price'] );
+		if ( $price <= 0 ) {
+			// translators: %s: product price.
+			$form_errors_markup .= '<li>' . sprintf( __( '<strong>Error</strong>: Invalid price value: %s', 'jetpack' ), $price ) . '</li>';
+		}
+	}
+
+	if ( ! empty( $form_errors_markup ) && ! is_user_logged_in() && ! is_admin() ) {
+		return '';
+	}
+
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
 	if ( ! jetpack_is_frontend() ) {
 		return $content;
@@ -73,6 +86,13 @@ function render_block( $attr, $content ) {
 	$purchase_box = $simple_payments->output_purchase_box( $dom_id, $is_multiple );
 	$content      = preg_replace( '#<a class="jetpack-simple-payments-purchase(.*)</a>#i', $purchase_box, $content );
 
+	if ( ! empty( $form_errors_markup ) ) {
+		$content = '<div class="jetpack-simple-payments-with-errors">'
+			. '<p>' . __( 'The payment form has some errors:', 'jetpack' ) . '</p>'
+			. '<ul class="jetpack-simple-payments-errors">' . $form_errors_markup . '</ul>'
+			. $content
+		. '</div>';
+	}
 	return $content;
 }
 
