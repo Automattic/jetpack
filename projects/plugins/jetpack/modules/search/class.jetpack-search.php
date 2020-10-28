@@ -1281,6 +1281,9 @@ class Jetpack_Search {
 	 */
 	public function add_aggregations_to_es_query_builder( array $aggregations, Jetpack_WPES_Query_Builder $builder ) {
 		foreach ( $aggregations as $label => $aggregation ) {
+			if ( ! isset( $aggregation['type'] ) ) {
+				continue;
+			}
 			switch ( $aggregation['type'] ) {
 				case 'taxonomy':
 					$this->add_taxonomy_aggregation_to_es_query_builder( $aggregation, $label, $builder );
