@@ -870,6 +870,10 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Array of terms.
 	 */
 	public function get_terms( $taxonomy ) {
+		$t = $this->ensure_taxonomy( $taxonomy );
+		if ( ! $t || is_wp_error( $t ) ) {
+			return $t;
+		}
 		return get_terms( $taxonomy );
 	}
 
@@ -951,7 +955,7 @@ class Replicastore implements Replicastore_Interface {
 			)
 		);
 		if ( ! $exists ) {
-			$term_object   = sanitize_term( clone( $term_object ), $taxonomy, 'db' );
+			$term_object   = sanitize_term( clone $term_object, $taxonomy, 'db' );
 			$term          = array(
 				'term_id'    => $term_object->term_id,
 				'name'       => $term_object->name,
