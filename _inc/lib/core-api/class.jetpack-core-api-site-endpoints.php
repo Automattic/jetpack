@@ -59,7 +59,6 @@ class Jetpack_Core_API_Site_Endpoint {
 		);
 	}
 
-
 	/**
 	 * Returns the result of `/sites/%s/purchases` endpoint call.
 	 *

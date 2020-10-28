@@ -6,9 +6,6 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Constants;
-
 /**
  * Class to load Instant Search experience on the site.
  *
@@ -25,7 +22,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->base_load_php();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
-			require_once dirname( __FILE__ ) . '/class-jetpack-search-customize.php';
+			require_once __DIR__ . '/class-jetpack-search-customize.php';
 			new Jetpack_Search_Customize();
 		}
 	}
