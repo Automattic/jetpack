@@ -55,7 +55,7 @@ async function processSlackLog() {
 
 function getMessages( log ) {
 	if ( log.length === 0 ) {
-		return [ '' ];
+		return [];
 	}
 	const messages = log
 		.trim()
