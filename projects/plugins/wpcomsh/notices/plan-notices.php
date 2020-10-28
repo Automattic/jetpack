@@ -50,6 +50,13 @@ function wpcomsh_plan_notices() {
 	}
 
 	if ( ! empty( $message ) ) {
+		wpcomsh_record_tracks_event(
+			'atomic_wpcomsh_renewal_notice',
+			[
+				'plan_slug' => $wpcom_plan,
+			]
+		);
+
 		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), $message );
 	}
 }

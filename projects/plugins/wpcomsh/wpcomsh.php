@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.159
+ * Version: 2.4.160
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.159' );
+define( 'WPCOMSH_VERSION', '2.4.160' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -91,7 +91,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 require_once( 'wpcom-migration-helpers/site-migration-helpers.php');
-
 
 require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
 
@@ -1239,3 +1238,35 @@ add_filter( 'default_user_metadata', 'wpcomsh_amp_dev_tools_enabled_default_user
 // See D48850-code
 // See https://github.com/WordPress/gutenberg/pull/24843
 add_filter( 'gutenberg_use_widgets_block_editor', '__return_false', 100 );
+
+/**
+ * Tracks helper. Filters Jetpack TOS option if class exists.
+ */
+function wpcomsh_record_tracks_event( $event, $event_properties ) {
+	if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
+		// User has to agree to ToS for tracking. Thing is, on initial Simple -> Atomic we never set the ToS option.
+		// And since they agreed to WP.com ToS, we can track but in a roundabout way. :)
+		add_filter( 'jetpack_options', 'wpcomsh_jetpack_filter_tos_for_tracking', 10, 2 );
+
+		$jetpack_tracks = new \Automattic\Jetpack\Tracking( 'atomic' );
+		$jetpack_tracks->tracks_record_event(
+			wp_get_current_user(),
+			$event,
+			$event_properties
+		);
+
+		remove_filter( 'jetpack_options', 'wpcomsh_jetpack_filter_tos_for_tracking', 10 );
+	}
+}
+
+/**
+ * Helper for filtering tos_agreed for tracking purposes.
+ * Explicit function so it can be removed afterwards.
+ */
+function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
+	if ( 'tos_agreed' === $name ) {
+		return true;
+	}
+
+	return $value;
+}
