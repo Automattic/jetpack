@@ -41,7 +41,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function with_width_height_srcset_and_sizes( $media_files ) {
 	return array_map(
-		function( $media_file ) {
+		function ( $media_file ) {
 			if ( ! isset( $media_file['id'] ) || ! empty( $media_file['srcset'] ) ) {
 				return $media_file;
 			}
