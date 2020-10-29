@@ -99,17 +99,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function jetpack_menu_order( $menu_order ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.1' );
 
-		$jp_menu_order = array();
-
-		foreach ( $menu_order as $index => $item ) {
-			if ( $item != 'jetpack' )
-				$jp_menu_order[] = $item;
-
-			if ( $index == 0 )
-				$jp_menu_order[] = 'jetpack';
-		}
-
-		return $jp_menu_order;
+		return $menu_order;
 	}
 
 	function page_render() {
