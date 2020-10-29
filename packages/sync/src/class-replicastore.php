@@ -878,12 +878,12 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $taxonomy   Taxonomy slug.
-	 * @param int    $term_id    ID of the term.
-	 * @param bool   $is_term_id Whether this is a `term_id` or a `term_taxonomy_id`.
+	 * @param string      $taxonomy   Taxonomy slug.
+	 * @param int         $term_id    ID of the term.
+	 * @param bool|string $is_term_id Whether this is a `term_id`, otherwise pass 'term_taxonomy_id'.
 	 * @return \WP_Term|\WP_Error Term object on success, \WP_Error object on failure.
 	 */
-	public function get_term( $taxonomy, $term_id, $is_term_id = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_term( $taxonomy, $term_id, $is_term_id = true ) {
 
 		// Full Sync will pass false for the $taxonomy so a check for term_taxonomy_id is needed before ensure_taxonomy.
 		if ( 'term_taxonomy_id' === $is_term_id ) {
