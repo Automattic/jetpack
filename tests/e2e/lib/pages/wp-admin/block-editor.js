@@ -8,8 +8,6 @@ import Page from '../page';
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
-import { takeScreenshot } from '../../reporters/screenshot';
-import logger from '../../logger';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
@@ -40,9 +38,6 @@ export default class BlockEditorPage extends Page {
 		await searchForBlock( blockTitle );
 		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
 		await scrollIntoView( this.page, blockIconSelector );
-
-		const filePath = await takeScreenshot( blockName, blockTitle );
-		logger.slack( { type: 'file', message: filePath } );
 
 		await waitAndClick( this.page, blockIconSelector );
 		const blockInfo = await this.getInsertedBlock();
