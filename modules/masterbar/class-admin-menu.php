@@ -86,9 +86,6 @@ class Admin_Menu {
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 
-		// TODO: Remove submenu items where they are registered.
-		$this->remove_submenus();
-
 		$this->add_my_home_menu( $domain, $calypso );
 		$this->add_stats_menu( $domain );
 		$this->add_purchases_menu( $domain );
@@ -650,37 +647,6 @@ class Admin_Menu {
 			}
 			unset( $submenu[ $old_slug ] );
 		}
-	}
-
-	/**
-	 * Removes unwanted submenu items.
-	 *
-	 * These submenus are added across wp-content and should be removed together with these function calls.
-	 */
-	public function remove_submenus() {
-		remove_submenu_page( 'index.php', 'akismet-stats' );
-		remove_submenu_page( 'index.php', 'my-comments' );
-		remove_submenu_page( 'index.php', 'stats' );
-		remove_submenu_page( 'index.php', 'my-blogs' );
-		remove_submenu_page( 'index.php', 'subscriptions' );
-
-		remove_submenu_page( 'paid-upgrades.php', 'premium-themes' );
-		remove_submenu_page( 'paid-upgrades.php', 'domains' );
-		remove_submenu_page( 'paid-upgrades.php', 'my-upgrades' );
-		remove_submenu_page( 'paid-upgrades.php', 'billing-history' );
-
-		remove_submenu_page( 'themes.php', 'customize.php?autofocus[panel]=amp_panel&return=' . rawurlencode( admin_url() ) );
-		remove_submenu_page( 'themes.php', 'mobile-options' );
-
-		remove_submenu_page( 'users.php', 'wpcom-invite-users' ); // Wpcom_Invite_Users::action_admin_menu.
-
-		remove_submenu_page( 'tools.php', 'tools.php' );
-		remove_submenu_page( 'tools.php', 'tools.php' );
-
-		remove_submenu_page( 'options-general.php', 'adcontrol' );
-		remove_submenu_page( 'options-general.php', 'email_post_changes' );
-		remove_submenu_page( 'options-general.php', 'openidserver' );
-		remove_submenu_page( 'options-general.php', 'webhooks' );
 	}
 
 	/**
