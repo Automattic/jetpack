@@ -238,6 +238,17 @@
 }
 
 @media only email {
+	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container {
+		display: block;
+		overflow: visible;
+		width: auto;
+		height: auto;
+	}
+	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper,
+	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide figure {
+		display: block;
+	}
+
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper,
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide {
 		list-style: none;
@@ -249,5 +260,6 @@
 		width: 46%;
 		margin-left: 1%;
 		margin-right: 1%;
+		height: auto;
 	}
 }
