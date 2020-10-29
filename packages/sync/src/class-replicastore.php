@@ -706,8 +706,6 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @todo Test this out to make sure it works as expected..
-	 *
 	 * @param string $type       Meta type.
 	 * @param array  $object_ids IDs of the objects.
 	 * @param string $meta_key   Meta key.
@@ -740,7 +738,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param int    $object_id ID of the object.
 	 * @return void
 	 */
-	private function reset_deleted_metadata_mapping( $type, $object_id ) {
+	protected function reset_deleted_metadata_mapping( $type, $object_id ) {
 		wp_cache_delete( $object_id, $type . '_meta' );
 	}
 
