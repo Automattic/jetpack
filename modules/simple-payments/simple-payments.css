@@ -106,6 +106,14 @@ input[type="number"].jetpack-simple-payments-items-number {
 	content: "\f335";
 }
 
+.jetpack-simple-payments-errors {
+	margin: 0;
+	padding: 0;
+	color: #d94f4f;
+	margin-bottom: 20px;
+	list-style: inside;
+}
+
 /* Higher specificity in order to reset */
 body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message p {
 	color: #222;
