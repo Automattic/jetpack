@@ -29,21 +29,15 @@ class Admin_Menu {
 	 * Admin_Menu constructor.
 	 */
 	private function __construct() {
-		$this->is_api_request = defined( 'REST_API_PLUGINS' ) && REST_API_PLUGINS;
-
-		// Not needed outside of wp-admin.
-		if ( ! $this->is_api_request ) {
-			add_action( 'admin_menu', array( $this, 'add_browse_sites_link' ) );
-			add_action( 'admin_menu', array( $this, 'add_site_card_menu' ) );
+		if ( jetpack_is_atomic_site() ) {
+			add_action(
+				'admin_menu',
+				function () {
+					remove_action( 'admin_menu', 'gutenberg_menu', 9 );
+				},
+				0
+			);
 		}
-
-		add_action(
-			'admin_menu',
-			function () {
-				remove_action( 'admin_menu', 'gutenberg_menu', 9 );
-			},
-			0
-		);
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -66,11 +60,19 @@ class Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
+		$this->is_api_request = ( defined( 'REST_API_PLUGINS' ) && REST_API_PLUGINS ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+
 		$domain = wp_parse_url( get_home_url(), PHP_URL_HOST );
 
 		// TODO: Remove once feature has shipped. See jetpack_parent_file().
 		if ( ! $this->is_api_request ) {
 			$domain = add_query_arg( 'flags', 'nav-unification', $domain );
+		}
+
+		// Not needed outside of wp-admin.
+		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
+			$this->add_browse_sites_link();
+			$this->add_site_card_menu( $domain );
 		}
 
 		/*
@@ -142,13 +144,10 @@ class Admin_Menu {
 
 	/**
 	 * Adds site card component.
+	 *
+	 * @param string $domain Site domain.
 	 */
-	public function add_site_card_menu() {
-		if ( ! $this->is_wpcom_site() && ! jetpack_is_atomic_site() ) {
-			return;
-		}
-
-		$domain  = wp_parse_url( get_home_url(), PHP_URL_HOST );
+	public function add_site_card_menu( $domain ) {
 		$default = 'data:image/svg+xml,' . rawurlencode( '<svg class="gridicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Globe</title><rect x="0" fill="#fff" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z"/></g></svg>' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$icon    = get_site_icon_url( 32, $default );
 
