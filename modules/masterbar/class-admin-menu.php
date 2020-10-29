@@ -121,7 +121,7 @@ class Admin_Menu {
 		$this->add_comments_menu( $domain, $calypso );
 		$this->add_jetpack_menu( $domain );
 		$this->add_appearance_menu( $domain, $calypso );
-		$this->add_plugins_menu( $domain, $calypso );
+		$this->add_plugins_menu( $domain );
 		$this->add_users_menu( $domain, $calypso );
 		$this->add_tools_menu( $domain, $calypso );
 		$this->add_options_menu( $domain );
@@ -525,10 +525,9 @@ class Admin_Menu {
 	 * Adds Plugins menu.
 	 *
 	 * @param string $domain  Site domain.
-	 * @param bool   $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
 	 */
-	public function add_plugins_menu( $domain, $calypso = true ) {
-		$calypso = $this->is_wpcom_site() || $calypso;
+	public function add_plugins_menu( $domain ) {
+		$calypso = $this->is_wpcom_site();
 
 		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
