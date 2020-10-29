@@ -50,7 +50,15 @@ class Latest_Autoloader_Guard {
 	 * @return bool True if we should stop initialization, otherwise false.
 	 */
 	public function should_stop_init( $plugins ) {
+		global $jetpack_autoloader_including_latest;
 		global $jetpack_autoloader_latest_version;
+
+		// When we're being included from an older autoloader we need to
+		// reset the latest version so that the new autoloader can look
+		// for the latest autoloader again.
+		if ( $jetpack_autoloader_including_latest ) {
+			$jetpack_autoloader_latest_version = null;
+		}
 
 		// We need to reset the autoloader when the plugins change because
 		// that means the autoloader was generated with a different list.
@@ -65,7 +73,9 @@ class Latest_Autoloader_Guard {
 
 		$latest_plugin = $this->autoloader_locator->find_latest_autoloader( $plugins, $jetpack_autoloader_latest_version );
 		if ( isset( $latest_plugin ) && $latest_plugin !== $this->plugins_handler->get_current_plugin() ) {
+			$jetpack_autoloader_including_latest = true;
 			require $this->autoloader_locator->get_autoloader_path( $latest_plugin );
+			$jetpack_autoloader_including_latest = false;
 			return true;
 		}
 

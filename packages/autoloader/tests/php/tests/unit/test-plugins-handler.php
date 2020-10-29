@@ -145,6 +145,55 @@ class Test_Plugins_Handler extends TestCase {
 	}
 
 	/**
+	 * Tests that the current plugin is recorded as unknown when it isn't found as an active plugin.
+	 */
+	public function test_gets_active_plugins_records_unknown_plugins() {
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_using_option' )
+			->with( 'active_plugins', false )
+			->willReturn( array() );
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_activating_this_request' )
+			->willReturn( array() );
+
+		$plugin_paths = $this->plugins_handler->get_active_plugins();
+
+		$this->assertEquals(
+			array(
+				dirname( TEST_PACKAGE_PATH ),
+			),
+			$plugin_paths
+		);
+
+		global $jetpack_autoloader_activating_plugins_paths;
+		$this->assertContains( dirname( TEST_PACKAGE_PATH ), $jetpack_autoloader_activating_plugins_paths );
+	}
+
+	/**
+	 * Tests that the current plugin is ignored when it isn't an active plugin but the
+	 * autoloader isn't being included from a plugin file.
+	 */
+	public function test_gets_active_plugins_ignores_unknown_plugins_when_including_latest() {
+		global $jetpack_autoloader_including_latest;
+		$jetpack_autoloader_including_latest = true;
+
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_using_option' )
+			->with( 'active_plugins', false )
+			->willReturn( array() );
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_activating_this_request' )
+			->willReturn( array() );
+
+		$plugin_paths = $this->plugins_handler->get_active_plugins();
+
+		$this->assertEmpty( $plugin_paths );
+
+		global $jetpack_autoloader_activating_plugins_paths;
+		$this->assertEmpty( $jetpack_autoloader_activating_plugins_paths );
+	}
+
+	/**
 	 * Tests that the plugins in the cache are loaded.
 	 */
 	public function test_gets_cached_plugins() {

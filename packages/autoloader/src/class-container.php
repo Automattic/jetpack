@@ -31,6 +31,7 @@ class Container {
 
 		$this->register_shared_dependencies();
 		$this->register_dependencies();
+		$this->initialize_globals();
 	}
 
 	/**
@@ -112,5 +113,28 @@ class Container {
 		// Register any classes that we will use elsewhere.
 		require_once __DIR__ . '/class-autoloader.php';
 		require_once __DIR__ . '/class-version-loader.php';
+	}
+
+	/**
+	 * Initializes any of the globals needed by the autoloader.
+	 */
+	private function initialize_globals() {
+		// Not all plugins can be found using the locator. In cases where a plugin loads the autoloader
+		// but was not discoverable, we will record them in this array to track them as "active".
+		global $jetpack_autoloader_activating_plugins_paths;
+		if ( ! isset( $jetpack_autoloader_activating_plugins_paths ) ) {
+			$jetpack_autoloader_activating_plugins_paths = array();
+		}
+
+		// Since older autoloaders include newer ones, we need to be able to tell the difference between an
+		// inclusion via autoloader and an inclusion via plugin file. This allows the autoloader to
+		// perform special tasks for each kind of inclusion.
+		global $jetpack_autoloader_including_latest;
+		if ( ! isset( $jetpack_autoloader_including_latest ) ) {
+			// If the latest version global has been set but the including latest hasn't, it means that an
+			// older autoloader without support for the global is including us.
+			global $jetpack_autoloader_latest_version;
+			$jetpack_autoloader_including_latest = isset( $jetpack_autoloader_latest_version );
+		}
 	}
 }

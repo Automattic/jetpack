@@ -51,39 +51,42 @@ class Plugins_Handler {
 	 * @return string[]
 	 */
 	public function get_active_plugins() {
-		$plugin_paths = array();
+		global $jetpack_autoloader_activating_plugins_paths;
+		global $jetpack_autoloader_including_latest;
+
+		$active_plugins = array();
 
 		// Make sure that plugins which have activated this request are considered as "active" even though
 		// they probably won't be present in any option.
-		global $jetpack_autoloader_activating_plugins_paths;
-		if ( ! isset( $jetpack_autoloader_activating_plugins_paths ) ) {
-			$jetpack_autoloader_activating_plugins_paths = array();
-		}
-		$plugin_paths[] = (array) $jetpack_autoloader_activating_plugins_paths;
+		$active_plugins[] = (array) $jetpack_autoloader_activating_plugins_paths;
 
 		// This option contains all of the plugins that have been activated via the interface.
-		$plugin_paths[] = $this->plugin_locator->find_using_option( 'active_plugins' );
+		$active_plugins[] = $this->plugin_locator->find_using_option( 'active_plugins' );
 
 		// This option contains all of the multisite plugins that have been network activated via the interface.
 		if ( is_multisite() ) {
-			$plugin_paths[] = $this->plugin_locator->find_using_option( 'active_sitewide_plugins', true );
+			$active_plugins[] = $this->plugin_locator->find_using_option( 'active_sitewide_plugins', true );
 		}
 
-		$plugin_paths[] = $this->plugin_locator->find_activating_this_request();
+		$active_plugins[] = $this->plugin_locator->find_activating_this_request();
 
 		// Flatten this into a unique array for it to be returned.
-		$plugin_paths = array_values( array_unique( array_merge( ...$plugin_paths ) ) );
+		$active_plugins = array_values( array_unique( array_merge( ...$active_plugins ) ) );
 
-		// Ensure that the current plugin is always considered active and note when it isn't.
-		// Note that this will automatically trigger an autoloader reset because the
-		// active plugins list will now be different than the cached global.
+		// When the current plugin isn't considered "active" there's a problem.
+		// Since we're here, the plugin is active and currently being loaded.
+		// We can support this case (mu-plugins and non-standard activation)
+		// by adding the current plugin to the active list and marking it
+		// as an unknown (activating) plugin. This also has the benefit
+		// of causing a reset because the active plugins list has
+		// been changed since it was saved in the global.
 		$current_plugin = $this->get_current_plugin();
-		if ( ! in_array( $current_plugin, $plugin_paths, true ) ) {
-			$plugin_paths[]                                = $current_plugin;
+		if ( ! in_array( $current_plugin, $active_plugins, true ) && ! $jetpack_autoloader_including_latest ) {
+			$active_plugins[]                              = $current_plugin;
 			$jetpack_autoloader_activating_plugins_paths[] = $current_plugin;
 		}
 
-		return $plugin_paths;
+		return $active_plugins;
 	}
 
 	/**
