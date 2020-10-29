@@ -55,11 +55,11 @@
 		.components-select-control__input,
 		.components-text-control__input {
 			max-width: 90px;
+			margin: 0;
 
 			@media screen and (max-width: 782px) {
 				min-height: 30px;
 				height: 30px;
-				margin: 0;
 			}
 		}
 
