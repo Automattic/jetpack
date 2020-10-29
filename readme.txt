@@ -295,6 +295,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Contact Form: selection widgets, radio buttons, and checkboxes can now use commas, brackets, and backslashes in the labels and values without breaking the form.
 * Donations / Payments Block: fix visual bug in Stripe connection banner.
 * Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
+* Google Analytics: support updated Google Analytics 4 properties.
 * Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
 * Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
