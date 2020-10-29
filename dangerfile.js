@@ -115,7 +115,17 @@ function setReleaseDates() {
 
 		if ( nextMilestone ) {
 			jetpackReleaseDate = moment( nextMilestone.due_on ).format( 'LL' );
-			codeFreezeDate = moment( nextMilestone.due_on ).subtract( 7, 'd' ).format( 'LL' );
+
+			// Look for a code freeze date in the milestone description.
+			const dateRegex = /\d{4}[/-](0?[1-9]|1[012])[/-](0?[1-9]|[12][0-9]|3[01])$/;
+			const freezeDateDescription = nextMilestone.description.match( dateRegex );
+
+			// If we have a date, use it, otherwise set code freeze to a week before the release.
+			if ( freezeDateDescription ) {
+				codeFreezeDate = moment( freezeDateDescription[ 0 ] ).format( 'LL' );
+			} else {
+				codeFreezeDate = moment( nextMilestone.due_on ).subtract( 7, 'd' ).format( 'LL' );
+			}
 		} else {
 			// Fallback to raw math calculation
 			// Calculate next release date
