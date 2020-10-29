@@ -92,12 +92,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Custom menu order.
 	 *
-	 * @deprecated since 9.1.0
+	 * @deprecated since 9.2.0
 	 * @param array $menu_order Menu order.
 	 * @return array
 	 */
 	function jetpack_menu_order( $menu_order ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.1' );
+		_deprecated_function( __METHOD__, 'jetpack-9.2' );
 
 		return $menu_order;
 	}
