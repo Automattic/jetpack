@@ -239,8 +239,8 @@
 
 @media only email {
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container {
-		display: block;
 		overflow: visible;
+		opacity: 1;
 		width: auto;
 		height: auto;
 	}
