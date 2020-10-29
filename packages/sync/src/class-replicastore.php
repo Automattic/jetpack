@@ -328,19 +328,21 @@ class Replicastore implements Replicastore_Interface {
 	 * @return string|bool New comment_approved value, false if the status doesn't affect it.
 	 */
 	private function comment_status_to_approval_value( $status ) {
-		switch ( $status ) {
+		switch ( (string) $status ) {
 			case 'approve':
+			case '1':
 				return '1';
 			case 'hold':
+			case '0':
 				return '0';
 			case 'spam':
 				return 'spam';
 			case 'trash':
 				return 'trash';
+			case 'post-trashed':
+				return 'post-trashed';
 			case 'any':
-				return false;
 			case 'all':
-				return false;
 			default:
 				return false;
 		}
