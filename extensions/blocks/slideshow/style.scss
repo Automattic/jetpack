@@ -247,8 +247,8 @@
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper,
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide figure {
 		display: block;
+		margin-bottom: 12px;
 	}
-
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container ul.wp-block-jetpack-slideshow_swiper-wrapper,
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide {
 		list-style: none;
@@ -257,9 +257,18 @@
 	}
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_slide {
 		display: inline-block;
-		width: 46%;
-		margin-left: 1%;
-		margin-right: 1%;
+		width: 42%;
+		margin-left: 2% !important;
+		margin-right: 2% !important;
 		height: auto;
+		vertical-align: top;
+	}
+	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_caption.gallery-caption {
+		position: relative;
+		right: auto;
+		bottom: auto;
+		background-color: transparent;
+		color: #2c3338;
+		padding-top: 0;
 	}
 }
