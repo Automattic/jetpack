@@ -985,6 +985,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return bool|int|\WP_Error True on success, false if term doesn't exist. Zero if trying with default category. \WP_Error on invalid taxonomy.
 	 */
 	public function delete_term( $term_id, $taxonomy ) {
+		$this->ensure_taxonomy( $taxonomy );
 		return wp_delete_term( $term_id, $taxonomy );
 	}
 
