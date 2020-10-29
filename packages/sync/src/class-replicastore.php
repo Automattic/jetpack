@@ -999,6 +999,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param bool             $append    Optional. If false will delete difference of terms. Default false.
 	 */
 	public function update_object_terms( $object_id, $taxonomy, $terms, $append ) {
+		$this->ensure_taxonomy( $taxonomy );
 		wp_set_object_terms( $object_id, $terms, $taxonomy, $append );
 	}
 
