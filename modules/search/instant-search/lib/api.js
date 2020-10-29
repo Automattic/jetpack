@@ -201,12 +201,21 @@ function promiseifedProxyRequest( proxyRequest, path, query ) {
 
 function errorHandlerFactory( cacheKey ) {
 	return function errorHandler( error ) {
-		// TODO: Display a message about falling back to a cached value in the interface
-		// Fallback to either cache if we run into any errors
+		// TODO: Display a message about falling back to a cached value in the interface.
 		const fallbackValue = cache.get( cacheKey ) || backupCache.get( cacheKey );
+
+		// Fallback to cached value if request has been cancelled.
+		if ( axios.isCancel( error ) ) {
+			return fallbackValue
+				? { _isCached: true, _isError: false, _isOffline: false, ...fallbackValue }
+				: null;
+		}
+		// Fallback to cached value if we run into any errors.
 		if ( fallbackValue ) {
 			return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
 		}
+
+		// Otherwise, propagate the error.
 		throw error;
 	};
 }
@@ -273,11 +282,13 @@ export function search( options ) {
 	} )
 		.then( response => {
 			if ( response.status !== 200 ) {
-				throw new Error( `Unexpected response from API with status code ${ response.status }.` );
+				return Promise.reject(
+					`Unexpected response from API with status code ${ response.status }.`
+				);
 			}
 			return response;
 		} )
-		.catch( errorHandler )
 		.then( r => r.data )
-		.then( responseHandler );
+		.then( responseHandler )
+		.catch( errorHandler );
 }
