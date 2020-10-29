@@ -26,7 +26,7 @@ import {
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { get } from 'lodash';
+import { get, indexOf } from 'lodash';
 
 /**
  * Internal dependencies
@@ -52,6 +52,8 @@ const VideoPressEdit = CoreVideoEdit =>
 				isFetchingMedia: false,
 				fallback: false,
 				interactive: false,
+				rating: null,
+				lastRequestedMediaId: null,
 			};
 			this.posterImageButton = createRef();
 		}
@@ -76,18 +78,31 @@ const VideoPressEdit = CoreVideoEdit =>
 			this.setState( { interactive: true } );
 		};
 
-		componentDidMount() {
+		async componentDidMount() {
 			const { guid } = this.props.attributes;
 			if ( ! guid ) {
-				this.setGuid();
+				await this.setGuid();
 			}
+
+			this.setRating();
 		}
 
-		componentDidUpdate( prevProps ) {
+		setRating = async () => {
+			const id = get( this.props, 'attributes.id' );
+			const media = await this.requestMedia( id );
+			const rating = get( media, 'media_details.videopress.rating' );
+
+			if ( rating ) {
+				this.setState( { rating } );
+			}
+		};
+
+		async componentDidUpdate( prevProps ) {
 			const { attributes, invalidateCachedEmbedPreview, url } = this.props;
 
 			if ( attributes.id !== prevProps.attributes.id ) {
-				this.setGuid();
+				await this.setGuid();
+				this.setRating();
 			}
 
 			if ( url && url !== prevProps.url ) {
@@ -114,18 +129,13 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			try {
-				this.setState( { isFetchingMedia: true } );
-				const media = await apiFetch( { path: `/wp/v2/media/${ id }` } );
-				this.setState( { isFetchingMedia: false } );
+				const media = await this.requestMedia( id );
 
-				const { id: currentId } = this.props.attributes;
-				if ( id !== currentId ) {
-					// Video was changed in the editor while fetching data for the previous video;
+				if ( null === media ) {
 					return;
 				}
 
-				this.setState( { media } );
-				const guid = get( media, 'jetpack_videopress_guid' );
+				const guid = get( media, 'jetpack_videopress.guid' );
 				if ( guid ) {
 					setAttributes( { guid } );
 				} else {
@@ -135,6 +145,29 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setState( { isFetchingMedia: false } );
 				this.fallbackToCore();
 			}
+		};
+
+		requestMedia = async id => {
+			if ( ! id ) {
+				return null;
+			}
+
+			if ( null !== this.state.media && this.state.lastRequestedMediaId === id ) {
+				return this.state.media;
+			}
+
+			this.setState( { isFetchingMedia: true } );
+			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } );
+			this.setState( { isFetchingMedia: false } );
+
+			const { id: currentId } = this.props.attributes;
+			if ( id !== currentId ) {
+				// Video was changed in the editor while fetching data for the previous video;
+				return null;
+			}
+
+			this.setState( { media, lastRequestedMediaId: id } );
+			return media;
 		};
 
 		switchToEditing = () => {
@@ -170,6 +203,16 @@ const VideoPressEdit = CoreVideoEdit =>
 				: null;
 		};
 
+		onChangeRating = rating => {
+			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17', 'X-18' ], rating ) ) {
+				return;
+			}
+
+			// todo: request to set the rating
+
+			this.setState( { rating: rating } );
+		};
+
 		render() {
 			const {
 				attributes,
@@ -181,7 +224,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				preview,
 				setAttributes,
 			} = this.props;
-			const { fallback, isFetchingMedia, interactive } = this.state;
+			const { fallback, isFetchingMedia, interactive, rating } = this.state;
 			const { autoplay, caption, controls, loop, muted, poster, preload } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
@@ -268,6 +311,32 @@ const VideoPressEdit = CoreVideoEdit =>
 									) }
 								</BaseControl>
 							</MediaUploadCheck>
+						</PanelBody>
+						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
+							<SelectControl
+								label={ __( 'Rating', 'jetpack' ) }
+								value={ rating }
+								disabled={ isFetchingMedia }
+								options={ [
+									{
+										label: __( 'G', 'jetpack' ),
+										value: 'G',
+									},
+									{
+										label: __( 'PG-13', 'jetpack' ),
+										value: 'PG-13',
+									},
+									{
+										label: __( 'R', 'jetpack' ),
+										value: 'R-17',
+									},
+									{
+										label: __( 'X', 'jetpack' ),
+										value: 'X-18',
+									},
+								] }
+								onChange={ this.onChangeRating }
+							/>
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>
