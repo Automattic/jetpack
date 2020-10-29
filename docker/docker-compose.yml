@@ -1,0 +1,41 @@
+---
+version: '3.3'
+
+volumes:
+  ## For making sure the ./docker dir is not bound recursively.
+  dockerdirectory:
+
+services:
+  db:
+    container_name: 'local-wordpress-db'
+    image: 'mysql:5.7'
+    volumes:
+      - './data/mysql:/var/lib/mysql'
+    ports:
+      - 18766:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress_user
+      MYSQL_PASSWORD: wordpress_password
+  wordpress:
+    container_name: 'local-wordpress'
+    depends_on:
+      - db
+    image: 'wordpress:latest'
+    ports:
+      - '80:80'
+    environment:
+      WORDPRESS_DB_HOST: 'db:3306'
+      WORDPRESS_DB_USER: wordpress_user
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress_db
+    volumes:
+      - "./wordpress:/var/www/html"
+      - "./plugins:/var/www/html/wp-content/plugins"
+      - ..:/var/www/html/wp-content/plugins/wp-super-cache"
+      - dockerdirectory:/var/www/html/wp-content/plugins/wp-super-cache/docker
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ./logs/apache2/:/var/log/apache2
+      - ./logs/php:/var/log/php 
+
