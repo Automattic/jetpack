@@ -234,10 +234,11 @@ function load_assets( $attr, $content ) {
 		wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
 		return sprintf(
 			'
-			<div class="wp-block-jetpack-pinterest">
-				<a data-pin-do="%1$s" href="%2$s"></a>
+			<div class="%1$s">
+				<a data-pin-do="%2$s" href="%3$s"></a>
 			</div>
 		',
+			esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 			esc_attr( $type ),
 			esc_url( $url )
 		);
