@@ -31,6 +31,7 @@ class Test_Autoloader extends TestCase {
 
 		$this->version_loader = $this->getMockBuilder( Version_Loader::class )
 			->disableOriginalConstructor()
+			->setMethods( array( 'load_filemap' ) )
 			->getMock();
 	}
 
@@ -153,9 +154,14 @@ class Test_Autoloader extends TestCase {
 	 * Tests that class files are loaded correctly.
 	 */
 	public function test_load_class() {
+		$loader = $this->getMockBuilder( Version_Loader::class )
+			->disableOriginalConstructor()
+			->setMethods( array( 'find_class_file' ) )
+			->getMock();
+
 		global $jetpack_autoloader_loader;
-		$jetpack_autoloader_loader = $this->version_loader;
-		$this->version_loader->expects( $this->once() )
+		$jetpack_autoloader_loader = $loader;
+		$loader->expects( $this->once() )
 			->method( 'find_class_file' )
 			->with( Test::class )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current/includes/class-test.php' );
@@ -168,9 +174,14 @@ class Test_Autoloader extends TestCase {
 	 * Tests that nothing happens when a class file isn't found.
 	 */
 	public function test_load_class_does_nothing_without_class() {
+		$loader = $this->getMockBuilder( Version_Loader::class )
+			->disableOriginalConstructor()
+			->setMethods( array( 'find_class_file' ) )
+			->getMock();
+
 		global $jetpack_autoloader_loader;
-		$jetpack_autoloader_loader = $this->version_loader;
-		$this->version_loader->expects( $this->once() )
+		$jetpack_autoloader_loader = $loader;
+		$loader->expects( $this->once() )
 			->method( 'find_class_file' )
 			->with( Test::class )
 			->willReturn( null );

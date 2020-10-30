@@ -49,7 +49,7 @@ class Test_Plugin_Locator extends TestCase {
 	 */
 	public function test_using_option_does_nothing_without_valid_plugin() {
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertEmpty( $plugin_paths );
 
 		add_test_option(
@@ -58,7 +58,7 @@ class Test_Plugin_Locator extends TestCase {
 		);
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -73,7 +73,7 @@ class Test_Plugin_Locator extends TestCase {
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -88,7 +88,7 @@ class Test_Plugin_Locator extends TestCase {
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
@@ -104,7 +104,7 @@ class Test_Plugin_Locator extends TestCase {
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths', true );
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
@@ -120,7 +120,7 @@ class Test_Plugin_Locator extends TestCase {
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
@@ -131,7 +131,7 @@ class Test_Plugin_Locator extends TestCase {
 	public function test_activating_this_request_does_nothing_without_nonce() {
 		$plugin_paths = $this->guesser->find_activating_this_request();
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -144,7 +144,7 @@ class Test_Plugin_Locator extends TestCase {
 
 		$plugin_paths = $this->guesser->find_activating_this_request();
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -158,7 +158,7 @@ class Test_Plugin_Locator extends TestCase {
 
 		$plugin_paths = $this->guesser->find_activating_this_request();
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
@@ -173,7 +173,7 @@ class Test_Plugin_Locator extends TestCase {
 
 		$plugin_paths = $this->guesser->find_activating_this_request();
 
-		$this->assertIsArray( $plugin_paths );
+		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
