@@ -36,6 +36,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		// We need to make sure there's an autoloader containing the current files for testing.
 		$this->generate_autoloader( 'plugin_current' );
+		$this->generate_autoloader( 'plugin_newer' );
 	}
 
 	/**
@@ -61,8 +62,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		$this->load_autoloader( 'plugin_current' );
 
-		$this->assertTrue( class_exists( Test::class ) );
-		$this->assertAutoloaderVersion( '2.0.0.0' );
+		$this->assertAutoloaderVersion( '2.6.0.0' );
 	}
 
 	/**
@@ -75,8 +75,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 		$this->load_autoloader( 'plugin_current' );
 
 		$this->assertFalse( $this->autoloader_reset );
-		$this->assertTrue( class_exists( Test::class ) );
-		$this->assertAutoloaderVersion( '2.0.0.0' );
+		$this->assertAutoloaderVersion( '2.6.0.0' );
 	}
 
 	/**
@@ -90,8 +89,35 @@ class Test_Autoloader_Scenarios extends TestCase {
 		$this->load_autoloader( 'plugin_newer' );
 
 		$this->assertFalse( $this->autoloader_reset );
-		$this->assertTrue( class_exists( Test::class ) );
-		$this->assertAutoloaderVersion( '2.2.0.0' );
+		$this->assertAutoloaderVersion( '2.7.0.0' );
+	}
+
+	/**
+	 * Tests that the autoloader does not conflict with a v1 autoloader.
+	 */
+	public function test_autoloader_overrides_v1() {
+		$this->activate_plugin( 'plugin_v1' );
+		$this->activate_plugin( 'plugin_current' );
+
+		$this->load_autoloader( 'plugin_v1' );
+		$this->load_autoloader( 'plugin_current' );
+
+		$this->assertTrue( $this->autoloader_reset );
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+	}
+
+	/**
+	 * Tests that the autoloader is not reset when an older V2 initializes after the latest.
+	 */
+	public function test_autoloader_not_reset_by_older_v2() {
+		$this->activate_plugin( 'plugin_current' );
+		$this->activate_plugin( 'plugin_v2_2_0' );
+
+		$this->load_autoloader( 'plugin_current' );
+		$this->load_autoloader( 'plugin_v2_2_0' );
+
+		$this->assertFalse( $this->autoloader_reset );
+		$this->assertAutoloaderVersion( '2.6.0.0' );
 	}
 
 	/**
@@ -105,8 +131,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 		$this->load_autoloader( 'plugin_newer' );
 
 		$this->assertTrue( $this->autoloader_reset );
-		$this->assertTrue( class_exists( Test::class ) );
-		$this->assertAutoloaderVersion( '2.2.0.0' );
+		$this->assertAutoloaderVersion( '2.7.0.0' );
 	}
 
 	/**
@@ -122,8 +147,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 		$this->load_autoloader( 'plugin_newer' );
 
 		$this->assertFalse( $this->autoloader_reset );
-		$this->assertTrue( class_exists( Test::class ) );
-		$this->assertAutoloaderVersion( '2.2.0.0' );
+		$this->assertAutoloaderVersion( '2.7.0.0' );
 	}
 
 	/**
@@ -211,6 +235,9 @@ class Test_Autoloader_Scenarios extends TestCase {
 	 * @param string $version The version to check.
 	 */
 	private function assertAutoloaderVersion( $version ) {
+		$this->assertTrue( class_exists( Test::class ) );
+		$this->assertEquals( $version, Test::VERSION, 'The class version is incorrect.' );
+
 		global $jetpack_autoloader_latest_version;
 		$this->assertEquals( $version, $jetpack_autoloader_latest_version, 'The autoloader version is incorrect.' );
 	}

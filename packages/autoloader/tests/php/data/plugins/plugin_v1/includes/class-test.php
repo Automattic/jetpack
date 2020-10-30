@@ -6,13 +6,13 @@
  * @package automattic/jetpack-autoloader
  */
 
-namespace Jetpack\AutoloaderTestData\PluginCurrent;
+// phpcs:disable Generic.Classes.DuplicateClassName.Found
+
+namespace Jetpack\AutoloaderTestData\Plugin;
 
 /**
- * Returns true to prove the function is accessible.
- *
- * @return bool true.
+ * Class Test.
  */
-function if_i_exist_then_this_test_passed() {
-	return true;
+class Test {
+	const VERSION = '1.3.2.0';
 }

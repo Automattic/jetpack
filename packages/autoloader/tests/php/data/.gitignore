@@ -4,7 +4,7 @@
 !plugins/**/jetpack_autoload_psr4.php
 !plugins/**/jetpack_autoload_filemap.php
 !plugins/**/autoload_functions.php
-!plugins/**/autoload_packages.php
+!plugins/plugin_v1/vendor/autoload_packages.php
 !plugins/**/vendor/
 test-manifest.php
 cache/
