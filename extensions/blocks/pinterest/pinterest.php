@@ -239,7 +239,7 @@ function load_assets( $attr, $content ) {
 			</div>
 		',
 			esc_attr( $type ),
-			$url
+			esc_url( $url )
 		);
 	}
 }
