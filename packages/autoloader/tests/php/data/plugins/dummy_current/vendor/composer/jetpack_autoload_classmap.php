@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName
 
-$pluginDir = TEST_DATA_PATH . '/plugins/plugin_current';
+$pluginDir = TEST_DATA_PATH . '/plugins/dummy_current';
 
 return array(
 	'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator' => array(

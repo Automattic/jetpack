@@ -21,7 +21,6 @@ class Test_Version_Loading_From_Manifests extends TestCase {
 	 */
 	private $manifest_handler;
 
-
 	/**
 	 * Setup runs before each test.
 	 */
@@ -37,7 +36,7 @@ class Test_Version_Loading_From_Manifests extends TestCase {
 	public function test_classmap() {
 		$path_map = array();
 		$this->manifest_handler->read_manifests(
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 			'vendor/composer/jetpack_autoload_classmap.php',
 			$path_map
 		);
@@ -51,7 +50,7 @@ class Test_Version_Loading_From_Manifests extends TestCase {
 
 		$file = $loader->find_class_file( Test::class );
 
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php', $file );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current/includes/class-test.php', $file );
 	}
 
 	/**
@@ -60,7 +59,7 @@ class Test_Version_Loading_From_Manifests extends TestCase {
 	public function test_psr4() {
 		$path_map = array();
 		$this->manifest_handler->read_manifests(
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 			'vendor/composer/jetpack_autoload_psr4.php',
 			$path_map
 		);
@@ -74,7 +73,7 @@ class Test_Version_Loading_From_Manifests extends TestCase {
 
 		$file = $loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/src/Psr4/Test.php', $file );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current/src/Psr4/Test.php', $file );
 	}
 
 	/**
@@ -86,7 +85,7 @@ class Test_Version_Loading_From_Manifests extends TestCase {
 	public function test_filemap() {
 		$path_map = array();
 		$this->manifest_handler->read_manifests(
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 			'vendor/composer/jetpack_autoload_filemap.php',
 			$path_map
 		);

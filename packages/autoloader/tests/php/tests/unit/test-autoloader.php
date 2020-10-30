@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the Autoloader.
  *
- * @runClassInSeparateProcess
+ * @runTestsInSeparateProcesses Ensure that each test loads class files new.
  * @preserveGlobalState disabled
  */
 class Test_Autoloader extends TestCase {
@@ -57,17 +57,17 @@ class Test_Autoloader extends TestCase {
 
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_cached_plugins' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_active_plugins' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_current' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
 		$guard->expects( $this->once() )
 			->method( 'should_stop_init' )
-			->with( array( TEST_DATA_PATH . '/plugins/plugin_current', TEST_DATA_PATH . '/plugins/plugin_newer' ) )
+			->with( array( TEST_DATA_PATH . '/plugins/dummy_current', TEST_DATA_PATH . '/plugins/dummy_newer' ) )
 			->willReturn( false );
 		$autoloader_handler->expects( $this->once() )
 			->method( 'create_autoloader' )
-			->with( array( TEST_DATA_PATH . '/plugins/plugin_current', TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+			->with( array( TEST_DATA_PATH . '/plugins/dummy_current', TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 
 		Autoloader::init( $test_container );
 	}
@@ -90,13 +90,13 @@ class Test_Autoloader extends TestCase {
 
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_cached_plugins' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_active_plugins' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_current' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
 		$guard->expects( $this->once() )
 			->method( 'should_stop_init' )
-			->with( array( TEST_DATA_PATH . '/plugins/plugin_current', TEST_DATA_PATH . '/plugins/plugin_newer' ) )
+			->with( array( TEST_DATA_PATH . '/plugins/dummy_current', TEST_DATA_PATH . '/plugins/dummy_newer' ) )
 			->willReturn( true );
 
 		Autoloader::init( $test_container );
@@ -158,7 +158,7 @@ class Test_Autoloader extends TestCase {
 		$this->version_loader->expects( $this->once() )
 			->method( 'find_class_file' )
 			->with( Test::class )
-			->willReturn( TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php' );
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current/includes/class-test.php' );
 
 		$this->assertTrue( Autoloader::load_class( Test::class ) );
 		$this->assertTrue( class_exists( Test::class, false ) );

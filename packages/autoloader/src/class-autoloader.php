@@ -69,6 +69,7 @@ class Autoloader {
 				$active_plugins = $plugins_handler->get_active_plugins();
 
 				// The paths should be sorted for easy comparisons with those loaded from the cache.
+				// Note we don't need to sort the cached entries because they're already sorted.
 				sort( $active_plugins );
 
 				// We don't want to waste time saving a cache that hasn't changed.

@@ -34,7 +34,7 @@ class Test_Version_Loader extends TestCase {
 			array(
 				Test::class => array(
 					'version' => '1.0.0.0',
-					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php',
+					'path'    => TEST_DATA_PATH . '/plugins/dummy_current/includes/class-test.php',
 				),
 			),
 			null,
@@ -43,7 +43,7 @@ class Test_Version_Loader extends TestCase {
 
 		$file_path = $version_loader->find_class_file( Test::class );
 
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current/includes/class-test.php', $file_path );
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Test_Version_Loader extends TestCase {
 			array(
 				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current/src' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/dummy_current/src' ),
 				),
 			),
 			null
@@ -64,7 +64,7 @@ class Test_Version_Loader extends TestCase {
 
 		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/src/Psr4/Test.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current/src/Psr4/Test.php', $file_path );
 	}
 
 	/**
@@ -78,11 +78,11 @@ class Test_Version_Loader extends TestCase {
 			array(
 				'Jetpack\\AutoloaderTestData\\'         => array(
 					'version' => '1.0.0.0',
-					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 				),
 				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current/src' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/dummy_current/src' ),
 				),
 			),
 			null
@@ -90,7 +90,7 @@ class Test_Version_Loader extends TestCase {
 
 		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/src/Psr4/Test.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current/src/Psr4/Test.php', $file_path );
 	}
 
 	/**
@@ -102,13 +102,13 @@ class Test_Version_Loader extends TestCase {
 			array(
 				Psr4Test::class => array(
 					'version' => '2.0.0.0',
-					'path'    => TEST_DATA_PATH . '/plugins/plugin_newer/src/Psr4/Test.php',
+					'path'    => TEST_DATA_PATH . '/plugins/dummy_newer/src/Psr4/Test.php',
 				),
 			),
 			array(
 				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '1.0.0.0',
-					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_current/src' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/dummy_current/src' ),
 				),
 			),
 			null
@@ -116,7 +116,7 @@ class Test_Version_Loader extends TestCase {
 
 		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_newer/src/Psr4/Test.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_newer/src/Psr4/Test.php', $file_path );
 	}
 
 	/**
@@ -128,13 +128,13 @@ class Test_Version_Loader extends TestCase {
 			array(
 				Psr4Test::class => array(
 					'version' => '1.0.0.0',
-					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/src/Psr4/Test.php',
+					'path'    => TEST_DATA_PATH . '/plugins/dummy_current/src/Psr4/Test.php',
 				),
 			),
 			array(
 				'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
 					'version' => '2.0.0.0',
-					'path'    => array( TEST_DATA_PATH . '/plugins/plugin_newer/src' ),
+					'path'    => array( TEST_DATA_PATH . '/plugins/dummy_newer/src' ),
 				),
 			),
 			null
@@ -142,7 +142,7 @@ class Test_Version_Loader extends TestCase {
 
 		$file_path = $version_loader->find_class_file( Psr4Test::class );
 
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_newer/src/Psr4/Test.php', $file_path );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_newer/src/Psr4/Test.php', $file_path );
 	}
 
 	/**
@@ -159,7 +159,7 @@ class Test_Version_Loader extends TestCase {
 			array(
 				'123456acbdefg' => array(
 					'version' => '1.0.0.0',
-					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/includes/functions.php',
+					'path'    => TEST_DATA_PATH . '/plugins/dummy_current/includes/functions.php',
 				),
 			)
 		);
@@ -181,7 +181,7 @@ class Test_Version_Loader extends TestCase {
 			array(
 				'123456acbdefg' => array(
 					'version' => '1.0.0.0',
-					'path'    => TEST_DATA_PATH . '/plugins/plugin_current/includes/functions.php',
+					'path'    => TEST_DATA_PATH . '/plugins/dummy_current/includes/functions.php',
 				),
 			)
 		);

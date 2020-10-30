@@ -83,14 +83,14 @@ class Test_Plugin_Locator extends TestCase {
 	public function test_using_option_finds_in_option() {
 		add_test_option(
 			'test_plugin_paths',
-			array( 'plugin_current/plugin_current.php' )
+			array( 'dummy_current/dummy_current.php' )
 		);
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
 
 		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
 
 	/**
@@ -99,14 +99,14 @@ class Test_Plugin_Locator extends TestCase {
 	public function test_using_option_finds_in_site_option() {
 		add_test_site_option(
 			'test_plugin_paths',
-			array( 'plugin_current/plugin_current.php' )
+			array( 'dummy_current/dummy_current.php' )
 		);
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths', true );
 
 		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
 
 	/**
@@ -115,14 +115,14 @@ class Test_Plugin_Locator extends TestCase {
 	public function test_using_option_finds_plugin_in_key() {
 		add_test_option(
 			'test_plugin_paths',
-			array( 'plugin_current/plugin_current.php' => 123456 )
+			array( 'dummy_current/dummy_current.php' => 123456 )
 		);
 
 		$plugin_paths = $this->guesser->find_using_option( 'test_plugin_paths' );
 
 		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
 
 	/**
@@ -140,7 +140,7 @@ class Test_Plugin_Locator extends TestCase {
 	 */
 	public function test_activating_this_request_does_nothing_without_parameters() {
 		$_REQUEST['action'] = 'activate';
-		$_REQUEST['plugin'] = 'plugin_current/plugin_current.php';
+		$_REQUEST['plugin'] = 'dummy_current/dummy_current.php';
 
 		$plugin_paths = $this->guesser->find_activating_this_request();
 
@@ -154,13 +154,13 @@ class Test_Plugin_Locator extends TestCase {
 	public function test_activating_this_request_works_for_single() {
 		$_REQUEST['_wpnonce'] = '123abc';
 		$_REQUEST['action']   = 'activate';
-		$_REQUEST['plugin']   = 'plugin_current\\\\plugin_current.php';
+		$_REQUEST['plugin']   = 'dummy_current\\\\dummy_current.php';
 
 		$plugin_paths = $this->guesser->find_activating_this_request();
 
 		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
 
 	/**
@@ -169,12 +169,12 @@ class Test_Plugin_Locator extends TestCase {
 	public function test_activating_this_request_works_for_multiple() {
 		$_REQUEST['_wpnonce'] = '123abc';
 		$_REQUEST['action']   = 'activate-selected';
-		$_REQUEST['checked']  = array( 'plugin_current\\\\plugin_current.php' );
+		$_REQUEST['checked']  = array( 'dummy_current\\\\dummy_current.php' );
 
 		$plugin_paths = $this->guesser->find_activating_this_request();
 
 		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
-		$this->assertContains( TEST_DATA_PATH . '/plugins/plugin_current', $plugin_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_current', $plugin_paths );
 	}
 }

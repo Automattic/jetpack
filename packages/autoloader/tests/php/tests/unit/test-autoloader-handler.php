@@ -62,7 +62,7 @@ class Test_Autoloader_Handler extends TestCase {
 	 * Tests that the handler is able to creates the autoloader successfully.
 	 */
 	public function test_create_autoloader() {
-		$plugins = array( TEST_DATA_PATH . '/plugins/plugin_newer' );
+		$plugins = array( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
 		$this->manifest_reader->expects( $this->exactly( 3 ) )
 			->method( 'read_manifests' )

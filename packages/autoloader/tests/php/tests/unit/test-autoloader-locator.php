@@ -39,21 +39,21 @@ class Test_Autoloader_Locator extends TestCase {
 
 		$latest = $this->autoloader_locator->find_latest_autoloader(
 			array(
-				TEST_DATA_PATH . '/plugins/plugin_current',
+				TEST_DATA_PATH . '/plugins/dummy_current',
 			),
 			$latest_version
 		);
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current', $latest );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current', $latest );
 		$this->assertEquals( '2.0.0.0', $latest_version );
 
 		$latest = $this->autoloader_locator->find_latest_autoloader(
 			array(
-				TEST_DATA_PATH . '/plugins/plugin_newer',
-				TEST_DATA_PATH . '/plugins/plugin_current',
+				TEST_DATA_PATH . '/plugins/dummy_newer',
+				TEST_DATA_PATH . '/plugins/dummy_current',
 			),
 			$latest_version
 		);
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_newer', $latest );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_newer', $latest );
 		$this->assertEquals( '2.2.0.0', $latest_version );
 	}
 
@@ -61,8 +61,8 @@ class Test_Autoloader_Locator extends TestCase {
 	 * Tests that the locator can find the path to the autoloader file.
 	 */
 	public function test_gets_autoloader_path() {
-		$path = $this->autoloader_locator->get_autoloader_path( TEST_DATA_PATH . '/plugins/plugin_current' );
-		$this->assertEquals( TEST_DATA_PATH . '/plugins/plugin_current/vendor/autoload_packages.php', $path );
+		$path = $this->autoloader_locator->get_autoloader_path( TEST_DATA_PATH . '/plugins/dummy_current' );
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current/vendor/autoload_packages.php', $path );
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Test_Autoloader_Locator extends TestCase {
 	 * Tests that the locator can find the version..
 	 */
 	public function test_gets_autoloader_version() {
-		$version = $this->autoloader_locator->get_autoloader_version( TEST_DATA_PATH . '/plugins/plugin_current' );
+		$version = $this->autoloader_locator->get_autoloader_version( TEST_DATA_PATH . '/plugins/dummy_current' );
 
 		$this->assertEquals( '2.0.0.0', $version );
 	}

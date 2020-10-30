@@ -87,14 +87,14 @@ class Test_Manifest_Reader extends TestCase {
 			);
 
 		$this->reader->read_manifests(
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 			'vendor/composer/jetpack_autoload_classmap.php',
 			$input_array
 		);
 
 		$this->assertArrayHasKey( Test::class, $input_array );
 		$this->assertEquals( '1.0.0.0', $input_array[ Test::class ]['version'] );
-		$this->assertEquals( $input_array[ Test::class ]['path'], TEST_DATA_PATH . '/plugins/plugin_current/includes/class-test.php' );
+		$this->assertEquals( $input_array[ Test::class ]['path'], TEST_DATA_PATH . '/plugins/dummy_current/includes/class-test.php' );
 	}
 
 	/**
@@ -120,8 +120,8 @@ class Test_Manifest_Reader extends TestCase {
 
 		$this->reader->read_manifests(
 			array(
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				TEST_DATA_PATH . '/plugins/plugin_newer',
+				TEST_DATA_PATH . '/plugins/dummy_current',
+				TEST_DATA_PATH . '/plugins/dummy_newer',
 			),
 			'vendor/composer/jetpack_autoload_classmap.php',
 			$input_array
@@ -129,7 +129,7 @@ class Test_Manifest_Reader extends TestCase {
 
 		$this->assertArrayHasKey( Test::class, $input_array );
 		$this->assertEquals( '2.0.0.0', $input_array[ Test::class ]['version'] );
-		$this->assertEquals( $input_array[ Test::class ]['path'], TEST_DATA_PATH . '/plugins/plugin_newer/includes/class-test.php' );
+		$this->assertEquals( $input_array[ Test::class ]['path'], TEST_DATA_PATH . '/plugins/dummy_newer/includes/class-test.php' );
 	}
 
 	/**
@@ -155,8 +155,8 @@ class Test_Manifest_Reader extends TestCase {
 
 		$this->reader->read_manifests(
 			array(
-				TEST_DATA_PATH . '/plugins/plugin_newer',
-				TEST_DATA_PATH . '/plugins/plugin_current',
+				TEST_DATA_PATH . '/plugins/dummy_newer',
+				TEST_DATA_PATH . '/plugins/dummy_current',
 			),
 			'vendor/composer/jetpack_autoload_classmap.php',
 			$input_array
@@ -164,6 +164,6 @@ class Test_Manifest_Reader extends TestCase {
 
 		$this->assertArrayHasKey( Test::class, $input_array );
 		$this->assertEquals( '2.0.0.0', $input_array[ Test::class ]['version'] );
-		$this->assertEquals( $input_array[ Test::class ]['path'], TEST_DATA_PATH . '/plugins/plugin_newer/includes/class-test.php' );
+		$this->assertEquals( $input_array[ Test::class ]['path'], TEST_DATA_PATH . '/plugins/dummy_newer/includes/class-test.php' );
 	}
 }

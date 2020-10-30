@@ -18,7 +18,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 	/**
 	 * The path to the test manifest we want to operate on.
 	 */
-	const TEST_MANIFEST_PATH = TEST_DATA_PATH . '/plugins/plugin_current/test-manifest.php';
+	const TEST_MANIFEST_PATH = TEST_DATA_PATH . '/plugins/dummy_current/test-manifest.php';
 
 	/**
 	 * The manifest handler we're testing.
@@ -69,7 +69,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 
 		$loaded = array();
 		$this->manifest_handler->read_manifests(
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 			'test-manifest.php',
 			$loaded
 		);
@@ -101,7 +101,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 
 		$loaded = array();
 		$this->manifest_handler->read_manifests(
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 			'test-manifest.php',
 			$loaded
 		);
@@ -133,7 +133,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 
 		$loaded = array();
 		$this->manifest_handler->read_manifests(
-			array( TEST_DATA_PATH . '/plugins/plugin_current' ),
+			array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 			'test-manifest.php',
 			$loaded
 		);

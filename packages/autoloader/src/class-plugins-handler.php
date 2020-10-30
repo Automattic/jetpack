@@ -54,24 +54,39 @@ class Plugins_Handler {
 		global $jetpack_autoloader_activating_plugins_paths;
 		global $jetpack_autoloader_including_latest;
 
+		// We're going to build a unique list of plugins from a few different sources
+		// to find all of our "active" plugins. While we need to return an integer
+		// array, we're going to use an associative array internally to reduce
+		// the amount of time that we're going to spend checking uniqueness
+		// and merging different arrays together to form the output.
 		$active_plugins = array();
 
 		// Make sure that plugins which have activated this request are considered as "active" even though
 		// they probably won't be present in any option.
-		$active_plugins[] = (array) $jetpack_autoloader_activating_plugins_paths;
+		if ( is_array( $jetpack_autoloader_activating_plugins_paths ) ) {
+			foreach ( $jetpack_autoloader_activating_plugins_paths as $path ) {
+				$active_plugins[ $path ] = $path;
+			}
+		}
 
 		// This option contains all of the plugins that have been activated via the interface.
-		$active_plugins[] = $this->plugin_locator->find_using_option( 'active_plugins' );
+		$plugins = $this->plugin_locator->find_using_option( 'active_plugins' );
+		foreach ( $plugins as $path ) {
+			$active_plugins[ $path ] = $path;
+		}
 
 		// This option contains all of the multisite plugins that have been network activated via the interface.
 		if ( is_multisite() ) {
-			$active_plugins[] = $this->plugin_locator->find_using_option( 'active_sitewide_plugins', true );
+			$plugins = $this->plugin_locator->find_using_option( 'active_sitewide_plugins', true );
+			foreach ( $plugins as $path ) {
+				$active_plugins[ $path ] = $path;
+			}
 		}
 
-		$active_plugins[] = $this->plugin_locator->find_activating_this_request();
-
-		// Flatten this into a unique array for it to be returned.
-		$active_plugins = array_values( array_unique( array_merge( ...$active_plugins ) ) );
+		$plugins = $this->plugin_locator->find_activating_this_request();
+		foreach ( $plugins as $path ) {
+			$active_plugins[ $path ] = $path;
+		}
 
 		// When the current plugin isn't considered "active" there's a problem.
 		// Since we're here, the plugin is active and currently being loaded.
@@ -82,11 +97,12 @@ class Plugins_Handler {
 		// been changed since it was saved in the global.
 		$current_plugin = $this->get_current_plugin();
 		if ( ! in_array( $current_plugin, $active_plugins, true ) && ! $jetpack_autoloader_including_latest ) {
-			$active_plugins[]                              = $current_plugin;
+			$active_plugins[ $current_plugin ]             = $current_plugin;
 			$jetpack_autoloader_activating_plugins_paths[] = $current_plugin;
 		}
 
-		return $active_plugins;
+		// Transform the array so that we don't have to worry about the keys interacting with other array types later.
+		return array_values( $active_plugins );
 	}
 
 	/**

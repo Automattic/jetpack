@@ -1,10 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName
 
-$pluginDir = TEST_DATA_PATH . '/plugins/plugin_dev';
+$pluginDir = TEST_DATA_PATH . '/plugins/dummy_newer';
 
 return array(
 	'Jetpack\\AutoloaderTestData\\Plugin\\' => array(
-		'version' => 'dev-main',
+		'version' => '2.0.0.0',
 		'path'    => array( $pluginDir . '/src' ),
 	),
 );

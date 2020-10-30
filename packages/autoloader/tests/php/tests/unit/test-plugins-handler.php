@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test suite class for the autoloader's plugin handler.
  *
- * @runClassInSeparateProcess
+ * @runTestsInSeparateProcesses Ensure that each test has no previously autoloaded files.
  * @preserveGlobalState disabled
  */
 class Test_Plugins_Handler extends TestCase {
@@ -90,18 +90,18 @@ class Test_Plugins_Handler extends TestCase {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_current' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_activating_this_request' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
 
 		$plugin_paths = $this->plugins_handler->get_active_plugins();
 
 		$this->assertEquals(
 			array(
 				TEST_DATA_PATH . '/plugins/plugin_activating',
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				TEST_DATA_PATH . '/plugins/plugin_dev',
+				TEST_DATA_PATH . '/plugins/dummy_current',
+				TEST_DATA_PATH . '/plugins/dummy_dev',
 				dirname( TEST_PACKAGE_PATH ),
 			),
 			$plugin_paths
@@ -123,21 +123,21 @@ class Test_Plugins_Handler extends TestCase {
 				array( 'active_sitewide_plugins', true )
 			)
 			->willReturnOnConsecutiveCalls(
-				array( TEST_DATA_PATH . '/plugins/plugin_current' ),
-				array( TEST_DATA_PATH . '/plugins/plugin_newer' )
+				array( TEST_DATA_PATH . '/plugins/dummy_current' ),
+				array( TEST_DATA_PATH . '/plugins/dummy_newer' )
 			);
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_activating_this_request' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_dev' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
 
 		$plugin_paths = $this->plugins_handler->get_active_plugins();
 
 		$this->assertEquals(
 			array(
 				TEST_DATA_PATH . '/plugins/plugin_activating',
-				TEST_DATA_PATH . '/plugins/plugin_current',
-				TEST_DATA_PATH . '/plugins/plugin_newer',
-				TEST_DATA_PATH . '/plugins/plugin_dev',
+				TEST_DATA_PATH . '/plugins/dummy_current',
+				TEST_DATA_PATH . '/plugins/dummy_newer',
+				TEST_DATA_PATH . '/plugins/dummy_dev',
 				dirname( TEST_PACKAGE_PATH ),
 			),
 			$plugin_paths
@@ -200,11 +200,11 @@ class Test_Plugins_Handler extends TestCase {
 		$this->cache_handler->expects( $this->once() )
 			->method( 'read_from_cache' )
 			->with( Plugins_Handler::CACHE_KEY )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 
 		$plugin_paths = $this->plugins_handler->get_cached_plugins();
 
-		$this->assertEquals( array( TEST_DATA_PATH . '/plugins/plugin_newer' ), $plugin_paths );
+		$this->assertEquals( array( TEST_DATA_PATH . '/plugins/dummy_newer' ), $plugin_paths );
 	}
 
 	/**
@@ -213,9 +213,9 @@ class Test_Plugins_Handler extends TestCase {
 	public function test_updates_cache_writes_plugins() {
 		$this->cache_handler->expects( $this->once() )
 			->method( 'write_to_cache' )
-			->with( Plugins_Handler::CACHE_KEY, array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+			->with( Plugins_Handler::CACHE_KEY, array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 
-		$this->plugins_handler->cache_plugins( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+		$this->plugins_handler->cache_plugins( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 	}
 
 	/**
@@ -229,7 +229,7 @@ class Test_Plugins_Handler extends TestCase {
 		$this->assertSame( $plugins, $jetpack_autoloader_cached_plugin_paths );
 		$this->assertFalse( $this->plugins_handler->have_plugins_changed( $plugins ) );
 
-		$plugins = array( TEST_DATA_PATH . '/plugins/plugin_newer' );
+		$plugins = array( TEST_DATA_PATH . '/plugins/dummy_newer' );
 		$this->assertTrue( $this->plugins_handler->have_plugins_changed( $plugins ) );
 		$this->assertSame( $plugins, $jetpack_autoloader_cached_plugin_paths );
 		$this->assertFalse( $this->plugins_handler->have_plugins_changed( $plugins ) );

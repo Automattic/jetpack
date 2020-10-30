@@ -4,8 +4,6 @@
  *
  * @package automattic/jetpack-autoloader
  */
-
-use Jetpack\AutoloaderTestData\Plugin\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -85,11 +83,11 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 			->with( array() )
 			->willReturn( true );
 		$this->autoloader_locator->method( 'find_latest_autoloader' )
-			->willReturn( TEST_DATA_PATH . '/plugins/plugin_current' );
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current' );
 		$this->plugins_handler->method( 'get_current_plugin' )
-			->willReturn( TEST_DATA_PATH . '/plugins/plugin_newer' );
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 		$this->autoloader_locator->method( 'get_autoloader_path' )
-			->willReturn( TEST_DATA_PATH . '/plugins/plugin_current/plugin_current.php' );
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current/dummy_current.php' );
 
 		$this->assertTrue( $this->guard->should_stop_init( array() ) );
 	}
