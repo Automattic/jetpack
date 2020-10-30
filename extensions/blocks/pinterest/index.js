@@ -9,7 +9,7 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import edit from './edit';
-import { pinType } from './utils';
+import save from './save';
 import { getIconColor } from '../../shared/block-icons';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
@@ -59,21 +59,7 @@ export const settings = {
 
 	edit,
 
-	save: ( { attributes, className } ) => {
-		const { url } = attributes;
-
-		const type = pinType( url );
-
-		if ( ! type ) {
-			return null;
-		}
-
-		return (
-			<div className={ className }>
-				<a data-pin-do={ pinType( url ) } href={ url } />
-			</div>
-		);
-	},
+	save,
 
 	transforms: {
 		from: [
