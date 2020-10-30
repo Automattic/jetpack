@@ -22,11 +22,11 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 * Include Open Graph functions after each test.
 	 */
 	public function tearDown() {
+		parent::tearDown();
+
 		// Restoring global variables.
 		global $wp_the_query;
 		$wp_the_query = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-		parent::tearDown();
 
 		wp_delete_attachment( $this->icon_id );
 	}
