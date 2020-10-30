@@ -8,3 +8,9 @@
 !plugins/**/vendor/
 test-manifest.php
 cache/
+
+# We want to make sure the generated autoloader files aren't present however.
+plugins/plugin_current/vendor/jetpack-autoloader/
+plugins/plugin_current/vendor/autoload_packages.php
+plugins/plugin_newer/vendor/jetpack-autoloader/
+plugins/plugin_newer/vendor/autoload_packages.php
