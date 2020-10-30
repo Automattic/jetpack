@@ -228,7 +228,7 @@ function load_assets( $attr, $content ) {
 		$type = pin_type( $url );
 
 		if ( ! $type ) {
-			return null;
+			return '';
 		}
 
 		wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
