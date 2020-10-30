@@ -41,11 +41,11 @@ class Autoloader_Handler {
 	}
 
 	/**
-	 * Initializes the autoloader using the given plugins.
+	 * Creates an autoloader using the given plugins and activates it.
 	 *
 	 * @param string[] $plugins The plugins to initialize the autoloader for.
 	 */
-	public function init_autoloader( $plugins ) {
+	public function create_autoloader( $plugins ) {
 		global $jetpack_packages_psr4;
 		$jetpack_packages_psr4 = array();
 		$this->manifest_reader->read_manifests( $plugins, 'vendor/composer/jetpack_autoload_psr4.php', $jetpack_packages_psr4 );

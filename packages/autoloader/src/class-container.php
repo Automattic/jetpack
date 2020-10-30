@@ -21,7 +21,7 @@ class Container {
 	 *
 	 * @var array
 	 */
-	private $dependencies;
+	protected $dependencies;
 
 	/**
 	 * The constructor.
@@ -111,7 +111,6 @@ class Container {
 		);
 
 		// Register any classes that we will use elsewhere.
-		require_once __DIR__ . '/class-autoloader.php';
 		require_once __DIR__ . '/class-version-loader.php';
 	}
 

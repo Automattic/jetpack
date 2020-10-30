@@ -59,9 +59,9 @@ class Test_Autoloader_Handler extends TestCase {
 	}
 
 	/**
-	 * Tests that the handler is able to initialize the autoloader successfully.
+	 * Tests that the handler is able to creates the autoloader successfully.
 	 */
-	public function test_init_autoloader() {
+	public function test_create_autoloader() {
 		$plugins = array( TEST_DATA_PATH . '/plugins/plugin_newer' );
 
 		$this->manifest_reader->expects( $this->exactly( 3 ) )
@@ -72,7 +72,7 @@ class Test_Autoloader_Handler extends TestCase {
 				array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
 			);
 
-		$this->autoloader_handler->init_autoloader( $plugins );
+		$this->autoloader_handler->create_autoloader( $plugins );
 
 		global $jetpack_autoloader_loader;
 		$this->assertInstanceOf( Version_Loader::class, $jetpack_autoloader_loader );

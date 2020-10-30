@@ -16,5 +16,9 @@ require_once __DIR__ . '/lib/functions-wordpress.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 // Create a new container to initialize all of the package dependencies.
+require_once __DIR__ . '/../../src/class-autoloader.php';
 require_once __DIR__ . '/../../src/class-container.php';
-new Container();
+require_once __DIR__ . '/lib/class-test-container.php';
+$GLOBALS['test_container'] = new Test_Container();
+
+

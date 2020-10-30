@@ -35,6 +35,74 @@ class Test_Autoloader extends TestCase {
 	}
 
 	/**
+	 * Tests that the autoloader is initialized correctly and registers the correct hook.
+	 */
+	public function test_init_autoloader() {
+		global $test_container;
+
+		$plugins_handler = $this->getMockBuilder( Plugins_Handler::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$test_container->replace( Plugins_Handler::class, $plugins_handler );
+
+		$guard = $this->getMockBuilder( Latest_Autoloader_Guard::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$test_container->replace( Latest_Autoloader_Guard::class, $guard );
+
+		$autoloader_handler = $this->getMockBuilder( Autoloader_Handler::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$test_container->replace( Autoloader_Handler::class, $autoloader_handler );
+
+		$plugins_handler->expects( $this->once() )
+			->method( 'get_cached_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+		$plugins_handler->expects( $this->once() )
+			->method( 'get_active_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_current' ) );
+		$guard->expects( $this->once() )
+			->method( 'should_stop_init' )
+			->with( array( TEST_DATA_PATH . '/plugins/plugin_current', TEST_DATA_PATH . '/plugins/plugin_newer' ) )
+			->willReturn( false );
+		$autoloader_handler->expects( $this->once() )
+			->method( 'create_autoloader' )
+			->with( array( TEST_DATA_PATH . '/plugins/plugin_current', TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+
+		Autoloader::init( $test_container );
+	}
+
+	/**
+	 * Tests that the autoloader is stopped by the guard correctly.
+	 */
+	public function test_init_autoloader_stopped_by_guard() {
+		global $test_container;
+
+		$plugins_handler = $this->getMockBuilder( Plugins_Handler::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$test_container->replace( Plugins_Handler::class, $plugins_handler );
+
+		$guard = $this->getMockBuilder( Latest_Autoloader_Guard::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$test_container->replace( Latest_Autoloader_Guard::class, $guard );
+
+		$plugins_handler->expects( $this->once() )
+			->method( 'get_cached_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_newer' ) );
+		$plugins_handler->expects( $this->once() )
+			->method( 'get_active_plugins' )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/plugin_current' ) );
+		$guard->expects( $this->once() )
+			->method( 'should_stop_init' )
+			->with( array( TEST_DATA_PATH . '/plugins/plugin_current', TEST_DATA_PATH . '/plugins/plugin_newer' ) )
+			->willReturn( true );
+
+		Autoloader::init( $test_container );
+	}
+
+	/**
 	 * Tests that activate registers the autoloader.
 	 */
 	public function test_activate_registers_autoloader() {
