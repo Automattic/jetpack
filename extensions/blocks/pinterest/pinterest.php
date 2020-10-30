@@ -238,7 +238,7 @@ function load_assets( $attr, $content ) {
 				<a data-pin-do="%1$s" href="%2$s"></a>
 			</div>
 		',
-			$type,
+			esc_attr( $type ),
 			$url
 		);
 	}
