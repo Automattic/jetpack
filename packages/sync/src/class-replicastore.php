@@ -871,9 +871,13 @@ class Replicastore implements Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param string $taxonomy Taxonomy slug.
-	 * @return array Array of terms.
+	 * @return array|\WP_Error Array of terms or WP_Error object on failure.
 	 */
 	public function get_terms( $taxonomy ) {
+		$t = $this->ensure_taxonomy( $taxonomy );
+		if ( ! $t || is_wp_error( $t ) ) {
+			return $t;
+		}
 		return get_terms( $taxonomy );
 	}
 
