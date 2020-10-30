@@ -89,6 +89,7 @@ $jetpack-podcast-player-error: $alert-red;
 			@include focus-outline();
 		}
 
+
 		a.jetpack-podcast-player__link {
 			&,
 			&:active,
@@ -345,13 +346,19 @@ $jetpack-podcast-player-error: $alert-red;
 	/**
 	 * Style overrides for AMP version.
 	 */
-	&.is-amp {
+	&.is-amp, &.is-amp.is-default {
 		.jetpack-podcast-player__audio-player {
 			display: block;
-			padding: 0 $player-grid-spacing;
+			padding: 0 $gutter-l;
 		}
-		.jetpack-podcast-player__track[selected]:not(:focus) {
+		.jetpack-podcast-player__track[selected] {
 			outline: none;
+		}
+		.jetpack-podcast-player__track:focus {
+			@include focus-outline();
+		}
+		audio {
+			display: block;
 		}
 	}
 

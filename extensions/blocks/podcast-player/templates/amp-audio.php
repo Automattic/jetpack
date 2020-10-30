@@ -17,8 +17,9 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 ?>
 
 <amp-audio
-	width="100%"
+	layout="fixed-height"
 	height="40"
+	controls
 	artwork="<?php echo esc_url( $cover ); ?>"
 	artist="<?php echo esc_attr( $title ); ?>"
 	src="<?php echo esc_url( $track['src'] ); ?>"
