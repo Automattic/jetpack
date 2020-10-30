@@ -23,7 +23,7 @@ class Autoloader {
 			return false;
 		}
 
-		require_once $file;
+		require $file;
 		return true;
 	}
 
