@@ -11,6 +11,7 @@ import { createBlock } from '@wordpress/blocks';
 import edit from './edit';
 import save from './save';
 import { getIconColor } from '../../shared/block-icons';
+import deprecatedV1 from './deprecated/v1';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
@@ -80,4 +81,6 @@ export const settings = {
 			url: PINTEREST_EXAMPLE_URL,
 		},
 	},
+
+	deprecated: [ deprecatedV1 ],
 };
