@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Backup\Helper_Script_Manager;
 
+/**
+ * API endpoint /sites/%s/delete-backup-helper-script
+ * This API endpoint deletes a Jetpack Backup Helper Script
+ */
 class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
 	 * This endpoint is only accessible from Jetpack Backup; it requires no further capabilities.
@@ -43,7 +47,7 @@ class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON
 	 * @param  null $object  Unused.
 	 * @return bool|WP_Error a WP_Error object or true if the input seems ok.
 	 */
-	protected function validate_input( $object ) {
+	protected function validate_input( $object ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$args = $this->input();
 
 		if ( ! isset( $args['path'] ) ) {

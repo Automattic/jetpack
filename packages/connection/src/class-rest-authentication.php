@@ -80,11 +80,13 @@ class Rest_Authentication {
 			2
 		);
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['_for'] ) || 'jetpack' !== $_GET['_for'] ) {
 			// Nothing to do for this authentication method.
 			return null;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
 			// Nothing to do for this authentication method.
 			return null;

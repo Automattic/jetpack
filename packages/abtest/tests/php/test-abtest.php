@@ -154,8 +154,3 @@ class Test_Abtest extends TestCase {
 		$this->assertEquals( $variation, $result );
 	}
 }
-
-/**
- * We're declaring this class to mock Automattic\Jetpack\Error in the tests.
- */
-class Error {} // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
