@@ -14,10 +14,6 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	public function setUp() {
 		parent::setUp();
 
-		global $wp_query;
-
-		$this->original_wp_query = $wp_query;
-
 		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
@@ -27,11 +23,6 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 */
 	public function tearDown() {
 		parent::tearDown();
-
-		global $wp_query;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reason: Restoring after test mocking.
-		$wp_query = $this->original_wp_query;
 
 		wp_delete_attachment( $this->icon_id );
 	}
@@ -154,7 +145,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	/**
 	 * Create a post containing a few images attached to another post.
 	 *
-	 * @since 9.1.0
+	 * @since 9.2.0
 	 *
 	 * @param int $number_of_images The number of image blocks to add to the post.
 	 *
@@ -214,18 +205,10 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 * @since  9.1.0
 	 */
 	public function test_jetpack_og_get_image_from_post_order() {
-		global $post;
-
 		// Create a post containing two image blocks.
 		$post_info = $this->create_post_with_image_blocks( 2 );
 
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reason: Test mocking.
-		$post            = new stdClass();
-		$post->ID        = $post_info['post_id'];
-		$post->post_type = 'post';
-
-		// Mock WP_Query so jetpack_og_get_image thinks it's handling a single post.
-		$this->mock_is_singular();
+		$this->go_to( get_permalink( $post_info['post_id'] ) );
 
 		// Extract an image from the current post.
 		$chosen_image = jetpack_og_get_image();
@@ -234,24 +217,5 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		// We expect jetpack_og_get_image to return the first of the images in the post.
 		$first_image_url = $post_info['img_urls'][0];
 		$this->assertEquals( $first_image_url, $chosen_image['src'] );
-	}
-
-	/**
-	 * Mocks WP_Query so that is_singlar() always returns true.
-	 *
-	 * @author automattic
-	 * @since  9.1.0
-	 */
-	private function mock_is_singular() {
-		global $wp_query;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reason: Test mocking.
-		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( array( 'is_singular' ) )
-			->getMock();
-
-		$wp_query->expects( $this->any() )
-			->method( 'is_singular' )
-			->willReturn( true );
 	}
 }
