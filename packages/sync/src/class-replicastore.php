@@ -735,6 +735,8 @@ class Replicastore implements Replicastore_Interface {
 	/**
 	 * Retrieve value of a constant based on the constant name.
 	 *
+	 * We explicitly return null instead of false if the constant doesn't exist.
+	 *
 	 * @access public
 	 *
 	 * @param string $constant Name of constant to retrieve.
