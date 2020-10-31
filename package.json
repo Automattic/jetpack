@@ -207,7 +207,7 @@
 		"babel-eslint": "10.0.2",
 		"chai": "4.2.0",
 		"chalk": "4.1.0",
-		"commander": "6.1.0",
+		"commander": "6.2.0",
 		"concurrently": "5.3.0",
 		"config": "3.3.2",
 		"css-loader": "5.0.0",
