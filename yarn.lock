@@ -16901,10 +16901,10 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swiper@6.3.3:
-  version "6.3.3"
-  resolved "https://registry.yarnpkg.com/swiper/-/swiper-6.3.3.tgz#e0b2e27621c07e789bfa91569b5676e896d18001"
-  integrity sha512-SnG1weu2GhqKxuG4NTIA1A6OE9x3P/+d2DW6APLUgYNHm0ZgkAOxL/tEDubiHvgwqtaVaz6QWqkSbCaDYffSNg==
+swiper@6.3.5:
+  version "6.3.5"
+  resolved "https://registry.yarnpkg.com/swiper/-/swiper-6.3.5.tgz#7444b680d0fdafe84859825ac3559b5b01bd1916"
+  integrity sha512-MZkkVJ+sXukp6G3Z3BlKayhBjRIQuO1TZaTlH7ooI/0qbH0kkmItFMjFo19nOOsJaDXglA32xqyc9KCtmbJv0w==
   dependencies:
     dom7 "^3.0.0-alpha.7"
     ssr-window "^3.0.0-alpha.4"
