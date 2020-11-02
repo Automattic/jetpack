@@ -23,9 +23,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Constants as Jetpack_Constants;
-
 /**
  * Class Automattic\Jetpack\Jetpack_Lazy_Images
  *

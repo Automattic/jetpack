@@ -112,8 +112,8 @@ export const Slide = ( {
 	}, [ currentSlidePlaying, ended ] );
 
 	// Sync progressState with underlying media playback progress
-	useEffect( () => {
-		cancelAnimationFrame( progressState.timeout );
+	useLayoutEffect( () => {
+		clearTimeout( progressState.timeout );
 		if ( loading ) {
 			return;
 		}
@@ -123,8 +123,10 @@ export const Slide = ( {
 			if ( progressState.currentTime >= duration ) {
 				return;
 			}
-			progressState.timeout = requestAnimationFrame( () => {
-				const delta = progressState.lastUpdate ? Date.now() - progressState.lastUpdate : 0;
+			progressState.timeout = setTimeout( () => {
+				const delta = progressState.lastUpdate
+					? Date.now() - progressState.lastUpdate
+					: settings.renderInterval;
 				const currentTime = video ? video.currentTime : progressState.currentTime + delta;
 				updateProgressState( {
 					...progressState,
@@ -132,7 +134,7 @@ export const Slide = ( {
 					duration,
 					currentTime,
 				} );
-			} );
+			}, settings.renderInterval );
 		}
 		const paused = visible && ! playing;
 		if ( paused && progressState.lastUpdate ) {

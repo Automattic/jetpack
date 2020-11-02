@@ -10,7 +10,7 @@ import { isEqual } from 'lodash';
 import { memo } from '@wordpress/element';
 import { getBlockType, getBlockFromExample, createBlock } from '@wordpress/blocks';
 import { BlockControls, BlockPreview, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, Toolbar } from '@wordpress/components';
+import { PanelBody, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
@@ -72,7 +72,7 @@ export default function BlockStylesSelector( {
 	return (
 		<>
 			<BlockControls>
-				<Toolbar
+				<ToolbarGroup
 					isCollapsed={ true }
 					icon="admin-appearance"
 					label={ __( 'Style', 'jetpack' ) }

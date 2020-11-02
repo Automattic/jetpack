@@ -12,15 +12,15 @@ import { SORT_OPTIONS } from '../lib/constants';
 
 export default class SearchSort extends Component {
 	handleKeyPress = event => {
-		if ( this.props.value !== event.target.value && event.key === 'Enter' ) {
+		if ( this.props.value !== event.currentTarget.value && event.key === 'Enter' ) {
 			event.preventDefault();
-			this.props.onChange( event.target.dataset.value );
+			this.props.onChange( event.currentTarget.dataset.value );
 		}
 	};
 	handleClick = event => {
-		if ( this.props.value !== event.target.value ) {
+		if ( this.props.value !== event.currentTarget.value ) {
 			event.preventDefault();
-			this.props.onChange( event.target.dataset.value );
+			this.props.onChange( event.currentTarget.dataset.value );
 		}
 	};
 

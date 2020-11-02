@@ -15,6 +15,44 @@ use WP_Error;
 const FEATURE_NAME = 'pinterest';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 const URL_PATTERN  = '#^https?://(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+/pin/(?P<pin_id>[^/]+)/?#i'; // Taken from AMP plugin, originally from Jetpack.
+// This is the validate Pinterest URLs, converted from URL_REGEX in extensions/blocks/pinterest/index.js.
+const PINTEREST_URL_REGEX = '/^https?:\/\/(?:www\.)?(?:[a-z]{2\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^\/]+)(\/[^\/]+)?/i';
+// This looks for matches in /foo/ of https://www.pinterest.ca/foo/.
+const REMAINING_URL_PATH_REGEX = '/^\/([^\/]+)\/?$/';
+// This looks for matches with /foo/bar/ of https://www.pinterest.ca/foo/bar/.
+const REMAINING_URL_PATH_WITH_SUBPATH_REGEX = '/^\/([^\/]+)\/([^\/]+)\/?$/';
+
+/**
+ * Determines the Pinterest embed type from the URL.
+ *
+ * @param string $url the URL to check.
+ * @returns {string} The pin type. Empty string if it isn't a valid Pinterest URL.
+ */
+function pin_type( $url ) {
+	if ( ! preg_match( PINTEREST_URL_REGEX, $url ) ) {
+		return '';
+	}
+
+	$path = wp_parse_url( $url, PHP_URL_PATH );
+
+	if ( ! $path ) {
+		return '';
+	}
+
+	if ( substr( $path, 0, 5 ) === '/pin/' ) {
+		return 'embedPin';
+	}
+
+	if ( preg_match( REMAINING_URL_PATH_REGEX, $path ) ) {
+		return 'embedUser';
+	}
+
+	if ( preg_match( REMAINING_URL_PATH_WITH_SUBPATH_REGEX, $path ) ) {
+		return 'embedBoard';
+	}
+
+	return '';
+}
 
 /**
  * Registers the block for use in Gutenberg
@@ -180,10 +218,29 @@ function render_amp_pin( $attr ) {
  * @return string
  */
 function load_assets( $attr, $content ) {
+	if ( ! jetpack_is_frontend() ) {
+		return $content;
+	}
 	if ( Blocks::is_amp_request() ) {
 		return render_amp_pin( $attr );
 	} else {
+		$url  = $attr['url'];
+		$type = pin_type( $url );
+
+		if ( ! $type ) {
+			return '';
+		}
+
 		wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
-		return $content;
+		return sprintf(
+			'
+			<div class="%1$s">
+				<a data-pin-do="%2$s" href="%3$s"></a>
+			</div>
+		',
+			esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+			esc_attr( $type ),
+			esc_url( $url )
+		);
 	}
 }

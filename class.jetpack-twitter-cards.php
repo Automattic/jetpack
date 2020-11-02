@@ -5,7 +5,6 @@
  * @package Jetpack.
  */
 
-
 /**
  * Twitter Cards
  *

@@ -1,24 +1,18 @@
 /**
- * WordPress dependencies
- */
-import { createURL } from '@wordpress/e2e-test-utils';
-
-/**
  * Internal dependencies
  */
 import Page from '../page';
 import { waitAndClick, waitAndType, waitForSelector } from '../../page-helper';
-import { WP_USERNAME, WP_PASSWORD } from '../../setup';
 import logger from '../../logger';
+import { takeScreenshot } from '../../reporters/screenshot';
 
 export default class WPLoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.login';
-		const url = createURL( 'wp-login.php' );
-		super( page, { expectedSelector, url } );
+		super( page, { expectedSelector } );
 	}
 
-	async login( username = WP_USERNAME, password = WP_PASSWORD, { retry = true } = {} ) {
+	async login( username = 'admin', password = 'password', { retry = true } = {} ) {
 		const ssoLoginButton = '.jetpack-sso.button';
 		if ( ( await this.page.$( ssoLoginButton ) ) !== null ) {
 			await this.toggleSSOLogin();
@@ -38,6 +32,9 @@ export default class WPLoginPage extends Page {
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.info( `The WPORG login didn't work as expected - retrying now: '${ e }'` );
+
+				const filePath = await takeScreenshot( 'WPORG-login-failed' );
+				logger.slack( { type: 'file', message: filePath } );
 				return await this.login( username, password, { retry: false } );
 			}
 			throw e;

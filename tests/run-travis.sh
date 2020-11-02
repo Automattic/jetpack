@@ -10,18 +10,20 @@ function run_packages_tests {
 			cd "$PACKAGE/../.."
 			export NAME=$(basename $(pwd))
 
-			if [ "$DO_COVERAGE" == "true" ]; then
-				composer install
-				export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
-			fi
-			echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
+			if [ ! -e tests/php/travis-can-run.sh ] || tests/php/travis-can-run.sh; then
+				if [ "$DO_COVERAGE" == "true" ]; then
+					composer install
+					export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
+				fi
+				echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
 
-			if $WP_TRAVISCI_PACKAGES; then
-				ls -la $TRAVIS_BUILD_DIR/coverage/packages
-				# Everything is fine
-				:
-			else
-				exit 1
+				if $WP_TRAVISCI_PACKAGES; then
+					ls -la $TRAVIS_BUILD_DIR/coverage/packages
+					# Everything is fine
+					:
+				else
+					exit 1
+				fi
 			fi
 			cd ../..
 		fi
@@ -42,6 +44,14 @@ function print_build_info {
 }
 
 function run_php_compatibility {
+	if ./vendor/bin/phpcs -i | grep -q 'PHPCompatibilityWP'; then
+		# PHPCompatibilityWP is installed
+		:
+	else
+		echo "Skipping PHP:Compatibility checks, PHPCompatibilityWP is not installed (PHP is too old?)"
+		return
+	fi
+
 	export PHPCOMP_EXEC="composer php:compatibility ."
 	export PHPCS_CHECK_EXEC="./vendor/bin/phpcs --version | grep -e PHP_CodeSniffer"
 	echo "Running PHP:Compatibility checks:"

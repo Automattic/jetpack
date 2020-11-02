@@ -15,6 +15,8 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 
+		'allow_fallback_to_jetpack_blog_token' => true,
+
 		'query_parameters' => array(
 			'number'          => '(int=20) The number of posts to return. Limit: 100.',
 			'offset'          => '(int=0) 0-indexed offset.',

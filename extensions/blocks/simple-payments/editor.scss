@@ -7,15 +7,27 @@
 	grid-column-gap: 10px;
 
 	.simple-payments__field {
-		.components-base-control__label {
-			display: none;
-		}
 		.components-base-control__field {
 			margin-bottom: 1em;
 		}
 		// Reset empty space under textarea on Chrome
 		textarea {
 			display: block;
+		}
+	}
+
+	// Hide some labels from the form.
+	.simple-payments__field.simple-payments__field-title,
+	.simple-payments__field.simple-payments__field-content,
+	.simple-payments__field.simple-payments__field-email {
+		.components-base-control__label {
+			clip: rect(0 0 0 0);
+			clip-path: inset(50%);
+			height: 1px;
+			overflow: hidden;
+			position: absolute;
+			white-space: nowrap;
+			width: 1px;
 		}
 	}
 
@@ -26,21 +38,46 @@
 		}
 	}
 
+	// Adjust price container (currency and price).
 	.simple-payments__price-container {
 		display: flex;
 		flex-wrap: wrap;
-		.simple-payments__field {
-			margin-right: 10px;
+
+		.components-input-control__label,
+		.components-base-control__label {
+			height: 27px;
+			line-height: 27px;
+			margin: 0;
+			font-weight: 400;
+			display: block;
 		}
+
+		.components-select-control__input,
+		.components-text-control__input {
+			max-width: 90px;
+			margin: 0;
+
+			@media screen and (max-width: 782px) {
+				min-height: 30px;
+				height: 30px;
+			}
+		}
+
+		.simple-payments__field-currency {
+			margin-right: 5px;
+			.components-input-control__container {
+				width: calc( 100% - 5px );
+			}
+		}
+
+		.simple-payments__field-price .components-base-control__field {
+			display: flex;
+			flex-direction: column;
+		}
+
 		.help-message {
 			flex: 1 1 100%;
 			margin-top: 0;
-		}
-	}
-
-	.simple-payments__field-price {
-		.components-text-control__input {
-			max-width: 90px;
 		}
 	}
 

@@ -13,6 +13,9 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 		'$site' => '(int|string) Site ID or domain',
 	),
 	'allow_jetpack_site_auth' => true,
+
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'query_parameters' => array(
 		'context' => false,
 		'options' => '(string) Optional. Returns specified options only. Comma-separated list. Example: options=login_url,timezone',
@@ -728,6 +731,8 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	'query_parameters' => array(
 		'context' => false,
 	),
+
+	'allow_fallback_to_jetpack_blog_token' => true,
 
 	'response_format' => array(
 		'formats' => '(object) An object of supported post formats, each key a supported format slug mapped to its display string.',

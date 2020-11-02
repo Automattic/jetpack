@@ -355,6 +355,10 @@ domReady( function () {
 				this.controller.setAttribute( 'aria-valuenow', 50 );
 				this.controller.setAttribute( 'aria-valuemin', 0 );
 				this.controller.setAttribute( 'aria-valuemax', 100 );
+				this.controller.setAttribute(
+					'aria-label',
+					window.imageCompareHandle || 'Slide to compare images'
+				);
 
 				this.handle.appendChild( this.leftArrow );
 				this.handle.appendChild( this.control );

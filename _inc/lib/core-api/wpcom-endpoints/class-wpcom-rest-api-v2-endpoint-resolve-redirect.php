@@ -29,7 +29,7 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 		// GET /sites/<blog_id>/resolve-redirect/<url> - Follow 301/302 redirects on a URL, and return the final destination.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<url>.+)',
+			'/' . $this->rest_base . '/?(?P<url>.+)?',
 			array(
 				'args'   => array(
 					'url' => array(

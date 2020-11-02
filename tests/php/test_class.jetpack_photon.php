@@ -75,8 +75,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 */
 	public function tearDown() {
 		// Restoring global variables.
-		global $content_width;
+		global $content_width, $wp_the_query;
 		$content_width = $this->protected_globals['content_width'];
+		$wp_the_query  = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// ... see ::setUp()
 		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
@@ -120,9 +121,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 */
 	protected function helper_get_image( $size = 'large', $meta = true ) {
 		if ( 'large' === $size ) { // 1600x1200
-			$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-large.png';
+			$filename = __DIR__ . '/modules/photon/sample-content/test-image-large.png';
 		} elseif ( 'medium' === $size ) { // 1024x768
-			$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-medium.png';
+			$filename = __DIR__ . '/modules/photon/sample-content/test-image-medium.png';
 		}
 		// Add sizes that exist before uploading the file.
 		add_image_size( 'jetpack_soft_defined', 700, 500, false ); // Intentionally not a 1.33333 ratio.
@@ -215,7 +216,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @param string $filename File name for sample content.
 	 */
 	private function get_photon_sample_content( $filename ) {
-		$full_filename = dirname( __FILE__ ) . '/modules/photon/sample-content/' . $filename;
+		$full_filename = __DIR__ . '/modules/photon/sample-content/' . $filename;
 
 		// Local files only.
 		$file_contents = file_get_contents( $full_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -1098,7 +1099,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		return array(
 			'photon_post_image_args_force_resize'     => array(
-				function( $args, $details ) use ( $assert_details ) {
+				function ( $args, $details ) use ( $assert_details ) {
 					$assert_details( $details );
 					return array(
 						'resize' => '300,250',
@@ -1157,9 +1158,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		parse_str( $query_str, $query_params );
 
 		$this->assertArrayHasKey( 'width', $attributes );
-		$this->assertEquals( '1024', $attributes['width']['value'] );
+		$this->assertSame( '1024', $attributes['width']['value'] );
 		$this->assertArrayHasKey( 'height', $attributes );
-		$this->assertEquals( '1024', $attributes['height']['value'] );
+		$this->assertSame( '1024', $attributes['height']['value'] );
 
 		$this->assertArrayHasKey( 'fit', $query_params );
 		$this->assertEquals( '1024,1024', $query_params['fit'] );
@@ -1318,7 +1319,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @group rest-api
 	 */
 	public function test_photon_cdn_in_rest_response_with_created_item() {
-		$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-large.png';
+		$filename = __DIR__ . '/modules/photon/sample-content/test-image-large.png';
 
 		wp_set_current_user( self::$author_id );
 
@@ -1392,7 +1393,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		unlink( $filename );
 
 		// Copy our test image over where the file is expected.
-		copy( dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-large.png', $filename );
+		copy( __DIR__ . '/modules/photon/sample-content/test-image-large.png', $filename );
 
 		// This is just a mocked response with a 200 code.
 		return array(

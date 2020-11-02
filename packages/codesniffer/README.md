@@ -39,3 +39,4 @@ The Jetpack standard includes the following other standards:
 * [PHPCompatibilityWP](https://packagist.org/packages/phpcompatibility/phpcompatibility-wp)
 * [WordPress-Core, WordPress-Docs, and WordPress-Extra](https://packagist.org/packages/wp-coding-standards/wpcs)
 * [VariableAnalysis](https://packagist.org/packages/sirbrillig/phpcs-variable-analysis)
+* Selected sniffs from [MediaWiki](https://packagist.org/packages/mediawiki/mediawiki-codesniffer)

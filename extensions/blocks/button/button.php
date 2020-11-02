@@ -174,7 +174,6 @@ function get_button_styles( $attributes ) {
 	return implode( ' ', $styles );
 }
 
-
 /**
  * Get filtered attributes.
  *

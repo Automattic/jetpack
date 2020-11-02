@@ -26,18 +26,28 @@ import icon from '../icon';
 import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
 import useResizeObserver from './use-resize-observer';
+import * as fullscreenAPI from './lib/fullscreen-api';
 
-export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settings } ) => {
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+	window.navigator.userAgent
+);
+
+export const Player = ( { slides, disabled, ref, ...settings } ) => {
 	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
 	const [ playing, setPlaying ] = useState( false );
 	const [ ended, setEnded ] = useState( false );
 	const [ muted, setMuted ] = useState( settings.startMuted );
 	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
 
-	const wrapperRef = useRef();
+	const slideContainerRef = useRef();
+	const appRef = useRef();
+
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
 	const [ resizeListener, { width, height } ] = useResizeObserver();
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
+
+	const [ fullscreen, setFullscreen ] = useState( false );
+	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
 
 	const uploading = some( slides, media => isBlobURL( media.url ) );
 	const showProgressBar = fullscreen || ! settings.showSlideCount;
@@ -122,32 +132,66 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 		}
 	}, [] );
 
+	// Max slide width is used to display the story in portrait mode on desktop
 	useLayoutEffect( () => {
-		if ( ! fullscreen ) {
-			if ( ! wrapperRef.current ) {
-				return;
-			}
-			const wrapperHeight = wrapperRef.current.offsetHeight;
-			const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
-			setMaxSlideWidth( ratioBasedWidth );
-		} else {
-			const wrapperHeight = ( wrapperRef.current && wrapperRef.current.offsetHeight ) || height;
-			const ratioBasedWidth = Math.round( settings.defaultAspectRatio * wrapperHeight );
-			const newMaxSlideWidth =
-				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
-			setMaxSlideWidth( newMaxSlideWidth );
+		if ( ! slideContainerRef.current ) {
+			return;
 		}
+		let ratioBasedWidth = Math.round(
+			settings.defaultAspectRatio * slideContainerRef.current.offsetHeight
+		);
+		if ( fullscreen ) {
+			ratioBasedWidth =
+				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
+		}
+		setMaxSlideWidth( ratioBasedWidth );
 	}, [ width, height, fullscreen ] );
 
 	useLayoutEffect( () => {
-		if ( wrapperRef.current && wrapperRef.current.offsetHeight > 0 ) {
-			setTargetAspectRatio( wrapperRef.current.offsetWidth / wrapperRef.current.offsetHeight );
+		if (
+			maxSlideWidth &&
+			slideContainerRef.current &&
+			slideContainerRef.current.offsetHeight > 0
+		) {
+			setTargetAspectRatio( maxSlideWidth / slideContainerRef.current.offsetHeight );
 		}
-	}, [ width, height ] );
+	}, [ maxSlideWidth ] );
+
+	useLayoutEffect( () => {
+		if ( fullscreen ) {
+			if ( isMobile && fullscreenAPI.enabled() && ! settings.loadInFullscreen ) {
+				fullscreenAPI.launch( appRef.current );
+			} else {
+				// position: fixed does not work as expected on mobile safari
+				// To fix that we need to add a fixed positioning to body,
+				// retain the current scroll position and restore it when we exit fullscreen
+				setLastScrollPosition( [
+					document.documentElement.scrollLeft,
+					document.documentElement.scrollTop,
+				] );
+				document.body.classList.add( 'wp-story-in-fullscreen' );
+				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
+			}
+		} else {
+			// eslint-disable-next-line no-lonely-if
+			if ( fullscreenAPI.element() ) {
+				fullscreenAPI.exit();
+			} else {
+				document.body.classList.remove( 'wp-story-in-fullscreen' );
+				if ( lastScrollPosition ) {
+					window.scrollTo( ...lastScrollPosition );
+				}
+				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
+			}
+		}
+	}, [ fullscreen ] );
 
 	return (
 		/* eslint-disable jsx-a11y/click-events-have-key-events */
-		<>
+		<div
+			ref={ appRef }
+			className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
+		>
 			{ resizeListener }
 			<div
 				role={ disabled ? 'presentation' : 'button' }
@@ -168,7 +212,7 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					fullscreen={ fullscreen }
 					onExitFullscreen={ onExitFullscreen }
 				/>
-				<div className="wp-story-wrapper" ref={ wrapperRef }>
+				<div ref={ slideContainerRef } className="wp-story-wrapper">
 					{ slides.map( ( media, index ) => (
 						<Slide
 							key={ index }
@@ -224,6 +268,6 @@ export const Player = ( { slides, fullscreen, setFullscreen, disabled, ...settin
 					}
 				/>
 			) }
-		</>
+		</div>
 	);
 };

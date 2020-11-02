@@ -13,9 +13,9 @@ namespace Automattic\Jetpack;
  * must require the corresponding packages to use these features.
  */
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
-use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\Connection\Plugin;
+use Automattic\Jetpack\JITM as JITM;
+use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
 /**

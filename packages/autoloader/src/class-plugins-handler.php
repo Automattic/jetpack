@@ -122,7 +122,7 @@ class Plugins_Handler {
 	 * @return string The path of the current plugin.
 	 */
 	public function get_current_plugin_path() {
-		$vendor_path = str_replace( '\\', '/', dirname( dirname( __FILE__ ) ) );
+		$vendor_path = str_replace( '\\', '/', dirname( __DIR__ ) );
 		// Path to the plugin's folder (the parent of the vendor/jetpack-autoloader folder).
 		return substr( $vendor_path, 0, strrpos( $vendor_path, '/' ) );
 	}

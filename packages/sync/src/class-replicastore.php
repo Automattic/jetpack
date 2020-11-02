@@ -150,7 +150,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param int    $max_id Maximum post ID.
 	 * @return array Array of posts.
 	 */
-	public function get_posts( $status = null, $min_id = null, $max_id = null ) {
+	public function get_posts( $status = null, $min_id = null, $max_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$args = array(
 			'orderby'        => 'ID',
 			'posts_per_page' => -1,
@@ -185,7 +185,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param \WP_Post $post   Post object.
 	 * @param bool     $silent Whether to perform a silent action. Not used in this implementation.
 	 */
-	public function upsert_post( $post, $silent = false ) {
+	public function upsert_post( $post, $silent = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $wpdb;
 
 		// Reject the post if it's not a \WP_Post.
@@ -328,19 +328,21 @@ class Replicastore implements Replicastore_Interface {
 	 * @return string|bool New comment_approved value, false if the status doesn't affect it.
 	 */
 	private function comment_status_to_approval_value( $status ) {
-		switch ( $status ) {
+		switch ( (string) $status ) {
 			case 'approve':
+			case '1':
 				return '1';
 			case 'hold':
+			case '0':
 				return '0';
 			case 'spam':
 				return 'spam';
 			case 'trash':
 				return 'trash';
+			case 'post-trashed':
+				return 'post-trashed';
 			case 'any':
-				return false;
 			case 'all':
-				return false;
 			default:
 				return false;
 		}
@@ -358,7 +360,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param int    $max_id Maximum comment ID.
 	 * @return array Array of comments.
 	 */
-	public function get_comments( $status = null, $min_id = null, $max_id = null ) {
+	public function get_comments( $status = null, $min_id = null, $max_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$args = array(
 			'orderby' => 'ID',
 			'status'  => 'all',
@@ -576,14 +578,13 @@ class Replicastore implements Replicastore_Interface {
 	}
 
 	/**
-	 * Change the features that the current theme supports.
-	 * Intentionally not implemented in this replicastore.
+	 * Change the info of the current theme.
 	 *
 	 * @access public
 	 *
-	 * @param array $theme_support Features that the theme supports.
+	 * @param array $theme_info Theme info array.
 	 */
-	public function set_theme_support( $theme_support ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function set_theme_info( $theme_info ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Noop.
 	}
 
@@ -734,6 +735,8 @@ class Replicastore implements Replicastore_Interface {
 	/**
 	 * Retrieve value of a constant based on the constant name.
 	 *
+	 * We explicitly return null instead of false if the constant doesn't exist.
+	 *
 	 * @access public
 	 *
 	 * @param string $constant Name of constant to retrieve.
@@ -868,9 +871,13 @@ class Replicastore implements Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param string $taxonomy Taxonomy slug.
-	 * @return array Array of terms.
+	 * @return array|\WP_Error Array of terms or WP_Error object on failure.
 	 */
 	public function get_terms( $taxonomy ) {
+		$t = $this->ensure_taxonomy( $taxonomy );
+		if ( ! $t || is_wp_error( $t ) ) {
+			return $t;
+		}
 		return get_terms( $taxonomy );
 	}
 
@@ -884,7 +891,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param bool   $is_term_id Whether this is a `term_id` or a `term_taxonomy_id`.
 	 * @return \WP_Term|\WP_Error Term object on success, \WP_Error object on failure.
 	 */
-	public function get_term( $taxonomy, $term_id, $is_term_id = true ) {
+	public function get_term( $taxonomy, $term_id, $is_term_id = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$t = $this->ensure_taxonomy( $taxonomy );
 		if ( ! $t || is_wp_error( $t ) ) {
 			return $t;
@@ -952,7 +959,7 @@ class Replicastore implements Replicastore_Interface {
 			)
 		);
 		if ( ! $exists ) {
-			$term_object   = sanitize_term( clone( $term_object ), $taxonomy, 'db' );
+			$term_object   = sanitize_term( clone $term_object, $taxonomy, 'db' );
 			$term          = array(
 				'term_id'    => $term_object->term_id,
 				'name'       => $term_object->name,
@@ -986,6 +993,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return bool|int|\WP_Error True on success, false if term doesn't exist. Zero if trying with default category. \WP_Error on invalid taxonomy.
 	 */
 	public function delete_term( $term_id, $taxonomy ) {
+		$this->ensure_taxonomy( $taxonomy );
 		return wp_delete_term( $term_id, $taxonomy );
 	}
 
@@ -1000,6 +1008,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param bool             $append    Optional. If false will delete difference of terms. Default false.
 	 */
 	public function update_object_terms( $object_id, $taxonomy, $terms, $append ) {
+		$this->ensure_taxonomy( $taxonomy );
 		wp_set_object_terms( $object_id, $terms, $taxonomy, $append );
 	}
 

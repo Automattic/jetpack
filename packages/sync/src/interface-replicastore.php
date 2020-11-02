@@ -249,13 +249,13 @@ interface Replicastore_Interface {
 	public function delete_option( $option );
 
 	/**
-	 * Change the features that the current theme supports.
+	 * Change the info of the current theme.
 	 *
 	 * @access public
 	 *
-	 * @param array $theme_support Features that the theme supports.
+	 * @param array $theme_info Theme info array.
 	 */
-	public function set_theme_support( $theme_support );
+	public function set_theme_info( $theme_info );
 
 	/**
 	 * Whether the current theme supports a certain feature.

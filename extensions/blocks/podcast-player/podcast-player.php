@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 use Automattic\Jetpack\Blocks;
-use WP_Error;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
 
@@ -75,10 +74,15 @@ function render_error( $message ) {
 /**
  * Podcast Player block registration/dependency declaration.
  *
- * @param array $attributes Array containing the Podcast Player block attributes.
+ * @param array  $attributes Array containing the Podcast Player block attributes.
+ * @param string $content    Fallback content - a direct link to RSS, as rendered by save.js.
  * @return string
  */
-function render_block( $attributes ) {
+function render_block( $attributes, $content ) {
+	// Don't render an interactive version of the block outside the frontend context.
+	if ( ! jetpack_is_frontend() ) {
+		return $content;
+	}
 
 	// Test for empty URLS.
 	if ( empty( $attributes['url'] ) ) {
@@ -275,7 +279,7 @@ function render( $name, $template_props = array(), $print = true ) {
 		$name = $name . '.php';
 	}
 
-	$template_path = dirname( __FILE__ ) . '/templates/' . $name;
+	$template_path = __DIR__ . '/templates/' . $name;
 
 	if ( ! file_exists( $template_path ) ) {
 		return '';

@@ -499,7 +499,7 @@ export async function syncPlanData( page ) {
 		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
-		logger.info( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+		logger.info( `!!! PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
 

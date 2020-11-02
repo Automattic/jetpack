@@ -14,12 +14,12 @@ export default class AuthorizePage extends Page {
 
 	async approve( repeat = true ) {
 		const authorizeButtonSelector = '.jetpack-connect__authorize-form button';
-		await Promise.all( [
-			waitAndClick( this.page, authorizeButtonSelector ),
-			this.page.waitForNavigation( { waitUntil: 'networkidle2' } ),
-		] );
 		try {
-			return await this.waitToDisappear();
+			return await Promise.all( [
+				waitAndClick( this.page, authorizeButtonSelector ),
+				this.waitToDisappear(),
+				this.page.waitForNavigation( { waitUntil: 'networkidle2', timeout: 50000 } ),
+			] );
 		} catch ( error ) {
 			if ( repeat ) {
 				const message = 'Jetpack connection failed. Retrying once again.';
