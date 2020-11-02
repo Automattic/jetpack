@@ -7,10 +7,10 @@
 
 namespace Automattic\Jetpack;
 
-use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Retrieves a URL within the plugins or mu-plugins directory.
@@ -220,7 +220,7 @@ class AssetsTest extends TestCase {
 	public function test_enqueue_async_script_adds_script_loader_tag_filter() {
 		Assets::enqueue_async_script( 'handle', 'minpath.js', 'path.js', array(), '123', true );
 		$asset_instance = Assets::instance();
-		self::assertTrue( has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
+		self::assertEquals( 10, (int) has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
 	}
 
 	/**

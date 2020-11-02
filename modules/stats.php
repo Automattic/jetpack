@@ -221,11 +221,15 @@ function stats_build_view_data() {
 		// 2. Set show_on_front = page
 		// 3. Set page_on_front = something
 		// 4. Visit https://example.com/ !
-		$queried_object = ( isset( $wp_the_query->queried_object ) ) ? $wp_the_query->queried_object : null;
-		$queried_object_id = ( isset( $wp_the_query->queried_object_id ) ) ? $wp_the_query->queried_object_id : null;
-		$post = $wp_the_query->get_queried_object_id();
-		$wp_the_query->queried_object = $queried_object;
-		$wp_the_query->queried_object_id = $queried_object_id;
+		$queried_object    = isset( $wp_the_query->queried_object ) ? $wp_the_query->queried_object : null;
+		$queried_object_id = isset( $wp_the_query->queried_object_id ) ? $wp_the_query->queried_object_id : null;
+		try {
+			$post_obj = $wp_the_query->get_queried_object();
+			$post     = $post_obj instanceof WP_Post ? $post_obj->ID : '0';
+		} finally {
+			$wp_the_query->queried_object    = $queried_object;
+			$wp_the_query->queried_object_id = $queried_object_id;
+		}
 	} else {
 		$post = '0';
 	}
@@ -653,7 +657,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			if ( in_array( $_REQUEST[$var], $vals ) )
 				$q[$var] = $_REQUEST[$var];
 		} elseif ( 'int' === $vals ) {
-			$q[$var] = intval( $_REQUEST[$var] );
+			$q[$var] = (int) $_REQUEST[$var];
 		} elseif ( 'date' === $vals ) {
 			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_REQUEST[$var] ) )
 				$q[$var] = $_REQUEST[$var];
@@ -681,7 +685,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== intval( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
 	} else {
 		if ( ! empty( $get['headers']['content-type'] ) ) {
@@ -1319,7 +1323,7 @@ function stats_dashboard_widget_content() {
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== intval( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
 	} else {
 		$body = stats_convert_post_titles( $get['body'] );
@@ -1574,7 +1578,7 @@ function stats_get_remote_csv( $url ) {
 
 	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== intval( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		return array(); // @todo: return an error?
 	} else {
 		return stats_str_getcsv( $get['body'] );

@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 use Automattic\Jetpack\Blocks;
-use WP_Error;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
 
@@ -275,7 +274,7 @@ function render( $name, $template_props = array(), $print = true ) {
 		$name = $name . '.php';
 	}
 
-	$template_path = dirname( __FILE__ ) . '/templates/' . $name;
+	$template_path = __DIR__ . '/templates/' . $name;
 
 	if ( ! file_exists( $template_path ) ) {
 		return '';

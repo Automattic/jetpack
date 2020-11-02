@@ -151,7 +151,6 @@ if ( is_multisite() ) :
 			$this->assertFalse( Jetpack_Options::is_network_option( 'version' ) );
 		}
 
-
 		/**
 		 * Tests that the file_data option exists.
 		 *

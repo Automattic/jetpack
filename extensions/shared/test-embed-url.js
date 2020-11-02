@@ -25,7 +25,7 @@ export default function testEmbedUrl( url, setIsResolvingUrl = noop ) {
 	setIsResolvingUrl( true );
 
 	return new Promise( ( resolve, reject ) => {
-		apiFetch( { path: `/wpcom/v2/resolve-redirect/${ url }` } ).then(
+		apiFetch( { path: `/wpcom/v2/resolve-redirect/?url=${ encodeURIComponent( url ) }` } ).then(
 			response => {
 				setIsResolvingUrl( false );
 				const responseStatusCode = response.status ? parseInt( response.status, 10 ) : null;

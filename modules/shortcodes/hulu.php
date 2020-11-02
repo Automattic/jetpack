@@ -87,13 +87,13 @@ function jetpack_hulu_shortcode( $atts ) {
 
 	$start_time = 0;
 	if ( is_numeric( $attr['start_time'] ) ) {
-		$start_time = intval( $attr['start_time'] );
+		$start_time = (int) $attr['start_time'];
 	}
-	if ( is_numeric( $attr['end_time'] ) && intval( $attr['end_time'] ) > $start_time ) {
-		$end_time = intval( $attr['end_time'] );
+	if ( is_numeric( $attr['end_time'] ) && (int) $attr['end_time'] > $start_time ) {
+		$end_time = (int) $attr['end_time'];
 	}
 	if ( is_numeric( $attr['thumbnail_frame'] ) ) {
-		$thumbnail_frame = intval( $attr['thumbnail_frame'] );
+		$thumbnail_frame = (int) $attr['thumbnail_frame'];
 	}
 
 	// check to see if $id is 76560 else we assume it's gQ6Z0I990IWv_VFQI2J7Eg
@@ -141,17 +141,17 @@ function jetpack_hulu_shortcode( $atts ) {
 	$query_args        = array();
 	$query_args['eid'] = esc_attr( $id );
 	if ( isset( $start_time ) ) {
-		$query_args['st'] = intval( $start_time );
+		$query_args['st'] = (int) $start_time;
 	}
 	if ( isset( $end_time ) ) {
-		$query_args['et'] = intval( $end_time );
+		$query_args['et'] = (int) $end_time;
 	}
 	if ( isset( $thumbnail_frame ) ) {
-		$query_args['it'] = 'i' . intval( $thumbnail_frame );
+		$query_args['it'] = 'i' . (int) $thumbnail_frame;
 	}
 
 	$iframe_url = add_query_arg( $query_args, 'https://www.hulu.com/embed.html' );
-	$width      = intval( $attr['width'] );
+	$width      = (int) $attr['width'];
 	$height     = round( ( $width / 640 ) * 360 );
 
 	$html = sprintf(
@@ -226,24 +226,24 @@ function wpcom_shortcodereverse_huluhelper( $attrs ) {
 	$shortcode = '[hulu id=' . esc_attr( $attrs['eid'] );
 
 	if ( $attrs['width'] ) {
-		$shortcode .= ' width=' . intval( $attrs['width'] );
+		$shortcode .= ' width=' . (int) $attrs['width'];
 	}
 
 	if ( $attrs['height'] ) {
-		$shortcode .= ' height=' . intval( $attrs['height'] );
+		$shortcode .= ' height=' . (int) $attrs['height'];
 	}
 
 	if ( $attrs['st'] ) {
-		$shortcode .= ' start_time=' . intval( $attrs['st'] );
+		$shortcode .= ' start_time=' . (int) $attrs['st'];
 	}
 
 	if ( $attrs['et'] ) {
-		$shortcode .= ' end_time=' . intval( $attrs['et'] );
+		$shortcode .= ' end_time=' . (int) $attrs['et'];
 	}
 
 	if ( $attrs['it'] ) {
 		// the thumbnail frame attribute comes with an i in front of the value, so we've got to remove that.
-		$shortcode .= ' thumbnail_frame=' . intval( ltrim( $attrs['it'], 'i' ) );
+		$shortcode .= ' thumbnail_frame=' . (int) ltrim( $attrs['it'], 'i' );
 	}
 	$shortcode .= ']';
 

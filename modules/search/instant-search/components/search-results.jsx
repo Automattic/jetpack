@@ -17,6 +17,7 @@ import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './search-sidebar';
 import { getConstrastingColor } from '../lib/colors';
+import './search-results.scss';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -167,15 +168,15 @@ class SearchResults extends Component {
 				aria-live="polite"
 				className="jetpack-instant-search__search-results"
 			>
-				<a
+				<button
 					className="jetpack-instant-search__overlay-close"
 					onClick={ this.closeOverlay }
 					onKeyPress={ this.onKeyPressHandler }
-					role="button"
 					tabIndex="0"
+					aria-label={ __( 'Close search results', 'jetpack' ) }
 				>
-					<Gridicon icon="cross" size="24" />
-				</a>
+					<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
+				</button>
 				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }
 				</div>

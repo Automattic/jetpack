@@ -75,6 +75,15 @@ class Error_Handler {
 	 * @since 8.7.0
 	 */
 	const ERROR_LIFE_TIME = DAY_IN_SECONDS;
+
+	/**
+	 * The error code for event tracking purposes.
+	 * If there are many, only the first error code will be tracked.
+	 *
+	 * @var string
+	 */
+	private $error_code;
+
 	/**
 	 * List of known errors. Only error codes in this list will be handled
 	 *
@@ -92,7 +101,8 @@ class Error_Handler {
 		'token_malformed',
 		'user_id_mismatch',
 		'no_possible_tokens',
-		'no_valid_token',
+		'no_valid_user_token',
+		'no_valid_blog_token',
 		'unknown_token',
 		'could_not_sign',
 		'invalid_scheme',
@@ -145,14 +155,12 @@ class Error_Handler {
 	public function handle_verified_errors() {
 		$verified_errors = $this->get_verified_errors();
 		foreach ( array_keys( $verified_errors ) as $error_code ) {
-
-			$error_found = false;
-
 			switch ( $error_code ) {
 				case 'malformed_token':
 				case 'token_malformed':
 				case 'no_possible_tokens':
-				case 'no_valid_token':
+				case 'no_valid_user_token':
+				case 'no_valid_blog_token':
 				case 'unknown_token':
 				case 'could_not_sign':
 				case 'invalid_token':
@@ -163,11 +171,10 @@ class Error_Handler {
 				case 'no_token_for_user':
 					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
 					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
-					$error_found = true;
-			}
-			if ( $error_found ) {
-				// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
-				break;
+					$this->error_code = $error_code;
+
+					// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
+					break 2;
 			}
 		}
 	}
@@ -458,7 +465,7 @@ class Error_Handler {
 		// Clear empty error codes.
 		$errors = array_filter(
 			$errors,
-			function( $user_errors ) {
+			function ( $user_errors ) {
 				return ! empty( $user_errors );
 			}
 		);
@@ -670,11 +677,11 @@ class Error_Handler {
 	 * @return array
 	 */
 	public function jetpack_react_dashboard_error( $errors ) {
-
 		$errors[] = array(
 			'code'    => 'xmlrpc_error',
 			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ),
 			'action'  => 'reconnect',
+			'data'    => array( 'api_error_code' => $this->error_code ),
 		);
 		return $errors;
 	}

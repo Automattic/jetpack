@@ -65,7 +65,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		echo '<script>window._wca = window._wca || [];</script>' . "\r\n";
 	}
 
-
 	/**
 	 * Place script to call s.js, Store Analytics.
 	 */
@@ -279,7 +278,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$order = wc_get_order( $order_id );
 
 		// loop through products in the order and queue a purchase event.
-		foreach ( $order->get_items() as $order_item_id => $order_item ) {
+		foreach ( $order->get_items() as $order_item ) {
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
 			$this->record_event(
@@ -345,7 +344,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param array  $variation Variation attributes..
 	 * @param array  $cart_item_data Other cart data.
 	 */
-	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
+	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
 		// if the referring post is not a product OR the product being added is not the same as post.
 		// (eg. related product list on single product page) then include a product view event.

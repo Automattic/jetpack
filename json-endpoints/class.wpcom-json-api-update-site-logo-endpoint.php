@@ -73,7 +73,7 @@ class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( isset( $args['id'] ) ) {
-			$logo_settings['id'] = intval( $args['id'], 10 );
+			$logo_settings['id'] = (int) $args['id'];
 		}
 		if ( isset( $args['url'] ) ) {
 			$logo_settings['url'] = $args['url'];

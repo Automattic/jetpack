@@ -365,9 +365,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		$content_help = __( 'Set a different content width for full size images.', 'jetpack' );
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
 			$content_help .= sprintf(
-				_n( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', intval( $GLOBALS['content_width'] ), 'jetpack' ),
+				_n( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', (int) $GLOBALS['content_width'], 'jetpack' ),
 				wp_get_theme()->Name,
-				intval( $GLOBALS['content_width'] )
+				(int) $GLOBALS['content_width']
 			);
 		}
 
@@ -1017,7 +1017,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return int Integer.
 	 */
 	public static function intval_base10( $value ) {
-		return intval( $value, 10 );
+		return (int) $value;
 	}
 
 	/**

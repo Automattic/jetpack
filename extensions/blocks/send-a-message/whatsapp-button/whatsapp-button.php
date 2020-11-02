@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\WhatsApp_Button;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack;
 use Jetpack_Gutenberg;
 
 const PARENT_NAME  = 'send-a-message';

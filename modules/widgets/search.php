@@ -649,7 +649,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$filters = array();
 		if ( isset( $new_instance['filter_type'] ) ) {
 			foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
-				$count = intval( $new_instance['num_filters'][ $index ] );
+				$count = (int) $new_instance['num_filters'][ $index ];
 				$count = min( 50, $count ); // Set max boundary at 50.
 				$count = max( 1, $count );  // Set min boundary at 1.
 

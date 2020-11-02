@@ -14,7 +14,13 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	private $comments;
 	private $comment_status;
 	private $options;
-	private $theme_support;
+
+	/**
+	 * Stores info related to the theme.
+	 *
+	 * @var array $theme_info stores theme info.
+	 */
+	private $theme_info;
 	private $meta;
 	private $meta_filter;
 	private $constants;
@@ -37,7 +43,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		$this->posts[ get_current_blog_id() ]           = array();
 		$this->comments[ get_current_blog_id() ]        = array();
 		$this->options[ get_current_blog_id() ]         = array();
-		$this->theme_support[ get_current_blog_id() ]   = array();
+		$this->theme_info[ get_current_blog_id() ]         = array();
 		$this->meta[ get_current_blog_id() ]            = array( 'post' => array(), 'comment' => array() );
 		$this->constants[ get_current_blog_id() ]       = array();
 		$this->updates[ get_current_blog_id() ]         = array();
@@ -214,13 +220,20 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		return $carry ^ ( array_key_exists( $option_name, $this->options[ get_current_blog_id() ] ) ? ( sprintf( '%u', crc32( $option_name . $this->options[ get_current_blog_id() ][ $option_name ] ) ) + 0 ) : 0 );
 	}
 
-	// theme functions
-	function set_theme_support( $theme_support ) {
-		$this->theme_support[ get_current_blog_id() ] = (object) $theme_support;
+	/**
+	 * Change the info of the current theme.
+	 *
+	 * @access public
+	 *
+	 * @param array $theme_info Theme info array.
+	 */
+	public function set_theme_info( $theme_info ) {
+		$this->theme_info[ get_current_blog_id() ] = (object) $theme_info;
 	}
 
 	function current_theme_supports( $feature ) {
-		return isset( $this->theme_support[ get_current_blog_id() ]->{$feature} );
+		$theme_supports = $this->get_callable( 'theme_support' );
+		return isset( $theme_supports[ $feature ] );
 	}
 
 	// meta
@@ -656,7 +669,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 
 		sort( $all_ids );
-		$bucket_size = intval( ceil( count( $all_ids ) / $buckets ) );
+		$bucket_size = (int) ceil( count( $all_ids ) / $buckets );
 
 		if ( $bucket_size === 0 ) {
 			return array();

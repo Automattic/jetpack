@@ -16,7 +16,7 @@
  * Load Verification Tools code.
  */
 function jetpack_load_verification_tools() {
-	include dirname( __FILE__ ) . '/verification-tools/blog-verification-tools.php';
+	include __DIR__ . '/verification-tools/blog-verification-tools.php';
 }
 
 /**

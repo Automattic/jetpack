@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
-import { numberFormat } from 'i18n-calypso';
-import Gridicon from 'components/gridicon';
 import React from 'react';
+
+/**
+ * Internal dependencies
+ */
+import Gridicon from 'components/gridicon';
+import { numberFormat } from 'components/number-format';
 
 const SingleFeature = ( { amount, description, gridIcon, title } ) => {
 	return (

@@ -13,6 +13,8 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 		'$site' => '(int|string) Site ID or domain',
 	),
 
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'query_parameters' => array(
 		'number'   => '(int=20) The number of posts to return. Limit: 100.',
 		'offset'   => '(int=0) 0-indexed offset.',
@@ -235,7 +237,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$query['tax_query'] = array();
 			foreach ( $args['term'] as $taxonomy => $slug ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );
-				if ( false === $taxonomy_object || ( ! $taxonomy_object->public && 
+				if ( false === $taxonomy_object || ( ! $taxonomy_object->public &&
 						! current_user_can( $taxonomy_object->cap->assign_terms ) ) ) {
 					continue;
 				}
@@ -244,7 +246,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					'taxonomy' => $taxonomy,
 					'field' => 'slug',
 					'terms' => explode( ',', $slug )
-				);				
+				);
 			}
 		}
 

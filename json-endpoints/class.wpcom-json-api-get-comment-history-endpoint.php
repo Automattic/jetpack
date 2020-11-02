@@ -45,7 +45,7 @@ class WPCOM_JSON_API_GET_Comment_History_Endpoint extends WPCOM_JSON_API_Endpoin
 		foreach ( $comment_history as &$item ) {
 			// Times are stored as floating point values in microseconds.
 			// We don't need that precision on the client so let's get rid of the decimal part.
-			$item['time'] = intval( $item['time'] );
+			$item['time'] = (int) $item['time'];
 		}
 
 		return array( 'comment_history' => $comment_history );

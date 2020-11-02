@@ -229,12 +229,12 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 
 			if ( isset( $new_instance['hide-timeout'] ) ) {
 				// Time can be a value between 3 and 1000 seconds.
-				$instance['hide-timeout'] = min( 1000, max( 3, intval( $new_instance['hide-timeout'] ) ) );
+				$instance['hide-timeout'] = min( 1000, max( 3, (int) $new_instance['hide-timeout'] ) );
 			}
 
 			if ( isset( $new_instance['consent-expiration'] ) ) {
 				// Time can be a value between 1 and 365 days.
-				$instance['consent-expiration'] = min( 365, max( 1, intval( $new_instance['consent-expiration'] ) ) );
+				$instance['consent-expiration'] = min( 365, max( 1, (int) $new_instance['consent-expiration'] ) );
 			}
 
 			if ( isset( $new_instance['customtext'] ) ) {

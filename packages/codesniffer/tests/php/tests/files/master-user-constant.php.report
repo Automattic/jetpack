@@ -1,0 +1,2 @@
+ 9 | WARNING | JETPACK_MASTER_USER constant should not be used. Use the blog token to make requests instead, or use the current user token when needed.
+   |         | (Jetpack.Constants.MasterUserConstant.ShouldNotBeUsed)

@@ -128,11 +128,25 @@ class Jetpack_ReCaptcha {
 		if ( true !== $resp_decoded['success'] ) {
 			return new WP_Error( $error_code, $error_message );
 		}
-
 		// Validate the hostname matches expected source
 		if ( isset( $resp_decoded['hostname'] ) ) {
 			$url = wp_parse_url( get_home_url() );
-			if ( $url['host'] !== $resp_decoded['hostname'] ) {
+
+			/**
+			 * Allow other valid hostnames.
+			 *
+			 * This can be useful in cases where the token hostname is expected to be
+			 * different from the get_home_url (ex. AMP recaptcha token contains a different hostname)
+			 *
+			 * @module sharedaddy
+			 *
+			 * @since 9.1.0
+			 *
+			 * @param array [ $url['host'] ] List of the valid hostnames to check against.
+			 */
+			$valid_hostnames = apply_filters( 'jetpack_recaptcha_valid_hostnames', array( $url['host'] ) );
+
+			if ( ! in_array( $resp_decoded['hostname'], $valid_hostnames, true ) ) {
 				return new WP_Error( 'unexpected-host', $this->error_codes['unexpected-hostname'] );
 			}
 		}

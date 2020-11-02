@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$queue->add( 'foo' );
 		$queue->add( 'bar' );
 
-		$this->assertEquals( 6, intval( $queue->lag( 7.5 ) ) );
+		$this->assertEquals( 6, (int) $queue->lag( 7.5 ) );
 	}
 
 	function test_checkout_queue_items() {

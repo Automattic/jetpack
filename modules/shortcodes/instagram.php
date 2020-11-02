@@ -13,9 +13,67 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
+
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_action( 'init', 'jetpack_instagram_enable_embeds' );
+} else {
+	jetpack_instagram_enable_embeds();
+}
+
+/**
+ * Register Instagram as oembed provider, and add required filters for the API request.
+ * Add filter to reverse iframes to shortcode. Register [instagram] shortcode.
+ *
+ * @since 9.1.0
+ */
+function jetpack_instagram_enable_embeds() {
+
+	/**
+	 * Instagram's custom Embed provider.
+	 * We first remove the embed provider that's registered by Core; then, we declare our own.
+	 *
+	 * We can drop the `wp_oembed_remove_provider` line once Core stops adding its own Instagram provider:
+	 * https://core.trac.wordpress.org/ticket/50861.
+	 */
+	wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
+
+	wp_oembed_add_provider(
+		'#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i',
+		'https://graph.facebook.com/v5.0/instagram_oembed/',
+		true
+	);
+
+	/**
+	 * Handle an alternate Instagram URL format, where the username is also part of the URL.
+	 */
+	wp_oembed_add_provider(
+		'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv)/([^\/]*)#i',
+		'https://graph.facebook.com/v5.0/instagram_oembed/',
+		true
+	);
+
+	/**
+	 * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
+	 */
+	add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 2 );
+
+	/**
+	 * Add JP auth headers if we're proxying through WP.com.
+	 */
+	add_filter( 'oembed_remote_get_args', 'jetpack_instagram_oembed_remote_get_args', 10, 2 );
+
+	/**
+	 * Embed reversal: Convert an embed code from Instagram.com to an oEmbeddable URL.
+	 */
+	add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
+
+	/**
+	 * Add the shortcode.
+	 */
+	add_shortcode( 'instagram', 'jetpack_shortcode_instagram' );
+}
 
 /**
  * Embed Reversal for Instagram
@@ -74,32 +132,6 @@ function jetpack_instagram_embed_reversal( $content ) {
 	return $content;
 }
 
-add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
-
-/**
- * Instagram's custom Embed provider.
- * We first remove the embed provider that's registered by Core; then, we declare our own.
- *
- * We can drop the `wp_oembed_remove_provider` line once Core stops adding its own Instagram provider:
- * https://core.trac.wordpress.org/ticket/50861.
- */
-wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
-
-wp_oembed_add_provider(
-	'#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i',
-	'https://graph.facebook.com/v5.0/instagram_oembed/',
-	true
-);
-
-/**
- * Handle an alternate Instagram URL format, where the username is also part of the URL.
- */
-wp_oembed_add_provider(
-	'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv)/([^\/]*)#i',
-	'https://graph.facebook.com/v5.0/instagram_oembed/',
-	true
-);
-
 /**
  * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
  *
@@ -142,8 +174,6 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	$wpcom_oembed_proxy = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/oembed-proxy/instagram/';
 	return str_replace( 'https://graph.facebook.com/v5.0/instagram_oembed/', $wpcom_oembed_proxy, $provider );
 }
-add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 2 );
-
 
 /**
  * Add JP auth headers if we're proxying through WP.com.
@@ -163,7 +193,6 @@ function jetpack_instagram_oembed_remote_get_args( $args, $url ) {
 
 	return $signed_request['request'];
 }
-add_filter( 'oembed_remote_get_args', 'jetpack_instagram_oembed_remote_get_args', 10, 2 );
 
 /**
  * Fetches a Facebook API access token used for query for Instagram embed information, if one is set.
@@ -221,4 +250,3 @@ function jetpack_shortcode_instagram( $atts ) {
 
 	return $wp_embed->shortcode( $atts, $atts['url'] );
 }
-add_shortcode( 'instagram', 'jetpack_shortcode_instagram' );

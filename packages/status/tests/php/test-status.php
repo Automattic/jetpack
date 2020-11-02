@@ -7,13 +7,12 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Status;
-use PHPUnit\Framework\TestCase;
+use Brain\Monkey;
+use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use phpmock\Mock;
 use phpmock\MockBuilder;
-use Brain\Monkey;
-use Brain\Monkey\Functions;
-use Brain\Monkey\Filters;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Status test suite.
@@ -185,7 +184,7 @@ class Test_Status extends TestCase {
 		$this->assertTrue( $this->status->is_offline_mode() );
 
 		array_map(
-			function( $mock ) {
+			function ( $mock ) {
 				$mock->disable();
 			},
 			$constants_mocks
@@ -275,7 +274,6 @@ class Test_Status extends TestCase {
 		$this->clean_mock_wpdb_get_var();
 	}
 
-
 	/**
 	 * Mock a global function with particular arguments and make it return a certain value.
 	 *
@@ -288,7 +286,7 @@ class Test_Status extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
 			->setFunction(
-				function( ...$current_args ) use ( &$args ) {
+				function ( ...$current_args ) use ( &$args ) {
 					foreach ( $args as $arg ) {
 						if ( array_slice( $arg, 0, -1 ) === $current_args ) {
 							return array_pop( $arg );
@@ -310,7 +308,7 @@ class Test_Status extends TestCase {
 	 * @return phpmock\Mock The mock object.
 	 */
 	protected function mock_constants( $constants = array() ) {
-		$prepare_constant = function( $constant ) {
+		$prepare_constant = function ( $constant ) {
 			return array( $constant[0], true );
 		};
 

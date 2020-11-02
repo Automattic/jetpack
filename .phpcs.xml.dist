@@ -3,23 +3,9 @@
 	<config name="minimum_supported_wp_version" value="5.4" />
 	<config name="testVersion" value="5.6-"/>
 
-	<rule ref="PHPCompatibilityWP"/>
-	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
-	<rule ref="WordPress-Extra" />
-	<rule ref="VariableAnalysis" />
-	<rule ref="./bin/PHPCSStandards/Jetpack" />
-
-	<!-- Elevate undefined variables to an Error instead of a Warning. -->
-	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
-		<type>error</type>
-	</rule>
+	<rule ref="Jetpack" />
 
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
-		<properties>
-			<property name="allowWordPressPassByRefFunctions" value="true" />
-		</properties>
-
 		<!-- Template files use extracted variables. -->
 		<exclude-pattern>/extensions/blocks/podcast-player/templates/*</exclude-pattern>
 	</rule>
@@ -46,7 +32,20 @@
 
 	<arg name="colors"/>
 
+	<!-- Ignore external libraries -->
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/vendor/*</exclude-pattern>
+
+	<!-- Ignore WordPress and such checked out for Docker -->
+	<exclude-pattern>/docker/mu-plugins/0-sandbox.php</exclude-pattern>
+	<exclude-pattern>/docker/wordpress-develop/*</exclude-pattern>
+	<exclude-pattern>/docker/wordpress/*</exclude-pattern>
+
+	<!-- Ignore WordPress included in packages -->
 	<exclude-pattern>/packages/*/wordpress/*</exclude-pattern>
+
+	<!-- Ignore built files -->
+	<exclude-pattern>/_inc/blocks/*</exclude-pattern>
+	<exclude-pattern>/_inc/build/*</exclude-pattern>
+
 </ruleset>

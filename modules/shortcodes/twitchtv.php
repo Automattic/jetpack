@@ -47,8 +47,8 @@ function wpcom_twitchtv_shortcode( $atts ) {
 		'time'     => $attr['time'],
 	);
 
-	$width  = intval( $attr['width'] );
-	$height = intval( $attr['height'] );
+	$width  = (int) $attr['width'];
+	$height = (int) $attr['height'];
 
 	$user_id  = $match[1];
 	$video_id = 0;

@@ -32,12 +32,13 @@
 		"simple-payments",
 		"slideshow",
 		"social-previews",
+		"story",
 		"subscriptions",
 		"tiled-gallery",
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "story" ],
+	"beta": [ "amazon" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",

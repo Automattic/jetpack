@@ -6,8 +6,6 @@
  * @since 8.7.0
  */
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Tweetstorm gatherer.
  *

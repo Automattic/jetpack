@@ -545,7 +545,7 @@ class Jetpack_Testimonial {
 
 		$atts['columns'] = absint( $atts['columns'] );
 
-		$atts['showposts'] = intval( $atts['showposts'] );
+		$atts['showposts'] = (int) $atts['showposts'];
 
 		if ( $atts['order'] ) {
 			$atts['order'] = urldecode( $atts['order'] );

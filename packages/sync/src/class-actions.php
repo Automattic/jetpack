@@ -488,7 +488,7 @@ class Actions {
 	 */
 	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
-			$minutes = intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
+			$minutes = (int) ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
 			$display = ( 1 === $minutes ) ?
 				__( 'Every minute', 'jetpack' ) :
 				/* translators: %d is an integer indicating the number of minutes. */
@@ -691,13 +691,11 @@ class Actions {
 		 * @param string $hook
 		 * @param string $schedule
 		 */
-		return intval(
-			apply_filters(
-				'jetpack_sync_cron_start_time_offset',
-				$start_time_offset,
-				$hook,
-				$schedule
-			)
+		return (int) apply_filters(
+			'jetpack_sync_cron_start_time_offset',
+			$start_time_offset,
+			$hook,
+			$schedule
 		);
 	}
 

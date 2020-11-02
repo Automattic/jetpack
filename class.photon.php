@@ -415,7 +415,7 @@ class Jetpack_Photon {
 						 */
 						apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) )
 					) {
-						$attachment_id = intval( array_pop( $attachment_id ) );
+						$attachment_id = (int) array_pop( $attachment_id );
 
 						if ( $attachment_id ) {
 							$attachment = get_post( $attachment_id );
@@ -626,7 +626,6 @@ class Jetpack_Photon {
 
 		return $galleries;
 	}
-
 
 	/**
 	 * Runs the image widget through photon.
@@ -1167,23 +1166,23 @@ class Jetpack_Photon {
 			// Populate an array matching the data structure of $_wp_additional_image_sizes so we have a consistent structure for image sizes.
 			$images = array(
 				'thumb'        => array(
-					'width'  => intval( get_option( 'thumbnail_size_w' ) ),
-					'height' => intval( get_option( 'thumbnail_size_h' ) ),
+					'width'  => (int) get_option( 'thumbnail_size_w' ),
+					'height' => (int) get_option( 'thumbnail_size_h' ),
 					'crop'   => (bool) get_option( 'thumbnail_crop' ),
 				),
 				'medium'       => array(
-					'width'  => intval( get_option( 'medium_size_w' ) ),
-					'height' => intval( get_option( 'medium_size_h' ) ),
+					'width'  => (int) get_option( 'medium_size_w' ),
+					'height' => (int) get_option( 'medium_size_h' ),
 					'crop'   => false,
 				),
 				'medium_large' => array(
-					'width'  => intval( get_option( 'medium_large_size_w' ) ),
-					'height' => intval( get_option( 'medium_large_size_h' ) ),
+					'width'  => (int) get_option( 'medium_large_size_w' ),
+					'height' => (int) get_option( 'medium_large_size_h' ),
 					'crop'   => false,
 				),
 				'large'        => array(
-					'width'  => intval( get_option( 'large_size_w' ) ),
-					'height' => intval( get_option( 'large_size_h' ) ),
+					'width'  => (int) get_option( 'large_size_w' ),
+					'height' => (int) get_option( 'large_size_h' ),
 					'crop'   => false,
 				),
 				'full'         => array(

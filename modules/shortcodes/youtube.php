@@ -208,7 +208,7 @@ function youtube_id( $url ) {
 		'fs'             => 1,
 		'hl'             => str_replace( '_', '-', get_locale() ),
 	);
-	if ( isset( $args['fmt'] ) && intval( $args['fmt'] ) ) {
+	if ( isset( $args['fmt'] ) && (int) $args['fmt'] ) {
 		$params['fmt'] = (int) $args['fmt']; // Apparently an obsolete parameter. Not referenced on https://developers.google.com/youtube/player_parameters.
 	}
 
@@ -221,7 +221,7 @@ function youtube_id( $url ) {
 
 	$start = 0;
 	if ( isset( $args['start'] ) ) {
-		$start = intval( $args['start'] );
+		$start = (int) $args['start'];
 	} elseif ( isset( $args['t'] ) ) {
 		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
@@ -244,10 +244,10 @@ function youtube_id( $url ) {
 		$params['start'] = (int) $start;
 	}
 
-	if ( isset( $args['end'] ) && intval( $args['end'] ) ) {
+	if ( isset( $args['end'] ) && (int) $args['end'] ) {
 		$params['end'] = (int) $args['end'];
 	}
-	if ( isset( $args['hd'] ) && intval( $args['hd'] ) ) {
+	if ( isset( $args['hd'] ) && (int) $args['hd'] ) {
 		$params['hd'] = (int) $args['hd']; // Now obsolete per https://developers.google.com/youtube/player_parameters#march-29,-2012.
 	}
 	if ( isset( $args['vq'] ) && in_array( $args['vq'], array( 'hd720', 'hd1080' ), true ) ) {
@@ -457,8 +457,8 @@ function jetpack_amp_youtube_shortcode( $url ) {
 function jetpack_shortcode_youtube_dimensions( $query_args ) {
 	global $content_width;
 
-	$input_w = ( isset( $query_args['w'] ) && intval( $query_args['w'] ) ) ? intval( $query_args['w'] ) : 0;
-	$input_h = ( isset( $query_args['h'] ) && intval( $query_args['h'] ) ) ? intval( $query_args['h'] ) : 0;
+	$input_w = ( isset( $query_args['w'] ) && (int) $query_args['w'] ) ? (int) $query_args['w'] : 0;
+	$input_h = ( isset( $query_args['h'] ) && (int) $query_args['h'] ) ? (int) $query_args['h'] : 0;
 
 	// If we have $content_width, use it.
 	if ( ! empty( $content_width ) ) {
@@ -477,7 +477,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 		$w = $input_w;
 		$h = $input_h;
 	} elseif ( 0 === $input_w && 0 === $input_h ) {
-		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 		} else {
 			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
@@ -487,7 +487,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 		$w = $input_w;
 		$h = ceil( ( $w / 16 ) * 9 );
 	} else {
-		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 		} else {
 			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );

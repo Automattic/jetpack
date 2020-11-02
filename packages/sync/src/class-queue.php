@@ -247,7 +247,7 @@ class Queue {
 	 */
 	public function get_ids( $items ) {
 		return array_map(
-			function( $item ) {
+			function ( $item ) {
 				return $item->id;
 			},
 			$items
@@ -521,7 +521,7 @@ class Queue {
 
 		if ( $checkout_value ) {
 			list( $checkout_id, $timestamp ) = explode( ':', $checkout_value );
-			if ( intval( $timestamp ) > time() ) {
+			if ( (int) $timestamp > time() ) {
 				return $checkout_id;
 			}
 		}
@@ -679,7 +679,7 @@ class Queue {
 	private function unserialize_values( $items ) {
 		array_walk(
 			$items,
-			function( $item ) {
+			function ( $item ) {
 				$item->value = maybe_unserialize( $item->value );
 			}
 		);

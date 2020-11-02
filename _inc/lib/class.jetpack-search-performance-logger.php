@@ -63,7 +63,7 @@ class Jetpack_Search_Performance_Logger {
 	}
 
 	private function record_query_time( $duration, $was_jetpack_search ) {
-		$this->stats[] = array( $was_jetpack_search, intval( $duration * 1000 ) );
+		$this->stats[] = array( $was_jetpack_search, (int) ( $duration * 1000 ) );
 	}
 
 	public function print_stats() {

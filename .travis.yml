@@ -83,47 +83,10 @@ matrix:
     name: "Legacy full sync"
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
 
-  - name: "E2E tests"
-    language: generic
-    dist: xenial # kinda workaround for wp-env dependencies
-    # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
-    # so we just skip the E2E job all together
-    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
-    before_script:
-    - nvm install
-    - yarn build-production-concurrently
-    - ./tests/e2e/bin/env.sh start
-    - yarn test-decrypt-config
-    script:
-    - yarn test-e2e
-    after_script:
-    - ./tests/e2e/bin/push-allure-artifacts.sh
-    addons:
-      apt:
-        sources:
-          - sourceline: ppa:qameta/allure
-        packages:
-          - allure
-          - zip
-
-  - name: "E2E tests with latest Gutenberg"
-    language: generic
-    dist: xenial
-    env: LATEST_GUTENBERG=1
-    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
-    before_script:
-    - nvm install
-    - yarn build-production-concurrently
-    - ./tests/e2e/bin/env.sh start
-    - yarn test-decrypt-config
-    script:
-    - yarn test-e2e --testPathIgnorePatterns=updater
-
   allow_failures:
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
     - name: "Code Coverage"
-    - name: "E2E tests with latest Gutenberg"
 
 cache:
   directories:
@@ -146,7 +109,7 @@ git:
 
 before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
-  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
   - ./tests/setup-travis.sh
 
 script: ./tests/run-travis.sh

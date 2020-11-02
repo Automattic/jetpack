@@ -126,7 +126,6 @@ class User_Agent_Info {
 		'googlebot-mobile',
 	);
 
-
 	/**
 	 * The constructor.
 	 *
@@ -446,7 +445,6 @@ class User_Agent_Info {
 		}
 	}
 
-
 	/**
 	 *  Detects if the current UA is iPhone Mobile Safari or another iPhone or iPod Touch Browser.
 	 *
@@ -476,7 +474,6 @@ class User_Agent_Info {
 		}
 	}
 
-
 	/**
 	 *  Detects if the current UA is Chrome for iOS
 	 *
@@ -500,7 +497,6 @@ class User_Agent_Info {
 			return false;
 		}
 	}
-
 
 	/**
 	 *  Detects if the current UA is Twitter for iPhone
@@ -738,7 +734,6 @@ class User_Agent_Info {
 		}
 	}
 
-
 	/**
 	 * Detects if the current browser is Opera Mini
 	 *
@@ -852,7 +847,6 @@ class User_Agent_Info {
 		}
 	}
 
-
 	/**
 	 * Detects if the current browser is on a Palm device running the new WebOS. This EXCLUDES TouchPad.
 	 *
@@ -899,7 +893,6 @@ class User_Agent_Info {
 			return false;
 		}
 	}
-
 
 	/**
 	 * Detects if the current browser is the Series 60 Open Source Browser.
@@ -1013,7 +1006,6 @@ class User_Agent_Info {
 		return false;
 	}
 
-
 	/**
 	 * Detects if the current UA is on one of the Maemo-based Nokia Internet Tablets.
 	 */
@@ -1064,7 +1056,6 @@ class User_Agent_Info {
 		}
 	}
 
-
 	/**
 	 * The is_webkit() method can be used to check the User Agent for an webkit generic browser.
 	 */
@@ -1107,7 +1098,6 @@ class User_Agent_Info {
 			return false;
 		}
 	}
-
 
 	/**
 	 * Detects if the current browser is the Native Android Tablet browser.
@@ -1179,7 +1169,6 @@ class User_Agent_Info {
 			return false;
 		}
 	}
-
 
 	/**
 	 * Detect if user agent is the WordPress.com Windows 8 app (used ONLY on the custom oauth stylesheet)
@@ -1360,8 +1349,8 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$version_num_major = intval( $version_num[0] );
-		$version_num_minor = intval( $version_num[1] );
+		$version_num_major = (int) $version_num[0];
+		$version_num_minor = (int) $version_num[1];
 
 		if ( 5 === $version_num_major ) {
 			return 'blackberry-5';
@@ -1425,8 +1414,8 @@ class User_Agent_Info {
 				return false;
 			}
 
-			$version_num_major = intval( $version_num[0] );
-			$version_num_minor = intval( $version_num[1] );
+			$version_num_major = (int) $version_num[0];
+			$version_num_minor = (int) $version_num[1];
 
 			if ( 5 === $version_num_major ) {
 				return 'blackberry-5';

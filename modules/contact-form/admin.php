@@ -860,7 +860,7 @@ function grunion_recheck_queue() {
 	$query = 'post_type=feedback&post_status=publish';
 
 	if ( isset( $_POST['limit'], $_POST['offset'] ) ) {
-		$query .= '&posts_per_page=' . intval( $_POST['limit'] ) . '&offset=' . intval( $_POST['offset'] );
+		$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 	}
 
 	$approved_feedbacks = get_posts( $query );
@@ -945,7 +945,7 @@ function grunion_delete_spam_feedbacks() {
 	 * @param int $delete_limit Number of spam to process at once. Default to 25.
 	 */
 	$delete_limit = apply_filters( 'jetpack_delete_spam_feedbacks_limit', $delete_limit );
-	$delete_limit = intval( $delete_limit );
+	$delete_limit = (int) $delete_limit;
 	$delete_limit = max( 1, min( 100, $delete_limit ) ); // Allow a range of 1-100 for the delete limit.
 
 	$query_args = array(

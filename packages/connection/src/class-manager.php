@@ -8,13 +8,13 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 use WP_User;
-use Automattic\Jetpack\Heartbeat;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -726,7 +726,7 @@ class Manager {
 			return false;
 		}
 
-		$user_id = empty( $user_id ) ? get_current_user_id() : intval( $user_id );
+		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
 		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
 			return false;
@@ -877,6 +877,7 @@ class Manager {
 				'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 				'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
 				'current_user_email' => wp_get_current_user()->user_email,
+				'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
 			)
 		);
 
@@ -989,7 +990,7 @@ class Manager {
 			$registration_response = false;
 		}
 
-		$code_type = intval( $code / 100 );
+		$code_type = (int) ( $code / 100 );
 		if ( 5 === $code_type ) {
 			return new \WP_Error( 'wpcom_5??', $code );
 		} elseif ( 408 === $code ) {
@@ -1624,7 +1625,7 @@ class Manager {
 		 */
 		do_action( 'jetpack_verify_secrets_begin', $action, $user );
 
-		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
+		$return_error = function ( \WP_Error $error ) use ( $action, $user ) {
 			/**
 			 * Verifying of the previously generated secret has failed.
 			 *
@@ -2338,9 +2339,9 @@ class Manager {
 		if ( ! $valid_token ) {
 			if ( $user_id ) {
 				// translators: %d is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
 			} else {
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', __( 'Invalid blog token', 'jetpack' ) );
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack' ) );
 			}
 		}
 

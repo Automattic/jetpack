@@ -61,7 +61,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			);
 		}
 
-
 		/**
 		 * Return an associative array of default values
 		 *
@@ -180,7 +179,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			do_action( 'jetpack_stats_extra', 'widget_view', 'contact_info' );
 		}
 
-
 		/**
 		 * Deals with the settings when they are saved by the admin. Here is
 		 * where any validation should be dealt with.
@@ -203,14 +201,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( ! isset( $new_instance['showmap'] ) ) {
 				$instance['showmap'] = 0;
 			} else {
-				$instance['showmap'] = intval( $new_instance['showmap'] );
+				$instance['showmap'] = (int) $new_instance['showmap'];
 			}
 
 			$instance['goodmap'] = $this->update_goodmap( $old_instance, $instance );
 
 			return $instance;
 		}
-
 
 		/**
 		 * Displays the form for this widget on the Widgets page of the WP Admin area.
@@ -323,7 +320,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			<?php
 		}
 
-
 		/**
 		 * Generate a Google Maps link for the supplied address.
 		 *
@@ -335,7 +331,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			// Google map urls have lots of available params but zoom (z) and query (q) are enough.
 			return 'https://maps.google.com/maps?z=16&q=' . $this->urlencode_address( $address );
 		}
-
 
 		/**
 		 * Builds map display HTML code from the supplied address.

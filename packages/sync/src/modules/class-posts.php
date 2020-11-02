@@ -96,7 +96,7 @@ class Posts extends Module {
 	 */
 	public function get_object_by_id( $object_type, $id ) {
 		if ( 'post' === $object_type ) {
-			$post = get_post( intval( $id ) );
+			$post = get_post( (int) $id );
 			if ( $post ) {
 				return $this->filter_post_content_and_add_links( $post );
 			}
@@ -342,7 +342,7 @@ class Posts extends Module {
 	 * @return boolean Whether the post type is allowed.
 	 */
 	public function is_post_type_allowed( $post_id ) {
-		$post = get_post( intval( $post_id ) );
+		$post = get_post( (int) $post_id );
 
 		if ( isset( $post->post_type ) ) {
 			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true );

@@ -599,7 +599,7 @@ class Jetpack_Portfolio {
 
 		$atts['columns'] = absint( $atts['columns'] );
 
-		$atts['showposts'] = intval( $atts['showposts'] );
+		$atts['showposts'] = (int) $atts['showposts'];
 
 
 		if ( $atts['order'] ) {

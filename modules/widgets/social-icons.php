@@ -96,11 +96,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 */
 	public function include_svg_icons() {
 		// Define SVG sprite file in Jetpack.
-		$svg_icons = dirname( dirname( __FILE__ ) ) . '/theme-tools/social-menu/social-menu.svg';
+		$svg_icons = dirname( __DIR__ ) . '/theme-tools/social-menu/social-menu.svg';
 
 		// Define SVG sprite file in WPCOM.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$svg_icons = dirname( dirname( __FILE__ ) ) . '/social-menu/social-menu.svg';
+			$svg_icons = dirname( __DIR__ ) . '/social-menu/social-menu.svg';
 		}
 
 		// If it exists, include it.
@@ -634,6 +634,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'stumbleupon.com' ),
 				'icon'  => 'stumbleupon',
 				'label' => 'StumbleUpon',
+			),
+			array(
+				'url'   => array( 'telegram.me', 't.me' ),
+				'icon'  => 'telegram',
+				'label' => 'Telegram',
 			),
 			array(
 				'url'   => array( 'tumblr.com' ),

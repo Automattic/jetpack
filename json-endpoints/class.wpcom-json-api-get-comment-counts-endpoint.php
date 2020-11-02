@@ -48,7 +48,7 @@ class WPCOM_JSON_API_GET_Comment_Counts_Endpoint extends WPCOM_JSON_API_Endpoint
 		$args = $this->query_args();
 
 		// If 0 is passed wp_count_comments will default to fetching counts for the whole site.
-		$post_id = ! empty( $args['post_id'] ) ? intval( $args['post_id'] ) : 0;
+		$post_id = ! empty( $args['post_id'] ) ? (int) $args['post_id'] : 0;
 
 		// Check if post with given id exists.
 		if ( ! empty( $post_id ) && ! is_object( get_post( $post_id ) ) ) {

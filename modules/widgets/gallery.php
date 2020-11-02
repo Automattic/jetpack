@@ -270,11 +270,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			);
 		}
 
-		$max_width  = intval( get_option( 'large_size_w' ) );
+		$max_width  = (int) get_option( 'large_size_w' );
 		$max_height = 175;
 
-		if ( intval( $content_width ) > 0 ) {
-			$max_width = min( intval( $content_width ), $max_width );
+		if ( (int) $content_width > 0 ) {
+			$max_width = min( (int) $content_width, $max_width );
 		}
 
 		$color     = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );

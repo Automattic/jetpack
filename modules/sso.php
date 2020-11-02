@@ -709,7 +709,7 @@ class Jetpack_SSO {
 		$user_found_with = '';
 		if ( empty( $user ) && isset( $user_data->external_user_id ) ) {
 			$user_found_with = 'external_user_id';
-			$user = get_user_by( 'id', intval( $user_data->external_user_id ) );
+			$user = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
 				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
 				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
@@ -1026,7 +1026,7 @@ class Jetpack_SSO {
 	static function get_user_by_wpcom_id( $wpcom_user_id ) {
 		$user_query = new WP_User_Query( array(
 			'meta_key'   => 'wpcom_user_id',
-			'meta_value' => intval( $wpcom_user_id ),
+			'meta_value' => (int) $wpcom_user_id,
 			'number'     => 1,
 		) );
 

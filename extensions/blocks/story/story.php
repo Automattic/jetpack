@@ -41,7 +41,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function with_width_height_srcset_and_sizes( $media_files ) {
 	return array_map(
-		function( $media_file ) {
+		function ( $media_file ) {
 			if ( ! isset( $media_file['id'] ) || ! empty( $media_file['srcset'] ) ) {
 				return $media_file;
 			}
@@ -348,7 +348,7 @@ function render_block( $attributes ) {
 		esc_attr( 'wp-story-' . get_the_ID() ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
-		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
+		esc_attr( get_site_icon_url( 40, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
