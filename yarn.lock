@@ -16206,10 +16206,10 @@ sisteransi@^1.0.3:
   resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.4.tgz#386713f1ef688c7c0304dc4c0632898941cad2e3"
   integrity sha512-/ekMoM4NJ59ivGSfKapeG+FWtrmWvA1p6FBZwXrqojw90vJu8lBmrTxCMuBCydKtkaUe2zt4PlxeTKpjwMbyig==
 
-size-limit@4.6.2:
-  version "4.6.2"
-  resolved "https://registry.yarnpkg.com/size-limit/-/size-limit-4.6.2.tgz#5bf347eea2558d772a90ca07da0d8ff62382ecf0"
-  integrity sha512-xEzc0wfel2XbjRpSbf1IkLrE2HoAtH8FMl2JxAUU7c5/vQIeBWQUAsRvhu6+97gLEXiwC+vuU0OmAY4/Tmx5dg==
+size-limit@4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/size-limit/-/size-limit-4.7.0.tgz#dbfdc1fa492d906fcf1e198617526a39b646845d"
+  integrity sha512-1mNMDz7QsBAlvF7BcWEiVVIXk6dYSd6b8A7XLL5eIi+it4iOdMSSfQSYqQ3HSYf1EGwFWWqnk9+A3n4JyEYHrQ==
   dependencies:
     bytes "^3.1.0"
     chokidar "^3.4.3"
