@@ -77,6 +77,7 @@ class MembershipsButtonEdit extends Component {
 
 		const recurringPaymentsAvailability = getJetpackExtensionAvailability( 'recurring-payments' );
 		this.hasUpgradeNudge =
+			! this.props.isInPremiumContentBlock() &&
 			! recurringPaymentsAvailability.available &&
 			recurringPaymentsAvailability.unavailableReason === 'missing_plan';
 	}
@@ -522,6 +523,17 @@ export default compose( [
 	withSelect( ( select, { clientId } ) => ( {
 		postId: select( 'core/editor' ).getCurrentPostId(),
 		innerButtons: select( 'core/editor' ).getBlocksByClientId( clientId ),
+		isInPremiumContentBlock: () => {
+			const parentClientIds = select( 'core/block-editor' ).getBlockParents( clientId );
+			for ( let i = 0; i < parentClientIds.length; i++ ) {
+				const parentBlock = select( 'core/block-editor' ).getBlock( parentClientIds[ i ] );
+
+				if ( parentBlock.name.includes( 'premium-content' ) ) {
+					return true;
+				}
+			}
+			return false;
+		}
 	} ) ),
 	withDispatch( dispatch => {
 		const { updateBlockAttributes } = dispatch( 'core/editor' );
