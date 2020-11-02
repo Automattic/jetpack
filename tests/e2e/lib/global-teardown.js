@@ -1,35 +1,23 @@
 import { readFileSync } from 'fs';
 import { teardown } from 'jest-environment-puppeteer';
 
-import {
-	sendSnippetToSlack,
-	sendMessageToSlack,
-	sendFileToSlack,
-	getFailedTestMessage,
-	getResultMessage,
-	getSuccessMessage,
-} from './reporters/slack';
-module.exports = async function ( globalConfig ) {
-	if ( process.env.CI ) {
-		await processSlackLog();
-	}
-	await teardown( globalConfig );
-};
+import SlackReporter from './reporters/slack';
 
 /**
  * Goes through the messages in slack-specific log, and send these messages into slack
  */
 async function processSlackLog() {
 	const log = readFileSync( './logs/e2e-slack.log' ).toString();
+	const slack = new SlackReporter();
 	const messages = getMessages( log );
 
 	const failures = messages.filter( json => json.type === 'failure' );
 
 	let response;
 	if ( failures.length === 0 ) {
-		response = await sendMessageToSlack( getSuccessMessage() );
+		response = await slack.sendSuccessMessage(); // sendMessageToSlack( getSuccessMessage() );
 	} else {
-		response = await sendMessageToSlack( getResultMessage( failures.length ) );
+		response = await slack.sendFailureMessage( failures ); // await sendMessageToSlack( getResultMessage( failures.length ) );
 	}
 
 	const options = { thread_ts: response.ts };
@@ -37,20 +25,24 @@ async function processSlackLog() {
 	for ( const json of messages ) {
 		switch ( json.type ) {
 			case 'file':
-				await sendFileToSlack( json.message, options );
+				await slack.sendFileToSlack( json.message, options );
 				break;
 
 			case 'failure':
-				await sendMessageToSlack( getFailedTestMessage( json ), options );
+				await slack.sendMessageToSlack( slack.getFailedTestMessage( json ), options );
 				break;
 
 			case 'debuglog':
-				await sendSnippetToSlack( json.message, options );
+				await slack.sendSnippetToSlack( json.message, options );
+				break;
+
+			case 'message':
+				await slack.sendMessageToSlack( json.message, options );
 				break;
 		}
 	}
 
-	await sendFileToSlack( './logs/e2e-simple.log', options );
+	await slack.sendFileToSlack( './logs/e2e-simple.log', options );
 }
 
 function getMessages( log ) {
@@ -64,3 +56,10 @@ function getMessages( log ) {
 
 	return messages;
 }
+
+module.exports = async function ( globalConfig ) {
+	if ( process.env.CI ) {
+		await processSlackLog();
+	}
+	await teardown( globalConfig );
+};
