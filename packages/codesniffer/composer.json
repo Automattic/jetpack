@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
-		"mediawiki/mediawiki-codesniffer": "32.0.0",
+		"mediawiki/mediawiki-codesniffer": "33.0.0",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
 		"sirbrillig/phpcs-variable-analysis": "2.9.0",
 		"wp-coding-standards/wpcs": "2.3.0"
