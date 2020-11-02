@@ -322,12 +322,12 @@ class Replicastore implements Replicastore_Interface {
 	/**
 	 * Translate a comment status to a value of the comment_approved field.
 	 *
-	 * @access private
+	 * @access protected
 	 *
 	 * @param string $status Comment status.
 	 * @return string|bool New comment_approved value, false if the status doesn't affect it.
 	 */
-	private function comment_status_to_approval_value( $status ) {
+	protected function comment_status_to_approval_value( $status ) {
 		switch ( (string) $status ) {
 			case 'approve':
 			case '1':
