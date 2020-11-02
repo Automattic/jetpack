@@ -25,13 +25,13 @@ let currentBlock;
 const defaultErrorHandler = async ( error, name ) => {
 	// If running tests in CI
 	if ( CI ) {
-		const filePath = await takeScreenshot( currentBlock, name );
+		await logDebugLog();
 		logger.slack( {
 			type: 'failure',
 			message: { block: currentBlock, name, error },
 		} );
+		const filePath = await takeScreenshot( currentBlock, name );
 		logger.slack( { type: 'file', message: filePath } );
-		await logDebugLog();
 		try {
 			reporter.addAttachment(
 				`Test failed: ${ currentBlock } :: ${ name }`,

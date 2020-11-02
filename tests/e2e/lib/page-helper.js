@@ -202,6 +202,10 @@ export async function logHTML() {
 
 export async function logDebugLog() {
 	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+	const appacheLog = execSyncShellCommand(
+		'yarn wp-env run tests-wordpress cat /var/log/apache2/error.log'
+	);
+
 	const lines = log.split( '\n' );
 	log = lines
 		.filter( line => {
@@ -218,5 +222,6 @@ export async function logDebugLog() {
 			logger.info( log );
 		}
 		logger.slack( { message: log, type: 'debuglog' } );
+		logger.slack( { message: appacheLog, type: 'debuglog' } );
 	}
 }
