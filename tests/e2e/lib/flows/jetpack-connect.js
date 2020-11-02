@@ -51,7 +51,6 @@ export async function connectThroughWPAdminIfNeeded( {
 	if ( await jetpackPage.isConnected() ) {
 		await jetpackPage.openMyPlan();
 		if ( await jetpackPage.isPlan( plan ) ) {
-			// eslint-disable-next-line no-console
 			logger.info( 'Site is already connected and has a plan!' );
 			return true;
 		}

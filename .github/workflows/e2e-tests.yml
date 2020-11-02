@@ -35,7 +35,7 @@ jobs:
           ${{ runner.os }}-composer-
 
     - name: Build Production Jetpack
-      run: yarn && yarn build-production
+      run: yarn build-production-concurrently
 
     - name: Set up environment
       env:
@@ -89,7 +89,7 @@ jobs:
           ${{ runner.os }}-composer-
 
     - name: Build Production Jetpack
-      run: yarn && yarn build-production
+      run: yarn build-production-concurrently
 
     - name: Set up environment
       env:
