@@ -749,9 +749,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Deletes all Setup Wizard options
+	 * Initializes the Assistant step according to the Setup Wizard state, and then clears the
+	 * Setup Wizard state.
 	 */
-	public static function delete_setup_wizard_options() {
+	private static function initialize_jetpack_assistant() {
+		if ( Jetpack_Options::get_option( 'assistant_step' ) ) {
+			return;
+		}
+
+		$setup_wizard_status = Jetpack_Options::get_option( 'setup_wizard_status' );
+		if ( 'completed' === $setup_wizard_status ) {
+			Jetpack_Options::update_option( 'assistant_step', 'completed' );
+		}
+
 		Jetpack_Options::delete_option( array( 'setup_wizard_questionnaire', 'setup_wizard_status' ) );
 	}
 
@@ -761,7 +771,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array Assistant data
 	 */
 	public static function get_assistant_data() {
-		self::delete_setup_wizard_options();
+		self::initialize_jetpack_assistant();
 
 		return Jetpack_Options::get_option( 'assistant_data', (object) array() );
 	}
@@ -784,8 +794,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array Assistant data
 	 */
 	public static function get_assistant_step() {
-		// TODO: initialize step to finished if setup_wizard was finished.
-		self::delete_setup_wizard_options();
+		self::initialize_jetpack_assistant();
 
 		return Jetpack_Options::get_option( 'assistant_step', 'not-started' );
 	}
