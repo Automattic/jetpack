@@ -5,13 +5,14 @@ import { readFileSync, createReadStream } from 'fs';
 import { WebClient, ErrorCode } from '@slack/web-api';
 import config from 'config';
 
-const { GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
+const { GITHUB_EVENT_PATH, GITHUB_RUN_ID, LATEST_GUTENBERG } = process.env;
 
 export default class SlackReporter {
 	constructor() {
 		const token = config.get( 'slackToken' );
 		this.webCli = new WebClient( token );
 		this.runURL = `https://github.com/Automattic/jetpack/actions/runs/${ GITHUB_RUN_ID }`;
+		this.runType = LATEST_GUTENBERG ? 'with latest :gutenberg:' : 'All';
 
 		this.conversationId = config.get( 'slackChannel' );
 		this.ccBrbrr = 'cc <@U6NSPV1LY>';
@@ -63,6 +64,7 @@ export default class SlackReporter {
 	getResultMessage( failureCount ) {
 		let buildInfo = `*BUILD #${ GITHUB_RUN_ID } FAILED:*
 
+*Type:* ${ this.runType }
 *Total failures:* ${ failureCount }
 *E2E action run:* ${ this.runURL }
 *Github branch:* ${ this.branchName }`;
@@ -85,6 +87,7 @@ export default class SlackReporter {
 	getSuccessMessage() {
 		let buildInfo = `*BUILD #${ GITHUB_RUN_ID } PASSED:*
 
+*Type:* ${ this.runType }
 *E2E action run:* ${ this.runURL }
 *Github branch:* ${ this.branchName }`;
 
