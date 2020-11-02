@@ -29,9 +29,6 @@ class Test_Cache_Handler extends TestCase {
 		parent::setUp();
 
 		$this->handler = new Cache_Handler();
-
-		// Make sure the content directory is set so the cache file can be written/read.
-		define( 'WP_CONTENT_DIR', TEST_DATA_PATH );
 	}
 
 	/**
@@ -73,6 +70,8 @@ class Test_Cache_Handler extends TestCase {
 
 	/**
 	 * Tests that the constant to change the cache directory works.
+	 *
+	 * @runInSeparateProcess
 	 */
 	public function test_uses_cache_directory_override() {
 		define( 'JETPACK_AUTOLOAD_CACHE_FOLDER', TEST_DATA_PATH . '/cache/cache' );

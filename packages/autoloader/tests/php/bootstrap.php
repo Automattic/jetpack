@@ -9,6 +9,10 @@
 define( 'TEST_PACKAGE_PATH', dirname( dirname( __DIR__ ) ) );
 define( 'TEST_DATA_PATH', __DIR__ . '/data' );
 
+// Give us some fake content/plugin paths to work with.
+define( 'WP_CONTENT_DIR', TEST_DATA_PATH );
+define( 'WP_PLUGIN_DIR', TEST_DATA_PATH . '/plugins' );
+
 // Load any of the test utilities.
 require_once __DIR__ . '/lib/functions-wordpress.php';
 

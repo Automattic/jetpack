@@ -30,10 +30,6 @@ class Test_Autoloader_Scenarios extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		// Make sure the content directory is correct so we can run the autoloader.
-		define( 'WP_CONTENT_DIR', TEST_DATA_PATH );
-		define( 'WP_PLUGIN_DIR', TEST_DATA_PATH . '/plugins' );
-
 		// We need to make sure there's an autoloader containing the current files for testing.
 		$this->generate_autoloader( 'plugin_current' );
 		$this->generate_autoloader( 'plugin_newer' );

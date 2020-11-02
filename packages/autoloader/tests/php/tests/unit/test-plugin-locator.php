@@ -29,9 +29,6 @@ class Test_Plugin_Locator extends TestCase {
 		parent::setUp();
 
 		$this->guesser = new Plugin_Locator();
-
-		// Make sure the plugin directory points to the test plugins!
-		define( 'WP_PLUGIN_DIR', TEST_DATA_PATH . '/plugins' );
 	}
 
 	/**
