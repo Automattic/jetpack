@@ -619,6 +619,50 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		register_rest_route(
+			'jetpack/v4',
+			'/assistant/data',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_assistant_data',
+				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_assistant_data',
+				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				'args'                => array(
+					'data' => array(
+						'required'          => false,
+						'type'              => 'object',
+						'validate_callback' => __CLASS__ . '::validate_assistant_data',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/assistant/step',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_assistant_step',
+				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_assistant_step',
+				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				'args'                => array(
+					'data' => array(
+						'required'          => false,
+						'type'              => 'object',
+						'validate_callback' => __CLASS__ . '::validate_string',
+					),
+				),
+			)
+		);
+
 		/*
 		 * Get and update the last licensing error message.
 		 */
@@ -705,6 +749,60 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Deletes all Setup Wizard options
+	 */
+	public static function delete_setup_wizard_options() {
+		Jetpack_Options::delete_option( array( 'setup_wizard_questionnaire', 'setup_wizard_status' ) );
+	}
+
+	/**
+	 * Get the data for the assistant
+	 *
+	 * @return array Assistant data
+	 */
+	public static function get_assistant_data() {
+		self::delete_setup_wizard_options();
+
+		return Jetpack_Options::get_option( 'assistant_data', (object) array() );
+	}
+
+	/**
+	 * Update the data for the assistant
+	 *
+	 * @param WP_REST_Request $request The request.
+	 */
+	public static function update_assistant_data( $request ) {
+		$data = $request['data'];
+		if ( ! empty( $data ) ) {
+			Jetpack_Options::update_option( 'assistant_data', $data );
+		}
+	}
+
+	/**
+	 * Get the data for the assistant
+	 *
+	 * @return array Assistant data
+	 */
+	public static function get_assistant_step() {
+		// TODO: initialize step to finished if setup_wizard was finished.
+		self::delete_setup_wizard_options();
+
+		return Jetpack_Options::get_option( 'assistant_step', 'not-started' );
+	}
+
+	/**
+	 * Update the step for the assistant
+	 *
+	 * @param WP_REST_Request $request The request.
+	 */
+	public static function update_assistant_step( $request ) {
+		$step = $request['step'];
+		if ( ! empty( $step ) ) {
+			Jetpack_Options::update_option( 'assistant_step', $step );
+		}
+	}
+
+	/**
 	 * Validate the answers on the setup wizard questionnaire
 	 *
 	 * @param array           $value Value to check received by request.
@@ -720,6 +818,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		foreach ( $value as $answer_key => $answer ) {
+			if ( is_string( $answer ) ) {
+				$validate = self::validate_string( $answer, $request, $param );
+			} else {
+				$validate = self::validate_boolean( $answer, $request, $param );
+			}
+
+			if ( is_wp_error( $validate ) ) {
+				return $validate;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validate the assistant data
+	 *
+	 * @param array           $value Value to check received by request.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_assistant_data( $value, $request, $param ) {
+		if ( ! is_array( $value ) ) {
+			/* translators: Name of a parameter that must be an object */
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
+		}
+
+		foreach ( $value as $answer ) {
 			if ( is_string( $answer ) ) {
 				$validate = self::validate_string( $answer, $request, $param );
 			} else {

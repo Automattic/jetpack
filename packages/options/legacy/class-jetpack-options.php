@@ -89,6 +89,8 @@ class Jetpack_Options {
 		}
 
 		return array(
+			'assistant_data',               // (array)  The user choice and other data for the assistant.
+			'assistant_step',               // (string) The current step of the assistant.
 			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',        // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
@@ -110,8 +112,8 @@ class Jetpack_Options {
 			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
 			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
 			'first_admin_view',             // (bool)   Set to true the first time the user views the admin. Usually after the initial connection.
-			'setup_wizard_questionnaire',   // (array)  List of user choices from the setup wizard.
-			'setup_wizard_status',          // (string) Status of the setup wizard.
+			'setup_wizard_questionnaire',   // (array)  (DEPRECATED) List of user choices from the setup wizard.
+			'setup_wizard_status',          // (string) (DEPRECATED) Status of the setup wizard.
 			'licensing_error',              // (string) Last error message occurred while attaching licenses that is yet to be surfaced to the user.
 		);
 	}
