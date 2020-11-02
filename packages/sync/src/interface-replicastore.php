@@ -416,9 +416,9 @@ interface Replicastore_Interface {
 	 *
 	 * @param string $taxonomy   Taxonomy slug.
 	 * @param int    $term_id    ID of the term.
-	 * @param bool   $is_term_id Whether this is a `term_id` or a `term_taxonomy_id`.
+	 * @param string $id_field   ID Field `term_id` or `term_taxonomy_id`.
 	 */
-	public function get_term( $taxonomy, $term_id, $is_term_id = true );
+	public function get_term( $taxonomy, $term_id, $id_field = 'term_id' );
 
 	/**
 	 * Insert or update a term.
