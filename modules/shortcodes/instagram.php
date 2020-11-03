@@ -214,24 +214,22 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 		return $provider;
 	}
 
-	// Attempt to clean query params from the URL.
-	$parsed_url = wp_parse_url( $url );
-	if ( $parsed_url ) {
-		// Get a set of URL and parameters supported by Facebook.
-		$clean_parameters = jetpack_instagram_get_whitelisted_parameters( $url );
+	// Get a set of URL and parameters supported by Facebook.
+	$clean_parameters = jetpack_instagram_get_whitelisted_parameters( $url );
 
-		$base_url = $clean_parameters['url'];
-		unset( $clean_parameters['url'] );
-
-		// Create a clean URL with only supported parameters.
-		$clean_url = add_query_arg(
-			$clean_parameters,
-			$base_url
-		);
-
+	if ( ! empty( $clean_parameters['url'] ) ) {
 		// Replace existing URL by our clean version.
 		$provider_without_url = remove_query_arg( 'url', $provider );
-		$provider             = add_query_arg( 'url', rawurlencode( $clean_url ), $provider_without_url );
+		$provider             = add_query_arg( 'url', rawurlencode( $clean_parameters['url'] ), $provider_without_url );
+	}
+
+	// Our shortcode supports the width param, but the API expects maxwidth.
+	if ( ! empty( $clean_parameters['width'] ) ) {
+		$provider = add_query_arg( 'maxwidth', $clean_parameters['width'], $provider );
+	}
+
+	if ( ! empty( $clean_parameters['hidecaption'] ) ) {
+		$provider = add_query_arg( 'hidecaption', true, $provider );
 	}
 
 	$access_token = jetpack_instagram_get_access_token();
