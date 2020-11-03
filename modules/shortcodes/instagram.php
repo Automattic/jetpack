@@ -133,6 +133,73 @@ function jetpack_instagram_embed_reversal( $content ) {
 }
 
 /**
+ * List of whitelisted and sanitized parameters
+ * that can be used with the Instagram oEmbed endpoint.
+ *
+ * Those parameters can be provided via the Instagram URL, or via shortcode parameters.
+ *
+ * @see https://developers.facebook.com/docs/graph-api/reference/instagram-oembed#parameters
+ *
+ * @since 9.1.0
+ *
+ * @param string $url  URL of the content to be embedded.
+ * @param array  $atts Shortcode attributes.
+ *
+ * @return array $params Array of parameters to be used in Instagram query.
+ */
+function jetpack_instagram_get_whitelisted_parameters( $url, $atts = array() ) {
+	global $content_width;
+
+	// Any URL passed via a shortcode attribute takes precedence.
+	if ( ! empty( $atts['url'] ) ) {
+		$url = $atts['url'];
+		unset( $atts['url'] );
+	}
+
+	/*
+	 * Get URL and parameters from the URL if possible.
+	 *
+	 * We'll also clean any other query params from the URL since Facebook's new API for Instagram
+	 * embeds does not like query parameters. See p7H4VZ-2DU-p2.
+	 */
+	$parsed_url = wp_parse_url( $url );
+	if ( $parsed_url ) {
+		$url = 'https://www.instagram.com' . $parsed_url['path'];
+
+		// If we have any parameters as part of the URL, we merge them with our attributes.
+		if ( ! empty( $parsed_url['query'] ) ) {
+			$query_args = array();
+			wp_parse_str( $parsed_url['query'], $query_args );
+
+			$atts = array_merge( $atts, $query_args );
+		}
+	}
+
+	$max_width = 698;
+	$min_width = 320;
+
+	$params = shortcode_atts(
+		array(
+			'url'         => $url,
+			'width'       => isset( $content_width ) ? $content_width : $max_width,
+			'hidecaption' => false,
+		),
+		$atts,
+		'instagram'
+	);
+
+	// Ensure width is within bounds.
+	$params['width'] = absint( $params['width'] );
+	if ( $params['width'] > $max_width ) {
+		$params['width'] = $max_width;
+	} elseif ( $params['width'] < $min_width ) {
+		$params['width'] = $min_width;
+	}
+
+	return $params;
+}
+
+/**
  * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
  *
  * @since 9.1.0
