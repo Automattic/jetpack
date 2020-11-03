@@ -214,11 +214,22 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 		return $provider;
 	}
 
-	// Attempt to clean query params from the URL since Facebook's new API for Instagram
-	// embeds does not like query parameters. See p7H4VZ-2DU-p2.
+	// Attempt to clean query params from the URL.
 	$parsed_url = wp_parse_url( $url );
 	if ( $parsed_url ) {
-		$clean_url            = 'https://www.instagram.com' . $parsed_url['path'];
+		// Get a set of URL and parameters supported by Facebook.
+		$clean_parameters = jetpack_instagram_get_whitelisted_parameters( $url );
+
+		$base_url = $clean_parameters['url'];
+		unset( $clean_parameters['url'] );
+
+		// Create a clean URL with only supported parameters.
+		$clean_url = add_query_arg(
+			$clean_parameters,
+			$base_url
+		);
+
+		// Replace existing URL by our clean version.
 		$provider_without_url = remove_query_arg( 'url', $provider );
 		$provider             = add_query_arg( 'url', rawurlencode( $clean_url ), $provider_without_url );
 	}
@@ -293,6 +304,8 @@ function jetpack_shortcode_instagram( $atts ) {
 	if ( empty( $atts['url'] ) ) {
 		return '';
 	}
+
+	$atts = jetpack_instagram_get_whitelisted_parameters( $atts['url'], $atts );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/?]+)#i';
