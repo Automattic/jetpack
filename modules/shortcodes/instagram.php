@@ -133,7 +133,7 @@ function jetpack_instagram_embed_reversal( $content ) {
 }
 
 /**
- * List of whitelisted and sanitized parameters
+ * List of allowed and sanitized parameters
  * that can be used with the Instagram oEmbed endpoint.
  *
  * Those parameters can be provided via the Instagram URL, or via shortcode parameters.
