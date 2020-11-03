@@ -163,7 +163,7 @@ function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
 	 * embeds does not like query parameters. See p7H4VZ-2DU-p2.
 	 */
 	$parsed_url = wp_parse_url( $url );
-	if ( $parsed_url ) {
+	if ( $parsed_url && isset( $parsed_url['host'] ) && isset( $parsed_url['path'] ) ) {
 		// Bail early if this is not an Instagram URL.
 		if ( ! preg_match( '/instagr(\.am|am\.com)/', $parsed_url['host'] ) ) {
 			return array();

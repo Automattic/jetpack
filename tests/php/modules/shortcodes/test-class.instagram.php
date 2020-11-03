@@ -511,12 +511,12 @@ BODY;
 			),
 			// Tests some bad URLs to confirm we don't parse them.
 			'bad_url_1'                    => array(
-				'https://instagram.com.evil.example.com',
+				'https://instagram.com.evil.example.com/p/BnMOk_FFsxg',
 				array(),
 				array(),
 			),
 			'bad_url_2'                    => array(
-				'https://not-really-instagr.am',
+				'https://not-really-instagr.am/p/BnMOk_FFsxg',
 				array(),
 				array(),
 			),
