@@ -392,7 +392,7 @@ BODY;
 	}
 
 	/**
-	 * Test the build of a set of whitelisted parameters from a variety of inputs.
+	 * Test the build of a set of allowed parameters from a variety of inputs.
 	 *
 	 * @dataProvider get_instagram_parameters
 	 * @covers ::jetpack_instagram_get_allowed_parameters
