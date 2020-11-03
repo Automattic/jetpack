@@ -11,7 +11,7 @@ import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
-import { execShellCommand, execSyncShellCommand, execWpCommand } from './utils-helper';
+import { execWpCommand } from './utils-helper';
 import {
 	connectThroughWPAdminIfNeeded,
 	loginToWpcomIfNeeded,
@@ -223,9 +223,6 @@ const tunnelManager = new TunnelManager();
 // each other's side-effects.
 catchBeforeAll( async () => {
 	await setupBrowser();
-
-	const out = await execShellCommand( 'yarn wp-env logs tests --watch=false' );
-	logger.slack( { type: 'debuglog', message: out } );
 
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
