@@ -45,15 +45,65 @@
 		"sirbrillig/phpcs-changed": "2.5.1"
 	},
 	"scripts": {
-		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor,packages/*/wordpress --extensions=php",
-		"php:lint": "vendor/bin/phpcs -p -s",
-		"php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
-		"php:autofix": "vendor/bin/phpcbf",
-		"php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1",
+		"php:lint": [
+			"printf '\\e[30;43m`composer php:lint` now lints. If you want to run phpcs, use `composer phpcs:lint`.\\e[0m\\n'",
+			"bin/parallel-lint.sh"
+		],
+		"phpcs:changed": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpcs-changed --git"
+		],
+		"phpcs:compatibility": [
+			"@phpcs:lint --runtime-set testVersion 5.6- --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor,packages/*/wordpress --extensions=php"
+		],
+		"phpcs:fix": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpcbf -p"
+		],
+		"phpcs:fix:required": [
+			"@phpcs:fix --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+		],
+		"phpcs:lint": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpcs -p -s"
+		],
+		"phpcs:lint:errors": [
+			"@phpcs:lint --runtime-set ignore_warnings_on_exit 1"
+		],
+		"phpcs:lint:required": [
+			"@phpcs:lint --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+		],
+		"php:autofix": [
+			"printf '\\e[37;41m`composer php:autofix` is deprecated. Use `composer phpcs:fix` instead.\\e[0m\\n'",
+			"@phpcs:fix"
+		],
+		"php:changed": [
+			"printf '\\e[37;41m`composer php:changed` is deprecated. Use `composer phpcs:changed` instead.\\e[0m\\n'",
+			"@phpcs:changed"
+		],
+		"php:lint:errors": [
+			"printf '\\e[37;41m`composer php:lint:errors` is deprecated. Use `composer phpcs:lint:errors` instead.\\e[0m\\n'",
+			"@phpcs:lint:errors"
+		],
 		"php:requirelist": [
-			"vendor/bin/phpcbf -p --filter=bin/class-jetpack-phpcs-exclude-filter.php",
-			"vendor/bin/phpcs -p -s --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+			"printf '\\e[37;41m`composer php:requirelist` is deprecated. Use `composer phpcs:lint:required` and/or `composer phpcs:fix:required` instead.\\e[0m\\n'",
+			"@phpcs:fix:required",
+			"@phpcs:lint:required"
 		]
+	},
+	"scripts-descriptions": {
+		"php:lint": "Run PHP's linter (`php -l`).",
+		"phpcs:changed": "Run phpcs over git changes only. One or more files must be specified.",
+		"phpcs:compatibility": "Run PHPCompatibility checks. One or more files or directories must be specified.",
+		"phpcs:fix": "Run phpcbf (phpcs's auto-fixer).",
+		"phpcs:fix:required": "Run phpcbf on files that are not excluded by bin/phpcs-excludelist.txt.",
+		"phpcs:lint": "Run phpcs.",
+		"phpcs:lint:errors": "Run phpcs, exiting with failure only if errors were encountered.",
+		"phpcs:lint:required": "Run phpcs on files that are not excluded by bin/phpcs-excludelist.txt.",
+		"php:autofix": "DEPRECATED. Use `composer phpcs:fix` instead.",
+		"php:changed": "DEPRECATED. Use `composer phpcs:changed` instead.",
+		"php:lint:errors": "DEPRECATED. Use `composer phpcs:lint:errors` instead.",
+		"php:requirelist": "DEPRECATED. Use `composer phpcs:lint:required` and/or `composer phpcs:fix:required` instead."
 	},
 	"repositories": [
 		{

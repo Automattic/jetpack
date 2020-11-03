@@ -350,7 +350,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	This runs the actual linting task.
 	
 	```sh
-	yarn php:lint
+	composer phpcs:lint
 	```
 
 * ### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.6
@@ -358,7 +358,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.6
 	
 	```sh
-	yarn php:compatibility
+	composer phpcs:compatibility
 	```
 
 * ### Linting Jetpack's JavaScript

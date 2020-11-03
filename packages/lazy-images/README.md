@@ -50,6 +50,6 @@ $ composer phpunit
 The PHP code can be linted from the root of the Jetpack repository:
 ```bash
 $ cd ../../
-$ yarn php:compatibility packages/lazy-images
-$ yarn php:lint packages/lazy-images
+$ composer phpcs:compatibility packages/lazy-images
+$ composer phpcs:lint packages/lazy-images
 ```

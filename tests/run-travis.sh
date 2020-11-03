@@ -52,7 +52,7 @@ function run_php_compatibility {
 		return
 	fi
 
-	export PHPCOMP_EXEC="composer php:compatibility ."
+	export PHPCOMP_EXEC="composer phpcs:compatibility ."
 	export PHPCS_CHECK_EXEC="./vendor/bin/phpcs --version | grep -e PHP_CodeSniffer"
 	echo "Running PHP:Compatibility checks:"
 	echo "PHP Compatibility command: \`$PHPCOMP_EXEC\` "
