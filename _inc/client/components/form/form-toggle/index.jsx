@@ -1,15 +1,12 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 /**
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { Disabled, ToggleControl } from '@wordpress/components';
 
@@ -20,124 +17,73 @@ import Popover from 'components/popover';
 
 import './style.scss';
 
-export default class FormToggle extends Component {
-	static propTypes = {
-		onChange: PropTypes.func,
-		onKeyDown: PropTypes.func,
-		checked: PropTypes.bool,
-		disabled: PropTypes.bool,
-		id: PropTypes.string,
-		className: PropTypes.string,
-		toggling: PropTypes.bool,
-		'aria-label': PropTypes.string,
-		children: PropTypes.node,
-		disabledReason: PropTypes.node,
-	};
+const FormToggle = props => {
+	const [ showPopover, setPopoverState ] = useState( false );
+	const toggleSwitch = useRef( null );
+	const {
+		className,
+		checked = false,
+		children,
+		disabled = false,
+		disabledPopoverPosition = 'bottom',
+		disabledReason = '',
+		onChange,
+		toggling,
+	} = props;
 
-	static defaultProps = {
-		checked: false,
-		disabled: false,
-		onKeyDown: () => {},
-		onChange: () => {},
-		disabledPopoverPosition: 'bottom',
-		disabledReason: '',
-	};
-
-	state = {
-		showPopover: false,
-	};
-
-	static idNum = 0;
-
-	constructor() {
-		super( ...arguments );
-
-		this.onKeyDown = this.onKeyDown.bind( this );
-		this.onClick = this.onClick.bind( this );
-		this.onLabelClick = this.onLabelClick.bind( this );
-	}
-
-	togglePopover = () => {
-		this.setState( { showPopover: ! this.state.showPopover } );
-	};
-
-	_onPopoverClose = () => {
-		this.setState( { showPopover: false } );
-	};
-
-	UNSAFE_componentWillMount() {
-		this.id = this.constructor.idNum++;
-	}
-
-	onKeyDown( event ) {
-		if ( this.props.disabled ) {
-			return;
-		}
-
-		if ( event.key === 'Enter' || event.key === ' ' ) {
-			event.preventDefault();
-			this.props.onChange();
-		}
-
-		this.props.onKeyDown( event );
-	}
-
-	onClick() {
-		if ( ! this.props.disabled ) {
-			this.props.onChange();
-		} else if ( this.props.disabledReason ) {
-			this.togglePopover();
+	/**
+	 * Toggle feature/option,
+	 * or trigger info popover if feature/option is disabled.
+	 */
+	function onClick() {
+		if ( ! disabled ) {
+			onChange();
+		} else if ( disabledReason ) {
+			setPopoverState( setPopoverState );
 		}
 	}
 
-	onLabelClick( event ) {
-		if ( this.props.disabled ) {
-			return;
-		}
-
-		const nodeName = event.target.nodeName.toLowerCase();
-		if ( nodeName !== 'a' && nodeName !== 'input' && nodeName !== 'select' ) {
-			event.preventDefault();
-			this.props.onChange();
-		}
-	}
-
-	renderPopover = () => {
+	const renderPopover = () => {
 		return (
 			<Popover
-				isVisible={ this.state.showPopover }
-				context={ this.refs && this.refs.toggleSwitch }
-				position={ this.props.disabledPopoverPosition }
-				onClose={ this._onPopoverClose }
+				isVisible={ showPopover }
+				context={ toggleSwitch }
+				position={ disabledPopoverPosition }
+				onClose={ setPopoverState( false ) }
 				className="dops-info-popover__tooltip"
 			>
-				{ this.props.disabledReason }
+				{ disabledReason }
 			</Popover>
 		);
 	};
 
-	render() {
-		const DisabledComponent = this.props.disabled ? Disabled : Fragment;
-		const labelContent = (
-			<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
-				{ this.props.children }
-			</span>
-		);
-		const toggleClasses = classNames( 'form-toggle', this.props.className, {
-			'is-toggling': this.props.toggling,
-			id: this.props.id || 'toggle-' + this.id,
-		} );
+	const DisabledComponent = disabled ? Disabled : Fragment;
+	const toggleClasses = classNames( 'form-toggle', className, {
+		'is-toggling': toggling,
+	} );
 
-		return (
-			<DisabledComponent>
-				<ToggleControl
-					checked={ this.props.checked }
-					className={ toggleClasses }
-					label={ labelContent }
-					onChange={ this.onClick }
-				/>
-				{ this.renderPopover() }
-			</DisabledComponent>
-		);
-	}
-}
+	return (
+		<DisabledComponent>
+			<ToggleControl
+				checked={ checked }
+				className={ toggleClasses }
+				label={ children }
+				onChange={ onClick }
+			/>
+			{ renderPopover }
+		</DisabledComponent>
+	);
+};
+
+FormToggle.propTypes = {
+	checked: PropTypes.bool,
+	children: PropTypes.node,
+	className: PropTypes.string,
+	disabled: PropTypes.bool,
+	disabledPopoverPosition: PropTypes.string,
+	disabledReason: PropTypes.string,
+	onChange: PropTypes.func,
+	toggling: PropTypes.bool,
+};
+
+export default FormToggle;
