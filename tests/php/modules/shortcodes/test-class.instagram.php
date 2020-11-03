@@ -372,4 +372,115 @@ BODY;
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$this->assertNotContains( 'amp-instagram', do_shortcode( $shortcode_content ) );
 	}
+
+	/**
+	 * Test the build of a set of whitelisted parameters from a variety of inputs.
+	 *
+	 * @dataProvider get_instagram_parameters
+	 * @covers ::jetpack_instagram_get_whitelisted_parameters
+	 *
+	 * @since 9.1.0
+	 *
+	 * @param string $url      URL of the content to be embedded.
+	 * @param array  $atts     Shortcode attributes.
+	 * @param array  $expected Array of expected parameters.
+	 */
+	public function test_shortcodes_instagram_whitelisted_parameters( $url, $atts, $expected ) {
+		$actual = jetpack_instagram_get_whitelisted_parameters( $url, $atts );
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Variety of parameters available from an embed.
+	 *
+	 * @covers ::jetpack_instagram_get_whitelisted_parameters
+	 *
+	 * @since 9.1.0
+	 */
+	public function get_instagram_parameters() {
+		$base_instagram_url = 'https://www.instagram.com/p/BnMOk_FFsxg';
+
+		return array(
+			'no_query_strings_no_atts'     => array(
+				$base_instagram_url,
+				array(),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 640,
+					'hidecaption' => false,
+				),
+			),
+			'invalid_query_string_no_atts' => array(
+				$base_instagram_url . '?utm_source=ig_web_copy_link',
+				array(),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 640,
+					'hidecaption' => false,
+				),
+			),
+			'invalid_query_string_hidecaption_string_no_atts' => array(
+				$base_instagram_url . '?utm_source=ig_web_copy_link&hidecaption=true',
+				array(),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 640,
+					'hidecaption' => 'true',
+				),
+			),
+			'hidecaption_string_no_atts'   => array(
+				$base_instagram_url . '?hidecaption=true',
+				array(),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 640,
+					'hidecaption' => 'true',
+				),
+			),
+			'hidecaption_att'              => array(
+				$base_instagram_url,
+				array(
+					'hidecaption' => 'true',
+				),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 640,
+					'hidecaption' => 'true',
+				),
+			),
+			'invalid_atts_in_url_att'      => array(
+				$base_instagram_url,
+				array(
+					'url' => $base_instagram_url . '?utm_source=ig_web_copy_link',
+				),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 640,
+					'hidecaption' => false,
+				),
+			),
+			'custom_width_att'             => array(
+				$base_instagram_url,
+				array(
+					'width' => '420',
+				),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 420,
+					'hidecaption' => false,
+				),
+			),
+			'width_att_out_of_bounds'      => array(
+				$base_instagram_url,
+				array(
+					'width' => '999',
+				),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => 698,
+					'hidecaption' => false,
+				),
+			),
+		);
+	}
 }
