@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { teardown } from 'jest-environment-puppeteer';
+import { logDebugLog } from './page-helper';
 
 import SlackReporter from './reporters/slack';
 
@@ -59,6 +60,7 @@ function getMessages( log ) {
 
 module.exports = async function ( globalConfig ) {
 	if ( process.env.CI ) {
+		await logDebugLog();
 		await processSlackLog();
 	}
 	await teardown( globalConfig );
