@@ -16,7 +16,6 @@ render: function() {
 			toggling={ this.props.toggling }
 			disabled={ this.props.disabled }
 			onChange={ this.props.onChange }
-			id={ 'you-rock-uniquely' }
 		  />
 		</div>
 	);
@@ -29,4 +28,3 @@ render: function() {
 * `toggling`: (bool) whether the toggle is in the middle of being performed.
 * `disabled`: (bool) whether the toggle should be in the disabled state.
 * `onChange`: (callback) what should be executed once the user clicks the toggle.
-* `id`: (string) the id of the checkbox and the for attribute of the label, should be unique.
