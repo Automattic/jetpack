@@ -509,6 +509,17 @@ BODY;
 					'hidecaption' => false,
 				),
 			),
+			// Tests some bad URLs to confirm we don't parse them.
+			'bad_url_1'                    => array(
+				'https://instagram.com.evil.example.com',
+				array(),
+				array(),
+			),
+			'bad_url_2'                    => array(
+				'https://not-really-instagr.am',
+				array(),
+				array(),
+			),
 		);
 	}
 }
