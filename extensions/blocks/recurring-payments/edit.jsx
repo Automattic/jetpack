@@ -77,7 +77,6 @@ class MembershipsButtonEdit extends Component {
 
 		const recurringPaymentsAvailability = getJetpackExtensionAvailability( 'recurring-payments' );
 		this.hasUpgradeNudge =
-			! this.props.isInPremiumContentBlock() &&
 			! recurringPaymentsAvailability.available &&
 			recurringPaymentsAvailability.unavailableReason === 'missing_plan';
 	}
@@ -372,9 +371,108 @@ class MembershipsButtonEdit extends Component {
 		</div>
 	);
 
-	render = () => {
+	renderDisclaimer = () => {
+		return (
+			<div className="membership-button__disclaimer">
+				<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+					{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
+				</ExternalLink>
+			</div>
+		);
+	};
+
+	renderUpgradeNudges = () => {
 		const { notices, postId } = this.props;
 		const { connected, connectURL, products } = this.state;
+
+		return (
+			<>
+			{ ! this.hasUpgradeNudge &&
+				! this.state.shouldUpgrade &&
+				connected === API_STATE_NOTCONNECTED && (
+					<StripeNudge
+						blockName="recurring-payments"
+						postId={ postId }
+						stripeConnectUrl={ connectURL }
+					/>
+				) }
+			{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
+				<div className="wp-block-jetpack-recurring-payments">
+					<Placeholder
+						icon={ <BlockIcon icon={ icon } /> }
+						label={ __( 'Payments', 'jetpack' ) }
+						notices={ notices }
+						instructions={ __(
+							"You'll need to upgrade your plan to use the Payments block.",
+							'jetpack'
+						) }
+					>
+						<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+							{ __( 'Upgrade your plan', 'jetpack' ) }
+						</Button>
+						{ this.renderDisclaimer() }
+					</Placeholder>
+				</div>
+			) }
+			{ ( connected === API_STATE_LOADING ||
+				this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
+				! this.props.attributes.planId && (
+					<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
+						<Spinner />
+					</Placeholder>
+				) }
+			{ ! this.state.shouldUpgrade &&
+				! this.props.attributes.planId &&
+				connected === API_STATE_CONNECTED &&
+				products.length === 0 && (
+					<div className="wp-block-jetpack-recurring-payments">
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Payments', 'jetpack' ) }
+							notices={ notices }
+						>
+							<div className="components-placeholder__instructions">
+								<p>
+									{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
+								</p>
+								{ this.renderAddMembershipAmount( true ) }
+								{ this.renderDisclaimer() }
+							</div>
+						</Placeholder>
+					</div>
+				) }
+			{ ! this.state.shouldUpgrade &&
+				! this.props.attributes.planId &&
+				this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
+				connected === API_STATE_CONNECTED &&
+				products.length > 0 && (
+					<div className="wp-block-jetpack-recurring-payments">
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Payments', 'jetpack' ) }
+							notices={ notices }
+						>
+							<div className="components-placeholder__instructions">
+								<p>
+									{ __(
+										'To use this block, select a previously created payment plan.',
+										'jetpack'
+									) }
+								</p>
+								{ this.renderMembershipAmounts() }
+								<p>{ __( 'Or a new one.', 'jetpack' ) }</p>
+								{ this.renderAddMembershipAmount( false ) }
+								{ this.renderDisclaimer() }
+							</div>
+						</Placeholder>
+					</div>
+				) }
+			</>
+		);
+	}
+
+	render = () => {
+		const { products } = this.state;
 
 		/**
 		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
@@ -413,107 +511,21 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
-				{ ! this.hasUpgradeNudge &&
-					! this.state.shouldUpgrade &&
-					connected === API_STATE_NOTCONNECTED && (
-						<StripeNudge
-							blockName="recurring-payments"
-							postId={ postId }
-							stripeConnectUrl={ connectURL }
-						/>
-					) }
-				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
-					<div className="wp-block-jetpack-recurring-payments">
-						<Placeholder
-							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Payments', 'jetpack' ) }
-							notices={ notices }
-							instructions={ __(
-								"You'll need to upgrade your plan to use the Payments block.",
-								'jetpack'
-							) }
-						>
-							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
-								{ __( 'Upgrade your plan', 'jetpack' ) }
-							</Button>
-						</Placeholder>
-					</div>
-				) }
-				{ ( connected === API_STATE_LOADING ||
-					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
-					! this.props.attributes.planId && (
-						<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
-							<Spinner />
-						</Placeholder>
-					) }
-				{ ! this.state.shouldUpgrade &&
-					! this.props.attributes.planId &&
-					connected === API_STATE_CONNECTED &&
-					products.length === 0 && (
-						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
-								<div className="components-placeholder__instructions">
-									<p>
-										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
-									</p>
-									{ this.renderAddMembershipAmount( true ) }
-								</div>
-							</Placeholder>
-						</div>
-					) }
-				{ ! this.state.shouldUpgrade &&
-					! this.props.attributes.planId &&
-					this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
-					connected === API_STATE_CONNECTED &&
-					products.length > 0 && (
-						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Payments', 'jetpack' ) }
-								notices={ notices }
-							>
-								<div className="components-placeholder__instructions">
-									<p>
-										{ __(
-											'To use this block, select a previously created payment plan.',
-											'jetpack'
-										) }
-									</p>
-									{ this.renderMembershipAmounts() }
-									<p>{ __( 'Or a new one.', 'jetpack' ) }</p>
-									{ this.renderAddMembershipAmount( false ) }
-								</div>
-							</Placeholder>
-						</div>
-					) }
-				<InspectorControls>
-					<PanelBody title={ __( 'Payments & Fees', 'jetpack' ) }>
-						<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
-							{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
-						</ExternalLink>
-					</PanelBody>
-				</InspectorControls>
+				{ ! this.props.isInPremiumContentBlock() && this.renderUpgradeNudges() }
 				{ showControls && inspectorControls }
-				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
-					connected !== API_STATE_LOADING ) ||
-					this.props.attributes.planId ) && (
-					<InnerBlocks
-						template={ [
-							[
-								'jetpack/button',
-								{
-									element: 'a',
-									uniqueId: 'recurring-payments-id',
-								},
-							],
-						] }
-						templateLock="all"
-					/>
-				) }
+
+				<InnerBlocks
+					template={ [
+						[
+							'jetpack/button',
+							{
+								element: 'a',
+								uniqueId: 'recurring-payments-id',
+							},
+						],
+					] }
+					templateLock="all"
+				/>
 			</Fragment>
 		);
 	};
