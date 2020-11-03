@@ -13,7 +13,7 @@ import { __, _x } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import FoldableCard from 'components/foldable-card';
 import getRedirectUrl from 'lib/jp-redirect';
 import { imagePath } from 'constants/urls';
@@ -199,7 +199,7 @@ class SiteStatsComponent extends React.Component {
 						} }
 					>
 						<FormFieldset>
-							<CompactFormToggle
+							<FormToggle
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
 								disabled={ ! isStatsActive || unavailableInOfflineMode }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
@@ -210,12 +210,12 @@ class SiteStatsComponent extends React.Component {
 										'Include a small chart in your admin bar with a 48-hour traffic snapshot'
 									) }
 								</span>
-							</CompactFormToggle>
+							</FormToggle>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
-								<CompactFormToggle
+								<FormToggle
 									checked={ this.state[ `count_roles_${ key }` ] }
 									disabled={
 										! isStatsActive ||
@@ -226,18 +226,18 @@ class SiteStatsComponent extends React.Component {
 									key={ `count_roles-${ key }` }
 								>
 									<span className="jp-form-toggle-explanation">{ siteRoles[ key ].name }</span>
-								</CompactFormToggle>
+								</FormToggle>
 							) ) }
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Allow stats reports to be viewed by', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle checked={ true } disabled={ true }>
+							<FormToggle checked={ true } disabled={ true }>
 								<span className="jp-form-toggle-explanation">{ siteRoles.administrator.name }</span>
-							</CompactFormToggle>
+							</FormToggle>
 							{ Object.keys( siteRoles ).map(
 								key =>
 									'administrator' !== key && (
-										<CompactFormToggle
+										<FormToggle
 											checked={ this.state[ `roles_${ key }` ] }
 											disabled={
 												! isStatsActive ||
@@ -248,7 +248,7 @@ class SiteStatsComponent extends React.Component {
 											key={ `roles-${ key }` }
 										>
 											<span className="jp-form-toggle-explanation">{ siteRoles[ key ].name }</span>
-										</CompactFormToggle>
+										</FormToggle>
 									)
 							) }
 						</FormFieldset>

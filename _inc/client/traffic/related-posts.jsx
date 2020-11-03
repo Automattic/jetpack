@@ -10,7 +10,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import analytics from 'lib/analytics';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import getRedirectUrl from 'lib/jp-redirect';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
@@ -101,7 +101,7 @@ class RelatedPostsComponent extends React.Component {
 						</span>
 					</ModuleToggle>
 					<FormFieldset>
-						<CompactFormToggle
+						<FormToggle
 							checked={ this.state.show_headline }
 							disabled={
 								! isRelatedPostsActive ||
@@ -113,8 +113,8 @@ class RelatedPostsComponent extends React.Component {
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Highlight related content with a heading', 'jetpack' ) }
 							</span>
-						</CompactFormToggle>
-						<CompactFormToggle
+						</FormToggle>
+						<FormToggle
 							checked={ this.state.show_thumbnails }
 							disabled={
 								! isRelatedPostsActive ||
@@ -126,7 +126,7 @@ class RelatedPostsComponent extends React.Component {
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Show a thumbnail image where available', 'jetpack' ) }
 							</span>
-						</CompactFormToggle>
+						</FormToggle>
 						{ isRelatedPostsActive && (
 							<div>
 								<FormLabel className="jp-form-label-wide">

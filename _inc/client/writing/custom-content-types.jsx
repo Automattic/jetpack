@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
@@ -88,14 +88,14 @@ export class CustomContentTypes extends React.Component {
 							}
 						) }
 					</p>
-					<CompactFormToggle
+					<FormToggle
 						checked={ this.state.testimonial }
 						disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) || disabledByOverride }
 						onChange={ this.handleTestimonialToggleChange }
 						disabledReason={ disabledReason }
 					>
 						<span className="jp-form-toggle-explanation">{ __( 'Testimonials', 'jetpack' ) }</span>
-					</CompactFormToggle>
+					</FormToggle>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
@@ -128,14 +128,14 @@ export class CustomContentTypes extends React.Component {
 							}
 						) }
 					</p>
-					<CompactFormToggle
+					<FormToggle
 						checked={ this.state.portfolio }
 						disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) || disabledByOverride }
 						onChange={ this.handlePortfolioToggleChange }
 						disabledReason={ disabledReason }
 					>
 						<span className="jp-form-toggle-explanation">{ __( 'Portfolios', 'jetpack' ) }</span>
-					</CompactFormToggle>
+					</FormToggle>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }

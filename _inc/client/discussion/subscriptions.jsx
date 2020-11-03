@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import Card from 'components/card';
 import { FormFieldset } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
@@ -111,7 +111,7 @@ class SubscriptionsComponent extends React.Component {
 					</ModuleToggle>
 					{
 						<FormFieldset>
-							<CompactFormToggle
+							<FormToggle
 								checked={ this.state.stb_enabled }
 								disabled={
 									! isSubscriptionsActive ||
@@ -123,8 +123,8 @@ class SubscriptionsComponent extends React.Component {
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
 								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+							</FormToggle>
+							<FormToggle
 								checked={ this.state.stc_enabled }
 								disabled={
 									! isSubscriptionsActive ||
@@ -139,7 +139,7 @@ class SubscriptionsComponent extends React.Component {
 										'jetpack'
 									) }
 								</span>
-							</CompactFormToggle>
+							</FormToggle>
 						</FormFieldset>
 					}
 				</SettingsGroup>

@@ -11,7 +11,7 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import ExternalLink from 'components/external-link';
 import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
 import getRedirectUrl from 'lib/jp-redirect';
@@ -110,14 +110,13 @@ class Privacy extends React.Component {
 						<SettingsGroup hasChild>
 							<p>{ __( 'We are committed to your privacy and security.', 'jetpack' ) }</p>
 							<p>
-								<CompactFormToggle
+								<FormToggle
 									compact
 									checked={ ! this.props.trackingSettings.tracks_opt_out }
 									disabled={
 										this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings
 									}
 									onChange={ this.togglePrivacy }
-									id="privacy-settings"
 								>
 									{ jetpackCreateInterpolateElement(
 										__(
@@ -135,7 +134,7 @@ class Privacy extends React.Component {
 											),
 										}
 									) }
-								</CompactFormToggle>
+								</FormToggle>
 							</p>
 							<p>
 								{ jetpackCreateInterpolateElement(

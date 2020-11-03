@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
@@ -56,13 +56,13 @@ function WritingMedia( props ) {
 	 * @returns {object} A compact toggle component.
 	 */
 	const renderToggle = ( checked, optionName, onChangeHandler, label ) => (
-		<CompactFormToggle
+		<FormToggle
 			checked={ checked }
 			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel', optionName ] ) }
 			onChange={ onChangeHandler /* eslint-disable-line */ }
 		>
 			<span className="jp-form-toggle-explanation">{ label }</span>
-		</CompactFormToggle>
+		</FormToggle>
 	);
 
 	return (

@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
@@ -163,7 +163,7 @@ class CommentsComponent extends React.Component {
 						{ foundMarkdown && (
 							<div className="jp-toggle-set">
 								<FormFieldset>
-									<CompactFormToggle
+									<FormToggle
 										checked={
 											!! this.props.getOptionValue(
 												'wpcom_publish_comments_with_markdown',
@@ -185,7 +185,7 @@ class CommentsComponent extends React.Component {
 										<span className="jp-form-toggle-explanation">
 											{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
 										</span>
-									</CompactFormToggle>
+									</FormToggle>
 								</FormFieldset>
 								<SupportInfo
 									text={ __( 'Allow readers to use markdown in comments.', 'jetpack' ) }

@@ -7,7 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 
 export class SettingToggle extends React.Component {
 	static propTypes = {
@@ -28,16 +28,15 @@ export class SettingToggle extends React.Component {
 
 	render() {
 		return (
-			<CompactFormToggle
+			<FormToggle
 				checked={ this.props.activated }
 				className={ this.props.className }
 				onChange={ this.toggleSetting }
 				disabled={ this.props.disabled }
-				id={ this.props.id }
 			>
 				{ ' ' }
 				{ this.props.children }
-			</CompactFormToggle>
+			</FormToggle>
 		);
 	}
 }

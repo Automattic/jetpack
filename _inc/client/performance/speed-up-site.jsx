@@ -9,7 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import { FormFieldset } from 'components/forms';
 import { getModule, getModuleOverride } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
@@ -247,7 +247,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								) }
 							</p>
 							{ canAppearInSearch && (
-								<CompactFormToggle
+								<FormToggle
 									checked={ siteAcceleratorStatus }
 									toggling={ togglingSiteAccelerator }
 									onChange={ this.handleSiteAcceleratorChange }
@@ -256,7 +256,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 									<span className="jp-form-toggle-explanation">
 										{ __( 'Enable site accelerator', 'jetpack' ) }
 									</span>
-								</CompactFormToggle>
+								</FormToggle>
 							) }
 							<FormFieldset>
 								{ foundPhoton && (

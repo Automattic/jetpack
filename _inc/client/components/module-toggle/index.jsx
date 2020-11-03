@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import { getModuleOverride } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
 
@@ -103,17 +103,16 @@ class ModuleToggleComponent extends Component {
 
 	render() {
 		return (
-			<CompactFormToggle
+			<FormToggle
 				checked={ this.props.activated || this.props.isModuleActivated }
 				toggling={ this.props.toggling }
 				className={ this.props.className }
 				disabled={ this.props.disabled || this.isDisabledByOverride() }
-				id={ this.props.id }
 				onChange={ this.toggleModule }
 				disabledReason={ this.getDisabledReason() }
 			>
 				{ this.props.children }
-			</CompactFormToggle>
+			</FormToggle>
 		);
 	}
 }

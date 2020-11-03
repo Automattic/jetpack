@@ -7,7 +7,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import { FormFieldset } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
@@ -92,7 +92,7 @@ export const SSO = withModuleSettingsFormHelpers(
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<CompactFormToggle
+							<FormToggle
 								checked={ this.state.jetpack_sso_match_by_email }
 								disabled={
 									! isSSOActive ||
@@ -104,8 +104,8 @@ export const SSO = withModuleSettingsFormHelpers(
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Match accounts using email addresses', 'jetpack' ) }
 								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+							</FormToggle>
+							<FormToggle
 								checked={ this.state.jetpack_sso_require_two_step }
 								disabled={
 									! isSSOActive ||
@@ -120,7 +120,7 @@ export const SSO = withModuleSettingsFormHelpers(
 										'jetpack'
 									) }
 								</span>
-							</CompactFormToggle>
+							</FormToggle>
 						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>

@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
 import { FormFieldset } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
@@ -98,7 +98,7 @@ function Search( props ) {
 						</ModuleToggle>
 
 						<FormFieldset>
-							<CompactFormToggle
+							<FormToggle
 								checked={ isInstantSearchEnabled }
 								disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
 								onChange={ toggleInstantSearch }
@@ -107,7 +107,7 @@ function Search( props ) {
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
 								</span>
-							</CompactFormToggle>
+							</FormToggle>
 							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
 								{ __(
 									'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',

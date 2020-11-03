@@ -10,7 +10,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import analytics from 'lib/analytics';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import FormToggle from 'components/form/form-toggle';
 import ExternalLink from 'components/external-link';
 import getRedirectUrl from 'lib/jp-redirect';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
@@ -55,72 +55,74 @@ export const Ads = withModuleSettingsFormHelpers(
 			const isAdsActive = getOptionValue( 'wordads' );
 			const unavailableInOfflineMode = isUnavailableInOfflineMode( 'wordads' );
 
-			return <SettingsGroup
-						hasChild
-						support={ {
-							text: __(
-								'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
-								'jetpack'
-							),
-							link: 'https://jetpack.com/support/ads/',
-						} }
+			return (
+				<SettingsGroup
+					hasChild
+					support={ {
+						text: __(
+							'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
+							'jetpack'
+						),
+						link: 'https://jetpack.com/support/ads/',
+					} }
+				>
+					<FormToggle
+						checked={ wordads_custom_adstxt_enabled }
+						disabled={
+							! isAdsActive ||
+							unavailableInOfflineMode ||
+							this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+						}
+						onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
 					>
-						<CompactFormToggle
-								checked={ wordads_custom_adstxt_enabled }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Customize your ads.txt file', 'jetpack' ) }
+						</span>
+					</FormToggle>
+					{ wordads_custom_adstxt_enabled && (
+						<FormFieldset>
+							<br />
+							<p>
+								{ isAdsActive &&
+									jetpackCreateInterpolateElement(
+										__(
+											'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+											'jetpack'
+										),
+										{
+											link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
+											link2: (
+												<a
+													href={ getRedirectUrl(
+														'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
+													) }
+													target="_blank"
+													rel="noopener noreferrer"
+												/>
+											),
+										}
+									) }
+
+								{ ! isAdsActive &&
+									__(
+										'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.',
+										'jetpack'
+									) }
+							</p>
+							<Textarea
+								name="wordads_custom_adstxt"
+								value={ wordads_custom_adstxt }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
 								}
-								onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Customize your ads.txt file', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-						{ wordads_custom_adstxt_enabled && (
-							<FormFieldset>
-								<br />
-								<p>
-									{ isAdsActive &&
-										jetpackCreateInterpolateElement(
-											__(
-												'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
-												'jetpack'
-											),
-											{
-												link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
-												link2: (
-													<a
-														href={ getRedirectUrl(
-															'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
-														) }
-														target="_blank"
-														rel="noopener noreferrer"
-													/>
-												),
-											}
-										) }
-
-									{ ! isAdsActive &&
-										__(
-											'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.',
-											'jetpack'
-										) }
-								</p>
-								<Textarea
-									name="wordads_custom_adstxt"
-									value={ wordads_custom_adstxt }
-									disabled={
-										! isAdsActive ||
-										unavailableInOfflineMode ||
-										this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
-									}
-									onChange={ this.props.onOptionChange }
-								/>
-							</FormFieldset>
-						) }
-					</SettingsGroup>;
+								onChange={ this.props.onOptionChange }
+							/>
+						</FormFieldset>
+					) }
+				</SettingsGroup>
+			);
 		}
 
 		render() {
@@ -206,7 +208,7 @@ export const Ads = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 						<FormFieldset>
 							<FormLegend>{ __( 'Display ads below posts on', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle
+							<FormToggle
 								checked={ wordads_display_front_page }
 								disabled={
 									! isAdsActive ||
@@ -218,8 +220,8 @@ export const Ads = withModuleSettingsFormHelpers(
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Front page', 'jetpack' ) }
 								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+							</FormToggle>
+							<FormToggle
 								checked={ wordads_display_post }
 								disabled={
 									! isAdsActive ||
@@ -229,8 +231,8 @@ export const Ads = withModuleSettingsFormHelpers(
 								onChange={ this.handleChange( 'wordads_display_post' ) }
 							>
 								<span className="jp-form-toggle-explanation">{ __( 'Posts', 'jetpack' ) }</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+							</FormToggle>
+							<FormToggle
 								checked={ wordads_display_page }
 								disabled={
 									! isAdsActive ||
@@ -240,8 +242,8 @@ export const Ads = withModuleSettingsFormHelpers(
 								onChange={ this.handleChange( 'wordads_display_page' ) }
 							>
 								<span className="jp-form-toggle-explanation">{ __( 'Pages', 'jetpack' ) }</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+							</FormToggle>
+							<FormToggle
 								checked={ wordads_display_archive }
 								disabled={
 									! isAdsActive ||
@@ -251,11 +253,11 @@ export const Ads = withModuleSettingsFormHelpers(
 								onChange={ this.handleChange( 'wordads_display_archive' ) }
 							>
 								<span className="jp-form-toggle-explanation">{ __( 'Archives', 'jetpack' ) }</span>
-							</CompactFormToggle>
+							</FormToggle>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Additional ad placements', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle
+							<FormToggle
 								checked={ enable_header_ad }
 								disabled={
 									! isAdsActive ||
@@ -267,8 +269,8 @@ export const Ads = withModuleSettingsFormHelpers(
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Top of each page', 'jetpack' ) }
 								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+							</FormToggle>
+							<FormToggle
 								checked={ wordads_second_belowpost }
 								disabled={
 									! isAdsActive ||
@@ -280,7 +282,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Second ad below post', 'jetpack' ) }
 								</span>
-							</CompactFormToggle>
+							</FormToggle>
 							<small className="jp-form-setting-explanation">
 								{ isAdsActive &&
 									jetpackCreateInterpolateElement(
@@ -312,7 +314,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
-						<CompactFormToggle
+						<FormToggle
 							checked={ wordads_ccpa_enabled }
 							disabled={
 								! isAdsActive ||
@@ -327,7 +329,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									'jetpack'
 								) }
 							</span>
-						</CompactFormToggle>
+						</FormToggle>
 						{ wordads_ccpa_enabled && (
 							<FormFieldset>
 								<p>
