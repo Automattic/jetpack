@@ -49,7 +49,10 @@
 		"php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
 		"php:autofix": "vendor/bin/phpcbf",
 		"php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1",
-		"php:requirelist": "node bin/phpcs-requirelist-commands.js"
+		"php:requirelist": [
+			"vendor/bin/phpcbf -p --filter=bin/class-jetpack-phpcs-exclude-filter.php",
+			"vendor/bin/phpcs -p -s --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+		]
 	},
 	"repositories": [
 		{

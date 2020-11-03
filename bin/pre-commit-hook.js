@@ -4,9 +4,24 @@
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
-const requirelist = require( './phpcs-requirelist' );
 const fs = require( 'fs' );
+let excludelist = null;
 let exitCode = 0;
+
+/**
+ * Load the phpcs exclude list.
+ * @returns {Array} Files to exclude.
+ */
+function loadPhpcsExcludeList() {
+	if ( null === excludelist ) {
+		let regex = /^\s*#|^\s*$/;
+		excludelist = fs
+			.readFileSync( __dirname + '/phpcs-excludelist.txt', 'utf8' )
+			.split( '\n' )
+			.filter( line => ! line.match( regex ) );
+	}
+	return excludelist;
+}
 
 /**
  * Parses the output of a git diff command into file paths.
@@ -24,10 +39,10 @@ function parseGitDiffToPathArray( command ) {
  * Provides filter to determine which PHP files to run through phpcs.
  *
  * @param {String} file File name of php file modified.
- * @return {boolean}        If the file matches the requirelist.
+ * @return {boolean}        If the file doesn't match the excludelist.
  */
 function phpcsFilesToFilter( file ) {
-	if ( -1 !== requirelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
+	if ( -1 === loadPhpcsExcludeList().findIndex( filePath => file === filePath ) ) {
 		return true;
 	}
 
