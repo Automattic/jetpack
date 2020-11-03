@@ -1,9 +1,7 @@
 import { readFileSync } from 'fs';
 import { teardown } from 'jest-environment-puppeteer';
-import logger from './logger';
 
 import SlackReporter from './reporters/slack';
-import { execShellCommand } from './utils-helper';
 
 /**
  * Goes through the messages in slack-specific log, and send these messages into slack
@@ -61,8 +59,6 @@ function getMessages( log ) {
 
 module.exports = async function ( globalConfig ) {
 	if ( process.env.CI ) {
-		await execShellCommand( 'yarn wp-env logs tests > /tmp/apache-logs.txt' );
-		logger.slack( { type: 'file', message: '/tmp/apache-logs.txt' } );
 		await processSlackLog();
 	}
 	await teardown( globalConfig );

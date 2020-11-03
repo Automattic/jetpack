@@ -11,7 +11,7 @@ import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
-import { execWpCommand } from './utils-helper';
+import { execShellCommand, execSyncShellCommand, execWpCommand } from './utils-helper';
 import {
 	connectThroughWPAdminIfNeeded,
 	loginToWpcomIfNeeded,
@@ -234,6 +234,8 @@ catchBeforeAll( async () => {
 } );
 
 afterAll( async () => {
+	await execShellCommand( 'yarn wp-env logs tests > /tmp/apache-logs.txt' );
+	logger.slack( { type: 'file', message: '/tmp/apache-logs.txt' } );
 	await tunnelManager.close();
 } );
 
