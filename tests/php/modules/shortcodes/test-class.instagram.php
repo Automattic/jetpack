@@ -403,7 +403,7 @@ BODY;
 	 *
 	 * @since 9.1.0
 	 */
-	public function test_shortcodes_instagram_whitelisted_parameters( $url, $atts, $expected ) {
+	public function test_shortcodes_instagram_allowed_parameters( $url, $atts, $expected ) {
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 
 		$actual = jetpack_instagram_get_allowed_parameters( $url, $atts );
