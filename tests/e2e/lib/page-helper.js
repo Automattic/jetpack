@@ -222,6 +222,9 @@ export async function logDebugLog() {
 			logger.info( log );
 		}
 		logger.slack( { message: log, type: 'debuglog' } );
+	}
+
+	if ( appacheLog.length > 1 ) {
 		logger.slack( { message: appacheLog, type: 'debuglog' } );
 	}
 }
