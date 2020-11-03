@@ -395,25 +395,25 @@ BODY;
 	 * Test the build of a set of whitelisted parameters from a variety of inputs.
 	 *
 	 * @dataProvider get_instagram_parameters
-	 * @covers ::jetpack_instagram_get_whitelisted_parameters
-	 *
-	 * @since 9.1.0
+	 * @covers ::jetpack_instagram_get_allowed_parameters
 	 *
 	 * @param string $url      URL of the content to be embedded.
 	 * @param array  $atts     Shortcode attributes.
 	 * @param array  $expected Array of expected parameters.
+	 *
+	 * @since 9.1.0
 	 */
 	public function test_shortcodes_instagram_whitelisted_parameters( $url, $atts, $expected ) {
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 
-		$actual = jetpack_instagram_get_whitelisted_parameters( $url, $atts );
+		$actual = jetpack_instagram_get_allowed_parameters( $url, $atts );
 		$this->assertEquals( $expected, $actual );
 	}
 
 	/**
 	 * Variety of parameters available from an embed.
 	 *
-	 * @covers ::jetpack_instagram_get_whitelisted_parameters
+	 * @covers ::jetpack_instagram_get_allowed_parameters
 	 *
 	 * @since 9.1.0
 	 */

@@ -147,7 +147,7 @@ function jetpack_instagram_embed_reversal( $content ) {
  *
  * @return array $params Array of parameters to be used in Instagram query.
  */
-function jetpack_instagram_get_whitelisted_parameters( $url, $atts = array() ) {
+function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
 	global $content_width;
 
 	// Any URL passed via a shortcode attribute takes precedence.
@@ -221,7 +221,7 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	}
 
 	// Get a set of URL and parameters supported by Facebook.
-	$clean_parameters = jetpack_instagram_get_whitelisted_parameters( $url );
+	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url );
 
 	if ( ! empty( $clean_parameters['url'] ) ) {
 		// Replace existing URL by our clean version.
@@ -309,7 +309,7 @@ function jetpack_shortcode_instagram( $atts ) {
 		return '';
 	}
 
-	$atts = jetpack_instagram_get_whitelisted_parameters( $atts['url'], $atts );
+	$atts = jetpack_instagram_get_allowed_parameters( $atts['url'], $atts );
 
 	if ( empty( $atts['url'] ) ) {
 		return '';
