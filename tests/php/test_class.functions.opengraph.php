@@ -206,7 +206,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @author automattic
 	 * @covers ::jetpack_og_get_image
-	 * @since  9.1.0
+	 * @since  9.2.0
 	 */
 	public function test_jetpack_og_get_image_from_post_order() {
 		// Create a post containing two image blocks.
