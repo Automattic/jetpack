@@ -164,6 +164,11 @@ function jetpack_instagram_get_whitelisted_parameters( $url, $atts = array() ) {
 	 */
 	$parsed_url = wp_parse_url( $url );
 	if ( $parsed_url ) {
+		// Bail early if this is not an Instagram URL.
+		if ( ! preg_match( '/instagr(\.am|am\.com)/', $parsed_url['host'] ) ) {
+			return array();
+		}
+
 		$url = 'https://www.instagram.com' . $parsed_url['path'];
 
 		// If we have any parameters as part of the URL, we merge them with our attributes.
@@ -182,6 +187,7 @@ function jetpack_instagram_get_whitelisted_parameters( $url, $atts = array() ) {
 		array(
 			'url'         => $url,
 			'width'       => isset( $content_width ) ? $content_width : $max_width,
+			'height'      => '',
 			'hidecaption' => false,
 		),
 		$atts,
@@ -305,16 +311,13 @@ function jetpack_shortcode_instagram( $atts ) {
 
 	$atts = jetpack_instagram_get_whitelisted_parameters( $atts['url'], $atts );
 
+	if ( empty( $atts['url'] ) ) {
+		return '';
+	}
+
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/?]+)#i';
 		preg_match( $url_pattern, $atts['url'], $matches );
-		if ( ! $matches ) {
-			return sprintf(
-				'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
-				esc_url( $atts['url'] )
-			);
-		}
-
 		$shortcode_id = end( $matches );
 		$width        = ! empty( $atts['width'] ) ? $atts['width'] : 600;
 		$height       = ! empty( $atts['height'] ) ? $atts['height'] : 600;

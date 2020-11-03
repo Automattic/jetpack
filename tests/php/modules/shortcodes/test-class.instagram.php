@@ -4,6 +4,13 @@ use Automattic\Jetpack\Constants;
 
 class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 
+	/**
+	 * Mock global $content_width value.
+	 *
+	 * @var int
+	 */
+	const CONTENT_WIDTH = 640;
+
 	public function setUp() {
 		parent::setUp();
 
@@ -38,6 +45,16 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 			 */
 			add_filter( 'pre_http_request', array( $this, 'pre_http_request' ), 10, 3 );
 		}
+	}
+
+	/**
+	 * Tear down after each test.
+	 *
+	 * @inheritDoc
+	 */
+	public function tearDown() {
+		unset( $GLOBALS['content_width'] );
+		parent::tearDown();
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
@@ -303,7 +320,7 @@ BODY;
 		$url_with_id       = 'https://www.instagram.com/p/' . $shortcode_id;
 		$short_url_with_id = 'https://instagr.am/p/' . $shortcode_id;
 		$wrong_url_with_id = 'https://www.twitter.com/p/' . $shortcode_id;
-		$default_dimension = 600;
+		$default_height    = 600;
 
 		return array(
 			'no_attribute'                   => array(
@@ -316,27 +333,27 @@ BODY;
 			),
 			'non_instagram_url'              => array(
 				'[instagram url=' . $wrong_url_with_id . ']',
-				'<a href="' . $wrong_url_with_id . '" class="amp-wp-embed-fallback">' . $wrong_url_with_id . '</a>',
+				'',
 			),
 			'url_value_as_attribute'         => array(
 				'[instagram url=' . $url_with_id . ']',
-				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="' . $default_dimension . '" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+				'<amp-instagram data-shortcode="' . $shortcode_id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '" data-captioned></amp-instagram>',
 			),
 			'short_url_value_as_attribute'   => array(
 				'[instagram url=' . $short_url_with_id . ']',
-				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="' . $default_dimension . '" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+				'<amp-instagram data-shortcode="' . $shortcode_id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '" data-captioned></amp-instagram>',
 			),
 			'width_in_attributes'            => array(
-				'[instagram url=' . $url_with_id . ' width=300]',
-				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="300" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+				'[instagram url=' . $url_with_id . ' width=320]',
+				'<amp-instagram data-shortcode="' . $shortcode_id . '" layout="responsive" width="320" height="' . $default_height . '" data-captioned></amp-instagram>',
 			),
 			'width_and_height_in_attributes' => array(
-				'[instagram url=' . $url_with_id . ' width=300 height="200"]',
-				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="300" height="200" data-captioned></amp-instagram>',
+				'[instagram url=' . $url_with_id . ' width=320 height="200"]',
+				'<amp-instagram data-shortcode="' . $shortcode_id . '" layout="responsive" width="320" height="200" data-captioned></amp-instagram>',
 			),
 			'0_width_in_attributes'          => array(
 				'[instagram url=' . $url_with_id . ' width=0]',
-				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="' . $default_dimension . '" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+				'<amp-instagram data-shortcode="' . $shortcode_id . '" layout="responsive" width="320" height="' . $default_height . '" data-captioned></amp-instagram>',
 			),
 		);
 	}
@@ -356,6 +373,7 @@ BODY;
 			return;
 		}
 
+		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
 	}
@@ -386,6 +404,8 @@ BODY;
 	 * @param array  $expected Array of expected parameters.
 	 */
 	public function test_shortcodes_instagram_whitelisted_parameters( $url, $atts, $expected ) {
+		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
+
 		$actual = jetpack_instagram_get_whitelisted_parameters( $url, $atts );
 		$this->assertEquals( $expected, $actual );
 	}
@@ -406,7 +426,8 @@ BODY;
 				array(),
 				array(
 					'url'         => $base_instagram_url,
-					'width'       => 640,
+					'width'       => self::CONTENT_WIDTH,
+					'height'      => '',
 					'hidecaption' => false,
 				),
 			),
@@ -415,7 +436,8 @@ BODY;
 				array(),
 				array(
 					'url'         => $base_instagram_url,
-					'width'       => 640,
+					'width'       => self::CONTENT_WIDTH,
+					'height'      => '',
 					'hidecaption' => false,
 				),
 			),
@@ -424,7 +446,8 @@ BODY;
 				array(),
 				array(
 					'url'         => $base_instagram_url,
-					'width'       => 640,
+					'width'       => self::CONTENT_WIDTH,
+					'height'      => '',
 					'hidecaption' => 'true',
 				),
 			),
@@ -433,7 +456,8 @@ BODY;
 				array(),
 				array(
 					'url'         => $base_instagram_url,
-					'width'       => 640,
+					'width'       => self::CONTENT_WIDTH,
+					'height'      => '',
 					'hidecaption' => 'true',
 				),
 			),
@@ -444,7 +468,8 @@ BODY;
 				),
 				array(
 					'url'         => $base_instagram_url,
-					'width'       => 640,
+					'width'       => self::CONTENT_WIDTH,
+					'height'      => '',
 					'hidecaption' => 'true',
 				),
 			),
@@ -455,7 +480,8 @@ BODY;
 				),
 				array(
 					'url'         => $base_instagram_url,
-					'width'       => 640,
+					'width'       => self::CONTENT_WIDTH,
+					'height'      => '',
 					'hidecaption' => false,
 				),
 			),
@@ -467,6 +493,7 @@ BODY;
 				array(
 					'url'         => $base_instagram_url,
 					'width'       => 420,
+					'height'      => '',
 					'hidecaption' => false,
 				),
 			),
@@ -478,6 +505,7 @@ BODY;
 				array(
 					'url'         => $base_instagram_url,
 					'width'       => 698,
+					'height'      => '',
 					'hidecaption' => false,
 				),
 			),
