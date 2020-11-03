@@ -165,7 +165,7 @@ function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
 	$parsed_url = wp_parse_url( $url );
 	if ( $parsed_url && isset( $parsed_url['host'] ) && isset( $parsed_url['path'] ) ) {
 		// Bail early if this is not an Instagram URL.
-		if ( ! preg_match( '/instagr(\.am|am\.com)/', $parsed_url['host'] ) ) {
+		if ( ! preg_match( '/(?:^|\.)instagr(?:\.am|am\.com)$/', $parsed_url['host'] ) ) {
 			return array();
 		}
 
@@ -205,16 +205,16 @@ function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
 	return $params;
 }
 
-/**
- * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
- *
- * @since 9.1.0
- *
- * @param string $provider URL of the oEmbed provider.
- * @param string $url      URL of the content to be embedded.
- *
- * @return string
- */
+	/**
+	 * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
+	 *
+	 * @since 9.1.0
+	 *
+	 * @param string $provider URL of the oEmbed provider.
+	 * @param string $url      URL of the content to be embedded.
+	 *
+	 * @return string
+	 */
 function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	if ( ! wp_startswith( $provider, 'https://graph.facebook.com/v5.0/instagram_oembed/' ) ) {
 		return $provider;
@@ -257,12 +257,12 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	return str_replace( 'https://graph.facebook.com/v5.0/instagram_oembed/', $wpcom_oembed_proxy, $provider );
 }
 
-/**
- * Add JP auth headers if we're proxying through WP.com.
- *
- * @param array  $args oEmbed remote get arguments.
- * @param string $url  URL to be inspected.
- */
+	/**
+	 * Add JP auth headers if we're proxying through WP.com.
+	 *
+	 * @param array  $args oEmbed remote get arguments.
+	 * @param string $url  URL to be inspected.
+	 */
 function jetpack_instagram_oembed_remote_get_args( $args, $url ) {
 	if ( ! wp_startswith( $url, Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/oembed-proxy/instagram/' ) ) {
 		return $args;
@@ -276,11 +276,11 @@ function jetpack_instagram_oembed_remote_get_args( $args, $url ) {
 	return $signed_request['request'];
 }
 
-/**
- * Fetches a Facebook API access token used for query for Instagram embed information, if one is set.
- *
- * @return string The access token or ''
- */
+	/**
+	 * Fetches a Facebook API access token used for query for Instagram embed information, if one is set.
+	 *
+	 * @return string The access token or ''
+	 */
 function jetpack_instagram_get_access_token() {
 	/**
 	 * Filters the Instagram embed token that is used for querying the Facebook API.
@@ -297,11 +297,11 @@ function jetpack_instagram_get_access_token() {
 	return (string) apply_filters( 'jetpack_instagram_embed_token', (string) Constants::get_constant( 'JETPACK_INSTAGRAM_EMBED_TOKEN' ) );
 }
 
-/**
- * Display the Instagram shortcode.
- *
- * @param array $atts Shortcode attributes.
- */
+	/**
+	 * Display the Instagram shortcode.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 */
 function jetpack_shortcode_instagram( $atts ) {
 	global $wp_embed;
 
