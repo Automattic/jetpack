@@ -61,11 +61,8 @@ function getMessages( log ) {
 
 module.exports = async function ( globalConfig ) {
 	if ( process.env.CI ) {
-		await execShellCommand( 'yarn wp-env logs tests > /tmp/apache-logs.txt' );
-		const out = await execShellCommand( 'cat /tmp/apache-logs.txt' );
-
+		const out = await execShellCommand( 'yarn wp-env logs tests --watch=false' );
 		logger.slack( { type: 'debuglog', message: out } );
-
 		await processSlackLog();
 	}
 	await teardown( globalConfig );

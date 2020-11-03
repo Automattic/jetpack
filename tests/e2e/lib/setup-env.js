@@ -224,9 +224,7 @@ const tunnelManager = new TunnelManager();
 catchBeforeAll( async () => {
 	await setupBrowser();
 
-	await execShellCommand( 'yarn wp-env logs tests > /tmp/apache-logs.txt' );
-	const out = await execShellCommand( 'cat /tmp/apache-logs.txt' );
-
+	const out = await execShellCommand( 'yarn wp-env logs tests --watch=false' );
 	logger.slack( { type: 'debuglog', message: out } );
 
 	// Handles not saved changed dialog in block editor
