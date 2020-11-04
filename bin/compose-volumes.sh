@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "## Built by bin/compose-volumes.sh"
-echo "## Run \`yarn docker:compose-volumes\` to regnerate"
+echo "## Run \`yarn docker:compose-volumes\` to regenerate"
 echo ""
 echo "version: '3.3'"
 echo "services:"
