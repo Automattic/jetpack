@@ -62,6 +62,11 @@ RUN curl https://phar.phpunit.de/phpunit-7.phar -L -o phpunit.phar \
 	&& chmod +x phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
 
+# Install Infection mutation testing suite
+RUN curl https://github.com/infection/infection/releases/download/0.20.0/infection.phar -L -o infection.phar \
+	&& chmod -x infection.phar \
+	&& mv infection.phar /usr/local/bin/infection
+
 # Copy a default config file for an apache host
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf
 
