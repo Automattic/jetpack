@@ -13,6 +13,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 */
 	public function setUp() {
 		parent::setUp();
+
 		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
@@ -22,6 +23,11 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 */
 	public function tearDown() {
 		parent::tearDown();
+
+		// Restoring global variables.
+		global $wp_the_query;
+		$wp_the_query = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		wp_delete_attachment( $this->icon_id );
 	}
 
@@ -138,5 +144,82 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 				'A post description',
 			),
 		);
+	}
+
+	/**
+	 * Create a post containing a few images attached to another post.
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param int $number_of_images The number of image blocks to add to the post.
+	 *
+	 * @return array $post_info {
+	 * An array of information about our post.
+	 *  @type int   $post_id  Post ID.
+	 *  @type array $img_urls Image URLs we'll look to extract.
+	 * }
+	 */
+	protected function create_post_with_image_blocks( $number_of_images = 1 ) {
+		$img_dimensions = array(
+			'width'  => 250,
+			'height' => 250,
+		);
+
+		$post_id = $this->factory->post->create();
+
+		$image_urls = array();
+		for ( $i = 1; $i <= $number_of_images; $i++ ) {
+			$attachment_id = $this->factory->attachment->create_object(
+				'image' . $i . '.jpg',
+				$post_id,
+				array(
+					'post_mime_type' => 'image/jpeg',
+					'post_type'      => 'attachment',
+				)
+			);
+			wp_update_attachment_metadata( $attachment_id, $img_dimensions );
+			$image_urls[ $attachment_id ] = wp_get_attachment_url( $attachment_id );
+		}
+
+		// Create another post with those images.
+		$post_html = '';
+		foreach ( $image_urls as $attachment_id => $image_url ) {
+			$post_html .= sprintf(
+				'<!-- wp:image {"id":%2$d} --><div class="wp-block-image"><figure class="wp-block-image"><img src="%1$s" alt="" class="wp-image-%2$d"/></figure></div><!-- /wp:image -->',
+				$image_url,
+				$attachment_id
+			);
+		}
+
+		$second_post_id = $this->factory->post->create(
+			array( 'post_content' => $post_html )
+		);
+
+		return array(
+			'post_id'  => $second_post_id,
+			'img_urls' => array_values( $image_urls ),
+		);
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct image for a post with image blocks.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since  9.2.0
+	 */
+	public function test_jetpack_og_get_image_from_post_order() {
+		// Create a post containing two image blocks.
+		$post_info = $this->create_post_with_image_blocks( 2 );
+
+		$this->go_to( get_permalink( $post_info['post_id'] ) );
+
+		// Extract an image from the current post.
+		$chosen_image = jetpack_og_get_image();
+
+		$this->assertTrue( is_array( $chosen_image ) );
+		// We expect jetpack_og_get_image to return the first of the images in the post.
+		$first_image_url = $post_info['img_urls'][0];
+		$this->assertEquals( $first_image_url, $chosen_image['src'] );
 	}
 }
