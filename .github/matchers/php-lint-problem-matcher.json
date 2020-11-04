@@ -5,11 +5,11 @@
 			"severity": "error",
 			"pattern": [
 				{
-					"regexp": "^<file name=\"(.*)\">$",
+					"regexp": "<file name=\"(.*)\">",
 					"file": 1
 				},
 				{
-					"regexp": "<error line=\"(\\d*)\" severity=\"(ERROR|WARNING)\" message=\"(.+?)(?: in .+ on line \\d+)?\" source=\"(.*)\"\\/>$",
+					"regexp": "<error line=\"(\\d*)\" severity=\"(ERROR|WARNING)\" message=\"(.+?)(?: in .+ on line \\d+)?\" source=\"(.*)\"\\/>",
 					"line": 1,
 					"severity": 2,
 					"message": 3,
