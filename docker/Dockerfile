@@ -28,6 +28,7 @@ RUN \
 		php7.4-cli \
 		php7.4-curl \
 		php7.4-gd \
+		php7.4-intl \
 		php7.4-imagick \
 		php7.4-json \
 		php7.4-ldap \
