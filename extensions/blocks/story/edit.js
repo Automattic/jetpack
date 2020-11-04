@@ -129,6 +129,7 @@ export default withNotices( function StoryEdit( {
 				<StoryPlayer
 					slides={ mediaFiles }
 					disabled={ ! isSelected }
+					showSlideCount={ isSelected }
 					shadowDOM={ {
 						enabled: false,
 					} }

@@ -3,22 +3,17 @@
  */
 import { Path, Rect, SVG } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
-import { getIconColor } from '../../shared/block-icons';
-
 export default (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
 		<Path
 			fill="none"
-			stroke={ getIconColor() }
+			stroke="currentColor"
 			stroke-width="1.5"
 			d="M19 7V19C19 20.1046 18.1061 21 17.0015 21C14.8931 21 11.4097 21 8 21"
 		/>
 		<Rect
 			fill="none"
-			stroke={ getIconColor() }
+			stroke="currentColor"
 			stroke-width="1.5"
 			x="5.75"
 			y="2.75"

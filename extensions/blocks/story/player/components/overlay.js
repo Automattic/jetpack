@@ -26,6 +26,7 @@ export default function Overlay( {
 	onPreviousSlide,
 	icon,
 	slideCount,
+	showSlideCount,
 } ) {
 	const onPreviousSlideHandler = useCallback(
 		event => {
@@ -51,13 +52,13 @@ export default function Overlay( {
 
 	return (
 		<div className="wp-story-overlay">
-			{ icon && (
+			{ showSlideCount && (
 				<div className="wp-story-embed-icon">
 					{ icon }
 					<span>{ slideCount }</span>
 				</div>
 			) }
-			{ ! icon && (
+			{ ! showSlideCount && (
 				<div className="wp-story-embed-icon-expand">
 					<GridiconFullscreen role="img" />
 				</div>

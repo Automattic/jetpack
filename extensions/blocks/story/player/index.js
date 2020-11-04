@@ -25,6 +25,7 @@ const defaultSettings = {
 	loadInFullscreen: false,
 	blurredBackground: true,
 	showSlideCount: false,
+	showProgressBar: true,
 	shadowDOM: {
 		enabled: true,
 		mode: 'open', // closed not supported right now
