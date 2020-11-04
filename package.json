@@ -54,6 +54,7 @@
 		"docker:ngrok-down": "yarn docker:ngrok down",
 		"docker:ngrok-up": "yarn docker:ngrok up",
 		"docker:phpunit": "yarn docker:compose exec wordpress phpunit --configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist",
+		"docker:infection": "yarn docker:compose exec wordpress bash -c \"cd /var/www/html/wp-content/plugins/jetpack/ && infection\"",
 		"docker:phpunit:multisite": "yarn docker:compose exec wordpress phpunit --configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml",
 		"docker:phpunit:package": "bash ./tests/package-runner.sh",
 		"docker:run-extras": "yarn docker:compose exec wordpress bash -c \"chmod +x /var/scripts/run-extras.sh && . /var/scripts/run-extras.sh\"",
