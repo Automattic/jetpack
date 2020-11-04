@@ -55,7 +55,7 @@ jobs:
       - name: Run phpcs
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
-          composer phpcs:lint:required -- --report=checkstyle
+          composer phpcs:lint:required -- --report=emacs
           echo "::remove-matcher owner=phpcs"
 
   phpcompatibility:
@@ -75,5 +75,5 @@ jobs:
       - name: Run phpcs for PHPCompatibility
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
-          composer phpcs:compatibility -- --report=checkstyle .
+          composer phpcs:compatibility -- --report=emacs .
           echo "::remove-matcher owner=phpcs"
