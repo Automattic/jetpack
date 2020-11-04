@@ -55,6 +55,7 @@ $connected_tools = array(
 	// Starting from 2020-10-24, they need an authentication token, and that token is stored on WordPress.com.
 	// More information: https://developers.facebook.com/docs/instagram/oembed/.
 	'shortcodes/instagram.php',
+	'unified-color-schemes.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.
