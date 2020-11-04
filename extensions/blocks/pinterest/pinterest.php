@@ -16,7 +16,7 @@ const FEATURE_NAME = 'pinterest';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 const URL_PATTERN  = '#^https?://(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+/pin/(?P<pin_id>[^/]+)/?#i'; // Taken from AMP plugin, originally from Jetpack.
 // This is the validate Pinterest URLs, converted from URL_REGEX in extensions/blocks/pinterest/index.js.
-const PINTEREST_URL_REGEX = '/^https?:\/\/(?:www\.)?(?:[a-z]{2\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^\/]+)(\/[^\/]+)?/i';
+const PINTEREST_URL_REGEX = '/^https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^\/]+)(\/[^\/]+)?/i';
 // This looks for matches in /foo/ of https://www.pinterest.ca/foo/.
 const REMAINING_URL_PATH_REGEX = '/^\/([^\/]+)\/?$/';
 // This looks for matches with /foo/bar/ of https://www.pinterest.ca/foo/bar/.
