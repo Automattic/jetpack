@@ -72,9 +72,23 @@ function run_php_compatibility {
 	fi
 }
 
+function run_parallel_lint {
+	echo "Running PHP lint:"
+	if ./bin/parallel-lint.sh; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+}
+
 echo "Travis CI command: $WP_TRAVISCI"
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
+
+	if [ "" != "$PHP_LINT" ]; then
+		run_parallel_lint
+	fi
 
 	# Run package tests only for the latest WordPress branch, because the
 	# tests are independent of the version.

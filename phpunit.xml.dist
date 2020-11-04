@@ -6,9 +6,6 @@
 		<testsuite name="general">
 			<directory prefix="test" suffix=".php">tests/php/general</directory>
 		</testsuite>
-		<testsuite name="php-lint">
-			<file>tests/php/test_php-lint.php</file>
-		</testsuite>
 		<testsuite name="composer-lint">
 			<file>tests/php/test-composer-lint.php</file>
 		</testsuite>
