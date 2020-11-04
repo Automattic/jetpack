@@ -79,6 +79,16 @@ function checkFailed() {
 	exitCode = 1;
 }
 
+// Runs package.json sorting script.
+function sortPackageJson( jsFiles ) {
+	if ( jsFiles.includes( 'package.json' ) ) {
+		spawnSync( 'npx', [ 'sort-package-json' ], {
+			shell: true,
+			stdio: 'inherit',
+		} );
+	}
+}
+
 const gitFiles = parseGitDiffToPathArray(
 	'git diff --cached --name-only --diff-filter=ACM'
 ).filter( Boolean );
@@ -215,6 +225,8 @@ dirtyFiles.forEach( file =>
 		chalk.red( `${ file } will not be auto-formatted because it has unstaged changes.` )
 	)
 );
+
+sortPackageJson( jsFiles );
 
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
