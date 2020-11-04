@@ -22,17 +22,24 @@ jobs:
   lint:
     name: PHP lint
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - name: Use composer cache
-        uses: actions/cache@v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v2
         with:
-          path: /home/runner/.composer/cache/files
+          path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: composer install
+
       - name: Run linter
         run: |
           echo "::add-matcher::.github/matchers/php-lint-problem-matcher.json"
@@ -42,17 +49,24 @@ jobs:
   phpcs:
     name: PHP Code Sniffer (non-excluded files only)
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - name: Use composer cache
-        uses: actions/cache@v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v2
         with:
-          path: /home/runner/.composer/cache/files
+          path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: composer install
+
       - name: Run phpcs
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
@@ -62,17 +76,24 @@ jobs:
   phpcompatibility:
     name: PHP Compatibility
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - name: Use composer cache
-        uses: actions/cache@v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v2
         with:
-          path: /home/runner/.composer/cache/files
+          path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: composer install
+
       - name: Run phpcs for PHPCompatibility
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
