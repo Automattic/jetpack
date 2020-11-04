@@ -36,6 +36,7 @@ class.jetpack-user-agent.php
 class.jetpack-xmlrpc-server.php
 class.json-api-endpoints.php
 class.json-api.php
+dummy-phpcs-errors-excluded.php
 functions.compat.php
 functions.gallery.php
 functions.photon.php
