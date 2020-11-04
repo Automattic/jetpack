@@ -98,7 +98,7 @@ export default withNotices( function StoryEdit( {
 				instructions:
 					! hasImages &&
 					__(
-						'Drag images and videos, upload new ones or select files from your library.',
+						'Drag images and videos, upload new ones, or select files from your library.',
 						'jetpack'
 					),
 			} }
