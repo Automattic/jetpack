@@ -178,6 +178,8 @@ function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
 
 			$atts = array_merge( $atts, $query_args );
 		}
+	} else {
+		return array();
 	}
 
 	$max_width = 698;
