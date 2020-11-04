@@ -225,10 +225,9 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 	// Get a set of URL and parameters supported by Facebook.
 	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url );
 
+	// Replace existing URL by our clean version.
 	if ( ! empty( $clean_parameters['url'] ) ) {
-		// Replace existing URL by our clean version.
-		$provider_without_url = remove_query_arg( 'url', $provider );
-		$provider             = add_query_arg( 'url', rawurlencode( $clean_parameters['url'] ), $provider_without_url );
+		$provider = add_query_arg( 'url', rawurlencode( $clean_parameters['url'] ), $provider );
 	}
 
 	// Our shortcode supports the width param, but the API expects maxwidth.
