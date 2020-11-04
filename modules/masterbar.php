@@ -5,7 +5,7 @@
  * Sort Order: 38
  * Recommendation Order: 16
  * First Introduced: 4.8
- * Requires Connection: No
+ * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: General
  * Additional Search Queries: adminbar, masterbar
