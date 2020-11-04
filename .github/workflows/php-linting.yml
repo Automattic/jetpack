@@ -13,9 +13,10 @@ on:
       - 'bin/phpcs-excludelist.txt'
       # If other files used by this workflow changed, run it to test those changes.
       - 'bin/parallel-lint.sh'
-      - '.github/workflows/php-linting.yml'
+      - '.github/files/php-linting-phpcs.xml'
       - '.github/matchers/phpcs-problem-matcher.json'
       - '.github/matchers/php-lint-problem-matcher.json'
+      - '.github/workflows/php-linting.yml'
 
 jobs:
   lint:
@@ -55,7 +56,7 @@ jobs:
       - name: Run phpcs
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
-          composer phpcs:lint:required -- --report=emacs
+          composer phpcs:lint:required -- --report=emacs --standard=.github/files/php-linting-phpcs.xml
           echo "::remove-matcher owner=phpcs"
 
   phpcompatibility:
