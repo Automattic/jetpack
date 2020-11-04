@@ -44,6 +44,7 @@
 		"docker:db": "yarn docker:compose exec wordpress bash -c \"mysql --defaults-group-suffix=docker\"",
 		"docker:down": "yarn docker:compose down",
 		"docker:env": "node -e \"require('fs').createWriteStream( 'docker/.env', { flags: 'a' } );\"",
+	    "docker:infection": "yarn docker:compose exec wordpress bash -c \"cd /var/www/html/wp-content/plugins/jetpack/ && infection\"",
 		"docker:install": "yarn docker:compose exec wordpress bash -c \"/var/scripts/install.sh\"",
 		"docker:jt-config": "[ -f ./docker/bin/jt/config.sh ] || { echo 'Tunneling scripts are not installed. See the section \"Jurassic Tube Tunneling Service\" in docker/README.md.'; exit; }; ./docker/bin/jt/config.sh",
 		"docker:jt-down": "[ -f ./docker/bin/jt/tunnel.sh ] || { echo 'Tunneling scripts are not installed. See the section \"Jurassic Tube Tunneling Service\" in docker/README.md.'; exit; }; ./docker/bin/jt/tunnel.sh break",
