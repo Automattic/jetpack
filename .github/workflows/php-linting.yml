@@ -1,0 +1,79 @@
+name: PHP linting
+
+on:
+  pull_request:
+    paths:
+      # If any PHP file changed, they need checking.
+      - '**.php'
+      # If composer or phpcs config changed, there may be a new standard.
+      - 'composer.json'
+      - 'composer.lock'
+      - '.phpcs.xml.dist'
+      # If the excludelist changed, run to ensure newly non-excluded files pass.
+      - 'bin/phpcs-excludelist.txt'
+      # If other files used by this workflow changed, run it to test those changes.
+      - 'bin/parallel-lint.sh'
+      - '.github/workflows/php-linting.yml'
+      - '.github/matchers/phpcs-problem-matcher.json'
+      - '.github/matchers/php-lint-problem-matcher.json'
+
+jobs:
+  lint:
+    name: PHP lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Install dependencies
+        run: composer install
+      - name: Run linter
+        run: |
+          echo "::add-matcher::.github/matchers/php-lint-problem-matcher.json"
+          composer php:lint -- --checkstyle
+          echo "::remove-matcher owner=php-lint"
+
+  phpcs:
+    name: PHP Code Sniffer (non-excluded files only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Install dependencies
+        run: composer install
+      - name: Run phpcs
+        run: |
+          echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
+          composer phpcs:lint:required -- --report=checkstyle
+          echo "::remove-matcher owner=phpcs"
+
+  phpcompatibility:
+    name: PHP Compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Install dependencies
+        run: composer install
+      - name: Run phpcs for PHPCompatibility
+        run: |
+          echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
+          composer phpcs:compatibility -- --report=checkstyle .
+          echo "::remove-matcher owner=phpcs"

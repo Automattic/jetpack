@@ -27,7 +27,7 @@ env:
   matrix:
   - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
   - WP_BRANCH=latest
-  - WP_BRANCH=previous PHP_LINT=1
+  - WP_BRANCH=previous
 
 # Define a matrix of additional build configurations
 # The versions listed above will automatically create our first configuration,
