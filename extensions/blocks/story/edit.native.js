@@ -213,16 +213,16 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 							onFinalSaveResult={ onStorySaveResult }
 							onMediaIdChanged={ onMediaIdChanged }
 							renderContent={ ( {
-								isUploadInProgress,
+								isUploadProgressing,
 								isUploadFailed,
-								isSaveInProgress,
+								isSaveProgressing,
 								isSaveFailed,
 								retryMessage,
 							} ) => {
 								return (
 									<Image
 										isUploadFailed={ isUploadFailed || isSaveFailed }
-										isUploadInProgress={ isUploadInProgress || isSaveInProgress }
+										isUploadInProgress={ isUploadProgressing || isSaveProgressing }
 										retryMessage={ retryMessage }
 										url={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
 										style={ styles[ 'wp-story-image' ] }
