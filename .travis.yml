@@ -83,7 +83,8 @@ matrix:
   - php: "7.0"
     name: "Legacy full sync"
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
-
+    before_install:
+      - '' # just a placeholder to disable the hook for ths job
   allow_failures:
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
@@ -108,10 +109,12 @@ branches:
 git:
   depth: 1
 
+before_install:
+  - phpenv config-rm xdebug.ini
+
 before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
-  - phpenv config-rm xdebug.ini
   - ./tests/setup-travis.sh
 
 script: ./tests/run-travis.sh
