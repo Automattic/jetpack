@@ -1,9 +1,7 @@
 import { readFileSync } from 'fs';
 import { teardown } from 'jest-environment-puppeteer';
-import logger from './logger';
 
 import SlackReporter from './reporters/slack';
-import { execShellCommand } from './utils-helper';
 
 /**
  * Goes through the messages in slack-specific log, and send these messages into slack
