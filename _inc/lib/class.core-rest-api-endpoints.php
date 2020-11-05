@@ -621,21 +621,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		register_rest_route(
 			'jetpack/v4',
-			'/assistant/data',
+			'/recommendations/data',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_assistant_data',
+				'callback'            => __CLASS__ . '::get_recommendations_data',
 				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 			),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_assistant_data',
+				'callback'            => __CLASS__ . '::update_recommendations_data',
 				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 				'args'                => array(
 					'data' => array(
 						'required'          => false,
 						'type'              => 'object',
-						'validate_callback' => __CLASS__ . '::validate_assistant_data',
+						'validate_callback' => __CLASS__ . '::validate_recommendations_data',
 					),
 				),
 			)
@@ -643,15 +643,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		register_rest_route(
 			'jetpack/v4',
-			'/assistant/step',
+			'/recommendations/step',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_assistant_step',
+				'callback'            => __CLASS__ . '::get_recommendations_step',
 				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 			),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_assistant_step',
+				'callback'            => __CLASS__ . '::update_recommendations_step',
 				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 				'args'                => array(
 					'data' => array(
@@ -749,65 +749,65 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Initializes the Assistant step according to the Setup Wizard state, and then clears the
+	 * Initializes the Recommendations step according to the Setup Wizard state, and then clears the
 	 * Setup Wizard state.
 	 */
-	private static function initialize_jetpack_assistant() {
-		if ( Jetpack_Options::get_option( 'assistant_step' ) ) {
+	private static function initialize_jetpack_recommendations() {
+		if ( Jetpack_Options::get_option( 'recommendations_step' ) ) {
 			return;
 		}
 
 		$setup_wizard_status = Jetpack_Options::get_option( 'setup_wizard_status' );
 		if ( 'completed' === $setup_wizard_status ) {
-			Jetpack_Options::update_option( 'assistant_step', 'completed' );
+			Jetpack_Options::update_option( 'recommendations_step', 'completed' );
 		}
 
 		Jetpack_Options::delete_option( array( 'setup_wizard_questionnaire', 'setup_wizard_status' ) );
 	}
 
 	/**
-	 * Get the data for the assistant
+	 * Get the data for the recommendations
 	 *
-	 * @return array Assistant data
+	 * @return array Recommendations data
 	 */
-	public static function get_assistant_data() {
-		self::initialize_jetpack_assistant();
+	public static function get_recommendations_data() {
+		self::initialize_jetpack_recommendations();
 
-		return Jetpack_Options::get_option( 'assistant_data', (object) array() );
+		return Jetpack_Options::get_option( 'recommendations_data', (object) array() );
 	}
 
 	/**
-	 * Update the data for the assistant
+	 * Update the data for the recommendations
 	 *
 	 * @param WP_REST_Request $request The request.
 	 */
-	public static function update_assistant_data( $request ) {
+	public static function update_recommendations_data( $request ) {
 		$data = $request['data'];
 		if ( ! empty( $data ) ) {
-			Jetpack_Options::update_option( 'assistant_data', $data );
+			Jetpack_Options::update_option( 'recommendations_data', $data );
 		}
 	}
 
 	/**
-	 * Get the data for the assistant
+	 * Get the data for the recommendations
 	 *
-	 * @return array Assistant data
+	 * @return array Recommendations data
 	 */
-	public static function get_assistant_step() {
-		self::initialize_jetpack_assistant();
+	public static function get_recommendations_step() {
+		self::initialize_jetpack_recommendations();
 
-		return Jetpack_Options::get_option( 'assistant_step', 'not-started' );
+		return Jetpack_Options::get_option( 'recommendations_step', 'not-started' );
 	}
 
 	/**
-	 * Update the step for the assistant
+	 * Update the step for the recommendations
 	 *
 	 * @param WP_REST_Request $request The request.
 	 */
-	public static function update_assistant_step( $request ) {
+	public static function update_recommendations_step( $request ) {
 		$step = $request['step'];
 		if ( ! empty( $step ) ) {
-			Jetpack_Options::update_option( 'assistant_step', $step );
+			Jetpack_Options::update_option( 'recommendations_step', $step );
 		}
 	}
 
@@ -842,7 +842,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Validate the assistant data
+	 * Validate the recommendations data
 	 *
 	 * @param array           $value Value to check received by request.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
@@ -850,7 +850,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_assistant_data( $value, $request, $param ) {
+	public static function validate_recommendations_data( $value, $request, $param ) {
 		if ( ! is_array( $value ) ) {
 			/* translators: Name of a parameter that must be an object */
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );

@@ -43,6 +43,10 @@ export class Navigation extends React.Component {
 		this.trackNavClick( 'plans' );
 	};
 
+	trackRecommendationsClick = () => {
+		this.trackNavClick( 'recommendations' );
+	};
+
 	render() {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
@@ -75,6 +79,13 @@ export class Navigation extends React.Component {
 							{ _x( 'Plans', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
+					<NavItem
+						path="#/recommendations"
+						onClick={ this.trackRecommendationsClick }
+						selected={ this.props.location.pathname.startsWith( '/recommendations' ) }
+					>
+						{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
+					</NavItem>
 				</NavTabs>
 			);
 		} else {

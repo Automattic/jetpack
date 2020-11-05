@@ -36,6 +36,7 @@ import {
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
+import { Recommendations } from 'recommendations';
 import { SetupWizard } from 'setup-wizard';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
@@ -52,6 +53,8 @@ import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
+
+const recommendationsRoutes = [ '/recommendations' ];
 
 const setupRoutes = [
 	'/setup',
@@ -256,6 +259,9 @@ class Main extends React.Component {
 					pageComponent = this.getAtAGlance();
 				}
 				break;
+			case '/recommendations':
+				pageComponent = <Recommendations />;
+				break;
 			default:
 				this.props.history.replace( '/dashboard' );
 				pageComponent = this.getAtAGlance();
@@ -264,7 +270,7 @@ class Main extends React.Component {
 
 		const pageOrder = this.props.showSetupWizard
 			? { dashboard: 1, setup: 2, settings: 3 }
-			: { setup: -1, dashboard: 1, settings: 2 };
+			: { setup: -1, recommendations: 1, dashboard: 2, settings: 3 }; // TODO: change this order once showSetupWizard is replaced with showRecommendations
 
 		window.wpNavMenuClassChange( pageOrder );
 
@@ -421,7 +427,9 @@ window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, 
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if ( setupRoutes.includes( hash ) ) {
+	if ( recommendationsRoutes.includes( hash ) ) {
+		getJetpackSubNavItem( pageOrder.recommendations ).classList.add( 'current' );
+	} else if ( setupRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.setup ).classList.add( 'current' );
 	} else if ( dashboardRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );

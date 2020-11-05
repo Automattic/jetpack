@@ -8,23 +8,23 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchAssistantData, isFetchingAssistantData } from 'state/assistant';
+import { fetchRecommendationsData, isFetchingRecommendationsData } from 'state/recommendations';
 import { isOfflineMode } from 'state/connection';
 
-class QueryAssistantData extends Component {
+class QueryRecommendationsData extends Component {
 	static propTypes = {
-		isFetchingAssistantData: PropTypes.bool,
+		isFetchingRecommendationsData: PropTypes.bool,
 		isOfflineMode: PropTypes.bool,
 	};
 
 	static defaultProps = {
-		isFetchingAssistantData: false,
+		isFetchingRecommendationsData: false,
 		isOfflineMode: false,
 	};
 
 	componentDidMount() {
-		if ( ! this.props.isFetchingAssistantData && ! this.props.isOfflineMode ) {
-			this.props.fetchAssistantData();
+		if ( ! this.props.isFetchingRecommendationsData && ! this.props.isOfflineMode ) {
+			this.props.fetchRecommendationsData();
 		}
 	}
 
@@ -35,8 +35,8 @@ class QueryAssistantData extends Component {
 
 export default connect(
 	state => ( {
-		isFetchingAssistantData: isFetchingAssistantData( state ),
+		isFetchingRecommendationsData: isFetchingRecommendationsData( state ),
 		isOfflineMode: isOfflineMode( state ),
 	} ),
-	dispatch => ( { fetchAssistantData: () => dispatch( fetchAssistantData() ) } )
-)( QueryAssistantData );
+	dispatch => ( { fetchRecommendationsData: () => dispatch( fetchRecommendationsData() ) } )
+)( QueryRecommendationsData );

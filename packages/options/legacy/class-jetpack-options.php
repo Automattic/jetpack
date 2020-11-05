@@ -89,8 +89,8 @@ class Jetpack_Options {
 		}
 
 		return array(
-			'assistant_data',               // (array)  The user choice and other data for the assistant.
-			'assistant_step',               // (string) The current step of the assistant.
+			'recommendations_data',         // (array)  The user choice and other data for the recommendations.
+			'recommendations_step',         // (string) The current step of the recommendations.
 			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',        // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
