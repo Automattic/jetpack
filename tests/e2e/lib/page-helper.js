@@ -219,4 +219,7 @@ export async function logDebugLog() {
 		}
 		logger.slack( { message: log, type: 'debuglog' } );
 	}
+
+	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
+	logger.slack( { type: 'debuglog', message: apacheLog } );
 }

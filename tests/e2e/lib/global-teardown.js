@@ -17,9 +17,9 @@ async function processSlackLog() {
 
 	let response;
 	if ( failures.length === 0 ) {
-		response = await slack.sendSuccessMessage(); // sendMessageToSlack( getSuccessMessage() );
+		response = await slack.sendSuccessMessage();
 	} else {
-		response = await slack.sendFailureMessage( failures ); // await sendMessageToSlack( getResultMessage( failures.length ) );
+		response = await slack.sendFailureMessage( failures );
 	}
 
 	const options = { thread_ts: response.ts };
@@ -61,8 +61,6 @@ function getMessages( log ) {
 
 module.exports = async function ( globalConfig ) {
 	if ( process.env.CI ) {
-		const out = await execShellCommand( 'yarn wp-env logs tests --watch=false' );
-		logger.slack( { type: 'debuglog', message: out } );
 		await processSlackLog();
 	}
 	await teardown( globalConfig );
