@@ -65,7 +65,7 @@ class Admin_Menu {
 		$domain = wp_parse_url( get_home_url(), PHP_URL_HOST );
 
 		// TODO: Remove once feature has shipped. See jetpack_parent_file().
-		if ( ! $this->is_api_request ) {
+		if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
 			$domain = add_query_arg( 'flags', 'nav-unification', $domain );
 		}
 
@@ -294,7 +294,7 @@ class Admin_Menu {
 
 		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, 'dashicons-admin-post', $ptype_obj->menu_position );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $menu_slug, null, 5 );
-		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/block-editor/post/' . $domain, null, 10 );
+		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/post/' . $domain, null, 10 );
 
 		$this->migrate_submenus( 'edit.php', $menu_slug );
 	}
@@ -338,7 +338,7 @@ class Admin_Menu {
 
 		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, 'dashicons-admin-page', $ptype_obj->menu_position );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $menu_slug, null, 5 );
-		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/block-editor/page/' . $domain, null, 10 );
+		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/page/' . $domain, null, 10 );
 		$this->migrate_submenus( 'edit.php?post_type=page', $menu_slug );
 	}
 
@@ -375,7 +375,7 @@ class Admin_Menu {
 
 		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $ptype_file, null, $menu_icon, $ptype_obj->menu_position );
 		add_submenu_page( $ptype_file, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $ptype_file, null, 5 );
-		add_submenu_page( $ptype_file, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/block-editor/edit/' . $post_type . '/' . $domain, null, 10 );
+		add_submenu_page( $ptype_file, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/edit/' . $post_type . '/' . $domain, null, 10 );
 
 		$this->migrate_submenus( $old_slug, $ptype_file );
 	}
@@ -456,7 +456,9 @@ class Admin_Menu {
 			$parent_file = 'https://wordpress.com/activity-log/' . wp_parse_url( get_home_url(), PHP_URL_HOST );
 
 			// TODO: Remove once feature has shipped. See reregister_menu_items().
-			$parent_file = add_query_arg( 'flags', 'nav-unification', $parent_file );
+			if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+				$parent_file = add_query_arg( 'flags', 'nav-unification', $parent_file );
+			}
 		}
 
 		return $parent_file;
@@ -640,7 +642,7 @@ class Admin_Menu {
 		if ( $old_slug !== $new_slug && ! empty( $submenu[ $old_slug ] ) ) {
 			if ( ! empty( $submenu[ $new_slug ] ) ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$submenu[ $new_slug ] = array_merge( $submenu[ $new_slug ], $submenu[ $old_slug ] );
+				$submenu[ $new_slug ] = array_replace( $submenu[ $new_slug ], $submenu[ $old_slug ] );
 			} else {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$submenu[ $new_slug ] = $submenu[ $old_slug ];
