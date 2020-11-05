@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.160
+ * Version: 2.4.161
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.160' );
+define( 'WPCOMSH_VERSION', '2.4.161' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -149,7 +149,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'backwpup/backwpup.php' => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'wp-db-backup/wp-db-backup.php' => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
 
-		// caching
+		// caching / performance
 		'cache-enabler/cache-enabler.php' => '"cache-enabler" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'comet-cache/comet-cache.php' => '"comet-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'hyper-cache/plugin.php' => '"hyper-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
@@ -162,6 +162,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-speed-of-light/wp-speed-of-light.php' => '"wp-speed-of-light" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-super-cache/wp-cache.php' => '"wp-super-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'sg-cachepress/sg-cachepress.php' => '"sg-cachepress" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-optimizer/wp-optizer.php' => '"wp-optimizer" has been deactivated, "performance" related plugins may break your site or cause issues and are not supported on WordPress.com.', // p9F6qB-66o-p2
 
 		// sql heavy
 		'another-wordpress-classifieds-plugin/awpcp.php' => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
@@ -190,6 +191,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		// security
 		'wordfence/wordfence.php' => '"wordfence" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
 		'wp-simple-firewall/wp-simple-firewall.php' => '"wp-simple-firewall" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-security-hardening/wp-hardening.php' => '"wp-security-hardening" has been deactivated. It breaks WordPress.com required plugins.', // p9F6qB-66o-p2
 
 		// spam
 		'e-mail-broadcasting/e-mail-broadcasting.php' => '"e-mail-broadcasting" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
@@ -229,6 +231,10 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'propellerads-official/propeller-ads.php' => '"propellerads-official" is not supported on WordPress.com.',
 		'p3/p3.php' => '"p3" is not supported on WordPress.com.',
 		'yuzo-related-post/yuzo_related_post.php' => '"yuzo-related-post" is not supported on WordPress.com.',
+		'wpstagecoach/wpstagecoach.php' => '"wpstagecoach" is not supported on WordPress.com.', // p9F6qB-66o-p2
+
+		// CRM
+		'civicrm/civicrm.php' => '"civicrm" is not supported on WordPress.com.', // p9F6qB-66o-p2
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
