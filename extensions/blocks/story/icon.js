@@ -8,13 +8,13 @@ export default (
 		<Path
 			fill="none"
 			stroke="currentColor"
-			stroke-width="1.5"
+			strokeWidth="1.5"
 			d="M19 7V19C19 20.1046 18.1061 21 17.0015 21C14.8931 21 11.4097 21 8 21"
 		/>
 		<Rect
 			fill="none"
 			stroke="currentColor"
-			stroke-width="1.5"
+			strokeWidth="1.5"
 			x="5.75"
 			y="2.75"
 			width="9.5"
