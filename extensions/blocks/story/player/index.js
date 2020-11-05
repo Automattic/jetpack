@@ -36,6 +36,8 @@ const defaultSettings = {
 	cropUpTo: 0.2, // crop percentage allowed, after which media is displayed in letterbox
 	volume: 0.5,
 	renderInterval: 50, // in ms
+	maxBullets: 7,
+	maxBulletsFullscreen: 14,
 };
 
 export default function StoryPlayer( { slides, metadata, disabled, ...settings } ) {

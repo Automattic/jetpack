@@ -265,6 +265,7 @@
 		left: 0;
 		bottom: 0;
 		overflow: hidden;
+		transition: flex-basis 1000ms ease-in-out;
 
 		.wp-story-pagination-bullet {
 			flex: 1;
@@ -292,6 +293,14 @@
 				height: 4px;
 				background-color: $wp-story-pagination-bullet-progress-color;
 				transition: width 50ms;
+			}
+		}
+
+		.wp-story-pagination-ellipsis {
+			flex: 0 0 4px;
+
+			.wp-story-pagination-bullet-bar {
+				min-width: 6px;
 			}
 		}
 	}

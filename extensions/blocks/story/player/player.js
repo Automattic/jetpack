@@ -244,10 +244,11 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 				{ settings.showProgressBar && (
 					<ProgressBar
 						slides={ slides }
-						fullscreen={ fullscreen }
+						disabled={ ! fullscreen }
 						currentSlideIndex={ currentSlideIndex }
 						currentSlideProgress={ currentSlideProgress }
 						onSlideSeek={ showSlide }
+						maxBullets={ fullscreen ? settings.maxBulletsFullscreen : settings.maxBullets }
 					/>
 				) }
 				<Controls
