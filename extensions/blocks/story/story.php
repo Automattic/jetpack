@@ -17,6 +17,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 const EMBED_SIZE        = array( 180, 320 );
 const CROP_UP_TO        = 0.2;
+const MAX_BULLETS       = 7;
 const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
 
 /**
@@ -272,14 +273,16 @@ function render_top_right_icon( $settings ) {
  * Render a pagination bullet
  *
  * @param array $slide_index The slide index it corresponds to.
+ * @param array $class_name Optional css class name(s) to customize the bullet element.
  *
  * @return string
  */
-function render_pagination_bullet( $slide_index ) {
+function render_pagination_bullet( $slide_index, $class_name = '' ) {
 	return sprintf(
-		'<a href="#" class="wp-story-pagination-bullet" aria-label="%s">
+		'<a href="#" class="wp-story-pagination-bullet %s" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
 		</a>',
+		$class_name,
 		/* translators: %d is the slide number (1, 2, 3...) */
 		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
 	);
@@ -297,12 +300,16 @@ function render_pagination( $settings ) {
 	if ( $show_slide_count ) {
 		return '';
 	}
-	$slide_count = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$slide_count     = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$bullet_count    = min( $slide_count, MAX_BULLETS );
+	$bullet_ellipsis = $slide_count > $bullet_count
+		? render_pagination_bullet( $bullet_count + 1, 'wp-story-pagination-ellipsis' )
+		: '';
 	return sprintf(
 		'<div class="wp-story-pagination wp-story-pagination-bullets">
 			%s
 		</div>',
-		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $slide_count ) ) )
+		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $bullet_count ) ) ) . $bullet_ellipsis
 	);
 }
 
