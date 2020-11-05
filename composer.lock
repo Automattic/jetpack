@@ -38,20 +38,20 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "v1.8.1",
+            "version": "v1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-abtest.git",
-                "reference": "195d68d16c7f89df215f105df87406bc725b3805"
+                "reference": "eb6ce0cbb42bee86aa04b0be0949a7a81e869b1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-abtest/zipball/195d68d16c7f89df215f105df87406bc725b3805",
-                "reference": "195d68d16c7f89df215f105df87406bc725b3805",
+                "url": "https://api.github.com/repos/Automattic/jetpack-abtest/zipball/eb6ce0cbb42bee86aa04b0be0949a7a81e869b1f",
+                "reference": "eb6ce0cbb42bee86aa04b0be0949a7a81e869b1f",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "1.19.1",
+                "automattic/jetpack-connection": "1.19.2",
                 "automattic/jetpack-error": "1.2.0"
             },
             "require-dev": {
@@ -69,7 +69,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Provides an interface to the WP.com A/B tests.",
-            "time": "2020-10-29T14:49:30+00:00"
+            "time": "2020-11-05T09:45:46+00:00"
         },
         {
             "name": "automattic/jetpack-assets",
@@ -269,16 +269,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v1.19.1",
+            "version": "v1.19.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "6ed00b3381235a9abe83e630d94ce45fcf0f4b5e"
+                "reference": "45602fa6cf19851752282e4bd291d50218242bae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/6ed00b3381235a9abe83e630d94ce45fcf0f4b5e",
-                "reference": "6ed00b3381235a9abe83e630d94ce45fcf0f4b5e",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/45602fa6cf19851752282e4bd291d50218242bae",
+                "reference": "45602fa6cf19851752282e4bd291d50218242bae",
                 "shasum": ""
             },
             "require": {
@@ -309,7 +309,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
-            "time": "2020-10-29T14:46:15+00:00"
+            "time": "2020-11-05T09:43:56+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -439,21 +439,21 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "v1.11.1",
+            "version": "v1.11.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-jitm.git",
-                "reference": "974453c28810f26b56cd4d6319aa85fbc5f7cff4"
+                "reference": "8a2c582ade455353f4aadca42576687fa1898db7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/974453c28810f26b56cd4d6319aa85fbc5f7cff4",
-                "reference": "974453c28810f26b56cd4d6319aa85fbc5f7cff4",
+                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/8a2c582ade455353f4aadca42576687fa1898db7",
+                "reference": "8a2c582ade455353f4aadca42576687fa1898db7",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "1.9.0",
-                "automattic/jetpack-connection": "1.19.1",
+                "automattic/jetpack-connection": "1.19.2",
                 "automattic/jetpack-constants": "1.5.0",
                 "automattic/jetpack-logo": "1.4.0",
                 "automattic/jetpack-options": "1.9.0",
@@ -478,7 +478,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Just in time messages for Jetpack",
-            "time": "2020-10-29T14:50:56+00:00"
+            "time": "2020-11-05T09:47:24+00:00"
         },
         {
             "name": "automattic/jetpack-lazy-images",
@@ -517,20 +517,20 @@
         },
         {
             "name": "automattic/jetpack-licensing",
-            "version": "v1.2.1",
+            "version": "v1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-licensing.git",
-                "reference": "fdd5711f59ac205e7efc210af425494ed77a8899"
+                "reference": "a172570de99ab6ba2abb5f8328a569ec2a357714"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-licensing/zipball/fdd5711f59ac205e7efc210af425494ed77a8899",
-                "reference": "fdd5711f59ac205e7efc210af425494ed77a8899",
+                "url": "https://api.github.com/repos/Automattic/jetpack-licensing/zipball/a172570de99ab6ba2abb5f8328a569ec2a357714",
+                "reference": "a172570de99ab6ba2abb5f8328a569ec2a357714",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "1.19.1",
+                "automattic/jetpack-connection": "1.19.2",
                 "automattic/jetpack-options": "1.9.0"
             },
             "require-dev": {
@@ -549,7 +549,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to manage Jetpack licenses client-side.",
-            "time": "2020-10-29T14:48:31+00:00"
+            "time": "2020-11-05T09:44:43+00:00"
         },
         {
             "name": "automattic/jetpack-logo",
@@ -744,20 +744,20 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v1.17.1",
+            "version": "v1.17.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "b6aa00abe09cceb55050254c0bec273d0422d9e4"
+                "reference": "ca71c216b799ea997ce98a0293062af2c8ea0346"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/b6aa00abe09cceb55050254c0bec273d0422d9e4",
-                "reference": "b6aa00abe09cceb55050254c0bec273d0422d9e4",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/ca71c216b799ea997ce98a0293062af2c8ea0346",
+                "reference": "ca71c216b799ea997ce98a0293062af2c8ea0346",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "1.19.1",
+                "automattic/jetpack-connection": "1.19.2",
                 "automattic/jetpack-constants": "1.5.0",
                 "automattic/jetpack-options": "1.9.0",
                 "automattic/jetpack-roles": "1.3.0",
@@ -774,7 +774,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
-            "time": "2020-10-29T14:50:14+00:00"
+            "time": "2020-11-05T09:46:38+00:00"
         },
         {
             "name": "automattic/jetpack-terms-of-service",
