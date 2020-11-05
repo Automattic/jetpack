@@ -19,10 +19,8 @@ fs.readFile( '.git/last-commit-tree', ( err, data ) => {
 		if ( ! commitMsg.startsWith( notVerifiedPrefix ) ) {
 			newCommitMsg = notVerifiedPrefix + commitMsg;
 		}
-	} else {
-		if ( commitMsg.startsWith( notVerifiedPrefix ) ) {
-			newCommitMsg = commitMsg.substring( notVerifiedPrefix.length );
-		}
+	} else if ( commitMsg.startsWith( notVerifiedPrefix ) ) {
+		newCommitMsg = commitMsg.substring( notVerifiedPrefix.length );
 	}
 	if ( null !== newCommitMsg ) {
 		fs.writeFileSync( '.git/COMMIT_EDITMSG', newCommitMsg );
