@@ -66,6 +66,7 @@ matrix:
     before_script:
       - export PATH="$HOME/.composer/vendor/bin:$PATH"
       - export PLUGIN_SLUG=$(basename $(pwd))
+      - phpenv config-rm xdebug.ini
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
@@ -110,6 +111,7 @@ git:
 before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
+  - phpenv config-rm xdebug.ini
   - ./tests/setup-travis.sh
 
 script: ./tests/run-travis.sh
