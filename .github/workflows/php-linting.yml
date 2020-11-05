@@ -37,6 +37,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Tool versions
+        run: |
+          php --version
+          composer --version
+
       - name: Install dependencies
         run: composer install
 
@@ -64,6 +69,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Tool versions
+        run: |
+          php --version
+          composer --version
+
       - name: Install dependencies
         run: composer install
 
@@ -90,6 +100,11 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          php --version
+          composer --version
 
       - name: Install dependencies
         run: composer install
