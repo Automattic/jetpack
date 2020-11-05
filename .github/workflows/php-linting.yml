@@ -20,11 +20,27 @@ on:
 
 jobs:
   lint:
-    name: PHP lint
+    name: PHP lint (${{ matrix.php-versions }})
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: [ '5.6', '7.0', '7.4' ]
+        experimental: [ false ]
+
+        include:
+          - php-versions: '8.0'
+            experimental: true
 
     steps:
       - uses: actions/checkout@v2
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: intl, json, mbstring, xml
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -43,7 +59,12 @@ jobs:
           composer --version
 
       - name: Install dependencies
-        run: composer install
+        run: |
+          # Install stuff ignoring platform reqs.
+          composer install --ignore-platform-reqs
+          # Remove stuff we don't need here that fails some platform reqs.
+          # This will complain if we missed any.
+          composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer
 
       - name: Run linter
         run: |
