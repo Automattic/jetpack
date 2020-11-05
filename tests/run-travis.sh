@@ -107,6 +107,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	elif [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
+		export WP_BRANCH="master" # Hacky way to trigger multisite tests
 		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
 	fi
 
