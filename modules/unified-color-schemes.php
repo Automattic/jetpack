@@ -2,25 +2,22 @@
 
 use Automattic\Jetpack\Connection\Client;
 
-function ucs_admin_color_override( $color ) {
+function ucs_admin_color_override() {
 
 	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 		'me/preferences', // path
-		'1.1', // REST API version
+		'2', // REST API version
 		array(
 			'method' => 'GET',
 		),
 		null, // body
-		'rest' // REST API root. Default is `wpcom`.
+		'wpcom' // REST API root. Default is `wpcom`.
 	);
 
-	$response_body = wp_remote_retrieve_body( $response );
+	$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	echo '<pre>';
-	var_dump( $response_body );
-	echo '</pre>';
 
-	return 'blue';
+	return $response_body['colorScheme'];
 }
 
 function ucs_setup_admin() {
