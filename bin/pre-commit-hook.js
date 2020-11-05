@@ -11,8 +11,8 @@ let exitCode = 0;
 /**
  * Parses the output of a git diff command into file paths.
  *
- * @param   {String} command Command to run. Expects output like `git diff --name-only […]`
- * @returns {Array}          Paths output from git command
+ * @param {string} command - Command to run. Expects output like `git diff --name-only […]`
+ * @returns {Array} Paths output from git command
  */
 function parseGitDiffToPathArray( command ) {
 	return execSync( command, { encoding: 'utf8' } )
@@ -23,8 +23,8 @@ function parseGitDiffToPathArray( command ) {
 /**
  * Provides filter to determine which PHP files to run through phpcs.
  *
- * @param {String} file File name of php file modified.
- * @return {boolean}        If the file matches the requirelist.
+ * @param {string} file - File name of php file modified.
+ * @returns {boolean} If the file matches the requirelist.
  */
 function phpcsFilesToFilter( file ) {
 	if ( -1 !== requirelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
@@ -37,22 +37,30 @@ function phpcsFilesToFilter( file ) {
 /**
  * Provides filter to determine which JS files to run through Prettify and linting.
  *
- * @param {String} file File name of js file modified.
- * @return {boolean}        If the file matches the requirelist.
+ * @param {string} file - File name of js file modified.
+ * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
-// Filter callback for JS files
+/**
+ * Filter callback for JS files
+ *
+ * @param {string} file - dirty file
+ * @returns {boolean} whether file needs to be linted
+ */
 function filterEslintFiles( file ) {
 	const rootMatch = /^([a-zA-Z-]+\.)/g; // *.js(x)
-	const folderMatches =
-		file.startsWith( '_inc' ) || file.startsWith( 'extensions' ) || file.startsWith( 'modules' );
+	console.log( '!!!!!!', file );
+	const folderArray = [ '_inc', 'extensions', 'modules', 'tests/e2e' ];
+	const folderMatches = folderArray.some( folder => file.includes( folder ) );
 	return ! file.endsWith( '.json' ) && ( folderMatches || file.match( rootMatch ) );
 }
 
-// Logging function that is used when check is failed
+/**
+ * Logging function that is used when check is failed
+ */
 function checkFailed() {
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
@@ -64,7 +72,11 @@ function checkFailed() {
 	exitCode = 1;
 }
 
-// Runs package.json sorting script.
+/**
+ * Spawns `sort-package-json` for package.json sorting script.
+ *
+ * @param {Array} jsFiles - list of changed JS files
+ */
 function sortPackageJson( jsFiles ) {
 	if ( jsFiles.includes( 'package.json' ) ) {
 		spawnSync( 'npx', [ 'sort-package-json' ], {
@@ -87,9 +99,9 @@ const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
  *
- * @param {String} file File name to check against the dirty list.
- * @param {Array} filesList Dirty files list.
- * @return {boolean}    If the file should be checked.
+ * @param {string} file - File name to check against the dirty list.
+ * @param {Array} filesList - Dirty files list.
+ * @returns {boolean} If the file should be checked.
  */
 function checkFileAgainstDirtyList( file, filesList ) {
 	return -1 === filesList.indexOf( file );
@@ -106,9 +118,9 @@ function capturePreCommitDate() {
 
 /**
  * Spawns a eslint process against list of files
- * @param {Array} toLintFiles List of files to lint
  *
- * @returns {Int} shell return code
+ * @param {Array} toLintFiles - List of files to lint
+ * @returns {number} shell return code
  */
 function runJSLinter( toLintFiles ) {
 	if ( ! toLintFiles.length ) {
@@ -126,7 +138,7 @@ function runJSLinter( toLintFiles ) {
 /**
  * Run phpcs-changed.
  *
- * @param {Array} phpFilesToCheck Array of PHP files changed.
+ * @param {Array} phpFilesToCheck - Array of PHP files changed.
  */
 function runPHPCSChanged( phpFilesToCheck ) {
 	let phpChangedFail, phpFileChangedResult;
@@ -196,9 +208,9 @@ function checkComposerLock() {
 }
 
 /**
- * Exit
+ * Exit script
  *
- * @param {Number} exitCodePassed Shell exit code.
+ * @param {number} exitCodePassed - Shell exit code.
  */
 function exit( exitCodePassed ) {
 	capturePreCommitDate();
@@ -237,6 +249,8 @@ if ( phpFiles.length > 0 ) {
 		shell: true,
 		stdio: 'inherit',
 	} );
+
+	runPHPCSChanged( phpFiles );
 }
 
 if ( phpLintResult && phpLintResult.status ) {
@@ -283,6 +297,5 @@ if ( phpcsResult && phpcsResult.status ) {
 	exit( 1 );
 }
 
-runPHPCSChanged( phpFiles );
 checkComposerLock();
 exit( exitCode );
