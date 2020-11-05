@@ -319,6 +319,13 @@ function jetpack_shortcode_instagram( $atts ) {
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/?]+)#i';
 		preg_match( $url_pattern, $atts['url'], $matches );
+		if ( ! $matches ) {
+			return sprintf(
+				'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
+				esc_url( $atts['url'] )
+			);
+		}
+
 		$shortcode_id = end( $matches );
 		$width        = ! empty( $atts['width'] ) ? $atts['width'] : 600;
 		$height       = ! empty( $atts['height'] ) ? $atts['height'] : 600;
