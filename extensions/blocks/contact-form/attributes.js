@@ -27,4 +27,8 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
+	postUrl: {
+		type: 'string',
+		default: '',
+	},
 };

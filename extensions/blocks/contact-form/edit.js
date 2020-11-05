@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { useSelect, withDispatch, withSelect } from '@wordpress/data';
 import { DOWN } from '@wordpress/keycodes';
 import {
 	InnerBlocks,
@@ -82,6 +82,11 @@ function JetpackContactFormEdit( {
 		customThankyouRedirect,
 		jetpackCRM,
 	} = attributes;
+
+	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+	useEffect( () => {
+		setAttributes( { postUrl: post.link } );
+	}, [ post.link, setAttributes ] );
 
 	const [ emailErrors, setEmailErrors ] = useState( false );
 	const formClassnames = classnames( className, 'jetpack-contact-form' );
