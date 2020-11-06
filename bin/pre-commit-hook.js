@@ -60,14 +60,18 @@ function filterEslintFiles( file ) {
 
 /**
  * Logging function that is used when check is failed
+ *
+ * @param {string} before - Text before "no-verify" block
+ * @param {string} after - Text after "no-verify" block
  */
-function checkFailed() {
+function checkFailed( before = 'The linter reported some problems. ', after = '' ) {
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
-		'The linter reported some problems. ' +
+		before +
 			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check. ' +
-			"But please don't. Code is poetry."
+			'repeat the commit command with --no-verify to avoid this check.\n' +
+			"But please don't. Code is poetry.\n\n" +
+			after
 	);
 	exitCode = 1;
 }
@@ -133,6 +137,51 @@ function runJSLinter( toLintFiles ) {
 	} );
 
 	return lintResult.status;
+}
+
+/**
+ * Runs PHPCS against checked PHP files
+ */
+function runPHPCS() {
+	const phpcsResult = spawnSync( 'composer', [ 'php:lint:errors', ...phpcsFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	if ( phpcsResult && phpcsResult.status ) {
+		const phpcsStatus =
+			2 === phpcsResult.status
+				? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
+				: 'PHPCS reported some problems and cannot automatically fix them.\n';
+		checkFailed(
+			phpcsStatus,
+			'\n\nNote: If there are additional PHPCS errors in files that are not yet fully PHPCS-compliant ' +
+				'they will be reported only after these issues are resolved.'
+		);
+
+		// If we get here, required files have failed PHPCS. Let's return early and avoid the duplicate information.
+		exit( exitCode );
+	}
+}
+
+/**
+ * Runs PHPCBF against checked PHP files
+ */
+function runPHPCbf() {
+	const toPhpCbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+	if ( toPhpCbf.length === 0 ) {
+		return;
+	}
+
+	const phpCbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpCbf ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	if ( phpCbfResult && phpCbfResult.status ) {
+		execSync( `git add ${ phpcsFiles.join( ' ' ) }` );
+		console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
+	}
 }
 
 /**
@@ -249,52 +298,17 @@ if ( phpFiles.length > 0 ) {
 		shell: true,
 		stdio: 'inherit',
 	} );
-
-	runPHPCSChanged( phpFiles );
 }
 
 if ( phpLintResult && phpLintResult.status ) {
 	checkFailed();
 }
 
-let phpcbfResult, phpcsResult;
-const toPhpcbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+// let phpcbfResult, phpcsResult;
 if ( phpcsFiles.length > 0 ) {
-	if ( toPhpcbf.length > 0 ) {
-		phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpcbf ], {
-			shell: true,
-			stdio: 'inherit',
-		} );
-	}
-
-	phpcsResult = spawnSync( 'composer', [ 'php:lint:errors', ...phpcsFiles ], {
-		shell: true,
-		stdio: 'inherit',
-	} );
-}
-
-if ( phpcbfResult && phpcbfResult.status ) {
-	execSync( `git add ${ phpcsFiles.join( ' ' ) }` );
-	console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
-}
-
-if ( phpcsResult && phpcsResult.status ) {
-	const phpcsStatus =
-		2 === phpcsResult.status
-			? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
-			: 'PHPCS reported some problems and cannot automatically fix them.\n';
-	console.log(
-		chalk.red( 'COMMIT ABORTED:' ),
-		phpcsStatus +
-			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.\n' +
-			"But please don't. Code is poetry.\n\n" +
-			'Note: If there are additional PHPCS errors in files that are not yet fully PHPCS-compliant ' +
-			'they will be reported only after these issues are resolved.'
-	);
-
-	// If we get here, required files have failed PHPCS. Let's return early and avoid the duplicate information.
-	exit( 1 );
+	runPHPCbf();
+	runPHPCS();
+	runPHPCSChanged( phpFiles );
 }
 
 checkComposerLock();
