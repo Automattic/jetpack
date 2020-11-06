@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function run_cmd {
+	if $1; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+}
 function run_packages_tests {
 	echo "Running \`$WP_TRAVISCI\` for Packages:"
 	export WP_TRAVISCI_PACKAGES="composer phpunit"
@@ -80,7 +88,7 @@ function run_coverage_tests {
 
 	print_build_info
 
-	echo "Running code coverage for tests:"
+	echo "Running code coverage for packages:"
 	export PACKAGES='./packages/**/tests/php'
 	for PACKAGE in $PACKAGES
 	do
@@ -90,40 +98,23 @@ function run_coverage_tests {
 
 			if [[ "$NAME" != "codesniffer" ]]; then
 				composer install -q
-				export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
+				export PACKAGE_CMD="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
 
-				echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
+				echo "Running \`$PACKAGE_CMD\` for package \`$NAME\` "
 
-				if $WP_TRAVISCI_PACKAGES; then
-					ls -la $TRAVIS_BUILD_DIR/coverage/
-					# Everything is fine
-					:
-				else
-					exit 1
-				fi
+				run_cmd $PACKAGE_CMD
+				ls -la $TRAVIS_BUILD_DIR/coverage/
 			fi
 			cd ../..
 		fi
 	done
 
-	if $BACKEND_CMD; then
-		# Everything is fine
-		:
-	else
-		exit 1
-	fi
-	if $LEGACY_SYNC_CMD; then
-		# Everything is fine
-		:
-	else
-		exit 1
-	fi
-	if WP_MULTISITE=1 $MULTISITE_CMD; then
-		# Everything is fine
-		:
-	else
-		exit 1
-	fi
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+
+	run_cmd $BACKEND_CMD
+	run_cmd $LEGACY_SYNC_CMD
+	export WP_MULTISITE=1
+	run_cmd $MULTISITE_CMD
 }
 
 function run_parallel_lint {
@@ -137,7 +128,11 @@ function run_parallel_lint {
 }
 
 echo "Travis CI command: $WP_TRAVISCI"
-echo $(which phpunit)
+
+if [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
+		run_coverage_tests
+		exit 0
+fi
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
@@ -147,7 +142,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 	# Run package tests only for the latest WordPress branch, because the
 	# tests are independent of the version.
-	if [ "latest" == "$WP_BRANCH" ] && [[ "$DO_COVERAGE" != "true" ]]; then
+	if [ "latest" == "$WP_BRANCH" ]; then
 		run_packages_tests
 	fi
 
@@ -161,9 +156,6 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export WP_TRAVISCI="phpunit --group external-http"
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
-	elif [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
-		run_coverage_tests
-		exit 0
 	fi
 
   if [ "$LEGACY_FULL_SYNC" == "1" ]; then
