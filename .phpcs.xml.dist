@@ -23,6 +23,11 @@
 		</properties>
 	</rule>
 
+	<!-- WordPress-Extra pulls this in. But PHP linting can be run more efficiently via bin/parallel-lint.sh than by having phpcs shell out to `php -l`. -->
+	<rule ref="Generic.PHP.Syntax">
+		<exclude name="Generic.PHP.Syntax" />
+	</rule>
+
 	<!-- Check all PHP files in directory tree by default. -->
 	<arg name="extensions" value="php"/>
 	<file>.</file>

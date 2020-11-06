@@ -44,12 +44,6 @@
 		<type>error</type>
 	</rule>
 
-	<!-- WordPress-Extra pulls this in. But PHP linting can be run more efficiently than having phpcs shell out to `php -l`. -->
-	<!-- Plus including it breaks code coverage generation with phpdbg. -->
-	<rule ref="Generic.PHP.Syntax">
-		<exclude name="Generic.PHP.Syntax" />
-	</rule>
-
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
