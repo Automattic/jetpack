@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function run_cmd {
-	echo "Running command \`$1\`"
+	echo "Running command \`$@\`"
 
 	if $@; then
 		# Everything is fine
