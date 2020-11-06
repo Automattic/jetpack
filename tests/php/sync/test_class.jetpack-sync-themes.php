@@ -251,8 +251,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			'type' => 'theme',
 			'action' => 'update',
 			'themes' => array(
-				'twentyseventeen',
-				'twentysixteen',
+				'twentytwenty',
+				'twentynineteen',
 			)
 		);
 
@@ -265,19 +265,19 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$themes = $event_data->args[0];
 
 		//Not testing versions since they are subject to change
-		$this->assertEquals( 'Twenty Seventeen', $themes['twentyseventeen']['name'] );
-		$this->assertEquals( 'https://wordpress.org/themes/twentyseventeen/', $themes['twentyseventeen']['uri'] );
-		$this->assertEquals( 'twentyseventeen', $themes['twentyseventeen']['stylesheet'] );
-		$this->assertEquals( 'Twenty Sixteen', $themes['twentysixteen']['name'] );
-		$this->assertEquals( 'https://wordpress.org/themes/twentysixteen/', $themes['twentysixteen']['uri'] );
-		$this->assertEquals( 'twentysixteen', $themes['twentysixteen']['stylesheet'] );
+		$this->assertEquals( 'Twenty Nineteen', $themes['twentynineteen']['name'] );
+		$this->assertEquals( 'https://wordpress.org/themes/twentynineteen/', $themes['twentynineteen']['uri'] );
+		$this->assertEquals( 'twentynineteen', $themes['twentynineteen']['stylesheet'] );
+		$this->assertEquals( 'Twenty Twenty', $themes['twentytwenty']['name'] );
+		$this->assertEquals( 'https://wordpress.org/themes/twentytwenty/', $themes['twentytwenty']['uri'] );
+		$this->assertEquals( 'twentytwenty', $themes['twentytwenty']['stylesheet'] );
 	}
 
 	public function test_update_theme_sync() {
 		$dummy_details = array(
-			'type' => 'theme',
+			'type'   => 'theme',
 			'action' => 'update',
-			'theme' => 'twentyseventeen'
+			'theme'  => 'twentytwenty',
 		);
 
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
@@ -289,9 +289,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$themes = $event_data->args[0];
 
 		//Not testing versions since they are subject to change
-		$this->assertEquals( 'Twenty Seventeen', $themes['twentyseventeen']['name'] );
-		$this->assertEquals( 'https://wordpress.org/themes/twentyseventeen/', $themes['twentyseventeen']['uri'] );
-		$this->assertEquals( 'twentyseventeen', $themes['twentyseventeen']['stylesheet'] );
+		$this->assertEquals( 'Twenty Twenty', $themes['twentytwenty']['name'] );
+		$this->assertEquals( 'https://wordpress.org/themes/twentytwenty/', $themes['twentytwenty']['uri'] );
+		$this->assertEquals( 'twentytwenty', $themes['twentytwenty']['stylesheet'] );
 	}
 
 	public function test_widgets_changes_get_synced() {
