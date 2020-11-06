@@ -20,9 +20,9 @@ done
 
 # Sum all coverage parts into a single coverage/codeclimate.json
 echo ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
-./cc-test-reporter -d sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
+./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
 
 # Upload coverage/codeclimate.json
 if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then
-	./cc-test-reporter -d upload-coverage;
+	./cc-test-reporter upload-coverage;
 fi
