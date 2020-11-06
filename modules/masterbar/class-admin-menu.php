@@ -231,16 +231,20 @@ class Admin_Menu {
 	 * @param bool   $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
 	 */
 	public function add_my_home_menu( $domain, $calypso = true ) {
+		global $submenu;
+
 		$menu_slug = $calypso ? 'https://wordpress.com/home/' . $domain : 'index.php';
 
 		remove_menu_page( 'index.php' );
-
-		// Only remove submenu when there are no other submenus.
-		if ( $this->is_wpcom_site() ) {
-			remove_submenu_page( 'index.php', 'index.php' );
-		}
+		remove_submenu_page( 'index.php', 'index.php' );
 
 		add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'read', $menu_slug, null, 'dashicons-admin-home', 2 );
+
+		// Only add submenu when there are other submenu items.
+		if ( ! empty( $submenu['index.php'] ) ) {
+			add_submenu_page( $menu_slug, __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'read', $menu_slug, null, 1 );
+		}
+
 		$this->migrate_submenus( 'index.php', $menu_slug );
 	}
 
