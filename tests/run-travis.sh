@@ -11,7 +11,7 @@ function run_packages_tests {
 			export NAME=$(basename $(pwd))
 
 			if [ ! -e tests/php/travis-can-run.sh ] || tests/php/travis-can-run.sh; then
-				if [ "$DO_COVERAGE" == "true" && "$PACKAGE" !== "codesniffer" ]; then
+				if [[ "$DO_COVERAGE" == "true" && "$PACKAGE" != "codesniffer" ]]; then
 					composer install
 					export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
 				fi
@@ -73,9 +73,9 @@ function run_php_compatibility {
 }
 
 function run_coverage_tests {
-	export BACKEND_CMD="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
-	export LEGACY_SYNC_CMD="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --group=legacy-full-sync --coverage-clover $TRAVIS_BUILD_DIR/coverage/legacy-sync-clover.xml"
-	export MULTISITE_CMD="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit -c tests/php.multisite.xml --coverage-clover $TRAVIS_BUILD_DIR/coverage/multisite-clover.xml"
+	export BACKEND_CMD="phpdbg -qrr phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
+	export LEGACY_SYNC_CMD="phpdbg -qrr phpunit --group=legacy-full-sync --coverage-clover $TRAVIS_BUILD_DIR/coverage/legacy-sync-clover.xml"
+	export MULTISITE_CMD="phpdbg -qrr phpunit -c tests/php.multisite.xml --coverage-clover $TRAVIS_BUILD_DIR/coverage/multisite-clover.xml"
 
 	print_build_info
 
