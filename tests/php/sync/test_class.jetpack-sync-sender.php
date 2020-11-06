@@ -407,6 +407,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 
 		$this->assertFalse( $event );
+
+		// Clean up.
+		unregister_post_type( 'http_listener' );
 	}
 
 	function test_do_not_send_empty_queue_clear_skipped_items() {

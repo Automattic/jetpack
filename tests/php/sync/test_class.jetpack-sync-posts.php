@@ -630,6 +630,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertFalse( $sync_event );
+
+		// Clean up.
+		unregister_post_type( 'snitch' );
 	}
 
 	/**
@@ -650,6 +653,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
 		$this->assertFalse( $sync_event );
+
+		// Clean up.
+		unregister_post_type( 'snitch' );
 	}
 
 	/**
@@ -672,6 +678,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $deleted_event );
 
+		// Clean up.
+		unregister_post_type( 'snitch' );
 	}
 
 	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
@@ -690,6 +698,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
 
+		// Clean up.
+		unregister_post_type( 'snitch' );
 	}
 
 	function test_post_types_blacklist_can_be_appended_in_settings() {
@@ -718,6 +728,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		foreach( Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
 			$this->assertTrue( in_array( $hardcoded_blacklist_post_type, $setting ) );
 		}
+
+		// Clean up.
+		unregister_post_type( 'filter_me' );
 	}
 
 	function test_does_not_publicize_blacklisted_post_types() {
@@ -733,6 +746,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$good_post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
+
+		// Clean up.
+		unregister_post_type( 'dont_publicize_me' );
 	}
 
 	function test_returns_post_object_by_id() {
@@ -996,6 +1012,8 @@ POST_CONTENT;
 		$this->assertEquals( '', $synced_post->post_content_filtered );
 		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
 
+		// Clean up.
+		unregister_post_type( 'non_public' );
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
