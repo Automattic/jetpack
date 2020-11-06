@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function run_cmd {
-	if $1; then
+	if $@; then
 		# Everything is fine
 		:
 	else
