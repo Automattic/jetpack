@@ -247,13 +247,22 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_themes_sync() {
+		$updatingthemes = array(
+			'twentynineteen',
+			'twentytwenty',
+		);
+
+		foreach ( $updatingthemes as $theme ) {
+			if ( ! wp_get_theme( $theme )->exists() ) {
+				$this->markTestSkipped( 'The expected themes are not installed.' );
+				return;
+			}
+		}
+
 		$dummy_details = array(
-			'type' => 'theme',
+			'type'   => 'theme',
 			'action' => 'update',
-			'themes' => array(
-				'twentytwenty',
-				'twentynineteen',
-			)
+			'themes' => $updatingthemes,
 		);
 
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
@@ -262,9 +271,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_themes' );
-		$themes = $event_data->args[0];
+		$themes     = $event_data->args[0];
 
-		//Not testing versions since they are subject to change
+		// Not testing versions since they are subject to change.
 		$this->assertEquals( 'Twenty Nineteen', $themes['twentynineteen']['name'] );
 		$this->assertEquals( 'https://wordpress.org/themes/twentynineteen/', $themes['twentynineteen']['uri'] );
 		$this->assertEquals( 'twentynineteen', $themes['twentynineteen']['stylesheet'] );
@@ -274,10 +283,17 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_theme_sync() {
+		$theme = 'twentytwenty';
+
+		if ( ! wp_get_theme( $theme )->exists() ) {
+				$this->markTestsSkipped( 'The expected themes are not installed.' );
+				return;
+		}
+
 		$dummy_details = array(
 			'type'   => 'theme',
 			'action' => 'update',
-			'theme'  => 'twentytwenty',
+			'theme'  => $theme,
 		);
 
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
@@ -286,9 +302,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_themes' );
-		$themes = $event_data->args[0];
+		$themes     = $event_data->args[0];
 
-		//Not testing versions since they are subject to change
+		// Not testing versions since they are subject to change.
 		$this->assertEquals( 'Twenty Twenty', $themes['twentytwenty']['name'] );
 		$this->assertEquals( 'https://wordpress.org/themes/twentytwenty/', $themes['twentytwenty']['uri'] );
 		$this->assertEquals( 'twentytwenty', $themes['twentytwenty']['stylesheet'] );
