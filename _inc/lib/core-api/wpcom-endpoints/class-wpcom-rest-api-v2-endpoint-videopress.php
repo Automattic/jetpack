@@ -78,24 +78,25 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			return false;
 		}
 
-		$endpoint = "videos/{$json_params['guid']}";
+		$endpoint = 'videos';
 		$args     = array(
 			'method'  => 'POST',
-			'headers' => array( 'Content-Type' => 'application/json' ),
+			'headers' => array( 'content-type' => 'application/json' ),
 		);
 
 		$result = Client::wpcom_json_api_request_as_blog(
 			$endpoint,
-			Client::WPCOM_JSON_API_VERSION,
+			'2',
 			$args,
-			wp_json_encode( $json_params )
+			wp_json_encode( $json_params ),
+			'wpcom'
 		);
 
 		if ( is_wp_error( $result ) ) {
 			return false;
 		}
 
-		return true;
+		return 200 === $result['response']['code'];
 	}
 }
 
