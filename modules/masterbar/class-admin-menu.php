@@ -605,6 +605,7 @@ class Admin_Menu {
 
 		if ( $calypso ) {
 			remove_menu_page( $admin_slug );
+			remove_submenu_page( $admin_slug, $admin_slug );
 			remove_submenu_page( $admin_slug, 'import.php' );
 			remove_submenu_page( $admin_slug, 'export.php' );
 			remove_submenu_page( $admin_slug, 'delete-blog' );
@@ -621,10 +622,13 @@ class Admin_Menu {
 	 * Adds Settings menu.
 	 *
 	 * @param string $domain Site domain.
+	 * @param bool   $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
 	 */
-	public function add_options_menu( $domain ) {
-		remove_submenu_page( 'options-general.php', 'options-writing.php' );
-		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
+	public function add_options_menu( $domain, $calypso = true ) {
+		if ( $calypso ) {
+			remove_submenu_page( 'options-general.php', 'options-discussion.php' );
+			remove_submenu_page( 'options-general.php', 'options-writing.php' );
+		}
 
 		add_options_page( esc_attr__( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $domain, null, 1 );
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $domain, null, 6 );
@@ -698,6 +702,13 @@ class Admin_Menu {
 	 * @return bool
 	 */
 	private function is_wpcom_site() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+		/**
+		 * Filters whether this request is executed in a WordPress.com environment.
+		 *
+		 * Filterable to make it easier to unit test other parts of this class.
+		 *
+		 * @param bool $is_wpcom Whether this is a WordPress.com request. Defaults to the value of IS_WPCOM,
+		 */
+		return apply_filters( 'jetpack_admin_menu_is_wpcom', defined( 'IS_WPCOM' ) && IS_WPCOM );
 	}
 }
