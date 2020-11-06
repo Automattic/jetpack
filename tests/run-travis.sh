@@ -114,6 +114,7 @@ function run_coverage_tests {
 	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
 
 	run_cmd $BACKEND_CMD
+	export LEGACY_FULL_SYNC=1
 	run_cmd $LEGACY_SYNC_CMD
 	export WP_MULTISITE=1
 	run_cmd $MULTISITE_CMD
