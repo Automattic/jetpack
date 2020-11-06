@@ -20,6 +20,18 @@ add_filter( 'a8c_enable_nav_sidebar', '__return_true' );
 // Enable block patterns API.
 add_filter( 'a8c_enable_block_patterns_api', '__return_true' );
 
+
+/**
+ * Enable coming soon if the user is proxied.
+ *
+ * @return bool true if the user is proxied
+ */
+function wpcomsh_maybe_enable_public_coming_soon() {
+	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+}
+
+add_filter( 'a8c_enable_public_coming_soon', 'wpcomsh_maybe_enable_public_coming_soon' );
+
 /**
  * Adds the tracking identity to config that is passed to Starter Page Template frontend.
  * That way we can publish our code to plugin directory sans tracking code.
