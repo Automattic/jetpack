@@ -18,7 +18,7 @@ function run_packages_tests {
 				echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
 
 				if $WP_TRAVISCI_PACKAGES; then
-					ls -la $TRAVIS_BUILD_DIR/coverage/packages
+					ls -la $TRAVIS_BUILD_DIR/coverage/
 					# Everything is fine
 					:
 				else
@@ -72,6 +72,33 @@ function run_php_compatibility {
 	fi
 }
 
+function run_coverage_tests {
+	export BACKEND_CMD="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
+	export LEGACY_SYNC_CMD="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --group=legacy-full-sync --coverage-clover $TRAVIS_BUILD_DIR/coverage/legacy-sync-clover.xml"
+	export MULTISITE_CMD="WP_MULTISITE=1 phpdbg -qrr $HOME/.composer/vendor/bin/phpunit -c tests/php.multisite.xml --coverage-clover $TRAVIS_BUILD_DIR/coverage/multisite-clover.xml"
+
+	print_build_info
+
+	if $BACKEND_CMD; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+	if $LEGACY_SYNC_CMD; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+	if $MULTISITE_CMD; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+}
+
 function run_parallel_lint {
 	echo "Running PHP lint:"
 	if ./bin/parallel-lint.sh; then
@@ -107,8 +134,8 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	elif [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
-		export WP_BRANCH="master" # Hacky way to trigger multisite tests
-		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
+		run_coverage_tests
+		exit 0
 	fi
 
   if [ "$LEGACY_FULL_SYNC" == "1" ]; then
