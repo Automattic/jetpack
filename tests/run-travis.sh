@@ -73,9 +73,10 @@ function run_php_compatibility {
 }
 
 function run_coverage_tests {
-	export BACKEND_CMD="phpdbg -qrr phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
-	export LEGACY_SYNC_CMD="phpdbg -qrr phpunit --group=legacy-full-sync --coverage-clover $TRAVIS_BUILD_DIR/coverage/legacy-sync-clover.xml"
-	export MULTISITE_CMD="phpdbg -qrr phpunit -c tests/php.multisite.xml --coverage-clover $TRAVIS_BUILD_DIR/coverage/multisite-clover.xml"
+	export PHPUNIT=$(which phpunit)
+	export BACKEND_CMD="phpdbg -qrr $PHPUNIT --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
+	export LEGACY_SYNC_CMD="phpdbg -qrr $PHPUNIT --group=legacy-full-sync --coverage-clover $TRAVIS_BUILD_DIR/coverage/legacy-sync-clover.xml"
+	export MULTISITE_CMD="phpdbg -qrr $PHPUNIT -c tests/php.multisite.xml --coverage-clover $TRAVIS_BUILD_DIR/coverage/multisite-clover.xml"
 
 	print_build_info
 
@@ -110,6 +111,7 @@ function run_parallel_lint {
 }
 
 echo "Travis CI command: $WP_TRAVISCI"
+echo $(which phpunit)
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
