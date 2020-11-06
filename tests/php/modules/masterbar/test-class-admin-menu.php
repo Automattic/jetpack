@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Admin_Menu;
 
 require_jetpack_file( 'modules/masterbar/class-admin-menu.php' );
-require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
 
 /**
  * Class Test_Admin_Menu
@@ -59,6 +58,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		global $menu, $submenu;
+
+		require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
 
 		static::$menu_data    = $menu;
 		static::$submenu_data = $submenu;
