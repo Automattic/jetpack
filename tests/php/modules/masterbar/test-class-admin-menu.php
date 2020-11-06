@@ -66,8 +66,27 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$user_id    = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$admin_menu = Admin_Menu::get_instance();
+	}
+
+	/**
+	 * Set up data.
+	 */
+	public function setUp() {
+		parent::setUp();
 
 		wp_set_current_user( static::$user_id );
+	}
+
+	/**
+	 * Reset data.
+	 */
+	public function tearDown() {
+		global $menu, $submenu;
+
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
+
+		parent::tearDown();
 	}
 
 	/**
@@ -80,14 +99,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertEquals( static::$menu_data[80], $menu[80], 'Settings menu should stay the same.' );
-		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
-
 		$this->assertSame(
 			array_keys( $menu ),
 			array( 2, 3, '3.86682', 4, 5, 10, 15, 20, 25, 59, 60, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
+
+		$this->assertEquals( static::$menu_data[80], $menu[80], 'Settings menu should stay the same.' );
+		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
 
 	/**
@@ -110,7 +129,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'dashicons-cart',
 		);
 
-		$this->assertSame( $menu[4], $purchases_menu_item );
+		$this->assertSame( $menu['4.62024'], $purchases_menu_item );
 		$this->assertArrayNotHasKey( 'https://wordpress.com/plans/' . static::$domain, $submenu );
 	}
 
@@ -154,11 +173,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		remove_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
 		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
-		$slug  = 'https://wordpress.com/plugins/' . static::$domain;
-		$count = '';
+		$slug = 'https://wordpress.com/plugins/' . static::$domain;
 
 		$plugins_menu_item = array(
-			sprintf( 'Plugins %s', $count ),
+			'Plugins <span class="update-plugins count-0"><span class="plugin-count">0</span></span>',
 			'activate_plugins',
 			$slug,
 			'Plugins',
@@ -202,6 +220,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
+		static::$admin_menu->add_tools_menu( static::$domain );
 
 		$tools_menu_item = array(
 			'Tools',
@@ -281,6 +300,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
+
+		static::$admin_menu->add_options_menu( static::$domain );
 
 		$this->assertNotContains( 'options-discussion.php', $submenu['options-general.php'] );
 		$this->assertNotContains( 'options-writing.php', $submenu['options-general.php'] );
