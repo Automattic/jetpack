@@ -439,8 +439,10 @@ class Admin_Menu {
 		// Maintain id for jQuery selector.
 		$menu[ $position ][5] = 'toplevel_page_jetpack'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 		remove_menu_page( 'jetpack' );
+		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+
+		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $domain, null, 5 );
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $domain, null, 10 );
