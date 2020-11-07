@@ -105,7 +105,7 @@
 		"**/mkdirp/minimist": "^0.2.1",
 		"**/node-fetch": "^2.6.1",
 		"**/tar-stream/bl": "^4.0.0",
-		"**/terser-webpack-plugin/serialize-javascript": "^3.1.0"
+		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "6.1.0",
