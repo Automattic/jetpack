@@ -116,7 +116,7 @@ function run_coverage_tests {
 	run_cmd $BACKEND_CMD
 	export LEGACY_FULL_SYNC=1
 	run_cmd $LEGACY_SYNC_CMD
-	export LEGACY_FULL_SYNC=false
+	unset LEGACY_FULL_SYNC
 	export WP_MULTISITE=1
 	run_cmd $MULTISITE_CMD
 }
