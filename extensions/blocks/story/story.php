@@ -187,12 +187,14 @@ function render_video( $media ) {
 
 	if ( ! empty( $poster_url ) ) {
 		return sprintf(
-			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s">',
+			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s" width="%5$s" height="%6$s">',
 			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
 			'wp-block-jetpack-story_image wp-story-image ' .
 			get_image_crop_class( $meta_width, $meta_height ),
-			esc_attr( $poster_url )
+			esc_attr( $poster_url ),
+			$meta_width,
+			$meta_height
 		);
 	}
 
