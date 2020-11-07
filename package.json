@@ -238,7 +238,7 @@
 		"localtunnel": "2.0.0",
 		"lodash": "4.17.20",
 		"markdown-spellcheck": "1.3.1",
-		"mocha": "8.2.0",
+		"mocha": "8.2.1",
 		"mockery": "2.1.0",
 		"nock": "13.0.4",
 		"node-wp-i18n": "1.2.3",
