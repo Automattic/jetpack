@@ -173,24 +173,25 @@ function render_video( $media ) {
 		// Use poster image for VideoPress videos.
 		$poster_url  = $metadata['videopress']['poster'];
 		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
+		$meta_width  = $metadata['videopress']['width'];
+		$meta_height = $metadata['videopress']['height'];
 	} elseif ( ! empty( $metadata['thumb'] ) ) {
 		// On WordPress.com, VideoPress videos have a 'thumb' property with the
 		// poster image filename instead.
 		$video_url   = wp_get_attachment_url( $media['id'] );
 		$poster_url  = str_replace( wp_basename( $video_url ), $metadata['thumb'], $video_url );
 		$description = ! empty( $media['alt'] ) ? $media['alt'] : '';
+		$meta_width  = $metadata['width'];
+		$meta_height = $metadata['height'];
 	}
 
 	if ( ! empty( $poster_url ) ) {
 		return sprintf(
-			'<img
-				title="%s"
-				alt="%s"
-				class="wp-block-jetpack-story_image wp-story-image %s"
-				src="%s">',
+			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s">',
 			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
-			get_image_crop_class( $metadata['videopress']['width'], $metadata['videopress']['height'] ),
+			'wp-block-jetpack-story_image wp-story-image ' .
+			get_image_crop_class( $meta_width, $meta_height ),
 			esc_attr( $poster_url )
 		);
 	}
