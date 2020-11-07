@@ -229,8 +229,13 @@ function render_slide( $media, $index = 0 ) {
 			$media_template = render_image( $media, $index );
 			break;
 		case 'video':
-		case 'file':
 			$media_template = render_video( $media, $index );
+			break;
+		case 'file':
+			// VideoPress videos on WordPress.com can have type 'file'.
+			if ( 'video' === substr( $media['mime'], 0, 5 ) ) {
+				$media_template = render_video( $media, $index );
+			}
 			break;
 	}
 	return sprintf(
