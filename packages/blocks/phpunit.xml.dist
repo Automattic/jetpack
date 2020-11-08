@@ -10,6 +10,7 @@
 			<exclude>
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">vendor</directory>
+				<directory>wordpress</directory>
 			</exclude>
 		</whitelist>
 	</filter>
