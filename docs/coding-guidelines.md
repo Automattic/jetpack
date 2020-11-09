@@ -13,7 +13,7 @@ These are some things to keep in mind when writing code for Jetpack plugin. Plea
 
 - Install PHP Code Sniffer [Code Sniffer rules for WordPress Coding Standards.](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#installation) They will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it easy to inspect your code.
 - If coding a module, make sure you declare the module in the inline doc, [like this](https://github.com/Automattic/jetpack/blob/16bc2fce3ace760ff402f656dcf05255888f23f4/modules/sitemaps/sitemaps.php#L92-L101). The same applies for filters or actions, [as shown here](https://github.com/Automattic/jetpack/blob/16bc2fce3ace760ff402f656dcf05255888f23f4/modules/sitemaps/sitemaps.php#L143-L151).
-- Sanitize URLs, attributes, everything. WordPress.com VIP has this nice [article about the topic](https://vip.wordpress.com/documentation/vip/best-practices/security/validating-sanitizing-escaping/).
+- Sanitize URLs, attributes, everything. WordPress.com VIP has this nice [article about the topic](https://wpvip.com/documentation/vip-go/validating-sanitizing-and-escaping/).
 - Create [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) if you can. If you're not familiar with Unit Testing, you can check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/).
 
 ## Deprecating code
