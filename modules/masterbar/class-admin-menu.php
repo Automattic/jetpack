@@ -211,9 +211,10 @@ class Admin_Menu {
 
 			$domain  = wp_parse_url( get_home_url(), PHP_URL_HOST );
 			$classes = 'toplevel_page_site-card';
-
+			$a = has_site_icon();
+			$b = get_site_icon_url();
 			if ( ( function_exists( 'blavatar_exists' ) && blavatar_exists( $domain ) ) || has_site_icon() ) {
-				$classes .= ' has-site-icon';
+				$classes .= ' has-site-icon' . ' ' . $a . ' ' . $b;
 			}
 
 			$menu[ $key ][4] = add_cssclass( $classes, $menu_item[4] );
