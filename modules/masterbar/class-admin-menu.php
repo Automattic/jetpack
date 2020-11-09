@@ -131,7 +131,7 @@ class Admin_Menu {
 	 */
 	public function add_browse_sites_link() {
 		// Only show switcher when there are other sites.
-		if ( ! is_multisite() || ( function_exists( 'get_blog_count_for_user' ) && get_blog_count_for_user() < 2 ) ) {
+		if ( ! is_multisite() || count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
 			return;
 		}
 
