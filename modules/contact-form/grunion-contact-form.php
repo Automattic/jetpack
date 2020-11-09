@@ -3514,7 +3514,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 
-	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
+	function render_label( $type, $id, $label, $required, $required_field_text ) {
 
 		$type_class = $type ? ' ' .$type : '';
 		return
