@@ -387,9 +387,9 @@ EXPECTED;
 	}
 
 	function test_idc_optin_casts_to_bool() {
-		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		add_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
 		$this->assertTrue( Jetpack::sync_idc_optin() );
-		remove_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		remove_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
 	}
 
 	function test_idc_optin_true_when_constant_true() {
@@ -651,15 +651,15 @@ EXPECTED;
 	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_works_with_filters() {
-		add_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
-		add_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+		add_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
+		add_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
 
 		$secret = Jetpack::generate_secrets( 'name' );
 
 		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
 
-		remove_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
-		remove_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+		remove_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
+		remove_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
 	}
 
 	/**
@@ -669,13 +669,13 @@ EXPECTED;
 	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_works_with_long_strings() {
-		add_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+		add_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
 
 		$secret = Jetpack::generate_secrets( 'name' );
 
 		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
 
-		remove_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+		remove_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
 	}
 
 	/**
@@ -857,22 +857,22 @@ EXPECTED;
 		);
 	}
 
-	static function __cyrillic_salt( $password ) {
+	static function cyrillic_salt( $password ) {
 		return 'ленка' . $password . 'пенка';
 	}
 
-	static function __kanji_salt( $password ) {
+	static function kanji_salt( $password ) {
 		return '強熊' . $password . '清珠';
 	}
 
-	static function __multiply_filter( $password ) {
+	static function multiply_filter( $password ) {
 		for ( $i = 0; $i < 10; $i++ ) {
 			$password .= $password;
 		}
 		return $password;
 	}
 
-	function __return_string_1() {
+	function return_string_1() {
 		return '1';
 	}
 

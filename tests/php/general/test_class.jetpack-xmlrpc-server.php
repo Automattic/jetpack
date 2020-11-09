@@ -99,11 +99,11 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	function test_xmlrpc_remote_register_nonce_validation() {
 		$server = new Jetpack_XMLRPC_Server();
 		$filters = array(
-			'__return_invalid_nonce_status' => array(
+			'return_invalid_nonce_status' => array(
 				'code' => 400,
 				'message' => 'invalid_nonce',
 			),
-			'__return_nonce_404_status' => array(
+			'return_nonce_404_status' => array(
 				'code' => 400,
 				'message' => 'invalid_nonce',
 			),
@@ -130,9 +130,9 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'blog_token', 1 );
 		Jetpack_Options::update_option( 'id', 1001 );
 
-		add_filter( 'pre_http_request', array( $this, '__return_ok_status' ) );
+		add_filter( 'pre_http_request', array( $this, 'return_ok_status' ) );
 		$response = $server->remote_register( array( 'nonce' => '12345', 'local_user' => '1' ) );
-		remove_filter( 'pre_http_request', array( $this, '__return_ok_status' ) );
+		remove_filter( 'pre_http_request', array( $this, 'return_ok_status' ) );
 
 		$this->assertInternalType( 'array', $response );
 		$this->assertArrayHasKey( 'client_id', $response );
@@ -298,7 +298,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	 * Helpers
 	 */
 
-	public function __return_ok_status() {
+	public function return_ok_status() {
 		return array(
 			'body' => 'OK',
 			'response' => array(
@@ -308,7 +308,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		);
 	}
 
-	public function __return_invalid_nonce_status() {
+	public function return_invalid_nonce_status() {
 		return array(
 			'body' => 'FAIL: NOT OK',
 			'response' => array(
@@ -318,7 +318,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		);
 	}
 
-	public function __return_nonce_404_status() {
+	public function return_nonce_404_status() {
 		return array(
 			'body' => '',
 			'response' => array(

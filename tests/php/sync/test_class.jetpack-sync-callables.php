@@ -733,27 +733,27 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_get_raw_url_by_option_bypasses_filters() {
-		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
+		add_filter( 'option_home', array( $this, 'return_filtered_url' ) );
 		$this->assertTrue( 'http://filteredurl.com' !== Functions::get_raw_url( 'home' ) );
-		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
+		remove_filter( 'option_home', array( $this, 'return_filtered_url' ) );
 	}
 
 	function test_get_raw_url_by_constant_bypasses_filters() {
 		Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
 		Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
-		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
-		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
+		add_filter( 'option_home', array( $this, 'return_filtered_url' ) );
+		add_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 
 		if ( is_multisite() ) {
-			$this->assertTrue( $this->__return_filtered_url() !== Functions::get_raw_url( 'home' ) );
-			$this->assertTrue( $this->__return_filtered_url() !== Functions::get_raw_url( 'siteurl' ) );
+			$this->assertTrue( $this->return_filtered_url() !== Functions::get_raw_url( 'home' ) );
+			$this->assertTrue( $this->return_filtered_url() !== Functions::get_raw_url( 'siteurl' ) );
 		} else {
 			$this->assertEquals( 'http://constanturl.com', Functions::get_raw_url( 'home' ) );
 			$this->assertEquals( 'http://constanturl.com', Functions::get_raw_url( 'siteurl' ) );
 		}
 
-		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
-		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
+		remove_filter( 'option_home', array( $this, 'return_filtered_url' ) );
+		remove_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 		Constants::clear_constants();
 	}
 
@@ -793,19 +793,19 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_user_can_stop_raw_urls() {
-		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
-		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
+		add_filter( 'option_home', array( $this, 'return_filtered_url' ) );
+		add_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 
 		// Test with constant first
 		$this->assertTrue( 'http://filteredurl.com' !== Functions::home_url() );
 
 		// Now, without, which should return the filtered URL
 		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
-		$this->assertEquals( $this->__return_filtered_url(), Functions::home_url() );
+		$this->assertEquals( $this->return_filtered_url(), Functions::home_url() );
 		Constants::clear_constants();
 
-		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
-		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
+		remove_filter( 'option_home', array( $this, 'return_filtered_url' ) );
+		remove_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 	}
 
 	function test_plugin_action_links_get_synced() {
@@ -901,7 +901,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $plugins_action_links['hello.php']['world'] ), 'World is not set' );
 	}
 
-	function __return_filtered_url() {
+	function return_filtered_url() {
 		return 'http://filteredurl.com';
 	}
 

@@ -23,7 +23,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		);
 	}
 
-	function __return_one() {
+	function return_one() {
 		return 1;
 	}
 
@@ -174,7 +174,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_generate_user_returns_user_if_username_exists_and_has_tries() {
-		add_filter( 'jetpack_sso_allowed_username_generate_retries', array( $this, '__return_one' )  );
+		add_filter( 'jetpack_sso_allowed_username_generate_retries', array( $this, 'return_one' )  );
 		$this->factory->user->create( array( 'user_login' => $this->user_data->login ) );
 
 		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
@@ -201,9 +201,9 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	}
 
 	function test_extend_auth_cookie_casts_to_int() {
-		add_filter( 'jetpack_sso_auth_cookie_expiration', array( $this, '__return_string_value' ) );
-		$this->assertSame( (int) $this->__return_string_value() , Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
-		remove_filter( 'jetpack_sso_auth_cookie_expiration', array( $this, '__return_string_value' ) );
+		add_filter( 'jetpack_sso_auth_cookie_expiration', array( $this, 'return_string_value' ) );
+		$this->assertSame( (int) $this->return_string_value() , Jetpack_SSO_Helpers::extend_auth_cookie_expiration_for_sso() );
+		remove_filter( 'jetpack_sso_auth_cookie_expiration', array( $this, 'return_string_value' ) );
 	}
 
 	function test_extend_auth_cookie_default_value_greater_than_default() {
@@ -250,7 +250,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		) );
 	}
 
-	function __return_string_value() {
+	function return_string_value() {
 		return '1';
 	}
 

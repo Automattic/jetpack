@@ -36,13 +36,13 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_filtered_schedule_incremental_sync_cron_works() {
-		add_filter( 'jetpack_sync_incremental_sync_interval', array( $this, '__return_hourly_schedule' ) );
+		add_filter( 'jetpack_sync_incremental_sync_interval', array( $this, 'return_hourly_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( 'hourly', wp_get_schedule( 'jetpack_sync_cron' ) );
 	}
 
 	function test_filtered_schedule_incremental_sync_cron_bad_schedule_sanitized() {
-		add_filter( 'jetpack_sync_incremental_sync_interval', array( $this, '__return_nonexistent_schedule' ) );
+		add_filter( 'jetpack_sync_incremental_sync_interval', array( $this, 'return_nonexistent_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_cron' ) );
 	}
@@ -59,13 +59,13 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_filtered_schedule_full_sync_cron_works() {
-		add_filter( 'jetpack_sync_full_sync_interval', array( $this, '__return_hourly_schedule' ) );
+		add_filter( 'jetpack_sync_full_sync_interval', array( $this, 'return_hourly_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( 'hourly', wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
 	function test_filtered_schedule_full_sync_cron_bad_schedule_sanitized() {
-		add_filter( 'jetpack_sync_full_sync_interval', array( $this, '__return_nonexistent_schedule' ) );
+		add_filter( 'jetpack_sync_full_sync_interval', array( $this, 'return_nonexistent_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
@@ -195,11 +195,11 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	 * Utility functions
 	 */
 
-	function __return_hourly_schedule() {
+	function return_hourly_schedule() {
 		return 'hourly';
 	}
 
-	function __return_nonexistent_schedule() {
+	function return_nonexistent_schedule() {
 		return 'nonexistent';
 	}
 }
