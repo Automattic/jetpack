@@ -175,6 +175,50 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests set_site_card_menu_class
+	 *
+	 * @covers ::set_site_card_menu_class
+	 */
+	public function test_set_site_card_menu_class() {
+		global $menu;
+
+		static::$admin_menu->add_site_card_menu( static::$domain );
+
+		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
+		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+
+		// Atomic fallback site icon counts as no site icon.
+		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
+		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
+		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
+		$this->assertNotContains( 'has-site-icon', $menu[1][4] );
+
+		// Custom site icon triggers CSS class.
+		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
+		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
+		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
+		$this->assertContains( 'has-site-icon', $menu[1][4] );
+	}
+
+	/**
+	 * Shim wpcomsh fallback site icon.
+	 *
+	 * @return string
+	 */
+	public function wpcomsh_site_icon_url() {
+		return 'https://s0.wp.com/i/webclip.png';
+	}
+
+	/**
+	 * Custom site icon.
+	 *
+	 * @return string
+	 */
+	public function custom_site_icon_url() {
+		return 'https://s0.wp.com/i/jetpack.png';
+	}
+
+	/**
 	 * Tests add_my_home_menu
 	 *
 	 * @covers ::add_my_home_menu

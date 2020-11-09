@@ -210,13 +210,14 @@ class Admin_Menu {
 			}
 
 			$domain  = wp_parse_url( get_home_url(), PHP_URL_HOST );
-			$classes = 'toplevel_page_site-card';
+			$classes = ' toplevel_page_site-card';
 
-			if ( ( function_exists( 'blavatar_exists' ) && blavatar_exists( $domain ) ) || has_site_icon() ) {
+			// webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon.
+			if ( ( function_exists( 'blavatar_exists' ) && blavatar_exists( $domain ) ) || ( has_site_icon() && 'https://s0.wp.com/i/webclip.png' !== get_site_icon_url( 512 ) ) ) {
 				$classes .= ' has-site-icon';
 			}
 
-			$menu[ $key ][4] = add_cssclass( $classes, $menu_item[4] );
+			$menu[ $key ][4] = $menu_item[4] . $classes;
 			$menu[ $key ][5] = 'toplevel_page_site_card';
 			break;
 		}
