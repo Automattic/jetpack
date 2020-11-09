@@ -103,7 +103,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 				'code' => 400,
 				'message' => 'invalid_nonce',
 			),
-			'return_nonce_404_status' => array(
+			'return_nonce_404_status'     => array(
 				'code' => 400,
 				'message' => 'invalid_nonce',
 			),
@@ -298,43 +298,69 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	 * Helpers
 	 */
 
+	/**
+	 * Return an "ok" status.
+	 *
+	 * @return array
+	 */
 	public function return_ok_status() {
 		return array(
-			'body' => 'OK',
+			'body'     => 'OK',
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
-			)
+			),
 		);
 	}
 
+	/**
+	 * Return an "invalid nonce" status.
+	 *
+	 * @return array
+	 */
 	public function return_invalid_nonce_status() {
 		return array(
-			'body' => 'FAIL: NOT OK',
+			'body'     => 'FAIL: NOT OK',
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
-			)
+			),
 		);
 	}
 
+	/**
+	 * Return an "nonce 404" status.
+	 *
+	 * @return array
+	 */
 	public function return_nonce_404_status() {
 		return array(
-			'body' => '',
+			'body'     => '',
 			'response' => array(
 				'code'    => 404,
 				'message' => '',
-			)
+			),
 		);
 	}
 
+	/**
+	 * Get a mocked IXR client.
+	 *
+	 * @param bool   $query_called Whether `query` should be called.
+	 * @param string $response Return value for `getResponse`.
+	 * @param bool   $query_return Return value for `query`.
+	 * @param string $error Return value for `isError`.
+	 * @return Jetpack_IXR_Client
+	 */
 	protected function get_mocked_ixr_client( $query_called = false, $response = '', $query_return = true, $error = null ) {
 		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
-			->setMethods( array(
-				'query',
-				'isError',
-				'getResponse',
-			) )
+			->setMethods(
+				array(
+					'query',
+					'isError',
+					'getResponse',
+				)
+			)
 			->getMock();
 
 		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
@@ -352,11 +378,18 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		return $xml;
 	}
 
+	/**
+	 * Get a mocked XMLRPC server.
+	 *
+	 * @return Jetpack_XMLRPC_Server
+	 */
 	protected function get_mocked_xmlrpc_server() {
 		$server = $this->getMockBuilder( 'Jetpack_XMLRPC_Server' )
-			->setMethods( array(
-				'do_post_authorization',
-			) )
+			->setMethods(
+				array(
+					'do_post_authorization',
+				)
+			)
 			->getMock();
 
 		$server->expects( $this->any() )

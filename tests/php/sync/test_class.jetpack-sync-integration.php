@@ -195,11 +195,21 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	 * Utility functions
 	 */
 
-	function return_hourly_schedule() {
+	/**
+	 * Return "hourly".
+	 *
+	 * @return string
+	 */
+	public function return_hourly_schedule() {
 		return 'hourly';
 	}
 
-	function return_nonexistent_schedule() {
+	/**
+	 * Return "nonexistent".
+	 *
+	 * @return string
+	 */
+	public function return_nonexistent_schedule() {
 		return 'nonexistent';
 	}
 }
