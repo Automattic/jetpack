@@ -155,4 +155,153 @@ class SignatureTest extends TestCase {
 				),
 		);
 	}
+
+	/**
+	 * Tests the get_current_request_port method
+	 *
+	 * @param mixed   $http_x_forwarded_port value of $_SERVER[ 'HTTP_X_FORWARDED_PORT' ].
+	 * @param mixed   $server_port value of $_SERVER[ 'SERVER_PORT' ]. Null will unset the value.
+	 * @param string  $expeceted The expected output. Null will unset the value.
+	 * @param boolean $ssl Whether to consider current request using SSL or not.
+	 *
+	 * @dataProvider get_request_port_data_provider
+	 */
+	public function test_get_request_port( $http_x_forwarded_port, $server_port, $expeceted, $ssl = false ) {
+
+		$original_server = $_SERVER;
+
+		$_SERVER['HTTP_X_FORWARDED_PORT'] = $http_x_forwarded_port;
+		$_SERVER['SERVER_PORT']           = $server_port;
+
+		if ( $ssl ) {
+			$_SERVER['HTTPS'] = 'on'; // is_ssl will return true.
+		}
+
+		if ( is_null( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ) {
+			unset( $_SERVER['HTTP_X_FORWARDED_PORT'] );
+		}
+
+		if ( is_null( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ) {
+			unset( $_SERVER['HTTP_X_FORWARDED_PORT'] );
+		}
+
+		$signature = new \Jetpack_Signature( 'some-secret', 0 );
+		$port      = $signature->get_current_request_port();
+
+		$_SERVER = $original_server;
+
+		$this->assertSame( $expeceted, $port );
+	}
+
+	/**
+	 * Data provider for test_get_request_port
+	 *
+	 * @return array
+	 */
+	public function get_request_port_data_provider() {
+		return array(
+			array(
+				'',
+				80,
+				'',
+			),
+			array(
+				'',
+				'80',
+				'',
+			),
+			array(
+				'',
+				null,
+				'',
+			),
+			array(
+				null,
+				null,
+				'',
+			),
+			array(
+				'',
+				81,
+				'81',
+			),
+			array(
+				'',
+				'81',
+				'81',
+			),
+			array(
+				82,
+				'81',
+				'82',
+			),
+			array(
+				'82',
+				'81',
+				'82',
+			),
+			array(
+				82,
+				'',
+				'82',
+			),
+
+			// SSL.
+			array(
+				'',
+				443,
+				'',
+				true,
+			),
+			array(
+				'',
+				'443',
+				'',
+				true,
+			),
+			array(
+				null,
+				'443',
+				'',
+				true,
+			),
+			array(
+				null,
+				null,
+				'',
+				true,
+			),
+			array(
+				'',
+				444,
+				'444',
+				true,
+			),
+			array(
+				'',
+				'444',
+				'444',
+				true,
+			),
+			array(
+				445,
+				'444',
+				'445',
+				true,
+			),
+			array(
+				'445',
+				'444',
+				'445',
+				true,
+			),
+			array(
+				445,
+				'',
+				'445',
+				true,
+			),
+		);
+	}
+
 }
