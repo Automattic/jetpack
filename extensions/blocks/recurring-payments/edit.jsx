@@ -79,6 +79,8 @@ class MembershipsButtonEdit extends Component {
 		this.hasUpgradeNudge =
 			! recurringPaymentsAvailability.available &&
 			recurringPaymentsAvailability.unavailableReason === 'missing_plan';
+
+		this.isPremiumContentChild = this.props.context.isPremiumContentChild || false;
 	}
 
 	componentDidMount = () => {
@@ -511,7 +513,7 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
-				{ ! this.props.isInPremiumContentBlock() && this.renderUpgradeNudges() }
+				{ ! this.isPremiumContentChild && this.renderUpgradeNudges() }
 				{ showControls && inspectorControls }
 
 				<InnerBlocks
@@ -532,20 +534,8 @@ class MembershipsButtonEdit extends Component {
 }
 
 export default compose( [
-	withSelect( ( select, { clientId } ) => ( {
+	withSelect( ( select ) => ( {
 		postId: select( 'core/editor' ).getCurrentPostId(),
-		innerButtons: select( 'core/editor' ).getBlocksByClientId( clientId ),
-		isInPremiumContentBlock: () => {
-			const parentClientIds = select( 'core/block-editor' ).getBlockParents( clientId );
-			for ( let i = 0; i < parentClientIds.length; i++ ) {
-				const parentBlock = select( 'core/block-editor' ).getBlock( parentClientIds[ i ] );
-
-				if ( parentBlock.name.includes( 'premium-content' ) ) {
-					return true;
-				}
-			}
-			return false;
-		}
 	} ) ),
 	withDispatch( dispatch => {
 		const { updateBlockAttributes } = dispatch( 'core/editor' );
