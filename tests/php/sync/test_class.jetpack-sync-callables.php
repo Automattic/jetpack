@@ -1328,7 +1328,11 @@ function jetpack_recursive_banana() {
  * @return int
  */
 function jetpack_foo_is_callable_random() {
-	static $value = wp_rand();
+	static $value = null;
+
+	if ( null === $value ) {
+		$value = wp_rand();
+	}
 
 	return $value++;
 }
