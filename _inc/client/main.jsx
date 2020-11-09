@@ -54,7 +54,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 
-const recommendationsRoutes = [ '/recommendations' ];
+const recommendationsRoutes = [ '/recommendations', '/recommendations/site-type' ];
 
 const setupRoutes = [
 	'/setup',
@@ -260,6 +260,7 @@ class Main extends React.Component {
 				}
 				break;
 			case '/recommendations':
+			case '/recommendations/site-type':
 				pageComponent = <Recommendations />;
 				break;
 			default:
