@@ -129,7 +129,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack_frame_nonce',
 		'page_on_front',
 		'page_for_posts',
-		'wpcom_public_coming_soon_page_id',
 		'headstart',
 		'headstart_is_fresh',
 		'ak_vp_bundle_enabled',
@@ -556,9 +555,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $custom_front_page ) {
 						$options[ $key ] = $site->get_page_for_posts();
 					}
-					break;
-				case 'wpcom_public_coming_soon_page_id':
-					$options[ $key ] = $site->get_wpcom_public_coming_soon_page_id();
 					break;
 				case 'headstart' :
 					$options[ $key ] = $site->is_headstart();
