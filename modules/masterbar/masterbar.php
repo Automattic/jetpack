@@ -9,7 +9,7 @@ use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 require_once __DIR__ . '/rtl-admin-bar.php';
 
 /**
- * Custom Admin bar displayed instead of the default WordPress admin bar.
+ * Provides custom admin bar instead of the default WordPress admin bar.
  */
 class A8C_WPCOM_Masterbar {
 	/**

@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
- * Unify admin color scheme selection across WP.com sites.
+ * Unifies admin color scheme selection across WP.com sites.
  */
 class A8C_WPCOM_Unified_Admin_Color_Schemes {
 
