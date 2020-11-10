@@ -78,6 +78,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// All globals need to be declared for menu items to properly register.
 		global $menu, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
+		// Make an attempt to not have the menu order altered.
+		add_filter( 'custom_menu_order', '__return_false', 99999 );
+
+		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/menu.php';
 
 		return rest_ensure_response( $this->prepare_menu_for_response( $menu ) );
@@ -250,7 +254,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function prepare_menu_item_icon( $icon ) {
 		$img = 'dashicons-admin-generic';
 
-		if ( ! empty( $icon ) ) {
+		if ( ! empty( $icon ) && 'none' !== $icon && 'div' !== $icon ) {
 			$img = esc_url( $icon );
 
 			if ( 0 === strpos( $icon, 'data:image/svg+xml' ) ) {
@@ -286,7 +290,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 					! file_exists( ABSPATH . "/wp-admin/$menu_file" )
 				)
 			) {
-				if ( ( 'admin.php' !== $parent_slug && file_exists( WP_PLUGIN_DIR . "/$parent_slug" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_slug" ) ) || file_exists( ABSPATH . "/wp-admin/$parent_slug" ) ) {
+				if (
+					( 'admin.php' !== $parent_slug && file_exists( WP_PLUGIN_DIR . "/$parent_slug" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_slug" ) ) ||
+					( file_exists( ABSPATH . "/wp-admin/$parent_slug" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_slug" ) )
+				) {
 					$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
 				} else {
 					$url = add_query_arg( array( 'page' => $url ), admin_url( 'admin.php' ) );

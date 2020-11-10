@@ -14,7 +14,6 @@
 		"nojimage/twitter-text-php": "3.1.1"
 	},
 	"require-dev": {
-		"automattic/jetpack-codesniffer": "^1.1",
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"sirbrillig/phpcs-changed": "2.5.1"
 	},

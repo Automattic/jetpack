@@ -21,6 +21,8 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 
 	'pass_wpcom_user_details' => true,
 
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/843/replies/new/',
 	'example_request_data' =>  array(
 		'headers' => array(
@@ -51,6 +53,8 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	),
 
 	'pass_wpcom_user_details' => true,
+
+	'allow_fallback_to_jetpack_blog_token' => true,
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/comments/29/replies/new',
 	'example_request_data' => array(

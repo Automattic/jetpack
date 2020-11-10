@@ -877,6 +877,7 @@ class Manager {
 				'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 				'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
 				'current_user_email' => wp_get_current_user()->user_email,
+				'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
 			)
 		);
 

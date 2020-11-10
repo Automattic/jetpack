@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
-Stable tag: 9.0.2
+Stable tag: 9.1
 Requires at least: 5.4
 Requires PHP: 5.6
 Tested up to: 5.5
@@ -286,6 +286,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * OpenTable Block: ensure full compatibility with the AMP plugin.
 * Pay with PayPal Block: ensure full compatibility with the AMP plugin.
 * Sharing: add support for the Google Web Stories plugin.
+* Slideshow Block: ensure that the block can be displayed using the Full Width alignment setting when using the Gutenberg plugin.
 * Widget Visibility: avoid performance impact it may have on the block editor when used with the Gutenberg plugin.
 * YouTube embeds: ensure that all YouTube video embeds work well when using the AMP plugin.
 
@@ -295,6 +296,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Contact Form: selection widgets, radio buttons, and checkboxes can now use commas, brackets, and backslashes in the labels and values without breaking the form.
 * Donations / Payments Block: fix visual bug in Stripe connection banner.
 * Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
+* Google Analytics: support updated Google Analytics 4 properties.
 * Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
 * Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
@@ -305,6 +307,8 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
 * Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
 * Publicize: when generating Twitter threads, allow text to be split at line breaks where appropriate.
+* Security / Contact Form: add additional checks before checking submitted forms for spam.
+* Security / WordPress.com REST API: improve authentication checks when making proxied requests to a site's API endpoints.
 * Slideshow Block: fix a bug that prevented the first and last images from displaying when the slideshow loops.
 * Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
 * Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.

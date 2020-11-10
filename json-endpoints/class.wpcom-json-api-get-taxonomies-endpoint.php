@@ -27,6 +27,9 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 		'found'      => '(int) The number of categories returned.',
 		'categories' => '(array) Array of category objects.',
 	),
+
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/categories/?number=5'
 ) );
 
@@ -53,6 +56,9 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 			'count' => 'Order by the number of posts in each tag.',
 		),
 	),
+
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'response_format' => array(
 		'found'    => '(int) The number of tags returned.',
 		'tags'     => '(array) Array of tag objects.',

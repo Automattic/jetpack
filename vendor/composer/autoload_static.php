@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit406f161ebe0094c056bf93ea2c026184
+class ComposerStaticInit85c5f22c70cd0d7dc7dd44421b9e871a
 {
     public static $files = array (
         'bce4ecd6aabb2a2948e06d0e2c4ea9a6' => __DIR__ . '/..' . '/automattic/jetpack-connection/legacy/load-ixr.php',
@@ -13,34 +13,13 @@ class ComposerStaticInit406f161ebe0094c056bf93ea2c026184
     );
 
     public static $prefixLengthsPsr4 = array (
-        'V' => 
-        array (
-            'VariableAnalysis\\' => 17,
-        ),
-        'D' => 
-        array (
-            'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => 55,
-        ),
         'A' => 
         array (
-            'Automattic\\Jetpack\\Sniffs\\' => 26,
             'Automattic\\Jetpack\\Autoloader\\' => 30,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'VariableAnalysis\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/sirbrillig/phpcs-variable-analysis/VariableAnalysis',
-        ),
-        'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/dealerdirect/phpcodesniffer-composer-installer/src',
-        ),
-        'Automattic\\Jetpack\\Sniffs\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-codesniffer/Jetpack/Sniffs',
-        ),
         'Automattic\\Jetpack\\Autoloader\\' => 
         array (
             0 => __DIR__ . '/..' . '/automattic/jetpack-autoloader/src',
@@ -94,7 +73,6 @@ class ComposerStaticInit406f161ebe0094c056bf93ea2c026184
         'Automattic\\Jetpack\\Plugin\\Tracking' => __DIR__ . '/../..' . '/src/class-tracking.php',
         'Automattic\\Jetpack\\Redirect' => __DIR__ . '/..' . '/automattic/jetpack-redirect/src/class-redirect.php',
         'Automattic\\Jetpack\\Roles' => __DIR__ . '/..' . '/automattic/jetpack-roles/src/class-roles.php',
-        'Automattic\\Jetpack\\Sniffs\\Constants\\MasterUserConstantSniff' => __DIR__ . '/..' . '/automattic/jetpack-codesniffer/Jetpack/Sniffs/Constants/MasterUserConstantSniff.php',
         'Automattic\\Jetpack\\Status' => __DIR__ . '/..' . '/automattic/jetpack-status/src/class-status.php',
         'Automattic\\Jetpack\\Sync\\Actions' => __DIR__ . '/..' . '/automattic/jetpack-sync/src/class-actions.php',
         'Automattic\\Jetpack\\Sync\\Codec_Interface' => __DIR__ . '/..' . '/automattic/jetpack-sync/src/interface-codec.php',
@@ -141,7 +119,6 @@ class ComposerStaticInit406f161ebe0094c056bf93ea2c026184
         'Automattic\\Jetpack\\Sync\\Utils' => __DIR__ . '/..' . '/automattic/jetpack-sync/src/class-utils.php',
         'Automattic\\Jetpack\\Terms_Of_Service' => __DIR__ . '/..' . '/automattic/jetpack-terms-of-service/src/class-terms-of-service.php',
         'Automattic\\Jetpack\\Tracking' => __DIR__ . '/..' . '/automattic/jetpack-tracking/src/class-tracking.php',
-        'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin' => __DIR__ . '/..' . '/dealerdirect/phpcodesniffer-composer-installer/src/Plugin.php',
         'JetpackTracking' => __DIR__ . '/..' . '/automattic/jetpack-compat/legacy/class-jetpacktracking.php',
         'Jetpack_Client' => __DIR__ . '/..' . '/automattic/jetpack-compat/legacy/class-jetpack-client.php',
         'Jetpack_IXR_Client' => __DIR__ . '/..' . '/automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php',
@@ -165,20 +142,15 @@ class ComposerStaticInit406f161ebe0094c056bf93ea2c026184
         'Twitter\\Text\\StringUtils' => __DIR__ . '/..' . '/nojimage/twitter-text-php/lib/Twitter/Text/StringUtils.php',
         'Twitter\\Text\\TldLists' => __DIR__ . '/..' . '/nojimage/twitter-text-php/lib/Twitter/Text/TldLists.php',
         'Twitter\\Text\\Validator' => __DIR__ . '/..' . '/nojimage/twitter-text-php/lib/Twitter/Text/Validator.php',
-        'VariableAnalysis\\Lib\\Constants' => __DIR__ . '/..' . '/sirbrillig/phpcs-variable-analysis/VariableAnalysis/Lib/Constants.php',
-        'VariableAnalysis\\Lib\\Helpers' => __DIR__ . '/..' . '/sirbrillig/phpcs-variable-analysis/VariableAnalysis/Lib/Helpers.php',
-        'VariableAnalysis\\Lib\\ScopeInfo' => __DIR__ . '/..' . '/sirbrillig/phpcs-variable-analysis/VariableAnalysis/Lib/ScopeInfo.php',
-        'VariableAnalysis\\Lib\\VariableInfo' => __DIR__ . '/..' . '/sirbrillig/phpcs-variable-analysis/VariableAnalysis/Lib/VariableInfo.php',
-        'VariableAnalysis\\Sniffs\\CodeAnalysis\\VariableAnalysisSniff' => __DIR__ . '/..' . '/sirbrillig/phpcs-variable-analysis/VariableAnalysis/Sniffs/CodeAnalysis/VariableAnalysisSniff.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit406f161ebe0094c056bf93ea2c026184::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit406f161ebe0094c056bf93ea2c026184::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit406f161ebe0094c056bf93ea2c026184::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit406f161ebe0094c056bf93ea2c026184::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit85c5f22c70cd0d7dc7dd44421b9e871a::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit85c5f22c70cd0d7dc7dd44421b9e871a::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit85c5f22c70cd0d7dc7dd44421b9e871a::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit85c5f22c70cd0d7dc7dd44421b9e871a::$classMap;
 
         }, null, ClassLoader::class);
     }
