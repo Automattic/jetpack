@@ -764,7 +764,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						'severity'          => 'critical',
 						'action'            => Redirect::get_url( 'jetpack-contact-support' ),
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
-						'short_description' => __( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site\'s functionality. We recommend a full sync to align Jetpack with your site data.', 'jetpack' ),
+						'short_description' => __( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site’s functionality. We recommend a full sync to align Jetpack with your site data.', 'jetpack' ),
 						'long_description'  => $description,
 					)
 				);
