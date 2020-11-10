@@ -303,7 +303,6 @@ if ( phpLintResult && phpLintResult.status ) {
 	checkFailed();
 }
 
-// let phpcbfResult, phpcsResult;
 if ( phpcsFiles.length > 0 ) {
 	runPHPCbf();
 	runPHPCS();
