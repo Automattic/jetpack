@@ -13,8 +13,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-require dirname( __FILE__ ) . '/masterbar/masterbar.php';
-require dirname( __FILE__ ) . '/masterbar/unified-admin-color-schemes.php';
+require dirname( __FILE__ ) . '/masterbar/masterbar/masterbar.php';
+require dirname( __FILE__ ) . '/masterbar/unified-admin-color-schemes/unified-admin-color-schemes.php';
 
 new Masterbar();
 new Unified_Admin_Color_Schemes();

@@ -16,6 +16,5 @@ class Unified_Admin_Color_Schemes {
 
 	public function init() {
 		// Start here
-
 	}
 }
