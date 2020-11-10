@@ -1,17 +1,23 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+namespace Automattic\Jetpack\Dashboard_Customizations;
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
+use Jetpack;
+use Jetpack_AMP_Support;
+use Jetpack_Plan;
+use GP_Locales;
 
 require_once __DIR__ . '/rtl-admin-bar.php';
 
 /**
  * Provides custom admin bar instead of the default WordPress admin bar.
  */
-class A8C_WPCOM_Masterbar {
+class Masterbar {
 	/**
 	 * Use for testing changes made to remotely enqueued scripts and styles on your sandbox.
 	 * If not set it will default to loading the ones from WordPress.com.
@@ -164,7 +170,7 @@ class A8C_WPCOM_Masterbar {
 
 		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl() ) {
 			// Override Notification module to include RTL styles.
-			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
+			add_action( '_enqueue_rtl_notification_styles', '__return_true' );
 		}
 	}
 
@@ -284,7 +290,7 @@ class A8C_WPCOM_Masterbar {
 			false
 		);
 		wp_enqueue_script(
-			'a8c_wpcom_masterbar_tracks_events',
+			'_tracks_events',
 			Assets::get_file_url_for_environment(
 				'_inc/build/masterbar/tracks-events.min.js',
 				'modules/masterbar/tracks-events.js'
@@ -295,7 +301,7 @@ class A8C_WPCOM_Masterbar {
 		);
 
 		wp_enqueue_script(
-			'a8c_wpcom_masterbar_overrides',
+			'_overrides',
 			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,

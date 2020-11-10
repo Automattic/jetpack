@@ -11,8 +11,10 @@
  * Additional Search Queries: adminbar, masterbar, colorschemes
  */
 
+namespace Automattic\Jetpack\Dashboard_Customizations;
+
 require dirname( __FILE__ ) . '/masterbar/masterbar.php';
 require dirname( __FILE__ ) . '/masterbar/unified-admin-color-schemes.php';
 
-new A8C_WPCOM_Masterbar();
-new A8C_WPCOM_Unified_Admin_Color_Schemes();
+new Masterbar();
+new Unified_Admin_Color_Schemes();

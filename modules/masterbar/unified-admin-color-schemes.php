@@ -1,9 +1,11 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
+
+namespace Automattic\Jetpack\Dashboard_Customizations;
 
 /**
  * Unifies admin color scheme selection across WP.com sites.
  */
-class A8C_WPCOM_Unified_Admin_Color_Schemes {
+class Unified_Admin_Color_Schemes {
 
 	/**
 	 * Constructor
@@ -14,5 +16,6 @@ class A8C_WPCOM_Unified_Admin_Color_Schemes {
 
 	public function init() {
 		// Start here
+
 	}
 }

@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+namespace Automattic\Jetpack\Dashboard_Customizations;
+
+use WP_Admin_Bar;
+
 if ( ! class_exists( 'WP_Admin_Bar' ) ) {
 	require_once ABSPATH . '/wp-includes/class-wp-admin-bar.php';
 }
