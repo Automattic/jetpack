@@ -69,13 +69,13 @@ class Plugins_Handler {
 			}
 		}
 
-		// This option contains all of the plugins that have been activated via the interface.
+		// This option contains all of the plugins that have been activated.
 		$plugins = $this->plugin_locator->find_using_option( 'active_plugins' );
 		foreach ( $plugins as $path ) {
 			$active_plugins[ $path ] = $path;
 		}
 
-		// This option contains all of the multisite plugins that have been network activated via the interface.
+		// This option contains all of the multisite plugins that have been activated.
 		if ( is_multisite() ) {
 			$plugins = $this->plugin_locator->find_using_option( 'active_sitewide_plugins', true );
 			foreach ( $plugins as $path ) {
