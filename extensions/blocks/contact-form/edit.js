@@ -326,6 +326,21 @@ function JetpackContactFormEdit( {
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
+				<BaseControl
+					label={ __( 'Contact form placeholder text', 'jetpack' ) }
+					help={ __(
+						'Enter the placeholder text you would like to display for the contact form fallback link',
+						'jetpack'
+					) }
+				>
+					<TextControl
+						placeholder={ __( 'Submit a contact form.', 'jetpack' ) }
+						onChange={ newPostLinkText =>
+							this.props.setAttributes( { postLinkText: newPostLinkText } )
+						}
+						value={ this.props.attributes.postLinkText }
+					/>
+				</BaseControl>
 				{ ! isSimpleSite() && (
 					<Fragment>
 						<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />

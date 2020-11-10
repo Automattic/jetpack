@@ -90,6 +90,11 @@ const FieldDefaults = {
 			default: 100,
 		},
 	},
+	postLinkText: {
+		type: 'string',
+		source: 'html',
+		default: __( 'Submit a contact form.', 'jetpack' ),
+	},
 	transforms: {
 		to: [
 			{
