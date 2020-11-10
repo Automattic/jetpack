@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f08a3e975616dd2eadc0c9c920a8fd15",
+    "content-hash": "e1c474b6a8692d8ef3d4e67c02f7c433",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -482,16 +482,16 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "v1.2.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-lazy-images.git",
-                "reference": "2009dce9b7109e62fd0030408e34de9e92f0bfe1"
+                "reference": "031571d571f8f73204d9882c9309c87dd1180342"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-lazy-images/zipball/2009dce9b7109e62fd0030408e34de9e92f0bfe1",
-                "reference": "2009dce9b7109e62fd0030408e34de9e92f0bfe1",
+                "url": "https://api.github.com/repos/Automattic/jetpack-lazy-images/zipball/031571d571f8f73204d9882c9309c87dd1180342",
+                "reference": "031571d571f8f73204d9882c9309c87dd1180342",
                 "shasum": ""
             },
             "require": {
@@ -513,7 +513,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
-            "time": "2020-10-27T14:59:55+00:00"
+            "time": "2020-11-10T07:21:10+00:00"
         },
         {
             "name": "automattic/jetpack-licensing",

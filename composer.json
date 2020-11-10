@@ -25,7 +25,7 @@
 		"automattic/jetpack-error": "^1.2",
 		"automattic/jetpack-heartbeat": "^1.2",
 		"automattic/jetpack-jitm": "^1.11",
-		"automattic/jetpack-lazy-images": "^1.2",
+		"automattic/jetpack-lazy-images": "1.1.1",
 		"automattic/jetpack-licensing": "^1.2",
 		"automattic/jetpack-logo": "^1.4",
 		"automattic/jetpack-options": "^1.9",
