@@ -60,6 +60,11 @@ class Autoloader {
 			function () use ( $plugins_handler, $cached_plugins ) {
 				// Don't save a broken cache if an error happens during some plugin's initialization.
 				if ( ! did_action( 'plugins_loaded' ) ) {
+					// Ensure that the cache is emptied to prevent consecutive failures if the cache is to blame.
+					if ( ! empty( $cached_plugins ) ) {
+						$plugins_handler->cache_plugins( array() );
+					}
+
 					return;
 				}
 
