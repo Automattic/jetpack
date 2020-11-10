@@ -15,10 +15,23 @@
  * More parameters and another tweet syntax admitted:
  * [tweet tweet="https://twitter.com/jack/statuses/20" align="left" width="350" align="center" lang="es"]
  *
+ * Tweets can also be referenced without a shortcode:
+ * https://twitter.com/jack/statuses/20
+ *
  * @package Jetpack
  */
 
 add_shortcode( 'tweet', array( 'Jetpack_Tweet', 'jetpack_tweet_shortcode' ) );
+
+/**
+ * Prevent single line Tweets from being incorrectly parsed as markdown
+ */
+function twitter_custom_md_pattern( $patterns ) {
+    $patterns[] = '/^http(s|):\/\/twitter\.com(\/\#\!\/|\/)([a-zA-Z0-9_]{1,20})\/status(es)*\/(\d+)$/';
+
+    return $patterns;
+}
+add_filter( 'jetpack_markdown_preserve_pattern', 'twitter_custom_md_pattern' );
 
 /**
  * Tweet Shortcode class.
