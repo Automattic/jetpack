@@ -273,8 +273,17 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_stats_menu( static::$domain );
 
+		$menu_title = __( 'Stats', 'jetpack' );
+
+		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
+			$menu_title .= sprintf(
+				'<img class="sidebar-unified__sparkline" width="80" height="20" src="%1$s" alt="%2$s">',
+				esc_url( home_url( 'wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=' . get_current_blog_id() ) ),
+				esc_attr__( 'Hourly views', 'jetpack' )
+			);
+		}
 		$stats_menu_item = array(
-			'Stats',
+			$menu_title,
 			'edit_posts',
 			'https://wordpress.com/stats/day/' . static::$domain,
 			'Stats',
@@ -376,6 +385,196 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_page_menu
+	 *
+	 * @covers ::add_page_menu
+	 */
+	public function test_add_page_menu() {
+		global $menu, $submenu;
+
+		static::$admin_menu->add_page_menu( static::$domain );
+
+		$posts_menu_item = array(
+			'Pages',
+			'edit_pages',
+			'https://wordpress.com/pages/' . static::$domain,
+			'Pages',
+			'menu-top toplevel_page_https://wordpress.com/pages/' . static::$domain,
+			'toplevel_page_https://wordpress.com/pages/' . static::$domain,
+			'dashicons-admin-page',
+		);
+
+		$this->assertSame( $menu[20], $posts_menu_item );
+		$this->assertEmpty( $submenu['edit.php?post_type=page'] );
+	}
+
+	/**
+	 * Tests add_custom_post_type_menu
+	 *
+	 * @covers ::add_custom_post_type_menu
+	 */
+	public function test_add_custom_post_type_menu() {
+		global $menu, $submenu;
+
+		// Don't show post types that don't want to be shown.
+		$revision = get_post_type_object( 'revision' );
+		static::$admin_menu->add_custom_post_type_menu( $revision, static::$domain );
+
+		$last_item = array_pop( $menu );
+		$this->assertNotSame( 'https://wordpress.com/types/revision/' . static::$domain, $last_item[2] );
+
+		$post_type = register_post_type(
+			'custom_test_type',
+			array(
+				'label'         => 'Custom Test Types',
+				'show_ui'       => true,
+				'menu_position' => 2020,
+			)
+		);
+		static::$admin_menu->add_custom_post_type_menu( $post_type, static::$domain );
+
+		// Clean up.
+		unregister_post_type( 'custom_test_type' );
+
+		$slug = 'https://wordpress.com/types/custom_test_type/' . static::$domain;
+
+		$custom_menu_item = array(
+			'Custom Test Types',
+			'edit_posts',
+			$slug,
+			'Custom Test Types',
+			'menu-top toplevel_page_' . $slug,
+			'toplevel_page_' . $slug,
+			'dashicons-admin-post',
+		);
+
+		$this->assertSame( $menu[2020], $custom_menu_item );
+
+		$custom_submenu_item = array(
+			'Custom Test Types',
+			'edit_posts',
+			'https://wordpress.com/types/custom_test_type/' . static::$domain,
+			'Custom Test Types',
+		);
+		$this->assertContains( $custom_submenu_item, $submenu[ $slug ] );
+
+		$add_new_submenu_item = array(
+			'Add New',
+			'edit_posts',
+			'https://wordpress.com/edit/custom_test_type/' . static::$domain,
+			'Add New',
+		);
+		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_comments_menu
+	 *
+	 * @covers ::add_comments_menu
+	 */
+	public function test_add_comments_menu() {
+		global $menu, $submenu;
+
+		// Only users that can edit posts get to see the comments menu.
+		wp_set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+		$menu = array();
+		static::$admin_menu->add_comments_menu( static::$domain );
+		$this->assertEmpty( $menu );
+
+		// Reset.
+		wp_set_current_user( static::$user_id );
+		$menu = static::$menu_data;
+
+		static::$admin_menu->add_comments_menu( static::$domain );
+
+		$comments_menu_item = array(
+			'Comments <span class="awaiting-mod count-0"><span class="pending-count" aria-hidden="true">0</span><span class="comments-in-moderation-text screen-reader-text">0 Comments in moderation</span></span>',
+			'edit_posts',
+			'https://wordpress.com/comments/all/' . static::$domain,
+			'Comments',
+			'menu-top toplevel_page_https://wordpress.com/comments/all/' . static::$domain,
+			'toplevel_page_https://wordpress.com/comments/all/' . static::$domain,
+			'dashicons-admin-comments',
+		);
+
+		$this->assertSame( $menu[25], $comments_menu_item );
+		$this->assertEmpty( $submenu['edit-comments.php'] );
+	}
+
+	/**
+	 * Tests jetpack_parent_file
+	 *
+	 * @covers ::jetpack_parent_file
+	 */
+	public function test_jetpack_parent_file() {
+		$parent_file = 'edit.php';
+		$this->assertSame( $parent_file, static::$admin_menu->jetpack_parent_file( $parent_file ) );
+
+		$this->assertSame(
+			'https://wordpress.com/activity-log/' . static::$domain,
+			static::$admin_menu->jetpack_parent_file( 'jetpack' )
+		);
+	}
+
+	/**
+	 * Tests add_appearance_menu
+	 *
+	 * @covers ::add_appearance_menu
+	 */
+	public function test_add_appearance_menu() {
+		global $menu, $submenu;
+
+		static::$admin_menu->add_appearance_menu( static::$domain );
+
+		$slug = 'https://wordpress.com/customize/' . static::$domain;
+
+		$appearance_menu_item = array(
+			'Appearance',
+			'customize',
+			$slug,
+			'Appearance',
+			'menu-top toplevel_page_' . $slug,
+			'toplevel_page_' . $slug,
+			'dashicons-admin-appearance',
+		);
+
+		$this->assertSame( $menu[60], $appearance_menu_item );
+		$this->assertArrayNotHasKey( 'themes.php', $submenu );
+
+		$customize_submenu_item = array(
+			'Customize',
+			'customize',
+			'https://wordpress.com/customize/' . static::$domain,
+			'Customize',
+		);
+		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
+
+		$themes_submenu_item = array(
+			'Themes',
+			'switch_themes',
+			'https://wordpress.com/themes/' . static::$domain,
+			'Themes',
+		);
+		$this->assertContains( $themes_submenu_item, $submenu[ $slug ] );
+
+		$widgets_submenu_item = array(
+			'Widgets',
+			'customize',
+			'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets',
+			'Widgets',
+		);
+		$this->assertContains( $widgets_submenu_item, $submenu[ $slug ] );
+
+		$menus_submenu_item = array(
+			'Menus',
+			'customize',
+			'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus',
+			'Menus',
+		);
+		$this->assertContains( $menus_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
 	 * Tests add_plugins_menu
 	 *
 	 * @covers ::add_plugins_menu
@@ -428,6 +627,93 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			),
 			'title'  => '',
 		);
+	}
+
+	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_users_menu
+	 */
+	public function test_add_users_menu() {
+		global $menu, $submenu;
+
+		// Only users that can edit posts get to see the comments menu.
+		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
+		$menu = array();
+		static::$admin_menu->add_users_menu( static::$domain );
+
+		$profile_menu_item = array(
+			'My Profile',
+			'read',
+			'https://wordpress.com/me',
+			'My Profile',
+			'menu-top toplevel_page_https://wordpress.com/me',
+			'toplevel_page_https://wordpress.com/me',
+			'dashicons-admin-users',
+		);
+
+		$this->assertSame( $menu[70], $profile_menu_item );
+
+		$account_submenu_item = array(
+			'Account Settings',
+			'read',
+			'https://wordpress.com/me/account',
+			'Account Settings',
+		);
+		$this->assertContains( $account_submenu_item, $submenu['https://wordpress.com/me'] );
+		$this->assertArrayNotHasKey( 'profile.php', $submenu );
+
+		// Reset.
+		wp_set_current_user( static::$user_id );
+		$menu = static::$menu_data;
+
+		static::$admin_menu->add_users_menu( static::$domain );
+
+		$slug = 'https://wordpress.com/people/team/' . static::$domain;
+
+		$users_menu_item = array(
+			'Users',
+			'list_users',
+			$slug,
+			'Users',
+			'menu-top toplevel_page_' . $slug,
+			'toplevel_page_' . $slug,
+			'dashicons-admin-users',
+		);
+		$this->assertSame( $menu[70], $users_menu_item );
+		$this->assertEmpty( $submenu['users.php'] );
+
+		$all_people_submenu_item = array(
+			'All People',
+			'list_users',
+			$slug,
+			'All People',
+		);
+		$this->assertContains( $all_people_submenu_item, $submenu[ $slug ] );
+
+		$add_new_submenu_item = array(
+			'Add New',
+			'promote_users',
+			'https://wordpress.com/people/new/' . static::$domain,
+			'Add New',
+		);
+		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
+
+		$profile_submenu_item = array(
+			'My Profile',
+			'read',
+			'https://wordpress.com/me',
+			'My Profile',
+		);
+		$this->assertContains( $profile_submenu_item, $submenu[ $slug ] );
+
+		$account_submenu_item = array(
+			'Account Settings',
+			'read',
+			'https://wordpress.com/me/account',
+			'Account Settings',
+		);
+		$this->assertContains( $account_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**

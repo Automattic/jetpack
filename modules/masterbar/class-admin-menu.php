@@ -360,6 +360,10 @@ class Admin_Menu {
 			return;
 		}
 
+		if ( ! $ptype_obj->show_in_menu ) {
+			return;
+		}
+
 		$post_type = $ptype_obj->name;
 		$menu_icon = 'dashicons-admin-post';
 		if ( is_string( $ptype_obj->menu_icon ) ) {
@@ -492,7 +496,7 @@ class Admin_Menu {
 
 		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), $appearance_cap, $appearance_slug, null, 'dashicons-admin-appearance', 60 );
 		add_submenu_page( $appearance_slug, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_slug, null, 5 );
-		add_submenu_page( $appearance_slug, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), $appearance_cap, $themes_slug, null, 10 );
+		add_submenu_page( $appearance_slug, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', $themes_slug, null, 10 );
 
 		if ( current_theme_supports( 'custom-header' ) && $user_can_customize ) {
 			$customize_header_url = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_url );
