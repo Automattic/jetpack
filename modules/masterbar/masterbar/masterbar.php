@@ -7,10 +7,10 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
+use GP_Locales;
 use Jetpack;
 use Jetpack_AMP_Support;
 use Jetpack_Plan;
-use GP_Locales;
 
 require_once __DIR__ . '/rtl-admin-bar.php';
 
@@ -225,7 +225,7 @@ class Masterbar {
 	 * Get class name for RTL sites.
 	 */
 	public function get_rtl_admin_bar_class() {
-		return 'RTL_Admin_Bar';
+		return __NAMESPACE__ . '\RTL_Admin_Bar';
 	}
 
 	/**
