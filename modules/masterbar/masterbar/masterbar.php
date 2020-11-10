@@ -170,7 +170,7 @@ class Masterbar {
 
 		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl() ) {
 			// Override Notification module to include RTL styles.
-			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' ); // naming convention preserved for backwards compatibility
+			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
 	}
 
@@ -290,7 +290,7 @@ class Masterbar {
 			false
 		);
 		wp_enqueue_script(
-			'a8c_wpcom_masterbar_tracks_events', // naming convention preserved for backwards compatibility
+			'a8c_wpcom_masterbar_tracks_events',
 			Assets::get_file_url_for_environment(
 				'_inc/build/masterbar/tracks-events.min.js',
 				'modules/masterbar/tracks-events.js'
@@ -301,7 +301,7 @@ class Masterbar {
 		);
 
 		wp_enqueue_script(
-			'a8c_wpcom_masterbar_overrides', // naming convention preserved for backwards compatibility
+			'a8c_wpcom_masterbar_overrides',
 			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
