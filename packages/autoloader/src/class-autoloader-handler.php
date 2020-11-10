@@ -67,9 +67,6 @@ class Autoloader_Handler {
 
 		// Activate the autoloader.
 		Autoloader::activate( $loader );
-
-		// Now that the autoloader has been initialized we may load the filemap.
-		$loader->load_filemap();
 	}
 
 	/**
