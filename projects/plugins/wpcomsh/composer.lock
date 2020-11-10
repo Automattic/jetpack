@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a695c29e87586a3fe1a833c0f70ee427",
+    "content-hash": "f79fe2e7e378f5d2dc1064a70f3b6fc8",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -56,16 +56,16 @@
         },
         {
             "name": "automattic/custom-fonts-typekit",
-            "version": "v1.0.6",
+            "version": "v1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts-typekit.git",
-                "reference": "35d0829150740cf74d78913e3df3a9d639813ef4"
+                "reference": "9b9c0c74e80ef82afbca8c1f827b439f2d98c75c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/35d0829150740cf74d78913e3df3a9d639813ef4",
-                "reference": "35d0829150740cf74d78913e3df3a9d639813ef4",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/9b9c0c74e80ef82afbca8c1f827b439f2d98c75c",
+                "reference": "9b9c0c74e80ef82afbca8c1f827b439f2d98c75c",
                 "shasum": ""
             },
             "require-dev": {
@@ -77,7 +77,7 @@
                     "custom-fonts-typekit.php"
                 ]
             },
-            "time": "2020-10-26T22:49:13+00:00"
+            "time": "2020-11-09T23:13:59+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
