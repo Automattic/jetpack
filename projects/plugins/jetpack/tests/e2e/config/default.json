@@ -12,5 +12,6 @@
 		"cardCVV": "300",
 		"cardCountryCode": "TR",
 		"cardPostCode": "4000"
-	}
+	},
+	"testOutputDir": "./tests/e2e/output"
 }
