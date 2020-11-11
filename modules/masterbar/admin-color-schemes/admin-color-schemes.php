@@ -5,7 +5,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 /**
  * Unifies admin color scheme selection across WP.com sites.
  */
-class Unified_Admin_Color_Schemes {
+class Admin_Color_Schemes {
 
 	/**
 	 * Constructor
