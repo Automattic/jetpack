@@ -157,10 +157,6 @@ class Masterbar {
 		// We need to use user's setting here, instead of relying on current blog's text direction.
 		$this->user_text_direction = $this->user_data['text_direction'];
 
-		if ( $this->is_rtl() ) {
-			// Extend core WP_Admin_Bar class in order to add rtl styles.
-			add_filter( 'wp_admin_bar_class', array( $this, 'get_rtl_admin_bar_class' ) );
-		}
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
@@ -222,13 +218,6 @@ class Masterbar {
 		}
 
 		return $redirect_to;
-	}
-
-	/**
-	 * Get class name for RTL sites.
-	 */
-	public function get_rtl_admin_bar_class() {
-		return __NAMESPACE__ . '\RTL_Admin_Bar';
 	}
 
 	/**
