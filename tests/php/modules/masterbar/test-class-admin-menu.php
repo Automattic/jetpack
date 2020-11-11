@@ -5,9 +5,9 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Admin_Menu;
+use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
 
-require_jetpack_file( 'modules/masterbar/class-admin-menu.php' );
+require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
 
 /**
  * Class Test_Admin_Menu
