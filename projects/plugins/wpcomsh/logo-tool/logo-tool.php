@@ -57,7 +57,7 @@ function add_logotool_button( $wp_customize ) {
 		return;
 	}
 
-	$logo_control->description = __( 'Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start.', 'wpcomsh' );
+	$logo_control->description = __( 'Add a logo to display on your site. No logo? Buy a pro one from Fiverr — Click “Create logo” to start.', 'wpcomsh' );
 	// Adding it back just overwrites the previous control instance.
 	$wp_customize->add_control( $logo_control );
 
