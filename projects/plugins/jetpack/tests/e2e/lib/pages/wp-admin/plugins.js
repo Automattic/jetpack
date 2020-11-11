@@ -33,16 +33,16 @@ export default class PluginsPage extends Page {
 	}
 
 	async getJetpackVersion() {
-		const versionText = 'tr.active[data-plugin="jetpack/jetpack.php"] .plugin-version-author-uri';
+		const versionText = 'tr.active[data-plugin$="/jetpack.php"] .plugin-version-author-uri';
 		const element = await waitForSelector( this.page, versionText );
 		const text = await page.evaluate( e => e.textContent, element );
 		return text.match( /\d.+?(?=\s)/ )[ 0 ];
 	}
 
 	async updateJetpack() {
-		await this.page.waitForTimeout( 2000 );
-		const updateCard = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"]';
-		const updateLink = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .update-link';
+		await this.page.waitFor( 2000 );
+		const updateCard = 'tr.active#jetpack-update[data-plugin$="/jetpack.php"]';
+		const updateLink = 'tr.active#jetpack-update[data-plugin$="/jetpack.php"] .update-link';
 		const isUpdatingMessage =
 			'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .updating-message';
 

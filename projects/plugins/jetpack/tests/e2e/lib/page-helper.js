@@ -16,7 +16,7 @@ import { execSyncShellCommand } from './utils-helper';
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
  * More details at: https://pptr.dev/#?product=Puppeteer&show=api-pagewaitforselectorselector-options
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
