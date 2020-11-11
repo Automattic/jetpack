@@ -255,6 +255,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Enhancements**
 
 * Pinterest Block: ensure that Pinterest embeds are displayed nicely in non-WordPress contexts, such as subscription emails.
+* Podcast Block: display fallback link when the block is rendered in non-WordPress contexts, such as RSS feeds.
 * Search: improve URL formatting for the expanded search layout.
 * Synchronization: improve synchronization of comment status, taxononmies, and terms between your site and WordPress.com.
 
