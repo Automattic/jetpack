@@ -71,7 +71,7 @@ function show_logged_in_banner() {
 							$button_text = __( 'Launch site', 'wpcomsh' );
 							$site_privacy_settings_url = 'https://wordpress.com/start/launch-site?siteSlug=' . $site_slug . '&returnTo=home';
 
-							if ( $is_site_launched && site_is_coming_soon() ) {
+							if ( $is_site_launched && ! $is_not_coming_soon_mode ) {
 								$button_text =  __( 'Update visibility', 'wpcomsh' );
 								$site_privacy_settings_url = 'https://wordpress.com/settings/general/' . $site_slug . '#site-privacy-settings';
 							}

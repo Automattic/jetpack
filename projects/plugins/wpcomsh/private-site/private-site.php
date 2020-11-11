@@ -258,7 +258,9 @@ function site_is_public_coming_soon() : bool {
  * @return string
  */
 function site_launch_status() : string {
-	if ( ! site_is_private() ) {
+    // We need to check for launch status for private by default sites
+    // and coming soon + public by default sites
+	if ( ! site_is_private() && ! site_is_public_coming_soon() ) {
 		return '';
 	}
 
