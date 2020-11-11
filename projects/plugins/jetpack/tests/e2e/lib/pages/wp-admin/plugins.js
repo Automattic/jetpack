@@ -2,25 +2,25 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, isEventuallyVisible, waitForSelector } from '../../page-helper';
+import { isEventuallyVisible, waitForSelector } from '../../page-helper';
 
 export default class PluginsPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.search-plugins';
+		const expectedSelector = '.search-box';
 		super( page, { expectedSelector } );
 	}
 
 	async deactivateJetpack() {
 		const selector = "tr[data-slug='jetpack'] a[href*='=deactivate']";
 		const navigationPromise = this.page.waitForNavigation();
-		await waitAndClick( this.page, selector );
+		await page.click( selector );
 		await navigationPromise;
 	}
 
 	async activateJetpack() {
 		const selector = "tr[data-slug='jetpack'] a[href*='=activate']";
 		const navigationPromise = this.page.waitForNavigation();
-		await waitAndClick( this.page, selector );
+		await page.click( selector );
 		await navigationPromise;
 	}
 
@@ -49,7 +49,7 @@ export default class PluginsPage extends Page {
 		const updatedMessage =
 			'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .updated-message';
 		await waitForSelector( this.page, updateCard );
-		await waitAndClick( this.page, updateLink );
+		await page.click( updateLink );
 		await waitForSelector( this.page, isUpdatingMessage );
 		await waitForSelector( this.page, updatedMessage, { timeout: 3 * 30000 } );
 	}

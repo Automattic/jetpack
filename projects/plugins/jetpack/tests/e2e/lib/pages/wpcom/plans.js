@@ -11,7 +11,7 @@ export default class PlansPage extends Page {
 	}
 
 	async returnToWPAdmin() {
-		return await waitAndClick( this.page, ".jetpack-checklist__footer a[href*='wp-admin']" );
+		return await page.click( ".jetpack-checklist__footer a[href*='wp-admin']" );
 	}
 
 	async isCurrentPlan( plan = 'business' ) {

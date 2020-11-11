@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs';
-import { teardown } from 'jest-environment-puppeteer';
 
 import SlackReporter from './reporters/slack';
 
@@ -61,5 +60,5 @@ module.exports = async function ( globalConfig ) {
 	if ( process.env.CI ) {
 		await processSlackLog();
 	}
-	await teardown( globalConfig );
+	// await teardown( globalConfig );
 };

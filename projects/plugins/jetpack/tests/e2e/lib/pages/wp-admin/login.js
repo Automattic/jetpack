@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, waitAndType, waitForSelector } from '../../page-helper';
+import { waitAndClick, waitForSelector } from '../../page-helper';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters/screenshot';
 
@@ -18,16 +18,16 @@ export default class WPLoginPage extends Page {
 			await this.toggleSSOLogin();
 		}
 
-		await waitAndType( this.page, '#user_login', username );
-		await waitAndType( this.page, '#user_pass', password );
+		await page.type( '#user_login', username );
+		await page.type( '#user_pass', password );
 
 		const navigationPromise = this.page.waitForNavigation();
-		await waitAndClick( this.page, '#wp-submit' );
+		await page.click( '#wp-submit' );
 		await navigationPromise;
 
 		try {
 			await waitForSelector( this.page, this.expectedSelector, {
-				hidden: true,
+				state: 'hidden',
 			} );
 		} catch ( e ) {
 			if ( retry === true ) {

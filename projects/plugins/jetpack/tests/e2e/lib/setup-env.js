@@ -2,14 +2,13 @@
 /**
  * External dependencies
  */
-import { wrap, get } from 'lodash';
+import { get, wrap } from 'lodash';
 import fs from 'fs';
-import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 /**
  * Internal dependencies
  */
 import { takeScreenshot } from './reporters/screenshot';
-import { logHTML, logDebugLog } from './page-helper';
+import { logDebugLog, logHTML } from './page-helper';
 import logger from './logger';
 import { execWpCommand } from './utils-helper';
 import {
@@ -49,7 +48,7 @@ const defaultErrorHandler = async ( error, name ) => {
 
 	if ( E2E_DEBUG ) {
 		console.log( error );
-		await jestPuppeteer.debug();
+		await jestPlaywright.debug();
 	}
 
 	throw error;
@@ -73,9 +72,11 @@ export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandl
 };
 
 async function setupBrowser() {
-	const userAgent = await browser.userAgent();
-	await page.setUserAgent( userAgent + ' wp-e2e-tests' );
-	await setBrowserViewport( 'large' );
+	logger.info( '>> Browser setup' );
+	await page.setViewportSize( { width: 1280, height: 1024 } );
+
+	// const userAgent = await browser.userAgent();
+	// await page.setUserAgent( userAgent + ' wp-e2e-tests' );
 }
 
 /**
@@ -225,7 +226,7 @@ catchBeforeAll( async () => {
 	await setupBrowser();
 
 	// Handles not saved changed dialog in block editor
-	await enablePageDialogAccept();
+	// await enablePageDialogAccept();
 	observeConsoleLogging();
 
 	const url = await tunnelManager.create( process.env.SKIP_CONNECT );

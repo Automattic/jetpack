@@ -28,9 +28,9 @@ export default class PinterestBlock {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await waitAndClick( this.page, inputSelector );
-		await waitAndType( this.page, inputSelector, this.embedUrl() );
-		await waitAndClick( this.page, descriptionSelector );
+		await page.click( inputSelector );
+		await page.type( inputSelector, this.embedUrl() );
+		await page.click( descriptionSelector );
 		await waitForSelector( this.page, '.wp-block-jetpack-pinterest .components-sandbox' );
 	}
 

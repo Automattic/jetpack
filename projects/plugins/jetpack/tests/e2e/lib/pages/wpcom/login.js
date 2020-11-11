@@ -7,13 +7,7 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
  * Internal dependencies
  */
 import Page from '../page';
-import {
-	waitForSelector,
-	getAccountCredentials,
-	waitAndClick,
-	waitAndType,
-	isEventuallyVisible,
-} from '../../page-helper';
+import { getAccountCredentials, isEventuallyVisible, waitForSelector } from '../../page-helper';
 import logger from '../../logger';
 
 export default class LoginPage extends Page {
@@ -31,27 +25,12 @@ export default class LoginPage extends Page {
 		const continueButtonSelector = '.login__form-action button';
 		const submitButtonSelector = '.login__form-action button[type="submit"]';
 
-		await waitAndType( this.page, usernameSelector, username );
-		await waitAndClick( this.page, continueButtonSelector );
-
-		// sometimes it failing to type the whole password correctly for the first time.
-		let count = 0;
-		while ( count < 5 ) {
-			await waitAndType( this.page, passwordSelector, password, { delay: 10 } );
-			const passwordEl = await this.page.$( passwordSelector );
-			await page.focus( submitButtonSelector );
-
-			const fieldValue = await page.evaluate( x => x.value, passwordEl );
-			if ( fieldValue === password ) {
-				break;
-			}
-			logger.info( `Failed to type password properly. retrying...` );
-
-			count += 1;
-		}
-
-		const submitButton = await waitForSelector( this.page, submitButtonSelector );
-		await submitButton.press( 'Enter' );
+		await page.type( usernameSelector, username );
+		await page.click( continueButtonSelector );
+		await page.waitForTimeout( 2000 );
+		await page.waitForSelector( passwordSelector, { state: 'visible', timeout: 30 } );
+		await page.type( passwordSelector, password );
+		await page.click( submitButtonSelector );
 
 		try {
 			await waitForSelector( this.page, this.expectedSelector, {

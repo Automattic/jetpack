@@ -24,7 +24,7 @@ export default class ConnectionsPage extends Page {
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
 		await waitForSelector( this.page, loadingIndicatorSelector );
-		await waitAndClick( this.page, mailchimpExpandSelector );
+		await page.click( mailchimpExpandSelector );
 
 		// WPCOM Connections page
 		await this.page.waitForXPath( mcOptionXpathSelector );
