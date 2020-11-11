@@ -264,7 +264,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
-* PHP 8: avoid errors when using the Publicize feature in PHP 8 environments.
+* General: continued work towards ensuring that Jetpack is fully compatible with the upcoming version of PHP, PHP 8.
 
 **Bug fixes**
 
