@@ -282,7 +282,7 @@ function render_pagination_bullet( $slide_index, $class_name = '' ) {
 		'<a href="#" class="wp-story-pagination-bullet %s" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
 		</a>',
-		$class_name,
+		esc_attr( $class_name ),
 		/* translators: %d is the slide number (1, 2, 3...) */
 		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
 	);
