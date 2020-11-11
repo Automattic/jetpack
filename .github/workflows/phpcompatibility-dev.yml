@@ -9,6 +9,7 @@ on: pull_request
 
 jobs:
   changed_files:
+    name: detect changed files
     runs-on: ubuntu-latest
     outputs:
       php: ${{ steps.filter.outputs.php }}
