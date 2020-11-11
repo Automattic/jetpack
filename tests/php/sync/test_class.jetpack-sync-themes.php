@@ -34,6 +34,65 @@ class Dummy_Sync_Test_WP_Upgrader {
 class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	protected $theme;
 
+	/**
+	 * Dummy Themes.
+	 *
+	 * @var string[]
+	 */
+	protected $themes = array(
+		'theme-file-sync-parent',
+		'theme-file-sync-child',
+	);
+
+	/**
+	 * Move Dummy Themes to proper location for testing.
+	 */
+	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
+		$themes = array(
+			'theme-file-sync-parent',
+			'theme-file-sync-child',
+		);
+
+		// Copy themes from tests/php/files/ to wp-content/themes.
+		foreach ( $themes as $theme ) {
+			$source_dir = __DIR__ . '/../files/' . $theme;
+			$dest_dir   = WP_CONTENT_DIR . '/themes/' . $theme;
+
+			mkdir( $dest_dir );
+
+			foreach ( glob( $source_dir . '/*.*' ) as $theme_file ) {
+				copy( $theme_file, $dest_dir . '/' . basename( $theme_file ) );
+			}
+		}
+
+	}
+
+	/**
+	 * Remove Dummy Themes.
+	 */
+	public static function tearDownAfterClass() {
+		parent::tearDownAfterClass();
+
+		$themes = array(
+			'theme-file-sync-parent',
+			'theme-file-sync-child',
+		);
+
+		// Copy themes from tests/php/files/ to wp-content/themes.
+		foreach ( $themes as $theme ) {
+			$dest_dir = WP_CONTENT_DIR . '/themes/' . $theme;
+
+			foreach ( glob( $dest_dir . '/*.*' ) as $theme_file ) {
+				unlink( $theme_file );
+			}
+
+			rmdir( $dest_dir );
+		}
+
+	}
+
 	public function setUp() {
 		parent::setUp();
 		$themes      = array( 'twentyten', 'twentyeleven', 'twentytwelve', 'twentythirteen', 'twentyfourteen' );
@@ -85,6 +144,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 * Test that we support syncing all the different theme features still.
 	 */
 	public function test_theme_callable_syncs_theme_supports_data() {
+		l( wp_get_theme() );
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
 
@@ -247,22 +307,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_themes_sync() {
-		$updatingthemes = array(
-			'twentynineteen',
-			'twentytwenty',
-		);
-
-		foreach ( $updatingthemes as $theme ) {
-			if ( ! wp_get_theme( $theme )->exists() ) {
-				$this->markTestSkipped( 'The expected themes are not installed.' );
-				return;
-			}
-		}
 
 		$dummy_details = array(
 			'type'   => 'theme',
 			'action' => 'update',
-			'themes' => $updatingthemes,
+			'themes' => $this->themes,
 		);
 
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
@@ -274,21 +323,16 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$themes     = $event_data->args[0];
 
 		// Not testing versions since they are subject to change.
-		$this->assertEquals( 'Twenty Nineteen', $themes['twentynineteen']['name'] );
-		$this->assertEquals( 'https://wordpress.org/themes/twentynineteen/', $themes['twentynineteen']['uri'] );
-		$this->assertEquals( 'twentynineteen', $themes['twentynineteen']['stylesheet'] );
-		$this->assertEquals( 'Twenty Twenty', $themes['twentytwenty']['name'] );
-		$this->assertEquals( 'https://wordpress.org/themes/twentytwenty/', $themes['twentytwenty']['uri'] );
-		$this->assertEquals( 'twentytwenty', $themes['twentytwenty']['stylesheet'] );
+		$this->assertEquals( 'Parent Sync Theme', $themes['theme-file-sync-parent']['name'] );
+		$this->assertEquals( 'https://jetpack.com/themes/sync-parent/', $themes['theme-file-sync-parent']['uri'] );
+		$this->assertEquals( 'theme-file-sync-parent', $themes['theme-file-sync-parent']['stylesheet'] );
+		$this->assertEquals( 'Child Sync Theme', $themes['theme-file-sync-child']['name'] );
+		$this->assertEquals( 'https://jetpack.com/themes/sync-child/', $themes['theme-file-sync-child']['uri'] );
+		$this->assertEquals( 'theme-file-sync-child', $themes['theme-file-sync-child']['stylesheet'] );
 	}
 
 	public function test_update_theme_sync() {
-		$theme = 'twentytwenty';
-
-		if ( ! wp_get_theme( $theme )->exists() ) {
-				$this->markTestsSkipped( 'The expected themes are not installed.' );
-				return;
-		}
+		$theme = 'theme-file-sync-child';
 
 		$dummy_details = array(
 			'type'   => 'theme',
@@ -305,9 +349,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$themes     = $event_data->args[0];
 
 		// Not testing versions since they are subject to change.
-		$this->assertEquals( 'Twenty Twenty', $themes['twentytwenty']['name'] );
-		$this->assertEquals( 'https://wordpress.org/themes/twentytwenty/', $themes['twentytwenty']['uri'] );
-		$this->assertEquals( 'twentytwenty', $themes['twentytwenty']['stylesheet'] );
+		$this->assertEquals( 'Child Sync Theme', $themes['theme-file-sync-child']['name'] );
+		$this->assertEquals( 'https://jetpack.com/themes/sync-child/', $themes['theme-file-sync-child']['uri'] );
+		$this->assertEquals( 'theme-file-sync-child', $themes['theme-file-sync-child']['stylesheet'] );
 	}
 
 	public function test_widgets_changes_get_synced() {
