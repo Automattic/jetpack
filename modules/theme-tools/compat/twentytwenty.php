@@ -194,6 +194,9 @@ function twentytwenty_filter_amp_infinite_scroll_sanitizers( $sanitizers ) {
 				'//*[ @id = "site-header" ]',
 				'//*[ contains( @class, "pagination-wrapper" ) ]',
 			),
+			'hidden_xpaths'         => array(
+				'//*[ contains( @class, "pagination-wrapper" ) ]',
+			),
 		)
 	);
 

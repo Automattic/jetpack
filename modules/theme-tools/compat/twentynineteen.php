@@ -156,6 +156,9 @@ function twentynineteen_filter_amp_infinite_scroll_sanitizers( $sanitizers ) {
 				'//*[ @id = "masthead" ]',
 				'//*[ contains( @class, "navigation pagination" ) ]',
 			),
+			'hidden_xpaths'         => array(
+				'//*[ contains( @class, "navigation pagination" ) ]',
+			),
 		)
 	);
 
