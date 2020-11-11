@@ -113,6 +113,9 @@
 		<testsuite name="google-analytics">
 			<directory prefix="test" suffix=".php">tests/php/modules/google-analytics</directory>
 		</testsuite>
+		<testsuite name="masterbar">
+			<directory prefix="test" suffix=".php">tests/php/modules/masterbar</directory>
+		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
 		</testsuite>
