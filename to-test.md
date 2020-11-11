@@ -8,4 +8,20 @@
 
 ### Blocks
 
+We've made some changes to multiple blocks in this release, to ensure that they look good even outside of the WordPress context, such as in RSS feeds or subscription emails.
+
+To test those changes, try the following:
+
+- Go to Jetpack > Settings
+- Enable the Subscriptions feature
+- Go to Posts > Add New
+- Add a subscription block, and publish the post.
+- Visit the post and subscribe to your own site with your own email address.
+- Publish a new post, with some content and the following blocks:
+	- Podcast
+	- Slideshow
+	- Pinterest
+
+Make sure those blocks still look good on your site as well as in the subscription email you'll receive.
+
 **Thank you for all your help!**
