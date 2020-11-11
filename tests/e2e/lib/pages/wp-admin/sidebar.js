@@ -6,7 +6,7 @@ import { waitForSelector, waitAndClick } from '../../page-helper';
 
 export default class Sidebar extends Page {
 	constructor( page ) {
-		const expectedSelector = '#adminmenumain';
+		const expectedSelector = '#adminmenuwrap';
 		super( page, { expectedSelector } );
 	}
 
@@ -47,6 +47,6 @@ export default class Sidebar extends Page {
 			await menuElement.click();
 		}
 
-		return await waitAndClick( this.page, menuItemSelector );
+		return await page.click( menuItemSelector );
 	}
 }

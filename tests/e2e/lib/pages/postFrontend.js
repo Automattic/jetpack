@@ -26,6 +26,6 @@ export default class PostFrontendPage extends Page {
 		const logoutOptionSelector = '#wp-admin-bar-logout';
 		await waitForSelector( this.page, accountBarSelector );
 		await this.page.hover( accountBarSelector );
-		await waitAndClick( this.page, logoutOptionSelector );
+		await page.click( logoutOptionSelector );
 	}
 }

@@ -28,7 +28,7 @@ Jetpack E2E tests relies on encrypted configuration file, which is included in t
 To decrypt the config file (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
+- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test_js`](config/local-test_js)
 
 #### WP Site Configuration
 
@@ -42,7 +42,7 @@ Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to h
 
 #### Environment variables
 
-`PUPPETEER_HEADLESS` - wether or not to run tests headlessly. Default is `true`.
+`HEADLESS` - wether or not to run tests headlessly. Default is `true`.
 `E2E_DEBUG` - Will log browser interactions into console. Also, will pause test execution on test failure
 
 ## Running tests
@@ -53,10 +53,10 @@ You can run the e2e tests locally using this command:
 yarn test-e2e
 ```
 
-Puppeteer runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window and the running tests you can pass `PUPPETEER_HEADLESS=false` as follows:
+Puppeteer runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window and the running tests you can pass `HEADLESS=false` as follows:
 
 ```bash
-PUPPETEER_HEADLESS=false npm run test-e2e
+HEADLESS=false npm run test-e2e
 ```
 
 To run an individual test, use the direct path to the spec. For example:
@@ -68,7 +68,7 @@ npm run test-e2e ./tests/e2e/specs/dummy.test.js
 For best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended. Also Jest's `-t` argument could be used to run single test from the test suite(file)
 
 ```bash
-E2E_DEBUG=true PUPPETEER_HEADLESS=false npm run test-e2e ./tests/e2e/specs/some.test.js -t 'Test name'
+E2E_DEBUG=true HEADLESS=false npm run test-e2e ./tests/e2e/specs/some.test.js -t 'Test name'
 ```
 
 ## Writing tests

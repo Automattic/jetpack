@@ -28,12 +28,12 @@ export default class PickAPlanPage extends Page {
 	async selectFreePlan() {
 		const freePlanButton = '.jetpack-free-card-alt__main a';
 		await this.page.waitFor( 500 );
-		return await waitAndClick( this.page, freePlanButton );
+		return await page.click( freePlanButton );
 	}
 
 	async selectComplete() {
 		const buttonSelector =
 			'div[data-e2e-product-slug="jetpack_complete"] [class*="summary"] button';
-		return await waitAndClick( this.page, buttonSelector );
+		return await page.click( buttonSelector );
 	}
 }

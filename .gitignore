@@ -13,6 +13,7 @@ vendor/automattic/jetpack-autoloader
 /wpcom-test-backup/
 /.vscode/
 /logs
+/allure-results
 
 
 ## FILES
@@ -35,6 +36,9 @@ yarn-error.log
 .phpcs.xml
 phpcs.xml
 /modules/**/*.min.css.map
+e2e_tunnels.txt
+plan-data.txt
+jetpack_private_options.txt
 
 ## Things for docker-composer
 /docker/data/mysql/*

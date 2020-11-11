@@ -11,7 +11,7 @@ module.exports = {
 		page: true,
 		wp: true,
 		context: true,
-		jestPuppeteer: true,
+		jestPlaywright: true,
 		reporter: true,
 		jasmine: true,
 	},

@@ -15,7 +15,7 @@ export default class ThankYouPage extends Page {
 		await isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
 
 		// Click on "Hide Message"
-		await waitAndClick( this.page, ".current-plan-thank-you a[href*='my-plan']" );
+		await page.click( ".current-plan-thank-you a[href*='my-plan']" );
 		return await this.waitToDisappear();
 	}
 

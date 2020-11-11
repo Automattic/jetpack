@@ -15,7 +15,7 @@ export default class AuthorizePage extends Page {
 		const authorizeButtonSelector = '.jetpack-connect__authorize-form button';
 		try {
 			return await Promise.all( [
-				waitAndClick( this.page, authorizeButtonSelector ),
+				page.click( authorizeButtonSelector ),
 				this.waitToDisappear(),
 				this.page.waitForNavigation( { waitUntil: 'networkidle2', timeout: 50000 } ),
 			] );

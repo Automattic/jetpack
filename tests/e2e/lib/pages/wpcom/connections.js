@@ -25,7 +25,7 @@ export default class ConnectionsPage extends Page {
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
 		await waitForSelector( this.page, loadingIndicatorSelector );
-		await waitAndClick( this.page, mailchimpExpandSelector );
+		await page.click( mailchimpExpandSelector );
 
 		// If user account is already connected to Mailchimp, we don't really need to connect it once again
 		// TODO: It's actually a default state, since connections are shared between sites. So we could get rid of chunk entirely

@@ -20,6 +20,8 @@ export default class TunnelManager {
 	 * @param {boolean} oneOff If the tunnel should be reused.
 	 */
 	async create( oneOff = false ) {
+		logger.info( '>> Creating a tunnel' );
+
 		const tunnelConfig = this.getConfig( oneOff );
 
 		await this.newTunnel( tunnelConfig );
@@ -34,6 +36,7 @@ export default class TunnelManager {
 			fs.writeFileSync( 'e2e_tunnels.txt', this.url );
 		}
 
+		logger.debug( `>> URL: ${ this.url }` );
 		return this.url;
 	}
 

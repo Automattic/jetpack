@@ -30,17 +30,17 @@ export default class SimplePaymentBlock {
 		const priceSelector = this.getSelector( '.simple-payments__field-price' );
 		const emailSelector = this.getSelector( '.simple-payments__field-email' );
 
-		await waitAndClick( this.page, titleSelector );
-		await waitAndType( this.page, titleSelector, title );
+		await page.click( titleSelector );
+		await page.type( titleSelector, title );
 
-		await waitAndClick( this.page, descriptionSelector );
-		await waitAndType( this.page, descriptionSelector, description );
+		await page.click( descriptionSelector );
+		await page.type( descriptionSelector, description );
 
-		await waitAndClick( this.page, priceSelector );
-		await waitAndType( this.page, priceSelector, price );
+		await page.click( priceSelector );
+		await page.type( priceSelector, price );
 
-		await waitAndClick( this.page, emailSelector );
-		await waitAndType( this.page, emailSelector, email );
+		await page.click( emailSelector );
+		await page.type( emailSelector, email );
 	}
 
 	getSelector( selector ) {

@@ -29,7 +29,7 @@ export default class WordAdsBlock {
 		const formatButtonSelector = `.wp-block-jetpack-wordads__format-picker button:nth-child(${ buttonNumber })`;
 		await waitForSelector( this.page, formatButtonSelector );
 		await this.page.waitFor( 500 );
-		return await waitAndClick( this.page, formatButtonSelector );
+		return await page.click( formatButtonSelector );
 	}
 
 	getSelector( selector ) {
@@ -37,7 +37,7 @@ export default class WordAdsBlock {
 	}
 
 	async focus() {
-		return await waitAndClick( this.page, this.getSelector( '.wp-block-jetpack-wordads' ) );
+		return await page.click( this.getSelector( '.wp-block-jetpack-wordads' ) );
 	}
 
 	/**

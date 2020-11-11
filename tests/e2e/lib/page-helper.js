@@ -22,7 +22,7 @@ import { execSyncShellCommand } from './utils-helper';
  */
 export async function waitForSelector( page, selector, options = {} ) {
 	const startTime = new Date();
-	const { PUPPETEER_HEADLESS } = process.env;
+	const { HEADLESS } = process.env;
 
 	// set up default options
 	const defaultOptions = { timeout: 30000, logHTML: false };
@@ -34,7 +34,7 @@ export async function waitForSelector( page, selector, options = {} ) {
 		logger.info( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
 		return element;
 	} catch ( e ) {
-		if ( options.logHTML && PUPPETEER_HEADLESS !== 'false' ) {
+		if ( options.logHTML && HEADLESS !== 'false' ) {
 			await logHTML();
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;

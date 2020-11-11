@@ -12,6 +12,6 @@ export default class JetpackSiteTypePage extends Page {
 
 	async selectSiteType( type ) {
 		const siteTypeSelector = `button[data-e2e-title='${ type }']`;
-		return await waitAndClick( this.page, siteTypeSelector );
+		return await page.click( siteTypeSelector );
 	}
 }

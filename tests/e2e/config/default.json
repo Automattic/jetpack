@@ -1,0 +1,16 @@
+{
+	"WP_ADMIN_USER": {
+		"username": "admin",
+		"password": "password"
+	},
+	"WP_BASE_URL": "http://localhost",
+	"testCardCredentials": {
+		"cardHolder": "End To End Testing",
+		"cardType": "VISA",
+		"cardNumber": "4242 4242 4242 4242",
+		"cardExpiry": "02/49",
+		"cardCVV": "300",
+		"cardCountryCode": "TR",
+		"cardPostCode": "4000"
+	}
+}

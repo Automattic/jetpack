@@ -12,6 +12,6 @@ export default class JetpackUserTypePage extends Page {
 
 	async selectUserType( userType ) {
 		const userTypeSelector = `button[data-e2e-slug='${ userType }']`;
-		return await waitAndClick( this.page, userTypeSelector );
+		return await page.click( userTypeSelector );
 	}
 }
