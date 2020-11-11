@@ -1,0 +1,14 @@
+{
+    "source": {
+        "directories": [
+            "legacy",
+            "src"
+        ]
+    },
+    "logs": {
+        "text": "infection.log"
+    },
+    "mutators": {
+        "@default": true
+    }
+}

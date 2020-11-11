@@ -1,0 +1,14 @@
+{
+    "source": {
+        "directories": [
+            "Jetpack",
+            "Jetpack\/Sniffs"
+        ]
+    },
+    "logs": {
+        "text": "infection.log"
+    },
+    "mutators": {
+        "@default": true
+    }
+}
