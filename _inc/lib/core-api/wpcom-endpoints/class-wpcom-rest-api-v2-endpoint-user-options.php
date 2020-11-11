@@ -44,6 +44,16 @@ class WPCOM_REST_API_V2_Endpoint_User_Option extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_option' ),
 					'permission_callback' => array( $this, 'get_option_permissions_check' ),
+					'args'                => array(
+						'option' => array(
+							'description'       => __( 'User option name.', 'jetpack' ),
+							'type'              => 'string',
+							'required'          => 'true',
+							'validate_callback' => function ( $param ) {
+								return is_string( $param ) && ! is_numeric( $param );
+							},
+						),
+					),
 				),
 			)
 		);
