@@ -197,6 +197,7 @@
 	"devDependencies": {
 		"@automattic/color-studio": "2.3.1",
 		"@babel/plugin-transform-runtime": "7.9.0",
+		"@ffmpeg-installer/ffmpeg": "1.0.20",
 		"@size-limit/preset-app": "4.7.0",
 		"@slack/web-api": "5.13.0",
 		"@testing-library/jest-dom": "5.11.5",
@@ -244,6 +245,7 @@
 		"node-wp-i18n": "1.2.3",
 		"nyc": "15.1.0",
 		"playwright": "1.5.2",
+		"playwright-video": "2.4.0",
 		"prettier": "npm:wp-prettier@2.0.5",
 		"react-click-outside": "3.0.1",
 		"react-test-renderer": "16.13.1",

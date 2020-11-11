@@ -17,8 +17,11 @@ import {
 	loginToWpSite,
 } from './flows/jetpack-connect';
 import TunnelManager from './tunnel-manager';
+import { saveVideo } from 'playwright-video';
+import config from 'config';
+import path from 'path';
 
-const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
+const { TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
@@ -71,10 +74,14 @@ export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandl
 	} );
 };
 
-async function setupBrowser() {
-	logger.info( '>> Browser setup' );
-	await page.setViewportSize( { width: 1280, height: 1024 } );
+let videoCapture;
 
+async function setupBrowser() {
+	await page.setViewportSize( { width: 1280, height: 1024 } );
+	videoCapture = await saveVideo(
+		page,
+		path.resolve( config.get( 'testOutputDir' ), `video/video_${ new Date().getTime() }.mp4` )
+	);
 	// const userAgent = await browser.userAgent();
 	// await page.setUserAgent( userAgent + ' wp-e2e-tests' );
 }
@@ -167,7 +174,7 @@ async function maybePreConnect() {
 }
 
 // The Jest timeout is increased because these tests are a bit slow
-jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );
+jest.setTimeout( TIMEOUT || 300000 );
 if ( E2E_DEBUG ) {
 	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
 }
@@ -210,11 +217,17 @@ jasmine.getEnv().addReporter( {
 	jasmineStarted() {
 		logger.info( '############# \n\n\n' );
 	},
+	suiteStarted( result ) {
+		logger.info( `STARTING SUITE: ${ result.fullName }, description: ${ result.description }` );
+	},
 	specStarted( result ) {
-		logger.info( `Spec name: ${ result.fullName }, description: ${ result.description }` );
+		logger.info( `STARTING SPEC: ${ result.fullName }, description: ${ result.description }` );
 		jasmine.currentTest = result;
 	},
-	specDone: () => ( jasmine.currentTest = null ),
+	specDone( result ) {
+		logger.info( `SPEC ENDED: ${ result.status }\n` );
+		jasmine.currentTest = null;
+	},
 } );
 
 const tunnelManager = new TunnelManager();
@@ -235,6 +248,7 @@ catchBeforeAll( async () => {
 } );
 
 afterAll( async () => {
+	await videoCapture.stop();
 	await tunnelManager.close();
 } );
 
