@@ -27,7 +27,7 @@ export default class PickAPlanPage extends Page {
 
 	async selectFreePlan() {
 		const freePlanButton = '.jetpack-free-card-alt__main a';
-		await this.page.waitFor( 500 );
+		await this.page.waitForTimeout( 500 );
 		return await page.click( freePlanButton );
 	}
 
