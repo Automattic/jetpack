@@ -29,7 +29,7 @@
 /**
  * Jetpack logo
  */
-#adminmenu [class*="activity-log"] .wp-menu-image img {
+#adminmenu [class*='activity-log'] .wp-menu-image img {
 	padding-top: 7px;
 }
 
@@ -37,7 +37,7 @@
  * Site Switcher
  */
 #adminmenu a.site-switcher {
-	color: #A2AAB2;
+	color: #a2aab2;
 }
 
 #adminmenu a.site-switcher:hover {
@@ -67,13 +67,12 @@
 	background-repeat: no-repeat;
 	background-size: 18px 18px;
 	height: 32px;
-	transform: translateZ(0);
-	transition-property: background-image,background-color;
-	transition-duration: .2s;
+	transform: translateZ( 0 );
+	transition-property: background-image, background-color;
+	transition-duration: 0.2s;
 	width: 32px;
-
 }
-#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image {
+#adminmenu .toplevel_page_site-card:not( .has-site-icon ) .wp-menu-image {
 	background-color: #c3c4c7;
 }
 
@@ -85,11 +84,14 @@
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
 #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
 	background-color: #006fad;
-	background-image: url("data:image/svg+xml,%3Csvg class='gridicon gridicons-house' height='24' width='24' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg%3E%3Cpath fill='%230a4b78' d='M22 9L12 1 2 9v2h2v10h5v-4c0-1.657 1.343-3 3-3s3 1.343 3 3v4h5V11h2V9z'/%3E%3C/g%3E%3C/svg%3E%0A");
+	background-image: url( "data:image/svg+xml,%3Csvg class='gridicon gridicons-house' height='24' width='24' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg%3E%3Cpath fill='%230a4b78' d='M22 9L12 1 2 9v2h2v10h5v-4c0-1.657 1.343-3 3-3s3 1.343 3 3v4h5V11h2V9z'/%3E%3C/g%3E%3C/svg%3E%0A" );
 	width: 34px;
 }
 
-#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img[src^="data:image/svg"] {
+#adminmenu
+	.toplevel_page_site-card:not( .has-site-icon )
+	.wp-menu-image
+	img[src^='data:image/svg'] {
 	height: auto;
 	padding-top: 7px;
 	width: 18px;
@@ -124,14 +126,14 @@
 }
 .site__info .site__title::after,
 .site__info .site__domain::after {
-	content: "";
+	content: '';
 	display: block;
 	position: absolute;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	user-select: none;
 	pointer-events: none;
-	background: linear-gradient(90deg,rgba(35,40,45,0),rgba(35,40,45,1) 90%);
+	background: linear-gradient( 90deg, rgba( 35, 40, 45, 0 ), rgba( 35, 40, 45, 1 ) 90% );
 	top: 0;
 	bottom: 0;
 	right: 0;
@@ -155,7 +157,8 @@
 /**
  * Stats
  */
-[class*="toplevel_page_https://wordpress.com/stats/day"] .sidebar-unified__sparkline {
+[class*="toplevel_page_https://wordpress.com/stats/day"] .sidebar-unified__sparkline
+{
 	float: right;
 	margin-right: 8px;
 }
@@ -181,16 +184,15 @@
 .folded #adminmenu li.toplevel_page_site-card a {
 	padding-left: 0;
 }
-
 /* Auto-folding of the admin menu */
-@media only screen and (max-width: 960px) {
+@media only screen and ( max-width: 960px ) {
 	#adminmenu,
 	#adminmenuwrap,
 	#adminmenuback {
 		width: 272px;
 	}
 
-	.auto-fold #adminmenu a[class*="toplevel_page_http"].wp-first-item {
+	.auto-fold #adminmenu a[class*='toplevel_page_http'].wp-first-item {
 		height: auto;
 	}
 
@@ -203,7 +205,7 @@
 	}
 }
 
-@media screen and (min-width: 782px) and (max-width: 960px) {
+@media screen and ( min-width: 782px ) and ( max-width: 960px ) {
 	.auto-fold #adminmenu a.menu-top {
 		height: 34px;
 	}
@@ -214,13 +216,15 @@
 	}
 }
 
-@media screen and (max-width: 782px) {
-	#adminmenu li.menu-top .wp-submenu>li>a,
-	.auto-fold #adminmenu li.menu-top .wp-submenu>li>a {
+@media screen and ( max-width: 782px ) {
+	#adminmenu li.menu-top .wp-submenu > li > a,
+	.auto-fold #adminmenu li.menu-top .wp-submenu > li > a {
 		padding-left: 42px;
 	}
 
-	.auto-fold #adminmenu, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {
+	.auto-fold #adminmenu,
+	.auto-fold #adminmenuback,
+	.auto-fold #adminmenuwrap {
 		width: 272px;
 	}
 
@@ -230,7 +234,7 @@
 	}
 }
 
-@media only screen and (max-width: 660px) {
+@media only screen and ( max-width: 660px ) {
 	#adminmenuback,
 	#adminmenuwrap,
 	#adminmenu,
@@ -242,7 +246,7 @@
 	}
 
 	ul#adminmenu a.wp-has-current-submenu:after,
-	ul#adminmenu>li.current>a.current:after,
+	ul#adminmenu > li.current > a.current:after,
 	ul#adminmenu li:hover a.wp-has-current-submenu:after,
 	.auto-fold ul#adminmenu li:hover a.wp-has-current-submenu:after {
 		display: none;
