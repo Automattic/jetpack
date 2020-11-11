@@ -345,7 +345,7 @@ class Grunion_Contact_Form_Plugin {
 				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
 				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
 				esc_url( get_the_permalink() ),
-				esc_html__( 'Submit a contact form.', 'jetpack' )
+				esc_html__( 'Submit a form.', 'jetpack' )
 			);
 		}
 
