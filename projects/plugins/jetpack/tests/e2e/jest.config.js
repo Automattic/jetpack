@@ -9,7 +9,7 @@ module.exports = {
 	preset: 'jest-playwright-preset',
 	globalTeardown: './lib/global-teardown.js',
 	setupFilesAfterEnv: [
-		// 'jest-allure/dist/setup',
+		'jest-allure/dist/setup',
 		'<rootDir>/lib/setup-env.js',
 		'expect-playwright',
 	],
