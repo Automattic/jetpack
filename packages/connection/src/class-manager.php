@@ -830,7 +830,7 @@ class Manager {
 		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
 
 		if ( false === $secrets ) {
-			return new WP_Error( 'cannot_save_secrets', __( 'Could not save secrets. Please confirm that the options table is writable.', 'jetpack' ) );
+			return new WP_Error( 'cannot_save_secrets', __( 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'jetpack' ) );
 		}
 
 		if (
