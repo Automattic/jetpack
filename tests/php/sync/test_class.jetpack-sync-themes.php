@@ -144,7 +144,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 * Test that we support syncing all the different theme features still.
 	 */
 	public function test_theme_callable_syncs_theme_supports_data() {
-		l( wp_get_theme() );
+
 		$this->sender->do_sync();
 		$theme_supports = $this->server_replica_storage->get_callable( 'theme_support' );
 
