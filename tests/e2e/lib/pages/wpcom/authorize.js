@@ -17,7 +17,7 @@ export default class AuthorizePage extends Page {
 			return await Promise.all( [
 				page.click( authorizeButtonSelector ),
 				this.waitToDisappear(),
-				this.page.waitForNavigation( { waitUntil: 'networkidle2', timeout: 50000 } ),
+				this.page.waitForNavigation( { waitUntil: 'networkidle', timeout: 50000 } ),
 			] );
 		} catch ( error ) {
 			if ( repeat ) {
