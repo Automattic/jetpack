@@ -268,7 +268,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
-*
+* Sitemaps: ensure that the Home URL is slashed on subdirectory websites.
 
 --------
 
