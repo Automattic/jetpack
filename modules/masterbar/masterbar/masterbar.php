@@ -15,8 +15,6 @@ use Jetpack_Plan;
 use WP_Admin_Bar;
 use WP_User;
 
-require_once __DIR__ . '/rtl-admin-bar.php';
-
 /**
  * Provides custom admin bar instead of the default WordPress admin bar.
  */
