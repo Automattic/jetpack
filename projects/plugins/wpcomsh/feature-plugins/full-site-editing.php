@@ -20,7 +20,6 @@ add_filter( 'a8c_enable_nav_sidebar', '__return_true' );
 // Enable block patterns API.
 add_filter( 'a8c_enable_block_patterns_api', '__return_true' );
 
-
 /**
  * Enable coming soon if the user is proxied.
  *
@@ -31,6 +30,25 @@ function wpcomsh_maybe_enable_public_coming_soon() {
 }
 
 add_filter( 'a8c_enable_public_coming_soon', 'wpcomsh_maybe_enable_public_coming_soon' );
+
+
+/**
+ * Returns Atomic persistent data value for wpcom_public_coming_soon when
+ *
+ * @return int The value of WPCOM_PUBLIC_COMING_SOON if set, otherwise the option value
+ */
+function wpcomsh_coming_soon_get_atomic_persistent_data( $wpcom_public_coming_soon ){
+	$persistent_data = new Atomic_Persistent_Data();
+	$persistent_data_coming_soon_value = $persistent_data->WPCOM_PUBLIC_COMING_SOON;
+
+	if ( $persistent_data_coming_soon_value !== null ) {
+		return $persistent_data_coming_soon_value;
+	}
+
+	return $wpcom_public_coming_soon;
+}
+
+add_filter( 'option_wpcom_public_coming_soon', 'wpcomsh_coming_soon_get_atomic_persistent_data' );
 
 /**
  * Adds the tracking identity to config that is passed to Starter Page Template frontend.

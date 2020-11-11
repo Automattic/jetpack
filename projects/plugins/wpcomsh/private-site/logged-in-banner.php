@@ -16,8 +16,8 @@ function show_logged_in_banner() {
 		return;
 	}
 
-	// The site is not private, return early to prevent indicating otherwise.
-	if ( ! site_is_private() ) {
+	// The site is not private or in public coming soon mode, return early to prevent indicating otherwise.
+	if ( ! site_is_private() && ! site_is_public_coming_soon() ) {
 		return;
 	}
 
@@ -34,10 +34,13 @@ function show_logged_in_banner() {
 		return;
 	}
 
+	$is_not_coming_soon_mode = ! site_is_coming_soon() && ! site_is_public_coming_soon();
+
 	// Older sites might not have a launch status, but can still be coming soon.
-	if ( '' === site_launch_status() && ! site_is_coming_soon() ) {
+	if ( '' === site_launch_status() && $is_not_coming_soon_mode ) {
 		return;
 	}
+
 	?>
 	<div id="wpcom-launch-banner-wrapper">
 		<div class="wpcom-launch-banner" id="wpcom-launch-banner">
@@ -48,7 +51,7 @@ function show_logged_in_banner() {
 				<img src="<?php echo esc_url( plugins_url( 'launch-image.svg', __FILE__ ) ) ?>" class="launch-banner-image" width="170" />
 				<div class="launch-banner-text">
 					<?php
-					if ( $is_site_launched && site_is_coming_soon() ) {
+					if ( $is_site_launched && ! $is_not_coming_soon_mode ) {
 						_e( "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready.", 'wpcomsh' );
 					} elseif ( ! $is_site_launched ) {
 						_e( "Your site hasn't been launched yet. Only you can see it until it is launched.", 'wpcomsh' );
@@ -63,7 +66,7 @@ function show_logged_in_banner() {
 						<button class="dismiss-button" onclick="javascript:document.getElementById('wpcom-launch-banner-wrapper').style.display='none'"><?php _e( "Dismiss" ); ?></button>
 						<?php
 
-						if ( ! $is_site_launched || site_is_coming_soon() ) {
+						if ( ! $is_site_launched || ! $is_not_coming_soon_mode ) {
 							$site_slug = \Jetpack::build_raw_urls( get_home_url() );
 							$button_text = __( 'Launch site', 'wpcomsh' );
 							$site_privacy_settings_url = 'https://wordpress.com/start/launch-site?siteSlug=' . $site_slug . '&returnTo=home';

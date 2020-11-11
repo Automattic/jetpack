@@ -88,6 +88,14 @@ function init() {
 
 	// Update `wpcom_coming_soon` cached value when it's updated on WP.com
 	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_option_on_update_site_settings', 10, 2 );
+        
+	// Logged-in blog users for an 'unlaunched' or 'coming soon' site see a banner.
+	// Only load the logged in private and public coming soon modes.
+	if ( site_is_private() || site_is_public_coming_soon() ) {
+		
+		require __DIR__ . '/logged-in-banner.php';
+		add_action( 'wp_head', '\Private_Site\show_logged_in_banner', -1000 );
+	}
 
 	if ( ! site_is_private() ) {
 		return;
@@ -117,10 +125,6 @@ function init() {
 	// @TODO pre_trackback_post maybe..?
 
 	// @TODO add "lock" toolbar item when private
-
-	// Logged-in blog users for an 'unlaunched' or 'coming soon' site see a banner.
-	require __DIR__ . '/logged-in-banner.php';
-	add_action( 'wp_head', '\Private_Site\show_logged_in_banner', -1000 );
 }
 add_action( 'init', '\Private_Site\init' );
 
@@ -227,6 +231,25 @@ function site_is_coming_soon() : bool {
 	}
 
 	return (bool) $wpcom_coming_soon;
+}
+
+/**
+ * Checks whether a site is in public coming soon mode.
+ * The site is determined to be "public coming soon" when both:
+ * - The site is not private (@see site_is_private)
+ * - The `wpcom_public_coming_soon` option is truthy
+ *
+ * In feature-plugins/full-site-editing.php we have an option hook `wpcomsh_coming_soon_get_atomic_persistent_data()` that returns the
+ * value of Atomic persistence data.
+ *
+ * @return bool
+ */
+function site_is_public_coming_soon() : bool {
+	if ( site_is_private() ) {
+		return false;
+	}
+
+	return 1 === (int) get_option( 'wpcom_public_coming_soon' );
 }
 
 /**
