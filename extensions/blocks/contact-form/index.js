@@ -5,13 +5,13 @@ import { __, _x } from '@wordpress/i18n';
 import { getBlockType, createBlock } from '@wordpress/blocks';
 import { Path, Circle } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
 import edit from './edit';
-import save from './save';
 import defaultAttributes from './attributes';
 import variations from './variations';
 import deprecated from './deprecated';
@@ -47,7 +47,7 @@ export const settings = {
 	},
 	attributes: defaultAttributes,
 	edit,
-	save,
+	save: InnerBlocks.Content,
 	variations,
 	category: 'grow',
 	deprecated,
@@ -89,11 +89,6 @@ const FieldDefaults = {
 			type: 'number',
 			default: 100,
 		},
-	},
-	postLinkText: {
-		type: 'string',
-		source: 'html',
-		default: __( 'Submit a contact form.', 'jetpack' ),
 	},
 	transforms: {
 		to: [

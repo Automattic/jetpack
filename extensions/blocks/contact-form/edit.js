@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
-import { useSelect, withDispatch, withSelect } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 import { DOWN } from '@wordpress/keycodes';
 import {
 	InnerBlocks,
@@ -82,11 +82,6 @@ function JetpackContactFormEdit( {
 		customThankyouRedirect,
 		jetpackCRM,
 	} = attributes;
-
-	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
-	useEffect( () => {
-		setAttributes( { postUrl: post.link } );
-	}, [ post.link, setAttributes ] );
 
 	const [ emailErrors, setEmailErrors ] = useState( false );
 	const formClassnames = classnames( className, 'jetpack-contact-form' );
@@ -326,21 +321,6 @@ function JetpackContactFormEdit( {
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
-				<BaseControl
-					label={ __( 'Contact form placeholder text', 'jetpack' ) }
-					help={ __(
-						'Enter the placeholder text you would like to display for the contact form fallback link',
-						'jetpack'
-					) }
-				>
-					<TextControl
-						placeholder={ __( 'Submit a contact form.', 'jetpack' ) }
-						onChange={ newPostLinkText =>
-							this.props.setAttributes( { postLinkText: newPostLinkText } )
-						}
-						value={ this.props.attributes.postLinkText }
-					/>
-				</BaseControl>
 				{ ! isSimpleSite() && (
 					<Fragment>
 						<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
