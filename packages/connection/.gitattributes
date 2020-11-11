@@ -3,3 +3,4 @@
 phpunit.xml.dist export-ignore
 tests/           export-ignore
 docs/            export-ignore
+infection.json.dist export-ignore
