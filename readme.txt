@@ -255,7 +255,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Enhancements**
 
 * Search: improve URL formatting for the expanded search layout.
-* Synchronization: improve synchronization of taxononmies and terms between your site and WordPress.com.
+* Synchronization: improve synchronization of comment status, taxononmies, and terms between your site and WordPress.com.
 
 **Improved compatibility**
 
