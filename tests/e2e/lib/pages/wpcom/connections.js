@@ -35,13 +35,13 @@ export default class ConnectionsPage extends Page {
 		}
 
 		// WPCOM Connections page
-		await this.page.waitForXPath( mcOptionXpathSelector );
+		await this.page.waitForSelector( mcOptionXpathSelector );
 
-		const optionHandle = ( await this.page.$x( mcOptionXpathSelector ) )[ 0 ];
+		const optionHandle = ( await this.page.$$( `xpath=${ mcOptionXpathSelector }` ) )[ 0 ];
 		const optionValue = await ( await optionHandle.getProperty( 'value' ) ).jsonValue();
 		await this.page.select( marketingSelectSelector, optionValue );
 
-		await this.page.waitForXPath( successNoticeSelector );
+		await this.page.waitForSelector( successNoticeSelector );
 		await this.page.close();
 	}
 
