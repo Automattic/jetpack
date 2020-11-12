@@ -53,7 +53,7 @@ function filterJsFiles( file ) {
 function filterEslintFiles( file ) {
 	const rootMatch = /^([a-zA-Z-]+\.)/g; // *.js(x)
 	const folderArray = [ '_inc', 'extensions', 'modules', 'tests/e2e' ];
-	const folderMatches = folderArray.some( folder => file.includes( folder ) );
+	const folderMatches = folderArray.some( folder => file.startsWith( folder ) );
 	return ! file.endsWith( '.json' ) && ( folderMatches || file.match( rootMatch ) );
 }
 
