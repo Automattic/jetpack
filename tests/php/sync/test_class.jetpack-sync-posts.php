@@ -627,6 +627,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
+		// Clean up.
+		unregister_post_type( 'snitch' );
+
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertFalse( $sync_event );
@@ -647,6 +650,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
+		// Clean up.
+		unregister_post_type( 'snitch' );
+
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
 		$this->assertFalse( $sync_event );
@@ -656,7 +662,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	 * Tests that deleted_post events are not sent for blacklisted post_types.
 	 */
 	public function test_filters_out_blacklisted_post_types_deleted_posts() {
-
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch',
@@ -670,8 +675,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$deleted_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 
-		$this->assertFalse( $deleted_event );
+		// Clean up.
+		unregister_post_type( 'snitch' );
 
+		$this->assertFalse( $deleted_event );
 	}
 
 	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
@@ -686,27 +693,35 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
+		// Clean up.
+		unregister_post_type( 'snitch' );
+
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
-
 	}
 
 	function test_post_types_blacklist_can_be_appended_in_settings() {
 		register_post_type( 'filter_me', array( 'public' => true, 'label' => 'Filter Me' ) );
-
 		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
-
 		$this->sender->do_sync();
+		unregister_post_type( 'filter_me' );
 
 		// first, show that post is being synced
 		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
 
 		Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
 
+		register_post_type(
+			'filter_me',
+			array(
+				'public' => true,
+				'label'  => 'Filter Me',
+			)
+		);
 		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
-
 		$this->sender->do_sync();
+		unregister_post_type( 'filter_me' );
 
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 
@@ -723,6 +738,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	function test_does_not_publicize_blacklisted_post_types() {
 		register_post_type( 'dont_publicize_me', array( 'public' => true, 'label' => 'Filter Me' ) );
 		$post_id = $this->factory->post->create( array( 'post_type' => 'dont_publicize_me' ) );
+
+		// Clean up.
+		unregister_post_type( 'dont_publicize_me' );
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
@@ -993,9 +1011,11 @@ POST_CONTENT;
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
-		$this->assertEquals( '', $synced_post->post_content_filtered );
-		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+		// Clean up.
+		unregister_post_type( 'non_public' );
 
+		$this->assertSame( '', $synced_post->post_content_filtered );
+		$this->assertSame( '', $synced_post->post_excerpt_filtered );
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
