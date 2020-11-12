@@ -200,6 +200,7 @@ jobs:
         run: |
           php --version
           composer --version
+          jq --version
 
       - name: Install dependencies
         run: composer install
@@ -212,5 +213,5 @@ jobs:
           jq -r '.[]' <<'EOF'
           ${{ needs.changed_files.outputs.php_excluded_files }}
           EOF
-          ) | jq -r '.files | to_entries | .[] | .key as $key | .value.messages[] | [ $key, ":", .line, ":", .column, ": ", .type, " - ", .message, " (", .source, ")" ] | join("")'
+          ) | jq -r '.files | to_entries | .[] | .key as $key | .value.messages[] | [ $key, ":", .line, ":", .column, ": ", .type, " - ", .message, " (", .source, ")" ] | map(tostring) | join("")'
           echo "::remove-matcher owner=phpcs"
