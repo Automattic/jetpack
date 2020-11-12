@@ -179,6 +179,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Fetch base revision
         run: git fetch --depth=1 --no-tags $(git remote) ${{ github.event.pull_request.base.sha }}
