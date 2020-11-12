@@ -14,7 +14,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 require __DIR__ . '/masterbar/masterbar/masterbar.php';
-require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
+require dirname( __FILE__ ) . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 
 new Masterbar();
 new Admin_Color_Schemes();
