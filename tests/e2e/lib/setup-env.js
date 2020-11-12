@@ -25,6 +25,18 @@ const { TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
+	const filePath = await takeScreenshot( currentBlock, name );
+
+	try {
+		reporter.addAttachment(
+			`Test failed: ${ currentBlock } :: ${ name }`,
+			fs.readFileSync( filePath ),
+			'image/png'
+		);
+	} catch ( e ) {
+		logger.warn( `Failed to add attachment to allure report: ${ e }` );
+	}
+
 	// If running tests in CI
 	if ( CI ) {
 		await logDebugLog();
@@ -34,15 +46,6 @@ const defaultErrorHandler = async ( error, name ) => {
 		} );
 		const filePath = await takeScreenshot( currentBlock, name );
 		logger.slack( { type: 'file', message: filePath } );
-		try {
-			reporter.addAttachment(
-				`Test failed: ${ currentBlock } :: ${ name }`,
-				fs.readFileSync( filePath ),
-				'image/png'
-			);
-		} catch ( e ) {
-			logger.warn( `Failed to add attachment to allure report: ${ e }` );
-		}
 	}
 
 	if ( E2E_LOG_HTML ) {
@@ -74,14 +77,18 @@ export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandl
 	} );
 };
 
-let videoCapture;
+let video;
+let captureVideo = process.env.CAPTURE_VIDEO === 'true';
 
 async function setupBrowser() {
 	await page.setViewportSize( { width: 1280, height: 1024 } );
-	videoCapture = await saveVideo(
-		page,
-		path.resolve( config.get( 'testOutputDir' ), `video/video_${ new Date().getTime() }.mp4` )
-	);
+	if ( captureVideo ) {
+		video = await saveVideo(
+			page,
+			path.resolve( config.get( 'testOutputDir' ), `video/video_${ new Date().getTime() }.mp4` )
+		);
+	}
+
 	// const userAgent = await browser.userAgent();
 	// await page.setUserAgent( userAgent + ' wp-e2e-tests' );
 }
@@ -248,7 +255,9 @@ catchBeforeAll( async () => {
 } );
 
 afterAll( async () => {
-	await videoCapture.stop();
+	if ( captureVideo ) {
+		await video.stop();
+	}
 	await tunnelManager.close();
 } );
 

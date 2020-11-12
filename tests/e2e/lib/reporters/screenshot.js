@@ -3,8 +3,9 @@
  */
 import path from 'path';
 import mkdirp from 'mkdirp';
+import config from 'config';
 
-const screenshotsPath = path.resolve( __dirname, '../../reports/screenshots' );
+const screenshotsPath = path.resolve( config.get( 'testOutputDir' ), 'screenshots' );
 const toFilename = s => s.replace( /[^a-z0-9.-]+/gi, '-' );
 
 export async function takeScreenshot( currentBlock, name ) {
