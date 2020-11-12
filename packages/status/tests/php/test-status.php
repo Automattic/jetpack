@@ -39,6 +39,12 @@ class Test_Status extends TestCase {
 	 */
 	public function setUp() {
 		Monkey\setUp();
+
+		// Set defaults for Core functionality.
+		Functions\when( 'site_url' )->justReturn( $this->site_url );
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+
 		$this->status = new Status();
 	}
 
@@ -56,7 +62,6 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_default() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status->is_offline_mode() );
@@ -68,7 +73,6 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_true() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( true );
 
 		$this->assertTrue( $this->status->is_offline_mode() );
@@ -80,7 +84,6 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_bool() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status->is_offline_mode() );
@@ -172,7 +175,6 @@ class Test_Status extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_is_offline_mode_constant() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$constants_mocks = $this->mock_constants(
@@ -355,13 +357,19 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_staging_site
 	 *
 	 * @param string $site_url Site URL.
+	 * @param bool   $expected Expected return.
 	 */
-	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
+	public function test_is_staging_site_for_known_hosting_providers( $site_url, $expected ) {
 		Functions\when( 'site_url' )->justReturn( $site_url );
 		$result = $this->status->is_staging_site();
-		$this->assertTrue(
+		$this->assertEquals(
+			$expected,
 			$result,
-			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
+			sprintf(
+				'Expected %1$s to return %2$s for is_staging_site()',
+				$site_url,
+				$expected
+			)
 		);
 	}
 
@@ -376,21 +384,31 @@ class Test_Status extends TestCase {
 		return array(
 			'wpengine'              => array(
 				'http://bjk.staging.wpengine.com',
+				true,
 			),
 			'kinsta'                => array(
 				'http://test.staging.kinsta.com',
+				true,
 			),
 			'dreampress'            => array(
 				'http://ebinnion.stage.site',
+				true,
 			),
 			'newspack'              => array(
 				'http://test.newspackstaging.com',
+				true,
 			),
 			'wpengine_subdirectory' => array(
 				'http://bjk.staging.wpengine.com/staging',
+				true,
 			),
 			'wpengine_endslash'     => array(
 				'http://bjk.staging.wpengine.com/',
+				true,
+			),
+			'not_a_staging_site'    => array(
+				'http://staging.wpengine.com.example.com/',
+				false,
 			),
 		);
 	}
