@@ -27,15 +27,25 @@ class Admin_Color_Schemes {
 			'user',
 			'admin_color',
 			array(
+				'auth_callback' => array( $this, 'admin_color_auth' ),
 				'default'       => 'fresh',
-				'description'   => __('Slug of the admin color scheme.', 'jetpack'),
+				'description'   => __( 'Slug of the admin color scheme.', 'jetpack' ),
 				'single'        => true,
-				'show_in_rest'  => current_user_can('read'),
+				'show_in_rest'  => true,
 				'type'          => 'string',
-				'auth_callback' => function() {
-					return current_user_can( 'edit_users' );
-				},
 			)
 		);
+	}
+
+	/**
+	 * Permission callback to edit the `admin_color` user meta.
+	 *
+	 * @param bool   $allowed   Whether the given user is allowed to edit this meta value.
+	 * @param string $meta_key  Meta key. In this case `admin_color`.
+	 * @param int    $object_id Queried user ID.
+	 * @return bool
+	 */
+	public function admin_color_auth( $allowed, $meta_key, $object_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return current_user_can( 'edit_user', $object_id );
 	}
 }

@@ -78,11 +78,12 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	}
 
 	/**
-	 * Tests retrieving the color scheme setting for a user.
+	 * Tests updating the color scheme setting for a user.
 	 *
 	 * @covers ::register_admin_color_meta
 	 */
 	public function test_update_color_scheme() {
+		// Editor can update their own meta value.
 		$request = new WP_REST_Request( Requests::PUT, '/wp/v2/users/' . static::$user_id );
 		$request->set_body_params(
 			array(
@@ -97,5 +98,18 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'admin_color', $data['meta'] );
 		$this->assertSame( 'classic', $data['meta']['admin_color'] );
+
+		// Editor can't update someone else's meta value.
+		$request = new WP_REST_Request( Requests::PUT, '/wp/v2/users/1' );
+		$request->set_body_params(
+			array(
+				'meta' => array(
+					'admin_color' => 'classic',
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_cannot_edit', $response, WP_Http::FORBIDDEN );
 	}
 }
