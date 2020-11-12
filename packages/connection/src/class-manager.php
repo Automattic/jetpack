@@ -829,6 +829,10 @@ class Manager {
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
 
+		if ( false === $secrets ) {
+			return new WP_Error( 'cannot_save_secrets', __( 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'jetpack' ) );
+		}
+
 		if (
 			empty( $secrets['secret_1'] ) ||
 			empty( $secrets['secret_2'] ) ||
@@ -1330,8 +1334,8 @@ class Manager {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
-		return $secrets[ $secret_name ];
+		$res = Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
+		return $res ? $secrets[ $secret_name ] : false;
 	}
 
 	/**
