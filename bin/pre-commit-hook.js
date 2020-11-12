@@ -111,11 +111,11 @@ function checkFileAgainstDirtyList( file, filesList ) {
 }
 
 /**
- * Captures a pre-commit date to be used later in prepare-commit-msg.js hook to figure out whether pre-commit was executed
+ * Captures the tree hash being committed to be used later in prepare-commit-msg.js hook to figure out whether pre-commit was executed
  */
-function capturePreCommitDate() {
+function capturePreCommitTreeHash() {
 	if ( exitCode === 0 ) {
-		fs.writeFileSync( '.git/last-commit-date', Date.now() );
+		fs.writeFileSync( '.git/last-commit-tree', execSync( 'git write-tree' ) );
 	}
 }
 
@@ -216,7 +216,7 @@ function checkComposerLock() {
  * @param {Number} exitCodePassed Shell exit code.
  */
 function exit( exitCodePassed ) {
-	capturePreCommitDate();
+	capturePreCommitTreeHash();
 	process.exit( exitCodePassed );
 }
 

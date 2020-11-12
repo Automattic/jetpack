@@ -424,7 +424,7 @@ class Client {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_filter( 'is_jetpack_authorized_for_site', '__return_true' );
 			require_lib( 'wpcom-api-direct' );
-			return \WPCOM_API_Direct::do_request( $validated_args );
+			return \WPCOM_API_Direct::do_request( $validated_args, $body );
 		}
 
 		return self::remote_request( $validated_args, $body );

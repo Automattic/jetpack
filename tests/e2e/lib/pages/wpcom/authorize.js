@@ -3,7 +3,6 @@
  */
 import Page from '../page';
 import { waitForSelector, waitAndClick } from '../../page-helper';
-import { sendMessageToSlack } from '../../reporters/slack';
 import logger from '../../logger';
 
 export default class AuthorizePage extends Page {
@@ -24,7 +23,7 @@ export default class AuthorizePage extends Page {
 			if ( repeat ) {
 				const message = 'Jetpack connection failed. Retrying once again.';
 				logger.info( message );
-				await sendMessageToSlack( message );
+				logger.slack( { message, type: 'message' } );
 
 				return await this.approve( false );
 			}
