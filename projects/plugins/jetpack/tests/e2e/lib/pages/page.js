@@ -64,11 +64,13 @@ export default class Page {
 	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
 		logger.info( `Setting up the cookie for ${ this.name } page on ${ this.page.url() }` );
 
-		await this.page.setCookie( {
-			name: 'store_sandbox',
-			value: sandboxCookieValue,
-			domain,
-		} );
+		await this.page.browserContext().addCookies( [
+			{
+				name: 'store_sandbox',
+				value: sandboxCookieValue,
+				domain,
+			},
+		] );
 
 		return await this.reload();
 	}
