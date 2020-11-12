@@ -17,7 +17,8 @@ jobs:
           filters: |
             php:
               # If any PHP file changed, they need checking.
-              - '**.php'
+              - added|modified:
+                - '**.php'
             misc:
               # If composer or phpcs config changed, there may be a new standard.
               - 'composer.json'
