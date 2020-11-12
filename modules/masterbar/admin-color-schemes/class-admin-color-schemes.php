@@ -27,10 +27,13 @@ class Admin_Color_Schemes {
 			'user',
 			'admin_color',
 			array(
-				'default'      => 'fresh',
-				'description'  => 'Slug of the admin color scheme.',
-				'single'       => true,
-				'show_in_rest' => true,
+				'default'       => 'fresh',
+				'description'   => 'Slug of the admin color scheme.',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => function() {
+					return current_user_can( 'edit_users' );
+				},
 			)
 		);
 	}
