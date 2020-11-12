@@ -30,7 +30,7 @@ class Admin_Color_Schemes {
 				'default'       => 'fresh',
 				'description'   => __('Slug of the admin color scheme.', 'jetpack'),
 				'single'        => true,
-				'show_in_rest'  => true,
+				'show_in_rest'  => current_user_can('read'),
 				'type'          => 'string',
 				'auth_callback' => function() {
 					return current_user_can( 'edit_users' );
