@@ -209,7 +209,7 @@ class Status {
 
 		if ( isset( $known_staging['urls'] ) ) {
 			foreach ( $known_staging['urls'] as $url ) {
-				if ( preg_match( $url, site_url() ) ) {
+				if ( preg_match( $url, wp_parse_url( site_url(), PHP_URL_HOST ) ) ) {
 					$is_staging = true;
 					break;
 				}
