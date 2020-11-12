@@ -15,6 +15,7 @@ final class Jetpack_AMP_Infinite_Scroll_Sanitizer extends AMP_Base_Sanitizer {
 	 * @var array {
 	 *     @type string   $footer_xpaths
 	 *     @type string[] $next_page_hide_xpaths
+	 *     @type string[] $hidden_xpaths
 	 * }
 	 */
 	protected $args;
@@ -67,6 +68,7 @@ final class Jetpack_AMP_Infinite_Scroll_Sanitizer extends AMP_Base_Sanitizer {
 		}
 
 		$this->hide_next_page_elements();
+		$this->hide_hidden_elements();
 	}
 
 	/**
@@ -83,7 +85,25 @@ final class Jetpack_AMP_Infinite_Scroll_Sanitizer extends AMP_Base_Sanitizer {
 		foreach ( $xpaths as $next_page_hide_xpath ) {
 			/** @var DOMElement $element */
 			foreach ( $this->xpath->query( $next_page_hide_xpath ) as $element ) {
-				$element->setAttribute( 'next-page-hide', '' ); // @todo Also hidden?
+				$element->setAttribute( 'next-page-hide', '' );
+			}
+		}
+	}
+
+	/**
+	 * Hide elements on initial load.
+	 */
+	private function hide_hidden_elements() {
+		if ( isset( $this->args['hidden_xpaths'] ) && is_array( $this->args['hidden_xpaths'] ) ) {
+			$xpaths = $this->args['hidden_xpaths'];
+		} else {
+			$xpaths = array();
+		}
+
+		foreach ( $xpaths as $hidden_xpath ) {
+			/** @var DOMElement $element */
+			foreach ( $this->xpath->query( $hidden_xpath ) as $element ) {
+				$element->setAttribute( 'hidden', '' );
 			}
 		}
 	}

@@ -185,13 +185,16 @@ function twentytwenty_filter_amp_infinite_scroll_sanitizers( $sanitizers ) {
 	$sanitizers['Jetpack_AMP_Infinite_Scroll_Sanitizer'] = array_merge(
 		$sanitizers['Jetpack_AMP_Infinite_Scroll_Sanitizer'],
 		array(
-			// Formerly twentynineteen_amp_infinite_footers.
+			// Formerly twentytwenty_amp_infinite_footers.
 			'footer_xpaths'         => array(
 				'//div[ contains( @class, "footer-nav-widgets-wrapper" ) ]',
 				'//footer[ @id = "site-footer" ]',
 			),
 			'next_page_hide_xpaths' => array(
 				'//*[ @id = "site-header" ]',
+				'//*[ contains( @class, "pagination-wrapper" ) ]',
+			),
+			'hidden_xpaths'         => array(
 				'//*[ contains( @class, "pagination-wrapper" ) ]',
 			),
 		)
