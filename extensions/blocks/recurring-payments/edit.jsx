@@ -371,16 +371,6 @@ class MembershipsButtonEdit extends Component {
 		</div>
 	);
 
-	renderDisclaimer = () => {
-		return (
-			<div className="membership-button__disclaimer">
-				<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
-					{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
-				</ExternalLink>
-			</div>
-		);
-	};
-
 	render = () => {
 		const { notices, postId } = this.props;
 		const { connected, connectURL, products } = this.state;
@@ -445,7 +435,6 @@ class MembershipsButtonEdit extends Component {
 							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
 								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
-							{ this.renderDisclaimer() }
 						</Placeholder>
 					</div>
 				) }
@@ -471,7 +460,6 @@ class MembershipsButtonEdit extends Component {
 										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
 									</p>
 									{ this.renderAddMembershipAmount( true ) }
-									{ this.renderDisclaimer() }
 								</div>
 							</Placeholder>
 						</div>
@@ -497,11 +485,17 @@ class MembershipsButtonEdit extends Component {
 									{ this.renderMembershipAmounts() }
 									<p>{ __( 'Or a new one.', 'jetpack' ) }</p>
 									{ this.renderAddMembershipAmount( false ) }
-									{ this.renderDisclaimer() }
 								</div>
 							</Placeholder>
 						</div>
 					) }
+				<InspectorControls>
+					<PanelBody title={ __( 'Payments & Fees', 'jetpack' ) }>
+						<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+							{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
+						</ExternalLink>
+					</PanelBody>
+				</InspectorControls>
 				{ showControls && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
@@ -518,11 +512,6 @@ class MembershipsButtonEdit extends Component {
 						] }
 						templateLock="all"
 					/>
-				) }
-				{ this.hasUpgradeNudge && connected === API_STATE_NOTCONNECTED && (
-					<div className="wp-block-jetpack-recurring-payments disclaimer-only">
-						{ this.renderDisclaimer() }
-					</div>
 				) }
 			</Fragment>
 		);
