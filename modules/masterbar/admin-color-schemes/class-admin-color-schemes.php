@@ -28,7 +28,7 @@ class Admin_Color_Schemes {
 			'admin_color',
 			array(
 				'default'       => 'fresh',
-				'description'   => 'Slug of the admin color scheme.',
+				'description'   => __('Slug of the admin color scheme.', 'jetpack'),
 				'single'        => true,
 				'show_in_rest'  => true,
 				'type'          => 'string',
