@@ -1,0 +1,13 @@
+@import '../../../scss/calypso-colors';
+
+.jp-checkbox-answer__container {
+	display: flex;
+
+	box-sizing: border-box;
+	border: 1px solid $gray-lighten-20;
+	border-radius: 4px;
+}
+
+.jp-checkbox-answer__title {
+	width: 100%;
+}
