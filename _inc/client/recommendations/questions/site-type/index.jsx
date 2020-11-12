@@ -11,6 +11,7 @@ import { ProgressBar } from '@automattic/components';
  */
 import { QuestionLayout } from '../layout';
 import { CheckboxAnswer } from '../checkbox-answer';
+import Button from 'components/button';
 import { getSiteTitle } from 'state/initial-state';
 
 /**
@@ -21,22 +22,30 @@ import './style.scss';
 const SiteTypeQuestionComponent = ( { siteTitle } ) => {
 	const answerSection = (
 		<div className="jp-recommendations-question__site-type-answer-container">
-			<CheckboxAnswer
-				title={ __( 'Personal' ) }
-				info={ __( 'TODO change me personal info placeholder' ) }
-			/>
-			<CheckboxAnswer
-				title={ __( 'Business' ) }
-				info={ __( 'TODO change me personal info placeholder' ) }
-			/>
-			<CheckboxAnswer
-				title={ __( 'Store' ) }
-				info={ __( 'TODO change me personal info placeholder' ) }
-			/>
-			<CheckboxAnswer
-				title={ __( 'Other' ) }
-				info={ __( 'TODO change me personal info placeholder' ) }
-			/>
+			<div className="jp-recommendations-question__site-type-checkboxes">
+				<CheckboxAnswer
+					title={ __( 'Personal' ) }
+					info={ __( 'TODO change me personal info placeholder' ) }
+				/>
+				<CheckboxAnswer
+					title={ __( 'Business' ) }
+					info={ __( 'TODO change me personal info placeholder' ) }
+				/>
+				<CheckboxAnswer
+					title={ __( 'Store' ) }
+					info={ __( 'TODO change me personal info placeholder' ) }
+				/>
+				<CheckboxAnswer
+					title={ __( 'Other' ) }
+					info={ __( 'TODO change me personal info placeholder' ) }
+				/>
+			</div>
+			<Button primary>{ __( 'Continue' ) }</Button>
+			<div className="jp-recommendations-site-type-question__continue-description">
+				{ __(
+					'All of Jetpack’s great features await you and we’ll recommend some of our favorites.'
+				) }
+			</div>
 		</div>
 	);
 

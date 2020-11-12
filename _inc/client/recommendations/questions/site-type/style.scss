@@ -1,6 +1,22 @@
-.jp-recommendations-question__site-type-answer-container {
+@import '../../../scss/calypso-colors';
+
+.jp-recommendations-question__site-type-checkboxes {
 	display: grid;
 	gap: 16px;
 	grid-template-rows: auto auto;
 	grid-template-columns: auto auto;
+
+	margin-bottom: 16px;
+
+	text-align: left;
+}
+
+.jp-recommendations-question__site-type-answer-container {
+	text-align: center;
+}
+
+.jp-recommendations-site-type-question__continue-description {
+	color: #646970; // TODO: make this studio-gray-50
+	margin: 24px auto 32px auto;
+	max-width: 300px;
 }
