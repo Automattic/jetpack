@@ -387,9 +387,9 @@ EXPECTED;
 	}
 
 	function test_idc_optin_casts_to_bool() {
-		add_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		add_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
 		$this->assertTrue( Jetpack::sync_idc_optin() );
-		remove_filter( 'jetpack_sync_idc_optin', array( $this, '__return_string_1' ) );
+		remove_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
 	}
 
 	function test_idc_optin_true_when_constant_true() {
@@ -651,15 +651,15 @@ EXPECTED;
 	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_works_with_filters() {
-		add_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
-		add_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+		add_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
+		add_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
 
 		$secret = Jetpack::generate_secrets( 'name' );
 
 		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
 
-		remove_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
-		remove_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+		remove_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
+		remove_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
 	}
 
 	/**
@@ -669,13 +669,13 @@ EXPECTED;
 	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_works_with_long_strings() {
-		add_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+		add_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
 
 		$secret = Jetpack::generate_secrets( 'name' );
 
 		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
 
-		remove_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+		remove_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
 	}
 
 	/**
@@ -857,44 +857,89 @@ EXPECTED;
 		);
 	}
 
-	static function __cyrillic_salt( $password ) {
+	/**
+	 * Return a Cyrillic salt.
+	 *
+	 * @param string $password String to add salt to.
+	 * @return string
+	 */
+	public static function cyrillic_salt( $password ) {
 		return 'ленка' . $password . 'пенка';
 	}
 
-	static function __kanji_salt( $password ) {
+	/**
+	 * Return a Kanji salt.
+	 *
+	 * @param string $password String to add salt to.
+	 * @return string
+	 */
+	public static function kanji_salt( $password ) {
 		return '強熊' . $password . '清珠';
 	}
 
-	static function __multiply_filter( $password ) {
+	/**
+	 * Filter to increase a string length.
+	 *
+	 * @param string $password String to expand.
+	 * @return string
+	 */
+	public static function multiply_filter( $password ) {
 		for ( $i = 0; $i < 10; $i++ ) {
 			$password .= $password;
 		}
 		return $password;
 	}
 
-	function __return_string_1() {
+	/**
+	 * Return string '1'.
+	 *
+	 * @return string
+	 */
+	public function return_string_1() {
 		return '1';
 	}
 
-	static function reset_tracking_of_module_activation() {
-		self::$activated_modules = array();
+	/**
+	 * Reset tracking of module activation.
+	 */
+	public static function reset_tracking_of_module_activation() {
+		self::$activated_modules   = array();
 		self::$deactivated_modules = array();
 	}
 
-	static function track_activated_modules( $module ) {
+	/**
+	 * Track activated modules.
+	 *
+	 * @param mixed $module Module.
+	 */
+	public static function track_activated_modules( $module ) {
 		self::$activated_modules[] = $module;
 	}
 
-	static function track_deactivated_modules( $module ) {
+	/**
+	 * Track deactivated modules.
+	 *
+	 * @param mixed $module Module.
+	 */
+	public static function track_deactivated_modules( $module ) {
 		self::$deactivated_modules[] = $module;
 	}
 
+	/**
+	 * Mocked `setup_xmlrpc_handlers`.
+	 *
+	 * @param array         $request_params Incoming request parameters.
+	 * @param bool          $is_active Whether the connection is currently active.
+	 * @param bool          $is_signed Whether the signature check has been successful.
+	 * @param WP_User|false $user User for the mocked Jetpack_XMLRPC_Server.
+	 * @return bool
+	 */
 	private function mocked_setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $user = false ) {
 		$GLOBALS['HTTP_RAW_POST_DATA'] = '';
 
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 
-		$jetpack = new MockJetpack;
+		$jetpack       = new MockJetpack();
 		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
 		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $xmlrpc_server );
 	}
@@ -1109,7 +1154,9 @@ EXPECTED;
 	}
 
 	/**
-	 * https://github.com/Automattic/jetpack/pull/13514
+	 * Test "wp_getOptions_hook_in_place".
+	 *
+	 * @see https://github.com/Automattic/jetpack/pull/13514
 	 *
 	 * @group xmlrpc
 	 */
@@ -1133,7 +1180,7 @@ EXPECTED;
 		Partner::init();
 		add_filter(
 			$option_name,
-			function() use ( $test_code ) {
+			function () use ( $test_code ) {
 				return $test_code;
 			}
 		);
@@ -1193,7 +1240,7 @@ EXPECTED;
 	public function test_login_init_redirect() {
 		tests_add_filter(
 			'wp_redirect',
-			function( $location ) {
+			function ( $location ) {
 				$expected_location = add_query_arg(
 					array(
 						'forceInstall' => 1,

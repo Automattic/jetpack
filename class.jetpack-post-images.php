@@ -778,7 +778,7 @@ class Jetpack_PostImages {
 	 * @param int    $height        Minimum Image height.
 	 * @return array|bool           Image data or false if unavailable.
 	 */
-	public static function get_attachment_data( $attachment_id, $post_url = '', $width, $height ) {
+	public static function get_attachment_data( $attachment_id, $post_url, $width, $height ) {
 		if ( empty( $attachment_id ) ) {
 			return false;
 		}

@@ -52,7 +52,7 @@ if ( ! pr.body.includes( 'data or activity we track or use' ) ) {
 // Check if newly added .php files were added to phpcs linter require list.
 if ( newFiles.length > 0 ) {
 	const newPHPFiles = newFiles.filter(
-		fileName => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
+		fileName => fileName.endsWith( '.php' ) && ! fileName.includes( 'tests/php' )
 	);
 
 	const notRequireListedFiles = [];
