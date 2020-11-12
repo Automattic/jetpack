@@ -227,6 +227,26 @@ class Jetpack_Memberships {
 	public function return_meta( $map ) {
 		return $map['meta'];
 	}
+
+	/**
+	 * Renders a preview of the Recurring Payment button, which is not hooked
+	 * up to the subscription url. Used to preview the block on the frontend
+	 * for admin users when Stripe has not been connected.
+	 *
+	 * @param array  $attrs - attributes in the shortcode.
+	 * @param string $content - Recurring Payment block content.
+	 *
+	 * @return string|void
+	 */
+	public function render_button_preview ( $attrs, $content = null ) {
+		if ( ! empty( $content ) ) {
+			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
+			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
+			return $content;
+		}
+		return $this->deprecated_render_button_v1( $attrs, $plan_id );
+	}
+
 	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
@@ -238,9 +258,16 @@ class Jetpack_Memberships {
 	public function render_button( $attrs, $content = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
 
+		// If the user is a site admin, and the block needs to have a Stripe account connected,
+		// render a preview disconnected button in the frontend as a preview.
+		if ( $this->user_can_edit() && ! $this->get_connected_account_id() ) {
+			return $this->render_button_preview( $attrs, $content );
+		}
+
 		if ( empty( $attrs['planId'] ) ) {
 			return;
 		}
+
 		$plan_id = (int) $attrs['planId'];
 		$product = get_post( $plan_id );
 		if ( ! $product || is_wp_error( $product ) ) {
@@ -355,6 +382,17 @@ class Jetpack_Memberships {
 	 */
 	public static function get_connected_account_id() {
 		return get_option( self::$connected_account_id_option_name );
+	}
+
+	/**
+	 * Determines whether the current user can edit.
+	 *
+	 * @return bool Whether the user can edit.
+	 */
+	public static function user_can_edit() {
+		$user = wp_get_current_user();
+		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
+		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
 	}
 
 	/**
