@@ -341,11 +341,15 @@ class Jetpack_Signature {
 	 * It will analyze the current request, as well as some Jetpack constants, to return the string
 	 * to be concatenated in the URL representing the port of the current request.
 	 *
+	 * @since 9.2.0
+	 *
 	 * @return string The port to be used in the signature
 	 */
 	public function get_current_request_port() {
-		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : '';
-		$host_port = '' === $host_port && isset( $_SERVER['SERVER_PORT'] ) ? $_SERVER['SERVER_PORT'] : $host_port;
+		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $this->sanitize_host_post( $_SERVER['HTTP_X_FORWARDED_PORT'] ) : '';
+		if ( '' === $host_port && isset( $_SERVER['SERVER_PORT'] ) ) {
+			$host_port = $this->sanitize_host_post( $_SERVER['SERVER_PORT'] );
+		}
 
 		/**
 		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
@@ -361,17 +365,40 @@ class Jetpack_Signature {
 			// if the site is behind a proxy running on port 443 without
 			// X-Forwarded-Port and the back end's port is *not* 80. It's better,
 			// though, to configure the proxy to send X-Forwarded-Port.
-			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ? JETPACK_SIGNATURE__HTTPS_PORT : 443;
-			$port       = in_array( $host_port, array( 443, 80, $https_port ), false ) ? '' : $host_port; // phpcs:ignore WordPress.PHP.StrictInArray.FoundNonStrictFalse
+			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ? $this->sanitize_host_post( JETPACK_SIGNATURE__HTTPS_PORT ) : '443';
+			$port       = in_array( $host_port, array( '443', '80', $https_port ), true ) ? '' : $host_port;
 		} else {
 			// 80: Standard Port
 			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
 			// if the site is behind a proxy running on port 80 without
 			// X-Forwarded-Port. It's better, though, to configure the proxy to
 			// send X-Forwarded-Port.
-			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ? JETPACK_SIGNATURE__HTTP_PORT : 80;
-			$port      = in_array( $host_port, array( 80, $http_port ), false ) ? '' : $host_port; // phpcs:ignore WordPress.PHP.StrictInArray.FoundNonStrictFalse
+			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ? $this->sanitize_host_post( JETPACK_SIGNATURE__HTTP_PORT ) : '80';
+			$port      = in_array( $host_port, array( '80', $http_port ), true ) ? '' : $host_port;
 		}
 		return (string) $port;
+	}
+
+	/**
+	 * Sanitizes a variable checking if it's a valid port number, which can be an integer or a numeric string
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param mixed $port_number Variable representing a port number.
+	 * @return string Always a string with a valid port number, or an empty string if input is invalid
+	 */
+	public function sanitize_host_post( $port_number ) {
+
+		if ( ! is_int( $port_number ) && ! is_string( $port_number ) ) {
+			return '';
+		}
+		if ( is_string( $port_number ) && ! ctype_digit( $port_number ) ) {
+			return '';
+		}
+
+		if ( 0 >= (int) $port_number ) {
+			return '';
+		}
+		return (string) $port_number;
 	}
 }

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * Provides unit tests for the methods in the Jetpack_Signature class.
@@ -157,7 +158,66 @@ class SignatureTest extends TestCase {
 	}
 
 	/**
-	 * Tests the get_current_request_port method
+	 * Test sanitize_host_post method
+	 *
+	 * @group leo
+	 * @dataProvider sanitize_host_post_data_provider
+	 *
+	 * @param mixed  $input the input to the method.
+	 * @param string $expected the expected output.
+	 * @return void
+	 */
+	public function test_sanitize_host_post( $input, $expected ) {
+		$signature = new \Jetpack_Signature( 'some-secret', 0 );
+		$this->assertSame( $expected, $signature->sanitize_host_post( $input ) );
+	}
+
+	/**
+	 * Data provider for test_sanitize_host_post
+	 *
+	 * @return array
+	 */
+	public function sanitize_host_post_data_provider() {
+		return array(
+			array(
+				'',
+				'',
+			),
+			array(
+				null,
+				'',
+			),
+			array(
+				false,
+				'',
+			),
+			array(
+				array(),
+				'',
+			),
+			array(
+				new stdClass(),
+				'',
+			),
+			array(
+				'string',
+				'',
+			),
+			array(
+				13,
+				'13',
+			),
+			array(
+				'13',
+				'13',
+			),
+		);
+	}
+
+	/**
+	 * Tests the get_current_request_port method.
+	 *
+	 * Also used by @see self::test_request_port_constants
 	 *
 	 * @param mixed   $http_x_forwarded_port value of $_SERVER[ 'HTTP_X_FORWARDED_PORT' ].
 	 * @param mixed   $server_port value of $_SERVER[ 'SERVER_PORT' ]. Null will unset the value.
@@ -301,7 +361,91 @@ class SignatureTest extends TestCase {
 				'445',
 				true,
 			),
+
+			// Invalid values.
+			array(
+				'',
+				new stdClass(),
+				'',
+			),
+			array(
+				'',
+				'string',
+				'',
+			),
+			array(
+				'',
+				array( 'string' ),
+				'',
+			),
+
 		);
+	}
+
+	/**
+	 * Runs isolated tests to check the behavior of constants
+	 *
+	 * Uses @see self::test_get_request_port
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_request_port_constants() {
+		define( 'JETPACK_SIGNATURE__HTTP_PORT', 81 );
+		$this->test_get_request_port( 81, '', '' );
+		$this->test_get_request_port( '81', '', '' );
+		$this->test_get_request_port( 81, '82', '' );
+		$this->test_get_request_port( 82, '81', '82' );
+		$this->test_get_request_port( '82', '81', '82' );
+
+		define( 'JETPACK_SIGNATURE__HTTPS_PORT', 444 );
+		$this->test_get_request_port( 444, '', '', true );
+		$this->test_get_request_port( '444', '', '', true );
+		$this->test_get_request_port( 444, '445', '', true );
+		$this->test_get_request_port( 445, '444', '445', true );
+		$this->test_get_request_port( '445', '444', '445', true );
+	}
+
+	/**
+	 * Runs isolated tests to check the behavior of constants when declared as strings
+	 *
+	 * Uses @see self::test_get_request_port
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_request_port_constants_as_strings() {
+		define( 'JETPACK_SIGNATURE__HTTP_PORT', '81' );
+		$this->test_get_request_port( 81, '', '' );
+		$this->test_get_request_port( '81', '', '' );
+		$this->test_get_request_port( 81, '82', '' );
+		$this->test_get_request_port( 82, '81', '82' );
+		$this->test_get_request_port( '82', '81', '82' );
+
+		define( 'JETPACK_SIGNATURE__HTTPS_PORT', '444' );
+		$this->test_get_request_port( 444, '', '', true );
+		$this->test_get_request_port( '444', '', '', true );
+		$this->test_get_request_port( 444, '445', '', true );
+		$this->test_get_request_port( 445, '444', '445', true );
+		$this->test_get_request_port( '445', '444', '445', true );
+	}
+
+	/**
+	 * Runs isolated tests to check the behavior of constants with invalid values
+	 *
+	 * Uses @see self::test_get_request_port
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_request_port_constants_invalid_valies() {
+		define( 'JETPACK_SIGNATURE__HTTP_PORT', 'string' );
+		$this->test_get_request_port( 81, '', '81' );
+		$this->test_get_request_port( '80', '', '' );
+
+		define( 'JETPACK_SIGNATURE__HTTPS_PORT', false );
+		$this->test_get_request_port( 444, '', '444', true );
+		$this->test_get_request_port( '443', '', '', true );
 	}
 
 }
