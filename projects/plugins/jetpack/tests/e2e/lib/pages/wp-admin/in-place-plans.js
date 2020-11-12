@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick } from '../../page-helper';
 
 export default class InPlacePlansPage extends Page {
 	constructor( page ) {

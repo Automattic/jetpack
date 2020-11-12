@@ -50,7 +50,7 @@ export default class Page {
 	 */
 	async waitForPage() {
 		await waitForSelector( this.page, this.expectedSelector, {
-			visible: true,
+			state: 'visible',
 			timeout: this.explicitWaitMS,
 		} );
 	}

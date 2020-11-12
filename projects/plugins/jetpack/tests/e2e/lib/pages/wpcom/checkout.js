@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndType, waitForSelector, waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { isEventuallyVisible, waitForSelector } from '../../page-helper';
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {
@@ -57,14 +57,14 @@ export default class CheckoutPage extends Page {
 		const progressBarSelector = '.checkout-submit-button .is-busy';
 		await waitForSelector( this.page, progressBarSelector );
 		await waitForSelector( this.page, progressBarSelector, {
-			hidden: true,
+			state: 'hidden',
 			timeout: 3 * 30000,
 		} );
 	}
 
 	async waitToDisappear() {
 		return await waitForSelector( this.page, this.expectedSelector, {
-			hidden: true,
+			state: 'hidden',
 			timeout: 5 * 30000,
 		} );
 	}
@@ -75,6 +75,6 @@ export default class CheckoutPage extends Page {
 		const iframeElement = await page.$( fullSelector );
 		const iframe = await iframeElement.contentFrame();
 
-		return await waitAndType( iframe, what, value, { delay: 10 } );
+		return await iframe.type( what, value, { delay: 10 } );
 	}
 }

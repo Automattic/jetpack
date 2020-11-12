@@ -6,7 +6,7 @@ import Page from '../page';
  * WordPress dependencies
  */
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
+import { waitForSelector, scrollIntoView } from '../../page-helper';
 import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
@@ -81,8 +81,8 @@ export default class BlockEditorPage extends Page {
 		}
 		let count = 0;
 		while ( count < 20 && ! block ) {
-			await this.page.waitFor( 1000 ); // Trying to wait for plan data to be updated
-			await this.reload( { waitFor: 'networkidle0' } );
+			await this.page.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
+			await this.reload( { waitFor: 'networkidle' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;
 		}

@@ -491,7 +491,7 @@ export async function syncPlanData( page ) {
 	let bkPlan = null;
 
 	do {
-		await page.reload( { waitFor: 'networkidle0' } );
+		await page.reload( { waitFor: 'networkidle' } );
 
 		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );

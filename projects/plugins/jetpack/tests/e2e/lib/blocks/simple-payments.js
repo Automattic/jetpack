@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { waitAndType, waitAndClick, waitForSelector } from '../page-helper';
+import { waitForSelector } from '../page-helper';
 
 export default class SimplePaymentBlock {
 	constructor( block, page ) {

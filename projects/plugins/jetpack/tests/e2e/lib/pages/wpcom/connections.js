@@ -3,8 +3,6 @@
  */
 import Page from '../page';
 import {
-	waitAndClick,
-	waitAndType,
 	clickAndWaitForNewPage,
 	getAccountCredentials,
 	waitForSelector,
@@ -49,9 +47,9 @@ export default class ConnectionsPage extends Page {
 		const mcPasswordSelector = '#login #password';
 		const mcSubmitSelector = "#login input[type='submit']";
 
-		await waitAndType( mcPopupPage, mcUsernameSelector, mcLogin );
-		await waitAndType( mcPopupPage, mcPasswordSelector, mcPassword );
-		await waitAndClick( mcPopupPage, mcSubmitSelector );
+		await mcPopupPage.type( mcUsernameSelector, mcLogin );
+		await mcPopupPage.type( mcPasswordSelector, mcPassword );
+		await mcPopupPage.type( mcSubmitSelector );
 		await this.page.bringToFront();
 	}
 }

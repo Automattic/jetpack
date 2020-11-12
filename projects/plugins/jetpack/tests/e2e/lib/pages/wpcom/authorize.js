@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector, waitAndClick } from '../../page-helper';
+import { waitForSelector } from '../../page-helper';
 import logger from '../../logger';
 
 export default class AuthorizePage extends Page {
@@ -33,11 +33,11 @@ export default class AuthorizePage extends Page {
 
 	async waitToDisappear() {
 		await waitForSelector( this.page, '.jetpack-connect__logged-in-form-loading', {
-			hidden: true,
+			state: 'hidden',
 		} );
 
 		return await waitForSelector( this.page, '.jetpack-connect__authorize-form button', {
-			hidden: true,
+			state: 'hidden',
 		} );
 	}
 }

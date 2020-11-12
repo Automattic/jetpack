@@ -22,19 +22,23 @@ export default class LoginPage extends Page {
 
 		const usernameSelector = '#usernameOrEmail';
 		const passwordSelector = '#password';
-		const continueButtonSelector = '.login__form-action button';
-		const submitButtonSelector = '.login__form-action button[type="submit"]';
+		const continueButtonSelector = '//button[text()="Continue"]';
+		const submitButtonSelector = '//button[text()="Log In"]';
 
 		await page.type( usernameSelector, username );
 		await page.click( continueButtonSelector );
-		await page.waitForTimeout( 2000 );
 		await page.waitForSelector( passwordSelector, { state: 'visible', timeout: 30 } );
+		// Even if we wait for the field to become visible Playwright might still type the password too fast
+		// and the first characters will miss the password field. A short wait fixes this
+		await page.waitForTimeout( 2000 );
 		await page.type( passwordSelector, password );
 		await page.click( submitButtonSelector );
 
+		await this.page.waitForNavigation( { waitUntil: 'networkidle' } );
+
 		try {
 			await waitForSelector( this.page, this.expectedSelector, {
-				hidden: true,
+				state: 'hidden',
 				timeout: 30000 /* 30 seconds */,
 			} );
 		} catch ( e ) {
@@ -44,12 +48,10 @@ export default class LoginPage extends Page {
 			}
 			throw e;
 		}
-
-		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
 	}
 
 	async isLoggedIn() {
 		const continueAsUserSelector = '#content .continue-as-user';
-		return await isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
+		return isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
 	}
 }

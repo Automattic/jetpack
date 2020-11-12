@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector, waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { isEventuallyVisible, waitForSelector } from '../../page-helper';
 
 export default class ThankYouPage extends Page {
 	constructor( page ) {
@@ -21,7 +21,7 @@ export default class ThankYouPage extends Page {
 
 	async waitToDisappear() {
 		return await waitForSelector( this.page, this.expectedSelector, {
-			hidden: true,
+			state: 'hidden',
 		} );
 	}
 }
