@@ -28,10 +28,11 @@ class Admin_Color_Schemes {
 			'admin_color',
 			array(
 				'auth_callback' => array( $this, 'update_admin_color_permissions_check' ),
-				'default'       => 'fresh',
 				'description'   => __( 'Slug of the admin color scheme.', 'jetpack' ),
 				'single'        => true,
-				'show_in_rest'  => true,
+				'show_in_rest'  => array(
+					'schema' => array( 'default' => 'fresh' ),
+				),
 				'type'          => 'string',
 			)
 		);
