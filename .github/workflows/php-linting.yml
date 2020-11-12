@@ -180,6 +180,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Fetch base revision
+        run: git fetch --depth=1 --no-tags $(git remote) ${{ github.event.pull_request.base.sha }}
+
       - name: Get Composer cache directory
         id: composer-cache
         run: |
