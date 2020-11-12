@@ -1,22 +1,46 @@
-jQuery( function ( $ ) {
-	var $adminbar = $( '#wpadminbar' ),
-		$wpwrap = $( '#wpwrap' );
+( function () {
+	function init() {
+		var adminbar = document.querySelector( '#wpadminbar' );
+		var wpwrap = document.querySelector( '#wpwrap' );
 
-	$adminbar.find( '#wp-admin-bar-blog a' ).attr( 'aria-expanded', 'false' );
-
-	// Toggle sidebar when toggle is clicked.
-	$adminbar.on( 'click.wp-responsive', '#wp-admin-bar-blog', function ( event ) {
-		event.preventDefault();
-
-		// Close any open toolbar submenus.
-		$adminbar.find( '.hover' ).removeClass( 'hover' );
-
-		$wpwrap.toggleClass( 'wp-responsive-open' );
-		if ( $wpwrap.hasClass( 'wp-responsive-open' ) ) {
-			$( this ).find( 'a' ).attr( 'aria-expanded', 'true' );
-			$( '#adminmenu a:first' ).focus();
-		} else {
-			$( this ).find( 'a' ).attr( 'aria-expanded', 'false' );
+		function setAriaExpanded( value ) {
+			var anchors = adminbar.querySelectorAll( '#wp-admin-bar-blog a' );
+			for ( var i = 0; i < anchors.length; i++ ) {
+				anchors[ i ].setAttribute( 'aria-expanded', value );
+			}
 		}
-	} );
-} );
+
+		setAriaExpanded( 'false' );
+
+		var adminbarBlog = adminbar.querySelector( '#wp-admin-bar-blog' );
+		// Toggle sidebar when toggle is clicked.
+		if ( adminbarBlog ) {
+			adminbarBlog.addEventListener( 'click', function ( event ) {
+				event.preventDefault();
+
+				// Close any open toolbar submenus.
+				var hovers = adminbar.querySelectorAll( '.hover' );
+				for ( var i = 0; i < hovers.length; i++ ) {
+					hovers[ i ].classList.remove( 'hover' );
+				}
+
+				wpwrap.classList.toggle( 'wp-responsive-open' );
+				if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
+					setAriaExpanded( 'true' );
+					var first = document.querySelector( '#adminmenu a:first' );
+					if ( first ) {
+						first.focus();
+					}
+				} else {
+					setAriaExpanded( 'false' );
+				}
+			} );
+		}
+	}
+
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
+} )();
