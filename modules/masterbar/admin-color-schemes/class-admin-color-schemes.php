@@ -27,7 +27,7 @@ class Admin_Color_Schemes {
 			'user',
 			'admin_color',
 			array(
-				'auth_callback' => array( $this, 'admin_color_auth' ),
+				'auth_callback' => array( $this, 'update_admin_color_permissions_check' ),
 				'default'       => 'fresh',
 				'description'   => __( 'Slug of the admin color scheme.', 'jetpack' ),
 				'single'        => true,
@@ -45,7 +45,7 @@ class Admin_Color_Schemes {
 	 * @param int    $object_id Queried user ID.
 	 * @return bool
 	 */
-	public function admin_color_auth( $allowed, $meta_key, $object_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function update_admin_color_permissions_check( $allowed, $meta_key, $object_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return current_user_can( 'edit_user', $object_id );
 	}
 }
