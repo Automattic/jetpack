@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import { waitForSelector } from '../../page-helper';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters/screenshot';
 
@@ -43,11 +43,11 @@ export default class WPLoginPage extends Page {
 
 	async loginSSO() {
 		const ssoLoginButton = '.jetpack-sso.button';
-		return await waitAndClick( this.page, ssoLoginButton );
+		return await this.page.click( ssoLoginButton );
 	}
 
 	async toggleSSOLogin() {
 		const ssoToggleButton = '.jetpack-sso-toggle';
-		return await waitAndClick( this.page, ssoToggleButton );
+		return await this.page.click( ssoToggleButton );
 	}
 }

@@ -5,7 +5,6 @@ import config from 'config';
 /**
  * WordPress dependencies
  */
-import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
 /**
  * Internal dependencies
  */
@@ -41,50 +40,6 @@ export async function waitForSelector( page, selector, options = {} ) {
 		logger.info(
 			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec. URL: ${ page.url() }`
 		);
-		throw e;
-	}
-}
-
-/**
- * Waits for element to be present and visible in DOM, and then clicks on it. @param options could be used to modify click behavior.
- * More: https://pptr.dev/#?product=Puppeteer&version=v1.17.0&show=api-elementhandleclickoptions
- *
- * @param {page} page Puppeteer representation of the page.
- * @param {string} selector CSS selector of the element
- * @param {Object} options Custom options to modify function behavior.
- */
-export async function waitAndClick( page, selector, options = { visible: true } ) {
-	await waitForSelector( page, selector, options );
-
-	try {
-		await page.click( selector, options );
-		logger.info( `Clicked on element by locator: ${ selector }.` );
-	} catch ( e ) {
-		logger.info( `Failed to click on element by locator: ${ selector }. URL: ${ page.url() }` );
-		throw e;
-	}
-}
-
-/**
- * Waits for element to be present in DOM, removes all the previous content and types @param value into the element.
- *
- * @param {page} page Puppeteer representation of the page.
- * @param {string} selector CSS selector of the element
- * @param {string} value Value to type into
- * @param {Object} options Custom options to modify function behavior. The same object passes in two different functions. Use with caution!
- */
-export async function waitAndType( page, selector, value, options = { visible: true, delay: 1 } ) {
-	const el = await waitForSelector( page, selector, options );
-
-	try {
-		await page.focus( selector );
-		await pressKeyWithModifier( 'primary', 'a' );
-		// await el.click( { clickCount: 3 } );
-		await page.waitFor( 300 );
-		await el.type( value, options );
-		logger.info( `Typed into element with locator: ${ selector }.` );
-	} catch ( e ) {
-		logger.info( `Failed to type into element with locator: ${ selector }. URL: ${ page.url() }` );
 		throw e;
 	}
 }
@@ -172,7 +127,7 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 		browser.addListener( 'targetcreated', listener );
 	} );
 
-	await waitAndClick( page, selector );
+	await page.click( selector );
 
 	const target = await Promise.race( [ newTabTarget, timeoutPromise ] );
 	return await target.page();

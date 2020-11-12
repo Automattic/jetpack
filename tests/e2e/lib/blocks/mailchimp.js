@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { waitAndClick, waitForSelector, clickAndWaitForNewPage } from '../page-helper';
+import { clickAndWaitForNewPage, waitForSelector } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
@@ -66,7 +66,7 @@ export default class MailchimpBlock {
 			}
 		}
 
-		await loginTab.reload( { waitFor: 'networkidle0' } );
+		await loginTab.reload( { waitFor: 'networkidle' } );
 
 		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
 

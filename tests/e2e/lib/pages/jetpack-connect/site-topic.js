@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import { waitForSelector } from '../../page-helper';
 
 export default class JetpackSiteTopicPage extends Page {
 	constructor( page ) {
@@ -16,13 +16,13 @@ export default class JetpackSiteTopicPage extends Page {
 		const siteTopicSpinnerSelector = '.suggestion-search .spinner';
 
 		const siteTopicElement = await waitForSelector( this.page, siteTopicInputSelector, {
-			visible: true,
+			state: 'visible',
 		} );
 		await siteTopicElement.click( { clickCount: 3 } );
 		await siteTopicElement.type( siteTopic );
 
 		await waitForSelector( this.page, siteTopicSpinnerSelector, {
-			hidden: true,
+			state: 'hidden',
 		} );
 		return await page.click( siteTopicButtonSelector );
 	}

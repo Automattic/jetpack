@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import { waitForSelector } from '../../page-helper';
 
 export default class InPlaceAuthorizeFrame extends Page {
 	constructor( page ) {
@@ -12,7 +12,7 @@ export default class InPlaceAuthorizeFrame extends Page {
 
 	static async init( page ) {
 		const loadingSelector = '.jp-connect-full__button-container-loading';
-		await waitForSelector( page, loadingSelector, { hidden: true } );
+		await waitForSelector( page, loadingSelector, { state: 'hidden' } );
 
 		return await super.init( page );
 	}
@@ -25,11 +25,11 @@ export default class InPlaceAuthorizeFrame extends Page {
 	async approve() {
 		const approveSelector = 'button#approve';
 		const iframe = await this.getFrame();
-		await waitAndClick( iframe, approveSelector );
+		await iframe.click( approveSelector );
 		return this.waitToDisappear();
 	}
 
 	async waitToDisappear() {
-		return await waitForSelector( this.page, this.expectedSelector, { hidden: true } );
+		return await waitForSelector( this.page, this.expectedSelector, { state: 'hidden' } );
 	}
 }

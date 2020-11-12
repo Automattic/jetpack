@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible, waitAndClick } from '../../page-helper';
+import { isEventuallyVisible } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
 
 export default class DashboardPage extends Page {

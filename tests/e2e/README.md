@@ -28,7 +28,7 @@ Jetpack E2E tests relies on encrypted configuration file, which is included in t
 To decrypt the config file (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test_js`](config/local-test_js)
+- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.json`](config/local-test.json)
 
 #### WP Site Configuration
 

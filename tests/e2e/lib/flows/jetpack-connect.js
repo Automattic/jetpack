@@ -94,10 +94,10 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 
 	const jetpackPage = await JetpackPage.visit( page, jetpackUrl );
 	await jetpackPage.openMyPlan();
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+	await jetpackPage.reload( { waitFor: 'networkidle' } );
 
 	if ( ! mockPlanData ) {
-		await jetpackPage.reload( { waitFor: 'networkidle0' } );
+		await jetpackPage.reload( { waitFor: 'networkidle' } );
 		await page.waitForResponse(
 			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
 			{ timeout: 60 * 1000 }
@@ -163,7 +163,7 @@ export async function connectThroughJetpackStart( {
 	const nextUrl = provisionJetpackStartConnection();
 	// sometimes after clicking on Approve button below user being redirected to wp-login page
 	// maybe waiting for a bit will help?
-	await page.waitFor( 10000 );
+	await page.waitForTimeout( 10000 );
 
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
@@ -182,7 +182,7 @@ export async function connectThroughJetpackStart( {
 		{ timeout: 60 * 1000 }
 	);
 
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+	await jetpackPage.reload( { waitFor: 'networkidle' } );
 
 	await execShellCommand(
 		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'

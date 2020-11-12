@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector, waitAndClick, waitAndType } from '../page-helper';
+import { waitForSelector } from '../page-helper';
 
 export default class PinterestBlock {
 	constructor( block, page, pinId ) {

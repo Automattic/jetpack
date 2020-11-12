@@ -75,7 +75,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
-	await page.waitFor( 1000 );
+	await page.waitForTimeout( 1000 );
 
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
@@ -87,8 +87,8 @@ export async function activateModule( page, module ) {
 		throw new Error( `${ module } is failed to activate` );
 	}
 
-	await page.waitFor( 1000 );
-	await page.reload( { waitFor: 'networkidle0' } );
+	await page.waitForTimeout( 1000 );
+	await page.reload( { waitFor: 'networkidle' } );
 
 	return true;
 }

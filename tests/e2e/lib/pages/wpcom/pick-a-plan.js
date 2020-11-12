@@ -13,7 +13,7 @@ export default class PickAPlanPage extends Page {
 	async waitForPage() {
 		await super.waitForPage();
 		await waitForSelector( this.page, '.jetpack-product-card-alt__price-placeholder', {
-			hidden: true,
+			state: 'hidden',
 		} );
 	}
 

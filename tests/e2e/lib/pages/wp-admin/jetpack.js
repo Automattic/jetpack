@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { isEventuallyVisible } from '../../page-helper';
 
 export default class JetpackPage extends Page {
 	constructor( page ) {

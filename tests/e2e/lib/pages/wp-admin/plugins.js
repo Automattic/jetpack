@@ -40,7 +40,7 @@ export default class PluginsPage extends Page {
 	}
 
 	async updateJetpack() {
-		await this.page.waitFor( 2000 );
+		await this.page.waitForTimeout( 2000 );
 		const updateCard = 'tr.active#jetpack-update[data-plugin$="/jetpack.php"]';
 		const updateLink = 'tr.active#jetpack-update[data-plugin$="/jetpack.php"] .update-link';
 		const isUpdatingMessage =
