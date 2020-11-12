@@ -31,6 +31,7 @@ class Admin_Color_Schemes {
 				'description'   => 'Slug of the admin color scheme.',
 				'single'        => true,
 				'show_in_rest'  => true,
+				'type'          => 'string',
 				'auth_callback' => function() {
 					return current_user_can( 'edit_users' );
 				},
