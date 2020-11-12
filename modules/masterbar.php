@@ -9,11 +9,13 @@
  * Auto Activate: No
  * Module Tags: General
  * Additional Search Queries: adminbar, masterbar, colorschemes
+ *
+ * @package Jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-require dirname( __FILE__ ) . '/masterbar/masterbar/masterbar.php';
+require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 
 new Masterbar();
