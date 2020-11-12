@@ -54,7 +54,7 @@
 			"phpcs-changed --git"
 		],
 		"phpcs:compatibility": [
-			"@phpcs:lint --runtime-set testVersion 5.6- --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor,packages/*/wordpress --extensions=php"
+			"@phpcs:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP"
 		],
 		"phpcs:fix": [
 			"Composer\\Config::disableProcessTimeout",

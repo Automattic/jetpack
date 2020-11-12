@@ -45,6 +45,7 @@
 * OpenTable Block: ensure full compatibility with the AMP plugin.
 * Pay with PayPal Block: ensure full compatibility with the AMP plugin.
 * Sharing: add support for the Google Web Stories plugin.
+* Slideshow Block: ensure that the block can be displayed using the Full Width alignment setting when using the Gutenberg plugin.
 * Widget Visibility: avoid performance impact it may have on the block editor when used with the Gutenberg plugin.
 * YouTube embeds: ensure that all YouTube video embeds work well when using the AMP plugin.
 
@@ -54,6 +55,7 @@
 * Contact Form: selection widgets, radio buttons, and checkboxes can now use commas, brackets, and backslashes in the labels and values without breaking the form.
 * Donations / Payments Block: fix visual bug in Stripe connection banner.
 * Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
+* Google Analytics: support updated Google Analytics 4 properties.
 * Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
 * Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
 * Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
@@ -64,6 +66,8 @@
 * Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
 * Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
 * Publicize: when generating Twitter threads, allow text to be split at line breaks where appropriate.
+* Security / Contact Form: add additional checks before checking submitted forms for spam.
+* Security / WordPress.com REST API: improve authentication checks when making proxied requests to a site's API endpoints.
 * Slideshow Block: fix a bug that prevented the first and last images from displaying when the slideshow loops.
 * Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
 * Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.

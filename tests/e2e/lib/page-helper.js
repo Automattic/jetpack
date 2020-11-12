@@ -9,7 +9,6 @@ import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
 /**
  * Internal dependencies
  */
-import { sendSnippetToSlack } from './reporters/slack';
 import logger from './logger';
 import { execSyncShellCommand } from './utils-helper';
 
@@ -197,7 +196,7 @@ export async function logHTML() {
 		logger.info( page.url() );
 		logger.info( bodyHTML );
 	}
-	await sendSnippetToSlack( bodyHTML );
+	logger.slack( { message: bodyHTML, type: 'debuglog' } );
 	return bodyHTML;
 }
 
@@ -220,4 +219,7 @@ export async function logDebugLog() {
 		}
 		logger.slack( { message: log, type: 'debuglog' } );
 	}
+
+	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
+	logger.slack( { type: 'debuglog', message: apacheLog } );
 }

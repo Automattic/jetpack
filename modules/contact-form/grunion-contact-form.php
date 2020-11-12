@@ -339,6 +339,16 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
+		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.).
+		if ( ! jetpack_is_frontend() ) {
+			return sprintf(
+				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+				esc_url( get_the_permalink() ),
+				esc_html__( 'Submit a form.', 'jetpack' )
+			);
+		}
+
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
@@ -3514,7 +3524,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 
-	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text ) {
 
 		$type_class = $type ? ' ' .$type : '';
 		return

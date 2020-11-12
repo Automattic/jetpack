@@ -349,21 +349,10 @@ class Test_Status extends TestCase {
 	}
 
 	/**
-	 * Tests a WP Engine staging site URL.
-	 *
-	 * @author  kraftbj
-	 * @covers is_staging_site
-	 * @since  3.9.0
-	 */
-	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		Functions\when( 'site_url' )->justReturn( 'http://bjk.staging.wpengine.com' );
-		$this->assertTrue( $this->status->is_staging_site() );
-	}
-
-	/**
 	 * Tests known staging sites.
 	 *
 	 * @dataProvider get_is_staging_site_known_hosting_providers_data
+	 * @covers Automattic\Jetpack\Status::is_staging_site
 	 *
 	 * @param string $site_url Site URL.
 	 */
@@ -379,21 +368,29 @@ class Test_Status extends TestCase {
 	/**
 	 * Known hosting providers.
 	 *
+	 * Including a couple of general RegEx checks (subdir, ending slash).
+	 *
 	 * @return array
 	 */
 	public function get_is_staging_site_known_hosting_providers_data() {
 		return array(
-			'wpengine'   => array(
+			'wpengine'              => array(
 				'http://bjk.staging.wpengine.com',
 			),
-			'kinsta'     => array(
+			'kinsta'                => array(
 				'http://test.staging.kinsta.com',
 			),
-			'dreampress' => array(
+			'dreampress'            => array(
 				'http://ebinnion.stage.site',
 			),
-			'newspack'   => array(
+			'newspack'              => array(
 				'http://test.newspackstaging.com',
+			),
+			'wpengine_subdirectory' => array(
+				'http://bjk.staging.wpengine.com/staging',
+			),
+			'wpengine_endslash'     => array(
+				'http://bjk.staging.wpengine.com/',
 			),
 		);
 	}

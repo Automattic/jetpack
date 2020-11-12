@@ -44,6 +44,9 @@ class JetpackStandardTest extends TestCase {
 		$config->reportWidth = PHP_INT_MAX; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$config->showSources = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$config->tabWidth    = 4; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$config->exclude     = array(
+			'Generic.PHP.Syntax', // Tries to use `PHP_BINARY` to shell out to `php -l`, which breaks if tests are being run under phpdbg for coverage.
+		);
 
 		$ruleset = new Ruleset( $config );
 		$dummy   = new DummyFile( $contents, $ruleset, $config );

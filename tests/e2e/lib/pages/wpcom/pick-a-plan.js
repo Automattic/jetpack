@@ -2,12 +2,17 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick } from '../../page-helper';
+import { waitAndClick, waitForSelector } from '../../page-helper';
 
 export default class PickAPlanPage extends Page {
 	constructor( page ) {
 		const expectedSelector = 'div[data-e2e-product-slug="jetpack_complete"]';
 		super( page, { expectedSelector, explicitWaitMS: 40000 } );
+	}
+
+	async waitForPage() {
+		await super.waitForPage();
+		waitForSelector( this.page, '.jetpack-product-card-alt__price-placeholder', { hidden: true } );
 	}
 
 	async select( product = 'free' ) {
@@ -22,6 +27,7 @@ export default class PickAPlanPage extends Page {
 
 	async selectFreePlan() {
 		const freePlanButton = '.jetpack-free-card-alt__main a';
+		await this.page.waitFor( 500 );
 		return await waitAndClick( this.page, freePlanButton );
 	}
 
