@@ -139,7 +139,7 @@ function runJSLinter( toLintFiles ) {
 }
 
 /**
- * Runs PHPCS against checked PHP files
+ * Runs PHPCS against checked PHP files. Exits if the check fails.
  */
 function runPHPCS() {
 	const phpcsResult = spawnSync( 'composer', [ 'php:lint:errors', ...phpcsFiles ], {
