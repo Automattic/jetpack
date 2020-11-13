@@ -77,6 +77,8 @@ module.exports = [
 	'modules/widgets/contact-info.php',
 	'modules/widgets/class-jetpack-instagram-widget.php',
 	'modules/widgets/eu-cookie-law/widget-amp.php',
+	'modules/widgets/milestone.php',
+	'modules/widgets/milestone/',
 	'modules/widgets/social-icons.php',
 	'modules/woocommerce-analytics/',
 	'modules/woocommerce-analytics.php',
