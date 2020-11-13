@@ -24,13 +24,6 @@ class Test_Plugins_Handler extends TestCase {
 	private $plugin_locator;
 
 	/**
-	 * A dependency mock for the handler.
-	 *
-	 * @var Cache_Handler|\PHPUnit\Framework\MockObject\MockObject
-	 */
-	private $cache_handler;
-
-	/**
 	 * The class under test.
 	 *
 	 * @var Plugins_Handler
@@ -51,15 +44,7 @@ class Test_Plugins_Handler extends TestCase {
 				)
 			)
 			->getMock();
-		$this->cache_handler   = $this->getMockBuilder( Cache_Handler::class )
-			->setMethods(
-				array(
-					'read_from_cache',
-					'write_to_cache',
-				)
-			)
-			->getMock();
-		$this->plugins_handler = new Plugins_Handler( $this->plugin_locator, $this->cache_handler );
+		$this->plugins_handler = new Plugins_Handler( $this->plugin_locator );
 	}
 
 	/**
@@ -197,10 +182,7 @@ class Test_Plugins_Handler extends TestCase {
 	 * Tests that the plugins in the cache are loaded.
 	 */
 	public function test_gets_cached_plugins() {
-		$this->cache_handler->expects( $this->once() )
-			->method( 'read_from_cache' )
-			->with( Plugins_Handler::CACHE_KEY )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
+		set_transient( Plugins_Handler::TRANSIENT_KEY, array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 
 		$plugin_paths = $this->plugins_handler->get_cached_plugins();
 
@@ -211,11 +193,9 @@ class Test_Plugins_Handler extends TestCase {
 	 * Tests that the plugins are updated when they have changed.
 	 */
 	public function test_updates_cache_writes_plugins() {
-		$this->cache_handler->expects( $this->once() )
-			->method( 'write_to_cache' )
-			->with( Plugins_Handler::CACHE_KEY, array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
-
 		$this->plugins_handler->cache_plugins( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
+
+		$this->assertEquals( array( TEST_DATA_PATH . '/plugins/dummy_newer' ), get_transient( Plugins_Handler::TRANSIENT_KEY ) );
 	}
 
 	/**

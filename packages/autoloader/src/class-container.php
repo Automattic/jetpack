@@ -71,9 +71,6 @@ class Container {
 	 * Registers all of the dependencies with the container.
 	 */
 	private function register_dependencies() {
-		require_once __DIR__ . '/class-cache-handler.php';
-		$this->dependencies[ Cache_Handler::class ] = new Cache_Handler();
-
 		require_once __DIR__ . '/class-plugin-locator.php';
 		$this->dependencies[ Plugin_Locator::class ] = new Plugin_Locator();
 
@@ -92,8 +89,7 @@ class Container {
 
 		require_once __DIR__ . '/class-plugins-handler.php';
 		$this->dependencies[ Plugins_Handler::class ] = new Plugins_Handler(
-			$this->get( Plugin_Locator::class ),
-			$this->get( Cache_Handler::class )
+			$this->get( Plugin_Locator::class )
 		);
 
 		require_once __DIR__ . '/class-autoloader-handler.php';

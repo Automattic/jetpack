@@ -6,9 +6,9 @@
  */
 class Plugins_Handler {
 	/**
-	 * The cache key for plugin paths.
+	 * The transient key for plugin paths.
 	 */
-	const CACHE_KEY = 'plugin-paths';
+	const TRANSIENT_KEY = 'jetpack_autoloader_plugin_paths';
 
 	/**
 	 * The locator for finding plugins in different locations.
@@ -18,21 +18,12 @@ class Plugins_Handler {
 	private $plugin_locator;
 
 	/**
-	 * The handler for interacting with cache files.
-	 *
-	 * @var Cache_Handler
-	 */
-	private $cache_handler;
-
-	/**
 	 * The constructor.
 	 *
 	 * @param Plugin_Locator $plugin_locator The locator for finding active plugins.
-	 * @param Cache_Handler  $cache_handler  The handler for interacting with cache files.
 	 */
-	public function __construct( $plugin_locator, $cache_handler ) {
+	public function __construct( $plugin_locator ) {
 		$this->plugin_locator = $plugin_locator;
-		$this->cache_handler  = $cache_handler;
 	}
 
 	/**
@@ -111,12 +102,12 @@ class Plugins_Handler {
 	 * @return string[]
 	 */
 	public function get_cached_plugins() {
-		$cached = $this->cache_handler->read_from_cache( self::CACHE_KEY );
-		if ( is_array( $cached ) ) {
-			return $cached;
+		$cached = get_transient( self::TRANSIENT_KEY );
+		if ( false === $cached ) {
+			return array();
 		}
 
-		return array();
+		return $cached;
 	}
 
 	/**
@@ -125,7 +116,7 @@ class Plugins_Handler {
 	 * @param array $plugins The plugin list to save to the cache.
 	 */
 	public function cache_plugins( $plugins ) {
-		$this->cache_handler->write_to_cache( self::CACHE_KEY, $plugins );
+		set_transient( self::TRANSIENT_KEY, $plugins );
 	}
 
 	/**

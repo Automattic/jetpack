@@ -45,7 +45,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		// Make sure all of the tests have no cache file.
 		// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
-		@unlink( TEST_DATA_PATH . '/cache/jetpack-autoloader-' . Plugins_Handler::CACHE_KEY . '.json' );
+		@unlink( TEST_DATA_PATH . '/cache/jetpack-autoloader-' . Plugins_Handler::TRANSIENT_KEY . '.json' );
 		@rmdir( TEST_DATA_PATH . '/cache' );
 		// phpcs:enable WordPress.PHP.NoSilencedErrors.Discouraged
 	}
@@ -221,8 +221,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 		// The cached plugins are always sorted!
 		sort( $paths );
 
-		$handler = new Cache_Handler();
-		$handler->write_to_cache( Plugins_Handler::CACHE_KEY, $paths );
+		set_transient( Plugins_Handler::TRANSIENT_KEY, $paths );
 	}
 
 	/**

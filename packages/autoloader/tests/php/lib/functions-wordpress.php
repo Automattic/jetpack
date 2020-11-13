@@ -134,6 +134,41 @@ if ( ! function_exists( 'get_option' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_transient' ) ) {
+	/**
+	 * A drop-in for a WordPress core function.
+	 *
+	 * @param string $transient The transient to fetch.
+	 * @return mixed Transient value.
+	 */
+	function get_transient( $transient ) {
+		global $test_transients;
+		if ( ! isset( $test_transients[ $transient ] ) ) {
+			return false;
+		}
+
+		return $test_transients[ $transient ]['value'];
+	}
+
+	/**
+	 * A drop-in for a WordPress core function.
+	 *
+	 * @param string $transient The transient to set.
+	 * @param mixed  $value The value to set.
+	 * @param int    $expiration The expiration value, 0 for forever.
+	 * @return mixed Transient value.
+	 */
+	function set_transient( $transient, $value, $expiration = 0 ) {
+		global $test_transients;
+		$test_transients[ $transient ] = array(
+			'value'      => $value,
+			'expiration' => $expiration,
+		);
+
+		return true;
+	}
+}
+
 if ( ! function_exists( 'path_is_absolute' ) ) {
 	/**
 	 * A drop-in for a WordPress core function.
@@ -203,7 +238,7 @@ if ( ! function_exists( 'is_multisite' ) ) {
 	 */
 	function is_multisite() {
 		global $test_is_multisite;
-		return ! ! $test_is_multisite;
+		return (bool) $test_is_multisite;
 	}
 
 	/**
@@ -364,4 +399,6 @@ function cleanup_test_wordpress_data() {
 	$test_is_multisite = false;
 	global $test_filters;
 	$test_filters = array();
+	global $test_transients;
+	$test_transients = array();
 }
