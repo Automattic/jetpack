@@ -395,61 +395,19 @@ class SignatureTest extends TestCase {
 	 * @preserveGlobalState disabled
 	 */
 	public function test_request_port_constants() {
-		define( 'JETPACK_SIGNATURE__HTTP_PORT', 81 );
+		define( 'JETPACK_SIGNATURE__HTTP_PORT', 81 ); // http as integer.
 		$this->test_get_request_port( 81, '', '' );
 		$this->test_get_request_port( '81', '', '' );
 		$this->test_get_request_port( 81, '82', '' );
 		$this->test_get_request_port( 82, '81', '82' );
 		$this->test_get_request_port( '82', '81', '82' );
 
-		define( 'JETPACK_SIGNATURE__HTTPS_PORT', 444 );
+		define( 'JETPACK_SIGNATURE__HTTPS_PORT', '444' ); // https as string.
 		$this->test_get_request_port( 444, '', '', true );
 		$this->test_get_request_port( '444', '', '', true );
 		$this->test_get_request_port( 444, '445', '', true );
 		$this->test_get_request_port( 445, '444', '445', true );
 		$this->test_get_request_port( '445', '444', '445', true );
-	}
-
-	/**
-	 * Runs isolated tests to check the behavior of constants when declared as strings
-	 *
-	 * Uses @see self::test_get_request_port
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function test_request_port_constants_as_strings() {
-		define( 'JETPACK_SIGNATURE__HTTP_PORT', '81' );
-		$this->test_get_request_port( 81, '', '' );
-		$this->test_get_request_port( '81', '', '' );
-		$this->test_get_request_port( 81, '82', '' );
-		$this->test_get_request_port( 82, '81', '82' );
-		$this->test_get_request_port( '82', '81', '82' );
-
-		define( 'JETPACK_SIGNATURE__HTTPS_PORT', '444' );
-		$this->test_get_request_port( 444, '', '', true );
-		$this->test_get_request_port( '444', '', '', true );
-		$this->test_get_request_port( 444, '445', '', true );
-		$this->test_get_request_port( 445, '444', '445', true );
-		$this->test_get_request_port( '445', '444', '445', true );
-	}
-
-	/**
-	 * Runs isolated tests to check the behavior of constants with invalid values
-	 *
-	 * Uses @see self::test_get_request_port
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function test_request_port_constants_invalid_valies() {
-		define( 'JETPACK_SIGNATURE__HTTP_PORT', 'string' );
-		$this->test_get_request_port( 81, '', '81' );
-		$this->test_get_request_port( '80', '', '' );
-
-		define( 'JETPACK_SIGNATURE__HTTPS_PORT', false );
-		$this->test_get_request_port( 444, '', '444', true );
-		$this->test_get_request_port( '443', '', '', true );
 	}
 
 }
