@@ -313,7 +313,7 @@ class DashScan extends Component {
 						__( 'Please finish your setup by entering your server’s credentials.', 'jetpack' )
 					) }
 					{ renderAction(
-						getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
+						getRedirectUrl( 'jetpack-scan-dash-credentials', { site: siteRawUrl } ),
 						__( 'Enter credentials', 'jetpack' )
 					) }
 				</>
