@@ -74,6 +74,34 @@ class Status {
 	}
 
 	/**
+	 * Is Jetpack in "No User test mode"?
+	 *
+	 * This will make jetpack act as if there were no connected users, but only a site connectino (aka blog token)
+	 *
+	 * @since 9.2.0
+	 *
+	 * @return bool Whether Jetpack's No User Testing Mode is active.
+	 */
+	public function is_no_user_testing_mode() {
+		$test_mode = false;
+		if ( defined( 'JETPACK_NO_USER_TEST_MODE' ) ) {
+			$test_mode = JETPACK_NO_USER_TEST_MODE;
+		}
+
+		/**
+		 * Filters Jetpack's No User test mode.
+		 *
+		 * @since 9.2.0
+		 *
+		 * @param bool $offline_mode Is Jetpack's offline mode active.
+		 */
+		$test_mode = (bool) apply_filters( 'jetpack_offline_mode', $test_mode );
+
+		return $test_mode;
+
+	}
+
+	/**
 	 * Whether this is a system with a multiple networks.
 	 * Implemented since there is no core is_multi_network function.
 	 * Right now there is no way to tell which network is the dominant network on the system.
