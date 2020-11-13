@@ -396,7 +396,7 @@ class Jetpack_Signature {
 			return '';
 		}
 
-		if ( 0 >= (int) $port_number ) {
+		if ( 0 >= (int) $port_number || 65535 < $port_number ) {
 			return '';
 		}
 		return (string) $port_number;

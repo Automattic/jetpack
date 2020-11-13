@@ -211,6 +211,10 @@ class SignatureTest extends TestCase {
 				'13',
 				'13',
 			),
+			array(
+				'65536',
+				'',
+			),
 		);
 	}
 
