@@ -53,7 +53,7 @@ You can run the e2e tests locally using this command:
 yarn test-e2e
 ```
 
-Puppeteer runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window and the running tests you can pass `HEADLESS=false` as follows:
+Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window and the running tests you can pass `HEADLESS=false` as follows:
 
 ```bash
 HEADLESS=false npm run test-e2e
@@ -75,9 +75,8 @@ E2E_DEBUG=true HEADLESS=false npm run test-e2e ./tests/e2e/specs/some.test.js -t
 
 We use the following tools to write e2e tests:
 
-- [Puppeteer](https://github.com/GoogleChrome/puppeteer) – a Node library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol
-- [jest-puppeteer](https://github.com/smooth-code/jest-puppeteer) – provides all required configuration to run tests using Puppeteer
-- [expect-puppeteer](https://github.com/smooth-code/jest-puppeteer/tree/master/packages/expect-puppeteer) – assertion library for Puppeteer
+- [Playwright](https://github.com/microsoft/playwright) – a Node library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol
+- [jest-playwright](https://github.com/playwright-community/jest-playwright) – provides all required configuration to run tests using Playwright
 
 Tests are kept in `tests/e2e/specs` folder. Every file represents a test suite, which is designed around specific feature under test. Most of the tests rely on an active Jetpack Connection, so we connect a site before running the actual test suite. Its logic can be found in the [`setup-env#maybePreConnect`](./lib/setup-env.js) function. For test suites where pre-connection is not needed, it can be disabled by setting `SKIP_CONNECT` env var to false. Check [`connection.test.js`](./specs/connection.test.js) for example use.
 
@@ -96,7 +95,7 @@ constructor( page ) {
 }
 ```
 
-Since most of Puppeteer functionality is `async`, and JavaScript constructors are not - we should initialize pages with `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelector` to become visible.
+Since most of Playwright functionality is `async`, and JavaScript constructors are not - we should initialize pages with `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelector` to become visible.
 
 ## CI Configuration
 
