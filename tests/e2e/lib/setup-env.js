@@ -25,9 +25,10 @@ const { TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
-	const filePath = await takeScreenshot( currentBlock, name );
+	let filePath;
 
 	try {
+		filePath = await takeScreenshot( currentBlock, name );
 		reporter.addAttachment(
 			`Test failed: ${ currentBlock } :: ${ name }`,
 			fs.readFileSync( filePath ),
@@ -44,8 +45,9 @@ const defaultErrorHandler = async ( error, name ) => {
 			type: 'failure',
 			message: { block: currentBlock, name, error },
 		} );
-		const filePath = await takeScreenshot( currentBlock, name );
-		logger.slack( { type: 'file', message: filePath } );
+		if ( filePath ) {
+			logger.slack( { type: 'file', message: filePath } );
+		}
 	}
 
 	if ( E2E_LOG_HTML ) {
@@ -62,7 +64,7 @@ const defaultErrorHandler = async ( error, name ) => {
 
 /**
  * Wrapper around `beforeAll` to be able to handle thrown exceptions within the hook.
- * Main reason is to be able to universaly capture screenshots on puppeteer exceptions.
+ * Main reason is to be able to universally capture screenshots on exceptions.
  *
  * @param {*} callback
  * @param {*} errorHandler
@@ -138,6 +140,7 @@ function observeConsoleLogging() {
 			return;
 		}
 
+		//todo confirm this is valid for Playwright, remove if otherwise
 		// As of Puppeteer 1.6.1, `message.text()` wrongly returns an object of
 		// type JSHandle for error logging, instead of the expected string.
 		//
@@ -198,8 +201,6 @@ jasmine.getEnv().describe = wrap( jasmine.getEnv().describe, ( func, ...args ) =
 
 /**
  * Override the test case method so we can take screenshots of assertion failures.
- *
- * See: https://github.com/smooth-code/jest-puppeteer/issues/131#issuecomment-469439666
  *
  * @param {string} name
  * @param {Function} func

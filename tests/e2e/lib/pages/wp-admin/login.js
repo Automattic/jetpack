@@ -32,9 +32,13 @@ export default class WPLoginPage extends Page {
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.info( `The WPORG login didn't work as expected - retrying now: '${ e }'` );
+				try {
+					const filePath = await takeScreenshot( 'WPORG-login-failed' );
+					logger.slack( { type: 'file', message: filePath } );
+				} catch ( err ) {
+					logger.error( 'There was an error taking a screenshot!' );
+				}
 
-				const filePath = await takeScreenshot( 'WPORG-login-failed' );
-				logger.slack( { type: 'file', message: filePath } );
 				return await this.login( username, password, { retry: false } );
 			}
 			throw e;

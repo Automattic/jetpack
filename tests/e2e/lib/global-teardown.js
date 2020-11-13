@@ -1,12 +1,13 @@
 import { readFileSync } from 'fs';
 
 import SlackReporter from './reporters/slack';
+import config from 'config';
 
 /**
  * Goes through the messages in slack-specific log, and send these messages into slack
  */
 async function processSlackLog() {
-	const log = readFileSync( './logs/e2e-slack.log' ).toString();
+	const log = readFileSync( config.get( 'testOutputDir' ), 'logs/e2e-slack.log' ).toString();
 	const slack = new SlackReporter();
 	const messages = getMessages( log );
 
@@ -41,7 +42,7 @@ async function processSlackLog() {
 		}
 	}
 
-	await slack.sendFileToSlack( './logs/e2e-simple.log', options );
+	await slack.sendFileToSlack( config.get( 'testOutputDir' ), 'logs/e2e-simple.log', options );
 }
 
 function getMessages( log ) {

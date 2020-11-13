@@ -50,7 +50,7 @@ export default class SimplePaymentBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Puppeteer page instance
+	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.jetpack-simple-payments-product';

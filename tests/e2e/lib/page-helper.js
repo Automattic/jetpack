@@ -12,8 +12,9 @@ import logger from './logger';
 import { execSyncShellCommand } from './utils-helper';
 
 /**
- * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
- * More details at: https://pptr.dev/#?product=Puppeteer&show=api-pagewaitforselectorselector-options
+ * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec.
+ * Behavior can be modified with @param options. Possible keys: `state`, `timeout`.
+ * More details at: https://playwright.dev/#version=master&path=docs%2Fapi.md&q=pagewaitforselectorselector-options
  *
  * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
@@ -47,7 +48,7 @@ export async function waitForSelector( page, selector, options = {} ) {
 /**
  * Waits for element to be visible, returns false if element was not found after timeout.
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {number} timeout Amount of time to wait for element
  *
@@ -68,7 +69,7 @@ export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
  * Waits for element to be present, returns false if element was not found after timeout.
  * A bit low level than `isEventuallyVisible`, which allows to wait for an element to appear in DOM but not visible yet,
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify wait behavior.
  *
@@ -103,7 +104,7 @@ export function getAccountCredentials( accountName ) {
 /**
  * Clicks on the element which will open up a new page, waits for that page to open and returns a new page
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {number} timeout Wait timeout
  *
@@ -136,7 +137,7 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 /**
  * Scroll the element into view
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  */
 export async function scrollIntoView( page, selector ) {
