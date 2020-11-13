@@ -21,14 +21,9 @@ function run_packages_tests {
 			export NAME=$(basename $(pwd))
 
 			if [ ! -e tests/php/travis-can-run.sh ] || tests/php/travis-can-run.sh; then
-				if [ "$DO_COVERAGE" == "true" ] && [[ "$NAME" != "codesniffer" ]]; then
-					composer install -q
-					export WP_TRAVISCI_PACKAGES="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
-				fi
 				echo "Running \`$WP_TRAVISCI_PACKAGES\` for package \`$NAME\` "
 
 				if $WP_TRAVISCI_PACKAGES; then
-					ls -la $TRAVIS_BUILD_DIR/coverage/
 					# Everything is fine
 					:
 				else
@@ -97,13 +92,11 @@ function run_coverage_tests {
 		if [ -d "$PACKAGE" ]; then
 			cd "$PACKAGE/../.."
 			export NAME=$(basename $(pwd))
-			composer install -q
+			composer install
 			export PACKAGE_CMD="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
 
 			echo "Running \`$PACKAGE_CMD\` for package \`$NAME\` "
-
 			run_cmd $PACKAGE_CMD
-			ls -la $TRAVIS_BUILD_DIR/coverage/
 			cd ../..
 		fi
 	done
