@@ -276,7 +276,7 @@ class Milestone_Widget extends WP_Widget {
 		$instance = $this->sanitize_instance( $instance );
 
 		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
-		$now       = (int) current_time( 'timestamp' );
+		$now       = (int) current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 		$type      = $instance['type'];
 
 		if ( 'since' === $type ) {
@@ -598,7 +598,7 @@ class Milestone_Widget extends WP_Widget {
 	 * @return array Santized data.
 	 */
 	public function sanitize_instance( $dirty ) {
-		$now = (int) current_time( 'timestamp' );
+		$now = (int) current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 
 		$dirty = wp_parse_args(
 			$dirty,
