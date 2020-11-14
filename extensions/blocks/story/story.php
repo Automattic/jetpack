@@ -17,6 +17,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 const EMBED_SIZE        = array( 180, 320 );
 const CROP_UP_TO        = 0.2;
+const MAX_BULLETS       = 7;
 const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
 
 /**
@@ -60,10 +61,13 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				return array_merge(
 					$media_file,
 					array(
-						'width'  => absint( $width ),
-						'height' => absint( $height ),
-						'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-						'sizes'  => IMAGE_BREAKPOINTS,
+						'width'   => absint( $width ),
+						'height'  => absint( $height ),
+						'srcset'  => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
+						'sizes'   => IMAGE_BREAKPOINTS,
+						'title'   => get_the_title( $attachment_id ),
+						'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
 			} else {
@@ -76,10 +80,12 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				return array_merge(
 					$media_file,
 					array(
-						'width'  => absint( $video_meta['width'] ),
-						'height' => absint( $video_meta['height'] ),
-						'alt'    => $description,
-						'url'    => $url,
+						'width'   => absint( $video_meta['width'] ),
+						'height'  => absint( $video_meta['height'] ),
+						'alt'     => $description,
+						'url'     => $url,
+						'title'   => get_the_title( $attachment_id ),
+						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
 			}
@@ -116,6 +122,7 @@ function render_image( $media ) {
 		array(
 			'class' => sprintf( 'wp-story-image wp-image-%d %s', $media['id'], $crop_class ),
 			'sizes' => IMAGE_BREAKPOINTS,
+			'title' => get_the_title( $media['id'] ),
 		)
 	);
 }
@@ -166,9 +173,11 @@ function render_video( $media ) {
 		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
 		return sprintf(
 			'<img
+				title="%s"
 				alt="%s"
 				class="wp-block-jetpack-story_image wp-story-image %s"
 				src="%s">',
+			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
 			get_image_crop_class( $metadata['videopress']['width'], $metadata['videopress']['height'] ),
 			esc_attr( $poster_url )
@@ -183,7 +192,7 @@ function render_video( $media ) {
 			data-id="%3$s"
 			src="%4$s">
 		</video>',
-		esc_attr( $media['alt'] ),
+		esc_attr( get_the_title( $media['id'] ) ),
 		esc_attr( $media['mime'] ),
 		$media['id'],
 		esc_attr( $media['url'] )
@@ -209,6 +218,7 @@ function render_slide( $media, $index = 0 ) {
 			$media_template = render_image( $media, $index );
 			break;
 		case 'video':
+		case 'file':
 			$media_template = render_video( $media, $index );
 			break;
 	}
@@ -263,14 +273,16 @@ function render_top_right_icon( $settings ) {
  * Render a pagination bullet
  *
  * @param array $slide_index The slide index it corresponds to.
+ * @param array $class_name Optional css class name(s) to customize the bullet element.
  *
  * @return string
  */
-function render_pagination_bullet( $slide_index ) {
+function render_pagination_bullet( $slide_index, $class_name = '' ) {
 	return sprintf(
-		'<a href="#" class="wp-story-pagination-bullet" aria-label="%s">
+		'<a href="#" class="wp-story-pagination-bullet %s" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
 		</a>',
+		esc_attr( $class_name ),
 		/* translators: %d is the slide number (1, 2, 3...) */
 		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
 	);
@@ -288,12 +300,16 @@ function render_pagination( $settings ) {
 	if ( $show_slide_count ) {
 		return '';
 	}
-	$slide_count = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$slide_count     = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$bullet_count    = min( $slide_count, MAX_BULLETS );
+	$bullet_ellipsis = $slide_count > $bullet_count
+		? render_pagination_bullet( $bullet_count + 1, 'wp-story-pagination-ellipsis' )
+		: '';
 	return sprintf(
 		'<div class="wp-story-pagination wp-story-pagination-bullets">
 			%s
 		</div>',
-		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $slide_count ) ) )
+		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $bullet_count ) ) ) . $bullet_ellipsis
 	);
 }
 
