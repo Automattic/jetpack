@@ -227,16 +227,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_unapprove_comment() {
-		global $wp_version;
 		$comment_action_name = 'comment_unapproved_comment';
-
-		/*
-		 * Before WP 5.5, the default comment type was an empty string.
-		 * @to-do: remove when WP 5.5 is the minimum required version.
-		 */
-		if ( version_compare( $wp_version, '5.5-alpha', '<' ) ) {
-			$comment_action_name = 'comment_unapproved_';
-		}
 
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->comment->comment_approved = 0;
@@ -325,17 +316,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_comment_jetpack_sync_prevent_sending_comment_data_filter() {
-		global $wp_version;
-		$comment_action_name = 'comment_approved_comment';
-
-		/*
-		 * Before WP 5.5, the default comment type was an empty string.
-		 * @to-do: remove when WP 5.5 is the minimum required version.
-		 */
-		if ( version_compare( $wp_version, '5.5-alpha', '<' ) ) {
-			$comment_action_name = 'comment_approved_';
-		}
-
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 
 		$this->server_replica_storage->reset();
@@ -350,7 +330,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
 
-		$insert_comment_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
+		$insert_comment_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_comment' );
 		$comment              = $insert_comment_event->args[1];
 
 		$this->assertEquals( $this->comment->comment_ID, $comment->comment_ID );
