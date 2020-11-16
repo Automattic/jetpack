@@ -76,7 +76,7 @@ class Status {
 	/**
 	 * Is Jetpack in "No User test mode"?
 	 *
-	 * This will make jetpack act as if there were no connected users, but only a site connectino (aka blog token)
+	 * This will make Jetpack act as if there were no connected users, but only a site connection (aka blog token)
 	 *
 	 * @since 9.2.0
 	 *
