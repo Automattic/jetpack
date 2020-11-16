@@ -50,7 +50,6 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
 
 	const uploading = some( slides, media => isBlobURL( media.url ) );
-	const showProgressBar = fullscreen || ! settings.showSlideCount;
 	const isVideo = slideIndex => {
 		const media = slideIndex < slides.length ? slides[ slideIndex ] : null;
 		if ( ! media ) {
@@ -233,22 +232,23 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 					) ) }
 				</div>
 				<Overlay
-					icon={ settings.showSlideCount && icon }
+					icon={ icon }
 					slideCount={ slides.length }
+					showSlideCount={ settings.showSlideCount }
 					ended={ ended }
 					hasPrevious={ currentSlideIndex > 0 }
 					hasNext={ currentSlideIndex < slides.length - 1 }
-					disabled={ disabled }
 					onPreviousSlide={ tryPreviousSlide }
 					onNextSlide={ tryNextSlide }
 				/>
-				{ showProgressBar && (
+				{ settings.showProgressBar && (
 					<ProgressBar
 						slides={ slides }
-						fullscreen={ fullscreen }
+						disabled={ ! fullscreen }
 						currentSlideIndex={ currentSlideIndex }
 						currentSlideProgress={ currentSlideProgress }
 						onSlideSeek={ showSlide }
+						maxBullets={ fullscreen ? settings.maxBulletsFullscreen : settings.maxBullets }
 					/>
 				) }
 				<Controls
