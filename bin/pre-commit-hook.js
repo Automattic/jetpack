@@ -26,8 +26,8 @@ function loadPhpcsExcludeList() {
 /**
  * Parses the output of a git diff command into file paths.
  *
- * @param   {String} command Command to run. Expects output like `git diff --name-only […]`
- * @returns {Array}          Paths output from git command
+ * @param {string} command - Command to run. Expects output like `git diff --name-only […]`
+ * @returns {Array} Paths output from git command
  */
 function parseGitDiffToPathArray( command ) {
 	return execSync( command, { encoding: 'utf8' } )
@@ -38,8 +38,8 @@ function parseGitDiffToPathArray( command ) {
 /**
  * Provides filter to determine which PHP files to run through phpcs.
  *
- * @param {String} file File name of php file modified.
- * @return {boolean}        If the file doesn't match the excludelist.
+ * @param {string} file - File name of php file modified.
+ * @returns {boolean} If the file matches the requirelist.
  */
 function phpcsFilesToFilter( file ) {
 	if ( -1 === loadPhpcsExcludeList().findIndex( filePath => file === filePath ) ) {
@@ -52,34 +52,49 @@ function phpcsFilesToFilter( file ) {
 /**
  * Provides filter to determine which JS files to run through Prettify and linting.
  *
- * @param {String} file File name of js file modified.
- * @return {boolean}        If the file matches the requirelist.
+ * @param {string} file - File name of js file modified.
+ * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
-// Filter callback for JS files
+/**
+ * Filter callback for JS files
+ *
+ * @param {string} file - dirty file
+ * @returns {boolean} whether file needs to be linted
+ */
 function filterEslintFiles( file ) {
 	const rootMatch = /^([a-zA-Z-]+\.)/g; // *.js(x)
-	const folderMatches =
-		file.startsWith( '_inc' ) || file.startsWith( 'extensions' ) || file.startsWith( 'modules' );
+	const folderArray = [ '_inc', 'extensions', 'modules', 'tests/e2e' ];
+	const folderMatches = folderArray.some( folder => file.startsWith( folder ) );
 	return ! file.endsWith( '.json' ) && ( folderMatches || file.match( rootMatch ) );
 }
 
-// Logging function that is used when check is failed
-function checkFailed() {
+/**
+ * Logging function that is used when check is failed
+ *
+ * @param {string} before - Text before "no-verify" block
+ * @param {string} after - Text after "no-verify" block
+ */
+function checkFailed( before = 'The linter reported some problems. ', after = '' ) {
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
-		'The linter reported some problems. ' +
+		before +
 			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check. ' +
-			"But please don't. Code is poetry."
+			'repeat the commit command with --no-verify to avoid this check.\n' +
+			"But please don't. Code is poetry.\n\n" +
+			after
 	);
 	exitCode = 1;
 }
 
-// Runs package.json sorting script.
+/**
+ * Spawns `sort-package-json` for package.json sorting script.
+ *
+ * @param {Array} jsFiles - list of changed JS files
+ */
 function sortPackageJson( jsFiles ) {
 	if ( jsFiles.includes( 'package.json' ) ) {
 		spawnSync( 'npx', [ 'sort-package-json' ], {
@@ -102,9 +117,9 @@ const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
  *
- * @param {String} file File name to check against the dirty list.
- * @param {Array} filesList Dirty files list.
- * @return {boolean}    If the file should be checked.
+ * @param {string} file - File name to check against the dirty list.
+ * @param {Array} filesList - Dirty files list.
+ * @returns {boolean} If the file should be checked.
  */
 function checkFileAgainstDirtyList( file, filesList ) {
 	return -1 === filesList.indexOf( file );
@@ -121,9 +136,9 @@ function capturePreCommitTreeHash() {
 
 /**
  * Spawns a eslint process against list of files
- * @param {Array} toLintFiles List of files to lint
  *
- * @returns {Int} shell return code
+ * @param {Array} toLintFiles - List of files to lint
+ * @returns {number} shell return code
  */
 function runJSLinter( toLintFiles ) {
 	if ( ! toLintFiles.length ) {
@@ -139,9 +154,54 @@ function runJSLinter( toLintFiles ) {
 }
 
 /**
+ * Runs PHPCS against checked PHP files. Exits if the check fails.
+ */
+function runPHPCS() {
+	const phpcsResult = spawnSync( 'composer', [ 'phpcs:lint:errors', ...phpcsFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	if ( phpcsResult && phpcsResult.status ) {
+		const phpcsStatus =
+			2 === phpcsResult.status
+				? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
+				: 'PHPCS reported some problems and cannot automatically fix them.\n';
+		checkFailed(
+			phpcsStatus,
+			'\n\nNote: If there are additional PHPCS errors in files that are not yet fully PHPCS-compliant ' +
+				'they will be reported only after these issues are resolved.'
+		);
+
+		// If we get here, required files have failed PHPCS. Let's return early and avoid the duplicate information.
+		exit( exitCode );
+	}
+}
+
+/**
+ * Runs PHPCBF against checked PHP files
+ */
+function runPHPCbf() {
+	const toPhpCbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+	if ( toPhpCbf.length === 0 ) {
+		return;
+	}
+
+	const phpCbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpCbf ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	if ( phpCbfResult && phpCbfResult.status ) {
+		execSync( `git add ${ phpcsFiles.join( ' ' ) }` );
+		console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
+	}
+}
+
+/**
  * Run phpcs-changed.
  *
- * @param {Array} phpFilesToCheck Array of PHP files changed.
+ * @param {Array} phpFilesToCheck - Array of PHP files changed.
  */
 function runPHPCSChanged( phpFilesToCheck ) {
 	let phpChangedFail, phpFileChangedResult;
@@ -211,9 +271,9 @@ function checkComposerLock() {
 }
 
 /**
- * Exit
+ * Exit script
  *
- * @param {Number} exitCodePassed Shell exit code.
+ * @param {number} exitCodePassed - Shell exit code.
  */
 function exit( exitCodePassed ) {
 	capturePreCommitTreeHash();
@@ -258,46 +318,11 @@ if ( phpLintResult && phpLintResult.status ) {
 	checkFailed();
 }
 
-let phpcbfResult, phpcsResult;
-const toPhpcbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 if ( phpcsFiles.length > 0 ) {
-	if ( toPhpcbf.length > 0 ) {
-		phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpcbf ], {
-			shell: true,
-			stdio: 'inherit',
-		} );
-	}
-
-	phpcsResult = spawnSync( 'composer', [ 'phpcs:lint:errors', ...phpcsFiles ], {
-		shell: true,
-		stdio: 'inherit',
-	} );
+	runPHPCbf();
+	runPHPCS();
+	runPHPCSChanged( phpFiles );
 }
 
-if ( phpcbfResult && phpcbfResult.status ) {
-	execSync( `git add ${ phpcsFiles.join( ' ' ) }` );
-	console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
-}
-
-if ( phpcsResult && phpcsResult.status ) {
-	const phpcsStatus =
-		2 === phpcsResult.status
-			? 'PHPCS reported some problems and could not automatically fix them since there are unstaged changes in the file.\n'
-			: 'PHPCS reported some problems and cannot automatically fix them.\n';
-	console.log(
-		chalk.red( 'COMMIT ABORTED:' ),
-		phpcsStatus +
-			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.\n' +
-			"But please don't. Code is poetry.\n\n" +
-			'Note: If there are additional PHPCS errors in files that are not yet fully PHPCS-compliant ' +
-			'they will be reported only after these issues are resolved.'
-	);
-
-	// If we get here, required files have failed PHPCS. Let's return early and avoid the duplicate information.
-	exit( 1 );
-}
-
-runPHPCSChanged( phpFiles );
 checkComposerLock();
 exit( exitCode );
