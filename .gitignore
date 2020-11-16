@@ -37,6 +37,7 @@ yarn-error.log
 phpcs.xml
 /modules/**/*.min.css.map
 e2e_tunnels.txt
+plan-data.json
 plan-data.txt
 jetpack_private_options.txt
 

@@ -4,11 +4,10 @@
 import { waitForSelector } from '../page-helper';
 
 export default class EventbriteBlock {
-	constructor( block, page, eventId ) {
+	constructor( blockId, page, eventId ) {
 		this.blockTitle = EventbriteBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 		this.eventId = eventId;
 	}
 
@@ -28,7 +27,6 @@ export default class EventbriteBlock {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await page.click( inputSelector );
 		await page.type( inputSelector, this.embedUrl() );
 		await page.click( descriptionSelector );
 		await waitForSelector( this.page, '.wp-block-jetpack-eventbrite .components-sandbox' );

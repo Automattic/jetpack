@@ -1,17 +1,17 @@
 /**
  * Internal dependencies
  */
-import { clickAndWaitForNewPage, waitForSelector } from '../page-helper';
+import { waitForSelector } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
+import { getNgrokSiteUrl } from '../utils-helper';
 
 export default class MailchimpBlock {
-	constructor( block, page ) {
+	constructor( blockId, page ) {
 		this.blockTitle = MailchimpBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -33,14 +33,25 @@ export default class MailchimpBlock {
 	 */
 	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='calypso-marketing-connections']" );
-		const formSelector = await waitForSelector( this.page, setupFormSelector );
-		const hrefProperty = await formSelector.getProperty( 'href' );
-		const connectionsUrl = await hrefProperty.jsonValue();
-		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
-		global.page = loginTab;
+		// const formSelector = await waitForSelector(this.page, setupFormSelector);
+		// const hrefProperty = await formSelector.getProperty('href');
+		// const connectionsUrl = await hrefProperty.jsonValue();
+
+		// hrefProperty.jsonValue() is not pointing to the right site and next steps will fail
+		const connectionsUrl = `https://wordpress.com/marketing/connections/${ getNgrokSiteUrl().replace(
+			'https://',
+			''
+		) }`;
+
+		await this.page.click( setupFormSelector );
+		const wpComTab = await page.waitForEvent( 'popup' );
+		await wpComTab.bringToFront();
+		await wpComTab.goto( connectionsUrl );
+
+		global.page = wpComTab;
 
 		if ( ! isLoggedIn ) {
-			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
+			await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
 		}
 
 		// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
@@ -52,25 +63,26 @@ export default class MailchimpBlock {
 		while ( ! loaded ) {
 			try {
 				count++;
-				await ConnectionsPage.init( loginTab );
+				await ConnectionsPage.init( wpComTab );
 				loaded = true;
 			} catch ( e ) {
 				logger.info(
 					'ConnectionsPage is not available yet. Attempt: ' + count,
 					' URL: ' + connectionsUrl
 				);
-				await loginTab.goto( connectionsUrl, { timeout: 120000 } );
+				await wpComTab.goto( connectionsUrl, { timeout: 120000 } );
 				if ( count > 9 ) {
 					throw new Error( 'ConnectionsPage is not available is not available after 10th attempt' );
 				}
 			}
 		}
 
-		await loginTab.reload( { waitFor: 'networkidle' } );
+		await wpComTab.reload( { waitFor: 'networkidle' } );
 
-		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
+		await ( await ConnectionsPage.init( wpComTab ) ).selectMailchimpList();
 
 		global.page = this.page;
+
 		const reCheckSelector = this.getSelector( 'button.is-link' );
 		await page.click( reCheckSelector );
 	}

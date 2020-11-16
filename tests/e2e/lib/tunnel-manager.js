@@ -20,8 +20,6 @@ export default class TunnelManager {
 	 * @param {boolean} oneOff If the tunnel should be reused.
 	 */
 	async create( oneOff = false ) {
-		logger.info( '>> Creating a tunnel' );
-
 		const tunnelConfig = this.getConfig( oneOff );
 
 		await this.newTunnel( tunnelConfig );

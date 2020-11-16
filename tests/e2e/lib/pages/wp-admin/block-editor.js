@@ -5,8 +5,8 @@ import Page from '../page';
 /**
  * WordPress dependencies
  */
-import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { scrollIntoView, waitForSelector } from '../../page-helper';
+import { searchForBlock } from '@wordpress/e2e-test-utils';
+import { waitForSelector } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
@@ -36,17 +36,14 @@ export default class BlockEditorPage extends Page {
 
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
-		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
-		await scrollIntoView( this.page, blockIconSelector );
-
-		await page.click( blockIconSelector );
-		const blockInfo = await this.getInsertedBlock();
-		return blockInfo;
+		await page.click( `.editor-block-list-item-jetpack-${ blockName }` );
+		return await this.getInsertedBlock( blockName );
 	}
 
-	async getInsertedBlock() {
-		const blocks = await getAllBlocks();
-		return blocks[ blocks.length - 1 ];
+	async getInsertedBlock( blockName ) {
+		return ( await page.waitForSelector( `div[data-type='jetpack/${ blockName }']` ) ).getAttribute(
+			'data-block'
+		);
 	}
 
 	async publishPost() {

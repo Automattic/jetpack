@@ -4,11 +4,10 @@
 import { waitForSelector } from '../page-helper';
 
 export default class PinterestBlock {
-	constructor( block, page, pinId ) {
+	constructor( blockId, page, pinId ) {
 		this.blockTitle = PinterestBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 		this.pinId = pinId;
 	}
 
@@ -27,8 +26,6 @@ export default class PinterestBlock {
 	async addEmbed() {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
-
-		await page.click( inputSelector );
 		await page.type( inputSelector, this.embedUrl() );
 		await page.click( descriptionSelector );
 		await waitForSelector( this.page, '.wp-block-jetpack-pinterest .components-sandbox' );

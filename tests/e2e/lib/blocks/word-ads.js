@@ -8,11 +8,10 @@ import { waitForSelector } from '../page-helper';
 import { clickBlockToolbarButton } from '@wordpress/e2e-test-utils';
 
 export default class WordAdsBlock {
-	constructor( block, page ) {
+	constructor( blockId, page ) {
 		this.blockTitle = WordAdsBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
