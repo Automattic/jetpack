@@ -121,3 +121,9 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 		width: 100%;
 	}
 }
+
+@media only email {
+	.tiled-gallery__gallery {
+		display: block;
+	}
+}
