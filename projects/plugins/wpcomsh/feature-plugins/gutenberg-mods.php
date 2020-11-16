@@ -62,3 +62,19 @@ function wpcomsh_add_dom_rect_polyfill( $scripts ) {
 }
 
 add_action( 'wp_default_scripts', 'wpcomsh_add_dom_rect_polyfill', 30 );
+
+/**
+ * Delete the site logo upon setting the custom logo theme mod.
+ *
+ * @param string $custom_logo The custom logo set by a theme.
+ *
+ * @return string The custom logo.
+ */
+function wpcomsh_delete_site_logo_when_setting_custom_logo( $custom_logo ) {
+	if ( $custom_logo ) {
+		delete_option( 'sitelogo' );
+	}
+	return $custom_logo;
+}
+
+add_filter( 'pre_set_theme_mod_custom_logo', 'wpcomsh_delete_site_logo_when_setting_custom_logo', 25 );
