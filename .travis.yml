@@ -17,6 +17,9 @@ php:
 - "7.3"
 - "7.4snapshot"
 
+before_install:
+ - composer self-update 2.0.6
+
 env:
   global:
   # Global variable is re-defined in matrix-include -list
@@ -64,7 +67,7 @@ matrix:
       - WP_BRANCH=latest
       - DO_COVERAGE=true
     before_script:
-      - export PATH="$HOME/.composer/vendor/bin:$PATH"
+      - export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
       - export PLUGIN_SLUG=$(basename $(pwd))
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter

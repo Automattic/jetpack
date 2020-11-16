@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin color schemes file.
+ * Unifies admin color scheme selection across WP.com sites.
  *
  * @package Jetpack
  */

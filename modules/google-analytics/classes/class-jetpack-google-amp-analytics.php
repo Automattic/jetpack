@@ -59,7 +59,7 @@ class Jetpack_Google_AMP_Analytics {
 	 * @param object $variation Product variation.
 	 * @param object $cart_item_data Cart item data.
 	 */
-	public function amp_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
+	public function amp_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$product = wc_get_product( $product_id );
 		if ( $product ) {
 			$product_sku  = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
@@ -100,7 +100,7 @@ class Jetpack_Google_AMP_Analytics {
 				'tt' => (float) $order_tax,
 			),
 		);
-		foreach ( $order->get_items() as $item_id => $item ) {
+		foreach ( $order->get_items() as $item ) {
 			$product = $item->get_product();
 			if ( $product ) {
 				$event['ga_params'][ 'pr' . $i . 'id' ] = sanitize_text_field( Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product ) );
@@ -127,7 +127,7 @@ class Jetpack_Google_AMP_Analytics {
 			return;
 		}
 
-		foreach ( $events as $i => $event ) {
+		foreach ( $events as $event ) {
 			?>
 			<amp-analytics type='googleanalytics'>
 				<script type='application/json'>
