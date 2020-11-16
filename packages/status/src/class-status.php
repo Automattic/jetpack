@@ -89,13 +89,13 @@ class Status {
 		}
 
 		/**
-		 * Filters Jetpack's No User test mode.
+		 * Filters Jetpack's No User testing mode.
 		 *
 		 * @since 9.2.0
 		 *
-		 * @param bool $offline_mode Is Jetpack's offline mode active.
+		 * @param bool $test_mode Is Jetpack's No User testing mode active.
 		 */
-		$test_mode = (bool) apply_filters( 'jetpack_offline_mode', $test_mode );
+		$test_mode = (bool) apply_filters( 'jetpack_no_user_testing_mode', $test_mode );
 
 		return $test_mode;
 
