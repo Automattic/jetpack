@@ -4,11 +4,10 @@
 import { waitForSelector } from '../page-helper';
 
 export default class SimplePaymentBlock {
-	constructor( block, page ) {
+	constructor( blockId, page ) {
 		this.blockTitle = SimplePaymentBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {

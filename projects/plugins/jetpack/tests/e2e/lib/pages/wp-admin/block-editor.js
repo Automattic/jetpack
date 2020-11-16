@@ -36,17 +36,14 @@ export default class BlockEditorPage extends Page {
 
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
-		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
-		await scrollIntoView( this.page, blockIconSelector );
-
-		await page.click( blockIconSelector );
-		const blockInfo = await this.getInsertedBlock();
-		return blockInfo;
+		await page.click( `.editor-block-list-item-jetpack-${ blockName }` );
+		return await this.getInsertedBlock( blockName );
 	}
 
-	async getInsertedBlock() {
-		const blocks = await getAllBlocks();
-		return blocks[ blocks.length - 1 ];
+	async getInsertedBlock( blockName ) {
+		return ( await page.waitForSelector( `div[data-type='jetpack/${ blockName }']` ) ).getAttribute(
+			'data-block'
+		);
 	}
 
 	async publishPost() {

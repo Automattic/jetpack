@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { execSync, exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import config from 'config';
 import logger from './logger';
 

@@ -14,9 +14,9 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
 
-	fs.writeFileSync( 'plan-data.txt', JSON.stringify( planData ) );
+	fs.writeFileSync( 'plan-data.json', JSON.stringify( planData ) );
 
-	const cmd = `wp option update ${ planDataOption } < plan-data.txt`;
+	const cmd = `wp option update ${ planDataOption } < plan-data.json`;
 	await execWpCommand( cmd );
 }
 

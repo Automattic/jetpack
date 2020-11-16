@@ -247,12 +247,19 @@ catchBeforeAll( async () => {
 	await setupBrowser();
 
 	// Handles not saved changed dialog in block editor
-	// await enablePageDialogAccept();
 	observeConsoleLogging();
+
+	page.on( 'dialog', async dialog => {
+		await dialog.accept();
+	} );
 
 	const url = await tunnelManager.create( process.env.SKIP_CONNECT );
 	global.tunnelUrl = url;
 	await maybePreConnect();
+} );
+
+beforeEach( async () => {
+	await setupBrowser();
 } );
 
 afterAll( async () => {
@@ -260,8 +267,4 @@ afterAll( async () => {
 		await video.stop();
 	}
 	await tunnelManager.close();
-} );
-
-afterEach( async () => {
-	await setupBrowser();
 } );

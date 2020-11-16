@@ -1,17 +1,16 @@
 /**
  * Internal dependencies
  */
-import { clickAndWaitForNewPage, waitForSelector } from '../page-helper';
+import { waitForSelector } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
 
 export default class MailchimpBlock {
-	constructor( block, page ) {
+	constructor( blockId, page ) {
 		this.blockTitle = MailchimpBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
