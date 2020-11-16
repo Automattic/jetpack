@@ -20,4 +20,11 @@
 
 .jp-recommendations-question__illustration {
 	width: 100%;
+	position: relative;
+
+	img {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+	}
 }

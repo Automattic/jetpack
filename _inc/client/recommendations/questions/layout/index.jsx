@@ -5,6 +5,11 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 /**
+ * Internal dependencies
+ */
+import { imagePath } from 'constants/urls';
+
+/**
  * Style dependencies
  */
 import './style.scss';
@@ -20,7 +25,10 @@ const QuestionLayout = props => {
 				<div className="jp-recommendations-question__description">{ description }</div>
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
-			<div className="jp-recommendations-question__illustration">{ illustration }</div>
+			<div className="jp-recommendations-question__illustration">
+				<img src={ imagePath + 'recommendations/background.svg' } alt="" />
+				{ illustration }
+			</div>
 		</div>
 	);
 };

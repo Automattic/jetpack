@@ -12,6 +12,7 @@ import { ProgressBar } from '@automattic/components';
 import { QuestionLayout } from '../layout';
 import { CheckboxAnswer } from '../checkbox-answer';
 import Button from 'components/button';
+import { imagePath } from 'constants/urls';
 import { getSiteTitle } from 'state/initial-state';
 
 /**
@@ -24,18 +25,22 @@ const SiteTypeQuestionComponent = ( { siteTitle } ) => {
 		<div className="jp-recommendations-question__site-type-answer-container">
 			<div className="jp-recommendations-question__site-type-checkboxes">
 				<CheckboxAnswer
+					answerKey={ 'site-type-personal' }
 					title={ __( 'Personal' ) }
 					info={ __( 'TODO change me personal info placeholder' ) }
 				/>
 				<CheckboxAnswer
+					answerKey={ 'site-type-business' }
 					title={ __( 'Business' ) }
 					info={ __( 'TODO change me personal info placeholder' ) }
 				/>
 				<CheckboxAnswer
+					answerKey={ 'site-type-store' }
 					title={ __( 'Store' ) }
 					info={ __( 'TODO change me personal info placeholder' ) }
 				/>
 				<CheckboxAnswer
+					answerKey={ 'site-type-other' }
 					title={ __( 'Other' ) }
 					info={ __( 'TODO change me personal info placeholder' ) }
 				/>
@@ -57,6 +62,13 @@ const SiteTypeQuestionComponent = ( { siteTitle } ) => {
 				'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.'
 			) }
 			answer={ answerSection }
+			illustration={
+				<img
+					className="jp-recommendations-site-type__illustration"
+					src={ imagePath + '/recommendations/site-type-illustration.png' }
+					alt=""
+				/>
+			}
 		/>
 	);
 };

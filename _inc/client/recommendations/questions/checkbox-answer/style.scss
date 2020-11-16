@@ -6,6 +6,13 @@
 	box-sizing: border-box;
 	border: 1px solid $gray-lighten-20;
 	border-radius: 4px;
+
+	cursor: pointer;
+
+	&.checked {
+		background: #f8fbff;
+		border: 1px solid $blue-medium;
+	}
 }
 
 .jp-checkbox-answer__title {
@@ -18,5 +25,5 @@
 }
 
 .jp-checkbox-answer__info {
-    padding: 16px 16px 16px 0;
+	padding: 16px 16px 16px 0;
 }
