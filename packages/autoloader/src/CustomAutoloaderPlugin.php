@@ -115,8 +115,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		$suffix              = $this->determineSuffix();
 
 		$generator = new AutoloadGenerator( $this->io );
-
-		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix );
+		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix, $this->composer );
 		$this->generated = true;
 	}
 
