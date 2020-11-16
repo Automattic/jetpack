@@ -115,7 +115,7 @@ AUTOLOADER_COMMENT;
 	 * @param  array            $packageMap  Array of array(package, installDir-relative-to-composer.json).
 	 * @param  PackageInterface $mainPackage Main package instance.
 	 *
-	 * @return array The list of path mappsings.
+	 * @return array The list of path mappings.
 	 */
 	public function parseAutoloads( array $packageMap, PackageInterface $mainPackage ) {
 		$rootPackageMap = array_shift( $packageMap );
