@@ -616,7 +616,6 @@ tests/php/test_class.functions.opengraph.php
 tests/php/test_class.jetpack-idc.php
 tests/php/test_deprecation.php
 tests/php/test_functions.photon.php
-tests/php/test_php-lint.php
 tests/php/uninstall/test_uninstall.php
 tools/build-module-headings-translations.php
 uninstall.php
