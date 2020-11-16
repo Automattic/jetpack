@@ -522,6 +522,9 @@ class Manager {
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
+		if ( ( new Status() )->is_no_user_testing_mode() ) {
+			return $this->is_registered();
+		}
 		return (bool) $this->get_access_token( self::CONNECTION_OWNER );
 	}
 
@@ -2263,6 +2266,10 @@ class Manager {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
+
+		if ( ( new Status() )->is_no_user_testing_mode() ) {
+			$user_tokens = false;
+		}
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
