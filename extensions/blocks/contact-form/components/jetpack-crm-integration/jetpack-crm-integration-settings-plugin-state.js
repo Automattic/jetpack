@@ -1,15 +1,18 @@
 /**
  * External dependencies
  */
-import { ExternalLink, ToggleControl } from '@wordpress/components';
-import { useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import semver from 'semver';
+
+/**
+ * WordPress dependencies
+ */
+import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { createInterpolateElement, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { jetpackCreateInterpolateElement } from '../../../../shared/create-interpolate-element';
 import CRMJetpackFormsExtension from './jetpack-crm-integration-settings-extension';
 
 export const pluginStateEnum = Object.freeze( {
@@ -40,7 +43,7 @@ const CRMPluginUpdate = () => {
 const CRMPluginIsNotInstalled = () => {
 	return (
 		<p className="jetpack-contact-form__crm_text">
-			{ jetpackCreateInterpolateElement(
+			{ createInterpolateElement(
 				__(
 					'You can save contacts from Jetpack contact forms in Jetpack CRM. Learn more at <a>jetpackcrm.com</a>',
 					'jetpack'
