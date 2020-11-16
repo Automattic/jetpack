@@ -9,6 +9,7 @@ import { assign, get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
 import { getSiteProducts } from 'state/site-products';
+import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -346,6 +347,7 @@ export function getPartnerSubsidiaryId( state ) {
  * @param {object} state Global state tree
  * @param {string} source Context where this URL is clicked.
  * @param {string} userId Current user id.
+ * @param {boolean} planDuration Add plan duration to the URL.
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
  */
@@ -357,11 +359,20 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		source += '-monthly';
 	}
 
-	return (
-		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
+	const queryString =
+		`source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
 		( uid ? `&u=${ uid }` : '' ) +
-		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
+		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' );
+
+	if ( isCurrentUserLinked( state ) ) {
+		return `https://jetpack.com/redirect/?${ queryString }`;
+	}
+
+	return (
+		getSiteAdminUrl( state ) +
+		'?page=jetpack&action=authorize_redirect&query_string=' +
+		encodeURIComponent( queryString )
 	);
 };
 

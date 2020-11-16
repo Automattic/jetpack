@@ -4183,6 +4183,32 @@ p {
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
+				case 'authorize_redirect':
+					self::log( 'authorize_redirect' );
+
+
+					if ( self::is_active() && self::is_user_connected() ) {
+						$redirect_url = 'https://jetpack.com/redirect/?' . ( empty( $_GET['query_string'] )  ? '' : $_GET['query_string'] );
+
+						add_filter( 'allowed_redirect_hosts', function( $domains ) {
+							$domains[] = 'jetpack.com';
+							return $domains;
+						} );
+
+						wp_safe_redirect( $redirect_url );
+						exit;
+					}
+
+					$redirect_url = self::admin_url(
+						array(
+							'page'         => 'jetpack',
+							'action'       => 'authorize_redirect',
+							'query_string' => empty( $_GET['query_string'] )  ? '' : urlencode( $_GET['query_string'] ),
+						)
+					);
+
+					wp_safe_redirect( Jetpack::build_authorize_url( $redirect_url ) );
+					exit;
 				case 'authorize':
 					if ( self::is_active() && self::is_user_connected() ) {
 						self::state( 'message', 'already_authorized' );
