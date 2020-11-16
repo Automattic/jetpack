@@ -2,8 +2,12 @@
  * External dependencies
  */
 import React from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { withRouter } from 'react-router-dom';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -144,7 +148,7 @@ function getProduct( product, purchase, siteRawlUrl ) {
 
 		case 'is-personal-plan':
 			product.title = product.key === 'backup' ? DAILY_BACKUP_TITLE : product.title;
-			product.description = jetpackCreateInterpolateElement(
+			product.description = createInterpolateElement(
 				__( 'Included in your <planLink>Personal Plan</planLink>', 'jetpack' ),
 				{
 					planLink,
@@ -154,7 +158,7 @@ function getProduct( product, purchase, siteRawlUrl ) {
 
 		case 'is-premium-plan':
 			product.title = product.key === 'backup' ? DAILY_BACKUP_TITLE : product.title;
-			product.description = jetpackCreateInterpolateElement(
+			product.description = createInterpolateElement(
 				__( 'Included in your <planLink>Premium Plan</planLink>', 'jetpack' ),
 				{
 					planLink,
@@ -164,7 +168,7 @@ function getProduct( product, purchase, siteRawlUrl ) {
 
 		case 'is-business-plan':
 			product.title = product.key === 'backup' ? REALTIME_BACKUP_TITLE : product.title;
-			product.description = jetpackCreateInterpolateElement(
+			product.description = createInterpolateElement(
 				__( 'Included in your <planLink>Professional Plan</planLink>', 'jetpack' ),
 				{
 					planLink,

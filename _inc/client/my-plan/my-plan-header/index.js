@@ -4,8 +4,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { find, isEmpty } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -52,7 +56,7 @@ class MyPlanHeader extends React.Component {
 			case 'is-free-plan':
 				return {
 					...productProps,
-					tagLine: jetpackCreateInterpolateElement(
+					tagLine: createInterpolateElement(
 						__(
 							'Worried about security? Get backups, automated security fixes and more: <a>Upgrade now</a>',
 							'jetpack'
@@ -143,12 +147,9 @@ class MyPlanHeader extends React.Component {
 						'Your data is being securely backed up every day with a 30-day archive.',
 						'jetpack'
 					),
-					title: jetpackCreateInterpolateElement(
-						__( 'Jetpack Backup <em>Daily</em>', 'jetpack' ),
-						{
-							em: <em />,
-						}
-					),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Daily</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
 				};
 
 			case 'is-realtime-backup-plan':
@@ -156,12 +157,9 @@ class MyPlanHeader extends React.Component {
 					...productProps,
 					details: expiration,
 					tagLine: __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
-					title: jetpackCreateInterpolateElement(
-						__( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ),
-						{
-							em: <em />,
-						}
-					),
+					title: createInterpolateElement( __( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ), {
+						em: <em />,
+					} ),
 				};
 
 			case 'is-search-plan':
@@ -180,7 +178,7 @@ class MyPlanHeader extends React.Component {
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
 						'jetpack'
 					),
-					title: jetpackCreateInterpolateElement( __( 'Jetpack Scan <em>Daily</em>', 'jetpack' ), {
+					title: createInterpolateElement( __( 'Jetpack Scan <em>Daily</em>', 'jetpack' ), {
 						em: <em />,
 					} ),
 				};

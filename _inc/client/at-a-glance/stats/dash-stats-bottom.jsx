@@ -7,8 +7,9 @@ import React, { Component } from 'react';
 /**
  * WordPress dependencies
  */
-import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
 import { dateI18n } from '@wordpress/date';
+import { __, _x, _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -18,7 +19,6 @@ import Button from 'components/button';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import getRedirectUrl from 'lib/jp-redirect';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat } from 'components/number-format';
 
 class DashStatsBottom extends Component {
@@ -104,19 +104,16 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
 					<div className="jp-at-a-glance__stats-cta-buttons">
-						{ jetpackCreateInterpolateElement(
-							__( '<button>View detailed stats</button>', 'jetpack' ),
-							{
-								button: (
-									<Button
-										onClick={ this.trackViewDetailedStats }
-										href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-									/>
-								),
-							}
-						) }
+						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+							button: (
+								<Button
+									onClick={ this.trackViewDetailedStats }
+									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+								/>
+							),
+						} ) }
 						{ this.props.isLinked &&
-							jetpackCreateInterpolateElement(
+							createInterpolateElement(
 								__( '<button>View more stats on WordPress.com </button>', 'jetpack' ),
 								{
 									button: (
