@@ -10,9 +10,9 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { QuestionLayout } from '../layout';
+import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
-import InstallButton from 'components/install-button';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
 const SiteAcceleratorQuestionComponent = props => {
@@ -49,9 +49,9 @@ const SiteAcceleratorQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<InstallButton primary href={ nextRoute }>
+					<Button primary href={ nextRoute }>
 						{ __( 'Enable Site Accelerator' ) }
-					</InstallButton>
+					</Button>
 					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}

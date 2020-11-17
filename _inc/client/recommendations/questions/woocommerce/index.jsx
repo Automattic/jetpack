@@ -13,14 +13,12 @@ import restApi from 'rest-api';
 import { QuestionLayout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
-import InstallButton from 'components/install-button';
+import Button from 'components/button';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 import { fetchPluginsData } from 'state/site/plugins';
 
 const WooCommerceQuestionComponent = props => {
 	const { nextRoute } = props;
-
-	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	// TODO: effect that checks if plugin is active and forwards if so.
 
@@ -29,7 +27,7 @@ const WooCommerceQuestionComponent = props => {
 	} );
 
 	const onInstallClick = useCallback( () => {
-		props.installWooCommerceAndNavigate( setIsInstalling, [ setIsInstalling ] );
+		props.installWooCommerceAndReloadPluginsData();
 	} );
 
 	// TODO: set the href link on "Decide later"
@@ -57,14 +55,9 @@ const WooCommerceQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<InstallButton
-						primary
-						href={ nextRoute }
-						onClick={ onInstallClick }
-						isInstalling={ isInstalling }
-					>
+					<Button primary href={ nextRoute } onClick={ onInstallClick }>
 						{ __( 'Install WooCommerce' ) }
-					</InstallButton>
+					</Button>
 					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
@@ -77,12 +70,9 @@ const WooCommerceQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
-		installWooCommerceAndNavigate: setIsInstalling => {
-			setIsInstalling( true );
+		installWooCommerceAndReloadPluginsData: () => {
 			restApi.installPlugin( 'woocommerce', 'recommendations' ).then( () => {
-				setIsInstalling( false );
 				dispatch( fetchPluginsData() );
-				// TODO: navigate
 			} );
 		},
 	} )
