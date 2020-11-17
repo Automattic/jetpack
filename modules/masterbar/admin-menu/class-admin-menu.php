@@ -62,7 +62,7 @@ class Admin_Menu {
 	public function reregister_menu_items() {
 		$this->is_api_request = ( defined( 'REST_API_PLUGINS' ) && REST_API_PLUGINS ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 
-		$domain = wp_parse_url( get_home_url(), PHP_URL_HOST );
+		$domain = jetpack_get_site_suffix();
 
 		// TODO: Remove once feature has shipped. See jetpack_parent_file().
 		if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
@@ -209,11 +209,13 @@ class Admin_Menu {
 				continue;
 			}
 
-			$domain  = wp_parse_url( get_home_url(), PHP_URL_HOST );
 			$classes = ' toplevel_page_site-card';
 
 			// webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon.
-			if ( ( function_exists( 'blavatar_exists' ) && blavatar_exists( $domain ) ) || ( has_site_icon() && 'https://s0.wp.com/i/webclip.png' !== get_site_icon_url( 512 ) ) ) {
+			if (
+				( function_exists( 'blavatar_exists' ) && blavatar_exists( jetpack_get_site_suffix() ) ) ||
+				( has_site_icon() && 'https://s0.wp.com/i/webclip.png' !== get_site_icon_url( 512 ) )
+			) {
 				$classes .= ' has-site-icon';
 			}
 
