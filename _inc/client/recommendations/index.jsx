@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
+import { CreativeMailQuestion } from './questions/creative-mail';
 import { MonitorQuestion } from './questions/monitor';
 import { RelatedPostsQuestion } from './questions/related-posts';
 import { SiteTypeQuestion } from './questions/site-type';
@@ -32,6 +33,9 @@ const RecommendationsComponent = props => {
 		case 'related-posts':
 			redirectPath = '/related-posts';
 			break;
+		case 'creative-mail':
+			redirectPath = '/creative-mail';
+			break;
 		default:
 			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
@@ -50,6 +54,9 @@ const RecommendationsComponent = props => {
 			</Route>
 			<Route path="/recommendations/related-posts">
 				<RelatedPostsQuestion />
+			</Route>
+			<Route path="/recommendations/creative-mail">
+				<CreativeMailQuestion />
 			</Route>
 		</Switch>
 	);
