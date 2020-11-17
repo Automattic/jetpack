@@ -24,6 +24,7 @@
 namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Autoload\ClassMapGenerator;
+use Composer\Composer;
 use Composer\Config;
 use Composer\Installer\InstallationManager;
 use Composer\IO\IOInterface;
@@ -66,26 +67,25 @@ AUTOLOADER_COMMENT;
 	/**
 	 * Dump the Jetpack autoloader files.
 	 *
+	 * @param Composer                     $composer The Composer object.
 	 * @param Config                       $config Config object.
-	 * @param InstalledRepositoryInterface $localRepo Installed Reposetories object.
+	 * @param InstalledRepositoryInterface $localRepo Installed Repository object.
 	 * @param PackageInterface             $mainPackage Main Package object.
 	 * @param InstallationManager          $installationManager Manager for installing packages.
 	 * @param string                       $targetDir Path to the current target directory.
 	 * @param bool                         $scanPsrPackages Whether or not PSR packages should be converted to a classmap.
 	 * @param string                       $suffix The autoloader suffix.
-	 * @param Composer                     $composer The Composer instance.
 	 */
 	public function dump(
+		Composer $composer,
 		Config $config,
 		InstalledRepositoryInterface $localRepo,
 		PackageInterface $mainPackage,
 		InstallationManager $installationManager,
 		$targetDir,
 		$scanPsrPackages = false,
-		$suffix = null,
-		$composer = null
+		$suffix = null
 	) {
-
 		$this->filesystem->ensureDirectoryExists( $config->get( 'vendor-dir' ) );
 
 		$packageMap = $composer->getAutoloadGenerator()->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
