@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { CreativeMailQuestion } from './questions/creative-mail';
 import { MonitorQuestion } from './questions/monitor';
 import { RelatedPostsQuestion } from './questions/related-posts';
+import { SiteAcceleratorQuestion } from './questions/site-accelerator';
 import { SiteTypeQuestion } from './questions/site-type';
 import { WooCommerceQuestion } from './questions/woocommerce';
 import { getStep } from 'state/recommendations';
@@ -36,6 +37,9 @@ const RecommendationsComponent = props => {
 		case 'creative-mail':
 			redirectPath = '/creative-mail';
 			break;
+		case 'site-accelerator':
+			redirectPath = '/site-accelerator';
+			break;
 		default:
 			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
@@ -57,6 +61,9 @@ const RecommendationsComponent = props => {
 			</Route>
 			<Route path="/recommendations/creative-mail">
 				<CreativeMailQuestion />
+			</Route>
+			<Route path="/recommendations/site-accelerator">
+				<SiteAcceleratorQuestion />
 			</Route>
 		</Switch>
 	);
