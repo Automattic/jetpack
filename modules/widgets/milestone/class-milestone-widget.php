@@ -313,7 +313,7 @@ class Milestone_Widget extends WP_Widget {
 				switch ( $data['unit'] ) {
 					case 'years':
 						$data['message'] = sprintf(
-								/* translators: %s is the number of year(s). */
+							/* translators: %s is the number of year(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">year ago.</span>',
 								'<span class="difference">%s</span> <span class="label">years ago.</span>',
@@ -325,7 +325,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'months':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of month(s). */
+							/* translators: %s is the number of month(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">month ago.</span>',
 								'<span class="difference">%s</span> <span class="label">months ago.</span>',
@@ -337,7 +337,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'days':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of days(s). */
+							/* translators: %s is the number of days(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">day ago.</span>',
 								'<span class="difference">%s</span> <span class="label">days ago.</span>',
@@ -349,7 +349,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'hours':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of hours(s). */
+							/* translators: %s is the number of hours(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">hour ago.</span>',
 								'<span class="difference">%s</span> <span class="label">hours ago.</span>',
@@ -361,7 +361,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'minutes':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of minutes(s). */
+							/* translators: %s is the number of minutes(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">minute ago.</span>',
 								'<span class="difference">%s</span> <span class="label">minutes ago.</span>',
@@ -373,7 +373,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'seconds':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of second(s). */
+							/* translators: %s is the number of second(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">second ago.</span>',
 								'<span class="difference">%s</span> <span class="label">seconds ago.</span>',
@@ -388,7 +388,7 @@ class Milestone_Widget extends WP_Widget {
 				switch ( $this->get_unit( $diff, $instance['unit'] ) ) {
 					case 'years':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of year(s). */
+							/* translators: %s is the number of year(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">year to go.</span>',
 								'<span class="difference">%s</span> <span class="label">years to go.</span>',
@@ -400,7 +400,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'months':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of month(s). */
+							/* translators: %s is the number of month(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">month to go.</span>',
 								'<span class="difference">%s</span> <span class="label">months to go.</span>',
@@ -412,7 +412,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'days':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of days(s). */
+							/* translators: %s is the number of days(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">day to go.</span>',
 								'<span class="difference">%s</span> <span class="label">days to go.</span>',
@@ -424,7 +424,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'hours':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of hour(s). */
+							/* translators: %s is the number of hour(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">hour to go.</span>',
 								'<span class="difference">%s</span> <span class="label">hours to go.</span>',
@@ -436,7 +436,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'minutes':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of minute(s). */
+							/* translators: %s is the number of minute(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">minute to go.</span>',
 								'<span class="difference">%s</span> <span class="label">minutes to go.</span>',
@@ -448,7 +448,7 @@ class Milestone_Widget extends WP_Widget {
 						break;
 					case 'seconds':
 						$data['message'] = sprintf(
-						/* translators: %s is the number of second(s). */
+							/* translators: %s is the number of second(s). */
 							_n(
 								'<span class="difference">%s</span> <span class="label">second to go.</span>',
 								'<span class="difference">%s</span> <span class="label">seconds to go.</span>',
