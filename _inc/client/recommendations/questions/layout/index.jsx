@@ -15,7 +15,7 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const QuestionLayout = props => {
-	const { answer, description, illustration, progressBar, question } = props;
+	const { answer, description, illustrationPath, progressBar, question } = props;
 
 	return (
 		<div className="jp-recommendations-question__main">
@@ -25,9 +25,17 @@ const QuestionLayout = props => {
 				<p className="jp-recommendations-question__description">{ description }</p>
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
-			<div className="jp-recommendations-question__illustration">
-				<img src={ imagePath + 'recommendations/background.svg' } alt="" />
-				{ illustration }
+			<div className="jp-recommendations-question__illustration-container">
+				<img
+					className="jp-recommendations-question__illustration-background"
+					src={ imagePath + 'recommendations/background.svg' }
+					alt=""
+				/>
+				<img
+					className="jp-recommendations-question__illustration-foreground"
+					src={ imagePath + illustrationPath }
+					alt=""
+				/>
 			</div>
 		</div>
 	);

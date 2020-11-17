@@ -25,7 +25,7 @@
 	flex-direction: column;
 }
 
-.jp-recommendations-question__illustration {
+.jp-recommendations-question__illustration-container {
 	width: 100%;
 	position: relative;
 
@@ -34,10 +34,15 @@
 		bottom: 0;
 		right: 0;
 	}
+}
 
-	// TODO
-	// height: 200px;
-	// padding: 65px;
+.jp-recommendations-question__illustration-background {
+	width: 100%;
+}
+
+.jp-recommendations-question__illustration-foreground {
+	width: 75%;
+	margin: 10%;
 }
 
 .jp-recommendations-question__install-section {

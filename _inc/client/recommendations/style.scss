@@ -1,5 +1,7 @@
 .jp-recommendations-question__main {
-	display: flex;
+	display: grid;
+	grid-template-columns: 50% 50%;
+
 	min-height: 480px;
 	background: linear-gradient(
 		120deg,

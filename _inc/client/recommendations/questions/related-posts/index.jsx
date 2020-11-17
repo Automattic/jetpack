@@ -51,13 +51,7 @@ const RelatedPostsQuestionComponent = props => {
 					<a href="">{ __( 'Decide later' ) }</a>
 				</div>
 			}
-			illustration={
-				<img
-					className="jp-recommendations-question__illustration"
-					src={ imagePath + '/recommendations/related-posts-illustration.svg' }
-					alt=""
-				/>
-			}
+			illustrationPath="/recommendations/related-posts-illustration.png"
 		/>
 	);
 };

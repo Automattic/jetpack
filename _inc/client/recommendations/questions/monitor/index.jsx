@@ -56,13 +56,7 @@ const MonitorQuestionComponent = props => {
 					<a href="">{ __( 'Decide later' ) }</a>
 				</div>
 			}
-			illustration={
-				<img
-					className="jp-recommendations-question__illustration"
-					src={ imagePath + '/recommendations/monitor-illustration.svg' }
-					alt=""
-				/>
-			}
+			illustrationPath="/recommendations/monitor-illustration.svg"
 		/>
 	);
 };

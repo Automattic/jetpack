@@ -62,13 +62,7 @@ const WooCommerceQuestionComponent = props => {
 					<a href="">{ __( 'Decide later' ) }</a>
 				</div>
 			}
-			illustration={
-				<img
-					className="jp-recommendations-question__illustration"
-					src={ imagePath + '/recommendations/woocommerce-illustration.png' }
-					alt=""
-				/>
-			}
+			illustrationPath="/recommendations/woocommerce-illustration.png"
 		/>
 	);
 };

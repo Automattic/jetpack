@@ -54,13 +54,7 @@ const CreativeMailQuestionComponent = props => {
 					<a href="">{ __( 'Decide later' ) }</a>
 				</div>
 			}
-			illustration={
-				<img
-					className="jp-recommendations-question__illustration"
-					src={ imagePath + '/recommendations/creative-mail-illustration.svg' }
-					alt=""
-				/>
-			}
+			illustrationPath="/recommendations/creative-mail-illustration.svg"
 		/>
 	);
 };

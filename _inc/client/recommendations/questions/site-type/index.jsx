@@ -71,13 +71,7 @@ const SiteTypeQuestionComponent = props => {
 				'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.'
 			) }
 			answer={ answerSection }
-			illustration={
-				<img
-					className="jp-recommendations-site-type__illustration"
-					src={ imagePath + '/recommendations/site-type-illustration.png' }
-					alt=""
-				/>
-			}
+			illustrationPath="/recommendations/site-type-illustration.png"
 		/>
 	);
 };
