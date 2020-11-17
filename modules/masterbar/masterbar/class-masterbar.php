@@ -1,4 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
+/**
+ * Masterbar file.
+ *
+ * @package Jetpack
+ */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
