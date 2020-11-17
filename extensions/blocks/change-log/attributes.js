@@ -1,5 +1,8 @@
 export default {
-	labels: {
-		type: "array",
+	value: {
+		type: "string",
+	},
+	custom: {
+		type: "string",
 	}
 };

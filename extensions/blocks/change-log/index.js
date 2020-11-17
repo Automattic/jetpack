@@ -22,7 +22,7 @@ export const settings = {
 	title,
 	description: __( 'Changelog', 'jetpack' ),
 	icon: {
-		src: 'clock',
+		src: 'yes',
 		foreground: getIconColor(),
 	},
 	category: 'layout',

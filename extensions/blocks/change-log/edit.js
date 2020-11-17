@@ -9,8 +9,7 @@ import { map } from 'lodash';
  */
 import { __ } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
-import { Dropdown, Button, NavigableMenu, MenuItem, MenuGroup } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
+import { Dropdown, Button, NavigableMenu, MenuItem, MenuGroup, TextControl, BaseControl } from '@wordpress/components';
 
 const LOG_TEMPLATE = [
 	[ 'core/paragraph', { placeholder: __( 'Start logging…', 'Jetpack' ) } ],
@@ -19,39 +18,47 @@ const LOG_TEMPLATE = [
 const LabelsDropdown = ( {
 	className,
 	labels,
-	current,
+	value,
 	onSelect,
-} ) => {
-	const currentLabel = current ? current.label : labels?.[ 0 ]?.label;
 
+	custom,
+	onCustom,
+} ) => {
 	return (
 		<Dropdown
 			className={ className }
 			contentClassName="my-popover-content-classname"
-			position="left"
+			position="bottom"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button isPrimary onClick={ onToggle } aria-expanded={ isOpen }>
-					{ currentLabel }
+					{ value }
 				</Button>
 			) }
 			renderContent={ () => {
 				return (
 					<NavigableMenu>
 						<MenuGroup>
-							{ map( labels, ( { slug, label } ) => (
-								<MenuItem
-									className={ classNames(
-										'log-label',
-										`${slug}-label`,
-									) }
-									key={ slug }
-									isSelected={ current === label }
-									onClick={ onSelect }
-								>
-									{ label }
+							{ map( labels, ( name ) => (
+								<MenuItem key={ name } onClick={ () => onSelect( name ) }>
+									{ name }
 								</MenuItem>
 							) ) }
 						</MenuGroup>
+
+						<BaseControl
+							className={ `${ className }__custom-label` }
+							label={ __( 'Custom label', 'jetpack' ) }
+						>
+							<div className={ `${ className }__text-button-container` }>
+								<TextControl
+									value={ custom }
+									onChange={ ( newCustom ) => {
+										onSelect( newCustom );
+										onCustom( newCustom );
+									} }
+								/>
+							</div>
+						</BaseControl>
 					</NavigableMenu>
 				);
 			} }
@@ -59,36 +66,30 @@ const LabelsDropdown = ( {
 	);
 };
 
-export default function ChaneglogEdit ( {
+const defaultLabels = [
+	 'Alarm',
+	 'Warning',
+	 'Normal',
+];
+
+export default function ChangelogEdit ( {
 	className,
 	attributes,
 	setAttributes,
 } ) {
-	const { labels = [] } = attributes;
-
-	useEffect( () => {
-		if ( labels?.length ) {
-			return;
-		}
-
-		setAttributes( {
-			labels: [
-				...labels,
-				{
-					slug: 'new-log',
-					label: __( 'New log', 'jetpack' ),
-					color: 'green',
-				},
-			],
-		} );
-	}, [ labels, setAttributes ] );
+	const { value = '', custom = '' } = attributes;
 
 	return (
 		<div class={ className }>
 			<LabelsDropdown
 				className={ `${ className }__labels-dropdown` }
-				onSelect={ console.warn }
-				labels={ labels }
+				labels={ defaultLabels }
+
+				value={ value || defaultLabels[ 0 ] }
+				onSelect={ ( newValue ) => setAttributes( { value: newValue } ) }
+
+				custom={ custom }
+				onCustom={ ( newCustom ) => setAttributes( { custom: newCustom } ) }
 			/>
 			<InnerBlocks
 				template={ LOG_TEMPLATE }
