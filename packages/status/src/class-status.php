@@ -152,7 +152,7 @@ class Status {
 		$is_local = site_url() && false === strpos( site_url(), '.' );
 
 		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
-		if ( 'local' === wp_get_environment_type() ) {
+		if ( 'local' === \wp_get_environment_type() ) {
 			$is_local = true;
 		}
 
@@ -195,7 +195,7 @@ class Status {
 	 */
 	public function is_staging_site() {
 		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
-		$is_staging = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
+		$is_staging = ! in_array( \wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		$known_staging = array(
 			'urls'      => array(
