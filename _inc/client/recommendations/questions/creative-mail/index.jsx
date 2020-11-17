@@ -57,7 +57,7 @@ const CreativeMailQuestionComponent = props => {
 			illustration={
 				<img
 					className="jp-recommendations-question__illustration"
-					src={ imagePath + '/recommendations/woocommerce-illustration.png' }
+					src={ imagePath + '/recommendations/creative-mail-illustration.svg' }
 					alt=""
 				/>
 			}
