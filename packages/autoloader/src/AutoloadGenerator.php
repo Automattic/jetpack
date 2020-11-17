@@ -153,10 +153,10 @@ AUTOLOADER_COMMENT;
 		$paths    = array();
 
 		foreach ( $packageMap as $item ) {
-			list($package, $path) = $item;
-			$name                 = $package->getName();
-			$packages[ $name ]    = $package;
-			$paths[ $name ]       = $path;
+			list( $package, $path ) = $item;
+			$name                   = $package->getName();
+			$packages[ $name ]      = $package;
+			$paths[ $name ]         = $path;
 		}
 
 		$sortedPackages = PackageSorter::sortPackages( $packages );
