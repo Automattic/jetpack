@@ -18,12 +18,7 @@ import { imagePath } from 'constants/urls';
 import { updateRecommendationsStep } from 'state/recommendations';
 import { fetchPluginsData, isPluginActive } from 'state/site/plugins';
 
-/**
- * Style dependencies
- */
-import './style.scss';
-
-const WooCommerceComponent = props => {
+const WooCommerceQuestionComponent = props => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	// TODO: effect that checks if plugin is active and forwards if so.
@@ -60,7 +55,7 @@ const WooCommerceComponent = props => {
 				}
 			) }
 			answer={
-				<div className="jp-recommendations-woocommerce__install-section">
+				<div className="jp-recommendations-question__install-section">
 					<InstallButton primary onClick={ onInstallClick } isInstalling={ isInstalling }>
 						{ __( 'Install WooCommerce' ) }
 					</InstallButton>
@@ -69,7 +64,7 @@ const WooCommerceComponent = props => {
 			}
 			illustration={
 				<img
-					className="jp-recommendations-woocommerce__illustration"
+					className="jp-recommendations-question__illustration"
 					src={ imagePath + '/recommendations/woocommerce-illustration.png' }
 					alt=""
 				/>
@@ -78,7 +73,7 @@ const WooCommerceComponent = props => {
 	);
 };
 
-const WooCommerce = connect(
+const WooCommerceQuestion = connect(
 	state => ( {} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
@@ -91,6 +86,6 @@ const WooCommerce = connect(
 			} );
 		},
 	} )
-)( WooCommerceComponent );
+)( WooCommerceQuestionComponent );
 
-export { WooCommerce };
+export { WooCommerceQuestion };

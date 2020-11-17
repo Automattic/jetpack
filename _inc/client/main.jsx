@@ -58,6 +58,7 @@ const recommendationsRoutes = [
 	'/recommendations',
 	'/recommendations/site-type',
 	'/recommendations/woocommerce',
+	'/recommendations/monitor',
 ];
 
 const setupRoutes = [
@@ -266,6 +267,7 @@ class Main extends React.Component {
 			case '/recommendations':
 			case '/recommendations/site-type':
 			case '/recommendations/woocommerce':
+			case '/recommendations/monitor':
 				pageComponent = <Recommendations />;
 				break;
 			default:

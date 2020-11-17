@@ -10,7 +10,8 @@ import { connect } from 'react-redux';
  */
 import { getStep } from 'state/recommendations';
 import { SiteTypeQuestion } from './questions/site-type';
-import { WooCommerce } from './questions/woocommerce';
+import { WooCommerceQuestion } from './questions/woocommerce';
+import { MonitorQuestion } from './questions/monitor';
 
 const RecommendationsComponent = props => {
 	const { step } = props;
@@ -24,6 +25,9 @@ const RecommendationsComponent = props => {
 		case 'woocommerce':
 			redirectPath = '/woocommerce';
 			break;
+		case 'monitor':
+			redirectPath = '/monitor';
+			break;
 		default:
 			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
@@ -35,7 +39,10 @@ const RecommendationsComponent = props => {
 				<SiteTypeQuestion />
 			</Route>
 			<Route path="/recommendations/woocommerce">
-				<WooCommerce />
+				<WooCommerceQuestion />
+			</Route>
+			<Route path="/recommendations/monitor">
+				<MonitorQuestion />
 			</Route>
 		</Switch>
 	);

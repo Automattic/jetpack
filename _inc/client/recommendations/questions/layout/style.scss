@@ -34,4 +34,25 @@
 		bottom: 0;
 		right: 0;
 	}
+
+	// TODO
+	// height: 200px;
+	// padding: 65px;
+}
+
+.jp-recommendations-question__install-section {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	button {
+		margin-top: auto;
+		margin-bottom: 16px;
+		min-width: 172px;
+	}
+
+	a {
+		margin-bottom: 32px;
+	}
 }
