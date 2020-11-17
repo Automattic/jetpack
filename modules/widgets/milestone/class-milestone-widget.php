@@ -8,14 +8,6 @@
 use Automattic\Jetpack\Assets;
 
 /**
- * Registers the widget for use!
- */
-function jetpack_register_widget_milestone() {
-	register_widget( 'Milestone_Widget' );
-}
-add_action( 'widgets_init', 'jetpack_register_widget_milestone' );
-
-/**
  * Class Milestone_Widget
  */
 class Milestone_Widget extends WP_Widget {
