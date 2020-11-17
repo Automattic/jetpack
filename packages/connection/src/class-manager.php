@@ -38,7 +38,7 @@ class Manager {
 
 	/**
 	 * For internal use only. If you need to get the connection owner, use the provided methods
-	 * get_connection_owner_id, get_connection_owner and is_get_connection_owner
+	 * get_connection_owner_id, get_connection_owner and is_connection_owner
 	 *
 	 * @todo Add private visibility once PHP 7.1 is the minimum supported verion.
 	 *
@@ -517,28 +517,79 @@ class Manager {
 	}
 
 	/**
-	 * Returns true if the current site is connected to WordPress.com.
+	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI.
 	 *
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
-			return $this->is_registered();
+			return $this->is_connected();
 		}
-		return (bool) $this->get_access_token( self::CONNECTION_OWNER );
+		return $this->is_owned();
 	}
 
 	/**
 	 * Returns true if the site has both a token and a blog id, which indicates a site has been registered.
 	 *
 	 * @access public
+	 * @deprecated 9.2.0 Use is_connected instead
+	 * @see Manager::is_connected
 	 *
 	 * @return bool
 	 */
 	public function is_registered() {
+		_deprecated_function( __METHOD__, 'jetpack-9.2' );
+		return $this->is_connected();
+	}
+
+	/**
+	 * Returns true if the site has both a token and a blog id, which indicates a site has been connected.
+	 *
+	 * @access public
+	 * @since 9.2.0
+	 *
+	 * @return bool
+	 */
+	public function is_connected() {
 		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
 		$has_blog_token = (bool) $this->get_access_token( false );
 		return $has_blog_id && $has_blog_token;
+	}
+
+	/**
+	 * Returns true if the site has at least one connected administrator.
+	 *
+	 * @access public
+	 * @since 9.2.0
+	 *
+	 * @return bool
+	 */
+	public function has_connected_admin() {
+		return (bool) count( $this->get_connected_users( 'manage_options' ) );
+	}
+
+	/**
+	 * Returns true if the site has any connected user.
+	 *
+	 * @access public
+	 * @since 9.2.0
+	 *
+	 * @return bool
+	 */
+	public function has_connected_user() {
+		return (bool) count( $this->get_connected_users() );
+	}
+
+	/**
+	 * Returns true if the site has a connected Blog owner (master_user).
+	 *
+	 * @access public
+	 * @since 9.2.0
+	 *
+	 * @return bool
+	 */
+	public function is_owned() {
+		return (bool) $this->get_connection_owner_id();
 	}
 
 	/**
@@ -559,7 +610,7 @@ class Manager {
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
-	 * @param Integer|Boolean $user_id the user identifier.
+	 * @param Integer|Boolean $user_id the user identifier. Default is the current user.
 	 * @return Boolean is the user connected?
 	 */
 	public function is_user_connected( $user_id = false ) {
@@ -604,7 +655,10 @@ class Manager {
 					continue;
 				}
 
-				$connected_users[] = get_userdata( $id );
+				$user_data = get_userdata( $id );
+				if ( $user_data instanceof \WP_User ) {
+					$connected_users[] = $user_data;
+				}
 			}
 		}
 

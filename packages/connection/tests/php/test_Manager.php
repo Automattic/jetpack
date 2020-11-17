@@ -377,16 +377,16 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test the `is_registered' method.
+	 * Test the `is_connected' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_registered
-	 * @dataProvider is_registered_data_provider
+	 * @covers Automattic\Jetpack\Connection\Manager::is_connected
+	 * @dataProvider is_connected_data_provider
 	 *
 	 * @param object|boolean $blog_token The blog token. False if the blog token does not exist.
 	 * @param int|boolean    $blog_id The blog id. False if the blog id does not exist.
 	 * @param boolean        $expected_output The expected output.
 	 */
-	public function test_is_registered( $blog_token, $blog_id, $expected_output ) {
+	public function test_is_connected( $blog_token, $blog_id, $expected_output ) {
 		$this->manager->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $blog_token ) );
@@ -397,18 +397,18 @@ class ManagerTest extends TestCase {
 			update_option( 'jetpack_options', array() );
 		}
 
-		$this->assertEquals( $expected_output, $this->manager->is_registered() );
+		$this->assertEquals( $expected_output, $this->manager->is_connected() );
 	}
 
 	/**
-	 * Data provider for test_is_registered.
+	 * Data provider for test_is_connected.
 	 *
 	 * Structure of the test data arrays:
 	 *     [0] => 'blog_token'      object|boolean The blog token or false if the blog token does not exist.
 	 *     [1] => 'blog_id'         int|boolean The blog id or false if the blog id does not exist.
-	 *     [2] => 'expected_output' boolean The expected output of the call to is_registered.
+	 *     [2] => 'expected_output' boolean The expected output of the call to is_connected.
 	 */
-	public function is_registered_data_provider() {
+	public function is_connected_data_provider() {
 		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
