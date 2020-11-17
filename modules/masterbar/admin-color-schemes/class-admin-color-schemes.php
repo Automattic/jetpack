@@ -16,6 +16,7 @@ class Admin_Color_Schemes {
 	 * Admin_Color_Schemes constructor.
 	 */
 	public function __construct() {
+		add_action( 'admin_init', array( $this, 'register_admin_color_schemes' ) );
 		add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
 	}
 
@@ -48,5 +49,23 @@ class Admin_Color_Schemes {
 	 */
 	public function update_admin_color_permissions_check( $allowed, $meta_key, $object_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return current_user_can( 'edit_user', $object_id );
+	}
+
+	/**
+	 * Registers new admin color schemes
+	 */
+	public function register_admin_color_schemes() {
+
+		wp_admin_css_color(
+			'classic-bright',
+			__( 'Classic Bright', 'jetpack' ),
+			plugins_url( 'colors/classic-bright/colors.css', __FILE__ ),
+			array( '#135e96', '#c9256e', '#ffffff', '#646970' ),
+			array(
+				'base'    => '#646970',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
 	}
 }

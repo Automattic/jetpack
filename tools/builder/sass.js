@@ -52,6 +52,25 @@ gulp.task( 'sass:calypsoify', function ( done ) {
 		} );
 } );
 
+gulp.task( 'sass:colorschemes', function ( done ) {
+	log( 'Building Color schemes CSS...' );
+
+	return gulp
+		.src( './modules/masterbar/admin-color-schemes/colors/**/*.scss' )
+		.pipe( sass( { outputStyle: 'compressed' } ) )
+		.pipe(
+			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
+		)
+		.pipe( autoprefixer() )
+		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( gulp.dest( './modules/masterbar/admin-color-schemes/colors' ) )
+		.on( 'end', function () {
+			log( 'Color Schemes CSS finished.' );
+			doRTL( 'colorschemes', done );
+		} );
+} );
+
+// eslint-disable-next-line jsdoc/require-jsdoc
 function doRTL( files, done ) {
 	let dest = './_inc/build',
 		renameArgs = { suffix: '.rtl' },
@@ -67,6 +86,18 @@ function doRTL( files, done ) {
 			path = [ './modules/calypsoify/style*.min.css', '!./modules/calypsoify/style*rtl.min.css' ];
 			dest = './modules/calypsoify';
 			success = 'Calypsoify RTL CSS finished.';
+			renameArgs = function ( pathx ) {
+				pathx.basename = pathx.basename.replace( '.min', '' );
+				pathx.extname = '-rtl.min.css';
+			};
+			break;
+		case 'colorschemes':
+			path = [
+				'./modules/masterbar/admin-color-schemes/colors/**/*.min.css',
+				'!/modules/masterbar/admin-color-schemes/colors/**/*rtl.min.css',
+			];
+			dest = './modules/masterbar/admin-color-schemes/colors';
+			success = 'Color Schemes RTL CSS finished.';
 			renameArgs = function ( pathx ) {
 				pathx.basename = pathx.basename.replace( '.min', '' );
 				pathx.extname = '-rtl.min.css';
@@ -214,6 +245,7 @@ gulp.task(
 
 export const build = gulp.parallel(
 	gulp.series( 'sass:dashboard', 'sass:calypsoify' ),
+	'sass:colorschemes',
 	'sass:old',
 	'sass:packages'
 );
@@ -221,7 +253,7 @@ export const build = gulp.parallel(
 export const watch = function () {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:old' )
+		gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:colorschemes', 'sass:old' )
 	);
 };
 
