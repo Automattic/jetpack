@@ -158,7 +158,7 @@
 		"gulp-rename": "2.0.0",
 		"gulp-rtlcss": "1.4.1",
 		"gulp-sass": "4.1.0",
-		"gulp-sourcemaps": "2.6.5",
+		"gulp-sourcemaps": "3.0.0",
 		"jsdom": "16.4.0",
 		"jsdom-global": "3.0.2",
 		"json-loader": "0.5.7",
