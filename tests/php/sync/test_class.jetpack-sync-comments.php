@@ -61,12 +61,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_modify_comment_content() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
-			return;
-		}
-
 		$comment = clone $this->comment;
 		$comment->comment_content = "Heeeeeeere's Johnny!";
 		$expected_variable = array(
@@ -119,12 +113,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_modify_comment_author() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
-			return;
-		}
-
 		$comment = clone $this->comment;
 		$comment->comment_author = "jollycoder";
 		$expected_variable = array(
@@ -137,12 +125,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_modify_comment_author_url() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
-			return;
-		}
-
 		$comment = clone $this->comment;
 		$comment->comment_author_url = "http://jollycoder.xyz";
 		$expected_variable = array(
@@ -155,12 +137,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_modify_comment_author_email() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
-			return;
-		}
-
 		$comment = clone $this->comment;
 		$comment->comment_author_email = "i_prefer_to_remain_anonymous_thanks@example.com";;
 		$expected_variable = array(
@@ -173,12 +149,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_modify_comment_multiple_attributes() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
-			return;
-		}
-
 		$comment = clone $this->comment;
 		$comment->comment_author_email = "i_prefer_to_remain_anonymous_thanks@example.com";
 		$comment->comment_author_url = "http://jollycoder.xyz";
