@@ -473,6 +473,18 @@ BODY;
 					'hidecaption' => 'true',
 				),
 			),
+			'url_in_att_takes_precedence' => array(
+				'https://www.instagram.com/p/BnMO9vRleEx',
+				array(
+					'url' => $base_instagram_url,
+				),
+				array(
+					'url'         => $base_instagram_url,
+					'width'       => self::CONTENT_WIDTH,
+					'height'      => '',
+					'hidecaption' => false,
+				),
+			),
 			'invalid_atts_in_url_att'      => array(
 				$base_instagram_url,
 				array(
