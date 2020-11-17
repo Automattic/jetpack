@@ -6,7 +6,7 @@
  *
  * @return bool
  */
-function web_stories_disable_open_graph( $enabled ) {
+function jetpack_web_stories_disable_open_graph( $enabled ) {
 	$jetpack_enabled = apply_filters( 'jetpack_enable_open_graph', false );
 	$active_modules  = Jetpack::get_active_modules();
 	if ( $jetpack_enabled || in_array( 'publicize', $active_modules ) || in_array( 'sharedaddy', $active_modules ) ) {
@@ -16,5 +16,5 @@ function web_stories_disable_open_graph( $enabled ) {
 	return $enabled;
 }
 
-add_filter( 'web_stories_enable_open_graph_metadata', 'web_stories_disable_open_graph' );
-add_filter( 'web_stories_enable_twitter_metadata', 'web_stories_disable_open_graph' );
+add_filter( 'web_stories_enable_open_graph_metadata', 'jetpack_web_stories_disable_open_graph' );
+add_filter( 'web_stories_enable_twitter_metadata', 'jetpack_web_stories_disable_open_graph' );
