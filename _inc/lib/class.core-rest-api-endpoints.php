@@ -623,19 +623,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack/v4',
 			'/recommendations/data',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_recommendations_data',
-				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-			),
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_recommendations_data',
-				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				'args'                => array(
-					'data' => array(
-						'required'          => false,
-						'type'              => 'object',
-						'validate_callback' => __CLASS__ . '::validate_recommendations_data',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_data',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_recommendations_data',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+					'args'                => array(
+						'data' => array(
+							'required'          => true,
+							'type'              => 'object',
+							'validate_callback' => __CLASS__ . '::validate_recommendations_data',
+						),
 					),
 				),
 			)
@@ -645,19 +647,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack/v4',
 			'/recommendations/step',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_recommendations_step',
-				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-			),
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_recommendations_step',
-				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				'args'                => array(
-					'data' => array(
-						'required'          => false,
-						'type'              => 'object',
-						'validate_callback' => __CLASS__ . '::validate_string',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_step',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_recommendations_step',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+					'args'                => array(
+						'step' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
+						),
 					),
 				),
 			)

@@ -21,8 +21,8 @@ const QuestionLayout = props => {
 		<div className="jp-recommendations-question__main">
 			<div className="jp-recommendations-question__content">
 				<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
-				<div className="jp-recommendations-question__question">{ question }</div>
-				<div className="jp-recommendations-question__description">{ description }</div>
+				<h1 className="jp-recommendations-question__question">{ question }</h1>
+				<p className="jp-recommendations-question__description">{ description }</p>
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
 			<div className="jp-recommendations-question__illustration">
@@ -35,10 +35,10 @@ const QuestionLayout = props => {
 
 QuestionLayout.propTypes = {
 	answer: PropTypes.element.isRequired,
-	description: PropTypes.string.isRequired,
+	description: PropTypes.element.isRequired,
 	illustration: PropTypes.element.isRequired,
 	progressBar: PropTypes.element.isRequired,
-	question: PropTypes.string.isRequired,
+	question: PropTypes.element.isRequired,
 };
 
 export { QuestionLayout };

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { ProgressBar } from '@automattic/components';
@@ -14,13 +14,20 @@ import { CheckboxAnswer } from '../checkbox-answer';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import { getSiteTitle } from 'state/initial-state';
+import { updateRecommendationsStep } from 'state/recommendations';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-const SiteTypeQuestionComponent = ( { siteTitle } ) => {
+const SiteTypeQuestionComponent = props => {
+	const { siteTitle } = props;
+
+	useEffect( () => {
+		props.updateRecommendationsStep( 'site-type-question' );
+	} );
+
 	const answerSection = (
 		<div className="jp-recommendations-question__site-type-answer-container">
 			<div className="jp-recommendations-question__site-type-checkboxes">
@@ -45,7 +52,9 @@ const SiteTypeQuestionComponent = ( { siteTitle } ) => {
 					info={ __( 'TODO change me personal info placeholder' ) }
 				/>
 			</div>
-			<Button primary>{ __( 'Continue' ) }</Button>
+			<Button primary href="#/recommendations/woocommerce">
+				{ __( 'Continue' ) }
+			</Button>
 			<div className="jp-recommendations-site-type-question__continue-description">
 				{ __(
 					'All of Jetpack’s great features await you and we’ll recommend some of our favorites.'
@@ -75,5 +84,7 @@ const SiteTypeQuestionComponent = ( { siteTitle } ) => {
 
 export const SiteTypeQuestion = connect(
 	state => ( { siteTitle: getSiteTitle( state ) } ),
-	dispatch => ( {} )
+	dispatch => ( {
+		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
+	} )
 )( SiteTypeQuestionComponent );
