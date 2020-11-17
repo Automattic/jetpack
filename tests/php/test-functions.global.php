@@ -19,15 +19,15 @@ class WP_Test_Jetpack_Global_Functions extends WP_UnitTestCase {
 		$this->assertSame( 'example.org', $suffix );
 
 		// TLD.
-		$suffix = jetpack_get_site_suffix( 'https://dortmund.com' );
-		$this->assertSame( 'dortmund.com', $suffix );
+		$suffix = jetpack_get_site_suffix( 'https://example.org' );
+		$this->assertSame( 'example.org', $suffix );
 
 		// Subdomain.
-		$suffix = jetpack_get_site_suffix( 'https://borussia.dortmund.com' );
-		$this->assertSame( 'borussia.dortmund.com', $suffix );
+		$suffix = jetpack_get_site_suffix( 'https://borussia.dortmund.example.org' );
+		$this->assertSame( 'borussia.dortmund.example.org', $suffix );
 
 		// Subfolder.
-		$suffix = jetpack_get_site_suffix( 'https://dortmund.com/borussia' );
-		$this->assertSame( 'dortmund.com::borussia', $suffix );
+		$suffix = jetpack_get_site_suffix( 'https://example.org/borussia-dortmund' );
+		$this->assertSame( 'example.org::borussia-dortmund', $suffix );
 	}
 }
