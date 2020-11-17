@@ -1,0 +1,17 @@
+$base-color: #135e96;
+$icon-color: #646970;
+$highlight-color: #c9256e;
+$notification-color: $highlight-color;
+
+$body-background: #f6f7f7;
+
+$menu-text: #2c3338;
+$menu-background: #ffffff;
+$menu-highlight-text: #0a4b78;
+$menu-highlight-icon: #0a4b78;
+$menu-highlight-background: #c5d9ed;
+$menu-submenu-text: $menu-highlight-text;
+$menu-submenu-background: lighten( $menu-highlight-background, 7% );
+$menu-submenu-current-text: $highlight-color;
+
+@import "../admin";
