@@ -8,9 +8,9 @@ import { map } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Dropdown, Button, NavigableMenu, MenuItem, MenuGroup } from '@wordpress/components';
+import { useEffect } from '@wordpress/element';
 
 const LOG_TEMPLATE = [
 	[ 'core/paragraph', { placeholder: __( 'Start logging…', 'Jetpack' ) } ],
@@ -18,14 +18,11 @@ const LOG_TEMPLATE = [
 
 const LabelsDropdown = ( {
 	className,
-	labels = [
-		__( 'New', 'jetpack' ),
-		__( 'Incident', 'jetpack' )
-	],
+	labels,
 	current,
 	onSelect,
 } ) => {
-	const defaultOption = labels?.length ? labels[ 0 ] : __( 'New', 'jetpack' );
+	const currentLabel = current ? current.label : labels?.[ 0 ]?.label;
 
 	return (
 		<Dropdown
@@ -34,19 +31,20 @@ const LabelsDropdown = ( {
 			position="left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button isPrimary onClick={ onToggle } aria-expanded={ isOpen }>
-					{ defaultOption }
+					{ currentLabel }
 				</Button>
 			) }
 			renderContent={ () => {
 				return (
 					<NavigableMenu>
 						<MenuGroup>
-							{ map( labels, label => (
+							{ map( labels, ( { slug, label } ) => (
 								<MenuItem
 									className={ classNames(
 										'log-label',
+										`${slug}-label`,
 									) }
-									key={ `${ label }-key`}
+									key={ slug }
 									isSelected={ current === label }
 									onClick={ onSelect }
 								>
@@ -63,12 +61,34 @@ const LabelsDropdown = ( {
 
 export default function ChaneglogEdit ( {
 	className,
+	attributes,
+	setAttributes,
 } ) {
+	const { labels = [] } = attributes;
+
+	useEffect( () => {
+		if ( labels?.length ) {
+			return;
+		}
+
+		setAttributes( {
+			labels: [
+				...labels,
+				{
+					slug: 'new-log',
+					label: __( 'New log', 'jetpack' ),
+					color: 'green',
+				},
+			],
+		} );
+	}, [ labels, setAttributes ] );
+
 	return (
 		<div class={ className }>
 			<LabelsDropdown
 				className={ `${ className }__labels-dropdown` }
 				onSelect={ console.warn }
+				labels={ labels }
 			/>
 			<InnerBlocks
 				template={ LOG_TEMPLATE }
