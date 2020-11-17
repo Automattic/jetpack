@@ -8,6 +8,12 @@ on:
     branches: [master]
     paths-ignore:
     - '**.md'
+  workflow_dispatch:
+    inputs:
+      testArg:
+        description: 'Test arguments'
+        required: true
+        default: 'Test value'
 
 jobs:
   e2e-tests:
