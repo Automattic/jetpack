@@ -17,6 +17,10 @@ import { imagePath } from 'constants/urls';
 import { updateRecommendationsStep } from 'state/recommendations';
 
 const CreativeMailQuestionComponent = props => {
+	useEffect( () => {
+		props.updateRecommendationsStep( 'creative-mail' );
+	} );
+
 	// TODO: set the href link on "Decide later"
 	// TODO: actually install creativemail
 
