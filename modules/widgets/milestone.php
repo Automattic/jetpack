@@ -8,6 +8,6 @@
  */
 
 /**
- * Register the milestone widget.  This makes it easier to keep the /milestone/ dir content in sync with wpcom.
+ * Includes the milestone widget.  This makes it easier to keep the /milestone/ dir content in sync with wpcom.
  */
-require __DIR__ . '/milestone/class-milestone-widget.php';
+require_once __DIR__ . '/milestone/milestone.php';
