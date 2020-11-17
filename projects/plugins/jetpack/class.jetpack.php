@@ -4186,14 +4186,14 @@ p {
 				case 'authorize_redirect':
 					self::log( 'authorize_redirect' );
 
+					add_filter( 'allowed_redirect_hosts', function( $domains ) {
+						$domains[] = 'jetpack.com';
+						$domains[] = 'jetpack.wordpress.com';
+						return $domains;
+					} );
 
 					if ( self::is_active() && self::is_user_connected() ) {
 						$redirect_url = 'https://jetpack.com/redirect/?' . ( empty( $_GET['query_string'] )  ? '' : $_GET['query_string'] );
-
-						add_filter( 'allowed_redirect_hosts', function( $domains ) {
-							$domains[] = 'jetpack.com';
-							return $domains;
-						} );
 
 						wp_safe_redirect( $redirect_url );
 						exit;
