@@ -1,3 +1,12 @@
 .wp-block-jetpack-change-log {
-	padding: 2px;
+	.wp-block-jetpack-change-log__labels-dropdown {
+		margin-right: 5px;
+	}
+
+	.block-editor-inner-blocks {
+		display: inline-flex;
+		p {
+			margin-bottom: 10px;
+		}
+	}
 }
