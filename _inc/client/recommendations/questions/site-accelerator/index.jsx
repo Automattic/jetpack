@@ -14,17 +14,14 @@ import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import { updateSettings } from 'state/settings';
 
 const SiteAcceleratorQuestionComponent = props => {
-	// TODO: skip if site accelerator is already enabled
 	const { nextRoute } = props;
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'site-accelerator' );
 	} );
-
-	// TODO: set the href link on "Decide later"
-	// TODO: actually enable site accelerator
 
 	return (
 		<QuestionLayout
@@ -49,7 +46,7 @@ const SiteAcceleratorQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button primary href={ nextRoute }>
+					<Button primary href={ nextRoute } onClick={ props.enableSiteAccelerator }>
 						{ __( 'Enable Site Accelerator' ) }
 					</Button>
 					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
@@ -64,6 +61,7 @@ const SiteAcceleratorQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
+		enableSiteAccelerator: () => dispatch( updateSettings( { photon: true, 'photon-cdn': true } ) ),
 	} )
 )( SiteAcceleratorQuestionComponent );
 

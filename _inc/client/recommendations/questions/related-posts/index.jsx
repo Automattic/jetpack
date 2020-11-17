@@ -14,6 +14,7 @@ import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import { updateSettings } from 'state/settings';
 
 const RelatedPostsQuestionComponent = props => {
 	const { nextRoute } = props;
@@ -48,7 +49,7 @@ const RelatedPostsQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button primary href={ nextRoute }>
+					<Button primary href={ nextRoute } onClick={ props.enableRelatedPosts }>
 						{ __( 'Enable Related Posts' ) }
 					</Button>
 					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
@@ -63,6 +64,7 @@ const RelatedPostsQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
+		enableRelatedPosts: () => dispatch( updateSettings( { 'related-posts': true } ) ),
 	} )
 )( RelatedPostsQuestionComponent );
 

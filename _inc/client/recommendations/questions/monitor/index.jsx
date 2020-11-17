@@ -14,17 +14,14 @@ import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import { updateSettings } from 'state/settings';
 
 const MonitorQuestionComponent = props => {
 	const { nextRoute } = props;
-	// TODO: effect that checks for monitor and skips if needed
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'monitor' );
 	} );
-
-	// TODO: decide later link
-	// TODO: actually enable Monitor
 
 	return (
 		<QuestionLayout
@@ -52,7 +49,7 @@ const MonitorQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button primary href={ nextRoute }>
+					<Button primary href={ nextRoute } onClick={ props.enableMonitor }>
 						{ __( 'Enable Monitor' ) }
 					</Button>
 					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
@@ -67,6 +64,7 @@ const MonitorQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
+		enableMonitor: () => dispatch( updateSettings( { monitor: true } ) ),
 	} )
 )( MonitorQuestionComponent );
 

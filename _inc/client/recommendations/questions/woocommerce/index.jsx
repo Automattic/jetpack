@@ -5,7 +5,6 @@ import { ProgressBar } from '@automattic/components';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import restApi from 'rest-api';
 
 /**
  * Internal dependencies
@@ -14,13 +13,12 @@ import { QuestionLayout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import Button from 'components/button';
+import restApi from 'rest-api';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 import { fetchPluginsData } from 'state/site/plugins';
 
 const WooCommerceQuestionComponent = props => {
 	const { nextRoute } = props;
-
-	// TODO: effect that checks if plugin is active and forwards if so.
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'woocommerce' );
@@ -29,8 +27,6 @@ const WooCommerceQuestionComponent = props => {
 	const onInstallClick = useCallback( () => {
 		props.installWooCommerceAndReloadPluginsData();
 	} );
-
-	// TODO: set the href link on "Decide later"
 
 	return (
 		<QuestionLayout

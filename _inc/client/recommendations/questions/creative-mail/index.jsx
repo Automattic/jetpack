@@ -13,7 +13,9 @@ import { QuestionLayout } from '../layout';
 import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
+import restApi from 'rest-api';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import { fetchPluginsData } from 'state/site/plugins';
 
 const CreativeMailQuestionComponent = props => {
 	const { nextRoute } = props;
@@ -21,8 +23,6 @@ const CreativeMailQuestionComponent = props => {
 	useEffect( () => {
 		props.updateRecommendationsStep( 'creative-mail' );
 	} );
-
-	// TODO: actually install creativemail
 
 	return (
 		<QuestionLayout
@@ -50,7 +50,11 @@ const CreativeMailQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button primary href={ nextRoute }>
+					<Button
+						primary
+						href={ nextRoute }
+						onClick={ props.installCreativeMailAndReloadPluginsData }
+					>
 						{ __( 'Install Creative Mail' ) }
 					</Button>
 					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
@@ -65,6 +69,11 @@ const CreativeMailQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
+		installCreativeMailAndReloadPluginsData: () => {
+			restApi.installPlugin( 'creative-mail-by-constant-contact', 'recommendations' ).then( () => {
+				dispatch( fetchPluginsData() );
+			} );
+		},
 	} )
 )( CreativeMailQuestionComponent );
 
