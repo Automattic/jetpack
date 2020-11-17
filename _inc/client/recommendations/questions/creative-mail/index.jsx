@@ -13,15 +13,15 @@ import { QuestionLayout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import InstallButton from 'components/install-button';
-import { imagePath } from 'constants/urls';
-import { updateRecommendationsStep } from 'state/recommendations';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
 const CreativeMailQuestionComponent = props => {
+	const { nextRoute } = props;
+
 	useEffect( () => {
 		props.updateRecommendationsStep( 'creative-mail' );
 	} );
 
-	// TODO: set the href link on "Decide later"
 	// TODO: actually install creativemail
 
 	return (
@@ -50,8 +50,10 @@ const CreativeMailQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<InstallButton primary>{ __( 'Install Creative Mail' ) }</InstallButton>
-					<a href="">{ __( 'Decide later' ) }</a>
+					<InstallButton primary href={ nextRoute }>
+						{ __( 'Install Creative Mail' ) }
+					</InstallButton>
+					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
 			illustrationPath="/recommendations/creative-mail-illustration.svg"
@@ -60,7 +62,7 @@ const CreativeMailQuestionComponent = props => {
 };
 
 const CreativeMailQuestion = connect(
-	state => ( {} ),
+	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 	} )

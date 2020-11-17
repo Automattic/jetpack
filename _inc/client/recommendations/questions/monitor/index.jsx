@@ -13,10 +13,10 @@ import { QuestionLayout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import InstallButton from 'components/install-button';
-import { imagePath } from 'constants/urls';
-import { updateRecommendationsStep } from 'state/recommendations';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
 const MonitorQuestionComponent = props => {
+	const { nextRoute } = props;
 	// TODO: effect that checks for monitor and skips if needed
 
 	useEffect( () => {
@@ -52,8 +52,10 @@ const MonitorQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<InstallButton primary>{ __( 'Enable Monitor' ) }</InstallButton>
-					<a href="">{ __( 'Decide later' ) }</a>
+					<InstallButton primary href={ nextRoute }>
+						{ __( 'Enable Monitor' ) }
+					</InstallButton>
+					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
 			illustrationPath="/recommendations/monitor-illustration.svg"
@@ -62,7 +64,7 @@ const MonitorQuestionComponent = props => {
 };
 
 const MonitorQuestion = connect(
-	state => ( {} ),
+	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 	} )

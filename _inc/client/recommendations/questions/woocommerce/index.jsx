@@ -14,11 +14,12 @@ import { QuestionLayout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import InstallButton from 'components/install-button';
-import { imagePath } from 'constants/urls';
-import { updateRecommendationsStep } from 'state/recommendations';
-import { fetchPluginsData, isPluginActive } from 'state/site/plugins';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import { fetchPluginsData } from 'state/site/plugins';
 
 const WooCommerceQuestionComponent = props => {
+	const { nextRoute } = props;
+
 	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	// TODO: effect that checks if plugin is active and forwards if so.
@@ -56,10 +57,15 @@ const WooCommerceQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<InstallButton primary onClick={ onInstallClick } isInstalling={ isInstalling }>
+					<InstallButton
+						primary
+						href={ nextRoute }
+						onClick={ onInstallClick }
+						isInstalling={ isInstalling }
+					>
 						{ __( 'Install WooCommerce' ) }
 					</InstallButton>
-					<a href="">{ __( 'Decide later' ) }</a>
+					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
 			illustrationPath="/recommendations/woocommerce-illustration.png"
@@ -68,7 +74,7 @@ const WooCommerceQuestionComponent = props => {
 };
 
 const WooCommerceQuestion = connect(
-	state => ( {} ),
+	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		installWooCommerceAndNavigate: setIsInstalling => {

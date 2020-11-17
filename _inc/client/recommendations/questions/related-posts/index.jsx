@@ -13,10 +13,11 @@ import { QuestionLayout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import InstallButton from 'components/install-button';
-import { imagePath } from 'constants/urls';
-import { updateRecommendationsStep } from 'state/recommendations';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
 const RelatedPostsQuestionComponent = props => {
+	const { nextRoute } = props;
+
 	useEffect( () => {
 		props.updateRecommendationsStep( 'related-posts' );
 	} );
@@ -47,8 +48,10 @@ const RelatedPostsQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<InstallButton primary>{ __( 'Enable Related Posts' ) }</InstallButton>
-					<a href="">{ __( 'Decide later' ) }</a>
+					<InstallButton primary href={ nextRoute }>
+						{ __( 'Enable Related Posts' ) }
+					</InstallButton>
+					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
 			illustrationPath="/recommendations/related-posts-illustration.png"
@@ -57,7 +60,7 @@ const RelatedPostsQuestionComponent = props => {
 };
 
 const RelatedPostsQuestion = connect(
-	state => ( {} ),
+	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 	} )

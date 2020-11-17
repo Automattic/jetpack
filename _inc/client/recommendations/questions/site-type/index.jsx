@@ -12,9 +12,8 @@ import { ProgressBar } from '@automattic/components';
 import { QuestionLayout } from '../layout';
 import { CheckboxAnswer } from '../checkbox-answer';
 import Button from 'components/button';
-import { imagePath } from 'constants/urls';
 import { getSiteTitle } from 'state/initial-state';
-import { updateRecommendationsStep } from 'state/recommendations';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
 /**
  * Style dependencies
@@ -22,7 +21,7 @@ import { updateRecommendationsStep } from 'state/recommendations';
 import './style.scss';
 
 const SiteTypeQuestionComponent = props => {
-	const { siteTitle } = props;
+	const { nextRoute, siteTitle } = props;
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'site-type-question' );
@@ -52,7 +51,7 @@ const SiteTypeQuestionComponent = props => {
 					info={ __( 'TODO change me personal info placeholder' ) }
 				/>
 			</div>
-			<Button primary href="#/recommendations/woocommerce">
+			<Button primary href={ nextRoute }>
 				{ __( 'Continue' ) }
 			</Button>
 			<div className="jp-recommendations-site-type-question__continue-description">
@@ -77,7 +76,7 @@ const SiteTypeQuestionComponent = props => {
 };
 
 export const SiteTypeQuestion = connect(
-	state => ( { siteTitle: getSiteTitle( state ) } ),
+	state => ( { nextRoute: getNextRoute( state ), siteTitle: getSiteTitle( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 	} )

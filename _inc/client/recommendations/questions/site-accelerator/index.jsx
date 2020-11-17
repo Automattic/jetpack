@@ -13,11 +13,11 @@ import { QuestionLayout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import InstallButton from 'components/install-button';
-import { imagePath } from 'constants/urls';
-import { updateRecommendationsStep } from 'state/recommendations';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
 const SiteAcceleratorQuestionComponent = props => {
 	// TODO: skip if site accelerator is already enabled
+	const { nextRoute } = props;
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'site-accelerator' );
@@ -49,8 +49,10 @@ const SiteAcceleratorQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<InstallButton primary>{ __( 'Enable Site Accelerator' ) }</InstallButton>
-					<a href="">{ __( 'Decide later' ) }</a>
+					<InstallButton primary href={ nextRoute }>
+						{ __( 'Enable Site Accelerator' ) }
+					</InstallButton>
+					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
 			illustrationPath="/recommendations/site-accelerator-illustration.svg"
@@ -59,7 +61,7 @@ const SiteAcceleratorQuestionComponent = props => {
 };
 
 const SiteAcceleratorQuestion = connect(
-	state => ( {} ),
+	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 	} )
