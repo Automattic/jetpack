@@ -7,12 +7,14 @@
  * @return bool
  */
 function web_stories_disable_open_graph( $enabled ) {
-	$active_modules = Jetpack::get_active_modules();
-	if ( in_array( 'publicize', $active_modules ) || in_array( 'sharedaddy', $active_modules ) ) {
-		$enabled = apply_filters( 'jetpack_enable_open_graph', false );
+	$jetpack_enabled = apply_filters( 'jetpack_enable_open_graph', false );
+	$active_modules  = Jetpack::get_active_modules();
+	if ( $jetpack_enabled || in_array( 'publicize', $active_modules ) || in_array( 'sharedaddy', $active_modules ) ) {
+		$enabled = false;
 	}
 
 	return $enabled;
 }
 
-add_filter( 'web_stories_enable_open_graph', 'web_stories_disable_open_graph' );
+add_filter( 'web_stories_enable_open_graph_metadata', 'web_stories_disable_open_graph' );
+add_filter( 'web_stories_enable_twitter_metadata', 'web_stories_disable_open_graph' );
