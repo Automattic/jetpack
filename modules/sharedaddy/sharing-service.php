@@ -684,16 +684,7 @@ add_action( 'template_redirect', 'sharing_process_requests', 9 );
  * @return string the customisation URL or null if it couldn't be determinde.
  */
 function get_sharing_buttons_customisation_url() {
-	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-		$site_suffix = Jetpack::build_raw_urls( home_url() );
-	} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-		$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-	}
-
-	if ( $site_suffix ) {
-		return Automattic\Jetpack\Redirect::get_url( 'calypso-marketing-sharing-buttons', array( 'site' => $site_suffix ) );
-	}
-	return null;
+	return Automattic\Jetpack\Redirect::get_url( 'calypso-marketing-sharing-buttons', array( 'site' => jetpack_get_site_suffix() ) );
 }
 
 /**

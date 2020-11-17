@@ -266,7 +266,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'currentVersion'              => JETPACK__VERSION,
 			'is_gutenberg_available'      => true,
 			'getModules'                  => $modules,
-			'rawUrl'                      => Jetpack::build_raw_urls( get_home_url() ),
+			'rawUrl'                      => jetpack_get_site_suffix(),
 			'adminUrl'                    => esc_url( admin_url() ),
 			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                       => array(

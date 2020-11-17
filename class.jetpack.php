@@ -6806,6 +6806,7 @@ endif;
 	 * @return string | url without the guff
 	 */
 	public static function build_raw_urls( $url ) {
+		jetpack_deprecated_function( __METHOD__, 'jetpack_get_site_suffix', '9.2' );
 		$strip_http = '/.*?:\/\//i';
 		$url        = preg_replace( $strip_http, '', $url );
 		$url        = str_replace( '/', '::', $url );

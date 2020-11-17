@@ -465,11 +465,9 @@ class Post_Connection_JITM extends JITM {
 				)
 			);
 
-			$normalized_site_url = \Jetpack::build_raw_urls( get_home_url() );
-
 			$url_params = array(
 				'source' => "jitm-$envelope->id",
-				'site'   => $normalized_site_url,
+				'site'   => jetpack_get_site_suffix(),
 				'u'      => $user->ID,
 			);
 

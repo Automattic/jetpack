@@ -516,3 +516,22 @@ function jetpack_is_frontend() {
 	 */
 	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
 }
+
+/**
+ * Returns the site slug suffix to be used as part of Calypso URLs.
+ *
+ * Strips http:// or https:// from a url, replaces forward slash with ::.
+ *
+ * @param string $url URL to build the site suffix from.
+ * @return string
+ */
+function jetpack_get_site_suffix( $url = '' ) {
+	if ( empty( $url ) ) {
+		$url = home_url();
+	}
+
+	$url = preg_replace( '/.*?:\/\//i', '', $url );
+	$url = str_replace( '/', '::', $url );
+
+	return $url;
+}
