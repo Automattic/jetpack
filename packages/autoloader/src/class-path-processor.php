@@ -6,6 +6,50 @@
  */
 class Path_Processor {
 	/**
+	 * Given a path this will replace any of the path constants with a token to represent it.
+	 *
+	 * @param string $path The path we want to process.
+	 * @return string The tokenized path.
+	 */
+	public function tokenize_path_constants( $path ) {
+		$constants = self::get_path_constants();
+		foreach ( $constants as $constant => $constant_path ) {
+			$len = strlen( $constant_path );
+			if ( substr( $path, 0, $len ) !== $constant_path ) {
+				continue;
+			}
+
+			$path = substr_replace( $path, '{{' . $constant . '}}', 0, $len );
+			break;
+		}
+
+		return $path;
+	}
+
+	/**
+	 * Given a path this will replace any of the path constant tokens with the expanded path.
+	 *
+	 * @param string $path The path we want to process.
+	 * @return string The expanded path.
+	 */
+	public function untokenize_path_constants( $path ) {
+		$constants = self::get_path_constants();
+		foreach ( $constants as $constant => $constant_path ) {
+			$constant = '{{' . $constant . '}}';
+
+			$len = strlen( $constant );
+			if ( substr( $path, 0, $len ) !== $constant ) {
+				continue;
+			}
+
+			$path = substr_replace( $path, $constant_path, 0, $len );
+			break;
+		}
+
+		return $path;
+	}
+
+	/**
 	 * Given a file and an array of places it might be, this will find the absolute path and return it.
 	 *
 	 * @param string $file The plugin or theme file to resolve.
@@ -44,5 +88,34 @@ class Path_Processor {
 		}
 
 		return $directory;
+	}
+
+	/**
+	 * Fetches an array of paths keyed by the constant they came from.
+	 *
+	 * @return string[] The paths keyed by the constant.
+	 */
+	private static function get_path_constants() {
+		$raw_constants = array(
+			// Order the constants from most-specific to least-specific.
+			'WP_PLUGIN_DIR',
+			'WPMU_PLUGIN_DIR',
+			'WP_CONTENT_DIR',
+			'ABSPATH',
+		);
+
+		$constants = array();
+		foreach ( $raw_constants as $raw ) {
+			if ( ! defined( $raw ) ) {
+				continue;
+			}
+
+			$path = constant( $raw );
+			if ( isset( $path ) ) {
+				$constants[ $raw ] = $path;
+			}
+		}
+
+		return $constants;
 	}
 }

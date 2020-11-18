@@ -94,7 +94,8 @@ class Container {
 
 		require_once __DIR__ . '/class-plugins-handler.php';
 		$this->dependencies[ Plugins_Handler::class ] = new Plugins_Handler(
-			$this->get( Plugin_Locator::class )
+			$this->get( Plugin_Locator::class ),
+			$this->get( Path_Processor::class )
 		);
 
 		require_once __DIR__ . '/class-autoloader-handler.php';

@@ -215,7 +215,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 	private function cache_plugins( $plugins ) {
 		$paths = array();
 		foreach ( $plugins as $plugin ) {
-			$paths[] = TEST_DATA_PATH . '/plugins/' . $plugin;
+			$paths[] = '{{WP_PLUGIN_DIR}}/' . $plugin;
 		}
 
 		// The cached plugins are always sorted!

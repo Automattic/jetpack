@@ -18,12 +18,21 @@ class Plugins_Handler {
 	private $plugin_locator;
 
 	/**
+	 * The processor for transforming cached paths.
+	 *
+	 * @var Path_Processor
+	 */
+	private $path_processor;
+
+	/**
 	 * The constructor.
 	 *
 	 * @param Plugin_Locator $plugin_locator The locator for finding active plugins.
+	 * @param Path_Processor $path_processor The processor for transforming cached paths.
 	 */
-	public function __construct( $plugin_locator ) {
+	public function __construct( $plugin_locator, $path_processor ) {
 		$this->plugin_locator = $plugin_locator;
+		$this->path_processor = $path_processor;
 	}
 
 	/**
@@ -107,7 +116,8 @@ class Plugins_Handler {
 			return array();
 		}
 
-		return $cached;
+		// We need to expand the tokens to an absolute path for this webserver.
+		return array_map( array( $this->path_processor, 'untokenize_path_constants' ), $cached );
 	}
 
 	/**
@@ -116,6 +126,9 @@ class Plugins_Handler {
 	 * @param array $plugins The plugin list to save to the cache.
 	 */
 	public function cache_plugins( $plugins ) {
+		// We store the paths in a tokenized form so that that webservers with different absolute paths don't break.
+		$plugins = array_map( array( $this->path_processor, 'tokenize_path_constants' ), $plugins );
+
 		set_transient( self::TRANSIENT_KEY, $plugins );
 	}
 

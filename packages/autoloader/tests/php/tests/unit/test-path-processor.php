@@ -29,6 +29,19 @@ class Test_Path_Processor extends TestCase {
 	}
 
 	/**
+	 * Tests that the process is able to successfully tokenize and untokenize paths.
+	 */
+	public function test_handles_path_tokenization_and_untokenization() {
+		$path = $this->processor->tokenize_path_constants( WP_PLUGIN_DIR . '/test/path' );
+
+		$this->assertEquals( '{{WP_PLUGIN_DIR}}/test/path', $path );
+
+		$path = $this->processor->untokenize_path_constants( $path );
+
+		$this->assertEquals( WP_PLUGIN_DIR . '/test/path', $path );
+	}
+
+	/**
 	 * Tests that find_directory_with_autoloader does not work on non-PHP files.
 	 */
 	public function test_does_not_find_directory_for_non_php_files() {

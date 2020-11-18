@@ -24,6 +24,13 @@ class Test_Plugins_Handler extends TestCase {
 	private $plugin_locator;
 
 	/**
+	 * A dependency mock for the handler.
+	 *
+	 * @var Path_Processor|\PHPUnit\Framework\MockObject\MockObject
+	 */
+	private $path_processor;
+
+	/**
 	 * The class under test.
 	 *
 	 * @var Plugins_Handler
@@ -39,7 +46,10 @@ class Test_Plugins_Handler extends TestCase {
 		$this->plugin_locator  = $this->getMockBuilder( Plugin_Locator::class )
 			->disableOriginalConstructor()
 			->getMock();
-		$this->plugins_handler = new Plugins_Handler( $this->plugin_locator );
+		$this->path_processor  = $this->getMockBuilder( Path_Processor::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$this->plugins_handler = new Plugins_Handler( $this->plugin_locator, $this->path_processor );
 	}
 
 	/**
@@ -177,7 +187,12 @@ class Test_Plugins_Handler extends TestCase {
 	 * Tests that the plugins in the cache are loaded.
 	 */
 	public function test_gets_cached_plugins() {
-		set_transient( Plugins_Handler::TRANSIENT_KEY, array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
+		set_transient( Plugins_Handler::TRANSIENT_KEY, array( '{{WP_PLUGIN_PATH}}/plugins/dummy_newer' ) );
+
+		$this->path_processor->expects( $this->once() )
+			->method( 'untokenize_path_constants' )
+			->with( '{{WP_PLUGIN_PATH}}/plugins/dummy_newer' )
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
 		$plugin_paths = $this->plugins_handler->get_cached_plugins();
 
@@ -188,9 +203,14 @@ class Test_Plugins_Handler extends TestCase {
 	 * Tests that the plugins are updated when they have changed.
 	 */
 	public function test_updates_cache_writes_plugins() {
+		$this->path_processor->expects( $this->once() )
+			->method( 'tokenize_path_constants' )
+			->with( TEST_DATA_PATH . '/plugins/dummy_newer' )
+			->willReturn( '{{WP_PLUGIN_PATH}}/plugins/dummy_newer' );
+
 		$this->plugins_handler->cache_plugins( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 
-		$this->assertEquals( array( TEST_DATA_PATH . '/plugins/dummy_newer' ), get_transient( Plugins_Handler::TRANSIENT_KEY ) );
+		$this->assertEquals( array( '{{WP_PLUGIN_PATH}}/plugins/dummy_newer' ), get_transient( Plugins_Handler::TRANSIENT_KEY ) );
 	}
 
 	/**
