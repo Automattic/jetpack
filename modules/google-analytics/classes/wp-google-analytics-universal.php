@@ -57,29 +57,39 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		/**
-		 * Allow for additional elements to be added to the universal Google Analytics queue (ga) array
-		 *
-		 * @since 5.6.0
-		 *
-		 * @param array $custom_vars Array of universal Google Analytics queue elements
-		 */
-		$universal_commands = apply_filters( 'jetpack_wga_universal_commands', array() );
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+
 		if ( 'G-' === substr( $tracking_code, 0, 2 ) ) {
 			// Upgrade script from UA to GA4 -- https://developers.google.com/analytics/devguides/collection/upgrade/analyticsjs.
-			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-			$async_code = "
+			/**
+			 * Allow for additional elements to be added to the Global Site Tags array.
+			 *
+			 * @since 9.2.0
+			 *
+			 * @param array $universal_commands Array of gtag function calls.
+			 */
+			$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
+			$async_code         = "
 				<script async src='https://www.googletagmanager.com/gtag/js?id=%tracking_code%'></script>
 				<script>
 					window.dataLayer = window.dataLayer || [];
 					function gtag() { dataLayer.push( arguments ); }
 					gtag( 'js', new Date() );
 					gtag( 'config', '%tracking_code%' );
+					%universal_commands%
 				</script>
 				<!-- End Jetpack Google Analytics -->
 			";
 		} else {
-			$async_code = "
+			/**
+			 * Allow for additional elements to be added to the universal Google Analytics queue (ga) array
+			 *
+			 * @since 5.6.0
+			 *
+			 * @param array $custom_vars Array of universal Google Analytics queue elements
+			 */
+			$universal_commands = apply_filters( 'jetpack_wga_universal_commands', array() );
+			$async_code         = "
 				<!-- Jetpack Google Analytics -->
 				<script>
 					window.ga = window.ga || function(){ ( ga.q = ga.q || [] ).push( arguments ) }; ga.l=+new Date;

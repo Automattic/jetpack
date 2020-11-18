@@ -148,6 +148,15 @@ class Jetpack_Google_Analytics_Legacy {
 	 * @param string $tracking_id Google Analytics measurement ID.
 	 */
 	private function render_gtag_code( $tracking_id ) {
+		/**
+		 * Allow for additional elements to be added to the Global Site Tags array.
+		 *
+		 * @since 9.2.0
+		 *
+		 * @param array $universal_commands Array of gtag function calls.
+		 */
+		$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
+
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
 		<!-- Jetpack Google Analytics -->
@@ -157,6 +166,7 @@ class Jetpack_Google_Analytics_Legacy {
 			function gtag() { dataLayer.push( arguments ); }
 			gtag( 'js', new Date() );
 			gtag( 'config', '<?php echo esc_js( $tracking_id ); ?>' );
+			<?php echo esc_js( implode( "\r\n", $universal_commands ) ); ?>
 		</script>
 		<!-- End Jetpack Google Analytics -->
 		<?php
