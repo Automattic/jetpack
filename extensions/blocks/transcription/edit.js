@@ -12,15 +12,15 @@ import './editor.scss';
 
 const defaultLabels = [
 	{
-		name: __( 'Alarm', 'jetpack' ),
+		name: __( 'Speaker one', 'jetpack' ),
 		color: 'red',
 	},
 	{
-		name: __( 'Warning', 'jetpack' ),
+		name: __( 'Speaker two', 'jetpack' ),
 		color: 'yellow',
 	},
 	{
-		name: __( 'Normal', 'jetpack' ),
+		name: __( 'Speaker tree', 'jetpack' ),
 		color: 'green',
 	},
 ];
