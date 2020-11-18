@@ -19,7 +19,6 @@ class Jetpack_Components {
 	 * @return string The component markup
 	 */
 	public static function render_component( $name, $props ) {
-
 		$rtl = is_rtl() ? '.rtl' : '';
 		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
 
@@ -102,6 +101,28 @@ class Jetpack_Components {
 			array(
 				'planName'   => $plan->product_name,
 				'upgradeUrl' => $upgrade_url,
+			)
+		);
+	}
+
+	/**
+	 * Load and display a pre-rendered component
+	 *
+	 * @since 7.7.0
+	 *
+	 * @param array $props Component properties.
+	 *
+	 * @return string The component markup
+	 */
+	public static function render_stripe_nudge( $block_name ) {
+		$post_id = get_the_ID();
+
+		return self::render_component(
+			'stripe-nudge',
+			array(
+				'blockName'        => $block_name,
+				'postId'           => $post_id,
+				'stripeConnectUrl' => Jetpack::init()->build_connect_url( true, false, false ),
 			)
 		);
 	}

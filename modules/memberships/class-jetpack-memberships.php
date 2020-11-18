@@ -238,13 +238,13 @@ class Jetpack_Memberships {
 	 *
 	 * @return string|void
 	 */
-	public function render_button_preview ( $attrs, $content = null ) {
+	public function render_button_preview( $attrs, $content = null ) {
 		if ( ! empty( $content ) ) {
-			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
-			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
+			$block_id = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
+			$content  = str_replace( 'recurring-payments-id', $block_id, $content );
 			return $content;
 		}
-		return $this->deprecated_render_button_v1( $attrs, $plan_id );
+		return $this->deprecated_render_button_v1( $attrs, null );
 	}
 
 	/**
@@ -255,16 +255,17 @@ class Jetpack_Memberships {
 	 *
 	 * @return string|void
 	 */
-	public function render_button( $attrs, $content = null ) {
+	public function render_button( $attributes, $content = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
-
 		// If the user is a site admin, and the block needs to have a Stripe account connected,
 		// render a preview disconnected button in the frontend as a preview.
 		if ( $this->user_can_edit() && ! $this->get_connected_account_id() ) {
-			return $this->render_button_preview( $attrs, $content );
+			jetpack_require_lib( 'components' );
+			$nudge = Jetpack_Components::render_stripe_nudge( 'recurring-payments' );
+			return $nudge . $this->render_button_preview( $attributes, $content );
 		}
 
-		if ( empty( $attrs['planId'] ) ) {
+		if ( empty( $attributes['planId'] ) ) {
 			return;
 		}
 
@@ -406,7 +407,6 @@ class Jetpack_Memberships {
 			$site_id = get_current_blog_id();
 			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
-
 		// For Jetpack sites.
 		return Jetpack::is_active() && (
 			/** This filter is documented in class.jetpack-gutenberg.php */
@@ -422,6 +422,7 @@ class Jetpack_Memberships {
 		// This gate was introduced to prevent duplicate registration. A race condition exists where
 		// the registration that happens via extensions/blocks/recurring-payments/recurring-payments.php
 		// was adding the registration action after the action had been run in some contexts.
+
 		if ( self::$has_registered_block ) {
 			return;
 		}
@@ -430,7 +431,7 @@ class Jetpack_Memberships {
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
-					'render_callback' => array( $this, 'render_button' ),
+					'render_callback' =>  array( $this, 'render_button' ),
 				)
 			);
 		} else {

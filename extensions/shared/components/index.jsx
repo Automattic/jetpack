@@ -7,6 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
  * Internal dependencies
  */
 import { UpgradeNudge } from './upgrade-nudge';
+import StripeNudge from './stripe-nudge';
 
 import './style.scss';
 
@@ -22,8 +23,13 @@ const upgradeNudge = renderToStaticMarkup(
 	<UpgradeNudge planName="#planName#" upgradeUrl="#upgradeUrl#" />
 );
 
+const stripeNudge = renderToStaticMarkup(
+	<StripeNudge blockName="#blockName#" postId="#postId#" stripeConnectUrl="#stripeConnectUrl#" />
+);
+
 // StaticSiteGeneratorPlugin only supports `.html` extensions, even though
 // our rendered components contain some PHP.
 export default () => ( {
 	'upgrade-nudge.html': upgradeNudge,
+	'stripe-nudge.html': stripeNudge,
 } );
