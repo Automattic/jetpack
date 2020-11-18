@@ -50,7 +50,7 @@ const LabelsDropdown = ( {
 
 							<BaseControl
 								className={ `${ className }__custom-label` }
-								label={ __( 'Custom label', 'jetpack' ) }
+								label={ __( 'Custom', 'jetpack' ) }
 							>
 								<div className={ `${ className }__text-button-container` }>
 									<TextControl
