@@ -23,14 +23,20 @@ const defaultLabels = [
 	{
 		slug: 'label-0',
 		value: __( 'Speaker one', 'jetpack' ),
+		textColor: '#fff',
+		bgColor: '#046',
 	},
 	{
 		slug: 'label-1',
 		value: __( 'Speaker two', 'jetpack' ),
+		textColor: '#fff',
+		bgColor: '#084',
 	},
 	{
 		slug: 'label-2',
 		value: __( 'Speaker tree', 'jetpack' ),
+		textColor: '#fff',
+		bgColor: '#804',
 	},
 ];
 
