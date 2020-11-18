@@ -34,4 +34,7 @@ export const settings = {
 	attributes,
 	edit,
 	save,
+	providesContext: {
+		'change-log/labels': 'labels',
+	},
 };
