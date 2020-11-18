@@ -104,5 +104,17 @@ class Admin_Color_Schemes {
 			)
 		);
 
+		wp_admin_css_color(
+			'contrast',
+			__( 'Contrast', 'jetpack' ),
+			plugins_url( 'colors/contrast/colors.css', __FILE__ ),
+			array( '#101517', '#ffffff', '#1d2327', '#646970' ),
+			array(
+				'base'    => '#646970',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+
 	}
 }
