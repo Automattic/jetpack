@@ -1,0 +1,28 @@
+.wp-block-jetpack-change-log {
+	display: flex;
+	.wp-block-jetpack-change-log__labels-dropdown {
+		margin-right: 5px;
+	}
+
+	// Tweak core/paragraph block.
+	.block-editor-inner-blocks {
+		display: inline-flex;
+		p {
+			margin-bottom: 10px;
+		}
+	}
+}
+
+// Labels dropdown content.
+.wp-block-jetpack-change-log__labels-dropdown__custom-label {
+	margin-top: 10px;
+}
+
+.wp-block-jetpack-change-log__labels-dropdown__text-button-container {
+	display: flex;
+	margin-top: 5px;
+
+	.components-text-control__input {
+		min-width: 100px;
+	}
+}

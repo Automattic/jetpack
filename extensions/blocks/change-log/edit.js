@@ -2,7 +2,6 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
 import { map } from 'lodash';
 /**
  * WordPress dependencies
@@ -10,6 +9,11 @@ import { map } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Dropdown, Button, NavigableMenu, MenuItem, MenuGroup, TextControl, BaseControl } from '@wordpress/components';
+
+/**
+ * Internal dependencies
+ */
+import './editor.scss';
 
 const LOG_TEMPLATE = [
 	[ 'core/paragraph', { placeholder: __( 'Start logging…', 'Jetpack' ) } ],
@@ -25,44 +29,44 @@ const LabelsDropdown = ( {
 	onCustom,
 } ) => {
 	return (
-		<Dropdown
-			className={ className }
-			contentClassName="my-popover-content-classname"
-			position="bottom"
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				<Button isPrimary onClick={ onToggle } aria-expanded={ isOpen }>
-					{ value }
-				</Button>
-			) }
-			renderContent={ () => {
-				return (
-					<NavigableMenu>
-						<MenuGroup>
-							{ map( labels, ( name ) => (
-								<MenuItem key={ name } onClick={ () => onSelect( name ) }>
-									{ name }
-								</MenuItem>
-							) ) }
-						</MenuGroup>
+		<div className={ className }>
+			<Dropdown
+				position="bottom"
+				renderToggle={ ( { isOpen, onToggle } ) => (
+					<Button isPrimary onClick={ onToggle } aria-expanded={ isOpen }>
+						{ value }
+					</Button>
+				) }
+				renderContent={ () => {
+					return (
+						<NavigableMenu>
+							<MenuGroup>
+								{ map( labels, ( name ) => (
+									<MenuItem key={ name } onClick={ () => onSelect( name ) }>
+										{ name }
+									</MenuItem>
+								) ) }
+							</MenuGroup>
 
-						<BaseControl
-							className={ `${ className }__custom-label` }
-							label={ __( 'Custom label', 'jetpack' ) }
-						>
-							<div className={ `${ className }__text-button-container` }>
-								<TextControl
-									value={ custom }
-									onChange={ ( newCustom ) => {
-										onSelect( newCustom );
-										onCustom( newCustom );
-									} }
-								/>
-							</div>
-						</BaseControl>
-					</NavigableMenu>
-				);
-			} }
-		/>
+							<BaseControl
+								className={ `${ className }__custom-label` }
+								label={ __( 'Custom label', 'jetpack' ) }
+							>
+								<div className={ `${ className }__text-button-container` }>
+									<TextControl
+										value={ custom }
+										onChange={ ( newCustom ) => {
+											onSelect( newCustom );
+											onCustom( newCustom );
+										} }
+									/>
+								</div>
+							</BaseControl>
+						</NavigableMenu>
+					);
+				} }
+			/>
+		</div>
 	);
 };
 
