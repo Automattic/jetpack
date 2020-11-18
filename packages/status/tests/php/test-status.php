@@ -7,13 +7,12 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Status;
-use PHPUnit\Framework\TestCase;
+use Brain\Monkey;
+use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use phpmock\Mock;
 use phpmock\MockBuilder;
-use Brain\Monkey;
-use Brain\Monkey\Functions;
-use Brain\Monkey\Filters;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Status test suite.
@@ -101,6 +100,71 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test when wp_get_environment_type is local.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_local_site
+	 */
+	public function test_is_local_wp_get_environment_type_local() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
+
+		Filters\expectApplied( 'jetpack_is_local_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertTrue( $this->status->is_local_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is local.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_local() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status->is_staging_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is staging.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_staging() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'staging' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertTrue( $this->status->is_staging_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is production.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_production() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status->is_staging_site() );
+	}
+
+	/**
+	 * Test when wp_get_environment_type is a random value.
+	 *
+	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 */
+	public function test_is_staging_wp_get_environment_type_random() {
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'random_string' );
+
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+
+		$this->assertTrue( $this->status->is_staging_site() ); // We assume a site is a staging site for any non-local or non-production value.
+	}
+
+	/**
 	 * Test when using the constant to set dev mode
 	 *
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
@@ -120,7 +184,7 @@ class Test_Status extends TestCase {
 		$this->assertTrue( $this->status->is_offline_mode() );
 
 		array_map(
-			function( $mock ) {
+			function ( $mock ) {
 				$mock->disable();
 			},
 			$constants_mocks
@@ -210,7 +274,6 @@ class Test_Status extends TestCase {
 		$this->clean_mock_wpdb_get_var();
 	}
 
-
 	/**
 	 * Mock a global function with particular arguments and make it return a certain value.
 	 *
@@ -223,7 +286,7 @@ class Test_Status extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
 			->setFunction(
-				function( ...$current_args ) use ( &$args ) {
+				function ( ...$current_args ) use ( &$args ) {
 					foreach ( $args as $arg ) {
 						if ( array_slice( $arg, 0, -1 ) === $current_args ) {
 							return array_pop( $arg );
@@ -245,7 +308,7 @@ class Test_Status extends TestCase {
 	 * @return phpmock\Mock The mock object.
 	 */
 	protected function mock_constants( $constants = array() ) {
-		$prepare_constant = function( $constant ) {
+		$prepare_constant = function ( $constant ) {
 			return array( $constant[0], true );
 		};
 
@@ -286,21 +349,10 @@ class Test_Status extends TestCase {
 	}
 
 	/**
-	 * Tests a WP Engine staging site URL.
-	 *
-	 * @author  kraftbj
-	 * @covers is_staging_site
-	 * @since  3.9.0
-	 */
-	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		Functions\when( 'site_url' )->justReturn( 'http://bjk.staging.wpengine.com' );
-		$this->assertTrue( $this->status->is_staging_site() );
-	}
-
-	/**
 	 * Tests known staging sites.
 	 *
 	 * @dataProvider get_is_staging_site_known_hosting_providers_data
+	 * @covers Automattic\Jetpack\Status::is_staging_site
 	 *
 	 * @param string $site_url Site URL.
 	 */
@@ -316,21 +368,29 @@ class Test_Status extends TestCase {
 	/**
 	 * Known hosting providers.
 	 *
+	 * Including a couple of general RegEx checks (subdir, ending slash).
+	 *
 	 * @return array
 	 */
 	public function get_is_staging_site_known_hosting_providers_data() {
 		return array(
-			'wpengine'   => array(
+			'wpengine'              => array(
 				'http://bjk.staging.wpengine.com',
 			),
-			'kinsta'     => array(
+			'kinsta'                => array(
 				'http://test.staging.kinsta.com',
 			),
-			'dreampress' => array(
+			'dreampress'            => array(
 				'http://ebinnion.stage.site',
 			),
-			'newspack'   => array(
+			'newspack'              => array(
 				'http://test.newspackstaging.com',
+			),
+			'wpengine_subdirectory' => array(
+				'http://bjk.staging.wpengine.com/staging',
+			),
+			'wpengine_endslash'     => array(
+				'http://bjk.staging.wpengine.com/',
 			),
 		);
 	}

@@ -129,7 +129,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 				'_wp_google_translate_widget',
 				array(
 					'lang'   => get_locale(),
-					'layout' => intval( $button_layout ),
+					'layout' => (int) $button_layout,
 				)
 			);
 			wp_enqueue_script( 'google-translate-init' );

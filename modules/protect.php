@@ -721,7 +721,7 @@ class Jetpack_Protect_Module {
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = json_encode( $this->get_headers() );
 		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
-		$request['wordpress_version'] = strval( $wp_version );
+		$request['wordpress_version'] = (string) $wp_version ;
 		$request['api_key']           = $api_key;
 		$request['multisite']         = "0";
 

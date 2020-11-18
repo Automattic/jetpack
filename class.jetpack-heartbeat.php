@@ -75,9 +75,9 @@ class Jetpack_Heartbeat {
 		$return[ "{$prefix}version" ]        = JETPACK__VERSION;
 		$return[ "{$prefix}wp-version" ]     = get_bloginfo( 'version' );
 		$return[ "{$prefix}php-version" ]    = PHP_VERSION;
-		$return[ "{$prefix}branch" ]         = floatval( JETPACK__VERSION );
-		$return[ "{$prefix}wp-branch" ]      = floatval( get_bloginfo( 'version' ) );
-		$return[ "{$prefix}php-branch" ]     = floatval( PHP_VERSION );
+		$return[ "{$prefix}branch" ]         = (float) JETPACK__VERSION;
+		$return[ "{$prefix}wp-branch" ]      = (float) get_bloginfo( 'version' );
+		$return[ "{$prefix}php-branch" ]     = (float) PHP_VERSION;
 		$return[ "{$prefix}public" ]         = Jetpack_Options::get_option( 'public' );
 		$return[ "{$prefix}ssl" ]            = Jetpack::permit_ssl();
 		$return[ "{$prefix}is-https" ]       = is_ssl() ? 'https' : 'http';

@@ -9,8 +9,10 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
+import PathBreadcrumbs from './path-breadcrumbs';
 import PostTypeIcon from './post-type-icon';
 import SearchResultComments from './search-result-comments';
+import './search-result-minimal.scss';
 
 class SearchResultMinimal extends Component {
 	getIconSize() {
@@ -40,15 +42,12 @@ class SearchResultMinimal extends Component {
 	}
 
 	renderNoMatchingContent() {
-		const path = new URL( 'http://' + this.props.result.fields[ 'permalink.url.raw' ] ).pathname;
 		const tags = this.getTags();
 		const cats = this.getCategories();
 		const noTags = tags.length === 0 && cats.length === 0;
 		return (
 			<div className="jetpack-instant-search__search-result-minimal-content">
-				{ noTags && (
-					<div className="jetpack-instant-search__search-result-minimal-path">{ path }</div>
-				) }
+				{ noTags && <PathBreadcrumbs url={ this.props.result.fields[ 'permalink.url.raw' ] } /> }
 				{ tags.length !== 0 && (
 					<div className="jetpack-instant-search__search-result-minimal-tags">
 						{ tags.map( tag => (
@@ -100,6 +99,8 @@ class SearchResultMinimal extends Component {
 						className="jetpack-instant-search__search-result-minimal-title"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
+						rel="noopener noreferrer"
+						target="_blank"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>

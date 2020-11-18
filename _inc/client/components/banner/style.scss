@@ -34,24 +34,25 @@
 		@include banner-color( $green-primary );
 	}
 
-	&.is-upgrade-personal {
-		@include banner-color( $alert-yellow );
-	}
-	&.is-upgrade-premium {
-		@include banner-color( $alert-green );
-	}
-	&.is-upgrade-business {
-		@include banner-color( $alert-purple );
-	}
-
 	&.is-product {
 		@include banner-color( $color-product );
 	}
-	&.is-bundle {
-		@include banner-color( $color-bundle );
-	}
-	&:not( .is-bundle ).is-plan {
+
+	&.is-plan {
 		@include banner-color( $color-plan );
+
+		&.is-upgrade-personal {
+			@include banner-color( $alert-yellow );
+		}
+		&.is-upgrade-premium {
+			@include banner-color( $alert-green );
+		}
+		&.is-upgrade-business {
+			@include banner-color( $alert-purple );
+		}
+		&.is-bundle {
+			@include banner-color( $color-bundle );
+		}
 	}
 
 	.dops-card__link-indicator {

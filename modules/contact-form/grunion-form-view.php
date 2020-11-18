@@ -44,7 +44,7 @@ wp_localize_script(
 		'savedMessage'          => esc_attr__( 'Saved successfully', 'jetpack' ),
 		'requiredLabel'         => esc_attr( _x( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
 		'exitConfirmMessage'    => esc_attr__( 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.', 'jetpack' ),
-		'maxNewFields'          => intval( $max_new_fields ),
+		'maxNewFields'          => (int) $max_new_fields,
 	)
 );
 

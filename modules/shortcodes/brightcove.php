@@ -193,14 +193,14 @@ class Jetpack_Brightcove_Shortcode {
 				$attr['surl'] = 'http://c.brightcove.com/services';
 			}
 
-			$attr['exp3']  = intval( $attr['exp3'] );
-			$attr['pubid'] = intval( $attr['pubid'] );
-			$attr['vid']   = intval( $attr['vid'] );
+			$attr['exp3']  = (int) $attr['exp3'];
+			$attr['pubid'] = (int) $attr['pubid'];
+			$attr['vid']   = (int) $attr['vid'];
 
 			$fv['servicesURL'] = $attr['surl'];
 			$fv['playerID']    = $attr['exp3'];
 			$fv['domain']      = 'embed';
-			$fv['videoID']     = intval( $attr['vid'] );
+			$fv['videoID']     = (int) $attr['vid'];
 
 			$src   = sprintf(
 				'%s/viewer/federated_f9/%s?isVid=1&amp;isUI=1&amp;publisherID=%s',
@@ -210,7 +210,7 @@ class Jetpack_Brightcove_Shortcode {
 			);
 			$html5 = true;
 		} elseif ( isset( $attr['exp'] ) ) {
-			$attr['exp'] = intval( $attr['exp'] );
+			$attr['exp'] = (int) $attr['exp'];
 			$src         = 'http://services.brightcove.com/services/viewer/federated_f8/' . $attr['exp'];
 			if ( $attr['vid'] ) {
 				$fv['videoId'] = $attr['vid'];

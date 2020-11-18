@@ -7,10 +7,9 @@
 
 namespace Automattic\Jetpack\Extensions\Send_A_Message;
 
-require_once dirname( __FILE__ ) . '/whatsapp-button/whatsapp-button.php';
+require_once __DIR__ . '/whatsapp-button/whatsapp-button.php';
 
 use Automattic\Jetpack\Blocks;
-use Jetpack;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'send-a-message';

@@ -11,7 +11,17 @@ import { getVideoPressUrl } from './url';
 
 const VideoPressSave = CoreVideoSave => props => {
 	const {
-		attributes: { autoplay, caption, controls, guid, loop, muted, poster, preload } = {},
+		attributes: {
+			autoplay,
+			caption,
+			controls,
+			guid,
+			loop,
+			muted,
+			poster,
+			preload,
+			classNames,
+		} = {},
 	} = props;
 
 	if ( ! guid ) {
@@ -37,7 +47,7 @@ const VideoPressSave = CoreVideoSave => props => {
 	} );
 
 	return (
-		<figure className="wp-block-embed is-type-video is-provider-videopress">
+		<figure className={ classNames }>
 			<div className="wp-block-embed__wrapper">
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>

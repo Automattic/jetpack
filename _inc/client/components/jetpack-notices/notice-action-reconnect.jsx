@@ -16,6 +16,7 @@ class NoticeActionReconnect extends React.Component {
 	static propTypes = {
 		icon: PropTypes.string,
 		errorCode: PropTypes.string,
+		errorData: PropTypes.object,
 		action: PropTypes.string,
 	};
 
@@ -28,6 +29,16 @@ class NoticeActionReconnect extends React.Component {
 		if ( this.props.errorCode ) {
 			eventProps.error_code = this.props.errorCode;
 		}
+
+		if ( this.props.errorData ) {
+			if ( this.props.errorData.api_error_code ) {
+				eventProps.api_error_code = this.props.errorData.api_error_code;
+			}
+			if ( this.props.errorData.api_http_code ) {
+				eventProps.api_http_code = this.props.errorData.api_http_code;
+			}
+		}
+
 		return eventProps;
 	};
 

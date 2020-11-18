@@ -4,9 +4,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { get, includes } from 'lodash';
-import { numberFormat } from 'i18n-calypso';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 
 /**
@@ -20,6 +22,8 @@ import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/const
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isModuleActivated } from 'state/modules';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { numberFormat } from 'components/number-format';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';

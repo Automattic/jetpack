@@ -23,16 +23,12 @@ export default class SimplePaymentBlock {
 		title = `SP test ${ new Date() }`,
 		description = 'random product description',
 		price = '23.42',
-		// isMultiple = false,
 		email = 'test@example.com',
 	} = {} ) {
 		const titleSelector = this.getSelector( '.simple-payments__field-title' );
 		const descriptionSelector = this.getSelector( '.simple-payments__field-content' );
-		// const currencySelector = this.getSelector( '.simple-payments__field-currency' );
 		const priceSelector = this.getSelector( '.simple-payments__field-price' );
-		// const multipleProductButton = this.getSelector( '.simple-payments__field-multiple' );
 		const emailSelector = this.getSelector( '.simple-payments__field-email' );
-		// const mediaUploadSelector = this.getSelector( '.components-form-file-upload input' );
 
 		await waitAndClick( this.page, titleSelector );
 		await waitAndType( this.page, titleSelector, title );

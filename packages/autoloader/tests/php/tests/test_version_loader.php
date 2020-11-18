@@ -5,9 +5,9 @@
  * @package automattic/jetpack-autoloader
  */
 
-use PHPUnit\Framework\TestCase;
-use \Jetpack\AutoloaderTestData\Plugin\Test;
 use \Jetpack\AutoloaderTestData\Plugin\Psr4\Test as Psr4Test;
+use \Jetpack\AutoloaderTestData\Plugin\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test suite class for the Autoloader part that handles file loading.

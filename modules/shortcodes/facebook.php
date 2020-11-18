@@ -12,7 +12,6 @@ define( 'JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?faceb
 define( 'JETPACK_FACEBOOK_VIDEO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/(?:video.php|watch\/?)\?([^\s]+)#' );
 define( 'JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/videos/([^/]+)?#' );
 
-
 /*
  * Example URL: https://www.facebook.com/VenusWilliams/posts/10151647007373076
  */
@@ -50,9 +49,10 @@ wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_AL
 /**
  * Callback to modify output of embedded Facebook posts.
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
+ * @return string Facebook embed markup.
  */
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	if (
@@ -69,7 +69,12 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 			$width = min( $width, $content_width );
 		}
 
-		$embed = sprintf( '<fb:post href="%s" data-width="%s"></fb:post>', esc_url( $url ), esc_attr( $width ) );
+		$embed = sprintf( '<div class="fb-post" data-href="%s" data-width="%s"></div>', esc_url( $url ), esc_attr( $width ) );
+	}
+
+	// Skip rendering scripts in an AMP context.
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		return $embed;
 	}
 
 	// since Facebook is a faux embed, we need to load the JS SDK in the wpview embed iframe.

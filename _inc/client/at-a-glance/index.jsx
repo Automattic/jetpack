@@ -24,6 +24,7 @@ import DashSearch from './search';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
+import QueryScanStatus from 'components/data/query-scan-status';
 import {
 	isMultisite,
 	userCanManageModules,
@@ -32,6 +33,7 @@ import {
 } from 'state/initial-state';
 import { isOfflineMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
+import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 
 const renderPairs = layout =>
 	layout.map( ( item, layoutIndex ) => [
@@ -84,7 +86,14 @@ class AtAGlance extends Component {
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
 		const securityCards = [];
-		securityCards.push( <DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+
+		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
+		const hasVaultPressScanning =
+			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
+		if ( ! this.props.multisite || hasVaultPressScanning ) {
+			securityCards.push( <DashScan { ...settingsProps } { ...urls } /> );
+		}
+
 		if ( ! this.props.multisite ) {
 			securityCards.push(
 				<DashBackups
@@ -138,6 +147,7 @@ class AtAGlance extends Component {
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
+					<QueryScanStatus />
 					<DashStats { ...settingsProps } { ...urls } />
 					{ renderPairs( pairs ) }
 					{ connections }
@@ -185,5 +195,7 @@ export default connect( state => {
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
+		scanStatus: getScanStatus( state ),
+		fetchingScanStatus: isFetchingScanStatus( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );

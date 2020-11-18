@@ -9,6 +9,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 use Twitter\Text\Regex as Twitter_Regex;
+use Twitter\Text\Validator as Twitter_Validator;
 
 /**
  * Class Jetpack_Tweetstorm_Helper
@@ -406,8 +407,8 @@ class Jetpack_Tweetstorm_Helper {
 				continue;
 			}
 
-			// The line is too long for a single tweet, so split it by sentences.
-			$sentences      = preg_split( '/(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
+			// The line is too long for a single tweet, so split it by sentences, or linebreaks.
+			$sentences      = preg_split( '/(?|(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])|(\n+))/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
 			$sentence_total = count( $sentences );
 
 			// preg_split() puts the blank space between sentences into a seperate entry in the result,
@@ -612,13 +613,17 @@ class Jetpack_Tweetstorm_Helper {
 
 		$current_tweet = self::get_current_tweet();
 
+		$reserved_characters  = count( $current_tweet['media'] ) * self::$characters_per_media;
+		$reserved_characters += 1 + self::$characters_per_url;
+
 		// We can only attach an embed to the previous tweet if it doesn't already
-		// have any URLs in it.
-		if ( preg_match( '/url-placeholder-\d+-*/', $current_tweet['text'] ) ) {
+		// have any URLs in it. Also, we can't attach it if it'll make the tweet too long.
+		if ( preg_match( '/url-placeholder-\d+-*/', $current_tweet['text'] ) || ! self::is_valid_tweet( $current_tweet['text'], $reserved_characters ) ) {
 			$current_tweet         = self::start_new_tweet();
 			$current_tweet['text'] = self::generate_url_placeholder( $block['embed'] );
 		} else {
-			$current_tweet['text'] .= ' ' . self::generate_url_placeholder( $block['embed'] );
+			$space                  = empty( $current_tweet['text'] ) ? '' : ' ';
+			$current_tweet['text'] .= $space . self::generate_url_placeholder( $block['embed'] );
 		}
 
 		self::save_current_tweet( $current_tweet, $block );
@@ -966,11 +971,26 @@ class Jetpack_Tweetstorm_Helper {
 								$boundary_start += $characters_processed;
 							}
 
+							// Check if the boundary is happening on a line break or a space.
+							if ( "\n" === $line_part_data[ $line_part_byte_boundary - 1 ] ) {
+								$type = 'line-break';
+
+								// A line break boundary can actually be multiple consecutive line breaks,
+								// count them all up so we know how big the annotation needs to be.
+								$matches = array();
+								preg_match( '/\n+$/', substr( $line_part_data, 0, $line_part_byte_boundary ), $matches );
+								$boundary_end    = $boundary_start + 1;
+								$boundary_start -= strlen( $matches[0] ) - 1;
+							} else {
+								$type         = 'normal';
+								$boundary_end = $boundary_start + 1;
+							}
+
 							return array(
 								'start'     => $boundary_start,
-								'end'       => $boundary_start + 1,
+								'end'       => $boundary_end,
 								'container' => $part_name,
-								'type'      => 'normal',
+								'type'      => $type,
 							);
 						} else {
 							$total_bytes_processed += $line_part_bytes;
@@ -1066,7 +1086,7 @@ class Jetpack_Tweetstorm_Helper {
 		foreach ( $tag_values as $tag => $values ) {
 			// For single-line blocks, we need to squash all the values for this tag into a single value.
 			if ( 'multiline' !== $block_def['type'] ) {
-				$values = array( trim( implode( "\n", $values ) ) );
+				$values = array( implode( "\n", $values ) );
 			}
 
 			// Handle the special "content" tag.
@@ -1098,9 +1118,8 @@ class Jetpack_Tweetstorm_Helper {
 		// Join the lines together into a single string.
 		$text = implode( self::$line_separator, $lines );
 
-		// Trim off any extra whitespace that we no longer need.
-		$text = trim( $text );
-		$text = preg_replace( '/(' . self::$line_separator . ')+$/', '', $text );
+		// Trim off any trailing whitespace that we no longer need.
+		$text = preg_replace( '/(\s|' . self::$line_separator . ')+$/u', '', $text );
 
 		return $text;
 	}
@@ -1255,9 +1274,16 @@ class Jetpack_Tweetstorm_Helper {
 				// Remove any inline placeholders.
 				$tweet['text'] = str_replace( self::$inline_placeholder, '', $tweet['text'] );
 
-				// Tidy up the whitespace.
-				$tweet['text'] = trim( $tweet['text'] );
-				$tweet['text'] = preg_replace( '/[ \t]+\n/', "\n", $tweet['text'] );
+				// If the tweet text consists only of whitespace, we can remove all of it.
+				if ( preg_match( '/^\s*$/u', $tweet['text'] ) ) {
+					$tweet['text'] = '';
+				}
+
+				// Remove trailing whitespace from every line.
+				$tweet['text'] = preg_replace( '/\p{Z}+$/um', '', $tweet['text'] );
+
+				// Remove all trailing whitespace (including line breaks) from the end of the text.
+				$tweet['text'] = rtrim( $tweet['text'] );
 
 				// Remove internal flags.
 				unset( $tweet['changed'] );
@@ -1282,6 +1308,11 @@ class Jetpack_Tweetstorm_Helper {
 					}
 				}
 
+				// Once we've finished cleaning up, check if there's anything left to be tweeted.
+				if ( empty( $tweet['text'] ) && empty( $tweet['media'] ) && empty( $tweet['tweet'] ) ) {
+					return false;
+				}
+
 				return $tweet;
 			},
 			self::$tweets
@@ -1302,6 +1333,13 @@ class Jetpack_Tweetstorm_Helper {
 	 *               appears in the HTML blob, including nested tags.
 	 */
 	private static function extract_tag_content_from_html( $tags, $html ) {
+		// Serialised blocks will sometimes wrap the innerHTML in newlines, but those newlines
+		// are removed when innerHTML is parsed into an attribute. Remove them so we're working
+		// with the same information.
+		if ( "\n" === $html[0] && "\n" === $html[ strlen( $html ) - 1 ] ) {
+			$html = substr( $html, 1, strlen( $html ) - 2 );
+		}
+
 		// Normalise <br>.
 		$html = preg_replace( '/<br\s*\/?>/', '<br>', $html );
 
@@ -1313,6 +1351,8 @@ class Jetpack_Tweetstorm_Helper {
 		$values = array();
 
 		$tokens = wp_html_split( $html );
+
+		$validator = new Twitter_Validator();
 
 		foreach ( $tags as $tag ) {
 			$values[ $tag ] = array();
@@ -1356,7 +1396,7 @@ class Jetpack_Tweetstorm_Helper {
 					// A link has opened, grab the URL for inserting later.
 					if ( 0 === strpos( $token, '<a ' ) ) {
 						$href_values = self::extract_attr_content_from_html( 'a', 'href', $token );
-						if ( ! empty( $href_values[0] ) ) {
+						if ( ! empty( $href_values[0] ) && $validator->isValidURL( $href_values[0] ) ) {
 							// Remember the URL.
 							$current_url = $href_values[0];
 						}
@@ -1413,8 +1453,19 @@ class Jetpack_Tweetstorm_Helper {
 						$offset += self::$characters_per_url - strlen( $url );
 
 						// If we're in a link with a URL set, there's no need to keep two copies of the same link.
-						if ( $url === $current_url ) {
-							$current_url = '';
+						if ( ! empty( $current_url ) ) {
+							$lower_url         = strtolower( $url );
+							$lower_current_url = strtolower( $current_url );
+
+							if ( $lower_url === $lower_current_url ) {
+								$current_url = '';
+							}
+
+							// Check that the link text isn't just a shortened version of the href value.
+							$trimmed_current_url = preg_replace( '|^https?://|', '', $lower_current_url );
+							if ( $lower_url === $trimmed_current_url || trim( $trimmed_current_url, '/' ) === $lower_url ) {
+								$current_url = '';
+							}
 						}
 					}
 

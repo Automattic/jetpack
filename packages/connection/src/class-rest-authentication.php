@@ -73,13 +73,20 @@ class Rest_Authentication {
 			return $user;
 		}
 
-		Utils::init_default_constants();
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['_for'] ) || 'jetpack' !== $_GET['_for'] ) {
 			// Nothing to do for this authentication method.
 			return null;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
 			// Nothing to do for this authentication method.
 			return null;

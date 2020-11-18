@@ -29,9 +29,7 @@ export function execSyncShellCommand( cmd ) {
 }
 
 export function getNgrokSiteUrl() {
-	const cmd =
-		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	return execSyncShellCommand( cmd ).trim();
+	return global.tunnelUrl.replace( 'http:', 'https:' );
 }
 
 export async function resetWordpressInstall() {
@@ -108,4 +106,13 @@ export async function execWpCommand( wpCmd ) {
 	}
 
 	return result;
+}
+
+/**
+ * Runs multiple wp commands in a single call
+ *
+ * @param  {...string} commands Array of wp commands to run together
+ */
+export async function execMultipleWpCommands( ...commands ) {
+	return await execWpCommand( `bash -c '${ commands.join( ' && ' ) }'` );
 }

@@ -34,10 +34,22 @@ describe( 'PublicizeTwitterOptions', () => {
 		expect( wrapper.find( 'input' ) ).toHaveLength( 0 );
 	} );
 
+	it( 'should not render with only disabled twitter connections', () => {
+		useSelect.mockImplementation( () => {
+			return {
+				connections: [ { service_name: 'twitter', enabled: false } ],
+			}
+		} );
+		const wrapper = mount( <PublicizeTwitterOptions /> );
+
+		expect( wrapper.find( 'h3' ) ).toHaveLength( 0 );
+		expect( wrapper.find( 'input' ) ).toHaveLength( 0 );
+	} );
+
 	it( 'should render with a twitter connection', () => {
 		useSelect.mockImplementation( () => {
 			return {
-				connections: [ { service_name: 'twitter' } ],
+				connections: [ { service_name: 'twitter', enabled: true } ],
 			}
 		} );
 		const wrapper = mount( <PublicizeTwitterOptions /> );
@@ -51,7 +63,7 @@ describe( 'PublicizeTwitterOptions', () => {
 	it( 'should show the tweetstorm option selected when the isTweetStorm prop is set', () => {
 		useSelect.mockImplementation( () => {
 			return {
-				connections: [ { service_name: 'twitter' } ],
+				connections: [ { service_name: 'twitter', enabled: true } ],
 				isTweetStorm: true,
 			}
 		} );
@@ -64,7 +76,7 @@ describe( 'PublicizeTwitterOptions', () => {
 	it( 'should trigger change event when the selected option changes', () => {
 		useSelect.mockImplementation( () => {
 			return {
-				connections: [ { service_name: 'twitter' } ],
+				connections: [ { service_name: 'twitter', enabled: true } ],
 				isTweetStorm: false,
 			}
 		} );

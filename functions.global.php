@@ -11,8 +11,8 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Device_Detection;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Disable direct access.
@@ -309,7 +309,6 @@ function jetpack_upgrader_pre_download( $reply ) {
 }
 
 add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
-
 
 /**
  * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.

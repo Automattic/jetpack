@@ -10,8 +10,8 @@ function get_home_url() {
 	return 'http://example.org';
 }
 
-function wp_parse_url( $url ) {
-	return parse_url( $url );
+function wp_parse_url( $url, $component = -1 ) {
+	return parse_url( $url, $component );
 }
 
 function apply_filters( $hook, $string ) {

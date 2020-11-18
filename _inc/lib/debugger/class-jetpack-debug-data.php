@@ -5,12 +5,12 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Functions;
-use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Sender;
 
 /**
  * Class Jetpack_Debug_Data
@@ -44,7 +44,7 @@ class Jetpack_Debug_Data {
 	 * @return string Human readable time.
 	 */
 	public static function seconds_to_time( $seconds ) {
-		$seconds = intval( $seconds );
+		$seconds = (int) $seconds;
 		$units   = array(
 			'week'   => WEEK_IN_SECONDS,
 			'day'    => DAY_IN_SECONDS,
@@ -58,7 +58,7 @@ class Jetpack_Debug_Data {
 		}
 		$human_readable = '';
 		foreach ( $units as $name => $divisor ) {
-			$quot = intval( $seconds / $divisor );
+			$quot = (int) ( $seconds / $divisor );
 			if ( $quot ) {
 				$human_readable .= "$quot $name";
 				$human_readable .= ( abs( $quot ) > 1 ? 's' : '' ) . ', ';

@@ -32,13 +32,13 @@ Assets::add_resource_hint(
 /*
  * Add the main commenting system.
  */
-require dirname( __FILE__ ) . '/comments/comments.php';
+require __DIR__ . '/comments/comments.php';
 
 if ( is_admin() ) {
 	/**
 	 * Add the admin functionality.
 	 */
-	require dirname( __FILE__ ) . '/comments/admin.php';
+	require __DIR__ . '/comments/admin.php';
 }
 
 /**

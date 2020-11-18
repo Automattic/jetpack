@@ -48,6 +48,7 @@ exclude_patterns:
   - "gulpfile.js"
   - "composer.lock"
   - ".phpcs.xml.dist"
+  - ".phpcs.config.xml"
   - "**.json"
   - "**.svnignore"
   - "**.travis.yml"

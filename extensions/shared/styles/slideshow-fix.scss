@@ -1,0 +1,9 @@
+// See https://github.com/WordPress/gutenberg/pull/26552
+// and https://github.com/Automattic/jetpack/issues/17616
+// for context.
+// Can be removed once Jetpack requires a WordPress version that
+// includes https://github.com/WordPress/gutenberg/pull/26552.
+
+.interface-interface-skeleton__editor {
+	max-width: 100%;
+}

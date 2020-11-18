@@ -14,7 +14,7 @@ function jetpack_shortcode_get_youtube_id( $url ) {
 }
 
 /**
-* @param $url Can be just the $url or the whole $atts array
+* @param string $url Can be just the $url or the whole $atts array
 * @return bool|mixed The Youtube video ID
 */
 function jetpack_get_youtube_id( $url ) {

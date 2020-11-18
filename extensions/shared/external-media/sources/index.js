@@ -16,13 +16,13 @@ export const mediaSources = [
 	{
 		id: SOURCE_GOOGLE_PHOTOS,
 		label: __( 'Google Photos', 'jetpack' ),
-		icon: <GooglePhotosIcon />,
+		icon: <GooglePhotosIcon className="components-menu-items__item-icon" />,
 		keyword: 'google photos',
 	},
 	{
 		id: SOURCE_PEXELS,
 		label: __( 'Pexels Free Photos', 'jetpack' ),
-		icon: <PexelsIcon />,
+		icon: <PexelsIcon className="components-menu-items__item-icon" />,
 		keyword: 'pexels',
 	},
 ];

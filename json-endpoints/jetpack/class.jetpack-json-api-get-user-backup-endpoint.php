@@ -11,7 +11,7 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 			return new WP_Error( 'user_id_not_specified', __( 'You must specify a User ID', 'jetpack' ), 400 );
 		}
 
-		$this->user_id = intval( $user_id );
+		$this->user_id = (int) $user_id;
 
 		return true;
 	}

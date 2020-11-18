@@ -14,6 +14,7 @@ import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import save from './save';
 import deprecatedV1 from './depecrated/v1';
+import deprecatedV2 from './depecrated/v2';
 
 /**
  * Example image
@@ -189,5 +190,5 @@ export const settings = {
 		reusable: false,
 	},
 
-	deprecated: [ deprecatedV1 ],
+	deprecated: [ deprecatedV1, deprecatedV2 ],
 };

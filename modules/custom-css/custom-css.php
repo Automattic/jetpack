@@ -130,7 +130,7 @@ class Jetpack_Custom_CSS {
 
 		// Prevent content filters running on CSS when restoring revisions
 		if ( isset( $_REQUEST[ 'action' ] ) && 'restore' === $_REQUEST[ 'action' ] && false !== strstr( $_SERVER[ 'REQUEST_URI' ], 'revision.php' ) ) {
-			$parent_post = get_post( wp_get_post_parent_id( intval( $_REQUEST[ 'revision' ] ) ) );
+			$parent_post = get_post( wp_get_post_parent_id( (int) $_REQUEST['revision'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 			if ( $parent_post && ! is_wp_error( $parent_post ) && 'safecss' === $parent_post->post_type ) {
 				// Remove wp_filter_post_kses, this causes CSS escaping issues
 				remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
@@ -167,10 +167,18 @@ class Jetpack_Custom_CSS {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( $args['content_width'] && intval( $args['content_width']) > 0 && ( ! isset( $GLOBALS['content_width'] ) || $args['content_width'] != $GLOBALS['content_width'] ) )
-			$args['content_width'] = intval( $args['content_width'] );
-		else
+		if (
+			$args['content_width']
+			&& (int) $args['content_width'] > 0
+			&& (
+				! isset( $GLOBALS['content_width'] )
+				|| $args['content_width'] !== $GLOBALS['content_width']
+			)
+		) {
+			$args['content_width'] = (int) $args['content_width'];
+		} else {
 			$args['content_width'] = false;
+		}
 
 		// Remove wp_filter_post_kses, this causes CSS escaping issues
 		remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
@@ -281,7 +289,7 @@ class Jetpack_Custom_CSS {
 			$safecss_revision_id = Jetpack_Custom_CSS::save_revision( $css, true, $args['preprocessor'] );
 
 			// Cache Buster
-			update_option( 'safecss_preview_rev', intval( get_option( 'safecss_preview_rev' ) ) + 1);
+			update_option( 'safecss_preview_rev', (int) get_option( 'safecss_preview_rev' ) + 1 );
 
 			update_metadata( 'post', $safecss_revision_id, 'custom_css_add', $add_to_existing );
 			update_metadata( 'post', $safecss_revision_id, 'content_width', $args['content_width'] );
@@ -309,7 +317,7 @@ class Jetpack_Custom_CSS {
 
 		$safecss_post_revision = Jetpack_Custom_CSS::get_current_revision();
 
-		update_option( 'safecss_rev', intval( get_option( 'safecss_rev' ) ) + 1 );
+		update_option( 'safecss_rev', (int) get_option( 'safecss_rev' ) + 1 );
 
 		update_post_meta( $safecss_post_id, 'custom_css_add', $add_to_existing );
 		update_post_meta( $safecss_post_id, 'content_width', $args['content_width'] );
@@ -1084,7 +1092,23 @@ class Jetpack_Custom_CSS {
 					$current_theme = wp_get_theme()->Name;
 
 					?>
-					<p><?php printf( _n( 'The default content width for the %s theme is %d pixel.', 'The default content width for the %s theme is %d pixels.', intval( $GLOBALS['content_width'] ), 'jetpack' ), $current_theme, intval( $GLOBALS['content_width'] ) ); ?></p>
+					<p>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %1$s is the theme name, %2$d is an amount of pixels. */
+							_n(
+								'The default content width for the %1$s theme is %2$d pixel.',
+								'The default content width for the %1$s theme is %2$d pixels.',
+								(int) $GLOBALS['content_width'],
+								'jetpack'
+							),
+							$current_theme,
+							(int) $GLOBALS['content_width']
+						)
+					);
+					?>
+					</p>
 					<?php
 				}
 
@@ -1094,7 +1118,7 @@ class Jetpack_Custom_CSS {
 			</div>
 			<script type="text/javascript">
 				jQuery( function ( $ ) {
-					var defaultContentWidth = <?php echo isset( $GLOBALS['content_width'] ) ? json_encode( intval( $GLOBALS['content_width'] ) ) : 0; ?>;
+					var defaultContentWidth = <?php echo isset( $GLOBALS['content_width'] ) ? json_encode( (int) $GLOBALS['content_width'] ) : 0; ?>;
 
 					$( '.edit-content-width' ).bind( 'click', function ( e ) {
 						e.preventDefault();
@@ -1332,7 +1356,7 @@ class Jetpack_Custom_CSS {
 		$safecss_post_id = Jetpack_Custom_CSS::save_revision( '' );
 		$safecss_revision = Jetpack_Custom_CSS::get_current_revision();
 
-		update_option( 'safecss_rev', intval( get_option( 'safecss_rev' ) ) + 1 );
+		update_option( 'safecss_rev', (int) get_option( 'safecss_rev' ) + 1 );
 
 		update_post_meta( $safecss_post_id, 'custom_css_add', 'yes' );
 		update_post_meta( $safecss_post_id, 'content_width', false );
@@ -1569,11 +1593,11 @@ class Jetpack_Custom_CSS {
 
 		if ( Jetpack_Custom_CSS::is_preview() ) {
 			$safecss_post = Jetpack_Custom_CSS::get_current_revision();
-			$custom_content_width = intval( get_post_meta( $safecss_post['ID'], 'content_width', true ) );
+			$custom_content_width = (int) get_post_meta( $safecss_post['ID'], 'content_width', true );
 		} else if ( ! Jetpack_Custom_CSS::is_freetrial() ) {
 			$custom_css_post_id = Jetpack_Custom_CSS::post_id();
 			if ( $custom_css_post_id )
-				$custom_content_width = intval( get_post_meta( $custom_css_post_id, 'content_width', true ) );
+				$custom_content_width = (int) get_post_meta( $custom_css_post_id, 'content_width', true );
 		}
 
 		if ( $custom_content_width > 0 )

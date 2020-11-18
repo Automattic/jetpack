@@ -22,6 +22,12 @@ class Jetpack_Widget_Conditions {
 	}
 
 	public static function widget_admin_setup() {
+		$current_screen = get_current_screen();
+		// TODO: Replace `$current_screen->is_block_editor()` with `wp_should_load_block_editor_scripts_and_styles()` that is introduced in WP 5.6
+		if ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() ) {
+			return;
+		}
+
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
 		wp_enqueue_script(
@@ -45,7 +51,16 @@ class Jetpack_Widget_Conditions {
 
 		$categories = get_categories(
 			array(
-				'number'  => 1000,
+				/**
+				 * Specific a maximum number of categories to query for the Widget visibility UI.
+				 *
+				 * @module widget-visibility
+				 *
+				 * @since 9.1.0
+				 *
+				 * @param int $number Maximum number of categories displayed in the Widget visibility UI.
+				 */
+				'number'  => (int) apply_filters( 'jetpack_widget_visibility_max_number_categories', 1000 ),
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)
@@ -68,6 +83,7 @@ class Jetpack_Widget_Conditions {
 			array(
 				'orderby' => 'name',
 				'who'     => 'authors',
+				'fields'  => array( 'ID', 'display_name' ),
 			)
 		);
 
@@ -88,7 +104,16 @@ class Jetpack_Widget_Conditions {
 
 		$tags = get_tags(
 			array(
-				'number'  => 1000,
+				/**
+				 * Specific a maximum number of tags to query for the Widget visibility UI.
+				 *
+				 * @module widget-visibility
+				 *
+				 * @since 9.1.0
+				 *
+				 * @param int $number Maximum number of tags displayed in the Widget visibility UI.
+				 */
+				'number'  => (int) apply_filters( 'jetpack_widget_visibility_max_number_tags', 1000 ),
 				'orderby' => 'count',
 				'order'   => 'DESC',
 			)
@@ -126,10 +151,23 @@ class Jetpack_Widget_Conditions {
 
 		$widget_conditions_data['page'][] = array( __( 'Post type Archives:', 'jetpack' ), $widget_conditions_post_type_archives );
 
-		$pages_dropdown = preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) );
+		$pages = self::get_pages();
 
+		$dropdown_tree_args = array(
+			'depth'                 => 0,
+			'child_of'              => 0,
+			'selected'              => 0,
+			'echo'                  => false,
+			'name'                  => 'page_id',
+			'id'                    => '',
+			'class'                 => '',
+			'show_option_none'      => '',
+			'show_option_no_change' => '',
+			'option_none_value'     => '',
+			'value_field'           => 'ID',
+		);
+		$pages_dropdown = walk_page_dropdown_tree( $pages, 0, $dropdown_tree_args );
 		preg_match_all( '/value=.([0-9]+).[^>]*>([^<]+)</', $pages_dropdown, $page_ids_and_titles, PREG_SET_ORDER );
-
 		$static_pages = array();
 
 		foreach ( $page_ids_and_titles as $page_id_and_title ) {
@@ -181,7 +219,7 @@ class Jetpack_Widget_Conditions {
 		wp_localize_script( 'widget-conditions', 'widget_conditions_data', $widget_conditions_data );
 
 		// Save a list of the IDs of all pages that have children for dynamically showing the "Include children" checkbox.
-		$all_pages   = get_pages();
+		$all_pages   = self::get_pages();
 		$all_parents = array();
 
 		foreach ( $all_pages as $page ) {
@@ -197,6 +235,62 @@ class Jetpack_Widget_Conditions {
 		}
 
 		wp_localize_script( 'widget-conditions', 'widget_conditions_parent_pages', $all_parents );
+	}
+
+	/**
+	 * Retrieves a full list of all pages, containing just the IDs, post_parent, and post_title fields.
+	 *
+	 * Since the WordPress' `get_pages` function does not allow us to fetch only the fields mentioned
+	 * above, we need to introduce a custom method using a direct SQL query fetching those.
+	 *
+	 * By fetching only those 3 fields and not populating the object cache for all the pages, we can
+	 * improve the performance of the query on sites having a lot of pages.
+	 *
+	 * @see https://core.trac.wordpress.org/ticket/51469
+	 *
+	 * @return array List of all pages on the site (stdClass objects containing ID, post_title, and post_parent only).
+	 */
+	public static function get_pages() {
+		global $wpdb;
+
+		$last_changed = wp_cache_get_last_changed( 'posts' );
+		$cache_key    = "get_pages:$last_changed";
+		$pages        = wp_cache_get( $cache_key, 'widget_conditions' );
+		if ( false === $pages ) {
+			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_parent, {$wpdb->posts}.post_title FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_title ASC" );
+			wp_cache_set( $cache_key, $pages, 'widget_conditions' );
+		}
+
+		// Copy-pasted from the get_pages function. For usage in the `widget_conditions_get_pages` filter.
+		$parsed_args = array(
+			'child_of'     => 0,
+			'sort_order'   => 'ASC',
+			'sort_column'  => 'post_title',
+			'hierarchical' => 1,
+			'exclude'      => array(),
+			'include'      => array(),
+			'meta_key'     => '',
+			'meta_value'   => '',
+			'authors'      => '',
+			'parent'       => -1,
+			'exclude_tree' => array(),
+			'number'       => '',
+			'offset'       => 0,
+			'post_type'    => 'page',
+			'post_status'  => 'publish',
+		);
+
+		/**
+		 * Filters the retrieved list of pages.
+		 *
+		 * @since 9.1.0
+		 *
+		 * @module widget-visibility
+		 *
+		 * @param stdClass[] $pages       Array of objects containing only the ID, post_parent, and post_title fields.
+		 * @param array      $parsed_args Array of get_pages() arguments.
+		 */
+		return apply_filters( 'jetpack_widget_visibility_get_pages', $pages, $parsed_args );
 	}
 
 	/**
@@ -461,7 +555,7 @@ class Jetpack_Widget_Conditions {
 				// Find the conditions for this widget.
 				if ( preg_match( '/^(.+?)-(\d+)$/', $widget_id, $matches ) ) {
 					$id_base       = $matches[1];
-					$widget_number = intval( $matches[2] );
+					$widget_number = (int) $matches[2];
 				} else {
 					$id_base       = $widget_id;
 					$widget_number = null;

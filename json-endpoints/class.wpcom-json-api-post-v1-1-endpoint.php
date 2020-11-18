@@ -352,7 +352,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		add_image_size( 'win8app-column', 480 );
 		$size = 'win8app-column';
 
-		$id = intval( $id );
+		$id = (int) $id;
 		if ( 'RAND' === $order )
 			$orderby = 'none';
 

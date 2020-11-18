@@ -243,8 +243,8 @@ class Jetpack_Carousel {
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
 			$is_logged_in         = is_user_logged_in();
 			$current_user         = wp_get_current_user();
-			$comment_registration = intval( get_option( 'comment_registration' ) );
-			$require_name_email   = intval( get_option( 'require_name_email' ) );
+			$comment_registration = (int) get_option( 'comment_registration' );
+			$require_name_email   = (int) get_option( 'require_name_email' );
 			$localize_strings     = array(
 				'widths'                          => $this->prebuilt_widths,
 				'is_logged_in'                    => $is_logged_in,
@@ -447,7 +447,7 @@ class Jetpack_Carousel {
 			return $attr;
 		}
 
-		$attachment_id = intval( $attachment->ID );
+		$attachment_id = (int) $attachment->ID;
 		if ( ! wp_attachment_is_image( $attachment_id ) ) {
 			return $attr;
 		}
@@ -455,9 +455,9 @@ class Jetpack_Carousel {
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
 		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
-		$size            = isset( $meta['width'] ) ? intval( $meta['width'] ) . ',' . intval( $meta['height'] ) : '';
+		$size            = isset( $meta['width'] ) ? (int) $meta['width'] . ',' . (int) $meta['height'] : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
-		$comments_opened = intval( comments_open( $attachment_id ) );
+		$comments_opened = (int) comments_open( $attachment_id );
 
 		/**
 		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because

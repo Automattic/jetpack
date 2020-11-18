@@ -1004,10 +1004,11 @@ abstract class Publicize_Base {
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
 				$connection_data = '';
-				if ( method_exists( $connection, 'get_meta' ) )
+				if ( is_object( $connection ) && method_exists( $connection, 'get_meta' ) ) {
 					$connection_data = $connection->get_meta( 'connection_data' );
-				elseif ( ! empty( $connection['connection_data'] ) )
+				} elseif ( ! empty( $connection['connection_data'] ) ) {
 					$connection_data = $connection['connection_data'];
+				}
 
 				/** This action is documented in modules/publicize/ui.php */
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {

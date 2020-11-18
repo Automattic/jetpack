@@ -52,7 +52,7 @@ class VersionSelectorTest extends TestCase {
 	 * @preserveGlobalState disabled
 	 */
 	public function test_is_version_update_required_with_dev_constant( $selected_version, $compare_version, $expected ) {
-		defined( 'JETPACK_AUTOLOAD_DEV' ) || define( 'JETPACK_AUTOLOAD_DEV', true );
+		define( 'JETPACK_AUTOLOAD_DEV', true );
 		$this->assertEquals( $expected, $this->version_selector->is_version_update_required( $selected_version, $compare_version ) );
 	}
 

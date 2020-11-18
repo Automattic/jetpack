@@ -5,8 +5,8 @@
  * @package automattic/jetpack-autoloader
  */
 
-use PHPUnit\Framework\TestCase;
 use Jetpack\AutoloaderTestData\Plugin\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test suite class for the Autoloader.

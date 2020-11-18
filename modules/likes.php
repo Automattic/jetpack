@@ -227,7 +227,7 @@ class Jetpack_Likes {
 			$option_setting = get_option( $option, 'on' );
 		}
 
-		return intval( 'on' == $option_setting );
+		return (int) ( 'on' == $option_setting );
 	}
 
 	function admin_discussion_likes_settings_field() {
@@ -283,7 +283,7 @@ class Jetpack_Likes {
 			add_filter( 'post_flair', array( &$this, 'post_likes' ), 30, 1 );
 			add_filter( 'post_flair_block_css', array( $this, 'post_flair_service_enabled_like' ) );
 
-			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array( 'jquery' ), JETPACK__VERSION, true );
+			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array(), JETPACK__VERSION, true );
 			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, true );
 			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
@@ -297,7 +297,7 @@ class Jetpack_Likes {
 		wp_register_script(
 			'postmessage',
 			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
-			array( 'jquery' ),
+			array(),
 			JETPACK__VERSION,
 			true
 		);

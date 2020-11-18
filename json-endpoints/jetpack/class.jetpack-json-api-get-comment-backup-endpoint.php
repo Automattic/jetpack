@@ -11,7 +11,7 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 			return new WP_Error( 'comment_id_not_specified', __( 'You must specify a Comment ID', 'jetpack' ), 400 );
 		}
 
-		$this->comment_id = intval( $comment_id );
+		$this->comment_id = (int) $comment_id;
 
 		return true;
 	}

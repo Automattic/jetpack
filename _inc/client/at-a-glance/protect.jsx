@@ -4,8 +4,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { numberFormat } from 'i18n-calypso';
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,6 +18,8 @@ import { getProtectCount } from 'state/at-a-glance';
 import getRedirectUrl from 'lib/jp-redirect';
 import { isOfflineMode } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { numberFormat } from 'components/number-format';
 import QueryProtectCount from 'components/data/query-dash-protect';
 
 class DashProtect extends Component {

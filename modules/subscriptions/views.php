@@ -355,11 +355,21 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						</div>
 						<?php
 					}
-					$email_field_id = 'subscribe-field' . self::$instance_count > 1
+					$email_field_id  = 'subscribe-field';
+					$email_field_id .= self::$instance_count > 1
 						? '-' . self::$instance_count
 						: '';
+					$label_field_id  = $email_field_id . '-label';
 					?>
 					<p id="subscribe-email">
+						<label
+							id="<?php echo esc_attr( $label_field_id ); ?>"
+							for="<?php echo esc_attr( $email_field_id ); ?>"
+							class="screen-reader-text"
+						>
+							<?php echo esc_html__( 'Email Address:', 'jetpack' ); ?>
+						</label>
+
 						<?php
 						printf(
 							'<input

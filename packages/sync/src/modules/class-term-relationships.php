@@ -131,7 +131,7 @@ class Term_Relationships extends Module {
 
 		// We need to do this extra check in case $max_items_to_enqueue * $term_relationships_full_sync_item_size == relationships objects left.
 		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], 1 ) );
-		if ( intval( $count ) === 0 ) {
+		if ( 0 === (int) $count ) {
 			return array( $items_enqueued_count, true );
 		}
 
@@ -203,7 +203,7 @@ class Term_Relationships extends Module {
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return int Number of items yet to be enqueued.
 	 */
-	public function estimate_full_sync_actions( $config ) {
+	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $wpdb;
 
 		$query = "SELECT COUNT(*) FROM $wpdb->term_relationships";

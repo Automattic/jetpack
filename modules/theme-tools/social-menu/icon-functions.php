@@ -11,7 +11,7 @@ if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) :
 	 */
 	function jetpack_social_menu_include_svg_icons() {
 		// Define SVG sprite file.
-		$svg_icons = dirname( __FILE__ ) . '/social-menu.svg';
+		$svg_icons = __DIR__ . '/social-menu.svg';
 
 		// If it exists, include it.
 		if ( file_exists( $svg_icons ) ) {
@@ -162,6 +162,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'spotify.com'       => 'spotify',
 			'stackoverflow.com' => 'stackoverflow',
 			'stumbleupon.com'   => 'stumbleupon',
+			'telegram.me'       => 'telegram',
 			'tumblr.com'        => 'tumblr',
 			'twitch.tv'         => 'twitch',
 			'twitter.com'       => 'twitter',

@@ -775,7 +775,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return string $classes List of CSS classes for a block.
 	 */
-	public static function block_classes( $slug = '', $attr, $extra = array() ) {
+	public static function block_classes( $slug, $attr, $extra = array() ) {
 		_deprecated_function( __METHOD__, '9.0.0', 'Automattic\\Jetpack\\Blocks::classes' );
 		return Blocks::classes( $slug, $attr, $extra );
 	}

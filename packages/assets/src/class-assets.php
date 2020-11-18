@@ -163,7 +163,7 @@ class Assets {
 	public static function add_resource_hint( $urls, $type = 'dns-prefetch' ) {
 		add_filter(
 			'wp_resource_hints',
-			function( $hints, $resource_type ) use ( $urls, $type ) {
+			function ( $hints, $resource_type ) use ( $urls, $type ) {
 				if ( $resource_type === $type ) {
 					// Type casting to array required since the function accepts a single string.
 					foreach ( (array) $urls as $url ) {

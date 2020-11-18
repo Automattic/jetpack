@@ -48,7 +48,7 @@ class Jetpack_Provision { //phpcs:ignore
 		}
 
 
-		if ( ! Jetpack::connection()->is_registered() || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
+		if ( ! Jetpack::connection()->is_registered() || ( isset( $named_args['force_register'] ) && (int) $named_args['force_register'] ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
@@ -126,11 +126,11 @@ class Jetpack_Provision { //phpcs:ignore
 		}
 
 		if ( isset( $named_args['onboarding'] ) && ! empty( $named_args['onboarding'] ) ) {
-			$request_body['onboarding'] = intval( $named_args['onboarding'] );
+			$request_body['onboarding'] = (int) $named_args['onboarding'];
 		}
 
 		if ( isset( $named_args['force_connect'] ) && ! empty( $named_args['force_connect'] ) ) {
-			$request_body['force_connect'] = intval( $named_args['force_connect'] );
+			$request_body['force_connect'] = (int) $named_args['force_connect'];
 		}
 
 		if ( isset( $request_body['onboarding'] ) && (bool) $request_body['onboarding'] ) {

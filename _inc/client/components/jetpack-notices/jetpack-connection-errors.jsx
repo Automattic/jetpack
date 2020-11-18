@@ -15,10 +15,17 @@ export default class JetpackConnectionErrors extends React.Component {
 		errors: PropTypes.array.isRequired,
 	};
 
-	getAction( action, message, code ) {
+	getAction( action, message, code, errorData ) {
 		switch ( action ) {
 			case 'reconnect':
-				return <ErrorNoticeCycleConnection text={ message } errorCode={ code } action={ action } />;
+				return (
+					<ErrorNoticeCycleConnection
+						text={ message }
+						errorCode={ code }
+						errorData={ errorData }
+						action={ action }
+					/>
+				);
 			case 'display':
 				return (
 					<SimpleNotice
@@ -34,7 +41,12 @@ export default class JetpackConnectionErrors extends React.Component {
 	}
 
 	renderOne( error ) {
-		const action = this.getAction( error.action, error.message, error.code );
+		const action = this.getAction(
+			error.action,
+			error.message,
+			error.code,
+			error.hasOwnProperty( 'data' ) ? error.data : {}
+		);
 
 		return null === action ? null : (
 			<React.Fragment key={ error.action }>{ action }</React.Fragment>

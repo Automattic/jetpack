@@ -48,7 +48,10 @@ export default function SendAMessageSave( { attributes, className } ) {
 			<a
 				className="whatsapp-block__button"
 				href={ getWhatsAppUrl() }
-				style={ { backgroundColor: backgroundColor } }
+				style={ {
+					backgroundColor: backgroundColor,
+					color: 'dark' === colorClass ? '#fff' : '#465B64',
+				} }
 				target={ target }
 				rel="noopener noreferrer"
 			>

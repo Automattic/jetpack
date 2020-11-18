@@ -37,9 +37,11 @@ class Jetpack_IXR_Client extends IXR_Client {
 		$defaults = array(
 			'url'     => $connection->xmlrpc_api_url(),
 			'user_id' => 0,
+			'headers' => array(),
 		);
 
-		$args = wp_parse_args( $args, $defaults );
+		$args            = wp_parse_args( $args, $defaults );
+		$args['headers'] = array_merge( array( 'Content-Type' => 'text/xml' ), (array) $args['headers'] );
 
 		$this->jetpack_args = $args;
 

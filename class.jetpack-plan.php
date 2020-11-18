@@ -146,6 +146,13 @@ class Jetpack_Plan {
 			return false;
 		}
 
+		$current_plan = get_option( self::PLAN_OPTION, array() );
+
+		if ( ! empty( $current_plan ) && $current_plan === $results['plan'] ) {
+			// Bail if the plans array hasn't changed.
+			return false;
+		}
+
 		// Store the new plan in an option and return true if updated.
 		$result = self::store_data_in_option( self::PLAN_OPTION, $results['plan'] );
 
@@ -285,7 +292,7 @@ class Jetpack_Plan {
 	 *  the feature or false if not found
 	 */
 	public static function get_minimum_plan_for_feature( $feature ) {
-		foreach ( self::PLAN_DATA as $class => $details ) {
+		foreach ( self::PLAN_DATA as $details ) {
 			if ( in_array( $feature, $details['supports'], true ) ) {
 				return $details['plans'][0];
 			}

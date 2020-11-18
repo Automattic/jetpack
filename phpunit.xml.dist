@@ -6,9 +6,6 @@
 		<testsuite name="general">
 			<directory prefix="test" suffix=".php">tests/php/general</directory>
 		</testsuite>
-		<testsuite name="php-lint">
-			<file>tests/php/test_php-lint.php</file>
-		</testsuite>
 		<testsuite name="composer-lint">
 			<file>tests/php/test-composer-lint.php</file>
 		</testsuite>
@@ -41,6 +38,9 @@
 		</testsuite>
 		<testsuite name="post-by-email">
 			<directory prefix="test" suffix=".php">tests/php/modules/post-by-email</directory>
+		</testsuite>
+		<testsuite name="protect">
+			<directory prefix="test" suffix=".php">tests/php/modules/protect</directory>
 		</testsuite>
 		<testsuite name="related-posts">
 			<directory prefix="test_" suffix=".php">tests/php/modules/related-posts</directory>
@@ -112,6 +112,9 @@
 		</testsuite>
 		<testsuite name="google-analytics">
 			<directory prefix="test" suffix=".php">tests/php/modules/google-analytics</directory>
+		</testsuite>
+		<testsuite name="masterbar">
+			<directory prefix="test" suffix=".php">tests/php/modules/masterbar</directory>
 		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>

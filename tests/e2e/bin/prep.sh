@@ -15,7 +15,7 @@ TMP_DIR="/tmp/jetpack"
 rm -rf $TMP_DIR $ZIP_FILE
 mkdir -p $TMP_DIR
 
-FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|docker|docs|extensions|.git")
+FILES=$(ls -Ad $WORKING_DIR/* | grep -Ev "node_modules|packages|tests|_inc/client|docker|docs|extensions|.git")
 cp -r $FILES $TMP_DIR
 
 if $(! type -t "zip" > /dev/null 2>&1); then

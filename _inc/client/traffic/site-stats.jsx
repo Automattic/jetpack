@@ -211,19 +211,6 @@ class SiteStatsComponent extends React.Component {
 									) }
 								</span>
 							</CompactFormToggle>
-							<CompactFormToggle
-								checked={ !! this.props.getOptionValue( 'hide_smile' ) }
-								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
-								onChange={ this.handleStatsOptionToggle( 'hide_smile' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Hide the stats smiley face image', 'jetpack' ) }
-								</span>
-								<span className="jp-form-setting-explanation">
-									{ __( 'The image helps collect stats but should work when hidden.', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>

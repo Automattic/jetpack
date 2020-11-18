@@ -142,7 +142,6 @@ class Test_Constants extends TestCase {
 		$this->assertNull( Constants::get_constant( 'JETPACK__VERSION' ) );
 	}
 
-
 	/**
 	 * Tests that constant will use the filter value.
 	 *
@@ -156,7 +155,7 @@ class Test_Constants extends TestCase {
 		$apply_filters_spy = new Spy(
 			'Automattic\Jetpack',
 			'apply_filters',
-			function ( $filter_name, $value, $name ) use ( $test_constant_value ) {
+			function ( $filter_name, $value, $name ) use ( $test_constant_value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				return $test_constant_value;
 			}
 		);
@@ -183,7 +182,7 @@ class Test_Constants extends TestCase {
 		$key = 'TEST';
 		Constants::set_constant( $key, '1' );
 		$this->assertArrayHasKey( $key, Constants::$set_constants );
-		$this->assertEquals( '1', Constants::$set_constants[ $key ] );
+		$this->assertSame( '1', Constants::$set_constants[ $key ] );
 	}
 
 	/**

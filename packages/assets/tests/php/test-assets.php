@@ -7,10 +7,10 @@
 
 namespace Automattic\Jetpack;
 
-use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Retrieves a URL within the plugins or mu-plugins directory.
@@ -159,15 +159,15 @@ class AssetsTest extends TestCase {
 	public function get_file_url_for_environment_data_provider() {
 		return array(
 			'script-debug-true'  => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				true,
 				'non_min_path',
 				'min_path',
 			),
 			'script-debug-false' => array(
-				'_inc/build/shortcodes/js/instagram.js',
-				'modules/shortcodes/js/instagram.js',
+				'_inc/build/shortcodes/js/recipes.js',
+				'modules/shortcodes/js/recipes.js',
 				false,
 				'min_path',
 				'non_min_path',
@@ -220,7 +220,7 @@ class AssetsTest extends TestCase {
 	public function test_enqueue_async_script_adds_script_loader_tag_filter() {
 		Assets::enqueue_async_script( 'handle', 'minpath.js', 'path.js', array(), '123', true );
 		$asset_instance = Assets::instance();
-		self::assertTrue( has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
+		self::assertEquals( 10, (int) has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
 	}
 
 	/**

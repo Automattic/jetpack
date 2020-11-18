@@ -99,7 +99,7 @@ class Admin {
 
 add_action(
 	'plugins_loaded',
-	function() {
+	function () {
 		new Admin();
 	}
 );

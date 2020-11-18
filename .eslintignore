@@ -10,7 +10,7 @@
 /modules/custom-css/custom-css/js/core-customizer-css-preview.js
 /modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js
 /modules/custom-css/custom-css/js/core-customizer-css.js
-/packages/lazy-images/src/js/lazy-images.js
+/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
 /packages/lazy-images/vendor
 
 /modules/widgets/search/js/search-widget-admin.js

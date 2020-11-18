@@ -25,7 +25,7 @@ function jetpack_vr_viewer_get_viewer_url_params( $params ) {
 	$url_params = array();
 
 	if ( isset( $params['rotation'] ) ) {
-		$url_params['rotation'] = intval( $params['rotation'], 10 );
+		$url_params['rotation'] = (int) $params['rotation'];
 	}
 
 	if ( isset( $params['view'] ) && in_array( $params['view'], array( 'cinema', '360' ), true ) ) {

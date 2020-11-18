@@ -124,7 +124,10 @@ const PodcastPlayerEdit = ( {
 					// Show error and allow to edit URL.
 					debug( 'feed error', error );
 					createErrorNotice(
-						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+						// Error messages already come localized.
+						error.message ||
+							// Fallback to a generic message.
+							__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
 					);
 					setIsEditing( true );
 				}

@@ -23,6 +23,9 @@ define( 'TESTING_IN_JETPACK', true );
 if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 	// Defined on command line
 	$test_root = getenv( 'WP_DEVELOP_DIR' );
+	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
+		$test_root .= '/tests/phpunit/';
+	}
 } else if ( file_exists( '../../../../tests/phpunit/includes/bootstrap.php' ) ) {
 	// Installed inside wordpress-develop
 	$test_root = '../../../../tests/phpunit';

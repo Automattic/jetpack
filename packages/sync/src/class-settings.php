@@ -151,7 +151,7 @@ class Settings {
 		}
 
 		if ( is_numeric( $value ) ) {
-			$value = intval( $value );
+			$value = (int) $value;
 		}
 		$default_array_value = null;
 		switch ( $setting ) {
@@ -204,7 +204,7 @@ class Settings {
 			}
 
 			// If we set the disabled option to true, clear the queues.
-			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
+			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && (bool) $value ) {
 				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();

@@ -2,6 +2,94 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 9.1 =
+
+* Release date: November 10, 2020
+* Release post: https://wp.me/p1moTy-s0E
+
+**Enhancements**
+
+* Button Block: add a center alignment option to all Jetpack button blocks.
+* Content Options: add new filter to allow theme and plugin authors to disable featured image removal for their Custom Post Types.
+* Dashboard: improve the display of dates in the Jetpack Plan screen and in the Stats graph.
+* Dashboard: improve the display of numbers in all languages.
+* Donations Block: improve the display of the block outside WordPress (in subscription emails, for example).
+* Embeds: update Loom logo.
+* External Media: add feature to the Cover block.
+* Google Calendar Block: improve the display of the block in the editor.
+* Image Compare Block: accessibility improvements.
+* Instant Search: improve accessibility of the Search modal.
+* Likes: remove jQuery dependency where possible.
+* Pay with PayPal Block: improve the styling of the buttons in subscription emails.
+* Pay with PayPal Block: improve the display of currencies.
+* Podcast Player Block: add option to hide the episode title.
+* Podcast Player Block: display more helpful error messages when a podcast cannot be embedded.
+* Publicize: improve the usability of the Twitter thread options.
+* REST API: support needed capabilities in Jetpack REST API endpoints that allow site based authentication.
+* Social Menu & Social Media Icons: add support for Telegram profiles.
+* Synchronization: improve reliability of synchronization of theme changes.
+* WhatsApp Block: add option to change the alignment of the button.
+* Widget Visibility: improve performance on sites with a large number of pages.
+* WordPress.com Block Editor: add option to add metadata to a post indicating the last editor used.
+* WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
+
+**Improved compatibility**
+
+* Comments: avoid AMP validation errors when using Jetpack's Comments feature and the AMP plugin.
+* Dashboard: better support all states available when using one of Jetpack's Security solutions.
+* Embeds: improve compatibility between Jetpack's Instagram embed and WordPress' own embed.
+* Embeds: ensure Facebook Embeds work well with the AMP plugin.
+* External Media: update iconography and improve forward compatibility.
+* General: better detect local development environments.
+* Google Analytics: add support for the AMP plugin to track WooCommerce events.
+* OpenTable Block: ensure full compatibility with the AMP plugin.
+* Pay with PayPal Block: ensure full compatibility with the AMP plugin.
+* Sharing: add support for the Google Web Stories plugin.
+* Slideshow Block: ensure that the block can be displayed using the Full Width alignment setting when using the Gutenberg plugin.
+* Widget Visibility: avoid performance impact it may have on the block editor when used with the Gutenberg plugin.
+* YouTube embeds: ensure that all YouTube video embeds work well when using the AMP plugin.
+
+**Bug fixes**
+
+* Calendly and Eventbrite Blocks: fix layout issue when selecting block styles in the editor.
+* Contact Form: selection widgets, radio buttons, and checkboxes can now use commas, brackets, and backslashes in the labels and values without breaking the form.
+* Donations / Payments Block: fix visual bug in Stripe connection banner.
+* Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
+* Google Analytics: support updated Google Analytics 4 properties.
+* Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
+* Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
+* Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
+* Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
+* Pay with PayPal Block: add default price value.
+* Pay with PayPal Block: ensure currencies are displayed properly in the editor.
+* Protect: fix handling of IPv6 addresses.
+* Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
+* Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
+* Publicize: when generating Twitter threads, allow text to be split at line breaks where appropriate.
+* Security / Contact Form: add additional checks before checking submitted forms for spam.
+* Security / WordPress.com REST API: improve authentication checks when making proxied requests to a site's API endpoints.
+* Slideshow Block: fix a bug that prevented the first and last images from displaying when the slideshow loops.
+* Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
+* Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.
+* WhatsApp Block: fix issue when the text color would not be correct.
+
+= 9.0.2 =
+
+* Release date: October 9, 2020
+
+**Enhancements**
+
+* Publicize: improve handling of URLs when generating Twitter threads.
+
+**Bug fixes**
+
+* Instagram Embeds: ensure that Instagram URLs with additional URL parameters can be embedded as well.
+* Media Extractor: prevent PHP notice for some URLs.
+* Publicize: avoid block editor errors when no Publicize connections are available.
+* Synchronization flow: avoid potential fatal errors when updating the plugin from the Dashboard > Updates screen.
+* Sharing: avoid PHP notices when a post object is invalid.
+* WordPress.com REST API: avoid errors when uploading images from a URL.
+
 = 9.0.1 =
 
 * Release date: October 6, 2020

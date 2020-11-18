@@ -13,6 +13,9 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 		'$site' => '(int|string) Site ID or domain',
 	),
 	'allow_jetpack_site_auth' => true,
+
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'query_parameters' => array(
 		'context' => false,
 		'options' => '(string) Optional. Returns specified options only. Comma-separated list. Example: options=login_url,timezone',
@@ -126,7 +129,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack_frame_nonce',
 		'page_on_front',
 		'page_for_posts',
-		'wpcom_public_coming_soon_page_id',
 		'headstart',
 		'headstart_is_fresh',
 		'ak_vp_bundle_enabled',
@@ -554,9 +556,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$options[ $key ] = $site->get_page_for_posts();
 					}
 					break;
-				case 'wpcom_public_coming_soon_page_id':
-					$options[ $key ] = $site->get_wpcom_public_coming_soon_page_id();
-					break;
 				case 'headstart' :
 					$options[ $key ] = $site->is_headstart();
 					break;
@@ -728,6 +727,8 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	'query_parameters' => array(
 		'context' => false,
 	),
+
+	'allow_fallback_to_jetpack_blog_token' => true,
 
 	'response_format' => array(
 		'formats' => '(object) An object of supported post formats, each key a supported format slug mapped to its display string.',

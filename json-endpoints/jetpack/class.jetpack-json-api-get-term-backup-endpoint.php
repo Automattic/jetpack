@@ -11,7 +11,7 @@ class Jetpack_JSON_API_Get_Term_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 			return new WP_Error( 'term_id_not_specified', __( 'You must specify a Term ID', 'jetpack' ), 400 );
 		}
 
-		$this->term_id = intval( $term_id );
+		$this->term_id = (int) $term_id;
 
 		return true;
 	}

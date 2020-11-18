@@ -94,6 +94,10 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return bool|WP_Error
 	 */
 	protected function check_capability( $capability ) {
+		// If this endpoint accepts site based authentication, skip capabilities check.
+		if ( $this->accepts_site_based_authentication() ) {
+			return true;
+		}
 		if ( is_array( $capability ) ) {
 			// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
 			$capabilities = ( isset( $capability['capabilities'] ) ? $capability['capabilities'] : $capability );
@@ -111,11 +115,15 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$failed[] = $cap;
 				}
 			}
-			// Check that must have conditions is less then
+			// Check if all conditions have passed.
 			if ( $passed < $must_pass ) {
-				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), implode( ', ', $failed ), 403 ) );
+				return new WP_Error(
+					'unauthorized',
+					/* translators: %s: comma-separated list of capabilities */
+					sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), implode( ', ', $failed ) ),
+					403
+				);
 			}
-
 		} else {
 			if ( !current_user_can( $capability ) ) {
 				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), $capability ), 403 );

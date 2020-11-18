@@ -127,7 +127,6 @@ class WordAds_API {
 		return self::$wordads_status['house'] ? '1' : '0';
 	}
 
-
 	/**
 	 * Returns whether or not this site is safe to run ads on.
 	 *

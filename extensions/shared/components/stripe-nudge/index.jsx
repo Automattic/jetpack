@@ -39,6 +39,7 @@ export default ( { blockName, postId, stripeConnectUrl } ) => {
 
 	return (
 		<BlockNudge
+			className="jetpack-stripe-nudge__banner"
 			buttonLabel={ __( 'Connect', 'jetpack' ) }
 			icon={
 				<GridiconStar

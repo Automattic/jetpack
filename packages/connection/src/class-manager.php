@@ -8,13 +8,13 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 use WP_User;
-use Automattic\Jetpack\Heartbeat;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -97,7 +97,12 @@ class Manager {
 	public static function configure() {
 		$manager = new self();
 
-		Utils::init_default_constants();
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -379,7 +384,7 @@ class Manager {
 		if (
 			empty( $token_key )
 		||
-			empty( $version ) || strval( $jetpack_api_version ) !== $version ) {
+			empty( $version ) || (string) $jetpack_api_version !== $version ) {
 			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
@@ -517,6 +522,9 @@ class Manager {
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
+		if ( ( new Status() )->is_no_user_testing_mode() ) {
+			return $this->is_registered();
+		}
 		return (bool) $this->get_access_token( self::CONNECTION_OWNER );
 	}
 
@@ -721,7 +729,7 @@ class Manager {
 			return false;
 		}
 
-		$user_id = empty( $user_id ) ? get_current_user_id() : intval( $user_id );
+		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
 		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
 			return false;
@@ -824,6 +832,10 @@ class Manager {
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
 
+		if ( false === $secrets ) {
+			return new WP_Error( 'cannot_save_secrets', __( 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'jetpack' ) );
+		}
+
 		if (
 			empty( $secrets['secret_1'] ) ||
 			empty( $secrets['secret_2'] ) ||
@@ -872,6 +884,7 @@ class Manager {
 				'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 				'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
 				'current_user_email' => wp_get_current_user()->user_email,
+				'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
 			)
 		);
 
@@ -984,7 +997,7 @@ class Manager {
 			$registration_response = false;
 		}
 
-		$code_type = intval( $code / 100 );
+		$code_type = (int) ( $code / 100 );
 		if ( 5 === $code_type ) {
 			return new \WP_Error( 'wpcom_5??', $code );
 		} elseif ( 408 === $code ) {
@@ -1324,8 +1337,8 @@ class Manager {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
-		return $secrets[ $secret_name ];
+		$res = Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
+		return $res ? $secrets[ $secret_name ] : false;
 	}
 
 	/**
@@ -1619,7 +1632,7 @@ class Manager {
 		 */
 		do_action( 'jetpack_verify_secrets_begin', $action, $user );
 
-		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
+		$return_error = function ( \WP_Error $error ) use ( $action, $user ) {
 			/**
 			 * Verifying of the previously generated secret has failed.
 			 *
@@ -2254,6 +2267,10 @@ class Manager {
 		$possible_normal_tokens  = array();
 		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
 
+		if ( ( new Status() )->is_no_user_testing_mode() ) {
+			$user_tokens = false;
+		}
+
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
 				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
@@ -2333,9 +2350,9 @@ class Manager {
 		if ( ! $valid_token ) {
 			if ( $user_id ) {
 				// translators: %d is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
 			} else {
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_token', __( 'Invalid blog token', 'jetpack' ) );
+				return $suppress_errors ? false : new \WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack' ) );
 			}
 		}
 

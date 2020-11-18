@@ -113,7 +113,7 @@ class Jetpack_Slideshow_Shortcode {
 		}
 
 		// Don't restrict to the current post if include.
-		$post_parent = ( empty( $attr['include'] ) ) ? intval( $attr['id'] ) : null;
+		$post_parent = ( empty( $attr['include'] ) ) ? (int) $attr['id'] : null;
 
 		$attachments = get_posts(
 			array(

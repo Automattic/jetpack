@@ -16,6 +16,7 @@ import get from 'lodash/get';
 import SearchFilter from './search-filter';
 import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/query-string';
 import { mapFilterToFilterKey, mapFilterToType } from '../lib/filters';
+import './search-filters.scss';
 
 export default class SearchFilters extends Component {
 	static defaultProps = {

@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
-use Automattic\Jetpack\Sync\Health;
 
 /**
  * Jetpack Sync main class.
@@ -83,6 +82,5 @@ class Main {
 		// Initialize health-related hooks after plugins have loaded.
 		Health::init();
 	}
-
 
 }

@@ -1,3 +1,4 @@
+@import '../lib/style-helpers';
 $min-height: 190px;
 
 .jetpack-instant-search__search-results-list.is-format-product {
@@ -26,26 +27,7 @@ $min-height: 190px;
 	}
 }
 .jetpack-instant-search__result-expanded__path {
-	font-size: 0.9em;
 	margin: 0.5em 0;
-	overflow-x: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	max-width: calc( 100vw - 2em );
-}
-
-.jetpack-instant-search__result-expanded__path-link {
-	text-decoration: none;
-}
-
-.jetpack-instant-search__result-expanded__path,
-.jetpack-instant-search__result-expanded__path-link {
-	.jetpack-instant-search__overlay--light & {
-		color: $studio-gray-70;
-	}
-	.jetpack-instant-search__overlay--dark & {
-		color: $studio-gray-30;
-	}
 }
 
 .jetpack-instant-search__result-expanded__copy-container {

@@ -41,6 +41,15 @@ class Plugin {
 	}
 
 	/**
+	 * Get the plugin slug.
+	 *
+	 * @return string
+	 */
+	public function get_slug() {
+		return $this->slug;
+	}
+
+	/**
 	 * Add the plugin connection info into Jetpack.
 	 *
 	 * @param string $name Plugin name, required.

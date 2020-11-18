@@ -159,7 +159,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return array(
-			'success' => wp_delete_user( $user_id, intval( $input['reassign'] ) ),
+			'success' => wp_delete_user( $user_id, (int) $input['reassign'] ),
 		);
 	}
 }

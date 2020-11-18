@@ -213,7 +213,7 @@ class Jetpack_SSO_Helpers {
 		 *
 		 * @param int 5 By default, SSO will attempt to random generate a user up to 5 times.
 		 */
-		$num_tries = intval( apply_filters( 'jetpack_sso_allowed_username_generate_retries', 5 ) );
+		$num_tries = (int) apply_filters( 'jetpack_sso_allowed_username_generate_retries', 5 );
 
 		$tries = 0;
 		while ( ( $exists = username_exists( $username ) ) && $tries++ < $num_tries ) {
@@ -255,7 +255,7 @@ class Jetpack_SSO_Helpers {
 		 *
 		 * @param int YEAR_IN_SECONDS
 		 */
-		return intval( apply_filters( 'jetpack_sso_auth_cookie_expiration', YEAR_IN_SECONDS ) );
+		return (int) apply_filters( 'jetpack_sso_auth_cookie_expiration', YEAR_IN_SECONDS );
 	}
 
 	/**

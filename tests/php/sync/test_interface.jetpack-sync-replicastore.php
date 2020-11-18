@@ -182,8 +182,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// temporary hack due to missing post_meta_checksum implementation in the test replicastore
 		if ( 'Jetpack_Sync_Test_Replicastore' != get_class( $store ) ) {
 			$this->assertEquals( $store->post_meta_checksum( 1, 2 ), $histogram['1-2'] );
-			$this->assertEquals( $store->post_meta_checksum( 5, 10 ), $histogram['5-10'] );	
-		}		
+			$this->assertEquals( $store->post_meta_checksum( 5, 10 ), $histogram['5-10'] );
+		}
 
 		// test comments checksum with ID range
 		$histogram = $store->checksum_histogram( 'comments', 2 );
@@ -303,7 +303,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 			foreach ( $histogram as $range => $checksum ) {
 				list( $min_id, $max_id ) = explode( '-', $range );
 
-				$range_histogram = $store->checksum_histogram( $object_type, 1, intval( $min_id ), intval( $max_id ) );
+				$range_histogram = $store->checksum_histogram( $object_type, 1, (int) $min_id, (int) $max_id );
 				$range_checksum  = array_pop( $range_histogram );
 
 				$this->assertEquals( $checksum, $range_checksum );
@@ -644,7 +644,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 				),
 		);
 
-		$store->set_theme_support( $theme_features );
+		$store->set_callable( 'theme_support', $theme_features );
 
 		// the "current_theme_supports" API is only supposed to return "true" if there's a setting
 		foreach ( $theme_features as $theme_feature => $theme_feature_value ) {

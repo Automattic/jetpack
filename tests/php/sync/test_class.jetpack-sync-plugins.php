@@ -4,7 +4,7 @@
  */
 class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	protected $theme;
-	const PLUGIN_ZIP = 'wp-content/plugins/jetpack/tests/php/files/the.1.1.zip';
+	const PLUGIN_ZIP = __DIR__ . '/../files/the.1.1.zip';
 
 	public function setUp() {
 		parent::setUp();
@@ -202,21 +202,21 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 			new Automatic_Upgrader_Skin( $plugin_defaults )
 		);
 		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Install it from local disk
-		$upgrader->install( ABSPATH . self::PLUGIN_ZIP );
+		$upgrader->install( self::PLUGIN_ZIP );
 	}
 
 	function set_update_plugin_transient( $transient ) {
 		return (object) array(
 			'response' => array(
 				'the/the.php' => (object) array(
-					'package' => ABSPATH . self::PLUGIN_ZIP
+					'package' => self::PLUGIN_ZIP,
 				)
 			)
 		);
 	}
 
 	static function remove_plugin() {
-		if ( file_exists( ABSPATH .  'wp-content/plugins/the/the.php' ) ) {
+		if ( file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
 			delete_plugins( array( 'the/the.php' ) );
 			wp_cache_delete( 'plugins', 'plugins' );
 		}

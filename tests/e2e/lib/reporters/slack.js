@@ -1,166 +1,172 @@
 /**
  * External dependencies
  */
-import { createReadStream } from 'fs';
+import { readFileSync, createReadStream } from 'fs';
 import { WebClient, ErrorCode } from '@slack/web-api';
 import config from 'config';
 
-const {
-	TRAVIS_BRANCH,
-	TRAVIS_REPO_SLUG,
-	TRAVIS_PULL_REQUEST_BRANCH,
-	TRAVIS_BUILD_WEB_URL,
-	TRAVIS_JOB_WEB_URL,
-	TRAVIS_BUILD_NUMBER,
-	E2E_SLACK_TOKEN,
-	E2E_CHANNEL_NAME,
-	TRAVIS_PULL_REQUEST,
-} = process.env;
-const token = E2E_SLACK_TOKEN || config.get( 'slackToken' );
-const conversationId = E2E_CHANNEL_NAME || config.get( 'slackChannel' );
-const webCli = new WebClient( token );
+const { GITHUB_EVENT_PATH, GITHUB_RUN_ID, LATEST_GUTENBERG } = process.env;
 
-const repoURL = `https://github.com/${ TRAVIS_REPO_SLUG }`;
-const branchName = TRAVIS_PULL_REQUEST_BRANCH !== '' ? TRAVIS_PULL_REQUEST_BRANCH : TRAVIS_BRANCH;
-const ccBrbrr = 'cc <@U6NSPV1LY>';
+export default class SlackReporter {
+	constructor() {
+		const token = config.get( 'slackToken' );
+		this.webCli = new WebClient( token );
+		this.runURL = `https://github.com/Automattic/jetpack/actions/runs/${ GITHUB_RUN_ID }`;
+		this.runType = LATEST_GUTENBERG ? 'with latest :gutenberg:' : 'All';
 
-async function sendRequestToSlack( fn ) {
-	try {
-		return await fn();
-	} catch ( error ) {
-		// Check the code property and log the response
-		if (
-			error.code === ErrorCode.PlatformError ||
-			error.code === ErrorCode.RequestError ||
-			error.code === ErrorCode.RateLimitedError ||
-			error.code === ErrorCode.HTTPError
-		) {
-			console.log( error.data );
+		this.conversationId = config.get( 'slackChannel' );
+		this.ccBrbrr = 'cc <@U6NSPV1LY>';
+		const event = JSON.parse( readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
+		this.isPullRequest = !! event.pull_request;
+		if ( this.isPullRequest ) {
+			this.branchName = event.pull_request.head.ref;
+			this.githubURL = event.pull_request.html_url;
 		} else {
-			// Some other error, oh no!
-			console.log(
-				'The error occurred does not match an error we are checking for in this block.'
-			);
-			console.log( error );
+			this.branchName = event.ref.substr( 11 );
+			this.githubURL = `https://github.com/Automattic/jetpack/tree/${ this.branchName }`;
 		}
 	}
-}
 
-const createSection = ( text, type = 'mrkdwn' ) => {
-	return {
-		type: 'section',
-		text: {
-			type,
-			text,
-		},
-	};
-};
-
-export const getFailedTestMessage = ( { name, block, error } ) => {
-	let testFailure = '';
-	if ( error.name || error.message ) {
-		testFailure = error.name + ': ' + error.message;
+	async sendSuccessMessage() {
+		return await this.sendMessageToSlack( this.getSuccessMessage() );
 	}
-	const message = [
-		createSection( `*TEST FAILED:*
+	async sendFailureMessage( failures ) {
+		return await this.sendMessageToSlack( this.getResultMessage( failures.length ) );
+	}
+
+	createSection( text, type = 'mrkdwn' ) {
+		return {
+			type: 'section',
+			text: {
+				type,
+				text,
+			},
+		};
+	}
+
+	getFailedTestMessage( { name, block, error } ) {
+		let testFailure = '';
+		if ( error.name || error.message ) {
+			testFailure = error.name + ': ' + error.message;
+		}
+		const message = [
+			this.createSection( `*TEST FAILED:*
 *Test suite*: ${ block }
 *Test case*: ${ name }
 *Failure reason:* ${ testFailure }
-*Travis build:* ${ TRAVIS_BUILD_WEB_URL }
-*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
-*Github branch:* ${ branchName }
-*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }` ),
-	];
-	return message;
-};
+*E2E action run:* ${ this.runURL }
+*Github branch:* ${ this.branchName }
+*Github URL:* ${ this.githubURL }` ),
+		];
+		return message;
+	}
 
-export const getResultMessage = failureCount => {
-	let buildInfo = `*BUILD #${ TRAVIS_BUILD_NUMBER } FAILED:*
+	getResultMessage( failureCount ) {
+		let buildInfo = `*BUILD #${ GITHUB_RUN_ID } FAILED:*
 
+*Type:* ${ this.runType }
 *Total failures:* ${ failureCount }
-*Travis build:* ${ TRAVIS_BUILD_WEB_URL }
-*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
-*Github branch:* ${ branchName }`;
+*E2E action run:* ${ this.runURL }
+*Github branch:* ${ this.branchName }`;
 
-	if ( TRAVIS_PULL_REQUEST ) {
-		buildInfo += `\n*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }`;
-	} else {
-		buildInfo += `\n*Github branch URL:* ${ repoURL }/tree/${ branchName }`;
+		buildInfo += this.isPullRequest ? `\n*Github PR URL:* ` : '\n*Github branch URL:* ';
+		buildInfo += this.githubURL;
+
+		const message = [
+			this.createSection( buildInfo ),
+			this.createSection( `Build details are threaded :thread:` ),
+		];
+
+		if ( this.branchName === 'master' ) {
+			message.push( this.createSection( this.ccBrbrr ) );
+		}
+
+		return message;
 	}
 
-	const message = [
-		createSection( buildInfo ),
-		createSection( `Build details are threaded :thread:` ),
-	];
+	getSuccessMessage() {
+		let buildInfo = `*BUILD #${ GITHUB_RUN_ID } PASSED:*
 
-	if ( TRAVIS_BRANCH === 'master' ) {
-		message.push( createSection( ccBrbrr ) );
+*Type:* ${ this.runType }
+*E2E action run:* ${ this.runURL }
+*Github branch:* ${ this.branchName }`;
+
+		buildInfo += this.isPullRequest ? `\n*Github PR URL:* ` : '\n*Github branch URL:* ';
+		buildInfo += this.githubURL;
+
+		const message = [ this.createSection( buildInfo ) ];
+		return message;
 	}
 
-	return message;
-};
+	async sendMessageToSlack( message, options = {} ) {
+		const payload = Object.assign(
+			{
+				channel: this.conversationId,
+				username: 'Gutenpack testbot',
+				icon_emoji: ':gutenpack:',
+			},
+			options
+		);
 
-export const getSuccessMessage = () => {
-	let buildInfo = `*BUILD #${ TRAVIS_BUILD_NUMBER } PASSED:*
+		if ( typeof message === 'string' ) {
+			payload.text = message;
+		} else {
+			payload.blocks = message;
+		}
 
-*Travis build:* ${ TRAVIS_BUILD_WEB_URL }
-*E2E Job:* ${ TRAVIS_JOB_WEB_URL }
-*Github branch:* ${ branchName }`;
-
-	if ( TRAVIS_PULL_REQUEST ) {
-		buildInfo += `\n*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }`;
-	} else {
-		buildInfo += `\n*Github branch URL:* ${ repoURL }/tree/${ branchName }`;
+		// For details, see: https://api.slack.com/methods/chat.postMessage
+		return await this.sendRequestToSlack(
+			async () => await this.webCli.chat.postMessage( payload )
+		);
 	}
 
-	const message = [ createSection( buildInfo ) ];
-	return message;
-};
+	async sendSnippetToSlack( message, options = {} ) {
+		const payload = Object.assign(
+			{
+				channels: this.conversationId,
+				username: 'Gutenpack testbot',
+				icon_emoji: ':gutenpack:',
+				content: message,
+			},
+			options
+		);
 
-export async function sendMessageToSlack( message, options = {} ) {
-	const payload = Object.assign(
-		{
-			channel: conversationId,
-			username: 'Gutenpack testbot',
-			icon_emoji: ':gutenpack:',
-		},
-		options
-	);
-
-	if ( typeof message === 'string' ) {
-		payload.text = message;
-	} else {
-		payload.blocks = message;
+		return await this.sendRequestToSlack( async () => await this.webCli.files.upload( payload ) );
 	}
 
-	// For details, see: https://api.slack.com/methods/chat.postMessage
-	return await sendRequestToSlack( async () => await webCli.chat.postMessage( payload ) );
-}
+	async sendFileToSlack( filePath, options = {} ) {
+		const payload = Object.assign(
+			{
+				filename: filePath,
+				file: createReadStream( filePath ),
+				channels: this.conversationId,
+			},
+			options
+		);
 
-export async function sendSnippetToSlack( message, options = {} ) {
-	const payload = Object.assign(
-		{
-			channels: conversationId,
-			username: 'Gutenpack testbot',
-			icon_emoji: ':gutenpack:',
-			content: message,
-		},
-		options
-	);
+		// For details, see: https://api.slack.com/methods/files.upload
+		return await this.sendRequestToSlack( async () => await this.webCli.files.upload( payload ) );
+	}
 
-	return await sendRequestToSlack( async () => await webCli.files.upload( payload ) );
-}
-
-export async function sendFileToSlack( filePath, options = {} ) {
-	const payload = Object.assign(
-		{
-			filename: filePath,
-			file: createReadStream( filePath ),
-			channels: conversationId,
-		},
-		options
-	);
-
-	// For details, see: https://api.slack.com/methods/files.upload
-	return await sendRequestToSlack( async () => await webCli.files.upload( payload ) );
+	async sendRequestToSlack( fn ) {
+		try {
+			return await fn();
+		} catch ( error ) {
+			// Check the code property and log the response
+			if (
+				error.code === ErrorCode.PlatformError ||
+				error.code === ErrorCode.RequestError ||
+				error.code === ErrorCode.RateLimitedError ||
+				error.code === ErrorCode.HTTPError
+			) {
+				console.log( error.data );
+			} else {
+				// Some other error, oh no!
+				console.log(
+					'The error occurred does not match an error we are checking for in this block.'
+				);
+				console.log( error );
+			}
+		}
+	}
 }

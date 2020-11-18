@@ -113,8 +113,8 @@ abstract class Jetpack_Sitemap_Buffer {
 		$this->finder = new Jetpack_Sitemap_Finder();
 		$this->doc    = new DOMDocument( '1.0', 'UTF-8' );
 
-		$this->item_capacity = max( 1, intval( $item_limit ) );
-		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $this->doc->saveXML() );
+		$this->item_capacity = max( 1, (int) $item_limit );
+		$this->byte_capacity = max( 1, (int) $byte_limit ) - strlen( $this->doc->saveXML() );
 	}
 
 	/**

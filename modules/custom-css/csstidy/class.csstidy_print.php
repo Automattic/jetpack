@@ -308,7 +308,7 @@ class csstidy_print {
 		foreach ($this->css as $medium => $val) {
 			if ($this->parser->get_cfg('sort_selectors'))
 				ksort($val);
-			if (intval($medium) < DEFAULT_AT) {
+			if ( (int) $medium < DEFAULT_AT ) {
 				$this->parser->_add_token(AT_START, $medium, true);
 			}
 			elseif ($default_media) {
@@ -328,7 +328,7 @@ class csstidy_print {
 				$this->parser->_add_token(SEL_END, $selector, true);
 			}
 
-			if (intval($medium) < DEFAULT_AT) {
+			if ( (int) $medium < DEFAULT_AT ) {
 				$this->parser->_add_token(AT_END, $medium, true);
 			}
 			elseif ($default_media) {

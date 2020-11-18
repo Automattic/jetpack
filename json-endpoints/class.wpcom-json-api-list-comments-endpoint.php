@@ -72,7 +72,9 @@ new WPCOM_JSON_API_List_Comments_Endpoint( array(
 		'$site' => '(int|string) Site ID or domain',
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comments/?number=2'
+	'allow_fallback_to_jetpack_blog_token' => true,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comments/?number=2',
 ) );
 
 new WPCOM_JSON_API_List_Comments_Endpoint( array(
@@ -87,7 +89,9 @@ new WPCOM_JSON_API_List_Comments_Endpoint( array(
 		'$post_ID' => '(int) The post ID',
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/7/replies/?number=2'
+	'allow_fallback_to_jetpack_blog_token' => true,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/7/replies/?number=2',
 ) );
 
 // @todo permissions

@@ -4,7 +4,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { numberFormat } from 'i18n-calypso';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
@@ -25,6 +28,7 @@ import { getPlanDuration } from 'state/plans/reducer';
 import { getUpgradeUrl } from 'state/initial-state';
 import { SEARCH_DESCRIPTION, SEARCH_TITLE } from '../constants';
 import InfoPopover from 'components/info-popover';
+import { numberFormat } from 'components/number-format';
 import PlanRadioButton from '../single-product-components/plan-radio-button';
 import ProductSavings from '../single-product-components/product-savings';
 

@@ -159,6 +159,7 @@ export const errors = ( state = {}, action ) => {
 				code: action.error.hasOwnProperty( 'response' )
 					? action.error.response.code
 					: 'fetch_site_data_fail_other',
+				data: action.error.hasOwnProperty( 'response' ) ? action.error.response.data : {},
 			} );
 		default:
 			return state;

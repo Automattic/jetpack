@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-require dirname( __FILE__ ) . '/../../src/lazy-images.php';
+require __DIR__ . '/../../src/lazy-images.php';
 
 use Automattic\Jetpack\Jetpack_Lazy_Images;
 use WorDBless\BaseTestCase;
@@ -218,7 +218,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 */
 	public function test_wp_get_attachment_image_gets_lazy_treatment() {
 
-		$attachment_id = $this->create_upload_object( dirname( __FILE__ ) . '/wp-logo.jpg', 0 );
+		$attachment_id = $this->create_upload_object( __DIR__ . '/wp-logo.jpg', 0 );
 		add_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 		$image = wp_get_attachment_image( $attachment_id );
 		remove_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
@@ -235,7 +235,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 * Test that the wp_get_attachment_image function output does not get the lazy treatment when lazy images feature is skipped.
 	 */
 	public function test_wp_get_attachment_image_does_not_get_lazy_treatment_when_skip_lazy_added() {
-		$attachment_id = $this->create_upload_object( dirname( __FILE__ ) . '/wp-logo.jpg', 0 );
+		$attachment_id = $this->create_upload_object( __DIR__ . '/wp-logo.jpg', 0 );
 		$instance      = Jetpack_Lazy_Images::instance();
 
 		$instance->setup_filters();
@@ -545,7 +545,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	public function get_input_content() {
 		ob_start();
 
-		require_once dirname( __FILE__ ) . '/pre-image-placeholder-content.html';
+		require_once __DIR__ . '/pre-image-placeholder-content.html';
 
 		$contents = trim( ob_get_contents() );
 		ob_end_clean();
@@ -561,7 +561,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	public function get_output_content() {
 		ob_start();
 
-		require_once dirname( __FILE__ ) . '/post-image-placeholder-content.html';
+		require_once __DIR__ . '/post-image-placeholder-content.html';
 
 		$contents = trim( ob_get_contents() );
 		ob_end_clean();

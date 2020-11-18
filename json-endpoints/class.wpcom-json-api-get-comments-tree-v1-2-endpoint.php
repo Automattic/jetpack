@@ -82,9 +82,9 @@ class WPCOM_JSON_API_Get_Comments_Tree_v1_2_Endpoint extends WPCOM_JSON_API_Get_
 		$trackbacks = array();
 		$pingbacks = array();
 		foreach ( $db_comment_rows as $row ) {
-			$comment_id = intval( $row[0] );
-			$comment_parent_id = intval( $row[1] );
-			$comment_post_id = isset( $args['post_id'] ) ? intval( $args['post_id'] ) : intval( $row[3] );
+			$comment_id = (int) $row[0];
+			$comment_parent_id = (int) $row[1];
+			$comment_post_id = isset( $args['post_id'] ) ? (int) $args['post_id'] : (int) $row[3];
 
 			if ( ! isset( $comments[ $comment_post_id ] ) ) {
 				$comments[ $comment_post_id ] = array( array(), array() );

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import { __, _x } from '@wordpress/i18n';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
@@ -191,8 +192,12 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		);
 	};
 
+	const getBlockClassNames = () => {
+		return classnames( className, colorClass ? 'is-color-' + colorClass : undefined );
+	};
+
 	return (
-		<div className={ className + ' is-color-' + colorClass }>
+		<div className={ getBlockClassNames() }>
 			{ ToolbarGroup && (
 				<BlockControls>
 					<ToolbarGroup>
@@ -260,6 +265,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 				preserveWhiteSpace={ false }
 				style={ {
 					backgroundColor: backgroundColor,
+					color: 'dark' === colorClass ? '#fff' : '#465B64',
 				} }
 			/>
 		</div>

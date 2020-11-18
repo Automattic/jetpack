@@ -527,7 +527,7 @@ class Jetpack_Cxn_Test_Base {
 
 		$public_key = openssl_get_publickey( JETPACK__DEBUGGER_PUBLIC_KEY );
 
-		if ( $public_key && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ) ) ) {
+		if ( $public_key && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ), 'RC4' ) ) {
 			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.
 			$return = array(
 				'data'   => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode

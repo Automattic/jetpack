@@ -1270,7 +1270,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$signature_data = wp_json_encode(
 			array(
 				'rest_route' => $_GET['rest_route'],
-				'timestamp' => intval( $_GET['timestamp'] ),
+				'timestamp' => (int) $_GET['timestamp'],
 				'url' => wp_unslash( $_GET['url'] ),
 			)
 		);
@@ -1287,7 +1287,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// signature timestamp must be within 5min of current time
-		if ( abs( time() - intval( $_GET['timestamp'] ) ) > 300 ) {
+		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
 			return false;
 		}
 
@@ -1795,15 +1795,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$data     = $body ? json_decode( $body ) : null;
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$api_error_code = null;
+			$error_info = array(
+				'api_error_code' => null,
+				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
+			);
 
 			if ( is_wp_error( $response ) ) {
-				$api_error_code = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
 			} elseif ( $data && ! empty( $data->error ) ) {
-				$api_error_code = $data->error;
+				$error_info['api_error_code'] = $data->error;
 			}
 
-			return new WP_Error( 'site_data_fetch_failed', '', array( 'api_error_code' => $api_error_code ) );
+			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
 		}
 
 		Jetpack_Plan::update_from_sites_response( $response );
@@ -1843,7 +1846,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$error_message = sprintf( esc_html__( 'Failed fetching site data from WordPress.com (%s). If the problem persists, try reconnecting Jetpack.', 'jetpack' ), $error_data['api_error_code'] );
 		}
 
-		return new WP_Error( $site_data->get_error_code(), $error_message, array( 'status' => 400 ) );
+		return new WP_Error(
+			$site_data->get_error_code(),
+			$error_message,
+			array(
+				'status'         => 400,
+				'api_error_code' => empty( $error_data['api_error_code'] ) ? null : $error_data['api_error_code'],
+				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
+			)
+		);
 	}
 
 	/**
@@ -2789,7 +2800,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_posint( $value = 0, $request, $param ) {
+	public static function validate_posint( $value, $request, $param ) {
 		if ( ! is_numeric( $value ) || $value <= 0 ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
 		}
@@ -2807,7 +2818,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_list_item( $value = '', $request, $param ) {
+	public static function validate_list_item( $value, $request, $param ) {
 		$attributes = $request->get_attributes();
 		if ( ! isset( $attributes['args'][ $param ] ) || ! is_array( $attributes['args'][ $param ] ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s not recognized', 'jetpack' ), $param ) );
@@ -2838,7 +2849,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_module_list( $value = '', $request, $param ) {
+	public static function validate_module_list( $value, $request, $param ) {
 		if ( ! is_array( $value ) ) {
 			return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be an array', 'jetpack' ), $param ) );
 		}
@@ -2863,7 +2874,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_alphanum( $value = '', $request, $param ) {
+	public static function validate_alphanum( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^[a-z0-9]+$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
 		}
@@ -2881,7 +2892,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_verification_service( $value = '', $request, $param ) {
+	public static function validate_verification_service( $value, $request, $param ) {
 		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || jetpack_verification_get_code( $value ) !== false ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string or a verification tag.', 'jetpack' ), $param ) );
 		}
@@ -3023,7 +3034,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_custom_service_id( $value = '', $request, $param ) {
+	public static function validate_custom_service_id( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/custom\-[0-1]+/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( "%s must be a string prefixed with 'custom-' and followed by a numeric ID.", 'jetpack' ), $param ) );
 		}
@@ -3052,7 +3063,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_twitter_username( $value = '', $request, $param ) {
+	public static function validate_twitter_username( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^@?\w{1,15}$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a Twitter username.', 'jetpack' ), $param ) );
 		}
@@ -3070,7 +3081,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_string( $value = '', $request, $param ) {
+	public static function validate_string( $value, $request, $param ) {
 		if ( ! is_string( $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack' ), $param ) );
 		}

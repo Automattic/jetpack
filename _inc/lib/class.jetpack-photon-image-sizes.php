@@ -70,7 +70,7 @@ class Jetpack_Photon_ImageSizes {
 			);
 			if ( isset( $_wp_additional_image_sizes[ $s ]['width'] ) ) {
 				// For theme-added sizes.
-				$sizes[ $s ]['width'] = intval( $_wp_additional_image_sizes[ $s ]['width'] );
+				$sizes[ $s ]['width'] = (int) $_wp_additional_image_sizes[ $s ]['width'];
 			} else {
 				// For default sizes set in options.
 				$sizes[ $s ]['width'] = get_option( "{$s}_size_w" );
@@ -78,7 +78,7 @@ class Jetpack_Photon_ImageSizes {
 
 			if ( isset( $_wp_additional_image_sizes[ $s ]['height'] ) ) {
 				// For theme-added sizes.
-				$sizes[ $s ]['height'] = intval( $_wp_additional_image_sizes[ $s ]['height'] );
+				$sizes[ $s ]['height'] = (int) $_wp_additional_image_sizes[ $s ]['height'];
 			} else {
 				// For default sizes set in options.
 				$sizes[ $s ]['height'] = get_option( "{$s}_size_h" );

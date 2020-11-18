@@ -35,7 +35,7 @@ function jetpack_gravatar_shortcode( $atts ) {
 		return false;
 	}
 
-	$atts['size'] = intval( $atts['size'] );
+	$atts['size'] = (int) $atts['size'];
 	if ( 0 > $atts['size'] ) {
 		$atts['size'] = 96;
 	}

@@ -162,6 +162,13 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		activateVaultPress: () =>
+			postRequest( `${ apiRoot }jetpack/v4/plugins`, postParams, {
+				body: JSON.stringify( { slug: 'vaultpress', status: 'active' } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		getVaultPressData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/vaultpress/data`, getParams )
 				.then( checkStatus )

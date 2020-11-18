@@ -107,8 +107,8 @@ class Grunion_Contact_Form_Plugin {
 	public static function strip_tags( $data_with_tags ) {
 		if ( is_array( $data_with_tags ) ) {
 			foreach ( $data_with_tags as $index => $value ) {
-				$index = sanitize_text_field( strval( $index ) );
-				$value = wp_kses( strval( $value ), array() );
+				$index = sanitize_text_field( (string) $index );
+				$value = wp_kses( (string) $value, array() );
 				$value = str_replace( '&amp;', '&', $value ); // undo damage done by wp_kses_normalize_entities()
 
 				$data_without_tags[ $index ] = $value;
@@ -177,8 +177,7 @@ class Grunion_Contact_Form_Plugin {
 					'not_found'          => __( 'No feedback found', 'jetpack' ),
 					'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
 				),
-				// Matrial Ballot icon
-				'menu_icon'             => 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z"/></svg>'),
+				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
@@ -340,6 +339,16 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
+		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.).
+		if ( ! jetpack_is_frontend() ) {
+			return sprintf(
+				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+				esc_url( get_the_permalink() ),
+				esc_html__( 'Submit a form.', 'jetpack' )
+			);
+		}
+
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
@@ -2367,6 +2376,34 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Escape a shortcode value.
+	 *
+	 * Shortcode attribute values have a number of unfortunate restrictions, which fortunately we
+	 * can get around by adding some extra HTML encoding.
+	 *
+	 * The output HTML will have a few extra escapes, but that makes no functional difference.
+	 *
+	 * @since 9.1.0
+	 * @param string $val Value to escape.
+	 * @return string
+	 */
+	private static function esc_shortcode_val( $val ) {
+		return strtr(
+			esc_html( $val ),
+			array(
+				// Brackets in attribute values break the shortcode parser.
+				'['  => '&#091;',
+				']'  => '&#093;',
+				// Shortcode parser screws up backslashes too, thanks to calls to `stripcslashes`.
+				'\\' => '&#092;',
+				// The existing code here represents arrays as comma-separated strings.
+				// Rather than trying to change representations now, just escape the commas in values.
+				','  => '&#044;',
+			)
+		);
+	}
+
+	/**
 	 * The contact-field shortcode processor
 	 * We use an object method here instead of a static Grunion_Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
 	 *
@@ -2384,18 +2421,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
-					$att_strs[] = esc_html( $val );
+					$att_strs[] = self::esc_shortcode_val( $val );
 				} elseif ( isset( $val ) ) { // A regular attr - value pair
 					if ( ( $att === 'options' || $att === 'values' ) && is_string( $val ) ) { // remove any empty strings
 						$val = explode( ',', $val );
 					}
- 					if ( is_array( $val ) ) {
+					if ( is_array( $val ) ) {
 						$val =  array_filter( $val, array( __CLASS__, 'remove_empty' ) ); // removes any empty strings
-						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( 'esc_html', $val ) ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( array( __CLASS__, 'esc_shortcode_val' ), $val ) ) . '"';
 					} elseif ( is_bool( $val ) ) {
-						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ? '1' : '' ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . ( $val ? '1' : '' ) . '"';
 					} else {
-						$att_strs[] = esc_html( $att ) . '="' . esc_html( $val ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . self::esc_shortcode_val( $val ) . '"';
 					}
 				}
 			}
@@ -3487,7 +3524,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 
-	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text ) {
 
 		$type_class = $type ? ' ' .$type : '';
 		return

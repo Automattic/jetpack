@@ -8,6 +8,11 @@ import { __ } from '@wordpress/i18n';
 import { colors as PALETTE } from '@automattic/color-studio';
 
 /**
+ * Internal dependencies
+ */
+import './jetpack-colophon.scss';
+
+/**
  * Module constants
  */
 const COLOR_JETPACK = PALETTE[ 'Jetpack Green' ];

@@ -831,17 +831,23 @@ add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
  * Add the "Check for Spam" button to the Feedbacks dashboard page.
  */
 function grunion_check_for_spam_button() {
-	// Get HTML for the button
+	// Nonce name.
+	$nonce_name = 'jetpack_check_feedback_spam_' . (string) get_current_blog_id();
+	// Get HTML for the button.
 	$button_html  = get_submit_button(
 		__( 'Check for Spam', 'jetpack' ),
 		'secondary',
 		'jetpack-check-feedback-spam',
 		false,
-		array( 'class' => 'jetpack-check-feedback-spam' )
+		array(
+			'data-failure-url' => add_query_arg( 'jetpack_check_feedback_spam_error', '1' ), // Refresh the current page and show an error.
+			'data-nonce-name'  => $nonce_name,
+		)
 	);
 	$button_html .= '<span class="jetpack-check-feedback-spam-spinner"></span>';
+	$button_html .= wp_nonce_field( 'grunion_recheck_queue', $nonce_name, false, false );
 
-	// Add the button next to the filter button via js
+	// Add the button next to the filter button via js.
 	?>
 	<script type="text/javascript">
 		jQuery( function( $ ) {
@@ -855,12 +861,33 @@ function grunion_check_for_spam_button() {
  * Recheck all approved feedbacks for spam.
  */
 function grunion_recheck_queue() {
-	global $wpdb;
+	$blog_id = get_current_blog_id();
+
+	if (
+		empty( $_POST[ 'jetpack_check_feedback_spam_' . (string) $blog_id ] )
+		|| ! wp_verify_nonce( sanitize_key( $_POST[ 'jetpack_check_feedback_spam_' . (string) $blog_id ] ), 'grunion_recheck_queue' )
+	) {
+		wp_send_json_error(
+			__( 'You aren’t authorized to do that.', 'jetpack' ),
+			403
+		);
+
+		return;
+	}
+
+	if ( ! current_user_can( 'delete_others_posts' ) ) {
+		wp_send_json_error(
+			__( 'You don’t have permission to do that.', 'jetpack' ),
+			403
+		);
+
+		return;
+	}
 
 	$query = 'post_type=feedback&post_status=publish';
 
 	if ( isset( $_POST['limit'], $_POST['offset'] ) ) {
-		$query .= '&posts_per_page=' . intval( $_POST['limit'] ) . '&offset=' . intval( $_POST['offset'] );
+		$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 	}
 
 	$approved_feedbacks = get_posts( $query );
@@ -874,7 +901,7 @@ function grunion_recheck_queue() {
 			// if it's gone, don't attempt a spam recheck.
 			continue;
 		}
-		
+
 		$meta['recheck_reason'] = 'recheck_queue';
 
 		/**
@@ -916,7 +943,7 @@ add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
 function grunion_delete_spam_feedbacks() {
 	if ( ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) {
 		wp_send_json_error(
-			__( 'You aren&#8217;t authorized to do that.', 'jetpack' ),
+			__( 'You aren’t authorized to do that.', 'jetpack' ),
 			403
 		);
 
@@ -925,7 +952,7 @@ function grunion_delete_spam_feedbacks() {
 
 	if ( ! current_user_can( 'delete_others_posts' ) ) {
 		wp_send_json_error(
-			__( 'You don&#8217;t have permission to do that.', 'jetpack' ),
+			__( 'You don’t have permission to do that.', 'jetpack' ),
 			403
 		);
 
@@ -945,7 +972,7 @@ function grunion_delete_spam_feedbacks() {
 	 * @param int $delete_limit Number of spam to process at once. Default to 25.
 	 */
 	$delete_limit = apply_filters( 'jetpack_delete_spam_feedbacks_limit', $delete_limit );
-	$delete_limit = intval( $delete_limit );
+	$delete_limit = (int) $delete_limit;
 	$delete_limit = max( 1, min( 100, $delete_limit ) ); // Allow a range of 1-100 for the delete limit.
 
 	$query_args = array(
@@ -975,16 +1002,16 @@ function grunion_delete_spam_feedbacks() {
 		)
 	);
 }
-
 add_action( 'wp_ajax_jetpack_delete_spam_feedbacks', 'grunion_delete_spam_feedbacks' );
 
 /**
- * Show an admin notice if the "Empty Spam" process was unable to complete, probably due to a permissions error.
+ * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
  */
-function grunion_spam_emptied_admin_notice() {
-	if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) {
+function grunion_feedback_admin_notice() {
+	if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack' ) ) . '</p></div>';
+	} elseif ( isset( $_GET['jetpack_check_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack' ) ) . '</p></div>';
 	}
 }
-
-add_action( 'admin_notices', 'grunion_spam_emptied_admin_notice' );
+add_action( 'admin_notices', 'grunion_feedback_admin_notice' );

@@ -135,8 +135,8 @@ function dailymotion_shortcode( $atts ) {
 	}
 
 	/*set width and height using provided parameters if any */
-	$width  = isset( $atts['width'] ) ? intval( $atts['width'] ) : 0;
-	$height = isset( $atts['height'] ) ? intval( $atts['height'] ) : 0;
+	$width  = isset( $atts['width'] ) ? (int) $atts['width'] : 0;
+	$height = isset( $atts['height'] ) ? (int) $atts['height'] : 0;
 
 	if ( ! $width && ! $height ) {
 		if ( ! empty( $content_width ) ) {
@@ -180,7 +180,7 @@ function dailymotion_shortcode( $atts ) {
 		$player_params['sharing-enable'] = '0';
 	}
 	if ( isset( $atts['start'] ) && ! empty( $atts['start'] ) ) {
-		$player_params['start'] = abs( intval( $atts['start'] ) );
+		$player_params['start'] = abs( (int) $atts['start'] );
 	}
 	if ( isset( $atts['subtitles-default'] ) && ! empty( $atts['subtitles-default'] ) ) {
 		$player_params['subtitles-default'] = esc_attr( $atts['subtitles-default'] );

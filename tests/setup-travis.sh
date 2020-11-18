@@ -12,15 +12,15 @@ if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
 	composer install --ignore-platform-reqs
 	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
 elif [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
-  composer remove sirbrillig/phpcs-changed --dev
-  composer install
+	composer remove sirbrillig/phpcs-changed automattic/jetpack-codesniffer --dev
+	composer install
 	composer global require "phpunit/phpunit=6.5.*" --no-suggest
 elif [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-  composer install
-  composer global require "phpunit/phpunit=7.5.*" --no-suggest
+	composer install
+	composer global require "phpunit/phpunit=7.5.*" --no-suggest
 elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
-  composer remove sirbrillig/phpcs-changed --dev
-  composer install
+	composer remove sirbrillig/phpcs-changed automattic/jetpack-codesniffer --dev
+	composer install
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
 fi
 
@@ -50,6 +50,8 @@ fi
 
 cd ..
 cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+# Plugin dir for tests in WP >= 5.6-beta1
+ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$PLUGIN_SLUG"
 cd /tmp/wordpress-$WP_BRANCH
 
 cp wp-tests-config-sample.php wp-tests-config.php

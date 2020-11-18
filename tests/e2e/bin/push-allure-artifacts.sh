@@ -9,6 +9,8 @@ REPO_DIR=$ROOT_DIR/$REPO
 RESULTS_DIR="allure-results"
 USERNAME="jetpackbot"
 
+allure --version
+
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git

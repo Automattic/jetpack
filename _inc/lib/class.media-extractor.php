@@ -244,7 +244,12 @@ class Jetpack_Media_Meta_Extractor {
 					$url = wp_parse_url( $link_raw );
 
 					// Data URI links.
-					if ( isset( $url['scheme'] ) && 'data' === $url['scheme'] ) {
+					if ( ! isset( $url['scheme'] ) || 'data' === $url['scheme'] ) {
+						continue;
+					}
+
+					// Reject invalid URLs.
+					if ( ! isset( $url['host'] ) ) {
 						continue;
 					}
 

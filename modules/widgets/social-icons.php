@@ -96,11 +96,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 */
 	public function include_svg_icons() {
 		// Define SVG sprite file in Jetpack.
-		$svg_icons = dirname( dirname( __FILE__ ) ) . '/theme-tools/social-menu/social-menu.svg';
+		$svg_icons = dirname( __DIR__ ) . '/theme-tools/social-menu/social-menu.svg';
 
 		// Define SVG sprite file in WPCOM.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$svg_icons = dirname( dirname( __FILE__ ) ) . '/social-menu/social-menu.svg';
+			$svg_icons = dirname( __DIR__ ) . '/social-menu/social-menu.svg';
 		}
 
 		// If it exists, include it.
@@ -168,7 +168,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 											)
 										);
 										$found_icon = true;
-										break;
+										break 2;
 									}
 								}
 							}
@@ -498,34 +498,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Facebook',
 			),
 			array(
-				'url'   => array(
-					'/feed/',         // WordPress default feed url.
-					'/feeds/',        // Blogspot and others.
-					'/blog/feed',     // No trailing slash WordPress feed, could use /feed but may match unexpectedly.
-					'format=RSS',     // Squarespace and others.
-					'/rss',           // Tumblr.
-					'/.rss',          // Reddit.
-					'/rss.xml',       // Moveable Type, Typepad.
-					'http://rss.',    // Old custom format.
-					'https://rss.',   // Old custom format.
-					'rss=1',
-					'/feed=rss',      // Catches feed=rss / feed=rss2.
-					'?feed=rss',      // WordPress non-permalink - Catches feed=rss / feed=rss2.
-					'?feed=rdf',      // WordPress non-permalink.
-					'?feed=atom',     // WordPress non-permalink.
-					'http://feeds.',  // FeedBurner.
-					'https://feeds.', // FeedBurner.
-					'/feed.xml',      // Feedburner Alias, and others.
-					'/index.xml',     // Moveable Type, and others.
-					'/atom.xml',      // Typepad, Squarespace.
-					'.atom',          // Shopify blog.
-					'/atom',          // Some non-WordPress feeds.
-					'index.rdf',      // Typepad.
-				),
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
 				'url'   => array( 'flickr.com' ),
 				'icon'  => 'flickr',
 				'label' => 'Flickr',
@@ -636,6 +608,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'StumbleUpon',
 			),
 			array(
+				'url'   => array( 'telegram.me', 't.me' ),
+				'icon'  => 'telegram',
+				'label' => 'Telegram',
+			),
+			array(
 				'url'   => array( 'tumblr.com' ),
 				'icon'  => 'tumblr',
 				'label' => 'Tumblr',
@@ -674,6 +651,36 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'youtube.com' ),
 				'icon'  => 'youtube',
 				'label' => 'YouTube',
+			),
+
+			// keep feed at the end so that more specific icons can take precedence
+			array(
+				'url'   => array(
+					'/feed/',         // WordPress default feed url.
+					'/feeds/',        // Blogspot and others.
+					'/blog/feed',     // No trailing slash WordPress feed, could use /feed but may match unexpectedly.
+					'format=RSS',     // Squarespace and others.
+					'/rss',           // Tumblr.
+					'/.rss',          // Reddit.
+					'/rss.xml',       // Moveable Type, Typepad.
+					'http://rss.',    // Old custom format.
+					'https://rss.',   // Old custom format.
+					'rss=1',
+					'/feed=rss',      // Catches feed=rss / feed=rss2.
+					'?feed=rss',      // WordPress non-permalink - Catches feed=rss / feed=rss2.
+					'?feed=rdf',      // WordPress non-permalink.
+					'?feed=atom',     // WordPress non-permalink.
+					'http://feeds.',  // FeedBurner.
+					'https://feeds.', // FeedBurner.
+					'/feed.xml',      // Feedburner Alias, and others.
+					'/index.xml',     // Moveable Type, and others.
+					'/atom.xml',      // Typepad, Squarespace.
+					'.atom',          // Shopify blog.
+					'/atom',          // Some non-WordPress feeds.
+					'index.rdf',      // Typepad.
+				),
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 		);
 

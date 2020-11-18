@@ -17,6 +17,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 const EMBED_SIZE        = array( 180, 320 );
 const CROP_UP_TO        = 0.2;
+const MAX_BULLETS       = 7;
 const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
 
 /**
@@ -41,7 +42,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function with_width_height_srcset_and_sizes( $media_files ) {
 	return array_map(
-		function( $media_file ) {
+		function ( $media_file ) {
 			if ( ! isset( $media_file['id'] ) || ! empty( $media_file['srcset'] ) ) {
 				return $media_file;
 			}
@@ -60,10 +61,13 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				return array_merge(
 					$media_file,
 					array(
-						'width'  => absint( $width ),
-						'height' => absint( $height ),
-						'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-						'sizes'  => IMAGE_BREAKPOINTS,
+						'width'   => absint( $width ),
+						'height'  => absint( $height ),
+						'srcset'  => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
+						'sizes'   => IMAGE_BREAKPOINTS,
+						'title'   => get_the_title( $attachment_id ),
+						'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
 			} else {
@@ -76,10 +80,12 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				return array_merge(
 					$media_file,
 					array(
-						'width'  => absint( $video_meta['width'] ),
-						'height' => absint( $video_meta['height'] ),
-						'alt'    => $description,
-						'url'    => $url,
+						'width'   => absint( $video_meta['width'] ),
+						'height'  => absint( $video_meta['height'] ),
+						'alt'     => $description,
+						'url'     => $url,
+						'title'   => get_the_title( $attachment_id ),
+						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
 			}
@@ -116,6 +122,7 @@ function render_image( $media ) {
 		array(
 			'class' => sprintf( 'wp-story-image wp-image-%d %s', $media['id'], $crop_class ),
 			'sizes' => IMAGE_BREAKPOINTS,
+			'title' => get_the_title( $media['id'] ),
 		)
 	);
 }
@@ -166,9 +173,11 @@ function render_video( $media ) {
 		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
 		return sprintf(
 			'<img
+				title="%s"
 				alt="%s"
 				class="wp-block-jetpack-story_image wp-story-image %s"
 				src="%s">',
+			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
 			get_image_crop_class( $metadata['videopress']['width'], $metadata['videopress']['height'] ),
 			esc_attr( $poster_url )
@@ -183,7 +192,7 @@ function render_video( $media ) {
 			data-id="%3$s"
 			src="%4$s">
 		</video>',
-		esc_attr( $media['alt'] ),
+		esc_attr( get_the_title( $media['id'] ) ),
 		esc_attr( $media['mime'] ),
 		$media['id'],
 		esc_attr( $media['url'] )
@@ -209,6 +218,7 @@ function render_slide( $media, $index = 0 ) {
 			$media_template = render_image( $media, $index );
 			break;
 		case 'video':
+		case 'file':
 			$media_template = render_video( $media, $index );
 			break;
 	}
@@ -249,7 +259,7 @@ function render_top_right_icon( $settings ) {
 		// Render the Fullscreen Gridicon.
 		return (
 			'<div class="wp-story-embed-icon-expand">
-				<svg class="gridicon gridicons-fullscreen" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+				<svg class="gridicon gridicons-fullscreen" role="img" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 					<g>
 						<path d="M21 3v6h-2V6.41l-3.29 3.3-1.42-1.42L17.59 5H15V3zM3 3v6h2V6.41l3.29 3.3 1.42-1.42L6.41 5H9V3zm18 18v-6h-2v2.59l-3.29-3.29-1.41 1.41L17.59 19H15v2zM9 21v-2H6.41l3.29-3.29-1.41-1.42L5 17.59V15H3v6z"></path>
 					</g>
@@ -263,14 +273,16 @@ function render_top_right_icon( $settings ) {
  * Render a pagination bullet
  *
  * @param array $slide_index The slide index it corresponds to.
+ * @param array $class_name Optional css class name(s) to customize the bullet element.
  *
  * @return string
  */
-function render_pagination_bullet( $slide_index ) {
+function render_pagination_bullet( $slide_index, $class_name = '' ) {
 	return sprintf(
-		'<a href="#" class="wp-story-pagination-bullet" aria-label="%s">
+		'<a href="#" class="wp-story-pagination-bullet %s" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
 		</a>',
+		esc_attr( $class_name ),
 		/* translators: %d is the slide number (1, 2, 3...) */
 		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
 	);
@@ -288,12 +300,16 @@ function render_pagination( $settings ) {
 	if ( $show_slide_count ) {
 		return '';
 	}
-	$slide_count = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$slide_count     = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$bullet_count    = min( $slide_count, MAX_BULLETS );
+	$bullet_ellipsis = $slide_count > $bullet_count
+		? render_pagination_bullet( $bullet_count + 1, 'wp-story-pagination-ellipsis' )
+		: '';
 	return sprintf(
 		'<div class="wp-story-pagination wp-story-pagination-bullets">
 			%s
 		</div>',
-		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $slide_count ) ) )
+		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $bullet_count ) ) ) . $bullet_ellipsis
 	);
 }
 
@@ -318,16 +334,16 @@ function render_block( $attributes ) {
 	);
 
 	return sprintf(
-		'<div class="%1$s" data-settings="%2$s">
+		'<div class="%1$s" aria-labelledby="%2$s" data-settings="%3$s">
 			<div style="display: contents;">
 				<div class="wp-story-container">
 					<div class="wp-story-meta">
 						<div class="wp-story-icon">
-							<img alt="%3$s" src="%4$s" width="32" height=32>
+							<img alt="%4$s" src="%5$s" width="32" height=32>
 						</div>
 						<div>
 							<div class="wp-story-title">
-								%5$s
+								%6$s
 							</div>
 						</div>
 						<a class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
@@ -335,22 +351,24 @@ function render_block( $attributes ) {
 						</a>
 					</div>
 					<div class="wp-story-wrapper">
-						%6$s
+						%7$s
 					</div>
-					<a class="wp-story-overlay" href="%7$s">
-						%8$s
+					<a class="wp-story-overlay" href="%8$s" title="%9$s">
+						%10$s
 					</a>
-					%9$s
+					%11$s
 				</div>
 			</div>
 		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
+		esc_attr( 'wp-story-' . get_the_ID() ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
-		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
+		esc_attr( get_site_icon_url( 40, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
+		__( 'Play story in new tab', 'jetpack' ),
 		render_top_right_icon( $settings ),
 		render_pagination( $settings )
 	);

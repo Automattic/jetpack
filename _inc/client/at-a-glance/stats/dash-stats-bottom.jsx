@@ -3,9 +3,12 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { numberFormat, moment } from 'i18n-calypso';
+
+/**
+ * WordPress dependencies
+ */
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
 
 /**
  * Internal dependencies
@@ -15,6 +18,8 @@ import Button from 'components/button';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import getRedirectUrl from 'lib/jp-redirect';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import { numberFormat } from 'components/number-format';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -74,7 +79,7 @@ class DashStatsBottom extends Component {
 								  ) }
 						</h3>
 						<p className="jp-at-a-glance__stat-details">
-							{ '-' === s.bestDay.day ? '-' : moment( s.bestDay.day ).format( 'MMMM Do, YYYY' ) }
+							{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
 						</p>
 					</div>
 					<div className="jp-at-a-glance__stats-summary-alltime">
@@ -149,6 +154,7 @@ DashStatsBottom.propTypes = {
 	siteAdminUrl: PropTypes.string.isRequired,
 	statsData: PropTypes.object.isRequired,
 	isLinked: PropTypes.bool.isRequired,
+	dateFormat: PropTypes.string.isRequired,
 };
 
 DashStatsBottom.defaultProps = {
@@ -156,6 +162,7 @@ DashStatsBottom.defaultProps = {
 	siteAdminUrl: '',
 	statsData: {},
 	isLinked: false,
+	dateFormat: 'F j, Y',
 };
 
 export default DashStatsBottom;

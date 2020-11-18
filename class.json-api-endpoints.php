@@ -132,37 +132,45 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public $require_rewind_auth = false;
 
+	/**
+	 * Whether this endpoint allows falling back to a blog token for making requests to remote Jetpack sites.
+	 *
+	 * @var bool
+	 */
+	public $allow_fallback_to_jetpack_blog_token = false;
+
 	function __construct( $args ) {
 		$defaults = array(
-			'in_testing'                 => false,
-			'allowed_if_flagged'         => false,
-			'allowed_if_red_flagged'     => false,
-			'allowed_if_deleted'         => false,
-			'description'                => '',
-			'group'                      => '',
-			'method'                     => 'GET',
-			'path'                       => '/',
-			'min_version'                => '0',
-			'max_version'                => WPCOM_JSON_API__CURRENT_VERSION,
-			'force'                      => '',
-			'deprecated'                 => false,
-			'new_version'                => WPCOM_JSON_API__CURRENT_VERSION,
-			'jp_disabled'                => false,
-			'path_labels'                => array(),
-			'request_format'             => array(),
-			'response_format'            => array(),
-			'query_parameters'           => array(),
-			'version'                    => 'v1',
-			'example_request'            => '',
-			'example_request_data'       => '',
-			'example_response'           => '',
-			'required_scope'             => '',
-			'pass_wpcom_user_details'    => false,
-			'custom_fields_filtering'    => false,
-			'allow_cross_origin_request' => false,
-			'allow_unauthorized_request' => false,
-			'allow_jetpack_site_auth'    => false,
-			'allow_upload_token_auth'    => false,
+			'in_testing'                           => false,
+			'allowed_if_flagged'                   => false,
+			'allowed_if_red_flagged'               => false,
+			'allowed_if_deleted'                   => false,
+			'description'                          => '',
+			'group'                                => '',
+			'method'                               => 'GET',
+			'path'                                 => '/',
+			'min_version'                          => '0',
+			'max_version'                          => WPCOM_JSON_API__CURRENT_VERSION,
+			'force'                                => '',
+			'deprecated'                           => false,
+			'new_version'                          => WPCOM_JSON_API__CURRENT_VERSION,
+			'jp_disabled'                          => false,
+			'path_labels'                          => array(),
+			'request_format'                       => array(),
+			'response_format'                      => array(),
+			'query_parameters'                     => array(),
+			'version'                              => 'v1',
+			'example_request'                      => '',
+			'example_request_data'                 => '',
+			'example_response'                     => '',
+			'required_scope'                       => '',
+			'pass_wpcom_user_details'              => false,
+			'custom_fields_filtering'              => false,
+			'allow_cross_origin_request'           => false,
+			'allow_unauthorized_request'           => false,
+			'allow_jetpack_site_auth'              => false,
+			'allow_upload_token_auth'              => false,
+			'allow_fallback_to_jetpack_blog_token' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -195,11 +203,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 
-		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
-		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
-		$this->allow_jetpack_site_auth    = (bool) $args['allow_jetpack_site_auth'];
-		$this->allow_upload_token_auth    = (bool) $args['allow_upload_token_auth'];
-		$this->require_rewind_auth        = isset( $args['require_rewind_auth'] ) ? (bool) $args['require_rewind_auth'] : false;
+		$this->allow_cross_origin_request           = (bool) $args['allow_cross_origin_request'];
+		$this->allow_unauthorized_request           = (bool) $args['allow_unauthorized_request'];
+		$this->allow_jetpack_site_auth              = (bool) $args['allow_jetpack_site_auth'];
+		$this->allow_upload_token_auth              = (bool) $args['allow_upload_token_auth'];
+		$this->allow_fallback_to_jetpack_blog_token = (bool) $args['allow_fallback_to_jetpack_blog_token'];
+		$this->require_rewind_auth                  = isset( $args['require_rewind_auth'] ) ? (bool) $args['require_rewind_auth'] : false;
 
 		$this->version = $args['version'];
 
@@ -758,6 +767,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return[ $key ] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 				break;
 
+			case 'visibility':
+				// This is needed to fix a bug in WPAndroid where `public: "PUBLIC"` is sent in place of `public: 1`
+				if ( 'public' === strtolower( $value ) ) {
+					$return[ $key ] = 1;
+				} else if ( 'private' === strtolower( $value ) ) {
+					$return[ $key ] = -1;
+				} else {
+					$return[ $key ] = (int) $value;
+				}
+				break;
+
 			default:
 				$method_name = $type['type'] . '_docs';
 				if ( method_exists( 'WPCOM_JSON_API_Jetpack_Overrides', $method_name ) ) {
@@ -834,7 +854,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 <?php endif; ?>
 
 		<?php if ( true === $this->deprecated ) { ?>
-<p><strong>This endpoint is deprecated in favor of version <?php echo floatval( $this->new_version ); ?></strong></p>
+<p><strong>This endpoint is deprecated in favor of version <?php echo (float) $this->new_version; ?></strong></p>
 <?php } ?>
 
 <section class="resource-info">
@@ -863,7 +883,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$version = $this->max_version;
 			}
 			?>
-			<td class="type api-index-item-title">https://public-api.wordpress.com/rest/v<?php echo floatval( $version ); ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
+			<td class="type api-index-item-title">https://public-api.wordpress.com/rest/v<?php echo (float) $version; ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
 		</tr>
 
 		<tr class="api-index-item">
@@ -1275,7 +1295,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array(
-			'id'          => strval( $media_item->ID ),
+			'id'          => (string) $media_item->ID,
 			'date'        => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
 			'parent'      => $media_item->post_parent,
 			'link'        => wp_get_attachment_url( $media_item->ID ),
@@ -1576,6 +1596,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	function load_theme_functions() {
+		if ( false === defined( 'STYLESHEETPATH' ) ) {
+			wp_templating_constants();
+		}
+
 		// bail if we've done this already (can happen when calling /batch endpoint)
 		if ( defined( 'REST_API_THEME_FUNCTIONS_LOADED' ) ) {
 			return;
@@ -2052,6 +2076,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
 	}
 
+	/**
+	 * Whether this endpoint accepts site based authentication for the current request.
+	 *
+	 * @since 9.1.0
+	 *
+	 * @return bool true, if Jetpack blog token is used and `allow_jetpack_site_auth` is true,
+	 * false otherwise.
+	 */
+	public function accepts_site_based_authentication() {
+		return $this->allow_jetpack_site_auth &&
+			$this->api->is_jetpack_authorized_for_site();
+	}
+
 	function get_platform() {
 		return wpcom_get_sal_platform( $this->api->token_details );
 	}
@@ -2086,7 +2123,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 */
 		if ( function_exists( 'idn_to_utf8' ) ) {
 			// The third parameter is set explicitly to prevent issues with newer PHP versions compiled with an old ICU version.
-			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated
+			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated, PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003DeprecatedRemoved
 			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
 		}
 		$subdomain = str_replace( array( '-', '.' ), array( '--', '-' ), $host );

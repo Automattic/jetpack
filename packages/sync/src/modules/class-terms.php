@@ -60,7 +60,7 @@ class Terms extends Module {
 		global $wpdb;
 		$object = false;
 		if ( 'term' === $object_type ) {
-			$object = get_term( intval( $id ) );
+			$object = get_term( (int) $id );
 
 			if ( is_wp_error( $object ) && $object->get_error_code() === 'invalid_taxonomy' ) {
 				// Fetch raw term.

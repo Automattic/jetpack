@@ -55,7 +55,8 @@ class TweetDivider extends Component {
 
 		if (
 			currentAnnotations.length !==
-				boundaries.filter( boundary => 'normal' === boundary.type ).length ||
+				boundaries.filter( boundary => [ 'normal', 'line-break' ].includes( boundary.type ) )
+					.length ||
 			! isEqual( prevProps.boundaries, boundaries )
 		) {
 			updateAnnotations();
@@ -184,7 +185,9 @@ export default compose( [
 					childProps.clientId
 				);
 				annotations.forEach( annotation => {
-					if ( annotation.source === 'jetpack-tweetstorm' ) {
+					if (
+						[ 'jetpack-tweetstorm', 'jetpack-tweetstorm-line-break' ].includes( annotation.source )
+					) {
 						dispatch( 'core/annotations' ).__experimentalRemoveAnnotation( annotation.id );
 					}
 				} );
@@ -198,6 +201,13 @@ export default compose( [
 						dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
 							blockClientId: childProps.clientId,
 							source: 'jetpack-tweetstorm',
+							richTextIdentifier: container,
+							range: { start, end },
+						} );
+					} else if ( 'line-break' === type ) {
+						dispatch( 'core/annotations' ).__experimentalAddAnnotation( {
+							blockClientId: childProps.clientId,
+							source: 'jetpack-tweetstorm-line-break',
 							richTextIdentifier: container,
 							range: { start, end },
 						} );

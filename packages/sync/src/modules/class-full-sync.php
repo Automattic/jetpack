@@ -32,7 +32,6 @@ class Full_Sync extends Module {
 	 */
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 
-
 	/**
 	 * Enqueue Lock name.
 	 *
@@ -517,7 +516,7 @@ class Full_Sync extends Module {
 	 * @return boolean
 	 */
 	public function is_started() {
-		return ! ! $this->get_status_option( 'started' );
+		return (bool) $this->get_status_option( 'started' );
 	}
 
 	/**
@@ -528,7 +527,7 @@ class Full_Sync extends Module {
 	 * @return boolean
 	 */
 	public function is_finished() {
-		return ! ! $this->get_status_option( 'finished' );
+		return (bool) $this->get_status_option( 'finished' );
 	}
 
 	/**
@@ -631,7 +630,7 @@ class Full_Sync extends Module {
 	private function get_status_option( $name, $default = null ) {
 		$value = \Jetpack_Options::get_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
 
-		return is_numeric( $value ) ? intval( $value ) : $value;
+		return is_numeric( $value ) ? (int) $value : $value;
 	}
 
 	/**

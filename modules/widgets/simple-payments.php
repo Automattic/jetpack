@@ -205,7 +205,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( $errors );
 			}
 
-			$product_post_id = isset( $params['product_post_id'] ) ? intval( $params['product_post_id'] ) : 0;
+			$product_post_id = isset( $params['product_post_id'] ) ? (int) $params['product_post_id'] : 0;
 
 			$product_post = array(
 				'ID'            => $product_post_id,
@@ -217,7 +217,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				'meta_input'    => array(
 					'spay_currency' => $params['currency'],
 					'spay_price'    => $params['price'],
-					'spay_multiple' => isset( $params['multiple'] ) ? intval( $params['multiple'] ) : 0,
+					'spay_multiple' => isset( $params['multiple'] ) ? (int) $params['multiple'] : 0,
 					'spay_email'    => is_email( $params['email'] ),
 				),
 			);
@@ -313,7 +313,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				$errors->add( 'post_title', __( "People need to know what they're paying for! Please add a brief title.", 'jetpack' ) );
 			}
 
-			if ( empty( $params['price'] ) || ! is_numeric( $params['price'] ) || floatval( $params['price'] ) <= 0 ) {
+			if ( empty( $params['price'] ) || ! is_numeric( $params['price'] ) || (float) $params['price'] <= 0 ) {
 				$errors->add( 'price', __( 'Everything comes with a price tag these days. Please add a your product price.', 'jetpack' ) );
 			}
 

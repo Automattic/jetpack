@@ -168,6 +168,7 @@ endif;
  *    http://www.youtube.com/v/jF-kELmmvgA
  *    http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *    http://youtu.be/Rrohlqeir5E
+ *    https://www.youtube.com/watch?v=GJNxoe-iSb4&list=PLAVZ4NFtZX0fE54mDSqNKym-o_rz-8xmk
  *
  * @param string $url Youtube URL.
  */
@@ -186,23 +187,41 @@ function youtube_id( $url ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: empty URL args', 'jetpack' ) );
 	}
 
+	// Account for URL having both v and list, where jetpack_get_youtube_id() only accounts for one or the other.
+	if ( isset( $args['list'] ) && $args['list'] === $id ) {
+		$id = null;
+	}
+	if ( isset( $args['v'] ) ) {
+		$id = $args['v'];
+	}
+	if ( ! $id && empty( $args['list'] ) ) {
+		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: missing id and/or list', 'jetpack' ) );
+	}
+
 	list( $w, $h ) = jetpack_shortcode_youtube_dimensions( $args );
-	$rel           = ( isset( $args['rel'] ) && '0' === $args['rel'] ) ? 0 : 1;
-	$search        = ( isset( $args['showsearch'] ) && '1' === $args['showsearch'] ) ? 1 : 0;
-	$info          = ( isset( $args['showinfo'] ) && '0' === $args['showinfo'] ) ? 0 : 1;
-	$iv            = ( isset( $args['iv_load_policy'] ) && '3' === $args['iv_load_policy'] ) ? 3 : 1;
 
-	$fmt = ( isset( $args['fmt'] ) && intval( $args['fmt'] ) ) ? '&fmt=' . (int) $args['fmt'] : '';
+	$params = array(
+		'rel'            => ( isset( $args['rel'] ) && '0' === $args['rel'] ) ? 0 : 1,
+		'showsearch'     => ( isset( $args['showsearch'] ) && '1' === $args['showsearch'] ) ? 1 : 0, // Now deprecated. See https://developers.google.com/youtube/player_parameters#march-29,-2012.
+		'showinfo'       => ( isset( $args['showinfo'] ) && '0' === $args['showinfo'] ) ? 0 : 1, // Now obsolete. See https://developers.google.com/youtube/player_parameters#showinfo.
+		'iv_load_policy' => ( isset( $args['iv_load_policy'] ) && '3' === $args['iv_load_policy'] ) ? 3 : 1,
+		'fs'             => 1,
+		'hl'             => str_replace( '_', '-', get_locale() ),
+	);
+	if ( isset( $args['fmt'] ) && (int) $args['fmt'] ) {
+		$params['fmt'] = (int) $args['fmt']; // Apparently an obsolete parameter. Not referenced on https://developers.google.com/youtube/player_parameters.
+	}
 
+	// The autohide parameter has been deprecated since 2015. See https://developers.google.com/youtube/player_parameters#august-19,-2015.
 	if ( ! isset( $args['autohide'] ) || ( $args['autohide'] < 0 || 2 < $args['autohide'] ) ) {
-		$autohide = '&autohide=2';
+		$params['autohide'] = 2;
 	} else {
-		$autohide = '&autohide=' . absint( $args['autohide'] );
+		$params['autohide'] = (int) $args['autohide'];
 	}
 
 	$start = 0;
 	if ( isset( $args['start'] ) ) {
-		$start = intval( $args['start'] );
+		$start = (int) $args['start'];
 	} elseif ( isset( $args['t'] ) ) {
 		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
@@ -221,21 +240,43 @@ function youtube_id( $url ) {
 			}
 		}
 	}
+	if ( $start ) {
+		$params['start'] = (int) $start;
+	}
 
-	$start = $start ? '&start=' . $start : '';
-	$end   = ( isset( $args['end'] ) && intval( $args['end'] ) ) ? '&end=' . (int) $args['end'] : '';
-	$hd    = ( isset( $args['hd'] ) && intval( $args['hd'] ) ) ? '&hd=' . (int) $args['hd'] : '';
+	if ( isset( $args['end'] ) && (int) $args['end'] ) {
+		$params['end'] = (int) $args['end'];
+	}
+	if ( isset( $args['hd'] ) && (int) $args['hd'] ) {
+		$params['hd'] = (int) $args['hd']; // Now obsolete per https://developers.google.com/youtube/player_parameters#march-29,-2012.
+	}
+	if ( isset( $args['vq'] ) && in_array( $args['vq'], array( 'hd720', 'hd1080' ), true ) ) {
+		$params['vq'] = $args['vq']; // Note, this appears to be obsolete. Not referenced on https://developers.google.com/youtube/player_parameters.
+	}
+	if ( isset( $args['cc_load_policy'] ) ) {
+		$params['cc_load_policy'] = 1;
+	}
+	if ( isset( $args['cc_lang_pref'] ) ) {
+		$params['cc_lang_pref'] = preg_replace( '/[^_a-z0-9-]/i', '', $args['cc_lang_pref'] );
+	}
 
-	$vq = ( isset( $args['vq'] ) && in_array( $args['vq'], array( 'hd720', 'hd1080' ), true ) ) ? '&vq=' . $args['vq'] : '';
+	// The wmode parameter appears to be obsolete. Not referenced on https://developers.google.com/youtube/player_parameters.
+	if ( isset( $args['wmode'] ) && in_array( strtolower( $args['wmode'] ), array( 'opaque', 'window', 'transparent' ), true ) ) {
+		$params['wmode'] = $args['wmode'];
+	} else {
+		$params['wmode'] = 'transparent';
+	}
 
-	$cc      = ( isset( $args['cc_load_policy'] ) ) ? '&cc_load_policy=1' : '';
-	$cc_lang = ( isset( $args['cc_lang_pref'] ) ) ? '&cc_lang_pref=' . preg_replace( '/[^_a-z0-9-]/i', '', $args['cc_lang_pref'] ) : '';
+	// The theme parameter is obsolete per https://developers.google.com/youtube/player_parameters#august-19,-2015.
+	if ( isset( $args['theme'] ) && in_array( strtolower( $args['theme'] ), array( 'dark', 'light' ), true ) ) {
+		$params['theme'] = $args['theme'];
+	}
 
-	$wmode = ( isset( $args['wmode'] ) && in_array( strtolower( $args['wmode'] ), array( 'opaque', 'window', 'transparent' ), true ) ) ? $args['wmode'] : 'transparent';
+	if ( isset( $args['list'] ) ) {
+		$params['listType'] = 'playlist';
+		$params['list']     = preg_replace( '|[^_a-z0-9-]|i', '', $args['list'] );
+	}
 
-	$theme = ( isset( $args['theme'] ) && in_array( strtolower( $args['theme'] ), array( 'dark', 'light' ), true ) ) ? '&theme=' . $args['theme'] : '';
-
-	$autoplay = '';
 	/**
 	 * Allow YouTube videos to start playing automatically.
 	 *
@@ -246,16 +287,54 @@ function youtube_id( $url ) {
 	 * @param bool false Enable autoplay for YouTube videos.
 	 */
 	if ( apply_filters( 'jetpack_youtube_allow_autoplay', false ) && isset( $args['autoplay'] ) ) {
-		$autoplay = '&autoplay=' . (int) $args['autoplay'];
+		$params['autoplay'] = (int) $args['autoplay'];
 	}
 
-	if (
-		( isset( $url['path'] ) && '/videoseries' === $url['path'] )
-		|| isset( $args['list'] )
-	) {
-		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( "https://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+	$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
+	if ( $is_amp && $id ) {
+		// Note that <amp-youtube> currently is not well suited for playlists that don't have an individual video selected, hence the $id check above.
+		$placeholder = sprintf(
+			'<a href="%1$s" placeholder><amp-img src="%2$s" alt="%3$s" layout="fill" object-fit="cover"><noscript><img src="%2$s" loading="lazy" decoding="async" alt="%3$s"></noscript></amp-img></a>',
+			esc_url( add_query_arg( 'v', $id, 'https://www.youtube.com/watch' ) ),
+			esc_url( "https://i.ytimg.com/vi/$id/hqdefault.jpg" ),
+			esc_attr__( 'YouTube Poster', 'jetpack' ) // Would be preferable to provide YouTube video title, but not available in this non-oEmbed context.
+		);
+
+		$html_attributes = array();
+		foreach ( $params as $param_name => $param_value ) {
+			$html_attributes[] = sprintf(
+				'data-param-%s="%s"',
+				sanitize_key( $param_name ),
+				esc_attr( $param_value )
+			);
+		}
+
+		$html = sprintf(
+			'<amp-youtube data-videoid="%s" %s width="%d" height="%d" layout="responsive">%s</amp-youtube>',
+			esc_attr( $id ),
+			implode( ' ', $html_attributes ), // Note: Escaping done above.
+			esc_attr( $w ),
+			esc_attr( $h ),
+			$placeholder
+		);
 	} else {
-		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( "https://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay$vq{$cc}{$cc_lang}" ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+		// In AMP, the AMP_Iframe_Sanitizer will convert into <amp-iframe> as required.
+		$src = 'https://www.youtube.com/embed';
+		if ( $id ) {
+			$src .= "/$id";
+		}
+		$src = add_query_arg(
+			array_merge(
+				array( 'version' => 3 ),
+				$params
+			),
+			$src
+		);
+
+		$layout = $is_amp ? 'layout="responsive" ' : '';
+
+		$html = "<iframe class='youtube-player' width='$w' height='$h' {$layout}src='" . esc_url( $src ) . "' allowfullscreen='true' style='border:0;' sandbox='allow-scripts allow-same-origin allow-popups allow-presentation'></iframe>";
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed.
@@ -299,7 +378,7 @@ function youtube_id( $url ) {
  *
  * @since 8.0.0
  *
- * @param string $url The URL of the shortcode.
+ * @param array $url The parsed URL of the shortcode.
  *
  * @return array|false The query args of the URL, or false.
  */
@@ -328,15 +407,7 @@ function jetpack_shortcode_youtube_args( $url ) {
  */
 function youtube_shortcode( $atts ) {
 	$url = ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts );
-
-	if (
-		class_exists( 'Jetpack_AMP_Support' )
-		&& Jetpack_AMP_Support::is_amp_request()
-	) {
-		return jetpack_amp_youtube_shortcode( $url );
-	} else {
-		return youtube_id( $url );
-	}
+	return youtube_id( $url );
 }
 add_shortcode( 'youtube', 'youtube_shortcode' );
 
@@ -344,12 +415,14 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
  * Renders the [youtube] shortcode as an AMP component.
  *
  * @since 8.0.0
+ * @deprecated Use youtube_id() instead.
  *
  * @param string $url The YouTube URL.
  *
  * @return string The AMP-compatible rendered shortcode.
  */
 function jetpack_amp_youtube_shortcode( $url ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-9.1.0', 'youtube_id' );
 	$video_id = jetpack_get_youtube_id( $url );
 	if ( empty( $video_id ) ) {
 		return sprintf(
@@ -384,8 +457,8 @@ function jetpack_amp_youtube_shortcode( $url ) {
 function jetpack_shortcode_youtube_dimensions( $query_args ) {
 	global $content_width;
 
-	$input_w = ( isset( $query_args['w'] ) && intval( $query_args['w'] ) ) ? intval( $query_args['w'] ) : 0;
-	$input_h = ( isset( $query_args['h'] ) && intval( $query_args['h'] ) ) ? intval( $query_args['h'] ) : 0;
+	$input_w = ( isset( $query_args['w'] ) && (int) $query_args['w'] ) ? (int) $query_args['w'] : 0;
+	$input_h = ( isset( $query_args['h'] ) && (int) $query_args['h'] ) ? (int) $query_args['h'] : 0;
 
 	// If we have $content_width, use it.
 	if ( ! empty( $content_width ) ) {
@@ -404,7 +477,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 		$w = $input_w;
 		$h = $input_h;
 	} elseif ( 0 === $input_w && 0 === $input_h ) {
-		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 		} else {
 			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
@@ -414,7 +487,7 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 		$w = $input_w;
 		$h = ceil( ( $w / 16 ) * 9 );
 	} else {
-		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
 			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 		} else {
 			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
