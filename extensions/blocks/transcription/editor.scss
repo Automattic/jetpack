@@ -11,4 +11,12 @@
 	.wp-block-jetpack-transcription__label-control {
 		margin-bottom: 20px;
 	}
+
+	.wp-block-jetpack-transcription__label {
+		display: flex;
+
+		.components-button {
+			margin-left: 5px;
+		}
+	}
 }

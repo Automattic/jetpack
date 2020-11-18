@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { map } from 'lodash';
+import { filter, map } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -13,7 +13,14 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
-import { Panel, PanelBody, TextControl, ColorIndicator, BaseControl } from '@wordpress/components';
+import {
+	Panel,
+	PanelBody,
+	TextControl,
+	BaseControl,
+	Button,
+} from '@wordpress/components';
+
 /**
  * Internal dependencies
  */
@@ -63,7 +70,7 @@ export default function Transcription ( {
 		setAttributes( { labels: defaultLabels } );
 	}, [ labels, setAttributes ] );
 
-	const updateLabels = ( updatedLabel ) => {
+	function updateLabels ( updatedLabel ) {
 		const newLabels = map( labels, ( label ) => {
 			if ( label.slug !== updatedLabel.slug ) {
 				return label;
@@ -75,7 +82,11 @@ export default function Transcription ( {
 		} );
 
 		setAttributes( { labels: newLabels } );
-	};
+	}
+
+	function deleteLabel( labelSlug ) {
+		setAttributes( { labels: filter( labels, ( { slug } ) => ( slug !== labelSlug ) ) } );
+	}
 
 	return (
 		<div class={ className }>
@@ -84,10 +95,22 @@ export default function Transcription ( {
 					<PanelBody title={ __( 'labels', 'jetpack' ) } className={ `${ className }__labels` }>
 						{ map( labels, ( { value, slug, textColor, bgColor } ) => (
 							<BaseControl className={ `${ className }__label-control` }>
-								<TextControl
-									value={ value }
-									onChange={ ( newLabelValue ) => updateLabels( { slug, value: newLabelValue } ) }
-								/>
+								<div className={ `${ className }__label` }>
+									<TextControl
+										value={ value }
+										onChange={ ( newLabelValue ) => updateLabels( { slug, value: newLabelValue } ) }
+									/>
+
+									<Button
+										label={ __( 'Delete', 'jetpack' ) }
+										onClick={ () => deleteLabel( slug ) }
+										isSecondary
+										isSmall
+									>
+										{ __( 'Delete', 'jetpack' ) }
+									</Button>
+								</div>
+
 								<PanelColorSettings
 									title={ __( 'Color Settings', 'jetpack' ) }
 									colorSettings={ [
@@ -105,6 +128,7 @@ export default function Transcription ( {
 									initialOpen={ false }
 								/>
 							</BaseControl>
+
 						) ) }
 					</PanelBody>
 				</Panel>
