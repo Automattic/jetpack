@@ -92,5 +92,17 @@ class Admin_Color_Schemes {
 			)
 		);
 
+		wp_admin_css_color(
+			'classic-dark',
+			__( 'Classic Dark', 'jetpack' ),
+			plugins_url( 'colors/classic-dark/colors.css', __FILE__ ),
+			array( '#101517', '#23282d', '#ffffff', '#646970' ),
+			array(
+				'base'    => '#646970',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+
 	}
 }
