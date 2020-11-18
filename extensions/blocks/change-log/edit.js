@@ -38,7 +38,9 @@ const LabelsSelector = ( {
 	onCustom,
 } ) => {
 	const currentLabel = slug ? find( labels, ( label ) => label.slug === slug ) : labels[ 0 ];
-	const currentValue = custom || currentLabel.value;
+	console.log( { currentLabel } );
+
+	const currentValue = ! slug && custom ? custom : currentLabel.value;
 
 	return (
 		<div className={ className }>
@@ -119,10 +121,7 @@ function ChangelogEdit ( {
 } ) {
 	const { labelSlug, custom } = attributes;
 	const labelsFromContext = context[ 'change-log/labels' ];
-	console.log( { labelsFromContext } );
-
 	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
-	console.log( { labels } );
 
 	return (
 		<div class={ className }>
