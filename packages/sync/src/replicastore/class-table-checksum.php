@@ -2,18 +2,22 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
+use Automattic\Jetpack\Sync\Settings;
 use Exception;
 use WP_error;
 
 // TODO add rest endpoints to work with this, hopefully in the same folder
 
 class Table_Checksum {
-	public $table           = '';
-	public $table_configuration = array();
-	public $range_field     = '';
-	public $key_fields      = array();
-	public $checksum_fields = array();
-	public $default_tables  = array();
+	public $table                 = '';
+	public $table_configuration   = array();
+	public $range_field           = '';
+	public $key_fields            = array();
+	public $checksum_fields       = array();
+	public $additional_filter_sql = '';
+
+
+	public $default_tables = array();
 
 	public $salt = '';
 
@@ -31,7 +35,7 @@ class Table_Checksum {
 	 */
 
 	public function __construct( $table, $salt = null ) {
-		$this->salt            = $salt;
+		$this->salt = $salt;
 
 		global $wpdb;
 
@@ -41,24 +45,28 @@ class Table_Checksum {
 				'range_field'     => 'ID',
 				'key_fields'      => array( 'ID' ),
 				'checksum_fields' => array( 'post_modified' ),
+				'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
 			),
 			'postmeta'           => array(
 				'table'           => $wpdb->postmeta,
 				'range_field'     => 'post_id',
 				'key_fields'      => array( 'post_id', 'meta_key' ),
 				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_sql'      => Settings::get_whitelisted_post_meta_sql(),
 			),
 			'comments'           => array(
 				'table'           => $wpdb->comments,
 				'range_field'     => 'comment_ID',
 				'key_fields'      => array( 'comment_ID' ),
 				'checksum_fields' => array( 'comment_content' ),
+				'filter_sql'      => Settings::get_comments_filter_sql(),
 			),
 			'commentmeta'        => array(
 				'table'           => $wpdb->commentmeta,
 				'range_field'     => 'comment_id',
 				'key_fields'      => array( 'comment_id', 'meta_key' ),
 				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_sql'      => Settings::get_whitelisted_comment_meta_sql(),
 			),
 			'terms'              => array(
 				'table'           => $wpdb->terms,
@@ -72,8 +80,18 @@ class Table_Checksum {
 				'key_fields'      => array( 'term_id', 'meta_key' ),
 				'checksum_fields' => array( 'meta_key', 'meta_value' ),
 			),
-			'term_relationships' => $wpdb->term_relationships, // TODO describe in the array format or add exceptions
-			'term_taxonomy'      => $wpdb->term_taxonomy, // TODO describe in the array format or add exceptions
+			'term_relationships' => array(
+				'table'           => $wpdb->term_relationships,
+				'range_field'     => 'object_id',
+				'key_fields'      => array( 'object_id' ),
+				'checksum_fields' => array( /** TODO */ ),
+			),
+			'term_taxonomy'      => array(
+				'table'           => $wpdb->term_taxonomy,
+				'range_field'     => 'term_taxonomy_id',
+				'key_fields'      => array( 'term_taxonomy_id' ),
+				'checksum_fields' => array( /** TODO */ ),
+			),
 			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions
 			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions
 		);
@@ -94,9 +112,10 @@ class Table_Checksum {
 	}
 
 	private function prepare_fields( $table_configuration ) {
-		$this->key_fields = $table_configuration['key_fields'];
-		$this->range_field = $table_configuration['range_field'];
-		$this->checksum_fields = $table_configuration['checksum_fields'];
+		$this->key_fields            = $table_configuration['key_fields'];
+		$this->range_field           = $table_configuration['range_field'];
+		$this->checksum_fields       = $table_configuration['checksum_fields'];
+		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
 	}
 
 	private function validate_table_name( $table ) {
@@ -110,7 +129,7 @@ class Table_Checksum {
 
 		// TODO other checks if such are needed.
 
-		return $this->allowed_tables[$table]['table'];
+		return $this->allowed_tables[ $table ]['table'];
 	}
 
 	private function validate_fields( $fields ) {
@@ -150,13 +169,54 @@ class Table_Checksum {
 		$this->validate_fields_against_table( $fields );
 	}
 
-	// TODO make sure the function is described as DOESN'T DO VALIDATION
-	private function build_checksum_query( $range_from, $range_to, $filter_values, $granular_result ) {
+
+	private function build_filter_statement( $range_from = null, $range_to = null, $filter_values = null ) {
 		global $wpdb;
 
-		// Make sure the range makes sense
-		$range_start = min( $range_from, $range_to );
-		$range_end   = max( $range_from, $range_to );
+		/**
+		 * Prepare the ranges
+		 */
+
+		$filter_array = array();
+		if ( $range_from !== null ) {
+			$filter_array[] = $wpdb->prepare( "{$this->range_field} > %d", array( intval( $range_from ) ) );
+		}
+		if ( $range_to !== null ) {
+			$filter_array[] = $wpdb->prepare( "{$this->range_field} < %d", array( intval( $range_to ) ) );
+		}
+
+		/**
+		 * End prepare the ranges
+		 */
+
+		/**
+		 * Prepare data filters
+		 */
+		// TODO add support for multiple filter fields from array syntax (i.e. filter => values, filter => values, ...).
+		// TODO this doesn't work right now, until we properly migrate all the filtering functions to array syntax
+		$filter_prepared_statement = '';
+		if ( 0 & ! empty( $filter_values ) ) {
+			// Prepare filtering
+			$filter_placeholders = "AND {$this->filter_field} IN(" . implode( ',', array_fill( 0, count( $filter_values ), '%s' ) ) . ')';
+			$filter_array[]      = $wpdb->prepare( $filter_placeholders, $filter_values );
+		}
+
+		// Add any additional filters via direct SQL statement.
+		// Currently used only because the above isn't done ( `$filter_values` )
+		$additional_filter_sql = '';
+		if ( $this->additional_filter_sql ) {
+			$filter_array[] = $this->additional_filter_sql;
+		}
+
+		/**
+		 * End prepare data filters
+		 */
+		return implode( ' AND ', $filter_array );
+	}
+
+	// TODO make sure the function is described as DOESN'T DO VALIDATION
+	private function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
+		global $wpdb;
 
 		// Escape the salt
 		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement
@@ -167,13 +227,6 @@ class Table_Checksum {
 		// Prepare the checksum fields
 		$checksum_fields_string = implode( ',', array_merge( $this->checksum_fields, array( $salt ) ) );
 
-		$filter_prepared_statement = '';
-		if ( ! empty( $filter_values ) ) {
-			// Prepare filtering
-			$filter_placeholders       = "AND {$this->filter_field} IN(" . implode( ',', array_fill( 0, count( $filter_values ), '%s' ) ) . ')';
-			$filter_prepared_statement = $wpdb->prepare( $filter_placeholders, $filter_values );
-		}
-
 		$additional_fields = '';
 		if ( $granular_result ) {
 			// TODO uniq the fields as sometimes(most) range_index is the key and there's no need to select the same field twice
@@ -182,6 +235,8 @@ class Table_Checksum {
 			    {$key_fields},
 			";
 		}
+
+		$filter_stamenet = $this->build_filter_statement( $range_from, $range_to, $filter_values );
 
 		$query = "
 			SELECT
@@ -194,8 +249,7 @@ class Table_Checksum {
 			 FROM
 			    {$this->table}
 			 WHERE
-				{$this->range_field} > {$range_start} AND {$this->range_field} < {$range_end}
-		        {$filter_prepared_statement}
+				{$filter_stamenet}
 		";
 
 		/**
@@ -211,21 +265,63 @@ class Table_Checksum {
 
 	}
 
-	public function get_range_edges( $table, $range_col ) {
+	public function get_range_edges( $range_from = null, $range_to = null, $limit = null ) {
 		global $wpdb;
 
-		$this->validate_fields( array( $range_col ) );
+		$this->validate_fields( array( $this->range_field ) );
 
-		$result = $wpdb->get_row(
-			"
+		// `trim()` to make sure we don't add the statement if it's empty
+		$filters = trim( $this->build_filter_statement( $range_from, $range_to ) );
+
+		$filter_statement = '';
+		if ( ! empty( $filters ) ) {
+			$filter_statement = "
+				WHERE
+					{$filters}
+			";
+		}
+
+		// Only make the distinct count when we know there can be multiple entries for the range column
+		$distinct_count = count( $this->key_fields ) > 1 ? 'DISTINCT' : '';
+
+		$query = "
 			SELECT
-			       MIN({$range_col}) as min_range,
-			       MAX({$range_col}) as max_range,
+			       MIN({$this->range_field}) as min_range,
+			       MAX({$this->range_field}) as max_range,
+			       COUNT( {$distinct_count} {$this->range_field}) as item_count
 			FROM
-			     {$table}
-	     ",
-			ARRAY_A
-		);
+		";
+
+		/**
+		 * If `$limit` is not specified, we can directly use the table
+		 */
+		if ( ! $limit ) {
+			$query .= "
+				{$this->table}
+	            {$filter_statement}
+			";
+		} else {
+			/**
+			 * If there is `$limit` specified, we can't directly use `MIN/MAX()` as they don't work with `LIMIT`.
+			 * That's why we will alter the query for this case.
+			 */
+			$limit = intval( $limit );
+
+			$query .= "
+				(
+					SELECT
+						{$distinct_count} {$this->range_field}
+					FROM
+						{$this->table}
+						{$filter_statement}
+					ORDER BY
+						{$this->range_field} ASC
+					LIMIT {$limit}
+				) as ids_query
+			";
+		}
+
+		$result = $wpdb->get_row( $query, ARRAY_A );
 
 		if ( ! $result || ! is_array( $result ) ) {
 			throw new Exception( 'Unable to get range edges' );
@@ -234,31 +330,30 @@ class Table_Checksum {
 		return $result;
 	}
 
-	public function prepare_results_for_output(&$results) {
+	public function prepare_results_for_output( &$results ) {
 		// get the compound key
 		// only return range and compound key for granular results
 
-		foreach ($results as &$result) {
+		foreach ( $results as &$result ) {
 			// Working on reference to save memory here.
 
 			$key = array();
-			foreach($this->key_fields as $field) {
-				$key[] = $result[$field];
+			foreach ( $this->key_fields as $field ) {
+				$key[] = $result[ $field ];
 			}
 
 			$result = array(
-				'key' => implode('-', $key),
+				'key'      => implode( '-', $key ),
 				'checksum' => $result['checksum'],
 			);
 
 		}
 	}
 
-	public function calculate_checksum( $range_from, $range_to, $filter_values, $granular_result = false ) {
+	public function calculate_checksum( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false, $simple_return_value = true ) {
 		try {
 			$this->validate_input();
-		}
-		catch ( Exception $ex ) {
+		} catch ( Exception $ex ) {
 			return new WP_error( 'invalid_input', $ex->getMessage() );
 		}
 
@@ -271,6 +366,10 @@ class Table_Checksum {
 
 			if ( ! is_array( $result ) ) {
 				return new WP_Error( 'invalid_query', "Result wasn't an array" );
+			}
+
+			if ( $simple_return_value ) {
+				return $result['checksum'];
 			}
 
 			return array(
