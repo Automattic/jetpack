@@ -37,12 +37,7 @@ class Test_Plugins_Handler extends TestCase {
 		parent::setUp();
 
 		$this->plugin_locator  = $this->getMockBuilder( Plugin_Locator::class )
-			->setMethods(
-				array(
-					'find_using_option',
-					'find_activating_this_request',
-				)
-			)
+			->disableOriginalConstructor()
 			->getMock();
 		$this->plugins_handler = new Plugins_Handler( $this->plugin_locator );
 	}

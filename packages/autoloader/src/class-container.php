@@ -71,8 +71,13 @@ class Container {
 	 * Registers all of the dependencies with the container.
 	 */
 	private function register_dependencies() {
+		require_once __DIR__ . '/class-path-processor.php';
+		$this->dependencies[ Path_Processor::class ] = new Path_Processor();
+
 		require_once __DIR__ . '/class-plugin-locator.php';
-		$this->dependencies[ Plugin_Locator::class ] = new Plugin_Locator();
+		$this->dependencies[ Plugin_Locator::class ] = new Plugin_Locator(
+			$this->get( Path_Processor::class )
+		);
 
 		require_once __DIR__ . '/class-version-selector.php';
 		$this->dependencies[ Version_Selector::class ] = new Version_Selector();

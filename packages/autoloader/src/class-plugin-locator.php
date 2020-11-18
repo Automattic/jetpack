@@ -7,6 +7,22 @@
 class Plugin_Locator {
 
 	/**
+	 * The path processor for finding plugin paths.
+	 *
+	 * @var Path_Processor
+	 */
+	private $path_processor;
+
+	/**
+	 * The constructor.
+	 *
+	 * @param Path_Processor $path_processor The Path_Processor instance.
+	 */
+	public function __construct( $path_processor ) {
+		$this->path_processor = $path_processor;
+	}
+
+	/**
 	 * Checks a given option for plugin paths.
 	 *
 	 * @param string $option_name  The option that we want to check for plugin information.
@@ -76,52 +92,22 @@ class Plugin_Locator {
 	 * @return string[]
 	 */
 	private function convert_plugins_to_paths( $plugins ) {
+		// We're going to look for plugins in the standard directories.
+		$path_constants = array( WP_PLUGIN_DIR, WPMU_PLUGIN_DIR );
+
 		$plugin_paths = array();
 		foreach ( $plugins as $key => $value ) {
-			$path = $this->guess_plugin_directory( $key );
+			$path = $this->path_processor->find_directory_with_autoloader( $key, $path_constants );
 			if ( $path ) {
 				$plugin_paths[] = $path;
 			}
 
-			$path = $this->guess_plugin_directory( $value );
+			$path = $this->path_processor->find_directory_with_autoloader( $value, $path_constants );
 			if ( $path ) {
 				$plugin_paths[] = $path;
 			}
 		}
 
 		return $plugin_paths;
-	}
-
-	/**
-	 * Given a plugin path this will attempt to find the absolute path to the plugin.
-	 *
-	 * @param string $plugin The short plugin path.
-	 * @return string|false $plugin_path The absolute path to the plugin or false if none was found.
-	 */
-	private function guess_plugin_directory( $plugin ) {
-		// We shouldn't waste time checking if it isn't a valid plugin file.
-		if ( ! is_string( $plugin ) || substr( $plugin, -4 ) !== '.php' ) {
-			return false;
-		}
-
-		$plugin = str_replace( '\\', '/', $plugin );
-
-		// We may need to resolve an absolute path from a plugin path based out of a directory.
-		if ( ! path_is_absolute( $plugin ) ) {
-			$plugin = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			if ( ! @is_file( $plugin ) ) {
-				return false;
-			}
-		}
-
-		// If there is no vendor directory the plugin can't be using the autoloader and should be ignored.
-		$plugin = dirname( $plugin );
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		if ( ! @is_dir( $plugin . '/vendor' ) ) {
-			return false;
-		}
-
-		return $plugin;
 	}
 }
