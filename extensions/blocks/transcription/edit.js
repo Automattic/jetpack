@@ -8,8 +8,12 @@ import { map } from 'lodash';
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
-import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import { Panel, PanelBody, TextControl } from '@wordpress/components';
+import {
+	InnerBlocks,
+	InspectorControls,
+	PanelColorSettings,
+} from '@wordpress/block-editor';
+import { Panel, PanelBody, TextControl, ColorIndicator, BaseControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
@@ -19,17 +23,14 @@ const defaultLabels = [
 	{
 		slug: 'label-0',
 		value: __( 'Speaker one', 'jetpack' ),
-		color: 'red',
 	},
 	{
 		slug: 'label-1',
 		value: __( 'Speaker two', 'jetpack' ),
-		color: 'yellow',
 	},
 	{
 		slug: 'label-2',
 		value: __( 'Speaker tree', 'jetpack' ),
-		color: 'green',
 	},
 ];
 
@@ -74,12 +75,30 @@ export default function Transcription ( {
 		<div class={ className }>
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ __( 'labels', 'jetpack' ) }>
-						{ map( labels, ( { value, slug } ) => (
-							<TextControl
-								value={ value }
-								onChange={ ( newLabelValue ) => updateLabels( { slug, value: newLabelValue } ) }
-							/>
+					<PanelBody title={ __( 'labels', 'jetpack' ) } className={ `${ className }__labels` }>
+						{ map( labels, ( { value, slug, textColor, bgColor } ) => (
+							<BaseControl className={ `${ className }__label-control` }>
+								<TextControl
+									value={ value }
+									onChange={ ( newLabelValue ) => updateLabels( { slug, value: newLabelValue } ) }
+								/>
+								<PanelColorSettings
+									title={ __( 'Color Settings', 'jetpack' ) }
+									colorSettings={ [
+										{
+											value: textColor,
+											onChange: ( newTextColor ) => updateLabels( { slug, textColor: newTextColor } ),
+											label: __( 'Text Color', 'jetpack' ),
+										},
+										{
+											value: bgColor,
+											onChange: ( newBGColor ) => updateLabels( { slug, bgColor: newBGColor } ),
+											label: __( 'Background Color', 'jetpack' ),
+										},
+									] }
+									initialOpen={ false }
+								/>
+							</BaseControl>
 						) ) }
 					</PanelBody>
 				</Panel>
