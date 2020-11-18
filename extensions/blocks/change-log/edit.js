@@ -37,8 +37,8 @@ const LabelsSelector = ( {
 	custom,
 	onCustom,
 } ) => {
-	const currentLabel = find( labels, ( label ) => label.slug === slug ) || {};
-	const value = slug && currentLabel?.value ? currentLabel.value : custom;
+	const currentLabel = slug ? find( labels, ( label ) => label.slug === slug ) : labels[ 0 ];
+	const currentValue = custom || currentLabel.value;
 
 	return (
 		<div className={ className }>
@@ -50,20 +50,20 @@ const LabelsSelector = ( {
 						onClick={ onToggle } aria-expanded={ isOpen }
 						style={ { color: currentLabel.textColor, backgroundColor: currentLabel.bgColor } }
 					>
-						{ value }
+						{ currentValue }
 					</Button>
 				) }
 				renderContent={ () => {
 					return (
 						<NavigableMenu>
 							<MenuGroup>
-								{ map( labels, ( { value: labelValue, slug: labelSlug, textColor, bgColor } ) => (
+								{ map( labels, ( { value, slug: labelSlug, textColor, bgColor } ) => (
 									<MenuItem
 										key={ labelSlug }
 										onClick={ () => onSelect( labelSlug ) }
 										style={ { color: textColor, backgroundColor: bgColor } }
 									>
-										{ labelValue }
+										{ value }
 									</MenuItem>
 								) ) }
 							</MenuGroup>
@@ -92,16 +92,22 @@ const LabelsSelector = ( {
 
 const defaultLabels = [
 	{
-		name: __( 'Alarm', 'jetpack' ),
+		value: __( 'urgent', 'jetpack' ),
 		slug: 'label-0',
+		textColor: '#fff',
+		bgColor: '#f06',
 	},
 	{
-		name: __( 'Warning', 'jetpack' ),
+		value: __( 'warning', 'jetpack' ),
 		slug: 'label-1',
+		textColor: '#fff',
+		bgColor: '#eb3',
 	},
 	{
-		name: __( 'Normal', 'jetpack' ),
+		value: __( 'normal', 'jetpack' ),
 		slug: 'label-2',
+		textColor: '#fff',
+		bgColor: '#0a6',
 	},
 ];
 
@@ -113,7 +119,10 @@ function ChangelogEdit ( {
 } ) {
 	const { labelSlug, custom } = attributes;
 	const labelsFromContext = context[ 'change-log/labels' ];
-	const labels = labelsFromContext ? labelsFromContext : defaultLabels;
+	console.log( { labelsFromContext } );
+
+	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
+	console.log( { labels } );
 
 	return (
 		<div class={ className }>
