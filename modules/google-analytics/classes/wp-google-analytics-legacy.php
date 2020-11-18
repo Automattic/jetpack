@@ -77,6 +77,19 @@ class Jetpack_Google_Analytics_Legacy {
 			return;
 		}
 
+		if ( 'G-' === substr( $tracking_id, 0, 2 ) ) {
+			$this->render_gtag_code( $tracking_id );
+		} else {
+			$this->render_ga_code( $tracking_id );
+		}
+	}
+
+	/**
+	 * Renders legacy ga.js code.
+	 *
+	 * @param string $tracking_id Google Analytics measurement ID.
+	 */
+	private function render_ga_code( $tracking_id ) {
 		$custom_vars = array(
 			"_gaq.push(['_setAccount', '{$tracking_id}']);",
 		);
@@ -97,7 +110,7 @@ class Jetpack_Google_Analytics_Legacy {
 		if ( ! empty( $track ) ) {
 			$track['url'] = $this->_get_url( $track );
 			// adjust the code that we output, account for both types of tracking.
-			$track['url'] = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
+			$track['url']  = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
 			$custom_vars[] = "_gaq.push(['_trackPageview','{$track['url']}']);";
 		} else {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
@@ -123,9 +136,31 @@ class Jetpack_Google_Analytics_Legacy {
 					ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 				})();
-			</script>\r\n",
+			</script>
+			<!-- End Jetpack Google Analytics -->\r\n",
 			implode( "\r\n", $custom_vars )
 		);
+	}
+
+	/**
+	 * Renders new gtag code.
+	 *
+	 * @param string $tracking_id Google Analytics measurement ID.
+	 */
+	private function render_gtag_code( $tracking_id ) {
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		?>
+		<!-- Jetpack Google Analytics -->
+		<script async src='https://www.googletagmanager.com/gtag/js?id=<?php echo esc_url( $tracking_id ); ?>'></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() { dataLayer.push( arguments ); }
+			gtag( 'js', new Date() );
+			gtag( 'config', '<?php echo esc_js( $tracking_id ); ?>' );
+		</script>
+		<!-- End Jetpack Google Analytics -->
+		<?php
+		// phpcs:enable
 	}
 
 	/**
