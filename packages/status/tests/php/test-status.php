@@ -470,4 +470,46 @@ class Test_Status extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * Tests for site_suffix().
+	 *
+	 * @covers Automattic\Jetpack\Status::get_site_suffix
+	 * @dataProvider get_site_suffix_examples
+	 *
+	 * @param string $site     Given site URL.
+	 * @param string $expected Site suffix.
+	 */
+	public function test_jetpack_get_site_suffix( $site, $expected ) {
+		Functions\when( 'home_url' )->justReturn( $this->site_url );
+		$suffix = $this->status->get_site_suffix( $site );
+
+		$this->assertSame( $expected, $suffix );
+	}
+
+	/**
+	 * Examples of sites passed to get_site_suffix
+	 *
+	 * @covers Automattic\Jetpack\Status::get_site_suffix
+	 */
+	public function get_site_suffix_examples() {
+		return array(
+			'no_site_home_url' => array(
+				'',
+				'yourjetpack.blog',
+			),
+			'tld'              => array(
+				'https://example.org',
+				'example.org',
+			),
+			'subdomain'        => array(
+				'https://borussia.dortmund.example.org',
+				'borussia.dortmund.example.org',
+			),
+			'subfolder'        => array(
+				'https://example.org/borussia-dortmund',
+				'example.org::borussia-dortmund',
+			),
+		);
+	}
 }

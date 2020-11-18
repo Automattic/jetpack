@@ -264,4 +264,26 @@ class Status {
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
 	}
+
+	/**
+	 * Returns the site slug suffix to be used as part of Calypso URLs.
+	 *
+	 * Strips http:// or https:// from a url, replaces forward slash with ::.
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param string $url URL to build the site suffix from.
+	 *
+	 * @return string
+	 */
+	public function get_site_suffix( $url = '' ) {
+		if ( empty( $url ) ) {
+			$url = \home_url();
+		}
+
+		$url = preg_replace( '/.*?:\/\//i', '', $url );
+		$url = str_replace( '/', '::', $url );
+
+		return $url;
+	}
 }
