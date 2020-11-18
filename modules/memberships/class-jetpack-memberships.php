@@ -422,17 +422,18 @@ class Jetpack_Memberships {
 		// This gate was introduced to prevent duplicate registration. A race condition exists where
 		// the registration that happens via extensions/blocks/recurring-payments/recurring-payments.php
 		// was adding the registration action after the action had been run in some contexts.
-
 		if ( self::$has_registered_block ) {
 			return;
 		}
 
 		if ( self::is_enabled_jetpack_recurring_payments() ) {
+			$deprecated = function_exists( 'gutenberg_get_post_from_context' );
+			$uses       = $deprecated ? 'context' : 'uses_context';
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
 					'render_callback' =>  array( $this, 'render_button' ),
-					'uses_context' => array( 'isPremiumContentChild' ),
+					$uses => array( 'isPremiumContentChild' ),
 				)
 			);
 		} else {
