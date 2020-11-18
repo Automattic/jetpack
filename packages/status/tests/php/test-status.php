@@ -510,6 +510,14 @@ class Test_Status extends TestCase {
 				'https://example.org/borussia-dortmund',
 				'example.org::borussia-dortmund',
 			),
+			'ip'               => array(
+				'127.0.0.1',
+				'127.0.0.1',
+			),
+			'no_tld'           => array(
+				'https://localhost',
+				'localhost',
+			),
 		);
 	}
 }
