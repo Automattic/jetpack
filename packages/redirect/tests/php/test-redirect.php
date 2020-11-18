@@ -1,7 +1,14 @@
-<?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * File for testing Redirects.
+ *
+ * @package Automattic/jetpack-redirect
+ */
 
 namespace Automattic\Jetpack;
 
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -10,9 +17,25 @@ use PHPUnit\Framework\TestCase;
 class RedirectTest extends TestCase {
 
 	/**
+	 * Test setup.
+	 */
+	public function setUp() {
+		Monkey\setUp();
+		$this->status = new Status();
+	}
+
+	/**
+	 * Test teardown.
+	 */
+	public function tearDown() {
+		Monkey\tearDown();
+	}
+
+	/**
 	 * Basic tests to get_url method.
 	 */
 	public function test_get_url() {
+		Functions\when( 'home_url' )->justReturn( 'https://example.org' );
 
 		$url = Redirect::get_url( 'simple' );
 		$this->assertEquals( 'https://jetpack.com/redirect/?source=simple&site=example.org', $url );
