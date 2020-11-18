@@ -950,7 +950,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		 * The expected string has some quotes escaped, since we want to make
 		 * sure we don't output anything harmful
 		 */
-		$this->assertEquals( '[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]', $html );
+		$this->assertEquals( '[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label="asdasd" type="text"/][contact-field id="1" required derp herp asd lkj]adsasd[/contact-field]', $html );
 	}
 
 	/**
