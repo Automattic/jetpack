@@ -6806,9 +6806,9 @@ endif;
 	 * @return string | url without the guff
 	 */
 	public static function build_raw_urls( $url ) {
-		jetpack_deprecated_function( __METHOD__, 'jetpack_get_site_suffix', '9.2' );
+		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
 
-		return jetpack_get_site_suffix( $url );
+		return ( new Status() )->get_site_suffix( $url );
 	}
 
 	/**

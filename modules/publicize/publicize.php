@@ -2,6 +2,7 @@
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 abstract class Publicize_Base {
 
@@ -1263,5 +1264,5 @@ abstract class Publicize_Base {
 }
 
 function publicize_calypso_url() {
-	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => jetpack_get_site_suffix() ) );
+	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }

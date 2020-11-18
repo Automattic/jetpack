@@ -1119,7 +1119,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$site_identifier = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_identifier ) {
-			$site_identifier = jetpack_get_site_suffix();
+			$status          = new Status();
+			$site_identifier = $status->get_site_suffix();
 		}
 
 		$request = array(

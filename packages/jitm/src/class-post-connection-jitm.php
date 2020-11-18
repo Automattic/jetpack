@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -467,7 +468,7 @@ class Post_Connection_JITM extends JITM {
 
 			$url_params = array(
 				'source' => "jitm-$envelope->id",
-				'site'   => jetpack_get_site_suffix(),
+				'site'   => ( new Status() )->get_site_suffix(),
 				'u'      => $user->ID,
 			);
 

@@ -2,8 +2,8 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Licensing;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Status;
 
 include_once( 'class.jetpack-admin-page.php' );
 
@@ -151,7 +151,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
-
 		$is_offline_mode     = ( new Status() )->is_offline_mode();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
 		$script_dependencies = array( 'wp-polyfill' );
@@ -266,7 +265,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'currentVersion'              => JETPACK__VERSION,
 			'is_gutenberg_available'      => true,
 			'getModules'                  => $modules,
-			'rawUrl'                      => jetpack_get_site_suffix(),
+			'rawUrl'                      => ( new Status() )->get_site_suffix(),
 			'adminUrl'                    => esc_url( admin_url() ),
 			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                       => array(

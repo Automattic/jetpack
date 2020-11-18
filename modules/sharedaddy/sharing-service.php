@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Settings;
 
 include_once dirname( __FILE__ ) . '/sharing-sources.php';
@@ -684,7 +686,7 @@ add_action( 'template_redirect', 'sharing_process_requests', 9 );
  * @return string the customisation URL or null if it couldn't be determinde.
  */
 function get_sharing_buttons_customisation_url() {
-	return Automattic\Jetpack\Redirect::get_url( 'calypso-marketing-sharing-buttons', array( 'site' => jetpack_get_site_suffix() ) );
+	return Redirect::get_url( 'calypso-marketing-sharing-buttons', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }
 
 /**

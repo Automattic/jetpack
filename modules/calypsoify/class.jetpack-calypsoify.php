@@ -5,6 +5,7 @@
  */
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 class Jetpack_Calypsoify {
 
@@ -152,8 +153,8 @@ class Jetpack_Calypsoify {
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
 			array(
-				'closeUrl'   => $this->get_close_gutenberg_url(),
-				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block/' . jetpack_get_site_suffix(),
+				'closeUrl'                => $this->get_close_gutenberg_url(),
+				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block/' . ( new Status() )->get_site_suffix(),
 			)
 		);
 	}
@@ -228,7 +229,7 @@ class Jetpack_Calypsoify {
 	public function get_calypso_url( $post_id = null ) {
 		$screen      = get_current_screen();
 		$post_type   = $screen->post_type;
-		$site_suffix = jetpack_get_site_suffix();
+		$site_suffix = ( new Status() )->get_site_suffix();
 
 		if ( is_null( $post_id ) ) {
 			// E.g. `posts`, `pages`, or `types/some_custom_post_type`

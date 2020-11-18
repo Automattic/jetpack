@@ -633,8 +633,10 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		$status = new Status();
+
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_active() ) {
+		if ( ! $status->is_offline_mode() && Jetpack::is_active() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
@@ -701,7 +703,7 @@ class Jetpack_Gutenberg {
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 				),
-				'siteFragment'     => jetpack_get_site_suffix(),
+				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,

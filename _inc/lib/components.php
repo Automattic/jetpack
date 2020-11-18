@@ -1,4 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Status;
+
 /**
  * Components Library
  *
@@ -76,7 +79,7 @@ class Jetpack_Components {
 
 		$post_id = get_the_ID();
 
-		$site_slug = jetpack_get_site_suffix();
+		$site_slug = ( new Status() )->get_site_suffix();
 
 		// Post-checkout: redirect back to the editor.
 		$redirect_to = add_query_arg(
