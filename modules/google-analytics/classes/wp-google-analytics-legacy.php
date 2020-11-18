@@ -160,7 +160,7 @@ class Jetpack_Google_Analytics_Legacy {
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
 		<!-- Jetpack Google Analytics -->
-		<script async src='https://www.googletagmanager.com/gtag/js?id=<?php echo esc_url( $tracking_id ); ?>'></script>
+		<script async src='https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( $tracking_id ); ?>'></script>
 		<script>
 			window.dataLayer = window.dataLayer || [];
 			function gtag() { dataLayer.push( arguments ); }
