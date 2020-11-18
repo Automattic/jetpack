@@ -152,5 +152,17 @@ class Admin_Color_Schemes {
 			)
 		);
 
+		wp_admin_css_color(
+			'sunset',
+			__( 'Sunset', 'jetpack' ),
+			plugins_url( 'colors/sunset/colors.css', __FILE__ ),
+			array( '#691c1c', '#8a2424', '#ffffff', '#646970' ),
+			array(
+				'base'    => '#646970',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+
 	}
 }
