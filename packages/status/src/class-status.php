@@ -152,7 +152,7 @@ class Status {
 		$is_local = site_url() && false === strpos( site_url(), '.' );
 
 		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
-		if ( 'local' === \wp_get_environment_type() ) {
+		if ( 'local' === wp_get_environment_type() ) {
 			$is_local = true;
 		}
 

@@ -38,8 +38,12 @@ class Test_Status extends TestCase {
 	 * Test setup.
 	 */
 	public function setUp() {
+		parent::setUp();
 		Monkey\setUp();
 		$this->status = new Status();
+
+		// Default to a non-set environment type, unless decided otherwise in each test.
+		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
 	}
 
 	/**
@@ -48,6 +52,7 @@ class Test_Status extends TestCase {
 	public function tearDown() {
 		// Call Monkey\tearDown(); here, but the following function takes care of it for now.
 		Mock::disableAll();
+		parent::tearDown();
 	}
 
 	/**
