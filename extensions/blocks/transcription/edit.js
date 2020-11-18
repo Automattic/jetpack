@@ -4,6 +4,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
+import { InnerBlocks } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
@@ -24,6 +25,13 @@ const defaultLabels = [
 	},
 ];
 
+const TRANSCRIPTION_TEMPLATE = [
+	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
+	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+];
+
 export default function Transcription ( {
 	className,
 	attributes,
@@ -42,7 +50,10 @@ export default function Transcription ( {
 
 	return (
 		<div class={ className }>
-			{ __( 'Transcription', 'jetpack' ) }
+			<InnerBlocks
+				template={ TRANSCRIPTION_TEMPLATE }
+				allowedBlocks={ [ 'core/paragraph', 'core/heading', 'jetpack/change-log' ] }
+			/>
 		</div>
 	);
 }
