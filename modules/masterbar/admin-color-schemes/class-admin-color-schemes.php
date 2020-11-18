@@ -116,5 +116,17 @@ class Admin_Color_Schemes {
 			)
 		);
 
+		wp_admin_css_color(
+			'nightfall',
+			__( 'Nightfall', 'jetpack' ),
+			plugins_url( 'colors/nightfall/colors.css', __FILE__ ),
+			array( '#00131c', '#043959', '#ffffff', '#646970' ),
+			array(
+				'base'    => '#646970',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+
 	}
 }
