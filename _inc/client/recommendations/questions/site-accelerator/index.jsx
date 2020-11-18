@@ -3,7 +3,7 @@
  */
 import { ProgressBar } from '@automattic/components';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -13,7 +13,12 @@ import { QuestionLayout } from '../layout';
 import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
-import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import {
+	addSelectedRecommendation,
+	addSkippedRecommendation,
+	getNextRoute,
+	updateRecommendationsStep,
+} from 'state/recommendations';
 import { updateSettings } from 'state/settings';
 
 const SiteAcceleratorQuestionComponent = props => {
@@ -21,6 +26,11 @@ const SiteAcceleratorQuestionComponent = props => {
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'site-accelerator' );
+	} );
+
+	const onEnableClick = useCallback( () => {
+		props.addSelectedRecommendation();
+		props.enableSiteAccelerator();
 	} );
 
 	return (
@@ -46,10 +56,12 @@ const SiteAcceleratorQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button primary href={ nextRoute } onClick={ props.enableSiteAccelerator }>
+					<Button primary href={ nextRoute } onClick={ onEnableClick }>
 						{ __( 'Enable Site Accelerator' ) }
 					</Button>
-					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
+					<a href={ nextRoute } onClick={ props.addSkippedRecommendation }>
+						{ __( 'Decide later' ) }
+					</a>
 				</div>
 			}
 			illustrationPath="/recommendations/site-accelerator-illustration.svg"
@@ -60,6 +72,8 @@ const SiteAcceleratorQuestionComponent = props => {
 const SiteAcceleratorQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
+		addSelectedRecommendation: () => dispatch( addSelectedRecommendation( 'site-accelerator' ) ),
+		addSkippedRecommendation: () => dispatch( addSkippedRecommendation( 'site-accelerator' ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		enableSiteAccelerator: () => dispatch( updateSettings( { photon: true, 'photon-cdn': true } ) ),
 	} )

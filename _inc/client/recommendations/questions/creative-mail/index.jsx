@@ -3,7 +3,7 @@
  */
 import { ProgressBar } from '@automattic/components';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -14,7 +14,12 @@ import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import restApi from 'rest-api';
-import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import {
+	addSelectedRecommendation,
+	addSkippedRecommendation,
+	getNextRoute,
+	updateRecommendationsStep,
+} from 'state/recommendations';
 import { fetchPluginsData } from 'state/site/plugins';
 
 const CreativeMailQuestionComponent = props => {
@@ -22,6 +27,11 @@ const CreativeMailQuestionComponent = props => {
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'creative-mail' );
+	} );
+
+	const onInstallClick = useCallback( () => {
+		props.addSelectedRecommendation();
+		props.installCreativeMailAndReloadPluginsData();
 	} );
 
 	return (
@@ -50,14 +60,12 @@ const CreativeMailQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button
-						primary
-						href={ nextRoute }
-						onClick={ props.installCreativeMailAndReloadPluginsData }
-					>
+					<Button primary href={ nextRoute } onClick={ onInstallClick }>
 						{ __( 'Install Creative Mail' ) }
 					</Button>
-					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
+					<a href={ nextRoute } onClick={ props.addSkippedRecommendation }>
+						{ __( 'Decide later' ) }
+					</a>
 				</div>
 			}
 			illustrationPath="/recommendations/creative-mail-illustration.svg"
@@ -68,6 +76,8 @@ const CreativeMailQuestionComponent = props => {
 const CreativeMailQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
+		addSelectedRecommendation: () => dispatch( addSelectedRecommendation( 'creative-mail' ) ),
+		addSkippedRecommendation: () => dispatch( addSkippedRecommendation( 'creative-mail' ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		installCreativeMailAndReloadPluginsData: () => {
 			restApi.installPlugin( 'creative-mail-by-constant-contact', 'recommendations' ).then( () => {

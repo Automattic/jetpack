@@ -14,7 +14,12 @@ import { jetpackCreateInterpolateElement } from 'components/create-interpolate-e
 import ExternalLink from 'components/external-link';
 import Button from 'components/button';
 import restApi from 'rest-api';
-import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import {
+	addSelectedRecommendation,
+	addSkippedRecommendation,
+	getNextRoute,
+	updateRecommendationsStep,
+} from 'state/recommendations';
 import { fetchPluginsData } from 'state/site/plugins';
 
 const WooCommerceQuestionComponent = props => {
@@ -25,6 +30,7 @@ const WooCommerceQuestionComponent = props => {
 	} );
 
 	const onInstallClick = useCallback( () => {
+		props.addSelectedRecommendation();
 		props.installWooCommerceAndReloadPluginsData();
 	} );
 
@@ -54,7 +60,9 @@ const WooCommerceQuestionComponent = props => {
 					<Button primary href={ nextRoute } onClick={ onInstallClick }>
 						{ __( 'Install WooCommerce' ) }
 					</Button>
-					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
+					<a href={ nextRoute } onClick={ props.addSkippedRecommendation }>
+						{ __( 'Decide later' ) }
+					</a>
 				</div>
 			}
 			illustrationPath="/recommendations/woocommerce-illustration.png"
@@ -65,12 +73,14 @@ const WooCommerceQuestionComponent = props => {
 const WooCommerceQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
-		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
+		addSelectedRecommendation: () => dispatch( addSelectedRecommendation( 'woocommerce' ) ),
+		addSkippedRecommendation: () => dispatch( addSkippedRecommendation( 'woocommerce' ) ),
 		installWooCommerceAndReloadPluginsData: () => {
 			restApi.installPlugin( 'woocommerce', 'recommendations' ).then( () => {
 				dispatch( fetchPluginsData() );
 			} );
 		},
+		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 	} )
 )( WooCommerceQuestionComponent );
 

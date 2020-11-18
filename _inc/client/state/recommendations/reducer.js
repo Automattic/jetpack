@@ -33,6 +33,12 @@ const mergeArrays = ( x, y ) => {
 	}
 };
 
+const mergeArrays = ( obj, src ) => {
+	if ( Array.isArray( obj ) && Array.isArray( src ) ) {
+		return union( obj, src );
+	}
+};
+
 const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:

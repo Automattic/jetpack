@@ -861,7 +861,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		foreach ( $value as $answer ) {
-			if ( is_string( $answer ) ) {
+			if ( is_array( $answer ) ) {
+				foreach ( $answer as $array_item ) {
+					$validate = self::validate_string( $array_item, $request, $param );
+					if ( is_wp_error( $validate ) ) {
+						return $validate;
+					}
+				}
+			} elseif ( is_string( $answer ) ) {
 				$validate = self::validate_string( $answer, $request, $param );
 			} else {
 				$validate = self::validate_boolean( $answer, $request, $param );

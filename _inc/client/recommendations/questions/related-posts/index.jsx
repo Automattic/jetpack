@@ -3,7 +3,7 @@
  */
 import { ProgressBar } from '@automattic/components';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -13,7 +13,12 @@ import { QuestionLayout } from '../layout';
 import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
-import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import {
+	addSelectedRecommendation,
+	addSkippedRecommendation,
+	getNextRoute,
+	updateRecommendationsStep,
+} from 'state/recommendations';
 import { updateSettings } from 'state/settings';
 
 const RelatedPostsQuestionComponent = props => {
@@ -21,6 +26,11 @@ const RelatedPostsQuestionComponent = props => {
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'related-posts' );
+	} );
+
+	const onEnableClick = useCallback( () => {
+		props.addSelectedRecommendation();
+		props.enableRelatedPosts();
 	} );
 
 	return (
@@ -49,10 +59,12 @@ const RelatedPostsQuestionComponent = props => {
 			) }
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<Button primary href={ nextRoute } onClick={ props.enableRelatedPosts }>
+					<Button primary href={ nextRoute } onClick={ onEnableClick }>
 						{ __( 'Enable Related Posts' ) }
 					</Button>
-					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
+					<a href={ nextRoute } onClick={ props.addSkippedRecommendation }>
+						{ __( 'Decide later' ) }
+					</a>
 				</div>
 			}
 			illustrationPath="/recommendations/related-posts-illustration.png"
@@ -63,6 +75,8 @@ const RelatedPostsQuestionComponent = props => {
 const RelatedPostsQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
+		addSelectedRecommendation: () => dispatch( addSelectedRecommendation( 'related-posts' ) ),
+		addSkippedRecommendation: () => dispatch( addSkippedRecommendation( 'related-posts' ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		enableRelatedPosts: () => dispatch( updateSettings( { 'related-posts': true } ) ),
 	} )
