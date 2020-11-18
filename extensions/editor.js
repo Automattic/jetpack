@@ -9,6 +9,7 @@ import './shared/external-media';
 import './extended-blocks/core-embed';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
+import './shared/anchor-post-publish';
 
 import analytics from '../_inc/client/lib/analytics';
 
