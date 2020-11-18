@@ -140,5 +140,17 @@ class Admin_Color_Schemes {
 			)
 		);
 
+		wp_admin_css_color(
+			'sakura',
+			__( 'Sakura', 'jetpack' ),
+			plugins_url( 'colors/sakura/colors.css', __FILE__ ),
+			array( '#005042', '#f2ceda', '#700f3b', '#646970' ),
+			array(
+				'base'    => '#646970',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+
 	}
 }
