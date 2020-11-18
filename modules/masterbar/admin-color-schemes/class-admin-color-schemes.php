@@ -128,5 +128,17 @@ class Admin_Color_Schemes {
 			)
 		);
 
+		wp_admin_css_color(
+			'powder-snow',
+			__( 'Powder Snow', 'jetpack' ),
+			plugins_url( 'colors/powder-snow/colors.css', __FILE__ ),
+			array( '#101517', '#dcdcde', '#2c3338', '#646970' ),
+			array(
+				'base'    => '#646970',
+				'focus'   => '#fff',
+				'current' => '#fff',
+			)
+		);
+
 	}
 }
