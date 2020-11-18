@@ -30,6 +30,7 @@ export const settings = {
 		_x( 'Transcription', 'block search term', 'jetpack' ),
 	],
 	supports: {
+		'align': true,
 	},
 	attributes,
 	edit,

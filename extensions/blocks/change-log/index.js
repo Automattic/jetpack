@@ -30,6 +30,7 @@ export const settings = {
 		_x( 'changelog', 'block search term', 'jetpack' ),
 	],
 	supports: {
+		'align': true,
 	},
 	edit,
 	save,

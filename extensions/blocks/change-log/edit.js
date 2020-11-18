@@ -41,9 +41,9 @@ const LabelsSelector = ( {
 					return (
 						<NavigableMenu>
 							<MenuGroup>
-								{ map( labels, ( { name } ) => (
-									<MenuItem key={ name } onClick={ () => onSelect( name ) }>
-										{ name }
+								{ map( labels, ( { value: labelValue, slug } ) => (
+									<MenuItem key={ slug } onClick={ () => onSelect( labelValue ) }>
+										{ labelValue }
 									</MenuItem>
 								) ) }
 							</MenuGroup>
@@ -100,7 +100,7 @@ export default function ChangelogEdit ( {
 				className={ `${ className }__labels-dropdown` }
 				labels={ labels }
 
-				value={ value || labels?.[ 0 ]?.name }
+				value={ value || labels?.[ 0 ]?.value }
 				onSelect={ ( newValue ) => setAttributes( { value: newValue } ) }
 
 				custom={ custom }
