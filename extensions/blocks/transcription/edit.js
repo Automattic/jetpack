@@ -151,6 +151,13 @@ export default function Transcription ( {
 									label={ __( 'Add a new label', 'jetpack' ) }
 									value={ newLabelValue }
 									onChange={ setNewLabelValue }
+									onKeyDown={ ( { key } ) => {
+										if ( key !== 'Enter' ) {
+											return;
+										}
+
+										addNewLabel();
+									} }
 								/>
 
 								<Button
