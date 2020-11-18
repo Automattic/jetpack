@@ -37,7 +37,8 @@ const LabelsSelector = ( {
 	custom,
 	onCustom,
 } ) => {
-	const currentLabel = slug ? find( labels, ( label ) => label.slug === slug ) : labels[ 0 ];
+	const currentLabelBySlug = find( labels, ( label ) => label.slug === slug );
+	const currentLabel = slug && currentLabelBySlug ? currentLabelBySlug : labels[ 0 ];
 	const currentValue = ! slug && custom ? custom : currentLabel.value;
 
 	return (
