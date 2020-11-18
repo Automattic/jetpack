@@ -14,11 +14,21 @@
 }
 
 // Labels dropdown content.
-.wp-block-jetpack-change-log__labels-dropdown__custom-label {
+.wp-block-jetpack-change-log__labels-selector {
+	.components-menu-item__button {
+		margin: 2px 0;
+	}
+
+	.components-button {
+		white-space: nowrap;
+	}
+}
+
+.wp-block-jetpack-change-log__labels-selector__custom-label {
 	margin-top: 10px;
 }
 
-.wp-block-jetpack-change-log__labels-dropdown__text-button-container {
+.wp-block-jetpack-change-log__labels-selector__text-button-container {
 	display: flex;
 	margin-top: 5px;
 

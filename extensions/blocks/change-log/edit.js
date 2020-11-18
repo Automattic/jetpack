@@ -7,7 +7,7 @@ import { map, find } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, withColors } from '@wordpress/block-editor';
 import {
 	Dropdown,
 	Button,
@@ -17,6 +17,7 @@ import {
 	TextControl,
 	BaseControl,
 } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -36,15 +37,19 @@ const LabelsSelector = ( {
 	custom,
 	onCustom,
 } ) => {
-	const valueFromSlug = find( labels, ( label ) => label.slug === slug )?.value;
-	const value = slug && valueFromSlug ? valueFromSlug : custom;
+	const currentLabel = find( labels, ( label ) => label.slug === slug ) || {};
+	const value = slug && currentLabel?.value ? currentLabel.value : custom;
 
 	return (
 		<div className={ className }>
 			<Dropdown
 				position="bottom"
+				contentClassName={ className }
 				renderToggle={ ( { isOpen, onToggle } ) => (
-					<Button isPrimary onClick={ onToggle } aria-expanded={ isOpen }>
+					<Button
+						onClick={ onToggle } aria-expanded={ isOpen }
+						style={ { color: currentLabel.textColor, backgroundColor: currentLabel.bgColor } }
+					>
 						{ value }
 					</Button>
 				) }
@@ -52,8 +57,12 @@ const LabelsSelector = ( {
 					return (
 						<NavigableMenu>
 							<MenuGroup>
-								{ map( labels, ( { value: labelValue, slug: labelSlug } ) => (
-									<MenuItem key={ labelSlug } onClick={ () => onSelect( labelSlug ) }>
+								{ map( labels, ( { value: labelValue, slug: labelSlug, textColor, bgColor } ) => (
+									<MenuItem
+										key={ labelSlug }
+										onClick={ () => onSelect( labelSlug ) }
+										style={ { color: textColor, backgroundColor: bgColor } }
+									>
 										{ labelValue }
 									</MenuItem>
 								) ) }
@@ -84,22 +93,19 @@ const LabelsSelector = ( {
 const defaultLabels = [
 	{
 		name: __( 'Alarm', 'jetpack' ),
-		color: 'red',
 		slug: 'label-0',
 	},
 	{
 		name: __( 'Warning', 'jetpack' ),
-		color: 'yellow',
-		slug: 'label-0',
+		slug: 'label-1',
 	},
 	{
 		name: __( 'Normal', 'jetpack' ),
-		color: 'green',
-		slug: 'label-0',
+		slug: 'label-2',
 	},
 ];
 
-export default function ChangelogEdit ( {
+function ChangelogEdit ( {
 	className,
 	attributes,
 	setAttributes,
@@ -112,7 +118,7 @@ export default function ChangelogEdit ( {
 	return (
 		<div class={ className }>
 			<LabelsSelector
-				className={ `${ className }__labels-dropdown` }
+				className={ `${ className }__labels-selector` }
 				labels={ labels }
 
 				slug={ labelSlug }
@@ -133,3 +139,7 @@ export default function ChangelogEdit ( {
 		</div>
 	);
 }
+
+export default compose(
+	withColors( 'backgroundColor', 'textColor' )
+)( ChangelogEdit );
