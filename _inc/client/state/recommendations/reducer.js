@@ -90,6 +90,18 @@ const requests = ( state = {}, action ) => {
 	}
 };
 
+const requests = ( state = {}, action ) => {
+	switch ( action ) {
+		case JETPACK_RECOMMENDATIONS_DATA_FETCH:
+			return assign( {}, state, { isFetchingRecommendationsData: true } );
+		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
+			return assign( {}, state, { isFetchingRecommendationsData: false } );
+		default:
+			return state;
+	}
+};
+
 const stepReducer = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE:

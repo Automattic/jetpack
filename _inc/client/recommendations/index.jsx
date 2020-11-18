@@ -14,6 +14,7 @@ import { RelatedPostsQuestion } from './questions/related-posts';
 import { SiteAcceleratorQuestion } from './questions/site-accelerator';
 import { SiteTypeQuestion } from './questions/site-type';
 import { WooCommerceQuestion } from './questions/woocommerce';
+import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import { getStep } from 'state/recommendations';
 
 const RecommendationsComponent = props => {
@@ -45,27 +46,30 @@ const RecommendationsComponent = props => {
 	}
 
 	return (
-		<Switch>
-			<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
-			<Route path="/recommendations/site-type">
-				<SiteTypeQuestion />
-			</Route>
-			<Route path="/recommendations/woocommerce">
-				<WooCommerceQuestion />
-			</Route>
-			<Route path="/recommendations/monitor">
-				<MonitorQuestion />
-			</Route>
-			<Route path="/recommendations/related-posts">
-				<RelatedPostsQuestion />
-			</Route>
-			<Route path="/recommendations/creative-mail">
-				<CreativeMailQuestion />
-			</Route>
-			<Route path="/recommendations/site-accelerator">
-				<SiteAcceleratorQuestion />
-			</Route>
-		</Switch>
+		<>
+			<QueryRecommendationsData />
+			<Switch>
+				<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
+				<Route path="/recommendations/site-type">
+					<SiteTypeQuestion />
+				</Route>
+				<Route path="/recommendations/woocommerce">
+					<WooCommerceQuestion />
+				</Route>
+				<Route path="/recommendations/monitor">
+					<MonitorQuestion />
+				</Route>
+				<Route path="/recommendations/related-posts">
+					<RelatedPostsQuestion />
+				</Route>
+				<Route path="/recommendations/creative-mail">
+					<CreativeMailQuestion />
+				</Route>
+				<Route path="/recommendations/site-accelerator">
+					<SiteAcceleratorQuestion />
+				</Route>
+			</Switch>
+		</>
 	);
 };
 

@@ -13,7 +13,11 @@ import { QuestionLayout } from '../layout';
 import { CheckboxAnswer } from '../checkbox-answer';
 import Button from 'components/button';
 import { getSiteTitle } from 'state/initial-state';
-import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import {
+	getNextRoute,
+	saveRecommendationsData,
+	updateRecommendationsStep,
+} from 'state/recommendations';
 
 /**
  * Style dependencies
@@ -51,7 +55,7 @@ const SiteTypeQuestionComponent = props => {
 					info={ __( 'TODO change me personal info placeholder' ) }
 				/>
 			</div>
-			<Button primary href={ nextRoute }>
+			<Button primary href={ nextRoute } onClick={ props.saveRecommendationsData }>
 				{ __( 'Continue' ) }
 			</Button>
 			<div className="jp-recommendations-site-type-question__continue-description">
@@ -79,5 +83,6 @@ export const SiteTypeQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ), siteTitle: getSiteTitle( state ) } ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
+		saveRecommendationsData: () => dispatch( saveRecommendationsData() ),
 	} )
 )( SiteTypeQuestionComponent );
