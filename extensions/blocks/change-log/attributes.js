@@ -4,5 +4,5 @@ export default {
 	},
 	custom: {
 		type: "string",
-	}
+	},
 };

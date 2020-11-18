@@ -17,9 +17,9 @@ import './editor.scss';
 
 const LOG_TEMPLATE = [
 	[ 'core/paragraph', { placeholder: __( 'Start logging…', 'Jetpack' ) } ],
-    ];
+];
 
-const LabelsDropdown = ( {
+const LabelsSelector = ( {
 	className,
 	labels,
 	value,
@@ -41,7 +41,7 @@ const LabelsDropdown = ( {
 					return (
 						<NavigableMenu>
 							<MenuGroup>
-								{ map( labels, ( name ) => (
+								{ map( labels, ( { name } ) => (
 									<MenuItem key={ name } onClick={ () => onSelect( name ) }>
 										{ name }
 									</MenuItem>
@@ -71,25 +71,36 @@ const LabelsDropdown = ( {
 };
 
 const defaultLabels = [
-	 'Alarm',
-	 'Warning',
-	 'Normal',
+	{
+		name: __( 'Alarm', 'jetpack' ),
+		color: 'red',
+	},
+	{
+		name: __( 'Warning', 'jetpack' ),
+		color: 'yellow',
+	},
+	{
+		name: __( 'Normal', 'jetpack' ),
+		color: 'green',
+	},
 ];
 
 export default function ChangelogEdit ( {
 	className,
 	attributes,
 	setAttributes,
+	context,
 } ) {
 	const { value = '', custom = '' } = attributes;
+	const labels = context[ 'change-log/labels' ] ? context[ 'change-log/labels' ] : defaultLabels;
 
 	return (
 		<div class={ className }>
-			<LabelsDropdown
+			<LabelsSelector
 				className={ `${ className }__labels-dropdown` }
-				labels={ defaultLabels }
+				labels={ labels }
 
-				value={ value || defaultLabels[ 0 ] }
+				value={ value || labels?.[ 0 ]?.name }
 				onSelect={ ( newValue ) => setAttributes( { value: newValue } ) }
 
 				custom={ custom }
