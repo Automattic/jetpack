@@ -26,10 +26,8 @@ class Redirect {
 	 * @return string $url without the guff
 	 */
 	private static function build_raw_urls( $url ) {
-		$strip_http = '/.*?:\/\//i';
-		$url        = preg_replace( $strip_http, '', $url );
-		$url        = str_replace( '/', '::', $url );
-		return $url;
+		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
+		return ( new Status() )->get_site_suffix( $url );
 	}
 
 	/**
@@ -56,7 +54,8 @@ class Redirect {
 	public static function get_url( $source, $args = array() ) {
 
 		$url           = 'https://jetpack.com/redirect/';
-		$args          = wp_parse_args( $args, array( 'site' => self::build_raw_urls( get_home_url() ) ) );
+		$site_suffix   = ( new Status() )->get_site_suffix();
+		$args          = wp_parse_args( $args, array( 'site' => $site_suffix ) );
 		$accepted_args = array( 'site', 'path', 'query', 'anchor' );
 
 		$source_key = 'source';
