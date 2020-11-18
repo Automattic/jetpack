@@ -12,9 +12,6 @@
 		<testsuite name="core-api">
 			<directory prefix="test" suffix=".php">tests/php/core-api</directory>
 		</testsuite>
-		<testsuite name="global">
-			<file>tests/php/test-functions.global.php</file>
-		</testsuite>
 		<testsuite name="media">
 			<directory prefix="test" suffix=".php">tests/php/media</directory>
 		</testsuite>
