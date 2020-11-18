@@ -2,13 +2,21 @@
 /**
  * External dependencies
  */
-import { map } from 'lodash';
+import { map, find } from 'lodash';
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
-import { Dropdown, Button, NavigableMenu, MenuItem, MenuGroup, TextControl, BaseControl } from '@wordpress/components';
+import {
+	Dropdown,
+	Button,
+	NavigableMenu,
+	MenuItem,
+	MenuGroup,
+	TextControl,
+	BaseControl,
+} from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -22,12 +30,15 @@ const LOG_TEMPLATE = [
 const LabelsSelector = ( {
 	className,
 	labels,
-	value,
+	slug,
 	onSelect,
 
 	custom,
 	onCustom,
 } ) => {
+	const valueFromSlug = find( labels, ( label ) => label.slug === slug )?.value;
+	const value = slug && valueFromSlug ? valueFromSlug : custom;
+
 	return (
 		<div className={ className }>
 			<Dropdown
@@ -41,8 +52,8 @@ const LabelsSelector = ( {
 					return (
 						<NavigableMenu>
 							<MenuGroup>
-								{ map( labels, ( { value: labelValue, slug } ) => (
-									<MenuItem key={ slug } onClick={ () => onSelect( labelValue ) }>
+								{ map( labels, ( { value: labelValue, slug: labelSlug } ) => (
+									<MenuItem key={ labelSlug } onClick={ () => onSelect( labelSlug ) }>
 										{ labelValue }
 									</MenuItem>
 								) ) }
@@ -74,14 +85,17 @@ const defaultLabels = [
 	{
 		name: __( 'Alarm', 'jetpack' ),
 		color: 'red',
+		slug: 'label-0',
 	},
 	{
 		name: __( 'Warning', 'jetpack' ),
 		color: 'yellow',
+		slug: 'label-0',
 	},
 	{
 		name: __( 'Normal', 'jetpack' ),
 		color: 'green',
+		slug: 'label-0',
 	},
 ];
 
@@ -91,8 +105,9 @@ export default function ChangelogEdit ( {
 	setAttributes,
 	context,
 } ) {
-	const { value = '', custom = '' } = attributes;
-	const labels = context[ 'change-log/labels' ] ? context[ 'change-log/labels' ] : defaultLabels;
+	const { labelSlug, custom } = attributes;
+	const labelsFromContext = context[ 'change-log/labels' ];
+	const labels = labelsFromContext ? labelsFromContext : defaultLabels;
 
 	return (
 		<div class={ className }>
@@ -100,11 +115,14 @@ export default function ChangelogEdit ( {
 				className={ `${ className }__labels-dropdown` }
 				labels={ labels }
 
-				value={ value || labels?.[ 0 ]?.value }
-				onSelect={ ( newValue ) => setAttributes( { value: newValue } ) }
+				slug={ labelSlug }
+				onSelect={ ( newSlug ) => setAttributes( { labelSlug: newSlug } ) }
 
 				custom={ custom }
-				onCustom={ ( newCustom ) => setAttributes( { custom: newCustom } ) }
+				onCustom={ ( newCustom ) => setAttributes( {
+					labelSlug: null,
+					custom: newCustom,
+				} ) }
 			/>
 			<InnerBlocks
 				template={ LOG_TEMPLATE }
