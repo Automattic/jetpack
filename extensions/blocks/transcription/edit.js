@@ -7,7 +7,7 @@ import { filter, map } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -60,6 +60,7 @@ export default function Transcription ( {
 	setAttributes,
 } ) {
 	const { labels } = attributes;
+	const [ newLabelValue, setNewLabelValue ] = useState();
 
 	// Set initial transcription labels.
 	useEffect( () => {
@@ -88,6 +89,20 @@ export default function Transcription ( {
 		setAttributes( { labels: filter( labels, ( { slug } ) => ( slug !== labelSlug ) ) } );
 	}
 
+	function addNewLabel () {
+		setAttributes( {
+			labels: [
+				...labels,
+				{
+					value: newLabelValue,
+					slug: `slug-${ labels?.length ? labels?.length : 0 }`,
+				},
+			],
+		} );
+
+		setNewLabelValue( '' );
+	}
+
 	return (
 		<div class={ className }>
 			<InspectorControls>
@@ -98,7 +113,7 @@ export default function Transcription ( {
 								<div className={ `${ className }__label` }>
 									<TextControl
 										value={ value }
-										onChange={ ( newLabelValue ) => updateLabels( { slug, value: newLabelValue } ) }
+										onChange={ ( labelEditedValue ) => updateLabels( { slug, value: labelEditedValue } ) }
 									/>
 
 									<Button
@@ -128,8 +143,27 @@ export default function Transcription ( {
 									initialOpen={ false }
 								/>
 							</BaseControl>
-
 						) ) }
+
+						<BaseControl>
+							<div className={ `${ className }__label` }>
+								<TextControl
+									label={ __( 'Add a new label', 'jetpack' ) }
+									value={ newLabelValue }
+									onChange={ setNewLabelValue }
+								/>
+
+								<Button
+									className={ `${ className }__add-button` }
+									label={ __( 'Add', 'jetpack' ) }
+									onClick={ addNewLabel }
+									isSecondary
+									isSmall
+								>
+									{ __( 'Add', 'jetpack' ) }
+								</Button>
+							</div>
+						</BaseControl>
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
