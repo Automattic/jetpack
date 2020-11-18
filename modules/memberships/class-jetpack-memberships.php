@@ -255,7 +255,7 @@ class Jetpack_Memberships {
 	 *
 	 * @return string|void
 	 */
-	public function render_button( $attributes, $content = null ) {
+	public function render_button( $attributes, $content, $block ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
 		// If the user is a site admin, and the block needs to have a Stripe account connected,
 		// render a preview disconnected button in the frontend as a preview.
@@ -432,6 +432,7 @@ class Jetpack_Memberships {
 				'jetpack/recurring-payments',
 				array(
 					'render_callback' =>  array( $this, 'render_button' ),
+					'uses_context' => array( 'isPremiumContentChild' ),
 				)
 			);
 		} else {
