@@ -228,11 +228,4 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 	}
-
-	function upgrade_terms_to_pass_test( $term ) {
-		$term->filter = 'raw';
-
-		return $term;
-	}
-
 }
