@@ -208,7 +208,6 @@ function ChangelogEdit ( {
 			<InnerBlocks
 				template={ LOG_TEMPLATE }
 				allowedBlocks={ [ 'core/paragraph' ] }
-				templateLock="all"
 				orientation="horizontal"
 			/>
 		</div>
