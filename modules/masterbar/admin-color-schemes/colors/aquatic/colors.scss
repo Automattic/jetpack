@@ -1,3 +1,17 @@
 $base-color: #135e96;
+$icon-color: #c5d9ed;
+$highlight-color: #007e65; //Calypso button color
+$notification-color: $highlight-color;
+
+$body-background: #f6f7f7;
+
+$menu-text: #ffffff;
+$menu-highlight-background: #2271b1;
+$menu-current-text: #01263a;
+$menu-current-icon: $menu-current-text;
+$menu-current-background: #f0c930;
+$menu-submenu-text: $menu-text;
+$menu-submenu-background: #043959; //Calypso main nav color
+$menu-submenu-focus-text: #f0c930;
 
 @import "../admin";

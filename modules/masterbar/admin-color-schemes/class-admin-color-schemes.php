@@ -60,9 +60,9 @@ class Admin_Color_Schemes {
 			'aquatic',
 			__( 'Aquatic', 'jetpack' ),
 			plugins_url( 'colors/aquatic/colors.css', __FILE__ ),
-			array( '#135e96', '#043959', '#ffffff', '#646970' ),
+			array( '#135e96', '#007e65', '#043959', '#c5d9ed' ),
 			array(
-				'base'    => '#646970',
+				'base'    => '#c5d9ed',
 				'focus'   => '#fff',
 				'current' => '#fff',
 			)
