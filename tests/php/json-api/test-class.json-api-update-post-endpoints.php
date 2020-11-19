@@ -41,7 +41,7 @@ class WP_Test_Json_Api_Update_Post_Endpoints extends WP_UnitTestCase {
 	/**
 	 * Unit tests the should untrash post protected method.
 	 */
-	public function test_update_post_api_v1_1() {
+	public function test_should_untrash_post_method() {
 
 		$post_id  = $this->get_post();
 		$endpoint = $this->get_endpoint();
@@ -62,6 +62,7 @@ class WP_Test_Json_Api_Update_Post_Endpoints extends WP_UnitTestCase {
 
 		wp_trash_post( $post_id );
 		$post  = get_post( $post_id );
+		// hello is coming from the post title.
 		$input = array( 'slug' => 'hello__trashed' );
 
 		$updated_input = $this->invoke_method( $endpoint, 'untrash_post', array( $post, $input ) );
