@@ -50,9 +50,17 @@ const defaultLabels = [
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
+	[ 'jetpack/podcast-player' ],
 	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
 	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
 	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+];
+
+const TRANSCRIPTION_ALLOWED_BLOCKS = [
+	'core/paragraph',
+	'core/heading',
+	'jetpack/podcast-player',
+	'jetpack/change-log',
 ];
 
 export default function Transcription ( {
@@ -185,7 +193,7 @@ export default function Transcription ( {
 			</InspectorControls>
 			<InnerBlocks
 				template={ TRANSCRIPTION_TEMPLATE }
-				allowedBlocks={ [ 'core/paragraph', 'core/heading', 'jetpack/change-log' ] }
+				allowedBlocks={ TRANSCRIPTION_ALLOWED_BLOCKS }
 			/>
 		</div>
 	);
