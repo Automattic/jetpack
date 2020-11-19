@@ -4,7 +4,7 @@
 	"prHourlyLimit": 1,
 	"supportPolicy": [ "lts_latest" ],
 	"timezone": "UTC",
-	"schedule": [ "every weekend" ],
+	"schedule": [ "on the last Wednesday of the month" ],
 	"updateNotScheduled": false,
 	"ignoreDeps": [ "mockery/mockery", "php-mock/php-mock", "phpunit/phpunit" ],
 	"packageRules": [
