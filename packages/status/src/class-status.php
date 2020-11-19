@@ -274,7 +274,7 @@ class Status {
 	 *
 	 * @since 9.2.0
 	 *
-	 * @param string $url URL to build the site suffix from.
+	 * @param string $url Optional. URL to build the site suffix from. Default: Home URL.
 	 *
 	 * @return string
 	 */
@@ -288,9 +288,16 @@ class Status {
 			$url = \home_url();
 		}
 
-		$url = preg_replace( '#.*?://#', '', $url );
-		$url = str_replace( '/', '::', $url );
+		$domain = preg_split( '#https?://#', $url );
 
-		return $url;
+		// Not a domain we want to handle.
+		if ( empty( $domain[1] ) ) {
+			return $url;
+		}
+
+		$domain = rtrim( $domain[1], '/' );
+		$domain = str_replace( '/', '::', $domain );
+
+		return $domain;
 	}
 }
