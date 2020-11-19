@@ -20,6 +20,21 @@
 		{
 			"paths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
+		},
+		{
+			"groupName": "Instant Search Dependency Updates",
+			"packageNames": [
+				"cache",
+				"preact",
+				"progress-event",
+				"q-flat",
+				"qss",
+				"strip",
+				"uuid",
+				"@testing-library/preact"
+			],
+			"reviewers": "team:@Automattic/jetpack-search",
+			"labels": [ "Search", "Instant Search" ]
 		}
 	],
 	"semanticCommits": true,
