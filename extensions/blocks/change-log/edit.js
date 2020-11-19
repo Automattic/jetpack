@@ -156,6 +156,7 @@ function ChangelogEdit ( {
 } ) {
 	const { labelSlug, custom, showTimeStamp, timeStamp } = attributes;
 	const labelsFromContext = context[ 'change-log/labels' ];
+	const showTimeStampFromContext = context[ 'change-log/showTimeStamp' ];
 	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
 
 	return (
@@ -165,7 +166,7 @@ function ChangelogEdit ( {
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show time stamp', 'jetpack' ) }
-							checked={ showTimeStamp }
+							checked={  showTimeStamp }
 							onChange={
 								( nowShowTimeStamp ) => setAttributes( { showTimeStamp: nowShowTimeStamp } )
 							}
@@ -197,7 +198,7 @@ function ChangelogEdit ( {
 					} ) }
 				/>
 
-				{ showTimeStamp && (
+				{ ( showTimeStampFromContext || showTimeStamp ) && (
 					<div className={ `${ className }__timestamp` }>
 						{ timeStamp }
 					</div>

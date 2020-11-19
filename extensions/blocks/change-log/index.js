@@ -35,5 +35,8 @@ export const settings = {
 	edit,
 	save,
 	attributes,
-	usesContext: [ 'change-log/labels' ],
+	usesContext: [
+		'change-log/labels',
+		'change-log/showTimeStamp',
+	],
 };
