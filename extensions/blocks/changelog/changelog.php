@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Extensions\Changelog;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'change-log';
+const FEATURE_NAME = 'changelog';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**

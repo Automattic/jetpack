@@ -51,16 +51,16 @@ const defaultLabels = [
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
 	[ 'jetpack/podcast-player' ],
-	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
-	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
-	[ 'jetpack/change-log', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
 ];
 
 const TRANSCRIPTION_ALLOWED_BLOCKS = [
 	'core/paragraph',
 	'core/heading',
 	'jetpack/podcast-player',
-	'jetpack/change-log',
+	'jetpack/changelog',
 ];
 
 export default function Transcription ( {

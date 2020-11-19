@@ -1,24 +1,22 @@
 /*
  * Editor Canvas context.
  */
-.wp-block-jetpack-change-log {
+.wp-block-jetpack-changelog {
 	display: flex;
 
-	.wp-block-jetpack-change-log__meta {
-		.wp-block-jetpack-change-log__labels-dropdown {
-			margin-right: 5px;
-		}
+	.wp-block-jetpack-changelog__meta {
+		margin-right: 5px;
 	}
 }
 
 // Timestamp component.
-.wp-block-jetpack-change-log__timestamp {
+.wp-block-jetpack-changelog__timestamp {
 	display: inline-flex;
 	white-space: nowrap;
 }
 
 // Labels dropdown component..
-.wp-block-jetpack-change-log__labels-selector {
+.wp-block-jetpack-changelog__labels-selector {
 	margin-right: 5px;
 
 	.components-menu-item__button {
@@ -30,11 +28,11 @@
 	}
 }
 
-.wp-block-jetpack-change-log__labels-selector__custom-label {
+.wp-block-jetpack-changelog__labels-selector__custom-label {
 	margin-top: 10px;
 }
 
-.wp-block-jetpack-change-log__labels-selector__text-button-container {
+.wp-block-jetpack-changelog__labels-selector__text-button-container {
 	display: flex;
 	margin-top: 5px;
 
@@ -46,10 +44,10 @@
 /*
  * Block settings sidebar.
  */
-.wp-block-jetpack-change-log__timestamp-control {
+.wp-block-jetpack-changelog__timestamp-control {
 	display: flex;
 }
 
-.wp-block-jetpack-change-log__timestamp-control__minute {
+.wp-block-jetpack-changelog__timestamp-control__minute {
 	margin-right: 5px;
 }

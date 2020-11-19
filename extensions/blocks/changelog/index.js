@@ -16,7 +16,7 @@ import save from './save';
  */
 import './style.scss';
 
-export const name = 'change-log';
+export const name = 'changelog';
 export const title = __( 'Changelog block', 'jetpack' );
 export const settings = {
 	title,
@@ -36,7 +36,7 @@ export const settings = {
 	save,
 	attributes,
 	usesContext: [
-		'change-log/labels',
-		'change-log/showTimeStamp',
+		'changelog/labels',
+		'changelog/showTimeStamp',
 	],
 };

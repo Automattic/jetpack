@@ -161,8 +161,8 @@ function ChangelogEdit ( {
 	context,
 } ) {
 	const { labelSlug, custom, showTimeStamp, timeStamp } = attributes;
-	const labelsFromContext = context[ 'change-log/labels' ];
-	const showTimeStampFromContext = context[ 'change-log/showTimeStamp' ];
+	const labelsFromContext = context[ 'changelog/labels' ];
+	const showTimeStampFromContext = context[ 'changelog/showTimeStamp' ];
 	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
 
 	// Follow show timestamp prop from context.
