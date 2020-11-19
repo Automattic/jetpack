@@ -7,7 +7,7 @@ import { map, find } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InnerBlocks, withColors, InspectorControls } from '@wordpress/block-editor';
+import { InnerBlocks, withColors, InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	Dropdown,
 	Button,
@@ -20,6 +20,8 @@ import {
 	PanelBody,
 	ToggleControl,
 	__experimentalNumberControl as NumberControl,
+	Toolbar,
+	ToolbarButton,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { useEffect, useContext } from '@wordpress/element';
@@ -200,6 +202,28 @@ function ChangelogEdit ( {
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
+
+			{ showTimeStamp && onPlayOnTime && (
+				<BlockControls>
+					<Toolbar>
+						<ToolbarButton
+							icon="controls-play"
+							title={ __( 'Play', 'jetpack' ) }
+							onClick={ () => onPlayOnTime( timeStamp ) }
+						/>
+
+						<ToolbarButton
+							icon="controls-pause"
+							title={ __( 'Play', 'jetpack' ) }
+							onClick={ () => onPlayOnTime( timeStamp ) }
+						/>
+
+						<Button>
+							{ timeStamp }
+						</Button>
+					</Toolbar>
+				</BlockControls>
+			) }
 
 			<div class={ `${ className }__meta` }>
 				<LabelsSelector
