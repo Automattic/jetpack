@@ -41,7 +41,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function setUp() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_access_token' ) )
+			->setMethods( array( 'get_access_token', 'get_connection_owner_id' ) )
 			->getMock();
 
 		$builder = new MockBuilder();
@@ -99,13 +99,9 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_connected() {
-		$access_token = (object) array(
-			'secret'           => 'abcd1234',
-			'external_user_id' => 1,
-		);
 		$this->manager->expects( $this->once() )
-			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
+			->method( 'get_connection_owner_id' )
+			->will( $this->returnValue( 1 ) );
 
 		$this->assertTrue( $this->manager->is_active() );
 	}
@@ -117,7 +113,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_active_when_not_connected() {
 		$this->manager->expects( $this->once() )
-			->method( 'get_access_token' )
+			->method( 'get_connection_owner_id' )
 			->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_active() );
@@ -443,7 +439,7 @@ class ManagerTest extends TestCase {
 		$access_token->secret = '';
 		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
 		// Valid secret.
-		$access_token->secret = 'abcd1234';
+		$access_token->secret = 'abcd.1234';
 
 		$signed_token = $manager->get_signed_token( $access_token );
 		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );

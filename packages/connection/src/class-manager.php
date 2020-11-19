@@ -610,8 +610,8 @@ class Manager {
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
-	 * @param Integer|Boolean $user_id the user identifier. Default is the current user.
-	 * @return Boolean is the user connected?
+	 * @param int $user_id the user identifier. Default is the current user.
+	 * @return bool Boolean is the user connected?
 	 */
 	public function is_user_connected( $user_id = false ) {
 		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
@@ -625,16 +625,11 @@ class Manager {
 	/**
 	 * Returns the local user ID of the connection owner.
 	 *
-	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
+	 * @return bool|int Returns the ID of the connection owner or False if no connection owner found.
 	 */
 	public function get_connection_owner_id() {
-		$user_token       = $this->get_access_token( self::CONNECTION_OWNER );
-		$connection_owner = false;
-		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
-			$connection_owner = $user_token->external_user_id;
-		}
-
-		return $connection_owner;
+		$owner = $this->get_connection_owner();
+		return $owner instanceof \WP_User ? $owner->ID : false;
 	}
 
 	/**
@@ -706,9 +701,18 @@ class Manager {
 	 * @return object|false False if no connection owner found.
 	 */
 	public function get_connection_owner() {
-		$user_token = $this->get_access_token( self::CONNECTION_OWNER );
+
+		$user_id = \Jetpack_Options::get_option( 'master_user' );
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		// Make sure user is connected.
+		$user_token = $this->get_access_token( $user_id );
 
 		$connection_owner = false;
+
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
 			$connection_owner = get_userdata( $user_token->external_user_id );
 		}
@@ -728,9 +732,7 @@ class Manager {
 			$user_id = get_current_user_id();
 		}
 
-		$user_token = $this->get_access_token( self::CONNECTION_OWNER );
-
-		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
+		return (int) $user_id === $this->get_connection_owner_id();
 	}
 
 	/**
