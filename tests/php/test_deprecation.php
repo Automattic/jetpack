@@ -2,54 +2,19 @@
 
 class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 
-	private $errors;
-
-	public function setUp() {
-		parent::setUp();
-		$this->set_error_handler();
-	}
-
-	private function set_error_handler() {
-		$this->errors = array();
-		set_error_handler( array( $this, "errorHandler" ) );
-	}
-
-	public function tearDown() {
-		parent::tearDown();
-		restore_error_handler();
-	}
-
-	public function errorHandler( $errno, $errstr, $errfile, $errline, $errcontext ) {
-		$this->errors[] = compact( "errno", "errstr", "errfile",
-			"errline", "errcontext" );
-	}
-
 	/**
 	 * @dataProvider provider_deprecated_file_paths
 	 */
-	function test_deprecated_file_paths( $file_path, $replacement_path, $error_level ) {
+	public function test_deprecated_file_paths( $file_path, $replacement_path ) {
+		$mock = $this->getMockBuilder( stdClass::class )
+			->setMethods( array( 'action' ) )
+			->getMock();
+		$mock->expects( $this->once() )->method( 'action' )->with( $file_path, $replacement_path );
+
+		add_action( 'deprecated_file_included', array( $mock, 'action' ), 10, 2 );
+		add_filter( 'deprecated_file_trigger_error', '__return_false' );
+
 		require_once JETPACK__PLUGIN_DIR . $file_path;
-
-		$this->assertDeprecatedFileError( $file_path, $replacement_path, $error_level );
-	}
-
-	public function assertDeprecatedFileError( $deprecated, $replacement, $errno ) {
-		foreach ( $this->errors as $error ) {
-			if ( $error['errno'] === $errno ) {
-				// The error uses only the file name, not the path. Remove relative path if present so they can match.
-				if ( false !== strrpos( $deprecated, DIRECTORY_SEPARATOR ) ) {
-					$deprecated = substr( $deprecated, strrpos( $deprecated, DIRECTORY_SEPARATOR ) + 1 );
-				}
-
-				if ( $error['errcontext']['file'] === $deprecated && $error['errcontext']['replacement'] === $replacement ) {
-					self::assertTrue( true );
-
-					return;
-				}
-			}
-
-		}
-		$this->fail( "Error for $deprecated not found" );
 	}
 
 	/**
@@ -108,11 +73,15 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			$arguments[] = 'Bogus argument';
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+		set_error_handler( '__return_null' );
 		try {
 			$method->invokeArgs( null, $arguments );
 		} catch ( Error $e ) {
 			$this->fail( $class->getName() . '::' . $method->getName() . ' is throwing fatal errors.' );
 			return;
+		} finally {
+			restore_error_handler();
 		}
 
 		// Marking as skipped instead of artificially passing to account for any warnings or notices
@@ -131,7 +100,13 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	 * @dataProvider provider_deprecated_lib_stubs
 	 */
 	function test_deprecated_lib( $lib, $functions = array() ) {
-		jetpack_require_lib( $lib );
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+		set_error_handler( '__return_null' );
+		try {
+			jetpack_require_lib( $lib );
+		} finally {
+			restore_error_handler();
+		}
 		foreach ( $functions as $function ) {
 			$this->assertTrue( function_exists( $function ) );
 		}
@@ -157,12 +132,10 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array(
 				'class.jetpack-ixr-client.php',
 				'',
-				E_USER_DEPRECATED,
 			),
 			array(
 				'class.jetpack-xmlrpc-server.php',
 				'',
-				E_USER_DEPRECATED,
 			),
 		);
 	}
