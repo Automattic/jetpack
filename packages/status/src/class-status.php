@@ -288,7 +288,7 @@ class Status {
 			$url = \home_url();
 		}
 
-		$url = preg_replace( '/.*?:\/\//i', '', $url );
+		$url = preg_replace( '#.*?://#', '', $url );
 		$url = str_replace( '/', '::', $url );
 
 		return $url;
