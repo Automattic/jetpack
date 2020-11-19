@@ -92,10 +92,7 @@ function doRTL( files, done ) {
 			};
 			break;
 		case 'colorschemes':
-			path = [
-				'./modules/masterbar/admin-color-schemes/colors/**/*.min.css',
-				'!/modules/masterbar/admin-color-schemes/colors/**/*rtl.min.css',
-			];
+			path = './modules/masterbar/admin-color-schemes/colors/**/colors.min.css';
 			dest = './modules/masterbar/admin-color-schemes/colors';
 			success = 'Color Schemes RTL CSS finished.';
 			renameArgs = function ( pathx ) {
