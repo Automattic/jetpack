@@ -22,11 +22,12 @@ import {
 	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useContext } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
+import { TranscritptionContext } from '../transcription/components';
 import './editor.scss';
 
 const LOG_TEMPLATE = [
@@ -174,6 +175,8 @@ function ChangelogEdit ( {
 		setAttributes( { showTimeStamp: showTimeStampFromContext } );
 	}, [ showTimeStampFromContext, setAttributes ] );
 
+	const onPlayOnTime = useContext( TranscritptionContext );
+
 	return (
 		<div class={ className }>
 			<InspectorControls>
@@ -214,9 +217,13 @@ function ChangelogEdit ( {
 				/>
 
 				{ ( showTimeStamp ) && (
-					<div className={ `${ className }__timestamp` }>
+					<Button
+						className={ `${ className }__timestamp` }
+						onClick={ () => onPlayOnTime( timeStamp ) }
+						isTertiary
+					>
 						{ timeStamp }
-					</div>
+					</Button>
 				) }
 			</div>
 
