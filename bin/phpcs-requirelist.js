@@ -47,6 +47,7 @@ module.exports = [
 	'_inc/lib/plugins.php',
 	'_inc/social-logos.php',
 	'jetpack.php',
+	'json-endpoints/class.wpcom-json-api-site-settings-endpoint.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-delete-backup-helper-script-endpoint.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php',
 	'load-jetpack.php',
