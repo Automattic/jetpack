@@ -19,6 +19,7 @@ import {
 	TextControl,
 	BaseControl,
 	Button,
+	ToggleControl,
 } from '@wordpress/components';
 
 /**
@@ -59,7 +60,7 @@ export default function Transcription ( {
 	attributes,
 	setAttributes,
 } ) {
-	const { labels } = attributes;
+	const { labels, showTimeStamp } = attributes;
 	const [ newLabelValue, setNewLabelValue ] = useState();
 
 	// Set initial transcription labels.
@@ -171,6 +172,14 @@ export default function Transcription ( {
 								</Button>
 							</div>
 						</BaseControl>
+					</PanelBody>
+
+					<PanelBody title={ __( 'Time stamps', 'jetpack' ) } className={ `${ className }__timestamps` }>
+						<ToggleControl
+							label={ __( 'Show time stamps', 'jetpack' ) }
+							checked={ showTimeStamp }
+							onChange={ ( value ) => setAttributes( { showTimeStamp: value } ) }
+						/>
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
