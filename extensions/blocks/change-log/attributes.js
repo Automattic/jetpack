@@ -14,4 +14,9 @@ export default {
 		type: "boolen",
 		default: false,
 	},
+
+	timeStamp: {
+		type: "string",
+		default: "00:00",
+	}
 };

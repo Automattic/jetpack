@@ -1,19 +1,23 @@
+/*
+ * Editor Canvas context.
+ */
 .wp-block-jetpack-change-log {
 	display: flex;
-	.wp-block-jetpack-change-log__labels-dropdown {
-		margin-right: 5px;
-	}
 
-	// Tweak core/paragraph block.
-	.block-editor-inner-blocks {
-		display: inline-flex;
-		p {
-			margin-bottom: 10px;
+	.wp-block-jetpack-change-log__meta {
+		.wp-block-jetpack-change-log__labels-dropdown {
+			margin-right: 5px;
 		}
 	}
 }
 
-// Labels dropdown content.
+// Timestamp component.
+.wp-block-jetpack-change-log__timestamp {
+	display: inline-flex;
+	white-space: nowrap;
+}
+
+// Labels dropdown component..
 .wp-block-jetpack-change-log__labels-selector {
 	margin-right: 5px;
 
@@ -37,4 +41,15 @@
 	.components-text-control__input {
 		min-width: 100px;
 	}
+}
+
+/*
+ * Block settings sidebar.
+ */
+.wp-block-jetpack-change-log__timestamp-control {
+	display: flex;
+}
+
+.wp-block-jetpack-change-log__timestamp-control__minute {
+	margin-right: 5px;
 }

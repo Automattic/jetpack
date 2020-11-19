@@ -19,6 +19,7 @@ import {
 	Panel,
 	PanelBody,
 	ToggleControl,
+	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 
@@ -94,6 +95,38 @@ const LabelsSelector = ( {
 	);
 };
 
+function TimeStamp ( { value, className, onChange } ) {
+	const msh = value.split( ':' );
+
+	function setTimeStampValue( pos, val ) {
+		val = String( val );
+		msh[ pos ] = val?.length === 1 ? `0${ val }` : val;
+		onChange( msh.join( ':' ) );
+	}
+
+	return (
+		<div className={ className }>
+			<NumberControl
+				className={ `${ className }__minute` }
+				label={ __( 'Minute', 'jetpack' ) }
+				value={ msh[ 0 ] }
+				min={ 0 }
+				max={ 23 }
+				onChange={ ( sec ) => setTimeStampValue( 0, sec ) }
+			/>
+
+			<NumberControl
+				className={ `${ className }__second` }
+				label={ __( 'Second', 'jetpack' ) }
+				value={ msh[1] }
+				min={ 0 }
+				max={ 59 }
+				onChange={ ( min ) => setTimeStampValue( 1, min ) }
+			/>
+		</div>
+	);
+}
+
 const defaultLabels = [
 	{
 		value: __( 'urgent', 'jetpack' ),
@@ -121,7 +154,7 @@ function ChangelogEdit ( {
 	setAttributes,
 	context,
 } ) {
-	const { labelSlug, custom, showTimeStamp } = attributes;
+	const { labelSlug, custom, showTimeStamp, timeStamp } = attributes;
 	const labelsFromContext = context[ 'change-log/labels' ];
 	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
 
@@ -129,7 +162,7 @@ function ChangelogEdit ( {
 		<div class={ className }>
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ __( 'Settings', 'jetpacl' )}>
+					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show time stamp', 'jetpack' ) }
 							checked={ showTimeStamp }
@@ -137,22 +170,40 @@ function ChangelogEdit ( {
 								( nowShowTimeStamp ) => setAttributes( { showTimeStamp: nowShowTimeStamp } )
 							}
 						/>
+
+						{ showTimeStamp && (
+							<TimeStamp
+								className={ `${ className }__timestamp-control` }
+								value={ timeStamp }
+								onChange={ ( value ) => setAttributes( { timeStamp: value } ) }
+							/>
+						) }
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
-			<LabelsSelector
-				className={ `${ className }__labels-selector` }
-				labels={ labels }
 
-				slug={ labelSlug }
-				onSelect={ ( newSlug ) => setAttributes( { labelSlug: newSlug } ) }
+			<div class={ `${ className }__meta` }>
+				<LabelsSelector
+					className={ `${ className }__labels-selector` }
+					labels={ labels }
 
-				custom={ custom }
-				onCustom={ ( newCustom ) => setAttributes( {
-					labelSlug: null,
-					custom: newCustom,
-				} ) }
-			/>
+					slug={ labelSlug }
+					onSelect={ ( newSlug ) => setAttributes( { labelSlug: newSlug } ) }
+
+					custom={ custom }
+					onCustom={ ( newCustom ) => setAttributes( {
+						labelSlug: null,
+						custom: newCustom,
+					} ) }
+				/>
+
+				{ showTimeStamp && (
+					<div className={ `${ className }__timestamp` }>
+						{ timeStamp }
+					</div>
+				) }
+			</div>
+
 			<InnerBlocks
 				template={ LOG_TEMPLATE }
 				allowedBlocks={ [ 'core/paragraph' ] }
