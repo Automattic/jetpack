@@ -71,7 +71,6 @@ class JetpackSyncTestObjectFactory {
 	}
 
 	function comment( $id, $post_id, $props = array() ) {
-		global $wp_version;
 		$now     = current_time( 'mysql' );
 		$now_gmt = get_gmt_from_date( $now );
 
@@ -85,9 +84,6 @@ class JetpackSyncTestObjectFactory {
 				'comment_date_gmt' => $now_gmt,
 			)
 		);
-		if ( version_compare( $wp_version, '4.4', '<' ) ) {
-			return $comment;
-		}
 
 		return new WP_Comment( $comment );
 	}
