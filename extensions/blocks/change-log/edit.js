@@ -22,6 +22,7 @@ import {
 	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -159,6 +160,15 @@ function ChangelogEdit ( {
 	const showTimeStampFromContext = context[ 'change-log/showTimeStamp' ];
 	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
 
+	// Follow show timestamp prop from context.
+	useEffect( () => {
+		if ( typeof showTimeStampFromContext === 'undefined' ) {
+			return;
+		}
+
+		setAttributes( { showTimeStamp: showTimeStampFromContext } );
+	}, [ showTimeStampFromContext, setAttributes ] );
+
 	return (
 		<div class={ className }>
 			<InspectorControls>
@@ -198,7 +208,7 @@ function ChangelogEdit ( {
 					} ) }
 				/>
 
-				{ ( showTimeStampFromContext || showTimeStamp ) && (
+				{ ( showTimeStamp ) && (
 					<div className={ `${ className }__timestamp` }>
 						{ timeStamp }
 					</div>
