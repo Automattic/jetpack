@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, union } from 'lodash';
+import { assign, difference, get, mergeWith, remove, union } from 'lodash';
 
 /**
  * Internal dependencies

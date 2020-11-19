@@ -1,0 +1,25 @@
+@import '../../scss/calypso-colors';
+
+.jp-recommendations-summary {
+	display: grid;
+	grid-template-columns: 57% 43%;
+
+	$background: $white;
+
+	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
+	border: 1px solid $gray-lighten-20;
+}
+
+.jp-recommendations-summary__configuration {
+	margin: 48px 48px 32px 48px;
+
+	h2 {
+		margin: 32px 0 16px 0;
+	}
+}
+
+.jp-recommendations-summary__cta {
+	background: #e9eff5;
+	opacity: 0.5;
+	box-shadow: -1px 0px 0px #b4b9be;
+}

@@ -1,0 +1,3 @@
+const SkippedFeatureSummary = props => {
+	return;
+};

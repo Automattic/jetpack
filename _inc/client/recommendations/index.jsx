@@ -14,6 +14,7 @@ import { RelatedPostsQuestion } from './questions/related-posts';
 import { SiteAcceleratorQuestion } from './questions/site-accelerator';
 import { SiteTypeQuestion } from './questions/site-type';
 import { WooCommerceQuestion } from './questions/woocommerce';
+import { Summary } from './summary';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import { getStep } from 'state/recommendations';
 
@@ -41,6 +42,9 @@ const RecommendationsComponent = props => {
 		case 'site-accelerator':
 			redirectPath = '/site-accelerator';
 			break;
+		case 'summary':
+			redirectPath = '/summary';
+			break;
 		default:
 			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
@@ -67,6 +71,9 @@ const RecommendationsComponent = props => {
 				</Route>
 				<Route path="/recommendations/site-accelerator">
 					<SiteAcceleratorQuestion />
+				</Route>
+				<Route path="/recommendations/summary">
+					<Summary />
 				</Route>
 			</Switch>
 		</>
