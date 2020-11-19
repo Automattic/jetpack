@@ -33,12 +33,17 @@ const LOG_TEMPLATE = [
 	[ 'core/paragraph', { placeholder: __( 'Start logging…', 'Jetpack' ) } ],
 ];
 
+const ALLOWED_LOG_TEMPLATES = [
+	'core/paragraph',
+	'core/quote',
+	'core/columns',
+];
+
 const LabelsSelector = ( {
 	className,
 	labels,
 	slug,
 	onSelect,
-
 	custom,
 	onCustom,
 } ) => {
@@ -217,7 +222,7 @@ function ChangelogEdit ( {
 
 			<InnerBlocks
 				template={ LOG_TEMPLATE }
-				allowedBlocks={ [ 'core/paragraph' ] }
+				allowedBlocks={ ALLOWED_LOG_TEMPLATES }
 				orientation="horizontal"
 			/>
 		</div>
