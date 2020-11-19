@@ -216,7 +216,7 @@ function ChangelogEdit ( {
 					} ) }
 				/>
 
-				{ ( showTimeStamp ) && (
+				{ showTimeStamp && onPlayOnTime && (
 					<Button
 						className={ `${ className }__timestamp` }
 						onClick={ () => onPlayOnTime( timeStamp ) }
@@ -224,6 +224,12 @@ function ChangelogEdit ( {
 					>
 						{ timeStamp }
 					</Button>
+				) }
+
+				{ showTimeStamp && ! onPlayOnTime && (
+					<div className={ `${ className }__timestamp` }>
+						{ timeStamp }
+					</div>
 				) }
 			</div>
 
