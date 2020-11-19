@@ -17,7 +17,7 @@ import save from './save';
 import './style.scss';
 
 export const name = 'change-log';
-export const title = __( 'Changelog', 'jetpack' );
+export const title = __( 'Changelog block', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Changelog', 'jetpack' ),

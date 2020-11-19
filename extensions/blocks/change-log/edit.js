@@ -7,7 +7,7 @@ import { map, find } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InnerBlocks, withColors } from '@wordpress/block-editor';
+import { InnerBlocks, withColors, InspectorControls } from '@wordpress/block-editor';
 import {
 	Dropdown,
 	Button,
@@ -16,6 +16,9 @@ import {
 	MenuGroup,
 	TextControl,
 	BaseControl,
+	Panel,
+	PanelBody,
+	ToggleControl,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 
@@ -118,12 +121,25 @@ function ChangelogEdit ( {
 	setAttributes,
 	context,
 } ) {
-	const { labelSlug, custom } = attributes;
+	const { labelSlug, custom, showTimeStamp } = attributes;
 	const labelsFromContext = context[ 'change-log/labels' ];
 	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
 
 	return (
 		<div class={ className }>
+			<InspectorControls>
+				<Panel>
+					<PanelBody title={ __( 'Settings', 'jetpacl' )}>
+						<ToggleControl
+							label={ __( 'Show time stamp', 'jetpack' ) }
+							checked={ showTimeStamp }
+							onChange={
+								( nowShowTimeStamp ) => setAttributes( { showTimeStamp: nowShowTimeStamp } )
+							}
+						/>
+					</PanelBody>
+				</Panel>
+			</InspectorControls>
 			<LabelsSelector
 				className={ `${ className }__labels-selector` }
 				labels={ labels }

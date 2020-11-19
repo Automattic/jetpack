@@ -9,4 +9,9 @@ export default {
 		type: "boolean",
 		default: false,
 	},
+
+	showTimeStamp: {
+		type: "boolen",
+		default: false,
+	},
 };
