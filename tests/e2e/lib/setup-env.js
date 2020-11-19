@@ -80,19 +80,39 @@ export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandl
 };
 
 let video;
-let captureVideo = process.env.CAPTURE_VIDEO === 'true';
+const captureVideo = process.env.CAPTURE_VIDEO === 'true';
 
 async function setupBrowser() {
-	await page.setViewportSize( { width: 1280, height: 1024 } );
+	let userAgent = await page.evaluate( () => navigator.userAgent );
+	const userAgentSuffix = 'wp-e2e-tests';
+
+	// Only update user agent if it wasn't already previously updated
+	if ( ! userAgent.endsWith( userAgentSuffix ) ) {
+		const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
+		const cookies = await context.cookies();
+
+		// Reset context as a workaround to set a custom user agent
+		await jestPlaywright.resetContext( {
+			userAgent: e2eUserAgent,
+			width: 1280,
+			height: 1024,
+		} );
+
+		// Resetting context will also remove session cookies and tests are expected user to be logged in.
+		// Setting old context cookies as a quick fix.
+		// A better solution should be to include login action in each test, so each test has a clean context.
+		await context.addCookies( cookies );
+	}
+
+	userAgent = await page.evaluate( () => navigator.userAgent );
+	logger.info( `User agent: ${ userAgent }` );
+
 	if ( captureVideo ) {
 		video = await saveVideo(
 			page,
 			path.resolve( config.get( 'testOutputDir' ), `video/video_${ new Date().getTime() }.mp4` )
 		);
 	}
-
-	// const userAgent = await browser.userAgent();
-	// await page.setUserAgent( userAgent + ' wp-e2e-tests' );
 }
 
 /**

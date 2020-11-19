@@ -7849,7 +7849,7 @@ expand-tilde@^2.0.0, expand-tilde@^2.0.2:
   dependencies:
     homedir-polyfill "^1.0.1"
 
-expect-playwright@^0.2.5:
+expect-playwright@^0.2.6:
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/expect-playwright/-/expect-playwright-0.2.6.tgz#fb690763ea386c6b88494512119817beb2c61cf1"
   integrity sha512-zb+0L9ayNPhFm89F0BOQP8yTckETbA33wmWoxcnUY/A0pFsd7e4Tn8YrDsLiMQ7gZX2dD3LQHH9TWSnvEJi8rw==
@@ -10354,7 +10354,7 @@ jest-changed-files@^26.6.2:
     execa "^4.0.0"
     throat "^5.0.0"
 
-jest-circus@^26.6.2:
+jest-circus@^26.6.3:
   version "26.6.3"
   resolved "https://registry.yarnpkg.com/jest-circus/-/jest-circus-26.6.3.tgz#3cc7ef2a6a3787e5d7bfbe2c72d83262154053e7"
   integrity sha512-ACrpWZGcQMpbv13XbzRzpytEJlilP/Su0JtNCi5r/xLpOUhnaIJr8leYYpLEMgPFURZISEHrnnpmB54Q/UziPw==
@@ -10768,15 +10768,15 @@ jest-mock@^26.6.2:
     "@jest/types" "^26.6.2"
     "@types/node" "*"
 
-jest-playwright-preset@1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/jest-playwright-preset/-/jest-playwright-preset-1.4.0.tgz#ce2b5fda22fa0bddae16cee33e6c758839a73b2d"
-  integrity sha512-X42LgfKLKYBbs6ntUJH8D6qMeGU4ixdTSQiT/6h0yNgthNeBsUSVeptu3O3M4+jS5ftjBBGfDfIXJ0gvfIR+Cw==
+jest-playwright-preset@1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/jest-playwright-preset/-/jest-playwright-preset-1.4.1.tgz#94488dfbbfd516e55311d1ba4483c465c0f1fb85"
+  integrity sha512-SOPxGvjcZCmWkhxRwoOxkJIGTpIQjgFQsbvek0MUHR2TuoovEfcv22OvK+UWt2GBEWp4deln+zh+FXuDOXrduA==
   dependencies:
-    expect-playwright "^0.2.5"
-    jest-circus "^26.6.2"
+    expect-playwright "^0.2.6"
+    jest-circus "^26.6.3"
     jest-environment-node "^26.6.2"
-    jest-process-manager "^0.2.5"
+    jest-process-manager "^0.2.6"
     nyc "^15.1.0"
     playwright-core ">=1.2.0"
     rimraf "^3.0.2"
@@ -10787,7 +10787,7 @@ jest-pnp-resolver@^1.2.1, jest-pnp-resolver@^1.2.2:
   resolved "https://registry.yarnpkg.com/jest-pnp-resolver/-/jest-pnp-resolver-1.2.2.tgz#b704ac0ae028a89108a4d040b3f919dfddc8e33c"
   integrity sha512-olV41bKSMm8BdnuMsewT4jqlZ8+3TCARAXjZGT9jcoSnrfUnRCqnMoF9XEeoWjbzObpqF9dRhHQj0Xb9QdF6/w==
 
-jest-process-manager@^0.2.5:
+jest-process-manager@^0.2.6:
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/jest-process-manager/-/jest-process-manager-0.2.6.tgz#98c6608de2677b0be584d7275e8d64932121359d"
   integrity sha512-uWxUgTtgljoJMEg4T2FswXj/OWha1daZvHXWre7zty6Zv2lsghI4OepEStneJNefs9HQT7N6R8bIq5VlgRiFpA==
@@ -13969,10 +13969,10 @@ playwright-video@2.4.0:
     playwright-core "^1.4.1"
     tslib "^2.0.1"
 
-playwright@1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.5.2.tgz#e127142cba86c918fad9f68315db5e79524af64c"
-  integrity sha512-on7IEui47bDZta0txL86QKMDSgjbxERkLc5N0+lU2zajIfN/Ld6vMl+xiROEUPlT/QtqVekq9pTDGdcc0yScMQ==
+playwright@1.6.2:
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.6.2.tgz#8631aec4d16b081d8ac414637b006099814a69d1"
+  integrity sha512-KiMmQuANG4O/ozpwxP8EwBBap0/liS3+wwkGo6nBJ4O4951y4ZsRPR1dqwsMOUD9wjsWf3ER+bAmQH5XmEO4Ig==
   dependencies:
     debug "^4.1.1"
     extract-zip "^2.0.1"
