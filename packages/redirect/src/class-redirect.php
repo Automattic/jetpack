@@ -22,6 +22,8 @@ class Redirect {
 	 * Strip http:// or https:// from a url, replaces forward slash with ::,
 	 * so we can bring them directly to their site in calypso.
 	 *
+	 * @deprecated 9.2.0 Use Automattic\Jetpack\Status::get_site_suffix
+	 *
 	 * @param string $url the full URL.
 	 * @return string $url without the guff
 	 */
