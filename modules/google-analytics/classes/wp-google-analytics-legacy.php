@@ -156,7 +156,10 @@ class Jetpack_Google_Analytics_Legacy {
 		 * @param array $universal_commands Array of gtag function calls.
 		 */
 		$universal_commands = array( apply_filters( 'jetpack_gtag_universal_commands', array() ) );
-		l( 'blahblahblah', $universal_commands );
+		$custom_vars        = array();
+		if ( is_404() ) {
+			$custom_vars[] = "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
+		}
 
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
@@ -171,6 +174,7 @@ class Jetpack_Google_Analytics_Legacy {
 			foreach ( $universal_commands as $command ) {
 				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
 			}
+			implode( "\r\n", $custom_vars )
 			?>
 		</script>
 		<!-- End Jetpack Google Analytics -->
