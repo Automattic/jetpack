@@ -163,7 +163,7 @@ class Jetpack_Google_Analytics_Legacy {
 				'exception',
 				array(
 					'description' => '404',
-					'fatal'       => 'false',
+					'fatal'       => false,
 				),
 			);
 			// "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
