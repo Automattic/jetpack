@@ -104,26 +104,4 @@ class Jetpack_Components {
 			)
 		);
 	}
-
-	/**
-	 * Load and display a pre-rendered component
-	 *
-	 * @since 7.7.0
-	 *
-	 * @param array $props Component properties.
-	 *
-	 * @return string The component markup
-	 */
-	public static function render_stripe_nudge( $block_name ) {
-		$post_id = get_the_ID();
-
-		return self::render_component(
-			'stripe-nudge',
-			array(
-				'blockName'        => $block_name,
-				'postId'           => $post_id,
-				'stripeConnectUrl' => Jetpack::init()->build_connect_url( true, false, false ),
-			)
-		);
-	}
 }
