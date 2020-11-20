@@ -24,7 +24,7 @@ import {
 	ToolbarButton,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { useEffect, useContext } from '@wordpress/element';
+import { useEffect, useContext, Fragment, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -163,6 +163,7 @@ function ChangelogEdit ( {
 	setAttributes,
 	context,
 } ) {
+	const [ isSyncedWithPlayer, setIsSyncedWithPlayer ] = useState( false );
 	const { labelSlug, custom, showTimeStamp, timeStamp } = attributes;
 	const labelsFromContext = context[ 'changelog/labels' ];
 	const showTimeStampFromContext = context[ 'changelog/showTimeStamp' ];
@@ -193,16 +194,36 @@ function ChangelogEdit ( {
 						/>
 
 						{ showTimeStamp && (
-							<TimeStamp
-								className={ `${ className }__timestamp-control` }
-								value={ timeStamp }
-								onChange={ ( value ) => {
-									const { mediaAudio, timeCodeToSeconds } = getMediaData();
-									mediaAudio?.setCurrentTime( timeCodeToSeconds( value ) );
+							<Fragment>
+								<BaseControl>
+									<TimeStamp
+										className={ `${ className }__timestamp-control` }
+										value={ timeStamp }
+										onChange={ ( value ) => {
+											if ( isSyncedWithPlayer ) {
+												const { mediaAudio, timeCodeToSeconds } = getMediaData();
+												mediaAudio?.setCurrentTime( timeCodeToSeconds( value ) );
+											}
+											setAttributes( { timeStamp: value } );
+										} }
+									/>
+								</BaseControl>
 
-									setAttributes( { timeStamp: value } );
-								} }
-							/>
+								<BaseControl>
+									<ToggleControl
+										label={ __( 'Sync with player', 'jetpack' ) }
+										checked={ isSyncedWithPlayer }
+										onChange={ ( newSyncState ) => {
+											if ( newSyncState ) {
+												const { mediaAudio, timeCodeToSeconds } = getMediaData();
+												mediaAudio?.setCurrentTime( timeCodeToSeconds( timeStamp ) );
+											}
+
+											setIsSyncedWithPlayer( newSyncState );
+										} }
+									/>
+								</BaseControl>
+							</Fragment>
 						) }
 					</PanelBody>
 				</Panel>
