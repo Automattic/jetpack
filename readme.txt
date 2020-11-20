@@ -256,6 +256,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Dashboard: clarify language around support options.
 * Contact Form Block: display fallback link when the block is rendered in non-WordPress contexts, such as subscription emails.
+* Instagram Embeds: add support for embed parameters supported by Instagram.
 * Jetpack set up: clarify error message when the options table is not writable.
 * Masterbar: include admin color in user's REST API output.
 * Payments Block: move unreadable notice to the sidebar.
