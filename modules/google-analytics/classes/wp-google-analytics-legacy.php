@@ -174,7 +174,7 @@ class Jetpack_Google_Analytics_Legacy {
 			foreach ( $universal_commands as $command ) {
 				echo '//' . implode($command) . '//' . implode($universal_commands) . '\n' . 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
 			}
-			echo implode( "\r\n", $custom_vars )
+			echo esc_js(implode( "\r\n", $custom_vars ));
 			?>
 		</script>
 		<!-- End Jetpack Google Analytics -->
