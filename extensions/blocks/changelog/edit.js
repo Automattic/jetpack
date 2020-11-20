@@ -22,9 +22,10 @@ import {
 	__experimentalNumberControl as NumberControl,
 	Toolbar,
 	ToolbarButton,
+	RangeControl,
 } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { useEffect, useContext, Fragment, useState } from '@wordpress/element';
+import { useEffect, useContext, Fragment, useState, } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -164,10 +165,15 @@ function ChangelogEdit ( {
 	context,
 } ) {
 	const [ isSyncedWithPlayer, setIsSyncedWithPlayer ] = useState( false );
+	const [ trackPosition, setTrackPosition ] = useState( 0 );
+
 	const { labelSlug, custom, showTimeStamp, timeStamp } = attributes;
 	const labelsFromContext = context[ 'changelog/labels' ];
 	const showTimeStampFromContext = context[ 'changelog/showTimeStamp' ];
 	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
+
+	const getMediaData = useContext( TranscritptionContext );
+
 
 	// Follow show timestamp prop from context.
 	useEffect( () => {
@@ -178,7 +184,7 @@ function ChangelogEdit ( {
 		setAttributes( { showTimeStamp: showTimeStampFromContext } );
 	}, [ showTimeStampFromContext, setAttributes ] );
 
-	const getMediaData = useContext( TranscritptionContext );
+	const showMedia = getMediaData && getMediaData();
 
 	return (
 		<div class={ className }>
@@ -220,6 +226,18 @@ function ChangelogEdit ( {
 											}
 
 											setIsSyncedWithPlayer( newSyncState );
+										} }
+									/>
+
+									<RangeControl
+										label={ __( 'Position', 'jetpack' ) }
+										min={ 0 }
+										max={ 100 }
+										value={ trackPosition }
+										onChange={ ( v ) => {
+											setTrackPosition( v );
+											const { mediaAudio } = getMediaData();
+											mediaAudio?.setCurrentTime( v * mediaAudio.duration / 100 );
 										} }
 									/>
 								</BaseControl>

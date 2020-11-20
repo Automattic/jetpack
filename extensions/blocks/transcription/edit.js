@@ -150,7 +150,7 @@ export default function Transcription ( {
 				class={ className }
 			>
 				<InspectorControls>
-					<Panel>x
+					<Panel>
 						<PanelBody title={ __( 'labels', 'jetpack' ) } className={ `${ className }__labels` }>
 							{ map( labels, ( { value, slug, textColor, bgColor } ) => (
 								<BaseControl className={ `${ className }__label-control` }>
@@ -228,7 +228,6 @@ export default function Transcription ( {
 				</InspectorControls>
 				<InnerBlocks
 					template={ TRANSCRIPTION_TEMPLATE }
-					allowedBlocks={ TRANSCRIPTION_ALLOWED_BLOCKS }
 				/>
 			</div>
 		</TranscritptionContext.Provider>
