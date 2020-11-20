@@ -19,20 +19,6 @@ class Redirect {
 	private function __construct() {}
 
 	/**
-	 * Strip http:// or https:// from a url, replaces forward slash with ::,
-	 * so we can bring them directly to their site in calypso.
-	 *
-	 * @deprecated 9.2.0 Use Automattic\Jetpack\Status::get_site_suffix
-	 *
-	 * @param string $url the full URL.
-	 * @return string $url without the guff
-	 */
-	private static function build_raw_urls( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
-		return ( new Status() )->get_site_suffix( $url );
-	}
-
-	/**
 	 * Builds and returns an URL using the jetpack.com/redirect/ service
 	 *
 	 * If $source is a simple slug, it will be sent using the source query parameter. e.g. jetpack.com/redirect/?source=slug
