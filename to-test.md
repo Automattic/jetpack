@@ -21,6 +21,7 @@ To test those changes, try the following:
 	- Podcast
 	- Slideshow
 	- Pinterest
+	- Contact Form
 
 Make sure those blocks still look good on your site as well as in the subscription email you'll receive.
 
