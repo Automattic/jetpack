@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Class Admin_Menu.
  */
