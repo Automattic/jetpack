@@ -1,4 +1,4 @@
-/* global MediaElementPlayer */
+/* global MediaElementPlayer, mejs */
 
 /**
  * External dependencies
@@ -14,7 +14,6 @@ import {
 	useState,
 	useRef,
 	useMemo,
-	useReducer,
 } from '@wordpress/element';
 import {
 	InnerBlocks,
@@ -81,7 +80,6 @@ export default function Transcription ( {
 	const [ newLabelValue, setNewLabelValue ] = useState();
 
 	const containertRef = useRef();
-	const playerRef = useRef();
 
 	// Set initial transcription labels.
 	useEffect( () => {
@@ -92,13 +90,7 @@ export default function Transcription ( {
 		setAttributes( { labels: defaultLabels } );
 	}, [ labels, setAttributes ] );
 
-	// Try to pick up the podcast player
-	const [ attempToPickupPlayer, pickupPlayer ] = useReducer(
-		( s ) => s + 1,
-		0
-	);
-
-	useEffect( () => {
+	function pickMediaData() {
 		if ( ! containertRef?.current ) {
 			return;
 		}
@@ -113,10 +105,11 @@ export default function Transcription ( {
 			return;
 		}
 
-		playerRef.current = new MediaElementPlayer( mediaAudio );
-
-		playerRef.current.play();
-	}, [ attempToPickupPlayer ] );
+		return {
+			mediaAudio,
+			timeCodeToSeconds: mejs.Utils.timeCodeToSeconds,
+		};
+	}
 
 	function updateLabels ( updatedLabel ) {
 		const newLabels = map( labels, ( label ) => {
@@ -150,37 +143,14 @@ export default function Transcription ( {
 		setNewLabelValue( '' );
 	}
 
-	const onPlayOnTime = useMemo( () => ( timeStamp ) => {
-		if ( ! timeStamp ) {
-			return;
-		}
-
-		const hms = timeStamp.split( ':' ).reverse();
-		if ( ! hms?.length ) {
-			return;
-		}
-
-		const hmsInSeconds =
-			Number( hms[ 0 ] ) +
-			( hms[ 1 ] ? Number( hms[ 1 ] * 60 ) : 0 ) +
-			( hms[ 2 ] ? Number( hms[ 2 ] * 60 * 60 ) : 0 );
-
-		if ( ! playerRef?.current ) {
-			pickupPlayer();
-			return;
-		}
-
-		playerRef.current.setCurrentTime( hmsInSeconds );
-	}, [] );
-
 	return (
-		<TranscritptionContext.Provider value={ onPlayOnTime }>
+		<TranscritptionContext.Provider value={ useMemo( () => pickMediaData, [] ) }>
 			<div
 				ref={ containertRef }
 				class={ className }
 			>
 				<InspectorControls>
-					<Panel>
+					<Panel>x
 						<PanelBody title={ __( 'labels', 'jetpack' ) } className={ `${ className }__labels` }>
 							{ map( labels, ( { value, slug, textColor, bgColor } ) => (
 								<BaseControl className={ `${ className }__label-control` }>
