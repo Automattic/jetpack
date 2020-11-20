@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { EnabledFeatureSummary } from '../enabled-feature-summary';
+import { FeatureSummary } from '../feature-summary';
 import JetpackLogo from 'components/jetpack-logo';
 import {
 	getSiteTypeDisplayName,
@@ -45,13 +45,13 @@ const SummaryComponent = props => {
 				<h2>{ __( 'Recommendations enabled' ) }</h2>
 				<div>
 					{ summaryFeatureSlugs.selected.map( slug => (
-						<>{ slug }</>
+						<FeatureSummary featureSlug={ slug } />
 					) ) }
 				</div>
 				<h2>{ __( 'Recommendations skipped' ) }</h2>
 				<div>
 					{ summaryFeatureSlugs.skipped.map( slug => (
-						<>{ slug }</>
+						<FeatureSummary featureSlug={ slug } />
 					) ) }
 				</div>
 			</div>

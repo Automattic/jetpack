@@ -16,6 +16,7 @@ import { SiteTypeQuestion } from './questions/site-type';
 import { WooCommerceQuestion } from './questions/woocommerce';
 import { Summary } from './summary';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import QuerySitePlugins from 'components/data/query-site-plugins';
 import { getStep } from 'state/recommendations';
 
 const RecommendationsComponent = props => {
@@ -52,6 +53,7 @@ const RecommendationsComponent = props => {
 	return (
 		<>
 			<QueryRecommendationsData />
+			<QuerySitePlugins />
 			<Switch>
 				<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
 				<Route path="/recommendations/site-type">

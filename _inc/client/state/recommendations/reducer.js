@@ -312,3 +312,29 @@ export const getSidebarCardSlug = state => {
 
 	return 'download-app';
 };
+
+export const getSummaryFeatureSlugs = state => {
+	const featureSlugsInPreferenceOrder = [
+		'woocommerce',
+		'monitor',
+		'related-posts',
+		'creative-mail',
+		'site-accelerator',
+	];
+
+	const selected = [];
+	const skipped = [];
+
+	for ( const slug of featureSlugsInPreferenceOrder ) {
+		if ( isFeatureActive( state, slug ) ) {
+			selected.push( slug );
+		} else {
+			skipped.push( slug );
+		}
+	}
+
+	return {
+		selected,
+		skipped,
+	};
+};
