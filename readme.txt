@@ -272,6 +272,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
+* Autoloader: support Composer 2.0.7.
 * General: continued work towards ensuring that Jetpack is fully compatible with the upcoming version of PHP, PHP 8.
 * General: ensure Jetpack's full compatibility with the upcoming WordPress 5.6 release.
 * General: update Jetpack's minimum required WordPress version to 5.5, in anticipation of the upcoming WordPress 5.6 release.
