@@ -157,7 +157,7 @@ class Jetpack_Google_Analytics_Legacy {
 		 */
 		$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
 		$custom_vars        = array();
-		// if ( is_404() ) {
+		if ( is_404() ) {
 			$custom_vars[] = array(
 				'event',
 				'exception',
@@ -166,8 +166,7 @@ class Jetpack_Google_Analytics_Legacy {
 					'fatal'       => false,
 				),
 			);
-			// "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
-		// }
+		}
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
 		<!-- Jetpack Google Analytics -->
