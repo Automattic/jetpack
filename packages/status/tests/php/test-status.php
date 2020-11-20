@@ -527,7 +527,7 @@ class Test_Status extends TestCase {
 			),
 			'double_domain'    => array(
 				'https://example.org/http://example.com',
-				'example.org',
+				'example.org::http:::::example.com',
 			),
 		);
 	}

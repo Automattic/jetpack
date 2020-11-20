@@ -288,16 +288,9 @@ class Status {
 			$url = \home_url();
 		}
 
-		$domain = preg_split( '#https?://#', $url );
+		$url = preg_replace( '#^.*?://#', '', $url );
+		$url = str_replace( '/', '::', $url );
 
-		// Not a domain we want to handle.
-		if ( empty( $domain[1] ) ) {
-			return $url;
-		}
-
-		$domain = rtrim( $domain[1], '/' );
-		$domain = str_replace( '/', '::', $domain );
-
-		return $domain;
+		return $url;
 	}
 }
