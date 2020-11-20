@@ -261,6 +261,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Sharing: ensure the first suitable image found in a post is always the one used in Open Graph Image meta tags.
 * Slideshow Block: ensure that slideshows are displayed nicely in subscription emails.
 * Synchronization: improve synchronization of comment status, taxononmies, and terms between your site and WordPress.com.
+* WhatsApp button: improve text alignment on mobile devices.
 
 **Improved compatibility**
 
