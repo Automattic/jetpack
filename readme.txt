@@ -279,6 +279,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Edit Post API: restore post comments when untrashing a post, such as via the mobile apps.
 * External Media: fix a conflict with CoBlock's image replace feature.
 * Sitemaps: ensure that the Home URL is slashed on subdirectory websites.
 * Social Icons widget: display only one icon when a URL matches both a domain and the feed URL match.
