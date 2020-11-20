@@ -177,7 +177,7 @@ function ChangelogEdit ( {
 		setAttributes( { showTimeStamp: showTimeStampFromContext } );
 	}, [ showTimeStampFromContext, setAttributes ] );
 
-	const onPlayOnTime = useContext( TranscritptionContext );
+	const getMediaData = useContext( TranscritptionContext );
 
 	return (
 		<div class={ className }>
@@ -196,26 +196,39 @@ function ChangelogEdit ( {
 							<TimeStamp
 								className={ `${ className }__timestamp-control` }
 								value={ timeStamp }
-								onChange={ ( value ) => setAttributes( { timeStamp: value } ) }
+								onChange={ ( value ) => {
+									const { mediaAudio, timeCodeToSeconds } = getMediaData();
+									mediaAudio?.setCurrentTime( timeCodeToSeconds( value ) );
+
+									setAttributes( { timeStamp: value } );
+								} }
 							/>
 						) }
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
 
-			{ showTimeStamp && onPlayOnTime && (
+			{ showTimeStamp && (
 				<BlockControls>
 					<Toolbar>
 						<ToolbarButton
 							icon="controls-play"
 							title={ __( 'Play', 'jetpack' ) }
-							onClick={ () => onPlayOnTime( timeStamp ) }
+							onClick={ () => {
+								const { mediaAudio } = getMediaData();
+								const { timeCodeToSeconds } = getMediaData();
+								mediaAudio?.setCurrentTime( timeCodeToSeconds( timeStamp ) );
+								mediaAudio?.play();
+							} }
 						/>
 
 						<ToolbarButton
 							icon="controls-pause"
-							title={ __( 'Play', 'jetpack' ) }
-							onClick={ () => onPlayOnTime( timeStamp ) }
+							title={ __( 'Pause', 'jetpack' ) }
+							onClick={ () => {
+								const { mediaAudio } = getMediaData();
+								mediaAudio?.pause();
+							} }
 						/>
 
 						<Button>
@@ -240,20 +253,19 @@ function ChangelogEdit ( {
 					} ) }
 				/>
 
-				{ showTimeStamp && onPlayOnTime && (
+				{ showTimeStamp && (
 					<Button
 						className={ `${ className }__timestamp` }
-						onClick={ () => onPlayOnTime( timeStamp ) }
+						onClick={ () => {
+							const { mediaAudio } = getMediaData();
+							const { timeCodeToSeconds } = getMediaData();
+							mediaAudio?.setCurrentTime( timeCodeToSeconds( timeStamp ) );
+							mediaAudio?.play();
+						 } }
 						isTertiary
 					>
 						{ timeStamp }
 					</Button>
-				) }
-
-				{ showTimeStamp && ! onPlayOnTime && (
-					<div className={ `${ className }__timestamp` }>
-						{ timeStamp }
-					</div>
 				) }
 			</div>
 
