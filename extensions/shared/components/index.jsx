@@ -25,7 +25,7 @@ const upgradeNudge = renderToStaticMarkup(
 );
 
 const stripeNudge = renderToStaticMarkup(
-	<StripeNudge blockName="#blockName#" url="#url#" />
+	<StripeNudge blockName="#blockName#" />
 );
 
 // StaticSiteGeneratorPlugin only supports `.html` extensions, even though
