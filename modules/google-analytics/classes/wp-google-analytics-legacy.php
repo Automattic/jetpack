@@ -155,7 +155,7 @@ class Jetpack_Google_Analytics_Legacy {
 		 *
 		 * @param array $universal_commands Array of gtag function calls.
 		 */
-		$universal_commands = array( apply_filters( 'jetpack_gtag_universal_commands', array() ) );
+		$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
 		$custom_vars        = '';
 		if ( is_404() ) {
 			$custom_vars = "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
