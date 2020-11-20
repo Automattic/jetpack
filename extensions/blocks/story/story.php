@@ -193,8 +193,8 @@ function render_video( $media ) {
 			'wp-block-jetpack-story_image wp-story-image ' .
 			get_image_crop_class( $meta_width, $meta_height ),
 			esc_attr( $poster_url ),
-			! empty( $meta_width ) ? " width=\"$meta_width\"" : '',
-			! empty( $meta_height ) ? " height=\"$meta_height\"" : ''
+			! empty( $meta_width ) ? ' width="' . esc_attr( $meta_width ) . '"' : '',
+			! empty( $meta_height ) ? ' height="' . esc_attr( $meta_height ) . '"' : ''
 		);
 	}
 
