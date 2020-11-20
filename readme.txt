@@ -265,6 +265,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Slideshow Block: ensure that slideshows are displayed nicely in subscription emails.
 * Story Block: improve display of the block.
 * Synchronization: improve synchronization of comment status, taxononmies, and terms between your site and WordPress.com.
+* Tiled Gallery Block: improve rendering when the block is rendered in non-WordPress contexts, such as subscription emails.
 * WhatsApp button: improve text alignment on mobile devices.
 
 **Improved compatibility**

@@ -22,6 +22,7 @@ To test those changes, try the following:
 	- Slideshow
 	- Pinterest
 	- Contact Form
+	- Tiled Gallery
 
 Make sure those blocks still look good on your site as well as in the subscription email you'll receive.
 
