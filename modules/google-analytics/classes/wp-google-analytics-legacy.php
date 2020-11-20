@@ -157,9 +157,9 @@ class Jetpack_Google_Analytics_Legacy {
 		 */
 		$universal_commands = array( apply_filters( 'jetpack_gtag_universal_commands', array() ) );
 		$custom_vars        = array();
-		if ( is_404() ) {
+		// if ( is_404() ) {
 			$custom_vars[] = "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
-		}
+		// }
 
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
@@ -172,9 +172,9 @@ class Jetpack_Google_Analytics_Legacy {
 			gtag( 'config', '<?php echo wp_json_encode( $tracking_id ); ?>' );
 			<?php
 			foreach ( $universal_commands as $command ) {
-				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
+				echo '//' . implode($command) . '//' . implode($universal_commands) . '\n' . 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
 			}
-			implode( "\r\n", $custom_vars )
+			echo implode( "\r\n", $custom_vars )
 			?>
 		</script>
 		<!-- End Jetpack Google Analytics -->
