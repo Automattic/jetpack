@@ -162,22 +162,26 @@ class Jetpack_Google_Analytics_Legacy {
 		// }
 
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		?>
-		<!-- Jetpack Google Analytics -->
-		<script async src='https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( $tracking_id ); ?>'></script>
-		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag() { dataLayer.push( arguments ); }
-			gtag( 'js', new Date() );
-			gtag( 'config', '<?php echo esc_js( $tracking_id ); ?>' );
-			<?php
-			echo esc_js( implode( "\r\n", $universal_commands ) );
-			echo esc_js( implode( "\r\n", $custom_vars ) );
-			?>
-		</script>
-		<!-- End Jetpack Google Analytics -->
-		<?php
+		$async_code = "
+			<!-- Jetpack Google Analytics -->
+			<script async src='https://www.googletagmanager.com/gtag/js?id=%tracking_id%'></script>
+			<script>
+				window.dataLayer = window.dataLayer || [];
+				function gtag() { dataLayer.push( arguments ); }
+				gtag( 'js', new Date() );
+				gtag( 'config', %tracking_id% );
+				%universal_commands%
+				%custom_vars%
+			</script>
+			<!-- End Jetpack Google Analytics -->
+		";
 		// phpcs:enable
+		$async_code                = str_replace( '%tracking_id%', $tracking_id, $async_code );
+		$universal_commands_string = implode( "\r\n", $universal_commands );
+		$async_code                = str_replace( '%universal_commands%', $universal_commands_string, $async_code );
+		$custom_vars_string        = implode( "\r\n", $custom_vars );
+		$async_code                = str_replace( '%custom_vars%', $custom_vars_string, $async_code );
+		echo esc_js( "$async_code\r\n" );
 	}
 
 	/**
