@@ -155,7 +155,8 @@ class Jetpack_Google_Analytics_Legacy {
 		 *
 		 * @param array $universal_commands Array of gtag function calls.
 		 */
-		$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
+		$universal_commands = array( apply_filters( 'jetpack_gtag_universal_commands', array() ) );
+		l( 'blahblahblah', $universal_commands );
 
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
@@ -165,8 +166,12 @@ class Jetpack_Google_Analytics_Legacy {
 			window.dataLayer = window.dataLayer || [];
 			function gtag() { dataLayer.push( arguments ); }
 			gtag( 'js', new Date() );
-			gtag( 'config', '<?php echo esc_js( $tracking_id ); ?>' );
-			<?php echo esc_js( implode( "\r\n", $universal_commands ) ); ?>
+			gtag( 'config', '<?php echo wp_json_encode( $tracking_id ); ?>' );
+			<?php
+			foreach ( $universal_commands as $command ) {
+				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
+			}
+			?>
 		</script>
 		<!-- End Jetpack Google Analytics -->
 		<?php
