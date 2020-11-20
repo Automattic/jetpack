@@ -235,7 +235,7 @@ function render_slide( $media, $index = 0 ) {
 			$media_template = render_video( $media, $index );
 			break;
 		case 'file':
-			// VideoPress videos on WordPress.com can have type 'file'.
+			// VideoPress videos can sometimes have type 'file', and mime 'video/videopress' or 'video/mp4'.
 			if ( 'video' === substr( $media['mime'], 0, 5 ) ) {
 				$media_template = render_video( $media, $index );
 			}
