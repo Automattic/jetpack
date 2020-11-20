@@ -171,7 +171,7 @@ class Jetpack_Google_Analytics_Legacy {
 			gtag( 'js', new Date() );
 			gtag( 'config', '<?php echo esc_js( $tracking_id ); ?>' );
 			<?php
-      echo esc_js( implode( "\r\n", $universal_commands );
+      echo esc_js( implode( "\r\n", $universal_commands ));
 			echo json_encode((implode( "\r\n", $custom_vars )));
 			?>
 		</script>
