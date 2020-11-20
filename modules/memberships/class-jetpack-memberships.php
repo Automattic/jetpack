@@ -248,6 +248,38 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Determines whether the button preview should be rendered. Returns true
+	 * if the user is an admin, the button is not configured correctly
+	 * (because it requires a plan upgrade or Stripe connection), and the
+	 * button is a child of a Premium Content block
+	 *
+	 * @return boolean
+	 */
+	public function should_render_button_preview($block) {
+		$is_admin = $this->user_can_edit();
+		$requires_stripe_connection = ! $this->get_connected_account_id();
+
+		$requires_upgrade = false;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+			$site_id = get_current_blog_id();
+			$requires_upgrade = has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		} else {
+			$requires_upgrade = Jetpack::is_active() && Jetpack_Plan::supports( 'recurring-payments' );
+		}
+
+		$isPremiumContentChild = false;
+		if ( isset( $block ) && isset( $block->context['isPremiumContentChild'] ) ) {
+			$isPremiumContentChild = (int) $block->context['isPremiumContentChild'];
+		}
+
+		return (
+			$isPremiumContentChild &&
+			$is_admin &&
+			( $requires_upgrade || $requires_stripe_connection )
+		);
+	}
+
+	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
 	 * @param array  $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
@@ -257,12 +289,9 @@ class Jetpack_Memberships {
 	 */
 	public function render_button( $attributes, $content, $block ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
-		// If the user is a site admin, and the block needs to have a Stripe account connected,
-		// render a preview disconnected button in the frontend as a preview.
-		if ( $this->user_can_edit() && ! $this->get_connected_account_id() ) {
-			jetpack_require_lib( 'components' );
-			$nudge = Jetpack_Components::render_stripe_nudge( 'recurring-payments' );
-			return $nudge . $this->render_button_preview( $attributes, $content );
+
+		if ( $this->should_render_button_preview( $block ) ) {
+			return $this->render_button_preview( $attributes, $content );
 		}
 
 		if ( empty( $attributes['planId'] ) ) {
