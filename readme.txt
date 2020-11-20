@@ -256,6 +256,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Dashboard: clarify language around support options.
 * Contact Form Block: display fallback link when the block is rendered in non-WordPress contexts, such as subscription emails.
+* Jetpack set up: clarify error message when the options table is not writable.
 * Payments Block: move unreadable notice to the sidebar.
 * Pinterest Block: ensure that Pinterest embeds are displayed nicely in non-WordPress contexts, such as subscription emails.
 * Podcast Block: display fallback link when the block is rendered in non-WordPress contexts, such as RSS feeds.
