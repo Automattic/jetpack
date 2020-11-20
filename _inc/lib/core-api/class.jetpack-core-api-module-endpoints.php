@@ -477,7 +477,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		$response['akismet'] = is_plugin_active( 'akismet/akismet.php' );
+		$response['akismet'] = class_exists( 'Akismet' );
 
 		return rest_ensure_response( $response );
 	}
@@ -841,27 +841,36 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'wordpress_api_key':
+					if ( ! class_exists( 'Akismet' ) ) {
+						if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+							// Akismet is not installed as an mu plugin or in the plugins directory.
+							$error   = esc_html__( 'Please install Akismet.', 'jetpack' );
+							$updated = false;
+							break;
+						}
 
-					if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
-						$error = esc_html__( 'Please install Akismet.', 'jetpack' );
+						// Akismet is installed in the plugins directory but not active.
+						$error   = esc_html__( 'Please activate Akismet.', 'jetpack' );
 						$updated = false;
 						break;
 					}
 
-					if ( ! defined( 'AKISMET_VERSION' ) ) {
-						$error = esc_html__( 'Please activate Akismet.', 'jetpack' );
-						$updated = false;
-						break;
-					}
-
-					// Allow to clear the API key field
+					// Allow to clear the API key field.
 					if ( '' === $value ) {
 						$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
 						break;
 					}
 
-					require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
-					require_once WP_PLUGIN_DIR . '/akismet/class.akismet-admin.php';
+					if ( ! defined( 'AKISMET__PLUGIN_DIR' ) ) {
+						return new WP_Error(
+							'unknown_akismet_dir',
+							esc_html__( 'Akismet is active, but its directory is unknown.', 'jetpack' ),
+							array( 'status' => 400 )
+						);
+					}
+
+					require_once trailingslashit( AKISMET__PLUGIN_DIR ) . 'class.akismet.php';
+					require_once trailingslashit( AKISMET__PLUGIN_DIR ) . 'class.akismet-admin.php';
 
 					if ( class_exists( 'Akismet_Admin' ) && method_exists( 'Akismet_Admin', 'save_key' ) ) {
 						if ( Akismet::verify_key( $value ) === 'valid' ) {
@@ -1374,15 +1383,17 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * @return bool|WP_Error Returns true if class file exists and class is loaded, WP_Error otherwise.
 	 */
 	private function akismet_class_exists() {
+		if ( class_exists( 'Akismet' ) ) {
+			return true;
+		}
+
 		if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+			// Akismet is not installed as an mu plugin or in the plugins directory.
 			return new WP_Error( 'not_installed', esc_html__( 'Please install Akismet.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
-		if ( ! class_exists( 'Akismet' ) ) {
-			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
-		}
-
-		return true;
+		// Akimset is installed in the plugins directory but not active.
+		return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
 	}
 
 	/**
@@ -1397,9 +1408,17 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			return $akismet_exists;
 		}
 
-		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
-		require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
-		require_once WP_PLUGIN_DIR . '/akismet/class.akismet-admin.php';
+		if ( ! defined( 'AKISMET__PLUGIN_DIR' ) ) {
+			return new WP_Error(
+				'uknown_akismet_dir',
+				esc_html__( 'Akismet is active, but its directory is unknown.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		require_once trailingslashit( AKISMET__PLUGIN_DIR ) . 'class.akismet.php';
+		require_once trailingslashit( AKISMET__PLUGIN_DIR ) . 'class.akismet-admin.php';
+
 		$akismet_key = Akismet::verify_key( Akismet::get_api_key() );
 
 		if ( ! $akismet_key || 'invalid' === $akismet_key || 'failed' === $akismet_key ) {
