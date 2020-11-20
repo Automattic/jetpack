@@ -110,7 +110,7 @@ class Jetpack_Google_Analytics_Legacy {
 		if ( ! empty( $track ) ) {
 			$track['url'] = $this->_get_url( $track );
 			// adjust the code that we output, account for both types of tracking.
-			$track['url']  = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
+			$track['url'] = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
 			$custom_vars[] = "_gaq.push(['_trackPageview','{$track['url']}']);";
 		} else {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
@@ -155,7 +155,7 @@ class Jetpack_Google_Analytics_Legacy {
 		 *
 		 * @param array $universal_commands Array of gtag function calls.
 		 */
-		$universal_commands = array( apply_filters( 'jetpack_gtag_universal_commands', array() ) );
+		$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
 		$custom_vars        = array();
 		// if ( is_404() ) {
 			$custom_vars[] = "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
@@ -169,12 +169,10 @@ class Jetpack_Google_Analytics_Legacy {
 			window.dataLayer = window.dataLayer || [];
 			function gtag() { dataLayer.push( arguments ); }
 			gtag( 'js', new Date() );
-			gtag( 'config', '<?php echo json_encode( $tracking_id ); ?>' );
+			gtag( 'config', '<?php echo esc_js( $tracking_id ); ?>' );
 			<?php
-			foreach ( $universal_commands as $command ) {
-				echo 'gtag( ' . implode( ', ', array_map( 'json_encode', $command ) ) . " );\n";
-			}
-			echo esc_js(implode( "\r\n", $custom_vars ));
+      echo esc_js( implode( "\r\n", $universal_commands );
+			echo json_encode((implode( "\r\n", $custom_vars )));
 			?>
 		</script>
 		<!-- End Jetpack Google Analytics -->
