@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Class Admin_Menu.
@@ -132,9 +133,17 @@ class Admin_Menu {
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		// Only show switcher when there are other sites.
-		if ( ! is_multisite() || count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
+		if ( $this->is_wpcom_site() && ( ! is_multisite() || count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) ) {
 			return;
+		} else {
+			// This is an Atomic site
+			$connection_manager = new Connection_Manager();
+			$wpcom_user_data    = $connection_manager->get_connected_user_data();
+			$user_site_count    = $wpcom_user_data[ 'site_count' ];
+
+			if ( $user_site_count < 2 ) {
+				return;
+			}
 		}
 
 		// Add the menu item.
