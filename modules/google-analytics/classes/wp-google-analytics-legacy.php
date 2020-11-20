@@ -156,9 +156,17 @@ class Jetpack_Google_Analytics_Legacy {
 		 * @param array $universal_commands Array of gtag function calls.
 		 */
 		$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
-		$custom_vars        = '';
+		$custom_vars        = array();
 		// if ( is_404() ) {
-			$custom_vars = "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
+			$custom_vars[] = array(
+				'event',
+				'exception',
+				array(
+					'description' => '404',
+					'fatal'       => 'false',
+				),
+			);
+			// "gtag('event', 'exception', { 'description': '404', 'fatal': 'false'});";
 		// }
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		?>
@@ -173,7 +181,9 @@ class Jetpack_Google_Analytics_Legacy {
 			foreach ( $universal_commands as $command ) {
 				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
 			}
-			echo esc_js( $custom_vars );
+			foreach ( $custom_vars as $var ) {
+				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $var ) ) . " );\n";
+			}
 			?>
 		</script>
 		<!-- End Jetpack Google Analytics -->
