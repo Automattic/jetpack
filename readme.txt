@@ -283,6 +283,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Sitemaps: ensure that the Home URL is slashed on subdirectory websites.
 * Social Icons widget: display only one icon when a URL matches both a domain and the feed URL match.
 * Stats: support Web Stories plugin.
+* Sync: avoid trying to sync when something else disabled syncing a request.
 * Whatsapp Button: fix Guyana country code metadata.
 
 --------
