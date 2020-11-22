@@ -385,7 +385,7 @@ class MembershipsButtonEdit extends Component {
 
 	renderUpgradeNudges = () => {
 		const { notices, postId } = this.props;
-		const { connected, connectURL, products } = this.state;
+		const { connected, connectURL } = this.state;
 
 		return (
 			<>
@@ -416,6 +416,16 @@ class MembershipsButtonEdit extends Component {
 					</Placeholder>
 				</div>
 			) }
+			</>
+		);
+	}
+
+	renderPlanNotices = () => {
+		const { notices } = this.props;
+		const { connected, products } = this.state;
+
+		return (
+			<>
 			{ ( connected === API_STATE_LOADING ||
 				this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
 				! this.props.attributes.planId && (
@@ -471,7 +481,7 @@ class MembershipsButtonEdit extends Component {
 				) }
 			</>
 		);
-	}
+	};
 
 	render = () => {
 		const { products } = this.state;
@@ -513,7 +523,8 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
-				{ ! this.isPremiumContentChild && this.renderUpgradeNudges() }
+				{ ! this.isPremiumContentChild && this.renderUpgradeNudges() && this.renderPlanNotices() }
+
 				{ showControls && inspectorControls }
 
 				<InnerBlocks
