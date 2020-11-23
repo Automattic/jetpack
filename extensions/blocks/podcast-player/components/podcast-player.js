@@ -13,28 +13,22 @@ import { speak } from '@wordpress/a11y';
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
+import {
+	STATE_PLAYING,
+	STATE_ERROR,
+	STATE_PAUSED,
+} from '../../../shared/components/audio-player/constants';
 import Playlist from './playlist';
-import AudioPlayer from './audio-player';
+import AudioPlayer from '../../../shared/components/audio-player';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
-
-const noop = () => {};
 
 export class PodcastPlayer extends Component {
 	state = {
 		playerState: STATE_PAUSED,
 		currentTrack: 0,
 		hasUserInteraction: false,
-	};
-
-	playerRef = player => {
-		this.player = player;
-		this.play = player ? player.play : noop;
-		this.pause = player ? player.pause : noop;
-		this.togglePlayPause = player ? player.togglePlayPause : noop;
-		this.setAudioSource = player ? player.setAudioSource : noop;
 	};
 
 	/**
@@ -66,7 +60,7 @@ export class PodcastPlayer extends Component {
 
 		// Something else is playing.
 		if ( currentTrack !== -1 ) {
-			this.pause();
+			this.setState( { playerState: STATE_PAUSED } );
 		}
 
 		// Load a new track.
@@ -88,8 +82,7 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-		this.setState( { currentTrack: track } );
-		this.setAudioSource( trackData.src );
+		this.setState( { currentTrack: track, playerState: STATE_PLAYING } );
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -101,8 +94,6 @@ export class PodcastPlayer extends Component {
 			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
 			'assertive'
 		);
-
-		this.play();
 	};
 
 	/**
@@ -170,33 +161,14 @@ export class PodcastPlayer extends Component {
 	};
 
 	/**
-	 * Play current audio.
-	 *
-	 * @public
-	 */
-	play = noop;
-
-	/**
-	 * Pause current audio.
-	 *
-	 * @public
-	 */
-	pause = noop;
-
-	/**
 	 * Toggle playing state.
 	 *
 	 * @public
 	 */
-	togglePlayPause = noop;
-
-	/**
-	 * Set audio source.
-	 *
-	 * @param {string} src - The url of audio content.
-	 * @public
-	 */
-	setAudioSource = noop;
+	togglePlayPause() {
+		const action = this.state.playerState === STATE_PLAYING ? this.handlePause : this.handlePlay;
+		action();
+	}
 
 	render() {
 		const { playerId, title, link, cover, tracks, attributes } = this.props;
@@ -274,11 +246,11 @@ export class PodcastPlayer extends Component {
 					colors={ colors }
 				>
 					<AudioPlayer
-						initialTrackSource={ this.getTrack( 0 ).src }
+						trackSource={ this.getTrack( currentTrack ).src }
 						handlePlay={ this.handlePlay }
 						handlePause={ this.handlePause }
 						handleError={ this.handleError }
-						ref={ this.playerRef }
+						playStatus={ this.state.playerState }
 					/>
 				</Header>
 

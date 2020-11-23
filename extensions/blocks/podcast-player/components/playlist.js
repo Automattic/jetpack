@@ -6,12 +6,11 @@
  * WordPress dependencies
  */
 import { memo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { STATE_ERROR, STATE_PLAYING } from '../constants';
+import { STATE_ERROR, STATE_PLAYING } from '../../../shared/components/audio-player/constants';
 import Track from './track';
 
 const Playlist = memo( ( { playerId, tracks, selectTrack, currentTrack, playerState, colors } ) => {
