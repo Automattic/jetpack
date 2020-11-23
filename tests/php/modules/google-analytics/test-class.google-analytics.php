@@ -89,4 +89,55 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 			$this->get_sample()
 		);
 	}
+
+	/**
+	 * Verify additional gtag universal commands can run.
+	 */
+	public function test_filter_jetpack_gtag_universal_commands() {
+		// Hijack the option for Jetpack_Google_Analytics_Options::get_tracking_code().
+		add_filter(
+			'pre_option_jetpack_wga',
+			function ( $option ) {
+				$option['code'] = 'G-XXXXXXX';
+				return $option;
+			}
+		);
+
+		// Filter being tested.
+		add_filter(
+			'jetpack_gtag_universal_commands',
+			function () {
+				return array(
+					array(
+						'event',
+						'jetpack_testing_event',
+						array(
+							'event_category' => 'somecat',
+							'event_label'    => 'somelabel',
+							'value'          => 'someval',
+						),
+					),
+					array(
+						'event',
+						'another_jetpack_testing_event',
+						'bar',
+					),
+				);
+			}
+		);
+
+		ob_start();
+		( new Jetpack_Google_Analytics_Legacy() )->insert_code();
+		$actual = ob_get_clean();
+
+		$this->assertContains(
+			'gtag( "event", "jetpack_testing_event", {"event_category":"somecat","event_label":"somelabel","value":"someval"} )',
+			$actual
+		);
+
+		$this->assertContains(
+			'gtag( "event", "another_jetpack_testing_event", "bar" );',
+			$actual
+		);
+	}
 }
