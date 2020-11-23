@@ -251,10 +251,9 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 		return $provider;
 	}
 
-	// @TODO Use Core's /oembed/1.0/proxy endpoint on WP.com
-	// (Currently not global but per-site, i.e. /oembed/1.0/sites/1234567/proxy)
-	// and deprecate /oembed-proxy/instagram endpoint.
-	$wpcom_oembed_proxy = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/oembed-proxy/instagram/';
+	$site_id            = \Jetpack_Options::get_option( 'id' );
+	$wpcom_oembed_proxy = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . "/oembed/1.0/sites/$site_id/proxy";
+
 	return str_replace( 'https://graph.facebook.com/v5.0/instagram_oembed/', $wpcom_oembed_proxy, $provider );
 }
 
@@ -265,7 +264,7 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
  * @param string $url  URL to be inspected.
  */
 function jetpack_instagram_oembed_remote_get_args( $args, $url ) {
-	if ( ! wp_startswith( $url, Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/oembed-proxy/instagram/' ) ) {
+	if ( ! wp_startswith( $url, Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/oembed/1.0/sites/' ) ) {
 		return $args;
 	}
 
