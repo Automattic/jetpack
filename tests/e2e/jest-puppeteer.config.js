@@ -2,12 +2,17 @@
  * For a detailed explanation of configuration properties, visit:
  * https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#puppeteerlaunchoptions
  */
-
+const fs = require( 'fs' );
 const { CI, E2E_DEBUG, PUPPETEER_HEADLESS, PUPPETEER_SLOWMO } = process.env;
 let executablePath = '';
 let dumpio = false;
-if ( ! CI ) {
-	executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+if ( ! CI && process.platform === 'darwin' ) {
+	try {
+		fs.accessSync( `/Applications/Google Chrome.app` );
+		executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+	} catch ( err ) {
+		console.log( 'Chrome is not installed. Using bundled Chromium' );
+	}
 }
 
 if ( E2E_DEBUG ) {
