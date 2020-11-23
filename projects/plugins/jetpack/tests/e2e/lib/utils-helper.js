@@ -86,7 +86,7 @@ export async function activateModule( page, module ) {
 	}
 
 	await page.waitForTimeout( 1000 );
-	await page.reload( { waitUntil: 'networkidle' } );
+	await page.reload( { waitUntil: 'domcontentloaded' } );
 
 	return true;
 }

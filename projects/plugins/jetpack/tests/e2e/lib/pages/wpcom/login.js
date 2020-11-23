@@ -34,7 +34,7 @@ export default class LoginPage extends Page {
 		await page.type( passwordSelector, password );
 		await page.click( submitButtonSelector );
 
-		await this.page.waitForNavigation( { waitUntil: 'networkidle' } );
+		await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
 
 		try {
 			await waitForSelector( this.page, this.expectedSelector, {

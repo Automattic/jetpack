@@ -64,7 +64,7 @@ export default class MailchimpBlock {
 			}
 		}
 
-		await loginTab.reload( { waitUntil: 'networkidle' } );
+		await loginTab.reload( { waitUntil: 'domcontentloaded' } );
 
 		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
 
