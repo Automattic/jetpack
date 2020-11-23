@@ -8,7 +8,7 @@ Our changelog is intended for the users of Jetpack, primarily end users but also
 
 If you've changed something that users will notice, like improving the display of a block or fixing a bug that prevents a site feature from working, then by all means suggest a changelog entry.
 
-If you've improved our CI or development environments, or refactored old code without user-visible changes, or something like that, it's probably not something that's worth mentioning in the changelog. But don't worry, we still appreciate it!
+If you've improved our CI or development environments, or refactored old code without user-visible changes, or something like that, it's probably not something that's worth mentioning in the changelog. But don't worry, we still appreciate it! And remember to say so in the appropriate section of the PR template, don't just leave it blank.
 
 If you're unsure, feel free to go ahead and suggest a changelog entry, or to ask.
 
