@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public static function tearDownAfterClass() {
 		parent::tearDownAfterClass();
 
-		// Copy themes from tests/php/files/ to wp-content/themes.
+		// Remove themes previously copied from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
 			$dest_dir = WP_CONTENT_DIR . '/themes/' . $theme;
 
