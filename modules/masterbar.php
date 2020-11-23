@@ -23,8 +23,8 @@ new Admin_Color_Schemes();
 
 /**
  * Whether to load the admin menu functionality.
- * @use add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
  *
+ * @use add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
  * @module masterbar
  *
  * @since 9.2.0
