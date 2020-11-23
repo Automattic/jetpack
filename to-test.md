@@ -26,4 +26,21 @@ To test those changes, try the following:
 
 Make sure those blocks still look good on your site as well as in the subscription email you'll receive.
 
+### Sync
+
+With the introduction of the wp_after_insert_post hook in WordPress 5.6 we are migrating the jetpack_publish_post asction from wp_insert_post so that the action consistently triggers after saving meta and terms.
+
+To ensure there is no regression issues we need to validate Publicize still triggers for newly published posts using both WP 5.5 and 5.6.
+
+- With WordPress 5.5 installed
+- Connect your site to Social Networks using the instructions at https://jetpack.com/support/publicize/
+- Go to Posts > Add New
+- Add Sample content, and customize the social message using the instructions at https://jetpack.com/support/publicize/#sharing-new-posts
+- Publish the post.
+- Confirm the custom message has been shared by visiting your social media accounts.
+- Upgrade your test site to WordPress 5.6
+- Repeat the above steps and ensure it is shared to your social networks.
+
+The jetpack_publish_post action also is used to trigger updates to elastic content, so verifying new posts show up in Instant Search results is another great way to test this change.
+
 **Thank you for all your help!**
