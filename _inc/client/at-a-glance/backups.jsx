@@ -195,7 +195,7 @@ class DashBackups extends Component {
 							__( "You need to enter your server's credentials to finish the setup.", 'jetpack' )
 						) }
 						{ buildAction(
-							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
+							getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ),
 							__( 'Enter credentials', 'jetpack' )
 						) }
 					</React.Fragment>
