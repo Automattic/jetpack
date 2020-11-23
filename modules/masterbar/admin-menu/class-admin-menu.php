@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Admin_Menu.
@@ -65,7 +66,7 @@ class Admin_Menu {
 	public function reregister_menu_items() {
 		$this->is_api_request = ( defined( 'REST_API_PLUGINS' ) && REST_API_PLUGINS ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 
-		$domain = jetpack_get_site_suffix();
+		$domain = ( new Status() )->get_site_suffix();
 
 		// TODO: Remove once feature has shipped. See jetpack_parent_file().
 		if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
@@ -224,7 +225,7 @@ class Admin_Menu {
 
 			// webclip.png is the default on WoA sites. Anything other than that means we have a custom site icon.
 			if (
-				( function_exists( 'blavatar_exists' ) && blavatar_exists( jetpack_get_site_suffix() ) ) ||
+				( function_exists( 'blavatar_exists' ) && blavatar_exists( ( new Status() )->get_site_suffix() ) ) ||
 				( has_site_icon() && 'https://s0.wp.com/i/webclip.png' !== get_site_icon_url( 512 ) )
 			) {
 				$classes .= ' has-site-icon';
