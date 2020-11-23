@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
  * Internal dependencies
  */
 import { UpgradeNudge } from './upgrade-nudge';
-import  { StripeNudge } from './stripe-nudge';
+import { StripeNudge } from './stripe-nudge';
 
 import './style.scss';
 

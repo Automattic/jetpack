@@ -251,29 +251,31 @@ class Jetpack_Memberships {
 	 * Determines whether the button preview should be rendered. Returns true
 	 * if the user is an admin, the button is not configured correctly
 	 * (because it requires a plan upgrade or Stripe connection), and the
-	 * button is a child of a Premium Content block
+	 * button is a child of a Premium Content block.
+	 *
+	 * @param WP_Block $block Recurring Payments block instance.
 	 *
 	 * @return boolean
 	 */
-	public function should_render_button_preview($block) {
-		$is_admin = $this->user_can_edit();
+	public function should_render_button_preview( $block ) {
+		$is_admin                   = $this->user_can_edit();
 		$requires_stripe_connection = ! $this->get_connected_account_id();
 
 		$requires_upgrade = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id = get_current_blog_id();
+			$site_id          = get_current_blog_id();
 			$requires_upgrade = has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		} else {
 			$requires_upgrade = Jetpack::is_active() && Jetpack_Plan::supports( 'recurring-payments' );
 		}
 
-		$isPremiumContentChild = false;
+		$is_premium_content_child = false;
 		if ( isset( $block ) && isset( $block->context['isPremiumContentChild'] ) ) {
-			$isPremiumContentChild = (int) $block->context['isPremiumContentChild'];
+			$is_premium_content_child = (int) $block->context['isPremiumContentChild'];
 		}
 
 		return (
-			$isPremiumContentChild &&
+			$is_premium_content_child &&
 			$is_admin &&
 			( $requires_upgrade || $requires_stripe_connection )
 		);
@@ -282,8 +284,9 @@ class Jetpack_Memberships {
 	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
-	 * @param array  $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
-	 * @param string $content - Recurring Payment block content.
+	 * @param array    $attributes - attributes in the shortcode. `id` here is the CPT id of the plan.
+	 * @param string   $content - Recurring Payment block content.
+	 * @param WP_Block $block - Recurring Payment block instance.
 	 *
 	 * @return string|void
 	 */
@@ -298,7 +301,7 @@ class Jetpack_Memberships {
 			return;
 		}
 
-		$plan_id = (int) $attrs['planId'];
+		$plan_id = (int) $attributes['planId'];
 		$product = get_post( $plan_id );
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
@@ -316,7 +319,7 @@ class Jetpack_Memberships {
 			return str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
 		}
 
-		return $this->deprecated_render_button_v1( $attrs, $plan_id );
+		return $this->deprecated_render_button_v1( $attributes, $plan_id );
 	}
 
 	/**
@@ -461,8 +464,8 @@ class Jetpack_Memberships {
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
-					'render_callback' =>  array( $this, 'render_button' ),
-					$uses => array( 'isPremiumContentChild' ),
+					'render_callback' => array( $this, 'render_button' ),
+					$uses             => array( 'isPremiumContentChild' ),
 				)
 			);
 		} else {
