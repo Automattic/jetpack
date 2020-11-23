@@ -188,9 +188,9 @@ function generateApiQueryString( {
 	);
 }
 
-function promiseifedProxyRequest( proxyRequest, path, query ) {
+function promiseifedProxyRequest( proxyRequest, path ) {
 	return new Promise( function ( resolve, reject ) {
-		proxyRequest( { path, query, apiVersion: '1.3' }, function ( err, body, headers ) {
+		proxyRequest( { path, apiVersion: '1.3' }, function ( err, body, headers ) {
 			if ( err ) {
 				reject( err );
 			}
@@ -259,7 +259,7 @@ export function search( options ) {
 	const { apiNonce, apiRoot, isPrivateSite, isWpcom } = window[ SERVER_OBJECT_NAME ];
 	if ( isPrivateSite && isWpcom ) {
 		return import( '../external/wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
-			return promiseifedProxyRequest( proxyRequest, pathForPublicApi, options.query )
+			return promiseifedProxyRequest( proxyRequest, pathForPublicApi )
 				.catch( errorHandler )
 				.then( responseHandler );
 		} );
