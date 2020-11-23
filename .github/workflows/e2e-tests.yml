@@ -49,9 +49,11 @@ jobs:
         ./tests/e2e/bin/env.sh start
 
     - name: Run tests
-      run: yarn test-e2e
+      run: CAPTURE_VIDEO=true yarn test-e2e
 
     - name: Upload test artifacts
+      if: ${{ always() }}
+      continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
         name: test-output
@@ -112,4 +114,12 @@ jobs:
         ./tests/e2e/bin/env.sh start
 
     - name: Run tests
-      run: yarn test-e2e --testPathIgnorePatterns=updater
+      run: CAPTURE_VIDEO=true yarn test-e2e --testPathIgnorePatterns=updater
+
+    - name: Upload test artifacts
+      if: ${{ always() }}
+      continue-on-error: true
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-output
+        path: tests/e2e/output
