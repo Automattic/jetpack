@@ -224,9 +224,7 @@ function render_slide( $media, $index = 0 ) {
 	}
 	return sprintf(
 		'<div class="wp-story-slide" style="display: %s;">
-			<figure>
-				%s
-			</figure>
+			<figure>%s</figure>
 		</div>',
 		0 === $index ? 'block' : 'none',
 		$media_template
