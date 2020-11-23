@@ -76,7 +76,7 @@ export default class BlockEditorPage extends Page {
 		let count = 0;
 		while ( count < 20 && ! block ) {
 			await this.page.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
-			await this.reload( { waitUntil: 'networkidle' } );
+			await this.reload( { waitUntil: 'domcontentloaded' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;
 		}

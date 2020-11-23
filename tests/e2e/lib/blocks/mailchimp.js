@@ -77,7 +77,7 @@ export default class MailchimpBlock {
 			}
 		}
 
-		await wpComTab.reload( { waitUntil: 'networkidle' } );
+		await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
 
 		await ( await ConnectionsPage.init( wpComTab ) ).selectMailchimpList();
 
