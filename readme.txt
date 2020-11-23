@@ -282,6 +282,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Connection: handle XMLRPC requests when SERVER_PORT is not defined.
 * Edit Post API: restore post comments when untrashing a post, such as via the mobile apps.
 * External Media: fix a conflict with CoBlock's image replace feature.
 * Sitemaps: ensure that the Home URL is slashed on subdirectory websites.
