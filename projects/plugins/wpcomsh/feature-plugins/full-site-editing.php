@@ -21,16 +21,10 @@ add_filter( 'a8c_enable_nav_sidebar', '__return_true' );
 add_filter( 'a8c_enable_block_patterns_api', '__return_true' );
 
 /**
- * Enable coming soon if the user is proxied.
- *
- * @return bool true if the user is proxied
+ * Enable coming soon for all sites
  */
-function wpcomsh_maybe_enable_public_coming_soon() {
-	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
-}
 
-add_filter( 'a8c_enable_public_coming_soon', 'wpcomsh_maybe_enable_public_coming_soon' );
-
+add_filter( 'a8c_enable_public_coming_soon', '__return_true' );
 
 /**
  * Returns Atomic persistent data value for wpcom_public_coming_soon when
