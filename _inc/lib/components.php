@@ -19,6 +19,7 @@ class Jetpack_Components {
 	 * @return string The component markup
 	 */
 	public static function render_component( $name, $props ) {
+
 		$rtl = is_rtl() ? '.rtl' : '';
 		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
 
