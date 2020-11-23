@@ -55,7 +55,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: test-output
-          path: /tests/e2e/output
+          path: tests/e2e/output
 
     - name: Upload Allure artifacts
       if: ${{ always() }}
