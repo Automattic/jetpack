@@ -248,10 +248,6 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Release date: December 1, 2020
 * Release post: https://wp.me/p1moTy-scn
 
-**Major Enhancements**
-
-*
-
 **Enhancements**
 
 * Dashboard: clarify language around support options.
