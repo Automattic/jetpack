@@ -3,7 +3,11 @@
  */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 
 /**
@@ -31,7 +35,7 @@ class JetpackTerminationDialogFeatures extends Component {
 	renderCDNReason() {
 		return (
 			<li key="reason-cdn">
-				{ jetpackCreateInterpolateElement(
+				{ createInterpolateElement(
 					__( 'Speed up your site and provide mobile-ready images with <a>our CDN</a>', 'jetpack' ),
 					{
 						a: (
@@ -51,7 +55,7 @@ class JetpackTerminationDialogFeatures extends Component {
 	renderProtectReason() {
 		return (
 			<li key="reason-brute-force">
-				{ jetpackCreateInterpolateElement(
+				{ createInterpolateElement(
 					__(
 						'Block <a>brute force attacks</a> and get immediate notifications if your site is down',
 						'jetpack'
@@ -74,7 +78,7 @@ class JetpackTerminationDialogFeatures extends Component {
 	renderSocialReason() {
 		return (
 			<li key="reason-social">
-				{ jetpackCreateInterpolateElement(
+				{ createInterpolateElement(
 					__( 'Grow your traffic with automated social <a>publishing and sharing</a>', 'jetpack' ),
 					{
 						a: (
@@ -173,7 +177,7 @@ class JetpackTerminationDialogFeatures extends Component {
 				) }
 				<div className="jetpack-termination-dialog__get-help">
 					<p>
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							__(
 								'Have a question? We’d love to help! <a>Send a question to the Jetpack support team.</a>',
 								'jetpack'

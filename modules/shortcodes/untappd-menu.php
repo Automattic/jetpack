@@ -37,7 +37,7 @@ class Jetpack_Untappd {
 	 * @param array  $atts    Shortocde attributes.
 	 * @param string $content Post content.
 	 */
-	public static function menu_shortcode( $atts, $content = '' ) {
+	public static function menu_shortcode( $atts, $content = '' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Let's bail if we don't have location or theme.
 		if ( ! isset( $atts['location'] ) || ! isset( $atts['theme'] ) ) {
 			if ( current_user_can( 'edit_posts' ) ) {

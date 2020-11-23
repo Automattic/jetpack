@@ -3,8 +3,12 @@
 	"description": "Utilities to build URLs to the jetpack.com/redirect/ service",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-status": "@dev"
+	},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
+		"brain/monkey": "^2.5"
 	},
 	"autoload": {
 		"classmap": [

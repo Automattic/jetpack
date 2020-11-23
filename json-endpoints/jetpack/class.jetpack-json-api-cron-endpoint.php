@@ -200,12 +200,7 @@ class Jetpack_JSON_API_Cron_Schedule_Endpoint extends Jetpack_JSON_API_Cron_Endp
 		$lock = $this->lock_cron();
 		$next = wp_schedule_single_event( $args['timestamp'], $hook, $arguments );
 		$this->maybe_unlock_cron( $lock );
-		/**
-		 * Note: Before WP 5.1, the return value was either `false` or `null`.
-		 *  With 5.1 and later, the return value is now `false` or `true`.
-		 * We need to account for both.
-		 */
-		return array( 'success' => false !== $next );
+		return array( 'success' => $next );
 	}
 }
 

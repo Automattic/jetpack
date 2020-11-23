@@ -63,7 +63,7 @@ export class JetpackBackup extends Component {
 						'You need to enter your server credentials to finish configuring Jetpack Backup.',
 						'jetpack'
 					),
-					url: getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
+					url: getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteRawUrl } ),
 				};
 			case 'active':
 				return {

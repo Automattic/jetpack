@@ -19,20 +19,6 @@ class Redirect {
 	private function __construct() {}
 
 	/**
-	 * Strip http:// or https:// from a url, replaces forward slash with ::,
-	 * so we can bring them directly to their site in calypso.
-	 *
-	 * @param string $url the full URL.
-	 * @return string $url without the guff
-	 */
-	private static function build_raw_urls( $url ) {
-		$strip_http = '/.*?:\/\//i';
-		$url        = preg_replace( $strip_http, '', $url );
-		$url        = str_replace( '/', '::', $url );
-		return $url;
-	}
-
-	/**
 	 * Builds and returns an URL using the jetpack.com/redirect/ service
 	 *
 	 * If $source is a simple slug, it will be sent using the source query parameter. e.g. jetpack.com/redirect/?source=slug
@@ -56,7 +42,8 @@ class Redirect {
 	public static function get_url( $source, $args = array() ) {
 
 		$url           = 'https://jetpack.com/redirect/';
-		$args          = wp_parse_args( $args, array( 'site' => self::build_raw_urls( get_home_url() ) ) );
+		$site_suffix   = ( new Status() )->get_site_suffix();
+		$args          = wp_parse_args( $args, array( 'site' => $site_suffix ) );
 		$accepted_args = array( 'site', 'path', 'query', 'anchor' );
 
 		$source_key = 'source';

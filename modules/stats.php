@@ -194,6 +194,7 @@ function stats_template_redirect() {
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
+	add_action( 'web_stories_print_analytics', 'stats_footer' );
 
 }
 
