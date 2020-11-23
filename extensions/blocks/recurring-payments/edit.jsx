@@ -523,7 +523,8 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
-				{ ! this.isPremiumContentChild && this.renderUpgradeNudges() && this.renderPlanNotices() }
+				{ ! this.isPremiumContentChild && this.renderUpgradeNudges() }
+				{ ! this.isPremiumContentChild && this.renderPlanNotices() }
 
 				{ showControls && inspectorControls }
 
