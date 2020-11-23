@@ -44,7 +44,7 @@ export default class MailchimpBlock {
 		) }`;
 
 		await this.page.click( setupFormSelector );
-		const wpComTab = await page.waitForEvent( 'popup' );
+		const wpComTab = await this.page.waitForEvent( 'popup' );
 		await wpComTab.bringToFront();
 		await wpComTab.goto( connectionsUrl );
 
@@ -77,7 +77,7 @@ export default class MailchimpBlock {
 			}
 		}
 
-		await wpComTab.reload( { waitFor: 'networkidle' } );
+		await wpComTab.reload( { waitUntil: 'networkidle' } );
 
 		await ( await ConnectionsPage.init( wpComTab ) ).selectMailchimpList();
 

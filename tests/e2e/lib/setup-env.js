@@ -21,7 +21,7 @@ import { saveVideo } from 'playwright-video';
 import config from 'config';
 import path from 'path';
 
-const { TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
+const { E2E_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
@@ -83,28 +83,7 @@ let video;
 const captureVideo = process.env.CAPTURE_VIDEO === 'true';
 
 async function setupBrowser() {
-	let userAgent = await page.evaluate( () => navigator.userAgent );
-	const userAgentSuffix = 'wp-e2e-tests';
-
-	// Only update user agent if it wasn't already previously updated
-	if ( ! userAgent.endsWith( userAgentSuffix ) ) {
-		const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
-		const cookies = await context.cookies();
-
-		// Reset context as a workaround to set a custom user agent
-		await jestPlaywright.resetContext( {
-			userAgent: e2eUserAgent,
-			width: 1280,
-			height: 1024,
-		} );
-
-		// Resetting context will also remove session cookies and tests are expected user to be logged in.
-		// Setting old context cookies as a quick fix.
-		// A better solution should be to include login action in each test, so each test has a clean context.
-		await context.addCookies( cookies );
-	}
-
-	userAgent = await page.evaluate( () => navigator.userAgent );
+	const userAgent = await page.evaluate( () => navigator.userAgent );
 	logger.info( `User agent: ${ userAgent }` );
 
 	if ( captureVideo ) {
@@ -204,7 +183,7 @@ async function maybePreConnect() {
 }
 
 // The Jest timeout is increased because these tests are a bit slow
-jest.setTimeout( TIMEOUT || 300000 );
+jest.setTimeout( E2E_TIMEOUT || 300000 );
 if ( E2E_DEBUG ) {
 	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
 }
@@ -278,7 +257,7 @@ catchBeforeAll( async () => {
 	await maybePreConnect();
 } );
 
-beforeEach( async () => {
+afterEach( async () => {
 	await setupBrowser();
 } );
 
