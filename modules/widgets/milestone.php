@@ -1,5 +1,13 @@
 <?php
 /**
- * Register the milestone widget.  This makes it easier to keep the /milestone/ dir content in sync with wpcom.
+ * Milestone widget loader.
+ *
+ * Everything happens within the folder, but Jetpack loads widgets via a widgets/*.php scheme.
+ *
+ * @package Jetpack.
  */
-include dirname( __FILE__ ) . '/milestone/milestone.php';
+
+/**
+ * Includes the milestone widget.  This makes it easier to keep the /milestone/ dir content in sync with wpcom.
+ */
+require_once __DIR__ . '/milestone/milestone.php';

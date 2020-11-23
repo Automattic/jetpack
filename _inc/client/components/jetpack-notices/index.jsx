@@ -4,7 +4,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -129,7 +133,7 @@ export class OfflineModeNotice extends React.Component {
 				);
 			}
 
-			const text = jetpackCreateInterpolateElement(
+			const text = createInterpolateElement(
 				/* translators: reasons is an unordered list of reasons why a site may be in Offline mode. */
 				__(
 					'Currently in <a>Offline Mode</a> (some features are disabled) because: <reasons/>',

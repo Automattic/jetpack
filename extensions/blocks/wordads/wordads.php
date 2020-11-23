@@ -117,7 +117,7 @@ class WordAds {
 
 		$ad_tag_ids = $wordads->get_ad_tags();
 		$format     = 'mrec';
-		if ( isset( $attr['format'] ) && in_array( $attr['format'], array_keys( $ad_tag_ids ), true ) ) {
+		if ( isset( $attr['format'] ) && isset( $ad_tag_ids[ $attr['format'] ] ) ) {
 			$format = $attr['format'];
 		}
 

@@ -1,15 +1,14 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-import { jetpackCreateInterpolateElement } from '../../../shared/create-interpolate-element';
 
 const CreativeMailPluginErrorState = ( { error } ) => {
 	return (
 		<Notice isDismissible={ false } status="error">
-			{ jetpackCreateInterpolateElement(
+			{ createInterpolateElement(
 				__(
 					'The plugin failed to install. <b /> Please check the <a>plugin information</a> for detailed requirements.',
 					'jetpack'

@@ -4,9 +4,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { getCurrencyObject } from '@automattic/format-currency';
-import { __, sprintf } from '@wordpress/i18n';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Style dependencies
@@ -54,7 +58,7 @@ export class PlanPrice extends Component {
 		if ( ! higherPrice ) {
 			return (
 				<>
-					{ jetpackCreateInterpolateElement(
+					{ createInterpolateElement(
 						/* translators: This shows a price, like $22. */
 						__( '<Currency /><Price />', 'jetpack' ),
 						{
@@ -70,7 +74,7 @@ export class PlanPrice extends Component {
 
 		return (
 			<>
-				{ jetpackCreateInterpolateElement(
+				{ createInterpolateElement(
 					/* translators: This shows a price range, like $ 22-55. */
 					__( '<Currency /><smallerPrice />-<higherPrice />', 'jetpack' ),
 					{

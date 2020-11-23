@@ -1,15 +1,14 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-import { jetpackCreateInterpolateElement } from '../../../../shared/create-interpolate-element';
 
 const ExtensionActivationErrorState = ( { error } ) => {
 	return (
 		<Notice isDismissible={ false } status="error">
-			{ jetpackCreateInterpolateElement(
+			{ createInterpolateElement(
 				__(
 					'The CRM Jetpack Form extension failed to activate. The error message was "<error />".',
 					'jetpack'

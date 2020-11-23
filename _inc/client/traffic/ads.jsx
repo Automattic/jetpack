@@ -2,7 +2,11 @@
  * External dependencies
  */
 import React from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -55,72 +59,74 @@ export const Ads = withModuleSettingsFormHelpers(
 			const isAdsActive = getOptionValue( 'wordads' );
 			const unavailableInOfflineMode = isUnavailableInOfflineMode( 'wordads' );
 
-			return <SettingsGroup
-						hasChild
-						support={ {
-							text: __(
-								'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
-								'jetpack'
-							),
-							link: 'https://jetpack.com/support/ads/',
-						} }
+			return (
+				<SettingsGroup
+					hasChild
+					support={ {
+						text: __(
+							'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
+							'jetpack'
+						),
+						link: 'https://jetpack.com/support/ads/',
+					} }
+				>
+					<CompactFormToggle
+						checked={ wordads_custom_adstxt_enabled }
+						disabled={
+							! isAdsActive ||
+							unavailableInOfflineMode ||
+							this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+						}
+						onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
 					>
-						<CompactFormToggle
-								checked={ wordads_custom_adstxt_enabled }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Customize your ads.txt file', 'jetpack' ) }
+						</span>
+					</CompactFormToggle>
+					{ wordads_custom_adstxt_enabled && (
+						<FormFieldset>
+							<br />
+							<p>
+								{ isAdsActive &&
+									createInterpolateElement(
+										__(
+											'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+											'jetpack'
+										),
+										{
+											link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
+											link2: (
+												<a
+													href={ getRedirectUrl(
+														'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
+													) }
+													target="_blank"
+													rel="noopener noreferrer"
+												/>
+											),
+										}
+									) }
+
+								{ ! isAdsActive &&
+									__(
+										'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.',
+										'jetpack'
+									) }
+							</p>
+							<Textarea
+								name="wordads_custom_adstxt"
+								value={ wordads_custom_adstxt }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+									this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
 								}
-								onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Customize your ads.txt file', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-						{ wordads_custom_adstxt_enabled && (
-							<FormFieldset>
-								<br />
-								<p>
-									{ isAdsActive &&
-										jetpackCreateInterpolateElement(
-											__(
-												'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
-												'jetpack'
-											),
-											{
-												link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
-												link2: (
-													<a
-														href={ getRedirectUrl(
-															'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
-														) }
-														target="_blank"
-														rel="noopener noreferrer"
-													/>
-												),
-											}
-										) }
-
-									{ ! isAdsActive &&
-										__(
-											'When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site.',
-											'jetpack'
-										) }
-								</p>
-								<Textarea
-									name="wordads_custom_adstxt"
-									value={ wordads_custom_adstxt }
-									disabled={
-										! isAdsActive ||
-										unavailableInOfflineMode ||
-										this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt' ] )
-									}
-									onChange={ this.props.onOptionChange }
-								/>
-							</FormFieldset>
-						) }
-					</SettingsGroup>;
+								onChange={ this.props.onOptionChange }
+							/>
+						</FormFieldset>
+					) }
+				</SettingsGroup>
+			);
 		}
 
 		render() {
@@ -174,7 +180,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							) }
 							<br />
 							<small className="jp-form-setting-explanation">
-								{ jetpackCreateInterpolateElement(
+								{ createInterpolateElement(
 									__(
 										'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>.',
 										'jetpack'
@@ -283,7 +289,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							</CompactFormToggle>
 							<small className="jp-form-setting-explanation">
 								{ isAdsActive &&
-									jetpackCreateInterpolateElement(
+									createInterpolateElement(
 										__(
 											'You can place additional ads using the Ad widget. <link>Try it out!</link>',
 											'jetpack'
@@ -332,7 +338,7 @@ export const Ads = withModuleSettingsFormHelpers(
 							<FormFieldset>
 								<p>
 									<small className="jp-form-setting-explanation">
-										{ jetpackCreateInterpolateElement(
+										{ createInterpolateElement(
 											__(
 												'For more information about the California Consumer Privacy Act (CCPA) <br/>and how it pertains to your site, please consult our <link>CCPA guide for site owners</link>.',
 												'jetpack'
@@ -357,7 +363,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								</p>
 								<p>
 									<FormLegend>{ __( 'Do Not Sell Link', 'jetpack' ) }</FormLegend>
-									{ jetpackCreateInterpolateElement(
+									{ createInterpolateElement(
 										__(
 											'CCPA requires that you place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. <br/>You can use the <widgetLink>Do Not Sell Link (CCPA) Widget</widgetLink>, or the <code>[ccpa-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
 											'jetpack'

@@ -2,7 +2,11 @@
  * External dependencies
  */
 import React from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -18,7 +22,7 @@ export default function PromoNudge( { percent } ) {
 				{ sprintf( __( 'Up to %d%% off!', 'jetpack' ), discountPercent ) }
 			</div>
 			<h4 className="single-product-backup__promo-header">
-				{ jetpackCreateInterpolateElement(
+				{ createInterpolateElement(
 					__( 'Hurry, these are <s>Limited time introductory prices!</s>', 'jetpack' ),
 					{
 						s: <strong />,

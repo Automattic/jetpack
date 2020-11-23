@@ -2,8 +2,8 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Licensing;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Status;
 
 include_once( 'class.jetpack-admin-page.php' );
 
@@ -151,8 +151,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
-
-		$is_offline_mode     = ( new Status() )->is_offline_mode();
+		$status              = new Status();
+		$is_offline_mode     = $status->is_offline_mode();
+		$site_suffix         = $status->get_site_suffix();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
 		$script_dependencies = array( 'wp-polyfill' );
 		if ( file_exists( $script_deps_path ) ) {
@@ -180,7 +181,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_initial_state() ) ) . '"));', 'before' );
 
 		// This will set the default URL of the jp_redirects lib.
-		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . Jetpack::build_raw_urls( get_home_url() ) . '" };', 'before' );
+		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '" };', 'before' );
 	}
 
 	function get_initial_state() {
@@ -266,7 +267,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'currentVersion'              => JETPACK__VERSION,
 			'is_gutenberg_available'      => true,
 			'getModules'                  => $modules,
-			'rawUrl'                      => Jetpack::build_raw_urls( get_home_url() ),
+			'rawUrl'                      => ( new Status() )->get_site_suffix(),
 			'adminUrl'                    => esc_url( admin_url() ),
 			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                       => array(

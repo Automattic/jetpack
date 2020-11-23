@@ -2,7 +2,11 @@
  * External dependencies
  */
 import React from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export const BACKUP_TITLE = __( 'Jetpack Backup', 'jetpack' );
@@ -14,14 +18,14 @@ export const BACKUP_DESCRIPTION_REALTIME = __(
 	'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.',
 	'jetpack'
 );
-export const DAILY_BACKUP_TITLE = jetpackCreateInterpolateElement(
+export const DAILY_BACKUP_TITLE = createInterpolateElement(
 	__( 'Jetpack Backup <em>Daily</em>', 'jetpack' ),
 	{
 		em: <em />,
 	}
 );
 
-export const REALTIME_BACKUP_TITLE = jetpackCreateInterpolateElement(
+export const REALTIME_BACKUP_TITLE = createInterpolateElement(
 	__( 'Jetpack Backup <em>Real-Time</em>', 'jetpack' ),
 	{
 		em: <em />,

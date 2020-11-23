@@ -1,17 +1,30 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
+/**
+ * Masterbar file.
+ *
+ * @package Jetpack
+ */
+
+namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
-
-require_once __DIR__ . '/rtl-admin-bar.php';
+use Automattic\Jetpack\Status;
+use GP_Locale;
+use GP_Locales;
+use Jetpack;
+use Jetpack_AMP_Support;
+use Jetpack_Plan;
+use WP_Admin_Bar;
+use WP_User;
 
 /**
- * Custom Admin bar displayed instead of the default WordPress admin bar.
+ * Provides custom admin bar instead of the default WordPress admin bar.
  */
-class A8C_WPCOM_Masterbar {
+class Masterbar {
 	/**
 	 * Use for testing changes made to remotely enqueued scripts and styles on your sandbox.
 	 * If not set it will default to loading the ones from WordPress.com.
@@ -140,7 +153,7 @@ class A8C_WPCOM_Masterbar {
 		$this->user_site_count = $this->user_data['site_count'];
 
 		// Used to build menu links that point directly to Calypso.
-		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
+		$this->primary_site_slug = ( new Status() )->get_site_suffix();
 
 		// Used for display purposes and for building WP Admin links.
 		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
@@ -148,10 +161,6 @@ class A8C_WPCOM_Masterbar {
 		// We need to use user's setting here, instead of relying on current blog's text direction.
 		$this->user_text_direction = $this->user_data['text_direction'];
 
-		if ( $this->is_rtl() ) {
-			// Extend core WP_Admin_Bar class in order to add rtl styles.
-			add_filter( 'wp_admin_bar_class', array( $this, 'get_rtl_admin_bar_class' ) );
-		}
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
@@ -213,13 +222,6 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		return $redirect_to;
-	}
-
-	/**
-	 * Get class name for RTL sites.
-	 */
-	public function get_rtl_admin_bar_class() {
-		return 'RTL_Admin_Bar';
 	}
 
 	/**
