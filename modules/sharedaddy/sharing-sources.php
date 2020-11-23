@@ -410,9 +410,10 @@ abstract class Sharing_Source {
 		wp_add_inline_script( 'sharing-js',
 			"var windowOpen;
 			document.body.addEventListener( 'click', function ( event ) {
-				if ( event.target &&
-						( event.target.matches && event.target.matches( 'a.share-$name' ) ) ||
-						( event.target.msMatchesSelector && event.target.msMatchesSelector( 'a.share-$name' ) ) ) {
+				if ( event.target && (
+					event.target.matches && event.target.matches( 'a.share-$name' ) ||
+					event.target.msMatchesSelector && event.target.msMatchesSelector( 'a.share-$name' )
+				) ) {
 					// If there's another sharing window open, close it.
 					if ( typeof windowOpen !== 'undefined' ) {
 						windowOpen.close();
@@ -1749,9 +1750,10 @@ class Share_Pinterest extends Sharing_Source {
 				( function () {
 					function init() {
 						document.body.addEventListener( 'click', function ( e ) {
-							if ( e.target &&
-									( e.target.matches && e.target.matches( 'a.share-pinterest' ) ) ||
-									( e.target.msMatchesSelector && e.target.msMatchesSelector( 'a.share-pinterest' ) ) ) {
+							if ( e.target && (
+								e.target.matches && e.target.matches( 'a.share-pinterest' ) ||
+								e.target.msMatchesSelector && e.target.msMatchesSelector( 'a.share-pinterest' )
+							) ) {
 								e.preventDefault();
 								// Load Pinterest Bookmarklet code
 								var s = document.createElement( 'script' );
