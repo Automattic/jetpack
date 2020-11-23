@@ -5,6 +5,7 @@
  */
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 class Jetpack_Calypsoify {
 
@@ -152,8 +153,8 @@ class Jetpack_Calypsoify {
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
 			array(
-				'closeUrl'   => $this->get_close_gutenberg_url(),
-				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block' . $this->get_site_suffix(),
+				'closeUrl'                => $this->get_close_gutenberg_url(),
+				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block/' . ( new Status() )->get_site_suffix(),
 			)
 		);
 	}
@@ -216,40 +217,6 @@ class Jetpack_Calypsoify {
 			'https://wordpress.com',
 		);
 		return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
-
-		function get_site_suffix() {
-			if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-				$site_suffix = Jetpack::build_raw_urls( home_url() );
-			} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-				$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-			}
-
-			if ( $site_suffix ) {
-				return "/${site_suffix}";
-			}
-			return '';
-		}
-	}
-
-	/**
-	 * Returns the site slug suffix to be used as part of the Calypso URLs. It already
-	 * includes the slash separator at the beginning.
-	 *
-	 * @example "https://wordpress.com/block-editor" . $this->get_site_suffix()
-	 *
-	 * @return string
-	 */
-	private function get_site_suffix() {
-		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-			$site_suffix = Jetpack::build_raw_urls( home_url() );
-		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-			$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-		}
-
-		if ( $site_suffix ) {
-			return "/${site_suffix}";
-		}
-		return '';
 	}
 
 	/**
@@ -260,22 +227,24 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	public function get_calypso_url( $post_id = null ) {
-		$screen = get_current_screen();
-		$post_type = $screen->post_type;
+		$screen      = get_current_screen();
+		$post_type   = $screen->post_type;
+		$site_suffix = ( new Status() )->get_site_suffix();
+
 		if ( is_null( $post_id ) ) {
 			// E.g. `posts`, `pages`, or `types/some_custom_post_type`
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}s"
-				: "/types/${post_type}";
+				? "/${post_type}s/"
+				: "/types/${post_type}/";
 			$post_suffix = '';
 		} else {
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}"
-				: "/edit/${post_type}";
+				? "/${post_type}/"
+				: "/edit/${post_type}/";
 			$post_suffix = "/${post_id}";
 		}
 
-		return $this->get_calypso_origin() . $post_type_suffix . $this->get_site_suffix() . $post_suffix;
+		return $this->get_calypso_origin() . $post_type_suffix . $site_suffix . $post_suffix;
 	}
 
 	/**

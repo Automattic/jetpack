@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use WPCOM_Masterbar;
+
 /**
  * Class Automattic\Jetpack\Status
  *
@@ -263,5 +265,32 @@ class Status {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Returns the site slug suffix to be used as part of Calypso URLs.
+	 *
+	 * Strips http:// or https:// from a url, replaces forward slash with ::.
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param string $url Optional. URL to build the site suffix from. Default: Home URL.
+	 *
+	 * @return string
+	 */
+	public function get_site_suffix( $url = '' ) {
+		// On WordPress.com, site suffixes are a bit different.
+		if ( method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+		}
+
+		if ( empty( $url ) ) {
+			$url = \home_url();
+		}
+
+		$url = preg_replace( '#^.*?://#', '', $url );
+		$url = str_replace( '/', '::', $url );
+
+		return $url;
 	}
 }
