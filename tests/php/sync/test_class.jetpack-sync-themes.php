@@ -39,7 +39,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	 *
 	 * @var string[]
 	 */
-	protected $themes = array(
+	protected static $themes = array(
 		'theme-file-sync-parent',
 		'theme-file-sync-child',
 	);
@@ -50,13 +50,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
-		$themes = array(
-			'theme-file-sync-parent',
-			'theme-file-sync-child',
-		);
-
 		// Copy themes from tests/php/files/ to wp-content/themes.
-		foreach ( $themes as $theme ) {
+		foreach ( static::$themes as $theme ) {
 			$source_dir = __DIR__ . '/../files/' . $theme;
 			$dest_dir   = WP_CONTENT_DIR . '/themes/' . $theme;
 
@@ -75,13 +70,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public static function tearDownAfterClass() {
 		parent::tearDownAfterClass();
 
-		$themes = array(
-			'theme-file-sync-parent',
-			'theme-file-sync-child',
-		);
-
 		// Copy themes from tests/php/files/ to wp-content/themes.
-		foreach ( $themes as $theme ) {
+		foreach ( static::$themes as $theme ) {
 			$dest_dir = WP_CONTENT_DIR . '/themes/' . $theme;
 
 			foreach ( glob( $dest_dir . '/*.*' ) as $theme_file ) {
@@ -95,8 +85,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$themes      = array( 'twentyten', 'twentyeleven', 'twentytwelve', 'twentythirteen', 'twentyfourteen' );
-		$this->theme = $themes[ rand( 0, 4 ) ];
+
+		$current_theme = wp_get_theme();
+		$this->theme   = $current_theme->slug;
 
 		switch_theme( $this->theme );
 
@@ -178,12 +169,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$test_themes = array(
 			array(
-				'twentyten',
-				'Twenty Ten',
+				'theme-file-sync-parent',
+				'Parent Sync Theme',
 			),
 			array(
-				'twentytwelve',
-				'Twenty Twelve',
+				'theme-file-sync-child',
+				'Child Sync Theme',
 			)
 		);
 
@@ -311,7 +302,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$dummy_details = array(
 			'type'   => 'theme',
 			'action' => 'update',
-			'themes' => $this->themes,
+			'themes' => self::$themes,
 		);
 
 		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
