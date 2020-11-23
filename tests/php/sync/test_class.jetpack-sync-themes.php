@@ -339,7 +339,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_themes' );
 		$themes     = $event_data->args[0];
 
-		// Not testing versions since they are subject to change.
+		// TODO :: update testing to include versions.
 		$this->assertEquals( 'Child Sync Theme', $themes['theme-file-sync-child']['name'] );
 		$this->assertEquals( 'https://jetpack.com/themes/sync-child/', $themes['theme-file-sync-child']['uri'] );
 		$this->assertEquals( 'theme-file-sync-child', $themes['theme-file-sync-child']['stylesheet'] );
