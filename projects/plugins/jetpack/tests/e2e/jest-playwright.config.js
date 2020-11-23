@@ -18,9 +18,16 @@ if ( E2E_DEBUG ) {
 module.exports = {
 	launchOptions: {
 		headless: HEADLESS !== 'false',
-		// devtools: HEADLESS === 'false',
+		devtools: HEADLESS === 'false',
 		slowMo: parseInt( SLOWMO, 10 ) || 0,
 		executablePath,
 		dumpio,
+	},
+	contextOptions: {
+		viewport: {
+			width: 1280,
+			height: 1024,
+		},
+		userAgent: 'wp-e2e-tests',
 	},
 };

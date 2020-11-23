@@ -92,10 +92,10 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 
 	const jetpackPage = await JetpackPage.visit( page, jetpackUrl );
 	await jetpackPage.openMyPlan();
-	await jetpackPage.reload( { waitFor: 'networkidle' } );
+	await jetpackPage.reload( { waitUntil: 'networkidle' } );
 
 	if ( ! mockPlanData ) {
-		await jetpackPage.reload( { waitFor: 'networkidle' } );
+		await jetpackPage.reload( { waitUntil: 'networkidle' } );
 		await page.waitForResponse(
 			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
 			{ timeout: 60 * 1000 }
@@ -180,7 +180,7 @@ export async function connectThroughJetpackStart( {
 		{ timeout: 60 * 1000 }
 	);
 
-	await jetpackPage.reload( { waitFor: 'networkidle' } );
+	await jetpackPage.reload( { waitUntil: 'networkidle' } );
 
 	await execShellCommand(
 		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'

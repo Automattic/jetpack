@@ -33,7 +33,7 @@ export default class PluginsPage extends Page {
 	}
 
 	async getJetpackVersion() {
-		const versionText = 'tr.active[data-plugin$="/jetpack.php"] .plugin-version-author-uri';
+		const versionText = 'tr.active[data-plugin="jetpack/jetpack.php"] .plugin-version-author-uri';
 		const element = await waitForSelector( this.page, versionText );
 		const text = await page.evaluate( e => e.textContent, element );
 		return text.match( /\d.+?(?=\s)/ )[ 0 ];

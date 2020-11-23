@@ -27,8 +27,8 @@ export default class EventbriteBlock {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await page.type( inputSelector, this.embedUrl() );
-		await page.click( descriptionSelector );
+		await this.page.type( inputSelector, this.embedUrl() );
+		await this.page.click( descriptionSelector );
 		await waitForSelector( this.page, '.wp-block-jetpack-eventbrite .components-sandbox' );
 	}
 

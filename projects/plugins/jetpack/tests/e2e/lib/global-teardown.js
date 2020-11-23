@@ -57,9 +57,8 @@ function getMessages( log ) {
 	return messages;
 }
 
-module.exports = async function ( globalConfig ) {
+module.exports = async function () {
 	if ( process.env.CI ) {
 		await processSlackLog();
 	}
-	// await teardown( globalConfig );
 };
