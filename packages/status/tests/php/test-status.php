@@ -47,9 +47,6 @@ class Test_Status extends TestCase {
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 
 		$this->status = new Status();
-
-		// Default to a non-set environment type, unless decided otherwise in each test.
-		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
 	}
 
 	/**
@@ -367,13 +364,13 @@ class Test_Status extends TestCase {
 	public function test_is_staging_site_for_known_hosting_providers( $site_url, $expected ) {
 		Functions\when( 'site_url' )->justReturn( $site_url );
 		$result = $this->status->is_staging_site();
-		$this->assertEquals(
+		$this->assertSame(
 			$expected,
 			$result,
 			sprintf(
 				'Expected %1$s to return %2$s for is_staging_site()',
 				$site_url,
-				$expected
+				var_export( $expected, 1 ) // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 			)
 		);
 	}
