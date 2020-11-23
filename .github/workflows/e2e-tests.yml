@@ -51,6 +51,12 @@ jobs:
     - name: Run tests
       run: yarn test-e2e
 
+    - name: Upload test artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-output
+          path: /tests/e2e/output
+
     - name: Upload Allure artifacts
       if: ${{ always() }}
       continue-on-error: true
