@@ -27,6 +27,7 @@ function load_3rd_party() {
 		'polldaddy.php',
 		'qtranslate-x.php',
 		'vaultpress.php',
+		'web-stories.php',
 		'wpml.php',
 		'woocommerce.php',
 		'woocommerce-services.php',
