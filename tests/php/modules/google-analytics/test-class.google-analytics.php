@@ -13,11 +13,18 @@ require_jetpack_file( 'modules/google-analytics/wp-google-analytics.php' );
 class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 
 	/**
-	 * Testing Google Analytics account.
+	 * Testing Google Analytics account (UA).
 	 *
 	 * @var string
 	 */
-	const GA_ID = 'UA-000000000-1';
+	const UA_ID = 'UA-000000000-1';
+
+	/**
+	 * Testing Google Analytics account (GA4).
+	 *
+	 * @var string
+	 */
+	const GA4_ID = 'G-XXXXXXX';
 
 	/**
 	 * Runs the routine before each test is executed.
@@ -31,7 +38,7 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		add_filter(
 			'pre_option_jetpack_wga',
 			function( $option ) {
-				$option['code'] = self::GA_ID;
+				$option['code'] = self::UA_ID;
 				return $option;
 			}
 		);
@@ -48,7 +55,7 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		$config_data = wp_json_encode(
 			array(
 				'vars'     => array(
-					'account' => self::GA_ID,
+					'account' => self::UA_ID,
 				),
 				'triggers' => array(
 					'trackPageview' => array(
@@ -98,7 +105,7 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		add_filter(
 			'pre_option_jetpack_wga',
 			function ( $option ) {
-				$option['code'] = 'G-XXXXXXX';
+				$option['code'] = self::GA4_ID;
 				return $option;
 			}
 		);
@@ -120,7 +127,11 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 					array(
 						'event',
 						'another_jetpack_testing_event',
-						'bar',
+						array(
+							'event_category' => 'foo',
+							'event_label'    => 'bar',
+							'value'          => 'baz',
+						),
 					),
 				);
 			}
@@ -136,7 +147,7 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 		);
 
 		$this->assertContains(
-			'gtag( "event", "another_jetpack_testing_event", "bar" );',
+			'gtag( "event", "another_jetpack_testing_event", {"event_category":"foo","event_label":"bar","value":"baz"} );',
 			$actual
 		);
 	}
