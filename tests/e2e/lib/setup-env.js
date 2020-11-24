@@ -82,16 +82,43 @@ export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandl
 let video;
 const captureVideo = process.env.CAPTURE_VIDEO === 'true';
 
-async function setupBrowser() {
-	const userAgent = await page.evaluate( () => navigator.userAgent );
-	logger.info( `User agent: ${ userAgent }` );
-
+async function startVideoCapture( fileName ) {
 	if ( captureVideo ) {
 		video = await saveVideo(
 			page,
-			path.resolve( config.get( 'testOutputDir' ), `video/video_${ new Date().getTime() }.mp4` )
+			path.resolve( config.get( 'testOutputDir' ), `video/video_${ fileName }.mp4` )
 		);
 	}
+}
+
+async function stopVideoCapture() {
+	if ( captureVideo ) {
+		await video.stop();
+	}
+}
+
+async function setupBrowser() {
+	let userAgent = await page.evaluate( () => navigator.userAgent );
+	const userAgentSuffix = 'wp-e2e-tests';
+
+	// Only update user agent if it wasn't already previously updated
+	if ( ! userAgent.endsWith( userAgentSuffix ) ) {
+		const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
+		const cookies = await context.cookies();
+
+		// Reset context as a workaround to set a custom user agent
+		await jestPlaywright.resetContext( {
+			userAgent: e2eUserAgent,
+		} );
+
+		// Resetting context will also remove session cookies and tests are expected user to be logged in.
+		// Setting old context cookies as a quick fix.
+		// A better solution should be to include login action in each test, so each test has a clean context.
+		await context.addCookies( cookies );
+	}
+
+	userAgent = await page.evaluate( () => navigator.userAgent );
+	logger.info( `User agent: ${ userAgent }` );
 }
 
 /**
@@ -226,14 +253,21 @@ jasmine.getEnv().addReporter( {
 	},
 	suiteStarted( result ) {
 		logger.info( `STARTING SUITE: ${ result.fullName }, description: ${ result.description }` );
+		startVideoCapture( result.fullName );
+	},
+	suiteDone( result ) {
+		logger.info( `SUITE ENDED: ${ result.status }\n` );
+		stopVideoCapture();
 	},
 	specStarted( result ) {
 		logger.info( `STARTING SPEC: ${ result.fullName }, description: ${ result.description }` );
 		jasmine.currentTest = result;
+		startVideoCapture( result.fullName );
 	},
 	specDone( result ) {
 		logger.info( `SPEC ENDED: ${ result.status }\n` );
 		jasmine.currentTest = null;
+		stopVideoCapture();
 	},
 } );
 
@@ -262,8 +296,5 @@ afterEach( async () => {
 } );
 
 afterAll( async () => {
-	if ( captureVideo ) {
-		await video.stop();
-	}
 	await tunnelManager.close();
 } );

@@ -28,7 +28,5 @@ module.exports = {
 			width: 1280,
 			height: 1024,
 		},
-		userAgent:
-			'Mozilla/5.0 (wp-e2e-tests) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36',
 	},
 };
