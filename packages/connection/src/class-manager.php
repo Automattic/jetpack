@@ -221,6 +221,41 @@ class Manager {
 	}
 
 	/**
+	 * Initialize the plugin deactivation hook.
+	 *
+	 * @param string $plugin_path Path to the plugin file.
+	 */
+	public function initialize_deactivate_disconnect( $plugin_path ) {
+		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+			register_deactivation_hook( $plugin_path, array( $this, 'deactivate_disconnect_network' ) );
+		} else {
+			register_deactivation_hook( $plugin_path, array( $this, 'deactivate_disconnect' ) );
+		}
+	}
+
+	/**
+	 * Deactivate the connection on plugin disconnect.
+	 */
+	public function deactivate_disconnect() {
+		$this->disconnect_site_wpcom();
+		$this->delete_all_connection_tokens();
+	}
+
+	/**
+	 * Deactivate the connection on plugin disconnect for network-activated plugins.
+	 */
+	public function deactivate_disconnect_network() {
+		if ( ! is_network_admin() ) {
+			return;
+		}
+
+		foreach ( get_sites() as $s ) {
+			switch_to_blog( $s->blog_id );
+			$this->deactivate_disconnect();
+		}
+	}
+
+	/**
 	 * Since a lot of hosts use a hammer approach to "protecting" WordPress sites,
 	 * and just blanket block all requests to /xmlrpc.php, or apply other overly-sensitive
 	 * security/firewall policies, we provide our own alternate XML RPC API endpoint

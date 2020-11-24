@@ -39,7 +39,7 @@ class Config {
 	);
 
 	/**
-	 * Initialization options stored here.
+	 * Feature-specific initialization options stored here.
 	 *
 	 * @var array
 	 */
@@ -69,6 +69,38 @@ class Config {
 		$this->config[ $feature ] = true;
 
 		$this->set_feature_options( $feature, $options );
+	}
+
+	/**
+	 * Require multiple features to be initialized. It's up to the package consumer to actually add
+	 * the package to their composer project. Declaring a requirement using this method
+	 * instructs the class to initialize it.
+	 *
+	 * Usage example:
+	 * <code>
+	 * $config->ensure_bunch(
+	 *     array(
+	 *         'slug'        => 'an-example-plugin',
+	 *         'name'        => 'An Example Plugin,
+	 *         'url_info'    => 'https://example.org',
+	 *         'plugin_file' => __FILE__,
+	 *     ),
+	 *     array(
+	 *         'connection' => array(
+	 *             'deactivate_disconnect' => true,
+	 *             'tos_link'              => true,
+	 *         )
+	 *     )
+	 * );
+	 * </code>
+	 *
+	 * @param array $common_options The common options to be passed into each feature's initialization method.
+	 * @param array $features       Features to be enabled and their options.
+	 */
+	public function ensure_bunch( array $common_options, array $features ) {
+		foreach ( $features as $feature => $feature_options ) {
+			$this->ensure( $feature, array_merge( $common_options, is_array( $feature_options ) ? $feature_options : array() ) );
+		}
 	}
 
 	/**
@@ -208,6 +240,20 @@ class Config {
 			}
 
 			( new Plugin( $slug ) )->add( $name, $options );
+
+			$connection = new Manager( $slug );
+
+			if ( ! empty( $options['deactivate_disconnect'] ) ) {
+				if ( empty( $options['plugin_file'] ) ) {
+					$plugin_path = file_exists( WP_PLUGIN_DIR . "/{$slug}/{$slug}.php" )
+						? WP_PLUGIN_DIR . "/{$slug}/{$slug}.php"
+						: null;
+				} else {
+					$plugin_path = $options['plugin_file'];
+				}
+
+				$connection->initialize_deactivate_disconnect( $plugin_path );
+			}
 		}
 
 		return true;
