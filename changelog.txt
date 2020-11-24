@@ -42,6 +42,7 @@
 * Edit Post API: restore post comments when untrashing a post, such as via the mobile apps.
 * External Media: fix a conflict with CoBlock's image replace feature.
 * General: fix incorrect links to Jetpack credentials form.
+* Google Analytics: ensure compatibility with Google Analytics 4 (GA4).
 * Sitemaps: ensure that the Home URL is slashed on subdirectory websites.
 * Social Icons widget: display only one icon when a URL matches both a domain and the feed URL match.
 * Stats: support Web Stories plugin.
