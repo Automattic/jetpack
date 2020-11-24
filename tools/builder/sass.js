@@ -62,7 +62,6 @@ gulp.task( 'sass:colorschemes', function ( done ) {
 			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
 		)
 		.pipe( autoprefixer() )
-		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './modules/masterbar/admin-color-schemes/colors' ) )
 		.on( 'end', function () {
 			log( 'Color Schemes CSS finished.' );
@@ -92,12 +91,11 @@ function doRTL( files, done ) {
 			};
 			break;
 		case 'colorschemes':
-			path = './modules/masterbar/admin-color-schemes/colors/**/colors.min.css';
+			path = './modules/masterbar/admin-color-schemes/colors/**/colors.css';
 			dest = './modules/masterbar/admin-color-schemes/colors';
 			success = 'Color Schemes RTL CSS finished.';
 			renameArgs = function ( pathx ) {
-				pathx.basename = pathx.basename.replace( '.min', '' );
-				pathx.extname = '-rtl.min.css';
+				pathx.extname = '-rtl.css';
 			};
 			break;
 		default:
