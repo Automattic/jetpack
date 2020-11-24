@@ -6,7 +6,7 @@ import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
-	getNgrokSiteUrl,
+	getTunnelSiteUrl,
 	resetWordpressInstall,
 	execMultipleWpCommands,
 } from '../lib/utils-helper';
@@ -19,7 +19,7 @@ process.env.SKIP_CONNECT = true;
 describe( 'Jetpack updater', () => {
 	catchBeforeAll( async () => {
 		await prepareUpdaterTest();
-		const url = getNgrokSiteUrl();
+		const url = getTunnelSiteUrl();
 
 		await execMultipleWpCommands(
 			'wp plugin deactivate jetpack-dev',
