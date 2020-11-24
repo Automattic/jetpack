@@ -1,3 +1,9 @@
+/*
+ * This file is the basis for generating all admin color scheme stylesheets.
+ * It consists of two parts:
+ * 1. All styles from core _admin.scss (keep in sync with changes in core!).
+ * 2. An import of the overrides necessary to match Calypso color schemes.
+ */
 
 @import 'variables';
 @import 'mixins';
@@ -759,3 +765,6 @@ div#wp-responsive-toggle a:before {
 .wp-full-overlay-footer .devices button:focus:before {
 	color: $highlight-color;
 }
+
+/* Overrides */
+@import 'overrides';
