@@ -1,8 +1,26 @@
-
+// core variables (core _variables.scss)
 $base-color: #dcdcde;
+$icon-color: #646970;
+$highlight-color: #b26200; //Calypso button color
+$notification-color: $highlight-color;
+
+// global (core _variables.scss)
+$body-background: #f6f7f7;
+
+// admin menu & admin-bar (core _variables.scss)
+$menu-text: #2c3338;
+$menu-highlight-text: #2271b1;
+$menu-highlight-icon: $menu-highlight-text;
+$menu-highlight-background: #ffffff;
+$menu-current-text: #ffffff;
+$menu-current-icon: $menu-current-text;
+$menu-current-background: #50575e;
+$menu-submenu-text: #ffffff;
+$menu-submenu-background: #135e96; //Calypso main nav color
+$menu-submenu-focus-text: #e68b28;
 
 // masterbar overrides
-$masterbar-background: $base-color;
-$masterbar-highlight-background: $base-color;
+$masterbar-background: #135e96;
+$masterbar-highlight-background: #0a4b78;
 
 @import "../admin";

@@ -72,7 +72,7 @@ class Admin_Color_Schemes {
 			'classic-blue',
 			__( 'Classic Blue', 'jetpack' ),
 			plugins_url( 'colors/classic-blue/colors.css', __FILE__ ),
-			array( '#135e96', '#dcdcde', '#ffffff', '#646970' ),
+			array( '#135e96', '#b26200', '#dcdcde', '#646970' ),
 			array(
 				'base'    => '#646970',
 				'focus'   => '#fff',
