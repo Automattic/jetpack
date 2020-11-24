@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
 /**
  * WordPress dependencies
  */
@@ -26,7 +25,7 @@ export default class WordAdsBlock {
 		await clickBlockToolbarButton( 'Pick an ad format' );
 
 		const formatButtonSelector = `.wp-block-jetpack-wordads__format-picker button:nth-child(${ buttonNumber })`;
-		await waitForSelector( this.page, formatButtonSelector );
+		await this.page.waitForSelector( formatButtonSelector );
 		await this.page.waitForTimeout( 500 );
 		return await this.page.click( formatButtonSelector );
 	}
@@ -47,6 +46,6 @@ export default class WordAdsBlock {
 	static async isRendered( page ) {
 		const containerSelector = ".entry-content iframe[src*='wordads']";
 
-		await waitForSelector( page, containerSelector );
+		await page.waitForSelector( containerSelector );
 	}
 }

@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector } from '../../page-helper';
 
 export default class PlansPage extends Page {
 	constructor( page ) {
@@ -16,6 +15,6 @@ export default class PlansPage extends Page {
 
 	async isCurrentPlan( plan = 'business' ) {
 		const currentPlanSelector = `.is-current.is-${ plan }-plan`;
-		return await waitForSelector( this.page, currentPlanSelector );
+		return await this.page.waitForSelector( currentPlanSelector );
 	}
 }

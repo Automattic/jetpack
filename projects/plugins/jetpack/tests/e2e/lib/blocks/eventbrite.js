@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
 
 export default class EventbriteBlock {
 	constructor( blockId, page, eventId ) {
@@ -29,7 +28,7 @@ export default class EventbriteBlock {
 
 		await this.page.type( inputSelector, this.embedUrl() );
 		await this.page.click( descriptionSelector );
-		await waitForSelector( this.page, '.wp-block-jetpack-eventbrite .components-sandbox' );
+		await this.page.waitForSelector( '.wp-block-jetpack-eventbrite .components-sandbox' );
 	}
 
 	getSelector( selector ) {
@@ -45,6 +44,6 @@ export default class EventbriteBlock {
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content iframe[data-automation='checkout-widget-iframe-${ args.eventId }']`;
 
-		await waitForSelector( page, containerSelector );
+		await page.waitForSelector( containerSelector );
 	}
 }

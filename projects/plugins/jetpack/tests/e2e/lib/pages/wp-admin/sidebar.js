@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector } from '../../page-helper';
 
 export default class Sidebar extends Page {
 	constructor( page ) {
@@ -40,7 +39,7 @@ export default class Sidebar extends Page {
 	}
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
-		const menuElement = await waitForSelector( this.page, menuSelector );
+		const menuElement = await this.page.waitForSelector( menuSelector );
 		const classes = await page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
 
 		if ( ! classes.includes( 'wp-menu-open' ) && ! classes.includes( 'wp-has-current-submenu' ) ) {

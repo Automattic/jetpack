@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector } from '../../page-helper';
 
 export default class PickAPlanPage extends Page {
 	constructor( page ) {
@@ -12,7 +11,7 @@ export default class PickAPlanPage extends Page {
 
 	async waitForPage() {
 		await super.waitForPage();
-		await waitForSelector( this.page, '.jetpack-product-card-alt__price-placeholder', {
+		await this.page.waitForSelector( '.jetpack-product-card-alt__price-placeholder', {
 			state: 'hidden',
 		} );
 	}
