@@ -45,7 +45,10 @@ async function processSlackLog() {
 		}
 	}
 
-	await slack.sendFileToSlack( config.get( 'testOutputDir' ), 'logs/e2e-simple.log', options );
+	await slack.sendFileToSlack(
+		path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
+		options
+	);
 }
 
 function getMessages( log ) {
