@@ -34,11 +34,11 @@ env:
 # so it doesn't need to be re-defined below.
 jobs:
   exclude:
-  - php: "7.0"
-    if: branch != "test"
-  - if: branch != "test"
+  - if: branch != "master"
+    php: "7.0"
+  - if: branch != "master"
     php: "7.2"
-  - if: branch != "test"
+  - if: branch != "master"
     env: WP_BRANCH=latest
   fast_finish: true
   include:
