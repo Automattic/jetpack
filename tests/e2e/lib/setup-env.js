@@ -99,28 +99,18 @@ async function stopVideoCapture() {
 	}
 }
 
-async function setupBrowser() {
+async function setUserAgent() {
 	let userAgent = await page.evaluate( () => navigator.userAgent );
 	const userAgentSuffix = 'wp-e2e-tests';
+	const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
 
-	// Only update user agent if it wasn't already previously updated
-	if ( ! userAgent.endsWith( userAgentSuffix ) ) {
-		const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
-		const cookies = await context.cookies();
-
-		// Reset context as a workaround to set a custom user agent
-		await jestPlaywright.resetContext( {
-			userAgent: e2eUserAgent,
-		} );
-
-		// Resetting context will also remove session cookies and tests are expected user to be logged in.
-		// Setting old context cookies as a quick fix.
-		// A better solution should be to include login action in each test, so each test has a clean context.
-		await context.addCookies( cookies );
-	}
+	// Reset context as a workaround to set a custom user agent
+	await jestPlaywright.resetContext( {
+		userAgent: e2eUserAgent,
+	} );
 
 	userAgent = await page.evaluate( () => navigator.userAgent );
-	logger.info( `User agent: ${ userAgent }` );
+	logger.info( `User agent updated to: ${ userAgent }` );
 }
 
 /**
@@ -279,7 +269,7 @@ const tunnelManager = new TunnelManager();
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
 // each other's side-effects.
 catchBeforeAll( async () => {
-	await setupBrowser();
+	await setUserAgent();
 
 	// Handles not saved changed dialog in block editor
 	observeConsoleLogging();
@@ -291,10 +281,6 @@ catchBeforeAll( async () => {
 	const url = await tunnelManager.create( process.env.SKIP_CONNECT );
 	global.tunnelUrl = url;
 	await maybePreConnect();
-} );
-
-afterEach( async () => {
-	await setupBrowser();
 } );
 
 afterAll( async () => {
