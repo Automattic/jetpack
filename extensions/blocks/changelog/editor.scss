@@ -2,6 +2,12 @@
  * Editor Canvas context.
  */
 
+ .wp-block-jetpack-changelog__labels-selector .components-menu-item__button,
+ .wp-block-jetpack-changelog__text-button-container .components-text-control__input {
+	font-size: 12px;
+	text-transform: uppercase;
+ }
+ 
 /*
  * Block settings sidebar.
  */
