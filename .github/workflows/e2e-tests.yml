@@ -121,5 +121,5 @@ jobs:
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
-        name: test-output
+        name: test-output-latest-gutenberg
         path: tests/e2e/output
