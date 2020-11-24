@@ -137,8 +137,17 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 			}
 		);
 
+		// GA code is only inserted in non-admin screens.
+		set_current_screen( 'front' );
+
+		// Mock `Jetpack_Google_Analytics_Legacy` instance to disable the constructor class.
+		$instance = $this->getMockBuilder( Jetpack_Google_Analytics_Legacy::class )
+			->setMethods( null )
+			->disableOriginalConstructor()
+			->getMock();
+
 		ob_start();
-		( new Jetpack_Google_Analytics_Legacy() )->insert_code();
+		$instance->insert_code();
 		$actual = ob_get_clean();
 
 		$this->assertContains(
