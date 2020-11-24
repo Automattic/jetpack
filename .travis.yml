@@ -35,10 +35,10 @@ env:
 jobs:
   exclude:
   - php: "7.0"
-    if: branch != master
-  - if: branch = master
+    if: branch != "test"
+  - if: branch != "test"
     php: "7.2"
-  - if: branch != master
+  - if: branch != "test"
     env: WP_BRANCH=latest
   fast_finish: true
   include:
