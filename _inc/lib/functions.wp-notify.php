@@ -7,7 +7,7 @@ use Automattic\Jetpack\Redirect;
 
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
 
-if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
+if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 	/**
 	 * Notify an author (and/or others) of a comment/trackback/pingback on a post.
 	 *
@@ -224,7 +224,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 	}
 endif;
 
-if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
+if ( ! function_exists( 'wp_notify_moderator' ) ) :
 	/**
 	 * Notifies the moderator of the site about a new comment that is awaiting approval.
 	 *
