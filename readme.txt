@@ -252,6 +252,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Connection Flow: clarify error message when the options table is not writable.
 * Contact Form Block: display fallback link when the block is rendered in non-WordPress contexts, such as subscription emails.
+* Contact Form Block: display the correct default email address and subject in the form block settings.
 * Dashboard: clarify language around support options.
 * Instagram Embeds: add support for embed parameters supported by Instagram.
 * Payments Block: move unreadable notice to the sidebar.
