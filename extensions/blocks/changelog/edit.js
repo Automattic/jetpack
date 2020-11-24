@@ -1,190 +1,92 @@
-
 /**
  * External dependencies
  */
-import { map, find } from 'lodash';
+import { find } from 'lodash';
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InnerBlocks, withColors, InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import {
-	Dropdown,
 	Button,
-	NavigableMenu,
-	MenuItem,
-	MenuGroup,
-	TextControl,
-	BaseControl,
 	Panel,
 	PanelBody,
 	ToggleControl,
-	__experimentalNumberControl as NumberControl,
-	Toolbar,
-	ToolbarButton,
-	RangeControl,
 } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { useEffect, useContext, Fragment, useState, } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { TranscritptionContext } from '../transcription/components';
 import './editor.scss';
+import LabelsDropdown from './components/labels-dropdown';
+import TimeStampControl from './components/time-stamp-control';
 
-const LOG_TEMPLATE = [
-	[ 'core/paragraph', { placeholder: __( 'Start logging…', 'Jetpack' ) } ],
-];
-
-const ALLOWED_LOG_TEMPLATES = [
-	'core/paragraph',
-	'core/quote',
-	'core/columns',
-];
-
-const LabelsSelector = ( {
-	className,
-	labels,
-	slug,
-	onSelect,
-	custom,
-	onCustom,
-} ) => {
-	const currentLabelBySlug = find( labels, ( label ) => label.slug === slug );
-	const currentLabel = slug && currentLabelBySlug ? currentLabelBySlug : labels[ 0 ];
-	const currentValue = ! slug && custom ? custom : currentLabel.value;
-
-	return (
-		<div className={ className }>
-			<Dropdown
-				position="bottom"
-				contentClassName={ className }
-				renderToggle={ ( { isOpen, onToggle } ) => (
-					<Button
-						onClick={ onToggle } aria-expanded={ isOpen }
-						style={ { color: currentLabel.textColor, backgroundColor: currentLabel.bgColor } }
-					>
-						{ currentValue }
-					</Button>
-				) }
-				renderContent={ () => {
-					return (
-						<NavigableMenu>
-							<MenuGroup>
-								{ map( labels, ( { value, slug: labelSlug, textColor, bgColor } ) => (
-									<MenuItem
-										key={ labelSlug }
-										onClick={ () => onSelect( labelSlug ) }
-										style={ { color: textColor, backgroundColor: bgColor } }
-									>
-										{ value }
-									</MenuItem>
-								) ) }
-							</MenuGroup>
-
-							<BaseControl
-								className={ `${ className }__custom-label` }
-								label={ __( 'Custom', 'jetpack' ) }
-							>
-								<div className={ `${ className }__text-button-container` }>
-									<TextControl
-										value={ custom }
-										onChange={ ( newCustom ) => {
-											onSelect( newCustom );
-											onCustom( newCustom );
-										} }
-									/>
-								</div>
-							</BaseControl>
-						</NavigableMenu>
-					);
-				} }
-			/>
-		</div>
-	);
-};
-
-function TimeStamp ( { value, className, onChange } ) {
-	const msh = value.split( ':' );
-
-	function setTimeStampValue( pos, val ) {
-		val = String( val );
-		msh[ pos ] = val?.length === 1 ? `0${ val }` : val;
-		onChange( msh.join( ':' ) );
-	}
-
-	return (
-		<div className={ className }>
-			<NumberControl
-				className={ `${ className }__minute` }
-				label={ __( 'Minute', 'jetpack' ) }
-				value={ msh[ 0 ] }
-				min={ 0 }
-				max={ 23 }
-				onChange={ ( sec ) => setTimeStampValue( 0, sec ) }
-			/>
-
-			<NumberControl
-				className={ `${ className }__second` }
-				label={ __( 'Second', 'jetpack' ) }
-				value={ msh[1] }
-				min={ 0 }
-				max={ 59 }
-				onChange={ ( min ) => setTimeStampValue( 1, min ) }
-			/>
-		</div>
-	);
-}
+const blockName = 'jetpack/changelog';
+const fallbackBlockName = 'core/paragraph';
 
 const defaultLabels = [
 	{
-		value: __( 'urgent', 'jetpack' ),
-		slug: 'label-0',
-		textColor: '#fff',
-		bgColor: '#f06',
+		value: __( 'new', 'jetpack' ),
+		slug: 'new',
 	},
 	{
-		value: __( 'warning', 'jetpack' ),
-		slug: 'label-1',
-		textColor: '#fff',
-		bgColor: '#eb3',
+		value: __( 'improved', 'jetpack' ),
+		slug: 'improved',
 	},
 	{
-		value: __( 'normal', 'jetpack' ),
-		slug: 'label-2',
-		textColor: '#fff',
-		bgColor: '#0a6',
+		value: __( 'fixed', 'jetpack' ),
+		slug: 'fixed',
 	},
 ];
 
-function ChangelogEdit ( {
+export default function ChangelogEdit ( {
 	className,
 	attributes,
 	setAttributes,
 	context,
+	mergeBlocks,
+	onReplace,
+	instanceId,
+	onTimeStampClick,
 } ) {
-	const [ isSyncedWithPlayer, setIsSyncedWithPlayer ] = useState( false );
-	const [ trackPosition, setTrackPosition ] = useState( 0 );
+	const {
+		label,
+		labelSlug,
+		showTimeStamp,
+		timeStamp,
+		content,
+		placeholder,
+	} = attributes;
 
-	const { labelSlug, custom, showTimeStamp, timeStamp } = attributes;
+	// Block context integration.
 	const labelsFromContext = context[ 'changelog/labels' ];
 	const showTimeStampFromContext = context[ 'changelog/showTimeStamp' ];
-	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
 
-	const getMediaData = useContext( TranscritptionContext );
-
-
-	// Follow show timestamp prop from context.
+	// Follow lables changes when block context changes.
 	useEffect( () => {
-		if ( typeof showTimeStampFromContext === 'undefined' ) {
+		if ( ! labelsFromContext ) {
 			return;
 		}
 
-		setAttributes( { showTimeStamp: showTimeStampFromContext } );
-	}, [ showTimeStampFromContext, setAttributes ] );
+		 if ( ! labelSlug ) {
+			return;
+		}
 
-	const showMedia = getMediaData && getMediaData();
+		const labelBySlug = find( labelsFromContext, ( contextLabel ) => contextLabel.slug === labelSlug );
+		if ( ! labelBySlug ) {
+			return;
+		}
+
+		setAttributes( {
+			labelSlug: labelBySlug.slug,
+			label: labelBySlug.value,
+		} );
+	}, [ labelSlug, labelsFromContext, setAttributes ] );
+
+	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
+	const showTimeStampFlag = showTimeStamp || showTimeStampFromContext;
 
 	return (
 		<div class={ className }>
@@ -193,130 +95,89 @@ function ChangelogEdit ( {
 					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show time stamp', 'jetpack' ) }
-							checked={  showTimeStamp }
+							checked={ showTimeStamp }
 							onChange={
-								( nowShowTimeStamp ) => setAttributes( { showTimeStamp: nowShowTimeStamp } )
+								( show ) => setAttributes( { showTimeStamp: show } )
 							}
 						/>
 
-						{ showTimeStamp && (
-							<Fragment>
-								<BaseControl>
-									<TimeStamp
-										className={ `${ className }__timestamp-control` }
-										value={ timeStamp }
-										onChange={ ( value ) => {
-											if ( isSyncedWithPlayer ) {
-												const { mediaAudio, timeCodeToSeconds } = getMediaData();
-												mediaAudio?.setCurrentTime( timeCodeToSeconds( value ) );
-											}
-											setAttributes( { timeStamp: value } );
-										} }
-									/>
-								</BaseControl>
-
-								<BaseControl>
-									<ToggleControl
-										label={ __( 'Sync with player', 'jetpack' ) }
-										checked={ isSyncedWithPlayer }
-										onChange={ ( newSyncState ) => {
-											if ( newSyncState ) {
-												const { mediaAudio, timeCodeToSeconds } = getMediaData();
-												mediaAudio?.setCurrentTime( timeCodeToSeconds( timeStamp ) );
-											}
-
-											setIsSyncedWithPlayer( newSyncState );
-										} }
-									/>
-
-									<RangeControl
-										label={ __( 'Position', 'jetpack' ) }
-										min={ 0 }
-										max={ 100 }
-										value={ trackPosition }
-										onChange={ ( v ) => {
-											setTrackPosition( v );
-											const { mediaAudio } = getMediaData();
-											mediaAudio?.setCurrentTime( v * mediaAudio.duration / 100 );
-										} }
-									/>
-								</BaseControl>
-							</Fragment>
+						{ showTimeStampFlag && (
+							<TimeStampControl
+								className={ `${ className }__timestamp-control` }
+								value={ timeStamp }
+								onChange={ ( newTimeStampValue ) => {
+									setAttributes( { timeStamp: newTimeStampValue } );
+								} }
+							/>
 						) }
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
 
-			{ showTimeStamp && (
-				<BlockControls>
-					<Toolbar>
-						<ToolbarButton
-							icon="controls-play"
-							title={ __( 'Play', 'jetpack' ) }
-							onClick={ () => {
-								const { mediaAudio } = getMediaData();
-								const { timeCodeToSeconds } = getMediaData();
-								mediaAudio?.setCurrentTime( timeCodeToSeconds( timeStamp ) );
-								mediaAudio?.play();
-							} }
-						/>
-
-						<ToolbarButton
-							icon="controls-pause"
-							title={ __( 'Pause', 'jetpack' ) }
-							onClick={ () => {
-								const { mediaAudio } = getMediaData();
-								mediaAudio?.pause();
-							} }
-						/>
-
-						<Button>
-							{ timeStamp }
-						</Button>
-					</Toolbar>
-				</BlockControls>
-			) }
-
 			<div class={ `${ className }__meta` }>
-				<LabelsSelector
+				<LabelsDropdown
+					id={ `changelog-${ instanceId }-labels-selector` }
 					className={ `${ className }__labels-selector` }
 					labels={ labels }
-
+					value={ label }
 					slug={ labelSlug }
-					onSelect={ ( newSlug ) => setAttributes( { labelSlug: newSlug } ) }
-
-					custom={ custom }
-					onCustom={ ( newCustom ) => setAttributes( {
-						labelSlug: null,
-						custom: newCustom,
+					onSelect={ ( { newLabel, newLabelSlug } ) => {
+						setAttributes( {
+							labelSlug: newLabelSlug,
+							label: newLabel,
+						} );
+					 } }
+					onChange={ ( { newLabel, newLabelSlug } ) => setAttributes( {
+						labelSlug: newLabelSlug,
+						label: newLabel,
 					} ) }
 				/>
 
-				{ showTimeStamp && (
+				{ showTimeStampFlag && onTimeStampClick && (
 					<Button
-						className={ `${ className }__timestamp` }
-						onClick={ () => {
-							const { mediaAudio } = getMediaData();
-							const { timeCodeToSeconds } = getMediaData();
-							mediaAudio?.setCurrentTime( timeCodeToSeconds( timeStamp ) );
-							mediaAudio?.play();
-						 } }
+						className={ `${ className }__timestamp-button` }
+						onClick={ onTimeStampClick }
 						isTertiary
 					>
 						{ timeStamp }
 					</Button>
 				) }
+
+				{ showTimeStampFlag && ! onTimeStampClick && (
+					<div className={ `${ className }__timestamp` }>
+						{ timeStamp }
+					</div>
+				) }
 			</div>
 
-			<InnerBlocks
-				template={ LOG_TEMPLATE }
-				allowedBlocks={ ALLOWED_LOG_TEMPLATES }
-				orientation="horizontal"
+			<RichText
+				identifier="content"
+				wrapperClassName="wp-block-p2-changelog__content"
+				value={ content }
+				onChange={ ( value ) =>
+					setAttributes( { content: value } )
+				}
+				onMerge={ mergeBlocks }
+				onSplit={ ( value ) => {
+					if ( ! content.length ) {
+						return createBlock( fallbackBlockName );
+					}
+
+					if ( ! value ) {
+						return createBlock( blockName );
+					}
+
+					return createBlock( blockName, {
+						...attributes,
+						content: value,
+					} );
+				} }
+				onReplace={ onReplace }
+				onRemove={
+					onReplace ? () => onReplace( [] ) : undefined
+				}
+				placeholder={ placeholder || __( 'Add entry' ) }
 			/>
 		</div>
 	);
 }
-
-export default compose(
-	withColors( 'backgroundColor', 'textColor' )
-)( ChangelogEdit );

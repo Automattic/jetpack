@@ -1,46 +1,6 @@
 /*
  * Editor Canvas context.
  */
-.wp-block-jetpack-changelog {
-	display: flex;
-
-	.wp-block-jetpack-changelog__meta {
-		margin-right: 5px;
-	}
-}
-
-// Timestamp component.
-.wp-block-jetpack-changelog__timestamp {
-	display: inline-flex;
-	white-space: nowrap;
-	font-size: 16px;
-}
-
-// Labels dropdown component.
-.wp-block-jetpack-changelog__labels-selector {
-	margin-right: 5px;
-
-	.components-menu-item__button {
-		margin: 2px 0;
-	}
-
-	.components-button {
-		white-space: nowrap;
-	}
-}
-
-.wp-block-jetpack-changelog__labels-selector__custom-label {
-	margin-top: 10px;
-}
-
-.wp-block-jetpack-changelog__labels-selector__text-button-container {
-	display: flex;
-	margin-top: 5px;
-
-	.components-text-control__input {
-		min-width: 100px;
-	}
-}
 
 /*
  * Block settings sidebar.
@@ -49,6 +9,7 @@
 	display: flex;
 }
 
+.wp-block-jetpack-changelog__timestamp-control__hour,
 .wp-block-jetpack-changelog__timestamp-control__minute {
 	margin-right: 5px;
 }

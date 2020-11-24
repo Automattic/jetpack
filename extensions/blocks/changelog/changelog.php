@@ -25,7 +25,7 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-		),
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );

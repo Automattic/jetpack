@@ -37,7 +37,7 @@ import { TranscritptionContext } from './components';
 
 const defaultLabels = [
 	{
-		slug: 'label-0',
+		slug: 'new',
 		value: __( 'Speaker one', 'jetpack' ),
 		textColor: '#fff',
 		bgColor: '#046',

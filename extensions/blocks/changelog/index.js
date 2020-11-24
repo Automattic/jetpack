@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -26,9 +26,6 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'layout',
-	keywords: [
-		_x( 'changelog', 'block search term', 'jetpack' ),
-	],
 	supports: {
 		'align': true,
 	},

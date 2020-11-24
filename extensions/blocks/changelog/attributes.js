@@ -1,22 +1,21 @@
 export default {
+	label: {
+		type: "string",
+	},
 	labelSlug: {
 		type: "string",
 	},
-	custom: {
+	timeStamp: {
 		type: "string",
+		default: "00:00",
 	},
-	isCustomValue: {
-		type: "boolean",
-		default: false,
-	},
-
 	showTimeStamp: {
 		type: "boolen",
 		default: false,
 	},
-
-	timeStamp: {
-		type: "string",
-		default: "00:00",
-	}
+	content: {
+		type: 'array',
+		source: 'children',
+		selector: 'p',
+	},
 };
