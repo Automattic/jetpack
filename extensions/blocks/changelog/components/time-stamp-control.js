@@ -11,7 +11,7 @@ function checkValidValue( val, max ) {
 	if ( val > max ) {
 		return val = max;
 	} else if ( val < 0 ) {
-		return val = 0;
+		return 0;
 	}
 
 	return val;
