@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
 import { FeatureSummary } from '../feature-summary';
+import { OneClickRestores } from '../sidebar/one-click-restores';
 import { ProductCardUpsell } from '../product-card-upsell';
 import JetpackLogo from 'components/jetpack-logo';
 import {
@@ -28,6 +29,23 @@ const SummaryComponent = props => {
 	useEffect( () => {
 		props.updateRecommendationsStep( 'summary' );
 	} );
+
+	let cta = (
+		<ProductCardUpsell
+			title={ __( 'Backup Daily' ) }
+			description={ __(
+				'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
+			) }
+			ctaHref={ 'https://cloud.jetpack.com/pricing' }
+			features={ [
+				__( 'Automated daily off-site backups' ),
+				__( 'One-click restores' ),
+				__( 'Unlimited secure storage' ),
+			] }
+		/>
+	);
+
+	cta = <OneClickRestores />;
 
 	return (
 		<div className="jp-recommendations-summary">
@@ -56,20 +74,7 @@ const SummaryComponent = props => {
 					) ) }
 				</div>
 			</div>
-			<div className="jp-recommendations-summary__cta">
-				<ProductCardUpsell
-					title={ __( 'Backup Daily' ) }
-					description={ __(
-						'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
-					) }
-					ctaHref={ 'https://cloud.jetpack.com/pricing' }
-					features={ [
-						__( 'Automated daily off-site backups' ),
-						__( 'One-click restores' ),
-						__( 'Unlimited secure storage' ),
-					] }
-				/>
-			</div>
+			<div className="jp-recommendations-summary__cta">{ cta }</div>
 		</div>
 	);
 };

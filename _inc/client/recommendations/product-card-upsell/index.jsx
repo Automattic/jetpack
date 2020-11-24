@@ -44,7 +44,7 @@ const ProductCardUpsell = props => {
 						{ __( 'billed yearly' ) }
 					</span>
 				</div>
-				<Button primary color="#069E08" href={ ctaHref }>
+				<Button primary href={ ctaHref }>
 					{ __( 'Learn more' ) }
 					<Gridicon icon="external" />
 				</Button>
