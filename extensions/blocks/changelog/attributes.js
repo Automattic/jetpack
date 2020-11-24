@@ -12,7 +12,7 @@ export default {
 		default: "00:00",
 	},
 	showTimeStamp: {
-		type: "boolen",
+		type: "boolean",
 		default: false,
 	},
 	content: {
