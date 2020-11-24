@@ -1,0 +1,67 @@
+
+
+.wp-block-jetpack-changelog {
+	display: flex;
+}
+
+.wp-block-jetpack-changelog__meta {
+	min-width: 90px;
+	margin-right: 10px;
+}
+
+
+.wp-block-jetpack-changelog__label-container {
+	text-align: right;
+	width: 100%;;
+}
+
+.wp-block-jetpack-changelog__timestamp {
+	font-size: 12px;
+	text-align: right;
+}
+
+.components-dropdown-menu__toggle.wp-block-jetpack-changelog__label,
+.wp-block-jetpack-changelog__label {
+	cursor: pointer;
+	border-radius: 2px;
+	white-space: nowrap;
+
+	&.is-new-label,
+	&.is-improved-label,
+	&.is-fixed-label,
+	&.is-custom-label {
+		cursor: pointer;
+		color: white;
+		text-transform: uppercase;
+		padding: 3px 6px;
+		height: auto;
+		font-size: 11px;
+		font-weight: 500;
+		line-height: 1.5;
+		letter-spacing: 0.02em;
+		display: inline-flex;
+		position: relative;
+		top: -4px;
+		span {
+			max-width: 78px;
+			text-overflow: ellipsis;
+			overflow: hidden;
+		}
+	}
+
+	&.is-new-label {
+		background-color: #13d66a;		
+	}
+
+	&.is-improved-label {
+		background-color: #0092f9;
+	}
+
+	&.is-fixed-label {
+		background-color: #ff832b;
+	}
+
+	&.is-custom-label {
+		background-color: #845fef;
+	}
+}
