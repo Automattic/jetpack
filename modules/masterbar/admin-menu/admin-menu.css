@@ -163,23 +163,12 @@
 	margin-right: 8px;
 }
 
-/* Folded State */
-/* .folded #adminmenu, .folded #adminmenu li.menu-top, .folded #adminmenuback, .folded #adminmenuwrap {
-	width: 44px;
-}
-
-.folded #adminmenu .opensub .wp-submenu, .folded #adminmenu .wp-has-current-submenu .wp-submenu.sub-open, .folded #adminmenu .wp-has-current-submenu a.menu-top:focus+.wp-submenu, .folded #adminmenu .wp-has-current-submenu.opensub .wp-submenu, .folded #adminmenu .wp-submenu.sub-open, .folded #adminmenu a.menu-top:focus+.wp-submenu, .no-js.folded #adminmenu .wp-has-submenu:hover .wp-submenu {
-	left: 44px;
-} */
-
+/**
+ * Folded State
+ */
 .folded #adminmenu a.menu-top {
 	height: 31px;
 }
-
-/* .folded #adminmenu div.wp-menu-image,
-.folded #collapse-button .collapse-button-icon {
-	margin-left: 3px;
-} */
 
 .folded #adminmenu li.toplevel_page_site-card a {
 	padding-left: 0;
