@@ -63,6 +63,7 @@ phpcs.xml
 /_inc/build
 /modules/**/*.min.css
 /modules/**/*-rtl.css
+/modules/masterbar/admin-color-schemes/**/*.css*
 /css
 /modules/**/*/block.js
 /vendor/automattic/
