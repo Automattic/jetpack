@@ -49,7 +49,7 @@ jobs:
         ./tests/e2e/bin/env.sh start
 
     - name: Run tests
-      run: CAPTURE_VIDEO=true yarn test-e2e
+      run: CAPTURE_VIDEO=false yarn test-e2e
 
     - name: Upload test artifacts
       if: ${{ always() }}
@@ -114,7 +114,7 @@ jobs:
         ./tests/e2e/bin/env.sh start
 
     - name: Run tests
-      run: CAPTURE_VIDEO=true yarn test-e2e --testPathIgnorePatterns=updater
+      run: CAPTURE_VIDEO=false yarn test-e2e --testPathIgnorePatterns=updater
 
     - name: Upload test artifacts
       if: ${{ always() }}
