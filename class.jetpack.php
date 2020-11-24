@@ -3252,7 +3252,17 @@ p {
 	 * Sets the display_update_modal state.
 	 */
 	public static function set_update_modal_display() {
-		self::state( 'display_update_modal', true );
+		/**
+		 * Displays or disables the Jetpack update modal.
+		 *
+		 * @since 9.3.0
+		 *
+		 * @param bool If true, the update modal will be displayed.
+		 */
+		$display_update_modal = apply_filters( 'jetpack_display_update_modal', '__return_true' );
+		if ( $display_update_modal ) {
+			self::state( 'display_update_modal', true );
+		}
 	}
 
 	/**
