@@ -7,7 +7,7 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
  * Internal dependencies
  */
 import Page from '../page';
-import { getAccountCredentials, isEventuallyVisible, waitForSelector } from '../../page-helper';
+import { getAccountCredentials, isEventuallyVisible } from '../../page-helper';
 import logger from '../../logger';
 
 export default class LoginPage extends Page {
@@ -37,7 +37,7 @@ export default class LoginPage extends Page {
 		await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
 
 		try {
-			await waitForSelector( this.page, this.expectedSelector, {
+			await this.page.waitForSelector( this.expectedSelector, {
 				state: 'hidden',
 				timeout: 30000 /* 30 seconds */,
 			} );

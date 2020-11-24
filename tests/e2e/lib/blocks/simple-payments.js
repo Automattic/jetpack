@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
 
 export default class SimplePaymentBlock {
 	constructor( blockId, page ) {
@@ -54,6 +53,6 @@ export default class SimplePaymentBlock {
 	static async isRendered( page ) {
 		const containerSelector = '.jetpack-simple-payments-product';
 
-		await waitForSelector( page, containerSelector );
+		await page.waitForSelector( containerSelector );
 	}
 }

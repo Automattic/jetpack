@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from './page';
-import { waitForSelector } from '../page-helper';
 
 export default class PostFrontendPage extends Page {
 	constructor( page ) {
@@ -24,7 +23,7 @@ export default class PostFrontendPage extends Page {
 	async logout() {
 		const accountBarSelector = '#wp-admin-bar-my-account';
 		const logoutOptionSelector = '#wp-admin-bar-logout';
-		await waitForSelector( this.page, accountBarSelector );
+		await this.page.waitForSelector( accountBarSelector );
 		await this.page.hover( accountBarSelector );
 		await page.click( logoutOptionSelector );
 	}

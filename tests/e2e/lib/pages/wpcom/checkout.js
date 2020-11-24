@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible, waitForSelector } from '../../page-helper';
+import { isEventuallyVisible } from '../../page-helper';
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {
@@ -55,15 +55,15 @@ export default class CheckoutPage extends Page {
 
 	async waitForPaymentProcessing() {
 		const progressBarSelector = '.checkout-submit-button .is-busy';
-		await waitForSelector( this.page, progressBarSelector );
-		await waitForSelector( this.page, progressBarSelector, {
+		await this.page.waitForSelector( progressBarSelector );
+		await this.page.waitForSelector( progressBarSelector, {
 			state: 'hidden',
 			timeout: 3 * 30000,
 		} );
 	}
 
 	async waitToDisappear() {
-		return await waitForSelector( this.page, this.expectedSelector, {
+		return await this.page.waitForSelector( this.expectedSelector, {
 			state: 'hidden',
 			timeout: 5 * 30000,
 		} );

@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
 import logger from '../logger';
 
 export default class Page {
@@ -49,7 +48,7 @@ export default class Page {
 	 * Waits for `this.expectedSelector` to become visible on the page. In debug session logs page HTML if element not found.
 	 */
 	async waitForPage() {
-		await waitForSelector( this.page, this.expectedSelector, {
+		await this.page.waitForSelector( this.expectedSelector, {
 			state: 'visible',
 			timeout: this.explicitWaitMS,
 		} );

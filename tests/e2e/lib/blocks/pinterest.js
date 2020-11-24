@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
 
 export default class PinterestBlock {
 	constructor( blockId, page, pinId ) {
@@ -28,7 +27,7 @@ export default class PinterestBlock {
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 		await this.page.type( inputSelector, this.embedUrl() );
 		await this.page.click( descriptionSelector );
-		await waitForSelector( this.page, '.wp-block-jetpack-pinterest .components-sandbox' );
+		await this.page.waitForSelector( '.wp-block-jetpack-pinterest .components-sandbox' );
 	}
 
 	getSelector( selector ) {
@@ -44,6 +43,6 @@ export default class PinterestBlock {
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content span[data-pin-id='${ args.pinId }']`;
 
-		await waitForSelector( page, containerSelector );
+		await page.waitForSelector( containerSelector );
 	}
 }

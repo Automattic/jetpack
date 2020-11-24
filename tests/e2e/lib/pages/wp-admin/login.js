@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector } from '../../page-helper';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters/screenshot';
 
@@ -26,7 +25,7 @@ export default class WPLoginPage extends Page {
 		await navigationPromise;
 
 		try {
-			await waitForSelector( this.page, this.expectedSelector, {
+			await this.page.waitForSelector( this.expectedSelector, {
 				state: 'hidden',
 			} );
 		} catch ( e ) {

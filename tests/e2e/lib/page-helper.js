@@ -12,40 +12,6 @@ import logger from './logger';
 import { execSyncShellCommand } from './utils-helper';
 
 /**
- * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec.
- * Behavior can be modified with @param options. Possible keys: `state`, `timeout`.
- * More details at: https://playwright.dev/#version=master&path=docs%2Fapi.md&q=pagewaitforselectorselector-options
- *
- * @param {page} page Playwright representation of the page.
- * @param {string} selector CSS selector of the element
- * @param {Object} options Custom options to modify function behavior.
- */
-export async function waitForSelector( page, selector, options = {} ) {
-	const startTime = new Date();
-	const { HEADLESS } = process.env;
-
-	// set up default options
-	const defaultOptions = { timeout: 30000, logHTML: false };
-	options = Object.assign( defaultOptions, options );
-
-	try {
-		const element = await page.waitForSelector( selector, options );
-		const secondsPassed = ( new Date() - startTime ) / 1000;
-		logger.info( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
-		return element;
-	} catch ( e ) {
-		if ( options.logHTML && HEADLESS !== 'false' ) {
-			await logHTML();
-		}
-		const secondsPassed = ( new Date() - startTime ) / 1000;
-		logger.info(
-			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec. URL: ${ page.url() }`
-		);
-		throw e;
-	}
-}
-
-/**
  * Waits for element to be visible, returns false if element was not found after timeout.
  *
  * @param {page} page Playwright representation of the page.
@@ -56,7 +22,7 @@ export async function waitForSelector( page, selector, options = {} ) {
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
 	const isVisible = await isEventuallyPresent( page, selector, {
-		visible: true,
+		state: 'visible',
 		timeout,
 	} );
 	if ( ! isVisible ) {
@@ -79,7 +45,7 @@ export async function isEventuallyPresent( page, selector, options = {} ) {
 	const defaultOptions = { timeout: 5000, logHTML: false };
 	options = Object.assign( defaultOptions, options );
 	try {
-		return !! ( await waitForSelector( page, selector, options ) );
+		return !! ( await page.waitForSelector( selector, options ) );
 	} catch ( e ) {
 		return false;
 	}
@@ -141,7 +107,7 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
  * @param {string} selector CSS selector of the element
  */
 export async function scrollIntoView( page, selector ) {
-	await waitForSelector( page, selector );
+	await page.waitForSelector( selector );
 	return await page.evaluate( s => document.querySelector( s ).scrollIntoView(), selector );
 }
 

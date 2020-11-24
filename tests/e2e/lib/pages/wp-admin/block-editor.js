@@ -6,7 +6,6 @@ import Page from '../page';
  * WordPress dependencies
  */
 import { searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitForSelector } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
@@ -55,11 +54,11 @@ export default class BlockEditorPage extends Page {
 		await page.waitForTimeout( 500 );
 
 		await page.click( '.editor-post-publish-button' );
-		return await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
+		return await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
 	}
 
 	async viewPost() {
-		await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
+		await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
 		await page.click( '.post-publish-panel__postpublish-buttons a' );
 	}
 

@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
@@ -102,9 +101,9 @@ export default class MailchimpBlock {
 		const submitSelector = containerSelector + " button[type='submit']";
 		const consentSelector = containerSelector + ' #wp-block-jetpack-mailchimp_consent-text';
 
-		await waitForSelector( page, containerSelector );
-		await waitForSelector( page, emailSelector );
-		await waitForSelector( page, submitSelector );
-		await waitForSelector( page, consentSelector );
+		await page.waitForSelector( containerSelector );
+		await page.waitForSelector( emailSelector );
+		await page.waitForSelector( submitSelector );
+		await page.waitForSelector( consentSelector );
 	}
 }
