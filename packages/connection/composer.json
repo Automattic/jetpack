@@ -14,7 +14,7 @@
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
 		"php-mock/php-mock": "^2.1",
-		"automattic/wordbless": "@dev"
+		"automattic/wordbless": "dev-add/users_support"
 	},
 	"autoload": {
 		"files": [
