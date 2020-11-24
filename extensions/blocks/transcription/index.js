@@ -37,6 +37,5 @@ export const settings = {
 	save,
 	providesContext: {
 		'changelog/labels': 'labels',
-		'changelog/showTimeStamp': 'showTimeStamp',
 	},
 };
