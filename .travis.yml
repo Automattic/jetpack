@@ -33,7 +33,6 @@ env:
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 jobs:
-  fast_finish: true
   exclude:
   - php: "7.0"
     if: branch != master
@@ -41,7 +40,7 @@ jobs:
     php: "7.2"
   - if: branch != master
     env: WP_BRANCH=latest
-
+  fast_finish: true
   include:
   - if: branch !~ /(^branch-.*-built)/
     name: "JavaScript & CSS lint"
