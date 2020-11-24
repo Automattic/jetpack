@@ -32,4 +32,7 @@ export const settings = {
 	edit,
 	save,
 	attributes,
+	usesContext: [
+		'changelog/labels',
+	],
 };

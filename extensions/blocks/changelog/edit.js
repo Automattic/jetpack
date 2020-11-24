@@ -10,6 +10,7 @@ import {
 	PanelBody,
 	ToggleControl,
 } from '@wordpress/components';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -43,6 +44,7 @@ export default function ChangelogEdit ( {
 	mergeBlocks,
 	onReplace,
 	instanceId,
+	context,
 } ) {
 	const {
 		label,
@@ -52,6 +54,28 @@ export default function ChangelogEdit ( {
 		content,
 		placeholder,
 	} = attributes;
+
+	// Block context integration.
+	const labelsFromContext = context[ 'changelog/labels' ];
+
+	// Follow lables changes when block context changes.
+	useEffect( () => {
+		if ( ! labelsFromContext ) {
+			return;
+		}
+
+		const labelBySlug = find( labelsFromContext, ( contextLabel ) => contextLabel.slug === labelSlug );
+		if ( ! labelBySlug ) {
+			return;
+		}
+
+		setAttributes( {
+			labelSlug: labelBySlug.slug,
+			label: labelBySlug.value,
+		} );
+	}, [ labelSlug, labelsFromContext, setAttributes ] );
+
+	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
 
 	return (
 		<div class={ className }>
@@ -83,7 +107,7 @@ export default function ChangelogEdit ( {
 				<LabelsDropdown
 					id={ `changelog-${ instanceId }-labels-selector` }
 					className={ className }
-					labels={ defaultLabels }
+					labels={ labels }
 					value={ label }
 					slug={ labelSlug }
 					onSelect={ ( { newLabel, newLabelSlug } ) => {

@@ -1,11 +1,9 @@
 export default {
 	label: {
 		type: "string",
-		default: "new",
 	},
 	labelSlug: {
 		type: "string",
-		default: "new",
 	},
 	timeStamp: {
 		type: "string",
