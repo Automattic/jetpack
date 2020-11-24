@@ -37,19 +37,19 @@ import TranscritptionContext from './components/context';
 
 const defaultLabels = [
 	{
-		slug: 'new',
+		slug: 'speaker-0',
 		value: __( 'Speaker one', 'jetpack' ),
 		textColor: '#fff',
 		bgColor: '#046',
 	},
 	{
-		slug: 'label-1',
+		slug: 'speaker-1',
 		value: __( 'Speaker two', 'jetpack' ),
 		textColor: '#fff',
 		bgColor: '#084',
 	},
 	{
-		slug: 'label-2',
+		slug: 'speaker-2',
 		value: __( 'Speaker tree', 'jetpack' ),
 		textColor: '#fff',
 		bgColor: '#804',
@@ -62,13 +62,6 @@ const TRANSCRIPTION_TEMPLATE = [
 	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
 	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
 	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
-];
-
-const TRANSCRIPTION_ALLOWED_BLOCKS = [
-	'core/paragraph',
-	'core/heading',
-	'jetpack/podcast-player',
-	'jetpack/changelog',
 ];
 
 export default function Transcription ( {
