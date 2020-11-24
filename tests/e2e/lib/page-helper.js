@@ -80,7 +80,7 @@ export async function waitAndType( page, selector, value, options = { visible: t
 		await page.focus( selector );
 		await pressKeyWithModifier( 'primary', 'a' );
 		// await el.click( { clickCount: 3 } );
-		await page.waitFor( 300 );
+		await page.waitForTimeout( 300 );
 		await el.type( value, options );
 		logger.info( `Typed into element with locator: ${ selector }.` );
 	} catch ( e ) {
