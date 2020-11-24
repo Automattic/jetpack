@@ -245,11 +245,9 @@ jasmine.getEnv().addReporter( {
 	},
 	suiteStarted( result ) {
 		logger.info( `STARTING SUITE: ${ result.fullName }, description: ${ result.description }` );
-		startVideoCapture( result.fullName );
 	},
 	suiteDone( result ) {
 		logger.info( `SUITE ENDED: ${ result.status }\n` );
-		stopVideoCapture();
 	},
 	specStarted( result ) {
 		logger.info( `STARTING SPEC: ${ result.fullName }, description: ${ result.description }` );
