@@ -6,7 +6,7 @@ import classNames from 'classnames';
 export default function save( { attributes } ) {
 	const { label, labelSlug, content, showTimeStamp, timeStamp } = attributes;
 
-	const className = 'wp-block-jetpack-changelog';
+	const className = 'wp-block-jetpack-dialogue';
 
 	const labelClasses = classNames(
 		`${ className }__label`,

@@ -16,11 +16,11 @@ import save from './save';
  */
 import './style.scss';
 
-export const name = 'changelog';
-export const title = __( 'Changelog block', 'jetpack' );
+export const name = 'dialogue';
+export const title = __( 'Dialogue block', 'jetpack' );
 export const settings = {
 	title,
-	description: __( 'Changelog', 'jetpack' ),
+	description: __( 'Dialogue', 'jetpack' ),
 	icon: {
 		src: 'list-view',
 		foreground: getIconColor(),
@@ -33,6 +33,6 @@ export const settings = {
 	save,
 	attributes,
 	usesContext: [
-		'changelog/labels',
+		'dialogue/speakers',
 	],
 };

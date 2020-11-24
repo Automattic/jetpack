@@ -1,27 +1,27 @@
 
 
-.wp-block-jetpack-changelog {
+.wp-block-jetpack-dialogue {
 	display: flex;
 }
 
-.wp-block-jetpack-changelog__meta {
+.wp-block-jetpack-dialogue__meta {
 	min-width: 90px;
 	margin-right: 10px;
 }
 
 
-.wp-block-jetpack-changelog__label-container {
+.wp-block-jetpack-dialogue__label-container {
 	text-align: right;
 	width: 100%;;
 }
 
-.wp-block-jetpack-changelog__timestamp {
+.wp-block-jetpack-dialogue__timestamp {
 	font-size: 12px;
 	text-align: right;
 }
 
-.components-dropdown-menu__toggle.wp-block-jetpack-changelog__label,
-.wp-block-jetpack-changelog__label {
+.components-dropdown-menu__toggle.wp-block-jetpack-dialogue__label,
+.wp-block-jetpack-dialogue__label {
 	cursor: pointer;
 	border-radius: 2px;
 	white-space: nowrap;

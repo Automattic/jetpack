@@ -59,9 +59,9 @@ const defaultLabels = [
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
 	[ 'jetpack/podcast-player' ],
-	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
-	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
-	[ 'jetpack/changelog', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/dialogue', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/dialogue', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/dialogue', { placeholder: __( 'logging…', 'Jetpack' ) } ],
 ];
 
 export default function Transcription ( {

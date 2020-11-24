@@ -19,25 +19,25 @@ import './editor.scss';
 import LabelsDropdown from './components/labels-dropdown';
 import TimeStampControl from './components/time-stamp-control';
 
-const blockName = 'jetpack/changelog';
+const blockName = 'jetpack/dialogue';
 const fallbackBlockName = 'core/paragraph';
 
 const defaultLabels = [
 	{
-		value: __( 'new', 'jetpack' ),
-		slug: 'new',
+		value: __( 'Speaker One', 'jetpack' ),
+		slug: 'speaker-0',
 	},
 	{
-		value: __( 'improved', 'jetpack' ),
-		slug: 'improved',
+		value: __( 'Speaker Two', 'jetpack' ),
+		slug: 'speaker-1',
 	},
 	{
-		value: __( 'fixed', 'jetpack' ),
-		slug: 'fixed',
+		value: __( 'Speaker Three', 'jetpack' ),
+		slug: 'speaker-1',
 	},
 ];
 
-export default function ChangelogEdit ( {
+export default function DialogueEdit ( {
 	className,
 	attributes,
 	setAttributes,
@@ -56,7 +56,7 @@ export default function ChangelogEdit ( {
 	} = attributes;
 
 	// Block context integration.
-	const labelsFromContext = context[ 'changelog/labels' ];
+	const labelsFromContext = context[ 'dialogue/labels' ];
 
 	// Follow lables changes when block context changes.
 	useEffect( () => {
@@ -105,7 +105,7 @@ export default function ChangelogEdit ( {
 
 			<div class={ `${ className }__meta` }>
 				<LabelsDropdown
-					id={ `changelog-${ instanceId }-labels-selector` }
+					id={ `dialogue-${ instanceId }-labels-selector` }
 					className={ className }
 					labels={ labels }
 					value={ label }
@@ -131,7 +131,7 @@ export default function ChangelogEdit ( {
 
 			<RichText
 				identifier="content"
-				wrapperClassName="wp-block-p2-changelog__content"
+				wrapperClassName="wp-block-p2-dialogue__content"
 				value={ content }
 				onChange={ ( value ) =>
 					setAttributes( { content: value } )

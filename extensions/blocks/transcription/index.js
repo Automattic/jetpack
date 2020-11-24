@@ -36,6 +36,6 @@ export const settings = {
 	edit,
 	save,
 	providesContext: {
-		'changelog/labels': 'labels',
+		'dialogue/labels': 'labels',
 	},
 };

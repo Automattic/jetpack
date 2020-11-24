@@ -1,18 +1,18 @@
 <?php
 /**
- * Changelog Block.
+ * Dialogue Block.
  *
  * @since 9.x
  *
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Changelog;
+namespace Automattic\Jetpack\Extensions\Dialogue;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'changelog';
+const FEATURE_NAME = 'dialogue';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
@@ -31,10 +31,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Changelog block registration/dependency declaration.
+ * Dialogue block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Changelog block attributes.
- * @param string $content String containing the Changelog block content.
+ * @param array  $attr    Array containing the Dialogue block attributes.
+ * @param string $content String containing the Dialogue block content.
  *
  * @return string
  */
