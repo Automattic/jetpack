@@ -35,11 +35,11 @@ env:
 jobs:
   fast_finish: true
   exclude:
-  - if: branch !~ /(^master)/
+  - if: branch != master
     php: "7.0"
-  - if: branch !~ /(^master)/
+  - if: branch != master
     php: "7.2"
-  - if: branch !~ /(^master)/
+  - if: branch != master
     env: WP_BRANCH=latest
 
   include:
