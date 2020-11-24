@@ -1,8 +1,8 @@
 export default {
-	label: {
+	speaker: {
 		type: "string",
 	},
-	labelSlug: {
+	speakerSlug: {
 		type: "string",
 	},
 	timeStamp: {

@@ -16,24 +16,24 @@ import { useEffect } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
-import LabelsDropdown from './components/labels-dropdown';
+import SpeakersDropdown from './components/speakers-dropdown';
 import TimeStampControl from './components/time-stamp-control';
 
 const blockName = 'jetpack/dialogue';
 const fallbackBlockName = 'core/paragraph';
 
-const defaultLabels = [
+const defaultSpeakers = [
 	{
-		value: __( 'Speaker One', 'jetpack' ),
-		slug: 'speaker-0',
+		speaker: __( 'Speaker One', 'jetpack' ),
+		speakerSlug: 'speaker-0',
 	},
 	{
-		value: __( 'Speaker Two', 'jetpack' ),
-		slug: 'speaker-1',
+		speaker: __( 'Speaker Two', 'jetpack' ),
+		speakerSlug: 'speaker-1',
 	},
 	{
-		value: __( 'Speaker Three', 'jetpack' ),
-		slug: 'speaker-1',
+		speaker: __( 'Speaker Three', 'jetpack' ),
+		speakerSlug: 'speaker-2',
 	},
 ];
 
@@ -47,8 +47,8 @@ export default function DialogueEdit ( {
 	context,
 } ) {
 	const {
-		label,
-		labelSlug,
+		speaker,
+		speakerSlug,
 		showTimeStamp,
 		timeStamp,
 		content,
@@ -56,26 +56,27 @@ export default function DialogueEdit ( {
 	} = attributes;
 
 	// Block context integration.
-	const labelsFromContext = context[ 'dialogue/labels' ];
+	const speakersFromContext = context[ 'dialogue/spakers' ];
 
 	// Follow lables changes when block context changes.
 	useEffect( () => {
-		if ( ! labelsFromContext ) {
+		if ( ! speakersFromContext ) {
 			return;
 		}
 
-		const labelBySlug = find( labelsFromContext, ( contextLabel ) => contextLabel.slug === labelSlug );
-		if ( ! labelBySlug ) {
+		const speakerBySlug = find( speakersFromContext, ( contextSpeaker ) => contextSpeaker.speakerSlug === speakerSlug );
+		if ( ! speakerBySlug ) {
 			return;
 		}
 
 		setAttributes( {
-			labelSlug: labelBySlug.slug,
-			label: labelBySlug.value,
+			speakerSlug: speakerBySlug.speakerSlug,
+			speaker: speakerBySlug.speaker,
 		} );
-	}, [ labelSlug, labelsFromContext, setAttributes ] );
+	}, [ speakerSlug, speakersFromContext, setAttributes ] );
 
-	const labels = labelsFromContext?.length ? labelsFromContext : defaultLabels;
+	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
+	console.log( 'speakers: ', speakers );
 
 	return (
 		<div class={ className }>
@@ -104,21 +105,21 @@ export default function DialogueEdit ( {
 			</InspectorControls>
 
 			<div class={ `${ className }__meta` }>
-				<LabelsDropdown
-					id={ `dialogue-${ instanceId }-labels-selector` }
+				<SpeakersDropdown
+					id={ `dialogue-${ instanceId }-speakers-selector` }
 					className={ className }
-					labels={ labels }
-					value={ label }
-					slug={ labelSlug }
-					onSelect={ ( { newLabel, newLabelSlug } ) => {
+					speakers={ speakers }
+					speaker={ speaker }
+					slug={ speakerSlug }
+					onSelect={ ( { newSpeaker, newLabelSlug } ) => {
 						setAttributes( {
-							labelSlug: newLabelSlug,
-							label: newLabel,
+							speakerSlug: newLabelSlug,
+							speaker: newSpeaker,
 						} );
 					 } }
-					onChange={ ( { newLabel, newLabelSlug } ) => setAttributes( {
-						labelSlug: newLabelSlug,
-						label: newLabel,
+					onChange={ ( { newSpeaker, newLabelSlug } ) => setAttributes( {
+						speakerSlug: newLabelSlug,
+						speaker: newSpeaker,
 					} ) }
 				/>
 

@@ -37,20 +37,20 @@ import TranscritptionContext from './components/context';
 
 const defaultLabels = [
 	{
-		slug: 'speaker-0',
-		value: __( 'Speaker one', 'jetpack' ),
+		speakerSlug: 'speaker-0',
+		speaker: __( 'Speaker one', 'jetpack' ),
 		textColor: '#fff',
 		bgColor: '#046',
 	},
 	{
-		slug: 'speaker-1',
-		value: __( 'Speaker two', 'jetpack' ),
+		speakerSlug: 'speaker-1',
+		speaker: __( 'Speaker two', 'jetpack' ),
 		textColor: '#fff',
 		bgColor: '#084',
 	},
 	{
-		slug: 'speaker-2',
-		value: __( 'Speaker tree', 'jetpack' ),
+		speakerSlug: 'speaker-2',
+		speaker: __( 'Speaker tree', 'jetpack' ),
 		textColor: '#fff',
 		bgColor: '#804',
 	},
@@ -69,19 +69,19 @@ export default function Transcription ( {
 	attributes,
 	setAttributes,
 } ) {
-	const { labels, showTimeStamp } = attributes;
+	const { speakers, showTimeStamp } = attributes;
 	const [ newLabelValue, setNewLabelValue ] = useState();
 
 	const containertRef = useRef();
 
-	// Set initial transcription labels.
+	// Set initial transcription speakers.
 	useEffect( () => {
-		if ( labels ) {
+		if ( speakers ) {
 			return;
 		}
 
-		setAttributes( { labels: defaultLabels } );
-	}, [ labels, setAttributes ] );
+		setAttributes( { speakers: defaultLabels } );
+	}, [ speakers, setAttributes ] );
 
 	function pickMediaData() {
 		if ( ! containertRef?.current ) {
@@ -104,31 +104,31 @@ export default function Transcription ( {
 		};
 	}
 
-	function updateLabels ( updatedLabel ) {
-		const newLabels = map( labels, ( label ) => {
-			if ( label.slug !== updatedLabel.slug ) {
-				return label;
+	function updateLabels ( updatedSpeaker ) {
+		const newLabels = map( speakers, ( speaker ) => {
+			if ( speaker.speakerSlug !== updatedSpeaker.speakerSlug ) {
+				return speaker;
 			}
 			return {
-				...label,
-				...updatedLabel,
+				...speaker,
+				...updatedSpeaker,
 			};
 		} );
 
-		setAttributes( { labels: newLabels } );
+		setAttributes( { speakers: newLabels } );
 	}
 
-	function deleteLabel( labelSlug ) {
-		setAttributes( { labels: filter( labels, ( { slug } ) => ( slug !== labelSlug ) ) } );
+	function deleteSpeaker( deletedSpeakerSlug ) {
+		setAttributes( { speakers: filter( speakers, ( { speakerSlug } ) => ( speakerSlug !== deletedSpeakerSlug ) ) } );
 	}
 
 	function addNewLabel () {
 		setAttributes( {
-			labels: [
-				...labels,
+			speakers: [
+				...speakers,
 				{
-					value: newLabelValue,
-					slug: `slug-${ labels?.length ? labels?.length : 0 }`,
+					speaker: newLabelValue,
+					speakerSlug: `speakerSlug-${ speakers?.length ? speakers?.length : 0 }`,
 				},
 			],
 		} );
@@ -144,18 +144,18 @@ export default function Transcription ( {
 			>
 				<InspectorControls>
 					<Panel>
-						<PanelBody title={ __( 'labels', 'jetpack' ) } className={ `${ className }__labels` }>
-							{ map( labels, ( { value, slug, textColor, bgColor } ) => (
-								<BaseControl className={ `${ className }__label-control` }>
-									<div className={ `${ className }__label` }>
+						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ className }__speakers` }>
+							{ map( speakers, ( { value, speakerSlug, textColor, bgColor } ) => (
+								<BaseControl className={ `${ className }__speaker-control` }>
+									<div className={ `${ className }__speaker` }>
 										<TextControl
 											value={ value }
-											onChange={ ( labelEditedValue ) => updateLabels( { slug, value: labelEditedValue } ) }
+											onChange={ ( speakerEditedValue ) => updateLabels( { speakerSlug, speaker: speakerEditedValue } ) }
 										/>
 
 										<Button
 											label={ __( 'Delete', 'jetpack' ) }
-											onClick={ () => deleteLabel( slug ) }
+											onClick={ () => deleteSpeaker( speakerSlug ) }
 											isSecondary
 											isSmall
 										>
@@ -167,13 +167,13 @@ export default function Transcription ( {
 										title={ __( 'Color Settings', 'jetpack' ) }
 										colorSettings={ [
 											{
-												value: textColor,
-												onChange: ( newTextColor ) => updateLabels( { slug, textColor: newTextColor } ),
+												speaker: textColor,
+												onChange: ( newTextColor ) => updateLabels( { speakerSlug, textColor: newTextColor } ),
 												label: __( 'Text Color', 'jetpack' ),
 											},
 											{
-												value: bgColor,
-												onChange: ( newBGColor ) => updateLabels( { slug, bgColor: newBGColor } ),
+												speaker: bgColor,
+												onChange: ( newBGColor ) => updateLabels( { speakerSlug, bgColor: newBGColor } ),
 												label: __( 'Background Color', 'jetpack' ),
 											},
 										] }
@@ -183,9 +183,9 @@ export default function Transcription ( {
 							) ) }
 
 							<BaseControl>
-								<div className={ `${ className }__label` }>
+								<div className={ `${ className }__speakerl` }>
 									<TextControl
-										label={ __( 'Add a new label', 'jetpack' ) }
+										label={ __( 'Add a new speaker', 'jetpack' ) }
 										value={ newLabelValue }
 										onChange={ setNewLabelValue }
 										onKeyDown={ ( { key } ) => {

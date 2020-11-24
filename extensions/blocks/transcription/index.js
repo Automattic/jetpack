@@ -36,6 +36,6 @@ export const settings = {
 	edit,
 	save,
 	providesContext: {
-		'dialogue/labels': 'labels',
+		'dialogue/speakers': 'spakers',
 	},
 };

@@ -4,23 +4,23 @@
 import classNames from 'classnames';
 
 export default function save( { attributes } ) {
-	const { label, labelSlug, content, showTimeStamp, timeStamp } = attributes;
+	const { speaker, speakerSlug, content, showTimeStamp, timeStamp } = attributes;
 
 	const className = 'wp-block-jetpack-dialogue';
 
-	const labelClasses = classNames(
-		`${ className }__label`,
+	const speakerClasses = classNames(
+		`${ className }__speaker`,
 		{
-			[ `is-${ labelSlug }-label` ]: !! labelSlug,
-			[ 'is-custom-label' ]: ! labelSlug,
+			[ `is-${ speakerSlug }-speaker` ]: !! speakerSlug,
+			[ 'is-custom-speaker' ]: ! speakerSlug,
 		}
 	);
 
 	return (
 		<div>
 			<div class={ `${ className }__meta` }>
-				<div class={ `${ className }__label-container` }>
-					<div className={ labelClasses }>{ label }</div>
+				<div class={ `${ className }__speaker-container` }>
+					<div className={ speakerClasses }>{ speaker }</div>
 					{ showTimeStamp && (
 						<div className={ `${ className }__timestamp` }>
 							{ timeStamp }

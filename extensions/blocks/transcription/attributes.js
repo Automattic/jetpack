@@ -1,5 +1,5 @@
 export default {
-	labels: {
+	speakers: {
 		type: "array",
 	},
 	showTimeStamp: {
