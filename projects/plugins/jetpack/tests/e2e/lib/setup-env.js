@@ -84,15 +84,17 @@ const captureVideo = process.env.CAPTURE_VIDEO === 'true';
 
 async function startVideoCapture( fileName ) {
 	if ( captureVideo ) {
-		video = await saveVideo(
-			page,
-			path.resolve( config.get( 'testOutputDir' ), `video/video_${ fileName }.mp4` )
-		);
+		const toFilename = s => s.replace( /[^a-z0-9.-]+/gi, '-' );
+		const videoName = toFilename( `${ new Date().toISOString() }-${ fileName }` );
+		const filePath = path.resolve( config.get( 'testOutputDir' ), `video/${ videoName }.mp4` );
+		logger.info( `Starting video capture: ${ filePath }` );
+		video = await saveVideo( page, filePath );
 	}
 }
 
 async function stopVideoCapture() {
 	if ( captureVideo ) {
+		logger.info( 'Stopping video capture' );
 		await video.stop();
 	}
 }
