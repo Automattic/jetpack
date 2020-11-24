@@ -44,9 +44,10 @@ export default class PluginsPage extends Page {
 		const updateCard = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"]';
 		const updateLink = 'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .update-link';
 		const isUpdatingMessage =
-			'tr.active#jetpack-update[data-plugin$="/jetpack.php"] .updating-message';
+			'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .updating-message';
 
-		const updatedMessage = 'tr.active#jetpack-update[data-plugin$="/jetpack.php"] .updated-message';
+		const updatedMessage =
+			'tr.active#jetpack-update[data-plugin="jetpack/jetpack.php"] .updated-message';
 		await waitForSelector( this.page, updateCard );
 		await page.click( updateLink );
 		await waitForSelector( this.page, isUpdatingMessage );
