@@ -1,4 +1,8 @@
 $base-color: #f2ceda;
 $text-color: #700f3b;
 
+// masterbar overrides
+$masterbar-background: $base-color;
+$masterbar-highlight-background: $base-color;
+
 @import "../admin";

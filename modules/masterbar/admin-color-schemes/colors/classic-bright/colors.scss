@@ -14,4 +14,8 @@ $menu-submenu-text: $menu-highlight-text;
 $menu-submenu-background: lighten( $menu-highlight-background, 7% );
 $menu-submenu-current-text: $highlight-color;
 
+// masterbar overrides
+$masterbar-background: $base-color;
+$masterbar-highlight-background: $base-color;
+
 @import "../admin";
