@@ -173,16 +173,16 @@ function render_video( $media ) {
 		// Use poster image for VideoPress videos.
 		$poster_url  = $metadata['videopress']['poster'];
 		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
-		$meta_width  = $metadata['videopress']['width'];
-		$meta_height = $metadata['videopress']['height'];
+		$meta_width  = ! empty( $metadata['videopress']['width'] ) ? $metadata['videopress']['width'] : '';
+		$meta_height = ! empty( $metadata['videopress']['height'] ) ? $metadata['videopress']['height'] : '';
 	} elseif ( ! empty( $metadata['thumb'] ) ) {
 		// On WordPress.com, VideoPress videos have a 'thumb' property with the
 		// poster image filename instead.
 		$video_url   = wp_get_attachment_url( $media['id'] );
 		$poster_url  = str_replace( wp_basename( $video_url ), $metadata['thumb'], $video_url );
 		$description = ! empty( $media['alt'] ) ? $media['alt'] : '';
-		$meta_width  = $metadata['width'];
-		$meta_height = $metadata['height'];
+		$meta_width  = ! empty( $metadata['width'] ) ? $metadata['width'] : '';
+		$meta_height = ! empty( $metadata['height'] ) ? $metadata['height'] : '';
 	}
 
 	if ( ! empty( $poster_url ) ) {
