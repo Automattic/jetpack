@@ -22,7 +22,7 @@ export const settings = {
 	title,
 	description: __( 'Changelog', 'jetpack' ),
 	icon: {
-		src: 'yes',
+		src: 'list-view',
 		foreground: getIconColor(),
 	},
 	category: 'layout',
