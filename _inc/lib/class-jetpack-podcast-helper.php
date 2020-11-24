@@ -16,7 +16,7 @@ class Jetpack_Podcast_Helper {
 	 * The result is cached for one hour.
 	 *
 	 * @param string $feed     The RSS feed to load and list tracks for.
-	 * @return array|WP_Error The player data or a error object.
+	 * @return array|WP_Error  The player data or a error object.
 	 */
 	public static function get_player_data( $feed ) {
 		$feed = esc_url_raw( $feed );
@@ -63,6 +63,47 @@ class Jetpack_Podcast_Helper {
 		}
 
 		return $player_data;
+	}
+
+	/**
+	 * Gets a specific track from the supplied feed URL.
+	 *
+	 * @param string $feed     The RSS feed to find the track in.
+	 * @param string $guid     The GUID of the track.
+	 * @return array|WP_Error  The track object or an error object.
+	 */
+	public static function get_track_data( $feed, $guid ) {
+		$feed = esc_url_raw( $feed );
+
+		// Try loading track data from the cache.
+		$transient_key = 'jetpack_podcast_' . md5( $feed ) . '_' . md5( $guid );
+		$track_data    = get_transient( $transient_key );
+
+		// Fetch data if we don't have any cached.
+		if ( false === $track_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			// Load feed.
+			$rss = self::load_feed( $feed );
+
+			if ( is_wp_error( $rss ) ) {
+				return $rss;
+			}
+
+			// Loop over all tracks to find the one.
+			foreach ( $rss->get_items() as $track ) {
+				if ( $guid === $track->get_id() ) {
+					$track_data = self::setup_tracks_callback( $track );
+				}
+			}
+
+			if ( false === $track_data ) {
+				return new WP_Error( 'no_track', __( 'The track was not found.', 'jetpack' ) );
+			}
+
+			// Cache for 1 hour.
+			set_transient( $transient_key, $track_data, HOUR_IN_SECONDS );
+		}
+
+		return $track_data;
 	}
 
 	/**
