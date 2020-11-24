@@ -71,6 +71,7 @@ module.exports = [
 	'modules/shortcodes/',
 	'modules/sitemaps/sitemaps.php',
 	'modules/theme-tools/compat/twentytwenty.php',
+	'modules/theme-tools/compat/twentytwentyone.php',
 	'modules/theme-tools/site-breadcrumbs.php',
 	'modules/theme-tools/social-menu/',
 	'modules/theme-tools/devicepx.php',
