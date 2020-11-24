@@ -52,7 +52,7 @@ export default function LabelsDropdown ( {
 		>
 			{ () => (
 				<Fragment>
-					<MenuGroup>
+					<MenuGroup className={ `${ className }__labels-selector` }>
 						{ map( labels, ( { value: newLabel, slug: newLabelSlug } ) => (
 							<MenuItem
 								key={ newLabelSlug }
