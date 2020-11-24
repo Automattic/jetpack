@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { FeatureSummary } from '../feature-summary';
+import { ProductCardUpsell } from '../product-card-upsell';
 import JetpackLogo from 'components/jetpack-logo';
 import {
 	getSiteTypeDisplayName,
@@ -55,7 +56,20 @@ const SummaryComponent = props => {
 					) ) }
 				</div>
 			</div>
-			<div className="jp-recommendations-summary__cta">CTA</div>
+			<div className="jp-recommendations-summary__cta">
+				<ProductCardUpsell
+					title={ __( 'Backup Daily' ) }
+					description={ __(
+						'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
+					) }
+					ctaHref={ 'https://cloud.jetpack.com/pricing' }
+					features={ [
+						__( 'Automated daily off-site backups' ),
+						__( 'One-click restores' ),
+						__( 'Unlimited secure storage' ),
+					] }
+				/>
+			</div>
 		</div>
 	);
 };
