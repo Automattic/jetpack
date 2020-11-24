@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  */
 import { FeatureSummary } from '../feature-summary';
 import { OneClickRestores } from '../sidebar/one-click-restores';
+import { Security } from '../sidebar/security';
 import { ProductCardUpsell } from '../product-card-upsell';
 import JetpackLogo from 'components/jetpack-logo';
 import {
@@ -46,6 +47,7 @@ const SummaryComponent = props => {
 	);
 
 	cta = <OneClickRestores />;
+	cta = <Security />;
 
 	return (
 		<div className="jp-recommendations-summary">

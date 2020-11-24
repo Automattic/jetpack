@@ -17,7 +17,7 @@ import { imagePath } from 'constants/urls';
  */
 import './style.scss';
 
-const OneClickRestores = props => {
+const OneClickRestores = () => {
 	// TODO: realtime/daily backups text
 	// TODO: button href
 	return (
