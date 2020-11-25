@@ -37,5 +37,6 @@ export const settings = {
 	save,
 	providesContext: {
 		'dialogue/speakers': 'speakers',
+		'dialogue/showTimeStamp': 'showTimeStamp',
 	},
 };

@@ -38,33 +38,36 @@ import TranscritptionContext from './components/context';
 const defaultLabels = [
 	{
 		speakerSlug: 'speaker-0',
-		speaker: __( 'Speaker one', 'jetpack' ),
-		textColor: '#fff',
-		bgColor: '#046',
+		speaker: __( 'First', 'jetpack' ),
+		color: '#fff',
+		backgroundColor: '#046',
+		placeholder: __( 'First speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-1',
-		speaker: __( 'Speaker two', 'jetpack' ),
-		textColor: '#fff',
-		bgColor: '#084',
+		speaker: __( 'Second', 'jetpack' ),
+		color: '#fff',
+		backgroundColor: '#084',
+		placeholder: __( 'Second speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-2',
-		speaker: __( 'Speaker tree', 'jetpack' ),
-		textColor: '#fff',
-		bgColor: '#804',
+		speaker: __( 'Third', 'jetpack' ),
+		color: '#fff',
+		backgroundColor: '#804',
+		placeholder: __( 'Third speaker says…', 'Jetpack' ),
 	},
 ];
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
 	[ 'jetpack/podcast-player' ],
-	[ 'jetpack/dialogue', { placeholder: __( 'logging…', 'Jetpack' ) } ],
-	[ 'jetpack/dialogue', { placeholder: __( 'logging…', 'Jetpack' ) } ],
-	[ 'jetpack/dialogue', { placeholder: __( 'logging…', 'Jetpack' ) } ],
+	[ 'jetpack/dialogue', defaultLabels[ 0 ] ],
+	[ 'jetpack/dialogue', defaultLabels[ 1 ] ],
+	[ 'core/paragraph', defaultLabels[ 2 ] ],
 ];
 
-export default function Transcription ( {
+function TranscriptionEdit ( {
 	className,
 	attributes,
 	setAttributes,
@@ -145,12 +148,16 @@ export default function Transcription ( {
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ className }__speakers` }>
-							{ map( speakers, ( { speaker, speakerSlug, textColor, bgColor } ) => (
+							{ map( speakers, ( { speaker, speakerSlug, color, backgroundColor } ) => (
 								<BaseControl className={ `${ className }__speaker-control` }>
 									<div className={ `${ className }__speaker` }>
 										<TextControl
 											value={ speaker }
-											onChange={ ( speakerEditedValue ) => updateLabels( { speakerSlug, speaker: speakerEditedValue } ) }
+											onChange={ ( speakerEditedValue ) => updateLabels( {
+												speakerSlug,
+												speaker: speakerEditedValue,
+												placeholder:  `${ speaker } says…`,
+											} ) }
 										/>
 
 										<Button
@@ -167,13 +174,15 @@ export default function Transcription ( {
 										title={ __( 'Color Settings', 'jetpack' ) }
 										colorSettings={ [
 											{
-												speaker: textColor,
-												onChange: ( newTextColor ) => updateLabels( { speakerSlug, textColor: newTextColor } ),
+												value: color,
+												onChange: ( newTextColor ) => {
+													updateLabels( { speakerSlug, color: newTextColor } );
+												},
 												label: __( 'Text Color', 'jetpack' ),
 											},
 											{
-												speaker: bgColor,
-												onChange: ( newBGColor ) => updateLabels( { speakerSlug, bgColor: newBGColor } ),
+												value: backgroundColor,
+												onChange: ( newBGColor ) => updateLabels( { speakerSlug, backgroundColor: newBGColor } ),
 												label: __( 'Background Color', 'jetpack' ),
 											},
 										] }
@@ -183,7 +192,7 @@ export default function Transcription ( {
 							) ) }
 
 							<BaseControl>
-								<div className={ `${ className }__speakerl` }>
+								<div className={ `${ className }__speaker` }>
 									<TextControl
 										label={ __( 'Add a new speaker', 'jetpack' ) }
 										value={ newLabelValue }
@@ -210,9 +219,9 @@ export default function Transcription ( {
 							</BaseControl>
 						</PanelBody>
 
-						<PanelBody title={ __( 'Time stamps', 'jetpack' ) } className={ `${ className }__timestamps` }>
+						<PanelBody title={ __( 'Timestamps', 'jetpack' ) } className={ `${ className }__timestamps` }>
 							<ToggleControl
-								label={ __( 'Show time stamps', 'jetpack' ) }
+								label={ __( 'Show dialogue timestamps', 'jetpack' ) }
 								checked={ showTimeStamp }
 								onChange={ ( value ) => setAttributes( { showTimeStamp: value } ) }
 							/>
@@ -227,3 +236,5 @@ export default function Transcription ( {
 		</TranscritptionContext.Provider>
 	);
 }
+
+export default TranscriptionEdit;
