@@ -11,11 +11,11 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import save from './save';
-import icon from '../icon';
+import icon from './_inc/icon';
 import {
     blockContainsPremiumBlock,
     blockHasParentPremiumBlock,
-} from '../../_inc/premium';
+} from './_inc/premium';
 
 export const name = 'premium-content/container';
 export const settings = {

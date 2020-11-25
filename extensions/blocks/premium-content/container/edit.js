@@ -14,11 +14,11 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import Blocks from './blocks';
-import Controls from './controls';
-import Inspector from './inspector';
-import Context from './context';
-import { flashIcon } from './icons';
+import Blocks from './_inc/blocks';
+import Controls from './_inc/controls';
+import Inspector from './_inc/inspector';
+import Context from './_inc/context';
+import { flashIcon } from './_inc/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '.';
 
 /**
