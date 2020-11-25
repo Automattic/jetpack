@@ -108,9 +108,9 @@ class Admin_Color_Schemes {
 			'contrast',
 			__( 'Contrast', 'jetpack' ),
 			plugins_url( 'colors/contrast/colors.css', __FILE__ ),
-			array( '#101517', '#ffffff', '#1d2327', '#646970' ),
+			array( '#101517', '#ffffff', '#32373c', '#b4b9be' ),
 			array(
-				'base'    => '#646970',
+				'base'    => '#1d2327',
 				'focus'   => '#fff',
 				'current' => '#fff',
 			)
