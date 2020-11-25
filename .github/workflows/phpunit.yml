@@ -4,7 +4,7 @@ on: pull_request
 
 jobs:
   phpunit:
-    name: dev branch for PHP 8.0
+    name: "PHP: ${{ matrix.php }} WP: ${{ matrix.wp }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
