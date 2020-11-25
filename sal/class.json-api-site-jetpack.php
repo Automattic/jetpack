@@ -321,7 +321,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return string
 	 */
-	protected function get_anchor_podcast() {
+	public function get_anchor_podcast() {
 		return $this->get_atomic_cloud_site_option( 'anchor_podcast' );
 	}
 

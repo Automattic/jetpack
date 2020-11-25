@@ -695,7 +695,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 */
-	protected function get_anchor_podcast() {
+	public function get_anchor_podcast() {
 		return get_option( 'anchor_podcast' );
 	}
 }
