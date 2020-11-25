@@ -22,7 +22,7 @@ export const settings = {
 	title,
 	description: __( 'Dialogue', 'jetpack' ),
 	icon: {
-		src: 'list-view',
+		src: 'admin-comments',
 		foreground: getIconColor(),
 	},
 	category: 'layout',

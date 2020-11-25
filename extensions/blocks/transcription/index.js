@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import { postComments } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -22,7 +23,7 @@ export const settings = {
 	title,
 	description: __( 'Transcription', 'jetpack' ),
 	icon: {
-		src: 'text',
+		src: postComments,
 		foreground: getIconColor(),
 	},
 	category: 'layout',

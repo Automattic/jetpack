@@ -141,10 +141,7 @@ function TranscriptionEdit ( {
 
 	return (
 		<TranscritptionContext.Provider value={ useMemo( () => pickMediaData, [] ) }>
-			<div
-				ref={ containertRef }
-				class={ className }
-			>
+			<div ref={ containertRef } class={ className }>
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ className }__speakers` }>
