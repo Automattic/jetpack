@@ -78,7 +78,11 @@ export default function DialogueEdit ( {
 			return;
 		}
 
-		setAttributes( speakerBySlugObject );
+		setAttributes( {
+			color: null,
+			backgroundColor: null,
+			...speakerBySlugObject,
+		} );
 	}, [ speakerSlug, speakersFromContext, setAttributes ] );
 
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
