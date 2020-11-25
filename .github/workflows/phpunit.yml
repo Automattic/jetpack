@@ -41,9 +41,7 @@ jobs:
           coverage: none
 
       - name: Ubuntu MySQL (SUDO)
-        run: |
-          sudo service mysql status
-          sudo service mysql start
+        run: sudo systemctl start mysql.service
 
       - name: Get Composer cache directory
         id: composer-cache
