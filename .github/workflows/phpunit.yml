@@ -2,6 +2,10 @@ name: PHPUnit tests
 
 on: pull_request
 
+env:
+  WP_TRAVISCI: "phpunit"
+  COMPOSER_ROOT_VERSION: "dev-master"
+
 jobs:
   phpunit:
     name: "PHP: ${{ matrix.php }} WP: ${{ matrix.wp }}"
@@ -33,6 +37,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          tools: composer, phpunit
+          coverage: none
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -54,7 +60,6 @@ jobs:
       - name: Run tests
         env:
           WP_BRANCH: ${{ matrix.wp }}
-          WP_TRAVISCI: "phpunit"
         run: |
           export PLUGIN_SLUG=$(basename $(pwd))
           export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
