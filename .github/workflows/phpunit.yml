@@ -39,7 +39,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           tools: composer, phpunit:v7
-          extensions: mysql
+          extensions: mysql, imagick
 
           coverage: none
 
