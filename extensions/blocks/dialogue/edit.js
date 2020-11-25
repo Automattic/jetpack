@@ -85,9 +85,9 @@ export default function DialogueEdit ( {
 		<div class={ className }>
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
-							label={ __( 'Show time stamp', 'jetpack' ) }
+							label={ __( 'Show', 'jetpack' ) }
 							checked={ showTimeStamp }
 							onChange={
 								( show ) => setAttributes( { showTimeStamp: show } )
