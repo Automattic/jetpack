@@ -66,6 +66,7 @@ const separate_list = [
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
 	'modules/theme-tools/compat/twentynineteen.css',
 	'modules/theme-tools/compat/twentytwenty.css',
+	'modules/theme-tools/compat/twentytwentyone.css',
 ];
 
 const cwd = process.cwd() + '/';
