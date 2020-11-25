@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -17,7 +18,7 @@ import save from './save';
 import './style.scss';
 
 export const name = 'dialogue';
-export const title = __( 'Dialogue block', 'jetpack' );
+export const title = __( 'Dialogue', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Dialogue', 'jetpack' ),
@@ -36,9 +37,23 @@ export const settings = {
 		'dialogue/speakers',
 		'dialogue/showTimeStamp',
 	],
-
 	styles: [
 		{ name: 'row', label: __( 'Row', 'jetpack' ), isDefault: true },
 		{ name: 'column', label: __( 'Column', 'jetpack' ) },
 	],
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/paragraph' ],
+				transform: ( { content } ) => {
+					const innerBlock =  createBlock( 'core/paragraph', {
+						content,
+					} );
+
+					return createBlock( 'jetpack/dialogue', {}, [ innerBlock ] );
+				},
+			},
+		],
+	},
 };
