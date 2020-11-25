@@ -1,3 +1,7 @@
+/**
+ * External dependencies
+ */
+import { find } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -56,7 +60,7 @@ export default function DialogueEdit ( {
 	} = attributes;
 
 	// Block context integration.
-	const speakersFromContext = context[ 'dialogue/spakers' ];
+	const speakersFromContext = context[ 'dialogue/speakers' ];
 
 	// Follow lables changes when block context changes.
 	useEffect( () => {
@@ -76,7 +80,6 @@ export default function DialogueEdit ( {
 	}, [ speakerSlug, speakersFromContext, setAttributes ] );
 
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
-	console.log( 'speakers: ', speakers );
 
 	return (
 		<div class={ className }>
@@ -111,14 +114,14 @@ export default function DialogueEdit ( {
 					speakers={ speakers }
 					speaker={ speaker }
 					slug={ speakerSlug }
-					onSelect={ ( { newSpeaker, newLabelSlug } ) => {
+					onSelect={ ( { newSpeaker, newSpeakerSlug } ) => {
 						setAttributes( {
-							speakerSlug: newLabelSlug,
+							speakerSlug: newSpeakerSlug,
 							speaker: newSpeaker,
 						} );
 					 } }
-					onChange={ ( { newSpeaker, newLabelSlug } ) => setAttributes( {
-						speakerSlug: newLabelSlug,
+					onChange={ ( { newSpeaker, newSpeakerSlug } ) => setAttributes( {
+						speakerSlug: newSpeakerSlug,
 						speaker: newSpeaker,
 					} ) }
 				/>

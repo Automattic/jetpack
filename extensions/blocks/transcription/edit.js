@@ -145,11 +145,11 @@ export default function Transcription ( {
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ className }__speakers` }>
-							{ map( speakers, ( { value, speakerSlug, textColor, bgColor } ) => (
+							{ map( speakers, ( { speaker, speakerSlug, textColor, bgColor } ) => (
 								<BaseControl className={ `${ className }__speaker-control` }>
 									<div className={ `${ className }__speaker` }>
 										<TextControl
-											value={ value }
+											value={ speaker }
 											onChange={ ( speakerEditedValue ) => updateLabels( { speakerSlug, speaker: speakerEditedValue } ) }
 										/>
 
@@ -219,6 +219,7 @@ export default function Transcription ( {
 						</PanelBody>
 					</Panel>
 				</InspectorControls>
+
 				<InnerBlocks
 					template={ TRANSCRIPTION_TEMPLATE }
 				/>
