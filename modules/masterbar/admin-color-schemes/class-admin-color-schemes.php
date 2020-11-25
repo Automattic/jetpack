@@ -120,9 +120,9 @@ class Admin_Color_Schemes {
 			'nightfall',
 			__( 'Nightfall', 'jetpack' ),
 			plugins_url( 'colors/nightfall/colors.css', __FILE__ ),
-			array( '#00131c', '#043959', '#ffffff', '#646970' ),
+			array( '#00131c', '#043959', '#2271b1', '#9ec2e6' ),
 			array(
-				'base'    => '#646970',
+				'base'    => '#9ec2e6',
 				'focus'   => '#fff',
 				'current' => '#fff',
 			)
