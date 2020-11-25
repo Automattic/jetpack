@@ -63,6 +63,8 @@ jobs:
       - name: Run tests
         env:
           WP_BRANCH: ${{ matrix.wp }}
+          TRAVIS_PHP_VERSION: ${{ matrix.php }}
+          MYSQL_PASSWORD: root
         run: |
           export PLUGIN_SLUG=$(basename $(pwd))
           export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"

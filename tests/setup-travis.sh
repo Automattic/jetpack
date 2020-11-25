@@ -24,10 +24,10 @@ elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
 fi
 
-mysql -e "set global wait_timeout = 3600;"
+mysql --password=root -e "set global wait_timeout = 3600;"
 
 # Prepare a developer checkout of WordPress
-mysql -u root -e "CREATE DATABASE wordpress_tests;"
+mysql -u root --password=root -e "CREATE DATABASE wordpress_tests;"
 
 echo "Preparing WordPress from \"$WP_BRANCH\" branch...";
 case $WP_BRANCH in
