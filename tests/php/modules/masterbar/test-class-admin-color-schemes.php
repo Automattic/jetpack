@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes;
 
 require_jetpack_file( 'tests/php/lib/class-wp-test-jetpack-rest-testcase.php' );
-require_jetpack_file( 'tests/php/lib/class-wp-test-spy-rest-server.php' );
 require_jetpack_file( 'modules/masterbar/admin-color-schemes/class-admin-color-schemes.php' );
 
 /**
@@ -32,25 +31,15 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$user_id = $factory->user->create( array( 'role' => 'editor' ) );
-	}
 
-	/**
-	 * Setup the environment for a test.
-	 */
-	public function setUp() {
 		new Admin_Color_Schemes();
-		wp_set_current_user( static::$user_id );
-
-		parent::setUp();
 	}
 
 	/**
 	 * Tests the schema response for OPTIONS requests.
 	 */
 	public function test_schema_request() {
-		wp_set_current_user( 0 );
-
-		$request  = new WP_REST_Request( Requests::OPTIONS, '/wp/v2/users/' . static::$user_id );
+		$request  = wp_rest_request( Requests::OPTIONS, '/wp/v2/users/' . static::$user_id );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -67,7 +56,9 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 * @covers ::register_admin_color_meta
 	 */
 	public function test_get_color_scheme() {
-		$request  = new WP_REST_Request( Requests::GET, '/wp/v2/users/' . static::$user_id );
+		wp_set_current_user( static::$user_id );
+
+		$request  = wp_rest_request( Requests::GET, '/wp/v2/users/' . static::$user_id );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -82,8 +73,10 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 * @covers ::register_admin_color_meta
 	 */
 	public function test_update_color_scheme() {
+		wp_set_current_user( static::$user_id );
+
 		// Editor can update their own meta value.
-		$request = new WP_REST_Request( Requests::PUT, '/wp/v2/users/' . static::$user_id );
+		$request = wp_rest_request( Requests::PUT, '/wp/v2/users/' . static::$user_id );
 		$request->set_body_params(
 			array(
 				'meta' => array(
@@ -99,7 +92,7 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 		$this->assertSame( 'classic', $data['meta']['admin_color'] );
 
 		// Editor can't update someone else's meta value.
-		$request = new WP_REST_Request( Requests::PUT, '/wp/v2/users/1' );
+		$request = wp_rest_request( Requests::PUT, '/wp/v2/users/1' );
 		$request->set_body_params(
 			array(
 				'meta' => array(
