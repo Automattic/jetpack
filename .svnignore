@@ -13,6 +13,7 @@ readme.md
 babel.config*
 phpunit.xml.dist
 dangerfile.js
+bin/class-jetpack-phpcs-exclude-filter.php
 bin/compose-volumes.sh
 bin/parallel-lint.sh
 bin/phpcs-excludelist.txt
