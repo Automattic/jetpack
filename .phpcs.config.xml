@@ -12,6 +12,9 @@
 
 	<arg name="colors"/>
 
+	<!-- Ignore git, in case someone created a branch ending in ".php" or something -->
+	<exclude-pattern>/.git/*</exclude-pattern>
+
 	<!-- Ignore external libraries -->
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/vendor/*</exclude-pattern>
