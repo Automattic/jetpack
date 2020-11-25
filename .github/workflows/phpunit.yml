@@ -37,8 +37,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          tools: composer, phpunit
+          tools: composer, phpunit:v7
           coverage: none
+
+      - uses: mirromutth/mysql-action@v1.1
 
       - name: Get Composer cache directory
         id: composer-cache
