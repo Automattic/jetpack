@@ -23,8 +23,8 @@ jobs:
         include:
          - php: "7.0"
            wp: "latest"
-           env:
-            LEGACY_FULL_SYNC: 1
+           name: "Just testing"
+           legacy-sync: 1
 
 
   # - php: "7.0"
@@ -80,6 +80,7 @@ jobs:
         env:
           WP_BRANCH: ${{ matrix.wp }}
           TRAVIS_PHP_VERSION: ${{ matrix.php }}
+          LEGACY_FULL_SYNC: ${{ matrix.legacy-sync }}
         run: |
           sudo systemctl start mysql.service
           export PLUGIN_SLUG=$(basename $(pwd))
