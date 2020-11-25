@@ -1254,8 +1254,6 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$response = rest_get_server()->dispatch( $request );
 		$data     = $response->get_data();
 
-		error_log( print_r( $data, 1) );
-
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
 		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
