@@ -254,6 +254,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Contact Form Block: display fallback link when the block is rendered in non-WordPress contexts, such as subscription emails.
 * Contact Form Block: display the correct default email address and subject in the form block settings.
 * Dashboard: clarify language around support options.
+* Dashboard: replace /plans and /plans-prompt routes with a redirect to cloud.jetpack.com/pricing.
 * Instagram Embeds: add support for embed parameters supported by Instagram.
 * Payments Block: move unreadable notice to the sidebar.
 * Pinterest Block: ensure that Pinterest embeds are displayed nicely in non-WordPress contexts, such as subscription emails.
