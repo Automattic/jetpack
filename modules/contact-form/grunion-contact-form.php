@@ -741,33 +741,18 @@ class Grunion_Contact_Form_Plugin {
 	 * @return bool Returns true if the form submission matches the disallowed list and false if it doesn't.
 	 */
 	public function is_in_disallowed_list( $in_disallowed_list, $form = array() ) {
-		global $wp_version;
-
 		if ( $in_disallowed_list ) {
 			return $in_disallowed_list;
 		}
 
-		/*
-		 * wp_blacklist_check was deprecated in WP 5.5.
-		 * @todo: remove when WordPress 5.5 is the minimum required version.
-		 */
-		if ( version_compare( $wp_version, '5.5-alpha', '>=' ) ) {
-			$check_comment_disallowed_list = 'wp_check_comment_disallowed_list';
-		} else {
-			$check_comment_disallowed_list = 'wp_blacklist_check';
-		}
-
 		if (
-			call_user_func_array(
-				$check_comment_disallowed_list,
-				array(
-					$form['comment_author'],
-					$form['comment_author_email'],
-					$form['comment_author_url'],
-					$form['comment_content'],
-					$form['user_ip'],
-					$form['user_agent'],
-				)
+			wp_check_comment_disallowed_list(
+				$form['comment_author'],
+				$form['comment_author_email'],
+				$form['comment_author_url'],
+				$form['comment_content'],
+				$form['user_ip'],
+				$form['user_agent']
 			)
 		) {
 			return true;

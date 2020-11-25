@@ -28,4 +28,5 @@ Fixes #
 
 #### Proposed changelog entry for your changes:
 <!-- Please do not leave this empty. If no changelog entry needed, state as such. -->
+<!-- Guidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md -->
 *

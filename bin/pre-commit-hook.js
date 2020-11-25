@@ -321,6 +321,8 @@ if ( phpLintResult && phpLintResult.status ) {
 if ( phpcsFiles.length > 0 ) {
 	runPHPCbf();
 	runPHPCS();
+}
+if ( phpFiles.length > 0 ) {
 	runPHPCSChanged( phpFiles );
 }
 

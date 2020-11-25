@@ -53,6 +53,9 @@ if [[ ! -f "$CURRENT_DIR/composer.json" ]]; then
     exit 1;
 fi
 
+# Remove the local repo from composer.json.
+composer config --unset repositories.0
+
 # Get the list of package names to update.
 # Works in accordance of `composer show`, and will only act on packages prefixed with `automattic/jetpack-`.
 # Using --self because it is agnostic to whether /vendor is populated.

@@ -599,31 +599,21 @@ class Functions {
 	/**
 	 * Return list of paused themes.
 	 *
-	 * @todo Remove function_exists check when WP 5.2 is the minimum.
-	 *
 	 * @return array|bool Array of paused themes or false if unsupported.
 	 */
 	public static function get_paused_themes() {
-		if ( function_exists( 'wp_paused_themes' ) ) {
-			$paused_themes = wp_paused_themes();
-			return $paused_themes->get_all();
-		}
-		return false;
+		$paused_themes = wp_paused_themes();
+		return $paused_themes->get_all();
 	}
 
 	/**
 	 * Return list of paused plugins.
 	 *
-	 * @todo Remove function_exists check when WP 5.2 is the minimum.
-	 *
 	 * @return array|bool Array of paused plugins or false if unsupported.
 	 */
 	public static function get_paused_plugins() {
-		if ( function_exists( 'wp_paused_plugins' ) ) {
-			$paused_plugins = wp_paused_plugins();
-			return $paused_plugins->get_all();
-		}
-		return false;
+		$paused_plugins = wp_paused_plugins();
+		return $paused_plugins->get_all();
 	}
 
 	/**

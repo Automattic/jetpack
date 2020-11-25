@@ -39,8 +39,6 @@ import { getSearchTerm } from 'state/search';
 import { SetupWizard } from 'setup-wizard';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
-import Plans from 'plans/index.jsx';
-import PlansPrompt from 'plans-prompt/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import AppsCard from 'components/apps-card';
@@ -49,6 +47,7 @@ import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
@@ -220,17 +219,10 @@ class Main extends React.Component {
 				);
 				break;
 			case '/plans':
-				pageComponent = (
-					<Plans
-						siteRawUrl={ this.props.siteRawUrl }
-						siteAdminUrl={ this.props.siteAdminUrl }
-						rewindStatus={ this.props.rewindStatus }
-					/>
-				);
+				window.location.href = getRedirectUrl( 'jetpack-plans', { site: this.props.siteRawUrl } );
 				break;
 			case '/plans-prompt':
-				navComponent = null;
-				pageComponent = <PlansPrompt siteAdminUrl={ this.props.siteAdminUrl } />;
+				window.location.href = getRedirectUrl( 'jetpack-plans', { site: this.props.siteRawUrl } );
 				break;
 			case '/settings':
 			case '/security':

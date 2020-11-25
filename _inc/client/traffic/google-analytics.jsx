@@ -2,7 +2,11 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -41,7 +45,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							link: getRedirectUrl( 'jetpack-support-google-analytics' ),
 						} }
 					>
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							__(
 								'Google Analytics is a free service that complements our <a>built-in stats</a> with different insights into your traffic. WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will normally show slightly different totals for your visits, views, etc.',
 								'jetpack'

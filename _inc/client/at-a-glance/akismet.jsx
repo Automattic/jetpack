@@ -9,6 +9,7 @@ import { get } from 'lodash';
 /**
  * WordPress dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -25,7 +26,6 @@ import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { isOfflineMode } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat } from 'components/number-format';
 import restApi from 'rest-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
@@ -95,7 +95,7 @@ class DashAkismet extends Component {
 		};
 
 		const getAkismetUpgradeBanner = () => {
-			const description = jetpackCreateInterpolateElement(
+			const description = createInterpolateElement(
 				__( 'Already have a key? <a>Activate Akismet</a>', 'jetpack' ),
 				{
 					a: <a href="javascript:void(0)" onClick={ this.onActivateClick } />,

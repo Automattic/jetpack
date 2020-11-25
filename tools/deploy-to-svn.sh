@@ -84,8 +84,13 @@ done
 echo "Done!"
 
 echo "Remove empty directories"
-for empty_dir in $( find $JETPACK_SVN_DIR/trunk/* -type d -empty); do
-	rm -rf $empty_dir
+ANY=1
+while [[ -n "$ANY" ]]; do
+	ANY=
+	for empty_dir in $( find $JETPACK_SVN_DIR/trunk/* -type d -empty ); do
+		rm -rf $empty_dir
+		ANY=1
+	done
 done
 echo "Done!"
 
