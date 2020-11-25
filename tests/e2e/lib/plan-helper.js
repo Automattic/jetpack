@@ -503,5 +503,5 @@ export async function syncPlanData( page ) {
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
 
-	await page.waitFor( 1000 );
+	await page.waitForTimeout( 1000 );
 }

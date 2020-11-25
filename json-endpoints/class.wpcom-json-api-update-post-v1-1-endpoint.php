@@ -329,6 +329,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			if ( $reset_draft_date || $reset_scheduled_date ) {
 				$input['date_gmt'] = gmdate( 'Y-m-d H:i:s' );
 			}
+
+			// Untrash a post so that the proper hooks get called as well as the comments get untrashed.
+			if ( $this->should_untrash_post( $last_status, $new_status, $post ) ) {
+				$input = $this->untrash_post( $post, $input );
+			}
 		}
 
 		if ( function_exists( 'wpcom_switch_to_blog_locale' ) ) {
@@ -990,6 +995,20 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return new WP_Error( 'invalid_author', 'Invalid author provided' );
 
 		return $_user->ID;
+	}
+
+	protected function should_untrash_post( $last_status, $new_status, $post ) {
+		return 'trash' === $last_status && 'trash' !== $new_status && isset( $post->ID );
+	}
+
+	protected function untrash_post( $post, $input ) {
+		wp_untrash_post( $post->ID );
+		$untrashed_post = get_post( $post->ID );
+		// Lets make sure that we use the reverted the slug.
+		if ( isset( $untrashed_post->post_name ) && $untrashed_post->post_name . '__trashed' === $input['slug'] ) {
+			unset( $input['slug'] );
+		}
+		return $input;
 	}
 
 	protected function should_load_theme_functions( $post_id = null ) {

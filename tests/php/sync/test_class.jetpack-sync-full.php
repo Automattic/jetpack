@@ -827,7 +827,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
-		$terms = array_map( array( $this, 'upgrade_terms_to_pass_test' ), $terms );
 		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Full sync doesn\'t work' );
 	}
 
@@ -1708,14 +1707,5 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function _do_cron() {
 		$_GET['check'] = wp_hash( '187425' );
 		require( ABSPATH . '/wp-cron.php' );
-	}
-
-	function upgrade_terms_to_pass_test( $term ) {
-		global $wp_version;
-		if ( version_compare( $wp_version, '4.4', '<' ) ) {
-			unset( $term->filter );
-		}
-
-		return $term;
 	}
 }

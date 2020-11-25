@@ -150,25 +150,18 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	/**
 	 * Provides deprecated files and expected relacements.
 	 *
-	 * @todo Remove replacement version check when WordPress 5.5 is the minimum.
-	 *
 	 * @return array
 	 */
 	function provider_deprecated_file_paths() {
-		global $wp_version;
-
-		$replacement = ( version_compare( $wp_version, '5.5-alpha', '>=' ) ) ? '' : null;
-
 		return array(
-
 			array(
 				'class.jetpack-ixr-client.php',
-				$replacement,
+				'',
 				E_USER_DEPRECATED,
 			),
 			array(
 				'class.jetpack-xmlrpc-server.php',
-				$replacement,
+				'',
 				E_USER_DEPRECATED,
 			),
 		);

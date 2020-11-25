@@ -21,10 +21,16 @@ import {
 } from 'state/site';
 import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
 import { ModuleToggle } from 'components/module-toggle';
-import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+
+const SEARCH_DESCRIPTION = __(
+	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+	'jetpack'
+);
+const SEARCH_CUSTOMIZE_CTA = __( 'Customize your Search experience.', 'jetpack' );
+const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
 
 function toggleModuleFactory( {
 	getOptionValue,

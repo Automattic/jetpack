@@ -765,10 +765,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	public function getFirstElement( $dom, $tag, $index = 0) {
 		$elements = $dom->getElementsByTagName( $tag );
-		if ( ! is_array( $elements ) ) {
-			return $elements->item( $index );
-		}
-		return $elements[ $index ];
+		return $elements->item( $index );
 	}
 
 	public function assertCommonValidHtml( $wrapperDiv, $attributes ) {
@@ -896,11 +893,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
-			$n       = is_array( $options ) ? count( $options ) : $options->length;
+			$n       = $options->length;
 			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
 			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$option = is_array( $options ) ? $options[ $i ] : $options->item( $i );
+				$option = $options->item( $i );
 				$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
 				if ( 0 === $i ) {
 					$this->assertEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is not selected' );
@@ -914,11 +911,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label', 'label class doesn\'t match' );
 			// Radio and Checkboxes.
 			$labels = $wrapper_div->getElementsByTagName( 'label' );
-			$n      = is_array( $labels ) ? count( $labels ) - 1 : $labels->length - 1;
+			$n      = $labels->length - 1;
 			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
 			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$item_label = is_array( $labels ) ? $labels[ $i + 1 ] : $labels->item( $i + 1 );
+				$item_label = $labels->item( $i + 1 );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $item_label->nodeValue, ' ' . $attributes['options'][ $i ] ); // extra space added for a padding.
 
@@ -944,20 +941,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 */
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
-		global $wp_version;
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
 		$html = do_shortcode( $shortcode );
 
-		// The expected string has some quotes escaped, since we want to make
-		// sure we don't output anything harmful
-
-		if ( version_compare( $wp_version, '4.9-alpha', '>') ){
-			$this->assertEquals( "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]", $html );
-		} else {
-			$this->assertEquals( "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
-		}
+		/*
+		 * The expected string has some quotes escaped, since we want to make
+		 * sure we don't output anything harmful
+		 */
+		$this->assertEquals( '[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label="asdasd" type="text"/][contact-field id="1" required derp herp asd lkj]adsasd[/contact-field]', $html );
 	}
 
 	/**

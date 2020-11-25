@@ -1,4 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
+/**
+ * Masterbar file.
+ *
+ * @package Jetpack
+ */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
@@ -7,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
+use Automattic\Jetpack\Status;
 use GP_Locale;
 use GP_Locales;
 use Jetpack;
@@ -147,7 +153,7 @@ class Masterbar {
 		$this->user_site_count = $this->user_data['site_count'];
 
 		// Used to build menu links that point directly to Calypso.
-		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
+		$this->primary_site_slug = ( new Status() )->get_site_suffix();
 
 		// Used for display purposes and for building WP Admin links.
 		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
