@@ -87,6 +87,8 @@ export default function DialogueEdit ( {
 	const isCustomSpeaker = ! speakerSlug && speaker;
 	const currentSpeaker = isCustomSpeaker ? speaker : defaultSpeakerObject.speaker;
 
+	const baseClassName = 'wp-block-jetpack-dialogue';
+
 	return (
 		<div class={ className }>
 			<BlockControls>
@@ -122,7 +124,7 @@ export default function DialogueEdit ( {
 
 						{ showTimeStamp && (
 							<TimeStampControl
-								className={ `${ className }__timestamp-control` }
+								className={ `${ baseClassName }__timestamp-control` }
 								value={ timeStamp }
 								onChange={ ( newTimeStampValue ) => {
 									setAttributes( { timeStamp: newTimeStampValue } );
@@ -133,16 +135,16 @@ export default function DialogueEdit ( {
 				</Panel>
 			</InspectorControls>
 
-			<div class={ `${ className }__meta` }>
+			<div class={ `${ baseClassName }__meta` }>
 				<div
-					className={ `${ className }__speaker` }
+					className={ `${ baseClassName }__speaker` }
 					style={ { color, backgroundColor } }
 				>
 					{ currentSpeaker }
 				</div>
 
 				{ showTimeStamp && (
-					<div className={ `${ className }__timestamp` }>
+					<div className={ `${ baseClassName }__timestamp` }>
 						{ timeStamp }
 					</div>
 				) }

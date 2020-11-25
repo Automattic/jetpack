@@ -36,4 +36,9 @@ export const settings = {
 		'dialogue/speakers',
 		'dialogue/showTimeStamp',
 	],
+
+	styles: [
+		{ name: 'row', label: __( 'Row', 'jetpack' ), isDefault: true },
+		{ name: 'column', label: __( 'Column', 'jetpack' ) },
+	],
 };

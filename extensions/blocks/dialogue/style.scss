@@ -1,10 +1,22 @@
 .wp-block-jetpack-dialogue {
-	display: flex;
+
+	// Block styles.
+	&.is-style-row {
+		display: flex;
+		.wp-block-jetpack-dialogue__meta {
+			margin-right: 5px;
+		}
+	}
+
+	&.is-style-column {
+		.wp-block-jetpack-dialogue__meta {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+	}
 }
 
-.wp-block-jetpack-dialogue__meta {
-	margin-right: 5px;
-}
 
 
 .wp-block-jetpack-dialogue__speaker-container {
