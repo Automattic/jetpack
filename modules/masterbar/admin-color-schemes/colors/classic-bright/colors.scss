@@ -1,21 +1,27 @@
+// core variables (core _variables.scss)
 $base-color: #135e96;
 $icon-color: #646970;
 $highlight-color: #c9256e;
 $notification-color: $highlight-color;
 
+// global (core _variables.scss)
 $body-background: #f6f7f7;
 
+// admin menu & admin-bar (core _variables.scss)
 $menu-text: #2c3338;
 $menu-background: #ffffff;
-$menu-highlight-text: #0a4b78;
-$menu-highlight-icon: #0a4b78;
-$menu-highlight-background: #c5d9ed;
-$menu-submenu-text: $menu-highlight-text;
-$menu-submenu-background: lighten( $menu-highlight-background, 7% );
+$menu-highlight-text: #1d2327;
+$menu-highlight-icon: $menu-highlight-text;
+$menu-highlight-background: #dcdcde;
+$menu-current-text: #0a4b78;
+$menu-current-icon: $menu-current-text;
+$menu-current-background: #c5d9ed;
+$menu-submenu-text: #0a4b78;
+$menu-submenu-background: #e9eff5;
 $menu-submenu-current-text: $highlight-color;
 
 // masterbar overrides
 $masterbar-background: $base-color;
-$masterbar-highlight-background: $base-color;
+$masterbar-highlight-background: #0a4b78;
 
 @import "../admin";

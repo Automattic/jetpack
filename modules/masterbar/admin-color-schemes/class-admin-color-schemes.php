@@ -84,7 +84,7 @@ class Admin_Color_Schemes {
 			'classic-bright',
 			__( 'Classic Bright', 'jetpack' ),
 			plugins_url( 'colors/classic-bright/colors.css', __FILE__ ),
-			array( '#135e96', '#c9256e', '#ffffff', '#646970' ),
+			array( '#135e96', '#c9256e', '#ffffff', '#e9eff5' ),
 			array(
 				'base'    => '#646970',
 				'focus'   => '#fff',
