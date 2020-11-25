@@ -24,7 +24,7 @@ elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
 fi
 
-mysql --password=root -e "set global wait_timeout = 3600;"
+mysql -u root --password=root -e "set global wait_timeout = 3600;"
 
 # Prepare a developer checkout of WordPress
 mysql -u root --password=root -e "CREATE DATABASE wordpress_tests;"
@@ -57,6 +57,6 @@ cd /tmp/wordpress-$WP_BRANCH
 cp wp-tests-config-sample.php wp-tests-config.php
 sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
 sed -i "s/yourusernamehere/root/" wp-tests-config.php
-sed -i "s/yourpasswordhere//" wp-tests-config.php
+sed -i "s/yourpasswordhere/root/" wp-tests-config.php
 
 exit 0;
