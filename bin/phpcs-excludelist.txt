@@ -261,9 +261,7 @@ modules/likes/jetpack-likes-settings.php
 modules/likes.php
 modules/markdown/easy-markdown.php
 modules/markdown.php
-modules/masterbar.php
 modules/mobile-push.php
-modules/module-headings.php
 modules/monitor.php
 modules/notes.php
 modules/photon-cdn/jetpack-manifest.php
@@ -402,8 +400,6 @@ modules/widgets/internet-defense-league.php
 modules/widgets/mailchimp.php
 modules/widgets/migrate-to-core/gallery-widget.php
 modules/widgets/migrate-to-core/image-widget.php
-modules/widgets/milestone/milestone.php
-modules/widgets/milestone.php
 modules/widgets/my-community.php
 modules/widgets.php
 modules/widgets/rsslinks-widget.php
