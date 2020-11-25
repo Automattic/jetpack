@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { find } from 'lodash';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -137,7 +138,9 @@ export default function DialogueEdit ( {
 
 			<div class={ `${ baseClassName }__meta` }>
 				<div
-					className={ `${ baseClassName }__speaker` }
+					className={ classnames( `${ baseClassName }__speaker`, {
+						[ 'has-background-color' ]: !! backgroundColor,
+					} ) }
 					style={ { color, backgroundColor } }
 				>
 					{ currentSpeaker }

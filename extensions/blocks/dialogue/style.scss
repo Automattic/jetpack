@@ -4,7 +4,7 @@
 	&.is-style-row {
 		display: flex;
 		.wp-block-jetpack-dialogue__meta {
-			margin-right: 5px;
+			margin-right: 10px;
 		}
 	}
 
@@ -14,14 +14,14 @@
 			flex-direction: row;
 			align-items: center;
 		}
+
+		.wp-block-jetpack-dialogue__speaker {
+			margin-right: 10px;
+		}
+		.wp-block-jetpack-dialogue__timestamp {
+			margin-right: 0;
+		}
 	}
-}
-
-
-
-.wp-block-jetpack-dialogue__speaker-container {
-	text-align: right;
-	width: 100%;;
 }
 
 .wp-block-jetpack-dialogue__timestamp {
@@ -30,13 +30,16 @@
 	margin-right: 6px;
 }
 
-.components-dropdown-menu__toggle.wp-block-jetpack-dialogue__speaker,
 .wp-block-jetpack-dialogue__speaker {
-	border-radius: 2px;
 	white-space: nowrap;
-	padding: 0;
-	padding: 3px 6px;
+	padding: 3px 0;
+	font-weight: 500;
 	height: auto;
-	border-radius: 3px;
-	font-weight: 500;;
+	line-height: 1.2;
+
+	&.has-background-color {
+		padding: 3px 6px;
+		border-radius: 3px;
+		margin-right: 6px;
+	}
 }

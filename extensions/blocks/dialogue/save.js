@@ -5,29 +5,29 @@ import classNames from 'classnames';
 import { InnerBlocks } from '@wordpress/block-editor';
 
 export default function save( { attributes } ) {
-	const { speaker, speakerSlug, content, showTimeStamp, timeStamp } = attributes;
+	const {
+		speaker,
+		speakerSlug,
+		color,
+		backgroundColor,
+		showTimeStamp,
+		timeStamp,
+		className,
+	} = attributes;
 
-	const className = 'wp-block-jetpack-dialogue';
-
-	const speakerClasses = classNames(
-		`${ className }__speaker`,
-		{
-			[ `is-${ speakerSlug }-speaker` ]: !! speakerSlug,
-			[ 'is-custom-speaker' ]: ! speakerSlug,
-		}
-	);
+	const baseClassName = 'wp-block-jetpack-dialogue';
+	const speakerClasses = classNames( `${ baseClassName }__speaker` );
+	const speakerStyles = { color, backgroundColor };
 
 	return (
-		<div>
-			<div class={ `${ className }__meta` }>
-				<div class={ `${ className }__speaker-container` }>
-					<div className={ speakerClasses }>{ speaker }</div>
-					{ showTimeStamp && (
-						<div className={ `${ className }__timestamp` }>
-							{ timeStamp }
-						</div>
-					) }
-				</div>
+		<div className={ `${ className } ${ baseClassName }` }>
+			<div class={ `${ baseClassName }__meta` }>
+				<div className={ speakerClasses } style={ speakerStyles }>{ speaker }</div>
+				{ showTimeStamp && (
+					<div className={ `${ baseClassName }__timestamp` }>
+						{ timeStamp }
+					</div>
+				) }
 			</div>
 
 			<InnerBlocks.Content />
