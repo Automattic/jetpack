@@ -5,6 +5,12 @@ export default {
 	speakerSlug: {
 		type: "string",
 	},
+	color: {
+		type: "string",
+	},
+	backgroundColor: {
+		type: "string",
+	},
 	timeStamp: {
 		type: "string",
 		default: "00:00",
@@ -17,5 +23,8 @@ export default {
 		type: 'array',
 		source: 'children',
 		selector: 'p',
+	},
+	placeholder: {
+		type: "string",
 	},
 };

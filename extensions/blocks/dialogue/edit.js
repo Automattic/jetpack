@@ -68,15 +68,12 @@ export default function DialogueEdit ( {
 			return;
 		}
 
-		const speakerBySlug = find( speakersFromContext, ( contextSpeaker ) => contextSpeaker.speakerSlug === speakerSlug );
-		if ( ! speakerBySlug ) {
+		const speakerBySlugObject = find( speakersFromContext, ( contextSpeaker ) => contextSpeaker.speakerSlug === speakerSlug );
+		if ( ! speakerBySlugObject ) {
 			return;
 		}
 
-		setAttributes( {
-			speakerSlug: speakerBySlug.speakerSlug,
-			speaker: speakerBySlug.speaker,
-		} );
+		setAttributes( speakerBySlugObject );
 	}, [ speakerSlug, speakersFromContext, setAttributes ] );
 
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;

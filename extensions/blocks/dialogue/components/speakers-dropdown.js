@@ -34,6 +34,11 @@ export default function SpeakersDropdown ( {
 	const currentSpeaker = isCustomSpeaker ? speaker : defaultSpeakerObject.speaker;
 	const currentSpeakerSlug = ! isCustomSpeaker ? ( slug || defaultSpeakerObject.speakerSlug ) : null;
 
+	const inlineStyles = {
+		color: defaultSpeakerObject.color,
+		backgroundColor: defaultSpeakerObject.backgroundColor,
+	};
+
 	return (
 		<DropdownMenu
 			popoverProps={ position }
@@ -46,6 +51,7 @@ export default function SpeakersDropdown ( {
 						[ 'is-custom-speaker' ]: isCustomSpeaker,
 					}
 				),
+				style: inlineStyles,
 				children: <span>{ currentSpeaker }</span>,
 			} }
 			icon={ null }

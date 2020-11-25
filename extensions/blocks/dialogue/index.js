@@ -34,5 +34,6 @@ export const settings = {
 	attributes,
 	usesContext: [
 		'dialogue/speakers',
+		'dialogue/showTimeStamp',
 	],
 };
