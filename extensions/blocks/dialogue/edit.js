@@ -67,8 +67,16 @@ export default function DialogueEdit ( {
 	// Block context integration.
 	const speakersFromContext = context[ 'dialogue/speakers' ];
 
-	// Follow lables changes when block context changes.
+	// Speakers list.
+	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
+
 	useEffect( () => {
+		if ( ! speaker ) {
+			// set the initial value for the speaker.
+			return setAttributes( speakers[ 0 ] );
+		}
+
+		// Follow labels changes when block context changes.
 		if ( ! speakersFromContext ) {
 			return;
 		}
@@ -83,14 +91,7 @@ export default function DialogueEdit ( {
 			backgroundColor: null,
 			...speakerBySlugObject,
 		} );
-	}, [ speakerSlug, speakersFromContext, setAttributes ] );
-
-	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
-
-	const speakerBySlug = find( speakers, ( speakerOption ) => speakerOption.speakerSlug === speakerSlug );
-	const defaultSpeakerObject = speakerSlug && speakerBySlug ? speakerBySlug : speakers[ 0 ];
-	const isCustomSpeaker = ! speakerSlug && speaker;
-	const currentSpeaker = isCustomSpeaker ? speaker : defaultSpeakerObject.speaker;
+	}, [ speakerSlug, speakersFromContext, setAttributes, speaker, speakers ] );
 
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
@@ -101,7 +102,7 @@ export default function DialogueEdit ( {
 					<SpeakersDropdown
 						id={ `dialogue-${ instanceId }-speakers-dropdown` }
 						speakers={ speakers }
-						speaker={ currentSpeaker }
+						speaker={ speaker }
 						onSelect={ ( { newSpeaker, newSpeakerSlug } ) => {
 							setAttributes( {
 								speakerSlug: newSpeakerSlug,
@@ -147,7 +148,7 @@ export default function DialogueEdit ( {
 					} ) }
 					style={ { color, backgroundColor } }
 				>
-					{ currentSpeaker }
+					{ speaker }
 				</div>
 
 				{ showTimeStamp && (
