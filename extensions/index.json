@@ -38,7 +38,15 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "anchor-fm" ],
+	"beta": [
+		"amazon",
+		"anchor-fm",
+		"premium-content/container",
+		"premium-content/buttons",
+		"premium-content/logged-out-view",
+		"premium-content/login-button",
+		"premium-content/subscriber-view"
+	],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
