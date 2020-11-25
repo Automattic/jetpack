@@ -13,6 +13,7 @@ if ( ! CI ) {
 
 if ( E2E_DEBUG ) {
 	dumpio = true;
+	process.env.DEBUG = 'pw:api';
 }
 
 module.exports = {
