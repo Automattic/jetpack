@@ -96,9 +96,9 @@ class Admin_Color_Schemes {
 			'classic-dark',
 			__( 'Classic Dark', 'jetpack' ),
 			plugins_url( 'colors/classic-dark/colors.css', __FILE__ ),
-			array( '#101517', '#23282d', '#ffffff', '#646970' ),
+			array( '#101517', '#c9356e', '#32373c', '#0073aa' ),
 			array(
-				'base'    => '#646970',
+				'base'    => '#a2aab2',
 				'focus'   => '#fff',
 				'current' => '#fff',
 			)
