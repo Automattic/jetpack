@@ -131,7 +131,7 @@ function TranscriptionEdit ( {
 				...speakers,
 				{
 					speaker: newLabelValue,
-					speakerSlug: `speakerSlug-${ speakers?.length ? speakers?.length : 0 }`,
+					speakerSlug: `speaker-${ speakers?.length ? speakers?.length : 0 }`,
 				},
 			],
 		} );
