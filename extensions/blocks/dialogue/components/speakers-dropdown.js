@@ -41,6 +41,7 @@ export default function SpeakersDropdown ( {
 							<MenuItem
 								key={ newSpeakerSlug }
 								onClick={ () => onSelect( { newSpeaker, newSpeakerSlug } ) }
+								isSelected={ newSpeaker === speaker }
 							>
 								{ newSpeaker }
 							</MenuItem>
