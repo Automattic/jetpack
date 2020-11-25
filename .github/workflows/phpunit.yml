@@ -44,7 +44,11 @@ jobs:
 #   # Run phpunit in Travis matrix for these combinations
 
     steps:
-      - run: echo $LEGACY_FULL_SYNC
+      - run: |
+          echo 'TEST'
+          echo ${{ matrix.env }}
+          echo ${{ matrix.env.LEGACY_FULL_SYNC }}
+
       - uses: actions/checkout@v2
 
       - name: Setup PHP and remove shared extension
