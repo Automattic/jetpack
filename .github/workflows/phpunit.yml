@@ -69,7 +69,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.0
+          php-version: "7.0"
           tools: composer, phpunit:v6
           extensions: mysql, imagick
           coverage: none
@@ -90,7 +90,7 @@ jobs:
       - name: Setup and run tests
         env:
           WP_BRANCH: latest
-          TRAVIS_PHP_VERSION: 7.0
+          TRAVIS_PHP_VERSION: "7.0"
           LEGACY_FULL_SYNC: 1
         run: |
           sudo systemctl start mysql.service
