@@ -231,7 +231,7 @@ class Jetpack_Memberships {
 	/**
 	 * Renders a preview of the Recurring Payment button, which is not hooked
 	 * up to the subscription url. Used to preview the block on the frontend
-	 * for admin users when Stripe has not been connected.
+	 * for site editors when Stripe has not been connected.
 	 *
 	 * @param array  $attrs - attributes in the shortcode.
 	 * @param string $content - Recurring Payment block content.
@@ -249,7 +249,7 @@ class Jetpack_Memberships {
 
 	/**
 	 * Determines whether the button preview should be rendered. Returns true
-	 * if the user is an admin, the button is not configured correctly
+	 * if the user has editing permissions, the button is not configured correctly
 	 * (because it requires a plan upgrade or Stripe connection), and the
 	 * button is a child of a Premium Content block.
 	 *
@@ -258,7 +258,7 @@ class Jetpack_Memberships {
 	 * @return boolean
 	 */
 	public function should_render_button_preview( $block ) {
-		$is_admin                   = $this->user_can_edit();
+		$user_can_edit              = $this->user_can_edit();
 		$requires_stripe_connection = ! $this->get_connected_account_id();
 
 		$requires_upgrade = false;
@@ -276,7 +276,7 @@ class Jetpack_Memberships {
 
 		return (
 			$is_premium_content_child &&
-			$is_admin &&
+			$user_can_edit &&
 			( $requires_upgrade || $requires_stripe_connection )
 		);
 	}
