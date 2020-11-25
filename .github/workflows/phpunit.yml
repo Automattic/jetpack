@@ -1,0 +1,62 @@
+name: PHPUnit tests
+
+on: pull_request
+
+jobs:
+  phpunit:
+    name: dev branch for PHP 8.0
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ["5.6", "7.0", "7.2", "7.3", "7.4snapshot"]
+        wp: ["master", "latest", "previous"]
+        exclude:
+        # excludes node 4 on macOS
+        - php: "7.0"
+        - php: "7.2"
+        - wp: "latest"
+  # - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
+  # - WP_BRANCH=latest
+  # - WP_BRANCH=previous PHP_LINT=1
+# env:
+#   global:
+#   # Global variable is re-defined in matrix-include -list
+#   - WP_TRAVISCI=phpunit
+#   # Tell Composer that the version is "dev-master" to avoid it guessing for the monorepo packages.
+#   - COMPOSER_ROOT_VERSION=dev-master
+#   # Run phpunit in Travis matrix for these combinations
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP and remove shared extension
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          php --version
+          composer --version
+
+      - name: Run tests
+        env:
+          WP_BRANCH: ${{ matrix.wp }}
+          WP_TRAVISCI: "phpunit"
+        run: |
+          export PLUGIN_SLUG=$(basename $(pwd))
+          export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
+          ./tests/setup-travis.sh
+          ./tests/run-travis.sh
