@@ -7,11 +7,17 @@ import { find } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InspectorControls, InnerBlocks } from '@wordpress/block-editor';
+import {
+	InspectorControls,
+	InnerBlocks,
+	BlockControls,
+} from '@wordpress/block-editor';
+
 import {
 	Panel,
 	PanelBody,
 	ToggleControl,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 
@@ -26,17 +32,17 @@ const defaultSpeakers = [
 	{
 		speakerSlug: 'speaker-0',
 		speaker: __( 'First', 'jetpack' ),
-		placeholder: __( 'First speaker says…', 'Jetpack' ),
+		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-1',
 		speaker: __( 'Second', 'jetpack' ),
-		placeholder: __( 'Second speaker says…', 'Jetpack' ),
+		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-2',
 		speaker: __( 'Third', 'jetpack' ),
-		placeholder: __( 'Third speaker says…', 'Jetpack' ),
+		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 ];
 
@@ -50,6 +56,8 @@ export default function DialogueEdit ( {
 	const {
 		speaker,
 		speakerSlug,
+		color,
+		backgroundColor,
 		showTimeStamp,
 		timeStamp,
 		placeholder = defaultSpeakers[ 0 ].placeholder,
@@ -74,8 +82,33 @@ export default function DialogueEdit ( {
 
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
 
+	const speakerBySlug = find( speakers, ( speakerOption ) => speakerOption.speakerSlug === speakerSlug );
+	const defaultSpeakerObject = speakerSlug && speakerBySlug ? speakerBySlug : speakers[ 0 ];
+	const isCustomSpeaker = ! speakerSlug && speaker;
+	const currentSpeaker = isCustomSpeaker ? speaker : defaultSpeakerObject.speaker;
+
 	return (
 		<div class={ className }>
+			<BlockControls>
+				<ToolbarGroup>
+					<SpeakersDropdown
+						id={ `dialogue-${ instanceId }-speakers-dropdown` }
+						speakers={ speakers }
+						speaker={ currentSpeaker }
+						onSelect={ ( { newSpeaker, newSpeakerSlug } ) => {
+							setAttributes( {
+								speakerSlug: newSpeakerSlug,
+								speaker: newSpeaker,
+							} );
+						} }
+						onChange={ ( { newSpeaker, newSpeakerSlug } ) => setAttributes( {
+							speakerSlug: newSpeakerSlug,
+							speaker: newSpeaker,
+						} ) }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
+
 			<InspectorControls>
 				<Panel>
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
@@ -101,23 +134,12 @@ export default function DialogueEdit ( {
 			</InspectorControls>
 
 			<div class={ `${ className }__meta` }>
-				<SpeakersDropdown
-					id={ `dialogue-${ instanceId }-speakers-selector` }
-					className={ className }
-					speakers={ speakers }
-					speaker={ speaker }
-					slug={ speakerSlug }
-					onSelect={ ( { newSpeaker, newSpeakerSlug } ) => {
-						setAttributes( {
-							speakerSlug: newSpeakerSlug,
-							speaker: newSpeaker,
-						} );
-					 } }
-					onChange={ ( { newSpeaker, newSpeakerSlug } ) => setAttributes( {
-						speakerSlug: newSpeakerSlug,
-						speaker: newSpeaker,
-					} ) }
-				/>
+				<div
+					className={ `${ className }__speaker` }
+					style={ { color, backgroundColor } }
+				>
+					{ currentSpeaker }
+				</div>
 
 				{ showTimeStamp && (
 					<div className={ `${ className }__timestamp` }>
@@ -128,7 +150,6 @@ export default function DialogueEdit ( {
 
 			<InnerBlocks
 				template={ [ [ 'core/paragraph', { placeholder } ] ] }
-				templateLock="all"
 			/>
 		</div>
 	);

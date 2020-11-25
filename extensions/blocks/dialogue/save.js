@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classNames from 'classnames';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 export default function save( { attributes } ) {
 	const { speaker, speakerSlug, content, showTimeStamp, timeStamp } = attributes;
@@ -29,7 +30,7 @@ export default function save( { attributes } ) {
 				</div>
 			</div>
 
-			<p>{ content }</p>
+			<InnerBlocks.Content />
 		</div>
 	);
 }

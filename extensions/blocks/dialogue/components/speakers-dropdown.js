@@ -22,37 +22,15 @@ export default function SpeakersDropdown ( {
 	className,
 	speakers,
 	speaker,
-	slug,
 	onSelect,
 	onChange,
 	position = { position: 'bottom' },
 } ) {
-	const speakerBySlug = find( speakers, ( speakerOption ) => speakerOption.speakerSlug === slug );
-	const defaultSpeakerObject = slug && speakerBySlug ? speakerBySlug : speakers[ 0 ];
-
-	const isCustomSpeaker = ! slug && speaker;
-	const currentSpeaker = isCustomSpeaker ? speaker : defaultSpeakerObject.speaker;
-	const currentSpeakerSlug = ! isCustomSpeaker ? ( slug || defaultSpeakerObject.speakerSlug ) : null;
-
-	const inlineStyles = {
-		color: defaultSpeakerObject.color,
-		backgroundColor: defaultSpeakerObject.backgroundColor,
-	};
-
 	return (
 		<DropdownMenu
 			popoverProps={ position }
-			className={ `${ className }__speaker-container` }
 			toggleProps={ {
-				className: classNames(
-					`${ className }__speaker`,
-					{
-						[ `is-${ currentSpeakerSlug }-speaker` ]: !! currentSpeakerSlug,
-						[ 'is-custom-speaker' ]: isCustomSpeaker,
-					}
-				),
-				style: inlineStyles,
-				children: <span>{ currentSpeaker }</span>,
+				children: <span>{ speaker }</span>,
 			} }
 			icon={ null }
 		>
@@ -63,7 +41,6 @@ export default function SpeakersDropdown ( {
 							<MenuItem
 								key={ newSpeakerSlug }
 								onClick={ () => onSelect( { newSpeaker, newSpeakerSlug } ) }
-								isSelected={ true }
 							>
 								{ newSpeaker }
 							</MenuItem>
