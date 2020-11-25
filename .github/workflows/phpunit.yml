@@ -8,13 +8,14 @@ env:
 
 jobs:
   phpunit:
-    name: "PHP: ${{ matrix.php }} WP: ${{ matrix.wp }}"
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php: ["5.6", "7.0", "7.2", "7.3", "7.4snapshot"]
         wp: ["master", "latest", "previous"]
+        name: [ "PHP: ${{ matrix.php }} WP: ${{ matrix.wp }}" ]
         exclude:
         # excludes node 4 on macOS
         - php: "7.0"
@@ -26,23 +27,6 @@ jobs:
            name: "Just testing"
            legacy-sync: 1
 
-
-  # - php: "7.0"
-  #   name: "Legacy full sync"
-  #   env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
-
-
-  # - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
-  # - WP_BRANCH=latest
-  # - WP_BRANCH=previous PHP_LINT=1
-# env:
-#   global:
-#   # Global variable is re-defined in matrix-include -list
-#   - WP_TRAVISCI=phpunit
-#   # Tell Composer that the version is "dev-master" to avoid it guessing for the monorepo packages.
-#   - COMPOSER_ROOT_VERSION=dev-master
-#   # Run phpunit in Travis matrix for these combinations
-
     steps:
       - run: |
           echo 'TEST'
@@ -51,7 +35,7 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Setup PHP and remove shared extension
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
