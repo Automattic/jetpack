@@ -55,5 +55,25 @@ export const settings = {
 				},
 			},
 		],
+		to: [
+			{
+				type: 'block',
+				blocks: [ 'core/paragraph' ],
+				transform: ( attrs, innerBlocks ) => {
+					const { speaker, color, showTimeStamp, timeStamp } = attrs;
+					const innerBlock = innerBlocks[ 0 ]; // we expceted only one block.
+
+					const inlineStyles = color ? ` style="color: ${ color }` : '';
+					const content = `<span${ inlineStyles }>${ speaker }</span>` +
+						( showTimeStamp ? `(${ timeStamp })` : '' ) +
+						': ' +
+						innerBlock.attributes.content;
+
+					return createBlock( 'core/paragraph', {
+						content,
+					} );
+				},
+			},
+		],
 	},
 };
