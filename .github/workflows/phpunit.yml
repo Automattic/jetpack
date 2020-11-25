@@ -40,7 +40,10 @@ jobs:
           tools: composer, phpunit:v7
           coverage: none
 
-      - uses: mirromutth/mysql-action@v1.1
+      - name: Ubuntu MySQL (SUDO)
+        run: |
+          sudo service mysql status
+          sudo service mysql start
 
       - name: Get Composer cache directory
         id: composer-cache
