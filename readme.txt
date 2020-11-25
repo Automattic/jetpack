@@ -279,6 +279,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Sharing: disable Open Graph Meta tags added by the Web Stories plugin when Jetpack's tags are active.
 * Stats: support Web Stories plugin.
 * Synchronization: ensure better synchronization of post meta data (used by Publicize, Subscriptions, Search) in WordPress 5.6.
+* Twenty Twenty-One: ensure that Jetpack's features are compatible with the upcoming new default theme
 
 **Bug fixes**
 
