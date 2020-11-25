@@ -18,7 +18,7 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { CURRENCY_OPTIONS } from '.';
+import { CURRENCY_OPTIONS } from '../.';
 
 const API_STATE_NOT_REQUESTING = 0;
 const API_STATE_REQUESTING = 1;
