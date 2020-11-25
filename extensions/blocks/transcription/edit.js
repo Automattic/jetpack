@@ -39,22 +39,16 @@ const defaultLabels = [
 	{
 		speakerSlug: 'speaker-0',
 		speaker: __( 'First', 'jetpack' ),
-		color: '#fff',
-		backgroundColor: '#046',
 		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-1',
 		speaker: __( 'Second', 'jetpack' ),
-		color: '#fff',
-		backgroundColor: '#084',
 		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-2',
 		speaker: __( 'Third', 'jetpack' ),
-		color: '#fff',
-		backgroundColor: '#804',
 		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 ];
