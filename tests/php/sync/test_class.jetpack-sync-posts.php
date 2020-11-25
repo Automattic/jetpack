@@ -1226,6 +1226,37 @@ That was a cool video.';
 	}
 
 	/**
+	 * Data Provider for test_sync_jetpack_published_post_no_action test.
+	 *
+	 * @return array[] Test parameters.
+	 */
+	public function provider_jetpack_published_post_no_action() {
+		return array(
+			array( null, $this->post ),
+			array( 'alpha', $this->post ),
+			array( $this->post_id, null ),
+			array( -1111, $this->post ),
+		);
+	}
+
+	/**
+	 * Verify no `jetpack_published_post` action is triggerd with invalid $post_ID or $post provided.
+	 *
+	 * @dataProvider provider_jetpack_published_post_no_action
+	 * @param int      $post_ID Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
+	public function test_sync_jetpack_published_post_no_action( $post_ID, $post ) {
+		$this->server_event_storage->reset();
+		do_action( 'wp_after_insert_post', $post_ID, $post, false );
+
+		$this->sender->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$this->assertSame( 0, count( $events ) );
+	}
+
+	/**
 	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly chunk it's parameters in chunks of 100
 	 *
 	 * @throws ReflectionException Throw if Reflection fails to initialize.

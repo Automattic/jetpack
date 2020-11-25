@@ -64,22 +64,7 @@ Every action creator defined in the **Admin Page** returns a Promise and is buil
 The **Admin Page** takes advantage of two core WordPress packages for internationalization purposes:
 
 - [`@wordpress/i18n`](https://www.npmjs.com/package/@wordpress/i18n) gives us access to internationalization functions we're used to in WordPress: `__n`, `_n`, `_x`, `_nx`, and `sprintf`.
-- [`@wordpress/element`](https://www.npmjs.com/package/@wordpress/element) and its `createInterpolateElement` function allow us to use React elements in strings. `createInterpolateElement` is available in WordPress 5.5 and in latest versions of the Gutenberg plugin, but it is not available in WordPress 5.4, which we still support. We consequently rely on a wrapper, `jetpackCreateInterpolateElement`.
-
-```jsx
-import Gridicon from 'components/gridicon';
-import { __ } from '@wordpress/i18n';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-const getDocumentationLink = () => {
-	return jetpackCreateInterpolateElement(
-		__( '<FlagIcon /> Still confused? <a>Check out documentation for more!</a>', 'jetpack' ),
-		{
-			FlagIcon: <Gridicon icon="flag" size={ 64 } />
-			a: <a href="https://jetpack.com" />,
-		}
-	);
-};
-```
+- [`@wordpress/element`](https://www.npmjs.com/package/@wordpress/element) and its `createInterpolateElement` function allow us to use React elements in strings.
 
 ### Browser compatibility of the Admin Page
 

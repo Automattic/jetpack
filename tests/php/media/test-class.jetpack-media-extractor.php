@@ -460,22 +460,20 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	function test_extract_embeds() {
-		global $wp_version;
 		$post_id = $this->add_test_post();
 
 		$expected = array(
-			'has' => array( 'embed' => 2 ),
-			'embed' => array( 'url' => array(
-				'www.youtube.com/watch?v=r0cN_bpLrxk',
-				'vimeo.com/44633289',
-			) ),
+			'has'   => array(
+				'embed' => 3,
+			),
+			'embed' => array(
+				'url' => array(
+					'www.youtube.com/watch?v=r0cN_bpLrxk',
+					'vimeo.com/44633289',
+					'twitter.com/mremy',
+				),
+			),
 		);
-
-		// "Adapting" the test to work in WordPress 4.6
-		if ( version_compare( $wp_version, '4.7', '>=' ) ) {
-			$expected['has']['embed'] = 3;
-			$expected['embed']['url'][] = 'twitter.com/mremy';
-		}
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::EMBEDS );
 

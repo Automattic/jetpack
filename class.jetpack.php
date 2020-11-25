@@ -6802,14 +6802,15 @@ endif;
 	 * Strip http:// or https:// from a url, replaces forward slash with ::,
 	 * so we can bring them directly to their site in calypso.
 	 *
+	 * @deprecated 9.2.0 Use Automattic\Jetpack\Status::get_site_suffix
+	 *
 	 * @param string | url
 	 * @return string | url without the guff
 	 */
 	public static function build_raw_urls( $url ) {
-		$strip_http = '/.*?:\/\//i';
-		$url        = preg_replace( $strip_http, '', $url );
-		$url        = str_replace( '/', '::', $url );
-		return $url;
+		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
+
+		return ( new Status() )->get_site_suffix( $url );
 	}
 
 	/**

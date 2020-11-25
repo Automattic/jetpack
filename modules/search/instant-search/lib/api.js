@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import fetch from 'unfetch';
+import axios, { CancelToken } from 'axios';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 import stringify from 'fast-json-stable-stringify';
@@ -12,6 +12,8 @@ import Cache from 'cache';
  */
 import { getFilterKeys } from './filters';
 import { MINUTE_IN_MILLISECONDS, SERVER_OBJECT_NAME } from './constants';
+
+let cancelToken = CancelToken.source();
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
@@ -186,9 +188,9 @@ function generateApiQueryString( {
 	);
 }
 
-function promiseifedProxyRequest( proxyRequest, path, query ) {
+function promiseifedProxyRequest( proxyRequest, path ) {
 	return new Promise( function ( resolve, reject ) {
-		proxyRequest( { path, query, apiVersion: '1.3' }, function ( err, body, headers ) {
+		proxyRequest( { path, apiVersion: '1.3' }, function ( err, body, headers ) {
 			if ( err ) {
 				reject( err );
 			}
@@ -199,12 +201,21 @@ function promiseifedProxyRequest( proxyRequest, path, query ) {
 
 function errorHandlerFactory( cacheKey ) {
 	return function errorHandler( error ) {
-		// TODO: Display a message about falling back to a cached value in the interface
-		// Fallback to either cache if we run into any errors
+		// TODO: Display a message about falling back to a cached value in the interface.
 		const fallbackValue = cache.get( cacheKey ) || backupCache.get( cacheKey );
+
+		// Fallback to cached value if request has been cancelled.
+		if ( axios.isCancel( error ) ) {
+			return fallbackValue
+				? { _isCached: true, _isError: false, _isOffline: false, ...fallbackValue }
+				: null;
+		}
+		// Fallback to cached value if we run into any errors.
 		if ( fallbackValue ) {
 			return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
 		}
+
+		// Otherwise, propagate the error.
 		throw error;
 	};
 }
@@ -248,7 +259,7 @@ export function search( options ) {
 	const { apiNonce, apiRoot, isPrivateSite, isWpcom } = window[ SERVER_OBJECT_NAME ];
 	if ( isPrivateSite && isWpcom ) {
 		return import( '../external/wpcom-proxy-request' ).then( ( { default: proxyRequest } ) => {
-			return promiseifedProxyRequest( proxyRequest, pathForPublicApi, options.query )
+			return promiseifedProxyRequest( proxyRequest, pathForPublicApi )
 				.catch( errorHandler )
 				.then( responseHandler );
 		} );
@@ -259,15 +270,25 @@ export function search( options ) {
 	const urlForPrivateApi = `${ apiRoot }wpcom/v2/search?${ queryString }`;
 	const url = isPrivateSite ? urlForPrivateApi : urlForPublicApi;
 
+	cancelToken.cancel( 'New search requested, cancelling previous search requests.' );
+	cancelToken = CancelToken.source();
+
 	// NOTE: API Nonce is necessary to authenticate requests to class-wpcom-rest-api-v2-endpoint-search.php.
-	return fetch( url, { headers: isPrivateSite ? { 'X-WP-Nonce': apiNonce } : {} } )
+	return axios( {
+		url,
+		cancelToken: cancelToken.token,
+		headers: isPrivateSite ? { 'X-WP-Nonce': apiNonce } : {},
+		withCredentials: isPrivateSite,
+	} )
 		.then( response => {
-			if ( ! response.ok || response.status !== 200 ) {
-				throw new Error( `Unexpected response from API with status code ${ response.status }.` );
+			if ( response.status !== 200 ) {
+				return Promise.reject(
+					`Unexpected response from API with status code ${ response.status }.`
+				);
 			}
 			return response;
 		} )
-		.catch( errorHandler )
-		.then( r => r.json() )
-		.then( responseHandler );
+		.then( r => r.data )
+		.then( responseHandler )
+		.catch( errorHandler );
 }
