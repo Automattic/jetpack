@@ -19,11 +19,6 @@ export default {
 		type: "boolean",
 		default: false,
 	},
-	content: {
-		type: 'array',
-		source: 'children',
-		selector: 'p',
-	},
 	placeholder: {
 		type: "string",
 	},

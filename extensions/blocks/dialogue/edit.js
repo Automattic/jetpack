@@ -7,8 +7,7 @@ import { find } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InspectorControls, RichText } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { InspectorControls, InnerBlocks } from '@wordpress/block-editor';
 import {
 	Panel,
 	PanelBody,
@@ -23,21 +22,21 @@ import './editor.scss';
 import SpeakersDropdown from './components/speakers-dropdown';
 import TimeStampControl from './components/time-stamp-control';
 
-const blockName = 'jetpack/dialogue';
-const fallbackBlockName = 'core/paragraph';
-
 const defaultSpeakers = [
 	{
-		speaker: __( 'Speaker One', 'jetpack' ),
 		speakerSlug: 'speaker-0',
+		speaker: __( 'First', 'jetpack' ),
+		placeholder: __( 'First speaker says…', 'Jetpack' ),
 	},
 	{
-		speaker: __( 'Speaker Two', 'jetpack' ),
 		speakerSlug: 'speaker-1',
+		speaker: __( 'Second', 'jetpack' ),
+		placeholder: __( 'Second speaker says…', 'Jetpack' ),
 	},
 	{
-		speaker: __( 'Speaker Three', 'jetpack' ),
 		speakerSlug: 'speaker-2',
+		speaker: __( 'Third', 'jetpack' ),
+		placeholder: __( 'Third speaker says…', 'Jetpack' ),
 	},
 ];
 
@@ -45,8 +44,6 @@ export default function DialogueEdit ( {
 	className,
 	attributes,
 	setAttributes,
-	mergeBlocks,
-	onReplace,
 	instanceId,
 	context,
 } ) {
@@ -55,8 +52,7 @@ export default function DialogueEdit ( {
 		speakerSlug,
 		showTimeStamp,
 		timeStamp,
-		content,
-		placeholder,
+		placeholder = defaultSpeakers[ 0 ].placeholder,
 	} = attributes;
 
 	// Block context integration.
@@ -130,33 +126,9 @@ export default function DialogueEdit ( {
 				) }
 			</div>
 
-			<RichText
-				identifier="content"
-				wrapperClassName="wp-block-p2-dialogue__content"
-				value={ content }
-				onChange={ ( value ) =>
-					setAttributes( { content: value } )
-				}
-				onMerge={ mergeBlocks }
-				onSplit={ ( value ) => {
-					if ( ! content.length ) {
-						return createBlock( fallbackBlockName );
-					}
-
-					if ( ! value ) {
-						return createBlock( blockName );
-					}
-
-					return createBlock( blockName, {
-						...attributes,
-						content: value,
-					} );
-				} }
-				onReplace={ onReplace }
-				onRemove={
-					onReplace ? () => onReplace( [] ) : undefined
-				}
-				placeholder={ placeholder || __( 'Add entry' ) }
+			<InnerBlocks
+				template={ [ [ 'core/paragraph', { placeholder } ] ] }
+				templateLock="all"
 			/>
 		</div>
 	);
