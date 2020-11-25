@@ -78,26 +78,26 @@ class Config {
 	 *
 	 * Usage example:
 	 * <code>
-	 * $config->ensure_bunch(
-	 *     array(
-	 *         'slug'        => 'an-example-plugin',
-	 *         'name'        => 'An Example Plugin,
-	 *         'url_info'    => 'https://example.org',
-	 *         'plugin_file' => __FILE__,
-	 *     ),
+	 * $config->setup(
 	 *     array(
 	 *         'connection' => array(
 	 *             'deactivate_disconnect' => true,
 	 *             'tos_link'              => true,
 	 *         )
+	 *     ),
+	 *     array(
+	 *         'slug'        => 'an-example-plugin',
+	 *         'name'        => 'An Example Plugin,
+	 *         'url_info'    => 'https://example.org',
+	 *         'plugin_file' => __FILE__,
 	 *     )
 	 * );
 	 * </code>
 	 *
-	 * @param array $common_options The common options to be passed into each feature's initialization method.
 	 * @param array $features       Features to be enabled and their options.
+	 * @param array $common_options The common options to be passed into each feature's initialization method.
 	 */
-	public function ensure_bunch( array $common_options, array $features ) {
+	public function setup( array $features, array $common_options ) {
 		foreach ( $features as $feature => $feature_options ) {
 			$this->ensure( $feature, array_merge( $common_options, is_array( $feature_options ) ? $feature_options : array() ) );
 		}

@@ -226,7 +226,9 @@ class Manager {
 	 * @param string $plugin_path Path to the plugin file.
 	 */
 	public function initialize_deactivate_disconnect( $plugin_path ) {
-		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+		require_once ABSPATH . '/wp-admin/includes/plugin.php';
+
+		if ( is_plugin_active_for_network( $plugin_path ) ) {
 			register_deactivation_hook( $plugin_path, array( $this, 'deactivate_disconnect_network' ) );
 		} else {
 			register_deactivation_hook( $plugin_path, array( $this, 'deactivate_disconnect' ) );
