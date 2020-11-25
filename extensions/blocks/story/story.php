@@ -168,19 +168,33 @@ function render_video( $media ) {
 	}
 
 	$metadata = wp_get_attachment_metadata( $media['id'] );
+
 	if ( ! empty( $metadata ) && ! empty( $metadata['videopress'] ) ) {
+		// Use poster image for VideoPress videos.
 		$poster_url  = $metadata['videopress']['poster'];
 		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
+		$meta_width  = ! empty( $metadata['videopress']['width'] ) ? $metadata['videopress']['width'] : '';
+		$meta_height = ! empty( $metadata['videopress']['height'] ) ? $metadata['videopress']['height'] : '';
+	} elseif ( ! empty( $metadata['thumb'] ) ) {
+		// On WordPress.com, VideoPress videos have a 'thumb' property with the
+		// poster image filename instead.
+		$video_url   = wp_get_attachment_url( $media['id'] );
+		$poster_url  = str_replace( wp_basename( $video_url ), $metadata['thumb'], $video_url );
+		$description = ! empty( $media['alt'] ) ? $media['alt'] : '';
+		$meta_width  = ! empty( $metadata['width'] ) ? $metadata['width'] : '';
+		$meta_height = ! empty( $metadata['height'] ) ? $metadata['height'] : '';
+	}
+
+	if ( ! empty( $poster_url ) ) {
 		return sprintf(
-			'<img
-				title="%s"
-				alt="%s"
-				class="wp-block-jetpack-story_image wp-story-image %s"
-				src="%s">',
+			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s"%5$s%6$s>',
 			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
-			get_image_crop_class( $metadata['videopress']['width'], $metadata['videopress']['height'] ),
-			esc_attr( $poster_url )
+			'wp-block-jetpack-story_image wp-story-image ' .
+			get_image_crop_class( $meta_width, $meta_height ),
+			esc_attr( $poster_url ),
+			! empty( $meta_width ) ? ' width="' . esc_attr( $meta_width ) . '"' : '',
+			! empty( $meta_height ) ? ' height="' . esc_attr( $meta_height ) . '"' : ''
 		);
 	}
 
@@ -218,15 +232,18 @@ function render_slide( $media, $index = 0 ) {
 			$media_template = render_image( $media, $index );
 			break;
 		case 'video':
-		case 'file':
 			$media_template = render_video( $media, $index );
+			break;
+		case 'file':
+			// VideoPress videos can sometimes have type 'file', and mime 'video/videopress' or 'video/mp4'.
+			if ( 'video' === substr( $media['mime'], 0, 5 ) ) {
+				$media_template = render_video( $media, $index );
+			}
 			break;
 	}
 	return sprintf(
 		'<div class="wp-story-slide" style="display: %s;">
-			<figure>
-				%s
-			</figure>
+			<figure>%s</figure>
 		</div>',
 		0 === $index ? 'block' : 'none',
 		$media_template

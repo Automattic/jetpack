@@ -4,7 +4,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -245,7 +249,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 						<div className="jp-form-input-with-prefix-bottom-message">
 							<div className="jp-form-setting-explanation">
 								<p>
-									{ jetpackCreateInterpolateElement(
+									{ createInterpolateElement(
 										__(
 											"Monitor your site's traffic and performance from the <a>Google Search Console</a>.",
 											'jetpack'
@@ -262,7 +266,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 											),
 										}
 									) }{ ' ' }
-									{ jetpackCreateInterpolateElement(
+									{ createInterpolateElement(
 										/* translators: placeholders are links to Google support documents. */
 										__(
 											'Google will email about certain events that occur with your site, including indications that your website has been <a1>hacked</a1>, or problems <a2>crawling or indexing</a2> your site.',
@@ -312,7 +316,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 			>
 				<span>{ __( 'Google', 'jetpack' ) }</span>
 				<div className="jp-form-google-label-unverified-actions">
-					{ jetpackCreateInterpolateElement(
+					{ createInterpolateElement(
 						__(
 							'<button1>Verify with Google</button1><span>or</span><button2>Manually Verify</button2>',
 							'jetpack'

@@ -17,9 +17,6 @@ php:
 - "7.3"
 - "7.4snapshot"
 
-before_install:
- - composer self-update 2.0.6
-
 env:
   global:
   # Global variable is re-defined in matrix-include -list
@@ -50,6 +47,8 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build-concurrently"
+    before_install:
+      - composer self-update
 
   # Disable for now until we fix all the spelling issues
   # - name: "Spell check Markdown files"

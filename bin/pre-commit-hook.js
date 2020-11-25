@@ -14,7 +14,7 @@ let exitCode = 0;
  */
 function loadPhpcsExcludeList() {
 	if ( null === excludelist ) {
-		let regex = /^\s*#|^\s*$/;
+		const regex = /^\s*#|^\s*$/;
 		excludelist = fs
 			.readFileSync( __dirname + '/phpcs-excludelist.txt', 'utf8' )
 			.split( '\n' )
@@ -321,6 +321,8 @@ if ( phpLintResult && phpLintResult.status ) {
 if ( phpcsFiles.length > 0 ) {
 	runPHPCbf();
 	runPHPCS();
+}
+if ( phpFiles.length > 0 ) {
 	runPHPCSChanged( phpFiles );
 }
 

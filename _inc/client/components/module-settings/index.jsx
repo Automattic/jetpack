@@ -2,7 +2,11 @@
  * External dependencies
  */
 import React from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -110,7 +114,7 @@ export class RelatedPostsSettings extends React.Component {
 		return (
 			<form onSubmit={ this.props.onSubmit }>
 				<FormFieldset>
-					{ jetpackCreateInterpolateElement(
+					{ createInterpolateElement(
 						__(
 							'<span>You can now also configure related posts in the Customizer. <ExternalLink>Try it out!</ExternalLink></span>',
 							'jetpack'
@@ -184,7 +188,7 @@ export class LikesSettings extends React.Component {
 					/>
 				</FormFieldset>
 				<p>
-					{ jetpackCreateInterpolateElement(
+					{ createInterpolateElement(
 						__( '<a>Manage Likes visibility from the Sharing Module Settings</a>', 'jetpack' ),
 						{
 							a: <a href={ old_sharing_settings_url } />,
@@ -203,7 +207,7 @@ export class MonitorSettings extends React.Component {
 		return (
 			<span className="jp-form-setting-explanation">
 				<span>
-					{ jetpackCreateInterpolateElement(
+					{ createInterpolateElement(
 						__(
 							'<link>Configure your Monitor notification settings on WordPress.com</link>',
 							'jetpack'

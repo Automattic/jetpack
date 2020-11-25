@@ -231,6 +231,11 @@ class SearchApp extends Component {
 			adminQueryFilter: this.props.options.adminQueryFilter,
 		} )
 			.then( newResponse => {
+				if ( newResponse === null ) {
+					// Request has been cancelled by a more recent request
+					return;
+				}
+
 				if ( this.state.requestId === requestId ) {
 					const response = { ...newResponse };
 					if ( !! pageHandle ) {
@@ -251,10 +256,13 @@ class SearchApp extends Component {
 				this.setState( { isLoading: false } );
 			} )
 			.catch( error => {
+				// XHR errors are instances of ProgressEvents.
 				if ( error instanceof ProgressEvent ) {
 					this.setState( { isLoading: false, hasError: true } );
 					return;
 				}
+				// Stop loading indicator before throwing.
+				this.setState( { isLoading: false } );
 				throw error;
 			} );
 	};

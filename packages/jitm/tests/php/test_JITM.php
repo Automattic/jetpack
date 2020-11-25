@@ -28,6 +28,8 @@ class Test_Jetpack_JITM extends TestCase {
 		$this->mock_empty_function( 'rest_url' );
 		$this->mock_empty_function( 'esc_html__' );
 		$this->mock_empty_function( 'wp_create_nonce' );
+
+		$this->mock_production_environment();
 	}
 
 	public function tearDown() {
@@ -261,6 +263,16 @@ class Test_Jetpack_JITM extends TestCase {
 			->setName( $name )
 			->setFunction( function() use ( $name ) {
 				// echo "Called $name with " . print_r( func_get_args(),1 ) . "\n";
+			} );
+		$builder->build()->enable();
+	}
+
+	protected function mock_production_environment() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( "Automattic\Jetpack" )
+			->setName( 'wp_get_environment_type' )
+			->setFunction( function() {
+				return '';
 			} );
 		$builder->build()->enable();
 	}

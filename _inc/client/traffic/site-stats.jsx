@@ -4,7 +4,11 @@
 import React from 'react';
 import { filter, includes } from 'lodash';
 import classNames from 'classnames';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -140,7 +144,7 @@ class SiteStatsComponent extends React.Component {
 						<div className="jp-at-a-glance__stats-inactive-text">
 							{ this.props.isOfflineMode
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
-								: jetpackCreateInterpolateElement(
+								: createInterpolateElement(
 										__(
 											'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 											'jetpack'

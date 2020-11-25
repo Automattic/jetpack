@@ -349,7 +349,7 @@ class Listener {
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible.
 		if ( ! Actions::$sender ) {
-			add_filter( 'jetpack_sync_sender_should_load', __NAMESPACE__ . '\Actions::should_initialize_sender_enqueue' );
+			add_filter( 'jetpack_sync_sender_should_load', __NAMESPACE__ . '\Actions::should_initialize_sender_enqueue', 10, 1 );
 			if ( did_action( 'init' ) ) {
 				Actions::add_sender_shutdown();
 			}
