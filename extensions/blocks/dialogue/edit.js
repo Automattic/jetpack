@@ -150,6 +150,7 @@ export default function DialogueEdit ( {
 
 			<InnerBlocks
 				template={ [ [ 'core/paragraph', { placeholder } ] ] }
+				templateLock="all"
 			/>
 		</div>
 	);
