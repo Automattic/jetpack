@@ -58,9 +58,9 @@ export const settings = {
 	edit,
 	save,
 	providesContext: {
-		'dialogue/speakers': 'speakers',
-		'dialogue/showTimeStamp': 'showTimeStamp',
-		'dialogue/style': 'dialogueStyle',
+		'jetpack/conversation-speakers': 'speakers',
+		'jetpack/transcription-showtimestamp': 'showTimeStamp',
+		'jetpack/conversation-style': 'dialogueStyle',
 	},
 
 	transforms: {
