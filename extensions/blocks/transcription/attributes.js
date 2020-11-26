@@ -5,5 +5,8 @@ export default {
 	showTimeStamp: {
 		type: "boolean",
 		deault: true,
+	},
+	dialogueStyle: {
+		type: "string",
 	}
 };

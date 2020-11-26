@@ -1,5 +1,3 @@
-/* global MediaElementPlayer, mejs */
-
 /**
  * External dependencies
  */
@@ -68,7 +66,6 @@ function TranscriptionEdit ( {
 } ) {
 	const { speakers, showTimeStamp } = attributes;
 	const [ newLabelValue, setNewLabelValue ] = useState();
-
 	const containertRef = useRef();
 
 	// Set initial transcription speakers.
@@ -80,26 +77,16 @@ function TranscriptionEdit ( {
 		setAttributes( { speakers: defaultLabels } );
 	}, [ speakers, setAttributes ] );
 
-	function pickMediaData() {
-		if ( ! containertRef?.current ) {
-			return;
-		}
+	// Context bridge.
+	const contextProvision = {
+		setAttributes: useMemo( () => function( attrs ) {
+			setAttributes( attrs );
+		}, [ setAttributes ] ),
 
-		const { current: wrapperElement } = containertRef;
-		if ( ! wrapperElement ) {
-			return;
-		}
-
-		const mediaAudio = wrapperElement.querySelector( '.mejs-container audio' );
-		if ( ! mediaAudio ) {
-			return;
-		}
-
-		return {
-			mediaAudio,
-			timeCodeToSeconds: mejs.Utils.timeCodeToSeconds,
-		};
-	}
+		attributes: {
+			showTimeStamp,
+		},
+	};
 
 	function updateLabels ( updatedSpeaker ) {
 		const newLabels = map( speakers, ( speaker ) => {
@@ -134,7 +121,7 @@ function TranscriptionEdit ( {
 	}
 
 	return (
-		<TranscritptionContext.Provider value={ useMemo( () => pickMediaData, [] ) }>
+		<TranscritptionContext.Provider value={ contextProvision }>
 			<div ref={ containertRef } class={ className }>
 				<InspectorControls>
 					<Panel>

@@ -60,6 +60,7 @@ export const settings = {
 	providesContext: {
 		'dialogue/speakers': 'speakers',
 		'dialogue/showTimeStamp': 'showTimeStamp',
+		'dialogue/style': 'dialogueStyle',
 	},
 
 	transforms: {
