@@ -9,21 +9,17 @@ import { button as icon } from '@wordpress/icons';
  */
 import edit from './edit';
 import save from './save';
-import { getCategoryWithFallbacks } from '../../../block-helpers';
 
 const name = 'premium-content/buttons';
-const category = getCategoryWithFallbacks( 'design', 'common' );
-
 const settings = {
-	name,
-	category,
-	title: __( 'Premium Content buttons', 'full-site-editing' ),
+	title: __( 'Premium Content buttons', 'jetpack' ),
 	description: __(
 		'Prompt Premium Content visitors to take action with a group of button-style links.',
-		'full-site-editing'
+		'jetpack'
 	),
+	category: 'grow',
 	icon,
-	parent: [ 'jetpack/premium-content/container' ],
+	parent: [ 'premium-content/container' ],
 	supports: {
 		align: true,
 		alignWide: false,
@@ -38,10 +34,10 @@ const settings = {
 	providesContext: {
 		isPremiumContentChild: 'isPremiumContentChild',
 	},
-	keywords: [ __( 'link', 'full-site-editing' ) ],
+	keywords: [ __( 'link', 'jetpack' ) ],
 	edit,
 	save,
 	usesContext: [ 'premium-content/planId', 'premium-content/isPreview' ],
 };
 
-export { name, category, settings };
+export { name, settings };

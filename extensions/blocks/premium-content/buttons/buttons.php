@@ -11,7 +11,6 @@ use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'premium-content/buttons';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
  * Registers the block for use in Gutenberg
@@ -20,7 +19,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		FEATURE_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
 }

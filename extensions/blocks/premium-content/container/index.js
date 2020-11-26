@@ -11,7 +11,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import save from './save';
-import icon from './_inc/icon';
+import icon from '../_inc/icon';
 import {
     blockContainsPremiumBlock,
     blockHasParentPremiumBlock,

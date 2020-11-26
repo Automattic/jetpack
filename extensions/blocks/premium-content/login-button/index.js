@@ -9,10 +9,8 @@ import { __ } from '@wordpress/i18n';
  */
 import edit from './edit';
 import save from './save';
-import { getCategoryWithFallbacks } from '../../../block-helpers';
 
 const name = 'premium-content/login-button';
-const category = getCategoryWithFallbacks( 'design', 'common' );
 
 /**
  * @typedef {object} Attributes
@@ -27,18 +25,18 @@ const category = getCategoryWithFallbacks( 'design', 'common' );
  * @type {BlockConfiguration}
  */
 const settings = {
-	name,
-	title: __( 'Premium Content login button', 'full-site-editing' ),
+	title: __( 'Premium Content login button', 'jetpack' ),
 	description: __(
 		'Prompt subscriber visitors to log in with a button-style link (only visible for logged out users).',
-		'full-site-editing'
+		'jetpack'
 	),
+	category: 'grow',
 	attributes: {
 		text: {
 			type: 'string',
 			source: 'html',
 			selector: 'a',
-			default: __( 'Log in', 'full-site-editing' ),
+			default: __( 'Log in', 'jetpack' ),
 		},
 		borderRadius: {
 			type: 'number',
@@ -58,7 +56,7 @@ const settings = {
 	},
 	icon,
 	parent: [ 'jetpack/premium-content/container' ],
-	keywords: [ __( 'link', 'full-site-editing' ) ],
+	keywords: [ __( 'link', 'jetpack' ) ],
 	supports: {
 		align: true,
 		alignWide: false,
@@ -66,11 +64,11 @@ const settings = {
 		lightBlockWrapper: true,
 	},
 	styles: [
-		{ name: 'fill', label: __( 'Fill', 'full-site-editing' ), isDefault: true },
-		{ name: 'outline', label: __( 'Outline', 'full-site-editing' ) },
+		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
+		{ name: 'outline', label: __( 'Outline', 'jetpack' ) },
 	],
 	edit,
 	save,
 };
 
-export { name, category, settings };
+export { name, settings };
