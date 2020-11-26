@@ -92,6 +92,7 @@ class Jetpack_Podcast_Helper {
 			foreach ( $rss->get_items() as $track ) {
 				if ( $guid === $track->get_id() ) {
 					$track_data = self::setup_tracks_callback( $track );
+					break;
 				}
 			}
 
