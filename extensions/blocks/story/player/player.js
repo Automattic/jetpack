@@ -16,6 +16,7 @@ import {
 	useCallback,
 } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
+import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -25,7 +26,6 @@ import Slide from './slide';
 import icon from '../icon';
 import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
-import useResizeObserver from './use-resize-observer';
 import * as fullscreenAPI from './lib/fullscreen-api';
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(

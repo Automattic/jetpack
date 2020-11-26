@@ -96,11 +96,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			);
 		}
 
-		if ( ! function_exists( 'get_registered_theme_features' ) ) {
-			// get_registered_theme_features got intorduced in WP 5.5 so any tests that use the previous version of WP fail.
-			return;
-		}
-
 		// Sync all registered theme features.
 		$registered_theme_features = array_keys( get_registered_theme_features() );
 		$not_synced_theme_features = array_diff( $registered_theme_features, Defaults::$default_theme_support_whitelist );
@@ -296,7 +291,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_widgets_changes_get_synced() {
 		global $wp_registered_sidebars;
-		global $wp_version;
 
 		$sidebar_id = 'sidebar-1';
 		$sidebar_name = $wp_registered_sidebars[ $sidebar_id ]['name'];
@@ -361,12 +355,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
 
-		// WordPress 4.9 changed the label "Custom Menu" for "Navigation menu"
-		if ( version_compare( $wp_version, '4.9-alpha', '>=' ) ) {
-			$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
-		} else {
-			$this->assertEquals( $event->args[3], 'Custom Menu', 'Added widget name not found' );
-		}
+		$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
 
 		// Moved to inactive
 		$sidebar_widgets  = array(

@@ -1,16 +1,16 @@
 <?php
 
 /**
-* Jetpack_Google_Analytics_Legacy hooks and enqueues support for ga.js
-* https://developers.google.com/analytics/devguides/collection/gajs/
-*
-* @author Aaron D. Campbell (original)
-* @author allendav
-*/
+ * Jetpack_Google_Analytics_Legacy hooks and enqueues support for ga.js
+ * https://developers.google.com/analytics/devguides/collection/gajs/
+ *
+ * @author Aaron D. Campbell (original)
+ * @author allendav
+ */
 
 /**
-* Bail if accessed directly
-*/
+ * Bail if accessed directly
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -31,7 +31,7 @@ class Jetpack_Google_Analytics_Legacy {
 	 * @return string - Tracking URL
 	 */
 	private function _get_url( $track ) {
-		$site_url = ( is_ssl() ? 'https://':'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ); // Input var okay.
+		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ); // Input var okay.
 		foreach ( $track as $k => $value ) {
 			if ( strpos( strtolower( $value ), strtolower( $site_url ) ) === 0 ) {
 				$track[ $k ] = substr( $track[ $k ], strlen( $site_url ) );
@@ -77,6 +77,19 @@ class Jetpack_Google_Analytics_Legacy {
 			return;
 		}
 
+		if ( 'G-' === substr( $tracking_id, 0, 2 ) ) {
+			$this->render_gtag_code( $tracking_id );
+		} else {
+			$this->render_ga_code( $tracking_id );
+		}
+	}
+
+	/**
+	 * Renders legacy ga.js code.
+	 *
+	 * @param string $tracking_id Google Analytics measurement ID.
+	 */
+	private function render_ga_code( $tracking_id ) {
 		$custom_vars = array(
 			"_gaq.push(['_setAccount', '{$tracking_id}']);",
 		);
@@ -97,7 +110,7 @@ class Jetpack_Google_Analytics_Legacy {
 		if ( ! empty( $track ) ) {
 			$track['url'] = $this->_get_url( $track );
 			// adjust the code that we output, account for both types of tracking.
-			$track['url'] = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
+			$track['url']  = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
 			$custom_vars[] = "_gaq.push(['_trackPageview','{$track['url']}']);";
 		} else {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
@@ -123,14 +136,64 @@ class Jetpack_Google_Analytics_Legacy {
 					ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 				})();
-			</script>\r\n",
+			</script>
+			<!-- End Jetpack Google Analytics -->\r\n",
 			implode( "\r\n", $custom_vars )
 		);
 	}
 
 	/**
+	 * Renders new gtag code.
+	 *
+	 * @param string $tracking_id Google Analytics measurement ID.
+	 */
+	private function render_gtag_code( $tracking_id ) {
+		/**
+		 * Allow for additional elements to be added to the Global Site Tags array.
+		 *
+		 * @since 9.2.0
+		 *
+		 * @param array $universal_commands Array of gtag function calls.
+		 */
+		$universal_commands = apply_filters( 'jetpack_gtag_universal_commands', array() );
+		$custom_vars        = array();
+		if ( is_404() ) {
+			$custom_vars[] = array(
+				'event',
+				'exception',
+				array(
+					'description' => '404',
+					'fatal'       => false,
+				),
+			);
+		}
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		?>
+		<!-- Jetpack Google Analytics -->
+		<script async src='https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr( $tracking_id ); ?>'></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() { dataLayer.push( arguments ); }
+			gtag( 'js', new Date() );
+			gtag( 'config', <?php echo wp_json_encode( $tracking_id ); ?> );
+			<?php
+			foreach ( $universal_commands as $command ) {
+				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
+			}
+			foreach ( $custom_vars as $var ) {
+				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $var ) ) . " );\n";
+			}
+			?>
+		</script>
+		<!-- End Jetpack Google Analytics -->
+		<?php
+		// phpcs:enable
+	}
+
+	/**
 	 * Used to filter in the anonymize IP snippet to the custom vars array for classic analytics
 	 * Ref https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApi_gat#_gat._anonymizelp
+	 *
 	 * @param array custom vars to be filtered
 	 * @return array possibly updated custom vars
 	 */
@@ -144,6 +207,7 @@ class Jetpack_Google_Analytics_Legacy {
 
 	/**
 	 * Used to filter in the order details to the custom vars array for classic analytics
+	 *
 	 * @param array custom vars to be filtered
 	 * @return array possibly updated custom vars
 	 */
@@ -173,7 +237,8 @@ class Jetpack_Google_Analytics_Legacy {
 				array_push(
 					$custom_vars,
 					sprintf(
-						'_gaq.push( %s );', json_encode(
+						'_gaq.push( %s );',
+						json_encode(
 							array(
 								'_addTrans',
 								(string) $order->get_order_number(),
@@ -183,7 +248,7 @@ class Jetpack_Google_Analytics_Legacy {
 								(string) $order->get_total_shipping(),
 								(string) $order->get_billing_city(),
 								(string) $order->get_billing_state(),
-								(string) $order->get_billing_country()
+								(string) $order->get_billing_country(),
 							)
 						)
 					)
@@ -192,13 +257,14 @@ class Jetpack_Google_Analytics_Legacy {
 				// Order items
 				if ( $order->get_items() ) {
 					foreach ( $order->get_items() as $item ) {
-						$product = $order->get_product_from_item( $item );
+						$product           = $order->get_product_from_item( $item );
 						$product_sku_or_id = $product->get_sku() ? $product->get_sku() : $product->get_id();
 
 						array_push(
 							$custom_vars,
 							sprintf(
-								'_gaq.push( %s );', json_encode(
+								'_gaq.push( %s );',
+								json_encode(
 									array(
 										'_addItem',
 										(string) $order->get_order_number(),
@@ -206,7 +272,7 @@ class Jetpack_Google_Analytics_Legacy {
 										$item['name'],
 										Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
 										(string) $order->get_item_total( $item ),
-										(string) $item['qty']
+										(string) $item['qty'],
 									)
 								)
 							)
@@ -242,13 +308,13 @@ class Jetpack_Google_Analytics_Legacy {
 
 		if ( is_product() ) { // product page
 			global $product;
-			$product_sku_or_id = $product->get_sku() ? $product->get_sku() : "#" + $product->get_id();
+			$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' + $product->get_id();
 			wc_enqueue_js(
 				"$( '.single_add_to_cart_button' ).click( function() {
 					_gaq.push(['_trackEvent', 'Products', 'Add to Cart', '#" . esc_js( $product_sku_or_id ) . "']);
 				} );"
 			);
-		} else if ( is_woocommerce() ) { // any other page that uses templates (like product lists, archives, etc)
+		} elseif ( is_woocommerce() ) { // any other page that uses templates (like product lists, archives, etc)
 			wc_enqueue_js(
 				"$( '.add_to_cart_button:not(.product_type_variable, .product_type_grouped)' ).click( function() {
 					var label = $( this ).data( 'product_sku' ) ? $( this ).data( 'product_sku' ) : '#' + $( this ).data( 'product_id' );

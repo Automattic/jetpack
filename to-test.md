@@ -1,4 +1,4 @@
-## 9.1
+## 9.2
 
 ### Before you start
 
@@ -8,32 +8,39 @@
 
 ### Blocks
 
-We've made changes and fixed bugs for multiple blocks in this release. Give them a try, and see that they still work for you:
+We've made some changes to multiple blocks in this release, to ensure that they look good even outside of the WordPress context, such as in RSS feeds or subscription emails.
 
-- Donations Block -- you can try editing a Donations Block that was created with a previous version of Jetpack.
-- WhatsApp Block
-- Form Block -- try using commas, brackets, or backslashes in field labels and value, and ensure that doesn't break the block.
-- Pay with PayPal block -- we've made some changes to the way currencies are displayed, in the editor and on the frontend. We've also improved how the block looks outside of WordPress standard views (in subscription emails for example). Like with the Donations block, try editing existing posts with Pay with PayPal blocks, and ensure that the blocks can be updated with no issues.
+To test those changes, try the following:
 
-You can give those blocks a try with the AMP plugin active, to ensure that those blocks are accessible in AMP views as well.
+- Go to Jetpack > Settings
+- Enable the Subscriptions feature
+- Go to Posts > Add New
+- Add a subscription block, and publish the post.
+- Visit the post and subscribe to your own site with your own email address.
+- Publish a new post, with some content and the following blocks:
+	- Podcast
+	- Slideshow
+	- Pinterest
+	- Contact Form
+	- Tiled Gallery
 
-### Dashboard
+Make sure those blocks still look good on your site as well as in the subscription email you'll receive.
 
-We've made some changes to the display of the Backup and Scan cards in the Jetpack dashboard, to better reflect the status of your site. This shoyuld work whether you use WordPress in a single or multisite setup, and if you use VaultPress or Jetpack Backups.
+### Sync
 
-You can find detailed testing instructions [here](https://github.com/Automattic/jetpack/pull/17288).
+With the introduction of the wp_after_insert_post hook in WordPress 5.6 we are migrating the jetpack_publish_post asction from wp_insert_post so that the action consistently triggers after saving meta and terms.
 
-### Lazy Images
+To ensure there is no regression issues we need to validate Publicize still triggers for newly published posts using both WP 5.5 and 5.6.
 
-This release refactored the JavaScript used for Lazy Images/Deferred Image Loading and resolved an issue where printing could result
-in images not loading.
+- With WordPress 5.5 installed
+- Connect your site to Social Networks using the instructions at https://jetpack.com/support/publicize/
+- Go to Posts > Add New
+- Add Sample content, and customize the social message using the instructions at https://jetpack.com/support/publicize/#sharing-new-posts
+- Publish the post.
+- Confirm the custom message has been shared by visiting your social media accounts.
+- Upgrade your test site to WordPress 5.6
+- Repeat the above steps and ensure it is shared to your social networks.
 
-Steps to test:
-- Create a post with several images.
-- Verify lazy loading still works.
-- Reload, and clear the browser's file cache. Do not trigger loading of images on the reloaded page.
-- Attempt to print. Probably you'll get an alert about images not being loaded yet, and the print preview may show the same message rather than the post's content.
-- Wait for images to finish loading, and try printing again. There should be no alert and the print should print the post as expected.
-- Reload, scroll down to trigger lazy loading of all images, and try printing. Again, if all the images finished loading there should be no alert and normal print output.
+The jetpack_publish_post action also is used to trigger updates to elastic content, so verifying new posts show up in Instant Search results is another great way to test this change.
 
 **Thank you for all your help!**

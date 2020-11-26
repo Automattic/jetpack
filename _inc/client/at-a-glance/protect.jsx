@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 /**
  * WordPress dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -18,7 +19,6 @@ import { getProtectCount } from 'state/at-a-glance';
 import getRedirectUrl from 'lib/jp-redirect';
 import { isOfflineMode } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat } from 'components/number-format';
 import QueryProtectCount from 'components/data/query-dash-protect';
 
@@ -85,7 +85,7 @@ class DashProtect extends Component {
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
-						: jetpackCreateInterpolateElement(
+						: createInterpolateElement(
 								__(
 									'<a>Activate Protect</a> to keep your site protected from malicious sign in attempts.',
 									'jetpack'

@@ -4,7 +4,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { assign, debounce, isEmpty, trim } from 'lodash';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -85,7 +89,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 			};
 			let akismetStatus = '',
 				foldableHeader = __( 'Checking your spam protection…', 'jetpack' ),
-				explanation = jetpackCreateInterpolateElement(
+				explanation = createInterpolateElement(
 					__(
 						"If you don't already have an API key, then <a>get your API key here</a>, and you'll be guided through the process of getting one.",
 						'jetpack'
@@ -120,7 +124,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 					akismetStatus = (
 						<FormInputValidation
 							isError
-							text={ jetpackCreateInterpolateElement(
+							text={ createInterpolateElement(
 								__(
 									"There's a problem with your Anti-spam API key. <a>Learn more</a>.",
 									'jetpack'

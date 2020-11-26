@@ -4,9 +4,13 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -24,7 +28,13 @@ import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 's
 import { getUpgradeUrl } from 'state/initial-state';
 import { isOfflineMode } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
-import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
+
+const SEARCH_DESCRIPTION = __(
+	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+	'jetpack'
+);
+const SEARCH_CUSTOMIZE_CTA = __( 'Customize your Search experience.', 'jetpack' );
+const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
 
 /**
  * Displays a card for Search based on the props given.
@@ -157,7 +167,7 @@ class DashSearch extends Component {
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
-			content: jetpackCreateInterpolateElement(
+			content: createInterpolateElement(
 				__(
 					'<a>Activate</a> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 					'jetpack'

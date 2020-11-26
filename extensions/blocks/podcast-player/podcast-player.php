@@ -30,7 +30,7 @@ function register_block() {
 		array(
 			'attributes'      => array(
 				'url'                    => array(
-					'type' => 'url',
+					'type' => 'string',
 				),
 				'itemsToShow'            => array(
 					'type'    => 'integer',

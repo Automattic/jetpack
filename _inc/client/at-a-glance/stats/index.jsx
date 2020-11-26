@@ -9,8 +9,9 @@ import { connect } from 'react-redux';
 /**
  * WordPress dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
 import { dateI18n } from '@wordpress/date';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -28,7 +29,6 @@ import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 
 import { imagePath } from 'constants/urls';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { numberFormat } from 'components/number-format';
 import QueryStatsData from 'components/data/query-stats-data';
@@ -198,7 +198,7 @@ export class DashStats extends Component {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>
-							{ jetpackCreateInterpolateElement(
+							{ createInterpolateElement(
 								__(
 									'Something happened while loading stats. Please try again later or <a>view your stats now on WordPress.com</a>',
 									'jetpack'
@@ -248,7 +248,7 @@ export class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-inactive-text">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
-						: jetpackCreateInterpolateElement(
+						: createInterpolateElement(
 								__(
 									'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'

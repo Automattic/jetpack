@@ -221,26 +221,11 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function get_terms() {
-		global $wp_version;
-		if ( version_compare( $wp_version, '4.5', '>=' ) ) {
-			return get_terms( array(
+		return get_terms(
+			array(
 				'taxonomy'   => $this->taxonomy,
 				'hide_empty' => false,
-			) );
-
-		} else {
-			return array_map( array( $this, 'upgrade_terms_to_pass_test' ), get_terms( $this->taxonomy, array(
-					'hide_empty' => false,
-				) )
-			);
-
-		}
+			)
+		);
 	}
-
-	function upgrade_terms_to_pass_test( $term ) {
-		$term->filter = 'raw';
-
-		return $term;
-	}
-
 }

@@ -281,45 +281,6 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	}
 
 	/**
-	 * Test compatibility with the wp_kses_post function.
-	 */
-	public function test_compat_with_wp_kses_post() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 5.0, '>=' ) ) {
-			$this->markTestSkipped( 'WP 5.0 allow all data attributes' );
-			return;
-		}
-		$instance = Jetpack_Lazy_Images::instance();
-		remove_filter( 'wp_kses_allowed_html', array( $instance, 'allow_lazy_attributes' ) );
-
-		$sample_image_srcset = '<img src="placeholder.jpg" data-lazy-src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w">';
-		$sample_img_sizes    = '<img src="placeholder.jpg" data-lazy-src="image.jpg" data-lazy-sizes="(min-width: 36em) 33.3vw, 100vw">';
-
-		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$allowed = wp_kses_allowed_html();
-
-		// First, test existence of issue if we don't filter.
-		$no_lazy_srcset = wp_kses_post( $sample_image_srcset );
-		$no_lazy_sizes  = wp_kses_post( $sample_img_sizes );
-
-		$this->assertNotContains( 'data-lazy-src', $no_lazy_srcset );
-		$this->assertNotContains( 'data-lazy-src', $no_lazy_sizes );
-		$this->assertNotContains( 'data-lazy-srcset', $no_lazy_srcset );
-		$this->assertNotContains( 'data-lazy-size', $no_lazy_sizes );
-
-		add_filter( 'wp_kses_allowed_html', array( $instance, 'allow_lazy_attributes' ) );
-
-		// Second, test that the issue is fixed when we filter.
-		$with_lazy_srcset = wp_kses_post( $sample_image_srcset );
-		$with_lazy_sizes  = wp_kses_post( $sample_img_sizes );
-
-		$this->assertContains( 'data-lazy-src', $with_lazy_srcset );
-		$this->assertContains( 'data-lazy-src', $with_lazy_sizes );
-		$this->assertContains( 'data-lazy-srcset', $with_lazy_srcset );
-		$this->assertContains( 'data-lazy-size', $with_lazy_sizes );
-	}
-
-	/**
 	 * Test that images with classes are not processed.
 	 *
 	 * @param string $input       Input content.

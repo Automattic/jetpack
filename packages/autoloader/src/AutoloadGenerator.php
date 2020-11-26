@@ -15,27 +15,28 @@
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
-
 namespace Automattic\Jetpack\Autoloader;
 
-use Composer\Autoload\AutoloadGenerator as BaseGenerator;
 use Composer\Autoload\ClassMapGenerator;
+use Composer\Composer;
 use Composer\Config;
 use Composer\Installer\InstallationManager;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Util\Filesystem;
+use Composer\Util\PackageSorter;
 
 /**
  * Class AutoloadGenerator.
  */
-class AutoloadGenerator extends BaseGenerator {
+class AutoloadGenerator {
 
 	const COMMENT = <<<AUTOLOADER_COMMENT
 /**
@@ -66,8 +67,9 @@ AUTOLOADER_COMMENT;
 	/**
 	 * Dump the Jetpack autoloader files.
 	 *
+	 * @param Composer                     $composer The Composer object.
 	 * @param Config                       $config Config object.
-	 * @param InstalledRepositoryInterface $localRepo Installed Reposetories object.
+	 * @param InstalledRepositoryInterface $localRepo Installed Repository object.
 	 * @param PackageInterface             $mainPackage Main Package object.
 	 * @param InstallationManager          $installationManager Manager for installing packages.
 	 * @param string                       $targetDir Path to the current target directory.
@@ -75,6 +77,7 @@ AUTOLOADER_COMMENT;
 	 * @param string                       $suffix The autoloader suffix.
 	 */
 	public function dump(
+		Composer $composer,
 		Config $config,
 		InstalledRepositoryInterface $localRepo,
 		PackageInterface $mainPackage,
@@ -85,7 +88,7 @@ AUTOLOADER_COMMENT;
 	) {
 		$this->filesystem->ensureDirectoryExists( $config->get( 'vendor-dir' ) );
 
-		$packageMap = $this->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
+		$packageMap = $composer->getAutoloadGenerator()->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
 		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage );
 
 		// Convert the autoloads into a format that the manifest generator can consume more easily.
@@ -107,6 +110,117 @@ AUTOLOADER_COMMENT;
 	}
 
 	/**
+	 * Compiles an ordered list of namespace => path mappings
+	 *
+	 * @param  array            $packageMap  Array of array(package, installDir-relative-to-composer.json).
+	 * @param  PackageInterface $mainPackage Main package instance.
+	 *
+	 * @return array The list of path mappings.
+	 */
+	public function parseAutoloads( array $packageMap, PackageInterface $mainPackage ) {
+		$rootPackageMap = array_shift( $packageMap );
+
+		$sortedPackageMap   = $this->sortPackageMap( $packageMap );
+		$sortedPackageMap[] = $rootPackageMap;
+		array_unshift( $packageMap, $rootPackageMap );
+
+		$psr0     = $this->parseAutoloadsType( $packageMap, 'psr-0', $mainPackage );
+		$psr4     = $this->parseAutoloadsType( $packageMap, 'psr-4', $mainPackage );
+		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage );
+		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage );
+
+		krsort( $psr0 );
+		krsort( $psr4 );
+
+		return array(
+			'psr-0'    => $psr0,
+			'psr-4'    => $psr4,
+			'classmap' => $classmap,
+			'files'    => $files,
+		);
+	}
+
+	/**
+	 * Sorts packages by dependency weight
+	 *
+	 * Packages of equal weight retain the original order
+	 *
+	 * @param  array $packageMap The package map.
+	 * @return array
+	 */
+	protected function sortPackageMap( array $packageMap ) {
+		$packages = array();
+		$paths    = array();
+
+		foreach ( $packageMap as $item ) {
+			list( $package, $path ) = $item;
+			$name                   = $package->getName();
+			$packages[ $name ]      = $package;
+			$paths[ $name ]         = $path;
+		}
+
+		$sortedPackages = PackageSorter::sortPackages( $packages );
+
+		$sortedPackageMap = array();
+
+		foreach ( $sortedPackages as $package ) {
+			$name               = $package->getName();
+			$sortedPackageMap[] = array( $packages[ $name ], $paths[ $name ] );
+		}
+
+		return $sortedPackageMap;
+	}
+
+	/**
+	 * Returns the file identifier.
+	 *
+	 * @param PackageInterface $package The package instance.
+	 * @param string           $path The path.
+	 */
+	protected function getFileIdentifier( PackageInterface $package, $path ) {
+		return md5( $package->getName() . ':' . $path );
+	}
+
+	/**
+	 * Returns the path code for the given path.
+	 *
+	 * @param Filesystem $filesystem The filesystem instance.
+	 * @param string     $basePath The base path.
+	 * @param string     $vendorPath The vendor path.
+	 * @param string     $path The path.
+	 *
+	 * @return string The path code.
+	 */
+	protected function getPathCode( Filesystem $filesystem, $basePath, $vendorPath, $path ) {
+		if ( ! $filesystem->isAbsolutePath( $path ) ) {
+			$path = $basePath . '/' . $path;
+		}
+		$path = $filesystem->normalizePath( $path );
+
+		$baseDir = '';
+		if ( 0 === strpos( $path . '/', $vendorPath . '/' ) ) {
+			$path    = substr( $path, strlen( $vendorPath ) );
+			$baseDir = '$vendorDir';
+
+			if ( false !== $path ) {
+				$baseDir .= ' . ';
+			}
+		} else {
+			$path = $filesystem->normalizePath( $filesystem->findShortestPath( $basePath, $path, true ) );
+			if ( ! $filesystem->isAbsolutePath( $path ) ) {
+				$baseDir = '$baseDir . ';
+				$path    = '/' . $path;
+			}
+		}
+
+		if ( strpos( $path, '.phar' ) !== false ) {
+			$baseDir = "'phar://' . " . $baseDir;
+		}
+
+		return $baseDir . ( ( false !== $path ) ? var_export( $path, true ) : '' );
+	}
+
+	/**
 	 * This function differs from the composer parseAutoloadsType in that beside returning the path.
 	 * It also return the path and the version of a package.
 	 *
@@ -120,10 +234,6 @@ AUTOLOADER_COMMENT;
 	 */
 	protected function parseAutoloadsType( array $packageMap, $type, PackageInterface $mainPackage ) {
 		$autoloads = array();
-
-		if ( 'psr-4' !== $type && 'classmap' !== $type && 'files' !== $type && 'psr-0' !== $type ) {
-			return parent::parseAutoloadsType( $packageMap, $type, $mainPackage );
-		}
 
 		foreach ( $packageMap as $item ) {
 			list($package, $installPath) = $item;
