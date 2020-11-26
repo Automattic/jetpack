@@ -20,7 +20,6 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\{
 require_once '../_inc/subscription-service/include.php';
 
 const FEATURE_NAME = 'premium-content/login-button';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
  * Registers the block for use in Gutenberg
@@ -29,7 +28,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		FEATURE_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
 }
