@@ -64,7 +64,7 @@ class Admin_Color_Schemes {
 			array(
 				'base'    => '#c5d9ed',
 				'focus'   => '#fff',
-				'current' => '#fff',
+				'current' => '#01263a',
 			)
 		);
 
