@@ -261,13 +261,7 @@ class Jetpack_Memberships {
 		$user_can_edit              = $this->user_can_edit();
 		$requires_stripe_connection = ! $this->get_connected_account_id();
 
-		$requires_upgrade = false;
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id          = get_current_blog_id();
-			$requires_upgrade = has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
-		} else {
-			$requires_upgrade = Jetpack::is_active() && Jetpack_Plan::supports( 'recurring-payments' );
-		}
+		$requires_upgrade = ! self::is_supported_jetpack_recurring_payments();
 
 		$is_premium_content_child = false;
 		if ( isset( $block ) && isset( $block->context['isPremiumContentChild'] ) ) {
@@ -429,20 +423,35 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Whether Recurring Payments are enabled.
+	 * Whether Recurring Payments are enabled. True if the block
+	 * is supported by the site's plan, or if it is a Jetpack site
+	 * and the feature to enable upgrade nudges is active.
 	 *
 	 * @return bool
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
+		return (
+			self::is_supported_jetpack_recurring_payments() ||
+			(
+				Jetpack::is_active() &&
+				/** This filter is documented in class.jetpack-gutenberg.php */
+				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+			)
+		);
+	}
+
+	/**
+	 * Whether the site's plan supports the Recurring Payments block.
+	 */
+	public static function is_supported_jetpack_recurring_payments() {
 		// For WPCOM sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
 			$site_id = get_current_blog_id();
 			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 		// For Jetpack sites.
-		return Jetpack::is_active() && (
-			/** This filter is documented in class.jetpack-gutenberg.php */
-			! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ) || // Remove when the default becomes `true`.
+		return (
+			Jetpack::is_active() &&
 			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}
