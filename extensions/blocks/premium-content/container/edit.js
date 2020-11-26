@@ -17,7 +17,7 @@ import apiFetch from '@wordpress/api-fetch';
 import Blocks from './_inc/blocks';
 import Controls from './_inc/controls';
 import Inspector from './_inc/inspector';
-import Context from './_inc/context';
+import Context from '../_inc/context';
 import { flashIcon } from './_inc/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '.';
 

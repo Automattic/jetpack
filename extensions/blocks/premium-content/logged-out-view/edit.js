@@ -10,7 +10,7 @@ import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import Context from '../container/context';
+import Context from '../_inc/context';
 
 function Edit( { parentClientId, isSelected } ) {
 	const { selectBlock } = useDispatch( 'core/block-editor' );

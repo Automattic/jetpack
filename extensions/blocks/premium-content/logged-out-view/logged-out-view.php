@@ -11,7 +11,6 @@ use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'premium-content/logged-out-view';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 require_once '../_inc/access-check.php';
 
@@ -22,7 +21,7 @@ require_once '../_inc/access-check.php';
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		FEATURE_NAME,
 		array(
             'render_callback' => __NAMESPACE__ . '\render_block',
             $uses             => array( 'premium-content/planId' ),

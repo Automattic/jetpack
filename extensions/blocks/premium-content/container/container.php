@@ -25,7 +25,6 @@ require_once __DIR__ . '/subscription-service/include.php';
 require_once '../_inc/access-check.php';
 
 const FEATURE_NAME = 'premium-content/container';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 const PAYWALL_FILTER = 'earn_premium_content_subscription_service';
 
 /**
@@ -40,7 +39,7 @@ function register_block() {
 	$uses       = $deprecated ? 'context' : 'uses_context';
 
     Blocks::jetpack_register_block(
-		BLOCK_NAME,
+		FEATURE_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
             'plan_check'      => true,
