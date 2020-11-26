@@ -1,8 +1,28 @@
-$base-color: #f2ceda;
-$text-color: #700f3b;
+// core variables (core _variables.scss)
+$base-color: #005042; // Calypso --color-masterbar-background
+$icon-color: #8c1749; // Calypso --color-sidebar-gridicon-fill
+$highlight-color: #2271b1; // Calypso --color-accent
+$notification-color: #c9356e; // Calypso --color-masterbar-unread-dot-background
+
+// global (core _variables.scss)
+$body-background: #f6f7f7; // Calypso --color-surface-backdrop
+
+// admin menu & admin-bar (core _variables.scss)
+$menu-text: #700f3b; // Calypso --color-sidebar-text
+$menu-background: #f2ceda; // Calypso --color-sidebar-background
+$menu-highlight-text: #4f092a; // Calypso --color-sidebar-menu-hover-text
+$menu-highlight-icon: $menu-highlight-text;
+$menu-highlight-background: #f7a8c3; // Calypso --color-sidebar-menu-hover-background
+$menu-current-text: #ffffff; // Calypso --color-sidebar-menu-selected-text
+$menu-current-icon: $menu-current-text;
+$menu-current-background: #2271b1; // Calypso --color-sidebar-menu-selected-background
+$menu-submenu-text: #f5e9ed; // Calypso --color-sidebar-submenu-text
+$menu-submenu-background: #4f092a; // Calypso --color-sidebar-submenu-background
+$menu-submenu-focus-text: #72aee6; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-current-text: #f5e9ed; // Calypso --color-sidebar-submenu-selected-text
 
 // masterbar overrides
-$masterbar-background: $base-color;
-$masterbar-highlight-background: $base-color;
+$masterbar-background: #005042; // Calypso --color-masterbar-background
+$masterbar-highlight-background: #003b30; // Calypso --color-masterbar-item-hover-background
 
 @import "../admin";

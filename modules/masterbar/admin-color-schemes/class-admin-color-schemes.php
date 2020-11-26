@@ -144,10 +144,10 @@ class Admin_Color_Schemes {
 			'sakura',
 			__( 'Sakura', 'jetpack' ),
 			plugins_url( 'colors/sakura/colors.css', __FILE__ ),
-			array( '#005042', '#f2ceda', '#700f3b', '#646970' ),
+			array( '#005042', '#f2ceda', '#2271b1', '#8c1749' ),
 			array(
-				'base'    => '#646970',
-				'focus'   => '#fff',
+				'base'    => '#8c1749',
+				'focus'   => '#4f092a',
 				'current' => '#fff',
 			)
 		);
