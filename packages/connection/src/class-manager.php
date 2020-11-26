@@ -737,7 +737,7 @@ class Manager {
 			$user_id = get_current_user_id();
 		}
 
-		return (int) $user_id === $this->get_connection_owner_id();
+		return ( (int) $user_id ) === $this->get_connection_owner_id();
 	}
 
 	/**

@@ -196,6 +196,42 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test is_connection_owner
+	 */
+	public function test_is_connection_owner() {
+		$master_user_id = wp_insert_user(
+			array(
+				'user_login' => 'sample_user',
+				'user_pass'  => 'asdqwe',
+				'role'       => 'administrator',
+			)
+		);
+		$other_user_id  = wp_insert_user(
+			array(
+				'user_login' => 'other_user',
+				'user_pass'  => 'asdqwe',
+				'role'       => 'administrator',
+			)
+		);
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$master_user_id => 'asd.qwe.' . $master_user_id,
+			)
+		);
+		\Jetpack_Options::update_option( 'master_user', $master_user_id );
+
+		$this->assertFalse( $this->manager->is_connection_owner() );
+
+		wp_set_current_user( $master_user_id );
+		$this->assertTrue( $this->manager->is_connection_owner() );
+
+		wp_set_current_user( $other_user_id );
+		$this->assertFalse( $this->manager->is_connection_owner() );
+
+	}
+
+	/**
 	 * Test get_access_token method
 	 *
 	 * @dataProvider get_access_token_data_provider
