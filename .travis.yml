@@ -1,37 +1,3 @@
-# Travis CI Configuration File
-
-# Tell Travis CI which distro to use
-dist: trusty
-
-# Tell Travis CI we're using PHP
-language: php
-
-services:
-  - docker
-
-# Run Matrix for these PHP versions
-php:
-- "5.6"
-- "7.0"
-- "7.2"
-- "7.3"
-- "7.4snapshot"
-
-env:
-  global:
-  # Global variable is re-defined in matrix-include -list
-  - WP_TRAVISCI=phpunit
-  # Tell Composer that the version is "dev-master" to avoid it guessing for the monorepo packages.
-  - COMPOSER_ROOT_VERSION=dev-master
-  # Run phpunit in Travis matrix for these combinations
-  matrix:
-  - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
-  - WP_BRANCH=latest
-  - WP_BRANCH=previous PHP_LINT=1
-
-# Define a matrix of additional build configurations
-# The versions listed above will automatically create our first configuration,
-# so it doesn't need to be re-defined below.
 matrix:
   fast_finish: true
   include:
