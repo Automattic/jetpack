@@ -27,7 +27,9 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			$uses             => array( 'jetpack/conversation-speakers' ),
+			$uses             => array(
+				'jetpack/conversation-speakers'
+			),
 		)
 	);
 }
@@ -36,12 +38,46 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Dialogue block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Dialogue block attributes.
+ * @param array  $attrs    Array containing the Dialogue block attributes.
  * @param string $content String containing the Dialogue block content.
  *
  * @return string
  */
-function render_block( $attr, $content, $block ) {
+function render_block( $attrs, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	return $content;
+
+	// Attributes..
+	$speaker_slug = isset( $attrs[ 'speakerSlug' ] ) ? $attrs[ 'speakerSlug' ] : 'speaker-0';
+	$timestamp = isset( $attrs[ 'timeStamp' ] ) ? esc_attr( $attrs[ 'timeStamp' ] ) : '00:00';
+
+	// Pick up speaker name from block context.
+	$speakers = $block->context['jetpack/conversation-speakers' ];	
+
+	// Speaker names map.
+	$speaker_names_map = array();
+	foreach( $speakers as $speaker ) {
+		$speaker_names_map[ $speaker['speakerSlug'] ] = array(
+			'name' => $speaker['speaker'],
+		);
+	}
+
+	// Get speaker name from context.
+	$speaker_name =  isset( $speaker_names_map[ $speaker_slug ]['name' ] )
+		? esc_attr( $speaker_names_map[ $speaker_slug ]['name' ] )
+		: 'First speaker';
+
+	// Markup
+	$base_classname = 'wp-block-jetpack-dialogue';
+	$markup = '<div class=' . $base_classname .  '" >' .
+		'<div class="'. $base_classname . '__meta">' .
+			'<div class="'. $base_classname . '__speaker">' .
+				$speaker_name .
+			'</div>' .
+			'<div class="'. $base_classname . '__timestamp">' .
+				$timestamp .
+			'</div>' .
+		'</div>' .
+		$content .
+	'</div>';
+	return $markup;
 }
