@@ -1,7 +1,8 @@
 name: JS tests
 
 on: pull_request
-
+env:
+  DANGER_GITHUB_API_TOKEN: 6a75aadd6087f35216c9dbf71d9d91361524636c
 jobs:
   lint:
     name: "JavaScript & CSS lint"
@@ -39,9 +40,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - env:
-          DANGER_GITHUB_API_TOKEN: 5c8846141ed000e810aac32a4b749b779a82f437
-        run: |
+      - run: |
           yarn install
           yarn test-dangerci-and-adminpage-and-extensions-and-search
 
