@@ -27,7 +27,7 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			$uses             => array( 'dialogue/speakers' ),
+			$uses             => array( 'jetpack/conversation-speakers' ),
 		)
 	);
 }

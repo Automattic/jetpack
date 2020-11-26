@@ -34,9 +34,9 @@ export const settings = {
 	save,
 	attributes,
 	usesContext: [
-		'dialogue/speakers',
-		'dialogue/showTimeStamp',
-		'dialogue/style',
+		'jetpack/conversation-speakers',
+		'jetpack/transcription-showtimestamp',
+		'jetpack/conversation-style',
 	],
 	styles: [
 		{ name: 'row', label: __( 'Row', 'jetpack' ), isDefault: true },

@@ -48,6 +48,10 @@ const defaultSpeakers = [
 	},
 ];
 
+function getSpeakerBySlug( speakers, slug ) {
+	return find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === slug );
+}
+
 export default function DialogueEdit ( {
 	className,
 	attributes,
@@ -66,38 +70,19 @@ export default function DialogueEdit ( {
 	} = attributes;
 
 	// Block context integration.
-	const speakersFromContext = context[ 'dialogue/speakers' ];
-	const showTimeStamp = context[ 'dialogue/showTimeStamp' ];
-	const contextDialogueStyle = context[ 'dialogue/style' ];
+	const speakersFromContext = context[ 'jetpack/conversation-speakers' ];
+	const showTimeStamp = context[ 'jetpack/transcription-showtimestamp' ];
+	const contextDialogueStyle = context[ 'jetpack/conversation-style' ];
 
 	// Speakers list.
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
 
+	// speaker object.
+	const currentSpeaker = getSpeakerBySlug( speakers, speakerSlug );
+	const speakerName = currentSpeaker?.speaker || speaker;
+
 	// Transcription context. A bridge between dialogue and transcription blocks.
 	const transcritionBridge = useContext( TranscriptionContext );
-
-	useEffect( () => {
-		if ( ! speaker ) {
-			// set the initial value for the speaker.
-			return setAttributes( speakers[ 0 ] );
-		}
-
-		// Follow labels changes when block context changes.
-		if ( ! speakersFromContext ) {
-			return;
-		}
-
-		const speakerBySlugObject = find( speakersFromContext, ( contextSpeaker ) => contextSpeaker.speakerSlug === speakerSlug );
-		if ( ! speakerBySlugObject ) {
-			return;
-		}
-
-		setAttributes( {
-			color: null,
-			backgroundColor: null,
-			...speakerBySlugObject,
-		} );
-	}, [ speakerSlug, speakersFromContext, setAttributes, speaker, speakers ] );
 
 	useEffect( () => {
 		if ( ! transcritionBridge?.setAttributes ) {
@@ -124,14 +109,14 @@ export default function DialogueEdit ( {
 						id={ `dialogue-${ instanceId }-speakers-dropdown` }
 						speakers={ speakers }
 						speaker={ speaker }
-						onSelect={ ( { newSpeaker, newSpeakerSlug } ) => {
+						speakerSlug={ speakerSlug }
+						onSelect={ ( { newSpeakerSlug } ) => {
 							setAttributes( {
 								speakerSlug: newSpeakerSlug,
-								speaker: newSpeaker,
 							} );
 						} }
-						onChange={ ( { newSpeaker, newSpeakerSlug } ) => setAttributes( {
-							speakerSlug: newSpeakerSlug,
+						onChange={ ( { newSpeaker } ) => setAttributes( {
+							speakerSlug: null,
 							speaker: newSpeaker,
 						} ) }
 					/>
@@ -169,7 +154,7 @@ export default function DialogueEdit ( {
 					} ) }
 					style={ { color, backgroundColor } }
 				>
-					{ speaker }
+					{ speakerName }
 				</div>
 
 				{ showTimeStamp && (
