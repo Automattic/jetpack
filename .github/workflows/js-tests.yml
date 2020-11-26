@@ -2,7 +2,7 @@ name: JS tests
 
 on: pull_request
 env:
-  DANGER_GITHUB_API_TOKEN: 6a75aadd6087f35216c9dbf71d9d91361524636c
+  DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_TOKEN }}
 jobs:
   lint:
     name: "JavaScript & CSS lint"

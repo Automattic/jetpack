@@ -3,7 +3,7 @@ name: PHPUnit tests
 on: pull_request
 
 ### TODO whitelist branches:
-# branches:
+ # branches:
 #   only:
 #     - master
 #     - master-stable

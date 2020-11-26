@@ -20,7 +20,7 @@ jobs:
         with:
           php-version: "7.3"
           tools: composer
-          extensions: mysql, imagick
+          extensions: mysql, imagick, gd
       - uses: actions/setup-node@v1
         with:
           node-version: '12'
