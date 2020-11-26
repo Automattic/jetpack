@@ -56,7 +56,7 @@ const TRANSCRIPTION_TEMPLATE = [
 	[ 'jetpack/podcast-player' ],
 	[ 'jetpack/dialogue', defaultLabels[ 0 ] ],
 	[ 'jetpack/dialogue', defaultLabels[ 1 ] ],
-	[ 'core/paragraph', defaultLabels[ 2 ] ],
+	[ 'jetpack/dialogue', defaultLabels[ 2 ] ],
 ];
 
 function TranscriptionEdit ( {
