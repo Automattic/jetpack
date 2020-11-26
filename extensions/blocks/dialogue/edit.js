@@ -109,7 +109,7 @@ export default function DialogueEdit ( {
 						id={ `dialogue-${ instanceId }-speakers-dropdown` }
 						speakers={ speakers }
 						speaker={ speaker }
-						speakerSlug={ speakerSlug }
+						speakerName={ speakerName }
 						onSelect={ ( { newSpeakerSlug } ) => {
 							setAttributes( {
 								speakerSlug: newSpeakerSlug,
