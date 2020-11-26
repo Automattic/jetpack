@@ -19,4 +19,8 @@ if ( empty( $_SERVER['SCRIPT_NAME'] ) ) {
 	$_SERVER['SCRIPT_NAME'] = __DIR__ . '/vendor/phpunit/phpunit/phpunit';
 }
 
+if ( empty( $_SERVER['PHP_SELF'] ) ) {
+	$_SERVER['PHP_SELF'] = '';
+}
+
 \WorDBless\Load::load();
