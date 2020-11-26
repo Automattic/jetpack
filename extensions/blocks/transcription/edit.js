@@ -64,7 +64,7 @@ function TranscriptionEdit ( {
 	attributes,
 	setAttributes,
 } ) {
-	const { speakers, showTimeStamp } = attributes;
+	const { speakers, showTimeStamp, dialogueStyle } = attributes;
 	const [ newLabelValue, setNewLabelValue ] = useState();
 	const containertRef = useRef();
 
@@ -79,12 +79,11 @@ function TranscriptionEdit ( {
 
 	// Context bridge.
 	const contextProvision = {
-		setAttributes: useMemo( () => function( attrs ) {
-			setAttributes( attrs );
-		}, [ setAttributes ] ),
+		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
 
 		attributes: {
 			showTimeStamp,
+			dialogueStyle,
 		},
 	};
 
@@ -134,7 +133,7 @@ function TranscriptionEdit ( {
 											onChange={ ( speakerEditedValue ) => updateLabels( {
 												speakerSlug,
 												speaker: speakerEditedValue,
-												placeholder:  `${ speaker } says…`,
+												placeholder: `${ speaker } says…`,
 											} ) }
 										/>
 

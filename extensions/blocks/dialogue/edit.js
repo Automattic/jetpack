@@ -62,11 +62,13 @@ export default function DialogueEdit ( {
 		backgroundColor,
 		timeStamp,
 		placeholder = defaultSpeakers[ 0 ].placeholder,
+		className: classNameAttr,
 	} = attributes;
 
 	// Block context integration.
 	const speakersFromContext = context[ 'dialogue/speakers' ];
 	const showTimeStamp = context[ 'dialogue/showTimeStamp' ];
+	const contextDialogueStyle = context[ 'dialogue/style' ];
 
 	// Speakers list.
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
@@ -96,6 +98,21 @@ export default function DialogueEdit ( {
 			...speakerBySlugObject,
 		} );
 	}, [ speakerSlug, speakersFromContext, setAttributes, speaker, speakers ] );
+
+	useEffect( () => {
+		if ( ! transcritionBridge?.setAttributes ) {
+			return;
+		}
+		transcritionBridge.setAttributes( { dialogueStyle: classNameAttr } );
+	}, [ classNameAttr, transcritionBridge ] );
+
+	useEffect( () => {
+		if ( ! contextDialogueStyle ) {
+			return;
+		}
+
+		setAttributes( { className: contextDialogueStyle } );
+	}, [ contextDialogueStyle, setAttributes ] );
 
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
