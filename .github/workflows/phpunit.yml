@@ -41,7 +41,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          tools: composer, phpunit:v7
+          tools: composer
           extensions: mysql, imagick
           coverage: none
 
@@ -83,7 +83,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "7.0"
-          tools: composer, phpunit:v6
+          tools: composer
           extensions: mysql, imagick
           coverage: none
 
