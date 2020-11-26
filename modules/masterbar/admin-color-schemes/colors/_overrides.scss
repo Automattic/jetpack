@@ -2,16 +2,29 @@
 // This file cotains overrides to _admin.scss necessary to match Calypso color schemes
 
 // Make wpadminbar colors differ from submenu colors
-#wpadminbar {
-	background: $masterbar-background;
-}
 
-#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
-#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
-#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
-#wpadminbar.nojs .ab-top-menu > li.menupop:hover > .ab-item,
-#wpadminbar .ab-top-menu > li.menupop.hover > .ab-item {
-	background: $masterbar-highlight-background;
+.admin-color-aquatic,
+.admin-color-classic-blue,
+.admin-color-classic-bright,
+.admin-color-classic-dark,
+.admin-color-contrast,
+.admin-color-nightfall,
+.admin-color-powder-snow,
+.admin-color-sakura,
+.admin-color-sunset {
+
+	#wpadminbar{
+		background: $masterbar-background !important;
+	}
+
+	#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
+	#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
+	#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
+	#wpadminbar.nojs .ab-top-menu > li.menupop:hover > .ab-item,
+	#wpadminbar .ab-top-menu > li.menupop.hover > .ab-item {
+		background: $masterbar-highlight-background;
+	}
+
 }
 
 // Make current submenu icon color stay the same on hover
