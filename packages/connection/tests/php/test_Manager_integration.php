@@ -101,10 +101,11 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test get_connection_owner
+	 * Test get_connection_owner and is_owner
 	 */
-	public function test_get_connection_owner() {
+	public function test_get_connection_owner_and_is_owner() {
 		$this->assertFalse( $this->manager->get_connection_owner() );
+		$this->assertFalse( $this->manager->is_owned() );
 
 		$id_admin = wp_insert_user(
 			array(
@@ -126,6 +127,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		// Before tokens are created, no owner is found.
 		$this->assertFalse( $this->manager->get_connection_owner() );
+		$this->assertFalse( $this->manager->is_owned() );
 
 		\Jetpack_Options::update_option(
 			'user_tokens',
@@ -139,6 +141,269 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$this->assertInstanceOf( 'WP_User', $owner );
 		$this->assertSame( $id_admin, $owner->ID );
+		$this->assertTrue( $this->manager->is_owned() );
+	}
+
+	/**
+	 * Test has_connected_user and has_connected_admin
+	 */
+	public function test_has_connected_user_and_has_connected_admin() {
+		$this->assertFalse( $this->manager->has_connected_user() );
+		$this->assertFalse( $this->manager->has_connected_admin() );
+
+		// Create the user.
+		$id_author = wp_insert_user(
+			array(
+				'user_login' => 'author',
+				'user_pass'  => 'pass',
+				'role'       => 'author',
+			)
+		);
+
+		$this->assertFalse( $this->manager->has_connected_user() );
+		$this->assertFalse( $this->manager->has_connected_admin() );
+
+		// Connect the user.
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$id_author => 'asd.123.' . $id_author,
+			)
+		);
+
+		$this->assertTrue( $this->manager->has_connected_user() );
+		$this->assertFalse( $this->manager->has_connected_admin() );
+
+		$id_admin = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$id_admin  => 'asd.123.' . $id_admin,
+				$id_author => 'asd.123.' . $id_author,
+			)
+		);
+
+		$this->assertTrue( $this->manager->has_connected_user() );
+		$this->assertTrue( $this->manager->has_connected_admin() );
+
+	}
+
+	/**
+	 * Test get_access_token method
+	 *
+	 * @dataProvider get_access_token_data_provider
+	 *
+	 * @param bool|string $create_blog_token The blog token to be created.
+	 * @param bool|array  $create_user_tokens The user tokens to be created.
+	 * @param bool|int    $master_user The ID of the master user to be defined.
+	 * @param bool|int    $user_id_query The user ID that will be used to fetch the token.
+	 * @param bool|string $token_key_query The token_key that will be used to fetch the token.
+	 * @param bool|string $expected_error_code If an error is expected, the error code.
+	 * @param bool|object $expected_token If success is expected, the expected token object.
+	 * @return void
+	 */
+	public function test_get_access_token( $create_blog_token, $create_user_tokens, $master_user, $user_id_query, $token_key_query, $expected_error_code, $expected_token ) {
+
+		// Set up.
+		if ( $create_blog_token ) {
+			\Jetpack_Options::update_option( 'blog_token', $create_blog_token );
+			\Jetpack_Options::update_option( 'id', 1234 );
+		}
+		if ( $create_user_tokens ) {
+			\Jetpack_Options::update_option( 'user_tokens', $create_user_tokens );
+			foreach ( array_keys( $create_user_tokens ) as $uid ) {
+				wp_insert_user(
+					array(
+						'user_login' => 'sample_user' . $uid,
+						'user_pass'  => 'asdqwe',
+					)
+				);
+			}
+			if ( $master_user ) {
+				\Jetpack_Options::update_option( 'master_user', $master_user );
+			}
+		}
+
+		if ( 'CONNECTION_OWNER' === $user_id_query ) {
+			$user_id_query = $this->manager::CONNECTION_OWNER;
+		}
+
+		$token = $this->manager->get_access_token( $user_id_query, $token_key_query, false );
+
+		if ( $expected_error_code ) {
+			$this->assertInstanceOf( 'WP_Error', $token );
+			$this->assertSame( $expected_error_code, $token->get_error_code() );
+		} else {
+			$this->assertEquals( $expected_token, $token );
+		}
+	}
+
+	/**
+	 * Data provider for test_get_access_token
+	 *
+	 * @return array
+	 */
+	public function get_access_token_data_provider() {
+		return array(
+			'no tokens'                        => array(
+				false, // blog token.
+				false, // user tokens.
+				false, // master_user.
+				false, // user_id_query.
+				false, // token_key_query.
+				'no_possible_tokens', // expected error code.
+				false, // expected token.
+			),
+			'no tokens'                        => array(
+				false, // blog token.
+				false, // user tokens.
+				false, // master_user.
+				22, // user_id_query.
+				false, // token_key_query.
+				'no_user_tokens', // expected error code.
+				false, // expected token.
+			),
+			'no tokens for the user'           => array(
+				false, // blog token.
+				array(
+					11 => 'asd.zxc.11',
+				), // user tokens.
+				false, // master_user.
+				22, // user_id_query.
+				false, // token_key_query.
+				'no_token_for_user', // expected error code.
+				false, // expected token.
+			),
+			'malformed user token'             => array(
+				false, // blog token.
+				array(
+					11 => 'asdzxc.11',
+				), // user tokens.
+				false, // master_user.
+				11, // user_id_query.
+				false, // token_key_query.
+				'token_malformed', // expected error code.
+				false, // expected token.
+			),
+			'user mismatch'                    => array(
+				false, // blog token.
+				array(
+					11 => 'asd.zxc.22',
+				), // user tokens.
+				false, // master_user.
+				11, // user_id_query.
+				false, // token_key_query.
+				'user_id_mismatch', // expected error code.
+				false, // expected token.
+			),
+			'Connection owner not defined'     => array(
+				false, // blog token.
+				array(
+					11 => 'asd.zxc.11',
+				), // user tokens.
+				false, // master_user.
+				'CONNECTION_OWNER', // user_id_query.
+				false, // token_key_query.
+				'empty_master_user_option', // expected error code.
+				false, // expected token.
+			),
+			'Connection owner'                 => array(
+				false, // blog token.
+				array(
+					11 => 'asd.zxc.11',
+				), // user tokens.
+				11, // master_user.
+				'CONNECTION_OWNER', // user_id_query.
+				false, // token_key_query.
+				false, // expected error code.
+				(object) array(
+					'secret'           => 'asd.zxc',
+					'external_user_id' => 11,
+				), // expected token.
+			),
+			'Find blog token'                  => array(
+				'asdasd.qweqwe', // blog token.
+				false, // user tokens.
+				false, // master_user.
+				false, // user_id_query.
+				false, // token_key_query.
+				false, // expected error code.
+				(object) array(
+					'secret'           => 'asdasd.qweqwe',
+					'external_user_id' => 0,
+				), // expected token.
+			),
+			'Find user token'                  => array(
+				false, // blog token.
+				array(
+					11 => 'qwe.asd.11',
+					12 => 'asd.zxc.12',
+				), // user tokens.
+				false, // master_user.
+				11, // user_id_query.
+				false, // token_key_query.
+				false, // expected error code.
+				(object) array(
+					'secret'           => 'qwe.asd',
+					'external_user_id' => 11,
+				), // expected token.
+			),
+			'Find user token with secret'      => array(
+				false, // blog token.
+				array(
+					11 => 'qwe.asd.11',
+					12 => 'asd.zxc.12',
+				), // user tokens.
+				false, // master_user.
+				12, // user_id_query.
+				'asd', // token_key_query.
+				false, // expected error code.
+				(object) array(
+					'secret'           => 'asd.zxc',
+					'external_user_id' => 12,
+				), // expected token.
+			),
+			'Find blog token with secret'      => array(
+				'asdasd.qweqwe', // blog token.
+				false, // user tokens.
+				false, // master_user.
+				false, // user_id_query.
+				'asdasd', // token_key_query.
+				false, // expected error code.
+				(object) array(
+					'secret'           => 'asdasd.qweqwe',
+					'external_user_id' => 0,
+				), // expected token.
+			),
+			'Dont find user token with secret' => array(
+				false, // blog token.
+				array(
+					11 => 'qwe.asd.11',
+					12 => 'asd.zxc.12',
+				), // user tokens.
+				false, // master_user.
+				12, // user_id_query.
+				'qqq', // token_key_query.
+				'no_valid_user_token', // expected error code.
+				false, // expected token.
+			),
+			'Dont find blog token with secret' => array(
+				'asdasd.qweqwe', // blog token.
+				false, // user tokens.
+				false, // master_user.
+				false, // user_id_query.
+				'kaasdas', // token_key_query.
+				'no_valid_blog_token', // expected error code.
+				false, // expected token.
+			),
+		);
 	}
 
 }

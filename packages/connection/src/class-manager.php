@@ -640,8 +640,13 @@ class Manager {
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any' ) {
-		$connected_users    = array();
-		$connected_user_ids = array_keys( \Jetpack_Options::get_option( 'user_tokens' ) );
+		$connected_users = array();
+		$user_tokens     = \Jetpack_Options::get_option( 'user_tokens' );
+
+		if ( ! is_array( $user_tokens ) || empty( $user_tokens ) ) {
+			return $connected_users;
+		}
+		$connected_user_ids = array_keys( $user_tokens );
 
 		if ( ! empty( $connected_user_ids ) ) {
 			foreach ( $connected_user_ids as $id ) {
