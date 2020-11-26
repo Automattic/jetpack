@@ -69,12 +69,14 @@ function buildBlockTitle( blockTitle, blockTags = [] ) {
  * @param {string} name - The block's name.
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
+ * @param {boolean} noPrefix - Should this block be prefixed with `jetpack/`?
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
-export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
+export default function registerJetpackBlock( name, settings, childBlocks = [], noPrefix = false ) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 
 	const requiredPlan = requiresPaidPlan( unavailableReason, details );
+	const prefix = noPrefix ? '' : 'jetpack/';
 
 	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
@@ -86,7 +88,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		return false;
 	}
 
-	const result = registerBlockType( `jetpack/${ name }`, {
+	const result = registerBlockType( prefix + name, {
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
 	} );
@@ -94,15 +96,15 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
-			`jetpack/${ name }-with-has-warning-is-interactive-class-names`,
-			withHasWarningIsInteractiveClassNames( `jetpack/${ name }` )
+			`${ prefix + name }-with-has-warning-is-interactive-class-names`,
+			withHasWarningIsInteractiveClassNames( prefix + name )
 		);
 	}
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
 	childBlocks.forEach( childBlock =>
-		registerBlockType( `jetpack/${ childBlock.name }`, childBlock.settings )
+		registerBlockType( prefix + childBlock.name, childBlock.settings )
 	);
 
 	return result;

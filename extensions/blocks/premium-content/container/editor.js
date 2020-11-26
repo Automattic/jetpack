@@ -4,7 +4,8 @@
 import registerJetpackBlock from '../../../shared/register-jetpack-block';
 import { name, settings } from '.';
 
-registerJetpackBlock( name, settings );
+const noPrefix = true;
+registerJetpackBlock( name, settings, [], noPrefix );
 
 
 // /**
