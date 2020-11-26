@@ -10,16 +10,27 @@ jobs:
   phpunit:
     name: "PHP: ${{ matrix.php }} WP: ${{ matrix.wp }}"
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+
     strategy:
       fail-fast: false
       matrix:
-        php: ["5.6", "7.0", "7.2", "7.3", "7.4snapshot"]
-        wp: ["master", "latest", "previous"]
-        exclude:
-        # excludes node 4 on macOS
-        - php: "7.0"
-        - php: "7.2"
-        - wp: "latest"
+        # Run tests against current WP in all supported PHP versions.
+        php: [ "5.6", "7.0", "7.2", "7.3", "7.4" ]
+        wp: [ "latest" ]
+        experimental: [ false ]
+
+        include:
+          # Run tests against WP previous and master in one PHP version.
+          - php: "7.4"
+            wp: "master"
+          - php: "7.4"
+            wp: "previous"
+
+          # Experimental PHP 8 tests
+          - php: "8.0"
+            wp: "latest"
+            experimental: true
 
     steps:
       - uses: actions/checkout@v2
