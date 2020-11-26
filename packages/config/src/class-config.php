@@ -245,14 +245,14 @@ class Config {
 
 			if ( ! empty( $options['deactivate_disconnect'] ) ) {
 				if ( empty( $options['plugin_file'] ) ) {
-					$plugin_path = file_exists( WP_PLUGIN_DIR . "/{$slug}/{$slug}.php" )
-						? WP_PLUGIN_DIR . "/{$slug}/{$slug}.php"
+					$plugin_file = file_exists( WP_PLUGIN_DIR . "/{$slug}/{$slug}.php" )
+						? "{$slug}/{$slug}.php"
 						: null;
 				} else {
-					$plugin_path = $options['plugin_file'];
+					$plugin_file = basename( dirname( $options['plugin_file'] ) ) . '/' . basename( $options['plugin_file'] );
 				}
 
-				$connection->initialize_deactivate_disconnect( $plugin_path );
+				$connection->initialize_deactivate_disconnect( $plugin_file );
 			}
 		}
 

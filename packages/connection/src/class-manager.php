@@ -72,7 +72,14 @@ class Manager {
 	 *
 	 * @var Plugin
 	 */
-	private $plugin = null;
+	private $plugin;
+
+	/**
+	 * Path to the current plugin to be used in the plugin deactivation hooks.
+	 *
+	 * @var string
+	 */
+	private $plugin_file;
 
 	/**
 	 * Initialize the object.
@@ -223,15 +230,17 @@ class Manager {
 	/**
 	 * Initialize the plugin deactivation hook.
 	 *
-	 * @param string $plugin_path Path to the plugin file.
+	 * @param string $plugin_file Path to the plugin file.
 	 */
-	public function initialize_deactivate_disconnect( $plugin_path ) {
+	public function initialize_deactivate_disconnect( $plugin_file ) {
 		require_once ABSPATH . '/wp-admin/includes/plugin.php';
 
-		if ( is_plugin_active_for_network( $plugin_path ) ) {
-			register_deactivation_hook( $plugin_path, array( $this, 'deactivate_disconnect_network' ) );
+		$this->plugin_file = $plugin_file;
+
+		if ( is_plugin_active_for_network( $plugin_file ) ) {
+			register_deactivation_hook( $plugin_file, array( $this, 'deactivate_disconnect_network' ) );
 		} else {
-			register_deactivation_hook( $plugin_path, array( $this, 'deactivate_disconnect' ) );
+			register_deactivation_hook( $plugin_file, array( $this, 'deactivate_disconnect' ) );
 		}
 	}
 
@@ -253,7 +262,20 @@ class Manager {
 
 		foreach ( get_sites() as $s ) {
 			switch_to_blog( $s->blog_id );
-			$this->deactivate_disconnect();
+
+			$active_plugins = get_option( 'active_plugins' );
+
+			/*
+			 * If this plugin was activated in the subsite individually
+			 * we do not want to call disconnect. Plugins activated
+			 * individually (before network activation) stay activated
+			 * when the network deactivation occurs
+			 */
+			if ( ! in_array( $this->plugin_file, $active_plugins, true ) ) {
+				$this->deactivate_disconnect();
+			}
+
+			restore_current_blog();
 		}
 	}
 
