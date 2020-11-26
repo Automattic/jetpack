@@ -19,7 +19,6 @@ import {
 
 export const name = 'premium-content/container';
 export const settings = {
-    name,
     title: __( 'Premium Content', 'jetpack' ),
 	description: __(
 		'Restrict access to your content for paying subscribers.',
