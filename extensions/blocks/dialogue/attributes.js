@@ -4,6 +4,7 @@ export default {
 	},
 	speakerSlug: {
 		type: "string",
+		default: "speaker-0",
 	},
 	color: {
 		type: "string",
