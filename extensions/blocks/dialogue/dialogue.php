@@ -68,7 +68,7 @@ function render_block( $attrs, $content, $block ) {
 
 	// Markup
 	$base_classname = 'wp-block-jetpack-dialogue';
-	$markup = '<div class=' . $base_classname .  '" >' .
+	$markup = '<div class="' . $base_classname .  '" >' .
 		'<div class="'. $base_classname . '__meta">' .
 			'<div class="'. $base_classname . '__speaker">' .
 				$speaker_name .

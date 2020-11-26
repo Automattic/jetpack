@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { InnerBlocks } from '@wordpress/block-editor';
 
 export default function save ( { attributes } ) {
-	const baseClassName= 'wp-block-jetpack-transcription';
+	const baseClassName = 'wp-block-jetpack-transcription';
 
 	return (
 		<div

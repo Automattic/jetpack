@@ -1,24 +1,28 @@
 .wp-block-jetpack-dialogue {
+	.wp-block-jetpack-dialogue__meta {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.wp-block-jetpack-dialogue__speaker {
+		margin-right: 10px;
+	}
+	.wp-block-jetpack-dialogue__timestamp {
+		margin-right: 0;
+	}
 
 	// Block styles.
-	&.is-style-row {
+	&.is-style-column {
 		display: flex;
 		.wp-block-jetpack-dialogue__meta {
 			margin-right: 10px;
-		}
-	}
-
-	&.is-style-column {
-		.wp-block-jetpack-dialogue__meta {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
+			display: block;
+			align-items: initial;
 		}
 
 		.wp-block-jetpack-dialogue__speaker {
-			margin-right: 10px;
-		}
-		.wp-block-jetpack-dialogue__timestamp {
+			text-align: right;
 			margin-right: 0;
 		}
 	}
