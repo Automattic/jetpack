@@ -14,7 +14,9 @@ export default function save ( { attributes } ) {
 	return (
 		<div
 			className={ classnames(
-				baseClassName, {
+				baseClassName,
+				attributes?.dialogueStyle,
+				{
 					'show-timestamp': attributes?.showTimeStamp,
 				}
 			) }

@@ -11,21 +11,6 @@
 	.wp-block-jetpack-dialogue__timestamp {
 		margin-right: 0;
 	}
-
-	// Block styles.
-	&.is-style-column {
-		display: flex;
-		.wp-block-jetpack-dialogue__meta {
-			margin-right: 10px;
-			display: block;
-			align-items: initial;
-		}
-
-		.wp-block-jetpack-dialogue__speaker {
-			text-align: right;
-			margin-right: 0;
-		}
-	}
 }
 
 .wp-block-jetpack-dialogue__timestamp {
@@ -45,5 +30,22 @@
 		padding: 3px 6px;
 		border-radius: 3px;
 		margin-right: 6px;
+	}
+}
+
+// Transcription styles.
+.wp-block-jetpack-transcription.is-style-column {
+	.wp-block-jetpack-dialogue {
+		display: flex;
+		.wp-block-jetpack-dialogue__meta {
+			margin-right: 10px;
+			display: block;
+			align-items: initial;
+		}
+
+		.wp-block-jetpack-dialogue__speaker {
+			text-align: right;
+			margin-right: 0;
+		}
 	}
 }
