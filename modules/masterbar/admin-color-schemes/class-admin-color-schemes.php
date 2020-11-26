@@ -99,7 +99,7 @@ class Admin_Color_Schemes {
 			array( '#101517', '#c9356e', '#32373c', '#0073aa' ),
 			array(
 				'base'    => '#a2aab2',
-				'focus'   => '#fff',
+				'focus'   => '#00b9eb',
 				'current' => '#fff',
 			)
 		);
