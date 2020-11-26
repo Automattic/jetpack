@@ -15,10 +15,6 @@ export default {
 		type: "string",
 		default: "00:00",
 	},
-	showTimeStamp: {
-		type: "boolean",
-		default: false,
-	},
 	placeholder: {
 		type: "string",
 	},

@@ -20,7 +20,7 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useContext } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -28,6 +28,7 @@ import { useEffect } from '@wordpress/element';
 import './editor.scss';
 import SpeakersDropdown from './components/speakers-dropdown';
 import TimeStampControl from './components/time-stamp-control';
+import TranscriptionContext from '../transcription/components/context';
 
 const defaultSpeakers = [
 	{
@@ -59,16 +60,19 @@ export default function DialogueEdit ( {
 		speakerSlug,
 		color,
 		backgroundColor,
-		showTimeStamp,
 		timeStamp,
 		placeholder = defaultSpeakers[ 0 ].placeholder,
 	} = attributes;
 
 	// Block context integration.
 	const speakersFromContext = context[ 'dialogue/speakers' ];
+	const showTimeStamp = context[ 'dialogue/showTimeStamp' ];
 
 	// Speakers list.
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
+
+	// Transcription context. A bridge between dialogue and transcription blocks.
+	const transcritionBridge = useContext( TranscriptionContext );
 
 	useEffect( () => {
 		if ( ! speaker ) {
@@ -124,7 +128,7 @@ export default function DialogueEdit ( {
 							label={ __( 'Show', 'jetpack' ) }
 							checked={ showTimeStamp }
 							onChange={
-								( show ) => setAttributes( { showTimeStamp: show } )
+								( show ) => transcritionBridge.setAttributes( { showTimeStamp: show } )
 							}
 						/>
 
