@@ -4,6 +4,7 @@ on: pull_request
 
 env:
   WP_TRAVISCI: "phpunit"
+  DANGER_GITHUB_API_TOKEN: 5c8846141ed000e810aac32a4b749b779a82f437
 
 jobs:
   lint:

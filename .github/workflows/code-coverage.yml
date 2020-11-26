@@ -5,6 +5,7 @@ env:
   DO_COVERAGE: true
   WP_BRANCH: latest
   TRAVIS_PHP_VERSION: "7.3"
+  WP_TRAVISCI: 'phpunit'
   CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
 
 jobs:
@@ -20,7 +21,6 @@ jobs:
           php-version: "7.3"
           tools: composer
           extensions: mysql, imagick
-          coverage: none
       - uses: actions/setup-node@v1
         with:
           node-version: '12'
@@ -43,7 +43,6 @@ jobs:
           export PLUGIN_SLUG=$(basename $(pwd))
           export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
           ./tests/setup-travis.sh
