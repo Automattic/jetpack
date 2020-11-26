@@ -9,7 +9,6 @@ export default function save( { attributes } ) {
 		speaker,
 		color,
 		backgroundColor,
-		showTimeStamp,
 		timeStamp,
 		className,
 	} = attributes;
@@ -22,11 +21,9 @@ export default function save( { attributes } ) {
 		<div className={ `${ className } ${ baseClassName }` }>
 			<div class={ `${ baseClassName }__meta` }>
 				<div className={ speakerClasses } style={ speakerStyles }>{ speaker }</div>
-				{ showTimeStamp && (
-					<div className={ `${ baseClassName }__timestamp` }>
-						{ timeStamp }
-					</div>
-				) }
+				<div className={ `${ baseClassName }__timestamp` }>
+					{ timeStamp }
+				</div>
 			</div>
 
 			<InnerBlocks.Content />
