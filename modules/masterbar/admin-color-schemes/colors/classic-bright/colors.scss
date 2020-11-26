@@ -1,27 +1,28 @@
 // core variables (core _variables.scss)
-$base-color: #135e96;
-$icon-color: #646970;
-$highlight-color: #c9256e;
-$notification-color: $highlight-color;
+$base-color: #135e96; // Calypso --color-masterbar-background
+$icon-color: #646970; // Calypso --color-sidebar-gridicon-fill
+$highlight-color: #c9356e; // Calypso --color-accent
+$notification-color: #f283aa; // Calypso --color-masterbar-unread-dot-background
 
 // global (core _variables.scss)
-$body-background: #f6f7f7;
+$body-background: #f6f7f7; // Calypso --color-surface-backdrop
 
 // admin menu & admin-bar (core _variables.scss)
-$menu-text: #2c3338;
-$menu-background: #ffffff;
-$menu-highlight-text: #1d2327;
+$menu-text: #2c3338; // Calypso --color-sidebar-text
+$menu-background: #ffffff; // Calypso --color-sidebar-background
+$menu-highlight-text: #1d2327; // Calypso --color-sidebar-menu-hover-text
 $menu-highlight-icon: $menu-highlight-text;
-$menu-highlight-background: #dcdcde;
-$menu-current-text: #0a4b78;
+$menu-highlight-background: #dcdcde; // Calypso --color-sidebar-menu-hover-background
+$menu-current-text: #0a4b78; // Calypso --color-sidebar-menu-selected-text
 $menu-current-icon: $menu-current-text;
-$menu-current-background: #c5d9ed;
-$menu-submenu-text: #0a4b78;
-$menu-submenu-background: #e9eff5;
-$menu-submenu-current-text: $highlight-color;
+$menu-current-background: #c5d9ed; // Calypso --color-sidebar-menu-selected-background
+$menu-submenu-text: #0a4b78; // Calypso --color-sidebar-submenu-text
+$menu-submenu-background: #e9eff5; // Calypso --color-sidebar-submenu-background
+$menu-submenu-focus-text: #c9356e; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-current-text: #c9356e; // Calypso --color-sidebar-submenu-selected-text
 
 // masterbar overrides
-$masterbar-background: $base-color;
-$masterbar-highlight-background: #0a4b78;
+$masterbar-background: #135e96; // Calypso --color-masterbar-background
+$masterbar-highlight-background: #0a4b78; // Calypso --color-masterbar-item-hover-background
 
 @import "../admin";
