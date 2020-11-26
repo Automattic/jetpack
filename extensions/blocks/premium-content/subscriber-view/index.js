@@ -4,8 +4,7 @@
 import edit from './edit';
 import save from './save';
 import deprecated from './deprecated/v1';
-import { getCategoryWithFallbacks } from '../../../block-helpers';
-import icon from '../icon.js';
+import icon from '../_inc/icon.js';
 
 /**
  * WordPress dependencies
@@ -13,17 +12,14 @@ import icon from '../icon.js';
 import { __ } from '@wordpress/i18n';
 
 const name = 'premium-content/subscriber-view';
-const category = getCategoryWithFallbacks( 'design', 'common' );
 const settings = {
-	name,
-	category,
 	attributes: {},
-
 	/* translators: block name */
-	title: __( 'Subscriber View', 'full-site-editing' ),
+	title: __( 'Subscriber View', 'jetpack' ),
 	/* translators: block description */
-	description: __( 'Subscriber View.', 'full-site-editing' ),
-	parent: [ 'jetpack/premium-content/container' ],
+	description: __( 'Subscriber View.', 'jetpack' ),
+	category: 'grow',
+	parent: [ 'premium-content/container' ],
 	supports: {
 		// Hide this block from the inserter.
 		inserter: false,
@@ -35,4 +31,4 @@ const settings = {
 	deprecated,
 };
 
-export { name, category, settings };
+export { name, settings };
