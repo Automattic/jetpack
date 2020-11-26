@@ -47,7 +47,8 @@ function render_block( $attrs, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	// Attributes..
-	$speaker_slug = isset( $attrs[ 'speakerSlug' ] ) ? $attrs[ 'speakerSlug' ] : 'speaker-0';
+	$speaker_slug = isset( $attrs[ 'speakerSlug' ] ) ? $attrs[ 'speakerSlug' ] : null;
+	$speaker_name_attr = isset( $attrs[ 'speaker' ] ) ? $attrs[ 'speaker' ] : 'First';
 	$timestamp = isset( $attrs[ 'timeStamp' ] ) ? esc_attr( $attrs[ 'timeStamp' ] ) : '00:00';
 
 	// Pick up speaker name from block context.
@@ -64,7 +65,7 @@ function render_block( $attrs, $content, $block ) {
 	// Get speaker name from context.
 	$speaker_name =  isset( $speaker_names_map[ $speaker_slug ]['name' ] )
 		? esc_attr( $speaker_names_map[ $speaker_slug ]['name' ] )
-		: 'First speaker';
+		: $speaker_name_attr;
 
 	// Markup
 	$base_classname = 'wp-block-jetpack-dialogue';
