@@ -8,7 +8,7 @@ env:
 
 jobs:
   phpunit:
-    name: "PHP: ${{ matrix.php }} WP: ${{ matrix.wp }}"
+    name: "PHPUnit tests:  PHP ${{ matrix.php }} WP ${{ matrix.wp }}"
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
 
@@ -24,8 +24,10 @@ jobs:
           # Run tests against WP previous and master in one PHP version.
           - php: "7.4"
             wp: "master"
+            experimental: false
           - php: "7.4"
             wp: "previous"
+            experimental: false
 
           # Experimental PHP 8 tests
           - php: "8.0"
