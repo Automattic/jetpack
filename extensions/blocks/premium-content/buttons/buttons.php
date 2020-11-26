@@ -20,7 +20,10 @@ const FEATURE_NAME = 'premium-content/buttons';
 function register_block() {
 	Blocks::jetpack_register_block(
 		FEATURE_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_block',
+			'plan_check'	  => true,
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
