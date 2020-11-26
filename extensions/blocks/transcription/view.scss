@@ -1,0 +1,13 @@
+/*
+ * Transcription / Dialogue block styles
+ */
+
+ .wp-block-jetpack-transcription {
+	.wp-block-jetpack-dialogue__timestamp {
+		display: none;
+	}
+
+	&.show-timestamp .wp-block-jetpack-dialogue__timestamp {
+		display: block;
+	}
+ }
