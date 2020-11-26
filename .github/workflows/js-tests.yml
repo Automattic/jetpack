@@ -22,7 +22,9 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - run: yarn lint
+      - run:  |
+          yarn install
+          yarn lint
 
 
   js-tests:
@@ -40,7 +42,9 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - run: yarn test-dangerci-and-adminpage-and-extensions-and-search
+      - run: |
+          yarn install
+          yarn test-dangerci-and-adminpage-and-extensions-and-search
 
 
   build:
