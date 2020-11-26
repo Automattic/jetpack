@@ -21,10 +21,13 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
+	$deprecated = function_exists( 'gutenberg_get_post_from_context' );
+	$uses       = $deprecated ? 'context' : 'uses_context';
+	register_block_type(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			$uses             => array( 'dialogue/speakers' ),
 		)
 	);
 }
@@ -38,7 +41,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  *
  * @return string
  */
-function render_block( $attr, $content ) {
+function render_block( $attr, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	return $content;
 }
