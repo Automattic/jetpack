@@ -4,7 +4,7 @@
   "description": "A helper for connecting WordPress.com sites to external host infrastructure.",
   "license": "GPLv3",
   "require": {
-    "automattic/at-pressable-podcasting": "v1.2.5",
+    "automattic/at-pressable-podcasting": "v1.2.6",
     "automattic/custom-fonts": "1.1.0",
     "automattic/custom-fonts-typekit": "1.0.7",
     "automattic/text-media-widget-styles": "~1.0",
