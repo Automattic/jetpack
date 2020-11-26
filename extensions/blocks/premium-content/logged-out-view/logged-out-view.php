@@ -23,7 +23,8 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		FEATURE_NAME,
 		array(
-            'render_callback' => __NAMESPACE__ . '\render_block',
+			'render_callback' => __NAMESPACE__ . '\render_block',
+			'plan_check'	  => true,
             $uses             => array( 'premium-content/planId' ),
         )
 	);
