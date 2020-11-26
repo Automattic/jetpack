@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { map, find } from 'lodash';
-import classNames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -32,7 +31,7 @@ export default function SpeakersDropdown ( {
 			toggleProps={ {
 				children: <span>{ speaker }</span>,
 			} }
-			icon={ null }
+			icon="microphone"
 		>
 			{ () => (
 				<Fragment>
