@@ -4,7 +4,7 @@ on: pull_request
 env:
   DO_COVERAGE: true
   WP_BRANCH: latest
-  TRAVIS_PHP_VERSION: "7.3"
+  TRAVIS_PHP_VERSION: "7.2"
   WP_TRAVISCI: 'phpunit'
   CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
 
@@ -18,9 +18,9 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "7.3"
+          php-version: "7.2"
           tools: composer
-          extensions: mysql, imagick, gd
+          extensions: mysql, imagick, gd, zip
       - uses: actions/setup-node@v1
         with:
           node-version: '12'
