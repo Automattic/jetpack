@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes;
 
 require_jetpack_file( 'tests/php/lib/class-wp-test-jetpack-rest-testcase.php' );
-require_jetpack_file( 'tests/php/lib/class-wp-test-spy-rest-server.php' );
 require_jetpack_file( 'modules/masterbar/admin-color-schemes/class-admin-color-schemes.php' );
 
 /**
@@ -36,7 +35,7 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 
 	public function setUp() {
 		new Admin_Color_Schemes();
-		wp_set_current_user( static::$user_id );
+		// wp_set_current_user( static::$user_id );
 
 		parent::setUp();
 	}
