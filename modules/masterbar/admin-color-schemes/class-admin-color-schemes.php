@@ -156,11 +156,11 @@ class Admin_Color_Schemes {
 			'sunset',
 			__( 'Sunset', 'jetpack' ),
 			plugins_url( 'colors/sunset/colors.css', __FILE__ ),
-			array( '#691c1c', '#8a2424', '#ffffff', '#646970' ),
+			array( '#691c1c', '#b26200', '#f0c930', '#facfd2' ),
 			array(
-				'base'    => '#646970',
+				'base'    => '#facfd2',
 				'focus'   => '#fff',
-				'current' => '#fff',
+				'current' => '#4f3500',
 			)
 		);
 
