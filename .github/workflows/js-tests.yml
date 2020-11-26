@@ -2,10 +2,6 @@ name: JS tests
 
 on: pull_request
 
-env:
-  WP_TRAVISCI: "phpunit"
-  DANGER_GITHUB_API_TOKEN: 5c8846141ed000e810aac32a4b749b779a82f437
-
 jobs:
   lint:
     name: "JavaScript & CSS lint"
@@ -43,7 +39,9 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - run: |
+      - env:
+          DANGER_GITHUB_API_TOKEN: 5c8846141ed000e810aac32a4b749b779a82f437
+        run: |
           yarn install
           yarn test-dangerci-and-adminpage-and-extensions-and-search
 
