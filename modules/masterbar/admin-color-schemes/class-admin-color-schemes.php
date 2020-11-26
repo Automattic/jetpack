@@ -87,8 +87,8 @@ class Admin_Color_Schemes {
 			array( '#135e96', '#c9256e', '#ffffff', '#e9eff5' ),
 			array(
 				'base'    => '#646970',
-				'focus'   => '#fff',
-				'current' => '#fff',
+				'focus'   => '#1d2327',
+				'current' => '#0a4b78',
 			)
 		);
 
