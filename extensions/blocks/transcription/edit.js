@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { filter, map } from 'lodash';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -121,7 +122,7 @@ function TranscriptionEdit ( {
 
 	return (
 		<TranscritptionContext.Provider value={ contextProvision }>
-			<div ref={ containertRef } class={ className }>
+			<div ref={ containertRef } className={ classnames( className, dialogueStyle ) }>
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ className }__speakers` }>
