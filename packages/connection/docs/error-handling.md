@@ -17,7 +17,7 @@ This basic example show how to display a simple error message no matter the spec
 add_filter( 'jetpack_connection_error_notice_message', 'my_function', 10, 2 );
 
 function my_function( $message, $errors ) {
-	__( 'There is a problem with connection...', 'my_plugin' );
+	return __( 'There is a problem with connection...', 'my_plugin' );
 }
 
 ```
@@ -49,7 +49,7 @@ function my_function( $message, $errors ) {
 
 ## Further customizing error notices
 
-If you want to completely change the admin notice, you can ignore the default message and hook into an actino that will let you do whatever you want.
+If you want to completely change the admin notice, you can ignore the default message and hook into an action that will let you do whatever you want.
 
 ```PHP
 
@@ -70,3 +70,13 @@ function my_function( $errors ) {
 }
 
 ```
+
+## Getting the errors yourself
+
+If you want to access the errors stored in the database, you can use:
+
+```PHP
+\Automattic\Jetpack\Connection\Error_Handler::get_instance()->get_verified_errors()
+```
+
+Check [the class file](../src/class-error-handler.php) for further documentation on the structure of the stored errors.
