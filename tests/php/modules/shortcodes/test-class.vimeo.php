@@ -93,7 +93,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertContains( 'videopress.com/video/' . $video_id, $shortcode_content );
 		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
 		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
 	}
