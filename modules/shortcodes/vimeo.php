@@ -286,7 +286,7 @@ if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
  *
  * @param string $content Post content.
  */
-function vimeo_embed_to_shortcode( $content ) {
+function vimeo_embed_to_shortcode( array | string $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'player.vimeo.com/video/' ) ) {
 		return $content;
 	}
