@@ -47,13 +47,16 @@ function render_block( $attrs, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	// Attributes..
-	$speaker_slug = isset( $attrs[ 'speakerSlug' ] ) ? $attrs[ 'speakerSlug' ] : null;
-	$speaker_name_attr = isset( $attrs[ 'speaker' ] ) ? $attrs[ 'speaker' ] : 'First';
+	$speaker_slug_attr = isset( $attrs[ 'speakerSlug' ] ) ? $attrs[ 'speakerSlug' ] : null;
+	$speaker_name_attr = isset( $attrs[ 'speaker' ] ) ? $attrs[ 'speaker' ] : null;
 	$timestamp = isset( $attrs[ 'timeStamp' ] ) ? esc_attr( $attrs[ 'timeStamp' ] ) : '00:00';
-
+	
 	// Pick up speaker name from block context.
 	$speakers = $block->context['jetpack/conversation-speakers' ];	
 
+	// Set current speaker slug, considering it could be null from block attrs.
+	$speaker_slug = ! $speaker_slug_attr && ! $speaker_name_attr ? 'speaker-0' : $speaker_slug_attr;
+	
 	// Speaker names map.
 	$speaker_names_map = array();
 	foreach( $speakers as $speaker ) {
@@ -67,7 +70,7 @@ function render_block( $attrs, $content, $block ) {
 		? esc_attr( $speaker_names_map[ $speaker_slug ]['name' ] )
 		: $speaker_name_attr;
 
-	// Markup
+	// Markup.
 	$base_classname = 'wp-block-jetpack-dialogue';
 	$markup = '<div class="' . $base_classname .  '" >' .
 		'<div class="'. $base_classname . '__meta">' .
