@@ -101,9 +101,15 @@ function run_coverage_tests {
 		fi
 	done
 
-	# echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
-	cd $GITHUB_WORKSPACE
-	# cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+	echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+
+ls -la /tmp/wordpress-$WP_BRANCH/
+ls -la /tmp/wordpress-$WP_BRANCH/tests/phpunit
+
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+	echo "CDed!"
+	ls -la ../../../../tests/phpunit/includes/bootstrap.php
+
 
 	run_cmd $BACKEND_CMD
 	export LEGACY_FULL_SYNC=1
