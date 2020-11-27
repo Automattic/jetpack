@@ -19,8 +19,9 @@ import {
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
+	TextControl,
 } from '@wordpress/components';
-import { useEffect, useContext } from '@wordpress/element';
+import { useContext } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -111,6 +112,19 @@ export default function DialogueEdit ( {
 
 			<InspectorControls>
 				<Panel>
+					{ currentSpeaker && (
+						<PanelBody title={ __( 'Speaker', 'jetpack' ) }>
+							<TextControl
+								value={ currentSpeaker.speaker }
+								onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakers( {
+									speakerSlug: currentSpeakerSlug,
+									speaker: speakerEditedValue,
+									placeholder: `${ speaker } says…`,
+								} ) }
+							/>
+						</PanelBody>
+					) }
+
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show', 'jetpack' ) }

@@ -12,7 +12,7 @@ import {
 	useEffect,
 	useState,
 	useRef,
-	useMemo,
+	useCallback,
 } from '@wordpress/element';
 import {
 	InnerBlocks,
@@ -78,17 +78,7 @@ function TranscriptionEdit ( {
 		setAttributes( { speakers: defaultLabels } );
 	}, [ speakers, setAttributes ] );
 
-	// Context bridge.
-	const contextProvision = {
-		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
-
-		attributes: {
-			showTimeStamp,
-			classNameAttr,
-		},
-	};
-
-	function updateLabels ( updatedSpeaker ) {
+	const updateSpeakers = useCallback( ( updatedSpeaker ) => {
 		const newLabels = map( speakers, ( speaker ) => {
 			if ( speaker.speakerSlug !== updatedSpeaker.speakerSlug ) {
 				return speaker;
@@ -100,7 +90,18 @@ function TranscriptionEdit ( {
 		} );
 
 		setAttributes( { speakers: newLabels } );
-	}
+	}, [ setAttributes, speakers ] );
+
+	// Context bridge.
+	const contextProvision = {
+		setAttributes: useCallback( () => setAttributes, [ setAttributes ] ),
+		updateSpeakers,
+
+		attributes: {
+			showTimeStamp,
+			classNameAttr,
+		},
+	};
 
 	function deleteSpeaker( deletedSpeakerSlug ) {
 		setAttributes( { speakers: filter( speakers, ( { speakerSlug } ) => ( speakerSlug !== deletedSpeakerSlug ) ) } );
@@ -133,7 +134,7 @@ function TranscriptionEdit ( {
 									<div className={ `${ baseClassName }__speaker` }>
 										<TextControl
 											value={ speaker }
-											onChange={ ( speakerEditedValue ) => updateLabels( {
+											onChange={ ( speakerEditedValue ) => updateSpeakers( {
 												speakerSlug,
 												speaker: speakerEditedValue,
 												placeholder: `${ speaker } says…`,
@@ -156,13 +157,13 @@ function TranscriptionEdit ( {
 											{
 												value: color,
 												onChange: ( newTextColor ) => {
-													updateLabels( { speakerSlug, color: newTextColor } );
+													updateSpeakers( { speakerSlug, color: newTextColor } );
 												},
 												label: __( 'Text Color', 'jetpack' ),
 											},
 											{
 												value: backgroundColor,
-												onChange: ( newBGColor ) => updateLabels( { speakerSlug, backgroundColor: newBGColor } ),
+												onChange: ( newBGColor ) => updateSpeakers( { speakerSlug, backgroundColor: newBGColor } ),
 												label: __( 'Background Color', 'jetpack' ),
 											},
 										] }
