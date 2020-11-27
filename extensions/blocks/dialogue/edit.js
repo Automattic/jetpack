@@ -20,7 +20,7 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	TextControl,
-	Button,
+	ToolbarButton,
 } from '@wordpress/components';
 import { useContext } from '@wordpress/element';
 
@@ -109,8 +109,10 @@ export default function DialogueEdit ( {
 							speaker: newSpeaker,
 						} ) }
 					/>
-					{ currentSpeaker && (
-						<Button
+				</ToolbarGroup>
+				{ currentSpeaker && (
+					<ToolbarGroup>
+						<ToolbarButton
 							icon="editor-bold"
 							isPressed={ currentSpeaker.hasBoldStyle }
 							onClick={ () => transcritionBridge.updateSpeakerBySlug(
@@ -120,34 +122,45 @@ export default function DialogueEdit ( {
 								}
 							) }
 						/>
-					) }
-				</ToolbarGroup>
+
+						<ToolbarButton
+							icon="editor-italic"
+							isPressed={ currentSpeaker.hasItalicStyle }
+							onClick={ () => transcritionBridge.updateSpeakerBySlug(
+								currentSpeakerSlug,
+								{
+									hasItalicStyle: ! currentSpeaker.hasItalicStyle,
+								}
+							) }
+						/>
+					</ToolbarGroup>
+				) }
 			</BlockControls>
 
 			<InspectorControls>
 				<Panel>
-						<PanelBody title={ isCustomSpeaker ? __( 'Custom speaker', 'jetpack' ) :  __( 'Speaker', 'jetpack' ) }>
-							{ currentSpeaker && (
-								<TextControl
-									value={ currentSpeaker.speaker }
-									onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakerBySlug(
-										currentSpeakerSlug,
-										{
-											speaker: speakerEditedValue,
-											placeholder: `${ speaker } says…`,
-										}
-									) }
-								/>
-							) }
+					<PanelBody title={ isCustomSpeaker ? __( 'Custom speaker', 'jetpack' ) :  __( 'Speaker', 'jetpack' ) }>
+						{ currentSpeaker && (
+							<TextControl
+								value={ currentSpeaker.speaker }
+								onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakerBySlug(
+									currentSpeakerSlug,
+									{
+										speaker: speakerEditedValue,
+										placeholder: `${ speaker } says…`,
+									}
+								) }
+							/>
+						) }
 
-							{ isCustomSpeaker && (
-								<TextControl
-									value={ speaker }
-									onChange={ ( { editedSpeaker } ) => setAttributes( {
-										speaker: editedSpeaker,
-									} ) }
-								/>
-							) }
+						{ isCustomSpeaker && (
+							<TextControl
+								value={ speaker }
+								onChange={ ( { editedSpeaker } ) => setAttributes( {
+									speaker: editedSpeaker,
+								} ) }
+							/>
+						) }
 					</PanelBody>
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
@@ -177,6 +190,7 @@ export default function DialogueEdit ( {
 					className={ classnames( `${ baseClassName }__speaker`, {
 						[ 'has-background-color' ]: !! backgroundColor,
 						[ 'has-bold-style' ]: currentSpeaker.hasBoldStyle,
+						[ 'has-italic-style' ]: currentSpeaker.hasItalicStyle,
 					} ) }
 					style={ { color, backgroundColor } }
 				>

@@ -69,6 +69,7 @@ function render_block( $attrs, $content, $block ) {
 		: $speaker_name_attr;
 
 	$speaker_has_bold_style = $speaker_names_map[ $speaker_slug ]['hasBoldStyle' ];
+	$speaker_has_italic_style = $speaker_names_map[ $speaker_slug ]['hasItalicStyle' ];
 
 	// CSS classes and inline styles..
 	$base_classname = 'wp-block-jetpack-dialogue';
@@ -76,6 +77,9 @@ function render_block( $attrs, $content, $block ) {
 	$spekaer_css_classes = array( $base_classname . '__speaker' );
 	if ( $speaker_has_bold_style ) {
 		array_push( $spekaer_css_classes, 'has-bold-style' );
+	}
+	if ( $speaker_has_italic_style ) {
+		array_push( $spekaer_css_classes, 'has-italic-style' );
 	}
 
 	// Markup.
