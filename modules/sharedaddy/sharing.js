@@ -137,11 +137,19 @@
 	};
 
 	MoreButton.prototype.open = function () {
-		var position = this.button.getBoundingClientRect();
-		var scrollX = window.scrollX || window.pageXOffset;
-		var scrollY = window.scrollY || window.pageYOffset;
-		this.pane.style.left = position.left + scrollX + 'px';
-		this.pane.style.top = position.top + position.height + scrollY + 3 + 'px';
+		var bodyOffsetLeft = 0;
+		var bodyOffsetTop = 0;
+
+		// Handle situations where the body doesn't start at the origin.
+		if ( this.button.offsetParent === document.body ) {
+			var bodyRect = document.body.getBoundingClientRect();
+			bodyOffsetLeft = bodyRect.left;
+			bodyOffsetTop = bodyRect.top;
+		}
+
+		this.pane.style.left = this.button.offsetLeft + bodyOffsetLeft + 'px';
+		this.pane.style.top =
+			this.button.offsetTop + this.button.offsetHeight + bodyOffsetTop + 3 + 'px';
 		showNode( this.pane );
 	};
 
@@ -386,7 +394,7 @@
 	function init() {
 		// Move email dialog to end of body.
 		var emailDialog = document.querySelector( '#sharing_email' );
-		document.body.appendChild( emailDialog );
+		emailDialog && document.body.appendChild( emailDialog );
 
 		WPCOMSharing_do();
 	}
@@ -436,15 +444,21 @@
 
 			var printUrl = function ( uniqueId, urlToPrint ) {
 				var iframe = document.createElement( 'iframe' );
-				iframe.setAttribute( 'style', 'position:fixed; top:100; left:100; height:1px; width:1px; border:none;' );
+				iframe.setAttribute(
+					'style',
+					'position:fixed; top:100; left:100; height:1px; width:1px; border:none;'
+				);
 				iframe.setAttribute( 'id', 'printFrame-' + uniqueId );
 				iframe.setAttribute( 'name', iframe.getAttribute( 'id' ) );
 				iframe.setAttribute( 'src', urlToPrint );
-				iframe.setAttribute( 'onload', 'frames["printFrame-' +
-					uniqueId +
-					'"].focus();frames["printFrame-' +
-					uniqueId +
-					'"].print();' );
+				iframe.setAttribute(
+					'onload',
+					'frames["printFrame-' +
+						uniqueId +
+						'"].focus();frames["printFrame-' +
+						uniqueId +
+						'"].print();'
+				);
 				document.body.appendChild( iframe );
 			};
 
