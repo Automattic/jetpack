@@ -128,7 +128,7 @@ function TranscriptionEdit ( {
 			<div ref={ containertRef } className={ className }>
 				<InspectorControls>
 					<Panel>
-						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
+						<PanelBody title={ __( 'Speakers', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
 							{ map( speakers, ( { speaker, speakerSlug, color, backgroundColor } ) => (
 								<BaseControl className={ `${ baseClassName }__speaker-control` }>
 									<div className={ `${ baseClassName }__speaker` }>
