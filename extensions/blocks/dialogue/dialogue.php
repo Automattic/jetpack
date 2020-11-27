@@ -65,44 +65,48 @@ function render_block( $attrs, $content, $block ) {
 		$speaker_names_map[ $speaker['speakerSlug'] ] = $speaker;
 	}
 
+	// Current Speaker object.
+	$current_speaker =  isset( $speaker_names_map[ $speaker_slug ] )
+		? $speaker_names_map[ $speaker_slug ]
+		: false;
+
 	// Pick up speaker data from context.
-	$speaker_name =  isset( $speaker_names_map[ $speaker_slug ]['speaker' ] )
-		? esc_attr( $speaker_names_map[ $speaker_slug ]['speaker' ] )
+	$speaker_name =  isset( $current_speaker['speaker' ] )
+		? esc_attr( $current_speaker['speaker' ] )
 		: $speaker_name_attr;
 
-	$speaker_has_bold_style = isset( $speaker_names_map[ $speaker_slug ]['hasBoldStyle' ] )
-		?  isset( $speaker_names_map[ $speaker_slug ]['hasBoldStyle' ] )
+	$speaker_has_bold_style = isset( $current_speaker['hasBoldStyle' ] )
+		? $current_speaker['hasBoldStyle' ]
 		: false;
 
-	$speaker_has_italic_style = isset( $speaker_names_map[ $speaker_slug ]['hasItalicStyle' ] )
-		?  isset( $speaker_names_map[ $speaker_slug ]['hasItalicStyle' ] )
+	$speaker_has_italic_style = isset( $current_speaker['hasItalicStyle' ] )
+		? $current_speaker['hasItalicStyle' ]
 		: false;
 
-	$speaker_has_uppercase_style = isset( $speaker_names_map[ $speaker_slug ]['hasUppercaseStyle' ] )
-		?  isset( $speaker_names_map[ $speaker_slug ]['hasUppercaseStyle' ] )
+	$speaker_has_uppercase_style = isset( $current_speaker['hasUppercaseStyle' ] )
+		? $current_speaker['hasUppercaseStyle' ]
 		: false;
-
 
 	// CSS classes and inline styles..
 	$base_classname = 'wp-block-jetpack-dialogue';
 
-	$spekaer_css_classes = array( $base_classname . '__speaker' );
+	$speaker_css_classes = array( $base_classname . '__speaker' );
 	if ( $speaker_has_bold_style ) {
-		array_push( $spekaer_css_classes, 'has-bold-style' );
+		array_push( $speaker_css_classes, 'has-bold-style' );
 	}
 
 	if ( $speaker_has_italic_style ) {
-		array_push( $spekaer_css_classes, 'has-italic-style' );
+		array_push( $speaker_css_classes, 'has-italic-style' );
 	}
 
 	if ( $speaker_has_uppercase_style ) {
-		array_push( $spekaer_css_classes, 'has-uppercase-style' );
+		array_push( $speaker_css_classes, 'has-uppercase-style' );
 	}
 
 	// Markup.
 	return '<div class="' . $base_classname .  '" >' .
 		'<div class="'. $base_classname . '__meta">' .
-			'<div class="'. implode( ' ', $spekaer_css_classes ).'">' .
+			'<div class="'. implode( ' ', $speaker_css_classes ).'">' .
 				$speaker_name .
 			'</div>' .
 			( $show_timestamp
