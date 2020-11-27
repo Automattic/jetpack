@@ -38,6 +38,10 @@
 	&.has-italic-style {
 		font-style: italic;
 	}
+
+	&.has-uppercase-style {
+		text-transform: uppercase;
+	}
 }
 
 // Transcription styles.

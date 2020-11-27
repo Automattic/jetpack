@@ -28,6 +28,7 @@ import { useContext } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
+import { formatUppercase } from '../../shared/icons';
 import SpeakersDropdown from './components/speakers-dropdown';
 import TimeStampControl from './components/time-stamp-control';
 import TranscriptionContext from '../transcription/components/context';
@@ -133,6 +134,17 @@ export default function DialogueEdit ( {
 								}
 							) }
 						/>
+
+						<ToolbarButton
+							icon={ formatUppercase }
+							isPressed={ currentSpeaker.hasUppercaseStyle }
+							onClick={ () => transcritionBridge.updateSpeakerBySlug(
+								currentSpeakerSlug,
+								{
+									hasUppercaseStyle: ! currentSpeaker.hasUppercaseStyle,
+								}
+							) }
+						/>
 					</ToolbarGroup>
 				) }
 			</BlockControls>
@@ -191,6 +203,7 @@ export default function DialogueEdit ( {
 						[ 'has-background-color' ]: !! backgroundColor,
 						[ 'has-bold-style' ]: currentSpeaker?.hasBoldStyle,
 						[ 'has-italic-style' ]: currentSpeaker?.hasItalicStyle,
+						[ 'has-uppercase-style' ]: currentSpeaker?.hasUppercaseStyle,
 					} ) }
 					style={ { color, backgroundColor } }
 				>
