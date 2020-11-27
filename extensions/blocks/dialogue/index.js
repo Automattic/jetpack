@@ -7,10 +7,10 @@ import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
+import { DialogueIcon as icon } from '../../shared/icons';
 
 /**
  * Style dependencies
@@ -22,10 +22,7 @@ export const title = __( 'Dialogue', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Dialogue', 'jetpack' ),
-	icon: {
-		src: 'admin-comments',
-		foreground: getIconColor(),
-	},
+	icon,
 	category: 'layout',
 	supports: {
 		'align': true,
