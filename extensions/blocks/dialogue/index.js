@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -34,4 +35,19 @@ export const settings = {
 		'jetpack/conversation-speakers',
 		'jetpack/transcription-showtimestamp',
 	],
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/paragraph' ],
+				transform: ( { content } ) => {
+					const innerBlock = createBlock( 'core/paragraph', {
+						content,
+					} );
+
+					return createBlock( 'jetpack/dialogue', {}, [ innerBlock ] );
+				},
+			},
+		],
+	},
 };
