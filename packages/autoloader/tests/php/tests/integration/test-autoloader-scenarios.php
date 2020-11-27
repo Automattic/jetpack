@@ -59,6 +59,9 @@ class Test_Autoloader_Scenarios extends TestCase {
 		$this->load_autoloader( 'plugin_current' );
 
 		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current' ) );
 	}
 
 	/**
@@ -72,6 +75,9 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		$this->assertFalse( $this->autoloader_reset );
 		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current' ) );
 	}
 
 	/**
@@ -86,6 +92,9 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		$this->assertFalse( $this->autoloader_reset );
 		$this->assertAutoloaderVersion( '2.7.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current', 'plugin_newer' ) );
 	}
 
 	/**
@@ -100,6 +109,9 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		$this->assertTrue( $this->autoloader_reset );
 		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current' ) );
 	}
 
 	/**
@@ -114,6 +126,9 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		$this->assertFalse( $this->autoloader_reset );
 		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current', 'plugin_v2_2_0' ) );
 	}
 
 	/**
@@ -128,6 +143,9 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		$this->assertTrue( $this->autoloader_reset );
 		$this->assertAutoloaderVersion( '2.7.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current', 'plugin_newer' ) );
 	}
 
 	/**
@@ -144,6 +162,64 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		$this->assertFalse( $this->autoloader_reset );
 		$this->assertAutoloaderVersion( '2.7.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current', 'plugin_newer' ) );
+	}
+
+	/**
+	 * Tests that the autoloader updates the cache.
+	 */
+	public function test_autoloader_updates_cache() {
+		$this->activate_plugin( 'plugin_current' );
+
+		// Write an empty cache so we can make sure it was updated.
+		$this->cache_plugins( array() );
+
+		$this->load_autoloader( 'plugin_current' );
+		$this->shutdown_autoloader( true );
+
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+		$this->assertAutoloaderCache( array( 'plugin_current' ) );
+	}
+
+	/**
+	 * Tests that the autoloader does not update the cache if it has not changed.
+	 */
+	public function test_autoloader_does_not_update_unchanged_cache() {
+		$this->activate_plugin( 'plugin_current' );
+
+		// Write a cache that we can use when loading the autoloader.
+		$this->cache_plugins( array( 'plugin_current' ) );
+
+		$this->load_autoloader( 'plugin_current' );
+
+		// Erase the cache and then shut the autoloader down.
+		// It shouldn't update the transient since the cached plugins changed.
+		$this->cache_plugins( array() );
+
+		$this->shutdown_autoloader( true );
+
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+		$this->assertAutoloaderCache( array() );
+	}
+
+	/**
+	 * Tests that the autoloader empties the cache if shutdown happens before plugins_loaded.
+	 */
+	public function test_autoloader_empties_cache_on_early_shutdown() {
+		$this->activate_plugin( 'plugin_current' );
+
+		// Write a cache that we can use when loading the autoloader.
+		$this->cache_plugins( array( 'plugin_current' ) );
+
+		$this->load_autoloader( 'plugin_current' );
+
+		// Make sure to shutdown prematurely so that the cache will be erased instead of saved.
+		$this->shutdown_autoloader( false );
+
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+		$this->assertAutoloaderCache( array() );
 	}
 
 	/**
@@ -225,6 +301,19 @@ class Test_Autoloader_Scenarios extends TestCase {
 	}
 
 	/**
+	 * Runs the autoloader's shutdown action.
+	 *
+	 * @param bool $plugins_loaded Indicates whether or not the plugins_loaded action should have fired.
+	 */
+	private function shutdown_autoloader( $plugins_loaded = true ) {
+		if ( $plugins_loaded ) {
+			do_action( 'plugins_loaded' );
+		}
+
+		do_action( 'shutdown' );
+	}
+
+	/**
 	 * Asserts that the latest autoloader version is the one given.
 	 *
 	 * @param string $version The version to check.
@@ -235,5 +324,25 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 		global $jetpack_autoloader_latest_version;
 		$this->assertEquals( $version, $jetpack_autoloader_latest_version, 'The autoloader version is incorrect.' );
+	}
+
+	/**
+	 * Asserts that the autoloader cache contains the plugins given.
+	 *
+	 * @param array $plugins The plugins to check the cache for.
+	 */
+	private function assertAutoloaderCache( $plugins ) {
+		$paths = array();
+		foreach ( $plugins as $plugin ) {
+			$paths[] = '{{WP_PLUGIN_DIR}}/' . $plugin;
+		}
+
+		// The cached plugins are always sorted!
+		sort( $paths );
+
+		$this->assertTrue(
+			test_has_transient( Plugins_Handler::TRANSIENT_KEY, $paths ),
+			'The autoloader cache does not match'
+		);
 	}
 }

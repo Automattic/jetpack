@@ -126,7 +126,7 @@ if ( ! function_exists( 'get_option' ) ) {
 	 * Adds a site option to be used in tests.
 	 *
 	 * @param string $option The option to set.
-	 * @param mixed  $value The value to set to the option.
+	 * @param mixed  $value  The value to set to the option.
 	 */
 	function add_test_site_option( $option, $value ) {
 		global $test_site_options;
@@ -153,8 +153,8 @@ if ( ! function_exists( 'get_transient' ) ) {
 	/**
 	 * A drop-in for a WordPress core function.
 	 *
-	 * @param string $transient The transient to set.
-	 * @param mixed  $value The value to set.
+	 * @param string $transient  The transient to set.
+	 * @param mixed  $value      The value to set.
 	 * @param int    $expiration The expiration value, 0 for forever.
 	 * @return mixed Transient value.
 	 */
@@ -166,6 +166,26 @@ if ( ! function_exists( 'get_transient' ) ) {
 		);
 
 		return true;
+	}
+
+	/**
+	 * Checks to see whether or not the test transient has been set to a specific value.
+	 *
+	 * @param string $transient  The transient to check.
+	 * @param mixed  $value      The value to find.
+	 * @param int    $expiration The expiration value, 0 for roever.
+	 * @return bool True if the transient is set, otherwise false.
+	 */
+	function test_has_transient( $transient, $value, $expiration = 0 ) {
+		global $test_transients;
+
+		if ( ! isset( $test_transients[ $transient ] ) ) {
+			return false;
+		}
+
+		$transient = $test_transients[ $transient ];
+
+		return $value === $transient['value'] && $expiration === $transient['expiration'];
 	}
 }
 
@@ -348,6 +368,44 @@ if ( ! function_exists( 'add_action' ) ) {
 		}
 
 		return false;
+	}
+
+	/**
+	 * A drop-in replacement for a WordPress function.
+	 *
+	 * @param string $tag    The name of the action which is hooked.
+	 * @param mixed  ...$arg The arguments to pass to the action.
+	 */
+	function do_action( $tag, ...$arg ) {
+		global $test_executed_actions;
+
+		if ( ! isset( $test_executed_actions ) ) {
+			$test_executed_actions = array();
+		}
+
+		$test_executed_actions[ $tag ][] = $arg;
+
+		global $test_filters;
+		if ( isset( $test_filters[ $tag ] ) ) {
+			foreach ( $test_filters[ $tag ] as $record ) {
+				if ( empty( $record['accepted_args'] ) ) {
+					call_user_func( $record['callable'] );
+				} else {
+					call_user_func_array( $record['callable'], $arg );
+				}
+			}
+		}
+	}
+
+	/**
+	 * A drop-in replacement for a WordPress function.
+	 *
+	 * @param string $tag The name of the action which is hooked.
+	 * @return bool True if the action was executed, otherwise false.
+	 */
+	function did_action( $tag ) {
+		global $test_executed_actions;
+		return isset( $test_executed_actions[ $tag ] );
 	}
 
 	/**
