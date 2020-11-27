@@ -84,7 +84,20 @@ function run_coverage_tests {
 	export MULTISITE_CMD="phpdbg -qrr $PHPUNIT -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite-clover.xml"
 
 	print_build_info
+
+
+	echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+
+
 	run_cmd $BACKEND_CMD
+	export LEGACY_FULL_SYNC=1
+	run_cmd $LEGACY_SYNC_CMD
+	unset LEGACY_FULL_SYNC
+	export WP_MULTISITE=1
+	run_cmd $MULTISITE_CMD
+	unset WP_MULTISITE
+
 
 	echo "Running code coverage for packages:"
 	export PACKAGES='./packages/**/tests/php'
@@ -102,15 +115,7 @@ function run_coverage_tests {
 		fi
 	done
 
-	echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 
-	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
-
-	export LEGACY_FULL_SYNC=1
-	run_cmd $LEGACY_SYNC_CMD
-	unset LEGACY_FULL_SYNC
-	export WP_MULTISITE=1
-	run_cmd $MULTISITE_CMD
 }
 
 function run_parallel_lint {
