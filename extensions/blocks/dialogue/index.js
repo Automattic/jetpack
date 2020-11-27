@@ -20,6 +20,7 @@ export const name = 'dialogue';
 export const title = __( 'Dialogue', 'jetpack' );
 export const settings = {
 	title,
+	parent: [ 'jetpack/transcription' ],
 	description: __( 'Dialogue', 'jetpack' ),
 	icon,
 	category: 'layout',
