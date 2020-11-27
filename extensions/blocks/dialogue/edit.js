@@ -79,6 +79,7 @@ export default function DialogueEdit ( {
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
 
 	// speaker object.
+	const isCustomSpeaker = !! speaker && ! speakerSlug;
 	const currentSpeakerSlug = ! speaker && ! speakerSlug ? 'speaker-0' : speakerSlug;
 	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
 	const speakerName = currentSpeaker?.speaker || speaker;
@@ -112,18 +113,27 @@ export default function DialogueEdit ( {
 
 			<InspectorControls>
 				<Panel>
-					{ currentSpeaker && (
-						<PanelBody title={ __( 'Speaker', 'jetpack' ) }>
-							<TextControl
-								value={ currentSpeaker.speaker }
-								onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakers( {
-									speakerSlug: currentSpeakerSlug,
-									speaker: speakerEditedValue,
-									placeholder: `${ speaker } says…`,
-								} ) }
-							/>
-						</PanelBody>
-					) }
+						<PanelBody title={ isCustomSpeaker ? __( 'Custom speaker', 'jetpack' ) :  __( 'Speaker', 'jetpack' ) }>
+							{ currentSpeaker && (
+								<TextControl
+									value={ currentSpeaker.speaker }
+									onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakers( {
+										speakerSlug: currentSpeakerSlug,
+										speaker: speakerEditedValue,
+										placeholder: `${ speaker } says…`,
+									} ) }
+								/>
+							) }
+
+							{ isCustomSpeaker && (
+								<TextControl
+									value={ speaker }
+									onChange={ ( { editedSpeaker } ) => setAttributes( {
+										speaker: editedSpeaker,
+									} ) }
+								/>
+							) }
+					</PanelBody>
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
