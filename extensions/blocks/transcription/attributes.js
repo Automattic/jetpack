@@ -6,7 +6,4 @@ export default {
 		type: "boolean",
 		deault: true,
 	},
-	dialogueStyle: {
-		type: "string",
-	}
 };

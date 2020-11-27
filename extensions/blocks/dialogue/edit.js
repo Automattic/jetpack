@@ -66,13 +66,13 @@ export default function DialogueEdit ( {
 		backgroundColor,
 		timeStamp,
 		placeholder = defaultSpeakers[ 0 ].placeholder,
-		className: classNameAttr,
 	} = attributes;
 
 	// Block context integration.
 	const speakersFromContext = context[ 'jetpack/conversation-speakers' ];
 	const showTimeStamp = context[ 'jetpack/transcription-showtimestamp' ];
-	const contextDialogueStyle = context[ 'jetpack/conversation-style' ];
+
+	// const contextDialogueStyle = context[ 'jetpack/conversation-style' ];
 
 	// Speakers list.
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
@@ -85,25 +85,10 @@ export default function DialogueEdit ( {
 	// Transcription context. A bridge between dialogue and transcription blocks.
 	const transcritionBridge = useContext( TranscriptionContext );
 
-	useEffect( () => {
-		if ( ! transcritionBridge?.setAttributes ) {
-			return;
-		}
-		transcritionBridge.setAttributes( { dialogueStyle: classNameAttr } );
-	}, [ classNameAttr, transcritionBridge ] );
-
-	useEffect( () => {
-		if ( ! contextDialogueStyle ) {
-			return;
-		}
-
-		setAttributes( { className: contextDialogueStyle } );
-	}, [ contextDialogueStyle, setAttributes ] );
-
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	return (
-		<div class={ className }>
+		<div className={ className }>
 			<BlockControls>
 				<ToolbarGroup>
 					<SpeakersDropdown

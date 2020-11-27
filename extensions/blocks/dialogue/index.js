@@ -36,11 +36,6 @@ export const settings = {
 	usesContext: [
 		'jetpack/conversation-speakers',
 		'jetpack/transcription-showtimestamp',
-		'jetpack/conversation-style',
-	],
-	styles: [
-		{ name: 'row', label: __( 'Row', 'jetpack' ), isDefault: true },
-		{ name: 'column', label: __( 'Column', 'jetpack' ) },
 	],
 	transforms: {
 		from: [

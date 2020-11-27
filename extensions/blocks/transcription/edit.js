@@ -65,7 +65,7 @@ function TranscriptionEdit ( {
 	attributes,
 	setAttributes,
 } ) {
-	const { speakers, showTimeStamp, dialogueStyle } = attributes;
+	const { speakers, showTimeStamp, className: classNameAttr } = attributes;
 	const [ newLabelValue, setNewLabelValue ] = useState();
 	const containertRef = useRef();
 
@@ -84,7 +84,7 @@ function TranscriptionEdit ( {
 
 		attributes: {
 			showTimeStamp,
-			dialogueStyle,
+			classNameAttr,
 		},
 	};
 
@@ -120,15 +120,17 @@ function TranscriptionEdit ( {
 		setNewLabelValue( '' );
 	}
 
+	const baseClassName = 'wp-block-jetpack-transcription';
+
 	return (
 		<TranscritptionContext.Provider value={ contextProvision }>
-			<div ref={ containertRef } className={ classnames( className, dialogueStyle ) }>
+			<div ref={ containertRef } className={ className }>
 				<InspectorControls>
 					<Panel>
-						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ className }__speakers` }>
+						<PanelBody title={ __( 'speakers', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
 							{ map( speakers, ( { speaker, speakerSlug, color, backgroundColor } ) => (
-								<BaseControl className={ `${ className }__speaker-control` }>
-									<div className={ `${ className }__speaker` }>
+								<BaseControl className={ `${ baseClassName }__speaker-control` }>
+									<div className={ `${ baseClassName }__speaker` }>
 										<TextControl
 											value={ speaker }
 											onChange={ ( speakerEditedValue ) => updateLabels( {
@@ -170,7 +172,7 @@ function TranscriptionEdit ( {
 							) ) }
 
 							<BaseControl>
-								<div className={ `${ className }__speaker` }>
+								<div className={ `${ baseClassName }__speaker` }>
 									<TextControl
 										label={ __( 'Add a new speaker', 'jetpack' ) }
 										value={ newLabelValue }
@@ -185,7 +187,7 @@ function TranscriptionEdit ( {
 									/>
 
 									<Button
-										className={ `${ className }__add-button` }
+										className={ `${ baseClassName }__add-button` }
 										label={ __( 'Add', 'jetpack' ) }
 										onClick={ addNewLabel }
 										isSecondary
@@ -197,7 +199,7 @@ function TranscriptionEdit ( {
 							</BaseControl>
 						</PanelBody>
 
-						<PanelBody title={ __( 'Timestamps', 'jetpack' ) } className={ `${ className }__timestamps` }>
+						<PanelBody title={ __( 'Timestamps', 'jetpack' ) } className={ `${ baseClassName }__timestamps` }>
 							<ToggleControl
 								label={ __( 'Show dialogue timestamps', 'jetpack' ) }
 								checked={ showTimeStamp }

@@ -55,14 +55,16 @@ export const settings = {
 		'align': true,
 	},
 	attributes,
+	styles: [
+		{ name: 'row', label: __( 'Row', 'jetpack' ), isDefault: true },
+		{ name: 'column', label: __( 'Column', 'jetpack' ) },
+	],
 	edit,
 	save,
 	providesContext: {
 		'jetpack/conversation-speakers': 'speakers',
 		'jetpack/transcription-showtimestamp': 'showTimeStamp',
-		'jetpack/conversation-style': 'dialogueStyle',
 	},
-
 	transforms: {
 		from: [
 			{
