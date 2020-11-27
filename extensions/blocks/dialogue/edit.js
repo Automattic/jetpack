@@ -176,6 +176,7 @@ export default function DialogueEdit ( {
 				<div
 					className={ classnames( `${ baseClassName }__speaker`, {
 						[ 'has-background-color' ]: !! backgroundColor,
+						[ 'has-bold-style' ]: currentSpeaker.hasBoldStyle,
 					} ) }
 					style={ { color, backgroundColor } }
 				>

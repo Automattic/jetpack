@@ -22,7 +22,6 @@
 .wp-block-jetpack-dialogue__speaker {
 	white-space: nowrap;
 	padding: 3px 0;
-	font-weight: 500;
 	height: auto;
 	line-height: 1.2;
 
@@ -30,6 +29,10 @@
 		padding: 3px 6px;
 		border-radius: 3px;
 		margin-right: 6px;
+	}
+
+	&.has-bold-style {
+		font-weight: 500;
 	}
 }
 
