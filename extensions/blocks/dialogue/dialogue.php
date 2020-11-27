@@ -56,25 +56,32 @@ function render_block( $attrs, $content, $block ) {
 
 	// Set current speaker slug, considering it could be null from block attrs.
 	$speaker_slug = ! $speaker_slug_attr && ! $speaker_name_attr ? 'speaker-0' : $speaker_slug_attr;
-	
+
 	// Speaker names map.
 	$speaker_names_map = array();
-	foreach( $speakers as $speaker ) {
-		$speaker_names_map[ $speaker['speakerSlug'] ] = array(
-			'name' => $speaker['speaker'],
-		);
+	foreach( $speakers as $index => $speaker ) {
+		$speaker_names_map[ $speaker['speakerSlug'] ] = $speaker;
 	}
 
-	// Get speaker name from context.
-	$speaker_name =  isset( $speaker_names_map[ $speaker_slug ]['name' ] )
-		? esc_attr( $speaker_names_map[ $speaker_slug ]['name' ] )
+	// Pick up speaker data from context.
+	$speaker_name =  isset( $speaker_names_map[ $speaker_slug ]['speaker' ] )
+		? esc_attr( $speaker_names_map[ $speaker_slug ]['speaker' ] )
 		: $speaker_name_attr;
 
-	// Markup.
+	$speaker_has_bold_style = $speaker_names_map[ $speaker_slug ]['hasBoldStyle' ];
+
+	// CSS classes and inline styles..
 	$base_classname = 'wp-block-jetpack-dialogue';
-	$markup = '<div class="' . $base_classname .  '" >' .
+
+	$spekaer_css_classes = array( $base_classname . '__speaker' );
+	if ( $speaker_has_bold_style ) {
+		array_push( $spekaer_css_classes, 'has-bold-style' );
+	}
+
+	// Markup.
+	return '<div class="' . $base_classname .  '" >' .
 		'<div class="'. $base_classname . '__meta">' .
-			'<div class="'. $base_classname . '__speaker">' .
+			'<div class="'. implode( ' ', $spekaer_css_classes ).'">' .
 				$speaker_name .
 			'</div>' .
 			'<div class="'. $base_classname . '__timestamp">' .
@@ -83,5 +90,4 @@ function render_block( $attrs, $content, $block ) {
 		'</div>' .
 		$content .
 	'</div>';
-	return $markup;
 }
