@@ -30,6 +30,7 @@ function register_block() {
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$provides         => array(
 				'jetpack/conversation-speakers' => 'speakers',
+				'jetpack/transcription-showtimestamp' => 'showTimeStamp',
 			),
 		)
 	);
