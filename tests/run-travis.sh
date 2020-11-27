@@ -86,10 +86,7 @@ function run_coverage_tests {
 	print_build_info
 
 
-	echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
-ls -la /tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/
-
-	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 
 
 	run_cmd $BACKEND_CMD
@@ -168,7 +165,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	print_build_info
 
 	# WP_BRANCH = master | latest | previous
-	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 
 	if [ "$WP_BRANCH" == "master" ]; then
 		# Test multi WP in addition to single, but only in master branch mode.
