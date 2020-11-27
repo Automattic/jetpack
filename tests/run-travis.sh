@@ -84,6 +84,7 @@ function run_coverage_tests {
 	export MULTISITE_CMD="phpdbg -qrr $PHPUNIT -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite-clover.xml"
 
 	print_build_info
+	run_cmd $BACKEND_CMD
 
 	echo "Running code coverage for packages:"
 	export PACKAGES='./packages/**/tests/php'
@@ -101,17 +102,10 @@ function run_coverage_tests {
 		fi
 	done
 
-	echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+	echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 
-ls -la /tmp/wordpress-$WP_BRANCH/
-ls -la /tmp/wordpress-$WP_BRANCH/tests/phpunit
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 
-	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
-	echo "CDed!"
-	ls -la ../../../../tests/phpunit/includes/bootstrap.php
-
-
-	run_cmd $BACKEND_CMD
 	export LEGACY_FULL_SYNC=1
 	run_cmd $LEGACY_SYNC_CMD
 	unset LEGACY_FULL_SYNC

@@ -41,7 +41,6 @@ jobs:
       - name: Setup tests
         run: |
           sudo systemctl start mysql.service
-          export PLUGIN_SLUG=$(basename $(pwd))
           export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
@@ -51,6 +50,7 @@ jobs:
 
       - name: Run code coverage
         run: |
+          export PLUGIN_SLUG=$(basename $(pwd))
           ./tests/run-travis.sh
           yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
           yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
