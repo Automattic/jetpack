@@ -65,8 +65,6 @@ export default function DialogueEdit ( {
 	const {
 		speaker,
 		speakerSlug,
-		color,
-		backgroundColor,
 		timeStamp,
 		placeholder = defaultSpeakers[ 0 ].placeholder,
 	} = attributes;
@@ -200,12 +198,10 @@ export default function DialogueEdit ( {
 			<div class={ `${ baseClassName }__meta` }>
 				<div
 					className={ classnames( `${ baseClassName }__speaker`, {
-						[ 'has-background-color' ]: !! backgroundColor,
 						[ 'has-bold-style' ]: currentSpeaker?.hasBoldStyle,
 						[ 'has-italic-style' ]: currentSpeaker?.hasItalicStyle,
 						[ 'has-uppercase-style' ]: currentSpeaker?.hasUppercaseStyle,
 					} ) }
-					style={ { color, backgroundColor } }
 				>
 					{ speakerName }
 				</div>
