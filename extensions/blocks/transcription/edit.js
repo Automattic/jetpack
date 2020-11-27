@@ -12,6 +12,7 @@ import {
 	useState,
 	useRef,
 	useCallback,
+	useMemo,
 } from '@wordpress/element';
 import {
 	InnerBlocks,
@@ -98,7 +99,7 @@ function TranscriptionEdit ( {
 
 	// Context bridge.
 	const contextProvision = {
-		setAttributes: useCallback( () => setAttributes, [ setAttributes ] ),
+		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
 		updateSpeakerBySlug,
 
 		attributes: {
