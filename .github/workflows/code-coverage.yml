@@ -42,6 +42,7 @@ jobs:
         run: |
           sudo systemctl start mysql.service
           export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
+          export PLUGIN_SLUG=$(basename $(pwd))
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
