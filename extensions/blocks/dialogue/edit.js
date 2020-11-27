@@ -20,6 +20,7 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	TextControl,
+	Button,
 } from '@wordpress/components';
 import { useContext } from '@wordpress/element';
 
@@ -108,6 +109,18 @@ export default function DialogueEdit ( {
 							speaker: newSpeaker,
 						} ) }
 					/>
+					{ currentSpeaker && (
+						<Button
+							icon="editor-bold"
+							isPressed={ currentSpeaker.hasBoldStyle }
+							onClick={ () => transcritionBridge.updateSpeakerBySlug(
+								currentSpeakerSlug,
+								{
+									hasBoldStyle: ! currentSpeaker.hasBoldStyle,
+								}
+							) }
+						/>
+					) }
 				</ToolbarGroup>
 			</BlockControls>
 
@@ -117,11 +130,13 @@ export default function DialogueEdit ( {
 							{ currentSpeaker && (
 								<TextControl
 									value={ currentSpeaker.speaker }
-									onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakers( {
-										speakerSlug: currentSpeakerSlug,
-										speaker: speakerEditedValue,
-										placeholder: `${ speaker } says…`,
-									} ) }
+									onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakerBySlug(
+										currentSpeakerSlug,
+										{
+											speaker: speakerEditedValue,
+											placeholder: `${ speaker } says…`,
+										}
+									) }
 								/>
 							) }
 

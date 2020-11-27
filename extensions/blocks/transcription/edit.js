@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { filter, map } from 'lodash';
-import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -92,10 +91,15 @@ function TranscriptionEdit ( {
 		setAttributes( { speakers: newLabels } );
 	}, [ setAttributes, speakers ] );
 
+	const updateSpeakerBySlug = useCallback( ( slug, data ) => updateSpeakers( {
+		speakerSlug: slug,
+		...data,
+	} ), [ updateSpeakers ] );
+
 	// Context bridge.
 	const contextProvision = {
 		setAttributes: useCallback( () => setAttributes, [ setAttributes ] ),
-		updateSpeakers,
+		updateSpeakerBySlug,
 
 		attributes: {
 			showTimeStamp,
