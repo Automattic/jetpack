@@ -48,7 +48,11 @@ if [ $clone_exit_code -ne 0 ]; then
 	exit 1
 fi
 
+
+ls -la
 cd ..
+echo $PLUGIN_SLUG "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+
 cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
 # Plugin dir for tests in WP >= 5.6-beta1
 ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$PLUGIN_SLUG"

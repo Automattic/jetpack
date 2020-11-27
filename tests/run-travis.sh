@@ -87,6 +87,8 @@ function run_coverage_tests {
 
 
 	echo "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+ls -la /tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/
+
 	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
 
 
