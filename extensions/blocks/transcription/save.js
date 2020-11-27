@@ -15,6 +15,7 @@ export default function save ( { attributes } ) {
 		<div
 			className={ classnames(
 				baseClassName,
+				'entry-content',
 				{
 					'show-timestamp': attributes?.showTimeStamp,
 				}
