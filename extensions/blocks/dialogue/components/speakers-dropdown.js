@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { map, find } from 'lodash';
+import { map } from 'lodash';
 
 /**
  * WordPress dependencies

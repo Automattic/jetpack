@@ -139,7 +139,7 @@ export default function DialogueEdit ( {
 
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ isCustomSpeaker ? __( 'Custom speaker', 'jetpack' ) :  __( 'Speaker', 'jetpack' ) }>
+					<PanelBody title={ isCustomSpeaker ? __( 'Custom speaker', 'jetpack' ) : __( 'Speaker', 'jetpack' ) }>
 						{ currentSpeaker && (
 							<TextControl
 								value={ currentSpeaker.speaker }
