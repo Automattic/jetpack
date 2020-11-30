@@ -14,9 +14,12 @@ import {
 	BaseControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 
 function SpeakersMenu ( { speaker, speakers, className, onSelect, onChange } ) {
+	// Temporary cache value if the current speaker.
+	const [ tmpSpeakerValue, setTmpSpeakerValue ] = useState( {} );
+
 	return (
 		<MenuGroup className={ `${ className }__speakers-selector` }>
 			{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug }, ind ) => (
@@ -27,11 +30,14 @@ function SpeakersMenu ( { speaker, speakers, className, onSelect, onChange } ) {
 				>
 					<TextControl
 						label= { `Speaker ${ ind + 1 }` }
-						value={ newSpeaker }
-						onChange={ ( editSpeaker ) => onChange( {
-							editSpeaker,
-							editSpeakerSlug: newSpeakerSlug,
-						} ) }
+						value={ tmpSpeakerValue?.[ newSpeakerSlug ] || newSpeaker }
+						onChange={ ( editSpeaker ) => {
+							setTmpSpeakerValue( { [ newSpeakerSlug ]: editSpeaker } );
+							onChange( {
+								editSpeaker,
+								editSpeakerSlug: newSpeakerSlug,
+							} );
+						} }
 					/>
 				</MenuItem>
 			) ) }

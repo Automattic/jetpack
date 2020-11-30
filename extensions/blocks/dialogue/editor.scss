@@ -9,3 +9,9 @@
 .wp-block-jetpack-dialogue__timestamp-control__minute {
 	margin-right: 5px;
 } 
+
+.wp-block-jetpack-dialogue__speakers-selector .components-button:focus {
+	border: 0;
+	outline: none;
+	box-shadow: none;
+}
