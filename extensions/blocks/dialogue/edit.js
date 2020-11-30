@@ -92,7 +92,7 @@ export default function DialogueEdit ( {
 						className={ baseClassName }
 						speakers={ speakers }
 						speaker={ speaker }
-						speakerName={ speakerName }
+						label={ speakerName }
 						onSelect={ ( { newSpeakerSlug } ) => {
 							setAttributes( {
 								speakerSlug: newSpeakerSlug,

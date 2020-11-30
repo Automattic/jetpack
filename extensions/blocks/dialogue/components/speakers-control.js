@@ -57,7 +57,7 @@ export default function SpeakersDropdown ( {
 	className,
 	speakers,
 	speaker,
-	speakerName,
+	label,
 	onSelect,
 	onChange,
 	onCustomChange,
@@ -67,7 +67,7 @@ export default function SpeakersDropdown ( {
 		<DropdownMenu
 			popoverProps={ position }
 			toggleProps={ {
-				children: <span>{ speakerName }</span>,
+				children: <span>{ label }</span>,
 			} }
 			icon="microphone"
 		>
