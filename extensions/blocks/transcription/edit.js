@@ -78,8 +78,8 @@ function TranscriptionEdit ( {
 		setAttributes( { speakers: defaultLabels } );
 	}, [ speakers, setAttributes ] );
 
-	const updateSpeakers = useCallback( ( updatedSpeaker ) => {
-		const newLabels = map( speakers, ( speaker ) => {
+	const updateSpeakers = useCallback( ( updatedSpeaker ) => (
+		setAttributes( { speakers: map( speakers, ( speaker ) => {
 			if ( speaker.speakerSlug !== updatedSpeaker.speakerSlug ) {
 				return speaker;
 			}
@@ -87,10 +87,8 @@ function TranscriptionEdit ( {
 				...speaker,
 				...updatedSpeaker,
 			};
-		} );
-
-		setAttributes( { speakers: newLabels } );
-	}, [ setAttributes, speakers ] );
+		} ) } )
+	), [ setAttributes, speakers ] );
 
 	const updateSpeakerBySlug = useCallback( ( slug, data ) => updateSpeakers( {
 		speakerSlug: slug,
