@@ -23,7 +23,7 @@ export default function SpeakersDropdown ( {
 	speaker,
 	speakerName,
 	onSelect,
-	onChange,
+	onCustomChange,
 	position = { position: 'bottom' },
 } ) {
 	return (
@@ -57,7 +57,7 @@ export default function SpeakersDropdown ( {
 							<TextControl
 								id={ id }
 								value={ speaker }
-								onChange={ ( newSpeaker ) => onChange( { newSpeaker, newSpeakerSlug: null } ) }
+								onChange={ ( newSpeaker ) => onCustomChange( { newSpeaker, newSpeakerSlug: null } ) }
 							/>
 						</div>
 					</BaseControl>

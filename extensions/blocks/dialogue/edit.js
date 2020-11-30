@@ -101,7 +101,7 @@ export default function DialogueEdit ( {
 								speakerSlug: newSpeakerSlug,
 							} );
 						} }
-						onChange={ ( { newSpeaker } ) => setAttributes( {
+						onCustomChange={ ( { newSpeaker } ) => setAttributes( {
 							speakerSlug: null,
 							speaker: newSpeaker,
 						} ) }
