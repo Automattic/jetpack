@@ -29,7 +29,7 @@ import { useContext } from '@wordpress/element';
  */
 import './editor.scss';
 import { formatUppercase } from '../../shared/icons';
-import { SpeakersDropdown } from './components/speakers-control';
+import SpeakersDropdown from './components/speakers-control';
 import TimeStampControl from './components/time-stamp-control';
 import TranscriptionContext from '../transcription/components/context';
 

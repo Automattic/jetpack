@@ -16,7 +16,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-export function SpeakersMenu ( { speaker, speakers, className, onSelect, onChange } ) {
+function SpeakersMenu ( { speaker, speakers, className, onSelect, onChange } ) {
 	return (
 		<MenuGroup className={ `${ className }__speakers-selector` }>
 			{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug }, ind ) => (
@@ -39,7 +39,7 @@ export function SpeakersMenu ( { speaker, speakers, className, onSelect, onChang
 	);
 }
 
-export function SpeakerControl( { className, speaker, onChange } ) {
+function SpeakerControl( { className, speaker, onChange } ) {
 	return (
 		<BaseControl className={ `${ className }__custom-speaker` }>
 			<div className={ `${ className }__text-button-container` }>
@@ -53,7 +53,7 @@ export function SpeakerControl( { className, speaker, onChange } ) {
 	);
 }
 
-export function SpeakersDropdown ( {
+export default function SpeakersDropdown ( {
 	className,
 	speakers,
 	speaker,
