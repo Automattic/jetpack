@@ -393,7 +393,6 @@ class SignatureTest extends TestCase {
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @group leo
 	 */
 	public function test_request_port_constants() {
 		define( 'JETPACK_SIGNATURE__HTTP_PORT', 81 ); // http as integer.
