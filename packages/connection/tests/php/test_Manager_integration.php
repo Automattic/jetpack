@@ -103,9 +103,9 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	/**
 	 * Test get_connection_owner and is_owner
 	 */
-	public function test_get_connection_owner_and_has_owner() {
+	public function test_get_connection_owner_and_has_connected_owner() {
 		$this->assertFalse( $this->manager->get_connection_owner() );
-		$this->assertFalse( $this->manager->has_owner() );
+		$this->assertFalse( $this->manager->has_connected_owner() );
 
 		$id_admin = wp_insert_user(
 			array(
@@ -127,7 +127,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		// Before tokens are created, no owner is found.
 		$this->assertFalse( $this->manager->get_connection_owner() );
-		$this->assertFalse( $this->manager->has_owner() );
+		$this->assertFalse( $this->manager->has_connected_owner() );
 
 		\Jetpack_Options::update_option(
 			'user_tokens',
@@ -141,7 +141,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$this->assertInstanceOf( 'WP_User', $owner );
 		$this->assertSame( $id_admin, $owner->ID );
-		$this->assertTrue( $this->manager->has_owner() );
+		$this->assertTrue( $this->manager->has_connected_owner() );
 	}
 
 	/**

@@ -525,7 +525,7 @@ class Manager {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
 			return $this->is_connected();
 		}
-		return $this->has_owner();
+		return $this->has_connected_owner();
 	}
 
 	/**
@@ -588,7 +588,7 @@ class Manager {
 	 *
 	 * @return bool
 	 */
-	public function has_owner() {
+	public function has_connected_owner() {
 		return (bool) $this->get_connection_owner_id();
 	}
 
