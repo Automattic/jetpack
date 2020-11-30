@@ -37,17 +37,14 @@ const defaultSpeakers = [
 	{
 		speakerSlug: 'speaker-0',
 		speaker: __( 'First', 'jetpack' ),
-		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-1',
 		speaker: __( 'Second', 'jetpack' ),
-		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-2',
 		speaker: __( 'Third', 'jetpack' ),
-		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 ];
 
@@ -66,7 +63,6 @@ export default function DialogueEdit ( {
 		speaker,
 		speakerSlug,
 		timeStamp,
-		placeholder = defaultSpeakers[ 0 ].placeholder,
 	} = attributes;
 
 	// Block context integration.
@@ -163,7 +159,6 @@ export default function DialogueEdit ( {
 									currentSpeakerSlug,
 									{
 										speaker: speakerEditedValue,
-										placeholder: `${ speaker } says…`,
 									}
 								) }
 							/>
@@ -220,7 +215,7 @@ export default function DialogueEdit ( {
 			</div>
 
 			<InnerBlocks
-				template={ [ [ 'core/paragraph', { placeholder } ] ] }
+				template={ [ [ 'core/paragraph', { placeholder: __( 'speaker says', 'jetpack…' ) } ] ] }
 				templateLock="all"
 			/>
 		</div>
