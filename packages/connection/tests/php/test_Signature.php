@@ -245,8 +245,8 @@ class SignatureTest extends TestCase {
 			unset( $_SERVER['HTTP_X_FORWARDED_PORT'] );
 		}
 
-		if ( is_null( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ) {
-			unset( $_SERVER['HTTP_X_FORWARDED_PORT'] );
+		if ( is_null( $_SERVER['SERVER_PORT'] ) ) {
+			unset( $_SERVER['SERVER_PORT'] );
 		}
 
 		$signature = new \Jetpack_Signature( 'some-secret', 0 );
@@ -393,6 +393,7 @@ class SignatureTest extends TestCase {
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 * @group leo
 	 */
 	public function test_request_port_constants() {
 		define( 'JETPACK_SIGNATURE__HTTP_PORT', 81 ); // http as integer.
