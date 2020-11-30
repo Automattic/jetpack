@@ -2,7 +2,7 @@
 /**
  * Admin Menu file.
  *
- * @package A8C\Admin_Plugins
+ * @package Jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
