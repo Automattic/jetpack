@@ -50,11 +50,24 @@ function print_build_info {
 
 function run_coverage_tests {
 	export PHPUNIT=$(which phpunit)
-	export BACKEND_CMD="phpdbg -qrr $PHPUNIT --coverage-clover $TRAVIS_BUILD_DIR/coverage/backend-clover.xml"
-	export LEGACY_SYNC_CMD="phpdbg -qrr $PHPUNIT --group=legacy-full-sync --coverage-clover $TRAVIS_BUILD_DIR/coverage/legacy-sync-clover.xml"
-	export MULTISITE_CMD="phpdbg -qrr $PHPUNIT -c tests/php.multisite.xml --coverage-clover $TRAVIS_BUILD_DIR/coverage/multisite-clover.xml"
+	export BACKEND_CMD="phpdbg -qrr $PHPUNIT --coverage-clover $GITHUB_WORKSPACE/coverage/backend-clover.xml"
+	export LEGACY_SYNC_CMD="phpdbg -qrr $PHPUNIT --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync-clover.xml"
+	export MULTISITE_CMD="phpdbg -qrr $PHPUNIT -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite-clover.xml"
 
 	print_build_info
+
+
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
+
+
+	run_cmd $BACKEND_CMD
+	export LEGACY_FULL_SYNC=1
+	run_cmd $LEGACY_SYNC_CMD
+	unset LEGACY_FULL_SYNC
+	export WP_MULTISITE=1
+	run_cmd $MULTISITE_CMD
+	unset WP_MULTISITE
+
 
 	echo "Running code coverage for packages:"
 	export PACKAGES='./packages/**/tests/php'
@@ -64,7 +77,7 @@ function run_coverage_tests {
 			cd "$PACKAGE/../.."
 			export NAME=$(basename $(pwd))
 			composer install
-			export PACKAGE_CMD="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/coverage/packages/$NAME-clover.xml"
+			export PACKAGE_CMD="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $GITHUB_WORKSPACE/coverage/packages/$NAME-clover.xml"
 
 			echo "Running \`$PACKAGE_CMD\` for package \`$NAME\` "
 			run_cmd $PACKAGE_CMD
@@ -72,14 +85,7 @@ function run_coverage_tests {
 		fi
 	done
 
-	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
 
-	run_cmd $BACKEND_CMD
-	export LEGACY_FULL_SYNC=1
-	run_cmd $LEGACY_SYNC_CMD
-	unset LEGACY_FULL_SYNC
-	export WP_MULTISITE=1
-	run_cmd $MULTISITE_CMD
 }
 
 echo "Travis CI command: $WP_TRAVISCI"
@@ -111,7 +117,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	print_build_info
 
 	# WP_BRANCH = master | latest | previous
-	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 
 	if [ "$WP_BRANCH" == "master" ]; then
 		# Test multi WP in addition to single, but only in master branch mode.
