@@ -16,8 +16,44 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
+export function SpeakersMenu ( { speaker, speakers, className, onSelect, onChange } ) {
+	return (
+		<MenuGroup className={ `${ className }__speakers-selector` }>
+			{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug }, ind ) => (
+				<MenuItem
+					key={ newSpeakerSlug }
+					onClick={ () => onSelect( { newSpeaker, newSpeakerSlug } ) }
+					isSelected={ newSpeaker === speaker }
+				>
+					<TextControl
+						label= { `Speaker ${ ind + 1 }` }
+						value={ newSpeaker }
+						onChange={ ( editSpeaker ) => onChange( {
+							editSpeaker,
+							editSpeakerSlug: newSpeakerSlug,
+						} ) }
+					/>
+				</MenuItem>
+			) ) }
+		</MenuGroup>
+	);
+}
+
+export function SpeakerControl( { className, speaker, onChange } ) {
+	return (
+		<BaseControl className={ `${ className }__custom-speaker` }>
+			<div className={ `${ className }__text-button-container` }>
+				<TextControl
+					label={ __( 'Custom speaker', 'jetpack' ) }
+					value={ speaker }
+					onChange={ onChange }
+				/>
+			</div>
+		</BaseControl>
+	);
+}
+
 export function SpeakersDropdown ( {
-	id,
 	className,
 	speakers,
 	speaker,
@@ -37,39 +73,19 @@ export function SpeakersDropdown ( {
 		>
 			{ () => (
 				<Fragment>
-					<MenuGroup className={ `${ className }__speakers-selector` }>
-						{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug }, ind ) => (
-							<MenuItem
-								key={ newSpeakerSlug }
-								onClick={ () => onSelect( { newSpeaker, newSpeakerSlug } ) }
-								isSelected={ newSpeaker === speaker }
-							>
-								<TextControl
-									label= { `Speaker ${ ind + 1 }` }
-									id={ `${ newSpeakerSlug }-control-${ ind }` }
-									value={ newSpeaker }
-									onChange={ ( editSpeaker ) => onChange( {
-										editSpeaker,
-										editSpeakerSlug: newSpeakerSlug,
-									} ) }
-								/>
-							</MenuItem>
-						) ) }
-					</MenuGroup>
+					<SpeakersMenu
+						speakers={ speakers }
+						speaker={ speaker }
+						className={ className }
+						onSelect={ onSelect }
+						onChange={ onChange }
+					/>
 
-					<BaseControl
-						id={ id }
-						className={ `${ className }__custom-speaker` }
-						label={ __( 'Custom', 'jetpack' ) }
-					>
-						<div className={ `${ className }__text-button-container` }>
-							<TextControl
-								id={ id }
-								value={ speaker }
-								onChange={ ( newSpeaker ) => onCustomChange( { newSpeaker, newSpeakerSlug: null } ) }
-							/>
-						</div>
-					</BaseControl>
+					<SpeakerControl
+						className={ className }
+						speaker={ speaker }
+						onChange={ ( newSpeaker ) => onCustomChange( { newSpeaker, newSpeakerSlug: null } ) }
+					/>
 				</Fragment>
 			) }
 		</DropdownMenu>
