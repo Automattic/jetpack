@@ -48,35 +48,6 @@ function print_build_info {
 	echo
 }
 
-function run_php_compatibility {
-	if ./vendor/bin/phpcs -i | grep -q 'PHPCompatibilityWP'; then
-		# PHPCompatibilityWP is installed
-		:
-	else
-		echo "Skipping PHP:Compatibility checks, PHPCompatibilityWP is not installed (PHP is too old?)"
-		return
-	fi
-
-	export PHPCOMP_EXEC="composer phpcs:compatibility ."
-	export PHPCS_CHECK_EXEC="./vendor/bin/phpcs --version | grep -e PHP_CodeSniffer"
-	echo "Running PHP:Compatibility checks:"
-	echo "PHP Compatibility command: \`$PHPCOMP_EXEC\` "
-
-	if $PHPCS_CHECK_EXEC; then
-		# Everything is fine
-		:
-	else
-		exit 1
-	fi
-
-	if $PHPCOMP_EXEC; then
-		# Everything is fine
-		:
-	else
-		exit 1
-	fi
-}
-
 function run_coverage_tests {
 	export PHPUNIT=$(which phpunit)
 	export BACKEND_CMD="phpdbg -qrr $PHPUNIT --coverage-clover $GITHUB_WORKSPACE/coverage/backend-clover.xml"
@@ -117,16 +88,6 @@ function run_coverage_tests {
 
 }
 
-function run_parallel_lint {
-	echo "Running PHP lint:"
-	if ./bin/parallel-lint.sh; then
-		# Everything is fine
-		:
-	else
-		exit 1
-	fi
-}
-
 echo "Travis CI command: $WP_TRAVISCI"
 
 if [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
@@ -136,20 +97,11 @@ fi
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
-	if [ "" != "$PHP_LINT" ]; then
-		run_parallel_lint
-	fi
-
 	# Run package tests only for the latest WordPress branch, because the
 	# tests are independent of the version.
 	if [ "latest" == "$WP_BRANCH" ]; then
 		run_packages_tests
 	fi
-
-	if [ "previous" == "$WP_BRANCH" ]; then
-		run_php_compatibility
-	fi
-
 
 	# Run a external-html group tests
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
