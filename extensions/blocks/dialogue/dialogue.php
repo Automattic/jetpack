@@ -54,7 +54,7 @@ function render_block( $attrs, $content, $block ) {
 	
 	// Pick up transcription data from context.
 	$speakers = $block->context['jetpack/conversation-speakers' ];	
-	$show_timestamp = $block->context['jetpack/transcription-showtimestamp'];
+	$show_timestamp = isset( $block->context['jetpack/transcription-showtimestamp'] );
 
 	// Set current speaker slug, considering it could be null from block attrs.
 	$speaker_slug = ! $speaker_slug_attr && ! $speaker_name_attr ? 'speaker-0' : $speaker_slug_attr;
