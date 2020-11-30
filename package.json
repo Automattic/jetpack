@@ -198,7 +198,7 @@
 		"@automattic/color-studio": "2.3.1",
 		"@babel/plugin-transform-runtime": "7.12.1",
 		"@size-limit/preset-app": "4.7.0",
-		"@slack/web-api": "5.13.0",
+		"@slack/web-api": "5.14.0",
 		"@testing-library/jest-dom": "5.11.6",
 		"@testing-library/preact": "2.0.0",
 		"@wordpress/components": "9.2.6",
