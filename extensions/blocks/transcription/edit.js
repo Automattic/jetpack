@@ -109,7 +109,7 @@ function TranscriptionEdit ( {
 		setAttributes( { speakers: filter( speakers, ( { speakerSlug } ) => ( speakerSlug !== deletedSpeakerSlug ) ) } );
 	}
 
-	function addNewLabel () {
+	function addNewSpeaker () {
 		setAttributes( {
 			speakers: [
 				...speakers,
@@ -183,14 +183,14 @@ function TranscriptionEdit ( {
 												return;
 											}
 
-											addNewLabel();
+											addNewSpeaker();
 										} }
 									/>
 
 									<Button
 										className={ `${ baseClassName }__add-button` }
 										label={ __( 'Add', 'jetpack' ) }
-										onClick={ addNewLabel }
+										onClick={ addNewSpeaker }
 										isSecondary
 										isSmall
 									>
