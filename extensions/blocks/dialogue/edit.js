@@ -152,29 +152,6 @@ export default function DialogueEdit ( {
 
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ isCustomSpeaker ? __( 'Custom speaker', 'jetpack' ) : __( 'Speaker', 'jetpack' ) }>
-						{ currentSpeaker && (
-							<TextControl
-								value={ currentSpeaker.speaker }
-								onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakers(
-									{
-										speakerSlug: currentSpeakerSlug,
-										speaker: speakerEditedValue,
-									}
-								) }
-							/>
-						) }
-
-						{ isCustomSpeaker && (
-							<TextControl
-								value={ speaker }
-								onChange={ ( { editedSpeaker } ) => setAttributes( {
-									speaker: editedSpeaker,
-								} ) }
-							/>
-						) }
-					</PanelBody>
-
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show', 'jetpack' ) }
