@@ -99,9 +99,9 @@ export default function DialogueEdit ( {
 							} );
 						} }
 						onChange={ ( { editSpeakerSlug, editSpeaker } ) => {
-							transcritionBridge.updateSpeakerBySlug(
-								editSpeakerSlug,
+							transcritionBridge.updateSpeakers(
 								{
+									speakerSlug: editSpeakerSlug,
 									speaker: editSpeaker,
 								}
 							);
@@ -117,9 +117,9 @@ export default function DialogueEdit ( {
 						<ToolbarButton
 							icon="editor-bold"
 							isPressed={ currentSpeaker.hasBoldStyle }
-							onClick={ () => transcritionBridge.updateSpeakerBySlug(
-								currentSpeakerSlug,
+							onClick={ () => transcritionBridge.updateSpeakers(
 								{
+									speakerSlug: currentSpeakerSlug,
 									hasBoldStyle: ! currentSpeaker.hasBoldStyle,
 								}
 							) }
@@ -128,9 +128,9 @@ export default function DialogueEdit ( {
 						<ToolbarButton
 							icon="editor-italic"
 							isPressed={ currentSpeaker.hasItalicStyle }
-							onClick={ () => transcritionBridge.updateSpeakerBySlug(
-								currentSpeakerSlug,
+							onClick={ () => transcritionBridge.updateSpeakers(
 								{
+									speakerSlug: currentSpeakerSlug,
 									hasItalicStyle: ! currentSpeaker.hasItalicStyle,
 								}
 							) }
@@ -139,9 +139,9 @@ export default function DialogueEdit ( {
 						<ToolbarButton
 							icon={ formatUppercase }
 							isPressed={ currentSpeaker.hasUppercaseStyle }
-							onClick={ () => transcritionBridge.updateSpeakerBySlug(
-								currentSpeakerSlug,
+							onClick={ () => transcritionBridge.updateSpeakers(
 								{
+									speakerSlug: currentSpeakerSlug,
 									hasUppercaseStyle: ! currentSpeaker.hasUppercaseStyle,
 								}
 							) }
@@ -156,9 +156,9 @@ export default function DialogueEdit ( {
 						{ currentSpeaker && (
 							<TextControl
 								value={ currentSpeaker.speaker }
-								onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakerBySlug(
-									currentSpeakerSlug,
+								onChange={ ( speakerEditedValue ) => transcritionBridge.updateSpeakers(
 									{
+										speakerSlug: currentSpeakerSlug,
 										speaker: speakerEditedValue,
 									}
 								) }

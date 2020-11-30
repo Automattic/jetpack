@@ -89,15 +89,10 @@ function TranscriptionEdit ( {
 		} ) } )
 	), [ setAttributes, speakers ] );
 
-	const updateSpeakerBySlug = useCallback( ( slug, data ) => updateSpeakers( {
-		speakerSlug: slug,
-		...data,
-	} ), [ updateSpeakers ] );
-
 	// Context bridge.
 	const contextProvision = {
 		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
-		updateSpeakerBySlug,
+		updateSpeakers,
 
 		attributes: {
 			showTimeStamp,
@@ -135,12 +130,10 @@ function TranscriptionEdit ( {
 							speakers={ speakers }
 							label={ __( 'Speakers', 'jetpack' ) }
 							onChange={ ( { editSpeakerSlug, editSpeaker } ) => {
-								updateSpeakerBySlug(
-									editSpeakerSlug,
-									{
-										speaker: editSpeaker,
-									}
-								);
+								updateSpeakers( {
+									speakerSlug: editSpeakerSlug,
+									speaker: editSpeaker,
+								} );
 							} }
 						/>
 					</ToolbarGroup>
