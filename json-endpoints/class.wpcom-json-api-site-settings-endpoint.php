@@ -585,11 +585,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 					if ( $value ) {
-						$jetpack_search_update_success = $is_wpcom
+						$is_wpcom
 							? Jetpack::activate_module( $blog_id, 'search' )
 							: Jetpack::activate_module( 'search', false, false );
 					} else {
-						$jetpack_search_update_success = $is_wpcom
+						$is_wpcom
 							? Jetpack::deactivate_module( $blog_id, 'search' )
 							: Jetpack::deactivate_module( 'search' );
 					}

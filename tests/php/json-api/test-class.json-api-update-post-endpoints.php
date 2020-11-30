@@ -61,7 +61,7 @@ class WP_Test_Json_Api_Update_Post_Endpoints extends WP_UnitTestCase {
 		$endpoint = $this->get_endpoint();
 
 		wp_trash_post( $post_id );
-		$post  = get_post( $post_id );
+		$post = get_post( $post_id );
 		// hello is coming from the post title.
 		$input = array( 'slug' => 'hello__trashed' );
 

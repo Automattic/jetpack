@@ -13,10 +13,10 @@ readme.md
 babel.config*
 phpunit.xml.dist
 dangerfile.js
+bin/class-jetpack-phpcs-exclude-filter.php
 bin/compose-volumes.sh
 bin/parallel-lint.sh
-bin/phpcs-requirelist.js
-bin/phpcs-requirelist-commands.js
+bin/phpcs-excludelist.txt
 bin/post-merge-checkout-hook.sh
 bin/pre-commit-hook.js
 bin/prepare-built-branch.sh
