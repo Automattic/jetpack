@@ -268,7 +268,8 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		}
 
 		if ( 'CONNECTION_OWNER' === $user_id_query ) {
-			$user_id_query = ( $this->manager )::CONNECTION_OWNER;
+			$manager       = $this->manager; // php 5.6 safe.
+			$user_id_query = $manager::CONNECTION_OWNER;
 		}
 
 		$token = $this->manager->get_access_token( $user_id_query, $token_key_query, false );
