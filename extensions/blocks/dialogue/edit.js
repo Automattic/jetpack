@@ -101,6 +101,17 @@ export default function DialogueEdit ( {
 								speakerSlug: newSpeakerSlug,
 							} );
 						} }
+						onChange={ ( { editSpeakerSlug, editSpeaker } ) => {
+							console.log( 'editSpeakerSlug: ', editSpeakerSlug );
+							console.log( 'editSpeaker: ', editSpeaker );
+
+							transcritionBridge.updateSpeakerBySlug(
+								editSpeakerSlug,
+								{
+									speaker: editSpeaker,
+								}
+							);
+						 } }
 						onCustomChange={ ( { newSpeaker } ) => setAttributes( {
 							speakerSlug: null,
 							speaker: newSpeaker,

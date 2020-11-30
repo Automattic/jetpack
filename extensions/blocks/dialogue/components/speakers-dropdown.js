@@ -23,6 +23,7 @@ export default function SpeakersDropdown ( {
 	speaker,
 	speakerName,
 	onSelect,
+	onChange,
 	onCustomChange,
 	position = { position: 'bottom' },
 } ) {
@@ -37,13 +38,21 @@ export default function SpeakersDropdown ( {
 			{ () => (
 				<Fragment>
 					<MenuGroup className={ `${ className }__speakers-selector` }>
-						{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug } ) => (
+						{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug }, ind ) => (
 							<MenuItem
 								key={ newSpeakerSlug }
 								onClick={ () => onSelect( { newSpeaker, newSpeakerSlug } ) }
 								isSelected={ newSpeaker === speaker }
 							>
-								{ newSpeaker }
+								<TextControl
+									label= { `Speaker ${ ind + 1 }` }
+									id={ `${ newSpeakerSlug }-control-${ ind }` }
+									value={ newSpeaker }
+									onChange={ ( editSpeaker ) => onChange( {
+										editSpeaker,
+										editSpeakerSlug: newSpeakerSlug,
+									} ) }
+								/>
 							</MenuItem>
 						) ) }
 					</MenuGroup>
