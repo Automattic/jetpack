@@ -16,7 +16,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-export default function SpeakersDropdown ( {
+export function SpeakersDropdown ( {
 	id,
 	className,
 	speakers,
