@@ -38,17 +38,14 @@ const defaultLabels = [
 	{
 		speakerSlug: 'speaker-0',
 		speaker: __( 'First', 'jetpack' ),
-		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-1',
 		speaker: __( 'Second', 'jetpack' ),
-		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-2',
 		speaker: __( 'Third', 'jetpack' ),
-		placeholder: __( 'speaker says…', 'Jetpack' ),
 	},
 ];
 
@@ -140,7 +137,6 @@ function TranscriptionEdit ( {
 											onChange={ ( speakerEditedValue ) => updateSpeakers( {
 												speakerSlug,
 												speaker: speakerEditedValue,
-												placeholder: `${ speaker } says…`,
 											} ) }
 										/>
 
