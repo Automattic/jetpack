@@ -17,7 +17,6 @@ import {
 import {
 	InnerBlocks,
 	InspectorControls,
-	PanelColorSettings,
 	BlockControls,
 } from '@wordpress/block-editor';
 import {
@@ -150,7 +149,7 @@ function TranscriptionEdit ( {
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'Speakers', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
-							{ map( speakers, ( { speaker, speakerSlug, color, backgroundColor } ) => (
+							{ map( speakers, ( { speaker, speakerSlug } ) => (
 								<BaseControl className={ `${ baseClassName }__speaker-control` }>
 									<div className={ `${ baseClassName }__speaker` }>
 										<TextControl
@@ -170,25 +169,6 @@ function TranscriptionEdit ( {
 											{ __( 'Delete', 'jetpack' ) }
 										</Button>
 									</div>
-
-									<PanelColorSettings
-										title={ __( 'Color Settings', 'jetpack' ) }
-										colorSettings={ [
-											{
-												value: color,
-												onChange: ( newTextColor ) => {
-													updateSpeakers( { speakerSlug, color: newTextColor } );
-												},
-												label: __( 'Text Color', 'jetpack' ),
-											},
-											{
-												value: backgroundColor,
-												onChange: ( newBGColor ) => updateSpeakers( { speakerSlug, backgroundColor: newBGColor } ),
-												label: __( 'Background Color', 'jetpack' ),
-											},
-										] }
-										initialOpen={ false }
-									/>
 								</BaseControl>
 							) ) }
 
