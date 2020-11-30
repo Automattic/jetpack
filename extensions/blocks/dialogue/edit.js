@@ -73,8 +73,6 @@ export default function DialogueEdit ( {
 	const speakersFromContext = context[ 'jetpack/conversation-speakers' ];
 	const showTimeStamp = context[ 'jetpack/transcription-showtimestamp' ];
 
-	// const contextDialogueStyle = context[ 'jetpack/conversation-style' ];
-
 	// Speakers list.
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
 
