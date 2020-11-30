@@ -20,6 +20,7 @@ import Inspector from './_inc/inspector';
 import Context from './_inc/context';
 import { flashIcon } from './_inc/icons';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '.';
+import './editor.scss';
 
 /**
  * @typedef { import('./plan').Plan } Plan
