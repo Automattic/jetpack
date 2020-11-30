@@ -29,6 +29,7 @@ export const settings = {
 	category: 'layout',
 	keywords: [
 		_x( 'Transcription', 'block search term', 'jetpack' ),
+		__( 'Conversation', 'jetpack' ),
 	],
 	supports: {
 		'align': true,
