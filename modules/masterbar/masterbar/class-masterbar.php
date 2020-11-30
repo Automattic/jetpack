@@ -296,17 +296,13 @@ class Masterbar {
 			false
 		);
 
-		/** This filter is already documented in modules/masterbar.php */
-		if ( ! apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			// This ensures that masterbar.js is only loaded for sites that don't have nav-unification enabled.
-			wp_enqueue_script(
-				'a8c_wpcom_masterbar_overrides',
-				$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
-				array( 'jquery' ),
-				JETPACK__VERSION,
-				false
-			);
-		}
+		wp_enqueue_script(
+			'a8c_wpcom_masterbar_overrides',
+			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			false
+		);
 	}
 
 	/**

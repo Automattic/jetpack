@@ -45,6 +45,7 @@ class Admin_Menu {
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 	}
 
 	/**
@@ -641,6 +642,13 @@ class Admin_Menu {
 			'1',
 			true
 		);
+	}
+
+	/**
+	 * Dequeues unnecessary scripts.
+	 */
+	public function dequeue_scripts() {
+		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
 	}
 
 	/**
