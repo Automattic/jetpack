@@ -689,4 +689,13 @@ abstract class SAL_Site {
 	public function get_selected_features() {
 		return get_option( 'selected_features' );
 	}
+
+	/**
+	 * Get the option storing the Anchor podcast ID that identifies a site as a podcasting site.
+	 *
+	 * @return string
+	 */
+	public function get_anchor_podcast() {
+		return get_option( 'anchor_podcast' );
+	}
 }
