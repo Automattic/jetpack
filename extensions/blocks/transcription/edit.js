@@ -18,6 +18,7 @@ import {
 	InnerBlocks,
 	InspectorControls,
 	PanelColorSettings,
+	BlockControls,
 } from '@wordpress/block-editor';
 import {
 	Panel,
@@ -26,12 +27,14 @@ import {
 	BaseControl,
 	Button,
 	ToggleControl,
+	ToolbarGroup,
 } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
+import SpeakersDropdown from './components/speakers-dropdown';
 import TranscritptionContext from './components/context';
 
 const defaultLabels = [
@@ -126,6 +129,24 @@ function TranscriptionEdit ( {
 	return (
 		<TranscritptionContext.Provider value={ contextProvision }>
 			<div ref={ containertRef } className={ className }>
+				<BlockControls>
+					<ToolbarGroup>
+						<SpeakersDropdown
+							className={ baseClassName }
+							speakers={ speakers }
+							label={ __( 'Speakers', 'jetpack' ) }
+							onChange={ ( { editSpeakerSlug, editSpeaker } ) => {
+								updateSpeakerBySlug(
+									editSpeakerSlug,
+									{
+										speaker: editSpeaker,
+									}
+								);
+							} }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'Speakers', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
