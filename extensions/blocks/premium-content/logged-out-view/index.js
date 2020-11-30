@@ -23,20 +23,17 @@ const name = 'premium-content/logged-out-view';
  * @property
  */
 const settings = {
-	/* translators: block name */
 	title: __( 'Logged Out View', 'jetpack' ),
-	/* translators: block description */
 	description: __( 'Logged out view for Premium content block.', 'jetpack' ),
+	icon,
 	category: 'grow',
 	parent: [ 'premium-content/container' ],
 	supports: {
-		// Hide this block from the inserter.
 		inserter: false,
 		html: false,
 	},
 	edit,
 	save,
-	icon,
 	deprecated,
 };
 

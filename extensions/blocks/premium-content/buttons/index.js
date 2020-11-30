@@ -21,6 +21,7 @@ const settings = {
 	icon,
 	parent: [ 'premium-content/container' ],
 	supports: {
+		inserter: false,
 		align: true,
 		alignWide: false,
 		lightBlockWrapper: true,
