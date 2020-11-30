@@ -182,7 +182,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, interactive } = this.state;
-			const { autoplay, caption, controls, loop, muted, poster, preload } = attributes;
+			const { autoplay, caption, controls, loop, muted, poster, preload, anchor } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
@@ -310,7 +310,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper className={ sandboxClassnames }>
+					<BlockFigureWrapper id={anchor} className={ sandboxClassnames }>
 						<div className="wp-block-embed__wrapper">
 							<SandBox html={ html } scripts={ scripts } type={ sandboxClassnames } />
 						</div>
