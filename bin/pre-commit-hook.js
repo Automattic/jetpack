@@ -157,7 +157,7 @@ function runJSLinter( toLintFiles ) {
  * Runs PHPCS against checked PHP files. Exits if the check fails.
  */
 function runPHPCS() {
-	const phpcsResult = spawnSync( 'composer', [ 'php:lint:errors', ...phpcsFiles ], {
+	const phpcsResult = spawnSync( 'composer', [ 'phpcs:lint:errors', ...phpcsFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
@@ -213,7 +213,7 @@ function runPHPCSChanged( phpFilesToCheck ) {
 		process.env.PHPCS = 'vendor/bin/phpcs';
 
 		phpFilesToCheck.forEach( function ( file ) {
-			phpFileChangedResult = spawnSync( 'composer', [ 'run', 'php:changed', file ], {
+			phpFileChangedResult = spawnSync( 'composer', [ 'run', 'phpcs:changed', file ], {
 				env: process.env,
 				shell: true,
 				stdio: 'inherit',
@@ -308,7 +308,7 @@ if ( lintResult ) {
 
 let phpLintResult;
 if ( phpFiles.length > 0 ) {
-	phpLintResult = spawnSync( 'composer', [ 'php:compatibility', ...phpFiles ], {
+	phpLintResult = spawnSync( 'composer', [ 'phpcs:compatibility', ...phpFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
