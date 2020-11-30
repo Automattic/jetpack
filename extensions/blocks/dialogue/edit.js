@@ -89,6 +89,7 @@ export default function DialogueEdit ( {
 				<ToolbarGroup>
 					<SpeakersDropdown
 						id={ `dialogue-${ instanceId }-speakers-dropdown` }
+						className={ baseClassName }
 						speakers={ speakers }
 						speaker={ speaker }
 						speakerName={ speakerName }
