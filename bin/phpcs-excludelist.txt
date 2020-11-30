@@ -134,7 +134,6 @@ json-endpoints/class.wpcom-json-api-render-embed-reversal-endpoint.php
 json-endpoints/class.wpcom-json-api-render-endpoint.php
 json-endpoints/class.wpcom-json-api-render-shortcode-endpoint.php
 json-endpoints/class.wpcom-json-api-sharing-buttons-endpoint.php
-json-endpoints/class.wpcom-json-api-site-settings-endpoint.php
 json-endpoints/class.wpcom-json-api-site-settings-v1-2-endpoint.php
 json-endpoints/class.wpcom-json-api-site-settings-v1-3-endpoint.php
 json-endpoints/class.wpcom-json-api-site-settings-v1-4-endpoint.php

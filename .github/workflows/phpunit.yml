@@ -1,0 +1,121 @@
+name: PHPUnit tests
+
+on: pull_request
+
+### TODO whitelist branches:
+ # branches:
+#   only:
+#     - master
+#     - master-stable
+#     - /^branch-.*$/
+#     - /^feature\/.*$/
+
+env:
+  WP_TRAVISCI: "phpunit"
+  COMPOSER_ROOT_VERSION: "dev-master"
+
+jobs:
+  phpunit:
+    name: "PHPUnit tests:  PHP ${{ matrix.php }} WP ${{ matrix.wp }}"
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run tests against current WP in all supported PHP versions.
+        php: [ "5.6", "7.0", "7.2", "7.3", "7.4" ]
+        wp: [ "latest" ]
+        experimental: [ false ]
+
+        include:
+          # Run tests against WP previous and master in one PHP version.
+          - php: "7.4"
+            wp: "master"
+            experimental: false
+          - php: "7.4"
+            wp: "previous"
+            experimental: false
+
+          # Experimental PHP 8 tests
+          - php: "8.0"
+            wp: "latest"
+            experimental: true
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          php --version
+          composer --version
+
+      - name: Setup and run tests
+        env:
+          WP_BRANCH: ${{ matrix.wp }}
+          TRAVIS_PHP_VERSION: ${{ matrix.php }}
+        run: |
+          sudo systemctl start mysql.service
+          export PLUGIN_SLUG=$(basename $(pwd))
+          export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
+          ./tests/setup-travis.sh
+          ./tests/run-travis.sh
+
+  legacy_full_sync:
+    name: "Legacy Full Sync"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.0"
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+
+      - name: Setup and run tests
+        env:
+          WP_BRANCH: latest
+          TRAVIS_PHP_VERSION: "7.0"
+          LEGACY_FULL_SYNC: "1"
+        run: |
+          sudo systemctl start mysql.service
+          export PLUGIN_SLUG=$(basename $(pwd))
+          export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
+          ./tests/setup-travis.sh
+          ./tests/run-travis.sh

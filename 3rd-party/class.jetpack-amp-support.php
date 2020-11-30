@@ -176,7 +176,7 @@ class Jetpack_AMP_Support {
 			$metadata = self::add_site_icon_to_metadata( $metadata );
 		}
 
-		if ( ! isset( $metadata['image'] ) ) {
+		if ( ! isset( $metadata['image'] ) && ! empty( $post ) ) {
 			$metadata = self::add_image_to_metadata( $metadata, $post );
 		}
 

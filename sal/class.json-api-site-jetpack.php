@@ -316,4 +316,13 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return new Jetpack_Post( $this, $post, $context );
 	}
 
+	/**
+	 * Get the option storing the Anchor podcast ID that identifies a site as a podcasting site.
+	 *
+	 * @return string
+	 */
+	public function get_anchor_podcast() {
+		return $this->get_atomic_cloud_site_option( 'anchor_podcast' );
+	}
+
 }
