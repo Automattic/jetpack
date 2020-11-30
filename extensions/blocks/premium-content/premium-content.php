@@ -10,9 +10,6 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 use RuntimeException;
-use function register_block_type;
-use function plugin_dir_url;
-use function apply_filters;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\{
 	Subscription_Service,
 	Jetpack_Token_Subscription_Service,
@@ -21,8 +18,8 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\{
 	WPCOM_Token_Subscription_Service
 };
 
-require_once __DIR__ . '/subscription-service/include.php';
-require_once '../_inc/access-check.php';
+require_once __DIR__ . '/_inc/subscription-service/include.php';
+require_once __DIR__ . '/_inc/access-check.php';
 
 const FEATURE_NAME = 'premium-content/container';
 const PAYWALL_FILTER = 'earn_premium_content_subscription_service';
@@ -48,19 +45,6 @@ function register_block() {
 			),
 		)
     );
-
-	$asset_path = './dist/premium-content.asset.php';
-	if ( ! file_exists( $asset_path ) ) {
-		throw new RuntimeException(
-			'You need to run `npm start` or `npm run build` for the "create-block/premium-content" block first.'
-		);
-	}
-	$asset        = include $asset_path;
-	$dependencies = isset( $asset['dependencies'] ) ? $asset['dependencies'] : array();
-	$version      = isset( $asset['version'] ) ? $asset['version'] : filemtime( $asset_path );
-
-	define( 'PREMIUM_CONTENT__ASSET_DEPENDENCIES', $dependencies );
-	define( 'PREMIUM_CONTENT__ASSET_VERSION', $version );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
