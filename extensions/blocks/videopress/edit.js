@@ -310,7 +310,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper id={anchor} className={ sandboxClassnames }>
+					<BlockFigureWrapper id={ anchor } className={ sandboxClassnames }>
 						<div className="wp-block-embed__wrapper">
 							<SandBox html={ html } scripts={ scripts } type={ sandboxClassnames } />
 						</div>
