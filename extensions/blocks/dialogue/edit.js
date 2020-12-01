@@ -31,22 +31,7 @@ import { formatUppercase } from '../../shared/icons';
 import 	SpeakersDropdown from './components/speakers-control';
 import TimeStampControl from './components/time-stamp-control';
 import TranscriptionContext from '../transcription/components/context';
-
-const defaultSpeakerSlug = 'speaker-0';
-const defaultSpeakers = [
-	{
-		speakerSlug: 'speaker-0',
-		speaker: __( 'First', 'jetpack' ),
-	},
-	{
-		speakerSlug: 'speaker-1',
-		speaker: __( 'Second', 'jetpack' ),
-	},
-	{
-		speakerSlug: 'speaker-2',
-		speaker: __( 'Third', 'jetpack' ),
-	},
-];
+import { defaultSpeakers, defaultSpeakerSlug } from '../transcription/edit';
 
 function getSpeakerBySlug( speakers, slug ) {
 	const speaker = find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === slug );
@@ -54,8 +39,8 @@ function getSpeakerBySlug( speakers, slug ) {
 		return speaker;
 	}
 
-	// Fallback object, with the default initial slug.
-	return find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === defaultSpeakerSlug );
+	// Fallback speaker. First one in the list.
+	return speakers?.[ 0 ];
 }
 
 export default function DialogueEdit ( {
@@ -80,7 +65,7 @@ export default function DialogueEdit ( {
 
 	// Speaker object.
 	const currentSpeakerSlug = ! speaker && ! speakerSlug ? defaultSpeakerSlug : speakerSlug;
-	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug ); 
+	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
 	const speakerName = currentSpeaker?.speaker || speaker;
 
 	// Transcription context. A bridge between dialogue and transcription blocks.

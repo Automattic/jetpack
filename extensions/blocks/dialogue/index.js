@@ -11,6 +11,7 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import { DialogueIcon as icon } from '../../shared/icons';
+import { defaultSpeakers } from '../transcription/edit';
 
 /**
  * Style dependencies
@@ -45,7 +46,7 @@ export const settings = {
 						content,
 					} );
 
-					return createBlock( 'jetpack/dialogue', {}, [ innerBlock ] );
+					return createBlock( 'jetpack/dialogue', defaultSpeakers[ 0 ], [ innerBlock ] );
 				},
 			},
 		],

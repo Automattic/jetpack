@@ -35,27 +35,28 @@ import SpeakersDropdown, {
 } from './components/speakers-controls';
 import TranscritptionContext from './components/context';
 
-const defaultLabels = [
+export const defaultSpeakersSlug = 'speaker-0';
+export const defaultSpeakers = [
 	{
 		speakerSlug: 'speaker-0',
-		speaker: __( 'First', 'jetpack' ),
+		speaker: __( 'First speaker', 'jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-1',
-		speaker: __( 'Second', 'jetpack' ),
+		speaker: __( 'Second speaker', 'jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-2',
-		speaker: __( 'Third', 'jetpack' ),
+		speaker: __( 'Third speaker', 'jetpack' ),
 	},
 ];
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
 	[ 'jetpack/podcast-player' ],
-	[ 'jetpack/dialogue', defaultLabels[ 0 ] ],
-	[ 'jetpack/dialogue', defaultLabels[ 1 ] ],
-	[ 'jetpack/dialogue', defaultLabels[ 2 ] ],
+	[ 'jetpack/dialogue', defaultSpeakers[ 0 ] ],
+	[ 'jetpack/dialogue', defaultSpeakers[ 1 ] ],
+	[ 'jetpack/dialogue', defaultSpeakers[ 2 ] ],
 ];
 
 function TranscriptionEdit ( {
@@ -72,7 +73,7 @@ function TranscriptionEdit ( {
 			return;
 		}
 
-		setAttributes( { speakers: defaultLabels } );
+		setAttributes( { speakers: defaultSpeakers } );
 	}, [ speakers, setAttributes ] );
 
 	const updateSpeakers = useCallback( ( updatedSpeaker ) => (
