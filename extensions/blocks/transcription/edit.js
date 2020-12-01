@@ -141,7 +141,7 @@ function TranscriptionEdit ( {
 
 				<InspectorControls>
 					<Panel>
-						<PanelBody title={ __( 'Speakers', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
+						<PanelBody title={ __( 'Participants labels', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
 							{ map( speakers, ( { speaker, speakerSlug } ) => (
 								<BaseControl className={ `${ baseClassName }__speaker-control` }>
 									<div className={ `${ baseClassName }__speaker` }>
@@ -159,7 +159,7 @@ function TranscriptionEdit ( {
 											isSecondary
 											isSmall
 										>
-											{ __( 'Delete', 'jetpack' ) }
+											{ __( 'Remove', 'jetpack' ) }
 										</Button>
 									</div>
 								</BaseControl>
@@ -168,7 +168,7 @@ function TranscriptionEdit ( {
 							<BaseControl>
 								<div className={ `${ baseClassName }__speaker` }>
 									<TextControl
-										label={ __( 'Add a new speaker', 'jetpack' ) }
+										label={ __( 'Add a speaker', 'jetpack' ) }
 										value={ newLabelValue }
 										onChange={ setNewLabelValue }
 										onKeyDown={ ( { key } ) => {
