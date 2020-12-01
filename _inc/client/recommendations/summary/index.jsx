@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { FeatureSummary } from '../feature-summary';
 import { OneClickRestores } from '../sidebar/one-click-restores';
 import { Security } from '../sidebar/security';
-import { ProductCardUpsell } from '../product-card-upsell';
+import { ProductCardUpsell } from '../sidebar/product-card-upsell';
 import JetpackLogo from 'components/jetpack-logo';
 import {
 	getSiteTypeDisplayName,
@@ -19,6 +19,7 @@ import {
 	updateRecommendationsStep,
 } from 'state/recommendations';
 
+import LoadingPlaceholder from 'components/loading-placeholder';
 /**
  * Style dependencies
  */
