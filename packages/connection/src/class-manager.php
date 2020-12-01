@@ -525,7 +525,7 @@ class Manager {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
 			return $this->is_connected();
 		}
-		return $this->has_connected_owner();
+		return (bool) $this->get_access_token( self::CONNECTION_OWNER );
 	}
 
 	/**
