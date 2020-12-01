@@ -29,6 +29,9 @@ export class PodcastPlayer extends Component {
 		playerState: STATE_PAUSED,
 		currentTrack: 0,
 		hasUserInteraction: false,
+		currentTime: 0,
+		skipDuration: 30,
+		rewindDuration: 5,
 	};
 
 	/**
@@ -160,15 +163,27 @@ export class PodcastPlayer extends Component {
 		this.setState( { playerState: STATE_PAUSED } );
 	};
 
+	handleTimeChange = currentTime => {
+		this.setState( { currentTime } );
+	};
+
 	/**
 	 * Toggle playing state.
 	 *
 	 * @public
 	 */
-	togglePlayPause() {
+	togglePlayPause = () => {
 		const action = this.state.playerState === STATE_PLAYING ? this.handlePause : this.handlePlay;
 		action();
-	}
+	};
+
+	handleJump = () => {
+		this.setState( { currentTime: this.state.currentTime - 5 } );
+	};
+
+	handleSkip = () => {
+		this.setState( { currentTime: this.state.currentTime + 30 } );
+	};
 
 	render() {
 		const { playerId, title, link, cover, tracks, attributes } = this.props;
@@ -246,11 +261,15 @@ export class PodcastPlayer extends Component {
 					colors={ colors }
 				>
 					<AudioPlayer
+						onJumpBack={ this.handleJump }
+						onSkipForward={ this.handleSkip }
 						trackSource={ this.getTrack( currentTrack ).src }
-						handlePlay={ this.handlePlay }
-						handlePause={ this.handlePause }
-						handleError={ this.handleError }
+						onPlay={ this.handlePlay }
+						onPause={ this.handlePause }
+						onError={ this.handleError }
 						playStatus={ this.state.playerState }
+						currentTime={ this.state.currentTime }
+						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
 
