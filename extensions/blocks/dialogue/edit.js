@@ -19,7 +19,6 @@ import {
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
-	ToolbarButton,
 } from '@wordpress/components';
 import { useContext } from '@wordpress/element';
 
@@ -27,7 +26,6 @@ import { useContext } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
-import { formatUppercase } from '../../shared/icons';
 import 	SpeakersDropdown from './components/speakers-control';
 import TimeStampControl from './components/time-stamp-control';
 import TranscriptionContext from '../transcription/components/context';
@@ -94,42 +92,6 @@ export default function DialogueEdit ( {
 						} ) }
 					/>
 				</ToolbarGroup>
-				{ currentSpeaker && (
-					<ToolbarGroup>
-						<ToolbarButton
-							icon="editor-bold"
-							isPressed={ currentSpeaker.hasBoldStyle }
-							onClick={ () => transcritionBridge.updateSpeakers(
-								{
-									speakerSlug: currentSpeakerSlug,
-									hasBoldStyle: ! currentSpeaker.hasBoldStyle,
-								}
-							) }
-						/>
-
-						<ToolbarButton
-							icon="editor-italic"
-							isPressed={ currentSpeaker.hasItalicStyle }
-							onClick={ () => transcritionBridge.updateSpeakers(
-								{
-									speakerSlug: currentSpeakerSlug,
-									hasItalicStyle: ! currentSpeaker.hasItalicStyle,
-								}
-							) }
-						/>
-
-						<ToolbarButton
-							icon={ formatUppercase }
-							isPressed={ currentSpeaker.hasUppercaseStyle }
-							onClick={ () => transcritionBridge.updateSpeakers(
-								{
-									speakerSlug: currentSpeakerSlug,
-									hasUppercaseStyle: ! currentSpeaker.hasUppercaseStyle,
-								}
-							) }
-						/>
-					</ToolbarGroup>
-				) }
 			</BlockControls>
 
 			<InspectorControls>
