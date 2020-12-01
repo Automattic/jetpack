@@ -57,7 +57,7 @@ export function AddSpeakerButton( {
 	);
 }
 
-export function SpeakersControl( {
+export function SpeakersLabelControl( {
 	className,
 	speakers,
 	onChange,
@@ -109,7 +109,7 @@ export default function SpeakersDropdown ( {
 		>
 			{ () => (
 				<Fragment>
-					<SpeakersControl
+					<SpeakersLabelControl
 						className={ className }
 						speakers={ speakers }
 						onChange={ onChange }
