@@ -259,6 +259,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Bug fixes**
 
 * Podcast Player Block: avoid PHP notices in some scenarios.
+* Slideshow Block: ensure that image captions are always shown, regardless of the theme you're using.
 
 --------
 
