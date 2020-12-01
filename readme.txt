@@ -254,7 +254,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
-*
+* AMP: avoid PHP notice on sites using legacy versions of the AMP plugin.
 
 **Bug fixes**
 
