@@ -10,7 +10,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { assign, omit } from 'lodash';
-import focusTrap from 'focus-trap';
+import { createFocusTrap } from 'focus-trap';
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
@@ -51,7 +51,8 @@ class Modal extends React.Component {
 		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
-			focusTrap.activate( ReactDOM.findDOMNode( this ), {
+			this.focusTrap = createFocusTrap( ReactDOM.findDOMNode( this ) );
+			this.focusTrap.activate( {
 				// onDeactivate: this.maybeClose,
 				initialFocus: this.props.initialFocus,
 			} );
@@ -64,7 +65,7 @@ class Modal extends React.Component {
 		jQuery( 'body' ).removeClass( 'dops-modal-showing' ).off( 'touchmove.dopsmodal', false );
 		jQuery( document ).unbind( 'keyup', this.handleEscapeKey );
 		try {
-			focusTrap.deactivate();
+			this.focusTrap.deactivate();
 		} catch ( e ) {
 			//noop
 		}
