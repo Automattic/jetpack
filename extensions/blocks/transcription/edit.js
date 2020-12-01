@@ -33,7 +33,10 @@ import {
  * Internal dependencies
  */
 import './editor.scss';
-import SpeakersDropdown from './components/speakers-dropdown';
+import SpeakersDropdown, {
+	AddSpeakerButton,
+	SpeakersControl,
+} from './components/speakers-dropdown';
 import TranscritptionContext from './components/context';
 
 const defaultLabels = [
@@ -65,7 +68,6 @@ function TranscriptionEdit ( {
 	setAttributes,
 } ) {
 	const { speakers, showTimeStamp, className: classNameAttr } = attributes;
-	const [ newLabelValue, setNewLabelValue ] = useState();
 	const containertRef = useRef();
 
 	// Set initial transcription speakers.
@@ -104,18 +106,16 @@ function TranscriptionEdit ( {
 		setAttributes( { speakers: filter( speakers, ( { speakerSlug } ) => ( speakerSlug !== deletedSpeakerSlug ) ) } );
 	}
 
-	function addNewSpeaker () {
+	function addNewSpeaker( newSpakerValue ) {
 		setAttributes( {
 			speakers: [
 				...speakers,
 				{
-					speaker: newLabelValue,
+					speaker: newSpakerValue,
 					speakerSlug: `speaker-${ speakers?.length ? speakers?.length : 0 }`,
 				},
 			],
 		} );
-
-		setNewLabelValue( '' );
 	}
 
 	const baseClassName = 'wp-block-jetpack-transcription';
@@ -129,12 +129,9 @@ function TranscriptionEdit ( {
 							className={ baseClassName }
 							speakers={ speakers }
 							label={ __( 'Speakers', 'jetpack' ) }
-							onChange={ ( { editSpeakerSlug, editSpeaker } ) => {
-								updateSpeakers( {
-									speakerSlug: editSpeakerSlug,
-									speaker: editSpeaker,
-								} );
-							} }
+							onChange={ updateSpeakers }
+							onDelete={ deleteSpeaker }
+							onAdd={ addNewSpeaker }
 						/>
 					</ToolbarGroup>
 				</BlockControls>
@@ -142,55 +139,17 @@ function TranscriptionEdit ( {
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'Participants labels', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
-							{ map( speakers, ( { speaker, speakerSlug } ) => (
-								<BaseControl className={ `${ baseClassName }__speaker-control` }>
-									<div className={ `${ baseClassName }__speaker` }>
-										<TextControl
-											value={ speaker }
-											onChange={ ( speakerEditedValue ) => updateSpeakers( {
-												speakerSlug,
-												speaker: speakerEditedValue,
-											} ) }
-										/>
+							<SpeakersControl
+								className={ baseClassName }
+								speakers={ speakers }
+								onChange={ updateSpeakers }
+								onDelete={ deleteSpeaker }
+							/>
 
-										<Button
-											label={ __( 'Delete', 'jetpack' ) }
-											onClick={ () => deleteSpeaker( speakerSlug ) }
-											isSecondary
-											isSmall
-										>
-											{ __( 'Remove', 'jetpack' ) }
-										</Button>
-									</div>
-								</BaseControl>
-							) ) }
-
-							<BaseControl>
-								<div className={ `${ baseClassName }__speaker` }>
-									<TextControl
-										label={ __( 'Add a speaker', 'jetpack' ) }
-										value={ newLabelValue }
-										onChange={ setNewLabelValue }
-										onKeyDown={ ( { key } ) => {
-											if ( key !== 'Enter' ) {
-												return;
-											}
-
-											addNewSpeaker();
-										} }
-									/>
-
-									<Button
-										className={ `${ baseClassName }__add-button` }
-										label={ __( 'Add', 'jetpack' ) }
-										onClick={ addNewSpeaker }
-										isSecondary
-										isSmall
-									>
-										{ __( 'Add', 'jetpack' ) }
-									</Button>
-								</div>
-							</BaseControl>
+							<AddSpeakerButton
+								className={ baseClassName }
+								onAdd={ addNewSpeaker }
+							/>
 						</PanelBody>
 
 						<PanelBody title={ __( 'Timestamps', 'jetpack' ) } className={ `${ baseClassName }__timestamps` }>

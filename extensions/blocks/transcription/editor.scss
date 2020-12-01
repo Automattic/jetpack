@@ -6,22 +6,22 @@ $speaker-height: 30px;
 		margin-bottom: 5px;
 		flex-grow: 2;
 	}
+}
 
-	.wp-block-jetpack-transcription__speaker-control {
-		margin-bottom: 0;
+.wp-block-jetpack-transcription__speaker {
+	display: flex;
+
+	.components-button {
+		margin-left: 5px;
+		height: $speaker-height;
+		line-height: $speaker-height;
 	}
+}
 
-	.wp-block-jetpack-transcription__speaker {
-		display: flex;
+.wp-block-jetpack-transcription__speaker-control {
+	margin-bottom: 0;
+}
 
-		.components-button {
-			margin-left: 5px;
-			height: $speaker-height;
-			line-height: $speaker-height;
-		}
-	}
-
-	.wp-block-jetpack-transcription__add-button {
-		margin-top: 26px;
-	}
+.wp-block-jetpack-transcription__add-button {
+	margin-top: 26px;
 }
