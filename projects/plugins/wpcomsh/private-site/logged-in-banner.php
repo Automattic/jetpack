@@ -116,5 +116,5 @@ function show_logged_in_banner() {
 			}
 		} )();
 	</script>
-	<?
+	<?php
 }

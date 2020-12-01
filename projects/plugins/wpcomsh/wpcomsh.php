@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.170
+ * Version: 2.5.1
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.170' );
+define( 'WPCOMSH_VERSION', '2.5.1' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -22,66 +22,66 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 	}
 }
 
-require_once( 'constants.php' );
-require_once( 'functions.php' );
-require_once( 'i18n.php' );
+require_once 'constants.php';
+require_once 'functions.php';
+require_once 'i18n.php';
 
-require_once( 'plugin-hotfixes.php' );
+require_once 'plugin-hotfixes.php';
 
-require_once( 'footer-credit/footer-credit.php' );
-require_once( 'storefront/storefront.php' );
-require_once( 'custom-colors/colors.php' );
+require_once 'footer-credit/footer-credit.php';
+require_once 'storefront/storefront.php';
+require_once 'custom-colors/colors.php';
 
 // Interoperability with the core WordPress data privacy functionality (See also "GDPR")
-require_once( 'privacy/participating-plugins.php' );
+require_once 'privacy/participating-plugins.php';
 
 // Functionality to make sites private and only accessible to members with appropriate capabilities
 require_once 'private-site/private-site.php';
 
 // Updates customizer Save/Publish labels to avoid confusion on launching vs saving changes on a site.
-require_once ( 'customizer-fixes/customizer-fixes.php' );
+require_once 'customizer-fixes/customizer-fixes.php';
 
-require_once( 'class.wpcomsh-log.php' );
-require_once( 'safeguard/plugins.php' );
-require_once( 'logo-tool/logo-tool.php' );
-require_once( 'jetpack-token-error-header/jetpack-token-header-error.php');
+require_once 'class.wpcomsh-log.php';
+require_once 'safeguard/plugins.php';
+require_once 'logo-tool/logo-tool.php';
+require_once 'jetpack-token-error-header/jetpack-token-header-error.php';
 
 /**
  * WP.com Widgets (in alphabetical order)
  */
-require_once( 'widgets/aboutme.php' );
-require_once( 'widgets/author-grid.php' );
-require_once( 'widgets/freshly-pressed.php' );
-require_once( 'widgets/gravatar.php' );
-require_once( 'widgets/i-voted.php' );
-require_once( 'widgets/music-player.php' );
-require_once( 'widgets/posts-i-like.php' );
-require_once( 'widgets/recent-comments-widget.php' );
-require_once( 'widgets/reservations.php' );
+require_once 'widgets/aboutme.php';
+require_once 'widgets/author-grid.php';
+require_once 'widgets/freshly-pressed.php';
+require_once 'widgets/gravatar.php';
+require_once 'widgets/i-voted.php';
+require_once 'widgets/music-player.php';
+require_once 'widgets/posts-i-like.php';
+require_once 'widgets/recent-comments-widget.php';
+require_once 'widgets/reservations.php';
 
 // WP.com Category Cloud widget
-require_once( 'widgets/category-cloud.php' );
+require_once 'widgets/category-cloud.php';
 // Override core tag cloud widget to add a settable `limit` parameter
-require_once( 'widgets/tag-cloud-widget.php' );
+require_once 'widgets/tag-cloud-widget.php';
 
-require_once( 'widgets/tlkio/tlkio.php' );
-require_once( 'widgets/top-clicks.php' );
-require_once( 'widgets/top-rated.php' );
-require_once( 'widgets/twitter.php' );
+require_once 'widgets/tlkio/tlkio.php';
+require_once 'widgets/top-clicks.php';
+require_once 'widgets/top-rated.php';
+require_once 'widgets/twitter.php';
 
 // autoload composer sourced plugins
-require_once( 'vendor/autoload.php' );
+require_once 'vendor/autoload.php';
 
 // REST API
-require_once( 'endpoints/rest-api.php' );
+require_once 'endpoints/rest-api.php';
 
 // Load feature plugin overrides
-require_once( 'feature-plugins/full-site-editing.php' );
-require_once( 'feature-plugins/gutenberg-mods.php' );
-require_once( 'feature-plugins/coblocks-mods.php' );
-require_once( 'feature-plugins/autosave-revision.php' );
-require_once( 'feature-plugins/seo.php' );
-require_once( 'feature-plugins/masterbar.php' );
+require_once 'feature-plugins/full-site-editing.php';
+require_once 'feature-plugins/gutenberg-mods.php';
+require_once 'feature-plugins/coblocks-mods.php';
+require_once 'feature-plugins/autosave-revision.php';
+require_once 'feature-plugins/seo.php';
+require_once 'feature-plugins/masterbar.php';
 
 // wp-admin Notices
 require_once 'notices/plan-notices.php';
@@ -90,7 +90,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
 }
 
-require_once( 'wpcom-migration-helpers/site-migration-helpers.php');
+require_once 'wpcom-migration-helpers/site-migration-helpers.php';
 
 require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
 
@@ -737,11 +737,11 @@ function wpcomsh_load_theme_compat_file() {
 
 		// Include 'em. Child themes first, just like core.
 		if ( $template_path !== $stylesheet_path && file_exists( $stylesheet_path . $file ) ) {
-			include_once( $stylesheet_path . $file );
+			include_once $stylesheet_path . $file;
 		}
 
 		if ( file_exists( $template_path . $file ) ) {
-			include_once( $template_path . $file );
+			include_once $template_path . $file;
 		}
 	}
 }

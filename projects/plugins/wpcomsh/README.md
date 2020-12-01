@@ -46,6 +46,12 @@ Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwardin
 
 ### Automated Testing
 
+#### Unit Testing
+
+`wpcomsh` runs `phpunit` on CircleCI for every PR.
+
+Please try to add unit tests whenever you are adding new features, or modifying existing ones.
+
 #### Private Site Module
 
 There is an integration suite built on docker that makes testing what clients to "private" (and non-private) sites should and shouldn't be able to see.

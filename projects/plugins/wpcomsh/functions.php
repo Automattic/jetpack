@@ -217,14 +217,3 @@ function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 
 	return wpcomsh_delete_symlinked_theme( $template );
 }
-
-
-/**
- * Retrieves the list of AT options containing things like:
- * - plan_slug
- *
- * @return array AT options or an empty array
- */
-function wpcomsh_get_at_options() {
-	return get_option( 'at_options', array() );
-}

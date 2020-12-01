@@ -53,7 +53,7 @@ DB=`docker create \
   --env MYSQL_ROOT_PASSWORD=jfdsaf9wjfaospfopdsafjsda \
   --env MYSQL_DATABASE=wordpress --env MYSQL_USER=wp \
   --env MYSQL_PASSWORD=iojdgoisajsoife83489398f8ds9a \
-  mysql:5.7`
+  mariadb:10.3.23`
 
 WP=`docker create \
   --name ${PROJECT}_wp \
@@ -67,7 +67,7 @@ WP=`docker create \
   --env WORDPRESS_DB_PASSWORD=iojdgoisajsoife83489398f8ds9a \
   --env WORDPRESS_TABLE_PREFIX=wp_ \
   --env WORDPRESS_DEBUG=1 \
-  wordpress:5.2-php7.3-fpm`
+  wordpress:5.5.3-php7.4-fpm`
 
 WPCLI=`docker create \
   --name ${PROJECT}_wpcli \
@@ -75,7 +75,7 @@ WPCLI=`docker create \
   --network $NETWORK \
   --mount source=$WPDATA,target=/var/www/html \
   --entrypoint tail \
-  wordpress:cli-2.3-php7.3 \
+  wordpress:cli-2.4-php7.4 \
   -f /dev/null` # arguments for entrypoint go after the image
 
 NGINX=`docker create \
@@ -160,7 +160,7 @@ JEST=`docker create \
   --env SUBSCRIBER_AUTH_COOKIE=${SUBSCRIBER_AUTH_COOKIE} \
   --env SUBSCRIBER_USER_ID=${SUBSCRIBER_USER_ID} \
   --entrypoint tail \
-  node:10.16.3-stretch-slim \
+  node:12.20-buster-slim \
   -f /dev/null` # arguments for entrypoint go after the image
 
 echo Copying jest utils

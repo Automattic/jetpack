@@ -101,7 +101,7 @@ $(BUILD_DST):
 	@ mkdir -p $(BUILD_DST)
 
 ## build
-build: check $(BUILD_DST)/$(BUILD_FILE)
+build: check clean $(BUILD_DST)/$(BUILD_FILE)
 
 ## i18n
 i18n:
@@ -123,10 +123,10 @@ else
 endif
 
 ## CI & other testing
-test-public-access: clean build
+test-public-access: build
 	/bin/sh ./bin/ci-init-access-tests.sh
 
-test-private-access: clean build
+test-private-access: build
 	/bin/sh ./bin/ci-init-access-tests.sh private
 
 ## clean
