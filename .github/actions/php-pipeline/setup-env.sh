@@ -44,7 +44,6 @@ if [ $clone_exit_code -ne 0 ]; then
 	exit 1
 fi
 
-
 cd ..
 cp -r jetpack "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 # Plugin dir for tests in WP >= 5.6-beta1
