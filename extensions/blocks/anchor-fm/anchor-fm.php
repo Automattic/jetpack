@@ -25,6 +25,26 @@ function register_block() {
 			'plan_check' => false,
 		)
 	);
+
+	// Register post_meta for connecting episodes with posts.
+	register_post_meta(
+		'post',
+		'anchor_episode',
+		array(
+			'show_in_rest' => true,
+			'single'       => true,
+			'type'         => 'string',
+		)
+	);
+	register_post_meta(
+		'post',
+		'anchor_podcast',
+		array(
+			'show_in_rest' => true,
+			'single'       => true,
+			'type'         => 'string',
+		)
+	);
 }
 
 /**
@@ -60,8 +80,12 @@ function check_badge_insertion() {
 	// Make episode data available for the script.
 	wp_localize_script(
 		'jetpack-blocks-editor',
-		'Jetpack_AnchorFm_Episode',
-		$track
+		'Jetpack_AnchorFm',
+		array(
+			'track'      => $track,
+			'podcast_id' => $podcast_id,
+			'episode_id' => $episode_id,
+		)
 	);
 }
 
