@@ -5,10 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"php-mock/php-mock": "^2.1",
-		"mockery/mockery": "^1.2",
-		"brain/monkey": "2.5.0"
+		"brain/monkey": "^2.5",
+		"yoast/phpunit-polyfills": "^0.2"
 	},
 	"autoload": {
 		"classmap": [

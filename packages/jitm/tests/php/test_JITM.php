@@ -4,73 +4,45 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
-use phpmock\functions\FunctionProvider;
-use phpmock\Mock;
-use phpmock\MockBuilder;
+use Brain\Monkey;
+use Brain\Monkey\Actions;
+use Brain\Monkey\Functions;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 
 class Test_Jetpack_JITM extends TestCase {
+	use MockeryPHPUnitIntegration;
+
 	public function setUp() {
-		$this->mock_add_get_current_screen();
-		$this->mock_add_action();
-		$this->mock_do_action();
-		$this->mock_wp_enqueue_script();
-		//$this->mock_wp_enqueue_script();
-		$this->mock_filters_deprecated();
+		Monkey\setUp();
 
-		// input/output of these functions doesn't matter right now, they just need to exist
-		$this->mock_empty_function( 'wp_register_style' );
-		$this->mock_empty_function( 'plugins_url' );
-		$this->mock_empty_function( 'wp_style_add_data' );
-		$this->mock_empty_function( 'wp_enqueue_style' );
-		$this->mock_empty_function( 'wp_localize_script' );
-		$this->mock_empty_function( 'esc_url_raw' );
-		$this->mock_empty_function( 'rest_url' );
-		$this->mock_empty_function( 'esc_html__' );
-		$this->mock_empty_function( 'wp_create_nonce' );
-
-		$this->mock_production_environment();
+		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
+		Functions\when( 'site_url' )->justReturn( 'unit-test' );
+		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
 	}
 
 	public function tearDown() {
-		Mock::disableAll();
-		\Mockery::close();
-		$this->clear_added_actions();
-		$this->clear_enqueued_scripts();
+		Monkey\tearDown();
 	}
 
 	public function test_jitm_disabled_by_filter() {
-		$this->mock_filters( array(
-			array( 'jetpack_just_in_time_msgs', false, false ),
-		), "Automattic\Jetpack\JITMS" );
-
-		// Used for Status->is_offline_mode().
-		$this->mock_filters( array(
-			array( 'jetpack_just_in_time_msgs', false, false ),
-		), "Automattic\Jetpack" );
-		$this->mock_site_url();
+		Functions\expect( 'apply_filters' )->once()->with(
+			'jetpack_just_in_time_msgs',
+			false
+		)->andReturn( false );
 
 		$jitm = new JITM();
 		$this->assertFalse( $jitm->register() );
-
-		$this->clear_mock_filters();
 	}
 
 	public function test_jitm_enabled_by_default() {
-		$this->mock_filters( array(
-			array( 'jetpack_just_in_time_msgs', false, true ),
-		), "Automattic\Jetpack\JITMS" );
-
-		// Used for Status->is_offline_mode().
-		$this->mock_filters( array(
-			array( 'jetpack_just_in_time_msgs', false, true ),
-		), "Automattic\Jetpack" );
-		$this->mock_site_url();
+		Functions\expect( 'apply_filters' )->once()->with(
+			'jetpack_just_in_time_msgs',
+			false
+		)->andReturn( true );
 
 		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
-
-		$this->clear_mock_filters();
 	}
 
 	/**
@@ -78,14 +50,10 @@ class Test_Jetpack_JITM extends TestCase {
 	 * unless a filter is used.
 	 */
 	public function test_pre_connection_jitms_disabled() {
-		$this->mock_filters( array(
-			array( 'jetpack_pre_connection_prompt_helpers', false, false ),
-		), "Automattic\Jetpack\JITMS" );
+		add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_false' );
 
 		$jitm = new Pre_Connection_JITM();
 		$this->assertEmpty( $jitm->get_messages( '/wp:edit-post:admin_notices/', '', false ) );
-
-		$this->clear_mock_filters();
 	}
 
 	/**
@@ -96,184 +64,53 @@ class Test_Jetpack_JITM extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_prepare_jitms_enqueues_assets() {
-		$mockAssets = \Mockery::mock('alias:Automattic\Jetpack\Assets');
+		$mockAssets = \Mockery::mock( 'alias:Automattic\Jetpack\Assets' );
 
 		// mock the static method and return a dummy value
 		$mockAssets
-			->shouldReceive('get_file_url_for_environment')
-			->andReturn('the_file_url');
+			->shouldReceive( 'get_file_url_for_environment' )
+			->andReturn( 'the_file_url' );
 
 		$jitm = new JITM();
 		$screen = (object) array( 'id' => 'jetpack_foo' ); // fake screen object
 		$jitm->prepare_jitms( $screen );
 
-		// this should enqueue a jetpack-jitm-new script
-		do_action( 'admin_enqueue_scripts' );
+		// Assert the action was added
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) );
 
-		// assert our script was enqueued with the right value
-		$script = $this->get_enqueued_script( 'jetpack-jitm-new' );
+		// Set up mocks for a bunch of methods called by the hook.
+		Functions\expect( 'plugins_url' )->once()->andReturn( 'the_plugin_url' );
+		Functions\when( 'esc_url_raw' )->justReturn( '' );
+		Functions\when( 'esc_html__' )->justReturn( '' );
+		Functions\when( 'wp_create_nonce' )->justReturn( '' );
+		Functions\when( 'rest_url' )->justReturn( '' );
+		Functions\expect( 'wp_register_style' )->once()->with(
+			'jetpack-jitm-css',
+			'the_plugin_url',
+			false,
+			\Mockery::type( 'string' )
+		);
+		Functions\expect( 'wp_style_add_data' )->with(
+			'jetpack-jitm-css',
+			\Mockery::type( 'string' ),
+			\Mockery::type( 'string' )
+		);
+		Functions\expect( 'wp_enqueue_style' )->once()->with( 'jetpack-jitm-css' );
+		Functions\expect( 'wp_enqueue_script' )->once()->with(
+			'jetpack-jitm-new',
+			'the_file_url',
+			array( 'jquery' ),
+			JITM::PACKAGE_VERSION,
+			true
+		);
+		Functions\expect( 'wp_localize_script' )->once()->with(
+			'jetpack-jitm-new',
+			'jitm_config',
+			\Mockery::type( 'array' )
+		);
 
-		$this->assertEquals( 'the_file_url', $script['src'] );
+		// Do the action that we asserted was added.
+		$jitm->jitm_enqueue_files();
 	}
 
-	/*
-	public function test_prepare_jitms_does_not_show_on_some_screens() {
-		$jitm = new JITM();
-		$screen = new \stdClass();
-		$screen->id = 'jetpack_page_stats';
-		$jitm->prepare_jitms( $screen );
-	}
-	*/
-
-	protected function mock_site_url() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( "Automattic\Jetpack" )
-			->setName( 'site_url' )
-			->setFunction( function() {
-				return "unit-test";
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function mock_filters( $filters, $namespace ) {
-		$this->mocked_filters = $filters;
-		$builder = new MockBuilder();
-		$builder->setNamespace( $namespace )
-			->setName( 'apply_filters' )
-			->setFunction(
-				function( ...$current_args ) {
-					foreach ( $this->mocked_filters as $filter ) {
-						if ( array_slice( $filter, 0, -1 ) === $current_args ) {
-							return array_pop( $filter );
-						}
-					}
-				}
-			);
-		$this->apply_filters_mock = $builder->build();
-		$this->apply_filters_mock->enable();
-	}
-
-	protected function mock_filters_deprecated() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( 'Automattic\Jetpack' )
-		        ->setName( 'apply_filters_deprecated' )
-		        ->setFunction(
-			        function( ...$args ) {
-				        return $args[1][0]; // Return the 2nd argument's first array item.
-			        }
-		        );
-		$this->apply_filters_deprecated_mock = $builder->build();
-		$this->apply_filters_deprecated_mock->enable();
-	}
-
-	protected function clear_mock_filters() {
-		$this->apply_filters_mock->disable();
-		unset( $this->mocked_filters );
-	}
-
-	protected function mock_add_get_current_screen() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
-			->setName( 'get_current_screen' )
-			->setFunction( function() {
-				return new \stdClass;
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function mock_add_action() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
-			->setName( 'add_action' )
-			->setFunction( function( $name, $callable ) {
-				global $actions;
-
-				if ( is_null( $actions ) ) {
-					$actions = array();
-				}
-
-				// don't worry about precedence for now
-				if ( ! isset( $actions[$name] ) ) {
-					$actions[$name] = array();
-				}
-
-				$actions[$name][] = $callable;
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function mock_do_action() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'do_action' )
-			->setFunction( function( ...$args ) {
-				global $actions;
-				$name = array_shift( $args );
-
-				if ( is_null( $actions ) ) {
-					$actions = array();
-				}
-
-				// don't worry about precedence for now
-				if ( ! isset( $actions[$name] ) ) {
-					$actions[$name] = array();
-				}
-
-				foreach( $actions[$name] as $callable ) {
-					call_user_func_array( $callable, $args );
-				}
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function mock_wp_enqueue_script() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
-			->setName( 'wp_enqueue_script' )
-			->setFunction( function( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
-				global $wp_scripts;
-
-				if ( is_null( $wp_scripts ) ) {
-					$wp_scripts = array();
-				}
-
-				$wp_scripts[$handle] = compact( 'src', 'deps', 'ver', 'in_footer' );
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function get_enqueued_script( $handle ) {
-		global $wp_scripts;
-		return isset( $wp_scripts[$handle] ) ? $wp_scripts[$handle] : null;
-	}
-
-	protected function clear_added_actions() {
-		global $actions;
-		$actions = array();
-	}
-
-	protected function clear_enqueued_scripts() {
-		global $wp_scripts;
-		$wp_scripts = array();
-	}
-
-	protected function mock_empty_function( $name ) {
-		$builder = new MockBuilder();
-		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
-			->setName( $name )
-			->setFunction( function() use ( $name ) {
-				// echo "Called $name with " . print_r( func_get_args(),1 ) . "\n";
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function mock_production_environment() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( "Automattic\Jetpack" )
-			->setName( 'wp_get_environment_type' )
-			->setFunction( function() {
-				return '';
-			} );
-		$builder->build()->enable();
-	}
 }

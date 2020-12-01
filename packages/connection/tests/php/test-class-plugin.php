@@ -8,13 +8,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-require_once __DIR__ . '/mock/trait-options.php';
-require_once __DIR__ . '/mock/trait-hooks.php';
-
-use Automattic\Jetpack\Connection\Test\Mock\Hooks;
-use Automattic\Jetpack\Connection\Test\Mock\Options;
-use phpmock\Mock;
-use phpmock\MockEnabledException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -23,8 +16,6 @@ use PHPUnit\Framework\TestCase;
  * @see \Automattic\Jetpack\Connection\Plugin
  */
 class Test_Plugin extends TestCase {
-
-	use Options, Hooks;
 
 	const PLUGIN_SLUG = 'sample-plugin-slug';
 
@@ -46,24 +37,7 @@ class Test_Plugin extends TestCase {
 	 */
 	protected function setUp() {
 		parent::setUp();
-
-		$this->build_mock_options();
-		$this->build_mock_actions();
-
-		$this->update_option->enable();
-		$this->get_option->enable();
-		$this->do_action->enable();
-
 		Plugin_Storage::configure();
-	}
-
-	/**
-	 * Clean up the test environment.
-	 */
-	protected function tearDown() {
-		parent::tearDown();
-
-		Mock::disableAll();
 	}
 
 	/**

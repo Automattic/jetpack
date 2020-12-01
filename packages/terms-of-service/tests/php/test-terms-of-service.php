@@ -7,8 +7,9 @@
 
 namespace Automattic\Jetpack;
 
-use phpmock\Mock;
-use phpmock\MockBuilder;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,11 +18,13 @@ use PHPUnit\Framework\TestCase;
  * @package Automattic\Jetpack
  */
 class Test_Terms_Of_Service extends TestCase {
+	use MockeryPHPUnitIntegration;
 
 	/**
 	 * Test setup.
 	 */
 	public function setUp() {
+		Monkey\setUp();
 		$this->terms_of_service = $this->createPartialMock(
 			__NAMESPACE__ . '\\Terms_Of_Service',
 			array( 'get_raw_has_agreed', 'is_offline_mode', 'set_agree', 'set_reject' )
@@ -32,7 +35,7 @@ class Test_Terms_Of_Service extends TestCase {
 	 * Test teardown.
 	 */
 	public function tearDown() {
-		Mock::disableAll();
+		Monkey\tearDown();
 	}
 
 	/**
@@ -41,7 +44,8 @@ class Test_Terms_Of_Service extends TestCase {
 	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_agree() {
-		$this->mock_function( 'do_action', null, 'jetpack_agreed_to_terms_of_service' );
+		Functions\expect( 'do_action' )->once()->with( 'jetpack_agreed_to_terms_of_service' );
+		Functions\expect( 'do_action' )->never();
 		$this->terms_of_service->expects( $this->once() )->method( 'set_agree' );
 
 		$this->terms_of_service->agree();
@@ -53,7 +57,8 @@ class Test_Terms_Of_Service extends TestCase {
 	 * @covers Automattic\Jetpack\Terms_Of_Service
 	 */
 	public function test_revoke() {
-		$this->mock_function( 'do_action', null, 'jetpack_reject_terms_of_service' );
+		Functions\expect( 'do_action' )->never();
+		Functions\expect( 'do_action' )->once()->with( 'jetpack_reject_terms_of_service' );
 		$this->terms_of_service->expects( $this->once() )->method( 'set_reject' );
 
 		$this->terms_of_service->reject();
@@ -81,27 +86,4 @@ class Test_Terms_Of_Service extends TestCase {
 		$this->assertFalse( $this->terms_of_service->has_agreed() );
 	}
 
-	/**
-	 * Mock a global function and make it return a certain value.
-	 *
-	 * @param string $function_name Name of the function.
-	 * @param mixed  $return_value  Return value of the function.
-	 * @param string $called_with Value called with.
-	 *
-	 * @return phpmock\Mock The mock object.
-	 */
-	protected function mock_function( $function_name, $return_value = null, $called_with = null ) {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-				->setName( $function_name )
-				->setFunction(
-					function ( $value ) use ( &$return_value, $called_with ) {
-						if ( $called_with ) {
-							$this->assertEquals( $value, $called_with );
-						}
-						return $return_value;
-					}
-				);
-		return $builder->build()->enable();
-	}
 }

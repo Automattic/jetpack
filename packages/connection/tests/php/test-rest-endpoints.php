@@ -5,7 +5,6 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
-use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
@@ -150,26 +149,19 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/connection` endpoint.
 	 */
 	public function test_connection() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( 'Automattic\Jetpack' )
-				->setName( 'apply_filters' )
-				->setFunction(
-					function ( $hook, $value ) {
-						return 'jetpack_offline_mode' === $hook ? true : $value;
-					}
-				);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		try {
+			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
 
-		$mock = $builder->build();
-		$mock->enable();
+			$response = $this->server->dispatch( $this->request );
+			$data     = $response->get_data();
 
-		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
-
-		$response = $this->server->dispatch( $this->request );
-		$data     = $response->get_data();
-
-		$this->assertFalse( $data['isActive'] );
-		$this->assertFalse( $data['isRegistered'] );
-		$this->assertTrue( $data['offlineMode']['isActive'] );
+			$this->assertFalse( $data['isActive'] );
+			$this->assertFalse( $data['isRegistered'] );
+			$this->assertTrue( $data['offlineMode']['isActive'] );
+		} finally {
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+		}
 	}
 
 	/**
