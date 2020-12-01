@@ -107,6 +107,7 @@ function AudioPlayer( {
 	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
 
 	useEffect( () => {
+		// Get the current status of the audio element and the required action to toggle it.
 		const [ audioStatus, action ] =
 			audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
 		if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
