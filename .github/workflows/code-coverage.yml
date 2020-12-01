@@ -11,8 +11,7 @@ on:
 env:
   DO_COVERAGE: true
   WP_BRANCH: latest
-  TRAVIS_PHP_VERSION: "7.3"
-  WP_TRAVISCI: 'phpunit'
+  PHP_VERSION: "7.3"
   CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
   CODECOV_TOKEN: 13375979-2ee3-4078-8763-da63dfbc8b35
 
@@ -48,17 +47,12 @@ jobs:
 
       - name: Setup tests
         run: |
-          sudo systemctl start mysql.service
-          export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-          ./tests/setup-travis.sh
+          ./.github/actions/php-pipeline/setup-env.sh
           yarn install
 
       - name: Run code coverage
         run: |
-          ./tests/run-travis.sh
+          ./.github/actions/php-pipeline/code-coverage.sh
           yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
           yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
 
