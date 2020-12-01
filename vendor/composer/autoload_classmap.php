@@ -88,6 +88,7 @@ return array(
     'Automattic\\Jetpack\\Sync\\Utils' => $vendorDir . '/automattic/jetpack-sync/src/class-utils.php',
     'Automattic\\Jetpack\\Terms_Of_Service' => $vendorDir . '/automattic/jetpack-terms-of-service/src/class-terms-of-service.php',
     'Automattic\\Jetpack\\Tracking' => $vendorDir . '/automattic/jetpack-tracking/src/class-tracking.php',
+    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'JetpackTracking' => $vendorDir . '/automattic/jetpack-compat/legacy/class-jetpacktracking.php',
     'Jetpack_Client' => $vendorDir . '/automattic/jetpack-compat/legacy/class-jetpack-client.php',
     'Jetpack_IXR_Client' => $vendorDir . '/automattic/jetpack-connection/legacy/class-jetpack-ixr-client.php',

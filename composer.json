@@ -1,44 +1,44 @@
 {
-	"name": "automattic/jetpack",
-	"description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
-	"homepage": "https://jetpack.com/",
-	"type": "wordpress-plugin",
-	"license": "GPL-2.0-or-later",
-	"support": {
-		"issues": "https://github.com/Automattic/jetpack/issues"
-	},
-	"require": {
-		"ext-fileinfo": "*",
-		"ext-json": "*",
-		"ext-openssl": "*",
-		"nojimage/twitter-text-php": "3.1.1"
-	},
-	"require-dev": {
-		"automattic/jetpack-codesniffer": "^2.0",
-		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
-		"php-parallel-lint/php-parallel-lint": "1.2.0",
-		"sirbrillig/phpcs-changed": "2.5.1"
-	},
-	"scripts": {
-		"php:compatibility": "vendor/bin/phpcs -p -s --standard=./.phpcs.config.xml,PHPCompatibilityWP",
-		"php:lint": "vendor/bin/phpcs -p -s",
-		"php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
-		"php:autofix": "vendor/bin/phpcbf",
-		"php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1",
-		"php:requirelist": "node bin/phpcs-requirelist-commands.js"
-	},
-	"repositories": [],
-	"autoload": {
-		"classmap": [
-			"src"
-		]
-	},
-	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"config": {
-		"sort-packages": true,
-		"platform": {
-			"ext-intl": "0.0.0"
-		}
-	}
+    "name": "automattic/jetpack",
+    "description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
+    "homepage": "https://jetpack.com/",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "support": {
+        "issues": "https://github.com/Automattic/jetpack/issues"
+    },
+    "require": {
+        "ext-fileinfo": "*",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "nojimage/twitter-text-php": "3.1.1"
+    },
+    "require-dev": {
+        "automattic/jetpack-codesniffer": "^2.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
+        "php-parallel-lint/php-parallel-lint": "1.2.0",
+        "sirbrillig/phpcs-changed": "2.5.1"
+    },
+    "scripts": {
+        "php:compatibility": "vendor/bin/phpcs -p -s --standard=./.phpcs.config.xml,PHPCompatibilityWP",
+        "php:lint": "vendor/bin/phpcs -p -s",
+        "php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
+        "php:autofix": "vendor/bin/phpcbf",
+        "php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1",
+        "php:requirelist": "node bin/phpcs-requirelist-commands.js"
+    },
+    "repositories": [],
+    "autoload": {
+        "classmap": [
+            "src"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "ext-intl": "0.0.0"
+        }
+    }
 }
