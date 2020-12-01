@@ -76,13 +76,13 @@ class Jetpack_Podcast_Helper {
 		$feed = esc_url_raw( $feed );
 
 		// Try loading track data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $feed ) . '_' . md5( $guid );
+		$transient_key = 'jetpack_podcast_' . md5( "$feed::$guid" );
 		$track_data    = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
 		if ( false === $track_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			// Load feed.
-			$rss = self::load_feed( $feed );
+			$rss = static::load_feed( $feed );
 
 			if ( is_wp_error( $rss ) ) {
 				return $rss;
@@ -91,7 +91,7 @@ class Jetpack_Podcast_Helper {
 			// Loop over all tracks to find the one.
 			foreach ( $rss->get_items() as $track ) {
 				if ( $guid === $track->get_id() ) {
-					$track_data = self::setup_tracks_callback( $track );
+					$track_data = static::setup_tracks_callback( $track );
 					break;
 				}
 			}
