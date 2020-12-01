@@ -23,4 +23,4 @@ echo ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q cov
 ./cc-test-reporter sum-coverage coverage/codeclimate.*.json -p $(ls -1q coverage/codeclimate.*.json | wc -l)
 
 # Upload coverage/codeclimate.json
-	./cc-test-reporter upload-coverage;
+./cc-test-reporter upload-coverage;
