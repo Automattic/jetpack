@@ -9,33 +9,25 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\{
-	Subscription_Service,
-	Jetpack_Token_Subscription_Service,
-	Unconfigured_Subscription_Service,
-	WPCOM_Offline_Subscription_Service,
-	WPCOM_Token_Subscription_Service
-};
 
-require_once '../_inc/subscription-service/include.php';
+require_once dirname( __DIR__ ) . '/_inc/subscription-service/include.php';
 
-const FEATURE_NAME = 'premium-content/login-button';
+const LOGIN_BUTTON_NAME = 'premium-content/login-button';
 
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
  */
-function register_block() {
+function register_login_button_block() {
 	Blocks::jetpack_register_block(
-		FEATURE_NAME,
+		LOGIN_BUTTON_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'plan_check'	  => true,
+			'render_callback' => __NAMESPACE__ . '\render_login_button_block',
 		)
 	);
 }
-add_action( 'init', __NAMESPACE__ . '\register_block' );
+add_action( 'init', __NAMESPACE__ . '\register_login_button_block' );
 
 /**
  * Render callback.
@@ -45,7 +37,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  *
  * @return string
  */
-function render_block( $attributes, $content ) {
+function render_login_button_block( $attributes, $content ) {
 	if ( ! pre_render_checks() ) {
 		return '';
 	}
@@ -55,8 +47,8 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_styles_as_required( LOGIN_BUTTON_NAME );
 
-	$url = premium_content_subscription_service()->access_url();
+	$url = subscription_service()->access_url();
 	return preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
 }

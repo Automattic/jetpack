@@ -10,26 +10,29 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'premium-content/logged-out-view';
+const LOGGEDOUT_VIEW_NAME = 'premium-content/logged-out-view';
 
-require_once '../_inc/access-check.php';
+require_once dirname( __DIR__ ) . '/_inc/access-check.php';
 
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
  */
-function register_block() {
+function register_loggedout_view_block() {
+	// Determine required `context` key based on Gutenberg version.
+	$deprecated = function_exists( 'gutenberg_get_post_from_context' );
+	$uses       = $deprecated ? 'context' : 'uses_context';
+
 	Blocks::jetpack_register_block(
-		FEATURE_NAME,
+		LOGGEDOUT_VIEW_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'plan_check'	  => true,
+			'render_callback' => __NAMESPACE__ . '\render_loggedout_view_block',
             $uses             => array( 'premium-content/planId' ),
         )
 	);
 }
-add_action( 'init', __NAMESPACE__ . '\register_block' );
+add_action( 'init', __NAMESPACE__ . '\register_loggedout_view_block' );
 
 /**
  * Render callback.
@@ -39,7 +42,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  *
  * @return string
  */
-function render_block( $attributes, $content, $block = null ) {
+function render_loggedout_view_block( $attributes, $content, $block = null ) {
 	if ( ! pre_render_checks() ) {
 		return '';
 	}
@@ -50,7 +53,7 @@ function render_block( $attributes, $content, $block = null ) {
 		return '';
 	}
 
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_styles_as_required( LOGGEDOUT_VIEW_NAME );
 
 	// Old versions of the block were rendering the subscribe/login button server-side, so we need to still support them.
 	if ( ! empty( $attributes['buttonClasses'] ) ) {

@@ -10,23 +10,22 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'premium-content/buttons';
+const BUTTONS_NAME = 'premium-content/buttons';
 
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
  */
-function register_block() {
+function register_buttons_block() {
 	Blocks::jetpack_register_block(
-		FEATURE_NAME,
+		BUTTONS_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'plan_check'	  => true,
+			'render_callback' => __NAMESPACE__ . '\render_buttons_block',
 		)
 	);
 }
-add_action( 'init', __NAMESPACE__ . '\register_block' );
+add_action( 'init', __NAMESPACE__ . '\register_buttons_block' );
 
 /**
  * Render callback.
@@ -36,8 +35,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  *
  * @return string
  */
-function render_block( $attributes, $content ) {
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+function render_buttons_block( $attributes, $content ) {
+	Jetpack_Gutenberg::load_styles_as_required( BUTTONS_NAME );
 
 	return $content;
 }
