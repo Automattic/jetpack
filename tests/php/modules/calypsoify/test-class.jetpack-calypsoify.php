@@ -11,6 +11,12 @@ require_jetpack_file( 'modules/calypsoify/class-jetpack-calypsoify.php' );
  * Class WP_Test_Jetpack_Calypsoify
  */
 class WP_Test_Jetpack_Calypsoify extends WP_UnitTestCase {
+	/**
+	 * Instance to test.
+	 *
+	 * @var Jetpack_Calypsoify
+	 */
+	private $instance;
 
 	/**
 	 * Sets up each test.
@@ -19,7 +25,7 @@ class WP_Test_Jetpack_Calypsoify extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->instance = Jetpack_Calypsoify::getInstance();
+		$this->instance = Jetpack_Calypsoify::get_instance();
 	}
 
 	/**

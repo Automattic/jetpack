@@ -441,4 +441,4 @@ class Jetpack_Calypsoify {
 	}
 }
 
-$jetpack_calypsoify = Jetpack_Calypsoify::getInstance();
+$jetpack_calypsoify = Jetpack_Calypsoify::get_instance();
