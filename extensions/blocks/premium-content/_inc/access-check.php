@@ -1,5 +1,8 @@
 <?php
+
 namespace Automattic\Jetpack\Extensions\Premium_Content;
+
+require __DIR__ . '/subscription-service/include.php';
 
 /**
  * Determines if the memberships module is set up.
@@ -55,7 +58,7 @@ function current_visitor_can_access( $attributes, $block ) {
 		return false;
 	}
 
-	$paywall  = premium_content_subscription_service();
+	$paywall  = subscription_service();
 	$can_view = $paywall->visitor_can_view_content( array( $selected_plan_id ) );
 
 	if ( $can_view ) {
