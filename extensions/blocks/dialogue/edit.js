@@ -73,7 +73,6 @@ export default function DialogueEdit ( {
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
 
 	// speaker object.
-	const isCustomSpeaker = !! speaker && ! speakerSlug;
 	const currentSpeakerSlug = ! speaker && ! speakerSlug ? 'speaker-0' : speakerSlug;
 	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
 	const speakerName = currentSpeaker?.speaker || speaker;
@@ -98,15 +97,7 @@ export default function DialogueEdit ( {
 								speakerSlug: newSpeakerSlug,
 							} );
 						} }
-						onChange={ ( { editSpeakerSlug, editSpeaker } ) => {
-							transcritionBridge.updateSpeakers(
-								{
-									speakerSlug: editSpeakerSlug,
-									speaker: editSpeaker,
-								}
-							);
-						 } }
-						onCustomChange={ ( { newSpeaker } ) => setAttributes( {
+						onChange={ ( { newSpeaker } ) => setAttributes( {
 							speakerSlug: null,
 							speaker: newSpeaker,
 						} ) }

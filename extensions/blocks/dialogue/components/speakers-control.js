@@ -14,31 +14,17 @@ import {
 	BaseControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Fragment, useState } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 
-function SpeakersMenu ( { speaker, speakers, className, onSelect, onChange } ) {
-	// Temporary cache value if the current speaker.
-	const [ tmpSpeakerValue, setTmpSpeakerValue ] = useState( {} );
-
+function SpeakersMenu ( { speakers, className, onSelect } ) {
 	return (
 		<MenuGroup className={ `${ className }__speakers-selector` }>
-			{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug }, ind ) => (
+			{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug } ) => (
 				<MenuItem
 					key={ newSpeakerSlug }
 					onClick={ () => onSelect( { newSpeaker, newSpeakerSlug } ) }
-					isSelected={ newSpeaker === speaker }
 				>
-					<TextControl
-						label= { `Speaker ${ ind + 1 }` }
-						value={ tmpSpeakerValue?.[ newSpeakerSlug ] || newSpeaker }
-						onChange={ ( editSpeaker ) => {
-							setTmpSpeakerValue( { [ newSpeakerSlug ]: editSpeaker } );
-							onChange( {
-								editSpeaker,
-								editSpeakerSlug: newSpeakerSlug,
-							} );
-						} }
-					/>
+					{ newSpeaker }
 				</MenuItem>
 			) ) }
 		</MenuGroup>
@@ -66,7 +52,6 @@ export default function SpeakersDropdown ( {
 	label,
 	onSelect,
 	onChange,
-	onCustomChange,
 	position = { position: 'bottom' },
 } ) {
 	return (
@@ -84,13 +69,12 @@ export default function SpeakersDropdown ( {
 						speaker={ speaker }
 						className={ className }
 						onSelect={ onSelect }
-						onChange={ onChange }
 					/>
 
 					<SpeakerControl
 						className={ className }
 						speaker={ speaker }
-						onChange={ ( newSpeaker ) => onCustomChange( { newSpeaker, newSpeakerSlug: null } ) }
+						onChange={ ( newSpeaker ) => onChange( { newSpeaker, newSpeakerSlug: null } ) }
 					/>
 				</Fragment>
 			) }
