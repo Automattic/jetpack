@@ -733,10 +733,12 @@ class Jetpack {
 			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
 
 			/*
-			 * We'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
+			 * We'll shortcircuit wp_notify_postauthor and wp_notify_moderator pluggable functions
 			 * so they point moderation links on emails to Calypso.
 			 */
 			jetpack_require_lib( 'functions.wp-notify' );
+			add_filter( 'comment_notification_recipients', 'jetpack_notify_postauthor', 1, 2 );
+			add_filter( 'notify_moderator', 'jetpack_notify_moderator', 1, 2 );
 		}
 
 		add_action(
