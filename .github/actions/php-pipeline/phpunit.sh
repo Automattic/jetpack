@@ -1,5 +1,6 @@
 #!/bin/bash
 
+./includes.sh
 export CMD=phpunit
 
 function run_packages_tests {

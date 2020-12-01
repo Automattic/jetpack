@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./includes.sh
+./includes.sh
 
 # Init code climate
 curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
