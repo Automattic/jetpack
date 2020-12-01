@@ -19,7 +19,6 @@ import {
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
-	TextControl,
 	ToolbarButton,
 } from '@wordpress/components';
 import { useContext } from '@wordpress/element';
@@ -33,6 +32,7 @@ import 	SpeakersDropdown from './components/speakers-control';
 import TimeStampControl from './components/time-stamp-control';
 import TranscriptionContext from '../transcription/components/context';
 
+const defaultSpeakerSlug = 'speaker-0';
 const defaultSpeakers = [
 	{
 		speakerSlug: 'speaker-0',
@@ -49,7 +49,13 @@ const defaultSpeakers = [
 ];
 
 function getSpeakerBySlug( speakers, slug ) {
-	return find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === slug );
+	const speaker = find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === slug );
+	if ( speaker ) {
+		return speaker;
+	}
+
+	// Fallback object, with the default initial slug.
+	return find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === defaultSpeakerSlug );
 }
 
 export default function DialogueEdit ( {
@@ -72,9 +78,9 @@ export default function DialogueEdit ( {
 	// Speakers list.
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
 
-	// speaker object.
-	const currentSpeakerSlug = ! speaker && ! speakerSlug ? 'speaker-0' : speakerSlug;
-	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
+	// Speaker object.
+	const currentSpeakerSlug = ! speaker && ! speakerSlug ? defaultSpeakerSlug : speakerSlug;
+	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug ); 
 	const speakerName = currentSpeaker?.speaker || speaker;
 
 	// Transcription context. A bridge between dialogue and transcription blocks.
