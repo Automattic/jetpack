@@ -1,13 +1,17 @@
 <?php
 /**
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
- * Ported from an internal Automattic plugin.
+ *
+ * @package Jetpack
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Masterbar;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
+/**
+ * Class Jetpack_Calypsoify
+ */
 class Jetpack_Calypsoify {
 
 	/**
@@ -24,11 +28,33 @@ class Jetpack_Calypsoify {
 	 */
 	public $is_calypsoify_enabled = false;
 
+	/**
+	 * Jetpack_Calypsoify constructor.
+	 */
 	private function __construct() {
 		add_action( 'wp_loaded', array( $this, 'setup' ) );
 	}
 
-	public static function getInstance() {
+	/**
+	 * Original singleton.
+	 *
+	 * @todo We need to leave this in place until wpcomsh is updated. wpcomsh can be updated once 9.3.0 is stable.
+	 *
+	 * Deprecated 9.3.0
+	 *
+	 * @return Jetpack_Calypsoify
+	 */
+	public static function getInstance() { //phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		_deprecated_function( __METHOD__, 'Jetpack 9.3.0', 'Jetpack_Calypsoify::get_instance' );
+		return self::get_instance();
+	}
+
+	/**
+	 * Singleton.
+	 *
+	 * @return Jetpack_Calypsoify
+	 */
+	public static function get_instance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 		}
@@ -36,10 +62,13 @@ class Jetpack_Calypsoify {
 		return self::$instance;
 	}
 
+	/**
+	 * Setup function that is loaded on the `wp_loaded` hook via the constructor.
+	 */
 	public function setup() {
-		$this->is_calypsoify_enabled = 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
-		if ( isset( $_GET['calypsoify'] ) ) {
-			$this->is_calypsoify_enabled = 1 === (int) $_GET['calypsoify'];
+		$this->is_calypsoify_enabled = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
+		if ( isset( $_GET['calypsoify'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$this->is_calypsoify_enabled = 1 === (int) $_GET['calypsoify']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
 		add_action( 'admin_init', array( $this, 'check_param' ), 4 );
@@ -51,8 +80,11 @@ class Jetpack_Calypsoify {
 		}
 	}
 
+	/**
+	 * Setup functionality within wp-admin via the `admin_init` hook.
+	 */
 	public function setup_admin() {
-		// Masterbar is currently required for this to work properly. Mock the instance of it
+		// Masterbar is currently required for this to work properly. Mock the instance of it.
 		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
 			$this->mock_masterbar_activation();
 		}
@@ -72,7 +104,14 @@ class Jetpack_Calypsoify {
 		add_action( 'current_screen', array( $this, 'attach_views_filter' ) );
 	}
 
-	public function admin_color_override( $color ) {
+	/**
+	 * Set admin color.
+	 *
+	 * Used via the get_user_option_admin_color filter.
+	 *
+	 * @return string 'fresh'
+	 */
+	public function admin_color_override() {
 		return 'fresh';
 	}
 
@@ -88,6 +127,9 @@ class Jetpack_Calypsoify {
 		return new Masterbar();
 	}
 
+	/**
+	 * Removes Core's menu pages that we don't display.
+	 */
 	public function remove_core_menus() {
 		remove_menu_page( 'edit.php?post_type=feedback' );
 		remove_menu_page( 'index.php' );
@@ -102,7 +144,7 @@ class Jetpack_Calypsoify {
 		remove_menu_page( 'tools.php' );
 		remove_menu_page( 'link-manager.php' );
 
-		// Core settings pages
+		// Core settings pages.
 		remove_submenu_page( 'options-general.php', 'options-general.php' );
 		remove_submenu_page( 'options-general.php', 'options-writing.php' );
 		remove_submenu_page( 'options-general.php', 'options-reading.php' );
@@ -113,10 +155,13 @@ class Jetpack_Calypsoify {
 		remove_submenu_page( 'options-general.php', 'sharing' );
 	}
 
+	/**
+	 * Adds the custom menus.
+	 */
 	public function add_custom_menus() {
 		global $menu, $submenu;
 
-		if ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) {
+		if ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// there is currently no gridicon for feedback, so using dashicon.
 			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', 'dashicons-feedback', 1 );
 			remove_menu_page( 'options-general.php' );
@@ -130,33 +175,43 @@ class Jetpack_Calypsoify {
 				// Rename and make sure the plugin settings menu is always last.
 				// Sneaky plugins seem to override this otherwise.
 				// Settings is always key 80.
-				$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
-				$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80];
+				$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				unset( $menu[80] );
 			}
 		}
 	}
 
+	/**
+	 * Enqueues scripts, data, and styles.
+	 */
 	public function enqueue() {
 		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style.min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
+		wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION );
-		wp_localize_script( 'calypsoify_wpadminmods_js', 'CalypsoifyOpts', array(
-			'nonces' => array(
-				'autoupdate_plugins' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins' ),
-				'autoupdate_plugins_translations' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins_translations' ),
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION, false );
+		wp_localize_script(
+			'calypsoify_wpadminmods_js',
+			'CalypsoifyOpts',
+			array(
+				'nonces' => array(
+					'autoupdate_plugins'              => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins' ),
+					'autoupdate_plugins_translations' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins_translations' ),
+				),
 			)
-		) );
+		);
 	}
 
+	/**
+	 * Enqueues scripts, data, and styles for Gutenberg.
+	 */
 	public function enqueue_for_gutenberg() {
 		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg.min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
+		wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', false, JETPACK__VERSION );
+		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', false, JETPACK__VERSION, false );
 		wp_localize_script(
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
@@ -173,7 +228,7 @@ class Jetpack_Calypsoify {
 	 * @return void
 	 */
 	public function insert_sidebar_html() {
-		$heading       = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
+		$heading  = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$home_url = Redirect::get_url( 'calypso-home' );
 		?>
 		<a href="<?php echo esc_url( $home_url ); ?>" id="calypso-sidebar-header">
@@ -187,6 +242,9 @@ class Jetpack_Calypsoify {
 		<?php
 	}
 
+	/**
+	 * Modifies the masterbar.
+	 */
 	public function modify_masterbar() {
 		global $wp_admin_bar;
 
@@ -204,10 +262,15 @@ class Jetpack_Calypsoify {
 		$wp_admin_bar->add_node( $me_node );
 	}
 
+	/**
+	 * Returns a SVG of the installed plugins icon.
+	 *
+	 * @return string SVG+XML of the installed plugins icon.
+	 */
 	private function installed_plugins_icon() {
 		$svg = '<svg class="gridicon gridicons-plugins" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 24"><g><path d="M16 8V3c0-.552-.448-1-1-1s-1 .448-1 1v5h-4V3c0-.552-.448-1-1-1s-1 .448-1 1v5H5v4c0 2.79 1.637 5.193 4 6.317V22h6v-3.683c2.363-1.124 4-3.527 4-6.317V8h-3z" fill="black"></path></g></svg>';
 
-		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	}
 
 	/**
@@ -216,10 +279,10 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	private function get_calypso_origin() {
-		$origin    = ! empty( $_GET['origin'] ) ? $_GET['origin'] : 'https://wordpress.com';
+		$origin  = ! empty( $_GET['origin'] ) ? $_GET['origin'] : 'https://wordpress.com'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$allowed = array(
 			'http://calypso.localhost:3000',
-			'http://127.0.0.1:41050', // Desktop App
+			'http://127.0.0.1:41050', // Desktop App.
 			'https://wpcalypso.wordpress.com',
 			'https://horizon.wordpress.com',
 			'https://wordpress.com',
@@ -231,7 +294,8 @@ class Jetpack_Calypsoify {
 	 * Returns the Calypso URL that displays either the current post type list (if no args
 	 * are supplied) or the classic editor for the current post (if a post ID is supplied).
 	 *
-	 * @param int|null $post_id
+	 * @param int|null $post_id Post ID.
+	 *
 	 * @return string
 	 */
 	public function get_calypso_url( $post_id = null ) {
@@ -240,16 +304,16 @@ class Jetpack_Calypsoify {
 		$site_suffix = ( new Status() )->get_site_suffix();
 
 		if ( is_null( $post_id ) ) {
-			// E.g. `posts`, `pages`, or `types/some_custom_post_type`
+			// E.g. posts or pages have no special suffix. CPTs are in the `types/{cpt}` format.
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
 				? "/${post_type}s/"
 				: "/types/${post_type}/";
-			$post_suffix = '';
+			$post_suffix      = '';
 		} else {
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
 				? "/${post_type}/"
 				: "/edit/${post_type}/";
-			$post_suffix = "/${post_id}";
+			$post_suffix      = "/${post_id}";
 		}
 
 		return $this->get_calypso_origin() . $post_type_suffix . $site_suffix . $post_suffix;
@@ -278,9 +342,12 @@ class Jetpack_Calypsoify {
 		);
 	}
 
+	/**
+	 * Checks for the URL parameter if this is a Calypsoify request.
+	 */
 	public function check_param() {
-		if ( isset( $_GET['calypsoify'] ) ) {
-			if ( 1 == (int) $_GET['calypsoify'] ) {
+		if ( isset( $_GET['calypsoify'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( 1 === (int) $_GET['calypsoify'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				update_user_meta( get_current_user_id(), 'calypsoify', 1 );
 			} else {
 				update_user_meta( get_current_user_id(), 'calypsoify', 0 );
@@ -288,6 +355,9 @@ class Jetpack_Calypsoify {
 		}
 	}
 
+	/**
+	 * If the visitor is hitting wp-admin/ then disable this functionality.
+	 */
 	public function check_page() {
 		// If the user hits plain /wp-admin/ then disable Calypso styles.
 		$page = wp_basename( esc_url( $_SERVER['REQUEST_URI'] ) );
@@ -303,15 +373,24 @@ class Jetpack_Calypsoify {
 	 * Return whether a post type should display the Gutenberg/block editor.
 	 *
 	 * @since 6.7.0
+	 *
+	 * @param string $post_type Post type.
 	 */
 	public function is_post_type_gutenberg( $post_type ) {
 		return use_block_editor_for_post_type( $post_type );
 	}
 
+	/**
+	 * Determines if the page is an instance of the Gutenberg block editor.
+	 *
+	 * @return bool
+	 */
 	public function is_page_gutenberg() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// Disabling WordPress.Security.NonceVerification.Recommended because this function fires within admin_init and this is only changing display.
 		$page = wp_basename( esc_url( $_SERVER['REQUEST_URI'] ) );
 
-		if ( false !== strpos( $page, 'post-new.php' ) && empty ( $_GET['post_type'] ) ) {
+		if ( false !== strpos( $page, 'post-new.php' ) && empty( $_GET['post_type'] ) ) {
 			return true;
 		}
 
@@ -335,10 +414,13 @@ class Jetpack_Calypsoify {
 		}
 
 		return false;
+		// phpcs:enable
 	}
 
 	/**
 	 * Attach a WP_List_Table views filter to all screens.
+	 *
+	 * @param WP_Screen $current_screen Current WP_Screen instance.
 	 */
 	public function attach_views_filter( $current_screen ) {
 		add_filter( "views_{$current_screen->id}", array( $this, 'filter_views' ) );
@@ -359,4 +441,4 @@ class Jetpack_Calypsoify {
 	}
 }
 
-$Jetpack_Calypsoify = Jetpack_Calypsoify::getInstance();
+$jetpack_calypsoify = Jetpack_Calypsoify::getInstance();

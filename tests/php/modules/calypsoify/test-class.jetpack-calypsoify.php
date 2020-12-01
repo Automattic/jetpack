@@ -5,7 +5,7 @@
  * @package Jetpack
  */
 
-require_jetpack_file( 'modules/calypsoify/class.jetpack-calypsoify.php' );
+require_jetpack_file( 'modules/calypsoify/class-jetpack-calypsoify.php' );
 
 /**
  * Class WP_Test_Jetpack_Calypsoify
