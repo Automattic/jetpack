@@ -152,9 +152,9 @@ function TranscriptionEdit ( {
 							/>
 						</PanelBody>
 
-						<PanelBody title={ __( 'Timestamps', 'jetpack' ) } className={ `${ baseClassName }__timestamps` }>
+						<PanelBody className={ `${ baseClassName }__timestamps` }>
 							<ToggleControl
-								label={ __( 'Show dialogue timestamps', 'jetpack' ) }
+								label={ __( 'Show time 	stamps', 'jetpack' ) }
 								checked={ showTimeStamp }
 								onChange={ ( value ) => setAttributes( { showTimeStamp: value } ) }
 							/>

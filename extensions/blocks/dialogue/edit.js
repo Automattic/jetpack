@@ -143,7 +143,7 @@ export default function DialogueEdit ( {
 
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
+					<PanelBody title={ __( 'Time stamp', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show', 'jetpack' ) }
 							checked={ showTimeStamp }
