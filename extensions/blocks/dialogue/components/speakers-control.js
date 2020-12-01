@@ -36,7 +36,7 @@ function SpeakerControl( { className, speaker, onChange } ) {
 		<BaseControl className={ `${ className }__custom-speaker` }>
 			<div className={ `${ className }__text-button-container` }>
 				<TextControl
-					label={ __( 'Custom speaker', 'jetpack' ) }
+					label={ __( 'Custom', 'jetpack' ) }
 					value={ speaker }
 					onChange={ onChange }
 				/>
