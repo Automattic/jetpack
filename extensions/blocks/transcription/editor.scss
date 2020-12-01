@@ -23,3 +23,16 @@ $speaker-height: 30px;
 .wp-block-jetpack-transcription__add-button {
 	margin-top: 26px;
 }
+
+.wp-block-jetpack-transcription__speaker-label {
+	height: 2em;
+	line-height: 2em;
+	font-size: 16px;
+}
+
+.wp-block-jetpack-transcription__speaker-formats {
+	display: flex;
+	.components-button {
+		margin-right: 5px;
+	}
+}

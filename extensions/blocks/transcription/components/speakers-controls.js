@@ -13,8 +13,12 @@ import {
 	Button,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
 import { Fragment, useState } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import { formatUppercase } from '../../../shared/icons';
 
 export function AddSpeakerButton( {
 	className,
@@ -84,6 +88,55 @@ export function SpeakersLabelControl( {
 						>
 							{ __( 'Remove', 'jetpack' ) }
 						</Button>
+					</div>
+				</BaseControl>
+			) ) }
+		</Fragment>
+	);
+}
+
+export function SpeakersSettingsControl( {
+	className,
+	speakers,
+	onSet,
+} ) {
+	return (
+		<Fragment>
+			{ map( speakers, ( { speaker, speakerSlug, hasBoldStyle, hasItalicStyle, hasUppercaseStyle } ) => (
+				<BaseControl className={ `${ className }__speaker-control` }>
+					<div className={ `${ className }__speaker-settings` }>
+						<div className={ `${ className }__speaker-label` }>
+							{ speaker }
+						</div>
+
+						<div className={ `${ className }__speaker-formats` }>
+							<Button
+								icon="editor-bold"
+								isPressed={ hasBoldStyle }
+								onClick={ () => onSet( {
+									speakerSlug,
+									hasBoldStyle: ! hasBoldStyle,
+								} ) }
+							/>
+
+							<Button
+								icon="editor-italic"
+								isPressed={ hasItalicStyle }
+								onClick={ () => onSet( {
+									speakerSlug,
+									hasItalicStyle: ! hasItalicStyle,
+								} ) }
+							/>
+
+							<Button
+								icon={ formatUppercase }
+								isPressed={ hasUppercaseStyle }
+								onClick={ () => onSet( {
+									speakerSlug,
+									hasUppercaseStyle: ! hasUppercaseStyle,
+								} ) }
+							/>
+						</div>
 					</div>
 				</BaseControl>
 			) ) }

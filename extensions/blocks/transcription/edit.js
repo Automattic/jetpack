@@ -32,6 +32,7 @@ import './editor.scss';
 import SpeakersDropdown, {
 	AddSpeakerButton,
 	SpeakersLabelControl,
+	SpeakersSettingsControl,
 } from './components/speakers-controls';
 import TranscritptionContext from './components/context';
 
@@ -146,6 +147,14 @@ function TranscriptionEdit ( {
 							<AddSpeakerButton
 								className={ baseClassName }
 								onAdd={ addNewSpeaker }
+							/>
+						</PanelBody>
+
+						<PanelBody title={ __( 'Participants settings', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
+							<SpeakersSettingsControl
+								className={ baseClassName }
+								speakers={ speakers }
+								onSet={ updateSpeakers }
 							/>
 						</PanelBody>
 
