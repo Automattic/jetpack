@@ -9,7 +9,6 @@ import { filter, map } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import {
 	useEffect,
-	useState,
 	useRef,
 	useCallback,
 	useMemo,
@@ -22,9 +21,6 @@ import {
 import {
 	Panel,
 	PanelBody,
-	TextControl,
-	BaseControl,
-	Button,
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';
@@ -36,7 +32,7 @@ import './editor.scss';
 import SpeakersDropdown, {
 	AddSpeakerButton,
 	SpeakersControl,
-} from './components/speakers-dropdown';
+} from './components/speakers-controls';
 import TranscritptionContext from './components/context';
 
 const defaultLabels = [
