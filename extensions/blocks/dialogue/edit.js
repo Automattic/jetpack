@@ -26,7 +26,7 @@ import { useContext } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
-import 	SpeakersDropdown from './components/speakers-control';
+import SpeakersDropdown from './components/speakers-control';
 import TimeStampControl from './components/time-stamp-control';
 import TranscriptionContext from '../transcription/components/context';
 import { defaultSpeakers, defaultSpeakerSlug } from '../transcription/edit';

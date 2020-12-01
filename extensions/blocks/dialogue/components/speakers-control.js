@@ -16,7 +16,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-function SpeakersMenu ( { speakers, className, onSelect } ) {
+function SpeakersMenu( { speakers, className, onSelect } ) {
 	return (
 		<MenuGroup className={ `${ className }__speakers-selector` }>
 			{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug } ) => (
@@ -45,7 +45,7 @@ function SpeakerControl( { className, speaker, onChange } ) {
 	);
 }
 
-export default function SpeakersDropdown ( {
+export default function SpeakersDropdown( {
 	className,
 	speakers,
 	speaker,

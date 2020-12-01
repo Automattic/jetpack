@@ -58,7 +58,7 @@ function setTimeStampValue( typeValue, smh ) {
 	return smh.join( ':' );
 }
 
-function TimeStamp ( { value, className, onChange } ) {
+function TimeStamp( { value, className, onChange } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
