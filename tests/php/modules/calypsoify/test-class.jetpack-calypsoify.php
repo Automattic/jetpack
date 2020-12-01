@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Calypsoify extends WP_UnitTestCase {
 	 * @see https://github.com/Automattic/jetpack/pull/17939
 	 */
 	public function test_mock_masterbar_activation() {
-		$this->instance->mock_masterbar_activation();
-		$this->assertTrue( class_exists( '\Automattic\Jetpack\Dashboard_Customizations\Masterbar' ) );
+		$result = $this->instance->mock_masterbar_activation();
+		$this->assertInstanceOf( 'Automattic\Jetpack\Dashboard_Customizations\Masterbar', $result, 'The Masterbar class was not initiated.' );
 	}
 }

@@ -76,9 +76,16 @@ class Jetpack_Calypsoify {
 		return 'fresh';
 	}
 
+	/**
+	 * Mocks the Masterbar module.
+	 *
+	 * Calypsoify uses the Masterbar, so for sites without the Masterbar module active, this will use it for the sake of a Calyposify request.
+	 *
+	 * @return Masterbar
+	 */
 	public function mock_masterbar_activation() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar/class-masterbar.php';
-		new Masterbar();
+		return new Masterbar();
 	}
 
 	public function remove_core_menus() {
