@@ -27,7 +27,6 @@ class Atomic_Plan_Manager {
 
 	/**
 	 * Atomic Plan Manager instance
-	 * @var string
 	 */
 	private static $instance;
 	
@@ -60,15 +59,30 @@ class Atomic_Plan_Manager {
 	 * return BUSINESS_PLAN_SLUG by default
 	 *
 	 * @return string
-	 */ 
+	 */
 	public static function current_plan_slug() {
-		$at_options = get_option( 'at_options', array() );
-		if ( ! is_array( $at_options ) ) {
-			$at_options = array( 'plan_slug' => self::BUSINESS_PLAN_SLUG );
-		} else if ( ! isset( $at_options[ 'plan_slug' ] ) ) {
-			$at_options[ 'plan_slug' ] = self::BUSINESS_PLAN_SLUG;
+		$atomic_site_id = wpcomsh_get_atomic_site_id();
+
+		// If the Atomic Site ID is not set, or it's before cutoff
+		// Use old at_options plan slug.
+		if ( empty( $atomic_site_id ) || $atomic_site_id < 149516540 ) {
+			$at_options = get_option( 'at_options', array() );
+			if ( ! is_array( $at_options ) ) {
+				$at_options = array( 'plan_slug' => self::BUSINESS_PLAN_SLUG );
+			} else if ( ! isset( $at_options[ 'plan_slug' ] ) ) {
+				$at_options[ 'plan_slug' ] = self::BUSINESS_PLAN_SLUG;
+			}
+			return $at_options[ 'plan_slug' ];
 		}
-		return $at_options[ 'plan_slug' ];
+
+		// Otherwise, persistent data.
+		$persistent_data = new Atomic_Persistent_Data();
+		$wpcom_plan = $persistent_data->WPCOM_PLAN;
+		if ( empty( $wpcom_plan ) ) {
+			return self::FREE_PLAN_SLUG;
+		}
+
+		return $wpcom_plan;
 	}
 
 	/**
@@ -77,7 +91,7 @@ class Atomic_Plan_Manager {
 	 * @return bool
 	 */
 	public function has_atomic_supported_plan() {
-		$supported_plans = [ 
+		$supported_plans = [
 			self::BUSINESS_PLAN_SLUG,
 			self::ECOMMERCE_PLAN_SLUG,
 		];
@@ -127,6 +141,4 @@ class Atomic_Plan_Manager {
 
 		return $caps;
 	}
-
 }
-

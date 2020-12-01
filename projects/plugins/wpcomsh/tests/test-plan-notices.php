@@ -13,7 +13,7 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	}
 
 	public function test_plan_notices() {
-		Atomic_Persistent_Data::set( 'WPCOM_PLAN', 'business' );
+		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::BUSINESS_PLAN_SLUG );
 		Atomic_Persistent_Data::set( 'WPCOM_PLAN_EXPIRATION', time() + WEEK_IN_SECONDS );
 
 		ob_start();

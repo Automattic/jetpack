@@ -217,3 +217,16 @@ function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 
 	return wpcomsh_delete_symlinked_theme( $template );
 }
+
+function wpcomsh_get_atomic_site_id() {
+	if ( defined( 'ATOMIC_SITE_ID' ) ) {
+		return (int) ATOMIC_SITE_ID;
+	}
+
+	$atomic_site_id = apply_filters( 'wpcomsh_get_atomic_site_id', 0 );
+	if ( ! empty( $atomic_site_id ) ) {
+		return (int) $atomic_site_id;
+	}
+
+	return 0;
+}
