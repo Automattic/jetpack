@@ -126,7 +126,7 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 // make it work with PHP 8. Unfortunately for MockObjects they do it via
 // composer.json rather than bootstrap.php, so we have to manually do it here.
 if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
-	( ! class_exists( PHPUnit\Runner\Version::class ) || version_compare( PHPUnit\Runner\Version::id(), '9.0', '<' ) )
+	( ! class_exists( PHPUnit\Runner\Version::class ) || version_compare( PHPUnit\Runner\Version::id(), '9.3', '<' ) )
 ) {
 	if ( ! class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) &&
 		file_exists( "$test_root/includes/phpunit7/MockObject/InvocationMocker.php" )
@@ -136,7 +136,7 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 		require "$test_root/includes/phpunit7/MockObject/InvocationMocker.php";
 		require "$test_root/includes/phpunit7/MockObject/MockMethod.php";
 	} else {
-		fprintf( STDERR, "Warning: PHPUnit <9.0 is not compatible with PHP 8.0+, and the hack could not be loaded.\n" );
+		fprintf( STDERR, "Warning: PHPUnit <9.3 is not compatible with PHP 8.0+, and the hack could not be loaded.\n" );
 	}
 }
 
