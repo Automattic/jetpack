@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7ce5bdad3588c42d29b0535d3a826c87",
+    "content-hash": "e41ac2e45c59f769b7137cf3f1a7db3c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/a8c-mc-stats",
@@ -39,17 +39,18 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
-                "reference": "8295c4e5fe6e61ad3f2848f294763398f966e8e9"
+                "reference": "c61a5cffb1c34185d391daa157364ba91b22275c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-error": "@dev"
             },
             "require-dev": {
+                "automattic/wordbless": "dev-add/php-8-support",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -63,6 +64,9 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
@@ -75,17 +79,17 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "2e25ad7667693395602e6a1962357901c842b067"
+                "reference": "fba566a1a585aaeaf7c305f2d09f27580a7e611c"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
-                "brain/monkey": "2.4.0",
+                "brain/monkey": "2.5.0",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -111,11 +115,11 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "557195e755ff951fe3f8544056c5696eecc4d2cb"
+                "reference": "b9eb7c8e38782d3715568382ea97462c5608bd92"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -151,7 +155,7 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
@@ -176,14 +180,14 @@
         },
         {
             "name": "automattic/jetpack-blocks",
-            "version": "dev-add/nonce-removal",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/blocks",
-                "reference": "057e0ecae8c03cbc335bb5ea488f67b51603fd7a"
+                "reference": "5fff81c93ce1924b040dd7d3e47be4c3db744980"
             },
             "require-dev": {
-                "automattic/wordbless": "dev-master",
+                "automattic/wordbless": "dev-add/php-8-support",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
@@ -211,7 +215,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -246,7 +250,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/config",
@@ -268,21 +272,22 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "bb68aeb045a837fe2fe4784ca41ac667fe5b6fa5"
+                "reference": "dd33734f662d43459bca40cd8c5a0a798507d9b9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-heartbeat": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
-                "automattic/wordbless": "@dev",
+                "automattic/wordbless": "dev-add/php-8-support",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -315,7 +320,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -347,7 +352,7 @@
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/device-detection",
@@ -379,7 +384,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
@@ -410,7 +415,7 @@
         },
         {
             "name": "automattic/jetpack-heartbeat",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/heartbeat",
@@ -445,7 +450,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -489,17 +494,18 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/lazy-images",
-                "reference": "16409fc61cce65c8b914b08c80cae2cc0662ca2d"
+                "reference": "25d01b2c02ccd4f40c4ff53a19ff2b9258ab0a34"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
-                "automattic/wordbless": "dev-master",
+                "automattic/wordbless": "dev-add/php-8-support",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
@@ -527,18 +533,18 @@
         },
         {
             "name": "automattic/jetpack-licensing",
-            "version": "dev-add/license-support",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/licensing",
-                "reference": "0b3150892c93b9bdb252933500b80db692a1d1e9"
+                "reference": "6f6d320848860cd9894d6f0bc5ca582833136f8a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
-                "automattic/wordbless": "@dev",
+                "automattic/wordbless": "dev-add/php-8-support",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -567,7 +573,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -599,7 +605,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -628,14 +634,14 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
-                "reference": "14332b26281567bc6691096875176862fba01300"
+                "reference": "646502b72a1cfc885442fd83b2659a2ac26b2872"
             },
             "require-dev": {
-                "brain/monkey": "2.4.0",
+                "brain/monkey": "2.5.0",
                 "mockery/mockery": "^1.2",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -662,13 +668,17 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
-                "reference": "84327fef3be2e9321aa99d081b71ac3013f06dc7"
+                "reference": "2adf7b065b1e5e44a5c9f2922703cad49f42aa77"
+            },
+            "require": {
+                "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
+                "brain/monkey": "2.5.0",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
@@ -693,7 +703,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -725,14 +735,14 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
-                "reference": "65e70cc54dc8141a328e6d43fbe9bb4286281afb"
+                "reference": "5528b6951bc1e4ef4a3f505cf3b79ad2c685107a"
             },
             "require-dev": {
-                "brain/monkey": "2.4.0",
+                "brain/monkey": "2.5.0",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -758,11 +768,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-add/publishing-tweetstorms",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
+                "reference": "c79e43785c0f1b6f0e9f8873bb6e588ecda5f61b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -787,14 +797,13 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "f97241d09352c4ca44eab26520cac4c1903d08d3"
+                "reference": "723788a4aa7c508746f7c425f99c645c2a057598"
             },
             "require": {
-                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
@@ -824,14 +833,15 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "b2686165f1137a485f5f923c170d9d5b00871fe0"
+                "reference": "a3281496bbc65c8a2db048a1a86bcba6078253cc"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-terms-of-service": "@dev"
             },
             "require-dev": {
@@ -929,15 +939,15 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-add/phpcs-rules-from-MediaWiki",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/codesniffer",
-                "reference": "47b6b1560b3c62724e3d2c18ca1b1f5ac7b30e64"
+                "reference": "481670fe205ad57acbfa8a10a84111fa990c9915"
             },
             "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "0.*",
-                "mediawiki/mediawiki-codesniffer": "32.0.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
+                "mediawiki/mediawiki-codesniffer": "33.0.0",
                 "phpcompatibility/phpcompatibility-wp": "2.1.0",
                 "sirbrillig/phpcs-variable-analysis": "2.9.0",
                 "wp-coding-standards/wpcs": "2.3.0"
@@ -1179,16 +1189,16 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v32.0.0",
+            "version": "v33.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "928f07dc942e8e049eaeccf0e8a1d35c5dada984"
+                "reference": "59a258f8dc9330ed51646f13a6635cbd1b390f77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/928f07dc942e8e049eaeccf0e8a1d35c5dada984",
-                "reference": "928f07dc942e8e049eaeccf0e8a1d35c5dada984",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/59a258f8dc9330ed51646f13a6635cbd1b390f77",
+                "reference": "59a258f8dc9330ed51646f13a6635cbd1b390f77",
                 "shasum": ""
             },
             "require": {
@@ -1221,7 +1231,7 @@
                 "codesniffer",
                 "mediawiki"
             ],
-            "time": "2020-10-26T15:57:52+00:00"
+            "time": "2020-10-30T16:03:08+00:00"
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",

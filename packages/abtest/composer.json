@@ -8,7 +8,7 @@
 		"automattic/jetpack-error": "@dev"
 	},
 	"require-dev": {
-		"automattic/wordbless": "dev-master",
+		"automattic/wordbless": "dev-add/php-8-support",
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
 		"php-mock/php-mock": "^2.1"
 	},
