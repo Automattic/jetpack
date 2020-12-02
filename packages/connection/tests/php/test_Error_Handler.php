@@ -16,9 +16,10 @@ class Error_Handler_Test extends BaseTestCase {
 
 	/**
 	 * Initialize tests
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
 		$this->error_handler = Error_Handler::get_instance();
 	}
 

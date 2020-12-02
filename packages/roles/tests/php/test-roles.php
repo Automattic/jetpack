@@ -22,16 +22,20 @@ class Test_Roles extends TestCase {
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		Monkey\setUp();
 		$this->roles = new Roles();
 	}
 
 	/**
 	 * Test teardown.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Monkey\tearDown();
 	}
 

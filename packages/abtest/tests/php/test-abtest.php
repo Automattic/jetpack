@@ -17,8 +17,10 @@ use PHPUnit\Framework\TestCase;
 class Test_Abtest extends TestCase {
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->abtest = $this->getMockBuilder( 'Automattic\\Jetpack\\Abtest' )
 								->setMethods( array( 'request_variation' ) )
 								->getMock();

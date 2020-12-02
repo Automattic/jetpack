@@ -22,8 +22,10 @@ class Test_Terms_Of_Service extends TestCase {
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		Monkey\setUp();
 		$this->terms_of_service = $this->createPartialMock(
 			__NAMESPACE__ . '\\Terms_Of_Service',
@@ -33,8 +35,10 @@ class Test_Terms_Of_Service extends TestCase {
 
 	/**
 	 * Test teardown.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Monkey\tearDown();
 	}
 

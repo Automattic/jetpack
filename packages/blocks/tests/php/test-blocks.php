@@ -24,20 +24,20 @@ class Test_Blocks extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		// Register a test block.
 		Blocks::jetpack_register_block( $this->block_name );
 	}
 
 	/**
 	 * Teardown runs after each test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		// Unregister the test Jetpack block we may have created for our tests.
 		unregister_block_type( $this->block_name );
 	}

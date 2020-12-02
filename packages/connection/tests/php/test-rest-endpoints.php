@@ -40,10 +40,10 @@ class Test_REST_Endpoints extends TestCase {
 
 	/**
 	 * Setting up the test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -67,10 +67,10 @@ class Test_REST_Endpoints extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		remove_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
 		$user = wp_get_current_user();

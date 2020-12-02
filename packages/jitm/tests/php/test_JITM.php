@@ -13,7 +13,12 @@ use PHPUnit\Framework\TestCase;
 class Test_Jetpack_JITM extends TestCase {
 	use MockeryPHPUnitIntegration;
 
-	public function setUp() {
+	/**
+	 * Set up.
+	 *
+	 * @before
+	 */
+	public function set_up() {
 		Monkey\setUp();
 
 		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
@@ -21,7 +26,12 @@ class Test_Jetpack_JITM extends TestCase {
 		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
 	}
 
-	public function tearDown() {
+	/**
+	 * Tear down.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
 		Monkey\tearDown();
 	}
 

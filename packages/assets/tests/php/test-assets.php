@@ -67,8 +67,10 @@ class AssetsTest extends TestCase {
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		Monkey\setUp();
 		$plugin_file = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/jetpack.php';
 		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $plugin_file );
@@ -77,8 +79,10 @@ class AssetsTest extends TestCase {
 
 	/**
 	 * Run after every test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Monkey\tearDown();
 		$GLOBALS['_was_called_wp_enqueue_script'] = array();
 	}
