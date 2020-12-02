@@ -11,8 +11,12 @@ on:
 
 jobs:
   e2e-tests:
-    name: All
+    name: "E2E tests: with ${{ matrix.gutenberg }} plugin"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        gutenberg: [ 'no', 'latest' ]
 
     steps:
     - uses: actions/checkout@v2
@@ -44,15 +48,21 @@ jobs:
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        LATEST_GUTENBERG: ${{ matrix.gutenberg === 'latest' }}
       run: |
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
 
     - name: Run tests
+      if: ${{ matrix.gutenberg === 'no' }}
       run: yarn test-e2e
 
+    - name: Run tests (excluding updater)
+      if: ${{ matrix.gutenberg === 'latest' }}
+      run: yarn test-e2e --testPathIgnorePatterns=updater
+
     - name: Upload Allure artifacts
-      if: ${{ always() }}
+      if: ${{ matrix.gutenberg === 'no' }}
       continue-on-error: true
       env:
         ALLURE_VERSION: 2.13.5
@@ -64,46 +74,3 @@ jobs:
         sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
 
         ./tests/e2e/bin/push-allure-artifacts.sh
-
-  gutenberg-e2e-tests:
-    name: with latest Gutenberg
-    runs-on: ubuntu-latest
-    env:
-      LATEST_GUTENBERG: 1
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12'
-
-    - name: Use yarn cache
-      uses: actions/cache@v2
-      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-      with:
-        path: /home/runner/.cache/yarn/v6
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
-
-    - name: Use composer cache
-      uses: actions/cache@v2
-      with:
-        path: /home/runner/.composer/cache/files
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-
-    - name: Build Production Jetpack
-      run: yarn build-production-concurrently
-
-    - name: Set up environment
-      env:
-        NGROK_KEY: ${{ secrets.NGROK_KEY }}
-        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-      run: |
-        yarn test-decrypt-config
-        ./tests/e2e/bin/env.sh start
-
-    - name: Run tests
-      run: yarn test-e2e --testPathIgnorePatterns=updater
