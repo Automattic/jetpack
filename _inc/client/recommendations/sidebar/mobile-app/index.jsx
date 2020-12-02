@@ -7,10 +7,16 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import AppsBadge from './apps-badge';
 import { Layout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
+
+/**
+ * Style dependencies
+ */
+import './style.scss';
 
 const MobileApp = () => {
 	// TODO: WordPress.com link
@@ -48,6 +54,10 @@ const MobileApp = () => {
 							</li>
 						) ) }
 					</ul>
+					<div className="jp-recommendations-sidebar-card__apps-badge">
+						<AppsBadge storeName={ 'ios' } utm_source={ 'jetpack-plugin-recommendations' } />
+						<AppsBadge storeName={ 'android' } utm_source={ 'jetpack-plugin-recommendations' } />
+					</div>
 				</div>
 			}
 		/>
