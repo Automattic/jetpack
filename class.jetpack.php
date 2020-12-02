@@ -4,12 +4,15 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
@@ -18,9 +21,6 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /*
 Options:
@@ -741,7 +741,7 @@ class Jetpack {
 
 		add_action(
 			'plugins_loaded',
-			function() {
+			function () {
 				if ( User_Agent_Info::is_mobile_app() ) {
 					add_filter( 'get_edit_post_link', '__return_empty_string' );
 				}
@@ -1568,14 +1568,14 @@ class Jetpack {
 			)
 		);
 	}
-
+// phpcs:disable WordPress.WP.CapitalPDangit.Misspelled
 	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
 	 *      'plugins'                       => (int) Number of plugin updates available.
 	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'wordpress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+	 *      'wordpress'                     => (int) Number of WordPress core updates available.
 	 *      'translations'                  => (int) Number of translation updates available.
 	 *      'total'                         => (int) Total of all available updates.
 	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
@@ -1600,6 +1600,7 @@ class Jetpack {
 		}
 		return isset( $updates ) ? $updates : array();
 	}
+	// phpcs:enable
 
 	public static function get_update_details() {
 		$update_details = array(
@@ -2670,7 +2671,6 @@ class Jetpack {
 		return $data;
 	}
 
-
 	/**
 	 * Return translated module tag.
 	 *
@@ -3172,7 +3172,7 @@ p {
 		}
 
 		// For firing one-off events (notices) immediately after activation
-		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
+		set_transient( 'activated_jetpack', true, 0.1 * MINUTE_IN_SECONDS );
 
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
@@ -5916,7 +5916,6 @@ endif;
 		);
 	}
 
-
 	/**
 	 * Verifies the request by checking the signature
 	 *
@@ -6940,7 +6939,6 @@ endif;
 		return $filtered_data;
 	}
 
-
 	/*
 	 * This method is used to organize all options that can be reset
 	 * without disconnecting Jetpack.
@@ -7498,10 +7496,10 @@ endif;
 				'discount_percent'  => 30,
 				'options'           => array(
 					array(
-						'type'      => 'scan',
-						'slug'      => 'jetpack-scan',
-						'key'       => 'jetpack_scan',
-						'name'      => __( 'Daily Scan', 'jetpack' ),
+						'type' => 'scan',
+						'slug' => 'jetpack-scan',
+						'key'  => 'jetpack_scan',
+						'name' => __( 'Daily Scan', 'jetpack' ),
 					),
 				),
 				'default_option'    => 'scan',
@@ -7515,13 +7513,13 @@ endif;
 			'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
 			'learn_more'        => __( 'Learn More', 'jetpack' ),
 			'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
-			'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
+			'label_popup'       => __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.', 'jetpack' ),
 			'options'           => array(
 				array(
-					'type'      => 'search',
-					'slug'      => 'jetpack-search',
-					'key'       => 'jetpack_search',
-					'name'      => __( 'Search', 'jetpack' ),
+					'type' => 'search',
+					'slug' => 'jetpack-search',
+					'key'  => 'jetpack_search',
+					'name' => __( 'Search', 'jetpack' ),
 				),
 			),
 			'tears'             => array(),
@@ -7538,10 +7536,10 @@ endif;
 			'description'       => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
 			'options'           => array(
 				array(
-					'type'      => 'anti-spam',
-					'slug'      => 'jetpack-anti-spam',
-					'key'       => 'jetpack_anti_spam',
-					'name'      => __( 'Anti-Spam', 'jetpack' ),
+					'type' => 'anti-spam',
+					'slug' => 'jetpack-anti-spam',
+					'key'  => 'jetpack_anti_spam',
+					'name' => __( 'Anti-Spam', 'jetpack' ),
 				),
 			),
 			'default_option'    => 'anti-spam',
