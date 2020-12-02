@@ -27,7 +27,7 @@ add_filter( 'wp_insert_attachment_data', function ( $data ) use( $attachment_dat
 	add_filter( 'upgrader_pre_download', function ( $reply, $package, $wp_upgrader ) use( $attachment_data ) {
 		// ensure package is a plugin
 		if (
-			! array_key_exists( 'skin', $wp_upgrader ) ||
+			! property_exists( $wp_upgrader, 'skin' ) ||
 			! is_a( $wp_upgrader->skin, 'Plugin_Installer_Skin' )
 		) {
 			return false;
