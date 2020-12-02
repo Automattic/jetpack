@@ -20,7 +20,6 @@ import {
 	updateRecommendationsStep,
 } from 'state/recommendations';
 
-import LoadingPlaceholder from 'components/loading-placeholder';
 /**
  * Style dependencies
  */
@@ -68,16 +67,28 @@ const SummaryComponent = props => {
 				</h1>
 				<h2>{ __( 'Recommendations enabled' ) }</h2>
 				<div>
-					{ summaryFeatureSlugs.selected.map( slug => (
-						<FeatureSummary featureSlug={ slug } />
-					) ) }
+					{ summaryFeatureSlugs.selected.length > 0 ? (
+						summaryFeatureSlugs.selected.map( slug => <FeatureSummary featureSlug={ slug } /> )
+					) : (
+						<p>
+							<em>
+								{ __(
+									'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.'
+								) }
+							</em>
+						</p>
+					) }
 				</div>
-				<h2>{ __( 'Recommendations skipped' ) }</h2>
-				<div>
-					{ summaryFeatureSlugs.skipped.map( slug => (
-						<FeatureSummary featureSlug={ slug } />
-					) ) }
-				</div>
+				{ summaryFeatureSlugs.skipped.length > 0 && (
+					<>
+						<h2>{ __( 'Recommendations skipped' ) }</h2>
+						<div>
+							{ summaryFeatureSlugs.skipped.map( slug => (
+								<FeatureSummary featureSlug={ slug } />
+							) ) }
+						</div>
+					</>
+				) }
 			</div>
 			<div className="jp-recommendations-summary__cta">{ cta }</div>
 		</div>
