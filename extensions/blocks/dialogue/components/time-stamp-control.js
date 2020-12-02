@@ -7,7 +7,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-function checkValidValue( val, max ) {
+function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
 }
 
@@ -33,7 +33,7 @@ function setTimeStampValue( typeValue, smh ) {
 		return smh.join( ':' );
 	}
 
-	let newValue = String( checkValidValue( typeValue[ type ], type === 'hour' ? 23 : 59 ) );
+	let newValue = String( validateValue( typeValue[ type ], type === 'hour' ? 23 : 59 ) );
 
 	// Mask HH:MM:SS values.
 	if ( newValue?.length === 1 ) {
