@@ -14,6 +14,23 @@ function twentytwentyone_jetpack_setup() {
 	 * Add theme support for geo-location.
 	 */
 	add_theme_support( 'jetpack-geo-location' );
+
+	/**
+	 * Add theme support for Content Options.
+	 */
+	add_theme_support( 'jetpack-content-options', array(
+		'blog-display' => array( 'content', 'excerpt' ),
+    	'post-details' => array(
+			'stylesheet' => 'twentytwentyone-style',
+			'date'       => '.posted-on',
+			'categories' => '.cat-links',
+		),
+		'featured-images'    => array(
+			'archive'  => true,
+			'post'     => true,
+			'page'     => true,
+		),
+	) );
 }
 add_action( 'after_setup_theme', 'twentytwentyone_jetpack_setup' );
 
