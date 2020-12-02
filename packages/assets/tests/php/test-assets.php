@@ -64,6 +64,7 @@ function wp_parse_url( $url, $component = -1 ) { // phpcs:ignore VariableAnalysi
  * Assets test suite.
  */
 class AssetsTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Test setup.
@@ -104,8 +105,8 @@ class AssetsTest extends TestCase {
 		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path );
 
 		// note the double-$$ here, $(non_)min_path is referenced by var name.
-		$this->assertContains( $$expected, $file_url );
-		$this->assertNotContains( $$not_expected, $file_url );
+		$this->assertStringContainsString( $$expected, $file_url );
+		$this->assertStringNotContainsString( $$not_expected, $file_url );
 	}
 
 	/**
@@ -139,8 +140,8 @@ class AssetsTest extends TestCase {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path, $package_path );
 
-		$this->assertContains( $expected, $file_url );
-		$this->assertNotContains( $not_expected, $file_url );
+		$this->assertStringContainsString( $expected, $file_url );
+		$this->assertStringNotContainsString( $not_expected, $file_url );
 	}
 
 	/**
@@ -154,7 +155,7 @@ class AssetsTest extends TestCase {
 
 		$file_url = Assets::get_file_url_for_environment( 'test.min.js', 'test.js' );
 
-		$this->assertContains( 'special-test.js', $file_url );
+		$this->assertStringContainsString( 'special-test.js', $file_url );
 	}
 
 	/**

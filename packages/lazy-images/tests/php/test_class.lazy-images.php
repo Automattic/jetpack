@@ -9,6 +9,7 @@ use WorDBless\BaseTestCase;
  * Class WP_Test_Lazy_Images
  */
 class WP_Test_Lazy_Images extends BaseTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Setup.
@@ -171,7 +172,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 		remove_filter( 'jetpack_lazy_images_new_attributes', array( $this, 'set_height_attribute' ) );
 
-		$this->assertContains( 'style="height: 100px;"', $html );
+		$this->assertStringContainsString( 'style="height: 100px;"', $html );
 	}
 
 	/**
@@ -223,8 +224,8 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 		$image = wp_get_attachment_image( $attachment_id );
 		remove_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 
-		$this->assertContains( 'srcset="placeholder.jpg"', $image );
-		$this->assertContains(
+		$this->assertStringContainsString( 'srcset="placeholder.jpg"', $image );
+		$this->assertStringContainsString(
 			sprintf( 'data-lazy-srcset="%s"', wp_get_attachment_image_srcset( $attachment_id, 'thumbnail' ) ),
 			$image
 		);
@@ -244,7 +245,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 		remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_skip_lazy_class_to_attributes' ) );
 		$instance->remove_filters();
 
-		$this->assertNotContains( 'srcset="placeholder.jpg"', $image );
+		$this->assertStringNotContainsString( 'srcset="placeholder.jpg"', $image );
 	}
 
 	/**
@@ -293,9 +294,9 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 		$output   = $instance->add_image_placeholders( $input );
 
 		if ( $should_skip ) {
-			$this->assertNotContains( 'srcset="placeholder.jpg"', $output );
+			$this->assertStringNotContainsString( 'srcset="placeholder.jpg"', $output );
 		} else {
-			$this->assertContains( 'srcset="placeholder.jpg"', $output );
+			$this->assertStringContainsString( 'srcset="placeholder.jpg"', $output );
 		}
 	}
 
@@ -332,9 +333,9 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 		$output   = $instance->add_image_placeholders( $input );
 
 		if ( $should_skip ) {
-			$this->assertNotContains( 'srcset="placeholder.jpg"', $output );
+			$this->assertStringNotContainsString( 'srcset="placeholder.jpg"', $output );
 		} else {
-			$this->assertContains( 'srcset="placeholder.jpg"', $output );
+			$this->assertStringContainsString( 'srcset="placeholder.jpg"', $output );
 		}
 	}
 
@@ -442,15 +443,15 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 		$instance = Jetpack_Lazy_Images::instance();
 		$src      = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
 
-		$this->assertContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		$this->assertStringContainsString( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
 
 		add_filter( 'jetpack_lazy_images_skip_image_with_attributes', '__return_true' );
-		$this->assertNotContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		$this->assertStringNotContainsString( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
 		remove_filter( 'jetpack_lazy_images_skip_image_with_attributes', '__return_true' );
 
 		add_filter( 'jetpack_lazy_images_skip_image_with_attributes', array( $this, 'skip_if_srcset' ), 10, 2 );
-		$this->assertNotContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
-		$this->assertContains( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( '<img src="image.jpg" />' ) );
+		$this->assertStringNotContainsString( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		$this->assertStringContainsString( 'srcset="placeholder.jpg"', $instance->add_image_placeholders( '<img src="image.jpg" />' ) );
 		remove_filter( 'jetpack_lazy_images_skip_image_with_attributes', array( $this, 'skip_if_srcset' ), 10, 2 );
 	}
 

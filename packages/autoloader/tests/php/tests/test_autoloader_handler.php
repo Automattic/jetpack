@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
  * Test suite class for the Autoloader handler.
  */
 class WP_Test_Autoloader_Handler extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Tests that the latest autoloader can be recognized as the current.
@@ -127,6 +128,6 @@ class WP_Test_Autoloader_Handler extends TestCase {
 		$file = $loader->find_class_file( \Automattic\Jetpack\Autoloader\AutoloadGenerator::class );
 
 		$this->assertFileExists( $file );
-		$this->assertContains( 'AutoloadGenerator.php', $file );
+		$this->assertStringContainsString( 'AutoloadGenerator.php', $file );
 	}
 }

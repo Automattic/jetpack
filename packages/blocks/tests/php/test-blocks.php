@@ -15,6 +15,8 @@ use PHPUnit\Framework\TestCase;
  * Class Test_Blocks
  */
 class Test_Blocks extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
+
 	/**
 	 * Test block name.
 	 *
@@ -60,14 +62,14 @@ class Test_Blocks extends TestCase {
 
 		$block_classes = Blocks::classes( $block_name, $attr, $extra );
 
-		$this->assertContains( 'wp-block-jetpack-foo', $block_classes ); // a general class is created from the block name.
-		$this->assertNotContains( 'bar', $block_classes ); // The extra 'bar' attribute should be dropped.
-		$this->assertNotContains( 'baz', $block_classes ); // The extra 'baz' attribute should be dropped.
-		$this->assertNotContains( 'align ', $block_classes ); // The align attribute should only be used to create a new attribute.
-		$this->assertNotContains( 'className', $block_classes ); // The className attribute should be dropped, only the editorclass value should remain.
-		$this->assertContains( 'alignwide', $block_classes ); // an alignment class is created.
-		$this->assertContains( 'editorclass', $block_classes ); // className classes are passed.
-		$this->assertContains( 'extraclass', $block_classes ); // Extra class remains.
+		$this->assertStringContainsString( 'wp-block-jetpack-foo', $block_classes ); // a general class is created from the block name.
+		$this->assertStringNotContainsString( 'bar', $block_classes ); // The extra 'bar' attribute should be dropped.
+		$this->assertStringNotContainsString( 'baz', $block_classes ); // The extra 'baz' attribute should be dropped.
+		$this->assertStringNotContainsString( 'align ', $block_classes ); // The align attribute should only be used to create a new attribute.
+		$this->assertStringNotContainsString( 'className', $block_classes ); // The className attribute should be dropped, only the editorclass value should remain.
+		$this->assertStringContainsString( 'alignwide', $block_classes ); // an alignment class is created.
+		$this->assertStringContainsString( 'editorclass', $block_classes ); // className classes are passed.
+		$this->assertStringContainsString( 'extraclass', $block_classes ); // Extra class remains.
 	}
 
 	/**
@@ -81,7 +83,7 @@ class Test_Blocks extends TestCase {
 		$attr          = array( 'align' => 'test' );
 		$block_classes = Blocks::classes( 'test', $attr );
 
-		$this->assertNotContains( 'aligntest', $block_classes );
+		$this->assertStringNotContainsString( 'aligntest', $block_classes );
 	}
 
 	/**
