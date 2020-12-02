@@ -21,6 +21,7 @@ import {
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
+	ToolbarButton,
 } from '@wordpress/components';
 import { useContext, useState, } from '@wordpress/element';
 
@@ -32,6 +33,7 @@ import SpeakersDropdown from './components/speakers-control';
 import TimeStampControl from './components/time-stamp-control';
 import TranscriptionContext from '../transcription/components/context';
 import { defaultSpeakers, defaultSpeakerSlug } from '../transcription/edit';
+import { formatUppercase } from '../../shared/icons';
 
 function getSpeakerBySlug( speakers, slug ) {
 	const speaker = find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === slug );
@@ -102,6 +104,43 @@ export default function DialogueEdit ( {
 						} ) }
 					/>
 				</ToolbarGroup>
+
+				{ currentSpeaker && isFocusedOnSpeakerLabel && (
+					<ToolbarGroup>
+						<ToolbarButton
+							icon="editor-bold"
+							isPressed={ currentSpeaker.hasBoldStyle }
+							onClick={ () => transcritionBridge.updateSpeakers(
+								{
+									speakerSlug: currentSpeakerSlug,
+									hasBoldStyle: ! currentSpeaker.hasBoldStyle,
+								}
+							) }
+						/>
+
+						<ToolbarButton
+							icon="editor-italic"
+							isPressed={ currentSpeaker.hasItalicStyle }
+							onClick={ () => transcritionBridge.updateSpeakers(
+								{
+									speakerSlug: currentSpeakerSlug,
+									hasItalicStyle: ! currentSpeaker.hasItalicStyle,
+								}
+							) }
+						/>
+
+						<ToolbarButton
+							icon={ formatUppercase }
+							isPressed={ currentSpeaker.hasUppercaseStyle }
+							onClick={ () => transcritionBridge.updateSpeakers(
+								{
+									speakerSlug: currentSpeakerSlug,
+									hasUppercaseStyle: ! currentSpeaker.hasUppercaseStyle,
+								}
+							) }
+						/>
+					</ToolbarGroup>
+				) }
 			</BlockControls>
 
 			<InspectorControls>
