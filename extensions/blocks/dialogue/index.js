@@ -42,11 +42,10 @@ export const settings = {
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				transform: ( { content } ) => {
-					const innerBlock = createBlock( 'core/paragraph', {
+					return createBlock( 'jetpack/dialogue', {
+						...defaultSpeakers[ 0 ],
 						content,
-					} );
-
-					return createBlock( 'jetpack/dialogue', defaultSpeakers[ 0 ], [ innerBlock ] );
+					 } );
 				},
 			},
 		],
