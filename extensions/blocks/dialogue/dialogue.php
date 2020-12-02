@@ -39,18 +39,32 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * Dialogue block registration/dependency declaration.
  *
  * @param array  $attrs    Array containing the Dialogue block attributes.
- * @param string $content String containing the Dialogue block content.
+ * @param string $block_content String containing the Dialogue block content.
  * @param object $block Block object data.
  *
  * @return string
  */
-function render_block( $attrs, $content, $block ) {
+function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	// Attributes..
 	$speaker_slug_attr = isset( $attrs['speakerSlug'] ) ? $attrs['speakerSlug'] : null;
 	$speaker_name_attr = isset( $attrs['speaker'] ) ? $attrs['speaker'] : null;
 	$timestamp         = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
+	$content           = '';
+
+	if ( isset( $attrs['content'] ) ) {
+		$content = wp_kses(
+			$attrs['content'],
+			array(
+				'small'  => true,
+				'code'   => true,
+				'strong' => true,
+				'b'      => true,
+				'em'     => true,
+			)
+		);
+	}
 
 	// Pick up transcription data from context.
 	$speakers       = $block->context['jetpack/conversation-speakers'];
