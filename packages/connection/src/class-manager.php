@@ -703,7 +703,7 @@ class Manager {
 	/**
 	 * Returns a user object of the connection owner.
 	 *
-	 * @return object|false False if no connection owner found.
+	 * @return WP_User|false False if no connection owner found.
 	 */
 	public function get_connection_owner() {
 
