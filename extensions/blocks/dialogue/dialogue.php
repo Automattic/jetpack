@@ -132,6 +132,6 @@ function render_block( $attrs, $block_content, $block ) {
 				: ''
 			) .
 		'</div>' .
-		$content .
+		'<div>' . $content . '</div>' .
 	'</div>';
 }
