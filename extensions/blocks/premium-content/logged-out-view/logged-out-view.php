@@ -48,6 +48,7 @@ function render_loggedout_view_block( $attributes, $content, $block = null ) {
 	}
 
 	$visitor_has_access = current_visitor_can_access( $attributes, $block );
+
 	if ( $visitor_has_access ) {
 		// The viewer has access to premium content, so the viewer shouldn't see the logged out view.
 		return '';
