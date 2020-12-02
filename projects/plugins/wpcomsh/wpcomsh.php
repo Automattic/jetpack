@@ -1100,7 +1100,7 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 		return $response;
 	}
 	$response_data = $response->get_data();
-	if ( empty( $response_data['data'] ) ) {
+	if ( empty( $response_data['data'] ) || ! is_string( $response_data['data'] ) ) {
 		return $response;
 	}
 

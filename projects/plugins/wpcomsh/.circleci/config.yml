@@ -4,6 +4,7 @@ workflows:
     jobs:
       - php73-build
       - php74-build
+      - php8-build
       - public-access
       - private-access
 
@@ -38,7 +39,7 @@ job-references:
       - run:
           name: "Run Tests"
           command: |
-            composer global require "phpunit/phpunit=7.*"
+            composer global require "phpunit/phpunit=^7.5" --ignore-platform-reqs
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
             echo "Building wpcomsh"
@@ -65,6 +66,12 @@ jobs:
     <<: *php_job
     docker:
       - image: circleci/php:7.4
+      - image: *mariadb_image
+
+  php8-build:
+    <<: *php_job
+    docker:
+      - image: circleci/php:8.0
       - image: *mariadb_image
 
   public-access:
