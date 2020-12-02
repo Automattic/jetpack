@@ -40,15 +40,15 @@ export const defaultSpeakersSlug = 'speaker-0';
 export const defaultSpeakers = [
 	{
 		speakerSlug: 'speaker-0',
-		speaker: __( 'First speaker', 'jetpack' ),
+		speaker: __( 'Participant 1', 'jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-1',
-		speaker: __( 'Second speaker', 'jetpack' ),
+		speaker: __( 'Participant 2', 'jetpack' ),
 	},
 	{
 		speakerSlug: 'speaker-2',
-		speaker: __( 'Third speaker', 'jetpack' ),
+		speaker: __( 'Participant 3', 'jetpack' ),
 	},
 ];
 
