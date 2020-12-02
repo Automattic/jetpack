@@ -380,7 +380,7 @@ class ManagerTest extends TestCase {
 		$access_token->secret = '';
 		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
 		// Valid secret.
-		$access_token->secret = 'abcd1234';
+		$access_token->secret = 'key.abcd1234';
 
 		$signed_token = $manager->get_signed_token( $access_token );
 		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
