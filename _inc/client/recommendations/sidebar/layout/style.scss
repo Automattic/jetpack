@@ -33,3 +33,17 @@
 .jp-recommendations-sidebar-card__content {
 	padding: 0 24px 24px 24px;
 }
+
+.jp-recommendations-sidebar-card__features {
+	margin: 0;
+
+	li {
+		display: flex;
+		align-items: center;
+	}
+
+	.gridicons-checkmark-circle {
+		fill: $green-primary;
+		margin-right: 8px;
+	}
+}

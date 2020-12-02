@@ -70,17 +70,3 @@
 .jp-recommendations-product-card-upsell__billing-time-frame {
 	margin-left: 12px;
 }
-
-.jp-recommendations-product-card-upsell__features {
-	margin: 0;
-
-	li {
-		display: flex;
-		align-items: center;
-	}
-
-	.gridicons-checkmark-circle {
-		fill: $green-primary;
-		margin-right: 8px;
-	}
-}

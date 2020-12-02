@@ -48,7 +48,7 @@ const ProductCardUpsell = props => {
 					{ __( 'Learn more' ) }
 					<Gridicon icon="external" />
 				</Button>
-				<ul className="jp-recommendations-product-card-upsell__features">
+				<ul className="jp-recommendations-sidebar-card__features">
 					{ features.map( feature => (
 						<li>
 							<Gridicon icon="checkmark-circle" />
