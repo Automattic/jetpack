@@ -12,4 +12,7 @@ export default {
 	placeholder: {
 		type: "string",
 	},
+	content: {
+		type: 'string',
+	},
 };

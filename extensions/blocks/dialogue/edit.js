@@ -10,9 +10,10 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import {
 	InspectorControls,
-	InnerBlocks,
+	RichText,
 	BlockControls,
 } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 
 import {
 	Panel,
@@ -41,17 +42,24 @@ function getSpeakerBySlug( speakers, slug ) {
 	return speakers?.[ 0 ];
 }
 
+const blockName = 'jetpack/dialogue';
+const blockNameFallback = 'core/paragraph';
+
 export default function DialogueEdit ( {
 	className,
 	attributes,
 	setAttributes,
 	instanceId,
 	context,
+	onReplace,
+	mergeBlocks,
 } ) {
 	const {
 		speaker,
 		speakerSlug,
 		timeStamp,
+		content,
+		placeholder,
 	} = attributes;
 
 	// Block context integration.
@@ -64,7 +72,7 @@ export default function DialogueEdit ( {
 	// Speaker object.
 	const currentSpeakerSlug = ! speaker && ! speakerSlug ? defaultSpeakerSlug : speakerSlug;
 	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
-	const speakerName = currentSpeaker?.speaker || speaker;
+	const speakerLabel = currentSpeaker?.speaker || speaker;
 
 	// Transcription context. A bridge between dialogue and transcription blocks.
 	const transcritionBridge = useContext( TranscriptionContext );
@@ -80,7 +88,7 @@ export default function DialogueEdit ( {
 						className={ baseClassName }
 						speakers={ speakers }
 						speaker={ speaker }
-						label={ speakerName }
+						label={ speakerLabel }
 						onSelect={ ( { newSpeakerSlug } ) => {
 							setAttributes( {
 								speakerSlug: newSpeakerSlug,
@@ -126,7 +134,7 @@ export default function DialogueEdit ( {
 						[ 'has-uppercase-style' ]: currentSpeaker?.hasUppercaseStyle,
 					} ) }
 				>
-					{ speakerName }
+					{ speakerLabel }
 				</div>
 
 				{ showTimeStamp && (
@@ -136,9 +144,34 @@ export default function DialogueEdit ( {
 				) }
 			</div>
 
-			<InnerBlocks
-				template={ [ [ 'core/paragraph', { placeholder: __( 'speaker says…', 'jetpack' ) } ] ] }
-				templateLock="all"
+			<RichText
+				identifier="content"
+				wrapperClassName={ `${ baseClassName }__content` }
+				value={ content }
+				onChange={ ( value ) =>
+					setAttributes( { content: value } )
+				}
+				onMerge={ mergeBlocks }
+				onSplit={ ( value ) => {
+					if ( ! content?.length ) {
+						return createBlock( blockNameFallback );
+					}
+
+					if ( ! value ) {
+						return createBlock( blockName );
+					}
+
+					return createBlock( blockName, {
+						...attributes,
+						content: value,
+					} );
+				} }
+				onReplace={ onReplace }
+				onRemove={
+					onReplace ? () => onReplace( [] ) : undefined
+				}
+				className={ className }
+				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 			/>
 		</div>
 	);
