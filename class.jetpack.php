@@ -6683,7 +6683,8 @@ endif;
 						} else {
 							$function_name = 'an anonymous function';
 						}
-						_deprecated_function( esc_html( $hook . ' used for ' . $function_name ), esc_html( $hook_values['ver'] ), esc_html( $hook_values['alt'] ) );
+						$version = ( $hook_values['ver'] ) ? $hook_values['ver'] : 'Jetpack';
+						_deprecated_function( esc_html( $hook . ' used for ' . $function_name ), esc_html( $version ), esc_html( $hook_values['alt'] ) );
 					}
 				}
 			}
