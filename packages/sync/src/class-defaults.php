@@ -92,6 +92,10 @@ class Defaults {
 		'jetpack_sso_match_by_email',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
 		'jetpack_sync_non_public_post_stati',
+		'jetpack_sync_settings_comment_meta_whitelist',
+		'jetpack_sync_settings_post_meta_whitelist',
+		'jetpack_sync_settings_post_types_blacklist',
+		'jetpack_sync_settings_taxonomies_blacklist',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_wga',
 		'large_size_h',
