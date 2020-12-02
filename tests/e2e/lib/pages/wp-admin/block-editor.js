@@ -7,12 +7,12 @@ import Page from '../page';
  */
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
-import { getNgrokSiteUrl } from '../../utils-helper';
+import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.block-editor';
-		const url = getNgrokSiteUrl() + '/wp-admin/post-new.php';
+		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelector, url } );
 	}
 

@@ -4,9 +4,24 @@
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
-const requirelist = require( './phpcs-requirelist' );
 const fs = require( 'fs' );
+let excludelist = null;
 let exitCode = 0;
+
+/**
+ * Load the phpcs exclude list.
+ * @returns {Array} Files to exclude.
+ */
+function loadPhpcsExcludeList() {
+	if ( null === excludelist ) {
+		const regex = /^\s*#|^\s*$/;
+		excludelist = fs
+			.readFileSync( __dirname + '/phpcs-excludelist.txt', 'utf8' )
+			.split( '\n' )
+			.filter( line => ! line.match( regex ) );
+	}
+	return excludelist;
+}
 
 /**
  * Parses the output of a git diff command into file paths.
@@ -27,7 +42,7 @@ function parseGitDiffToPathArray( command ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function phpcsFilesToFilter( file ) {
-	if ( -1 !== requirelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
+	if ( -1 === loadPhpcsExcludeList().findIndex( filePath => file === filePath ) ) {
 		return true;
 	}
 
@@ -142,7 +157,7 @@ function runJSLinter( toLintFiles ) {
  * Runs PHPCS against checked PHP files. Exits if the check fails.
  */
 function runPHPCS() {
-	const phpcsResult = spawnSync( 'composer', [ 'php:lint:errors', ...phpcsFiles ], {
+	const phpcsResult = spawnSync( 'composer', [ 'phpcs:lint:errors', ...phpcsFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
@@ -198,7 +213,7 @@ function runPHPCSChanged( phpFilesToCheck ) {
 		process.env.PHPCS = 'vendor/bin/phpcs';
 
 		phpFilesToCheck.forEach( function ( file ) {
-			phpFileChangedResult = spawnSync( 'composer', [ 'run', 'php:changed', file ], {
+			phpFileChangedResult = spawnSync( 'composer', [ 'run', 'phpcs:changed', file ], {
 				env: process.env,
 				shell: true,
 				stdio: 'inherit',
@@ -293,7 +308,7 @@ if ( lintResult ) {
 
 let phpLintResult;
 if ( phpFiles.length > 0 ) {
-	phpLintResult = spawnSync( 'composer', [ 'php:compatibility', ...phpFiles ], {
+	phpLintResult = spawnSync( 'composer', [ 'phpcs:compatibility', ...phpFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );

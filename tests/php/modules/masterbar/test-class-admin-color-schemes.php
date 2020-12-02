@@ -31,8 +31,15 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$user_id = $factory->user->create( array( 'role' => 'editor' ) );
+	}
 
+	/**
+	 * Set up each test.
+	 */
+	public function setUp() {
 		new Admin_Color_Schemes();
+
+		parent::setUp();
 	}
 
 	/**

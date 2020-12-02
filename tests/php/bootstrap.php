@@ -118,7 +118,7 @@ function jetpack_full_sync_immediately_off( $modules ) {
 	return $modules;
 }
 
-if ( false !== getenv( 'LEGACY_FULL_SYNC' ) ) {
+if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 

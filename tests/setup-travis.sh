@@ -5,7 +5,7 @@ if [ "$WP_TRAVISCI" != "phpunit" ]; then
 	exit 0;
 fi
 
-phpenv config-rm xdebug.ini
+# phpenv config-rm xdebug.ini
 
 # Configure PHP and PHPUnit environment
 if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
@@ -24,10 +24,10 @@ elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
 fi
 
-mysql -e "set global wait_timeout = 3600;"
+mysql -u root --password=root -e "set global wait_timeout = 3600;"
 
 # Prepare a developer checkout of WordPress
-mysql -u root -e "CREATE DATABASE wordpress_tests;"
+mysql -u root --password=root -e "CREATE DATABASE wordpress_tests;"
 
 echo "Preparing WordPress from \"$WP_BRANCH\" branch...";
 case $WP_BRANCH in
@@ -48,15 +48,16 @@ if [ $clone_exit_code -ne 0 ]; then
 	exit 1
 fi
 
+
 cd ..
-cp -r $PLUGIN_SLUG "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
+cp -r jetpack "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 # Plugin dir for tests in WP >= 5.6-beta1
-ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$PLUGIN_SLUG"
+ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/jetpack"
 cd /tmp/wordpress-$WP_BRANCH
 
 cp wp-tests-config-sample.php wp-tests-config.php
 sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
 sed -i "s/yourusernamehere/root/" wp-tests-config.php
-sed -i "s/yourpasswordhere//" wp-tests-config.php
+sed -i "s/yourpasswordhere/root/" wp-tests-config.php
 
 exit 0;
