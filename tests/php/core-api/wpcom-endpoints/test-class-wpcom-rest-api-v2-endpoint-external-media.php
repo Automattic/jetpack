@@ -69,15 +69,15 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_list_pexels_empty() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_pexels' ), 10, 3 );
 
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/list/pexels' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/list/pexels' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertObjectHasAttribute( 'found', $data );
-		$this->assertObjectHasAttribute( 'media', $data );
-		$this->assertObjectHasAttribute( 'meta', $data );
-		$this->assertObjectHasAttribute( 'next_page', $data->meta );
-		$this->assertEmpty( $data->media );
+		$this->assertArrayHasKey( 'found', $data );
+		$this->assertArrayHasKey( 'media', $data );
+		$this->assertArrayHasKey( 'meta', $data );
+		$this->assertArrayHasKey( 'next_page', $data['meta'] );
+		$this->assertEmpty( $data['media'] );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_pexels' ) );
 	}
@@ -88,15 +88,15 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_list_google_photos_unauthenticated() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_google_photos_unauthenticated' ), 10, 3 );
 
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/list/google_photos' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/list/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$error    = $response->get_data();
 
-		$this->assertObjectHasAttribute( 'code', $error );
-		$this->assertObjectHasAttribute( 'message', $error );
-		$this->assertObjectHasAttribute( 'data', $error );
-		$this->assertEquals( 'authorization_required', $error->code );
-		$this->assertEquals( 403, $error->data->status );
+		$this->assertArrayHasKey( 'code', $error );
+		$this->assertArrayHasKey( 'message', $error );
+		$this->assertArrayHasKey( 'data', $error );
+		$this->assertEquals( 'authorization_required', $error['code'] );
+		$this->assertEquals( 403, $error['data']['status'] );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_google_photos_unauthenticated' ) );
 	}
@@ -114,7 +114,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
-		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
 		$request->set_body_params(
 			array(
 				'media' => array(
@@ -153,12 +153,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_connection_google_photos() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_connection_google_photos' ), 10, 3 );
 
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/connection/google_photos' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 'google_photos', $data->ID );
-		$this->assertNotEmpty( $data->connect_URL ); // phpcs:ignore
+		$this->assertEquals( 'google_photos', $data['ID'] );
+		$this->assertNotEmpty( $data['connect_URL'] );
 
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_connection_google_photos' ) );
 	}

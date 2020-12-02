@@ -277,7 +277,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 		switch ( wp_remote_retrieve_response_code( $response ) ) {
 			case 200:
-				$response = json_decode( wp_remote_retrieve_body( $response ) );
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
 				break;
 
 			case 401:
@@ -363,7 +363,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		}
 
 		$response = Client::wpcom_json_api_request_as_user( $wpcom_path );
-		$response = json_decode( wp_remote_retrieve_body( $response ) );
+		$response = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( isset( $response->code, $response->message, $response->data ) ) {
 			$response->data = empty( $response->data->status ) ? array( 'status' => $response->data ) : $response->data;

@@ -43,7 +43,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -62,7 +62,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -76,7 +76,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @covers ::prepare_menu_for_response
 	 */
 	public function test_get_item() {
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertTrue( rest_validate_value_from_schema( $response->get_data(), ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema() ) );
@@ -131,7 +131,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'icon'  => 'dashicons-admin-media',
 					'slug'  => 'upload-php',
 					'title' => 'Media',
-					'url'   => 'http://example.org/wp-admin/upload.php',
+					'url'   => admin_url( 'upload.php' ),
 				),
 			),
 			// Menu item with update count.
@@ -142,7 +142,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'icon'  => 'dashicons-admin-plugins',
 					'slug'  => 'plugins-php',
 					'title' => 'Plugins',
-					'url'   => 'http://example.org/wp-admin/plugins.php',
+					'url'   => admin_url( 'plugins.php' ),
 					'count' => 5,
 				),
 			),
@@ -195,7 +195,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'type'   => 'submenu-item',
 					'slug'   => 'upload-php',
 					'title'  => 'Library',
-					'url'    => 'http://example.org/wp-admin/upload.php',
+					'url'    => admin_url( 'upload.php' ),
 				),
 			),
 		);
@@ -306,25 +306,25 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'uploads.php',
 				'',
-				'http://example.org/wp-admin/uploads.php',
+				admin_url( 'uploads.php' ),
 			),
 			// Submenu item URL.
 			array(
 				'custom_settings',
 				'upload.php',
-				'http://example.org/wp-admin/upload.php?page=custom_settings',
+				admin_url( 'upload.php?page=custom_settings' ),
 			),
 			// Plugin menu item URL.
 			array(
 				'custom_settings',
 				'admin.php',
-				'http://example.org/wp-admin/admin.php?page=custom_settings',
+				admin_url( 'admin.php?page=custom_settings' ),
 			),
 			// Plugin menu item URL without a parent.
 			array(
 				'custom_settings',
 				'',
-				'http://example.org/wp-admin/admin.php?page=custom_settings',
+				admin_url( 'admin.php?page=custom_settings' ),
 			),
 		);
 	}
