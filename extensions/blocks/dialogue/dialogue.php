@@ -11,6 +11,8 @@ namespace Automattic\Jetpack\Extensions\Dialogue;
 
 use Jetpack_Gutenberg;
 
+use Automattic\Jetpack\Blocks;
+
 const FEATURE_NAME = 'dialogue';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
@@ -22,7 +24,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	$deprecated = function_exists( 'gutenberg_get_post_from_context' );
 	$uses       = $deprecated ? 'context' : 'uses_context';
-	register_block_type(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
