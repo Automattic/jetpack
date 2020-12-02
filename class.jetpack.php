@@ -6421,37 +6421,8 @@ endif;
 
 	/**
 	 * Throws warnings for deprecated hooks to be removed from Jetpack that cannot remain in the original place in the code.
-	 *
-	 * @todo Convert these to use apply_filters_deprecated and do_action_deprecated and remove custom code.
 	 */
 	public function deprecated_hooks() {
-		global $wp_filter;
-
-		/*
-		 * Format:
-		 * deprecated_filter_name => array( 'alt' => replacement_name, 'version' = 'Jetpack x.x.x' )
-		 *
-		 * If there is no replacement, use null for replacement_name
-		 */
-		$deprecated_list = array();
-
-		// This is a silly loop depth. Better way?
-		foreach ( $deprecated_list as $hook => $hook_values ) {
-			if ( has_action( $hook ) ) {
-				foreach ( $wp_filter[ $hook ] as $func => $values ) {
-					foreach ( $values as $hooked ) {
-						if ( is_callable( $hooked['function'] ) ) {
-							$function_name = $hooked['function'];
-						} else {
-							$function_name = 'an anonymous function';
-						}
-						$version = ( $hook_values['ver'] ) ? $hook_values['ver'] : 'Jetpack';
-						_deprecated_function( esc_html( $hook . ' used for ' . $function_name ), esc_html( $version ), esc_html( $hook_values['alt'] ) );
-					}
-				}
-			}
-		}
-
 		$filter_deprecated_list = array(
 			'jetpack_bail_on_shortcode'                    => array(
 				'replacement' => 'jetpack_shortcodes_to_include',
