@@ -39,11 +39,7 @@ export function AddSpeakerButton( {
 					value={ value }
 					onChange={ setValue }
 					onKeyDown={ ( { key } ) => {
-						if ( key !== 'Enter' ) {
-							return;
-						}
-
-						addNewSpeakerHandler();
+						key === 'Enter' && addNewSpeakerHandler();
 					} }
 				/>
 
