@@ -219,6 +219,8 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 				$master_user_id => 'asd.qwe.' . $master_user_id,
 			)
 		);
+		// No owner and non-logged in user context.
+		$this->assertFalse( $this->manager->is_connection_owner() );
 		\Jetpack_Options::update_option( 'master_user', $master_user_id );
 
 		$this->assertFalse( $this->manager->is_connection_owner() );
