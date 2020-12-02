@@ -214,7 +214,6 @@ export default function DialogueEdit ( {
 				onRemove={
 					onReplace ? () => onReplace( [] ) : undefined
 				}
-				className={ className }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 			/>
 		</div>
