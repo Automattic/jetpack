@@ -9,3 +9,12 @@
 .wp-block-jetpack-dialogue__timestamp-control__minute {
 	margin-right: 5px;
 }
+
+// Speaker label button.
+.wp-block-jetpack-dialogue {
+	.wp-block-jetpack-dialogue__speaker {
+		margin-right: 10px;
+    	font-size: inherit;
+	    padding: 0;
+	}
+}

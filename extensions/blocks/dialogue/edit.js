@@ -16,12 +16,13 @@ import {
 import { createBlock } from '@wordpress/blocks';
 
 import {
+	Button,
 	Panel,
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useContext } from '@wordpress/element';
+import { useContext, useState, } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -62,6 +63,7 @@ export default function DialogueEdit ( {
 		placeholder,
 	} = attributes;
 
+	const [ isFocusedOnSpeakerLabel, setIsFocusedOnSpeakerLabel ] = useState( false );
 	// Block context integration.
 	const speakersFromContext = context[ 'jetpack/conversation-speakers' ];
 	const showTimeStamp = context[ 'jetpack/transcription-showtimestamp' ];
@@ -127,15 +129,16 @@ export default function DialogueEdit ( {
 			</InspectorControls>
 
 			<div class={ `${ baseClassName }__meta` }>
-				<div
+				<Button
 					className={ classnames( `${ baseClassName }__speaker`, {
 						[ 'has-bold-style' ]: currentSpeaker?.hasBoldStyle,
 						[ 'has-italic-style' ]: currentSpeaker?.hasItalicStyle,
 						[ 'has-uppercase-style' ]: currentSpeaker?.hasUppercaseStyle,
 					} ) }
+					onFocus={ () => setIsFocusedOnSpeakerLabel( true ) }
 				>
 					{ speakerLabel }
-				</div>
+				</Button>
 
 				{ showTimeStamp && (
 					<div className={ `${ baseClassName }__timestamp` }>
@@ -151,7 +154,9 @@ export default function DialogueEdit ( {
 				onChange={ ( value ) =>
 					setAttributes( { content: value } )
 				}
+				isSelected={ ! isFocusedOnSpeakerLabel }
 				onMerge={ mergeBlocks }
+				onFocus={ () => setIsFocusedOnSpeakerLabel( false ) }
 				onSplit={ ( value ) => {
 					if ( ! content?.length ) {
 						return createBlock( blockNameFallback );
