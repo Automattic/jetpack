@@ -48,21 +48,21 @@ jobs:
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        LATEST_GUTENBERG: ${{ matrix.gutenberg === 'latest' }}
+        LATEST_GUTENBERG: ${{ matrix.gutenberg == 'latest' }}
       run: |
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
 
     - name: Run tests
-      if: ${{ matrix.gutenberg === 'no' }}
+      if: ${{ matrix.gutenberg == 'no' }}
       run: yarn test-e2e
 
     - name: Run tests (excluding updater)
-      if: ${{ matrix.gutenberg === 'latest' }}
+      if: ${{ matrix.gutenberg == 'latest' }}
       run: yarn test-e2e --testPathIgnorePatterns=updater
 
     - name: Upload Allure artifacts
-      if: ${{ matrix.gutenberg === 'no' }}
+      if: ${{ matrix.gutenberg == 'no' }}
       continue-on-error: true
       env:
         ALLURE_VERSION: 2.13.5
