@@ -12,7 +12,7 @@ require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
 /**
  * Class Test_Admin_Menu
  *
- * @coversDefaultClass Automattic\Jetpack\Admin_Menu
+ * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\Admin_Menu
  */
 class Test_Admin_Menu extends WP_UnitTestCase {
 
@@ -422,65 +422,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( $menu[20], $posts_menu_item );
 		$this->assertEmpty( $submenu['edit.php?post_type=page'] );
-	}
-
-	/**
-	 * Tests add_custom_post_type_menu
-	 *
-	 * @covers ::add_custom_post_type_menu
-	 */
-	public function test_add_custom_post_type_menu() {
-		global $menu, $submenu;
-
-		// Don't show post types that don't want to be shown.
-		$revision = get_post_type_object( 'revision' );
-		static::$admin_menu->add_custom_post_type_menu( $revision, static::$domain );
-
-		$last_item = array_pop( $menu );
-		$this->assertNotSame( 'https://wordpress.com/types/revision/' . static::$domain, $last_item[2] );
-
-		$post_type = register_post_type(
-			'custom_test_type',
-			array(
-				'label'         => 'Custom Test Types',
-				'show_ui'       => true,
-				'menu_position' => 2020,
-			)
-		);
-		static::$admin_menu->add_custom_post_type_menu( $post_type, static::$domain );
-
-		// Clean up.
-		unregister_post_type( 'custom_test_type' );
-
-		$slug = 'https://wordpress.com/types/custom_test_type/' . static::$domain;
-
-		$custom_menu_item = array(
-			'Custom Test Types',
-			'edit_posts',
-			$slug,
-			'Custom Test Types',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-post',
-		);
-
-		$this->assertSame( $menu[2020], $custom_menu_item );
-
-		$custom_submenu_item = array(
-			'Custom Test Types',
-			'edit_posts',
-			'https://wordpress.com/types/custom_test_type/' . static::$domain,
-			'Custom Test Types',
-		);
-		$this->assertContains( $custom_submenu_item, $submenu[ $slug ] );
-
-		$add_new_submenu_item = array(
-			'Add New',
-			'edit_posts',
-			'https://wordpress.com/edit/custom_test_type/' . static::$domain,
-			'Add New',
-		);
-		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**

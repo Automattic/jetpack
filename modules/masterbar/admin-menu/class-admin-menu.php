@@ -96,29 +96,6 @@ class Admin_Menu {
 		$this->add_posts_menu( $domain, $calypso );
 		$this->add_media_menu( $domain, $calypso );
 		$this->add_page_menu( $domain, $calypso );
-
-		// Custom Post Types (except Feedback).
-		$post_types = (array) get_post_types(
-			array(
-				'show_ui'      => true,
-				'_builtin'     => false,
-				'show_in_menu' => true,
-			),
-			'objects'
-		);
-		foreach ( $post_types as $post_type ) {
-			if ( 'feedback' === $post_type->name ) {
-				continue;
-			}
-
-			// Check if it should be a submenu.
-			if ( true !== $post_type->show_in_menu ) {
-				continue;
-			}
-
-			$this->add_custom_post_type_menu( $post_type, $domain, $calypso );
-		}
-
 		$this->add_comments_menu( $domain, $calypso );
 		$this->add_jetpack_menu( $domain );
 		$this->add_appearance_menu( $domain, $calypso );
@@ -356,48 +333,6 @@ class Admin_Menu {
 		add_submenu_page( $menu_slug, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $menu_slug, null, 5 );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/page/' . $domain, null, 10 );
 		$this->migrate_submenus( 'edit.php?post_type=page', $menu_slug );
-	}
-
-	/**
-	 * Adds custom post type menus.
-	 *
-	 * @param \WP_Post_Type $ptype_obj Post type object.
-	 * @param string        $domain    Site domain.
-	 * @param bool          $calypso   Optional. Whether links should point to Calypso or wp-admin.
-	 *                                 Default true (Calypso).
-	 */
-	public function add_custom_post_type_menu( \WP_Post_Type $ptype_obj, $domain, $calypso = true ) {
-		if ( ! $calypso ) {
-			return;
-		}
-
-		if ( ! $ptype_obj->show_in_menu ) {
-			return;
-		}
-
-		$post_type = $ptype_obj->name;
-		$menu_icon = 'dashicons-admin-post';
-		if ( is_string( $ptype_obj->menu_icon ) ) {
-			// Special handling for data:image/svg+xml and Dashicons.
-			if ( 0 === strpos( $ptype_obj->menu_icon, 'data:image/svg+xml;base64,' ) || 0 === strpos( $ptype_obj->menu_icon, 'dashicons-' ) ) {
-				$menu_icon = $ptype_obj->menu_icon;
-			} else {
-				$menu_icon = esc_url( $ptype_obj->menu_icon );
-			}
-		}
-
-		$old_slug   = 'edit.php?post_type=' . $post_type;
-		$ptype_file = 'https://wordpress.com/types/' . $post_type . '/' . $domain;
-
-		remove_menu_page( $old_slug );
-		remove_submenu_page( $old_slug, $old_slug );
-		remove_submenu_page( $old_slug, 'post-new.php?post_type=' . $post_type );
-
-		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $ptype_file, null, $menu_icon, $ptype_obj->menu_position );
-		add_submenu_page( $ptype_file, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $ptype_file, null, 5 );
-		add_submenu_page( $ptype_file, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/edit/' . $post_type . '/' . $domain, null, 10 );
-
-		$this->migrate_submenus( $old_slug, $ptype_file );
 	}
 
 	/**
