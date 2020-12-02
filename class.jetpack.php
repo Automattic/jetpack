@@ -6434,244 +6434,7 @@ endif;
 		 *
 		 * If there is no replacement, use null for replacement_name
 		 */
-		$deprecated_list = array(
-			'jetpack_bail_on_shortcode'                    => array(
-				'alt' => 'jetpack_shortcodes_to_include',
-				'ver' => null,
-			),
-			'wpl_sharing_2014_1'                           => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack-tools-to-include'                     => array(
-				'alt' => 'jetpack_tools_to_include',
-				'ver' => null,
-			),
-			'jetpack_identity_crisis_options_to_check'     => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'update_option_jetpack_single_user_site'       => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'audio_player_default_colors'                  => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_featured_images_enabled'   => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_update_details'            => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_updates'                   => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_network_name'              => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_network_allow_new_registrations' => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_network_add_new_users'     => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_network_site_upload_space' => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_network_upload_file_types' => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_network_enable_administration_menus' => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_is_multi_site'             => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_is_main_network'           => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'add_option_jetpack_main_network_site'         => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_sync_all_registered_options'          => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_has_identity_crisis'                  => array(
-				'alt' => 'jetpack_sync_error_idc_validation',
-				'ver' => null,
-			),
-			'jetpack_is_post_mailable'                     => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_seo_site_host'                        => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_installed_plugin'                     => array(
-				'alt' => 'jetpack_plugin_installed',
-				'ver' => null,
-			),
-			'jetpack_holiday_snow_option_name'             => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_holiday_chance_of_snow'               => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_holiday_snow_js_url'                  => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_is_holiday_snow_season'               => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_holiday_snow_option_updated'          => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_holiday_snowing'                      => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_sso_auth_cookie_expirtation'          => array(
-				'alt' => 'jetpack_sso_auth_cookie_expiration',
-				'ver' => null,
-			),
-			'jetpack_cache_plans'                          => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'jetpack_updated_theme'                        => array(
-				'alt' => 'jetpack_updated_themes',
-				'ver' => null,
-			),
-			'jetpack_lazy_images_skip_image_with_atttributes' => array(
-				'alt' => 'jetpack_lazy_images_skip_image_with_attributes',
-				'ver' => null,
-			),
-			'jetpack_enable_site_verification'             => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			'can_display_jetpack_manage_notice'            => array(
-				'alt' => null,
-				'ver' => null,
-			),
-			// Removed in Jetpack 7.3.0
-			'atd_load_scripts'                             => array(
-				'alt' => null,
-				'ver' => 'Jetpack 7.3',
-			),
-			'atd_http_post_timeout'                        => array(
-				'alt' => null,
-				'ver' => 'Jetpack 7.3',
-			),
-			'atd_http_post_error'                          => array(
-				'alt' => null,
-				'ver' => 'Jetpack 7.3',
-			),
-			'atd_service_domain'                           => array(
-				'alt' => null,
-				'ver' => 'Jetpack 7.3',
-			),
-			'jetpack_widget_authors_exclude'               => array(
-				'alt' => 'jetpack_widget_authors_params',
-				'ver' => 'Jetpack 8.3',
-			),
-			// Removed in Jetpack 7.9.0
-			'jetpack_pwa_manifest'                         => array(
-				'alt' => null,
-				'ver' => 'Jetpack 7.9',
-			),
-			'jetpack_pwa_background_color'                 => array(
-				'alt' => null,
-				'ver' => 'Jetpack 7.9',
-			),
-			// Removed in Jetpack 8.3.0.
-			'jetpack_check_mobile'                         => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'jetpack_mobile_stylesheet'                    => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'jetpack_mobile_template'                      => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'mobile_reject_mobile'                         => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'mobile_force_mobile'                          => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'mobile_app_promo_download'                    => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'mobile_setup'                                 => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'jetpack_mobile_footer_before'                 => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'wp_mobile_theme_footer'                       => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'minileven_credits'                            => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'jetpack_mobile_header_before'                 => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'jetpack_mobile_header_after'                  => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'jetpack_mobile_theme_menu'                    => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'minileven_show_featured_images'               => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			'minileven_attachment_size'                    => array(
-				'alt' => null,
-				'ver' => 'Jetpack 8.3',
-			),
-			// Removed in Jetpack 9.1.0.
-			'instagram_cache_oembed_api_response_body'     => array(
-				'alt' => null,
-				'ver' => 'Jetpack 9.1',
-			)
-		);
+		$deprecated_list = array();
 
 		// This is a silly loop depth. Better way?
 		foreach ( $deprecated_list as $hook => $hook_values ) {
@@ -6691,23 +6454,197 @@ endif;
 		}
 
 		$filter_deprecated_list = array(
-			'can_display_jetpack_manage_notice' => array(
+			'jetpack_bail_on_shortcode'                    => array(
+				'replacement' => 'jetpack_shortcodes_to_include',
+				'version'     => 'jetpack-3.1.0',
+			),
+			'wpl_sharing_2014_1'                           => array(
+				'replacement' => null,
+				'version'     => 'jetpack-3.6.0',
+			),
+			'jetpack-tools-to-include'                     => array(
+				'replacement' => 'jetpack_tools_to_include',
+				'version'     => 'jetpack-3.9.0',
+			),
+			'jetpack_identity_crisis_options_to_check'     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.0.0',
+			),
+			'update_option_jetpack_single_user_site'       => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'audio_player_default_colors'                  => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_featured_images_enabled'   => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_update_details'            => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_updates'                   => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_name'              => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_allow_new_registrations' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_add_new_users'     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_site_upload_space' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_upload_file_types' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_enable_administration_menus' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_is_multi_site'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_is_main_network'           => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_main_network_site'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'jetpack_sync_all_registered_options'          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'jetpack_has_identity_crisis'                  => array(
+				'replacement' => 'jetpack_sync_error_idc_validation',
+				'version'     => 'jetpack-4.4.0',
+			),
+			'jetpack_is_post_mailable'                     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.4.0',
+			),
+			'jetpack_seo_site_host'                        => array(
+				'replacement' => null,
+				'version'     => 'jetpack-5.1.0',
+			),
+			'jetpack_installed_plugin'                     => array(
+				'replacement' => 'jetpack_plugin_installed',
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snow_option_name'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_chance_of_snow'               => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snow_js_url'                  => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_is_holiday_snow_season'               => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snow_option_updated'          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snowing'                      => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_sso_auth_cookie_expirtation'          => array(
+				'replacement' => 'jetpack_sso_auth_cookie_expiration',
+				'version'     => 'jetpack-6.1.0',
+			),
+			'jetpack_cache_plans'                          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.1.0',
+			),
+
+			'jetpack_lazy_images_skip_image_with_atttributes' => array(
+				'replacement' => 'jetpack_lazy_images_skip_image_with_attributes',
+				'version'     => 'jetpack-6.5.0',
+			),
+			'jetpack_enable_site_verification'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.5.0',
+			),
+			'can_display_jetpack_manage_notice'            => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
-			'atd_http_post_timeout'             => array(
+			'atd_http_post_timeout'                        => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
-			'atd_service_domain'                => array(
+			'atd_service_domain'                           => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
-			'atd_load_scripts'                  => array(
+			'atd_load_scripts'                             => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
-			'jetpack_can_make_outbound_https'   => array(
+			'jetpack_widget_authors_exclude'               => array(
+				'replacement' => 'jetpack_widget_authors_params',
+				'version'     => 'jetpack-7.7.0',
+			),
+			// Removed in Jetpack 7.9.0
+			'jetpack_pwa_manifest'                         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.9.0',
+			),
+			'jetpack_pwa_background_color'                 => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.9.0',
+			),
+			'jetpack_check_mobile'                         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_stylesheet'                    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_template'                      => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_theme_menu'                    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'minileven_show_featured_images'               => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'minileven_attachment_size'                    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'instagram_cache_oembed_api_response_body'     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-9.1.0',
+			),
+			'jetpack_can_make_outbound_https'              => array(
 				'replacement' => null,
 				'version'     => 'jetpack-9.1.0',
 			),
@@ -6720,9 +6657,49 @@ endif;
 		}
 
 		$action_deprecated_list = array(
-			'atd_http_post_error' => array(
+			'jetpack_updated_theme'        => array(
+				'replacement' => 'jetpack_updated_themes',
+				'version'     => 'jetpack-6.2.0',
+			),
+			'atd_http_post_error'          => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
+			),
+			'mobile_reject_mobile'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'mobile_force_mobile'          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'mobile_app_promo_download'    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'mobile_setup'                 => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_footer_before' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'wp_mobile_theme_footer'       => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'minileven_credits'            => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_header_before' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_header_after'  => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
 			),
 		);
 
