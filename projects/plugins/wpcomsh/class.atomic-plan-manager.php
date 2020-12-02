@@ -115,6 +115,11 @@ class Atomic_Plan_Manager {
 			return $caps;
 		}
 
+		// Retain capabilities if this is not a WordPress.com-on-Atomic site
+		if ( ! defined( 'ATOMIC_CLIENT_ID') || 2 !== ATOMIC_CLIENT_ID ) {
+			return $caps;
+		}
+
 		// Else the site is a free Atomic site
 		// so we need to disable atomic features caps.
 		$theme_caps = [
