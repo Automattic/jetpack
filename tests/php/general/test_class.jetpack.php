@@ -1330,13 +1330,28 @@ EXPECTED;
 	}
 
 	/**
-	 * Testing that a deprecated filter triggers Jetpack functionality.
+	 * Testing that a deprecated action triggers Jetpack functionality.
 	 *
-	 * Using the `jetpack_updated_theme` filter for the sake of testing.
+	 * Using the `jetpack_updated_theme` action for the sake of testing.
+	 *
+	 * @expectedDeprecated jetpack_updated_theme
 	 */
 	public function test_deprecated_action_fires() {
 		add_action( 'jetpack_updated_theme', '__return_false' );
 		Jetpack::init()->deprecated_hooks();
-		$this->assertTrue( true );
+		remove_action( 'jetpack_updated_theme', '__return_false' );
+	}
+
+	/**
+	 * Testing that a deprecated filter triggers Jetpack functionality.
+	 *
+	 * Using the `jetpack_bail_on_shortcode` filter for the sake of testing.
+	 *
+	 * @expectedDeprecated jetpack_bail_on_shortcode
+	 */
+	public function test_deprecated_filter_fires() {
+		add_filter( 'jetpack_bail_on_shortcode', '__return_false' );
+		Jetpack::init()->deprecated_hooks();
+		remove_filter( 'jetpack_bail_on_shortcode', '__return_false' );
 	}
 } // end class
