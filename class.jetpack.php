@@ -6622,7 +6622,7 @@ endif;
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
 			if ( has_filter( $tag ) ) {
-				apply_filters_deprecated( $tag, array(), $args['version'], $args['replacement'] );
+				apply_filters_deprecated( $tag, array( null ), $args['version'], $args['replacement'] );
 			}
 		}
 
