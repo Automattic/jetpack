@@ -1328,4 +1328,15 @@ EXPECTED;
 			array( 'message', null, true ),
 		);
 	}
+
+	/**
+	 * Testing that a deprecated filter triggers Jetpack functionality.
+	 *
+	 * Using the `jetpack_updated_theme` filter for the sake of testing.
+	 */
+	public function test_deprecated_action_fires() {
+		add_action( 'jetpack_updated_theme', '__return_false' );
+		Jetpack::init()->deprecated_hooks();
+		$this->assertTrue( true );
+	}
 } // end class
