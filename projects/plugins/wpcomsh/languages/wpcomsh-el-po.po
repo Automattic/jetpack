@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:39+0000\n"
+"PO-Revision-Date: 2020-10-16 21:55:49+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -816,11 +816,11 @@ msgstr ""
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "Δημιουργῆστε λογότυπο"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Προσθέστε λογότυπο γιὰ τὸν ἱστότοπό σας. Δὲν ἔχετε λογότυπο; Ἀγοράστε ἐπαγγελματικὸ λογότυπο ἀπὸ τὸ Looka — Γιὰ νὰ ξεκινήσετε, πατῆστε τὸ πλῆκτρο “Δημιουργῆστε λογότυπο”."
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

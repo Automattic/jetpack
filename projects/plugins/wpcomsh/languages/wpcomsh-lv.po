@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-09-17 11:51:48+0000\n"
+"PO-Revision-Date: 2020-11-09 18:52:55+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr ""
+msgstr "WordPress.com nodrošināja funkcionalitāti un rīkus, kas iepriekš instalēti un aktivizēti visās Atomic vietnēs"
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -22,15 +22,15 @@ msgstr ""
 #. purposes.
 #: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
 msgid "Updates managed by WordPress.com"
-msgstr ""
+msgstr "Jauninājumus pārvalda WordPress.com"
 
 #: notices/plan-notices.php:44
 msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Vietnes <strong>%3$s</strong> biznesa plāns beidzas pēc %2$s. <a href=\"%1$s\"> Atjaunojiet plānu </a>, lai saglabātu biznesa plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un piekļuvi phpMyAdmin."
 
 #: notices/plan-notices.php:38
 msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "E-komercijas plāns vietnei <strong>%3$s</strong> beidzas pēc%2$s. <a href=\"%1$s\"> Atjaunojiet plānu </a>, lai saglabātu e-komercijas plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un piekļuvi phpMyAdmin."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."
@@ -46,7 +46,7 @@ msgstr "Sāciet savu vietni"
 
 #: private-site/access-denied-coming-soon-template.php:49
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
-msgstr "Veidojiet vietni. Pārdodiet savas lietas. Uzrakstiet emuāru. Un vēl daudz vairāk."
+msgstr "Veidojiet vietni. Pārdodiet savas lietas. Rakstiet emuāru. Un vēl daudz vairāk."
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
@@ -62,11 +62,11 @@ msgstr "Izmantotā diska vieta"
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
-msgstr ""
+msgstr "Klikšķiniet, lai iegūtu vairāk informācijas"
 
 #: widgets/category-cloud.php:166
 msgid "Count items in sub-categories toward parent total."
-msgstr ""
+msgstr "Uzskaitīt apakškategorijās esošos vienumus attiecībā pret pamata kopsummu."
 
 #: widgets/category-cloud.php:156
 msgid "Maximum font percentage:"
@@ -78,7 +78,7 @@ msgstr "Minimālais fontu lielums procentos:"
 
 #: widgets/category-cloud.php:144
 msgid "Category IDs, separated by commas"
-msgstr ""
+msgstr "Kategoriju ID, atdalīti ar komatiem"
 
 #: widgets/category-cloud.php:141
 msgid "Exclude:"
@@ -86,15 +86,15 @@ msgstr "Neiekļaut:"
 
 #: widgets/category-cloud.php:134
 msgid "Maximum number of categories to show:"
-msgstr ""
+msgstr "Maksimālais parādāmo kategoriju skaits:"
 
 #: widgets/category-cloud.php:108
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
-msgstr ""
+msgstr "Ja savā vietnē izmantojat vairāk <a href=\"%s\">kategoriju</a>, tās tiks parādītas šeit."
 
 #: widgets/category-cloud.php:18
 msgid "Your most used categories in cloud format."
-msgstr ""
+msgstr "Jūsu visbiežāk izmantotās kategorijas mākoņa formātā."
 
 #: widgets/category-cloud.php:16 widgets/category-cloud.php:42
 msgid "Category Cloud"
@@ -102,15 +102,15 @@ msgstr "Kategoriju mākonis"
 
 #: private-site/private-site.php:162
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack ir atvienots, un vietne ir privāta. Atkārtoti pievienojiet Jetpack, lai pārvaldītu vietnes redzamības iestatījumus."
 
 #: private-site/logged-in-banner.php:72
 msgid "Update visibility"
-msgstr ""
+msgstr "Atjaunināt redzamību"
 
 #: private-site/logged-in-banner.php:68
 msgid "Launch site"
-msgstr ""
+msgstr "Palaist vietni"
 
 #: private-site/logged-in-banner.php:63
 msgid "Dismiss"
@@ -118,43 +118,43 @@ msgstr "Nerādīt"
 
 #: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
-msgstr ""
+msgstr "Jūsu vietne ir palaista; tagad jūs varat dalīties tajā ar pasauli!"
 
 #: private-site/logged-in-banner.php:52
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "Jūsu vietne ir atzīmēta kā \"Drīzumā\" un netiks rādīta apmeklētājiem, līdz tā būs gatava."
 
 #: private-site/logged-in-banner.php:54
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
-msgstr ""
+msgstr "Jūsu vietne vēl nav publicēta. Pašlaik tā ir privāta - līdz brīdim, kad to publicēsiet, tā redzama tikai jums."
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "Jūs pašlaik izmantojat <strong>%1$s</strong> no <strong>%2$s</strong> augšupielādes ierobežojuma (%3$s%%)."
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
-msgstr ""
+msgstr "Teksts, kas jāparāda starp sīkziņu un laika zīmogu:"
 
 #: widgets/twitter.php:406
 msgid "Display Follow Button"
-msgstr ""
+msgstr "Parādīt pogu Sekot"
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
-msgstr ""
+msgstr "Iekļaujiet atbildes sīkziņas"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
-msgstr ""
+msgstr "Slēpt sīkziņas, ko piegādājis Publicize"
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
-msgstr ""
+msgstr "Slēpt atbildes"
 
 #: widgets/twitter.php:371
 msgid "Maximum number of Tweets to show:"
-msgstr ""
+msgstr "Maksimālais parādīto sīkziņu skaits:"
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
@@ -162,31 +162,31 @@ msgstr "Twitter lietotājvārds:"
 
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
-msgstr ""
+msgstr "Lūdzu, pārslēdzieties uz logrīku \"Twitter laika skala\". Šis logrīks vairs nedarbosies nākotnē, un jaunais logrīks ļaus vairāk pielāgot."
 
 #: widgets/twitter.php:289
 msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr ""
+msgstr "Kļūda: Lūdzu, pārliecinieties, vai ir Twitter konts %1$sir publiski%2$s."
 
 #: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr ""
+msgstr "Kļūda: Twitter neatbildēja. Lūdzu, uzgaidiet dažas minūtes un atsvaidziniet šo lapu."
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
-msgstr ""
+msgstr "Twitter jauninājumi"
 
 #: widgets/twitter.php:51
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr ""
+msgstr "Lūdzu, konfigurējiet savu Twitter lietotājvārdu šim <a href =  \"%s \"> Twitter logrīks</a>."
 
 #: widgets/twitter.php:29
 msgid "Display your Tweets from Twitter"
-msgstr ""
+msgstr "Parādiet savas sīkziņas no Twitter"
 
 #: widgets/twitter.php:26
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: widgets/tag-cloud-widget.php:177
 msgid "Taxonomy:"
@@ -194,7 +194,7 @@ msgstr "Taksonomija:"
 
 #: widgets/tag-cloud-widget.php:159
 msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
-msgstr "Tagu mākonis netiek rādīts, jo nav taksonomijas, kas nodrošina tagu mākoņa logrīku."
+msgstr "Birku mākonis netiek rādīts, jo nav taksonomijas, kas nodrošina birku mākoņa logrīku."
 
 #: widgets/tag-cloud-widget.php:152
 msgid "Show tag counts"
@@ -202,11 +202,11 @@ msgstr "Rādīt birku skaitu"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "Maksimālais parādīto birku skaits"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr "Rādāmo rakstu skaits:"
+msgstr "Birku skaits:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -218,19 +218,19 @@ msgstr "Birku mākonis"
 
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
-msgstr "Mākonis ar jūsu biežāk izmantotajām birkām."
+msgstr "Jūsu biežāk izmantoto birku Mākonis."
 
 #: widgets/aboutme.php:148
 msgid "Apps"
-msgstr ""
+msgstr "Lietotnes"
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
+msgstr "Jaunu attēlu parādīšana jūsu vietnē var aizņemt %d minūtes."
 
 #: widgets/instagram/instagram.php:237
 msgid "Number of columns:"
-msgstr "Rādāmo rakstu skaits:"
+msgstr "Stabiņu skaits:"
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
@@ -238,7 +238,7 @@ msgstr "Izkārtojums"
 
 #: widgets/instagram/instagram.php:226
 msgid "Number to display:"
-msgstr "Rādāmo skaits:"
+msgstr "Parādāmais numurs:"
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
@@ -246,95 +246,95 @@ msgstr "Attēli"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
-msgstr ""
+msgstr "Logrīka nosaukums"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
-msgstr ""
+msgstr "Netika atrasti Instagram attēli."
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
-msgstr ""
+msgstr "Izgūstot attēlus no Instagram, radās kļūda. Pēc dažām minūtēm mēģinājums tiks atkārtots."
 
 #: widgets/instagram/instagram.php:30
 msgid "Display your latest Instagram photos."
-msgstr ""
+msgstr "Parādiet savus jaunākos Instagram fotoattēlus."
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
+msgstr "Instagram"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
-msgstr ""
+msgstr "Biogrāfija"
 
 #: widgets/aboutme.php:134
 msgid "Headline"
-msgstr ""
+msgstr "Virsraksts"
 
 #: widgets/aboutme.php:127
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 #: widgets/aboutme.php:123
 msgid "Don't Display Name"
-msgstr ""
+msgstr "Nerādīt vārdu"
 
 #: widgets/aboutme.php:121
 msgid "Display Small"
-msgstr ""
+msgstr " Mazs displejs"
 
 #: widgets/aboutme.php:119
 msgid "Display Medium"
-msgstr ""
+msgstr "Vidējs displejs"
 
 #: widgets/aboutme.php:117
 msgid "Display Large"
-msgstr ""
+msgstr "Liels displejs"
 
 #: widgets/aboutme.php:115
 msgid "Display X-Large"
-msgstr ""
+msgstr "Ļoti liels displejs"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "Jūsu par.mani URL "
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
-msgstr ""
+msgstr "Logrīka nosaukums"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "Logrīks about.me vairs nebūs pieejams pēc 2016. gada 1. jūlija. Pēc šī datuma logrīks parādīs vienkāršu teksta saiti uz jūsu about.me profilu. Lūdzu, noņemiet šo logrīku."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "Logrīks about.me vairs nav pieejams. Lai noņemtu šo logrīku, <a href=\"%s\"> apmeklējiet iestatījumus</a>. Šis ziņojums netiek rādīts jūsu vietnes apmeklētājiem."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "About.me logrīks"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "Parādiet savu about.me profilu ar sīktēlu"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Nevar ienest pieprasītos datus."
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
-msgstr ""
+msgstr "Veidojiet bezmaksas vietni vai emuāru vietnē WordPress.com"
 
 #: footer-credit/theme-optimizations.php:32
 msgid "Create a free website at WordPress.com"
-msgstr ""
+msgstr "Veidojiet bezmaksas vietni vietnē WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr "Darbību nodrošina WordPress"
+msgstr "Darbojas ar WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:98
 #: footer-credit/theme-optimizations.php:30
@@ -344,28 +344,28 @@ msgstr "WordPress.com blogs"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr "Pirmais komentārs"
+msgstr "WordPress.com vietne"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
-msgstr ""
+msgstr "WordPress.com logotips"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "Veidojiet bezmaksas vietni vai emuāru vietnē WordPress.com"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr "Tēmas kājene"
+msgstr "Kājenes kredīts"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"
-msgstr ""
+msgstr "Jauniniet uz uzņēmējdarbību"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "Slēpt (nepieciešams biznesa plāns)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -373,23 +373,23 @@ msgstr "Slēpt"
 
 #: footer-credit/footer-credit/customizer.php:41
 msgid "Default"
-msgstr "Noklusētā"
+msgstr "Noklusējums"
 
 #: footer-credit/footer-credit-optimizations.php:159
 msgid "Design by"
-msgstr ""
+msgstr "Projektējis"
 
 #: footer-credit/footer-credit-optimizations.php:147
 msgid "by"
-msgstr "by"
+msgstr "līdz"
 
 #: footer-credit/footer-credit-optimizations.php:130
 msgid "Theme"
-msgstr "Dizaina tēma"
+msgstr "Tēma"
 
 #: footer-credit/footer-credit-optimizations.php:114
 msgid "Proudly powered by WordPress"
-msgstr ""
+msgstr "Ar lepnumu nodrošina WordPress"
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
@@ -397,7 +397,7 @@ msgstr "Saglabāt uzstādījumus"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Vai tiešām vēlaties atmest nesaglabātās izmaiņas?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -413,23 +413,23 @@ msgstr "Saglabāt"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Aktivizēt un saglabāt"
 
 #: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Pārvaldiet savas vietnes redzamības iestatījumus"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Šo spraudni instalēja WordPress.com, un tas nodrošina jūsu plāna abonementā piedāvātās funkcijas."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%stiek automātiski pārvaldīta jums."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
-msgstr "Cik ierakstus jūs vēlāties parādīt?"
+msgstr "Cik vienumus vēlaties parādīt?"
 
 #: widgets/top-rated.php:137
 msgid "Filter by category"
@@ -437,39 +437,39 @@ msgstr "Filtrēt pēc kategorijas"
 
 #: widgets/top-rated.php:131
 msgid "Show for comments"
-msgstr ""
+msgstr "Rādīt komentāriem"
 
 #: widgets/top-rated.php:125
 msgid "Show for pages"
-msgstr ""
+msgstr "Rādīt lapām"
 
 #: widgets/top-rated.php:119
 msgid "Show for posts"
-msgstr ""
+msgstr "Rādīt ziņām"
 
 #: widgets/top-rated.php:11 widgets/top-rated.php:32
 msgid "Top Rated"
-msgstr ""
+msgstr "Augstāk vērtētais"
 
 #: widgets/top-rated.php:10
 msgid "A list of your top rated posts, pages or comments."
-msgstr ""
+msgstr "Visaugstāk novērtēto ziņu, lapu vai komentāru saraksts."
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
-msgstr "Top Kliki tiek rēķināti no 48-72 stundu statistikas. Lai tie mainītos ir jāpaiet kādam laiciņam."
+msgstr "Populārākie klikšķi tiek aprēķināti pēc 48–72 stundu statistikas. Tiem vajadzīgs laiks, lai mainītos."
 
 #: widgets/top-clicks.php:53
 msgid "URLs to show:"
-msgstr "Rādīt URLus:"
+msgstr "Parādāmie URL:"
 
 #: widgets/top-clicks.php:47
 msgid "Display length:"
-msgstr "Ekrāna garums: "
+msgstr "Ekrāna garums:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
-msgstr ""
+msgstr "Uzskaitiet savā emuārā visvairāk klikšķinātās saites."
 
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
@@ -478,19 +478,19 @@ msgstr "Populārākie klikšķi"
 
 #: widgets/tlkio/tlkio.php:59
 msgid "Height (in pixel):"
-msgstr "Maksimāls augstums"
+msgstr "Augstums (pikseļos):"
 
 #: widgets/tlkio/tlkio.php:55
 msgid "Channel:"
-msgstr ""
+msgstr "Kanāls:"
 
 #: widgets/tlkio/tlkio.php:26
 msgid "tlk.io Webchat"
-msgstr ""
+msgstr "tlk.io Webchat"
 
 #: widgets/tlkio/tlkio.php:25
 msgid "Add a tlk.io webchat."
-msgstr ""
+msgstr "Pievienojiet tlk.io webchat."
 
 #: widgets/reservations.php:55
 msgid "Show:"
@@ -498,27 +498,27 @@ msgstr "Rādīt:"
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
-msgstr "Temats"
+msgstr "E-pasta tēma:"
 
 #: widgets/reservations.php:44
 msgid "Recipient E-mail Address:"
-msgstr ""
+msgstr "Saņēmēja e-pasta adrese:"
 
 #: widgets/reservations.php:29
 msgid "Departure"
-msgstr ""
+msgstr "Atiešana"
 
 #: widgets/reservations.php:28
 msgid "Arrival"
-msgstr ""
+msgstr "Ierašanās"
 
 #: widgets/reservations.php:27
 msgid "# Children"
-msgstr ""
+msgstr "# Bērni"
 
 #: widgets/reservations.php:26
 msgid "# Adults"
-msgstr ""
+msgstr "# Pieaugušie"
 
 #: widgets/reservations.php:25
 msgid "Message"
@@ -530,7 +530,7 @@ msgstr "Tālruņa numurs"
 
 #: widgets/reservations.php:23
 msgid "Email"
-msgstr "E-pasta adrese"
+msgstr "E-pasts"
 
 #: widgets/aboutme.php:111 widgets/reservations.php:22
 msgid "Name"
@@ -538,27 +538,27 @@ msgstr "Vārds"
 
 #: widgets/reservations.php:16
 msgid "Reservation Inquiry"
-msgstr ""
+msgstr "Rezervācijas izmeklēšana"
 
 #: widgets/reservations.php:10 widgets/reservations.php:15
 msgid "Reservations"
-msgstr ""
+msgstr "Rezervācijas"
 
 #: widgets/recent-comments-widget.php:384
 msgid "Show comments from:"
-msgstr "Jaunāki komentāri"
+msgstr "Rādīt komentārus no:"
 
 #: widgets/recent-comments-widget.php:379
 msgid "Text background color:"
-msgstr "Teksta pamatkrāsa:"
+msgstr "Teksta fona krāsa:"
 
 #: widgets/recent-comments-widget.php:373
 msgid "Avatar background color:"
-msgstr ""
+msgstr "Tēla fona krāsa:"
 
 #: widgets/recent-comments-widget.php:362
 msgid "No Avatars"
-msgstr ""
+msgstr "Nav tēlu"
 
 #: widgets/recent-comments-widget.php:355
 msgid "(at most 15)"
@@ -566,18 +566,18 @@ msgstr "(ne vairāk kā 15)"
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
-msgstr "Cik komentārus rādīt:"
+msgstr "Rādāmo rakstu skaits:"
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
-msgstr ""
+msgstr "Parādīšanai nav pieejams neviens publisks komentārs."
 
 #. translators: comments widget: 1: comment author, 2: post link
 #: widgets/recent-comments-widget.php:275
 #: widgets/recent-comments-widget.php:308
 msgctxt "widgets"
 msgid "%1$s on %2$s"
-msgstr "%1$s ziņā %2$s"
+msgstr "%1$sieslēgt %2$s"
 
 #: widgets/recent-comments-widget.php:252
 msgid "Anonymous"
@@ -585,7 +585,7 @@ msgstr "Anonīms"
 
 #: widgets/recent-comments-widget.php:30
 msgid "Display your site's most recent comments"
-msgstr ""
+msgstr "Parādiet savas vietnes jaunākos komentārus"
 
 #: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
@@ -593,7 +593,7 @@ msgstr "Jaunākie komentāri"
 
 #: widgets/posts-i-like.php:269
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
-msgstr ""
+msgstr "Pēdējā laikā jums nav patikusi neviena ziņa. Kad kādu atzīmēsiet, šis <a href=\"%s\"> Ziņas, kas man patīk</a> logrīks tās parādīs."
 
 #: widgets/posts-i-like.php:259
 msgid "on"
@@ -602,11 +602,11 @@ msgstr "uz"
 #: widgets/posts-i-like.php:236
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%1$sieslēgt %2$s"
 
 #: widgets/posts-i-like.php:113
 msgid "Author's likes to display:"
-msgstr ""
+msgstr "Parādāmās autora sirsniņas:"
 
 #: widgets/posts-i-like.php:98
 msgid "Grid"
@@ -618,67 +618,67 @@ msgstr "Saraksts"
 
 #: widgets/posts-i-like.php:95
 msgid "Display as:"
-msgstr ""
+msgstr "Attēlot kā:"
 
 #: widgets/posts-i-like.php:90
 msgid "Number of posts to show (1 to 15):"
-msgstr ""
+msgstr "Parādāmo ziņu skaits (no 1 līdz 15):"
 
 #: widgets/posts-i-like.php:27
 msgid "A list of the posts I most recently liked"
-msgstr ""
+msgstr "To ziņu saraksts, kuras man nesen patika"
 
 #: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
 msgid "Posts I Like"
-msgstr ""
+msgstr "Ziņas, kas man patīk"
 
 #: widgets/music-player.php:82
 msgid "Choose songs"
-msgstr ""
+msgstr "Izvēlieties dziesmas"
 
 #: widgets/music-player.php:16 widgets/music-player.php:87
 msgid "Music Player"
-msgstr ""
+msgstr "Muzikas atskaņotājs"
 
 #: widgets/music-player.php:15
 msgid "A multi-song music player"
-msgstr ""
+msgstr "Vairāku dziesmu mūzikas atskaņotājs"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "Es balsoju"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Parādiet lasītājiem, ka balsojāt ar uzlīmi  \"Es balsoju \"."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
-msgstr ""
+msgstr "Jūs varat mainīt savu Gravatar no sava <a href=\"/wp-admin/profile.php\">profila lapa</a>."
 
 #: widgets/gravatar.php:143
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
-msgstr ""
+msgstr "Teksts, kas parādīts zem Gravatar. Tas nav obligāts, un to var izmantot, lai aprakstītu sevi vai savu emuāru."
 
 #: widgets/gravatar.php:142
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
-msgstr ""
+msgstr "Gravatar saite. Šis ir neobligāts URL, kas tiks izmantots, kad kāds noklikšķinās uz jūsu Gravatar:"
 
 #: widgets/gravatar.php:134
 msgid "Gravatar alignment:"
-msgstr ""
+msgstr "Gravatar izlīdzināšana:"
 
 #: widgets/gravatar.php:125
 msgid "Size:"
-msgstr ""
+msgstr "Lielums:"
 
 #: widgets/gravatar.php:122
 msgid "Custom Email Address:"
-msgstr ""
+msgstr "Pielāgota e-pasta adrese:"
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
+msgstr "Atlasiet lietotāju vai izvēlieties  \"custom \" un ievadiet pielāgotu e-pasta adresi."
 
 #: widgets/gravatar.php:115
 msgid "Center"
@@ -698,47 +698,47 @@ msgstr "Neviens"
 
 #: widgets/gravatar.php:114
 msgid "Extra Large (256 pixels)"
-msgstr ""
+msgstr "Īpaši liels (256 pikseļi)"
 
 #: widgets/gravatar.php:114
 msgid "Large (128 pixels)"
-msgstr ""
+msgstr "Liels (128 pikseļi)"
 
 #: widgets/gravatar.php:114
 msgid "Medium (96 pixels)"
-msgstr ""
+msgstr "Vidējs (96 pikseļi)"
 
 #: widgets/gravatar.php:114
 msgid "Small (64 pixels)"
-msgstr ""
+msgstr "Mazs (64 pikseļi)"
 
 #: widgets/gravatar.php:84
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
-msgstr ""
+msgstr "Jums jāizvēlas lietotājs vai jāievada e-pasta adrese <a href=\"%s\"> Gravatar logrīka</a> iestatījumi."
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "Tēls"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"
-msgstr ""
+msgstr "Ievietojiet tēla attēlu"
 
 #: widgets/freshly-pressed.php:60
 msgid "Choose an image to display in your sidebar:"
-msgstr ""
+msgstr "Izvēlieties attēlu, ko parādīt sānjoslā:"
 
 #: widgets/freshly-pressed.php:10
 msgid "Freshly Pressed"
-msgstr ""
+msgstr "Svaigi nospiests"
 
 #: widgets/freshly-pressed.php:8
 msgid "Display a Freshly Pressed badge in your sidebar"
-msgstr ""
+msgstr "Parādiet sānjoslā emblēmu \"Svaigi nospiests\""
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
-msgstr "Lietotājbildes lielums pikseļos(px):"
+msgstr "Tēla lielums (px):"
 
 #: widgets/author-grid.php:97
 msgid "Display all authors (including those who have not written any posts)"
@@ -760,20 +760,20 @@ msgstr "Autori"
 
 #: widgets/author-grid.php:12
 msgid "Show a grid of author avatar images."
-msgstr ""
+msgstr "Rādīt autora Tēla attēlu režģi."
 
 #: widgets/author-grid.php:11
 msgid "Author Grid"
-msgstr ""
+msgstr "Autora režģis"
 
 #: private-site/private-site.php:555
 msgid "Private Site"
-msgstr ""
+msgstr "Privāta vietne"
 
 #: private-site/private-site.php:391 private-site/private-site.php:493
 #: private-site/private-site.php:687
 msgid "This site is private."
-msgstr ""
+msgstr "Šī vietne ir privāta."
 
 #: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
@@ -782,11 +782,11 @@ msgstr "Pieteikties"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Pārslēgt lietotāju"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Jums jāpiesakās kā lietotājam, kuram ir atļauja skatīt šo vietni."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -795,6 +795,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Lūdzu, ņemiet vērā - šis rīks parāda tikai konfidencialitātes politikas informāciju, ko sniedz\n"
+"WordPress un tajā iesaistītie spraudņi. Tajā nav iekļauta privātuma politika\n"
+"informācija nepiedalošajiem spraudņiem. Tā ir jūsu atbildība\n"
+"atsevišķi iegūstiet informāciju par nepiedalītajiem spraudņiem par konfidencialitātes politiku."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -804,6 +808,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Lūdzu, ņemiet vērā - šis rīks eksportē tikai personas datus, kurus glabā WordPress un\n"
+"iesaistītie spraudņi. Tas neeksportē personas datus, ko glabā\n"
+"nepiedalošie spraudņi. Jūsu pienākums ir eksportēt personas datus\n"
+"atsevišķi nesaglabātie spraudņi. Eksportētie personas dati\n"
+"pašlaik ietver tikai šādus vienumus:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -814,15 +823,21 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Lūdzu, ņemiet vērā - šis rīks izdzēš tikai personas datus, kurus glabā WordPress un\n"
+"aktīvie spraudņi. Tas neizdzēš reģistrētos lietotājus un neizdzēš\n"
+"personas datus, ko glabā neaktīvie spraudņi. Tā ir jūsu atbildība\n"
+"dzēst reģistrētos lietotājus, kā arī personas datus, ko glabā neaktīvie\n"
+"spraudņi. Dzēstie personas dati ietver tikai šādus vienumus\n"
+"laiks:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "Veidot logotipu"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Pievienojiet logotipu, ko parādīt savā vietnē. Nav logotipa? Iegādājieties profesionālu no Looka - lai sāktu, noklikšķiniet uz “Izveidot logotipu”."
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com vietnes palīgs"

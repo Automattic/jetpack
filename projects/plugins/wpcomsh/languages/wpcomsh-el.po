@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:46+0000\n"
+"PO-Revision-Date: 2020-11-13 21:55:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -50,7 +50,7 @@ msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:43
 msgid "Coming Soon"
-msgstr ""
+msgstr "Σύντομα κοντά σας"
 
 #: wpcomsh.php:980
 msgid "Disk space quota"
