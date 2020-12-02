@@ -445,4 +445,12 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		);
 	}
 
+	/**
+	 * Make sure we don´t change how we return errors
+	 */
+	public function test_get_access_token_suppress_errors() {
+		$this->assertFalse( $this->manager->get_access_token( 123 ) );
+		$this->assertInstanceOf( 'WP_Error', $this->manager->get_access_token( 123, '', false ) );
+	}
+
 }
