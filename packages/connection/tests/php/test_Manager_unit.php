@@ -97,9 +97,13 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_connected() {
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => 1,
+		);
 		$this->manager->expects( $this->once() )
-			->method( 'get_connection_owner_id' )
-			->will( $this->returnValue( 1 ) );
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_active() );
 	}
@@ -111,7 +115,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_active_when_not_connected() {
 		$this->manager->expects( $this->once() )
-			->method( 'get_connection_owner_id' )
+			->method( 'get_access_token' )
 			->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_active() );
