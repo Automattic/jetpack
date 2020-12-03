@@ -233,7 +233,7 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 
 	// If Jetpack is not active, or if Notify moderators options is not set, let the default flow go on.
-	if ( ! (bool) $notify_moderator || ! Jetpack::is_active() ) {
+	if ( ! $notify_moderator || ! Jetpack::is_active() ) {
 		return $notify_moderator;
 	}
 
