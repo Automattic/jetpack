@@ -249,6 +249,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Instant Search: fix layout issues with filtering checkboxes with some themes.
 * WordPress.com Toolbar: avoid Fatal errors when the feature is not active.
 
 = 9.2 =
