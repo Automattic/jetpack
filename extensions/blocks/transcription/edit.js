@@ -126,7 +126,7 @@ function TranscriptionEdit ( {
 						<SpeakersDropdown
 							className={ baseClassName }
 							speakers={ speakers }
-							label={ __( 'Speakers', 'jetpack' ) }
+							label={ __( 'Participants', 'jetpack' ) }
 							onChange={ updateSpeakers }
 							onDelete={ deleteSpeaker }
 							onAdd={ addNewSpeaker }
