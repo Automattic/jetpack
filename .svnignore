@@ -15,6 +15,7 @@ phpunit.xml.dist
 dangerfile.js
 bin/class-jetpack-phpcs-exclude-filter.php
 bin/compose-volumes.sh
+bin/eslint-filter-warnings.js
 bin/parallel-lint.sh
 bin/phpcs-excludelist.txt
 bin/post-merge-checkout-hook.sh

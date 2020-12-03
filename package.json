@@ -64,7 +64,7 @@
 		"docker:update-core-unit-tests": "yarn docker:compose exec wordpress svn up /tmp/wordpress-develop/tests/phpunit/data/ /tmp/wordpress-develop/tests/phpunit/includes",
 		"docker:wp": "yarn docker:compose exec wordpress wp --allow-root --path=/var/www/html/",
 		"install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files --production=false --frozen-lockfile",
-		"lint": "eslint --ext .js,.jsx . _inc extensions modules",
+		"lint": "eslint --max-warnings=0 --format=./bin/eslint-filter-warnings.js --ext .js,.jsx . _inc extensions modules",
 		"lint-file": "eslint --ext .js,.jsx",
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
