@@ -155,7 +155,7 @@ class REST_Connector {
 		$connection_status = array(
 			'isActive'     => $connection->is_active(),
 			'isStaging'    => $status->is_staging_site(),
-			'isRegistered' => $connection->is_registered(),
+			'isRegistered' => $connection->is_connected(),
 			'offlineMode'  => array(
 				'isActive'        => $status->is_offline_mode(),
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
