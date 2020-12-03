@@ -15,4 +15,13 @@ export default {
 	content: {
 		type: 'string',
 	},
+	hasBoldStyle: {
+		type: "boolean",
+	},
+	hasItalicStyle: {
+		type: "boolean",
+	},
+	hasUppercaseStyle: {
+		type: "boolean",
+	}
 };

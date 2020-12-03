@@ -84,6 +84,61 @@ export default function DialogueEdit ( {
 
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
+	/**
+	 * Helper to check if the gven style is set, or not.
+	 * It handles local and global (transcription) level.
+	 *
+	 * @param {string} style - style to check.
+	 * @returns {boolean} True if the style is defined. Otherwise, False.
+	 */
+	function hasStyle( style ) {
+		if ( isCustomSpeaker ) {
+			return attributes?.[ style ];
+		}
+
+		return currentSpeaker?.[ style ];
+	}
+
+	/**
+	 * Helper to toggle the value of the given style
+	 * It handles local and global (transcription) level.
+	 *
+	 * @param {string} style - style to toggle.
+	 * @returns {void}
+	 */
+	function toggleSpeakerStyle( style ) {
+		if ( isCustomSpeaker ) {
+			return setAttributes( { [ style ]: ! attributes[ style ] } );
+		}
+
+		transcritionBridge.updateSpeakers( {
+			speakerSlug: currentSpeakerSlug,
+			[ style ]: ! currentSpeaker[ style ],
+		} );
+	}
+
+	/**
+	 * Helper to build the CSS classes for the speaker label.
+	 * It handles local and global (transcription) level.
+	 *
+	 * @returns {string} Speaker CSS class.
+	 */
+	function getSpeakerLabelClass() {
+		if ( isCustomSpeaker ) {
+			return classnames( `${ baseClassName }__speaker`, {
+				[ 'has-bold-style' ]: attributes?.hasBoldStyle,
+				[ 'has-italic-style' ]: attributes?.hasItalicStyle,
+				[ 'has-uppercase-style' ]: attributes?.hasUppercaseStyle,
+			} );
+		}
+
+		return classnames( `${ baseClassName }__speaker`, {
+			[ 'has-bold-style' ]: currentSpeaker?.hasBoldStyle,
+			[ 'has-italic-style' ]: currentSpeaker?.hasItalicStyle,
+			[ 'has-uppercase-style' ]: currentSpeaker?.hasUppercaseStyle,
+		} );
+	}
+
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -110,35 +165,20 @@ export default function DialogueEdit ( {
 					<ToolbarGroup>
 						<ToolbarButton
 							icon="editor-bold"
-							isPressed={ currentSpeaker.hasBoldStyle }
-							onClick={ () => transcritionBridge.updateSpeakers(
-								{
-									speakerSlug: currentSpeakerSlug,
-									hasBoldStyle: ! currentSpeaker.hasBoldStyle,
-								}
-							) }
+							isPressed={ hasStyle( 'hasBoldStyle' ) }
+							onClick={ () => toggleSpeakerStyle( 'hasBoldStyle' ) }
 						/>
 
 						<ToolbarButton
 							icon="editor-italic"
-							isPressed={ currentSpeaker.hasItalicStyle }
-							onClick={ () => transcritionBridge.updateSpeakers(
-								{
-									speakerSlug: currentSpeakerSlug,
-									hasItalicStyle: ! currentSpeaker.hasItalicStyle,
-								}
-							) }
+							isPressed={ hasStyle( 'hasItalicStyle' ) }
+							onClick={ () => toggleSpeakerStyle( 'hasItalicStyle' ) }
 						/>
 
 						<ToolbarButton
 							icon={ formatUppercase }
-							isPressed={ currentSpeaker.hasUppercaseStyle }
-							onClick={ () => transcritionBridge.updateSpeakers(
-								{
-									speakerSlug: currentSpeakerSlug,
-									hasUppercaseStyle: ! currentSpeaker.hasUppercaseStyle,
-								}
-							) }
+							isPressed={ hasStyle( 'hasUppercaseStyle' ) }
+							onClick={ () => toggleSpeakerStyle( 'hasUppercaseStyle' ) }
 						/>
 					</ToolbarGroup>
 				) }
@@ -170,11 +210,7 @@ export default function DialogueEdit ( {
 
 			<div class={ `${ baseClassName }__meta` }>
 				<Button
-					className={ classnames( `${ baseClassName }__speaker`, {
-						[ 'has-bold-style' ]: currentSpeaker?.hasBoldStyle,
-						[ 'has-italic-style' ]: currentSpeaker?.hasItalicStyle,
-						[ 'has-uppercase-style' ]: currentSpeaker?.hasUppercaseStyle,
-					} ) }
+					className={ getSpeakerLabelClass() }
 					onFocus={ () => setIsFocusedOnSpeakerLabel( true ) }
 				>
 					{ speakerLabel }
