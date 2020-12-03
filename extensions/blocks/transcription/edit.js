@@ -54,7 +54,6 @@ export const defaultSpeakers = [
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
-	[ 'jetpack/podcast-player' ],
 	[ 'jetpack/dialogue', defaultSpeakers[ 0 ] ],
 	[ 'jetpack/dialogue', defaultSpeakers[ 1 ] ],
 	[ 'jetpack/dialogue', defaultSpeakers[ 2 ] ],
