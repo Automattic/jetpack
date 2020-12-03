@@ -268,25 +268,35 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 *
 	 * @param string $url         Menu item url as generated in wp-admin/menu.php.
 	 * @param string $parent_slug Menu parent slug as generated in wp-admin/menu.php.
+	 * @param string $callback    Menu callback as generated in wp-admin/menu.php.
 	 * @param string $expected    Menu item url ready for API response.
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_url_data
 	 * @covers ::prepare_menu_item_url
 	 */
-	public function test_prepare_menu_item_url( $url, $parent_slug, $expected ) {
+	public function test_prepare_menu_item_url( $url, $parent_slug, $callback, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
 		$prepare_menu_item_url = $class->getMethod( 'prepare_menu_item_url' );
 		$prepare_menu_item_url->setAccessible( true );
 
-		// Fake plugin page.
-		add_action( 'admin_page_' . $url, '__return_false' );
+		if ( empty( $parent_slug ) ) {
+			add_menu_page( 'Title', 'Title', 'read', $url, $callback );
+		} else {
+			add_submenu_page( $parent_slug, 'Title', 'Title', 'read', $url, $callback );
+		}
 
 		$this->assertEquals(
 			$expected,
 			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $url, $parent_slug ) )
 		);
+
+		if ( empty( $parent_slug ) ) {
+			remove_menu_page( $url );
+		} else {
+			remove_submenu_page( $parent_slug, $url );
+		}
 	}
 
 	/**
@@ -300,31 +310,62 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'https://wordpress.com/me',
 				'',
+				null,
 				'/me',
 			),
 			// Core menu item URL.
 			array(
-				'uploads.php',
+				'upload.php',
 				'',
-				'http://example.org/wp-admin/uploads.php',
+				null,
+				'http://example.org/wp-admin/upload.php',
 			),
 			// Submenu item URL.
 			array(
 				'custom_settings',
 				'upload.php',
+				'__return_true',
 				'http://example.org/wp-admin/upload.php?page=custom_settings',
 			),
 			// Plugin menu item URL.
 			array(
 				'custom_settings',
-				'admin.php',
+				'',
+				'__return_true',
 				'http://example.org/wp-admin/admin.php?page=custom_settings',
 			),
 			// Plugin menu item URL without a parent.
 			array(
 				'custom_settings',
-				'',
+				'admin.php',
+				'__return_true',
 				'http://example.org/wp-admin/admin.php?page=custom_settings',
+			),
+			// Jetpack.
+			array(
+				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
+				'jetpack',
+				null,
+				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
+			),
+			// WooCommerce URLs.
+			array(
+				'product_attributes',
+				'edit.php?post_type=product',
+				'__return_true',
+				'http://example.org/wp-admin/edit.php?post_type=product&page=product_attributes',
+			),
+			array(
+				'wc-admin&amp;path=/analytics/products',
+				'wc-admin&amp;path=/analytics/overview',
+				'__return_true',
+				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=/analytics/products',
+			),
+			array(
+				'wc-admin&amp;path=customers',
+				'woocommerce',
+				'__return_true',
+				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=customers',
 			),
 		);
 	}
