@@ -4,6 +4,7 @@
  * Ported from an internal Automattic plugin.
  */
 
+use Automattic\Jetpack\Dashboard_Customizations\Masterbar;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -76,8 +77,8 @@ class Jetpack_Calypsoify {
 	}
 
 	public function mock_masterbar_activation() {
-		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
-		new A8C_WPCOM_Masterbar;
+		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar/class-masterbar.php';
+		new Masterbar();
 	}
 
 	public function remove_core_menus() {
