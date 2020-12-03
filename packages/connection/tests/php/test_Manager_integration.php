@@ -453,4 +453,56 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		$this->assertInstanceOf( 'WP_Error', $this->manager->get_access_token( 123, '', false ) );
 	}
 
+	/**
+	 * Tests the is_missing_owner_method
+	 *
+	 * @dataProvider is_missing_connection_owner_data_provider
+	 *
+	 * @param boolean $expected The expected return.
+	 * @param boolean $set_option Whether to set the master_option option.
+	 * @param boolean $create_token Whether to create a token for the user set in the master_option.
+	 * @param boolean $create_user Whether to create a real user.
+	 * @return void
+	 */
+	public function test_is_missing_connection_owner( $expected, $set_option = false, $create_token = false, $create_user = false ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => '123',
+			)
+		);
+		if ( $set_option ) {
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+		if ( $create_token ) {
+			\Jetpack_Options::update_option(
+				'user_tokens',
+				array(
+					$user_id => 'asd.zxc.' . $user_id,
+				)
+			);
+		}
+		if ( ! $create_user ) {
+			wp_delete_user( $user_id );
+		}
+
+		$this->assertSame( $expected, $this->manager->is_missing_connection_owner() );
+	}
+
+	/**
+	 * Data provider for test_is_missing_connection_owner
+	 *
+	 * @return array
+	 */
+	public function is_missing_connection_owner_data_provider() {
+		return array(
+			'no user, option and token'     => array( true ),
+			'option, no user, and no token' => array( true, true ),
+			'option, token, but no user'    => array( true, true, true ),
+			'option, token and user'        => array( false, true, true, true ),
+			'option, user but no token'     => array( true, true, false, true ),
+			'no option, but user and token' => array( true, false, true, true ),
+		);
+	}
+
 }

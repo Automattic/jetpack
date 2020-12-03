@@ -598,12 +598,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function is_missing_connection_owner() {
-		$connection_owner = $this->get_connection_owner_id();
-		if ( ! get_user_by( 'id', $connection_owner ) ) {
-			return true;
-		}
-
-		return false;
+		return ! $this->has_connected_owner();
 	}
 
 	/**
@@ -2780,6 +2775,22 @@ class Manager {
 	 */
 	public function add_stats_to_heartbeat( $stats ) {
 
+		// Connected but missing the connection owner?
+		if ( $this->is_connected() && $this->is_missing_connection_owner() ) {
+
+			// add 1 in all cases.
+			$stats['missing-owner'] = array( true );
+
+			$token = $this->get_access_token( self::CONNECTION_OWNER, false, false );
+
+			// Also add the specific error.
+			if ( is_wp_error( $token ) ) {
+				$stats['missing-owner'][] = $token->get_error_code();
+			} elseif ( is_object( $token ) && isset( $token->secret ) ) {
+				$stats['missing-owner'][] = 'missing_user';
+			}
+		}
+
 		if ( ! $this->is_active() ) {
 			return $stats;
 		}
@@ -2791,6 +2802,7 @@ class Manager {
 				$stats[ $stats_group ][] = $plugin_slug;
 			}
 		}
+
 		return $stats;
 	}
 
