@@ -12,7 +12,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection;
-use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Terms_Of_Service;
 
 /**
  * Disable direct access.
@@ -238,22 +238,8 @@ function jetpack_get_migration_data( $option_name ) {
  * @echo string
  */
 function jetpack_render_tos_blurb() {
-	printf(
-		wp_kses(
-			/* Translators: placeholders are links. */
-			__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
-			array(
-				'a'      => array(
-					'href'   => array(),
-					'target' => array(),
-					'rel'    => array(),
-				),
-				'strong' => true,
-			)
-		),
-		esc_url( Redirect::get_url( 'wpcom-tos' ) ),
-		esc_url( Redirect::get_url( 'jetpack-support-what-data-does-jetpack-sync' ) )
-	);
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	echo Terms_Of_Service::get_tos( __( 'Set up Jetpack', 'jetpack' ) );
 }
 
 /**

@@ -72,6 +72,33 @@ class Terms_Of_Service {
 	}
 
 	/**
+	 * Get the Terms of Service text to display on the "Connection" page.
+	 *
+	 * @param string $button_label The "connection" button label to be insterted into the TOS text.
+	 *
+	 * @return string
+	 */
+	public static function get_tos( $button_label = 'Connect to WP.com' ) {
+		return sprintf(
+			wp_kses(
+			/* Translators: placeholders are links. */
+				__( 'By clicking the <strong>%1$s</strong> button, you agree to our <a href="%2$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%3$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
+				array(
+					'a'      => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+					'strong' => true,
+				)
+			),
+			esc_html( $button_label ),
+			esc_url( Redirect::get_url( 'wpcom-tos' ) ),
+			esc_url( Redirect::get_url( 'jetpack-support-what-data-does-jetpack-sync' ) )
+		);
+	}
+
+	/**
 	 * Abstracted for testing purposes.
 	 * Tells us if the site is in dev mode.
 	 *
