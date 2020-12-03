@@ -55,10 +55,8 @@ const settings = {
 		},
 	},
 	icon,
-	parent: [ 'jetpack/premium-content/container' ],
 	keywords: [ __( 'link', 'jetpack' ) ],
 	supports: {
-		inserter: false,
 		align: true,
 		alignWide: false,
 		html: false,
