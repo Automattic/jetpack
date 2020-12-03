@@ -47,7 +47,6 @@ class Atomic_Plan_Manager {
 
 	/**
 	 * Register any plan related hooks.
-	 *
 	 */
 	private function add_hooks() {
 		add_filter( 'map_meta_cap', array( $this , 'map_atomic_plan_cap' ), 10, 2 );
