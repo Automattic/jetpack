@@ -214,6 +214,8 @@ export default function DialogueEdit ( {
 				}
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
+				isSelected={ ! isFocusedOnSpeakerLabel }
+				onFocus={ () => setIsFocusedOnSpeakerLabel( false ) }
 			/>
 		</div>
 	);
