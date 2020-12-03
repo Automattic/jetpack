@@ -36,16 +36,6 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Gets the directory of the current plugin.
-	 *
-	 * @return string
-	 */
-	public function get_current_plugin() {
-		// Escape from `vendor/__DIR__` to plugin directory.
-		return dirname( dirname( __DIR__ ) );
-	}
-
-	/**
 	 * Gets all of the active plugins we can find.
 	 *
 	 * @return string[]
@@ -95,7 +85,7 @@ class Plugins_Handler {
 		// as an unknown (activating) plugin. This also has the benefit
 		// of causing a reset because the active plugins list has
 		// been changed since it was saved in the global.
-		$current_plugin = $this->get_current_plugin();
+		$current_plugin = $this->plugin_locator->find_current_plugin();
 		if ( ! in_array( $current_plugin, $active_plugins, true ) && ! $jetpack_autoloader_including_latest ) {
 			$active_plugins[ $current_plugin ]             = $current_plugin;
 			$jetpack_autoloader_activating_plugins_paths[] = $current_plugin;

@@ -22,8 +22,14 @@ class Autoloader {
 
 		// phpcs:disable Generic.Commenting.DocComment.MissingShort
 
+		/** @var Plugin_Locator $plugin_locator */
+		$plugin_locator = $container->get( Plugin_Locator::class );
+
 		/** @var Plugins_Handler $plugins_handler */
 		$plugins_handler = $container->get( Plugins_Handler::class );
+
+		// The current plugin is the one that we are attempting to initialize here.
+		$current_plugin = $plugin_locator->find_current_plugin();
 
 		// The cached plugins are all of those that were active or discovered by the autoloader during a previous request.
 		// Note that it's possible this list will include plugins that have since been deactivated, but after a request
@@ -39,7 +45,7 @@ class Autoloader {
 
 		/** @var Latest_Autoloader_Guard $guard */
 		$guard = $container->get( Latest_Autoloader_Guard::class );
-		if ( $guard->should_stop_init( $all_plugins ) ) {
+		if ( $guard->should_stop_init( $current_plugin, $all_plugins ) ) {
 			return;
 		}
 

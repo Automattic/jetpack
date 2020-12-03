@@ -50,6 +50,36 @@ class Test_Plugin_Locator extends TestCase {
 	}
 
 	/**
+	 * Tests that the locator is able to find the path to the currently executing plugin.
+	 */
+	public function test_finds_current_plugin() {
+		$this->path_processor->expects( $this->once() )
+			->method( 'find_directory_with_autoloader' )
+			// Since we're not in a real plugin, just make sure it escapes 3 levels from the `src` folder.
+			->with( dirname( TEST_PACKAGE_PATH ), array() )
+			->willReturn( dirname( TEST_PACKAGE_PATH ) );
+
+		$path = $this->locator->find_current_plugin();
+
+		$this->assertEquals( dirname( TEST_PACKAGE_PATH ), $path );
+	}
+
+	/**
+	 * Tests that the locator throws an exception when the currently executing plugin is not an autoloaded plugin.
+	 */
+	public function test_finds_current_plugin_throws_exception_when_not_autoloaded() {
+		$this->path_processor->expects( $this->once() )
+			->method( 'find_directory_with_autoloader' )
+			// Since we're not in a real plugin, just make sure it escapes 3 levels from the `src` folder.
+			->with( dirname( TEST_PACKAGE_PATH ), array() )
+			->willReturn( false );
+
+		$this->expectExceptionMessage( 'Failed to locate plugin' );
+
+		$this->locator->find_current_plugin();
+	}
+
+	/**
 	 * Tests that guessing using option doesn't break when looking for plugins that don't exist.
 	 */
 	public function test_using_option_does_nothing_without_valid_plugin() {

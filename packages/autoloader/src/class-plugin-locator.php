@@ -23,6 +23,25 @@ class Plugin_Locator {
 	}
 
 	/**
+	 * Finds the path to the current plugin.
+	 *
+	 * @return string $path The path to the current plugin.
+	 * @throws \RuntimeException If the current plugin does not have an autoloader.
+	 */
+	public function find_current_plugin() {
+		// Escape from `vendor/__DIR__` to root plugin directory.
+		$plugin_directory = dirname( dirname( __DIR__ ) );
+
+		// Use the path processor to ensure that this is an autoloader we're referencing.
+		$path = $this->path_processor->find_directory_with_autoloader( $plugin_directory, array() );
+		if ( false === $path ) {
+			throw new \RuntimeException( 'Failed to locate plugin ' . $plugin_directory );
+		}
+
+		return $path;
+	}
+
+	/**
 	 * Checks a given option for plugin paths.
 	 *
 	 * @param string $option_name  The option that we want to check for plugin information.

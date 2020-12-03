@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName
 /**
- * Manifest Generator.
+ * Autoloader file writer.
  *
  * @package automattic/jetpack-autoloader
  */

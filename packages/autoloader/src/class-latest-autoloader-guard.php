@@ -45,11 +45,12 @@ class Latest_Autoloader_Guard {
 	 * has the side-effect of actually loading the latest autoloader in the event that this
 	 * is not it.
 	 *
-	 * @param string[] $plugins The active plugins to check for autoloaders in.
+	 * @param string   $current_plugin The current plugin we're checking.
+	 * @param string[] $plugins        The active plugins to check for autoloaders in.
 	 *
 	 * @return bool True if we should stop initialization, otherwise false.
 	 */
-	public function should_stop_init( $plugins ) {
+	public function should_stop_init( $current_plugin, $plugins ) {
 		global $jetpack_autoloader_including_latest;
 		global $jetpack_autoloader_latest_version;
 
@@ -72,7 +73,7 @@ class Latest_Autoloader_Guard {
 		}
 
 		$latest_plugin = $this->autoloader_locator->find_latest_autoloader( $plugins, $jetpack_autoloader_latest_version );
-		if ( isset( $latest_plugin ) && $latest_plugin !== $this->plugins_handler->get_current_plugin() ) {
+		if ( isset( $latest_plugin ) && $latest_plugin !== $current_plugin ) {
 			$jetpack_autoloader_including_latest = true;
 			require $this->autoloader_locator->get_autoloader_path( $latest_plugin );
 			$jetpack_autoloader_including_latest = false;

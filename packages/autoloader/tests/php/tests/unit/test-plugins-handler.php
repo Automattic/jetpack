@@ -62,16 +62,6 @@ class Test_Plugins_Handler extends TestCase {
 	}
 
 	/**
-	 * Tests that the handler is able to find the current plugin.
-	 */
-	public function test_gets_current_plugin() {
-		$current = $this->plugins_handler->get_current_plugin();
-
-		// Since we're not in our normal directory structure, just make sure it escapes 3 levels from the plugin's `src` folder.
-		$this->assertEquals( dirname( TEST_PACKAGE_PATH ), $current );
-	}
-
-	/**
 	 * Tests that all active plugins are found.
 	 */
 	public function test_gets_active_plugins() {
@@ -84,6 +74,9 @@ class Test_Plugins_Handler extends TestCase {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_activating_this_request' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_current_plugin' )
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
 		$plugin_paths = $this->plugins_handler->get_active_plugins();
 
@@ -92,7 +85,7 @@ class Test_Plugins_Handler extends TestCase {
 				TEST_DATA_PATH . '/plugins/plugin_activating',
 				TEST_DATA_PATH . '/plugins/dummy_current',
 				TEST_DATA_PATH . '/plugins/dummy_dev',
-				dirname( TEST_PACKAGE_PATH ),
+				TEST_DATA_PATH . '/plugins/dummy_newer',
 			),
 			$plugin_paths
 		);
@@ -119,6 +112,9 @@ class Test_Plugins_Handler extends TestCase {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_activating_this_request' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_current_plugin' )
+			->willReturn( TEST_DATA_PATH . '/plugins' );
 
 		$plugin_paths = $this->plugins_handler->get_active_plugins();
 
@@ -128,7 +124,7 @@ class Test_Plugins_Handler extends TestCase {
 				TEST_DATA_PATH . '/plugins/dummy_current',
 				TEST_DATA_PATH . '/plugins/dummy_newer',
 				TEST_DATA_PATH . '/plugins/dummy_dev',
-				dirname( TEST_PACKAGE_PATH ),
+				TEST_DATA_PATH . '/plugins',
 			),
 			$plugin_paths
 		);
@@ -145,18 +141,21 @@ class Test_Plugins_Handler extends TestCase {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_activating_this_request' )
 			->willReturn( array() );
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_current_plugin' )
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
 		$plugin_paths = $this->plugins_handler->get_active_plugins();
 
 		$this->assertEquals(
 			array(
-				dirname( TEST_PACKAGE_PATH ),
+				TEST_DATA_PATH . '/plugins/dummy_newer',
 			),
 			$plugin_paths
 		);
 
 		global $jetpack_autoloader_activating_plugins_paths;
-		$this->assertContains( dirname( TEST_PACKAGE_PATH ), $jetpack_autoloader_activating_plugins_paths );
+		$this->assertContains( TEST_DATA_PATH . '/plugins/dummy_newer', $jetpack_autoloader_activating_plugins_paths );
 	}
 
 	/**
@@ -174,6 +173,9 @@ class Test_Plugins_Handler extends TestCase {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_activating_this_request' )
 			->willReturn( array() );
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_current_plugin' )
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
 		$plugin_paths = $this->plugins_handler->get_active_plugins();
 

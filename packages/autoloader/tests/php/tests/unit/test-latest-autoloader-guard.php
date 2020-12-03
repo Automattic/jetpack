@@ -72,7 +72,12 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 		global $jetpack_autoloader_latest_version;
 		$jetpack_autoloader_latest_version = '2.0.0.0';
 
-		$this->assertTrue( $this->guard->should_stop_init( array() ) );
+		$this->assertTrue(
+			$this->guard->should_stop_init(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array()
+			)
+		);
 	}
 
 	/**
@@ -84,12 +89,15 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 			->willReturn( true );
 		$this->autoloader_locator->method( 'find_latest_autoloader' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current' );
-		$this->plugins_handler->method( 'get_current_plugin' )
-			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 		$this->autoloader_locator->method( 'get_autoloader_path' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current/dummy_current.php' );
 
-		$this->assertTrue( $this->guard->should_stop_init( array() ) );
+		$this->assertTrue(
+			$this->guard->should_stop_init(
+				TEST_DATA_PATH . '/plugins/dummy_newer',
+				array()
+			)
+		);
 	}
 
 	/**
@@ -102,7 +110,12 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 		$this->autoloader_locator->method( 'find_latest_autoloader' )
 			->willReturn( null );
 
-		$this->assertFalse( $this->guard->should_stop_init( array() ) );
+		$this->assertFalse(
+			$this->guard->should_stop_init(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array()
+			)
+		);
 	}
 
 	/**
@@ -116,6 +129,11 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 		$this->autoloader_locator->method( 'find_latest_autoloader' )
 			->willReturn( null );
 
-		$this->assertFalse( $this->guard->should_stop_init( array() ) );
+		$this->assertFalse(
+			$this->guard->should_stop_init(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array()
+			)
+		);
 	}
 }

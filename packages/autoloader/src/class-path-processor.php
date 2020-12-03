@@ -12,6 +12,8 @@ class Path_Processor {
 	 * @return string The tokenized path.
 	 */
 	public function tokenize_path_constants( $path ) {
+		$path = self::normalize( $path );
+
 		$constants = self::get_path_constants();
 		foreach ( $constants as $constant => $constant_path ) {
 			$len = strlen( $constant_path );
@@ -57,26 +59,14 @@ class Path_Processor {
 	 * @return string|false Returns the absolute path to the directory, otherwise false.
 	 */
 	public function find_directory_with_autoloader( $file, $directories_to_check ) {
-		// We're only able to find the absolute path for plugin/theme PHP files.
-		if ( ! is_string( $file ) || '.php' !== substr( $file, -4 ) ) {
-			return false;
-		}
+		$file = self::normalize( $file );
 
-		// Normalize the path for consistency.
-		$file = str_replace( '\\', '/', $file );
-
+		// We need an absolute path to the plugin directory to check for an autoloader.
 		if ( path_is_absolute( $file ) ) {
-			$directory = dirname( $file );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$directory = @is_file( $file ) ? dirname( $file ) : $file;
 		} else {
-			foreach ( $directories_to_check as $check_dir ) {
-				$check = dirname( trailingslashit( $check_dir ) . $file );
-				// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-				if ( @is_dir( $check ) ) {
-					$directory = $check;
-					break;
-				}
-			}
-
+			$directory = $this->find_plugin_directory( $file, $directories_to_check );
 			if ( ! isset( $directory ) ) {
 				return false;
 			}
@@ -110,12 +100,51 @@ class Path_Processor {
 				continue;
 			}
 
-			$path = constant( $raw );
+			// Normalize the path for consistency.
+			$path = self::normalize( constant( $raw ) );
 			if ( isset( $path ) ) {
 				$constants[ $raw ] = $path;
 			}
 		}
 
 		return $constants;
+	}
+
+	/**
+	 * Given a file and a list of directories to check, this method will try to figure out
+	 * the absolute path to the file in question.
+	 *
+	 * @param string $file The plugin or theme file to resolve.
+	 * @param array  $directories_to_check The directories we should check for the file if it isn't an absolute path.
+	 * @return string|null The absolute path to the plugin directory, otherwise null.
+	 */
+	private function find_plugin_directory( $file, $directories_to_check ) {
+		// We're only able to find the absolute path for plugin/theme PHP files.
+		if ( ! is_string( $file ) || '.php' !== substr( $file, -4 ) ) {
+			return null;
+		}
+
+		$directories_to_check = self::normalize( $directories_to_check );
+		foreach ( $directories_to_check as $check_dir ) {
+			$check = dirname( trailingslashit( $check_dir ) . $file );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( @is_dir( $check ) ) {
+				return $check;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Normalizes the given path or paths so that it can be consistently
+	 * handled throughout the autoloader.
+	 *
+	 * @param string|string[] $paths The path or paths we want to normalize.
+	 * @return string|string[] The normalized path or paths.
+	 */
+	private static function normalize( $paths ) {
+		// The paths will only be used in PHP and should have the same directory separators.
+		return str_replace( '\\', '/', $paths );
 	}
 }
