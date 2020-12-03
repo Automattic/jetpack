@@ -134,9 +134,16 @@ function AudioPlayer( {
 	useEffect( () => {
 		const audio = audioRef.current;
 
+		// If there's no audio component or we're not controlling time with the `currentTime` prop,
+		// then bail early.
 		if ( ! currentTime || ! audio ) {
 			return;
 		}
+
+		// We only want to change the play position if the difference between our current play position
+		// and the prop is greater than 2. This is because we throttle the callback to 1 second and there
+		// could be a delay of some kind. Two seconds or more is likely because we've been explicitly asked
+		// to update the position via the prop.
 		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 2 ) {
 			audio.currentTime = currentTime;
 		}
