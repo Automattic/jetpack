@@ -247,6 +247,10 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Release date:
 
+**Improved compatibility**
+
+* Twenty Twenty One: add support for Jetpack's Content Options.
+
 **Bug fixes**
 
 * Instant Search: fix layout issues with filtering checkboxes with some themes.
