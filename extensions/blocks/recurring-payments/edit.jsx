@@ -345,7 +345,8 @@ class MembershipsButtonEdit extends Component {
 		const defaultTextForCurrentPlan = currentPlanId
 			? this.getFormattedPriceByProductId( currentPlanId ) + __( ' Contribution', 'jetpack' )
 			: undefined;
-		if ( innerButtons.length ) {
+
+		if ( innerButtons && innerButtons.length ) {
 			innerButtons[ 0 ].innerBlocks.forEach( block => {
 				const currentText = block.attributes.text;
 				const text =
