@@ -74,9 +74,10 @@ export default function DialogueEdit ( {
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
 
 	// Speaker object.
+	const isCustomSpeaker = !! speaker && ! speakerSlug;
 	const currentSpeakerSlug = ! speaker && ! speakerSlug ? defaultSpeakerSlug : speakerSlug;
 	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
-	const speakerLabel = currentSpeaker?.speaker || speaker;
+	const speakerLabel = isCustomSpeaker ? speaker : currentSpeaker?.speaker;
 
 	// Transcription context. A bridge between dialogue and transcription blocks.
 	const transcritionBridge = useContext( TranscriptionContext );
