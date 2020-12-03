@@ -14,9 +14,10 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Initialize the object before running the test method.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
 		$this->manager = new Manager();
 	}
 
