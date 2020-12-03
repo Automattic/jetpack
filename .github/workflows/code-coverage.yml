@@ -57,7 +57,6 @@ jobs:
 
       - name: Process coverage results
         run: |
-          ls -la coverage
           bash <(curl -s https://codecov.io/bash) -s ./coverage || echo 'Codecov failed to upload'
           ./tests/process-coverage.sh
 
