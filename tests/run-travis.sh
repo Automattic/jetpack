@@ -50,9 +50,9 @@ function print_build_info {
 
 function run_coverage_tests {
 	export PHPUNIT=$(which phpunit)
-	export BACKEND_CMD="phpdbg -qrr $PHPUNIT --coverage-clover $GITHUB_WORKSPACE/coverage/backend-clover.xml"
-	export LEGACY_SYNC_CMD="phpdbg -qrr $PHPUNIT --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync-clover.xml"
-	export MULTISITE_CMD="phpdbg -qrr $PHPUNIT -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite-clover.xml"
+	export BACKEND_CMD="phpdbg -qrr $PHPUNIT --coverage-clover $GITHUB_WORKSPACE/coverage/backend/clover.xml"
+	export LEGACY_SYNC_CMD="phpdbg -qrr $PHPUNIT --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync/clover.xml"
+	export MULTISITE_CMD="phpdbg -qrr $PHPUNIT -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite/clover.xml"
 
 	print_build_info
 
@@ -77,7 +77,7 @@ function run_coverage_tests {
 			cd "$PACKAGE/../.."
 			export NAME=$(basename $(pwd))
 			composer install
-			export PACKAGE_CMD="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $GITHUB_WORKSPACE/coverage/packages/$NAME-clover.xml"
+			export PACKAGE_CMD="phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $GITHUB_WORKSPACE/coverage/package-$NAME/clover.xml"
 
 			echo "Running \`$PACKAGE_CMD\` for package \`$NAME\` "
 			run_cmd $PACKAGE_CMD
