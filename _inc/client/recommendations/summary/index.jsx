@@ -33,7 +33,7 @@ const SummaryComponent = props => {
 		props.updateRecommendationsStep( 'summary' );
 	} );
 
-	let cta = (
+	const sidebarCard = (
 		<ProductCardUpsell
 			title={ __( 'Backup Daily' ) }
 			description={ __(
@@ -48,10 +48,10 @@ const SummaryComponent = props => {
 		/>
 	);
 
-	cta = <OneClickRestores />;
-	cta = <Security />;
-	cta = <MobileApp />;
-	cta = <ProductCardUpsellNoPrice />;
+	// sidebarCard = <OneClickRestores />;
+	// sidebarCard = <Security />;
+	// sidebarCard = <MobileApp />;
+	// sidebarCard = <ProductCardUpsellNoPrice />;
 
 	return (
 		<div className="jp-recommendations-summary">
@@ -92,7 +92,7 @@ const SummaryComponent = props => {
 					</>
 				) }
 			</div>
-			<div className="jp-recommendations-summary__cta">{ cta }</div>
+			<div className="jp-recommendations-summary__sidebar">{ sidebarCard }</div>
 		</div>
 	);
 };
