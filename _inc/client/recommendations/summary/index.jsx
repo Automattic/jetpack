@@ -14,6 +14,9 @@ import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { ProductCardUpsell } from '../sidebar/product-card-upsell';
+import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+import ExternalLink from 'components/external-link';
+import Gridicon from 'components/gridicon';
 import JetpackLogo from 'components/jetpack-logo';
 import {
 	getSiteTypeDisplayName,
@@ -55,42 +58,64 @@ const SummaryComponent = props => {
 
 	return (
 		<div className="jp-recommendations-summary">
-			<div className="jp-recommendations-summary__configuration">
-				<JetpackLogo hideText />
-				<h1>
-					{ sprintf(
-						/* translators: placeholder indicates the type of site, such as "personal site" or "store" */
-						__(
-							'Nice work! Let’s ensure the features you enabled are configured for your %s.',
-							'jetpack'
-						),
-						siteTypeDisplayName
-					) }
-				</h1>
-				<h2>{ __( 'Recommendations enabled' ) }</h2>
-				<div>
-					{ summaryFeatureSlugs.selected.length > 0 ? (
-						summaryFeatureSlugs.selected.map( slug => <FeatureSummary featureSlug={ slug } /> )
-					) : (
-						<p>
-							<em>
-								{ __(
-									'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.'
-								) }
-							</em>
-						</p>
+			<div>
+				<div className="jp-recommendations-summary__configuration">
+					<JetpackLogo hideText />
+					<h1>
+						{ sprintf(
+							/* translators: placeholder indicates the type of site, such as "personal site" or "store" */
+							__(
+								'Nice work! Let’s ensure the features you enabled are configured for your %s.',
+								'jetpack'
+							),
+							siteTypeDisplayName
+						) }
+					</h1>
+					<h2>{ __( 'Recommendations enabled' ) }</h2>
+					<div>
+						{ summaryFeatureSlugs.selected.length > 0 ? (
+							summaryFeatureSlugs.selected.map( slug => <FeatureSummary featureSlug={ slug } /> )
+						) : (
+							<p>
+								<em>
+									{ __(
+										'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.'
+									) }
+								</em>
+							</p>
+						) }
+					</div>
+					{ summaryFeatureSlugs.skipped.length > 0 && (
+						<>
+							<h2>{ __( 'Recommendations skipped' ) }</h2>
+							<div>
+								{ summaryFeatureSlugs.skipped.map( slug => (
+									<FeatureSummary featureSlug={ slug } />
+								) ) }
+							</div>
+						</>
 					) }
 				</div>
-				{ summaryFeatureSlugs.skipped.length > 0 && (
-					<>
-						<h2>{ __( 'Recommendations skipped' ) }</h2>
-						<div>
-							{ summaryFeatureSlugs.skipped.map( slug => (
-								<FeatureSummary featureSlug={ slug } />
-							) ) }
-						</div>
-					</>
-				) }
+				<div className="jp-recommendations-summary__more-features">
+					<Gridicon icon="info-outline" size={ 28 } />
+					<p>
+						{ jetpackCreateInterpolateElement(
+							__(
+								'Curious what else Jetpack has to offer? <ExternalLink>View all Jetpack features</ExternalLink>'
+							),
+							{
+								ExternalLink: (
+									<ExternalLink
+										href="https://jetpack.com/features/comparison/"
+										target="_blank"
+										icon={ true }
+										iconSize={ 16 }
+									/>
+								),
+							}
+						) }
+					</p>
+				</div>
 			</div>
 			<div className="jp-recommendations-summary__sidebar">{ sidebarCard }</div>
 		</div>

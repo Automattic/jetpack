@@ -1,3 +1,4 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import '../../scss/calypso-colors';
 
 .jp-recommendations-summary {
@@ -22,4 +23,15 @@
 	background: #e9eff5;
 	box-shadow: -1px 0px 0px #b4b9be;
 	padding: 24px;
+}
+
+.jp-recommendations-summary__more-features {
+	display: flex;
+	align-items: center;
+	padding: 32px 48px;
+	border-top: 1px solid $studio-gray-5;
+
+	.gridicons-info-outline {
+		margin-right: 18px;
+	}
 }
