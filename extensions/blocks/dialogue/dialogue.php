@@ -9,9 +9,8 @@
 
 namespace Automattic\Jetpack\Extensions\Dialogue;
 
-use Jetpack_Gutenberg;
-
 use Automattic\Jetpack\Blocks;
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'dialogue';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -50,10 +49,11 @@ function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	// Attributes..
-	$speaker_slug_attr = isset( $attrs['speakerSlug'] ) ? $attrs['speakerSlug'] : null;
-	$speaker_name_attr = isset( $attrs['speaker'] ) ? $attrs['speaker'] : null;
-	$timestamp         = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
-	$content           = '';
+	$speaker_slug_attr  = isset( $attrs['speakerSlug'] ) ? $attrs['speakerSlug'] : null;
+	$speaker_label_attr = isset( $attrs['speaker'] ) ? $attrs['speaker'] : null;
+	$timestamp          = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
+	$is_custom_spaker   = $speaker_label_attr && ! $speaker_slug_attr;
+	$content            = '';
 
 	if ( isset( $attrs['content'] ) ) {
 		$content = wp_kses(
@@ -72,8 +72,8 @@ function render_block( $attrs, $block_content, $block ) {
 	$speakers       = $block->context['jetpack/conversation-speakers'];
 	$show_timestamp = isset( $block->context['jetpack/transcription-showtimestamp'] );
 
-	// Set current speaker slug, considering it could be null from block attrs.
-	$speaker_slug = ! $speaker_slug_attr && ! $speaker_name_attr ? 'speaker-0' : $speaker_slug_attr;
+	// Set current speaker slug, considering it could be null from block $attrs.
+	$speaker_slug = ! $speaker_slug_attr && ! $speaker_label_attr ? 'speaker-0' : $speaker_slug_attr;
 
 	// Speaker names map.
 	$speaker_names_map = array();
@@ -89,19 +89,31 @@ function render_block( $attrs, $block_content, $block ) {
 	// Pick up speaker data from context.
 	$speaker_name = isset( $current_speaker['speaker'] )
 		? esc_attr( $current_speaker['speaker'] )
-		: $speaker_name_attr;
+		: $speaker_label_attr;
 
-	$speaker_has_bold_style = isset( $current_speaker['hasBoldStyle'] )
-		? $current_speaker['hasBoldStyle']
-		: false;
+	$speaker_has_bold_style = $is_custom_spaker && isset( $attrs['hasBoldStyle'] )
+		? $attrs['hasBoldStyle']
+		: (
+			isset( $current_speaker['hasBoldStyle'] )
+				? $current_speaker['hasBoldStyle']
+				: false
+		);
 
-	$speaker_has_italic_style = isset( $current_speaker['hasItalicStyle'] )
-		? $current_speaker['hasItalicStyle']
-		: false;
+	$speaker_has_italic_style = $is_custom_spaker && isset( $attrs['hasItalicStyle'] )
+		? $attrs['hasItalicStyle']
+		: (
+			isset( $current_speaker['hasItalicStyle'] )
+				? $current_speaker['hasItalicStyle']
+				: false
+		);
 
-	$speaker_has_uppercase_style = isset( $current_speaker['hasUppercaseStyle'] )
-		? $current_speaker['hasUppercaseStyle']
-		: false;
+	$speaker_has_uppercase_style = $is_custom_spaker && isset( $attrs['hasUppercaseStyle'] )
+		? $attrs['hasUppercaseStyle']
+		: (
+			isset( $current_speaker['hasUppercaseStyle'] )
+				? $current_speaker['hasUppercaseStyle']
+				: false
+		);
 
 	// CSS classes and inline styles..
 	$base_classname = 'wp-block-jetpack-dialogue';
