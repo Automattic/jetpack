@@ -25,16 +25,14 @@ const noop = event => event.preventDefault();
 
 class SearchForm extends Component {
 	state = {
-		showFilters: !! this.props.widget,
+		showFilters: false,
 	};
 
 	onChangeQuery = event => setSearchQuery( event.currentTarget.value );
 	onChangeSort = sort => {
 		this.props.onChangeSort( sort );
-		this.hideFilters();
 	};
 
-	hideFilters = () => this.setState( () => ( { showFilters: false } ) );
 	toggleFilters = event => {
 		if (
 			event.type === 'click' ||
@@ -88,7 +86,6 @@ class SearchForm extends Component {
 									filters={ getFilterQuery() }
 									loading={ this.props.isLoading }
 									locale={ this.props.locale }
-									onChange={ this.hideFilters }
 									postTypes={ this.props.postTypes }
 									results={ this.props.response }
 									showClearFiltersButton={ ! this.hasPreselectedFilters() && index === 0 }
