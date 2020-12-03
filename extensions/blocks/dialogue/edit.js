@@ -64,8 +64,8 @@ export default function DialogueEdit ( {
 		content,
 		placeholder,
 	} = attributes;
-
 	const [ isFocusedOnSpeakerLabel, setIsFocusedOnSpeakerLabel ] = useState( false );
+
 	// Block context integration.
 	const speakersFromContext = context[ 'jetpack/conversation-speakers' ];
 	const showTimeStamp = context[ 'jetpack/transcription-showtimestamp' ];
@@ -193,9 +193,7 @@ export default function DialogueEdit ( {
 				onChange={ ( value ) =>
 					setAttributes( { content: value } )
 				}
-				isSelected={ ! isFocusedOnSpeakerLabel }
 				onMerge={ mergeBlocks }
-				onFocus={ () => setIsFocusedOnSpeakerLabel( false ) }
 				onSplit={ ( value ) => {
 					if ( ! content?.length ) {
 						return createBlock( blockNameFallback );
@@ -215,6 +213,7 @@ export default function DialogueEdit ( {
 					onReplace ? () => onReplace( [] ) : undefined
 				}
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
+				keepPlaceholderOnFocus={ true }
 			/>
 		</div>
 	);
