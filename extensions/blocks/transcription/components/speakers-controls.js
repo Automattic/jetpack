@@ -23,34 +23,19 @@ import { formatUppercase } from '../../../shared/icons';
 export function AddSpeakerButton( {
 	className,
 	onAdd,
+	speakers = [],
 } ) {
-	const [ value, setValue ] = useState();
-
-	function addNewSpeakerHandler() {
-		onAdd( value );
-		setValue( '' );
-	}
-
 	return (
 		<BaseControl>
 			<div className={ `${ className }__speaker` }>
-				<TextControl
-					label={ __( 'Add a speaker', 'jetpack' ) }
-					value={ value }
-					onChange={ setValue }
-					onKeyDown={ ( { key } ) => {
-						key === 'Enter' && addNewSpeakerHandler();
-					} }
-				/>
-
 				<Button
 					className={ `${ className }__add-button` }
-					label={ __( 'Add', 'jetpack' ) }
-					onClick={ addNewSpeakerHandler }
+					label={ __( 'Add Participant', 'jetpack' ) }
+					onClick={ () => onAdd( `Participant ${ speakers.length + 1 }` ) }
 					isSecondary
 					isSmall
 				>
-					{ __( 'Add', 'jetpack' ) }
+					{ __( 'Add participant', 'jetpack' ) }
 				</Button>
 			</div>
 		</BaseControl>
@@ -79,7 +64,7 @@ export function SpeakersLabelControl( {
 						<Button
 							label={ __( 'Delete', 'jetpack' ) }
 							onClick={ () => onDelete( speakerSlug ) }
-							isSecondary
+							isTertiary
 							isSmall
 						>
 							{ __( 'Remove', 'jetpack' ) }
@@ -168,6 +153,7 @@ export default function SpeakersDropdown ( {
 					<AddSpeakerButton
 						className={ className }
 						onAdd={ onAdd }
+						speakers={ speakers }
 					/>
 				</Fragment>
 			) }
