@@ -5,7 +5,6 @@
 		"calendly",
 		"contact-form",
 		"contact-info",
-		"dialogue",
 		"donations",
 		"eventbrite",
 		"gathering-tweetstorms",
@@ -35,12 +34,16 @@
 		"social-previews",
 		"story",
 		"subscriptions",
-		"transcription",
 		"tiled-gallery",
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "anchor-fm" ],
+	"beta": [
+		"amazon",
+		"anchor-fm",
+		"dialogue",
+		"transcription"
+	],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
