@@ -1,6 +1,12 @@
 // Settings sidebar.
 $speaker-height: 30px;
 
+.components-panel__body.wp-block-jetpack-transcription__speakers {
+	.components-base-control {
+		margin-bottom: 0;
+	}
+}
+
 .wp-block-jetpack-transcription__speaker {
 	display: flex;
 
