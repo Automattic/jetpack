@@ -23,7 +23,7 @@ function twentytwentyone_jetpack_setup() {
 		array(
 			'blog-display'    => array( 'content', 'excerpt' ),
 			'post-details'    => array(
-				'stylesheet' => 'twentytwentyone-style',
+				'stylesheet' => 'twenty-twenty-one-style',
 				'date'       => '.posted-on',
 				'categories' => '.cat-links',
 			),
