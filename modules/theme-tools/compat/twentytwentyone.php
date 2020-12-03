@@ -21,16 +21,16 @@ function twentytwentyone_jetpack_setup() {
 	add_theme_support(
 		'jetpack-content-options',
 		array(
-			'blog-display' => array( 'content', 'excerpt' ),
-			'post-details' => array(
+			'blog-display'    => array( 'content', 'excerpt' ),
+			'post-details'    => array(
 				'stylesheet' => 'twentytwentyone-style',
 				'date'       => '.posted-on',
 				'categories' => '.cat-links',
 			),
-			'featured-images'    => array(
-				'archive'  => true,
-				'post'     => true,
-				'page'     => true,
+			'featured-images' => array(
+				'archive' => true,
+				'post'    => true,
+				'page'    => true,
 			),
 		)
 	);
