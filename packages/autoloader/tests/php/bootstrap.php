@@ -11,6 +11,8 @@ define( 'TEST_DIR', str_replace( '\\', '/', __DIR__ ) );
 // Make sure its easy to reference the test files.
 define( 'TEST_PACKAGE_PATH', dirname( dirname( TEST_DIR ) ) );
 define( 'TEST_DATA_PATH', TEST_DIR . '/data' );
+define( 'TEST_REAL_PACKAGE_PATH', dirname( dirname( __DIR__ ) ) );
+define( 'TEST_REAL_DATA_PATH', __DIR__ . DIRECTORY_SEPARATOR . 'data' );
 
 // Give us some fake content/plugin paths to work with.
 define( 'WP_CONTENT_DIR', TEST_DATA_PATH );

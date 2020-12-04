@@ -56,7 +56,7 @@ class Test_Plugin_Locator extends TestCase {
 		$this->path_processor->expects( $this->once() )
 			->method( 'find_directory_with_autoloader' )
 			// Since we're not in a real plugin, just make sure it escapes 3 levels from the `src` folder.
-			->with( dirname( TEST_PACKAGE_PATH ), array() )
+			->with( dirname( TEST_REAL_PACKAGE_PATH ), array() )
 			->willReturn( dirname( TEST_PACKAGE_PATH ) );
 
 		$path = $this->locator->find_current_plugin();
@@ -71,7 +71,7 @@ class Test_Plugin_Locator extends TestCase {
 		$this->path_processor->expects( $this->once() )
 			->method( 'find_directory_with_autoloader' )
 			// Since we're not in a real plugin, just make sure it escapes 3 levels from the `src` folder.
-			->with( dirname( TEST_PACKAGE_PATH ), array() )
+			->with( dirname( TEST_REAL_PACKAGE_PATH ), array() )
 			->willReturn( false );
 
 		$this->expectExceptionMessage( 'Failed to locate plugin' );

@@ -78,7 +78,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 			array(
 				'TestFile' => array(
 					'version' => '1.0.0.0',
-					'path'    => TEST_DATA_PATH . '/path_to_file.php',
+					'path'    => TEST_REAL_DATA_PATH . '/path_to_file.php',
 				),
 			),
 			$loaded
@@ -110,7 +110,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 			array(
 				'Automattic\\Jetpack\\' => array(
 					'version' => '1.2.0.0',
-					'path'    => array( TEST_DATA_PATH . '/src' ),
+					'path'    => array( TEST_REAL_DATA_PATH . '/src' ),
 				),
 			),
 			$loaded
@@ -142,7 +142,7 @@ class Test_Loading_Generated_Manifests extends TestCase {
 			array(
 				'123d5a6s7vd' => array(
 					'version' => '1.3.0.0',
-					'path'    => TEST_DATA_PATH . '/path_to_file.php',
+					'path'    => TEST_REAL_DATA_PATH . '/path_to_file.php',
 				),
 			),
 			$loaded
