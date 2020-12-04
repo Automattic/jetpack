@@ -1306,6 +1306,7 @@ class Replicastore implements Replicastore_Interface {
 	/**
 	 * Determine number of buckets to use in full table checksum.
 	 *
+	 * @param string $object_type Object Type.
 	 * @return int Number of Buckets to use.
 	 */
 	private function calculate_buckets( $object_type ) {
@@ -1313,7 +1314,7 @@ class Replicastore implements Replicastore_Interface {
 		// TODO : Temporary map object to table.
 		$table = $this->translate_object_type( $object_type );
 		if ( false === $table ) {
-			return 1; // default to 0 if unknown table;
+			return 1; // default to 0 if unknown table.
 		}
 
 		// Get # of objects.
@@ -1322,7 +1323,7 @@ class Replicastore implements Replicastore_Interface {
 		$object_count   = $range_edges['item_count'];
 
 		// Ensure no division by 0.
-		if ( 0 == $object_count ) {
+		if ( 0 === (int) $object_count ) {
 			return 1;
 		}
 
@@ -1340,8 +1341,7 @@ class Replicastore implements Replicastore_Interface {
 	/**
 	 * Translate the object_type to the table name.
 	 *
-	 * @param $object_type
-	 *
+	 * @param string $object_type Object Type.
 	 * @return bool|string
 	 */
 	private function translate_object_type( $object_type ) {
