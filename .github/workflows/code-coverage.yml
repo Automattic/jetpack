@@ -48,6 +48,8 @@ jobs:
       - name: Setup tests
         run: |
           ./.github/actions/php-pipeline/setup-env.sh
+          echo $(pwd)
+          cd $GITHUB_WORKSPACE
           yarn install
 
       - name: Init code climate
@@ -59,8 +61,7 @@ jobs:
       - name: Adminpage coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: |
-          ls -la .
-          ls -la ./node_modules/.bin
+          echo $(pwd)
           yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
 
       - name: Extensions coverage
