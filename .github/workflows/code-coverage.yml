@@ -58,22 +58,19 @@ jobs:
 
       - name: Backend coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
-        run: |
-          phpdbg -qrr $(which phpunit) --coverage-clover $GITHUB_WORKSPACE/coverage/backend/clover.xml
+        run: phpdbg -qrr $(which phpunit) --coverage-clover $GITHUB_WORKSPACE/coverage/backend/clover.xml
 
       - name: Legacy full sync coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
           LEGACY_FULL_SYNC: '1'
-        run: |
-          phpdbg -qrr $(which phpunit) --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync/clover.xml
+        run: phpdbg -qrr $(which phpunit) --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync/clover.xml
 
       - name: Multisite coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
           WP_MULTISITE: '1'
-        run: |
-          phpdbg -qrr $(which phpunit) -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite/clover.xml
+        run: phpdbg -qrr $(which phpunit) -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite/clover.xml
 
       - name: Package coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
@@ -90,13 +87,11 @@ jobs:
 
       - name: Adminpage coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
-        run: |
-          yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
+        run: yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
 
       - name: Extensions coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
-        run: |
-          yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
+        run: yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
 
       - name: Process coverage results
         run: |
