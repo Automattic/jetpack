@@ -58,7 +58,10 @@ jobs:
 
       - name: Adminpage coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
-        run: yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
+        run: |
+          ls -la .
+          ls -la ./node_modules/.bin
+          yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
 
       - name: Extensions coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
