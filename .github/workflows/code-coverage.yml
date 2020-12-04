@@ -1,0 +1,63 @@
+name: "PHP & JS Code coverage"
+on: pull_request
+
+env:
+  DO_COVERAGE: true
+  WP_BRANCH: latest
+  TRAVIS_PHP_VERSION: "7.3"
+  WP_TRAVISCI: 'phpunit'
+  CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
+  CODECOV_TOKEN: 13375979-2ee3-4078-8763-da63dfbc8b35
+
+jobs:
+  coverage:
+    name: "Code coverage"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.3"
+          tools: composer
+          coverage: none
+          extensions: mysql, imagick
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Setup tests
+        run: |
+          sudo systemctl start mysql.service
+          export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+          ./tests/setup-travis.sh
+          yarn install
+
+      - name: Run code coverage
+        run: |
+          ./tests/run-travis.sh
+          yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
+          yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
+
+      - name: Process coverage results
+        run: |
+          bash <(curl -s https://codecov.io/bash) -s ./coverage || echo 'Codecov failed to upload'
+          ./tests/process-coverage.sh
+
+

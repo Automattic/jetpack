@@ -6,8 +6,8 @@
  */
 
 use Automattic\Jetpack\Constants;
-use phpmock\Mock;
-use phpmock\spy\Spy;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,28 +16,24 @@ use PHPUnit\Framework\TestCase;
 class Test_Constants extends TestCase {
 	/**
 	 * Sets up the test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		if ( ! defined( 'JETPACK__VERSION' ) ) {
 			define( 'JETPACK__VERSION', '7.5' );
 		}
-
-		$this->apply_filters_spy = new Spy(
-			'Automattic\Jetpack',
-			'apply_filters',
-			function ( $filter_name, $value, $name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				return $value;
-			}
-		);
+		Monkey\setUp();
 	}
 
 	/**
 	 * Tears down the test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
+	public function tear_down() {
+		Monkey\tearDown();
 		Constants::$set_constants = array();
-		Mock::disableAll();
 	}
 
 	/**
@@ -84,11 +80,10 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_default_to_constant() {
-		$this->apply_filters_spy->enable();
+		Functions\expect( 'apply_filters' )->never();
+
 		$actual_output = Constants::get_constant( 'JETPACK__VERSION' );
 
-		// apply_filters() should not have been called.
-		$this->assertEquals( array(), $this->apply_filters_spy->getInvocations() );
 		$this->assertEquals( JETPACK__VERSION, $actual_output );
 	}
 
@@ -98,17 +93,15 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_get_constant_null_when_not_set() {
-		$this->apply_filters_spy->enable();
 		$test_constant_name = 'UNDEFINED';
 
+		Functions\expect( 'apply_filters' )->once()->with(
+			'jetpack_constant_default_value',
+			null,
+			$test_constant_name
+		)->andReturn( null );
+
 		$actual_output = Constants::get_constant( $test_constant_name );
-
-		list($filter_name, $filter_constant_value, $filter_constant_name )
-			= $this->apply_filters_spy->getInvocations()[0]->getArguments();
-
-		$this->assertEquals( 'jetpack_constant_default_value', $filter_name );
-		$this->assertNull( $filter_constant_value );
-		$this->assertEquals( $test_constant_name, $filter_constant_name );
 
 		$this->assertNull( $actual_output );
 	}
@@ -119,12 +112,11 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_can_override_previously_defined_constant() {
-		$this->apply_filters_spy->enable();
+		Functions\expect( 'apply_filters' )->never();
+
 		$test_version = '1.0.0';
 		Constants::set_constant( 'JETPACK__VERSION', $test_version );
 
-		// apply_filters() should not have been called.
-		$this->assertEquals( array(), $this->apply_filters_spy->getInvocations() );
 		$this->assertEquals( Constants::get_constant( 'JETPACK__VERSION' ), $test_version );
 	}
 
@@ -134,11 +126,10 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	public function test_jetpack_constants_override_to_null_gets_null() {
-		$this->apply_filters_spy->enable();
+		Functions\expect( 'apply_filters' )->never();
+
 		Constants::set_constant( 'JETPACK__VERSION', null );
 
-		// apply_filters() should not have been called.
-		$this->assertEquals( array(), $this->apply_filters_spy->getInvocations() );
 		$this->assertNull( Constants::get_constant( 'JETPACK__VERSION' ) );
 	}
 
@@ -151,24 +142,13 @@ class Test_Constants extends TestCase {
 		$test_constant_name  = 'TEST_CONSTANT';
 		$test_constant_value = 'test value';
 
-		// Create a new apply_filters spy for this test.
-		$apply_filters_spy = new Spy(
-			'Automattic\Jetpack',
-			'apply_filters',
-			function ( $filter_name, $value, $name ) use ( $test_constant_value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				return $test_constant_value;
-			}
-		);
-		$apply_filters_spy->enable();
+		Functions\expect( 'apply_filters' )->once()->with(
+			'jetpack_constant_default_value',
+			null,
+			$test_constant_name
+		)->andReturn( $test_constant_value );
 
 		$actual_output = Constants::get_constant( $test_constant_name );
-
-		list($filter_name, $filter_constant_value, $filter_constant_name )
-			= $apply_filters_spy->getInvocations()[0]->getArguments();
-
-		$this->assertEquals( 'jetpack_constant_default_value', $filter_name );
-		$this->assertNull( $filter_constant_value );
-		$this->assertEquals( $test_constant_name, $filter_constant_name );
 
 		$this->assertEquals( $test_constant_value, $actual_output );
 	}

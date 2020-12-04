@@ -1,0 +1,64 @@
+name: JS tests
+
+on: pull_request
+env:
+  DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_TOKEN }}
+jobs:
+  lint:
+    name: "JavaScript & CSS lint"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Use yarn cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - run:  |
+          yarn install
+          yarn lint
+
+
+  js-tests:
+    name: "Danger CI, test dashboard, extensions and search"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - run: |
+          yarn install
+          yarn test-dangerci-and-adminpage-and-extensions-and-search
+
+
+  build:
+    name: "Build dashboard & extensions"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - run: |
+          yarn build-concurrently

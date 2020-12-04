@@ -16,8 +16,10 @@ class Test_Tracking extends TestCase {
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->setMethods( array( 'is_user_connected' ) )
 			->getMock();

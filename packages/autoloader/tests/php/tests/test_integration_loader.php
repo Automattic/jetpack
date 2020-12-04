@@ -30,10 +30,10 @@ class WP_Test_Integration_Loader extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->single_manifest_handler   = new Manifest_Handler(
 			array(
 				TEST_DATA_PATH . '/plugins/plugin_current',

@@ -8,8 +8,8 @@
 		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "dev-master",
+		"yoast/phpunit-polyfills": "^0.2"
 	},
 	"autoload": {
 		"classmap": [

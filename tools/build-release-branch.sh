@@ -258,7 +258,7 @@ hash yarn 2>/dev/null || {
 
 # Start cleaning the cache.
 yarn cache clean
-COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production
+COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production-concurrently
 echo "Done"
 
 echo "Remove composer dependencies listing"
