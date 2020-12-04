@@ -84,13 +84,13 @@ class Table_Checksum {
 				'table'           => $wpdb->term_relationships,
 				'range_field'     => 'object_id',
 				'key_fields'      => array( 'object_id' ),
-				'checksum_fields' => array( /** TODO */ ),
+				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
 			),
 			'term_taxonomy'      => array(
 				'table'           => $wpdb->term_taxonomy,
 				'range_field'     => 'term_taxonomy_id',
 				'key_fields'      => array( 'term_taxonomy_id' ),
-				'checksum_fields' => array( /** TODO */ ),
+				'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
 			),
 			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions
 			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions
