@@ -1,25 +1,18 @@
 /**
  * WordPress dependencies
  */
-import { Path, Rect, SVG } from '@wordpress/components';
+import { Path, Rect, G } from '@wordpress/components';
+/**
+ * Internal dependencies
+ */
+import renderMaterialIcon from '../../shared/render-material-icon';
 
-export default (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<Path
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="1.5"
-			d="M19 7V19C19 20.1046 18.1061 21 17.0015 21C14.8931 21 11.4097 21 8 21"
-		/>
-		<Rect
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="1.5"
-			x="5.75"
-			y="2.75"
-			width="9.5"
-			height="14.5"
-			rx="0.875"
-		/>
-	</SVG>
+const icon = renderMaterialIcon(
+	<G>
+		<Path d="M17 5a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2h9z" />
+		<Path d="M13 4H5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z" />
+		<Path d="M7 16h8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
+	</G>
 );
+
+export default icon;
