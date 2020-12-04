@@ -17,6 +17,8 @@ jobs:
       fail-fast: true
       matrix:
         gutenberg: [ 'no', 'latest' ]
+    env:
+      GUTENBERG: ${{ matrix.gutenberg }}
 
     steps:
     - uses: actions/checkout@v2
@@ -48,7 +50,6 @@ jobs:
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        GUTENBERG: ${{ matrix.gutenberg }}
       run: |
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
