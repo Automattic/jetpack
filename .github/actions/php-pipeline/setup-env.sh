@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 # Add composer into PATH
 export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
 
