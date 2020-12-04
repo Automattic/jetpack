@@ -51,7 +51,7 @@
 		],
 		"phpcs:changed": [
 			"Composer\\Config::disableProcessTimeout",
-			"phpcs-changed --git"
+			"phpcs-changed -s --git"
 		],
 		"phpcs:compatibility": [
 			"@phpcs:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP"

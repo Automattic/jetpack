@@ -81,7 +81,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 
-		WorDBless_Options::init()->options = array();
+		WorDBless_Options::init()->clear_options();
 	}
 
 	/**

@@ -30,6 +30,9 @@
 		<testsuite name="comment-likes">
 			<directory prefix="test" suffix=".php">tests/php/modules/comment-likes</directory>
 		</testsuite>
+		<testsuite name="calypsoify">
+			<directory prefix="test" suffix=".php">tests/php/modules/calypsoify</directory>
+		</testsuite>
 		<testsuite name="likes">
 			<directory prefix="test_" suffix=".php">tests/php/modules/likes</directory>
 		</testsuite>
