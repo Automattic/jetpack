@@ -90,7 +90,6 @@ jobs:
             echo "::endgroup::"
             cd ../..
           done
-          cd $GITHUB_WORKSPACE
 
       - name: Process coverage results
         run: |
