@@ -282,10 +282,10 @@ class Table_Checksum {
 
 		$filter_array = array();
 		if ( $range_from !== null ) {
-			$filter_array[] = $wpdb->prepare( "{$this->range_field} > %d", array( intval( $range_from ) ) );
+			$filter_array[] = $wpdb->prepare( "{$this->range_field} >= %d", array( intval( $range_from ) ) );
 		}
 		if ( $range_to !== null ) {
-			$filter_array[] = $wpdb->prepare( "{$this->range_field} < %d", array( intval( $range_to ) ) );
+			$filter_array[] = $wpdb->prepare( "{$this->range_field} <= %d", array( intval( $range_to ) ) );
 		}
 
 		/**

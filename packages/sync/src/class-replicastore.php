@@ -1155,14 +1155,23 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Checksums.
 	 */
 	public function checksum_all() {
-		$post_meta_checksum    = $this->checksum_histogram( 'post_meta', 1 );
-		$comment_meta_checksum = $this->checksum_histogram( 'comment_meta', 1 );
+
+		$post_checksum               = $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts' ) );
+		$comments_checksum           = $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments' ) );
+		$post_meta_checksum          = $this->checksum_histogram( 'post_meta', $this->calculate_buckets( 'post_meta' ) );
+		$comment_meta_checksum       = $this->checksum_histogram( 'comment_meta', $this->calculate_buckets( 'comment_meta' ) );
+		$terms_checksum              = $this->checksum_histogram( 'terms', $this->calculate_buckets( 'terms' ) );
+		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', $this->calculate_buckets( 'term_relationships' ) );
+		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', $this->calculate_buckets( 'term_taxonomy' ) );
 
 		return array(
-			'posts'        => $this->posts_checksum(),
-			'comments'     => $this->comments_checksum(),
-			'post_meta'    => reset( $post_meta_checksum ),
-			'comment_meta' => reset( $comment_meta_checksum ),
+			'posts'              => array_sum( $post_checksum ),
+			'comments'           => array_sum( $comments_checksum ),
+			'post_meta'          => array_sum( $post_meta_checksum ),
+			'comment_meta'       => array_sum( $comment_meta_checksum ),
+			'terms'              => array_sum( $terms_checksum ),
+			'term_relationships' => array_sum( $term_relationships_checksum ),
+			'term_taxonomy'      => array_sum( $term_taxonomy_checksum ),
 		);
 	}
 
@@ -1227,23 +1236,9 @@ class Replicastore implements Replicastore_Interface {
 		 *
 		 * Translate $object_type to $table
 		 */
-
-		switch ( $object_type ) {
-			case 'posts':
-			case 'term_taxonomy':
-			case 'comments':
-			case 'terms':
-			case 'term_relationships':
-				$table = $object_type;
-				break;
-			case 'post_meta':
-				$table = 'postmeta';
-				break;
-			case 'comment_meta':
-				$table = 'commentmeta';
-				break;
-			default:
-				return false;
+		$table = $this->translate_object_type( $object_type );
+		if ( false === $table ) {
+			return false; // early return if unknown object_type.
 		}
 
 		$checksum_table = new Table_Checksum( $table, $salt );
@@ -1276,7 +1271,11 @@ class Replicastore implements Replicastore_Interface {
 				$histogram[ "{$ids_range[ 'min_range' ]}-{$ids_range[ 'max_range' ]}" ] = $batch_checksum;
 			}
 
-			$previous_max_id = $ids_range['max_range'];
+			$previous_max_id = $ids_range['max_range'] + 1;
+			// If we've reached the max_range lets bail out.
+			if ( $previous_max_id >= $range_edges['max_range'] ) {
+				break;
+			}
 		} while ( true );
 
 		return $histogram;
@@ -1305,4 +1304,68 @@ class Replicastore implements Replicastore_Interface {
 		$caller    = $backtrace[1]['function'];
 		throw new \Exception( "This function $caller is not supported on the WP Replicastore" );
 	}
+
+	/**
+	 * Determine number of buckets to use in full table checksum.
+	 *
+	 * @return int Number of Buckets to use.
+	 */
+	private function calculate_buckets( $object_type ) {
+
+		// TODO : Temporary map object to table.
+		$table = $this->translate_object_type( $object_type );
+		if ( false === $table ) {
+			return 1; // default to 0 if unknown table;
+		}
+
+		// Get # of objects.
+		$checksum_table = new Table_Checksum( $table );
+		$range_edges    = $checksum_table->get_range_edges();
+		$object_count   = $range_edges['item_count'];
+
+		// Ensure no division by 0.
+		if ( 0 == $object_count ) {
+			return 1;
+		}
+
+		// Default Bucket sizes.
+		$bucket_size = 10000; // Default bucket size is 10,000 items.
+		switch ( $table ) {
+			case 'postmeta':
+			case 'commentmeta':
+				$bucket_size = 5000; // Meta bucket size is restricted to 5,000 items.
+		}
+
+		return (int) ceil( $object_count / $bucket_size );
+	}
+
+	/**
+	 * Translate the object_type to the table name.
+	 *
+	 * @param $object_type
+	 *
+	 * @return bool|string
+	 */
+	private function translate_object_type( $object_type ) {
+
+		switch ( $object_type ) {
+			case 'posts':
+			case 'term_taxonomy':
+			case 'comments':
+			case 'terms':
+			case 'term_relationships':
+				$table = $object_type;
+				break;
+			case 'post_meta':
+				$table = 'postmeta';
+				break;
+			case 'comment_meta':
+				$table = 'commentmeta';
+				break;
+			default:
+				return false;
+		}
+		return $table;
+	}
+
 }
