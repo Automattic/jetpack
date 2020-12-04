@@ -18,6 +18,7 @@ import {
 	MOCK_SWITCH_THREATS,
 	MOCK_SWITCH_REWIND_STATE,
 	MOCK_SWITCH_SCAN_STATE,
+	MOCK_SWITCH_USERLESS_MODE,
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -115,6 +116,21 @@ const adminSecondaryPerms = {
 	},
 };
 
+const userlessModePerms = {
+	currentUser: {
+		isMaster: false,
+		permissions: {
+			admin_page: true,
+			connect: true,
+			disconnect: true,
+			edit_posts: true,
+			manage_modules: true,
+			manage_options: true,
+			manage_plugins: true,
+		},
+	},
+};
+
 const editorAuthorContributorPerms = {
 	currentUser: {
 		isMaster: false,
@@ -171,6 +187,32 @@ const isUnlinked = {
 	currentUser: {
 		isConnected: false,
 	},
+};
+
+export const switchUserlessMode = () => {
+	// state.jetpack.connection
+	const mockConnectionStatus = {
+		status: {
+			siteConnected: {
+				isActive: true,
+				isRegistered: true,
+			},
+		},
+		user: {
+			currentUser: {
+				isConnected: false,
+				isMaster: false,
+			},
+		},
+	};
+
+	return dispatch => {
+		dispatch( {
+			type: MOCK_SWITCH_USERLESS_MODE,
+			status: mockConnectionStatus.status,
+			user: mockConnectionStatus.user,
+		} );
+	};
 };
 
 export const switchUserPermission = slug => {

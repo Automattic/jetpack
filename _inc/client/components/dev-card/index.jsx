@@ -27,6 +27,7 @@ import {
 	switchThreats,
 	switchRewindState,
 	switchScanState,
+	switchUserlessMode,
 } from 'state/dev-version';
 import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import Card from 'components/card';
@@ -278,6 +279,19 @@ export class DevCard extends React.Component {
 				<hr />
 				<ul>
 					<li>
+						<label htmlFor="no_connected_users">
+							<input
+								type="radio"
+								id="no_connected_users"
+								value="no_connected_users"
+								name="no_connected_users"
+								checked={ this.props.noConnectedUsers }
+								onChange={ this.props.switchUserlessMode }
+							/>
+							No connected users (userless)
+						</label>
+					</li>
+					<li>
 						<label htmlFor="admin_master">
 							<input
 								type="radio"
@@ -511,6 +525,9 @@ export default connect(
 				return dispatch( switchRewindState( rewindState ) );
 			},
 			switchScanState: scanState => dispatch( switchScanState( scanState ) ),
+			switchUserlessMode: () => {
+				return dispatch( switchUserlessMode() );
+			},
 		};
 	}
 )( DevCard );

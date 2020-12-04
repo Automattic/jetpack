@@ -25,6 +25,7 @@ import {
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
 	MOCK_SWITCH_USER_PERMISSIONS,
+	MOCK_SWITCH_USERLESS_MODE,
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
@@ -40,6 +41,8 @@ export const status = (
 			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
+		case MOCK_SWITCH_USERLESS_MODE:
+			return merge( {}, state, action.status );
 
 		default:
 			return state;
@@ -68,6 +71,9 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 
 		case MOCK_SWITCH_USER_PERMISSIONS:
 			return merge( {}, state, action.initialState );
+
+		case MOCK_SWITCH_USERLESS_MODE:
+			return merge( {}, state, action.user );
 
 		default:
 			return state;
