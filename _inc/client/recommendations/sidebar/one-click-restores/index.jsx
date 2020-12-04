@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
@@ -11,13 +12,17 @@ import { Layout } from '../layout';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import { imagePath } from 'constants/urls';
+import getRedirectUrl from 'lib/jp-redirect';
+import { getSiteRawUrl } from 'state/initial-state';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-const OneClickRestores = () => {
+const OneClickRestoresComponent = props => {
+	const { siteRawUrl } = props;
+
 	// TODO: realtime/daily backups text
 	// TODO: button href
 	return (
@@ -37,13 +42,29 @@ const OneClickRestores = () => {
 						) }
 					</p>
 					<div className="jp-recommendations-one-click-restores__cta">
-						<Button primary>{ __( 'Enable one-click restores' ) }</Button>
-						<ExternalLink icon={ true }>{ __( 'Find your server credentials' ) }</ExternalLink>
+						<Button
+							primary
+							href={ getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ) }
+						>
+							{ __( 'Enable one-click restores' ) }
+						</Button>
+						<ExternalLink
+							href="https://jetpack.com/support/ssh-sftp-and-ftp-credentials/"
+							target="_blank"
+							rel="noopener noreferrer"
+							icon={ true }
+						>
+							{ __( 'Find your server credentials' ) }
+						</ExternalLink>
 					</div>
 				</div>
 			}
 		/>
 	);
 };
+
+const OneClickRestores = connect( state => ( {
+	siteRawUrl: getSiteRawUrl( state ),
+} ) )( OneClickRestoresComponent );
 
 export { OneClickRestores };
