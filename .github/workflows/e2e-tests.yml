@@ -14,7 +14,7 @@ jobs:
     name: "E2E tests: with ${{ matrix.gutenberg }} plugin"
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         gutenberg: [ 'no', 'latest' ]
     env:
