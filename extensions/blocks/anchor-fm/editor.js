@@ -18,13 +18,15 @@ if ( isExtensionAvailable ) {
 		const { track, podcast_id, episode_id } = data;
 		if ( typeof track === 'object' && podcast_id && episode_id ) {
 			window.onload = () => {
+				const { link, spotify_show_url: spotifyShowUrl } = data;
+
 				// Insert badge.
 				dispatch( 'core/block-editor' ).insertBlocks(
 					[
 						createBlock( 'core/image', {
 							url: 'https://cldup.com/Dv6JZWyRpq-1200x1200.png',
 							linkDestination: 'none',
-							href: track.link,
+							href: spotifyShowUrl || link,
 							align: 'center',
 							width: 165,
 							height: 40,
