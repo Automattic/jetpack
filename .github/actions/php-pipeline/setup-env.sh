@@ -6,7 +6,7 @@ set -eo pipefail
 export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
 
 # Configure PHP and PHPUnit environment
-if [[ ${PHP_VERSION} == "nightly" ]]; then
+if [[ ${PHP_VERSION:0:2} == "8." ]]; then
 	composer install --ignore-platform-reqs
 	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
 elif [[ ${PHP_VERSION:0:3} == "7.0" ]]; then
