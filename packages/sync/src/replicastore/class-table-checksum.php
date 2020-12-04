@@ -44,7 +44,7 @@ class Table_Checksum {
 				'table'           => $wpdb->posts,
 				'range_field'     => 'ID',
 				'key_fields'      => array( 'ID' ),
-				'checksum_fields' => array( 'post_modified' ),
+				'checksum_fields' => array( 'post_modified_gmt' ),
 				'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
 			),
 			'postmeta'           => array(
@@ -84,13 +84,13 @@ class Table_Checksum {
 				'table'           => $wpdb->term_relationships,
 				'range_field'     => 'object_id',
 				'key_fields'      => array( 'object_id' ),
-				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
+				'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
 			),
 			'term_taxonomy'      => array(
 				'table'           => $wpdb->term_taxonomy,
 				'range_field'     => 'term_taxonomy_id',
 				'key_fields'      => array( 'term_taxonomy_id' ),
-				'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
+				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
 			),
 			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions
 			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions
@@ -147,7 +147,7 @@ class Table_Checksum {
 
 		// TODO: Is this safe enough?
 		$result = $wpdb->get_row( "SELECT * FROM {$this->table} LIMIT 1", ARRAY_A );
-
+		l( $result );
 		if ( ! is_array( $result ) ) {
 			throw new Exception( 'Unexpected $wpdb->query output: not array' );
 		}
