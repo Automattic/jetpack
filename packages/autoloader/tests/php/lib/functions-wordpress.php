@@ -189,64 +189,28 @@ if ( ! function_exists( 'get_transient' ) ) {
 	}
 }
 
-if ( ! function_exists( 'path_is_absolute' ) ) {
+if ( ! function_exists( 'wp_normalize_path' ) ) {
 	/**
 	 * A drop-in for a WordPress core function.
 	 *
-	 * @param string $path File path.
-	 *
-	 * @return bool True if path is absolute, false is not absolute.
+	 * @param string $path The path to normalize.
+	 * @return string The normalized path.
 	 */
-	function path_is_absolute( $path ) {
-		/*
-		 * Check to see if the path is a stream and check to see if its an actual
-		 * path or file as realpath() does not support stream wrappers.
-		 */
-		if ( wp_is_stream( $path ) && ( is_dir( $path ) || is_file( $path ) ) ) {
-			return true;
+	function wp_normalize_path( $path ) {
+		$wrapper = '';
+
+		// Standardise all paths to use '/'.
+		$path = str_replace( '\\', '/', $path );
+
+		// Replace multiple slashes down to a singular, allowing for network shares having two slashes.
+		$path = preg_replace( '|(?<=.)/+|', '/', $path );
+
+		// Windows paths should uppercase the drive letter.
+		if ( ':' === substr( $path, 1, 1 ) ) {
+			$path = ucfirst( $path );
 		}
 
-		/*
-		 * This is definitive if true but fails if $path does not exist or contains
-		 * a symbolic link.
-		 */
-		// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-		if ( realpath( $path ) == $path ) {
-			return true;
-		}
-
-		// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-		if ( strlen( $path ) == 0 || '.' === $path[0] ) {
-			return false;
-		}
-
-		// Windows allows absolute paths like this.
-		if ( preg_match( '#^[a-zA-Z]:\\\\#', $path ) ) {
-			return true;
-		}
-
-		// A path starting with / or \ is absolute; anything else is relative.
-		return ( '/' === $path[0] || '\\' === $path[0] );
-	}
-
-	/**
-	 * A drop-in for a WordPress core function.
-	 *
-	 * @param string $path The resource path or URL.
-	 *
-	 * @return bool True if the path is a stream URL.
-	 */
-	function wp_is_stream( $path ) {
-		$scheme_separator = strpos( $path, '://' );
-
-		if ( false === $scheme_separator ) {
-			// $path isn't a stream.
-			return false;
-		}
-
-		$stream = substr( $path, 0, $scheme_separator );
-
-		return in_array( $stream, stream_get_wrappers(), true );
+		return $wrapper . $path;
 	}
 }
 

@@ -5,14 +5,17 @@
  * @package automattic/jetpack-autoloader
  */
 
+// Note: Make sure to normalize the path constants so that the test environment is the same on both Windows.
+define( 'TEST_DIR', str_replace( '\\', '/', __DIR__ ) );
+
 // Make sure its easy to reference the test files.
-define( 'TEST_PACKAGE_PATH', dirname( dirname( __DIR__ ) ) );
-define( 'TEST_DATA_PATH', __DIR__ . '/data' );
+define( 'TEST_PACKAGE_PATH', dirname( dirname( TEST_DIR ) ) );
+define( 'TEST_DATA_PATH', TEST_DIR . '/data' );
 
 // Give us some fake content/plugin paths to work with.
 define( 'WP_CONTENT_DIR', TEST_DATA_PATH );
-define( 'WP_PLUGIN_DIR', TEST_DATA_PATH . '/plugins' );
-define( 'WPMU_PLUGIN_DIR', TEST_DATA_PATH . '/mu-plugins' );
+define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . '/mu-plugins' );
 
 // Load any of the test utilities.
 require_once __DIR__ . '/lib/functions-wordpress.php';

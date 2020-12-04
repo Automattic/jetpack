@@ -45,9 +45,7 @@ class Test_Path_Processor extends TestCase {
 	 * Tests that find_directory_with_autoloader is able to successfully tokenize and untokenize paths on Windows.
 	 */
 	public function test_handles_path_tokenization_and_untokenization_with_windows_paths() {
-		$path = $this->processor->tokenize_path_constants(
-			str_replace( '/', '\\', WP_PLUGIN_DIR . '/test/path' )
-		);
+		$path = $this->processor->tokenize_path_constants( WP_PLUGIN_DIR . '/test/path' );
 
 		$this->assertEquals( '{{WP_PLUGIN_DIR}}/test/path', $path );
 
@@ -98,7 +96,7 @@ class Test_Path_Processor extends TestCase {
 	public function test_finds_directory_for_autoloaded_plugin_with_windows_paths() {
 		$path = $this->processor->find_directory_with_autoloader(
 			'dummy_current\dummy_current.php',
-			array( str_replace( '/', '\\', TEST_DATA_PATH . '/plugins' ) )
+			array( WP_PLUGIN_DIR )
 		);
 
 		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current', $path );
