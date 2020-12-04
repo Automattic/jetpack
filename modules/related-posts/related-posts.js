@@ -105,7 +105,7 @@
 					anchor[ 1 ] +
 					'</span>';
 				if ( options.showDate ) {
-					html += '<span class="jp-relatedposts-post-date">' + post.date + '</span>';
+					html += '<time class="jp-relatedposts-post-date" datetime="' + post.date + '">' + post.date + '</time>';
 				}
 				if ( options.showContext ) {
 					html += '<span class="jp-relatedposts-post-context">' + post.context + '</span>';
@@ -180,7 +180,7 @@
 					$( '<p>' ).text( post.excerpt ).html() +
 					'</p>';
 				if ( options.showDate ) {
-					html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
+					html += '<time class="jp-relatedposts-post-date" datetime="' + post.date + '">' + post.date + '</time>';
 				}
 				if ( options.showContext ) {
 					html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
