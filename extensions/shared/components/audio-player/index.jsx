@@ -8,7 +8,7 @@ import { throttle } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 
@@ -47,6 +47,24 @@ function AudioPlayer( {
 	playStatus = STATE_PAUSED,
 } ) {
 	const audioRef = useRef();
+
+	// If we get lots of events from clicking on the progress bar in the MediaElement
+	// then we can get stuck in a loop. Throttling them makes sure that the playStatus
+	// prop and the events don't compete with each other.
+	// Having the play timeout slightly higher than pause helps it win when the audio
+	// is playing as the progress bar is clicked.
+	const throttledOnPlay = useCallback(
+		throttle( () => {
+			onPlay?.();
+		}, 50 ),
+		[ onPlay ]
+	);
+	const throttledOnPause = useCallback(
+		throttle( () => {
+			onPause?.();
+		}, 30 ),
+		[ onPause ]
+	);
 
 	/**
 	 * Play current audio.
@@ -93,18 +111,18 @@ function AudioPlayer( {
 			}
 		}
 
-		onPlay && audio.addEventListener( 'play', onPlay );
-		onPause && audio.addEventListener( 'pause', onPause );
+		throttledOnPlay && audio.addEventListener( 'play', throttledOnPlay );
+		throttledOnPause && audio.addEventListener( 'pause', throttledOnPause );
 		onError && audio.addEventListener( 'error', onError );
 
 		return () => {
 			// Cleanup.
 			mediaElement.remove();
-			onPlay && audio.removeEventListener( 'play', onPlay );
-			onPause && audio.removeEventListener( 'pause', onPause );
+			throttledOnPlay && audio.removeEventListener( 'play', throttledOnPlay );
+			throttledOnPause && audio.removeEventListener( 'pause', throttledOnPause );
 			onError && audio.removeEventListener( 'error', onError );
 		};
-	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
+	}, [ audioRef, throttledOnPlay, throttledOnPause, onError, onJumpBack, onSkipForward ] );
 
 	useEffect( () => {
 		// Get the current status of the audio element and the required action to toggle it.
