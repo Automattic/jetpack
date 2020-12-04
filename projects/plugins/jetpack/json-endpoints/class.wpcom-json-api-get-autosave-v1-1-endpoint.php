@@ -53,7 +53,7 @@ class WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1
 		if ( $autosave ) {
 			$preview_url = add_query_arg( 'preview', 'true', get_permalink( $post->ID ) );
 			$nonce = wp_create_nonce( 'post_preview_' . $post->ID );
-			$preview_url = add_query_arg( array( 'preview_id' => $auto_ID, 'preview_nonce' => $nonce ), $preview_url );
+			$preview_url = add_query_arg( array( 'preview_id' => $post->ID, 'preview_nonce' => $nonce ), $preview_url );
 
 			return array(
 				'ID'          => $autosave->ID,

@@ -96,7 +96,7 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 			// Non drafts or other users drafts are not overwritten. The autosave is stored in a special post revision for each user.
 			$auto_ID = wp_create_post_autosave( wp_slash( $post_data ) );
 			$nonce = wp_create_nonce( 'post_preview_' . $post->ID );
-			$preview_url = add_query_arg( array( 'preview_id' => $auto_ID, 'preview_nonce' => $nonce ), $preview_url );
+			$preview_url = add_query_arg( array( 'preview_id' => $post->ID, 'preview_nonce' => $nonce ), $preview_url );
 		}
 
 		$updated_post = get_post( $auto_ID );
