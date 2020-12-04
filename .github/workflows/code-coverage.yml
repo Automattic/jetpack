@@ -57,13 +57,9 @@ jobs:
           ./cc-test-reporter before-build
 
       - name: Adminpage coverage
-        # working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
-        run: |
-          echo $(pwd)
-          yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
+        run: yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
 
       - name: Extensions coverage
-        # working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
 
       - name: Backend coverage
