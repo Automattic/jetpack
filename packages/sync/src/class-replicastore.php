@@ -268,8 +268,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
-		$checksum_table = new Table_Checksum( 'posts' );
-		return $checksum_table->calculate_checksum( $min_id, $max_id );
+		return array_sum( $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts' ) ) );
 	}
 
 	/**
@@ -282,8 +281,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
-		$checksum_table = new Table_Checksum( 'postmeta' );
-		return $checksum_table->calculate_checksum( $min_id, $max_id );
+		return array_sum( $this->checksum_histogram( 'post_meta', $this->calculate_buckets( 'post_meta' ) ) );
 	}
 
 	/**
