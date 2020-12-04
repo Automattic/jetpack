@@ -5,6 +5,7 @@ use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 class Jetpack_Connection_Banner {
 	/**
@@ -411,6 +412,12 @@ class Jetpack_Connection_Banner {
 				<div class="jp-connect-full__step-header">
 					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
 				</div>
+
+				<?php if ( ( new Status() )->is_no_user_testing_mode() ) : ?>
+					<div id="jp-authenticate-no_user_test_mode">
+						<a href="<?php echo esc_url( Jetpack::admin_url() ); ?>">Skip user authentication</a>
+					</div>
+				<?php endif; ?>
 
 				<p class="jp-connect-full__tos-blurb">
 					<?php jetpack_render_tos_blurb(); ?>
