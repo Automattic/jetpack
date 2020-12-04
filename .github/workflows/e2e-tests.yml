@@ -48,7 +48,7 @@ jobs:
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        LATEST_GUTENBERG: ${{ matrix.gutenberg == 'latest' }}
+        GUTENBERG: ${{ matrix.gutenberg }}
       run: |
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
