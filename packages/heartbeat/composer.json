@@ -8,7 +8,7 @@
 		"automattic/jetpack-options": "@dev"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+		"yoast/phpunit-polyfills": "^0.2"
 	},
 	"autoload": {
 		"classmap": [

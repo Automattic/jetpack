@@ -15,9 +15,10 @@ class WP_Test_Autoloader extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setup() {
-		parent::setup();
+	public function set_up() {
 		spl_autoload_register( 'autoloader' );
 	}
 
