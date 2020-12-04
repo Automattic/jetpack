@@ -3,12 +3,12 @@
 /**
  * External dependencies
  */
-import { throttle } from 'lodash';
+import { debounce, throttle } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 
@@ -47,24 +47,6 @@ function AudioPlayer( {
 	playStatus = STATE_PAUSED,
 } ) {
 	const audioRef = useRef();
-
-	// If we get lots of events from clicking on the progress bar in the MediaElement
-	// then we can get stuck in a loop. Throttling them makes sure that the playStatus
-	// prop and the events don't compete with each other.
-	// Having the play timeout slightly higher than pause helps it win when the audio
-	// is playing as the progress bar is clicked.
-	const throttledOnPlay = useCallback(
-		throttle( () => {
-			onPlay?.();
-		}, 50 ),
-		[ onPlay ]
-	);
-	const throttledOnPause = useCallback(
-		throttle( () => {
-			onPause?.();
-		}, 30 ),
-		[ onPause ]
-	);
 
 	/**
 	 * Play current audio.
@@ -111,27 +93,33 @@ function AudioPlayer( {
 			}
 		}
 
-		throttledOnPlay && audio.addEventListener( 'play', throttledOnPlay );
-		throttledOnPause && audio.addEventListener( 'pause', throttledOnPause );
+		onPlay && audio.addEventListener( 'play', onPlay );
+		onPause && audio.addEventListener( 'pause', onPause );
 		onError && audio.addEventListener( 'error', onError );
 
 		return () => {
 			// Cleanup.
 			mediaElement.remove();
-			throttledOnPlay && audio.removeEventListener( 'play', throttledOnPlay );
-			throttledOnPause && audio.removeEventListener( 'pause', throttledOnPause );
+			onPlay && audio.removeEventListener( 'play', onPlay );
+			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
 		};
-	}, [ audioRef, throttledOnPlay, throttledOnPause, onError, onJumpBack, onSkipForward ] );
+	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
 
-	useEffect( () => {
-		// Get the current status of the audio element and the required action to toggle it.
-		const [ audioStatus, action ] =
-			audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
-		if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
-			action();
-		}
-	}, [ audioRef, playStatus, trackSource ] );
+	// If we get lots of events from clicking on the progress bar in the MediaElement
+	// then we can get stuck in a loop. We can so by debouncing here we wait until the
+	// next tick before acting on the playStatus prop value changing.
+	useEffect(
+		debounce( () => {
+			// Get the current status of the audio element and the required action to toggle it.
+			const [ audioStatus, action ] =
+				audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
+			if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
+				action();
+			}
+		} ),
+		[ audioRef, playStatus, trackSource ]
+	);
 
 	useEffect( () => {
 		if ( ! onTimeChange ) {
