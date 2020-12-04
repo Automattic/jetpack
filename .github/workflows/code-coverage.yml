@@ -7,6 +7,7 @@ env:
   TRAVIS_PHP_VERSION: "7.3"
   WP_TRAVISCI: 'phpunit'
   CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
+  CODECOV_TOKEN: 13375979-2ee3-4078-8763-da63dfbc8b35
 
 jobs:
   coverage:
@@ -55,6 +56,8 @@ jobs:
           yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
 
       - name: Process coverage results
-        run: ./tests/process-coverage.sh
+        run: |
+          bash <(curl -s https://codecov.io/bash) -s ./coverage || echo 'Codecov failed to upload'
+          ./tests/process-coverage.sh
 
 
