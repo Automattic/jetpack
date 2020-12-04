@@ -2,8 +2,14 @@
 
 set -eo pipefail
 
-# Add composer into PATH
-export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
+# Add global composer into PATH
+COMPOSER_BIN_DIR=$(composer global config --absolute bin-dir)
+export PATH="$COMPOSER_BIN_DIR:$PATH"
+
+# Update path for subsequent Github Action steps
+if [[ -n "$GITHUB_PATH" ]]; then
+    echo "$COMPOSER_BIN_DIR" >> $GITHUB_PATH
+fi
 
 # Configure PHP and PHPUnit environment
 if [[ ${PHP_VERSION:0:2} == "8." ]]; then
