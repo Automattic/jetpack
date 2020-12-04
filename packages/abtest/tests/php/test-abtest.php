@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use phpmock\Mock;
-use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,29 +17,13 @@ use PHPUnit\Framework\TestCase;
 class Test_Abtest extends TestCase {
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->abtest = $this->getMockBuilder( 'Automattic\\Jetpack\\Abtest' )
 								->setMethods( array( 'request_variation' ) )
 								->getMock();
-
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'is_wp_error' )
-			->setFunction(
-				function ( $object ) {
-					return is_a( $object, __NAMESPACE__ . '\\Error' );
-				}
-			);
-		$mock = $builder->build();
-		$mock->enable();
-	}
-
-	/**
-	 * Test teardown.
-	 */
-	public function tearDown() {
-		Mock::disableAll();
 	}
 
 	/**

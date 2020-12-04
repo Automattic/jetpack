@@ -5,13 +5,13 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
-		"mediawiki/mediawiki-codesniffer": "33.0.0",
+		"mediawiki/mediawiki-codesniffer": "33.0.0 || dev-master",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
 		"sirbrillig/phpcs-variable-analysis": "2.9.0",
 		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+		"yoast/phpunit-polyfills": "^0.2"
 	},
 	"autoload": {
 		"psr-4": {

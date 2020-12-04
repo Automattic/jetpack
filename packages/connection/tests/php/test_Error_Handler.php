@@ -13,12 +13,14 @@ use WorDBless\BaseTestCase;
  * Connection Manager functionality testing.
  */
 class Error_Handler_Test extends BaseTestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Initialize tests
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
 		$this->error_handler = Error_Handler::get_instance();
 	}
 
@@ -287,7 +289,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$encrypted = $this->error_handler->encrypt_data_to_wpcom( $stored_errors['unknown_user']['3'] );
 
-		$this->assertInternalType( 'string', $encrypted );
+		$this->assertIsString( $encrypted );
 		$this->assertEquals( 472, strlen( $encrypted ) );
 
 	}
