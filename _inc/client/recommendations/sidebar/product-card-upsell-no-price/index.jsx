@@ -18,6 +18,8 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const ProductCardUpsellNoPrice = props => {
+	const { upgradeUrl } = props;
+
 	const features = [
 		__( 'Robust security to keep your site safe' ),
 		__( 'Speed-enhancing performance tools' ),
@@ -45,7 +47,7 @@ const ProductCardUpsellNoPrice = props => {
 						'Explore premium Jetpack product bundles or pick and choose exactly what you need.'
 					) }
 				</p>
-				<Button primary href={ 'https://cloud.jetpack.com/pricing' }>
+				<Button primary href={ upgradeUrl }>
 					{ __( 'Learn more' ) }
 					<Gridicon icon="external" />
 				</Button>

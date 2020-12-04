@@ -18,7 +18,9 @@ import { jetpackCreateInterpolateElement } from 'components/create-interpolate-e
 import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import JetpackLogo from 'components/jetpack-logo';
+import { getUpgradeUrl } from 'state/initial-state';
 import {
+	getSidebarCardSlug,
 	getSiteTypeDisplayName,
 	getSummaryFeatureSlugs,
 	updateRecommendationsStep,
@@ -30,31 +32,46 @@ import {
 import './style.scss';
 
 const SummaryComponent = props => {
-	const { siteTypeDisplayName, summaryFeatureSlugs } = props;
+	const { sidebarCardSlug, siteTypeDisplayName, summaryFeatureSlugs, upgradeUrl } = props;
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'summary' );
 	} );
 
-	const sidebarCard = (
-		<ProductCardUpsell
-			title={ __( 'Backup Daily' ) }
-			description={ __(
-				'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
-			) }
-			ctaHref={ 'https://cloud.jetpack.com/pricing' }
-			features={ [
-				__( 'Automated daily off-site backups' ),
-				__( 'One-click restores' ),
-				__( 'Unlimited secure storage' ),
-			] }
-		/>
-	);
-
-	// sidebarCard = <OneClickRestores />;
-	// sidebarCard = <Security />;
-	// sidebarCard = <MobileApp />;
-	// sidebarCard = <ProductCardUpsellNoPrice />;
+	let sidebarCard;
+	switch ( sidebarCardSlug ) {
+		case 'loading':
+			// TODO:
+			// sidebarCard = <ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />;
+			break;
+		case 'upsell':
+			sidebarCard = (
+				<ProductCardUpsell
+					title={ __( 'Backup Daily' ) }
+					description={ __(
+						'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
+					) }
+					upgradeUrl={ upgradeUrl }
+					features={ [
+						__( 'Automated daily off-site backups' ),
+						__( 'One-click restores' ),
+						__( 'Unlimited secure storage' ),
+					] }
+				/>
+			);
+			break;
+		case 'one-click-restores':
+			sidebarCard = <OneClickRestores />;
+			break;
+		case 'manage-security':
+			sidebarCard = <Security />;
+			break;
+		case 'download-app':
+			sidebarCard = <MobileApp />;
+			break;
+		default:
+			throw `Unknown sidebarCardSlug in SummaryComponent: ${ sidebarCardSlug }`;
+	}
 
 	return (
 		<div className="jp-recommendations-summary">
@@ -124,8 +141,10 @@ const SummaryComponent = props => {
 
 const Summary = connect(
 	state => ( {
+		sidebarCardSlug: getSidebarCardSlug( state ),
 		siteTypeDisplayName: getSiteTypeDisplayName( state ),
 		summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
+		upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),

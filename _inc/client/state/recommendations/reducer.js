@@ -9,6 +9,7 @@ import { assign, difference, get, mergeWith, remove, union } from 'lodash';
  * Internal dependencies
  */
 import { getInitialRecommendationsStep } from '../initial-state/reducer';
+import { getPlanClass } from 'lib/plans/constants';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -337,4 +338,32 @@ export const getSummaryFeatureSlugs = state => {
 		selected,
 		skipped,
 	};
+};
+
+export const getSidebarCardSlug = state => {
+	const sitePlan = getSitePlan( state );
+	const rewindStatus = getRewindStatus( state );
+
+	const planSlug = sitePlan.product_slug;
+	const planClass = getPlanClass( planSlug );
+	const rewindState = rewindStatus.state;
+
+	if ( ! sitePlan.product_slug || ! rewindState ) {
+		return 'loading';
+	}
+
+	if ( 'jetpack_free' === planSlug && ! hasActiveBackupPurchase( state ) ) {
+		return 'upsell';
+	}
+
+	if ( 'awaiting_credentials' === rewindState && 'is-scan-plan' !== planClass ) {
+		return 'one-click-restores';
+	}
+
+	if ( 'active' === rewindState ) {
+		return 'manage-security';
+	}
+
+	// TODO: does this last case only occur for paid plans w/o backup or scan?
+	return 'download-app';
 };

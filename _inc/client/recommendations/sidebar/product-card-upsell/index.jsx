@@ -18,7 +18,7 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const ProductCardUpsell = props => {
-	const { title, description, ctaHref, features } = props;
+	const { title, description, upgradeUrl, features } = props;
 
 	// TODO: get price etc dynamically from API.
 	return (
@@ -44,7 +44,7 @@ const ProductCardUpsell = props => {
 						{ __( 'billed yearly' ) }
 					</span>
 				</div>
-				<Button primary href={ ctaHref }>
+				<Button primary href={ upgradeUrl }>
 					{ __( 'Learn more' ) }
 					<Gridicon icon="external" />
 				</Button>
@@ -64,7 +64,7 @@ const ProductCardUpsell = props => {
 ProductCardUpsell.propTypes = {
 	title: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
-	ctaHref: PropTypes.string.isRequired,
+	upgradeUrl: PropTypes.string.isRequired,
 	features: PropTypes.arrayOf( PropTypes.string ),
 };
 
