@@ -7,7 +7,7 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"mediawiki/mediawiki-codesniffer": "33.0.0 || dev-master",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
-		"sirbrillig/phpcs-variable-analysis": "2.9.0",
+		"sirbrillig/phpcs-variable-analysis": "2.10.0",
 		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"require-dev": {
