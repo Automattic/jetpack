@@ -43,7 +43,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -62,7 +62,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -76,10 +76,38 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @covers ::prepare_menu_for_response
 	 */
 	public function test_get_item() {
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertTrue( rest_validate_value_from_schema( $response->get_data(), ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema() ) );
+	}
+
+	/**
+	 * Tests that submenu items get promoted when the user doesn't have the caps for the top-level menu item.
+	 *
+	 * @covers ::prepare_menu_for_response
+	 */
+	public function test_parent_menu_item_always_exists() {
+		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$response = $this->server->dispatch( $request );
+		remove_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
+
+		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
+		$menu_item = array_pop( $menu );
+
+		$this->assertNotEmpty( $menu_item );
+		$this->assertSame( $menu_item['children'][0]['slug'], $menu_item['slug'], 'Parent and submenu should be the same.' );
+	}
+
+	/**
+	 * Adds an orphan submenu.
+	 *
+	 * The user role for these tests is `Editor`, who don't have access to the Settings menu.
+	 * Unless it contains a menu item they do have access to.
+	 */
+	public function add_orphan_submenu() {
+		add_submenu_page( 'options-general.php', 'Title', 'Test Title', 'read', 'menu_slug' );
 	}
 
 	/**
