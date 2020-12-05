@@ -35,6 +35,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		parent::setUp();
 
 		wp_set_current_user( static::$user_id );
+		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
 	}
 
 	/**
@@ -88,10 +89,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @covers ::prepare_menu_for_response
 	 */
 	public function test_parent_menu_item_always_exists() {
-		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
 		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
-		remove_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
 
 		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
 		$menu_item = array_pop( $menu );
