@@ -9,7 +9,7 @@
 		"automattic/jetpack-terms-of-service": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^0.2"
+		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {
 		"classmap": [

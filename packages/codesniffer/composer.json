@@ -11,7 +11,7 @@
 		"wp-coding-standards/wpcs": "2.3.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^0.2"
+		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {
 		"psr-4": {
