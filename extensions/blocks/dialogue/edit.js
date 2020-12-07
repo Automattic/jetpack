@@ -149,11 +149,7 @@ export default function DialogueEdit ( {
 						participants={ participants }
 						participant={ participant }
 						label={ participantLabel }
-						onSelect={ ( { newParticipantSlug } ) => {
-							setAttributes( {
-								participantSlug: newParticipantSlug,
-							} );
-						} }
+						onSelect={ setAttributes }
 						onChange={ ( { newParticipant } ) => setAttributes( {
 							participantSlug: null,
 							participant: newParticipant,
@@ -190,8 +186,7 @@ export default function DialogueEdit ( {
 						<ParticipantsControl
 							className={ baseClassName }
 							participants={ participants }
-							participant={ participant }
-							label={ participantLabel }
+							currentParticipant={ participantSlug }
 							onSelect={ setAttributes }
 						/>
 					</PanelBody>

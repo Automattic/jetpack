@@ -20,12 +20,12 @@ import { Fragment } from '@wordpress/element';
 function ParticipantsMenu( { participants, className, onSelect } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ map( participants, ( { participant: newParticipant, participantSlug: newParticipantSlug } ) => (
+			{ map( participants, ( { participant, participantSlug: participantSlug } ) => (
 				<MenuItem
-					key={ newParticipantSlug }
-					onClick={ () => onSelect( { newParticipant, newParticipantSlug } ) }
+					key={ participantSlug }
+					onClick={ () => onSelect( { participant, participantSlug } ) }
 				>
-					{ newParticipant }
+					{ participant }
 				</MenuItem>
 			) ) }
 		</MenuGroup>
