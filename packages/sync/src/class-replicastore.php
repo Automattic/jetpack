@@ -281,7 +281,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
-		return array_sum( $this->checksum_histogram( 'post_meta', $this->calculate_buckets( 'post_meta' ) ) );
+		return array_sum( $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta' ) ) );
 	}
 
 	/**
@@ -1155,8 +1155,8 @@ class Replicastore implements Replicastore_Interface {
 	public function checksum_all() {
 		$post_checksum               = $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts' ) );
 		$comments_checksum           = $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments' ) );
-		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'post_meta' ) );
-		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'comment_meta' ) );
+		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta' ) );
+		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'commentmeta' ) );
 		$terms_checksum              = $this->checksum_histogram( 'terms', $this->calculate_buckets( 'terms' ) );
 		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', $this->calculate_buckets( 'term_relationships' ) );
 		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', $this->calculate_buckets( 'term_taxonomy' ) );
