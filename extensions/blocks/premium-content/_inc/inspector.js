@@ -55,7 +55,7 @@ export default function Inspector( props ) {
 					href={ `https://wordpress.com/earn/payments/${ siteSlug }` }
 					className={ 'wp-block-premium-content-container---link-to-earn' }
 				>
-					{ __( 'Manage your subscriptions.', 'full-site-editing' ) }
+					{ __( 'Manage your subscriptions.', 'jetpack' ) }
 				</ExternalLink>
 			) }
 			<PanelBody
@@ -66,8 +66,8 @@ export default function Inspector( props ) {
 				{ apiState === API_STATE_REQUESTING && (
 					<Placeholder
 						icon="lock"
-						label={ __( 'Premium Content', 'full-site-editing' ) }
-						instructions={ __( 'Saving plan…', 'full-site-editing' ) }
+						label={ __( 'Premium Content', 'jetpack' ) }
+						instructions={ __( 'Saving plan…', 'jetpack' ) }
 					>
 						<Spinner />
 					</Placeholder>
@@ -79,27 +79,27 @@ export default function Inspector( props ) {
 								id="new-plan-name"
 								label="Name"
 								value={ attributes.newPlanName }
-								onChange={ ( set ) => setAttributes( { newPlanName: set } ) }
+								onChange={ set => setAttributes( { newPlanName: set } ) }
 							/>
 						</PanelRow>
 						<PanelRow className="plan-price">
 							<SelectControl
 								label="Currency"
-								onChange={ ( set ) => setAttributes( { newPlanCurrency: set } ) }
+								onChange={ set => setAttributes( { newPlanCurrency: set } ) }
 								value={ attributes.newPlanCurrency }
 								options={ CURRENCY_OPTIONS }
 							></SelectControl>
 							<TextControl
 								label="Price"
 								value={ attributes.newPlanPrice }
-								onChange={ ( set ) => setAttributes( { newPlanPrice: parseFloat( set ) } ) }
+								onChange={ set => setAttributes( { newPlanPrice: parseFloat( set ) } ) }
 								type="number"
 							></TextControl>
 						</PanelRow>
 						<PanelRow className="plan-interval">
 							<SelectControl
 								label="Interval"
-								onChange={ ( set ) => setAttributes( { newPlanInterval: set } ) }
+								onChange={ set => setAttributes( { newPlanInterval: set } ) }
 								value={ attributes.newPlanInterval }
 								options={ [
 									{ label: 'Month', value: '1 month' },
@@ -116,10 +116,10 @@ export default function Inspector( props ) {
 									/**
 									 * @param { import('react').MouseEvent<HTMLElement> } e
 									 */
-									( e ) => {
+									e => {
 										e.preventDefault();
 										setApiState( API_STATE_REQUESTING );
-										savePlan( props.attributes, ( success ) => {
+										savePlan( props.attributes, success => {
 											setApiState( API_STATE_NOT_REQUESTING );
 											if ( success ) {
 												setAttributes( { newPlanPrice: 5 } );
@@ -129,7 +129,7 @@ export default function Inspector( props ) {
 									}
 								}
 							>
-								{ __( 'Add subscription', 'full-site-editing' ) }
+								{ __( 'Add subscription', 'jetpack' ) }
 							</Button>
 						</PanelRow>
 					</div>

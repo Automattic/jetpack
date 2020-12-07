@@ -23,16 +23,16 @@ const INITIAL_BORDER_RADIUS_POSITION = 5;
 
 function BorderPanel( { borderRadius = '', setAttributes } ) {
 	const setBorderRadius = useCallback(
-		( newBorderRadius ) => {
+		newBorderRadius => {
 			setAttributes( { borderRadius: newBorderRadius } );
 		},
 		[ setAttributes ]
 	);
 	return (
-		<PanelBody title={ __( 'Border settings', 'full-site-editing' ) }>
+		<PanelBody title={ __( 'Border settings', 'jetpack' ) }>
 			<RangeControl
 				value={ borderRadius }
-				label={ __( 'Border radius', 'full-site-editing' ) }
+				label={ __( 'Border radius', 'jetpack' ) }
 				min={ MIN_BORDER_RADIUS_VALUE }
 				max={ MAX_BORDER_RADIUS_VALUE }
 				initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
@@ -54,9 +54,9 @@ function LoginButtonEdit( props ) {
 			{ /* eslint-disable-next-line wpcalypso/jsx-classname-namespace */ }
 			<Block.div className="wp-block-button">
 				<RichText
-					placeholder={ __( 'Add text…', 'full-site-editing' ) }
+					placeholder={ __( 'Add text…', 'jetpack' ) }
 					value={ text }
-					onChange={ ( value ) => setAttributes( { text: value } ) }
+					onChange={ value => setAttributes( { text: value } ) }
 					withoutInteractiveFormatting
 					className={ classnames( className, 'wp-block-button__link', colorProps.className, {
 						'no-border-radius': borderRadius === 0,

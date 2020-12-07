@@ -33,16 +33,13 @@ function Edit( { hasInnerBlocks, parentClientId, isSelected } ) {
 						templateLock={ false }
 						templateInsertUpdatesSelection={ false }
 						template={ [
-							[
-								'core/heading',
-								{ content: __( 'Subscriber Content', 'full-site-editing' ), level: 3 },
-							],
+							[ 'core/heading', { content: __( 'Subscriber Content', 'jetpack' ), level: 3 } ],
 							[
 								'core/paragraph',
 								{
 									content: __(
 										'Add content here that will only be visible to your subscribers.',
-										'full-site-editing'
+										'jetpack'
 									),
 								},
 							],

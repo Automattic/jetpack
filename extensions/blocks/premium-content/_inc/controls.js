@@ -26,7 +26,7 @@ import NewPlan from './new-plan';
  */
 export default function Controls( props ) {
 	const { selectedPlanId, onSelected, plans, getPlanDescription } = props;
-	const currentPlan = plans.find( ( plan ) => plan.id === selectedPlanId );
+	const currentPlan = plans.find( plan => plan.id === selectedPlanId );
 	let planDescription = null;
 	if ( currentPlan ) {
 		planDescription = ' ' + getPlanDescription( currentPlan );
@@ -42,7 +42,7 @@ export default function Controls( props ) {
 							{ planDescription && <Fragment>{ planDescription }</Fragment> }
 						</Fragment>
 					}
-					label={ __( 'Select a plan', 'full-site-editing' ) }
+					label={ __( 'Select a plan', 'jetpack' ) }
 					className={ 'premium-content-toolbar-button' }
 				>
 					{ ( { onClose } ) => (

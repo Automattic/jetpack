@@ -16,7 +16,7 @@ function create_legacy_buttons_markup( $attributes, $block ) {
 			$button_styles,
 			sprintf(
 				'background-color: %s',
-				sanitize_hex_color( $attributes['customBackgroundButtonColor'] ) ?? 'transparent'
+				isset( $attributes['customBackgroundButtonColor'] ) ? sanitize_hex_color( $attributes['customBackgroundButtonColor'] ) : 'transparent'
 			)
 		);
 	}
@@ -25,7 +25,7 @@ function create_legacy_buttons_markup( $attributes, $block ) {
 			$button_styles,
 			sprintf(
 				'color: %s',
-				sanitize_hex_color( $attributes['customTextButtonColor'] ) ?? 'inherit'
+				isset( $attributes['customTextButtonColor'] ) ? sanitize_hex_color( $attributes['customTextButtonColor'] ) : 'inherit'
 			)
 		);
 	}
@@ -36,7 +36,7 @@ function create_legacy_buttons_markup( $attributes, $block ) {
 		premium_content_subscription_service()->access_url(),
 		empty( $attributes['buttonClasses'] ) ? 'wp-block-button__link' : esc_attr( $attributes['buttonClasses'] ),
 		esc_attr( $button_styles ),
-		empty( $attributes['loginButtonText'] ) ? __( 'Log In', 'full-site-editing' ) : $attributes['loginButtonText']
+		empty( $attributes['loginButtonText'] ) ? __( 'Log In', 'jetpack' ) : $attributes['loginButtonText']
 	);
 
 	$subscribe_button = \Jetpack_Memberships::get_instance()->render_button(
@@ -45,7 +45,7 @@ function create_legacy_buttons_markup( $attributes, $block ) {
 			'submitButtonClasses'         => empty( $attributes['buttonClasses'] ) ? 'wp-block-button__link' : esc_attr( $attributes['buttonClasses'] ),
 			'customTextButtonColor'       => empty( $attributes['customTextButtonColor'] ) ? '' : esc_attr( $attributes['customTextButtonColor'] ),
 			'customBackgroundButtonColor' => empty( $attributes['customBackgroundButtonColor'] ) ? '' : esc_attr( $attributes['customBackgroundButtonColor'] ),
-			'submitButtonText'            => empty( $attributes['subscribeButtonText'] ) ? __( 'Subscribe', 'full-site-editing' ) : esc_attr( $attributes['subscribeButtonText'] ),
+			'submitButtonText'            => empty( $attributes['subscribeButtonText'] ) ? __( 'Subscribe', 'jetpack' ) : esc_attr( $attributes['subscribeButtonText'] ),
 		)
 	);
 
