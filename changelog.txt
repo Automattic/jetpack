@@ -4,7 +4,7 @@
 
 = 9.2.1 =
 
-* Release date:
+* Release date:  December 10, 2020
 
 **Improved compatibility**
 

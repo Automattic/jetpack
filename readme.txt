@@ -245,7 +245,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 = 9.2.1 =
 
-* Release date:
+* Release date: December 10, 2020
 
 **Improved compatibility**
 
