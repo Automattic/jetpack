@@ -60,6 +60,10 @@ if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
 		require "$test_root/includes/phpunit7/MockObject/MockMethod.php";
 	} else {
 		fprintf( STDERR, "Warning: PHPUnit <9.3 is not compatible with PHP 8.0+, and the hack could not be loaded.\n" );
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+		fprintf( STDERR, "  Class %s exists: %s\n", PHPUnit\Framework\MockObject\InvocationMocker::class, var_export( class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ), 1 ) );
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+		fprintf( STDERR, "  File %s exists: %s\n", "$test_root/includes/phpunit7/MockObject/InvocationMocker.php", var_export( file_exists( "$test_root/includes/phpunit7/MockObject/InvocationMocker.php" ), 1 ) );
 	}
 }
 
