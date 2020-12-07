@@ -268,8 +268,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
-		$checksum_table = new Table_Checksum( 'posts' );
-		return $checksum_table->calculate_checksum( $min_id, $max_id );
+		return array_sum( $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts' ) ) );
 	}
 
 	/**
@@ -282,8 +281,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
-		$checksum_table = new Table_Checksum( 'postmeta' );
-		return $checksum_table->calculate_checksum( $min_id, $max_id );
+		return array_sum( $this->checksum_histogram( 'post_meta', $this->calculate_buckets( 'post_meta' ) ) );
 	}
 
 	/**
@@ -1155,14 +1153,22 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Checksums.
 	 */
 	public function checksum_all() {
-		$post_meta_checksum    = $this->checksum_histogram( 'postmeta', 1 );
-		$comment_meta_checksum = $this->checksum_histogram( 'commentmeta', 1 );
+		$post_checksum               = $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts' ) );
+		$comments_checksum           = $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments' ) );
+		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'post_meta' ) );
+		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'comment_meta' ) );
+		$terms_checksum              = $this->checksum_histogram( 'terms', $this->calculate_buckets( 'terms' ) );
+		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', $this->calculate_buckets( 'term_relationships' ) );
+		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', $this->calculate_buckets( 'term_taxonomy' ) );
 
 		return array(
-			'posts'        => $this->posts_checksum(),
-			'comments'     => $this->comments_checksum(),
-			'post_meta'    => reset( $post_meta_checksum ),
-			'comment_meta' => reset( $comment_meta_checksum ),
+			'posts'              => array_sum( $post_checksum ),
+			'comments'           => array_sum( $comments_checksum ),
+			'post_meta'          => array_sum( $post_meta_checksum ),
+			'comment_meta'       => array_sum( $comment_meta_checksum ),
+			'terms'              => array_sum( $terms_checksum ),
+			'term_relationships' => array_sum( $term_relationships_checksum ),
+			'term_taxonomy'      => array_sum( $term_taxonomy_checksum ),
 		);
 	}
 
@@ -1222,15 +1228,14 @@ class Replicastore implements Replicastore_Interface {
 		$wpdb->queries = array();
 
 		$checksum_table = new Table_Checksum( $table, $salt );
-		$range_edges = $checksum_table->get_range_edges( $start_id, $end_id );
+		$range_edges    = $checksum_table->get_range_edges( $start_id, $end_id );
 
 		$object_count = $range_edges['item_count'];
 
 		$bucket_size     = (int) ceil( $object_count / $buckets );
-		$previous_max_id = max( 0, $range_edges[ 'min_range' ] );
+		$previous_max_id = max( 0, $range_edges['min_range'] );
 		$histogram       = array();
 
-		error_log('Buckets: '. $buckets);
 		do {
 			$ids_range = $checksum_table->get_range_edges( $previous_max_id, null, $bucket_size );
 
@@ -1252,7 +1257,11 @@ class Replicastore implements Replicastore_Interface {
 				$histogram[ "{$ids_range[ 'min_range' ]}-{$ids_range[ 'max_range' ]}" ] = $batch_checksum;
 			}
 
-			$previous_max_id = $ids_range['max_range'];
+			$previous_max_id = $ids_range['max_range'] + 1;
+			// If we've reached the max_range lets bail out.
+			if ( $previous_max_id >= $range_edges['max_range'] ) {
+				break;
+			}
 		} while ( true );
 
 		return $histogram;
@@ -1280,5 +1289,33 @@ class Replicastore implements Replicastore_Interface {
 		$backtrace = debug_backtrace();
 		$caller    = $backtrace[1]['function'];
 		throw new \Exception( "This function $caller is not supported on the WP Replicastore" );
+	}
+
+	/**
+	 * Determine number of buckets to use in full table checksum.
+	 *
+	 * @param string $table Object Type.
+	 * @return int Number of Buckets to use.
+	 */
+	private function calculate_buckets( $table ) {
+		// Get # of objects.
+		$checksum_table = new Table_Checksum( $table );
+		$range_edges    = $checksum_table->get_range_edges();
+		$object_count   = $range_edges['item_count'];
+
+		// Ensure no division by 0.
+		if ( 0 === (int) $object_count ) {
+			return 1;
+		}
+
+		// Default Bucket sizes.
+		$bucket_size = 10000; // Default bucket size is 10,000 items.
+		switch ( $table ) {
+			case 'postmeta':
+			case 'commentmeta':
+				$bucket_size = 5000; // Meta bucket size is restricted to 5,000 items.
+		}
+
+		return (int) ceil( $object_count / $bucket_size );
 	}
 }
