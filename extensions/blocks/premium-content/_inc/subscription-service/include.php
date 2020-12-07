@@ -2,14 +2,6 @@
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\{
-	Subscription_Service,
-	Jetpack_Token_Subscription_Service,
-	Unconfigured_Subscription_Service,
-	WPCOM_Offline_Subscription_Service,
-	WPCOM_Token_Subscription_Service
-};
-
 require_once __DIR__ . '/class-jwt.php';
 require_once __DIR__ . '/class-subscription-service.php';
 require_once __DIR__ . '/class-token-subscription.php';
@@ -18,6 +10,11 @@ require_once __DIR__ . '/class-wpcom-token-subscription-service.php';
 require_once __DIR__ . '/class-wpcom-offline-subscription-service.php';
 require_once __DIR__ . '/class-jetpack-token-subscription-service.php';
 require_once __DIR__ . '/class-unconfigured-subscription-service.php';
+
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Unconfigured_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 
 const PAYWALL_FILTER = 'earn_premium_content_subscription_service';
 
@@ -38,9 +35,9 @@ add_action( 'init', 'Automattic\Jetpack\Extensions\Premium_Content\paywall_initi
  * @return Subscription_Service Service that will handle the premium content subscriptions.
  */
 function subscription_service() {
-	$interface = apply_filters( 'earn_premium_content_subscription_service', null );
-	if ( ! $interface instanceof Subscription_Service ) {
-		_doing_it_wrong( __FUNCTION__, 'No Subscription_Service registered for the earn_premium_content_subscription_service filter', 'jetpack' );
+	$interface = apply_filters( PAYWALL_FILTER, null );
+	if ( ! $interface instanceof Jetpack_Token_Subscription_Service ) {
+		_doing_it_wrong( __FUNCTION__, 'No Subscription_Service registered for the ' . esc_html( PAYWALL_FILTER ) . ' filter', 'jetpack' );
 	}
 	return $interface;
 }
