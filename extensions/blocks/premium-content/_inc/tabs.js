@@ -31,7 +31,7 @@ export default function Tabs( props ) {
 
 	return (
 		<div className="premium-content-tabs block-editor-block-toolbar">
-			{ tabs.map( ( tab ) => (
+			{ tabs.map( tab => (
 				<Tab
 					key={ tab.id }
 					{ ...props }
@@ -43,7 +43,7 @@ export default function Tabs( props ) {
 				/>
 			) ) }
 			<button onClick={ focusBlock } className="edit components-button is-button is-secondary">
-				{ __( 'Edit', 'full-site-editing' ) }
+				{ __( 'Edit', 'jetpack' ) }
 			</button>
 		</div>
 	);

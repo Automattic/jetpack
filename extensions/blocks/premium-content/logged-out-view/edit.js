@@ -32,17 +32,11 @@ function Edit( { parentClientId, isSelected } ) {
 						templateLock={ false }
 						templateInsertUpdatesSelection={ false }
 						template={ [
-							[
-								'core/heading',
-								{ content: __( 'Subscribe to get access', 'full-site-editing' ), level: 3 },
-							],
+							[ 'core/heading', { content: __( 'Subscribe to get access', 'jetpack' ), level: 3 } ],
 							[
 								'core/paragraph',
 								{
-									content: __(
-										'Read more of this content when you subscribe today.',
-										'full-site-editing'
-									),
+									content: __( 'Read more of this content when you subscribe today.', 'jetpack' ),
 								},
 							],
 							[ 'premium-content/buttons' ],
@@ -55,7 +49,7 @@ function Edit( { parentClientId, isSelected } ) {
 }
 
 export default compose(
-	withSelect( ( select ) => {
+	withSelect( select => {
 		const { getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
 			'core/block-editor'
 		);
