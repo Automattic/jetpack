@@ -37,14 +37,17 @@ export const defaultParticipants = [
 	{
 		participantSlug: 'participant-0',
 		participant: __( 'Participant 1', 'jetpack' ),
+		hasBoldStyle: true,
 	},
 	{
 		participantSlug: 'participant-1',
 		participant: __( 'Participant 2', 'jetpack' ),
+		hasBoldStyle: true,
 	},
 	{
 		participantSlug: 'participant-2',
 		participant: __( 'Participant 3', 'jetpack' ),
+		hasBoldStyle: true,
 	},
 ];
 
