@@ -87,9 +87,7 @@ jobs:
             cd "$PACKAGE/../.."
             NAME=$(basename $(pwd))
             echo "::group::Package $NAME"
-            if [ ! -e tests/php/travis-can-run.sh ] || tests/php/travis-can-run.sh; then
-                composer phpunit
-            fi
+            composer phpunit
             echo "::endgroup::"
             cd ../..
           done
