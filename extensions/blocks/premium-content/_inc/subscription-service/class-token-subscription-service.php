@@ -7,13 +7,9 @@
  * @package A8C\FSE\Earn
  */
 
-declare( strict_types = 1 );
-
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
-
-// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 
 /**
  * Class Token_Subscription_Service

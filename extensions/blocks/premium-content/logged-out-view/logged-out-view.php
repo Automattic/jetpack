@@ -28,8 +28,8 @@ function register_loggedout_view_block() {
 		LOGGEDOUT_VIEW_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_loggedout_view_block',
-            $uses             => array( 'premium-content/planId' ),
-        )
+			$uses             => array( 'premium-content/planId' ),
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_loggedout_view_block' );
@@ -39,6 +39,7 @@ add_action( 'init', __NAMESPACE__ . '\register_loggedout_view_block' );
  *
  * @param array  $attributes Array containing the block attributes.
  * @param string $content    String containing the block content.
+ * @param object $block      Object containing block details.
  *
  * @return string
  */
