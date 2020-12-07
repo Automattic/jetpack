@@ -1,4 +1,9 @@
 <?php
+/**
+ * Determine access to premium content.
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content
+ */
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
@@ -39,7 +44,6 @@ function current_visitor_can_access( $attributes, $block ) {
 	 * Ideas:
 	 *  - Capability check?
 	 */
-	// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 	if ( 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() ) ) {
 		return true;
 	}
