@@ -26,7 +26,16 @@ function register_block() {
 		)
 	);
 
-	// Register post_meta for connecting episodes with posts.
+	// Register post_meta for connecting Anchor podcasts with posts.
+	register_post_meta(
+		'post',
+		'anchor_podcast',
+		array(
+			'show_in_rest' => true,
+			'single'       => true,
+			'type'         => 'string',
+		)
+	);
 	register_post_meta(
 		'post',
 		'anchor_episode',
@@ -38,7 +47,7 @@ function register_block() {
 	);
 	register_post_meta(
 		'post',
-		'anchor_podcast',
+		'anchor_spotify_show',
 		array(
 			'show_in_rest' => true,
 			'single'       => true,
@@ -48,9 +57,9 @@ function register_block() {
 }
 
 /**
- * Checks URL params to determine if we are supposed to insert a badge.
+ * Checks URL params to determine the Anchor integration action to perform.
  */
-function check_badge_insertion() {
+function process_anchor_params() {
 	$current_screen = \get_current_screen();
 	// TODO: Replace `$current_screen->is_block_editor()` with `wp_should_load_block_editor_scripts_and_styles()` that is introduced in WP 5.6.
 	if ( method_exists( $current_screen, 'is_block_editor' ) && ! $current_screen->is_block_editor() ) {
@@ -58,36 +67,43 @@ function check_badge_insertion() {
 		return;
 	}
 
-	// Try loading podcast track.
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$podcast_id = $_GET['anchor_podcast'];
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$episode_id = $_GET['anchor_episode'];
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? $_GET['anchor_podcast'] : null;
+	$episode_id       = isset( $_GET['anchor_episode'] ) ? $_GET['anchor_episode'] : null;
+	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? $_GET['spotify_show_url'] : null;
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-	if ( empty( $podcast_id ) || empty( $episode_id ) ) {
-		// No data.
-		return;
+	$data    = array();
+	$post_id = get_post()->ID;
+
+	if ( ! empty( $podcast_id ) ) {
+		$feed = 'https://anchor.fm/s/' . $podcast_id . '/podcast/rss';
+		$rss  = Jetpack_Podcast_Helper::load_feed( $feed );
+		if ( ! \is_wp_error( $rss ) ) {
+			$data['podcastId'] = $podcast_id;
+			update_post_meta( $post_id, 'anchor_podcast', $podcast_id );
+
+			if ( ! empty( $episode_id ) ) {
+				$track = Jetpack_Podcast_Helper::get_track_data( $feed, $episode_id );
+				if ( ! \is_wp_error( $track ) ) {
+					$data['episodeId'] = $episode_id;
+					$data['track']     = $track;
+					update_post_meta( $post_id, 'anchor_episode', $episode_id );
+				}
+			}
+		}
 	}
 
-	$feed  = 'https://anchor.fm/s/' . $podcast_id . '/podcast/rss';
-	$track = Jetpack_Podcast_Helper::get_track_data( $feed, $episode_id );
-
-	if ( empty( $track ) || \is_wp_error( $track ) ) {
-		// Nothing useful found.
-		return;
+	if ( ! empty( $spotify_show_url ) ) {
+		$data['spotifyShowUrl'] = $spotify_show_url;
+		if ( get_post_meta( $post_id, 'anchor_spotify_show', true !== $spotify_show_url ) ) {
+			update_post_meta( $post_id, 'anchor_spotify_show', $spotify_show_url );
+			$data['action'] = 'insert-spotify-badge';
+		}
 	}
 
-	// Make episode data available for the script.
-	wp_localize_script(
-		'jetpack-blocks-editor',
-		'Jetpack_AnchorFm',
-		array(
-			'track'      => $track,
-			'podcast_id' => $podcast_id,
-			'episode_id' => $episode_id,
-		)
-	);
+	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_block' );
-add_action( 'enqueue_block_assets', __NAMESPACE__ . '\check_badge_insertion' );
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\process_anchor_params' );

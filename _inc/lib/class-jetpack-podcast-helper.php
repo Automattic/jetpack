@@ -152,7 +152,7 @@ class Jetpack_Podcast_Helper {
 	 * @param string $feed        The RSS feed URL to load.
 	 * @return SimplePie|WP_Error The RSS object or error.
 	 */
-	private static function load_feed( $feed ) {
+	public static function load_feed( $feed ) {
 		$rss = fetch_feed( esc_url_raw( $feed ) );
 
 		if ( is_wp_error( $rss ) ) {

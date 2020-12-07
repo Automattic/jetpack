@@ -1,50 +1,56 @@
 /**
+ * External dependencies
+ */
+import { createBlock } from '@wordpress/blocks';
+import { dispatch } from '@wordpress/data';
+
+/**
  * Internal dependencies
  */
 import { name } from '.';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
-import { dispatch } from '@wordpress/data';
-import { createBlock } from '@wordpress/blocks';
+import { waitForEditor } from '../../shared/wait-for-editor';
 
-/*
- * Register the main "anchor-fm" extension.
- */
-const isExtensionAvailable = getJetpackExtensionAvailability( name )?.available;
-if ( isExtensionAvailable ) {
-	// Load data from the backend.
+async function insertSpotifyBadge() {
+	const { spotifyShowUrl } = window.Jetpack_AnchorFm;
+	if ( ! spotifyShowUrl ) {
+		return;
+	}
+
+	await waitForEditor();
+
+	dispatch( 'core/block-editor' ).insertBlock(
+		createBlock( 'core/image', {
+			url: 'https://cldup.com/Dv6JZWyRpq-1200x1200.png',
+			linkDestination: 'none',
+			href: spotifyShowUrl,
+			align: 'center',
+			width: 165,
+			height: 40,
+			className: 'is-spotify-podcast-badge',
+		} ),
+		0,
+		undefined,
+		false
+	);
+}
+
+function initAnchor() {
+	const isExtensionAvailable = getJetpackExtensionAvailability( name )?.available;
+	if ( ! isExtensionAvailable ) {
+		return;
+	}
+
 	const data = window.Jetpack_AnchorFm;
-	if ( typeof data === 'object' ) {
-		// Insert the link badge if needed.
-		const { track, podcast_id, episode_id } = data;
-		if ( typeof track === 'object' && podcast_id && episode_id ) {
-			window.onload = () => {
-				const { link, spotify_show_url: spotifyShowUrl } = data;
+	if ( typeof data !== 'object' ) {
+		return;
+	}
 
-				// Insert badge.
-				dispatch( 'core/block-editor' ).insertBlocks(
-					[
-						createBlock( 'core/image', {
-							url: 'https://cldup.com/Dv6JZWyRpq-1200x1200.png',
-							linkDestination: 'none',
-							href: spotifyShowUrl || link,
-							align: 'center',
-							width: 165,
-							height: 40,
-							className: 'is-spotify-podcast-badge',
-						} ),
-					],
-					0,
-					undefined,
-					false
-				);
-				// Store the connection in post_meta.
-				dispatch( 'core/editor' ).editPost( {
-					meta: {
-						anchor_podcast: podcast_id,
-						anchor_episode: episode_id,
-					},
-				} );
-			};
-		}
+	switch ( data.action ) {
+		case 'insert-spotify-badge':
+			insertSpotifyBadge();
+			break;
 	}
 }
+
+initAnchor();
