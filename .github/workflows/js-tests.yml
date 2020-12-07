@@ -41,7 +41,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - env:
-          TESTING: '1'
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn install
           yarn test-dangerci-and-adminpage-and-extensions-and-search
