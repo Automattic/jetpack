@@ -41,8 +41,8 @@
 	"beta": [
 		"amazon",
 		"anchor-fm",
-		"dialogue",
-		"transcription"
+		"conversation",
+		"dialogue"
 	],
 	"experimental": [ "seo" ],
 	"no-post-editor": [

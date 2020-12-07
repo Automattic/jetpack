@@ -49,13 +49,13 @@ export const defaultSpeakers = [
 ];
 
 const TRANSCRIPTION_TEMPLATE = [
-	[ 'core/heading', { placeholder: __( 'Transcription title', 'Jetpack' ) } ],
+	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
 	[ 'jetpack/dialogue', defaultSpeakers[ 0 ] ],
 	[ 'jetpack/dialogue', defaultSpeakers[ 1 ] ],
 	[ 'jetpack/dialogue', defaultSpeakers[ 2 ] ],
 ];
 
-function TranscriptionEdit ( {
+function ConversationEdit ( {
 	className,
 	attributes,
 	setAttributes,
@@ -63,7 +63,7 @@ function TranscriptionEdit ( {
 	const { speakers, showTimeStamp, className: classNameAttr } = attributes;
 	const containertRef = useRef();
 
-	// Set initial transcription speakers.
+	// Set initial conversation speakers.
 	useEffect( () => {
 		if ( speakers ) {
 			return;
@@ -114,7 +114,7 @@ function TranscriptionEdit ( {
 		} );
 	}
 
-	const baseClassName = 'wp-block-jetpack-transcription';
+	const baseClassName = 'wp-block-jetpack-conversation';
 
 	return (
 		<TranscritptionContext.Provider value={ contextProvision }>
@@ -162,4 +162,4 @@ function TranscriptionEdit ( {
 	);
 }
 
-export default TranscriptionEdit;
+export default ConversationEdit;

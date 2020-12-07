@@ -29,7 +29,7 @@ function register_block() {
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$uses             => array(
 				'jetpack/conversation-speakers',
-				'jetpack/transcription-showtimestamp',
+				'jetpack/conversation-showtimestamp',
 			),
 		)
 	);
@@ -68,9 +68,9 @@ function render_block( $attrs, $block_content, $block ) {
 		);
 	}
 
-	// Pick up transcription data from context.
+	// Pick up conversation data from context.
 	$speakers       = $block->context['jetpack/conversation-speakers'];
-	$show_timestamp = isset( $block->context['jetpack/transcription-showtimestamp'] );
+	$show_timestamp = isset( $block->context['jetpack/conversation-showtimestamp'] );
 
 	// Set current speaker slug, considering it could be null from block $attrs.
 	$speaker_slug = ! $speaker_slug_attr && ! $speaker_label_attr ? 'speaker-0' : $speaker_slug_attr;

@@ -20,16 +20,16 @@ import save from './save';
  */
 import './style.scss';
 
-export const name = 'transcription';
-export const title = __( 'Transcription', 'jetpack' );
+export const name = 'conversation';
+export const title = __( 'Conversation', 'jetpack' );
 export const settings = {
 	title,
-	description: __( 'Transcription', 'jetpack' ),
+	description: __( 'Conversation', 'jetpack' ),
 	icon,
 	category: 'layout',
 	keywords: [
-		_x( 'Transcription', 'block search term', 'jetpack' ),
-		__( 'Conversation', 'jetpack' ),
+		_x( 'Conversation', 'block search term', 'jetpack' ),
+		__( 'transcription', 'jetpack' ),
 	],
 	supports: {
 		'align': true,
@@ -43,6 +43,6 @@ export const settings = {
 	save,
 	providesContext: {
 		'jetpack/conversation-speakers': 'speakers',
-		'jetpack/transcription-showtimestamp': 'showTimeStamp',
+		'jetpack/conversation-showtimestamp': 'showTimeStamp',
 	},
 };

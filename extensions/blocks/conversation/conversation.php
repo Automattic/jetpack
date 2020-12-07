@@ -1,18 +1,18 @@
 <?php
 /**
- * Transcription Block.
+ * Conversation Block.
  *
  * @since 9.x
  *
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Transcription;
+namespace Automattic\Jetpack\Extensions\Conversation;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'transcription';
+const FEATURE_NAME = 'conversation';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
@@ -30,7 +30,7 @@ function register_block() {
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$provides         => array(
 				'jetpack/conversation-speakers'       => 'speakers',
-				'jetpack/transcription-showtimestamp' => 'showTimeStamp',
+				'jetpack/conversation-showtimestamp' => 'showTimeStamp',
 			),
 		)
 	);
@@ -38,10 +38,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Transcription block registration/dependency declaration.
+ * Conversation block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Transcription block attributes.
- * @param string $content String containing the Transcription block content.
+ * @param array  $attr    Array containing the Conversation block attributes.
+ * @param string $content String containing the Conversation block content.
  *
  * @return string
  */

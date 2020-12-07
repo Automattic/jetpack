@@ -31,8 +31,8 @@ import { useContext, useState, } from '@wordpress/element';
 import './editor.scss';
 import SpeakersDropdown from './components/speakers-control';
 import TimeStampControl from './components/time-stamp-control';
-import TranscriptionContext from '../transcription/components/context';
-import { defaultSpeakers, defaultSpeakerSlug } from '../transcription/edit';
+import ConversationContext from '../conversation/components/context';
+import { defaultSpeakers, defaultSpeakerSlug } from '../conversation/edit';
 import { formatUppercase } from '../../shared/icons';
 
 function getSpeakerBySlug( speakers, slug ) {
@@ -68,7 +68,7 @@ export default function DialogueEdit ( {
 
 	// Block context integration.
 	const speakersFromContext = context[ 'jetpack/conversation-speakers' ];
-	const showTimeStamp = context[ 'jetpack/transcription-showtimestamp' ];
+	const showTimeStamp = context[ 'jetpack/conversation-showtimestamp' ];
 
 	// Speakers list.
 	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
@@ -79,14 +79,14 @@ export default function DialogueEdit ( {
 	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
 	const speakerLabel = isCustomSpeaker ? speaker : currentSpeaker?.speaker;
 
-	// Transcription context. A bridge between dialogue and transcription blocks.
-	const transcritionBridge = useContext( TranscriptionContext );
+	// Conversation context. A bridge between dialogue and conversation blocks.
+	const transcritionBridge = useContext( ConversationContext );
 
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	/**
 	 * Helper to check if the gven style is set, or not.
-	 * It handles local and global (transcription) level.
+	 * It handles local and global (conversation) level.
 	 *
 	 * @param {string} style - style to check.
 	 * @returns {boolean} True if the style is defined. Otherwise, False.
@@ -101,7 +101,7 @@ export default function DialogueEdit ( {
 
 	/**
 	 * Helper to toggle the value of the given style
-	 * It handles local and global (transcription) level.
+	 * It handles local and global (conversation) level.
 	 *
 	 * @param {string} style - style to toggle.
 	 * @returns {void}
@@ -119,7 +119,7 @@ export default function DialogueEdit ( {
 
 	/**
 	 * Helper to build the CSS classes for the speaker label.
-	 * It handles local and global (transcription) level.
+	 * It handles local and global (conversation) level.
 	 *
 	 * @returns {string} Speaker CSS class.
 	 */
