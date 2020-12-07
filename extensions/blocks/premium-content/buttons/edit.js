@@ -25,7 +25,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 			{
 				element: 'a',
 				uniqueId: 'recurring-payments-id',
-				text: __( 'Subscribe', 'full-site-editing' ),
+				text: __( 'Subscribe', 'jetpack' ),
 			},
 		],
 		[ 'premium-content/login-button' ],
@@ -41,7 +41,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 					{
 						element: 'a',
 						uniqueId: 'recurring-payments-id',
-						text: __( 'Subscribe', 'full-site-editing' ),
+						text: __( 'Subscribe', 'jetpack' ),
 					},
 				],
 			],
@@ -69,7 +69,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 		}
 		addFilter(
 			'jetpack.RecurringPayments.showControls',
-			'full-site-editing/premium-content-hide-recurring-payments-controls',
+			'jetpack/premium-content-hide-recurring-payments-controls',
 			( showControls, clientId ) => {
 				if ( clientId === subscribeButton.clientId ) {
 					return false;
@@ -99,7 +99,7 @@ export default compose( [
 		// other plans).
 		const subscribeButton = select( 'core/block-editor' )
 			.getBlock( props.clientId )
-			.innerBlocks.find( ( block ) => block.name === 'jetpack/recurring-payments' );
+			.innerBlocks.find( block => block.name === 'jetpack/recurring-payments' );
 
 		return { subscribeButton };
 	} ),

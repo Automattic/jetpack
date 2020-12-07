@@ -38,7 +38,7 @@ function getBlockDOMNode( clientId ) {
  * @param {*} object
  * @return {*} Object cleaned from undefined values
  */
-const cleanEmptyObject = ( object ) => {
+const cleanEmptyObject = object => {
 	if ( ! isObject( object ) ) {
 		return object;
 	}
@@ -53,8 +53,8 @@ function ColorPanel( { settings, clientId, enableContrastChecking = true } ) {
 	const [ detectedColor, setDetectedColor ] = useState();
 
 	const title = isWebPlatform
-		? __( 'Color settings', 'full-site-editing' )
-		: __( 'Color Settings', 'full-site-editing' );
+		? __( 'Color settings', 'jetpack' )
+		: __( 'Color Settings', 'jetpack' );
 
 	useEffect( () => {
 		if ( isWebPlatform && ! enableContrastChecking ) {
@@ -104,7 +104,7 @@ function ColorPanel( { settings, clientId, enableContrastChecking = true } ) {
  */
 function ColorEdit( props ) {
 	const { attributes } = props;
-	const { colors, gradients } = useSelect( ( select ) => {
+	const { colors, gradients } = useSelect( select => {
 		return select( 'core/block-editor' ).getSettings();
 	}, [] );
 	// Shouldn't be needed but right now the ColorGradientsPanel
@@ -124,7 +124,7 @@ function ColorEdit( props ) {
 		gradientValue = style?.color?.gradient;
 	}
 
-	const onChangeColor = ( name ) => ( value ) => {
+	const onChangeColor = name => value => {
 		const colorObject = getColorObjectByColorValue( colors, value );
 		const attributeName = name + 'Color';
 		const newStyle = {
@@ -148,7 +148,7 @@ function ColorEdit( props ) {
 		};
 	};
 
-	const onChangeGradient = ( value ) => {
+	const onChangeGradient = value => {
 		const slug = getGradientSlugByValue( gradients, value );
 		let newAttributes;
 		if ( slug ) {
@@ -189,13 +189,13 @@ function ColorEdit( props ) {
 			clientId={ props.clientId }
 			settings={ [
 				{
-					label: __( 'Text Color', 'full-site-editing' ),
+					label: __( 'Text Color', 'jetpack' ),
 					onColorChange: onChangeColor( 'text' ),
 					colorValue: getColorObjectByAttributeValues( colors, textColor, style?.color?.text )
 						.color,
 				},
 				{
-					label: __( 'Background Color', 'full-site-editing' ),
+					label: __( 'Background Color', 'jetpack' ),
 					onColorChange: onChangeColor( 'background' ),
 					colorValue: getColorObjectByAttributeValues(
 						colors,

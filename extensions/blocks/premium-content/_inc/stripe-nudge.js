@@ -29,7 +29,7 @@ export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
 					isDefault
 					className="premium-content-block-nudge__button stripe-nudge__button"
 				>
-					{ __( 'Connect', 'full-site-editing' ) }
+					{ __( 'Connect', 'jetpack' ) }
 				</Button>,
 			]
 		}
@@ -39,12 +39,12 @@ export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
 			{ <Dashicon icon="star-filled" /> }
 			<span className="premium-content-block-nudge__text-container">
 				<span className="premium-content-block-nudge__title">
-					{ __( 'Connect to Stripe to add premium content to your site.', 'full-site-editing' ) }
+					{ __( 'Connect to Stripe to add premium content to your site.', 'jetpack' ) }
 				</span>
 				<span className="premium-content-block-nudge__message">
 					{ __(
 						'Premium content will be hidden from your visitors until you connect to Stripe.',
-						'full-site-editing'
+						'jetpack'
 					) }
 				</span>
 			</span>
@@ -73,7 +73,7 @@ export default compose( [
 			 * @param { MouseEvent } event
 			 * @returns { Promise<void> } When completed
 			 */
-			autosaveAndRedirect: async ( event ) => {
+			autosaveAndRedirect: async event => {
 				event.preventDefault(); // Don't follow the href before autosaving
 				await dispatch( 'core/editor' ).savePost();
 				// Using window.top to escape from the editor iframe on WordPress.com

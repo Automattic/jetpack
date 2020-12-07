@@ -33,12 +33,12 @@ import './editor.scss';
 const tabs = [
 	{
 		id: 'premium',
-		label: <span>{ __( 'Subscriber View', 'full-site-editing' ) }</span>,
+		label: <span>{ __( 'Subscriber View', 'jetpack' ) }</span>,
 		className: 'wp-premium-content-subscriber-view',
 	},
 	{
 		id: 'wall',
-		label: <span>{ __( 'Non-subscriber View', 'full-site-editing' ) }</span>,
+		label: <span>{ __( 'Non-subscriber View', 'jetpack' ) }</span>,
 		className: 'wp-premium-content-logged-out-view',
 	},
 ];
@@ -102,7 +102,7 @@ function Edit( props ) {
 		const path = '/wpcom/v2/memberships/product';
 		const method = 'POST';
 		if ( ! attributes.newPlanName || attributes.newPlanName.length === 0 ) {
-			onError( props, __( 'Plan requires a name', 'full-site-editing' ) );
+			onError( props, __( 'Plan requires a name', 'jetpack' ) );
 			callback( false );
 			return;
 		}
@@ -111,7 +111,7 @@ function Edit( props ) {
 		const minPrice = minimumTransactionAmountForCurrency( attributes.newPlanCurrency );
 		const minimumPriceNote = sprintf(
 			// translators: %s: Price
-			__( 'Minimum allowed price is %s.', 'full-site-editing' ),
+			__( 'Minimum allowed price is %s.', 'jetpack' ),
 			formatCurrency( minPrice, attributes.newPlanCurrency )
 		);
 
@@ -122,7 +122,7 @@ function Edit( props ) {
 		}
 
 		if ( ! isPriceValid( attributes.newPlanCurrency, newPrice ) ) {
-			onError( props, __( 'Plan requires a valid price', 'full-site-editing' ) );
+			onError( props, __( 'Plan requires a valid price', 'jetpack' ) );
 			callback( false );
 			return;
 		}
@@ -139,7 +139,7 @@ function Edit( props ) {
 			 * @param { any } result - Result of fetch query
 			 * @returns { void }
 			 */
-			( result ) => {
+			result => {
 				/**
 				 * @type { Plan }
 				 */
@@ -153,7 +153,7 @@ function Edit( props ) {
 				setProducts( products.concat( [ newProduct ] ) );
 				// After successful adding of product, we want to select it. Presumably that is the product user wants.
 				selectPlan( newProduct );
-				onSuccess( props, __( 'Successfully created plan', 'full-site-editing' ) );
+				onSuccess( props, __( 'Successfully created plan', 'jetpack' ) );
 				if ( callback ) {
 					callback( true );
 				}
@@ -162,7 +162,7 @@ function Edit( props ) {
 			 * @returns { void }
 			 */
 			() => {
-				onError( props, __( 'There was an error when adding the plan.', 'full-site-editing' ) );
+				onError( props, __( 'There was an error when adding the plan.', 'jetpack' ) );
 				if ( callback ) {
 					callback( false );
 				}
@@ -177,17 +177,17 @@ function Edit( props ) {
 		const amount = formatCurrency( parseFloat( plan.price ), plan.currency );
 		if ( plan.interval === '1 month' ) {
 			// translators: %s: amount
-			return sprintf( __( '%s / month', 'full-site-editing' ), amount );
+			return sprintf( __( '%s / month', 'jetpack' ), amount );
 		}
 		if ( plan.interval === '1 year' ) {
 			// translators: %s: amount
-			return sprintf( __( '%s / year', 'full-site-editing' ), amount );
+			return sprintf( __( '%s / year', 'jetpack' ), amount );
 		}
 		if ( plan.interval === 'one-time' ) {
 			return amount;
 		}
 		// translators: %s: amount, plan interval
-		return sprintf( __( '%1$s / %2$s', 'full-site-editing' ), amount, plan.interval );
+		return sprintf( __( '%1$s / %2$s', 'jetpack' ), amount, plan.interval );
 	}
 
 	/**
@@ -220,7 +220,7 @@ function Edit( props ) {
 			/**
 			 * @param {any} result - fetch query result
 			 */
-			( result ) => {
+			result => {
 				if ( ! result && typeof result !== 'object' ) {
 					return;
 				}
@@ -249,7 +249,7 @@ function Edit( props ) {
 						{
 							newPlanCurrency: 'USD',
 							newPlanPrice: 5,
-							newPlanName: __( 'Monthly Subscription', 'full-site-editing' ),
+							newPlanName: __( 'Monthly Subscription', 'jetpack' ),
 							newPlanInterval: '1 month',
 						},
 						() => {
@@ -270,7 +270,7 @@ function Edit( props ) {
 			/**
 			 * @param { Error } result - fetch query error result
 			 */
-			( result ) => {
+			result => {
 				setConnectURL( null );
 				setApiState( API_STATE_NOTCONNECTED );
 				onError( props, result.message );
@@ -287,8 +287,8 @@ function Edit( props ) {
 			<div className={ className } ref={ wrapperRef }>
 				<Placeholder
 					icon="lock"
-					label={ __( 'Premium Content', 'full-site-editing' ) }
-					instructions={ __( 'Loading data…', 'full-site-editing' ) }
+					label={ __( 'Premium Content', 'jetpack' ) }
+					instructions={ __( 'Loading data…', 'jetpack' ) }
 				>
 					<Spinner />
 				</Placeholder>
@@ -311,12 +311,12 @@ function Edit( props ) {
 					<ToolbarGroup>
 						<ToolbarButton
 							icon={ flashIcon }
-							onClick={ ( e ) => {
+							onClick={ e => {
 								props.autosaveAndRedirect( e, getConnectUrl( props, connectURL ) );
 							} }
 							className="connect-stripe components-tab-button"
 						>
-							{ __( 'Connect Stripe', 'full-site-editing' ) }
+							{ __( 'Connect Stripe', 'jetpack' ) }
 						</ToolbarButton>
 					</ToolbarGroup>
 				) }
@@ -329,7 +329,7 @@ function Edit( props ) {
 						className="components-tab-button"
 						isPressed={ selectedTab.className === 'wp-premium-content-logged-out-view' }
 					>
-						<span>{ __( 'Visitor View', 'full-site-editing' ) }</span>
+						<span>{ __( 'Visitor View', 'jetpack' ) }</span>
 					</ToolbarButton>
 					<ToolbarButton
 						onClick={ () => {
@@ -338,7 +338,7 @@ function Edit( props ) {
 						className="components-tab-button"
 						isPressed={ selectedTab.className !== 'wp-premium-content-logged-out-view' }
 					>
-						<span>{ __( 'Subscriber View', 'full-site-editing' ) }</span>
+						<span>{ __( 'Subscriber View', 'jetpack' ) }</span>
 					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
@@ -456,7 +456,7 @@ function getConnectUrl( props, connectURL ) {
 }
 
 export default compose( [
-	withSelect( ( select ) => {
+	withSelect( select => {
 		const { getCurrentPostId } = select( 'core/editor' );
 		return {
 			postId: getCurrentPostId(),
