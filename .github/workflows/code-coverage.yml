@@ -63,23 +63,23 @@ jobs:
         run: yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
 
       - name: Backend coverage
-        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        # working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: phpdbg -qrr $(which phpunit) --coverage-clover $GITHUB_WORKSPACE/coverage/backend/clover.xml
 
       - name: Legacy full sync coverage
-        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        # working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
           LEGACY_FULL_SYNC: '1'
         run: phpdbg -qrr $(which phpunit) --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync/clover.xml
 
       - name: Multisite coverage
-        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        # working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
           WP_MULTISITE: '1'
         run: phpdbg -qrr $(which phpunit) -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite/clover.xml
 
       - name: Package coverage
-        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        # working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: |
           for PACKAGE in ./packages/*/tests/php; do
             cd "$PACKAGE/../.."
@@ -93,6 +93,7 @@ jobs:
 
       - name: Process coverage results
         run: |
+          echo $(pwd)
           bash <(curl -s https://codecov.io/bash) -s ./coverage || echo 'Codecov failed to upload'
           ./.github/actions/php-pipeline/process-coverage.sh
 
