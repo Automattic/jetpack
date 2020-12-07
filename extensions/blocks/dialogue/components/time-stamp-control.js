@@ -109,7 +109,7 @@ export function TimeStampDropdown( {
 			position="bottom right"
 			className={ `${ className }__timestamp-dropdown` }
 			contentClassName={ `${ className }__timestamp-content` }
-			renderToggle={ ( { isOpen, onToggle } ) => {
+			renderToggle={ ( { onToggle } ) => {
 				return (
 					<Button
 						className={ `${ className }__timestamp` }

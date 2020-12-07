@@ -51,9 +51,9 @@ function render_block( $attrs, $block_content, $block ) {
 	// Attributes..
 	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
 	$participant_label_attr = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
-	$timestamp          = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
-	$is_custom_spaker   = $participant_label_attr && ! $participant_slug_attr;
-	$content            = '';
+	$timestamp              = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
+	$is_custom_spaker       = $participant_label_attr && ! $participant_slug_attr;
+	$content                = '';
 
 	if ( isset( $attrs['content'] ) ) {
 		$content = wp_kses(
@@ -69,7 +69,7 @@ function render_block( $attrs, $block_content, $block ) {
 	}
 
 	// Pick up conversation data from context.
-	$participants       = $block->context['jetpack/conversation-participants'];
+	$participants   = $block->context['jetpack/conversation-participants'];
 	$show_timestamp = isset( $block->context['jetpack/conversation-showtimestamp'] );
 
 	// Set current participant slug, considering it could be null from block $attrs.
