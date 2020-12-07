@@ -9,7 +9,6 @@ import { assign, difference, get, mergeWith, remove, union } from 'lodash';
  * Internal dependencies
  */
 import { getInitialRecommendationsStep } from '../initial-state/reducer';
-import { getPlanClass } from 'lib/plans/constants';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -345,18 +344,17 @@ export const getSidebarCardSlug = state => {
 	const rewindStatus = getRewindStatus( state );
 
 	const planSlug = sitePlan.product_slug;
-	const planClass = getPlanClass( planSlug );
 	const rewindState = rewindStatus.state;
 
 	if ( ! sitePlan.product_slug || ! rewindState ) {
 		return 'loading';
 	}
 
-	if ( 'jetpack_free' === planSlug && ! hasActiveBackupPurchase( state ) ) {
+	if ( 'jetpack_free' === planSlug && ! hasActiveProductPurchase( state ) ) {
 		return 'upsell';
 	}
 
-	if ( 'awaiting_credentials' === rewindState && 'is-scan-plan' !== planClass ) {
+	if ( 'awaiting_credentials' === rewindState && ! hasActiveScanPurchase( state ) ) {
 		return 'one-click-restores';
 	}
 
