@@ -8,7 +8,7 @@ fi
 # phpenv config-rm xdebug.ini
 
 # Configure PHP and PHPUnit environment
-if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
+if [[ ${TRAVIS_PHP_VERSION:0:2} == "8." ]]; then
 	composer install --ignore-platform-reqs
 	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
 elif [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
