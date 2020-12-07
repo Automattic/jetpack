@@ -15,7 +15,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-export function AddSpeakerButton( {
+function AddSpeakerButton( {
 	className,
 	onAdd,
 	speakers = [],
@@ -37,7 +37,7 @@ export function AddSpeakerButton( {
 	);
 }
 
-export function SpeakersLabelControl( {
+function SpeakersLabelControl( {
 	className,
 	speakers,
 	onChange,
@@ -71,38 +71,43 @@ export function SpeakersLabelControl( {
 	);
 }
 
-export default function SpeakersDropdown ( {
+export function SpeakersSelector( {
 	speakers,
-	label,
 	className,
 	onChange,
 	onDelete,
 	onAdd,
 } ) {
 	return (
+		<Fragment>
+			<SpeakersLabelControl
+				className={ className }
+				speakers={ speakers }
+				onChange={ onChange }
+				onDelete={ onDelete }
+			/>
+
+			<AddSpeakerButton
+				className={ className }
+				onAdd={ onAdd }
+				speakers={ speakers }
+			/>
+		</Fragment>
+	);
+}
+
+export default function SpeakersDropdown ( props ) {
+	return (
 		<DropdownMenu
 			popoverProps={ { position: 'bottom' } }
 			toggleProps={ {
-				children: <span>{ label }</span>,
+				children: <span>{ props.label }</span>,
 			} }
 			icon="microphone"
 		>
-			{ () => (
-				<Fragment>
-					<SpeakersLabelControl
-						className={ className }
-						speakers={ speakers }
-						onChange={ onChange }
-						onDelete={ onDelete }
-					/>
-
-					<AddSpeakerButton
-						className={ className }
-						onAdd={ onAdd }
-						speakers={ speakers }
-					/>
-				</Fragment>
-			) }
+			{ () =>
+				<SpeakersSelector { ...props } />
+			}
 		</DropdownMenu>
 	);
 }

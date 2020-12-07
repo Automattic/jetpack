@@ -29,10 +29,7 @@ import {
  * Internal dependencies
  */
 import './editor.scss';
-import SpeakersDropdown, {
-	AddSpeakerButton,
-	SpeakersLabelControl,
-} from './components/speakers-controls';
+import SpeakersDropdown, { SpeakersSelector } from './components/speakers-controls';
 import TranscritptionContext from './components/context';
 
 export const defaultSpeakersSlug = 'speaker-0';
@@ -138,17 +135,12 @@ function TranscriptionEdit ( {
 				<InspectorControls>
 					<Panel>
 						<PanelBody title={ __( 'Participants', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
-							<SpeakersLabelControl
+							<SpeakersSelector
 								className={ baseClassName }
 								speakers={ speakers }
 								onChange={ updateSpeakers }
 								onDelete={ deleteSpeaker }
-							/>
-
-							<AddSpeakerButton
-								className={ baseClassName }
 								onAdd={ addNewSpeaker }
-								speakers={ speakers }
 							/>
 						</PanelBody>
 
