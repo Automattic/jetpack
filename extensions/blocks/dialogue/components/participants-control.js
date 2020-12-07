@@ -96,14 +96,18 @@ function ParticipantsSelector( {
 export default function ParticipantsDropdown( props ) {
 	const {
 		participantLabel,
-		position = { position: 'bottom' },
+		position = 'bottom left',
+		labelClassName,
 		icon = null,
 	} = props;
 
 	return (
 		<DropdownMenu
-			popoverProps={ position }
+			popoverProps={ {
+				position,
+			} }
 			toggleProps={ {
+				className: labelClassName,
 				children: <span>{ participantLabel }</span>,
 			} }
 			icon={ icon }

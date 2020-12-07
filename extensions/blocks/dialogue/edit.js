@@ -16,7 +16,6 @@ import {
 import { createBlock } from '@wordpress/blocks';
 
 import {
-	Button,
 	Panel,
 	PanelBody,
 	ToggleControl,
@@ -30,7 +29,7 @@ import { useContext, useState, } from '@wordpress/element';
  */
 import './editor.scss';
 import ParticipantsDropdown, { ParticipantsControl } from './components/participants-control';
-import TimeStampControl from './components/time-stamp-control';
+import TimeStampControl, { TimeStampDropdown } from './components/time-stamp-control';
 import ConversationContext from '../conversation/components/context';
 import { defaultParticipants, defaultParticipantSlug } from '../conversation/edit';
 import { formatUppercase } from '../../shared/icons';
@@ -142,19 +141,6 @@ export default function DialogueEdit ( {
 	return (
 		<div className={ className }>
 			<BlockControls>
-				<ToolbarGroup>
-					<ParticipantsDropdown
-						id={ `dialogue-${ instanceId }-participants-dropdown` }
-						className={ baseClassName }
-						participants={ participants }
-						participantLabel={ participantLabel }
-						participantSlug={ participantSlug }
-						participant={ participant }
-						onSelect={ setAttributes }
-						onChange={ setAttributes }
-					/>
-				</ToolbarGroup>
-
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
@@ -200,7 +186,7 @@ export default function DialogueEdit ( {
 
 						{ showTimeStamp && (
 							<TimeStampControl
-								className={ `${ baseClassName }__timestamp-control` }
+								className={ baseClassName }
 								value={ timeStamp }
 								onChange={ ( newTimeStampValue ) => {
 									setAttributes( { timeStamp: newTimeStampValue } );
@@ -212,17 +198,29 @@ export default function DialogueEdit ( {
 			</InspectorControls>
 
 			<div class={ `${ baseClassName }__meta` }>
-				<Button
-					className={ getParticipantLabelClass() }
-					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
-				>
-					{ participantLabel }
-				</Button>
+				<div onFocus={ () => setIsFocusedOnParticipantLabel( true ) }>
+					<ParticipantsDropdown
+						id={ `dialogue-${ instanceId }-participants-dropdown` }
+						className={ baseClassName }
+						labelClassName={ getParticipantLabelClass() }
+						participants={ participants }
+						participantLabel={ participantLabel }
+						participantSlug={ participantSlug }
+						participant={ participant }
+						onSelect={ setAttributes }
+						onChange={ setAttributes }
+					/>
+				</div>
 
 				{ showTimeStamp && (
-					<div className={ `${ baseClassName }__timestamp` }>
-						{ timeStamp }
-					</div>
+					<TimeStampDropdown
+						className={ baseClassName }
+						value={ timeStamp }
+						onChange={ ( newTimeStampValue ) => {
+							setAttributes( { timeStamp: newTimeStampValue } );
+						} }
+						shortLabel={ true }
+					/>
 				) }
 			</div>
 

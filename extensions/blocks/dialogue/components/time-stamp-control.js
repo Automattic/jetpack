@@ -3,6 +3,8 @@
  */
 import {
 	BaseControl,
+	Dropdown,
+	Button,
 	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -52,17 +54,17 @@ function setTimeStampValue( typeValue, smh ) {
 	return smh.join( ':' );
 }
 
-function TimeStamp( { value, className, onChange } ) {
+function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
 	}
 
 	return (
-		<div className={ className }>
+		<div className={ `${ className }__timestamp-controls` }>
 			<NumberControl
-				className={ `${ className }__hour` }
-				label={ __( 'Hour', 'jetpack' ) }
+				className={ `${ className }__timestamp-control__hour` }
+				label={ shortLabel ? __( 'Hour', 'jetpack' ) : __( 'Hour', 'jetpack' ) }
 				value={ smh[ 0 ] }
 				min={ 0 }
 				max={ 23 }
@@ -72,8 +74,8 @@ function TimeStamp( { value, className, onChange } ) {
 			/>
 
 			<NumberControl
-				className={ `${ className }__minute` }
-				label={ __( 'Minute', 'jetpack' ) }
+				className={ `${ className }__timestamp-control__minute` }
+				label={ shortLabel ? __( 'Min', 'jetpack' ) : __( 'Minute', 'jetpack' ) }
 				value={ smh[ 1 ] }
 				min={ 0 }
 				max={ 59 }
@@ -83,8 +85,8 @@ function TimeStamp( { value, className, onChange } ) {
 			/>
 
 			<NumberControl
-				className={ `${ className }__second` }
-				label={ __( 'Second', 'jetpack' ) }
+				className={ `${ className }__timestamp-control__second` }
+				label={ shortLabel ? __( 'Sec', 'jetpack' ) : __( 'Second', 'jetpack' ) }
 				value={ smh[ 2 ] }
 				min={ 0 }
 				max={ 59 }
@@ -93,6 +95,37 @@ function TimeStamp( { value, className, onChange } ) {
 				} }
 			/>
 		</div>
+	);
+}
+
+export function TimeStampDropdown( {
+	className,
+	value,
+	onChange,
+	shortLabel,
+} ) {
+	return (
+		<Dropdown
+			position="bottom right"
+			className={ `${ className }__timestamp-dropdown` }
+			contentClassName={ `${ className }__timestamp-content` }
+			renderToggle={ ( { isOpen, onToggle } ) => {
+				return (
+					<Button
+						className={ `${ className }__timestamp` }
+						onClick={ onToggle }
+					>
+						{ value }
+					</Button>
+				);
+			} }
+			renderContent={ () => <TimeStamp
+				className={ className }
+				value={ value }
+				onChange={ onChange }
+				shortLabel={ shortLabel }
+			/> }
+		/>
 	);
 }
 
