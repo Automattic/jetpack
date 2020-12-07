@@ -1,16 +1,20 @@
 <?php
-
 /**
- * @package A8C\FSE\Earn
- *
  * The environment does not have a subscription service available.
- *
  * This represents this scenario.
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content
  */
+
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use function site_url;
 
+/**
+ * Class Unconfigured_Subscription_Service
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
+ */
 class Unconfigured_Subscription_Service implements Subscription_Service {
 
 	/**

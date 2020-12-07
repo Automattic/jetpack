@@ -1,4 +1,9 @@
 <?php
+/**
+ * Subcription service includes to build out the service.
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content
+ */
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
