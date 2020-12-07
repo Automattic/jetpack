@@ -14,11 +14,11 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
  */
 class Assets {
 	/**
-	 * Holds all the scripts handles that should be loaded in an async fashion.
+	 * Holds all the scripts handles that should be loaded in a deferred fashion.
 	 *
 	 * @var array
 	 */
-	private $async_script_handles = array();
+	private $defer_script_handles = array();
 	/**
 	 * The singleton instance of this class.
 	 *
@@ -63,23 +63,23 @@ class Assets {
 	 * @param string $script_handle Script handle.
 	 */
 	public function add_async_script( $script_handle ) {
-		$this->async_script_handles[] = $script_handle;
+		$this->defer_script_handles[] = $script_handle;
 	}
 
 	/**
-	 * Add an async attribute to scripts that can be loaded asynchronously.
-	 * https://www.w3schools.com/tags/att_script_async.asp
+	 * Add an async attribute to scripts that can be loaded deferred.
+	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
 	 *
 	 * @param string $tag    The <script> tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
-		if ( empty( $this->async_script_handles ) ) {
+		if ( empty( $this->defer_script_handles ) ) {
 			return $tag;
 		}
 
-		if ( in_array( $handle, $this->async_script_handles, true ) ) {
-			return preg_replace( '/^<script /i', '<script async defer ', $tag );
+		if ( in_array( $handle, $this->defer_script_handles, true ) ) {
+			return preg_replace( '/^<script /i', '<script defer ', $tag );
 		}
 
 		return $tag;
