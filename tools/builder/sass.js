@@ -65,7 +65,6 @@ gulp.task( 'sass:colorschemes', function ( done ) {
 		.pipe( gulp.dest( './modules/masterbar/admin-color-schemes/colors' ) )
 		.on( 'end', function () {
 			log( 'Color Schemes CSS finished.' );
-			doRTL( 'colorschemes', done );
 		} );
 } );
 
@@ -88,14 +87,6 @@ function doRTL( files, done ) {
 			renameArgs = function ( pathx ) {
 				pathx.basename = pathx.basename.replace( '.min', '' );
 				pathx.extname = '-rtl.min.css';
-			};
-			break;
-		case 'colorschemes':
-			path = './modules/masterbar/admin-color-schemes/colors/**/colors.css';
-			dest = './modules/masterbar/admin-color-schemes/colors';
-			success = 'Color Schemes RTL CSS finished.';
-			renameArgs = function ( pathx ) {
-				pathx.extname = '-rtl.css';
 			};
 			break;
 		default:
