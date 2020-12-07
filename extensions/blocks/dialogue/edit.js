@@ -29,20 +29,20 @@ import { useContext, useState, } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
-import SpeakersDropdown from './components/speakers-control';
+import ParticipantsDropdown from './components/participants-control';
 import TimeStampControl from './components/time-stamp-control';
 import ConversationContext from '../conversation/components/context';
-import { defaultSpeakers, defaultSpeakerSlug } from '../conversation/edit';
+import { defaultParticipants, defaultParticipantSlug } from '../conversation/edit';
 import { formatUppercase } from '../../shared/icons';
 
-function getSpeakerBySlug( speakers, slug ) {
-	const speaker = find( speakers, ( contextSpeaker ) => contextSpeaker.speakerSlug === slug );
-	if ( speaker ) {
-		return speaker;
+function getParticipantBySlug( participants, slug ) {
+	const participant = find( participants, ( contextParticipant ) => contextParticipant.participantSlug === slug );
+	if ( participant ) {
+		return participant;
 	}
 
-	// Fallback speaker. First one in the list.
-	return speakers?.[ 0 ];
+	// Fallback participant. First one in the list.
+	return participants?.[ 0 ];
 }
 
 const blockName = 'jetpack/dialogue';
@@ -58,26 +58,26 @@ export default function DialogueEdit ( {
 	mergeBlocks,
 } ) {
 	const {
-		speaker,
-		speakerSlug,
+		participant,
+		participantSlug,
 		timeStamp,
 		content,
 		placeholder,
 	} = attributes;
-	const [ isFocusedOnSpeakerLabel, setIsFocusedOnSpeakerLabel ] = useState( false );
+	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
 
 	// Block context integration.
-	const speakersFromContext = context[ 'jetpack/conversation-speakers' ];
+	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimeStamp = context[ 'jetpack/conversation-showtimestamp' ];
 
-	// Speakers list.
-	const speakers = speakersFromContext?.length ? speakersFromContext : defaultSpeakers;
+	// Participants list.
+	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
 
-	// Speaker object.
-	const isCustomSpeaker = !! speaker && ! speakerSlug;
-	const currentSpeakerSlug = ! speaker && ! speakerSlug ? defaultSpeakerSlug : speakerSlug;
-	const currentSpeaker = getSpeakerBySlug( speakers, currentSpeakerSlug );
-	const speakerLabel = isCustomSpeaker ? speaker : currentSpeaker?.speaker;
+	// Participant object.
+	const isCustomParticipant = !! participant && ! participantSlug;
+	const currentParticipantSlug = ! participant && ! participantSlug ? defaultParticipantSlug : participantSlug;
+	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
+	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const transcritionBridge = useContext( ConversationContext );
@@ -92,11 +92,11 @@ export default function DialogueEdit ( {
 	 * @returns {boolean} True if the style is defined. Otherwise, False.
 	 */
 	function hasStyle( style ) {
-		if ( isCustomSpeaker || ! speakersFromContext ) {
+		if ( isCustomParticipant || ! participantsFromContext ) {
 			return attributes?.[ style ];
 		}
 
-		return currentSpeaker?.[ style ];
+		return currentParticipant?.[ style ];
 	}
 
 	/**
@@ -106,36 +106,36 @@ export default function DialogueEdit ( {
 	 * @param {string} style - style to toggle.
 	 * @returns {void}
 	 */
-	function toggleSpeakerStyle( style ) {
-		if ( isCustomSpeaker || ! speakersFromContext ) {
+	function toggleParticipantStyle( style ) {
+		if ( isCustomParticipant || ! participantsFromContext ) {
 			return setAttributes( { [ style ]: ! attributes[ style ] } );
 		}
 
-		transcritionBridge.updateSpeakers( {
-			speakerSlug: currentSpeakerSlug,
-			[ style ]: ! currentSpeaker[ style ],
+		transcritionBridge.updateParticipants( {
+			participantSlug: currentParticipantSlug,
+			[ style ]: ! currentParticipant[ style ],
 		} );
 	}
 
 	/**
-	 * Helper to build the CSS classes for the speaker label.
+	 * Helper to build the CSS classes for the participant label.
 	 * It handles local and global (conversation) level.
 	 *
-	 * @returns {string} Speaker CSS class.
+	 * @returns {string} Participant CSS class.
 	 */
-	function getSpeakerLabelClass() {
-		if ( isCustomSpeaker || ! speakersFromContext ) {
-			return classnames( `${ baseClassName }__speaker`, {
+	function getParticipantLabelClass() {
+		if ( isCustomParticipant || ! participantsFromContext ) {
+			return classnames( `${ baseClassName }__participant`, {
 				[ 'has-bold-style' ]: attributes?.hasBoldStyle,
 				[ 'has-italic-style' ]: attributes?.hasItalicStyle,
 				[ 'has-uppercase-style' ]: attributes?.hasUppercaseStyle,
 			} );
 		}
 
-		return classnames( `${ baseClassName }__speaker`, {
-			[ 'has-bold-style' ]: currentSpeaker?.hasBoldStyle,
-			[ 'has-italic-style' ]: currentSpeaker?.hasItalicStyle,
-			[ 'has-uppercase-style' ]: currentSpeaker?.hasUppercaseStyle,
+		return classnames( `${ baseClassName }__participant`, {
+			[ 'has-bold-style' ]: currentParticipant?.hasBoldStyle,
+			[ 'has-italic-style' ]: currentParticipant?.hasItalicStyle,
+			[ 'has-uppercase-style' ]: currentParticipant?.hasUppercaseStyle,
 		} );
 	}
 
@@ -143,42 +143,42 @@ export default function DialogueEdit ( {
 		<div className={ className }>
 			<BlockControls>
 				<ToolbarGroup>
-					<SpeakersDropdown
-						id={ `dialogue-${ instanceId }-speakers-dropdown` }
+					<ParticipantsDropdown
+						id={ `dialogue-${ instanceId }-participants-dropdown` }
 						className={ baseClassName }
-						speakers={ speakers }
-						speaker={ speaker }
-						label={ speakerLabel }
-						onSelect={ ( { newSpeakerSlug } ) => {
+						participants={ participants }
+						participant={ participant }
+						label={ participantLabel }
+						onSelect={ ( { newParticipantSlug } ) => {
 							setAttributes( {
-								speakerSlug: newSpeakerSlug,
+								participantSlug: newParticipantSlug,
 							} );
 						} }
-						onChange={ ( { newSpeaker } ) => setAttributes( {
-							speakerSlug: null,
-							speaker: newSpeaker,
+						onChange={ ( { newParticipant } ) => setAttributes( {
+							participantSlug: null,
+							participant: newParticipant,
 						} ) }
 					/>
 				</ToolbarGroup>
 
-				{ currentSpeaker && isFocusedOnSpeakerLabel && (
+				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
 							icon="editor-bold"
 							isPressed={ hasStyle( 'hasBoldStyle' ) }
-							onClick={ () => toggleSpeakerStyle( 'hasBoldStyle' ) }
+							onClick={ () => toggleParticipantStyle( 'hasBoldStyle' ) }
 						/>
 
 						<ToolbarButton
 							icon="editor-italic"
 							isPressed={ hasStyle( 'hasItalicStyle' ) }
-							onClick={ () => toggleSpeakerStyle( 'hasItalicStyle' ) }
+							onClick={ () => toggleParticipantStyle( 'hasItalicStyle' ) }
 						/>
 
 						<ToolbarButton
 							icon={ formatUppercase }
 							isPressed={ hasStyle( 'hasUppercaseStyle' ) }
-							onClick={ () => toggleSpeakerStyle( 'hasUppercaseStyle' ) }
+							onClick={ () => toggleParticipantStyle( 'hasUppercaseStyle' ) }
 						/>
 					</ToolbarGroup>
 				) }
@@ -210,10 +210,10 @@ export default function DialogueEdit ( {
 
 			<div class={ `${ baseClassName }__meta` }>
 				<Button
-					className={ getSpeakerLabelClass() }
-					onFocus={ () => setIsFocusedOnSpeakerLabel( true ) }
+					className={ getParticipantLabelClass() }
+					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
 				>
-					{ speakerLabel }
+					{ participantLabel }
 				</Button>
 
 				{ showTimeStamp && (
@@ -251,8 +251,8 @@ export default function DialogueEdit ( {
 				}
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
-				isSelected={ ! isFocusedOnSpeakerLabel }
-				onFocus={ () => setIsFocusedOnSpeakerLabel( false ) }
+				isSelected={ ! isFocusedOnParticipantLabel }
+				onFocus={ () => setIsFocusedOnParticipantLabel( false ) }
 			/>
 		</div>
 	);

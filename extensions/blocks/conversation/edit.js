@@ -29,30 +29,30 @@ import {
  * Internal dependencies
  */
 import './editor.scss';
-import SpeakersDropdown, { SpeakersSelector } from './components/speakers-controls';
+import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
 import TranscritptionContext from './components/context';
 
-export const defaultSpeakersSlug = 'speaker-0';
-export const defaultSpeakers = [
+export const defaultParticipantsSlug = 'participant-0';
+export const defaultParticipants = [
 	{
-		speakerSlug: 'speaker-0',
-		speaker: __( 'Participant 1', 'jetpack' ),
+		participantSlug: 'participant-0',
+		participant: __( 'Participant 1', 'jetpack' ),
 	},
 	{
-		speakerSlug: 'speaker-1',
-		speaker: __( 'Participant 2', 'jetpack' ),
+		participantSlug: 'participant-1',
+		participant: __( 'Participant 2', 'jetpack' ),
 	},
 	{
-		speakerSlug: 'speaker-2',
-		speaker: __( 'Participant 3', 'jetpack' ),
+		participantSlug: 'participant-2',
+		participant: __( 'Participant 3', 'jetpack' ),
 	},
 ];
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
-	[ 'jetpack/dialogue', defaultSpeakers[ 0 ] ],
-	[ 'jetpack/dialogue', defaultSpeakers[ 1 ] ],
-	[ 'jetpack/dialogue', defaultSpeakers[ 2 ] ],
+	[ 'jetpack/dialogue', defaultParticipants[ 0 ] ],
+	[ 'jetpack/dialogue', defaultParticipants[ 1 ] ],
+	[ 'jetpack/dialogue', defaultParticipants[ 2 ] ],
 ];
 
 function ConversationEdit ( {
@@ -60,34 +60,34 @@ function ConversationEdit ( {
 	attributes,
 	setAttributes,
 } ) {
-	const { speakers, showTimeStamp, className: classNameAttr } = attributes;
+	const { participants, showTimeStamp, className: classNameAttr } = attributes;
 	const containertRef = useRef();
 
-	// Set initial conversation speakers.
+	// Set initial conversation participants.
 	useEffect( () => {
-		if ( speakers ) {
+		if ( participants ) {
 			return;
 		}
 
-		setAttributes( { speakers: defaultSpeakers } );
-	}, [ speakers, setAttributes ] );
+		setAttributes( { participants: defaultParticipants } );
+	}, [ participants, setAttributes ] );
 
-	const updateSpeakers = useCallback( ( updatedSpeaker ) => (
-		setAttributes( { speakers: map( speakers, ( speaker ) => {
-			if ( speaker.speakerSlug !== updatedSpeaker.speakerSlug ) {
-				return speaker;
+	const updateParticipants = useCallback( ( updatedParticipant ) => (
+		setAttributes( { participants: map( participants, ( participant ) => {
+			if ( participant.participantSlug !== updatedParticipant.participantSlug ) {
+				return participant;
 			}
 			return {
-				...speaker,
-				...updatedSpeaker,
+				...participant,
+				...updatedParticipant,
 			};
 		} ) } )
-	), [ setAttributes, speakers ] );
+	), [ setAttributes, participants ] );
 
 	// Context bridge.
 	const contextProvision = {
 		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
-		updateSpeakers,
+		updateParticipants,
 
 		attributes: {
 			showTimeStamp,
@@ -95,20 +95,20 @@ function ConversationEdit ( {
 		},
 	};
 
-	function deleteSpeaker( deletedSpeakerSlug ) {
-		setAttributes( { speakers: filter( speakers, ( { speakerSlug } ) => ( speakerSlug !== deletedSpeakerSlug ) ) } );
+	function deleteParticipant( deletedParticipantSlug ) {
+		setAttributes( { participants: filter( participants, ( { participantSlug } ) => ( participantSlug !== deletedParticipantSlug ) ) } );
 	}
 
-	function addNewSpeaker( newSpakerValue ) {
-		const newSpeakerSlug = speakers.length
-			? ( speakers[ speakers.length - 1 ].speakerSlug ).replace( /(\d+)/, ( n ) => Number( n ) + 1 )
+	function addNewParticipant( newSpakerValue ) {
+		const newParticipantSlug = participants.length
+			? ( participants[ participants.length - 1 ].participantSlug ).replace( /(\d+)/, ( n ) => Number( n ) + 1 )
 			: 'sepaker-0';
 		setAttributes( {
-			speakers: [
-				...speakers,
+			participants: [
+				...participants,
 				{
-					speaker: newSpakerValue,
-					speakerSlug: newSpeakerSlug,
+					participant: newSpakerValue,
+					participantSlug: newParticipantSlug,
 				},
 			],
 		} );
@@ -121,26 +121,26 @@ function ConversationEdit ( {
 			<div ref={ containertRef } className={ className }>
 				<BlockControls>
 					<ToolbarGroup>
-						<SpeakersDropdown
+						<ParticipantsDropdown
 							className={ baseClassName }
-							speakers={ speakers }
+							participants={ participants }
 							label={ __( 'Participants', 'jetpack' ) }
-							onChange={ updateSpeakers }
-							onDelete={ deleteSpeaker }
-							onAdd={ addNewSpeaker }
+							onChange={ updateParticipants }
+							onDelete={ deleteParticipant }
+							onAdd={ addNewParticipant }
 						/>
 					</ToolbarGroup>
 				</BlockControls>
 
 				<InspectorControls>
 					<Panel>
-						<PanelBody title={ __( 'Participants', 'jetpack' ) } className={ `${ baseClassName }__speakers` }>
-							<SpeakersSelector
+						<PanelBody title={ __( 'Participants', 'jetpack' ) } className={ `${ baseClassName }__participants` }>
+							<ParticipantsSelector
 								className={ baseClassName }
-								speakers={ speakers }
-								onChange={ updateSpeakers }
-								onDelete={ deleteSpeaker }
-								onAdd={ addNewSpeaker }
+								participants={ participants }
+								onChange={ updateParticipants }
+								onDelete={ deleteParticipant }
+								onAdd={ addNewParticipant }
 							/>
 						</PanelBody>
 

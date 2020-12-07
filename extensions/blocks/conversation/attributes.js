@@ -1,5 +1,5 @@
 export default {
-	speakers: {
+	participants: {
 		type: "array",
 	},
 	showTimeStamp: {

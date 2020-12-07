@@ -11,7 +11,7 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import { DialogueIcon as icon } from '../../shared/icons';
-import { defaultSpeakers } from '../conversation/edit';
+import { defaultParticipants } from '../conversation/edit';
 
 /**
  * Style dependencies
@@ -32,7 +32,7 @@ export const settings = {
 	save,
 	attributes,
 	usesContext: [
-		'jetpack/conversation-speakers',
+		'jetpack/conversation-participants',
 		'jetpack/conversation-showtimestamp',
 	],
 	transforms: {
@@ -42,7 +42,7 @@ export const settings = {
 				blocks: [ 'core/paragraph' ],
 				transform: ( { content } ) => {
 					return createBlock( 'jetpack/dialogue', {
-						...defaultSpeakers[ 0 ],
+						...defaultParticipants[ 0 ],
 						content,
 					 } );
 				},

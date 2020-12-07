@@ -5,7 +5,7 @@
 		align-items: center;
 	}
 
-	.wp-block-jetpack-dialogue__speaker {
+	.wp-block-jetpack-dialogue__participant {
 		margin-right: 10px;
 	}
 	.wp-block-jetpack-dialogue__timestamp {
@@ -19,7 +19,7 @@
 	margin-right: 6px;
 }
 
-.wp-block-jetpack-dialogue__speaker {
+.wp-block-jetpack-dialogue__participant {
 	white-space: nowrap;
 	padding: 3px 0;
 	height: auto;
@@ -48,7 +48,7 @@
 			align-items: initial;
 		}
 
-		.wp-block-jetpack-dialogue__speaker {
+		.wp-block-jetpack-dialogue__participant {
 			text-align: right;
 			margin-right: 0;
 		}

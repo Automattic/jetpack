@@ -42,7 +42,7 @@ export const settings = {
 	edit,
 	save,
 	providesContext: {
-		'jetpack/conversation-speakers': 'speakers',
+		'jetpack/conversation-participants': 'participants',
 		'jetpack/conversation-showtimestamp': 'showTimeStamp',
 	},
 };

@@ -15,18 +15,18 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-function AddSpeakerButton( {
+function AddParticipantButton( {
 	className,
 	onAdd,
-	speakers = [],
+	participants = [],
 } ) {
 	return (
 		<BaseControl>
-			<div className={ `${ className }__speaker` }>
+			<div className={ `${ className }__participant` }>
 				<Button
 					className={ `${ className }__add-button` }
 					label={ __( 'Add Participant', 'jetpack' ) }
-					onClick={ () => onAdd( `Participant ${ speakers.length + 1 }` ) }
+					onClick={ () => onAdd( `Participant ${ participants.length + 1 }` ) }
 					isSecondary
 					isSmall
 				>
@@ -37,28 +37,28 @@ function AddSpeakerButton( {
 	);
 }
 
-function SpeakersLabelControl( {
+function ParticipantsLabelControl( {
 	className,
-	speakers,
+	participants,
 	onChange,
 	onDelete,
 } ) {
 	return (
 		<Fragment>
-			{ map( speakers, ( { speaker, speakerSlug } ) => (
-				<BaseControl className={ `${ className }__speaker-control` }>
-					<div className={ `${ className }__speaker` }>
+			{ map( participants, ( { participant, participantSlug } ) => (
+				<BaseControl className={ `${ className }__participant-control` }>
+					<div className={ `${ className }__participant` }>
 						<TextControl
-							value={ speaker }
-							onChange={ ( speakerEditedValue ) => onChange( {
-								speakerSlug,
-								speaker: speakerEditedValue,
+							value={ participant }
+							onChange={ ( participantEditedValue ) => onChange( {
+								participantSlug,
+								participant: participantEditedValue,
 							} ) }
 						/>
 
 						<Button
 							label={ __( 'Delete', 'jetpack' ) }
-							onClick={ () => onDelete( speakerSlug ) }
+							onClick={ () => onDelete( participantSlug ) }
 							isTertiary
 							isSmall
 						>
@@ -71,8 +71,8 @@ function SpeakersLabelControl( {
 	);
 }
 
-export function SpeakersSelector( {
-	speakers,
+export function ParticipantsSelector( {
+	participants,
 	className,
 	onChange,
 	onDelete,
@@ -80,23 +80,23 @@ export function SpeakersSelector( {
 } ) {
 	return (
 		<Fragment>
-			<SpeakersLabelControl
+			<ParticipantsLabelControl
 				className={ className }
-				speakers={ speakers }
+				participants={ participants }
 				onChange={ onChange }
 				onDelete={ onDelete }
 			/>
 
-			<AddSpeakerButton
+			<AddParticipantButton
 				className={ className }
 				onAdd={ onAdd }
-				speakers={ speakers }
+				participants={ participants }
 			/>
 		</Fragment>
 	);
 }
 
-export default function SpeakersDropdown ( props ) {
+export default function ParticipantsDropdown ( props ) {
 	return (
 		<DropdownMenu
 			popoverProps={ { position: 'bottom' } }
@@ -106,7 +106,7 @@ export default function SpeakersDropdown ( props ) {
 			icon="microphone"
 		>
 			{ () =>
-				<SpeakersSelector { ...props } />
+				<ParticipantsSelector { ...props } />
 			}
 		</DropdownMenu>
 	);

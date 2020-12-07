@@ -28,7 +28,7 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$uses             => array(
-				'jetpack/conversation-speakers',
+				'jetpack/conversation-participants',
 				'jetpack/conversation-showtimestamp',
 			),
 		)
@@ -49,10 +49,10 @@ function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	// Attributes..
-	$speaker_slug_attr  = isset( $attrs['speakerSlug'] ) ? $attrs['speakerSlug'] : null;
-	$speaker_label_attr = isset( $attrs['speaker'] ) ? $attrs['speaker'] : null;
+	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
+	$participant_label_attr = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
 	$timestamp          = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
-	$is_custom_spaker   = $speaker_label_attr && ! $speaker_slug_attr;
+	$is_custom_spaker   = $participant_label_attr && ! $participant_slug_attr;
 	$content            = '';
 
 	if ( isset( $attrs['content'] ) ) {
@@ -69,73 +69,73 @@ function render_block( $attrs, $block_content, $block ) {
 	}
 
 	// Pick up conversation data from context.
-	$speakers       = $block->context['jetpack/conversation-speakers'];
+	$participants       = $block->context['jetpack/conversation-participants'];
 	$show_timestamp = isset( $block->context['jetpack/conversation-showtimestamp'] );
 
-	// Set current speaker slug, considering it could be null from block $attrs.
-	$speaker_slug = ! $speaker_slug_attr && ! $speaker_label_attr ? 'speaker-0' : $speaker_slug_attr;
+	// Set current participant slug, considering it could be null from block $attrs.
+	$participant_slug = ! $participant_slug_attr && ! $participant_label_attr ? 'participant-0' : $participant_slug_attr;
 
-	// Speaker names map.
-	$speaker_names_map = array();
-	foreach ( $speakers as $speaker ) {
-		$speaker_names_map[ $speaker['speakerSlug'] ] = $speaker;
+	// Participant names map.
+	$participant_names_map = array();
+	foreach ( $participants as $participant ) {
+		$participant_names_map[ $participant['participantSlug'] ] = $participant;
 	}
 
-	// Current Speaker object.
-	$current_speaker = isset( $speaker_names_map[ $speaker_slug ] )
-		? $speaker_names_map[ $speaker_slug ]
+	// Current Participant object.
+	$current_participant = isset( $participant_names_map[ $participant_slug ] )
+		? $participant_names_map[ $participant_slug ]
 		: false;
 
-	// Pick up speaker data from context.
-	$speaker_name = isset( $current_speaker['speaker'] )
-		? esc_attr( $current_speaker['speaker'] )
-		: $speaker_label_attr;
+	// Pick up participant data from context.
+	$participant_name = isset( $current_participant['participant'] )
+		? esc_attr( $current_participant['participant'] )
+		: $participant_label_attr;
 
-	$speaker_has_bold_style = $is_custom_spaker && isset( $attrs['hasBoldStyle'] )
+	$participant_has_bold_style = $is_custom_spaker && isset( $attrs['hasBoldStyle'] )
 		? $attrs['hasBoldStyle']
 		: (
-			isset( $current_speaker['hasBoldStyle'] )
-				? $current_speaker['hasBoldStyle']
+			isset( $current_participant['hasBoldStyle'] )
+				? $current_participant['hasBoldStyle']
 				: false
 		);
 
-	$speaker_has_italic_style = $is_custom_spaker && isset( $attrs['hasItalicStyle'] )
+	$participant_has_italic_style = $is_custom_spaker && isset( $attrs['hasItalicStyle'] )
 		? $attrs['hasItalicStyle']
 		: (
-			isset( $current_speaker['hasItalicStyle'] )
-				? $current_speaker['hasItalicStyle']
+			isset( $current_participant['hasItalicStyle'] )
+				? $current_participant['hasItalicStyle']
 				: false
 		);
 
-	$speaker_has_uppercase_style = $is_custom_spaker && isset( $attrs['hasUppercaseStyle'] )
+	$participant_has_uppercase_style = $is_custom_spaker && isset( $attrs['hasUppercaseStyle'] )
 		? $attrs['hasUppercaseStyle']
 		: (
-			isset( $current_speaker['hasUppercaseStyle'] )
-				? $current_speaker['hasUppercaseStyle']
+			isset( $current_participant['hasUppercaseStyle'] )
+				? $current_participant['hasUppercaseStyle']
 				: false
 		);
 
 	// CSS classes and inline styles..
 	$base_classname = 'wp-block-jetpack-dialogue';
 
-	$speaker_css_classes = array( $base_classname . '__speaker' );
-	if ( $speaker_has_bold_style ) {
-		array_push( $speaker_css_classes, 'has-bold-style' );
+	$participant_css_classes = array( $base_classname . '__participant' );
+	if ( $participant_has_bold_style ) {
+		array_push( $participant_css_classes, 'has-bold-style' );
 	}
 
-	if ( $speaker_has_italic_style ) {
-		array_push( $speaker_css_classes, 'has-italic-style' );
+	if ( $participant_has_italic_style ) {
+		array_push( $participant_css_classes, 'has-italic-style' );
 	}
 
-	if ( $speaker_has_uppercase_style ) {
-		array_push( $speaker_css_classes, 'has-uppercase-style' );
+	if ( $participant_has_uppercase_style ) {
+		array_push( $participant_css_classes, 'has-uppercase-style' );
 	}
 
 	// Markup.
 	return '<div class="' . $base_classname . '" >' .
 		'<div class="' . $base_classname . '__meta">' .
-			'<div class="' . implode( ' ', $speaker_css_classes ) . '">' .
-				$speaker_name .
+			'<div class="' . implode( ' ', $participant_css_classes ) . '">' .
+				$participant_name .
 			'</div>' .
 			( $show_timestamp
 				? '<div class="' . $base_classname . '__timestamp">' .

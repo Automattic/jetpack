@@ -16,28 +16,28 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-function SpeakersMenu( { speakers, className, onSelect } ) {
+function ParticipantsMenu( { participants, className, onSelect } ) {
 	return (
-		<MenuGroup className={ `${ className }__speakers-selector` }>
-			{ map( speakers, ( { speaker: newSpeaker, speakerSlug: newSpeakerSlug } ) => (
+		<MenuGroup className={ `${ className }__participants-selector` }>
+			{ map( participants, ( { participant: newParticipant, participantSlug: newParticipantSlug } ) => (
 				<MenuItem
-					key={ newSpeakerSlug }
-					onClick={ () => onSelect( { newSpeaker, newSpeakerSlug } ) }
+					key={ newParticipantSlug }
+					onClick={ () => onSelect( { newParticipant, newParticipantSlug } ) }
 				>
-					{ newSpeaker }
+					{ newParticipant }
 				</MenuItem>
 			) ) }
 		</MenuGroup>
 	);
 }
 
-function SpeakerControl( { className, speaker, onChange } ) {
+function ParticipantControl( { className, participant, onChange } ) {
 	return (
-		<BaseControl className={ `${ className }__custom-speaker` }>
+		<BaseControl className={ `${ className }__custom-participant` }>
 			<div className={ `${ className }__text-button-container` }>
 				<TextControl
 					label={ __( 'Custom', 'jetpack' ) }
-					value={ speaker }
+					value={ participant }
 					onChange={ onChange }
 				/>
 			</div>
@@ -45,10 +45,10 @@ function SpeakerControl( { className, speaker, onChange } ) {
 	);
 }
 
-export default function SpeakersDropdown( {
+export default function ParticipantsDropdown( {
 	className,
-	speakers,
-	speaker,
+	participants,
+	participant,
 	label,
 	onSelect,
 	onChange,
@@ -64,17 +64,17 @@ export default function SpeakersDropdown( {
 		>
 			{ () => (
 				<Fragment>
-					<SpeakersMenu
-						speakers={ speakers }
-						speaker={ speaker }
+					<ParticipantsMenu
+						participants={ participants }
+						participant={ participant }
 						className={ className }
 						onSelect={ onSelect }
 					/>
 
-					<SpeakerControl
+					<ParticipantControl
 						className={ className }
-						speaker={ speaker }
-						onChange={ ( newSpeaker ) => onChange( { newSpeaker, newSpeakerSlug: null } ) }
+						participant={ participant }
+						onChange={ ( newParticipant ) => onChange( { newParticipant, newParticipantSlug: null } ) }
 					/>
 				</Fragment>
 			) }

@@ -1,8 +1,8 @@
 export default {
-	speaker: {
+	participant: {
 		type: "string",
 	},
-	speakerSlug: {
+	participantSlug: {
 		type: "string",
 	},
 	timeStamp: {
