@@ -14,7 +14,7 @@ export PACKAGES='./coverage/package-*/clover.xml'
 for PACKAGE in $PACKAGES
 do
 	NAME=$(basename -- $(dirname $PACKAGE))
-	./cc-test-reporter format-coverage -t clover -o coverage/codeclimate.$NAME.json $PACKAGE
+	./cc-test-reporter format-coverage --prefix /tmp/wordpress-latest/src/wp-content/plugins/jetpack -t clover -o coverage/codeclimate.$NAME.json $PACKAGE
 done
 
 # Sum all coverage parts into a single coverage/codeclimate.json
