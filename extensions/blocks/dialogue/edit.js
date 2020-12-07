@@ -92,7 +92,7 @@ export default function DialogueEdit ( {
 	 * @returns {boolean} True if the style is defined. Otherwise, False.
 	 */
 	function hasStyle( style ) {
-		if ( isCustomSpeaker ) {
+		if ( isCustomSpeaker || ! speakersFromContext ) {
 			return attributes?.[ style ];
 		}
 
@@ -107,7 +107,7 @@ export default function DialogueEdit ( {
 	 * @returns {void}
 	 */
 	function toggleSpeakerStyle( style ) {
-		if ( isCustomSpeaker ) {
+		if ( isCustomSpeaker || ! speakersFromContext ) {
 			return setAttributes( { [ style ]: ! attributes[ style ] } );
 		}
 
@@ -124,7 +124,7 @@ export default function DialogueEdit ( {
 	 * @returns {string} Speaker CSS class.
 	 */
 	function getSpeakerLabelClass() {
-		if ( isCustomSpeaker ) {
+		if ( isCustomSpeaker || ! speakersFromContext ) {
 			return classnames( `${ baseClassName }__speaker`, {
 				[ 'has-bold-style' ]: attributes?.hasBoldStyle,
 				[ 'has-italic-style' ]: attributes?.hasItalicStyle,
