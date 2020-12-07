@@ -21,10 +21,10 @@ class WP_Test_Autoloader_Locator extends TestCase {
 
 	/**
 	 * Setup executes before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->autoloader_locator = new Autoloader_Locator( new Version_Selector() );
 	}
 

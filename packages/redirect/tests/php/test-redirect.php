@@ -18,16 +18,20 @@ class RedirectTest extends TestCase {
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		Monkey\setUp();
 		$this->status = new Status();
 	}
 
 	/**
 	 * Test teardown.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Monkey\tearDown();
 	}
 

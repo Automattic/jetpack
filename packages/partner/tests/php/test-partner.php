@@ -23,9 +23,10 @@ class Partner_Test extends TestCase {
 
 	/**
 	 * Set ups the tests.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
 		Monkey\setUp();
 		Partner::reset();
 	}

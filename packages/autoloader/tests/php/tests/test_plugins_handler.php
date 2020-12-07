@@ -26,8 +26,10 @@ class PluginsHandlerTest extends TestCase {
 
 	/**
 	 * This method is called before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->plugins_handler = $this->getMockBuilder( 'Plugins_Handler' )
 			->setMethods(
 				array(

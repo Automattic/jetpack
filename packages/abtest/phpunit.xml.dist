@@ -11,6 +11,7 @@
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">vendor</directory>
 				<directory suffix=".php">views</directory>
+				<directory suffix=".php">wordpress</directory>
 			</exclude>
 		</whitelist>
 	</filter>

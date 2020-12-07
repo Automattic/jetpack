@@ -24,3 +24,4 @@ if ( empty( $_SERVER['PHP_SELF'] ) ) {
 }
 
 \WorDBless\Load::load();
+require_once ABSPATH . WPINC . '/class-IXR.php';
