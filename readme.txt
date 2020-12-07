@@ -249,7 +249,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
-* Site Health Tools: PHP 8 compatibility improvements.
+* Site Health Tools: improve PHP 8 compatibility.
 * Twenty Twenty One: add support for Jetpack's Content Options.
 
 **Bug fixes**
