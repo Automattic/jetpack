@@ -387,7 +387,7 @@ class JWT {
 			JSON_ERROR_STATE_MISMATCH => 'Invalid or malformed JSON',
 			JSON_ERROR_CTRL_CHAR      => 'Unexpected control character found',
 			JSON_ERROR_SYNTAX         => 'Syntax error, malformed JSON',
-			JSON_ERROR_UTF8           => 'Malformed UTF-8 characters', // PHP >= 5.3.3
+			JSON_ERROR_UTF8           => 'Malformed UTF-8 characters',
 		);
 		throw new DomainException(
 			isset( $messages[ $errno ] )
@@ -412,11 +412,26 @@ class JWT {
 }
 
 if ( ! class_exists( 'SignatureInvalidException' ) ) {
+	/**
+	 * SignatureInvalidException
+	 *
+	 * @package Automattic\Jetpack\Extensions\Premium_Content
+	 */
 	class SignatureInvalidException extends \UnexpectedValueException { }
 }
 if ( ! class_exists( 'ExpiredException' ) ) {
+	/**
+	 * ExpiredException
+	 *
+	 * @package Automattic\Jetpack\Extensions\Premium_Content
+	 */
 	class ExpiredException extends \UnexpectedValueException { }
 }
 if ( ! class_exists( 'BeforeValidException' ) ) {
+	/**
+	 * BeforeValidException
+	 *
+	 * @package Automattic\Jetpack\Extensions\Premium_Content
+	 */
 	class BeforeValidException extends \UnexpectedValueException { }
 }
