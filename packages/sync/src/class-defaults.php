@@ -386,6 +386,7 @@ class Defaults {
 	 */
 	public static $blacklisted_post_types = array(
 		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
+		'amp_validated_url', // AMP Validation Errors.
 		'ai1ec_event',
 		'bwg_album',
 		'bwg_gallery',
