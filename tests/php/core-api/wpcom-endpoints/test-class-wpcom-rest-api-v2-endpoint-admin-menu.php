@@ -318,7 +318,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'upload.php',
 				'',
 				null,
-				admin_url( 'uploads.php' ),
+				admin_url( 'upload.php' ),
 			),
 			// Submenu item URL.
 			array(
@@ -353,19 +353,19 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'product_attributes',
 				'edit.php?post_type=product',
 				'__return_true',
-				'http://example.org/wp-admin/edit.php?post_type=product&page=product_attributes',
+				admin_url( 'edit.php?post_type=product&page=product_attributes' ),
 			),
 			array(
 				'wc-admin&amp;path=/analytics/products',
 				'wc-admin&amp;path=/analytics/overview',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=/analytics/products',
+				admin_url( 'admin.php?page=wc-admin&amp;path=/analytics/products' ),
 			),
 			array(
 				'wc-admin&amp;path=customers',
 				'woocommerce',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=customers',
+				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
 			),
 		);
 	}
