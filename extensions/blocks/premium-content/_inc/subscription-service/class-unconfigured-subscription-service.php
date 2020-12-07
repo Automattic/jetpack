@@ -27,27 +27,29 @@ class Unconfigured_Subscription_Service implements Subscription_Service {
 	}
 
 	/**
+	 * Function: initialize()
+	 *
 	 * @inheritDoc
 	 */
-	function initialize() {
-		// noop
+	public function initialize() {
+		// noop.
 	}
 
 	/**
 	 * No subscription service available, no users can see this content.
 	 *
-	 * @inheritDoc
+	 * @param array $valid_plan_ids .
 	 */
-	function visitor_can_view_content( $valid_plan_ids ) {
+	public function visitor_can_view_content( $valid_plan_ids ) {
 		return false;
 	}
 
 	/**
 	 * The current visitor would like to obtain access. Where do they go?
 	 *
-	 * @inheritDoc
+	 * @param string $mode .
 	 */
-	function access_url( $mode = 'subscribe' ) {
+	public function access_url( $mode = 'subscribe' ) {
 		return site_url();
 	}
 

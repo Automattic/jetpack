@@ -10,28 +10,37 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Connection\Manager;
 
-// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
+/**
+ * Class Jetpack_Token_Subscription_Service
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
+ */
 class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 
 	/**
-	 * @inheritDoc
+	 * Is the Jetpack_Options class available?
+	 *
+	 * @return bool Whether Jetpack_Options class exists.
 	 */
 	public static function available() {
 		return class_exists( '\Jetpack_Options' );
 	}
 
 	/**
-	 * @inheritDoc
-	 * @throws     \Exception
+	 * Get the site ID.
+	 *
+	 * @return int The site ID.
 	 */
 	public function get_site_id() {
 		return \Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
-	 * @inheritDoc
+	 * Get the key.
+	 *
+	 * @return string The key.
 	 */
-	function get_key() {
+	public function get_key() {
 		$connection = new Manager();
 		$token      = $connection->get_access_token();
 		if ( ! isset( $token->secret ) ) {

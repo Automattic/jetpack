@@ -20,7 +20,7 @@ interface Subscription_Service {
 	 *
 	 * @return boolean
 	 */
-	static function available();
+	public static function available();
 
 	/**
 	 * Allows a Subscription Service to setup anything it needs to provide its features.
@@ -35,23 +35,23 @@ interface Subscription_Service {
 	 *
 	 * @return void
 	 */
-	function initialize();
+	public function initialize();
 
 	/**
 	 * Given a token (this could be from a cookie, a querystring, or some other means)
 	 * can the visitor see the premium content?
 	 *
-	 * @param int[] $valid_plan_ids
+	 * @param array $valid_plan_ids .
 	 *
 	 * @return boolean
 	 */
-	function visitor_can_view_content( $valid_plan_ids );
+	public function visitor_can_view_content( $valid_plan_ids );
 
 	/**
 	 * The current visitor would like to obtain access. Where do they go?
 	 *
-	 * @param  ('subscribe'|'login') $mode
+	 * @param string $mode .
 	 * @return string
 	 */
-	function access_url( $mode = 'subscribe' );
+	public function access_url( $mode = 'subscribe' );
 }

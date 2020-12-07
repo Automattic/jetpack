@@ -15,7 +15,9 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 class Token_Subscription {
 
 	/**
-	 * @var string
+	 * End date.
+	 *
+	 * @var string $end_date .
 	 */
 	public $end_date = '';
 }
