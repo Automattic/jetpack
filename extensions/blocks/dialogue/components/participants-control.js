@@ -12,6 +12,7 @@ import {
 	MenuItem,
 	TextControl,
 	BaseControl,
+	SelectControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
@@ -45,15 +46,52 @@ function ParticipantControl( { className, participant, onChange } ) {
 	);
 }
 
-export default function ParticipantsDropdown( {
+function ParticipantsSelector( {
 	className,
 	participants,
 	participant,
-	label,
 	onSelect,
 	onChange,
-	position = { position: 'bottom' },
 } ) {
+		return (
+			<Fragment>
+				<ParticipantsMenu
+					participants={ participants }
+					participant={ participant }
+					className={ className }
+					onSelect={ onSelect }
+				/>
+
+				<ParticipantControl
+					className={ className }
+					participant={ participant }
+					onChange={ ( newParticipant ) => onChange( { newParticipant, newParticipantSlug: null } ) }
+				/>
+			</Fragment>
+		);
+}
+
+export function ParticipantsControl( {
+	participants,
+	currentParticipant,
+	onSelect,
+} ) {
+		return (
+			<SelectControl
+				label={ __( 'Participant name', 'jetpack' ) }
+				value={ currentParticipant }
+				options={ map( participants, ( { participantSlug: value, participant: label } ) => ( { label, value } ) ) }
+				onChange={ ( participantSlug ) => onSelect( { participantSlug } ) }
+			/>
+		);
+}
+
+export default function ParticipantsDropdown( props ) {
+	const {
+		label,
+		position = { position: 'bottom' },
+	} = props;
+
 	return (
 		<DropdownMenu
 			popoverProps={ position }
@@ -62,22 +100,7 @@ export default function ParticipantsDropdown( {
 			} }
 			icon="microphone"
 		>
-			{ () => (
-				<Fragment>
-					<ParticipantsMenu
-						participants={ participants }
-						participant={ participant }
-						className={ className }
-						onSelect={ onSelect }
-					/>
-
-					<ParticipantControl
-						className={ className }
-						participant={ participant }
-						onChange={ ( newParticipant ) => onChange( { newParticipant, newParticipantSlug: null } ) }
-					/>
-				</Fragment>
-			) }
+			{ () => <ParticipantsSelector { ...props } /> }
 		</DropdownMenu>
 	);
 }

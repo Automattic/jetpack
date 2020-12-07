@@ -29,7 +29,7 @@ import { useContext, useState, } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown from './components/participants-control';
+import ParticipantsDropdown, { ParticipantsControl } from './components/participants-control';
 import TimeStampControl from './components/time-stamp-control';
 import ConversationContext from '../conversation/components/context';
 import { defaultParticipants, defaultParticipantSlug } from '../conversation/edit';
@@ -186,6 +186,16 @@ export default function DialogueEdit ( {
 
 			<InspectorControls>
 				<Panel>
+					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
+						<ParticipantsControl
+							className={ baseClassName }
+							participants={ participants }
+							participant={ participant }
+							label={ participantLabel }
+							onSelect={ setAttributes }
+						/>
+					</PanelBody>
+
 					<PanelBody title={ __( 'Time stamp', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show', 'jetpack' ) }
