@@ -1,8 +1,5 @@
 <?php
-
 /**
- * @package A8C\FSE\Earn\PremiumContent;
- *
  * The Subscription Service represents the entity responsible for making sure a visitor
  * can see blocks that are considered premium content.
  *
@@ -10,7 +7,10 @@
  *
  * It is assumed that it will be a monetary exchange but that is up to the host
  * that brokers the content exchange.
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content;
  */
+
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 interface Subscription_Service {

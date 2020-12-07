@@ -1,17 +1,21 @@
 <?php
-
 /**
- * @package A8C\FSE\Earn
- *
  * This subscription service is used when a subscriber is offline and a token is not available.
  * This subscription service will be used when rendering content in email and reader on WPCOM only.
  * When content is being rendered, the current user and site are set.
  * This allows us to lookup a users subscriptions and determine if the
  * offline visitor can view content that has been deemed "Premium content".
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content
  */
+
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
-// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
+/**
+ * Class WPCOM_Offline_Subscription_Service
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
+ */
 class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Service {
 
 	/**
