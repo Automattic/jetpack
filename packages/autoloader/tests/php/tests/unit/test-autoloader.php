@@ -145,7 +145,7 @@ class Test_Autoloader extends TestCase {
 	 */
 	public function test_activate_removes_v2_autoload_functions() {
 		$removed_autoloader = 'Automattic\\Jetpack\\Autoloader\\jp123\\autoload';
-		spl_autoload_register( $removed_autoloader, false );
+		spl_autoload_register( $removed_autoloader );
 
 		$this->version_loader->expects( $this->once() )->method( 'load_filemap' );
 
@@ -160,8 +160,8 @@ class Test_Autoloader extends TestCase {
 	 * Tests that activate removes the v2 autoload class.
 	 */
 	public function test_activate_removes_v2_class_autoloader() {
-		$removed_autoloader = 'Automattic\\Jetpack\\Autoloader\\jp123\\' . Autoloader::class . '::load_class';
-		spl_autoload_register( $removed_autoloader, false );
+		$removed_autoloader = \Automattic\Jetpack\Autoloader\jp123\Autoloader::class . '::load_class';
+		spl_autoload_register( $removed_autoloader );
 
 		$this->version_loader->expects( $this->once() )->method( 'load_filemap' );
 

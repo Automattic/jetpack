@@ -20,6 +20,7 @@ define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
 define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . '/mu-plugins' );
 
 // Load any of the test utilities.
+require_once __DIR__ . '/lib/functions.php';
 require_once __DIR__ . '/lib/functions-wordpress.php';
 
 // Load the Composer autoloader for test dependencies.
