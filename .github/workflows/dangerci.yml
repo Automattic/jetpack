@@ -3,6 +3,7 @@ name: Danger CI
 on: pull_request_target
 env:
   DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_TOKEN }}
+jobs:
   dangerci:
     name: "Danger CI"
     runs-on: ubuntu-latest
