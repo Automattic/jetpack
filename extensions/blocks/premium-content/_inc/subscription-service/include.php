@@ -40,7 +40,7 @@ add_action( 'init', 'Automattic\Jetpack\Extensions\Premium_Content\paywall_initi
 function subscription_service() {
 	$interface = apply_filters( 'earn_premium_content_subscription_service', null );
 	if ( ! $interface instanceof Subscription_Service ) {
-		_doing_it_wrong( __FUNCTION__, 'No Subscription_Service registered for the earn_premium_content_subscription_service filter', 'full-site-editing' );
+		_doing_it_wrong( __FUNCTION__, 'No Subscription_Service registered for the earn_premium_content_subscription_service filter', 'jetpack' );
 	}
 	return $interface;
 }

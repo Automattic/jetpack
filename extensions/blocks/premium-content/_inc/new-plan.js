@@ -13,7 +13,7 @@ export default function NewPlan( props ) {
 	return (
 		<MenuGroup>
 			<MenuItem
-				onClick={ ( e ) => {
+				onClick={ e => {
 					e.preventDefault();
 					//Open the sidebar if not open
 					if ( ! select( 'core/edit-post' ).isEditorSidebarOpened() ) {
@@ -27,7 +27,7 @@ export default function NewPlan( props ) {
 					props.onClose();
 				} }
 			>
-				{ __( 'Add a new subscription', 'full-site-editing' ) }
+				{ __( 'Add a new subscription', 'jetpack' ) }
 			</MenuItem>
 		</MenuGroup>
 	);

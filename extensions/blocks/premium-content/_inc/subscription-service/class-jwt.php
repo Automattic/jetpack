@@ -21,16 +21,6 @@ use \DateTime;
  * @link     https://github.com/firebase/php-jwt
  */
 
-if ( ! class_exists( 'SignatureInvalidException' ) ) {
-	class SignatureInvalidException extends \UnexpectedValueException { }
-}
-if ( ! class_exists( 'ExpiredException' ) ) {
-	class ExpiredException extends \UnexpectedValueException { }
-}
-if ( ! class_exists( 'BeforeValidException' ) ) {
-	class BeforeValidException extends \UnexpectedValueException { }
-}
-
 class JWT {
 	/**
 	 * When checking nbf, iat or expiration times,
@@ -379,4 +369,14 @@ class JWT {
 		}
 		return strlen( $str );
 	}
+}
+
+if ( ! class_exists( 'SignatureInvalidException' ) ) {
+	class SignatureInvalidException extends \UnexpectedValueException { }
+}
+if ( ! class_exists( 'ExpiredException' ) ) {
+	class ExpiredException extends \UnexpectedValueException { }
+}
+if ( ! class_exists( 'BeforeValidException' ) ) {
+	class BeforeValidException extends \UnexpectedValueException { }
 }
