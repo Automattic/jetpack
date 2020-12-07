@@ -1,9 +1,11 @@
 <?php
-
 /**
  * A paywall that exchanges JWT tokens from WordPress.com to allow
  * a current visitor to view content that has been deemed "Premium content".
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content
  */
+
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Connection\Manager;

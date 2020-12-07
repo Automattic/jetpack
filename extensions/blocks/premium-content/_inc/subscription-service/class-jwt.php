@@ -1,4 +1,10 @@
 <?php
+/**
+ * JSON Web Token implementation, based on this spec:
+ * https://tools.ietf.org/html/rfc7519
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content
+ */
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
@@ -80,29 +86,41 @@ class JWT {
 		if ( empty( $key ) ) {
 			throw new InvalidArgumentException( 'Key may not be empty' );
 		}
+
 		$tks = explode( '.', $jwt );
-		if ( count( $tks ) != 3 ) {
+		if ( count( $tks ) !== 3 ) {
 			throw new UnexpectedValueException( 'Wrong number of segments' );
 		}
-		list($headb64, $bodyb64, $cryptob64) = $tks;
-		if ( null === ( $header = static::json_decode( static::urlsafe_b64_decode( $headb64 ) ) ) ) {
+
+		list( $headb64, $bodyb64, $cryptob64 ) = $tks;
+
+		$header = static::json_decode( static::urlsafe_b64_decode( $headb64 ) );
+		if ( null === $header ) {
 			throw new UnexpectedValueException( 'Invalid header encoding' );
 		}
-		if ( null === $payload = static::json_decode( static::urlsafe_b64_decode( $bodyb64 ) ) ) {
+
+		$payload = static::json_decode( static::urlsafe_b64_decode( $bodyb64 ) );
+		if ( null === $payload ) {
 			throw new UnexpectedValueException( 'Invalid claims encoding' );
 		}
-		if ( false === ( $sig = static::urlsafe_b64_decode( $cryptob64 ) ) ) {
+
+		$sig = static::urlsafe_b64_decode( $cryptob64 );
+		if ( false === $sig ) {
 			throw new UnexpectedValueException( 'Invalid signature encoding' );
 		}
+
 		if ( empty( $header->alg ) ) {
 			throw new UnexpectedValueException( 'Empty algorithm' );
 		}
+
 		if ( empty( static::$supported_algs[ $header->alg ] ) ) {
 			throw new UnexpectedValueException( 'Algorithm not supported' );
 		}
-		if ( ! in_array( $header->alg, $allowed_algs ) ) {
+
+		if ( ! in_array( $header->alg, $allowed_algs, true ) ) {
 			throw new UnexpectedValueException( 'Algorithm not allowed' );
 		}
+
 		if ( is_array( $key ) || $key instanceof \ArrayAccess ) {
 			if ( isset( $header->kid ) ) {
 				if ( ! isset( $key[ $header->kid ] ) ) {
@@ -123,7 +141,7 @@ class JWT {
 		// token can actually be used. If it's not yet that time, abort.
 		if ( isset( $payload->nbf ) && $payload->nbf > ( $timestamp + static::$leeway ) ) {
 			throw new BeforeValidException(
-				'Cannot handle token prior to ' . date( DateTime::ISO8601, $payload->nbf )
+				'Cannot handle token prior to ' . gmdate( DateTime::ISO8601, $payload->nbf )
 			);
 		}
 
@@ -132,7 +150,7 @@ class JWT {
 		// correctly used the nbf claim).
 		if ( isset( $payload->iat ) && $payload->iat > ( $timestamp + static::$leeway ) ) {
 			throw new BeforeValidException(
-				'Cannot handle token prior to ' . date( DateTime::ISO8601, $payload->iat )
+				'Cannot handle token prior to ' . gmdate( DateTime::ISO8601, $payload->iat )
 			);
 		}
 
@@ -165,12 +183,15 @@ class JWT {
 			'typ' => 'JWT',
 			'alg' => $alg,
 		);
-		if ( $key_id !== null ) {
+
+		if ( null !== $key_id ) {
 			$header['kid'] = $key_id;
 		}
+
 		if ( isset( $head ) && is_array( $head ) ) {
 			$header = array_merge( $head, $header );
 		}
+
 		$segments      = array();
 		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $header ) );
 		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $payload ) );
@@ -235,11 +256,13 @@ class JWT {
 		switch ( $function ) {
 			case 'openssl':
 				$success = openssl_verify( $msg, $signature, $key, $algorithm );
-				if ( $success === 1 ) {
+
+				if ( 1 === $success ) {
 					return true;
-				} elseif ( $success === 0 ) {
+				} elseif ( 0 === $success ) {
 					return false;
 				}
+
 				// returns 1 on success, 0 on failure, -1 on error.
 				throw new DomainException(
 					'OpenSSL error: ' . openssl_error_string()
@@ -247,15 +270,19 @@ class JWT {
 			case 'hash_hmac':
 			default:
 				$hash = hash_hmac( $algorithm, $msg, $key, true );
+
 				if ( function_exists( 'hash_equals' ) ) {
 					return hash_equals( $signature, $hash );
 				}
+
 				$len = min( static::safe_strlen( $signature ), static::safe_strlen( $hash ) );
 
 				$status = 0;
+
 				for ( $i = 0; $i < $len; $i++ ) {
 					$status |= ( ord( $signature[ $i ] ) ^ ord( $hash[ $i ] ) );
 				}
+
 				$status |= ( static::safe_strlen( $signature ) ^ static::safe_strlen( $hash ) );
 
 				return ( 0 === $status );
@@ -350,6 +377,7 @@ class JWT {
 	 * Helper method to create a JSON error.
 	 *
 	 * @param int $errno An error number from json_last_error().
+	 * @throws DomainException .
 	 *
 	 * @return void
 	 */
@@ -371,7 +399,7 @@ class JWT {
 	/**
 	 * Get the number of bytes in cryptographic strings.
 	 *
-	 * @param string
+	 * @param string $str .
 	 *
 	 * @return int
 	 */

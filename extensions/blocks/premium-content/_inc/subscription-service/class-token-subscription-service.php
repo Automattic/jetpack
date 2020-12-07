@@ -1,10 +1,9 @@
 <?php
-
 /**
  * A paywall that exchanges JWT tokens from WordPress.com to allow
  * a current visitor to view content that has been deemed "Premium content".
  *
- * @package A8C\FSE\Earn
+ * @package Automattic\Jetpack\Extensions\Premium_Content
  */
 
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
@@ -14,7 +13,7 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 /**
  * Class Token_Subscription_Service
  *
- * @package A8C\FSE\Earn\PremiumContent\SubscriptionService
+ * @package Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service
  */
 abstract class Token_Subscription_Service implements Subscription_Service {
 
