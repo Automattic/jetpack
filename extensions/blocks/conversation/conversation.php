@@ -2,7 +2,7 @@
 /**
  * Conversation Block.
  *
- * @since 9.x
+ * @since 9.3.0
  *
  * @package Jetpack
  */
