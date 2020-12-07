@@ -103,12 +103,15 @@ function TranscriptionEdit ( {
 	}
 
 	function addNewSpeaker( newSpakerValue ) {
+		const newSpeakerSlug = speakers.length
+			? ( speakers[ speakers.length - 1 ].speakerSlug ).replace( /(\d+)/, ( n ) => Number( n ) + 1 )
+			: 'sepaker-0';
 		setAttributes( {
 			speakers: [
 				...speakers,
 				{
 					speaker: newSpakerValue,
-					speakerSlug: `speaker-${ speakers?.length ? speakers?.length : 0 }`,
+					speakerSlug: newSpeakerSlug,
 				},
 			],
 		} );
@@ -145,6 +148,7 @@ function TranscriptionEdit ( {
 							<AddSpeakerButton
 								className={ baseClassName }
 								onAdd={ addNewSpeaker }
+								speakers={ speakers }
 							/>
 						</PanelBody>
 
