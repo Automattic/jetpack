@@ -147,13 +147,11 @@ export default function DialogueEdit ( {
 						id={ `dialogue-${ instanceId }-participants-dropdown` }
 						className={ baseClassName }
 						participants={ participants }
+						participantLabel={ participantLabel }
+						participantSlug={ participantSlug }
 						participant={ participant }
-						label={ participantLabel }
 						onSelect={ setAttributes }
-						onChange={ ( { newParticipant } ) => setAttributes( {
-							participantSlug: null,
-							participant: newParticipant,
-						} ) }
+						onChange={ setAttributes }
 					/>
 				</ToolbarGroup>
 
@@ -186,7 +184,7 @@ export default function DialogueEdit ( {
 						<ParticipantsControl
 							className={ baseClassName }
 							participants={ participants }
-							currentParticipant={ participantSlug }
+							currentParticipantSlug={ participantSlug }
 							onSelect={ setAttributes }
 						/>
 					</PanelBody>

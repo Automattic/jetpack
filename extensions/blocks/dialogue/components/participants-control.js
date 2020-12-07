@@ -20,10 +20,10 @@ import { Fragment } from '@wordpress/element';
 function ParticipantsMenu( { participants, className, onSelect } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ map( participants, ( { participant, participantSlug: participantSlug } ) => (
+			{ map( participants, ( { participant, participantSlug } ) => (
 				<MenuItem
 					key={ participantSlug }
-					onClick={ () => onSelect( { participant, participantSlug } ) }
+					onClick={ () => onSelect( { participantSlug } ) }
 				>
 					{ participant }
 				</MenuItem>
@@ -32,18 +32,36 @@ function ParticipantsMenu( { participants, className, onSelect } ) {
 	);
 }
 
-function ParticipantControl( { className, participant, onChange } ) {
+function ParticipantControl( { className, participantValue, onChange } ) {
 	return (
 		<BaseControl className={ `${ className }__custom-participant` }>
 			<div className={ `${ className }__text-button-container` }>
 				<TextControl
 					label={ __( 'Custom', 'jetpack' ) }
-					value={ participant }
-					onChange={ onChange }
+					value={ participantValue }
+					onChange={ ( participant ) => onChange( {
+						participantSlug: null,
+						participant,
+					} ) }
 				/>
 			</div>
 		</BaseControl>
 	);
+}
+
+export function ParticipantsControl( {
+	participants,
+	currentParticipantSlug,
+	onSelect,
+} ) {
+		return (
+			<SelectControl
+				label={ __( 'Participant name', 'jetpack' ) }
+				value={ currentParticipantSlug }
+				options={ map( participants, ( { participantSlug: value, participant: label } ) => ( { label, value } ) ) }
+				onChange={ ( participantSlug ) => onSelect( { participantSlug } ) }
+			/>
+		);
 }
 
 function ParticipantsSelector( {
@@ -56,49 +74,35 @@ function ParticipantsSelector( {
 		return (
 			<Fragment>
 				<ParticipantsMenu
-					participants={ participants }
-					participant={ participant }
 					className={ className }
+					participants={ participants }
+					participantValue={ participant }
 					onSelect={ onSelect }
 				/>
 
 				<ParticipantControl
 					className={ className }
-					participant={ participant }
-					onChange={ ( newParticipant ) => onChange( { newParticipant, newParticipantSlug: null } ) }
+					participantValue={ participant }
+					onChange={ onChange }
 				/>
 			</Fragment>
 		);
 }
 
-export function ParticipantsControl( {
-	participants,
-	currentParticipant,
-	onSelect,
-} ) {
-		return (
-			<SelectControl
-				label={ __( 'Participant name', 'jetpack' ) }
-				value={ currentParticipant }
-				options={ map( participants, ( { participantSlug: value, participant: label } ) => ( { label, value } ) ) }
-				onChange={ ( participantSlug ) => onSelect( { participantSlug } ) }
-			/>
-		);
-}
-
 export default function ParticipantsDropdown( props ) {
 	const {
-		label,
+		participantLabel,
 		position = { position: 'bottom' },
+		icon = null,
 	} = props;
 
 	return (
 		<DropdownMenu
 			popoverProps={ position }
 			toggleProps={ {
-				children: <span>{ label }</span>,
+				children: <span>{ participantLabel }</span>,
 			} }
-			icon="microphone"
+			icon={ icon }
 		>
 			{ () => <ParticipantsSelector { ...props } /> }
 		</DropdownMenu>
