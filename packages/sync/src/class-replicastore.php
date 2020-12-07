@@ -1155,8 +1155,8 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Checksums.
 	 */
 	public function checksum_all() {
-		$post_meta_checksum    = $this->checksum_histogram( 'post_meta', 1 );
-		$comment_meta_checksum = $this->checksum_histogram( 'comment_meta', 1 );
+		$post_meta_checksum    = $this->checksum_histogram( 'postmeta', 1 );
+		$comment_meta_checksum = $this->checksum_histogram( 'commentmeta', 1 );
 
 		return array(
 			'posts'        => $this->posts_checksum(),
@@ -1206,55 +1206,31 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @todo Refactor to not use interpolated values and properly prepare the SQL query.
-	 *
-	 * @param string $object_type     Object type.
+	 * @param string $table           Object type.
 	 * @param int    $buckets         Number of buckets to split the objects to.
 	 * @param int    $start_id        Minimum object ID.
 	 * @param int    $end_id          Maximum object ID.
 	 * @param array  $columns         Table columns to calculate the checksum from.
 	 * @param bool   $strip_non_ascii Whether to strip non-ASCII characters.
 	 * @param string $salt            Salt, used for $wpdb->prepare()'s args.
+	 *
 	 * @return array The checksum histogram.
 	 */
-	public function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
+	public function checksum_histogram( $table, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
 
-		/**
-		 * TODO TEMPORARY!
-		 *
-		 * Translate $object_type to $table
-		 */
-
-		switch ( $object_type ) {
-			case 'posts':
-			case 'term_taxonomy':
-			case 'comments':
-			case 'terms':
-			case 'term_relationships':
-				$table = $object_type;
-				break;
-			case 'post_meta':
-				$table = 'postmeta';
-				break;
-			case 'comment_meta':
-				$table = 'commentmeta';
-				break;
-			default:
-				return false;
-		}
-
 		$checksum_table = new Table_Checksum( $table, $salt );
-		$range_edges    = $checksum_table->get_range_edges();
+		$range_edges = $checksum_table->get_range_edges( $start_id, $end_id );
 
 		$object_count = $range_edges['item_count'];
 
 		$bucket_size     = (int) ceil( $object_count / $buckets );
-		$previous_max_id = 0;
+		$previous_max_id = max( 0, $range_edges[ 'min_range' ] );
 		$histogram       = array();
 
+		error_log('Buckets: '. $buckets);
 		do {
 			$ids_range = $checksum_table->get_range_edges( $previous_max_id, null, $bucket_size );
 

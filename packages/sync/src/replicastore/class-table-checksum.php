@@ -195,11 +195,11 @@ class Table_Checksum {
 		// TODO add support for multiple filter fields from array syntax (i.e. filter => values, filter => values, ...).
 		// TODO this doesn't work right now, until we properly migrate all the filtering functions to array syntax
 		$filter_prepared_statement = '';
-		if ( 0 & ! empty( $filter_values ) ) {
-			// Prepare filtering
-			$filter_placeholders = "AND {$this->filter_field} IN(" . implode( ',', array_fill( 0, count( $filter_values ), '%s' ) ) . ')';
-			$filter_array[]      = $wpdb->prepare( $filter_placeholders, $filter_values );
-		}
+//		if ( 0 & ! empty( $filter_values ) ) {
+//			// Prepare filtering
+//			$filter_placeholders = "AND {$this->filter_field} IN(" . implode( ',', array_fill( 0, count( $filter_values ), '%s' ) ) . ')';
+//			$filter_array[]      = $wpdb->prepare( $filter_placeholders, $filter_values );
+//		}
 
 		// Add any additional filters via direct SQL statement.
 		// Currently used only because the above isn't done ( `$filter_values` )
