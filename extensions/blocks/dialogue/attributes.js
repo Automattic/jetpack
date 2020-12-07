@@ -17,6 +17,7 @@ export default {
 	},
 	hasBoldStyle: {
 		type: "boolean",
+		default: true
 	},
 	hasItalicStyle: {
 		type: "boolean",
