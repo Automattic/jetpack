@@ -31,6 +31,8 @@ const SiteTypeQuestionComponent = props => {
 		props.updateRecommendationsStep( 'site-type-question' );
 	} );
 
+	// TODO: placeholder copy
+
 	const answerSection = (
 		<div className="jp-recommendations-question__site-type-answer-container">
 			<div className="jp-recommendations-question__site-type-checkboxes">
