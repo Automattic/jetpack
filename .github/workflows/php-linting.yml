@@ -47,6 +47,25 @@ jobs:
           EOF
           )
 
+      # When the `lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.
+      - name: Hack around Github bug when skipping required matrixed jobs
+        if: steps.filter.outputs.php != 'true' && steps.filter.outputs.misc != 'true'
+        shell: bash
+        run: |
+          for v in '5.6' '7.0' '7.4' '8.0'; do
+            curl -v \
+              --url "${GITHUB_API_URL}/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
+              --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+              --header 'content-type: application/json' \
+              --data '{
+                "state": "success",
+                "target_url": "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}/checks?check_run_id=${{ github.run_id }}",
+                "description": "Test skipped, no changed files",
+                "context": '"\"PHP lint ($v)\""'
+              }'
+          done
+
+
   lint:
     name: PHP lint (${{ matrix.php-versions }})
     runs-on: ubuntu-latest
@@ -57,6 +76,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Note, if you add versions here then add them to the hack above too.
         php-versions: [ '5.6', '7.0', '7.4' ]
         experimental: [ false ]
 
