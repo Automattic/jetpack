@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A paywall that exchanges JWT tokens from WordPress.com to allow
  * a current visitor to view content that has been deemed "Premium content".

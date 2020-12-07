@@ -1,4 +1,5 @@
-<?php declare( strict_types = 1 );
+<?php
+
 /**
  * @package A8C\FSE\Earn\PremiumContent;
  *
