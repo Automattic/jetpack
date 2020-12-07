@@ -29,10 +29,10 @@ class Test_Manifest_Reader extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->version_selector = $this->getMockBuilder( Version_Selector::class )
 			->disableOriginalConstructor()
 			->getMock();

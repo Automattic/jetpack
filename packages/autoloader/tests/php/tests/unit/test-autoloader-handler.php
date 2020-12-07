@@ -38,10 +38,10 @@ class Test_Autoloader_Handler extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->hook_manager       = $this->getMockBuilder( Hook_Manager::class )
 			->disableOriginalConstructor()
 			->getMock();

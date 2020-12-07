@@ -26,10 +26,10 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		// We need to make sure there's an autoloader containing the current files for testing.
 		$this->generate_autoloader( 'plugin_current' );
 		$this->generate_autoloader( 'plugin_newer' );
@@ -37,10 +37,10 @@ class Test_Autoloader_Scenarios extends TestCase {
 
 	/**
 	 * Teardown runs after each test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		cleanup_test_wordpress_data();
 
 		// Make sure all of the tests have no cache file.

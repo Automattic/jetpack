@@ -21,10 +21,10 @@ class Test_Path_Processor extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->processor = new Path_Processor();
 	}
 

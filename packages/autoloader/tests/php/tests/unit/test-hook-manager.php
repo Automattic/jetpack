@@ -21,19 +21,19 @@ class Test_Hook_Manager extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->hook_manager = new Hook_Manager();
 	}
 
 	/**
 	 * Teardown runs after each test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		cleanup_test_wordpress_data();
 	}
 

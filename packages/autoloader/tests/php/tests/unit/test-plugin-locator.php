@@ -31,20 +31,20 @@ class Test_Plugin_Locator extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->path_processor = $this->getMockBuilder( Path_Processor::class )->getMock();
 		$this->locator        = new Plugin_Locator( $this->path_processor );
 	}
 
 	/**
 	 * Teardown runs after each test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		// Make sure all of the test data we made use of is cleaned up after each test.
 		cleanup_test_wordpress_data();
 	}

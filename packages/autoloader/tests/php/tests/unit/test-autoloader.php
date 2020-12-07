@@ -25,10 +25,10 @@ class Test_Autoloader extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setup() {
-		parent::setup();
-
+	public function set_up() {
 		$this->version_loader = $this->getMockBuilder( Version_Loader::class )
 			->disableOriginalConstructor()
 			->setMethods( array( 'load_filemap' ) )
