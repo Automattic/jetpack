@@ -10,8 +10,6 @@ namespace Automattic\Jetpack;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
-use phpmock\Mock;
-use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -33,9 +31,18 @@ class Test_Status extends TestCase {
 	private $status_obj;
 
 	/**
-	 * Setup before running any of the tests.
+	 * Mocked constants.
+	 *
+	 * @var array
 	 */
-	public static function setUpBeforeClass() {
+	private $mocked_constants = array();
+
+	/**
+	 * Setup before running any of the tests.
+	 *
+	 * @beforeClass
+	 */
+	public static function set_up_before_class() {
 		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 			define( 'HOUR_IN_SECONDS', 60 * 60 );
 		}
@@ -43,26 +50,37 @@ class Test_Status extends TestCase {
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
 		Monkey\setUp();
 
 		// Set defaults for Core functionality.
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+		Functions\expect( 'defined' )->andReturnUsing(
+			function ( $const ) {
+				return array_key_exists( $const, $this->mocked_constants ) ? true : defined( $const );
+			}
+		);
+		Functions\expect( 'constant' )->andReturnUsing(
+			function ( $const ) {
+				return array_key_exists( $const, $this->mocked_constants ) ? $this->mocked_constants[ $const ] : constant( $const );
+			}
+		);
 
 		$this->status_obj = new Status();
 	}
 
 	/**
 	 * Test teardown.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		// Call Monkey\tearDown(); here, but the following function takes care of it for now.
-		Mock::disableAll();
-		parent::tearDown();
+	public function tear_down() {
+		Monkey\tearDown();
 	}
 
 	/**
@@ -106,7 +124,7 @@ class Test_Status extends TestCase {
 	public function test_is_offline_mode_localhost() {
 		Functions\when( 'site_url' )->justReturn( 'localhost' );
 
-		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
 	}
@@ -119,7 +137,7 @@ class Test_Status extends TestCase {
 	public function test_is_local_wp_get_environment_type_local() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
 
-		Filters\expectApplied( 'jetpack_is_local_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_local_site' )->once()->with( true )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_local_site() );
 	}
@@ -145,7 +163,7 @@ class Test_Status extends TestCase {
 	public function test_is_staging_wp_get_environment_type_staging() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'staging' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( true )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_staging_site() );
 	}
@@ -171,7 +189,7 @@ class Test_Status extends TestCase {
 	public function test_is_staging_wp_get_environment_type_random() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'random_string' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( true )->andReturn( true );
 
 		$this->assertTrue( $this->status_obj->is_staging_site() ); // We assume a site is a staging site for any non-local or non-production value.
 	}
@@ -184,22 +202,10 @@ class Test_Status extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_is_offline_mode_constant() {
-		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
-
-		$constants_mocks = $this->mock_constants(
-			array(
-				array( '\\JETPACK_DEV_DEBUG', true ),
-			)
-		);
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
+		$this->mocked_constants['\\JETPACK_DEV_DEBUG'] = true;
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
-
-		array_map(
-			function ( $mock ) {
-				$mock->disable();
-			},
-			$constants_mocks
-		);
 	}
 
 	/**
@@ -283,50 +289,6 @@ class Test_Status extends TestCase {
 		$this->assertFalse( $this->status_obj->is_single_user_site() );
 
 		$this->clean_mock_wpdb_get_var();
-	}
-
-	/**
-	 * Mock a global function with particular arguments and make it return a certain value.
-	 *
-	 * @param string $function_name Name of the function.
-	 * @param array  $args          Array of argument sets, last value of each set is used as a return value.
-	 * @return phpmock\Mock The mock object.
-	 */
-	protected function mock_function_with_args( $function_name, $args = array() ) {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( $function_name )
-			->setFunction(
-				function ( ...$current_args ) use ( &$args ) {
-					foreach ( $args as $arg ) {
-						if ( array_slice( $arg, 0, -1 ) === $current_args ) {
-							return array_pop( $arg );
-						}
-					}
-				}
-			);
-
-		$mock = $builder->build();
-		$mock->enable();
-
-		return $mock;
-	}
-
-	/**
-	 * Mock a set of constants.
-	 *
-	 * @param array $constants Array of sets with constants and their respective values.
-	 * @return phpmock\Mock The mock object.
-	 */
-	protected function mock_constants( $constants = array() ) {
-		$prepare_constant = function ( $constant ) {
-			return array( $constant[0], true );
-		};
-
-		return array(
-			$this->mock_function_with_args( 'defined', array_map( $prepare_constant, $constants ) ),
-			$this->mock_function_with_args( 'constant', $constants ),
-		);
 	}
 
 	/**

@@ -29,10 +29,10 @@ class Test_Loading_Generated_Manifests extends TestCase {
 
 	/**
 	 * Setup runs before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->manifest_handler = new Manifest_Reader( new Version_Selector() );
 
 		// Make sure the test manifest does not exist.
@@ -43,10 +43,10 @@ class Test_Loading_Generated_Manifests extends TestCase {
 
 	/**
 	 * Teardown runs after each test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		// Make sure the test manifest does not exist.
 		if ( file_exists( self::TEST_MANIFEST_PATH ) ) {
 			unlink( self::TEST_MANIFEST_PATH );

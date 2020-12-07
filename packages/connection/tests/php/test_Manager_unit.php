@@ -7,24 +7,15 @@
 
 namespace Automattic\Jetpack\Connection;
 
-require_once __DIR__ . '/mock/trait-options.php';
-require_once __DIR__ . '/mock/trait-hooks.php';
-
-use Automattic\Jetpack\Connection\Test\Mock\Hooks;
-use Automattic\Jetpack\Connection\Test\Mock\Options;
 use Automattic\Jetpack\Constants;
-use phpmock\Mock;
-use phpmock\MockBuilder;
-use phpmock\MockEnabledException;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Users as WorDBless_Users;
 use WP_Error;
 
 /**
  * Connection Manager functionality testing.
  */
 class ManagerTest extends TestCase {
-
-	use Options, Hooks;
 
 	/**
 	 * Temporary stack for `wp_redirect`.
@@ -33,62 +24,44 @@ class ManagerTest extends TestCase {
 	 */
 	protected $arguments_stack = array();
 
+	/**
+	 * User ID added for the test.
+	 *
+	 * @var int
+	 */
+	protected $user_id;
+
 	const DEFAULT_TEST_CAPS = array( 'default_test_caps' );
 
 	/**
 	 * Initialize the object before running the test method.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 			->setMethods( array( 'get_access_token', 'get_connection_owner_id' ) )
 			->getMock();
 
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-				->setName( 'apply_filters' )
-				->setFunction(
-					function ( $filter_name, $return_value ) {
-						return $return_value;
-					}
-				);
-
-		$this->apply_filters            = $builder->build();
-		$this->apply_filters_deprecated = $builder->build();
-
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-				->setName( 'wp_redirect' )
-				->setFunction(
-					function ( $url ) {
-						$this->arguments_stack['wp_redirect'] [] = array( $url );
-						return true;
-					}
-				);
-
-		$this->wp_redirect = $builder->build();
-
-		// Mock the apply_filters() call in Constants::get_constant().
-		$builder = new MockBuilder();
-		$builder->setNamespace( 'Automattic\Jetpack' )
-				->setName( 'apply_filters' )
-				->setFunction(
-					function ( $filter_name, $value, $name ) {
-						return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
-					}
-				);
-		$this->constants_apply_filters = $builder->build();
-
-		$this->build_mock_options();
-		$this->build_mock_actions();
+		$this->user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_is_user_connected_with_user_id_logged_in',
+				'user_pass'  => '123',
+			)
+		);
+		wp_set_current_user( 0 );
 	}
 
 	/**
 	 * Clean up the testing environment.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
+		wp_set_current_user( 0 );
+		WorDBless_Users::init()->clear_all_users();
 		unset( $this->manager );
 		Constants::clear_constants();
-		Mock::disableAll();
 	}
 
 	/**
@@ -127,8 +100,6 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::api_url
 	 */
 	public function test_api_url_defaults() {
-		$this->apply_filters->enable();
-
 		add_filter( 'jetpack_constant_default_value', array( $this, 'filter_api_constant' ), 10, 2 );
 
 		$this->assertEquals(
@@ -149,9 +120,6 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::api_url
 	 */
 	public function test_api_url_uses_constants_and_filters() {
-		$this->apply_filters->enable();
-		$this->constants_apply_filters->enable();
-
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
 		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
 		$this->assertEquals(
@@ -165,8 +133,6 @@ class ManagerTest extends TestCase {
 			'https://example.com/api/another.something/99/',
 			$this->manager->api_url( 'something' )
 		);
-
-		$this->apply_filters->disable();
 
 		$overwrite_filter = function () {
 			$this->arguments_stack['jetpack_api_url'][] = array_merge( array( 'jetpack_api_url' ), func_get_args() );
@@ -201,8 +167,6 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_out() {
-		$this->mock_function( 'get_current_user_id', 0 );
-
 		$this->assertFalse( $this->manager->is_user_connected() );
 	}
 
@@ -212,8 +176,6 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_false_user_id_logged_out() {
-		$this->mock_function( 'get_current_user_id', 0 );
-
 		$this->assertFalse( $this->manager->is_user_connected( false ) );
 	}
 
@@ -223,12 +185,11 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
-		$this->mock_function( 'absint', 1 );
 		$this->manager->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( false ) );
 
-		$this->assertFalse( $this->manager->is_user_connected( 1 ) );
+		$this->assertFalse( $this->manager->is_user_connected( $this->user_id ) );
 	}
 
 	/**
@@ -237,7 +198,8 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_in() {
-		$this->mock_function( 'get_current_user_id', 1 );
+		wp_set_current_user( $this->user_id );
+
 		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
@@ -255,7 +217,6 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_in() {
-		$this->mock_function( 'absint', 1 );
 		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
@@ -264,21 +225,15 @@ class ManagerTest extends TestCase {
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $access_token ) );
 
-		$this->assertTrue( $this->manager->is_user_connected( 1 ) );
+		$this->assertTrue( $this->manager->is_user_connected( $this->user_id ) );
 	}
 
 	/**
 	 * Unit test for the "Delete all tokens" functionality.
 	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::delete_all_connection_tokens
-	 * @throws MockEnabledException PHPUnit wasn't able to enable mock functions.
 	 */
 	public function test_delete_all_connection_tokens() {
-		$this->update_option->enable();
-		$this->get_option->enable();
-		$this->apply_filters->enable();
-		$this->do_action->enable();
-
 		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
@@ -295,14 +250,8 @@ class ManagerTest extends TestCase {
 	 * Unit test for the "Disconnect from WP" functionality.
 	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site_wpcom
-	 * @throws MockEnabledException PHPUnit wasn't able to enable mock functions.
 	 */
 	public function test_disconnect_site_wpcom() {
-		$this->update_option->enable();
-		$this->get_option->enable();
-		$this->apply_filters->enable();
-		$this->do_action->enable();
-
 		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
@@ -326,14 +275,6 @@ class ManagerTest extends TestCase {
 	 * @param array  $expected_caps The expected output.
 	 */
 	public function test_jetpack_connection_custom_caps( $in_offline_mode, $custom_cap, $expected_caps ) {
-		$this->apply_filters_deprecated->enable();
-		// Mock the site_url call in Status::is_offline_mode.
-		$this->mock_function( 'site_url', false, 'Automattic\Jetpack' );
-
-		// Mock the apply_filters_deprecated( 'jetpack_development_mode' ) call in Status->is_offline_mode.
-		$this->mock_function( 'apply_filters_deprecated', false, 'Automattic\Jetpack' );
-
-		$this->apply_filters->disable();
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
 		add_filter(
 			'jetpack_offline_mode',
@@ -342,12 +283,8 @@ class ManagerTest extends TestCase {
 			}
 		);
 
-		// Mock the apply_filters( 'jetpack_disconnect_cap', ) call in jetpack_connection_custom_caps.
-		$this->mock_function( 'apply_filters', array( 'manage_options' ) );
-
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
-		$this->apply_filters_deprecated->disable();
 	}
 
 	/**
@@ -402,32 +339,6 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
-	}
-
-	/**
-	 * Mock a global function and make it return a certain value.
-	 *
-	 * @param string $function_name Name of the function.
-	 * @param mixed  $return_value Return value of the function.
-	 * @param string $namespace The namespace of the function.
-	 *
-	 * @return Mock The mock object.
-	 * @throws MockEnabledException PHPUnit wasn't able to enable mock functions.
-	 */
-	protected function mock_function( $function_name, $return_value = null, $namespace = __NAMESPACE__ ) {
-		$builder = new MockBuilder();
-		$builder->setNamespace( $namespace )
-			->setName( $function_name )
-			->setFunction(
-				function () use ( &$return_value ) {
-					return $return_value;
-				}
-			);
-
-		$mock = $builder->build();
-		$mock->enable();
-
-		return $mock;
 	}
 
 	/**

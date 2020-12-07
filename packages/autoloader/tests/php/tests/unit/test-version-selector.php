@@ -14,8 +14,10 @@ class Test_Version_Selector extends TestCase {
 
 	/**
 	 * This is called before each test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->version_selector = new Version_Selector();
 	}
 
