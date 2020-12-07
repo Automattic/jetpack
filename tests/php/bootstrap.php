@@ -45,6 +45,24 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 
 echo "Using test root $test_root\n";
 
+// WordPress requires PHPUnit 7.5 or earlier and hacks around a few things to
+// make it work with PHP 8. Unfortunately for MockObjects they do it via
+// composer.json rather than bootstrap.php, so we have to manually do it here.
+if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
+	( ! class_exists( PHPUnit\Runner\Version::class ) || version_compare( PHPUnit\Runner\Version::id(), '9.3', '<' ) )
+) {
+	if ( ! class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) &&
+		file_exists( "$test_root/includes/phpunit7/MockObject/InvocationMocker.php" )
+	) {
+		require "$test_root/includes/phpunit7/MockObject/Builder/NamespaceMatch.php";
+		require "$test_root/includes/phpunit7/MockObject/Builder/ParametersMatch.php";
+		require "$test_root/includes/phpunit7/MockObject/InvocationMocker.php";
+		require "$test_root/includes/phpunit7/MockObject/MockMethod.php";
+	} else {
+		fprintf( STDERR, "Warning: PHPUnit <9.3 is not compatible with PHP 8.0+, and the hack could not be loaded.\n" );
+	}
+}
+
 if ( '1' != getenv( 'WP_MULTISITE' ) &&
  ( defined( 'WP_TESTS_MULTISITE') && ! WP_TESTS_MULTISITE ) ) {
  echo "To run Jetpack multisite, use -c tests/php.multisite.xml" . PHP_EOL;
@@ -120,24 +138,6 @@ function jetpack_full_sync_immediately_off( $modules ) {
 
 if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
-}
-
-// WordPress requires PHPUnit 7.5 or earlier and hacks around a few things to
-// make it work with PHP 8. Unfortunately for MockObjects they do it via
-// composer.json rather than bootstrap.php, so we have to manually do it here.
-if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
-	( ! class_exists( PHPUnit\Runner\Version::class ) || version_compare( PHPUnit\Runner\Version::id(), '9.3', '<' ) )
-) {
-	if ( ! class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) &&
-		file_exists( "$test_root/includes/phpunit7/MockObject/InvocationMocker.php" )
-	) {
-		require "$test_root/includes/phpunit7/MockObject/Builder/NamespaceMatch.php";
-		require "$test_root/includes/phpunit7/MockObject/Builder/ParametersMatch.php";
-		require "$test_root/includes/phpunit7/MockObject/InvocationMocker.php";
-		require "$test_root/includes/phpunit7/MockObject/MockMethod.php";
-	} else {
-		fprintf( STDERR, "Warning: PHPUnit <9.3 is not compatible with PHP 8.0+, and the hack could not be loaded.\n" );
-	}
 }
 
 require $test_root . '/includes/bootstrap.php';
