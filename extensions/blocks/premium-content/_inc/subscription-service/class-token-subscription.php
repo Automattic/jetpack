@@ -1,4 +1,4 @@
-<?php declare( strict_types = 1 );
+<?php
 
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
