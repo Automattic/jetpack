@@ -43,6 +43,10 @@ function ParticipantControl( { className, participantValue, onChange } ) {
 						participantSlug: null,
 						participant,
 					} ) }
+					onFocus={ ( { target } ) => onChange( {
+						participantSlug: null,
+						participant: target?.value,
+					} ) }
 				/>
 			</div>
 		</BaseControl>
