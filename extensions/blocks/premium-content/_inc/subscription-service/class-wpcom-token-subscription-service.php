@@ -16,6 +16,8 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 class WPCOM_Token_Subscription_Service extends Token_Subscription_Service {
 
 	/**
+	 * Is available()
+	 *
 	 * @inheritDoc
 	 */
 	public static function available() {
@@ -24,6 +26,8 @@ class WPCOM_Token_Subscription_Service extends Token_Subscription_Service {
 	}
 
 	/**
+	 * Is get_site_id()
+	 *
 	 * @inheritDoc
 	 */
 	public function get_site_id() {
@@ -31,9 +35,11 @@ class WPCOM_Token_Subscription_Service extends Token_Subscription_Service {
 	}
 
 	/**
+	 * Is get_key()
+	 *
 	 * @inheritDoc
 	 */
-	function get_key() {
+	public function get_key() {
      // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return defined( 'EARN_JWT_SIGNING_KEY' ) ? EARN_JWT_SIGNING_KEY : false;
 	}
