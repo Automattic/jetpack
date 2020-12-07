@@ -1,6 +1,10 @@
 name: JS tests
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches: [master]
+
 jobs:
   lint:
     name: "JavaScript & CSS lint"

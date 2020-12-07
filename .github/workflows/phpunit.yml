@@ -1,14 +1,17 @@
 name: PHPUnit tests
 
-on: pull_request
-
-### TODO whitelist branches:
- # branches:
-#   only:
-#     - master
-#     - master-stable
-#     - /^branch-.*$/
-#     - /^feature\/.*$/
+on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+    - '**.js'
+    - '**.jsx'
+  push:
+    branches: [master, master-stable, 'branch-*']
+    paths-ignore:
+    - '**.md'
+    - '**.js'
+    - '**.jsx'
 
 env:
   WP_TRAVISCI: "phpunit"
