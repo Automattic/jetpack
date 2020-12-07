@@ -1,4 +1,4 @@
-<?php declare( strict_types = 1 );
+<?php
 
 /**
  * A paywall that exchanges JWT tokens from WordPress.com to allow

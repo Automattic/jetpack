@@ -1,11 +1,5 @@
 <?php
-/**
- * This is a copy of https://packagist.org/packages/firebase/php-jwt
- *
- * Copied here and placed in this namespace due to the complexity of
- * using composer dependencies with production packages of the FSE
- * plugin.
- */
+
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use \DomainException;
@@ -27,7 +21,6 @@ use \DateTime;
  * @link     https://github.com/firebase/php-jwt
  */
 
-// define extra exceptions used
 if ( ! class_exists( 'SignatureInvalidException' ) ) {
 	class SignatureInvalidException extends \UnexpectedValueException { }
 }
@@ -39,8 +32,6 @@ if ( ! class_exists( 'BeforeValidException' ) ) {
 }
 
 class JWT {
-
-
 	/**
 	 * When checking nbf, iat or expiration times,
 	 * we want to provide some extra leeway time to
