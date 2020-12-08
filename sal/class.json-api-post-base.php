@@ -42,6 +42,7 @@ abstract class SAL_Post {
 		// something. wefwefew wefwef.
 		// something else.
 		// another line.
+		// One more.
 	}
 
 	public function __call( $name, $arguments ) {
