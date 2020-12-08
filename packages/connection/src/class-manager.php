@@ -7,10 +7,12 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Back;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
@@ -890,6 +892,12 @@ class Manager {
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		if ( Back\Compatibility::can_use( Back\Features::SITE_REGISTRATION_TOS_REQUIRED ) ) {
+			if ( ! ( new Terms_Of_Service() )->has_agreed() ) {
+				return new WP_Error( 'tos_not_agreed', __( 'You need to agree to the Terms of Service to proceed.', 'jetpack' ) );
+			}
+		}
+
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
 
