@@ -288,8 +288,8 @@ class Masterbar {
 		wp_enqueue_script(
 			'a8c_wpcom_masterbar_tracks_events',
 			Assets::get_file_url_for_environment(
-				'_inc/build/masterbar/tracks-events.min.js',
-				'modules/masterbar/tracks-events.js'
+				'_inc/build/masterbar/masterbar/tracks-events.min.js',
+				'modules/masterbar/masterbar/tracks-events.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
