@@ -24,7 +24,7 @@ function register_block() {
 	// Register post_meta for connecting Anchor podcasts with posts.
 	register_post_meta(
 		'post',
-		'anchor_podcast',
+		'jetpack_anchor_podcast',
 		array(
 			'show_in_rest' => true,
 			'single'       => true,
@@ -33,7 +33,7 @@ function register_block() {
 	);
 	register_post_meta(
 		'post',
-		'anchor_episode',
+		'jetpack_anchor_episode',
 		array(
 			'show_in_rest' => true,
 			'single'       => true,
@@ -42,7 +42,7 @@ function register_block() {
 	);
 	register_post_meta(
 		'post',
-		'anchor_spotify_show',
+		'jetpack_anchor_spotify_show',
 		array(
 			'show_in_rest' => true,
 			'single'       => true,
@@ -76,14 +76,14 @@ function process_anchor_params() {
 		$rss  = Jetpack_Podcast_Helper::load_feed( $feed );
 		if ( ! \is_wp_error( $rss ) ) {
 			$data['podcastId'] = $podcast_id;
-			update_post_meta( $post_id, 'anchor_podcast', $podcast_id );
+			update_post_meta( $post_id, 'jetpack_anchor_podcast', $podcast_id );
 
 			if ( ! empty( $episode_id ) ) {
 				$track = Jetpack_Podcast_Helper::get_track_data( $feed, $episode_id );
 				if ( ! \is_wp_error( $track ) ) {
 					$data['episodeId'] = $episode_id;
 					$data['track']     = $track;
-					update_post_meta( $post_id, 'anchor_episode', $episode_id );
+					update_post_meta( $post_id, 'jetpack_anchor_episode', $episode_id );
 				}
 			}
 		}
@@ -91,8 +91,8 @@ function process_anchor_params() {
 
 	if ( ! empty( $spotify_show_url ) ) {
 		$data['spotifyShowUrl'] = $spotify_show_url;
-		if ( get_post_meta( $post_id, 'anchor_spotify_show', true ) !== $spotify_show_url ) {
-			update_post_meta( $post_id, 'anchor_spotify_show', $spotify_show_url );
+		if ( get_post_meta( $post_id, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
+			update_post_meta( $post_id, 'jetpack_anchor_spotify_show', $spotify_show_url );
 			$data['action'] = 'insert-spotify-badge';
 			$data['image']  = \Jetpack::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' );
 		}
