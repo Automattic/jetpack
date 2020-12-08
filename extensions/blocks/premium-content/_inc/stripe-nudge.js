@@ -1,11 +1,12 @@
 /**
  * WordPress dependencies
  */
-import { Button, Dashicon } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { Warning } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { withDispatch } from '@wordpress/data';
+import { Icon, starFilled } from '@wordpress/icon';
 
 /**
  * @typedef { import('react').MouseEvent<HTMLElement> } MouseEvent
@@ -36,7 +37,7 @@ export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
 		className="premium-content-block-nudge"
 	>
 		<span className="premium-content-block-nudge__info">
-			{ <Dashicon icon="star-filled" /> }
+			{ <Icon icon={ starFilled } /> }
 			<span className="premium-content-block-nudge__text-container">
 				<span className="premium-content-block-nudge__title">
 					{ __( 'Connect to Stripe to add premium content to your site.', 'jetpack' ) }
