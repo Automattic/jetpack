@@ -12,8 +12,8 @@ export const RESULT_FORMAT_PRODUCT = 'product';
 export const MINUTE_IN_MILLISECONDS = 60 * 1000;
 export const VALID_SORT_KEYS = [ 'newest', 'oldest', 'relevance' ];
 export const VALID_RESULT_FORMAT_KEYS = [
-	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_EXPANDED,
+	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_PRODUCT,
 ];
 export const SORT_OPTIONS = new Map( [
