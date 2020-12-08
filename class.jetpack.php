@@ -1,6 +1,7 @@
 <?php
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Back\Features as Back_Features;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -812,6 +813,16 @@ class Jetpack {
 			array(
 				'slug' => 'jetpack',
 				'name' => 'Jetpack',
+			)
+		);
+
+		$config->ensure(
+			'back',
+			array(
+				'slug'     => 'jetpack',
+				'features' => array(
+					Back_Features::SITE_REGISTRATION_TOS_REQUIRED,
+				),
 			)
 		);
 
