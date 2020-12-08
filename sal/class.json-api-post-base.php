@@ -27,7 +27,9 @@ abstract class SAL_Post {
 	}
 
 	/**
-	 * @param $key
+	 * This is doing it right.
+	 *
+	 * @param string $key Something.
 	 *
 	 * @return WPCOM_JSON_API_Links
 	 */
