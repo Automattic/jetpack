@@ -84,12 +84,14 @@ jobs:
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: |
           for PACKAGE in ./packages/*/tests/php; do
-            cd "$PACKAGE/../.."
-            NAME=$(basename $(pwd))
-            echo "::group::Package $NAME"
-            composer phpunit
-            echo "::endgroup::"
-            cd ../..
+            if [ ! -e tests/php/ci-can-run.sh ] || tests/php/ci-can-run.sh; then
+              cd "$PACKAGE/../.."
+              NAME=$(basename $(pwd))
+              echo "::group::Package $NAME"
+              composer phpunit
+              echo "::endgroup::"
+              cd ../..
+            fi
           done
 
       - name: Legacy Full Sync tests
