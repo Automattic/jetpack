@@ -106,8 +106,19 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		foreach ( $menu as $menu_item ) {
 			$item = $this->prepare_menu_item( $menu_item );
 
+			// Are there submenu items to process?
 			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
-				foreach ( $submenu[ $menu_item[2] ] as $submenu_item ) {
+				$submenu_items = array_values( $submenu[ $menu_item[2] ] );
+
+				// If the user doesn't have the caps for the top level menu item, let's promote the first submenu item.
+				if ( empty( $item ) ) {
+					$menu_item[1] = $submenu_items[0][1]; // Capability.
+					$menu_item[2] = $submenu_items[0][2]; // Menu slug.
+					$item         = $this->prepare_menu_item( $menu_item );
+				}
+
+				// Add submenu items.
+				foreach ( $submenu_items as $submenu_item ) {
 					$item['children'][] = $this->prepare_submenu_item( $submenu_item, $menu_item );
 				}
 			}
