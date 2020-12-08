@@ -9,9 +9,9 @@ namespace Automattic\Jetpack\Sync\Replicastore;
 
 use Automattic\Jetpack\Sync\Settings;
 use Exception;
-use WP_error;
+use WP_Error;
 
-// TODO add rest endpoints to work with this, hopefully in the same folder
+// TODO add rest endpoints to work with this, hopefully in the same folder.
 /**
  * Class to handle Table Checksums.
  */
@@ -81,12 +81,19 @@ class Table_Checksum {
 	public $allowed_tables = array();
 
 	/**
+	 * If the table has a "parent" table that it's related to.
+	 *
+	 * @var mixed|null
+	 */
+	private $parent_table = null;
+
+	/**
 	 * Table_Checksum constructor.
 	 *
-	 * @param string $table
-	 * @param string $salt
+	 * @param string $table The table to calculate checksums for.
+	 * @param string $salt  Optional salt to add to the checksum.
 	 *
-	 * @throws Exception
+	 * @throws Exception Throws exception from inner functions.
 	 */
 	public function __construct( $table, $salt = null ) {
 		$this->salt = $salt;
@@ -130,6 +137,7 @@ class Table_Checksum {
 				 'key_fields'      => array( 'post_id', 'meta_key' ),
 				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
 				 'filter_sql'      => Settings::get_whitelisted_post_meta_sql(),
+				 'parent_table'    => 'posts',
 			 ),
 			 'comments'           => array(
 				 'table'           => $wpdb->comments,
@@ -144,6 +152,7 @@ class Table_Checksum {
 				 'key_fields'      => array( 'comment_id', 'meta_key' ),
 				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
 				 'filter_sql'      => Settings::get_whitelisted_comment_meta_sql(),
+				 'parent_table'    => 'comments',
 			 ),
 			 'terms'              => array(
 				 'table'           => $wpdb->terms,
@@ -156,6 +165,7 @@ class Table_Checksum {
 				 'range_field'     => 'term_id',
 				 'key_fields'      => array( 'term_id', 'meta_key' ),
 				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				 'parent_table'    => 'terms',
 			 ),
 			 'term_relationships' => array(
 				 'table'           => $wpdb->term_relationships,
@@ -177,22 +187,23 @@ class Table_Checksum {
 	/**
 	 * Prepare field params based off provided configuration.
 	 *
-	 * @param $table_configuration
+	 * @param array $table_configuration The table configuration array.
 	 */
 	private function prepare_fields( $table_configuration ) {
 		$this->key_fields            = $table_configuration['key_fields'];
 		$this->range_field           = $table_configuration['range_field'];
 		$this->checksum_fields       = $table_configuration['checksum_fields'];
 		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
+		$this->parent_table          = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
 	}
 
 	/**
 	 * Verify provided table name is valid for checksum processing.
 	 *
-	 * @param $table
+	 * @param string $table Table name to validate.
 	 *
 	 * @return mixed|string
-	 * @throws Exception
+	 * @throws Exception Throw an exception on validation failure.
 	 */
 	private function validate_table_name( $table ) {
 		if ( empty( $table ) ) {
@@ -211,9 +222,9 @@ class Table_Checksum {
 	/**
 	 * Verify provided fields are proper names.
 	 *
-	 * @param $fields
+	 * @param array $fields Array of field names to validate.
 	 *
-	 * @throws Exception
+	 * @throws Exception Throw an exception on failure to validate.
 	 */
 	private function validate_fields( $fields ) {
 		foreach ( $fields as $field ) {
@@ -228,10 +239,10 @@ class Table_Checksum {
 	/**
 	 * Verify the fields exist in the table.
 	 *
-	 * @param $fields
+	 * @param array $fields Array of fields to validate.
 	 *
 	 * @return bool
-	 * @throws Exception
+	 * @throws Exception Throw an exception on failure to validate.
 	 */
 	private function validate_fields_against_table( $fields ) {
 		global $wpdb;
@@ -255,7 +266,7 @@ class Table_Checksum {
 	/**
 	 * Verify the configured fields.
 	 *
-	 * @throws Exception
+	 * @throws Exception Throw an exception on failure to validate in the internal functions.
 	 */
 	private function validate_input() {
 		$fields = array_merge( array( $this->range_field ), $this->key_fields, $this->checksum_fields );
@@ -267,13 +278,13 @@ class Table_Checksum {
 	/**
 	 * Build the filter query baased off range fields and values and the additional sql.
 	 *
-	 * @param null $range_from
-	 * @param null $range_to
-	 * @param null $filter_values
+	 * @param int|null   $range_from Start of the range.
+	 * @param int|null   $range_to End of the range.
+	 * @param array|null $filter_values Additional filter values. Not used at the moment.
 	 *
 	 * @return string
 	 */
-	private function build_filter_statement( $range_from = null, $range_to = null, $filter_values = null ) {
+	public function build_filter_statement( $range_from = null, $range_to = null, $filter_values = null ) {
 		global $wpdb;
 
 		/**
@@ -320,18 +331,20 @@ class Table_Checksum {
 	/**
 	 * Returns the checksum query. All validation of fields and configurations are expected to occur prior to usage.
 	 *
-	 * @param null $range_from
-	 * @param null $range_to
-	 * @param null $filter_values
-	 * @param bool $granular_result
+	 * @param int|null   $range_from      The start of the range.
+	 * @param int|null   $range_to        The end of the range.
+	 * @param array|null $filter_values   Additional filter values. Not used at the moment.
+	 * @param bool       $granular_result If the function should return a granular result.
 	 *
 	 * @return string
+	 *
+	 * @throws Exception Throws and exception if validation fails in the internal function calls.
 	 */
 	private function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
 		global $wpdb;
 
 		// Escape the salt.
-		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement
+		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement.
 
 		// Prepare the compound key.
 		$key_fields = implode( ',', $this->key_fields );
@@ -350,6 +363,16 @@ class Table_Checksum {
 
 		$filter_stamenet = $this->build_filter_statement( $range_from, $range_to, $filter_values );
 
+		$join_statement = '';
+		if ( $this->parent_table ) {
+			$parent_table_obj    = new Table_Checksum( $this->parent_table );
+			$parent_filter_query = $parent_table_obj->build_filter_statement( $range_from, $range_to );
+
+			$join_statement = "
+				INNER JOIN {$parent_table_obj->table} ON ({$this->table}.{$this->range_field} = {$parent_table_obj->table}.{$parent_table_obj->range_field} AND {$parent_filter_query})
+			";
+		}
+
 		$query = "
 			SELECT
 				{$additional_fields}
@@ -360,6 +383,7 @@ class Table_Checksum {
 				)  AS checksum
 			 FROM
 			    {$this->table}
+				{$join_statement}
 			 WHERE
 				{$filter_stamenet}
 		";
@@ -380,12 +404,12 @@ class Table_Checksum {
 	/**
 	 * Obtain the min-max values (edges) of the range.
 	 *
-	 * @param null $range_from
-	 * @param null $range_to
-	 * @param null $limit
+	 * @param int|null $range_from The start of the range.
+	 * @param int|null $range_to   The end of the range.
+	 * @param int|null $limit      How many values to return.
 	 *
 	 * @return array|object|void
-	 * @throws Exception
+	 * @throws Exception Throws an exception if validation fails on the internal function calls.
 	 */
 	public function get_range_edges( $range_from = null, $range_to = null, $limit = null ) {
 		global $wpdb;
@@ -455,7 +479,7 @@ class Table_Checksum {
 	/**
 	 * Update the results to have key/checksum format.
 	 *
-	 * @param $results
+	 * @param array $results Prepare the results for output of granular results.
 	 */
 	public function prepare_results_for_output( &$results ) {
 		// get the compound key.
@@ -480,19 +504,19 @@ class Table_Checksum {
 	/**
 	 * Calculate the checksum based on provided range and filters.
 	 *
-	 * @param null $range_from
-	 * @param null $range_to
-	 * @param null $filter_values
-	 * @param bool $granular_result
-	 * @param bool $simple_return_value
+	 * @param int|null   $range_from          The start of the range.
+	 * @param int|null   $range_to            The end of the range.
+	 * @param array|null $filter_values       Additional filter values. Not used at the moment.
+	 * @param bool       $granular_result     If the returned result should be granular or only the checksum.
+	 * @param bool       $simple_return_value If we want to use a simple return value for non-granular results (return only the checksum, without wrappers).
 	 *
-	 * @return array|mixed|object|WP_error|null
+	 * @return array|mixed|object|WP_Error|null
 	 */
 	public function calculate_checksum( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false, $simple_return_value = true ) {
 		try {
 			$this->validate_input();
 		} catch ( Exception $ex ) {
-			return new WP_error( 'invalid_input', $ex->getMessage() );
+			return new WP_Error( 'invalid_input', $ex->getMessage() );
 		}
 
 		$query = $this->build_checksum_query( $range_from, $range_to, $filter_values, $granular_result );
