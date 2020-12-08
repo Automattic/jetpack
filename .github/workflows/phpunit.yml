@@ -1,14 +1,9 @@
 name: PHPUnit tests
 
-on: pull_request
-
-### TODO whitelist branches:
- # branches:
-#   only:
-#     - master
-#     - master-stable
-#     - /^branch-.*$/
-#     - /^feature\/.*$/
+on:
+  pull_request:
+  push:
+    branches: [master, master-stable, 'branch-*']
 
 env:
   WP_TRAVISCI: "phpunit"

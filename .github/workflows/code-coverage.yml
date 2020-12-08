@@ -1,5 +1,12 @@
 name: "PHP & JS Code coverage"
-on: pull_request
+on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  push:
+    branches: [master]
+    paths-ignore:
+    - '**.md'
 
 env:
   DO_COVERAGE: true
