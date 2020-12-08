@@ -155,7 +155,7 @@ abstract class SAL_Site {
 	 * @return int
 	 */
 	public function get_p2_organization_id() {
-		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded
+		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded.
 	}
 
 	public function is_wpcom_atomic() {
