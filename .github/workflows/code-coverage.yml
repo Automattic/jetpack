@@ -48,14 +48,15 @@ jobs:
       - name: Set ENV for CodeClimate (pull_request)
         if: github.event_name == 'pull_request'
         run: |
-          echo $GITHUB_HEAD_REF >> $GIT_BRANCH
-          echo "$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GIT_COMMIT_SHA
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
+          echo "GIT_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
+          echo "GIT_COMMIT_SHA=$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GITHUB_ENV
 
       - name: Set ENV for CodeClimate (push)
         if: github.event_name == 'push'
         run: |
-          echo $GITHUB_REF >> $GIT_BRANCH
-          echo $GITHUB_SHA >> $GIT_COMMIT_SHA
+          echo "GIT_BRANCH=$GITHUB_REF" >> $GITHUB_ENV
+          echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
 
       - run: |
           echo $GIT_BRANCH
