@@ -501,7 +501,6 @@ tests/php/media/test-class.jetpack-media-extractor.php
 tests/php/media/test-class.jetpack-media-summary.php
 tests/php/media/test-class.jetpack-post-images.php
 tests/php/modules/comment-likes/test-class.comment-likes.php
-tests/php/modules/contact-form/test-class.grunion-contact-form.php
 tests/php/modules/geo-location/test_class.jetpack-geo-location.php
 tests/php/modules/google-analytics/test-class.google-analytics.php
 tests/php/modules/google-analytics/test-class.jetpack-google-amp-analytics.php

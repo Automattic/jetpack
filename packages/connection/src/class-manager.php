@@ -2328,10 +2328,6 @@ class Manager {
 		$possible_normal_tokens  = array();
 		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
 
-		if ( ( new Status() )->is_no_user_testing_mode() ) {
-			$user_tokens = false;
-		}
-
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
 				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
