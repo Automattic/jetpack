@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createBlock } from '@wordpress/blocks';
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -12,14 +12,21 @@ import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-
 import { waitForEditor } from '../../shared/wait-for-editor';
 
 async function insertSpotifyBadge() {
-	const { image, spotifyShowUrl } = window.Jetpack_AnchorFm;
+	const { Jetpack_AnchorFm = {} } = window;
+	const { image, spotifyShowUrl } = Jetpack_AnchorFm;
 	if ( ! spotifyShowUrl ) {
 		return;
 	}
 
+	const { track = {} } = Jetpack_AnchorFm;
+
 	await waitForEditor();
 
-	dispatch( 'core/block-editor' ).insertBlock(
+	const { insertBlock } = dispatch( 'core/block-editor' );
+	const { editPost } = dispatch( 'core/editor' );
+	const { isEditedPostNew } = select( 'core/editor' );
+
+	insertBlock(
 		createBlock( 'core/image', {
 			url: image,
 			linkDestination: 'none',
@@ -33,6 +40,12 @@ async function insertSpotifyBadge() {
 		undefined,
 		false
 	);
+
+	// Set the post title when the post is new,
+	// and it can be picked up from the podcast track.
+	if ( isEditedPostNew() && track.title ) {
+		editPost( { title: track.title } );
+	}
 }
 
 function initAnchor() {
