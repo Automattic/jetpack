@@ -1,32 +1,36 @@
 #!/bin/bash
 
-# If this is an NPM environment test, we don't need a developer WordPress checkout
-if [ "$WP_TRAVISCI" != "phpunit" ]; then
-	exit 0;
+set -eo pipefail
+
+# Add global composer into PATH
+COMPOSER_BIN_DIR=$(composer global config --absolute bin-dir)
+export PATH="$COMPOSER_BIN_DIR:$PATH"
+
+# Update path for subsequent Github Action steps
+if [[ -n "$GITHUB_PATH" ]]; then
+    echo "$COMPOSER_BIN_DIR" >> $GITHUB_PATH
 fi
 
-# phpenv config-rm xdebug.ini
-
 # Configure PHP and PHPUnit environment
-if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
+if [[ ${PHP_VERSION:0:2} == "8." ]]; then
 	composer install --ignore-platform-reqs
 	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
-elif [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
+elif [[ ${PHP_VERSION:0:3} == "7.0" ]]; then
 	composer remove sirbrillig/phpcs-changed automattic/jetpack-codesniffer --dev
 	composer install
 	composer global require "phpunit/phpunit=6.5.*" --no-suggest
-elif [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+elif [[ ${PHP_VERSION:0:2} == "7." ]]; then
 	composer install
 	composer global require "phpunit/phpunit=7.5.*" --no-suggest
-elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
+elif [[ ${PHP_VERSION:0:2} == "5." ]]; then
 	composer remove sirbrillig/phpcs-changed automattic/jetpack-codesniffer --dev
 	composer install
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
 fi
 
+# Setup MySQL
+sudo systemctl start mysql.service
 mysql -u root --password=root -e "set global wait_timeout = 3600;"
-
-# Prepare a developer checkout of WordPress
 mysql -u root --password=root -e "CREATE DATABASE wordpress_tests;"
 
 echo "Preparing WordPress from \"$WP_BRANCH\" branch...";
@@ -47,7 +51,6 @@ if [ $clone_exit_code -ne 0 ]; then
 	echo "Failed to clone WordPress from develop.git.wordpress.org"
 	exit 1
 fi
-
 
 cd ..
 cp -r jetpack "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"

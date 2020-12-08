@@ -6,7 +6,6 @@ on:
     branches: [master, master-stable, 'branch-*']
 
 env:
-  WP_TRAVISCI: "phpunit"
   COMPOSER_ROOT_VERSION: "dev-master"
 
 jobs:
@@ -14,7 +13,9 @@ jobs:
     name: "PHPUnit tests:  PHP ${{ matrix.php }} WP ${{ matrix.wp }}"
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
-
+    env:
+      WP_BRANCH: ${{ matrix.wp }}
+      PHP_VERSION: ${{ matrix.php }}
     strategy:
       fail-fast: false
       matrix:
@@ -31,7 +32,6 @@ jobs:
           - php: "7.4"
             wp: "previous"
             experimental: false
-
           # Experimental PHP 8 tests
           - php: "8.0"
             wp: "latest"
@@ -65,52 +65,38 @@ jobs:
           php --version
           composer --version
 
-      - name: Setup and run tests
+      - name: Setup environment
+        run: ./.github/actions/php-pipeline/setup-env.sh
+
+      - name: Run tests
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        run: phpunit
+
+      - name: Multisite tests
+        if: matrix.wp == 'master'
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
-          WP_BRANCH: ${{ matrix.wp }}
-          TRAVIS_PHP_VERSION: ${{ matrix.php }}
+          WP_MULTISITE: '1'
+        run: phpunit -c tests/php.multisite.xml
+
+      - name: Package tests
+        if: matrix.wp == 'latest'
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: |
-          sudo systemctl start mysql.service
-          export PLUGIN_SLUG=$(basename $(pwd))
-          export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
-          ./tests/setup-travis.sh
-          ./tests/run-travis.sh
+          for PACKAGE in ./packages/*/tests/php; do
+            cd "$PACKAGE/../.."
+            NAME=$(basename $(pwd))
+            echo "::group::Package $NAME"
+            if [ ! -e tests/php/ci-can-run.sh ] || tests/php/ci-can-run.sh; then
+              composer phpunit
+            fi
+            echo "::endgroup::"
+            cd ../..
+          done
 
-  legacy_full_sync:
-    name: "Legacy Full Sync"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "7.0"
-          tools: composer
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-
-      - name: Setup and run tests
+      - name: Legacy Full Sync tests
+        if: matrix.php == '7.0' && matrix.wp == 'latest'
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
-          WP_BRANCH: latest
-          TRAVIS_PHP_VERSION: "7.0"
-          LEGACY_FULL_SYNC: "1"
-        run: |
-          sudo systemctl start mysql.service
-          export PLUGIN_SLUG=$(basename $(pwd))
-          export PATH="$HOME/.config/composer/vendor/bin:$HOME/.composer/vendor/bin:$PATH"
-          ./tests/setup-travis.sh
-          ./tests/run-travis.sh
+          LEGACY_FULL_SYNC: '1'
+        run: phpunit --group=legacy-full-sync
