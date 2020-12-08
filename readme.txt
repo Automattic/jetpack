@@ -256,6 +256,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Instant Search: fix layout issues with filtering checkboxes with some themes.
 * WordPress.com Toolbar: avoid Fatal errors when the feature is not active.
+* WordPress.com Toolbar: avoid 404 errors when loading the toolbar.
 
 = 9.2 =
 
