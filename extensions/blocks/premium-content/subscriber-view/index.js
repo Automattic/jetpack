@@ -3,7 +3,7 @@
  */
 import edit from './edit';
 import save from './save';
-import deprecated from './deprecated/v1';
+import deprecated from './deprecated';
 import icon from '../_inc/icon.js';
 
 /**
