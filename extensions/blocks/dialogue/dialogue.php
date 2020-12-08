@@ -69,7 +69,9 @@ function render_block( $attrs, $block_content, $block ) {
 	}
 
 	// Pick up conversation data from context.
-	$participants   = $block->context['jetpack/conversation-participants'];
+	$participants   = isset( $block->context['jetpack/conversation-participants'] )
+		? $block->context['jetpack/conversation-participants']
+		: array();
 	$show_timestamp = isset( $block->context['jetpack/conversation-showtimestamp'] );
 
 	// Set current participant slug, considering it could be null from block $attrs.
