@@ -62,28 +62,32 @@ function process_anchor_params() {
 		return;
 	}
 
+	$post = get_post();
+	if ( ! $post && ! $post->ID ) {
+		return;
+	}
+
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? $_GET['anchor_podcast'] : null;
 	$episode_id       = isset( $_GET['anchor_episode'] ) ? $_GET['anchor_episode'] : null;
 	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? $_GET['spotify_show_url'] : null;
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-	$data    = array();
-	$post_id = get_post()->ID;
+	$data = array();
 
 	if ( ! empty( $podcast_id ) ) {
 		$feed = 'https://anchor.fm/s/' . $podcast_id . '/podcast/rss';
 		$rss  = Jetpack_Podcast_Helper::load_feed( $feed );
 		if ( ! \is_wp_error( $rss ) ) {
 			$data['podcastId'] = $podcast_id;
-			update_post_meta( $post_id, 'jetpack_anchor_podcast', $podcast_id );
+			update_post_meta( $post->ID, 'jetpack_anchor_podcast', $podcast_id );
 
 			if ( ! empty( $episode_id ) ) {
 				$track = Jetpack_Podcast_Helper::get_track_data( $feed, $episode_id );
 				if ( ! \is_wp_error( $track ) ) {
 					$data['episodeId'] = $episode_id;
 					$data['track']     = $track;
-					update_post_meta( $post_id, 'jetpack_anchor_episode', $episode_id );
+					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
 				}
 			}
 		}
@@ -91,8 +95,8 @@ function process_anchor_params() {
 
 	if ( ! empty( $spotify_show_url ) ) {
 		$data['spotifyShowUrl'] = $spotify_show_url;
-		if ( get_post_meta( $post_id, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
-			update_post_meta( $post_id, 'jetpack_anchor_spotify_show', $spotify_show_url );
+		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
+			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
 			$data['action'] = 'insert-spotify-badge';
 			$data['image']  = \Jetpack::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' );
 		}
