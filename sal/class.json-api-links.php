@@ -1,8 +1,6 @@
 <?php
 /**
  * Doc block.
- *
- * @package Jetpsck.
  */
 
 require_once dirname( __FILE__ ) . '/../class.json-api.php';
