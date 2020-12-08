@@ -55,8 +55,8 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 			// Exception expected if not a valid table name.
 			$this->expectException(Exception::class);
 		} else {
-			// Valid Tables do not need any assertion.
-			$this->expectNotToPerformAssertions();
+			// Valid Tables do not need any assertion. so need to do an assert to appeas older versions.
+			$this->assertTrue( true );
 		}
 
 		$tc = new Table_Checksum( $table );
