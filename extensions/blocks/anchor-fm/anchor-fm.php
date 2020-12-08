@@ -2,7 +2,7 @@
 /**
  * Anchor.fm integration.
  *
- * @since 9.0.0
+ * @since 9.3.0
  *
  * @package Jetpack
  */
