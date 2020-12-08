@@ -10,8 +10,8 @@ import { encode } from 'qss';
 import {
 	SERVER_OBJECT_NAME,
 	SORT_DIRECTION_ASC,
-	VALID_SORT_KEYS,
 	VALID_RESULT_FORMAT_KEYS,
+	VALID_SORT_KEYS,
 } from './constants';
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
 import { decode } from '../external/query-string-decode';
