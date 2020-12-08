@@ -32,7 +32,7 @@ import './editor.scss';
 import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
 import TranscritptionContext from './components/context';
 
-export const defaultParticipantsSlug = 'participant-0';
+export const defaultParticipantSlug = 'participant-0';
 export const defaultParticipants = [
 	{
 		participantSlug: 'participant-0',
