@@ -137,19 +137,48 @@
 	};
 
 	MoreButton.prototype.open = function () {
-		var bodyOffsetLeft = 0;
-		var bodyOffsetTop = 0;
+		var offset;
+		var offsetParent;
+		var parentOffset = [ 0, 0 ];
 
-		// Handle situations where the body doesn't start at the origin.
-		if ( this.button.offsetParent === document.body ) {
-			var bodyRect = document.body.getBoundingClientRect();
-			bodyOffsetLeft = bodyRect.left;
-			bodyOffsetTop = bodyRect.top;
+		function getOffsets( el ) {
+			var rect = el.getBoundingClientRect();
+			return [
+				rect.left + ( window.scrollX || window.pageXOffset || 0 ),
+				rect.top + ( window.scrollY || window.pageYOffset || 0 ),
+			];
 		}
 
-		this.pane.style.left = this.button.offsetLeft + bodyOffsetLeft + 'px';
-		this.pane.style.top =
-			this.button.offsetTop + this.button.offsetHeight + bodyOffsetTop + 3 + 'px';
+		function getStyleValue( el, prop ) {
+			return parseInt( getComputedStyle( el ).getPropertyValue( prop ) || 0 );
+		}
+
+		offset = getOffsets( this.button );
+		offsetParent = this.button.offsetParent || document.documentElement;
+
+		while (
+			offsetParent &&
+			( offsetParent === document.body || offsetParent === document.documentElement ) &&
+			getComputedStyle( offsetParent ).getPropertyValue( 'position' ) === 'static'
+		) {
+			offsetParent = offsetParent.parentNode;
+		}
+
+		if ( offsetParent && offsetParent !== this.button && offsetParent.nodeType === 1 ) {
+			parentOffset = getOffsets( offsetParent );
+			parentOffset = [
+				parentOffset[ 0 ] + getStyleValue( offsetParent, 'border-left-width' ),
+				parentOffset[ 1 ] + getStyleValue( offsetParent, 'border-top-width' ),
+			];
+		}
+
+		var positionLeft =
+			offset[ 0 ] - parentOffset[ 0 ] - getStyleValue( this.button, 'margin-left' );
+		var positionTop = offset[ 1 ] - parentOffset[ 1 ] - getStyleValue( this.button, 'margin-top' );
+
+		this.pane.style.left = positionLeft + 'px';
+		this.pane.style.top = positionTop + this.button.offsetHeight + 3 + 'px';
+
 		showNode( this.pane );
 	};
 
