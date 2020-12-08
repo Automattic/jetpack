@@ -82,7 +82,6 @@ class Config {
 	 *     array(
 	 *         'connection' => array(
 	 *             'deactivate_disconnect' => true,
-	 *             'tos_link'              => true,
 	 *         )
 	 *     ),
 	 *     array(
