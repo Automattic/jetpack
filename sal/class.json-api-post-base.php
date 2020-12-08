@@ -37,6 +37,7 @@ abstract class SAL_Post {
 			return WPCOM_JSON_API_Links::getInstance();
 		}
 		return $this->post->{ $key };
+		// something.
 	}
 
 	public function __call( $name, $arguments ) {
