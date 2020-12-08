@@ -55,17 +55,17 @@ function ParticipantControl( { className, participantValue, onChange } ) {
 
 export function ParticipantsControl( {
 	participants,
-	currentParticipantSlug,
+	participantSlug: slug,
 	onSelect,
 } ) {
-		return (
-			<SelectControl
-				label={ __( 'Participant name', 'jetpack' ) }
-				value={ currentParticipantSlug }
-				options={ map( participants, ( { participantSlug: value, participant: label } ) => ( { label, value } ) ) }
-				onChange={ ( participantSlug ) => onSelect( { participantSlug } ) }
-			/>
-		);
+	return (
+		<SelectControl
+			label={ __( 'Participant name', 'jetpack' ) }
+			value={ slug }
+			options={ map( participants, ( { participantSlug: value, participant: label } ) => ( { label, value } ) ) }
+			onChange={ ( participantSlug ) => onSelect( { participantSlug } ) }
+		/>
+	);
 }
 
 function ParticipantsSelector( {

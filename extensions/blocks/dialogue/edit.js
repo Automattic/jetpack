@@ -72,9 +72,8 @@ export default function DialogueEdit ( {
 	// Participants list.
 	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
 
-	// Participant object.
 	const isCustomParticipant = !! participant && ! participantSlug;
-	const currentParticipantSlug = ! participant && ! participantSlug ? defaultParticipantSlug : participantSlug;
+	const currentParticipantSlug = isCustomParticipant ? defaultParticipantSlug : participantSlug;
 	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
 	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
 
@@ -170,7 +169,7 @@ export default function DialogueEdit ( {
 						<ParticipantsControl
 							className={ baseClassName }
 							participants={ participants }
-							currentParticipantSlug={ participantSlug }
+							participantSlug={ participantSlug || '' }
 							onSelect={ setAttributes }
 						/>
 					</PanelBody>
