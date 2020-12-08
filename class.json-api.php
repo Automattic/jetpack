@@ -774,10 +774,21 @@ class WPCOM_JSON_API {
 	 * @param int         $http_status  HTTP status code, 400 by default.
 	 */
 	function trap_wp_die( $error_code = null, $http_status = 400 ) {
+		// Determine the filter name; based on the conditionals inside the wp_die function.
+		if ( wp_is_json_request() ) {
+			$die_handler = 'wp_die_json_handler';
+		} elseif ( wp_is_jsonp_request() ) {
+			$die_handler = 'wp_die_jsonp_handler';
+		} elseif ( wp_is_xml_request() ) {
+			$die_handler = 'wp_die_xml_handler';
+		} else {
+			$die_handler = 'wp_die_handler';
+		}
+
 		if ( is_null( $error_code ) ) {
 			$this->trapped_error = null;
 			// Stop trapping
-			remove_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
+			remove_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );
 			return;
 		}
 
@@ -798,7 +809,7 @@ class WPCOM_JSON_API {
 			'message' => '',
 		);
 		// Start trapping
-		add_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
+		add_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );
 	}
 
 	function wp_die_handler_callback() {
