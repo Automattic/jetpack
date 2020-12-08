@@ -12,6 +12,8 @@ namespace Automattic\Jetpack;
  * contain the package classes shown below. The consumer plugin
  * must require the corresponding packages to use these features.
  */
+
+use Automattic\Jetpack\Back\Compatibility;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
@@ -36,6 +38,7 @@ class Config {
 		'jitm'       => false,
 		'connection' => false,
 		'sync'       => false,
+		'back'       => false,
 	);
 
 	/**
@@ -92,6 +95,11 @@ class Config {
 			( $this->ensure_class( 'Automattic\Jetpack\JITMS\JITM', false )
 				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
 			&& $this->ensure_feature( 'jitm' );
+		}
+
+		if ( $this->config['back'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Back\Compatibility' )
+				&& $this->ensure_feature( 'back' );
 		}
 	}
 
@@ -182,6 +190,32 @@ class Config {
 	}
 
 	/**
+	 * Enable the backward compatibility package.
+	 */
+	protected function enable_back() {
+		// Nothing to do here.
+	}
+
+	/**
+	 * Setup the backward compatibility features.
+	 */
+	protected function ensure_options_back() {
+		$options = $this->get_feature_options( 'back' );
+
+		if ( empty( $options['slug'] ) ) {
+			return;
+		}
+
+		Compatibility::add_plugin( $options['slug'] );
+
+		if ( ! empty( $options['features'] ) && is_array( $options['features'] ) ) {
+			foreach ( $options['features'] as $feature ) {
+				Compatibility::add_feature( $options['slug'], $feature );
+			}
+		}
+	}
+
+	/**
 	 * Enables the Connection feature.
 	 */
 	protected function enable_connection() {
@@ -208,6 +242,9 @@ class Config {
 			}
 
 			( new Plugin( $slug ) )->add( $name, $options );
+
+			// Providing backward compatibility for the backward compatibility package.
+			Compatibility::add_plugin( $slug );
 		}
 
 		return true;

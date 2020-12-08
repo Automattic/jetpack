@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7ce5bdad3588c42d29b0535d3a826c87",
+    "content-hash": "7b17d60de665aad80b5e65a5503f694b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -145,6 +145,28 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-back",
+            "version": "dev-add/going-backwards",
+            "dist": {
+                "type": "path",
+                "url": "./packages/back",
+                "reference": "05cc5258733237668dcd79984ccb526d640f3ba9"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Sometimes you need to look back to go forward",
             "transport-options": {
                 "relative": true
             }
@@ -1643,6 +1665,7 @@
         "automattic/jetpack-abtest": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-back": 20,
         "automattic/jetpack-backup": 20,
         "automattic/jetpack-blocks": 20,
         "automattic/jetpack-compat": 20,
