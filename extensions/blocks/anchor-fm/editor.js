@@ -12,7 +12,7 @@ import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-
 import { waitForEditor } from '../../shared/wait-for-editor';
 
 async function insertSpotifyBadge() {
-	const { spotifyShowUrl } = window.Jetpack_AnchorFm;
+	const { image, spotifyShowUrl } = window.Jetpack_AnchorFm;
 	if ( ! spotifyShowUrl ) {
 		return;
 	}
@@ -21,7 +21,7 @@ async function insertSpotifyBadge() {
 
 	dispatch( 'core/block-editor' ).insertBlock(
 		createBlock( 'core/image', {
-			url: 'https://cldup.com/Dv6JZWyRpq-1200x1200.png',
+			url: image,
 			linkDestination: 'none',
 			href: spotifyShowUrl,
 			align: 'center',

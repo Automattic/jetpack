@@ -99,6 +99,7 @@ function process_anchor_params() {
 		if ( get_post_meta( $post_id, 'anchor_spotify_show', true ) !== $spotify_show_url ) {
 			update_post_meta( $post_id, 'anchor_spotify_show', $spotify_show_url );
 			$data['action'] = 'insert-spotify-badge';
+			$data['image']  = \Jetpack::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' );
 		}
 	}
 
