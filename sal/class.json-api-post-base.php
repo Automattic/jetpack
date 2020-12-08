@@ -26,6 +26,11 @@ abstract class SAL_Post {
 		$this->post->{ $key } = $value;
 	}
 
+	/**
+	 * @param $key
+	 *
+	 * @return WPCOM_JSON_API_Links
+	 */
 	public function __get( $key ) {
 		if ( $key === 'links' ) {
 			require_once dirname( __FILE__ ) . '/class.json-api-links.php';
