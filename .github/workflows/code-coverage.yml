@@ -33,8 +33,15 @@ jobs:
         with:
           node-version: '12'
 
+      - uses: nelonoel/branch-name@v1.0.1
       - name: Set output
-        run: echo ${GITHUB_REF#refs/*/}
+        run: |
+          echo $GITHUB_REF
+          echo ${GITHUB_REF#refs/*/}
+          echo ${BRANCH_NAME}
+          cat $GITHUB_EVENT_PATH
+
+
 
       - name: Get Composer cache directory
         id: composer-cache
