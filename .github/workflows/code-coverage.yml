@@ -36,11 +36,9 @@ jobs:
       - uses: nelonoel/branch-name@v1.0.1
       - name: Set output
         run: |
-          echo $GITHUB_REF
-          echo ${GITHUB_REF#refs/*/}
+          printenv
           echo ${BRANCH_NAME}
-          echo ${{ github.head.ref }}
-          cat $GITHUB_EVENT_PATH
+          echo ${{ github.head_ref }}
 
 
 
