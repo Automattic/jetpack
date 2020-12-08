@@ -789,6 +789,9 @@ class Jetpack {
 
 		// Actions for licensing.
 		Licensing::instance()->initialize();
+
+		// Make resources use static domain when possible.
+		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
 	}
 
 	/**
