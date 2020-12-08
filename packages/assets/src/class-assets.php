@@ -177,4 +177,49 @@ class Assets {
 		);
 	}
 
+	/**
+	 * Serve a WordPress.com static resource via a randomized wp.com subdomain.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @param string $url WordPress.com static resource URL.
+	 *
+	 * @return string $url
+	 */
+	public static function staticize_subdomain( $url ) {
+		// Extract hostname from URL.
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		// Explode hostname on '.'.
+		$exploded_host = explode( '.', $host );
+
+		// Retrieve the name and TLD.
+		if ( count( $exploded_host ) > 1 ) {
+			$name = $exploded_host[ count( $exploded_host ) - 2 ];
+			$tld  = $exploded_host[ count( $exploded_host ) - 1 ];
+			// Rebuild domain excluding subdomains.
+			$domain = $name . '.' . $tld;
+		} else {
+			$domain = $host;
+		}
+		// Array of Automattic domains.
+		$domains_allowed = array( 'wordpress.com', 'wp.com' );
+
+		// Return $url if not an Automattic domain.
+		if ( ! in_array( $domain, $domains_allowed, true ) ) {
+			return $url;
+		}
+
+		if ( \is_ssl() ) {
+			return preg_replace( '|https?://[^/]++/|', 'https://s-ssl.wordpress.com/', $url );
+		}
+
+		/*
+		 * Generate a random subdomain id by taking the modulus of the crc32 value of the URL.
+		 * Valid values are 0, 1, and 2.
+		 */
+		$static_counter = abs( crc32( basename( $url ) ) % 3 );
+
+		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
+	}
 }
