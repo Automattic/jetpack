@@ -253,11 +253,11 @@ class AssetsTest extends TestCase {
 	public function test_staticize_subdomain( $original, $expected_http, $expected_https ) {
 		Functions\when( 'is_ssl' )->justReturn( false );
 		$static_resource = Assets::staticize_subdomain( $original );
-		$this->assertContains( $expected_http, $static_resource );
+		$this->assertStringContainsString( $expected_http, $static_resource );
 
 		Functions\when( 'is_ssl' )->justReturn( true );
 		$static_resource = Assets::staticize_subdomain( $original );
-		$this->assertContains( $expected_https, $static_resource );
+		$this->assertEquals( $expected_https, $static_resource );
 	}
 
 	/**
