@@ -1607,7 +1607,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// VIP context loading is handled elsewhere, so bail to prevent
 		// duplicate loading. See `switch_to_blog_and_validate_user()`
-		if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
 			return;
 		}
 
