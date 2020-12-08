@@ -197,7 +197,7 @@ export default function DialogueEdit ( {
 				</Panel>
 			</InspectorControls>
 
-			<div class={ `${ baseClassName }__meta` }>
+			<div className={ `${ baseClassName }__meta` }>
 				<div onFocus={ () => setIsFocusedOnParticipantLabel( true ) }>
 					<ParticipantsDropdown
 						id={ `dialogue-${ instanceId }-participants-dropdown` }
