@@ -15,6 +15,10 @@ use Jetpack_Podcast_Helper;
 const FEATURE_NAME = 'anchor-fm';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
+if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+	\jetpack_require_lib( 'class-jetpack-podcast-helper' );
+}
+
 /**
  * Registers Anchor.fm integration for the block editor.
  */
