@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# CodeClimate hack:
-# By default, GitHub Actions does not expose the required environment variables for branch name and Commit SHA: GIT_COMMIT_SHA and GIT_BRANCH
-# https://docs.codeclimate.com/docs/github-actions-test-coverage
-export GIT_COMMIT_SHA=$GITHUB_SHA
-
-if [[ ${GITHUB_EVENT_NAME} == "pull_request" ]]; then
-	export GIT_BRANCH=$GITHUB_HEAD_REF
-else
-	export GIT_BRANCH=${GITHUB_REF#refs/*/}
-fi
-
 # Format backend coverage
 ./cc-test-reporter format-coverage --prefix /tmp/wordpress-latest/src/wp-content/plugins/jetpack -t clover -o coverage/codeclimate.backend.json coverage/backend/clover.xml
 ./cc-test-reporter format-coverage --prefix /tmp/wordpress-latest/src/wp-content/plugins/jetpack -t clover -o coverage/codeclimate.legacysync.json coverage/legacy-sync/clover.xml
