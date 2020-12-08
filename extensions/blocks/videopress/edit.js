@@ -99,7 +99,7 @@ const VideoPressEdit = CoreVideoEdit =>
 		};
 
 		async componentDidUpdate( prevProps ) {
-			const { attributes, invalidateCachedEmbedPreview, url } = this.props;
+			const { attributes, invalidateCachedEmbedPreview, preview, setAttributes, url } = this.props;
 
 			if ( attributes.id !== prevProps.attributes.id ) {
 				await this.setGuid();
@@ -112,6 +112,18 @@ const VideoPressEdit = CoreVideoEdit =>
 				// we invalidate the cached preview of the embed VideoPress player in order to force the rendering of a
 				// new instance of the `SandBox` component that ensures the injected `html` will be rendered.
 				invalidateCachedEmbedPreview( url );
+			}
+
+			if ( preview ) {
+				const { align, className } = attributes;
+				const sandboxClassnames = getClassNames(
+					preview.html,
+					classnames( className, 'wp-block-embed', 'is-type-video', 'is-provider-videopress', {
+						[ `align${ align }` ]: align,
+					} ),
+					true
+				);
+				setAttributes( { classNames: sandboxClassnames } ); // We set classNames attribute to be used in ./save.js
 			}
 		}
 
@@ -242,7 +254,6 @@ const VideoPressEdit = CoreVideoEdit =>
 		render() {
 			const {
 				attributes,
-				className,
 				instanceId,
 				isFetchingPreview,
 				isSelected,
@@ -251,7 +262,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
-			const { autoplay, caption, controls, loop, muted, poster, preload } = attributes;
+			const { autoplay, caption, classNames, controls, loop, muted, poster, preload } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
@@ -399,12 +410,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			const { html, scripts } = preview;
-			const sandboxClassnames = getClassNames(
-				html,
-				classnames( className, 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
-				true
-			);
-			setAttributes( { classNames: sandboxClassnames } ); // We set classNames attribute to be used in ./save.js
 
 			// Disabled because the overlay div doesn't actually have a role or functionality
 			// as far as the user is concerned. We're just catching the first click so that
@@ -413,9 +418,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper className={ sandboxClassnames }>
+					<BlockFigureWrapper className={ classNames }>
 						<div className="wp-block-embed__wrapper">
-							<SandBox html={ html } scripts={ scripts } type={ sandboxClassnames } />
+							<SandBox html={ html } scripts={ scripts } type={ classNames } />
 						</div>
 
 						{
