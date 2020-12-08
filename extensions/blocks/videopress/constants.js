@@ -2,7 +2,7 @@ export const ASPECT_RATIOS = [
 	// Common video resolutions.
 	{ ratio: '2.33', className: 'wp-embed-aspect-21-9' },
 	{ ratio: '2.00', className: 'wp-embed-aspect-18-9' },
-	{ ratio: '1.78', className: 'wp-embed-aspect-16-9' },
+	{ ratio: '1.77', className: 'wp-embed-aspect-16-9' },
 	{ ratio: '1.33', className: 'wp-embed-aspect-4-3' },
 	// Vertical video and instagram square video support.
 	{ ratio: '1.00', className: 'wp-embed-aspect-1-1' },
