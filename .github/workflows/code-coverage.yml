@@ -33,6 +33,9 @@ jobs:
         with:
           node-version: '12'
 
+      - name: Set output
+        run: echo ${GITHUB_REF#refs/*/}
+
       - name: Get Composer cache directory
         id: composer-cache
         run: |
