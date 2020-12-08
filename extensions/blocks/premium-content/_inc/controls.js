@@ -3,7 +3,8 @@
  */
 import { Fragment } from '@wordpress/element';
 import { BlockControls } from '@wordpress/block-editor';
-import { Dashicon, DropdownMenu, Toolbar } from '@wordpress/components';
+import { DropdownMenu, Toolbar } from '@wordpress/components';
+import { Icon, update } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -38,7 +39,7 @@ export default function Controls( props ) {
 					// @ts-ignore We want a label with our Dashicon.Icon
 					icon={
 						<Fragment>
-							<Dashicon icon="update" />{ ' ' }
+							<Icon icon={ update } />{ ' ' }
 							{ planDescription && <Fragment>{ planDescription }</Fragment> }
 						</Fragment>
 					}
