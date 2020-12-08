@@ -52,7 +52,7 @@ gulp.task( 'sass:calypsoify', function ( done ) {
 		} );
 } );
 
-gulp.task( 'sass:colorschemes', function ( done ) {
+gulp.task( 'sass:color-schemes', function ( done ) {
 	log( 'Building Color schemes CSS...' );
 
 	return gulp
@@ -62,9 +62,10 @@ gulp.task( 'sass:colorschemes', function ( done ) {
 			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
 		)
 		.pipe( autoprefixer() )
-		.pipe( gulp.dest( './modules/masterbar/admin-color-schemes/colors' ) )
+		.pipe( gulp.dest( './_inc/build/masterbar/admin-color-schemes/colors' ) )
 		.on( 'end', function () {
 			log( 'Color Schemes CSS finished.' );
+			done();
 		} );
 } );
 
@@ -231,7 +232,7 @@ gulp.task(
 
 export const build = gulp.parallel(
 	gulp.series( 'sass:dashboard', 'sass:calypsoify' ),
-	'sass:colorschemes',
+	'sass:color-schemes',
 	'sass:old',
 	'sass:packages'
 );
@@ -239,7 +240,7 @@ export const build = gulp.parallel(
 export const watch = function () {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:colorschemes', 'sass:old' )
+		gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:color-schemes', 'sass:old' )
 	);
 };
 
