@@ -39,6 +39,7 @@ jobs:
           echo $GITHUB_REF
           echo ${GITHUB_REF#refs/*/}
           echo ${BRANCH_NAME}
+          echo ${{ github.head.ref }}
           cat $GITHUB_EVENT_PATH
 
 
