@@ -44,30 +44,31 @@ function ParticipantsLabelControl( {
 	onDelete,
 } ) {
 	return (
-		<Fragment>
+		<BaseControl className={ `${ className }__participant-control` }>
 			{ map( participants, ( { participant, participantSlug } ) => (
-				<BaseControl className={ `${ className }__participant-control` }>
-					<div className={ `${ className }__participant` }>
-						<TextControl
-							value={ participant }
-							onChange={ ( participantEditedValue ) => onChange( {
-								participantSlug,
-								participant: participantEditedValue,
-							} ) }
-						/>
+				<div
+					key={ `${ participantSlug }-key` }
+					className={ `${ className }__participant` }
+				>
+					<TextControl
+						value={ participant }
+						onChange={ ( participantEditedValue ) => onChange( {
+							participantSlug,
+							participant: participantEditedValue,
+						} ) }
+					/>
 
-						<Button
-							label={ __( 'Delete', 'jetpack' ) }
-							onClick={ () => onDelete( participantSlug ) }
-							isTertiary
-							isSmall
-						>
-							{ __( 'Remove', 'jetpack' ) }
-						</Button>
-					</div>
-				</BaseControl>
+					<Button
+						label={ __( 'Delete', 'jetpack' ) }
+						onClick={ () => onDelete( participantSlug ) }
+						isTertiary
+						isSmall
+					>
+						{ __( 'Remove', 'jetpack' ) }
+					</Button>
+				</div>
 			) ) }
-		</Fragment>
+		</BaseControl>
 	);
 }
 
