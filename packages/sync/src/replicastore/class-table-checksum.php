@@ -123,65 +123,65 @@ class Table_Checksum {
 	private function get_default_tables() {
 		global $wpdb;
 
-		 return array(
-			 'posts'              => array(
-				 'table'           => $wpdb->posts,
-				 'range_field'     => 'ID',
-				 'key_fields'      => array( 'ID' ),
-				 'checksum_fields' => array( 'post_modified_gmt' ),
-				 'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
-			 ),
-			 'postmeta'           => array(
-				 'table'           => $wpdb->postmeta,
-				 'range_field'     => 'post_id',
-				 'key_fields'      => array( 'post_id', 'meta_key' ),
-				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				 'filter_sql'      => Settings::get_whitelisted_post_meta_sql(),
-				 'parent_table'    => 'posts',
-			 ),
-			 'comments'           => array(
-				 'table'           => $wpdb->comments,
-				 'range_field'     => 'comment_ID',
-				 'key_fields'      => array( 'comment_ID' ),
-				 'checksum_fields' => array( 'comment_content' ),
-				 'filter_sql'      => Settings::get_comments_filter_sql(),
-			 ),
-			 'commentmeta'        => array(
-				 'table'           => $wpdb->commentmeta,
-				 'range_field'     => 'comment_id',
-				 'key_fields'      => array( 'comment_id', 'meta_key' ),
-				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				 'filter_sql'      => Settings::get_whitelisted_comment_meta_sql(),
-				 'parent_table'    => 'comments',
-			 ),
-			 'terms'              => array(
-				 'table'           => $wpdb->terms,
-				 'range_field'     => 'term_id',
-				 'key_fields'      => array( 'term_id' ),
-				 'checksum_fields' => array( 'term_id', 'name', 'slug' ),
-			 ),
-			 'termmeta'           => array(
-				 'table'           => $wpdb->termmeta,
-				 'range_field'     => 'term_id',
-				 'key_fields'      => array( 'term_id', 'meta_key' ),
-				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				 'parent_table'    => 'terms',
-			 ),
-			 'term_relationships' => array(
-				 'table'           => $wpdb->term_relationships,
-				 'range_field'     => 'object_id',
-				 'key_fields'      => array( 'object_id' ),
-				 'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
-			 ),
-			 'term_taxonomy'      => array(
-				 'table'           => $wpdb->term_taxonomy,
-				 'range_field'     => 'term_taxonomy_id',
-				 'key_fields'      => array( 'term_taxonomy_id' ),
-				 'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
-			 ),
-			 'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
-			 'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
-		 );
+		return array(
+			'posts'              => array(
+				'table'           => $wpdb->posts,
+				'range_field'     => 'ID',
+				'key_fields'      => array( 'ID' ),
+				'checksum_fields' => array( 'post_modified_gmt' ),
+				'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
+			),
+			'postmeta'           => array(
+				'table'           => $wpdb->postmeta,
+				'range_field'     => 'post_id',
+				'key_fields'      => array( 'post_id', 'meta_key' ),
+				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_sql'      => Settings::get_whitelisted_post_meta_sql(),
+				'parent_table'    => 'posts',
+			),
+			'comments'           => array(
+				'table'           => $wpdb->comments,
+				'range_field'     => 'comment_ID',
+				'key_fields'      => array( 'comment_ID' ),
+				'checksum_fields' => array( 'comment_content' ),
+				'filter_sql'      => Settings::get_comments_filter_sql(),
+			),
+			'commentmeta'        => array(
+				'table'           => $wpdb->commentmeta,
+				'range_field'     => 'comment_id',
+				'key_fields'      => array( 'comment_id', 'meta_key' ),
+				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_sql'      => Settings::get_whitelisted_comment_meta_sql(),
+				'parent_table'    => 'comments',
+			),
+			'terms'              => array(
+				'table'           => $wpdb->terms,
+				'range_field'     => 'term_id',
+				'key_fields'      => array( 'term_id' ),
+				'checksum_fields' => array( 'term_id', 'name', 'slug' ),
+			),
+			'termmeta'           => array(
+				'table'           => $wpdb->termmeta,
+				'range_field'     => 'term_id',
+				'key_fields'      => array( 'term_id', 'meta_key' ),
+				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'parent_table'    => 'terms',
+			),
+			'term_relationships' => array(
+				'table'           => $wpdb->term_relationships,
+				'range_field'     => 'object_id',
+				'key_fields'      => array( 'object_id' ),
+				'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
+			),
+			'term_taxonomy'      => array(
+				'table'           => $wpdb->term_taxonomy,
+				'range_field'     => 'term_taxonomy_id',
+				'key_fields'      => array( 'term_taxonomy_id' ),
+				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
+			),
+			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
+			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
+		);
 	}
 
 	/**
@@ -211,7 +211,7 @@ class Table_Checksum {
 		}
 
 		if ( ! array_key_exists( $table, $this->allowed_tables ) ) {
-			throw new Exception( 'Invalid table name: not allowed' );
+			throw new Exception( "Invalid table name: $table not allowed" );
 		}
 
 		// TODO other checks if such are needed.
@@ -229,7 +229,7 @@ class Table_Checksum {
 	private function validate_fields( $fields ) {
 		foreach ( $fields as $field ) {
 			if ( ! preg_match( '/^[0-9,a-z,A-Z$_]+$/i', $field ) ) {
-				throw new Exception( "Invalid field name: {$field} is not allowed" );
+				throw new Exception( "Invalid field name: $field is not allowed" );
 			}
 
 			// TODO other verifications of the field names.
@@ -292,10 +292,10 @@ class Table_Checksum {
 		 */
 
 		$filter_array = array();
-		if ( $range_from !== null ) {
+		if ( null !== $range_from ) {
 			$filter_array[] = $wpdb->prepare( "{$this->range_field} >= %d", array( intval( $range_from ) ) );
 		}
-		if ( $range_to !== null ) {
+		if ( null != $range_to ) {
 			$filter_array[] = $wpdb->prepare( "{$this->range_field} <= %d", array( intval( $range_to ) ) );
 		}
 
