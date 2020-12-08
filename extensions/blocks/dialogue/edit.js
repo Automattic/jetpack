@@ -63,6 +63,7 @@ export default function DialogueEdit ( {
 		participant,
 		participantSlug,
 		timeStamp,
+		showTimeStamp: showTimeStampLocally,
 		content,
 		placeholder,
 	} = attributes;
@@ -70,7 +71,7 @@ export default function DialogueEdit ( {
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showTimeStamp = context[ 'jetpack/conversation-showtimestamp' ];
+	const showTimeStampGlobally = context[ 'jetpack/conversation-showtimestamp' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
@@ -79,6 +80,8 @@ export default function DialogueEdit ( {
 	const currentParticipantSlug = isCustomParticipant ? defaultParticipantSlug : participantSlug;
 	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
 	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
+
+	const showTimeStamp = isCustomParticipant ? showTimeStampLocally : showTimeStampGlobally;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const transcritionBridge = useContext( ConversationContext );
@@ -140,6 +143,14 @@ export default function DialogueEdit ( {
 		} );
 	}
 
+	function setShowTimeStamp( value ) {
+		if ( isCustomParticipant || ! participantsFromContext ) {
+			return setAttributes( { showTimeStamp: value } );
+		}
+
+		transcritionBridge.setAttributes( { showTimeStamp: value } );
+	}
+
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -186,9 +197,7 @@ export default function DialogueEdit ( {
 						<ToggleControl
 							label={ __( 'Show', 'jetpack' ) }
 							checked={ showTimeStamp }
-							onChange={
-								( show ) => transcritionBridge.setAttributes( { showTimeStamp: show } )
-							}
+							onChange={ setShowTimeStamp }
 						/>
 
 						{ showTimeStamp && (
