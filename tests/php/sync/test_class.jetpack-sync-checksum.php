@@ -157,7 +157,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
-		$tc = new Table_Checksum( 'posts' );
+		$tc     = new Table_Checksum( 'posts' );
 		$result = $tc->calculate_checksum();
 
 		if( ! $is_valid ) {
@@ -255,7 +255,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
-		$tc = new Table_Checksum( 'posts' );
+		$tc     = new Table_Checksum( 'posts' );
 		$result = $tc->calculate_checksum();
 
 		if( ! $is_valid ) {
