@@ -32,7 +32,7 @@ function ParticipantsMenu( { participants, className, onSelect } ) {
 	);
 }
 
-function ParticipantControl( { className, participantValue, onChange } ) {
+export function ParticipantControl( { className, participantValue, onChange } ) {
 	return (
 		<BaseControl className={ `${ className }__custom-participant` }>
 			<div className={ `${ className }__text-button-container` }>

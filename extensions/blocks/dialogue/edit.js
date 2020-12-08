@@ -28,7 +28,10 @@ import { useContext, useState, } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, { ParticipantsControl } from './components/participants-control';
+import ParticipantsDropdown, {
+	ParticipantsControl,
+	ParticipantControl,
+} from './components/participants-control';
 import TimeStampControl, { TimeStampDropdown } from './components/time-stamp-control';
 import ConversationContext from '../conversation/components/context';
 import { defaultParticipants, defaultParticipantSlug } from '../conversation/edit';
@@ -171,6 +174,11 @@ export default function DialogueEdit ( {
 							participants={ participants }
 							participantSlug={ participantSlug || '' }
 							onSelect={ setAttributes }
+						/>
+						<ParticipantControl
+							className={ className }
+							participantValue={ participant }
+							onChange={ setAttributes }
 						/>
 					</PanelBody>
 
