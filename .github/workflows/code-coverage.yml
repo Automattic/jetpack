@@ -58,10 +58,6 @@ jobs:
           echo "GIT_BRANCH=$GITHUB_REF" >> $GITHUB_ENV
           echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
 
-      - run: |
-          echo $GIT_BRANCH
-          echo $GIT_COMMIT_SHA
-
       - name: Setup tests
         run: |
           ./.github/actions/php-pipeline/setup-env.sh
