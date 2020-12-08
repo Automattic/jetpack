@@ -41,6 +41,7 @@ abstract class SAL_Post {
 		return $this->post->{ $key };
 		// something. wefwefew wefwef.
 		// something else.
+		// another line.
 	}
 
 	public function __call( $name, $arguments ) {
