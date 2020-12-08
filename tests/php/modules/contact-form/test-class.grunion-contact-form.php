@@ -109,7 +109,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -144,13 +144,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission   = $feedback[0];
 		$extra_fields = get_post_meta( $submission->ID, '_feedback_extra_fields', true );
 
-		$this->assertEquals( 3, count( $extra_fields ), 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
+		$this->assertSame( 3, count( $extra_fields ), 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
 
 		/*
 		 * Metadata starts counting from 5, because post content has:
@@ -177,7 +177,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -207,7 +207,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -236,7 +236,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -265,7 +265,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -298,7 +298,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -334,7 +334,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -347,9 +347,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
 
-		$email_body = $email_body[0];
+		$email_body = $email_body[1];
 
-		$this->assertEquals( 0, strpos( $expected, $email_body ) );
+		$this->assertStringStartsWith( $expected, $email_body );
 	}
 
 	/**
@@ -400,9 +400,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Divides email by the first empty line.
 		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
-		$email_body = $email_body[0];
+		$email_body = $email_body[1];
 
-		$this->assertEquals( 0, strpos( $expected, $email_body ) );
+		$this->assertStringStartsWith( $expected, $email_body );
 	}
 
 	/**
@@ -518,7 +518,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( '***SPAM***', $args['subject'] );
 	}
 
-
 	/**
 	 * Tests that 'grunion_delete_old_spam()' deletes an old post that is marked as spam.
 	 *
@@ -535,7 +534,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		grunion_delete_old_spam();
-		$this->assertEquals( null, get_post( $post_id ), 'An old spam feedback should be deleted' );
+		$this->assertNull( get_post( $post_id ), 'An old spam feedback should be deleted' );
 	}
 
 	/**
@@ -1237,7 +1236,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 	}
 
-
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for post meta
 	 *
@@ -1428,7 +1426,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $expected_result, $result );
 	}
 
-
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
 	 *
@@ -1537,7 +1534,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$this->assertEquals( $expected_result, $result );
 	}
-
 
 	/**
 	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
