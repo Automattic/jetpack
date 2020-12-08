@@ -19,12 +19,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * Registers Anchor.fm integration for the block editor.
  */
 function register_block() {
-	Blocks::jetpack_register_block(
-		BLOCK_NAME,
-		array(
-			'plan_check' => false,
-		)
-	);
+	Blocks::jetpack_register_block( BLOCK_NAME );
 
 	// Register post_meta for connecting Anchor podcasts with posts.
 	register_post_meta(
