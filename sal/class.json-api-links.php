@@ -284,4 +284,8 @@ class WPCOM_JSON_API_Links {
 
 		return end( $path_parts );
 	}
+
+	public function test_function ($something ) {
+		return;
+	}
 }
