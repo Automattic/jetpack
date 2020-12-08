@@ -227,7 +227,7 @@ class Jetpack_Search_Helpers {
 	static function generate_widget_filter_name( $widget_filter ) {
 		$name = '';
 
-		if ( ! is_array( $widget_filter ) || ! array_key_exists( 'type', $widget_filter ) ) {
+		if ( ! isset( $widget_filter['type'] ) ) {
 			return $name;
 		}
 
