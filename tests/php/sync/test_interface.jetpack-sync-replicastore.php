@@ -62,6 +62,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * Test that the checksum values between implementations are the same
 	 */
 	function test_all_checksums_match() {
+		$this->markTestSkipped( 'Not a Valid E2E test.' );
 		$post           = self::$factory->post( 5 );
 		$second_post    = self::$factory->post( 10 );
 		$comment        = self::$factory->comment( 3, $post->ID );
@@ -182,8 +183,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// temporary hack due to missing post_meta_checksum implementation in the test replicastore
 		if ( 'Jetpack_Sync_Test_Replicastore' != get_class( $store ) ) {
 			$this->assertEquals( $store->post_meta_checksum( 1, 2 ), $histogram['1-2'] );
-			$this->assertEquals( $store->post_meta_checksum( 5, 10 ), $histogram['5-10'] );	
-		}		
+			$this->assertEquals( $store->post_meta_checksum( 5, 10 ), $histogram['5-10'] );
+		}
 
 		// test comments checksum with ID range
 		$histogram = $store->checksum_histogram( 'comments', 2 );
