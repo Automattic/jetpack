@@ -18,6 +18,7 @@ class Admin_Color_Schemes {
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'register_admin_color_schemes' ) );
 		add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
+		add_filter( 'jetpack_color_schemes_loaded', '__return_true' );
 	}
 
 	/**
