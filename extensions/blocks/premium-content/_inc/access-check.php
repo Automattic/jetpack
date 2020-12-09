@@ -14,7 +14,7 @@ require __DIR__ . '/subscription-service/include.php';
  *
  * @return bool Whether the memberships module is set up.
  */
-function pre_render_checks() {
+function membership_checks() {
 	// If Jetpack is not yet configured, don't show anything ...
 	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
 		return false;
@@ -27,6 +27,54 @@ function pre_render_checks() {
 }
 
 /**
+ * Determines if the site has a plan that supports the
+ * Premium Content block. If false, the site requires a
+ * plan upgrade.
+ *
+ * @return bool
+ */
+function required_plan_checks() {
+	// For WPCOM sites.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+		$site_id = get_current_blog_id();
+		return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+	}
+
+	// For Jetpack sites, only Atomic sites (with a business plan
+	// or above) have the block, so no upgrade is required.
+	return true;
+}
+
+/**
+ * Determines if the block should be rendered. Returns true
+ * if the memberships module is set up, or if it has not been
+ * set up but the user can edit the post.
+ *
+ * @return bool Whether the block should be rendered.
+ */
+function pre_render_checks() {
+	return (
+		membership_checks() ||
+		current_user_can_edit()
+	);
+}
+
+/**
+ * Determines if the a preview of the block with disconnected
+ * buttons should be shown on the frontend. Returns true
+ * user can edit the post, but the site requires an upgrade
+ * or Stripe connection in order to support the block.
+ *
+ * @return bool Whether the frontend preview should be shown
+ */
+function should_render_frontend_preview() {
+	return (
+		current_user_can_edit() &&
+		( ! membership_checks() || ! required_plan_checks() )
+	);
+}
+
+/**
  * Determines if the current user can view the protected content of the given block.
  *
  * @param array  $attributes Block attributes.
@@ -35,16 +83,11 @@ function pre_render_checks() {
  * @return bool Whether the use can view the content.
  */
 function current_visitor_can_access( $attributes, $block ) {
-	$user = wp_get_current_user();
-
 	/**
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.
-	 *
-	 * Ideas:
-	 *  - Capability check?
 	 */
-	if ( 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() ) ) {
+	if ( current_user_can_edit() ) {
 		return true;
 	}
 
@@ -70,4 +113,15 @@ function current_visitor_can_access( $attributes, $block ) {
 	}
 
 	return $can_view;
+}
+
+/**
+ * Determines whether the current user can edit.
+ *
+ * @return bool Whether the user can edit.
+ */
+function current_user_can_edit() {
+	$user = wp_get_current_user();
+
+	return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
 }

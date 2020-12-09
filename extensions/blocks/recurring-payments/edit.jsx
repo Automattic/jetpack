@@ -18,7 +18,7 @@ import {
 	SelectControl,
 } from '@wordpress/components';
 import { InspectorControls, InnerBlocks, BlockIcon } from '@wordpress/block-editor';
-import { Fragment, Component } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
 /**
@@ -522,7 +522,7 @@ class MembershipsButtonEdit extends Component {
 		);
 
 		return (
-			<Fragment>
+			<>
 				{ this.props.noticeUI }
 				{ ! this.isPremiumContentChild && this.renderUpgradeNudges() }
 				{ ! this.isPremiumContentChild && this.renderPlanNotices() }
@@ -541,7 +541,7 @@ class MembershipsButtonEdit extends Component {
 					] }
 					templateLock="all"
 				/>
-			</Fragment>
+			</>
 		);
 	};
 }
