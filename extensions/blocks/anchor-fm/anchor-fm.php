@@ -109,8 +109,16 @@ function process_anchor_params() {
 		$data['spotifyShowUrl'] = $spotify_show_url;
 		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
 			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
+
+			$image = 'https://wordpress.com/i/spotify-badge.svg';
+			// Deal with WPCOM vs Jetpack.
+			if ( function_exists( 'staticize_subdomain' ) ) {
+				$image = staticize_subdomain( $image );
+			} else {
+				$image = Assets::staticize_subdomain( $image );
+			}
 			$data['action'] = 'insert-spotify-badge';
-			$data['image']  = Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' );
+			$data['image']  = $image;
 		}
 	}
 
