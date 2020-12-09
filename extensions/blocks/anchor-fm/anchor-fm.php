@@ -60,6 +60,13 @@ function register_block() {
  * Checks URL params to determine the Anchor integration action to perform.
  */
 function process_anchor_params() {
+	if (
+		! function_exists( 'get_current_screen' )
+		|| is_null( \get_current_screen() )
+	) {
+		return;
+	}
+
 	$current_screen = \get_current_screen();
 	// TODO: Replace `$current_screen->is_block_editor()` with `wp_should_load_block_editor_scripts_and_styles()` that is introduced in WP 5.6.
 	if ( method_exists( $current_screen, 'is_block_editor' ) && ! $current_screen->is_block_editor() ) {
