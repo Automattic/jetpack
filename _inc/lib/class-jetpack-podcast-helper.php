@@ -91,7 +91,7 @@ class Jetpack_Podcast_Helper {
 		// Fetch data if we don't have any cached.
 		if ( false === $track_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			// Load feed.
-			$rss = static::load_feed();
+			$rss = $this->load_feed();
 
 			if ( is_wp_error( $rss ) ) {
 				return $rss;
@@ -100,7 +100,7 @@ class Jetpack_Podcast_Helper {
 			// Loop over all tracks to find the one.
 			foreach ( $rss->get_items() as $track ) {
 				if ( $guid === $track->get_id() ) {
-					$track_data = static::setup_tracks_callback( $track );
+					$track_data = $this->setup_tracks_callback( $track );
 					break;
 				}
 			}

@@ -6,7 +6,6 @@
  */
 
 jetpack_require_lib( 'class-jetpack-podcast-helper' );
-require_once __DIR__ . '/mocks/class-mock-jetpack-podcast-helper.php';
 require_once __DIR__ . '/mocks/class-mock-simplepie.php';
 require_once __DIR__ . '/mocks/class-mock-simplepie-item.php';
 
@@ -22,20 +21,57 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 	 * @covers ::get_track_data
 	 */
 	public function test_get_track_data() {
+		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
+							->disableOriginalConstructor()
+							->setMethods( array( 'load_feed' ) )
+							->getMock();
+
+		$podcast_helper->expects( $this->exactly( 1 ) )
+					->method( 'load_feed' )
+					->will(
+						$this->returnValue( new WP_Error( 'feed_error', 'Feed error.' ) )
+					);
+
 		// `load_feed()` returns error.
-		$error = Mock_Jetpack_Podcast_Helper::get_track_data( 'error', '' );
+		$error = $podcast_helper->get_track_data( '' );
 		$this->assertWPError( $error );
 		$this->assertSame( $error->get_error_code(), 'feed_error' );
 		$this->assertSame( $error->get_error_message(), 'Feed error.' );
 
+		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
+							->disableOriginalConstructor()
+							->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
+							->getMock();
+
+		$podcast_helper->expects( $this->exactly( 2 ) )
+					->method( 'load_feed' )
+					->will(
+						$this->returnValue( new Mock_SimplePie() )
+					);
+
+		$podcast_helper->expects( $this->exactly( 1 ) )
+					->method( 'setup_tracks_callback' )
+					->will(
+						$this->returnValue(
+							array(
+								'id'          => wp_unique_id( 'podcast-track-' ),
+								'link'        => 'https://example.org',
+								'src'         => 'https://example.org',
+								'type'        => 'episode',
+								'description' => '',
+								'title'       => '',
+							)
+						)
+					);
+
 		// Can't find an episode.
-		$error = Mock_Jetpack_Podcast_Helper::get_track_data( '', '' );
+		$error = $podcast_helper->get_track_data( '' );
 		$this->assertWPError( $error );
 		$this->assertSame( $error->get_error_code(), 'no_track' );
 		$this->assertSame( $error->get_error_message(), 'The track was not found.' );
 
 		// Success.
-		$episode = Mock_Jetpack_Podcast_Helper::get_track_data( '', 1 );
+		$episode = $podcast_helper->get_track_data( 1 );
 		$this->assertSame(
 			$episode,
 			array(
