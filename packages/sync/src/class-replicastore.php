@@ -268,7 +268,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
-		return array_sum( $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -281,7 +281,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
-		return array_sum( $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -504,7 +504,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comments_checksum( $min_id = null, $max_id = null ) {
-		return array_sum( $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -517,7 +517,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
-		return array_sum( $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'commentmeta', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'commentmeta', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -1160,14 +1160,29 @@ class Replicastore implements Replicastore_Interface {
 		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', $this->calculate_buckets( 'term_taxonomy' ) );
 
 		return array(
-			'posts'              => array_sum( $post_checksum ),
-			'comments'           => array_sum( $comments_checksum ),
-			'post_meta'          => array_sum( $post_meta_checksum ),
-			'comment_meta'       => array_sum( $comment_meta_checksum ),
-			'terms'              => array_sum( $terms_checksum ),
-			'term_relationships' => array_sum( $term_relationships_checksum ),
-			'term_taxonomy'      => array_sum( $term_taxonomy_checksum ),
+			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
+			'comments'           => $this->summarize_checksum_histogram( $comments_checksum ),
+			'post_meta'          => $this->summarize_checksum_histogram( $post_meta_checksum ),
+			'comment_meta'       => $this->summarize_checksum_histogram( $comment_meta_checksum ),
+			'terms'              => $this->summarize_checksum_histogram( $terms_checksum ),
+			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
+			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
 		);
+	}
+
+	/**
+	 * Return the summarized checksum from buckets or the WP_Error.
+	 *
+	 * @param array $histogram checksum_histogram result.
+	 *
+	 * @return int|WP_Error checksum or Error.
+	 */
+	protected function summarize_checksum_histogram( $histogram ) {
+		if ( is_wp_error( $histogram ) ) {
+			return $histogram;
+		} else {
+			return array_sum( $histogram );
+		}
 	}
 
 	/**
