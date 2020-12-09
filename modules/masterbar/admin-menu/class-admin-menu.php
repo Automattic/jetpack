@@ -519,8 +519,9 @@ class Admin_Menu {
 	public function add_users_menu( $domain, $calypso = true ) {
 		$users_slug   = $calypso ? 'https://wordpress.com/people/team/' . $domain : 'users.php';
 		$add_new_slug = 'https://wordpress.com/people/new/' . $domain;
-		$profile_slug = $calypso ? 'https://wordpress.com/me' : 'grofiles-editor';
-		$account_slug = $calypso ? 'https://wordpress.com/me/account' : 'grofiles-user-settings';
+		$profile_slug = $this->is_wpcom_site() ? 'grofiles-editor' : 'profile.php';
+		$profile_slug = $calypso ? 'https://wordpress.com/me' : $profile_slug;
+		$account_slug = $this->is_wpcom_site() && ! $calypso ? 'grofiles-user-settings' : 'https://wordpress.com/me/account';
 
 		if ( current_user_can( 'list_users' ) ) {
 			remove_menu_page( 'users.php' );
@@ -536,7 +537,7 @@ class Admin_Menu {
 			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
 			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 20 );
 			$this->migrate_submenus( 'users.php', $users_slug );
-		} else {
+		} elseif ( $calypso && $this->is_wpcom_site() ) {
 			remove_menu_page( 'profile.php' );
 			remove_submenu_page( 'profile.php', 'grofiles-editor' );
 			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
