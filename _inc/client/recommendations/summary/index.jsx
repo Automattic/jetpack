@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { FeatureSummary } from '../feature-summary';
+import { LoadingCard } from '../sidebar/loading-card';
 import { OneClickRestores } from '../sidebar/one-click-restores';
 import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
@@ -50,12 +51,11 @@ const SummaryComponent = props => {
 	let sidebarCard;
 	switch ( sidebarCardSlug ) {
 		case 'loading':
-			// TODO:
-			// sidebarCard = <ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />;
+			sidebarCard = <LoadingCard />;
 			break;
 		case 'upsell':
 			sidebarCard = isFetchingProducts ? (
-				<div>loading...</div>
+				<LoadingCard />
 			) : (
 				<ProductCardUpsell
 					title={ __( 'Backup Daily' ) }
