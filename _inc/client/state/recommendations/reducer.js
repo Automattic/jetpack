@@ -362,6 +362,5 @@ export const getSidebarCardSlug = state => {
 		return 'manage-security';
 	}
 
-	// TODO: does this last case only occur for paid plans w/o backup or scan?
 	return 'download-app';
 };

@@ -12,15 +12,13 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { getUserLocale as getLocaleSlug } from 'components/number-format';
 import { imagePath } from 'constants/urls';
 
 /**
  * Style dependencies
  */
 import './apps-badge.scss';
-
-// TODO:
-const getLocaleSlug = () => 'en-us';
 
 // the locale slugs for each stores' image paths follow different rules
 // therefore we have to perform some trickery in getLocaleSlug()
