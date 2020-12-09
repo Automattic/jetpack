@@ -29,7 +29,6 @@ elif [[ ${PHP_VERSION:0:2} == "5." ]]; then
 fi
 
 # Setup MySQL
-sudo systemctl start mysql.service
 mysql -u root --password=root -e "set global wait_timeout = 3600;"
 mysql -u root --password=root -e "CREATE DATABASE wordpress_tests;"
 
@@ -62,5 +61,6 @@ cp wp-tests-config-sample.php wp-tests-config.php
 sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
 sed -i "s/yourusernamehere/root/" wp-tests-config.php
 sed -i "s/yourpasswordhere/root/" wp-tests-config.php
+sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
 
 exit 0;
