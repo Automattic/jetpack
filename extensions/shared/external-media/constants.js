@@ -176,7 +176,7 @@ export const MONTH_SELECT_OPTIONS = [
 	{ label: __( 'Any Month', 'jetpack' ), value: -1 },
 	...map( range( 0, 12 ), value => ( {
 		// Following call generates a new date object for the particular month and gets its name.
-		label: dateI18n( 'F', new Date( [ 0, value + 1 ] ) ),
+		label: dateI18n( 'F', new Date( 0, value ) ),
 		value,
 	} ) ),
 ];

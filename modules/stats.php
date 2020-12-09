@@ -194,6 +194,7 @@ function stats_template_redirect() {
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
+	add_action( 'web_stories_print_analytics', 'stats_footer' );
 
 }
 
@@ -259,8 +260,8 @@ function stats_render_footer( $data ) {
 	$data_stats_array = stats_array( $data );
 
 	$stats_footer = <<<END
-<script type='text/javascript' src='{$script}' async='async' defer='defer'></script>
-<script type='text/javascript'>
+<script src='{$script}' defer></script>
+<script>
 	_stq = window._stq || [];
 	_stq.push([ 'view', {{$data_stats_array}} ]);
 	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);

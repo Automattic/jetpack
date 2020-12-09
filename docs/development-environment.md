@@ -69,6 +69,7 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
  * Node.js - LTS (Currently 10, see engines section of package.json)
  * Yarn - 1.3 (See engines section of package.json)
  * PHP - 7.4 (in case you're running WordPress locally)
+ * Composer - 1.9.0
 
 ---
 
@@ -332,7 +333,7 @@ To execute them in your local environment, you can use the following commands.
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
-- You can find [Code Sniffer rules for WordPress Coding Standards](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#installation) here. Once you've installed these rulesets, you can [follow the instructions here](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#how-to-use) to configure your IDE.
+- Jetpack's custom Code Sniffer ruleset is located at `./packages/codesniffer/Jetpack/ruleset.xml`. You can use this path to set up Jetpack's custom ruleset in your IDE.
 - For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
 
 ## Linting
@@ -350,7 +351,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	This runs the actual linting task.
 	
 	```sh
-	yarn php:lint
+	composer phpcs:lint
 	```
 
 * ### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.6
@@ -358,7 +359,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.6
 	
 	```sh
-	yarn php:compatibility
+	composer phpcs:compatibility
 	```
 
 * ### Linting Jetpack's JavaScript

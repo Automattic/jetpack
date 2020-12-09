@@ -40,6 +40,15 @@ class Plugin_Storage {
 	private static $plugins = array();
 
 	/**
+	 * The blog ID the storage is setup for.
+	 * The data will be refreshed if the blog ID changes.
+	 * Used for the multisite networks.
+	 *
+	 * @var int
+	 */
+	private static $current_blog_id = null;
+
+	/**
 	 * Add or update the plugin information in the storage.
 	 *
 	 * @param string $slug Plugin slug.
@@ -132,6 +141,11 @@ class Plugin_Storage {
 			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
 		}
 
+		if ( is_multisite() && get_current_blog_id() !== self::$current_blog_id ) {
+			self::$plugins         = (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() );
+			self::$current_blog_id = get_current_blog_id();
+		}
+
 		return true;
 	}
 
@@ -141,9 +155,12 @@ class Plugin_Storage {
 	 * @return void
 	 */
 	public static function configure() {
-
 		if ( self::$configured ) {
 			return;
+		}
+
+		if ( is_multisite() ) {
+			self::$current_blog_id = get_current_blog_id();
 		}
 
 		// If a plugin was activated or deactivated.

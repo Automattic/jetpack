@@ -1,10 +1,15 @@
 /**
+ * WordPress dependencies
+ */
+import { registerPlugin } from '@wordpress/plugins';
+
+/**
  * Internal dependencies
  */
 import { name, settings, SocialPreviews } from '.';
-import registerJetpackPlugin from '../../shared/register-jetpack-plugin';
-import { registerPlugin } from '@wordpress/plugins';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
+import { isSimpleSite } from '../../shared/site-type-utils';
+import registerJetpackPlugin from '../../shared/register-jetpack-plugin';
 
 /*
  * Register the main "social-previews" extension if the feature is available
@@ -21,7 +26,7 @@ registerJetpackPlugin( name, settings );
  */
 const extensionAvailableOnPlan = getJetpackExtensionAvailability( 'social-previews' )?.available;
 
-if ( ! extensionAvailableOnPlan ) {
+if ( ! extensionAvailableOnPlan && isSimpleSite() ) {
 	registerPlugin( `jetpack-${ name }-upgrade-nudge`, {
 		render: () => {
 			return <SocialPreviews showUpgradeNudge={ true } />;

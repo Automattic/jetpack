@@ -1,0 +1,66 @@
+name: JS tests
+
+on:
+  pull_request:
+  push:
+    branches: [master, master-stable, 'branch-*']
+
+jobs:
+  lint:
+    name: "JavaScript & CSS lint"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Use yarn cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - run:  |
+          yarn install
+          yarn lint
+
+
+  js-tests:
+    name: "test dashboard, extensions and search"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - run: |
+          yarn install
+          yarn test-adminpage-and-extensions-and-search
+
+
+  build:
+    name: "Build dashboard & extensions"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - run: |
+          yarn build-concurrently

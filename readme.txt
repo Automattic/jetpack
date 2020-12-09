@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
-Stable tag: 9.0.2
-Requires at least: 5.4
+Stable tag: 9.1
+Requires at least: 5.5
 Requires PHP: 5.6
-Tested up to: 5.5
+Tested up to: 5.6
 
 The best WP plugin for backup, anti spam, malware scan, CDN, AMP, social, search, contact form, and integrations with Woo, Facebook, Instagram, Google
 
@@ -243,72 +243,53 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
-= 9.1 =
+= 9.2 =
 
-* Release date: November 10, 2020
-* Release post: https://wp.me/p1moTy-s0E
+* Release date: December 1, 2020
+* Release post: https://wp.me/p1moTy-scn
 
 **Enhancements**
 
-* Button Block: add a center alignment option to all Jetpack button blocks.
-* Content Options: add new filter to allow theme and plugin authors to disable featured image removal for their Custom Post Types.
-* Dashboard: improve the display of dates in the Jetpack Plan screen and in the Stats graph.
-* Dashboard: improve the display of numbers in all languages.
-* Donations Block: improve the display of the block outside WordPress (in subscription emails, for example).
-* Embeds: update Loom logo.
-* External Media: add feature to the Cover block.
-* Google Calendar Block: improve the display of the block in the editor.
-* Image Compare Block: accessibility improvements.
-* Instant Search: improve accessibility of the Search modal.
-* Likes: remove jQuery dependency where possible.
-* Pay with PayPal Block: improve the styling of the buttons in subscription emails.
-* Pay with PayPal Block: improve the display of currencies.
-* Podcast Player Block: add option to hide the episode title.
-* Podcast Player Block: display more helpful error messages when a podcast cannot be embedded.
-* Publicize: improve the usability of the Twitter thread options.
-* REST API: support needed capabilities in Jetpack REST API endpoints that allow site based authentication.
-* Social Menu & Social Media Icons: add support for Telegram profiles.
-* Synchronization: improve reliability of synchronization of theme changes.
-* WhatsApp Block: add option to change the alignment of the button.
-* Widget Visibility: improve performance on sites with a large number of pages.
-* WordPress.com Block Editor: add option to add metadata to a post indicating the last editor used.
-* WordPress.com REST API: remove outdated code that allowed non-secure requests to the API, as such requests are no longer accepted.
+* Connection Flow: clarify error message when the options table is not writable.
+* Contact Form Block: display fallback link when the block is rendered in non-WordPress contexts, such as subscription emails.
+* Contact Form Block: display the correct default email address and subject in the form block settings.
+* Dashboard: clarify language around support options.
+* Instagram Embeds: add support for embed parameters supported by Instagram.
+* Payments Block: move unreadable notice to the sidebar.
+* Pinterest Block: ensure that Pinterest embeds are displayed nicely in non-WordPress contexts, such as subscription emails.
+* Podcast Block: display fallback link when the block is rendered in non-WordPress contexts, such as RSS feeds.
+* Search: improve URL formatting for the expanded search layout.
+* Sharing: ensure the first suitable image found in a post is always the one used in Open Graph Image meta tags.
+* Site Health Tools: update description of Synchronization issues for better usability.
+* Slideshow Block: ensure that slideshows are displayed nicely in subscription emails.
+* Status: improve detection of staging servers.
+* Story Block: improve display of the block.
+* Synchronization: improve synchronization of comment status, taxononmies, and terms between your site and WordPress.com.
+* Tiled Gallery Block: improve rendering when the block is rendered in non-WordPress contexts, such as subscription emails.
+* WhatsApp button Block: improve text alignment on mobile devices.
+* WordPress.com Toolbar: include admin color in user's REST API output.
 
 **Improved compatibility**
 
-* Comments: avoid AMP validation errors when using Jetpack's Comments feature and the AMP plugin.
-* Dashboard: better support all states available when using one of Jetpack's Security solutions.
-* Embeds: improve compatibility between Jetpack's Instagram embed and WordPress' own embed.
-* Embeds: ensure Facebook Embeds work well with the AMP plugin.
-* External Media: update iconography and improve forward compatibility.
-* General: better detect local development environments.
-* Google Analytics: add support for the AMP plugin to track WooCommerce events.
-* OpenTable Block: ensure full compatibility with the AMP plugin.
-* Pay with PayPal Block: ensure full compatibility with the AMP plugin.
-* Sharing: add support for the Google Web Stories plugin.
-* Widget Visibility: avoid performance impact it may have on the block editor when used with the Gutenberg plugin.
-* YouTube embeds: ensure that all YouTube video embeds work well when using the AMP plugin.
+* Autoloader: support Composer 2.0.7.
+* General: continued work towards ensuring that Jetpack is fully compatible with the upcoming version of PHP, PHP 8.
+* General: ensure Jetpack's full compatibility with the upcoming WordPress 5.6 release.
+* General: update Jetpack's minimum required WordPress version to 5.5, in anticipation of the upcoming WordPress 5.6 release.
+* Sharing: disable Open Graph Meta tags added by the Web Stories plugin when Jetpack's tags are active.
+* Stats: support Web Stories plugin.
+* Synchronization: ensure better synchronization of post meta data (used by Publicize, Subscriptions, Search) in WordPress 5.6.
 
 **Bug fixes**
 
-* Calendly and Eventbrite Blocks: fix layout issue when selecting block styles in the editor.
-* Contact Form: selection widgets, radio buttons, and checkboxes can now use commas, brackets, and backslashes in the labels and values without breaking the form.
-* Donations / Payments Block: fix visual bug in Stripe connection banner.
-* Embeds: ensure Facebook videos are centered properly with the Twenty Twenty theme.
-* Image CDN: the CDN will now ignore attempts to specify percentages for width or height in an image tag.
-* Infinite Scroll: ensure the number of posts loaded when using Infinite Scroll respects posts per page settings.
-* Latest Instagram Posts Block: avoid PHP warning when no images can be retrieved from Instagram.
-* Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
-* Pay with PayPal Block: add default price value.
-* Pay with PayPal Block: ensure currencies are displayed properly in the editor.
-* Protect: fix handling of IPv6 addresses.
-* Publicize: ensure that custom messages can be saved when using the Portfolio Custom Post Type.
-* Publicize: ensure that tweets consisting only of whitespace aren't added to Twitter threads.
-* Publicize: when generating Twitter threads, allow text to be split at line breaks where appropriate.
-* Slideshow Block: fix a bug that prevented the first and last images from displaying when the slideshow loops.
-* Stats: no longer incorrectly report a term ID as a post ID in some rare cases.
-* Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.
-* WhatsApp Block: fix issue when the text color would not be correct.
+* Connection: handle XMLRPC requests when SERVER_PORT is not defined.
+* External Media: fix a conflict with CoBlock's image replace feature.
+* Dashboard: fix incorrect links to Jetpack credentials form.
+* Google Analytics: ensure compatibility with Google Analytics 4 (GA4).
+* Sitemaps: ensure that the Home URL is slashed on subdirectory websites.
+* Social Icons widget: display only one icon when a URL matches both a domain and the feed URL match.
+* Sync: avoid trying to sync when something else disabled syncing a request.
+* Whatsapp Button Block: fix Guyana country code metadata.
+* WordPress.com REST API: restore post comments when untrashing a post, such as via the mobile apps.
 
 --------
 

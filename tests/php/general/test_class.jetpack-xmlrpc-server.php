@@ -99,11 +99,11 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	function test_xmlrpc_remote_register_nonce_validation() {
 		$server = new Jetpack_XMLRPC_Server();
 		$filters = array(
-			'__return_invalid_nonce_status' => array(
+			'return_invalid_nonce_status' => array(
 				'code' => 400,
 				'message' => 'invalid_nonce',
 			),
-			'__return_nonce_404_status' => array(
+			'return_nonce_404_status'     => array(
 				'code' => 400,
 				'message' => 'invalid_nonce',
 			),
@@ -130,9 +130,9 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'blog_token', 1 );
 		Jetpack_Options::update_option( 'id', 1001 );
 
-		add_filter( 'pre_http_request', array( $this, '__return_ok_status' ) );
+		add_filter( 'pre_http_request', array( $this, 'return_ok_status' ) );
 		$response = $server->remote_register( array( 'nonce' => '12345', 'local_user' => '1' ) );
-		remove_filter( 'pre_http_request', array( $this, '__return_ok_status' ) );
+		remove_filter( 'pre_http_request', array( $this, 'return_ok_status' ) );
 
 		$this->assertInternalType( 'array', $response );
 		$this->assertArrayHasKey( 'client_id', $response );
@@ -298,43 +298,69 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	 * Helpers
 	 */
 
-	public function __return_ok_status() {
+	/**
+	 * Return an "ok" status.
+	 *
+	 * @return array
+	 */
+	public function return_ok_status() {
 		return array(
-			'body' => 'OK',
+			'body'     => 'OK',
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
-			)
+			),
 		);
 	}
 
-	public function __return_invalid_nonce_status() {
+	/**
+	 * Return an "invalid nonce" status.
+	 *
+	 * @return array
+	 */
+	public function return_invalid_nonce_status() {
 		return array(
-			'body' => 'FAIL: NOT OK',
+			'body'     => 'FAIL: NOT OK',
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
-			)
+			),
 		);
 	}
 
-	public function __return_nonce_404_status() {
+	/**
+	 * Return an "nonce 404" status.
+	 *
+	 * @return array
+	 */
+	public function return_nonce_404_status() {
 		return array(
-			'body' => '',
+			'body'     => '',
 			'response' => array(
 				'code'    => 404,
 				'message' => '',
-			)
+			),
 		);
 	}
 
+	/**
+	 * Get a mocked IXR client.
+	 *
+	 * @param bool   $query_called Whether `query` should be called.
+	 * @param string $response Return value for `getResponse`.
+	 * @param bool   $query_return Return value for `query`.
+	 * @param string $error Return value for `isError`.
+	 * @return Jetpack_IXR_Client
+	 */
 	protected function get_mocked_ixr_client( $query_called = false, $response = '', $query_return = true, $error = null ) {
 		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
-			->setMethods( array(
-				'query',
-				'isError',
-				'getResponse',
-			) )
+			->setMethods(
+				array(
+					'query',
+					'isError',
+					'getResponse',
+				)
+			)
 			->getMock();
 
 		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
@@ -352,11 +378,18 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		return $xml;
 	}
 
+	/**
+	 * Get a mocked XMLRPC server.
+	 *
+	 * @return Jetpack_XMLRPC_Server
+	 */
 	protected function get_mocked_xmlrpc_server() {
 		$server = $this->getMockBuilder( 'Jetpack_XMLRPC_Server' )
-			->setMethods( array(
-				'do_post_authorization',
-			) )
+			->setMethods(
+				array(
+					'do_post_authorization',
+				)
+			)
 			->getMock();
 
 		$server->expects( $this->any() )

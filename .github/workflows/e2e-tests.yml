@@ -16,6 +16,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'
 
     - name: Use yarn cache
       uses: actions/cache@v2
@@ -35,7 +38,7 @@ jobs:
           ${{ runner.os }}-composer-
 
     - name: Build Production Jetpack
-      run: yarn && yarn build-production
+      run: yarn build-production-concurrently
 
     - name: Set up environment
       env:
@@ -70,6 +73,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'
 
     - name: Use yarn cache
       uses: actions/cache@v2
@@ -89,7 +95,7 @@ jobs:
           ${{ runner.os }}-composer-
 
     - name: Build Production Jetpack
-      run: yarn && yarn build-production
+      run: yarn build-production-concurrently
 
     - name: Set up environment
       env:

@@ -12,12 +12,13 @@ import { createElement } from '@wordpress/element';
  * Internal dependencies
  */
 
-export const Image = ( { alt, className, id, mediaRef, mime, sizes, srcset, url } ) => (
+export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcset, url } ) => (
 	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<img
 		ref={ mediaRef }
 		data-id={ id }
 		data-mime={ mime }
+		title={ title }
 		alt={ alt }
 		src={ url }
 		className={ classNames( 'wp-story-image', `wp-image-${ id }`, className ) }
@@ -26,13 +27,13 @@ export const Image = ( { alt, className, id, mediaRef, mime, sizes, srcset, url 
 	/>
 );
 
-export const Video = ( { alt, className, id, mediaRef, mime, url } ) => (
+export const Video = ( { title, className, id, mediaRef, mime, url } ) => (
 	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<video
 		className={ classNames( 'wp-story-video', 'intrinsic-ignore', `wp-video-${ id }`, className ) }
 		ref={ mediaRef }
 		data-id={ id }
-		title={ alt }
+		title={ title }
 		type={ mime }
 		src={ url }
 		playsInline

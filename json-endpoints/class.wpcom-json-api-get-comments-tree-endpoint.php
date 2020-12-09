@@ -106,19 +106,13 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$db_status = $this->get_comment_db_status( $status );
 		$type      = $this->get_sanitized_comment_type( $type );
 
-		/*
-		 * An empty value in the comments_type column denotes a regular comment in WP 5.5-
-		 * @to-do: remove empty value logic when the minimum required WP is 5.5.
-		 */
-		$type = ( 'comment' === $type ) ? 'comment' : $type;
-
 		$result = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(1) " .
 				"FROM $wpdb->comments AS comments " .
 				"INNER JOIN $wpdb->posts AS posts ON comments.comment_post_ID = posts.ID " .
-				"WHERE comment_type %s AND ( %s = 'all' OR comment_approved = %s )",
-				( 'comment' === $type ? "in ( '', 'comment' )" : '= ' . $type ),
+				"WHERE comment_type = %s AND ( %s = 'all' OR comment_approved = %s )",
+				$type,
 				$db_status,
 				$db_status
 			)

@@ -5,6 +5,7 @@ vendor/bin
 vendor/dealerdirect
 vendor/mediawiki/mediawiki-codesniffer
 vendor/phpcompatibility
+vendor/php-parallel-lint
 vendor/sirbrillig
 vendor/squizlabs
 vendor/wp-coding-standards
@@ -12,7 +13,7 @@ vendor/automattic/jetpack-autoloader
 /wpcom-test-backup/
 /.vscode/
 /logs
-
+/allure-results/
 
 ## FILES
 .DS_Store
@@ -34,6 +35,7 @@ yarn-error.log
 .phpcs.xml
 phpcs.xml
 /modules/**/*.min.css.map
+.phpunit.result.cache
 
 ## Things for docker-composer
 /docker/data/mysql/*
@@ -45,7 +47,6 @@ phpcs.xml
 /docker/wordpress-develop/*
 !/docker/wordpress-develop/.gitkeep
 /docker/wordpress/*
-
 !/docker/wordpress/.gitkeep
 
 # Tunneling scripts

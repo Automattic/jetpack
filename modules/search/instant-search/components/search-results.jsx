@@ -17,6 +17,10 @@ import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './search-sidebar';
 import { getConstrastingColor } from '../lib/colors';
+
+/**
+ * Style dependencies
+ */
 import './search-results.scss';
 
 class SearchResults extends Component {
@@ -27,11 +31,17 @@ class SearchResults extends Component {
 		const num = new Intl.NumberFormat().format( total );
 
 		if ( this.props.isLoading ) {
+			if ( ! hasQuery ) {
+				return __( 'Loading popular results…', 'jetpack' );
+			}
+
 			return sprintf( __( 'Searching…', 'jetpack' ), this.props.query );
 		}
+
 		if ( total === 0 || this.props.hasError ) {
 			return sprintf( __( 'No results found', 'jetpack' ), this.props.query );
 		}
+
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
 				_n( 'Found %s result for "%s"', 'Found %s results for "%s"', total, 'jetpack' ),
@@ -45,7 +55,8 @@ class SearchResults extends Component {
 				this.props.query
 			);
 		}
-		return sprintf( _n( 'Found %s result', 'Found %s results', total, 'jetpack' ), num );
+
+		return __( 'Showing popular results', 'jetpack' );
 	}
 
 	renderPrimarySection() {

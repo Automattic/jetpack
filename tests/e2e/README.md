@@ -32,11 +32,11 @@ To decrypt the config file (a8c only):
 
 #### WP Site Configuration
 
-Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to have WP installation with installed Jetpack accessible via local `ngrok` tunnel. Required environment easily could be created via core's `wp-env` node package.
+Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to have WP installation with installed Jetpack accessible via local tunnel. Required environment easily could be created via core's `wp-env` node package.
 
-`wp-env` is a wrapper around `docker-compose` that makes it pretty easy to get up and running with E2E tests (and local development as well!). We use a wrapper around `wp-env` that configures ngrok, and updates some options to make `wp-env` containers to work with Jetpack tests. To setup tests environment:
+`wp-env` is a wrapper around `docker-compose` that makes it pretty easy to get up and running with E2E tests (and local development as well!). We use a wrapper around `wp-env` that updates some options to make `wp-env` containers to work with Jetpack tests. To setup tests environment:
 
-1. Make sure that docker and ngrok is installed locally
+1. Make sure that docker is installed locally
 1. run `./tests/e2e/bin/env.sh start` to start a `wp-env` containers. It will start 2 wordpress installation (we would use only 1 though) & wp-cli container.
 1. run the tests: `yarn test-e2e`.
 
@@ -65,7 +65,7 @@ To run an individual test, use the direct path to the spec. For example:
 npm run test-e2e ./tests/e2e/specs/dummy.test.js
 ```
 
-For best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended. Also Jest's `-t` argument could be used to run single test from the test suite(file)
+For the best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended to use. Also Jest's `-t` argument could be used to run single test from the test suite(file)
 
 ```bash
 E2E_DEBUG=true PUPPETEER_HEADLESS=false npm run test-e2e ./tests/e2e/specs/some.test.js -t 'Test name'

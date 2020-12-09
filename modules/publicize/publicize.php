@@ -2,6 +2,7 @@
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 abstract class Publicize_Base {
 
@@ -1004,10 +1005,11 @@ abstract class Publicize_Base {
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
 				$connection_data = '';
-				if ( method_exists( $connection, 'get_meta' ) )
+				if ( is_object( $connection ) && method_exists( $connection, 'get_meta' ) ) {
 					$connection_data = $connection->get_meta( 'connection_data' );
-				elseif ( ! empty( $connection['connection_data'] ) )
+				} elseif ( ! empty( $connection['connection_data'] ) ) {
 					$connection_data = $connection['connection_data'];
+				}
 
 				/** This action is documented in modules/publicize/ui.php */
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
@@ -1262,15 +1264,5 @@ abstract class Publicize_Base {
 }
 
 function publicize_calypso_url() {
-	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-		$site_suffix = Jetpack::build_raw_urls( home_url() );
-	} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-		$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-	}
-
-	if ( $site_suffix ) {
-		return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => $site_suffix ) );
-	} else {
-		return Redirect::get_url( 'calypso-marketing-connections-base' );
-	}
+	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }

@@ -37,7 +37,7 @@ export default class JetpackPage extends Page {
 
 	async isConnected() {
 		const connectionInfo = '.jp-connection-settings__info';
-		return await isEventuallyVisible( this.page, connectionInfo, 20000 );
+		return await isEventuallyVisible( this.page, connectionInfo, 5000 );
 	}
 
 	async isPlan( plan ) {

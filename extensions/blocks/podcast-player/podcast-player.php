@@ -30,7 +30,7 @@ function register_block() {
 		array(
 			'attributes'      => array(
 				'url'                    => array(
-					'type' => 'url',
+					'type' => 'string',
 				),
 				'itemsToShow'            => array(
 					'type'    => 'integer',
@@ -74,10 +74,15 @@ function render_error( $message ) {
 /**
  * Podcast Player block registration/dependency declaration.
  *
- * @param array $attributes Array containing the Podcast Player block attributes.
+ * @param array  $attributes Array containing the Podcast Player block attributes.
+ * @param string $content    Fallback content - a direct link to RSS, as rendered by save.js.
  * @return string
  */
-function render_block( $attributes ) {
+function render_block( $attributes, $content ) {
+	// Don't render an interactive version of the block outside the frontend context.
+	if ( ! jetpack_is_frontend() ) {
+		return $content;
+	}
 
 	// Test for empty URLS.
 	if ( empty( $attributes['url'] ) ) {

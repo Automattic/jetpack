@@ -22,6 +22,7 @@ function run_packages_tests {
 			fi
 		fi
 	done
+	exit 0
 }
 
 # This function runs a particular package.

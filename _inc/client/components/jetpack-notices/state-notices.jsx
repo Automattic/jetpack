@@ -3,7 +3,11 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -41,7 +45,7 @@ class JetpackStateNotices extends React.Component {
 				message = __( "Cheatin' uh?", 'jetpack' );
 				break;
 			case 'access_denied':
-				message = jetpackCreateInterpolateElement(
+				message = createInterpolateElement(
 					__(
 						'<p>Would you mind telling us why you did not complete the Jetpack connection in this <a>2 question survey</a>?</p><p>A Jetpack connection is required for our free security and traffic features to work.</p>',
 						'jetpack'
@@ -85,7 +89,7 @@ class JetpackStateNotices extends React.Component {
 				);
 				break;
 			case 'site_blacklisted':
-				message = jetpackCreateInterpolateElement(
+				message = createInterpolateElement(
 					__(
 						"This site can't be connected to WordPress.com because it violates our <a>Terms of Service</a>.",
 						'jetpack'
@@ -98,7 +102,7 @@ class JetpackStateNotices extends React.Component {
 				);
 				break;
 			case 'not_public':
-				message = jetpackCreateInterpolateElement(
+				message = createInterpolateElement(
 					__(
 						'<s>Your Jetpack has a glitch.</s> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).',
 						'jetpack'
@@ -159,7 +163,7 @@ class JetpackStateNotices extends React.Component {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-				message = jetpackCreateInterpolateElement(
+				message = createInterpolateElement(
 					sprintf(
 						/* translators: placeholder is an error code and message. */
 						__(
@@ -198,7 +202,7 @@ class JetpackStateNotices extends React.Component {
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated':
-				message = jetpackCreateInterpolateElement(
+				message = createInterpolateElement(
 					sprintf(
 						/* translators: placeholder is a version number, like 8.8. */
 						__( 'Welcome to <s>Jetpack %s</s>!', 'jetpack' ),
@@ -236,7 +240,7 @@ class JetpackStateNotices extends React.Component {
 				);
 				break;
 			case 'reconnection_completed':
-				message = jetpackCreateInterpolateElement(
+				message = createInterpolateElement(
 					__(
 						'Jetpack successfully reconnected! You can check your Jetpack Connection health by visiting the <a>Site Health tool</a>.',
 						'jetpack'

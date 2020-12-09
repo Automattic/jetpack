@@ -1607,7 +1607,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// VIP context loading is handled elsewhere, so bail to prevent
 		// duplicate loading. See `switch_to_blog_and_validate_user()`
-		if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
 			return;
 		}
 
@@ -2123,7 +2123,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 */
 		if ( function_exists( 'idn_to_utf8' ) ) {
 			// The third parameter is set explicitly to prevent issues with newer PHP versions compiled with an old ICU version.
-			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated
+			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated, PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003DeprecatedRemoved
 			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
 		}
 		$subdomain = str_replace( array( '-', '.' ), array( '--', '-' ), $host );

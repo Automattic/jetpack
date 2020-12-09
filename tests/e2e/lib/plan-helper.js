@@ -5,12 +5,12 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { getNgrokSiteUrl, execWpCommand } from './utils-helper';
+import { getTunnelSiteUrl, execWpCommand } from './utils-helper';
 import logger from './logger';
 
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
-	const siteUrl = getNgrokSiteUrl();
+	const siteUrl = getTunnelSiteUrl();
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
 
@@ -499,9 +499,9 @@ export async function syncPlanData( page ) {
 		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
-		logger.info( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+		logger.info( `!!! PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
 
-	await page.waitFor( 1000 );
+	await page.waitForTimeout( 1000 );
 }

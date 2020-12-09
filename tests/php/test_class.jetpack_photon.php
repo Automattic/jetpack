@@ -1315,7 +1315,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	 * @author kraftbj
 	 * @requires PHPUnit 7.5
-	 * @covers Jetpack_Photon::hould_rest_photon_image_downsize_insert_attachment
+	 * @covers Jetpack_Photon::should_rest_photon_image_downsize_insert_attachment
 	 * @group rest-api
 	 */
 	public function test_photon_cdn_in_rest_response_with_created_item() {

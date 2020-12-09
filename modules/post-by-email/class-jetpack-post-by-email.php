@@ -31,7 +31,7 @@ class Jetpack_Post_By_Email {
 	 * Singleton
 	 */
 	private function __construct() {
-		add_action( 'init', array( &$this, 'action_init' ) );
+		add_action( 'init', array( $this, 'action_init' ) );
 	}
 
 	/**
@@ -42,12 +42,12 @@ class Jetpack_Post_By_Email {
 			return;
 		}
 
-		add_action( 'profile_personal_options', array( &$this, 'user_profile' ) );
-		add_action( 'admin_print_scripts-profile.php', array( &$this, 'profile_scripts' ) );
+		add_action( 'profile_personal_options', array( $this, 'user_profile' ) );
+		add_action( 'admin_print_scripts-profile.php', array( $this, 'profile_scripts' ) );
 
-		add_action( 'wp_ajax_jetpack_post_by_email_enable', array( &$this, 'create_post_by_email_address' ) );
-		add_action( 'wp_ajax_jetpack_post_by_email_regenerate', array( &$this, 'regenerate_post_by_email_address' ) );
-		add_action( 'wp_ajax_jetpack_post_by_email_disable', array( &$this, 'delete_post_by_email_address' ) );
+		add_action( 'wp_ajax_jetpack_post_by_email_enable', array( $this, 'create_post_by_email_address' ) );
+		add_action( 'wp_ajax_jetpack_post_by_email_regenerate', array( $this, 'regenerate_post_by_email_address' ) );
+		add_action( 'wp_ajax_jetpack_post_by_email_disable', array( $this, 'delete_post_by_email_address' ) );
 	}
 
 	/**

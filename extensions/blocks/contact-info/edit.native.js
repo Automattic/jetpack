@@ -23,7 +23,12 @@ const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address'
 const ContactInfoEdit = () => {
 	return (
 		<View style={ styles.jetpackContactInfoBlock }>
-			<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateLock={ false } templateInsertUpdatesSelection={ false } template={ TEMPLATE } />
+			<InnerBlocks
+				allowedBlocks={ ALLOWED_BLOCKS }
+				templateLock={ false }
+				templateInsertUpdatesSelection={ false }
+				template={ TEMPLATE }
+			/>
 		</View>
 	);
 };

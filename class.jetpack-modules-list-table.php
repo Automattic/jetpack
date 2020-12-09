@@ -332,7 +332,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	// Check if the info parameter provided in the URL corresponds to an actual module
-	function module_info_check( $info = false, $modules ) {
+	function module_info_check( $info, $modules ) {
 		if ( false == $info ) {
 			return false;
 		} elseif ( array_key_exists( $info, $modules ) ) {

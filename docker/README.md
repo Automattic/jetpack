@@ -137,6 +137,8 @@ Will stop all of the containers created by this docker-compose configuration and
 
 ### Running unit tests
 
+These commands require the WordPress container to be running.
+
 ```sh
 yarn docker:phpunit
 ```
@@ -230,7 +232,7 @@ You can also access it via phpMyAdmin at [http://localhost:8181](http://localhos
 Another way to accessing the database is MySQL client using the following command:
 ```sh
 yarn docker:db
-```  
+```
 This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
 
 ## SFTP access
@@ -378,7 +380,7 @@ That will let you omit those parameters while initiating the connection:
 yarn docker:jt-up
 ```
 
-More information: PCYsg-snO-p2. 
+More information: PCYsg-snO-p2.
 
 ## Custom plugins & themes in the container
 

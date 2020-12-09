@@ -322,12 +322,12 @@ class Replicastore implements Replicastore_Interface {
 	/**
 	 * Translate a comment status to a value of the comment_approved field.
 	 *
-	 * @access private
+	 * @access protected
 	 *
 	 * @param string $status Comment status.
 	 * @return string|bool New comment_approved value, false if the status doesn't affect it.
 	 */
-	private function comment_status_to_approval_value( $status ) {
+	protected function comment_status_to_approval_value( $status ) {
 		switch ( (string) $status ) {
 			case 'approve':
 			case '1':
@@ -888,10 +888,16 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @param string $taxonomy   Taxonomy slug.
 	 * @param int    $term_id    ID of the term.
-	 * @param bool   $is_term_id Whether this is a `term_id` or a `term_taxonomy_id`.
+	 * @param string $term_key   ID Field `term_id` or `term_taxonomy_id`.
 	 * @return \WP_Term|\WP_Error Term object on success, \WP_Error object on failure.
 	 */
-	public function get_term( $taxonomy, $term_id, $is_term_id = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_term( $taxonomy, $term_id, $term_key = 'term_id' ) {
+
+		// Full Sync will pass false for the $taxonomy so a check for term_taxonomy_id is needed before ensure_taxonomy.
+		if ( 'term_taxonomy_id' === $term_key ) {
+			return get_term_by( 'term_taxonomy_id', $term_id );
+		}
+
 		$t = $this->ensure_taxonomy( $taxonomy );
 		if ( ! $t || is_wp_error( $t ) ) {
 			return $t;

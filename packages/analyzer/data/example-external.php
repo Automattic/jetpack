@@ -5,6 +5,8 @@
  * @package automattic/jetpack-analyzer
  */
 
+// phpcs:disable
+
 // valid signature initialization with missing class.
 $sig = new Jetpack_Signature( 'abcd1234', 12345 );
 

@@ -28,10 +28,8 @@ export function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
 }
 
-export function getNgrokSiteUrl() {
-	const cmd =
-		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	return execSyncShellCommand( cmd ).trim();
+export function getTunnelSiteUrl() {
+	return global.tunnelUrl.replace( 'http:', 'https:' );
 }
 
 export async function resetWordpressInstall() {
@@ -55,7 +53,7 @@ export async function prepareUpdaterTest() {
  */
 export function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
-	const url = getNgrokSiteUrl();
+	const url = getTunnelSiteUrl();
 
 	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
 
@@ -77,8 +75,6 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
-	await page.waitFor( 1000 );
-
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
 	await execWpCommand( cliCmd );
@@ -89,7 +85,7 @@ export async function activateModule( page, module ) {
 		throw new Error( `${ module } is failed to activate` );
 	}
 
-	await page.waitFor( 1000 );
+	await page.waitForTimeout( 1000 );
 	await page.reload( { waitFor: 'networkidle0' } );
 
 	return true;
@@ -108,4 +104,13 @@ export async function execWpCommand( wpCmd ) {
 	}
 
 	return result;
+}
+
+/**
+ * Runs multiple wp commands in a single call
+ *
+ * @param  {...string} commands Array of wp commands to run together
+ */
+export async function execMultipleWpCommands( ...commands ) {
+	return await execWpCommand( `bash -c '${ commands.join( ' && ' ) }'` );
 }

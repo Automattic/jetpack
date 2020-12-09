@@ -63,7 +63,7 @@ class Jetpack_WordAds_Shortcode {
 	 *
 	 * @return string HTML output
 	 */
-	private static function wordads_shortcode_html( $atts, $content = '' ) {
+	private static function wordads_shortcode_html( $atts, $content = '' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $wordads;
 
 		if ( empty( $wordads ) ) {
