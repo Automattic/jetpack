@@ -49,7 +49,8 @@ function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	$default_participants = json_decode(
-		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/default-participants.json' ),
 		true
 	);
 
@@ -74,7 +75,7 @@ function render_block( $attrs, $block_content, $block ) {
 	}
 
 	// Pick up conversation data from context.
-	$participants   = isset( $block->context['jetpack/conversation-participants'] )
+	$participants = isset( $block->context['jetpack/conversation-participants'] )
 		? $block->context['jetpack/conversation-participants']
 		: $default_participants['list'];
 
