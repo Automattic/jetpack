@@ -594,10 +594,13 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_users_menu() {
 		global $menu, $submenu;
 
-		// Only users that can edit posts get to see the comments menu.
+		// Current user can't list users.
 		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
 		$menu = array();
-		static::$admin_menu->add_users_menu( static::$domain );
+
+		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
+		static::$admin_menu->add_users_menu( static::$domain, true );
+		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
 		$profile_menu_item = array(
 			'My Profile',
