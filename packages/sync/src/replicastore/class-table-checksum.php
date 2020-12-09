@@ -219,7 +219,7 @@ class Table_Checksum {
 		}
 
 		if ( ! array_key_exists( $table, $this->allowed_tables ) ) {
-			throw new Exception( 'Invalid table name: not allowed' );
+			throw new Exception( "Invalid table name: $table not allowed" );
 		}
 
 		// TODO other checks if such are needed.
@@ -237,7 +237,7 @@ class Table_Checksum {
 	private function validate_fields( $fields ) {
 		foreach ( $fields as $field ) {
 			if ( ! preg_match( '/^[0-9,a-z,A-Z$_]+$/i', $field ) ) {
-				throw new Exception( "Invalid field name: {$field} is not allowed" );
+				throw new Exception( "Invalid field name: $field is not allowed" );
 			}
 
 			// TODO other verifications of the field names.
@@ -342,10 +342,10 @@ class Table_Checksum {
 
 		$filter_array = array();
 		if ( null !== $range_from ) {
-			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} >= %d", array( intval( $range_from ) ) );
+			$filter_array[] = $wpdb->prepare( "{$this->range_field} >= %d", array( intval( $range_from ) ) );
 		}
-		if ( null !== $range_to ) {
-			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} <= %d", array( intval( $range_to ) ) );
+		if ( null != $range_to ) {
+			$filter_array[] = $wpdb->prepare( "{$this->range_field} <= %d", array( intval( $range_to ) ) );
 		}
 
 		/**
@@ -454,8 +454,6 @@ class Table_Checksum {
 				GROUP BY {$key_fields}
 			";
 		}
-
-		echo $query;
 
 		return $query;
 
