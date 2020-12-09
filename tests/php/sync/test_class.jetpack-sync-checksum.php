@@ -78,7 +78,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'range_field'     => 'ID',
 						'key_fields'      => array( 'ID' ),
 						'checksum_fields' => array( 'post_modified_gmt' ),
-						'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
+						'filter_values'   => Settings::get_disallowed_post_types_structured(),
 					)
 				),
 				true,
@@ -91,7 +91,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'range_field'     => 'ID!',
 						'key_fields'      => array( 'ID' ),
 						'checksum_fields' => array( 'post_modified_gmt' ),
-						'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
+						'filter_values'   => Settings::get_disallowed_post_types_structured(),
 					),
 				),
 				false,
@@ -104,7 +104,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'range_field'     => 'ID',
 						'key_fields'      => array( 'ID' ),
 						'checksum_fields' => array( 'post_modified_gmt*/' ),
-						'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
+						'filter_values'   => Settings::get_disallowed_post_types_structured(),
 					)
 				),
 				false,
@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'range_field'     => 'ID',
 						'key_fields'      => array( 'ID/*' ),
 						'checksum_fields' => array( 'post_modified_gmt' ),
-						'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
+						'filter_values'   => Settings::get_disallowed_post_types_structured(),
 					)
 				),
 				false,
