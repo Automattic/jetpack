@@ -106,8 +106,19 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		foreach ( $menu as $menu_item ) {
 			$item = $this->prepare_menu_item( $menu_item );
 
+			// Are there submenu items to process?
 			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
-				foreach ( $submenu[ $menu_item[2] ] as $submenu_item ) {
+				$submenu_items = array_values( $submenu[ $menu_item[2] ] );
+
+				// If the user doesn't have the caps for the top level menu item, let's promote the first submenu item.
+				if ( empty( $item ) ) {
+					$menu_item[1] = $submenu_items[0][1]; // Capability.
+					$menu_item[2] = $submenu_items[0][2]; // Menu slug.
+					$item         = $this->prepare_menu_item( $menu_item );
+				}
+
+				// Add submenu items.
+				foreach ( $submenu_items as $submenu_item ) {
 					$item['children'][] = $this->prepare_submenu_item( $submenu_item, $menu_item );
 				}
 			}
@@ -268,7 +279,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	}
 
 	/**
-	 * Prepares a menu icon for consumption by Calypso.
+	 * Prepares a menu item url for consumption by Calypso.
 	 *
 	 * @param string $url         Menu slug.
 	 * @param string $parent_slug Optional. Parent menu item slug. Default empty string.
@@ -279,8 +290,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if ( 0 === strpos( $url, 'https://wordpress.com' ) ) {
 			$url = str_replace( 'https://wordpress.com', '', $url );
 		} else {
-			$menu_hook = get_plugin_page_hook( $url, 'admin.php' );
-			$menu_file = wp_parse_url( $url, PHP_URL_PATH ); // Removes query args to get a file name.
+			$menu_hook   = get_plugin_page_hook( $url, $parent_slug );
+			$menu_file   = wp_parse_url( $url, PHP_URL_PATH ); // Removes query args to get a file name.
+			$parent_file = wp_parse_url( $parent_slug, PHP_URL_PATH );
 
 			if (
 				! empty( $menu_hook ) ||
@@ -291,19 +303,19 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				)
 			) {
 				if (
-					( 'admin.php' !== $parent_slug && file_exists( WP_PLUGIN_DIR . "/$parent_slug" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_slug" ) ) ||
-					( file_exists( ABSPATH . "/wp-admin/$parent_slug" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_slug" ) )
+					( 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
+					( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
 				) {
 					$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
 				} else {
 					$url = add_query_arg( array( 'page' => $url ), admin_url( 'admin.php' ) );
 				}
-			} else {
+			} elseif ( file_exists( ABSPATH . "/wp-admin/$menu_file" ) ) {
 				$url = admin_url( $url );
 			}
 		}
 
-		return esc_url( $url );
+		return $url;
 	}
 }
 

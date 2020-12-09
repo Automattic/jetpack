@@ -7,7 +7,7 @@
 		"nikic/php-parser": "^4.2"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^0.2"
+		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {
 		"classmap": [

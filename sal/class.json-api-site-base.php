@@ -149,6 +149,15 @@ abstract class SAL_Site {
 
 	abstract protected function is_wpforteams_site();
 
+	/**
+	 * Getter for the p2 organization ID.
+	 *
+	 * @return int
+	 */
+	public function get_p2_organization_id() {
+		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded.
+	}
+
 	public function is_wpcom_atomic() {
 		return false;
 	}

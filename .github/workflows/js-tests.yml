@@ -1,8 +1,10 @@
 name: JS tests
 
-on: pull_request
-env:
-  DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_TOKEN }}
+on:
+  pull_request:
+  push:
+    branches: [master, master-stable, 'branch-*']
+
 jobs:
   lint:
     name: "JavaScript & CSS lint"
@@ -26,7 +28,7 @@ jobs:
 
 
   js-tests:
-    name: "Danger CI, test dashboard, extensions and search"
+    name: "test dashboard, extensions and search"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +44,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - run: |
           yarn install
-          yarn test-dangerci-and-adminpage-and-extensions-and-search
+          yarn test-adminpage-and-extensions-and-search
 
 
   build:
