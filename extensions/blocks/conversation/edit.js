@@ -32,24 +32,8 @@ import './editor.scss';
 import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
 import TranscritptionContext from './components/context';
 
-export const defaultParticipantSlug = 'participant-0';
-export const defaultParticipants = [
-	{
-		participantSlug: 'participant-0',
-		participant: __( 'Participant 1', 'jetpack' ),
-		hasBoldStyle: true,
-	},
-	{
-		participantSlug: 'participant-1',
-		participant: __( 'Participant 2', 'jetpack' ),
-		hasBoldStyle: true,
-	},
-	{
-		participantSlug: 'participant-2',
-		participant: __( 'Participant 3', 'jetpack' ),
-		hasBoldStyle: true,
-	},
-];
+import { list as defaultParticipants } from './participants.json';
+console.log( 'defaultParticipants: ', defaultParticipants );
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],

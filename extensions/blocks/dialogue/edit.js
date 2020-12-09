@@ -34,7 +34,10 @@ import ParticipantsDropdown, {
 } from './components/participants-control';
 import TimeStampControl, { TimeStampDropdown } from './components/time-stamp-control';
 import ConversationContext from '../conversation/components/context';
-import { defaultParticipants, defaultParticipantSlug } from '../conversation/edit';
+import {
+	slug as defaultParticipantSlug,
+	list as defaultParticipants,
+} from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
 
 function getParticipantBySlug( participants, slug ) {

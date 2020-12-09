@@ -48,6 +48,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
+	$default_participants = json_decode(
+		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
+		true
+	);
+
 	// Attributes..
 	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
 	$participant_label_attr = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
@@ -71,7 +76,8 @@ function render_block( $attrs, $block_content, $block ) {
 	// Pick up conversation data from context.
 	$participants   = isset( $block->context['jetpack/conversation-participants'] )
 		? $block->context['jetpack/conversation-participants']
-		: array();
+		: $default_participants['list'];
+
 	$show_timestamp = isset( $block->context['jetpack/conversation-showtimestamp'] );
 
 	// Set current participant slug, considering it could be null from block $attrs.
