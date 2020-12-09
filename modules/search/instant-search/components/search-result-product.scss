@@ -3,8 +3,12 @@
 .jetpack-instant-search__search-results-list.is-format-product {
 	display: grid;
 	grid-auto-flow: row;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(2, 1fr);
 	padding: 0;
+
+	@include break-small {
+		grid-template-columns: repeat(3, 1fr);
+	}
 }
 
 .jetpack-instant-search__search-result-product {
@@ -20,12 +24,6 @@
 	&:last-child {
 		margin-right: 0;
 	}
-
-	// @include break-small {
-	// 	// More columns on wider viewports
-	// 	width: calc( ( 100% - ( #{$grid-size-large} * 6 ) ) / 3 );
-	// 	margin-right: 32px;
-	// }
 }
 
 .jetpack-instant-search__search-result-product-img {
