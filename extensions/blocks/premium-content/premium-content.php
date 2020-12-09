@@ -111,6 +111,4 @@ function render_stripe_nudge() {
 			'stripeConnectUrl' => null,
 		)
 	);
-
-	return '';
 }

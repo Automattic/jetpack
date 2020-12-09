@@ -1,4 +1,10 @@
 <?php
+/**
+ * Create legacy buttons markup.
+ *
+ * @package Automattic\Jetpack\Extensions\Premium_Content
+ */
+
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 /**
