@@ -80,9 +80,9 @@ function process_anchor_params() {
 	}
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
-	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( $_GET['anchor_podcast'] ) : null;
-	$episode_id       = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( $_GET['anchor_episode'] ) : null;
-	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? esc_url_raw( $_GET['spotify_show_url'] ) : null;
+	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_podcast'] ) ) : null;
+	$episode_id       = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_episode'] ) ) : null;
+	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? esc_url_raw( wp_unslash( $_GET['spotify_show_url'] ) ) : null;
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	$data = array();
