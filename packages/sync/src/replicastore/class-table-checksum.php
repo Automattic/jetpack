@@ -200,7 +200,7 @@ class Table_Checksum {
 		$this->key_fields            = $table_configuration['key_fields'];
 		$this->range_field           = $table_configuration['range_field'];
 		$this->checksum_fields       = $table_configuration['checksum_fields'];
-		$this->filter_values         = $table_configuration['filter_values'];
+		$this->filter_values         = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
 		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
 		$this->parent_table          = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
 	}
