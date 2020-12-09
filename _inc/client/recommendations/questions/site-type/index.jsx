@@ -39,22 +39,30 @@ const SiteTypeQuestionComponent = props => {
 				<CheckboxAnswer
 					answerKey={ 'site-type-personal' }
 					title={ __( 'Personal' ) }
-					info={ __( 'TODO change me personal info placeholder' ) }
+					info={ __(
+						'Personal sites usually include blogs, resume sites, weddings or other events, and hobby sites.'
+					) }
 				/>
 				<CheckboxAnswer
 					answerKey={ 'site-type-business' }
 					title={ __( 'Business' ) }
-					info={ __( 'TODO change me personal info placeholder' ) }
+					info={ __(
+						'Business sites usually include shops, services like lawyers, or plumbers, and advertisers or influencers.'
+					) }
 				/>
 				<CheckboxAnswer
 					answerKey={ 'site-type-store' }
 					title={ __( 'Store' ) }
-					info={ __( 'TODO change me personal info placeholder' ) }
+					info={ __(
+						'Stores typically include online e-commerce stores selling goods, services, or digital downloads.'
+					) }
 				/>
 				<CheckboxAnswer
 					answerKey={ 'site-type-other' }
 					title={ __( 'Other' ) }
-					info={ __( 'TODO change me personal info placeholder' ) }
+					info={ __(
+						'Other sites may include non-profits, colleges or schools, apps, real-estate, or others.'
+					) }
 				/>
 			</div>
 			<Button primary href={ nextRoute } onClick={ props.saveRecommendationsData }>
