@@ -25,9 +25,8 @@ class SearchResultProduct extends Component {
 
 		return (
 			<li className="jetpack-instant-search__search-result-product">
-				<h3>
+				<h3 className="jetpack-instant-search__result-product-title">
 					<a
-						className="jetpack-instant-search__result-product-title"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
 						rel="noopener noreferrer"
