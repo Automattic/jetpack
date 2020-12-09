@@ -25,14 +25,23 @@ import {
 	getSummaryFeatureSlugs,
 	updateRecommendationsStep,
 } from 'state/recommendations';
+import { getProducts } from 'state/products';
 
 /**
  * Style dependencies
  */
 import './style.scss';
+import { isEmpty } from 'lodash';
 
 const SummaryComponent = props => {
-	const { sidebarCardSlug, siteTypeDisplayName, summaryFeatureSlugs, upgradeUrl } = props;
+	const {
+		isFetchingProducts,
+		productPrice,
+		sidebarCardSlug,
+		siteTypeDisplayName,
+		summaryFeatureSlugs,
+		upgradeUrl,
+	} = props;
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'summary' );
@@ -45,7 +54,9 @@ const SummaryComponent = props => {
 			// sidebarCard = <ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />;
 			break;
 		case 'upsell':
-			sidebarCard = (
+			sidebarCard = isFetchingProducts ? (
+				<div>loading...</div>
+			) : (
 				<ProductCardUpsell
 					title={ __( 'Backup Daily' ) }
 					description={ __(
@@ -57,6 +68,7 @@ const SummaryComponent = props => {
 						__( 'One-click restores' ),
 						__( 'Unlimited secure storage' ),
 					] }
+					productPrice={ productPrice }
 				/>
 			);
 			break;
@@ -140,12 +152,27 @@ const SummaryComponent = props => {
 };
 
 const Summary = connect(
-	state => ( {
-		sidebarCardSlug: getSidebarCardSlug( state ),
-		siteTypeDisplayName: getSiteTypeDisplayName( state ),
-		summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
-		upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
-	} ),
+	state => {
+		const products = getProducts( state );
+		const isFetchingProducts = isEmpty( products );
+
+		let backupDailyMonthly = {};
+		if ( ! isFetchingProducts ) {
+			backupDailyMonthly = {
+				price: products.jetpack_backup_daily_monthly.cost,
+				currencyCode: products.jetpack_backup_daily_monthly.currency_code,
+			};
+		}
+
+		return {
+			isFetchingProducts,
+			productPrice: backupDailyMonthly,
+			sidebarCardSlug: getSidebarCardSlug( state ),
+			siteTypeDisplayName: getSiteTypeDisplayName( state ),
+			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
+			upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
+		};
+	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 	} )

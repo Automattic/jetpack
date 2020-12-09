@@ -15,6 +15,7 @@ import { SiteAcceleratorQuestion } from './questions/site-accelerator';
 import { SiteTypeQuestion } from './questions/site-type';
 import { WooCommerceQuestion } from './questions/woocommerce';
 import { Summary } from './summary';
+import QueryProducts from 'components/data/query-products';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
@@ -54,6 +55,7 @@ const RecommendationsComponent = props => {
 
 	return (
 		<>
+			<QueryProducts />
 			<QueryRecommendationsData />
 			<QueryRewindStatus />
 			<QuerySite />

@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { getCurrencyObject } from '@automattic/format-currency';
 
 /**
  * Internal dependencies
@@ -18,9 +19,10 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const ProductCardUpsell = props => {
-	const { title, description, upgradeUrl, features } = props;
+	const { title, description, productPrice, upgradeUrl, features } = props;
 
-	// TODO: get price etc dynamically from API.
+	const currencyObject = getCurrencyObject( productPrice.price, productPrice.currencyCode );
+
 	return (
 		<div className="jp-recommendations-product-card-upsell">
 			<div className="jp-recommendations-product-card-upsell__header-chrome">
@@ -33,9 +35,15 @@ const ProductCardUpsell = props => {
 				<div className="jp-recommendations-product-card-upsell__price">
 					<span className="jp-recommendations-product-card-upsell__raw-price">
 						<h2>
-							<sup className="jp-recommendations-product-card-upsell__currency-symbol">$</sup>
-							<span className="jp-recommendations-product-card-upsell__price-integer">7</span>
-							<sup className="jp-recommendations-product-card-upsell__price-fraction">.95</sup>
+							<sup className="jp-recommendations-product-card-upsell__currency-symbol">
+								{ currencyObject.symbol }
+							</sup>
+							<span className="jp-recommendations-product-card-upsell__price-integer">
+								{ currencyObject.integer }
+							</span>
+							<sup className="jp-recommendations-product-card-upsell__price-fraction">
+								{ currencyObject.fraction }
+							</sup>
 						</h2>
 					</span>
 					<span className="jp-recommendations-product-card-upsell__billing-time-frame">
