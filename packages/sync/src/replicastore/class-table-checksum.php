@@ -53,6 +53,13 @@ class Table_Checksum {
 	public $checksum_fields = array();
 
 	/**
+	 * Default filter values for the table
+	 *
+	 * @var array
+	 */
+	public $filter_values = array();
+
+	/**
 	 * SQL Query to be used to filter results (allow/disallow).
 	 *
 	 * @var string
@@ -123,65 +130,65 @@ class Table_Checksum {
 	private function get_default_tables() {
 		global $wpdb;
 
-		 return array(
-			 'posts'              => array(
-				 'table'           => $wpdb->posts,
-				 'range_field'     => 'ID',
-				 'key_fields'      => array( 'ID' ),
-				 'checksum_fields' => array( 'post_modified_gmt' ),
-				 'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
-			 ),
-			 'postmeta'           => array(
-				 'table'           => $wpdb->postmeta,
-				 'range_field'     => 'post_id',
-				 'key_fields'      => array( 'post_id', 'meta_key' ),
-				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				 'filter_sql'      => Settings::get_whitelisted_post_meta_sql(),
-				 'parent_table'    => 'posts',
-			 ),
-			 'comments'           => array(
-				 'table'           => $wpdb->comments,
-				 'range_field'     => 'comment_ID',
-				 'key_fields'      => array( 'comment_ID' ),
-				 'checksum_fields' => array( 'comment_content' ),
-				 'filter_sql'      => Settings::get_comments_filter_sql(),
-			 ),
-			 'commentmeta'        => array(
-				 'table'           => $wpdb->commentmeta,
-				 'range_field'     => 'comment_id',
-				 'key_fields'      => array( 'comment_id', 'meta_key' ),
-				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				 'filter_sql'      => Settings::get_whitelisted_comment_meta_sql(),
-				 'parent_table'    => 'comments',
-			 ),
-			 'terms'              => array(
-				 'table'           => $wpdb->terms,
-				 'range_field'     => 'term_id',
-				 'key_fields'      => array( 'term_id' ),
-				 'checksum_fields' => array( 'term_id', 'name', 'slug' ),
-			 ),
-			 'termmeta'           => array(
-				 'table'           => $wpdb->termmeta,
-				 'range_field'     => 'term_id',
-				 'key_fields'      => array( 'term_id', 'meta_key' ),
-				 'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				 'parent_table'    => 'terms',
-			 ),
-			 'term_relationships' => array(
-				 'table'           => $wpdb->term_relationships,
-				 'range_field'     => 'object_id',
-				 'key_fields'      => array( 'object_id' ),
-				 'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
-			 ),
-			 'term_taxonomy'      => array(
-				 'table'           => $wpdb->term_taxonomy,
-				 'range_field'     => 'term_taxonomy_id',
-				 'key_fields'      => array( 'term_taxonomy_id' ),
-				 'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
-			 ),
-			 'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
-			 'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
-		 );
+		return array(
+			'posts'              => array(
+				'table'           => $wpdb->posts,
+				'range_field'     => 'ID',
+				'key_fields'      => array( 'ID' ),
+				'checksum_fields' => array( 'post_modified_gmt' ),
+				'filter_values'   => Settings::get_disallowed_post_types_structured(),
+			),
+			'postmeta'           => array(
+				'table'           => $wpdb->postmeta,
+				'range_field'     => 'post_id',
+				'key_fields'      => array( 'post_id', 'meta_key' ),
+				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_values'   => Settings::get_allowed_post_meta_structured(),
+				'parent_table'    => 'posts',
+			),
+			'comments'           => array(
+				'table'           => $wpdb->comments,
+				'range_field'     => 'comment_ID',
+				'key_fields'      => array( 'comment_ID' ),
+				'checksum_fields' => array( 'comment_content' ),
+				'filter_sql'      => Settings::get_comments_filter_sql(),
+			),
+			'commentmeta'        => array(
+				'table'           => $wpdb->commentmeta,
+				'range_field'     => 'comment_id',
+				'key_fields'      => array( 'comment_id', 'meta_key' ),
+				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'filter_values'   => Settings::get_allowed_comment_meta_structured(),
+				'parent_table'    => 'comments',
+			),
+			'terms'              => array(
+				'table'           => $wpdb->terms,
+				'range_field'     => 'term_id',
+				'key_fields'      => array( 'term_id' ),
+				'checksum_fields' => array( 'term_id', 'name', 'slug' ),
+			),
+			'termmeta'           => array(
+				'table'           => $wpdb->termmeta,
+				'range_field'     => 'term_id',
+				'key_fields'      => array( 'term_id', 'meta_key' ),
+				'checksum_fields' => array( 'meta_key', 'meta_value' ),
+				'parent_table'    => 'terms',
+			),
+			'term_relationships' => array(
+				'table'           => $wpdb->term_relationships,
+				'range_field'     => 'object_id',
+				'key_fields'      => array( 'object_id' ),
+				'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
+			),
+			'term_taxonomy'      => array(
+				'table'           => $wpdb->term_taxonomy,
+				'range_field'     => 'term_taxonomy_id',
+				'key_fields'      => array( 'term_taxonomy_id' ),
+				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
+			),
+			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
+			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
+		);
 	}
 
 	/**
@@ -193,6 +200,7 @@ class Table_Checksum {
 		$this->key_fields            = $table_configuration['key_fields'];
 		$this->range_field           = $table_configuration['range_field'];
 		$this->checksum_fields       = $table_configuration['checksum_fields'];
+		$this->filter_values         = $table_configuration['filter_values'];
 		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
 		$this->parent_table          = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
 	}
@@ -276,27 +284,68 @@ class Table_Checksum {
 	}
 
 	/**
+	 * Prepare filter values as SQL statements to be added to the other filters.
+	 *
+	 * @param array  $filter_values The filter values array.
+	 * @param string $table_prefix  If the values are going to be used in a sub-query, add a prefix with the table alias.
+	 *
+	 * @return array|null
+	 */
+	private function prepare_filter_values_as_sql( $filter_values = array(), $table_prefix = '' ) {
+		global $wpdb;
+
+		if ( ! is_array( $filter_values ) ) {
+			return null;
+		}
+
+		$result = array();
+
+		foreach ( $filter_values as $field => $filter ) {
+			$key = ( $table_prefix ? $table_prefix . '.' : '' ) . $field;
+
+			switch ( $filter['operator'] ) {
+				case 'IN':
+				case 'NOT IN':
+					$values_placeholders = implode( ',', array_fill( 0, count( $filter['values'] ), '%s' ) );
+
+					$statement          = "{$key} {$filter['operator']} ( $values_placeholders )";
+					$prepared_statement = $wpdb->prepare( $statement, $filter['values'] );
+
+					$result[] = $prepared_statement;
+					break;
+				// TODO implement other operators if needed.
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Build the filter query baased off range fields and values and the additional sql.
 	 *
-	 * @param int|null   $range_from Start of the range.
-	 * @param int|null   $range_to End of the range.
+	 * @param int|null   $range_from    Start of the range.
+	 * @param int|null   $range_to      End of the range.
 	 * @param array|null $filter_values Additional filter values. Not used at the moment.
+	 * @param string     $table_prefix  Table name to be prefixed to the columns. Used in sub-queries where columns can clash.
 	 *
 	 * @return string
 	 */
-	public function build_filter_statement( $range_from = null, $range_to = null, $filter_values = null ) {
+	public function build_filter_statement( $range_from = null, $range_to = null, $filter_values = null, $table_prefix = '' ) {
 		global $wpdb;
+
+		// If there is a field prefix that we want to use with table aliases.
+		$parent_prefix = ! empty( $table_prefix ) ? $table_prefix . '.' : '';
 
 		/**
 		 * Prepare the ranges.
 		 */
 
 		$filter_array = array();
-		if ( $range_from !== null ) {
-			$filter_array[] = $wpdb->prepare( "{$this->range_field} >= %d", array( intval( $range_from ) ) );
+		if ( null !== $range_from ) {
+			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} >= %d", array( intval( $range_from ) ) );
 		}
-		if ( $range_to !== null ) {
-			$filter_array[] = $wpdb->prepare( "{$this->range_field} <= %d", array( intval( $range_to ) ) );
+		if ( null !== $range_to ) {
+			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} <= %d", array( intval( $range_to ) ) );
 		}
 
 		/**
@@ -306,18 +355,27 @@ class Table_Checksum {
 		/**
 		 * Prepare data filters.
 		 */
-		// TODO add support for multiple filter fields from array syntax (i.e. filter => values, filter => values, ...).
-		// TODO this doesn't work right now, until we properly migrate all the filtering functions to array syntax.
-		$filter_prepared_statement = '';
-		if ( 0 & ! empty( $filter_values ) ) {
+
+		// Default filters.
+		if ( $this->filter_values ) {
+			$prepared_values_statements = $this->prepare_filter_values_as_sql( $this->filter_values, $table_prefix );
+			if ( $prepared_values_statements ) {
+				$filter_array = array_merge( $filter_array, $prepared_values_statements );
+			}
+		}
+
+		// Additional filters.
+		if ( ! empty( $filter_values ) ) {
 			// Prepare filtering.
-			$filter_placeholders = "AND {$this->filter_field} IN(" . implode( ',', array_fill( 0, count( $filter_values ), '%s' ) ) . ')';
-			$filter_array[]      = $wpdb->prepare( $filter_placeholders, $filter_values );
+			$prepared_values_statements = $this->prepare_filter_values_as_sql( $filter_values, $table_prefix );
+			if ( $prepared_values_statements ) {
+				$filter_array = array_merge( $filter_array, $prepared_values_statements );
+			}
 		}
 
 		// Add any additional filters via direct SQL statement.
-		// Currently used only because the above isn't done ( `$filter_values` ).
-		$additional_filter_sql = '';
+		// Currently used only because we haven't converted all filtering to happen via `filter_values`.
+		// This SQL is NOT prefixed and column clashes can occur when used in sub-queries.
 		if ( $this->additional_filter_sql ) {
 			$filter_array[] = $this->additional_filter_sql;
 		}
@@ -366,10 +424,10 @@ class Table_Checksum {
 		$join_statement = '';
 		if ( $this->parent_table ) {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
-			$parent_filter_query = $parent_table_obj->build_filter_statement( $range_from, $range_to );
+			$parent_filter_query = $parent_table_obj->build_filter_statement( $range_from, $range_to, null, 'parent_table' );
 
 			$join_statement = "
-				INNER JOIN {$parent_table_obj->table} ON ({$this->table}.{$this->range_field} = {$parent_table_obj->table}.{$parent_table_obj->range_field} AND {$parent_filter_query})
+				INNER JOIN {$parent_table_obj->table} as parent_table ON ({$this->table}.{$this->range_field} = parent_table.{$parent_table_obj->range_field} AND {$parent_filter_query})
 			";
 		}
 
@@ -396,6 +454,8 @@ class Table_Checksum {
 				GROUP BY {$key_fields}
 			";
 		}
+
+		echo $query;
 
 		return $query;
 

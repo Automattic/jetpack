@@ -239,6 +239,23 @@ class Settings {
 	}
 
 	/**
+	 * Returns escaped values for disallowed post types.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Post type filter values
+	 */
+	public static function get_disallowed_post_types_structured() {
+		return array(
+			'post_type' => array(
+				'operator' => 'NOT IN',
+				'values'   => array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ),
+			),
+		);
+	}
+
+	/**
 	 * Returns escaped SQL for blacklisted taxonomies.
 	 * Can be injected directly into a WHERE clause.
 	 *
@@ -265,6 +282,23 @@ class Settings {
 	}
 
 	/**
+	 * Returns escaped SQL for allowed post meta keys.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Meta keys filter values
+	 */
+	public static function get_allowed_post_meta_structured() {
+		return array(
+			'meta_key' => array(
+				'operator' => 'IN',
+				'values'   => array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ),
+			),
+		);
+	}
+
+	/**
 	 * Returns escaped SQL for blacklisted comment meta.
 	 * Can be injected directly into a WHERE clause.
 	 *
@@ -275,6 +309,23 @@ class Settings {
 	 */
 	public static function get_whitelisted_comment_meta_sql() {
 		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
+	}
+
+	/**
+	 * Returns SQL-escaped values for allowed post meta keys.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Meta keys filter values
+	 */
+	public static function get_allowed_comment_meta_structured() {
+		return array(
+			'meta_key' => array(
+				'operator' => 'IN',
+				'values'   => array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ),
+			),
+		);
 	}
 
 	/**
