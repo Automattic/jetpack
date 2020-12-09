@@ -23,6 +23,8 @@ class SearchResultProduct extends Component {
 			? fields[ 'image.url.raw' ][ 0 ]
 			: fields[ 'image.url.raw' ];
 
+		const title = highlight.title[ 0 ].length > 0 ? highlight.title[ 0 ] : 'no title'; // @todo translate
+
 		return (
 			<li className="jetpack-instant-search__search-result-product">
 				<h3 className="jetpack-instant-search__result-product-title">
@@ -32,7 +34,7 @@ class SearchResultProduct extends Component {
 						rel="noopener noreferrer"
 						target="_blank"
 						//eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ { __html: highlight.title } }
+						dangerouslySetInnerHTML={ { __html: title } }
 					/>
 				</h3>
 				{ firstImage && (
