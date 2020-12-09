@@ -57,12 +57,17 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		isPremiumContentChild: {
+			type: 'bool',
+			default: true,
+		},
     },
 	edit,
 	save,
 	providesContext: {
 		'premium-content/planId': 'selectedPlanId',
 		'premium-content/isPreview': 'isPreview',
+		isPremiumContentChild: 'isPremiumContentChild',
 	},
 	supports: {
 		html: false,

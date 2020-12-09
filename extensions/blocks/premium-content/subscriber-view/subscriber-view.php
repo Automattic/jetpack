@@ -43,7 +43,7 @@ add_action( 'init', __NAMESPACE__ . '\register_subscriber_view_block' );
  * @return string
  */
 function render_subscriber_view_block( $attributes, $content, $block = null ) {
-	if ( ! pre_render_checks() ) {
+	if ( ! pre_render_checks() || should_render_frontend_preview() ) {
 		return '';
 	}
 

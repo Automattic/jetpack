@@ -24,15 +24,6 @@ const settings = {
 		alignWide: false,
 		lightBlockWrapper: true,
 	},
-	attributes: {
-		isPremiumContentChild: {
-			type: 'bool',
-			default: true,
-		},
-	},
-	providesContext: {
-		isPremiumContentChild: 'isPremiumContentChild',
-	},
 	keywords: [ __( 'link', 'jetpack' ) ],
 	edit,
 	save,
