@@ -503,4 +503,36 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * Test that Checksum generates consistently.
+	 *
+	 * Note that php's crc32 does not match MySQL's crc32 so this is a test of consistency.
+	 *
+	 */
+	public function test_calculate_checksum( ) {
+
+		// Generate Test Content.
+		$user_id            = $this->factory->user->create();
+		$min_range_expected = null;
+		$max_range_expected = null;
+
+		for ( $i = 1; $i <= 10; $i ++ ) {
+			// create an allowed post_type post.
+			$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
+			if ( is_null( $min_range_expected ) ) {
+				$min_range_expected = $post_id; // set initial post_id.
+			}
+			$max_range_expected = $post_id; // update last post_id.
+		}
+
+		// Calculate Checksum
+		$tc              = new Table_Checksum( 'posts' );
+		$checksum_full   = $tc->calculate_checksum( );
+		$checksum_half_1 = $tc->calculate_checksum( $min_range_expected, $max_range_expected - 5 );
+		$checksum_half_2 = $tc->calculate_checksum( $max_range_expected - 4, $max_range_expected );
+
+		$this->assertSame( (int) $checksum_full, (int) ( $checksum_half_1 + $checksum_half_2 ) );
+
+	}
+
 }

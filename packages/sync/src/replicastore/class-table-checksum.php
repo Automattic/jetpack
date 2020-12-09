@@ -539,7 +539,7 @@ class Table_Checksum {
 	 *
 	 * @param array $results Prepare the results for output of granular results.
 	 */
-	public function prepare_results_for_output( &$results ) {
+	protected function prepare_results_for_output( &$results ) {
 		// get the compound key.
 		// only return range and compound key for granular results.
 
