@@ -359,6 +359,7 @@ class JWT {
 			$padlen = 4 - $remainder;
 			$input .= str_repeat( '=', $padlen );
 		}
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		return base64_decode( strtr( $input, '-_', '+/' ) );
 	}
 
@@ -370,6 +371,7 @@ class JWT {
 	 * @return string The base64 encode of what you passed in
 	 */
 	public static function urlsafe_b64_encode( $input ) {
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		return str_replace( '=', '', strtr( base64_encode( $input ), '+/', '-_' ) );
 	}
 
@@ -411,6 +413,7 @@ class JWT {
 	}
 }
 
+// phpcs:disable
 if ( ! class_exists( 'SignatureInvalidException' ) ) {
 	/**
 	 * SignatureInvalidException
@@ -435,3 +438,4 @@ if ( ! class_exists( 'BeforeValidException' ) ) {
 	 */
 	class BeforeValidException extends \UnexpectedValueException { }
 }
+// phpcs:enable

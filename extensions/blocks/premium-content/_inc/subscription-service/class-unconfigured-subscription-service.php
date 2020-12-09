@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use function site_url;
+// phpcs:disable
 
 /**
  * Class Unconfigured_Subscription_Service
@@ -54,3 +55,4 @@ class Unconfigured_Subscription_Service implements Subscription_Service {
 	}
 
 }
+// phpcs:enable

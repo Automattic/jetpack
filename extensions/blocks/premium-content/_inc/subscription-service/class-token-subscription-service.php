@@ -126,12 +126,13 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 */
 	abstract public function get_site_id();
 
+	// phpcs:disable
 	/**
 	 * Get the URL to access the protected content.
 	 *
 	 * @param string $mode Access mode (either "subscribe" or "login").
 	 */
-	public function access_url( $mode = 'subscribe' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	public function access_url( $mode = 'subscribe' ) {
 		global $wp;
 		$permalink = get_permalink();
 		if ( empty( $permalink ) ) {
@@ -141,6 +142,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		$login_url = $this->get_rest_api_token_url( $this->get_site_id(), $permalink );
 		return $login_url;
 	}
+	// phpcs:enable
 
 	/**
 	 * Get the token stored in the auth cookie.
