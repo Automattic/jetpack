@@ -664,6 +664,10 @@ class Admin_Menu {
 		 *
 		 * Filterable to make it easier to unit test other parts of this class.
 		 *
+		 * @module masterbar
+		 *
+		 * @since 9.3.0
+		 *
 		 * @param bool $is_wpcom Whether this is a WordPress.com request. Defaults to the value of IS_WPCOM,
 		 */
 		return apply_filters( 'jetpack_admin_menu_is_wpcom', defined( 'IS_WPCOM' ) && IS_WPCOM );
