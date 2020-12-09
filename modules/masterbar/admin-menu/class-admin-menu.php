@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 /**
@@ -391,13 +390,9 @@ class Admin_Menu {
 		$menu[ $position ][5] = 'toplevel_page_jetpack'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		remove_menu_page( 'jetpack' );
-		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-
 		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $domain, null, 5 );
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $domain, null, 10 );
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $domain, null, 15 );
 
 		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
 	}
