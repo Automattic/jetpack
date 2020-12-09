@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b862cc15a4bd2104dd904a4c312e6fcd",
+    "content-hash": "444b411097f83272a0b4999c07841baa",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -30,16 +30,16 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "bfefea1c1a8fcacfb28de13498325e5e595c5005"
+                "reference": "72b5afa7ff77cb88e8a43a2db2e9d4c6ffb8d793"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/bfefea1c1a8fcacfb28de13498325e5e595c5005",
-                "reference": "bfefea1c1a8fcacfb28de13498325e5e595c5005",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/72b5afa7ff77cb88e8a43a2db2e9d4c6ffb8d793",
+                "reference": "72b5afa7ff77cb88e8a43a2db2e9d4c6ffb8d793",
                 "shasum": ""
             },
             "require-dev": {
@@ -52,20 +52,20 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2020-10-26T22:49:03+00:00"
+            "time": "2020-12-08T21:49:26+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
-            "version": "v1.0.7",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts-typekit.git",
-                "reference": "9b9c0c74e80ef82afbca8c1f827b439f2d98c75c"
+                "reference": "06ebb548340fd08ef1200b2a462c250da207c281"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/9b9c0c74e80ef82afbca8c1f827b439f2d98c75c",
-                "reference": "9b9c0c74e80ef82afbca8c1f827b439f2d98c75c",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/06ebb548340fd08ef1200b2a462c250da207c281",
+                "reference": "06ebb548340fd08ef1200b2a462c250da207c281",
                 "shasum": ""
             },
             "require-dev": {
@@ -77,7 +77,7 @@
                     "custom-fonts-typekit.php"
                 ]
             },
-            "time": "2020-11-09T23:13:59+00:00"
+            "time": "2020-12-08T21:49:15+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
