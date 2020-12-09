@@ -268,7 +268,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
-		return array_sum( $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts' ) ) );
+		return array_sum( $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -281,7 +281,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
-		return array_sum( $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta' ) ) );
+		return array_sum( $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -504,8 +504,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comments_checksum( $min_id = null, $max_id = null ) {
-		$checksum_table = new Table_Checksum( 'comments' );
-		return $checksum_table->calculate_checksum( $min_id, $max_id );
+		return array_sum( $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -518,8 +517,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
-		$checksum_table = new Table_Checksum( 'commentmeta' );
-		return $checksum_table->calculate_checksum( $min_id, $max_id );
+		return array_sum( $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'commentmeta', $min_id, $max_id ), $min_id, $max_id ) );
 	}
 
 	/**
@@ -1295,12 +1293,14 @@ class Replicastore implements Replicastore_Interface {
 	 * Determine number of buckets to use in full table checksum.
 	 *
 	 * @param string $table Object Type.
+	 * @param int    $start_id Min Object ID.
+	 * @param int    $end_id Max Object ID.
 	 * @return int Number of Buckets to use.
 	 */
-	private function calculate_buckets( $table ) {
+	private function calculate_buckets( $table, $start_id = null, $end_id = null ) {
 		// Get # of objects.
 		$checksum_table = new Table_Checksum( $table );
-		$range_edges    = $checksum_table->get_range_edges();
+		$range_edges    = $checksum_table->get_range_edges( $start_id, $end_id );
 		$object_count   = $range_edges['item_count'];
 
 		// Ensure no division by 0.
