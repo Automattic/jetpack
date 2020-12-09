@@ -17,6 +17,36 @@ import BlockNudge from '../block-nudge';
 
 import './style.scss';
 
+export const StripeNudge = ( {
+	blockName,
+	url
+} ) => (
+	<BlockNudge
+		className="jetpack-stripe-nudge__banner"
+		buttonLabel={ __( 'Connect', 'jetpack' ) }
+		icon={
+			<GridiconStar
+				className="jetpack-stripe-nudge__icon"
+				size={ 18 }
+				aria-hidden="true"
+				role="img"
+				focusable="false"
+			/>
+		}
+		href={ url }
+		onClick={ () =>
+			void analytics.tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
+				block: blockName,
+			} )
+		}
+		title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
+		subtitle={ __(
+			'This block will be hidden from your visitors until you connect to Stripe.',
+			'jetpack'
+		) }
+	/>
+);
+
 export default ( { blockName, postId, stripeConnectUrl } ) => {
 	if ( ! isURL( stripeConnectUrl ) ) {
 		return null;
@@ -38,29 +68,6 @@ export default ( { blockName, postId, stripeConnectUrl } ) => {
 	}
 
 	return (
-		<BlockNudge
-			className="jetpack-stripe-nudge__banner"
-			buttonLabel={ __( 'Connect', 'jetpack' ) }
-			icon={
-				<GridiconStar
-					className="jetpack-stripe-nudge__icon"
-					size={ 18 }
-					aria-hidden="true"
-					role="img"
-					focusable="false"
-				/>
-			}
-			href={ url }
-			onClick={ () =>
-				void analytics.tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
-					block: blockName,
-				} )
-			}
-			title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
-			subtitle={ __(
-				'This block will be hidden from your visitors until you connect to Stripe.',
-				'jetpack'
-			) }
-		/>
+		<StripeNudge blockName={ blockName } url={ url } />
 	);
 };
