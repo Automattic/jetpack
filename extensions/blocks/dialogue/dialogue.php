@@ -50,7 +50,7 @@ function render_block( $attrs, $block_content, $block ) {
 
 	$default_participants = json_decode(
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/default-participants.json' ),
+		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
 		true
 	);
 

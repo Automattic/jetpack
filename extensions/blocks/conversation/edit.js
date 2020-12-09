@@ -33,7 +33,6 @@ import ParticipantsDropdown, { ParticipantsSelector } from './components/partici
 import TranscritptionContext from './components/context';
 
 import { list as defaultParticipants } from './participants.json';
-console.log( 'defaultParticipants: ', defaultParticipants );
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
