@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\AnchorFm;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Podcast_Helper;
 
@@ -102,7 +103,7 @@ function process_anchor_params() {
 		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
 			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
 			$data['action'] = 'insert-spotify-badge';
-			$data['image']  = \Jetpack::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' );
+			$data['image']  = Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' );
 		}
 	}
 
