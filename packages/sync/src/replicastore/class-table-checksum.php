@@ -340,7 +340,7 @@ class Table_Checksum {
 		 * Prepare the ranges.
 		 */
 
-		$filter_array = array();
+		$filter_array = array( '1 = 1' );
 		if ( null !== $range_from ) {
 			$filter_array[] = $wpdb->prepare( "{$this->range_field} >= %d", array( intval( $range_from ) ) );
 		}
