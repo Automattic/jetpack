@@ -207,9 +207,9 @@ export default function DialogueEdit ( {
 							<TimeStampControl
 								className={ baseClassName }
 								value={ timeStamp }
-								onChange={ ( newTimeStampValue ) => {
-									setAttributes( { timeStamp: newTimeStampValue } );
-								} }
+								onChange={ ( newTimeStampValue ) =>
+									setAttributes( { timeStamp: newTimeStampValue } )
+								}
 							/>
 						) }
 					</PanelBody>
