@@ -96,8 +96,7 @@ function render_block( $attributes, $content ) {
 
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
-	$podcast_helper    = new Jetpack_Podcast_Helper( $attributes['url'] );
-	$player_data       = $podcast_helper->get_player_data();
+	$player_data       = ( new Jetpack_Podcast_Helper( $attributes['url'] ) )->get_player_data();
 
 	if ( is_wp_error( $player_data ) ) {
 		return render_error( $player_data->get_error_message() );

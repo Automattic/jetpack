@@ -122,7 +122,7 @@ class Jetpack_Podcast_Helper {
 	 * @param string $rss      The RSS feed to load and list tracks for.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	private function get_track_list( $rss ) {
+	public function get_track_list( $rss ) {
 		// Get first ten items and format them.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
 
@@ -139,7 +139,7 @@ class Jetpack_Podcast_Helper {
 	 * @param string $str Input string.
 	 * @return string Plain text string.
 	 */
-	private function get_plain_text( $str ) {
+	public function get_plain_text( $str ) {
 		// Trim string and return if empty.
 		$str = trim( (string) $str );
 		if ( empty( $str ) ) {

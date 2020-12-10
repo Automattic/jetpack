@@ -64,8 +64,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 			jetpack_require_lib( 'class-jetpack-podcast-helper' );
 		}
 
-		$podcast_helper = new Jetpack_Podcast_Helper( $request['url'] );
-		$player_data    = $podcast_helper->get_player_data();
+		$player_data = ( new Jetpack_Podcast_Helper( $request['url'] ) )->get_player_data();
 
 		if ( is_wp_error( $player_data ) ) {
 			return rest_ensure_response( $player_data );
