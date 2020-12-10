@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import {
-	BaseControl,
 	Dropdown,
 	Button,
 	__experimentalNumberControl as NumberControl,
@@ -68,7 +67,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 				value={ smh[ 0 ] }
 				min={ 0 }
 				max={ 23 }
-				onChange={ ( hour ) => {
+				onChange={ hour => {
 					onChange( setTimeStampValue( { hour }, smh ) );
 				} }
 			/>
@@ -79,7 +78,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 				value={ smh[ 1 ] }
 				min={ 0 }
 				max={ 59 }
-				onChange={ ( min ) => {
+				onChange={ min => {
 					onChange( setTimeStampValue( { min }, smh ) );
 				} }
 			/>
@@ -90,7 +89,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 				value={ smh[ 2 ] }
 				min={ 0 }
 				max={ 59 }
-				onChange={ ( sec ) => {
+				onChange={ sec => {
 					onChange( setTimeStampValue( { sec }, smh ) );
 				} }
 			/>
@@ -98,12 +97,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 	);
 }
 
-export function TimeStampDropdown( {
-	className,
-	value,
-	onChange,
-	shortLabel,
-} ) {
+export function TimeStampDropdown( { className, value, onChange, shortLabel } ) {
 	return (
 		<Dropdown
 			position="bottom right"
@@ -111,36 +105,23 @@ export function TimeStampDropdown( {
 			contentClassName={ `${ className }__timestamp-content` }
 			renderToggle={ ( { onToggle } ) => {
 				return (
-					<Button
-						className={ `${ className }__timestamp` }
-						onClick={ onToggle }
-					>
+					<Button className={ `${ className }__timestamp` } onClick={ onToggle }>
 						{ value }
 					</Button>
 				);
 			} }
-			renderContent={ () => <TimeStamp
-				className={ className }
-				value={ value }
-				onChange={ onChange }
-				shortLabel={ shortLabel }
-			/> }
+			renderContent={ () => (
+				<TimeStamp
+					className={ className }
+					value={ value }
+					onChange={ onChange }
+					shortLabel={ shortLabel }
+				/>
+			) }
 		/>
 	);
 }
 
-export default function TimeStampControl( {
-	className,
-	value,
-	onChange,
-} ) {
-	return (
-		<BaseControl>
-			<TimeStamp
-				className={ className }
-				value={ value }
-				onChange={ onChange }
-			/>
-		</BaseControl>
-	);
+export default function TimeStampControl( { className, value, onChange } ) {
+	return <TimeStamp className={ className } value={ value } onChange={ onChange } />;
 }

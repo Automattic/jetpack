@@ -6,56 +6,39 @@ import { map } from 'lodash';
 /**
  * WordPress dependencies
  */
-import {
-	DropdownMenu,
-	TextControl,
-	BaseControl,
-	Button,
-} from '@wordpress/components';
+import { DropdownMenu, TextControl, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-function AddParticipantButton( {
-	className,
-	onAdd,
-	participants = [],
-} ) {
+function AddParticipantButton( { className, onAdd, participants = [] } ) {
 	return (
-		<BaseControl>
-			<div className={ `${ className }__participant` }>
-				<Button
-					className={ `${ className }__add-button` }
-					label={ __( 'Add Participant', 'jetpack' ) }
-					onClick={ () => onAdd( `Participant ${ participants.length + 1 }` ) }
-					isSecondary
-					isSmall
-				>
-					{ __( 'Add participant', 'jetpack' ) }
-				</Button>
-			</div>
-		</BaseControl>
+		<div className={ `${ className }__participant` }>
+			<Button
+				className={ `${ className }__add-button` }
+				label={ __( 'Add Participant', 'jetpack' ) }
+				onClick={ () => onAdd( `Participant ${ participants.length + 1 }` ) }
+				isSecondary
+				isSmall
+			>
+				{ __( 'Add participant', 'jetpack' ) }
+			</Button>
+		</div>
 	);
 }
 
-function ParticipantsLabelControl( {
-	className,
-	participants,
-	onChange,
-	onDelete,
-} ) {
+function ParticipantsLabelControl( { className, participants, onChange, onDelete } ) {
 	return (
-		<BaseControl className={ `${ className }__participant-control` }>
+		<div className={ `${ className }__participant-control` }>
 			{ map( participants, ( { participant, participantSlug } ) => (
-				<div
-					key={ `${ participantSlug }-key` }
-					className={ `${ className }__participant` }
-				>
+				<div key={ `${ participantSlug }-key` } className={ `${ className }__participant` }>
 					<TextControl
 						value={ participant }
-						onChange={ ( participantEditedValue ) => onChange( {
-							participantSlug,
-							participant: participantEditedValue,
-						} ) }
+						onChange={ participantEditedValue =>
+							onChange( {
+								participantSlug,
+								participant: participantEditedValue,
+							} )
+						}
 					/>
 
 					<Button
@@ -68,17 +51,11 @@ function ParticipantsLabelControl( {
 					</Button>
 				</div>
 			) ) }
-		</BaseControl>
+		</div>
 	);
 }
 
-export function ParticipantsSelector( {
-	participants,
-	className,
-	onChange,
-	onDelete,
-	onAdd,
-} ) {
+export function ParticipantsSelector( { participants, className, onChange, onDelete, onAdd } ) {
 	return (
 		<Fragment>
 			<ParticipantsLabelControl
@@ -88,16 +65,12 @@ export function ParticipantsSelector( {
 				onDelete={ onDelete }
 			/>
 
-			<AddParticipantButton
-				className={ className }
-				onAdd={ onAdd }
-				participants={ participants }
-			/>
+			<AddParticipantButton className={ className } onAdd={ onAdd } participants={ participants } />
 		</Fragment>
 	);
 }
 
-export default function ParticipantsDropdown ( props ) {
+export default function ParticipantsDropdown( props ) {
 	return (
 		<DropdownMenu
 			popoverProps={ { position: 'bottom' } }
@@ -106,9 +79,7 @@ export default function ParticipantsDropdown ( props ) {
 			} }
 			icon="microphone"
 		>
-			{ () =>
-				<ParticipantsSelector { ...props } />
-			}
+			{ () => <ParticipantsSelector { ...props } /> }
 		</DropdownMenu>
 	);
 }
