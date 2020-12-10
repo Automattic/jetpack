@@ -24,6 +24,7 @@ class Jetpack_Podcast_Helper {
 	public function __construct( $feed ) {
 		$this->feed = esc_url_raw( $feed );
 	}
+
 	/**
 	 * Gets podcast data formatted to be used by the Podcast Player block in both server-side
 	 * block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
