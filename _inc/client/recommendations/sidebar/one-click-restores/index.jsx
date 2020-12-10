@@ -25,7 +25,6 @@ import './style.scss';
 const OneClickRestoresComponent = props => {
 	const { planClass, siteRawUrl } = props;
 
-	// TODO: button href
 	const backupsName = containsBackupRealtime( planClass )
 		? __( 'Real-time Backups' )
 		: __( 'Daily Backups' );
