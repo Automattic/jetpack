@@ -60,6 +60,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 								'type'        => 'episode',
 								'description' => '',
 								'title'       => '',
+								'guid'        => '123',
 							)
 						)
 					);
@@ -81,6 +82,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 				'type'        => 'episode',
 				'description' => '',
 				'title'       => '',
+				'guid'        => '123',
 			)
 		);
 	}
