@@ -1,4 +1,9 @@
 <?php
+/**
+ * Adds a Jetpack Search debug panel to Debug Bar.
+ *
+ * @package Jetpack.
+ */
 
 /**
  * Singleton class instantiated by Jetpack_Searc_Debug_Bar::instance() that handles
@@ -55,12 +60,16 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 
 		wp_enqueue_style(
 			'jetpack-search-debug-bar',
-			plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE )
+			plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION
 		);
 		wp_enqueue_script(
 			'jetpack-search-debug-bar',
 			plugins_url( '3rd-party/debug-bar/debug-bar.js', JETPACK__PLUGIN_FILE ),
-			array( 'jquery' )
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
 		);
 	}
 
@@ -86,13 +95,13 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			return;
 		}
 
-		$jetpack_search = Jetpack_Search::instance();
+		$jetpack_search  = Jetpack_Search::instance();
 		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.
 		if ( ! empty( $last_query_info ) ) {
-			$args     = $last_query_info['args'];
-			$response = $last_query_info['response'];
+			$args          = $last_query_info['args'];
+			$response      = $last_query_info['response'];
 			$response_code = $last_query_info['response_code'];
 
 			unset( $last_query_info['args'] );
@@ -121,24 +130,24 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			<h2><?php esc_html_e( 'Last query information:', 'jetpack' ); ?></h2>
 			<?php if ( empty( $last_query_info ) ) : ?>
 					<?php echo esc_html_x( 'None', 'Text displayed when there is no information', 'jetpack' ); ?>
-			<?php
+				<?php
 				else :
 					foreach ( $last_query_info as $key => $info ) :
-					?>
+						?>
 						<h3><?php echo esc_html( $key ); ?></h3>
-					<?php
-					if ( 'response' !== $key && 'args' !== $key ) :
-					?>
-						<pre><?php print_r( esc_html( $info ) ); ?></pre>
-					<?php
+						<?php
+						if ( 'response' !== $key && 'args' !== $key ) :
+							?>
+						<pre><?php print_r( esc_html( $info ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions ?></pre>
+							<?php
 					else :
 						$this->render_json_toggle( $info );
 					endif;
 					?>
-					<?php
+						<?php
 					endforeach;
 			endif;
-			?>
+				?>
 		</div><!-- Closes .jetpack-search-debug-bar -->
 		<?php
 	}
@@ -150,24 +159,26 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render_json_toggle( $value ) {
-	?>
+		?>
 		<div class="json-toggle-wrap">
-			<pre class="json"><?php
+			<pre class="json">
+			<?php
 				// esc_html() will not double-encode entities (&amp; -> &amp;amp;).
 				// If any entities are part of the JSON blob, we want to re-encoode them
 				// (double-encode them) so that they are displayed correctly in the debug
 				// bar.
 				// Use _wp_specialchars() "manually" to ensure entities are encoded correctly.
-				echo _wp_specialchars(
+				echo _wp_specialchars( // phpcs:ignore WordPress.Security.EscapeOutput
 					wp_json_encode( $value ),
 					ENT_NOQUOTES, // Don't need to encode quotes (output is for a text node).
-					'UTF-8',      // wp_json_encode() outputs UTF-8 (really just ASCII), not the blog's charset.
-					true          // Do "double-encode" existing HTML entities
+					'UTF-8',         // wp_json_encode() outputs UTF-8 (really just ASCII), not the blog's charset.
+					true       // Do "double-encode" existing HTML entities.
 				);
-			?></pre>
+			?>
+			</pre>
 			<span class="pretty toggle"><?php echo esc_html_x( 'Pretty', 'label for formatting JSON', 'jetpack' ); ?></span>
 			<span class="ugly toggle"><?php echo esc_html_x( 'Minify', 'label for formatting JSON', 'jetpack' ); ?></span>
 		</div>
-	<?php
+		<?php
 	}
 }

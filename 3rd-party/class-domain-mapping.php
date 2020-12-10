@@ -1,4 +1,11 @@
 <?php
+/**
+ * Domain Mapping 3rd Party
+ *
+ * @package Jetpack.
+ */
+
+namespace Automattic\Jetpack\Third_Party;
 
 use Automattic\Jetpack\Constants;
 
@@ -7,10 +14,12 @@ use Automattic\Jetpack\Constants;
  *
  * This class contains methods that are used to provide compatibility between Jetpack sync and domain mapping plugins.
  */
-class Jetpack_3rd_Party_Domain_Mapping {
+class Domain_Mapping {
 
 	/**
-	 * @var Jetpack_3rd_Party_Domain_Mapping
+	 * Singleton holder.
+	 *
+	 * @var Domain_Mapping
 	 **/
 	private static $instance = null;
 
@@ -19,19 +28,27 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 *
 	 * @var array
 	 */
-	static $test_methods = array(
+	public static $test_methods = array(
 		'hook_wordpress_mu_domain_mapping',
-		'hook_wpmu_dev_domain_mapping'
+		'hook_wpmu_dev_domain_mapping',
 	);
 
-	static function init() {
+	/**
+	 * Singleton constructor.
+	 *
+	 * @return Domain_Mapping|null
+	 */
+	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_3rd_Party_Domain_Mapping;
+			self::$instance = new Domain_Mapping();
 		}
 
 		return self::$instance;
 	}
 
+	/**
+	 * Jetpack_3rd_Party_Domain_Mapping constructor.
+	 */
 	private function __construct() {
 		add_action( 'plugins_loaded', array( $this, 'attempt_to_hook_domain_mapping_plugins' ) );
 	}
@@ -40,13 +57,13 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 * This function is called on the plugins_loaded action and will loop through the $test_methods
 	 * to try and hook a domain mapping plugin to the Jetpack sync filters for the home_url and site_url callables.
 	 */
-	function attempt_to_hook_domain_mapping_plugins() {
+	public function attempt_to_hook_domain_mapping_plugins() {
 		if ( ! Constants::is_defined( 'SUNRISE' ) ) {
 			return;
 		}
 
 		$hooked = false;
-		$count = count( self::$test_methods );
+		$count  = count( self::$test_methods );
 		for ( $i = 0; $i < $count && ! $hooked; $i++ ) {
 			$hooked = call_user_func( array( $this, self::$test_methods[ $i ] ) );
 		}
@@ -59,7 +76,7 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 *
 	 * @return bool
 	 */
-	function hook_wordpress_mu_domain_mapping() {
+	public function hook_wordpress_mu_domain_mapping() {
 		if ( ! Constants::is_defined( 'SUNRISE_LOADED' ) || ! $this->function_exists( 'domain_mapping_siteurl' ) ) {
 			return false;
 		}
@@ -76,7 +93,7 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 *
 	 * @return bool
 	 */
-	function hook_wpmu_dev_domain_mapping() {
+	public function hook_wpmu_dev_domain_mapping() {
 		if ( ! $this->class_exists( 'domain_map' ) || ! $this->method_exists( 'domain_map', 'utils' ) ) {
 			return false;
 		}
@@ -95,21 +112,49 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 * So that we can test.
 	 */
 
+	/**
+	 * Checks if a method exists.
+	 *
+	 * @param string $class Class name.
+	 * @param string $method Method name.
+	 *
+	 * @return bool Returns function_exists() without modification.
+	 */
 	public function method_exists( $class, $method ) {
 		return method_exists( $class, $method );
 	}
 
+	/**
+	 * Checks if a class exists.
+	 *
+	 * @param string $class Class name.
+	 *
+	 * @return bool Returns class_exists() without modification.
+	 */
 	public function class_exists( $class ) {
 		return class_exists( $class );
 	}
 
+	/**
+	 * Checks if a function exists.
+	 *
+	 * @param string $function Function name.
+	 *
+	 * @return bool Returns function_exists() without modification.
+	 */
 	public function function_exists( $function ) {
 		return function_exists( $function );
 	}
 
+	/**
+	 * Returns the Domain_Map::utils() instance.
+	 *
+	 * @see https://github.com/wpmudev/domain-mapping/blob/master/classes/Domainmap/Utils.php
+	 * @return Domainmap_Utils
+	 */
 	public function get_domain_mapping_utils_instance() {
 		return domain_map::utils();
 	}
 }
 
-Jetpack_3rd_Party_Domain_Mapping::init();
+Domain_Mapping::init();

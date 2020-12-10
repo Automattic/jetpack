@@ -1,30 +1,78 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Tests for the 3rd-party domain mapping plugin integration.
+ *
+ * @package Jetpack
+ * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+ */
+
+namespace Automattic\Jetpack\Third_Party;
 
 use Automattic\Jetpack\Constants;
 
-require_once JETPACK__PLUGIN_DIR . '3rd-party/domain-mapping.php';
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class-domain-mapping.php';
 
-// Extend with a public constructor so we can test
-class MockDomainMapping extends Jetpack_3rd_Party_Domain_Mapping  {
+/**
+ * Class MockDomainMapping
+ *
+ * Extend with a public constructor so we can test.
+ *
+ * @package Jetpack
+ */
+class MockDomainMapping extends Domain_Mapping {
+	/**
+	 * MockDomainMapping constructor.
+	 */
 	public function __construct() {
 	}
 }
 
-class WP_Test_Domain_Mapping extends WP_UnitTestCase {
-	function tearDown() {
+/**
+ * Class WP_Test_Domain_Mapping
+ *
+ * @package Jetpack
+ */
+class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
+	/**
+	 * String holding the name to pass to the MockBuilder.
+	 *
+	 * @var string
+	 */
+	private static $mock_builder_name;
+
+	/**
+	 * Test Tear down.
+	 */
+	public function tearDown() {
 		Constants::clear_constants();
 		foreach ( $this->get_jetpack_sync_filters() as $filter ) {
 			remove_all_filters( $filter );
 		}
+
+		parent::tearDown();
 	}
 
-	function test_domain_mapping_should_not_try_to_hook_when_sunrise_disable() {
-		$stub = $this->getMockBuilder( 'MockDomainMapping' )
+	/**
+	 * Test Setup.
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		self::$mock_builder_name = __NAMESPACE__ . '\\MockDomainMapping';
+	}
+
+	/**
+	 * Tests that hooks will be hooked when SUNRISE is not true.
+	 *
+	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::attempt_to_hook_domain_mapping_plugins
+	 */
+	public function test_domain_mapping_should_not_try_to_hook_when_sunrise_disable() {
+		$stub = $this->getMockBuilder( self::$mock_builder_name )
 			->setMethods( array( 'hook_wordpress_mu_domain_mapping', 'hook_wpmu_dev_domain_mapping' ) )
 			->disableOriginalConstructor()
 			->getMock();
 
-		// Both of these methods should not be called
+		// Both of these methods should not be called.
 		$stub->expects( $this->exactly( 0 ) )
 			->method( 'hook_wordpress_mu_domain_mapping' )
 			->will( $this->returnValue( false ) );
@@ -36,10 +84,15 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 		$stub->attempt_to_hook_domain_mapping_plugins();
 	}
 
-	function test_domain_mapping_should_stop_search_after_hooking_once() {
+	/**
+	 * Tests that hooks will only be applied once.
+	 *
+	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::attempt_to_hook_domain_mapping_plugins
+	 */
+	public function test_domain_mapping_should_stop_search_after_hooking_once() {
 		Constants::set_constant( 'SUNRISE', true );
 
-		$stub = $this->getMockBuilder( 'MockDomainMapping' )
+		$stub = $this->getMockBuilder( self::$mock_builder_name )
 			->setMethods( array( 'hook_wordpress_mu_domain_mapping', 'hook_wpmu_dev_domain_mapping' ) )
 			->disableOriginalConstructor()
 			->getMock();
@@ -56,10 +109,15 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 		$stub->attempt_to_hook_domain_mapping_plugins();
 	}
 
-	function test_domain_mapping_mu_domain_mapping_not_hooked_when_function_not_exists() {
+	/**
+	 * Tests if domain mapping hooks for Domain Mapping when the function does not exists.
+	 *
+	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wordpress_mu_domain_mapping
+	 */
+	public function test_domain_mapping_mu_domain_mapping_not_hooked_when_function_not_exists() {
 		Constants::set_constant( 'SUNRISE_LOADED', true );
 
-		$stub = $this->getMockBuilder( 'MockDomainMapping' )
+		$stub = $this->getMockBuilder( self::$mock_builder_name )
 			->setMethods( array( 'function_exists' ) )
 			->disableOriginalConstructor()
 			->getMock();
@@ -75,10 +133,15 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 		}
 	}
 
-	function test_domain_mapping_mu_domain_mapping_hooked_when_function_exists() {
+	/**
+	 * Tests if domain mapping hooks for Domain Mapping when the function exists.
+	 *
+	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wordpress_mu_domain_mapping
+	 */
+	public function test_domain_mapping_mu_domain_mapping_hooked_when_function_exists() {
 		Constants::set_constant( 'SUNRISE_LOADED', true );
 
-		$stub = $this->getMockBuilder( 'MockDomainMapping' )
+		$stub = $this->getMockBuilder( self::$mock_builder_name )
 			->setMethods( array( 'function_exists' ) )
 			->disableOriginalConstructor()
 			->getMock();
@@ -94,8 +157,13 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 		}
 	}
 
-	function test_domain_mapping_wpmu_dev_domain_mapping_not_hooked_when_functions_not_exist() {
-		$stub = $this->getMockBuilder( 'MockDomainMapping' )
+	/**
+	 * Tests if domain mapping hooks for WPMU DEV's Domain Mapping when the function doesn't exists.
+	 *
+	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wpmu_dev_domain_mapping
+	 */
+	public function test_domain_mapping_wpmu_dev_domain_mapping_not_hooked_when_functions_not_exist() {
+		$stub = $this->getMockBuilder( self::$mock_builder_name )
 			->setMethods( array( 'class_exists', 'method_exists' ) )
 			->disableOriginalConstructor()
 			->getMock();
@@ -115,8 +183,13 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 		}
 	}
 
-	function test_domain_mapping_wpmu_dev_domain_mapping_hooked_when_functions_exist() {
-		$stub = $this->getMockBuilder( 'MockDomainMapping' )
+	/**
+	 * Tests if domain mapping hooks for WPMU DEV's Domain Mapping when the function exists.
+	 *
+	 * @covers Automattic\Jetpack\Third_Party\Domain_Mapping::hook_wpmu_dev_domain_mapping
+	 */
+	public function test_domain_mapping_wpmu_dev_domain_mapping_hooked_when_functions_exist() {
+		$stub = $this->getMockBuilder( self::$mock_builder_name )
 			->setMethods( array( 'class_exists', 'method_exists', 'get_domain_mapping_utils_instance' ) )
 			->disableOriginalConstructor()
 			->getMock();
@@ -131,7 +204,7 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 
 		$stub->expects( $this->once() )
 			->method( 'get_domain_mapping_utils_instance' )
-			->will( $this->returnValue( new stdClass() ) );
+			->will( $this->returnValue( new \stdClass() ) );
 
 		$this->assertTrue( $stub->hook_wpmu_dev_domain_mapping() );
 
@@ -140,12 +213,24 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 		}
 	}
 
-	function filter_has_hook( $hook ) {
+	/**
+	 * Checks if a filter has a particular hook.
+	 *
+	 * @param string $hook Hook name.
+	 *
+	 * @return bool
+	 */
+	public function filter_has_hook( $hook ) {
 		global $wp_filter;
 		return isset( $wp_filter[ $hook ] ) && ! empty( $wp_filter[ $hook ] );
 	}
 
-	function get_jetpack_sync_filters() {
+	/**
+	 * Return array of Jetpack Sync Filters.
+	 *
+	 * @return string[]
+	 */
+	public function get_jetpack_sync_filters() {
 		return array(
 			'jetpack_sync_home_url',
 			'jetpack_sync_site_url',
