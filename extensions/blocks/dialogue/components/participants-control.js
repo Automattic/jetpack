@@ -73,7 +73,6 @@ function ParticipantsSelector( { className, participants, participant, onSelect,
 			<ParticipantsMenu
 				className={ className }
 				participants={ participants }
-				participantValue={ participant }
 				onSelect={ onSelect }
 			/>
 
