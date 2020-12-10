@@ -7,6 +7,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Jetpack_Simple_Payments
  */
@@ -187,15 +189,58 @@ class Jetpack_Simple_Payments {
 		return $this->output_shortcode( $data );
 	}
 
-	function output_admin_warning( $data ) {
+	/**
+	 * Output a warning displayed instead of the Pay with PayPal shortcode.
+	 * - Only for admins.
+	 * - Only when not having a plan that can use the shortcodes.
+	 *
+	 * @param array $data Array of shortcode options.
+	 *
+	 * @return string
+	 */
+	public function output_admin_warning( $data ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		jetpack_require_lib( 'components' );
-		return Jetpack_Components::render_upgrade_nudge( array(
-			'plan' => self::$required_plan
-		) );
+		$support_url = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			? 'https://wordpress.com/support/pay-with-paypal/'
+			: Redirect::get_url( 'jetpack-support-pay-with-paypal' );
+
+		$warning = sprintf(
+			wp_kses(
+				/* Translators: Placeholder is a support URL. */
+				__( 'Your plan doesn’t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'rel'    => array(),
+						'target' => array(),
+					),
+				)
+			),
+			esc_url( $support_url )
+		);
+
+		return sprintf(
+			'
+<div class="%1$s %2$s-wrapper">
+	<div class="%2$s-product">
+		<div class="%2$s-details">
+			<div class="%2$s-purchase-message show error" id="%3$s-message-container">
+				<p>%4$s</p>
+				<p>%5$s</p>
+			</div>
+		</div>
+	</div>
+</div>
+			',
+			esc_attr( $data['class'] ),
+			esc_attr( self::$css_classname_prefix ),
+			esc_attr( $data['dom_id'] ),
+			$warning,
+			esc_html__( '(Only administrators will see this message.)', 'jetpack' )
+		);
 	}
 
 	/**
