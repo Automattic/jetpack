@@ -6,18 +6,18 @@
  */
 
 /**
- * Class Mock_SimplePie
+ * Class SimplePie
  */
-class Mock_SimplePie {
+class SimplePie {
 	/**
 	 * Mock of get_items().
 	 *
-	 * @return \Mock_SimplePie_Item[]
+	 * @return \SimplePie_Item[]
 	 */
 	public function get_items() {
 		return array(
-			new Mock_SimplePie_Item( 0 ),
-			new Mock_SimplePie_Item( 1 ),
+			new SimplePie_Item( 0 ),
+			new SimplePie_Item( 1 ),
 		);
 	}
 }

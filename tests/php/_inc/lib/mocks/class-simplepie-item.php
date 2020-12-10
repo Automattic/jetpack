@@ -6,9 +6,9 @@
  */
 
 /**
- * Class Mock_SimplePie_Item.
+ * Class SimplePie_Item.
  */
-class Mock_SimplePie_Item {
+class SimplePie_Item {
 	/**
 	 * Holds ID.
 	 *

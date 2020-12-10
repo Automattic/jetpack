@@ -6,8 +6,8 @@
  */
 
 jetpack_require_lib( 'class-jetpack-podcast-helper' );
-require_once __DIR__ . '/mocks/class-mock-simplepie.php';
-require_once __DIR__ . '/mocks/class-mock-simplepie-item.php';
+require_once __DIR__ . '/mocks/class-simplepie.php';
+require_once __DIR__ . '/mocks/class-simplepie-item.php';
 
 /**
  * Class for testing the Jetpack_Podcast_Helper class.
@@ -46,7 +46,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 		$podcast_helper->expects( $this->exactly( 2 ) )
 					->method( 'load_feed' )
 					->will(
-						$this->returnValue( new Mock_SimplePie() )
+						$this->returnValue( new SimplePie() )
 					);
 
 		$podcast_helper->expects( $this->exactly( 1 ) )
