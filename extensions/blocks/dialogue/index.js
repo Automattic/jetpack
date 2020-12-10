@@ -25,16 +25,10 @@ export const settings = {
 	description: __( 'Dialogue', 'jetpack' ),
 	icon,
 	category: 'layout',
-	supports: {
-		'align': true,
-	},
 	edit,
 	save,
 	attributes,
-	usesContext: [
-		'jetpack/conversation-participants',
-		'jetpack/conversation-showtimestamp',
-	],
+	usesContext: [ 'jetpack/conversation-participants', 'jetpack/conversation-showtimestamp' ],
 	transforms: {
 		from: [
 			{
@@ -44,7 +38,7 @@ export const settings = {
 					return createBlock( 'jetpack/dialogue', {
 						...defaultParticipants[ 0 ],
 						content,
-					 } );
+					} );
 				},
 			},
 		],
