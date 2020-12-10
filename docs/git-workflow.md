@@ -33,7 +33,7 @@ There are two ways to update your branch with changes to `master` or a parent PR
    * Con: Can lead to a messy-looking history while the branch is in progress. Since we use "squash and merge" to commit PRs, though, this isn't an issue once the PR is finally accepted.
    * Con: If there's a conflict while merging, you might wind up having to commit the merge commit with `--no-verify` to avoid our pre-commit hook complaining about things.
    * Note: To get a clean view of the branch's history, use `git log --first-parent`.
-   * Note: To get a clean diff of the branch versus master, like what GitHub shows, use `git diff $(git merge-base HEAD origin/master)..HEAD`.
+   * Note: To get a clean diff of the branch versus master, like what GitHub shows, use `git diff $(git merge-base HEAD origin/master)..HEAD` or [./docs/examples/git-merged-diff](./examples/git-merged-diff).
 2. **[Rebase](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request):** Execute `git pull --rebase origin master`, or do a `git fetch` then execute `git rebase origin/master`. It will reapply each patch, and if there are conflicts at any step you'll have to resolve them by hand and then `git rebase --continue`.
    * Pro: Keeps the branch's history cleaner.
    * Con: GitHub doesn't handle it very well. It may lose inline comments on the pre-rebase commits, and it will show every commit in the rebase as being "added" again which clutters the GitHub conversation page.

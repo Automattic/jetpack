@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# Check for --help
+for var in "$@"; do
+	if [[ "$var" == "--help" || "$var" == "-h" ]]; then
+		cat <<-EOH >&2
+			usage: $0 [<options>] [<commit>] [--] [<path>...]
+
+			Displays a diff between the merge-base of HEAD and origin/master
+			(or the specified branch or commit). All options and paths are
+			passed through to \`git diff\`.
+		EOH
+		exit 129
+	fi
+done
+
+# Extract the base branch to diff from.
+BASE=$(git rev-parse --revs-only --default origin/master "$@")
+git rev-parse --verify "$BASE" > /dev/null
+BASE=$(git merge-base HEAD ${BASE})
+
+# Extract the flags.
+FLAGS=( $(git rev-parse --no-revs --flags --default origin/master "$@") )
+
+# Extract any non-flag args (probably paths). Prepend "--" if there are any.
+ARGS=( $(git rev-parse --no-revs --no-flags --default origin/master "$@") )
+if (( ${#ARGS[@]} )); then
+	ARGS=( '--' "${ARGS[@]}" )
+fi
+
+# Produce the diff.
+exec git diff "${FLAGS[@]}" $BASE..HEAD "${ARGS[@]}";
