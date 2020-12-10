@@ -203,6 +203,7 @@ class Jetpack_Podcast_Helper {
 			'description' => $this->get_plain_text( $episode->get_description() ),
 			'title'       => $this->get_plain_text( $episode->get_title() ),
 			'image'       => esc_url( $this->get_episode_image_url( $episode ) ),
+			'guid'        => $this->get_plain_text( $episode->get_id() ),
 		);
 
 		if ( empty( $track['title'] ) ) {
