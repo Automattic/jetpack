@@ -925,30 +925,17 @@ class Jetpack_Gutenberg {
 	/**
 	 * Output an UpgradeNudge Component on the frontend of a site.
 	 *
+	 * @deprecated 9.3.0
+	 *
 	 * @since 8.4.0
 	 *
 	 * @param string $plan The plan that users need to purchase to make the block work.
 	 *
 	 * @return string
 	 */
-	public static function upgrade_nudge( $plan ) {
-		if (
-			! current_user_can( 'manage_options' )
-			/** This filter is documented in class.jetpack-gutenberg.php */
-			|| ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
-			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-			|| ! apply_filters( 'jetpack_show_promotions', true )
-			|| is_feed()
-		) {
-			return;
-		}
-
-		jetpack_require_lib( 'components' );
-		return Jetpack_Components::render_upgrade_nudge(
-			array(
-				'plan' => $plan,
-			)
-		);
+	public static function upgrade_nudge( $plan ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'jetpack-9.3.0', '' );
+		return '';
 	}
 
 	/**
