@@ -50,7 +50,11 @@ const APP_STORE_BADGE_URLS = {
 			`https://play.google.com/store/apps/details?id=org.wordpress.android&referrer=utm_source%3D%${ utm_source }%26utm_medium%3D${ utm_medium }%26utm_campaign%3D${ utm_campaign }`,
 		getTitleText: () => translate( 'Download the WordPress Android mobile app.' ),
 		getAltText: () => translate( 'Google Play Store download badge' ),
-		getLocaleSlug,
+		getLocaleSlug: function () {
+			const localeSlug = getLocaleSlug();
+			const localeSlugPrefix = localeSlug.split( '-' )[ 0 ];
+			return localeSlugPrefix;
+		},
 	},
 };
 
