@@ -91,7 +91,6 @@ class AppsBadge extends PureComponent {
 		}
 	}
 
-	// TODO: test loading of images in non en-US context
 	loadImage() {
 		this.image = new window.Image();
 		this.image.src = this.state.imageSrc;
