@@ -42,6 +42,7 @@ function ParticipantsLabelControl( { className, participants, onChange, onDelete
 					/>
 
 					<Button
+						className={ `${ className }__remove-participant` }
 						label={ __( 'Delete', 'jetpack' ) }
 						onClick={ () => onDelete( participantSlug ) }
 						isTertiary
