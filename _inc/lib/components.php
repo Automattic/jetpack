@@ -1,15 +1,17 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-use Automattic\Jetpack\Status;
-
 /**
  * Components Library
+ *
+ * @deprecated 9.3.0
  *
  * Load and display a pre-rendered component
  */
 class Jetpack_Components {
 	/**
 	 * Load and display a pre-rendered component
+	 *
+	 * @deprecated 9.3.0
 	 *
 	 * @since 7.7.0
 	 *
@@ -18,37 +20,15 @@ class Jetpack_Components {
 	 *
 	 * @return string The component markup
 	 */
-	public static function render_component( $name, $props ) {
-
-		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
-
-		ob_start();
-		// `include` fails gracefully and throws a warning, but doesn't halt execution.
-		include JETPACK__PLUGIN_DIR . "_inc/blocks/$name.html";
-		$markup = ob_get_clean();
-
-		foreach ( $props as $key => $value ) {
-			$markup = str_replace(
-				"#$key#",
-				$value,
-				$markup
-			);
-
-			// Workaround, required to replace strings in `sprintf`-expressions.
-			// See extensions/i18n-to-php.js for more information.
-			$markup = str_replace(
-				"%($key)s",
-				$value,
-				$markup
-			);
-		}
-
-		return $markup;
+	public static function render_component( $name, $props ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'jetpack-9.3.0', '' );
+		return '';
 	}
 
 	/**
 	 * Load and display a pre-rendered component
+	 *
+	 * @deprecated 9.3.0
 	 *
 	 * @since 7.7.0
 	 *
@@ -56,53 +36,8 @@ class Jetpack_Components {
 	 *
 	 * @return string The component markup
 	 */
-	public static function render_upgrade_nudge( $props ) {
-		$plan_slug = $props['plan'];
-		jetpack_require_lib( 'plans' );
-		$plan = Jetpack_Plans::get_plan( $plan_slug );
-
-		if ( ! $plan ) {
-			return self::render_component(
-				'upgrade-nudge',
-				array(
-					'planName'   => __( 'a paid plan', 'jetpack' ),
-					'upgradeUrl' => '',
-				)
-			);
-		}
-
-		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
-		// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
-		$plan_path_slug = wp_startswith( $plan_slug, 'jetpack_' )
-			? substr( $plan_slug, strlen( 'jetpack_' ) )
-			: $plan->path_slug;
-
-		$post_id = get_the_ID();
-
-		$site_slug = ( new Status() )->get_site_suffix();
-
-		// Post-checkout: redirect back to the editor.
-		$redirect_to = add_query_arg(
-			array(
-				'plan_upgraded' => 1,
-			),
-			get_edit_post_link( $post_id )
-		);
-
-		$upgrade_url =
-			$plan_path_slug
-			? add_query_arg(
-				'redirect_to',
-				$redirect_to,
-				"https://wordpress.com/checkout/${site_slug}/${plan_path_slug}"
-			) : '';
-
-		return self::render_component(
-			'upgrade-nudge',
-			array(
-				'planName'   => $plan->product_name,
-				'upgradeUrl' => $upgrade_url,
-			)
-		);
+	public static function render_upgrade_nudge( $props ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, 'jetpack-9.3.0', '' );
+		return '';
 	}
 }
