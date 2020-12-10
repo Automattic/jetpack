@@ -245,7 +245,7 @@ export default function DialogueEdit ( {
 
 			<RichText
 				identifier="content"
-				wrapperClassName={ `${ baseClassName }__content` }
+				className={ `${ baseClassName }__content` }
 				value={ content }
 				onChange={ ( value ) =>
 					setAttributes( { content: value } )
