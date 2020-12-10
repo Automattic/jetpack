@@ -13,9 +13,7 @@ import { doAction, hasAction } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
-
-// Provably we should move this store to somewhere more generic.
-import '../components/upgrade-nudge/store';
+import './store';
 import { getUpgradeUrl } from '../plan-utils';
 
 const HOOK_OPEN_CHECKOUT_MODAL = 'a8c.wpcom-block-editor.openCheckoutModal';
@@ -54,7 +52,7 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		if ( hasAction( HOOK_OPEN_CHECKOUT_MODAL ) ) {
 			event.preventDefault();
 			savePost( event );
-			doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [planData] } );
+			doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [ planData ] } );
 			return;
 		}
 

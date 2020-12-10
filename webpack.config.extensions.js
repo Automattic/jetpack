@@ -11,8 +11,6 @@ const fs = require( 'fs' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
-const webpack = require( 'webpack' );
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 
 /**
  * Internal dependencies
@@ -75,7 +73,7 @@ const editorNoPostEditorScript = [
 	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetNoPostEditorBlocks ),
 ];
 
-const extensionsWebpackConfig = getBaseWebpackConfig(
+const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
 		entry: {
@@ -90,73 +88,15 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
-const componentsWebpackConfig = getBaseWebpackConfig(
-	{ WP: false },
-	{
-		entry: {
-			components: path.join( __dirname, './extensions/shared/components/index.jsx' ),
-		},
-		'output-chunk-filename': '[name].[chunkhash].js',
-		'output-library-target': 'commonjs2',
-		'output-path': path.join( __dirname, '_inc', 'blocks' ),
-		'output-pathinfo': true,
-	}
-);
-
-// We export two configuration files: One for admin.js, and one for components.jsx.
-// The latter produces pre-rendered components HTML.
-module.exports = [
-	{
-		...extensionsWebpackConfig,
-		plugins: [
-			...extensionsWebpackConfig.plugins,
-			new CopyWebpackPlugin( [
-				{
-					from: presetPath,
-					to: 'index.json',
-				},
-			] ),
-		],
-	},
-	{
-		...componentsWebpackConfig,
-		plugins: [
-			...componentsWebpackConfig.plugins,
-			new webpack.NormalModuleReplacementPlugin(
-				/^@wordpress\/i18n$/,
-				path.join( __dirname, './extensions/shared/i18n-to-php' )
-			),
-			new StaticSiteGeneratorPlugin( {
-				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
-				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
-				globals: {
-					Mousetrap: {
-						init: _.noop,
-						prototype: {},
-					},
-					document: {
-						addEventListener: _.noop,
-						createElement: _.noop,
-						head: { appendChild: _.noop },
-					},
-					navigator: {},
-					window: {
-						addEventListener: _.noop,
-						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
-						matchMedia: () => ( {
-							addListener: () => {},
-						} ),
-						navigator: { platform: '', userAgent: '' },
-						Node: {
-							TEXT_NODE: '',
-							ELEMENT_NODE: '',
-							DOCUMENT_POSITION_PRECEDING: '',
-							DOCUMENT_POSITION_FOLLOWING: '',
-						},
-						URL: {},
-					},
-				},
-			} ),
-		],
-	},
-];
+module.exports = {
+	...webpackConfig,
+	plugins: [
+		...webpackConfig.plugins,
+		new CopyWebpackPlugin( [
+			{
+				from: presetPath,
+				to: 'index.json',
+			},
+		] ),
+	],
+};
