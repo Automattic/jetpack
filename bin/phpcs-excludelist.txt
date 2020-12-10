@@ -2,6 +2,18 @@
 # Any file not listed here should have no phpcs errors or warnings.
 # Generally DO NOT add any new files here! Fix the file instead so it passes.
 
+3rd-party/beaverbuilder.php
+3rd-party/bitly.php
+3rd-party/buddypress.php
+3rd-party/class.jetpack-modules-overrides.php
+3rd-party/debug-bar/class.jetpack-search-debug-bar.php
+3rd-party/debug-bar.php
+3rd-party/domain-mapping.php
+3rd-party/polldaddy.php
+3rd-party/qtranslate-x.php
+3rd-party/vaultpress.php
+3rd-party/woocommerce.php
+3rd-party/wpml.php
 bin/build-asset-cdn-json.php
 class.frame-nonce-preview.php
 class.jetpack-admin.php
@@ -455,6 +467,8 @@ sal/class.json-api-site-jetpack.php
 sal/class.json-api-token.php
 src/class-tracking.php
 tests/get-wp-version.php
+tests/php/3rd-party/test_class.jetpack-domain-mapping.php
+tests/php/3rd-party/test_class.jetpack-modules-overrides.php
 tests/php/attachment_test_case.php
 tests/php/bootstrap.php
 tests/php/core-api/test_class.jetpack-core-api-module-endpoints.php
