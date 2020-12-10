@@ -22,9 +22,9 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 	 */
 	public function test_get_track_data() {
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
-							->disableOriginalConstructor()
-							->setMethods( array( 'load_feed' ) )
-							->getMock();
+			->disableOriginalConstructor()
+			->setMethods( array( 'load_feed' ) )
+			->getMock();
 
 		$podcast_helper->expects( $this->exactly( 1 ) )
 					->method( 'load_feed' )
