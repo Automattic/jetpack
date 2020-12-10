@@ -55,6 +55,7 @@ class Settings {
 		'full_sync_sender_enabled'               => true,
 		'full_sync_send_duration'                => true,
 		'full_sync_limits'                       => true,
+		'checksum_disable'                       => true,
 	);
 
 	/**
@@ -488,6 +489,18 @@ class Settings {
 	 */
 	public static function is_sender_enabled( $queue_id ) {
 		return (bool) self::get_setting( $queue_id . '_sender_enabled' );
+	}
+
+	/**
+	 * Whether checksums are enabled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether sync is enabled.
+	 */
+	public static function is_checksum_enabled() {
+		return ! (bool) self::get_setting( 'checksum_disable' );
 	}
 
 }

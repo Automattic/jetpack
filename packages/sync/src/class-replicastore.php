@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
+use Exception;
+use WP_Error;
 
 /**
  * An implementation of Replicastore Interface which returns data stored in a WordPress.org DB.
@@ -268,7 +270,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
-		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'posts', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -281,7 +283,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
-		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'postmeta', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -504,7 +506,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comments_checksum( $min_id = null, $max_id = null ) {
-		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'comments', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -517,7 +519,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
-		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'commentmeta', $min_id, $max_id ), $min_id, $max_id ) );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'commentmeta', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -1151,13 +1153,13 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Checksums.
 	 */
 	public function checksum_all() {
-		$post_checksum               = $this->checksum_histogram( 'posts', $this->calculate_buckets( 'posts' ) );
-		$comments_checksum           = $this->checksum_histogram( 'comments', $this->calculate_buckets( 'comments' ) );
-		$post_meta_checksum          = $this->checksum_histogram( 'postmeta', $this->calculate_buckets( 'postmeta' ) );
-		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta', $this->calculate_buckets( 'commentmeta' ) );
-		$terms_checksum              = $this->checksum_histogram( 'terms', $this->calculate_buckets( 'terms' ) );
-		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships', $this->calculate_buckets( 'term_relationships' ) );
-		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy', $this->calculate_buckets( 'term_taxonomy' ) );
+		$post_checksum               = $this->checksum_histogram( 'posts' );
+		$comments_checksum           = $this->checksum_histogram( 'comments' );
+		$post_meta_checksum          = $this->checksum_histogram( 'postmeta' );
+		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta' );
+		$terms_checksum              = $this->checksum_histogram( 'terms' );
+		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships' );
+		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy' );
 
 		return array(
 			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
@@ -1233,15 +1235,27 @@ class Replicastore implements Replicastore_Interface {
 	 * @param bool   $strip_non_ascii Whether to strip non-ASCII characters.
 	 * @param string $salt            Salt, used for $wpdb->prepare()'s args.
 	 *
-	 * @return array The checksum histogram.
+	 * @return array|WP_Error The checksum histogram.
 	 */
-	public function checksum_histogram( $table, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
+	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
+		try {
+			$checksum_table = new Table_Checksum( $table, $salt );
+		} catch ( Exception $ex ) {
+			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
+		}
 
-		$checksum_table = new Table_Checksum( $table, $salt );
-		$range_edges    = $checksum_table->get_range_edges( $start_id, $end_id );
+		// Validate / Determine Buckets.
+		if ( is_null( $buckets ) || $buckets < 1 ) {
+			$buckets = $this->calculate_buckets( $table, $start_id, $end_id );
+		}
+		if ( is_wp_error( $buckets ) ) {
+			return $buckets;
+		}
+
+		$range_edges = $checksum_table->get_range_edges( $start_id, $end_id );
 
 		$object_count = $range_edges['item_count'];
 
@@ -1310,13 +1324,17 @@ class Replicastore implements Replicastore_Interface {
 	 * @param string $table Object Type.
 	 * @param int    $start_id Min Object ID.
 	 * @param int    $end_id Max Object ID.
-	 * @return int Number of Buckets to use.
+	 * @return int|WP_Error Number of Buckets to use.
 	 */
 	private function calculate_buckets( $table, $start_id = null, $end_id = null ) {
 		// Get # of objects.
-		$checksum_table = new Table_Checksum( $table );
-		$range_edges    = $checksum_table->get_range_edges( $start_id, $end_id );
-		$object_count   = $range_edges['item_count'];
+		try {
+			$checksum_table = new Table_Checksum( $table );
+		} catch ( Exception $ex ) {
+			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
+		}
+		$range_edges  = $checksum_table->get_range_edges( $start_id, $end_id );
+		$object_count = $range_edges['item_count'];
 
 		// Ensure no division by 0.
 		if ( 0 === (int) $object_count ) {
