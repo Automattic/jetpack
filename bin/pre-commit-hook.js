@@ -14,7 +14,7 @@ let exitCode = 0;
  */
 function loadPhpcsExcludeList() {
 	if ( null === excludelist ) {
-		excludelist = JSON.parse( fs.readFileSync( __dirname + '/phpcs-excludelist.txt', 'utf8' ) );
+		excludelist = JSON.parse( fs.readFileSync( __dirname + '/phpcs-excludelist.json', 'utf8' ) );
 	}
 	return excludelist;
 }
