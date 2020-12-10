@@ -11,7 +11,7 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import { DialogueIcon as icon } from '../../shared/icons';
-import { defaultParticipants } from '../conversation/edit';
+import { list as defaultParticipants } from '../conversation/participants.json';
 
 /**
  * Style dependencies

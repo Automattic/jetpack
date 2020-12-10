@@ -7,7 +7,7 @@ import { map } from 'lodash';
  * WordPress dependencies
  */
 import { DropdownMenu, TextControl, Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
 function AddParticipantButton( { className, onAdd, participants = [] } ) {
@@ -43,12 +43,12 @@ function ParticipantsLabelControl( { className, participants, onChange, onDelete
 
 					<Button
 						className={ `${ className }__remove-participant` }
-						label={ __( 'Delete', 'jetpack' ) }
+						label={ __( 'Remove participant', 'jetpack' ) }
 						onClick={ () => onDelete( participantSlug ) }
 						isTertiary
 						isSmall
 					>
-						{ __( 'Remove', 'jetpack' ) }
+						{ _x( 'Remove', 'verb: remove item from a list', 'jetpack' ) }
 					</Button>
 				</div>
 			) ) }
