@@ -55,14 +55,8 @@ gulp.task( 'sass:calypsoify', function ( done ) {
 gulp.task( 'sass:color-schemes', function ( done ) {
 	log( 'Building Color schemes CSS...' );
 
-	const src =
-		process.env.GULP_ENV === 'wpcom'
-			? '../masterbar/admin-color-schemes/colors/**/*.scss'
-			: './modules/masterbar/admin-color-schemes/colors/**/*.scss';
-	const dest =
-		process.env.GULP_ENV === 'wpcom'
-			? '../masterbar/admin-color-schemes/colors'
-			: './_inc/build/masterbar/admin-color-schemes/colors';
+	const src = './modules/masterbar/admin-color-schemes/colors/**/*.scss';
+	const dest = './_inc/build/masterbar/admin-color-schemes/colors';
 
 	return gulp
 		.src( src )
