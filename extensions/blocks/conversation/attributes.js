@@ -4,6 +4,6 @@ export default {
 	},
 	showTimeStamp: {
 		type: "boolean",
-		deault: true,
+		default: false,
 	},
 };

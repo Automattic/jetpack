@@ -132,7 +132,7 @@ function ConversationEdit ( {
 
 						<PanelBody title={ __( 'Time stamps', 'context' ) } className={ `${ baseClassName }__timestamps` }>
 							<ToggleControl
-								label={ __( 'Show time 	stamps', 'jetpack' ) }
+								label={ __( 'Show time stamps', 'jetpack' ) }
 								checked={ showTimeStamp }
 								onChange={ ( value ) => setAttributes( { showTimeStamp: value } ) }
 							/>
