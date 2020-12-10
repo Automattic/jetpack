@@ -19,8 +19,6 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const MobileApp = () => {
-	// TODO: WordPress.com link
-
 	const features = [
 		__( 'Refined post and page editor' ),
 		__( 'Manage multiple sites from one dash' ),

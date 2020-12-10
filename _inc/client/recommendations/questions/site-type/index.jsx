@@ -77,6 +77,7 @@ const SiteTypeQuestionComponent = props => {
 	return (
 		<QuestionLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '17' } /> }
+			/* translators: placeholder is the title of the site */
 			question={ sprintf( __( 'What type of site is %s?', 'jetpack' ), siteTitle ) }
 			description={ __(
 				'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.'

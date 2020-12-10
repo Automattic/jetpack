@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
+import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
@@ -20,23 +21,24 @@ import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import JetpackLogo from 'components/jetpack-logo';
 import { getUpgradeUrl } from 'state/initial-state';
+import { getProducts } from 'state/products';
 import {
 	getSidebarCardSlug,
 	getSiteTypeDisplayName,
 	getSummaryFeatureSlugs,
 	updateRecommendationsStep,
 } from 'state/recommendations';
-import { getProducts } from 'state/products';
+import { getSitePlan } from 'state/site';
 
 /**
  * Style dependencies
  */
 import './style.scss';
-import { isEmpty } from 'lodash';
 
 const SummaryComponent = props => {
 	const {
 		isFetchingProducts,
+		isFetchingSiteData,
 		productPrice,
 		sidebarCardSlug,
 		siteTypeDisplayName,
@@ -48,41 +50,45 @@ const SummaryComponent = props => {
 		props.updateRecommendationsStep( 'summary' );
 	} );
 
+	const isFetchingData = isFetchingProducts || isFetchingSiteData;
+
 	let sidebarCard;
-	switch ( sidebarCardSlug ) {
-		case 'loading':
-			sidebarCard = <LoadingCard />;
-			break;
-		case 'upsell':
-			sidebarCard = isFetchingProducts ? (
-				<LoadingCard />
-			) : (
-				<ProductCardUpsell
-					title={ __( 'Backup Daily' ) }
-					description={ __(
-						'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
-					) }
-					upgradeUrl={ upgradeUrl }
-					features={ [
-						__( 'Automated daily off-site backups' ),
-						__( 'One-click restores' ),
-						__( 'Unlimited secure storage' ),
-					] }
-					productPrice={ productPrice }
-				/>
-			);
-			break;
-		case 'one-click-restores':
-			sidebarCard = <OneClickRestores />;
-			break;
-		case 'manage-security':
-			sidebarCard = <Security />;
-			break;
-		case 'download-app':
-			sidebarCard = <MobileApp />;
-			break;
-		default:
-			throw `Unknown sidebarCardSlug in SummaryComponent: ${ sidebarCardSlug }`;
+	if ( isFetchingData ) {
+		sidebarCard = <LoadingCard />;
+	} else {
+		switch ( sidebarCardSlug ) {
+			case 'loading':
+				sidebarCard = <LoadingCard />;
+				break;
+			case 'upsell':
+				sidebarCard = (
+					<ProductCardUpsell
+						title={ __( 'Backup Daily' ) }
+						description={ __(
+							'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
+						) }
+						upgradeUrl={ upgradeUrl }
+						features={ [
+							__( 'Automated daily off-site backups' ),
+							__( 'One-click restores' ),
+							__( 'Unlimited secure storage' ),
+						] }
+						productPrice={ productPrice }
+					/>
+				);
+				break;
+			case 'one-click-restores':
+				sidebarCard = <OneClickRestores />;
+				break;
+			case 'manage-security':
+				sidebarCard = <Security />;
+				break;
+			case 'download-app':
+				sidebarCard = <MobileApp />;
+				break;
+			default:
+				throw `Unknown sidebarCardSlug in SummaryComponent: ${ sidebarCardSlug }`;
+		}
 	}
 
 	return (
@@ -154,7 +160,9 @@ const SummaryComponent = props => {
 const Summary = connect(
 	state => {
 		const products = getProducts( state );
+		const sitePlan = getSitePlan( state );
 		const isFetchingProducts = isEmpty( products );
+		const isFetchingSiteData = isEmpty( sitePlan );
 
 		let backupDailyMonthly = {};
 		if ( ! isFetchingProducts ) {
@@ -166,6 +174,7 @@ const Summary = connect(
 
 		return {
 			isFetchingProducts,
+			isFetchingSiteData,
 			productPrice: backupDailyMonthly,
 			sidebarCardSlug: getSidebarCardSlug( state ),
 			siteTypeDisplayName: getSiteTypeDisplayName( state ),
