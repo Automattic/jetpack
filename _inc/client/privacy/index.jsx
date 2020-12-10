@@ -4,7 +4,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -119,7 +123,7 @@ class Privacy extends React.Component {
 									onChange={ this.togglePrivacy }
 									id="privacy-settings"
 								>
-									{ jetpackCreateInterpolateElement(
+									{ createInterpolateElement(
 										__(
 											'Share information with our analytics tool about your use of services while logged in to your WordPress.com account. <cookiePolicyLink>Learn more</cookiePolicyLink>.',
 											'jetpack'
@@ -138,7 +142,7 @@ class Privacy extends React.Component {
 								</CompactFormToggle>
 							</p>
 							<p>
-								{ jetpackCreateInterpolateElement(
+								{ createInterpolateElement(
 									__(
 										'This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our <pp>privacy policy</pp>.',
 										'jetpack'
@@ -156,7 +160,7 @@ class Privacy extends React.Component {
 								) }
 							</p>
 							<p>
-								{ jetpackCreateInterpolateElement(
+								{ createInterpolateElement(
 									__(
 										'We use other tracking tools, including some from third parties. <cookiePolicyLink>Read about these</cookiePolicyLink> and how to control them.',
 										'jetpack'
@@ -174,7 +178,7 @@ class Privacy extends React.Component {
 								) }
 							</p>
 							<p>
-								{ jetpackCreateInterpolateElement(
+								{ createInterpolateElement(
 									__(
 										'For more information on how specific Jetpack features use data and track activity, please refer to our <privacyCenterLink>Privacy Center</privacyCenterLink>.',
 										'jetpack'

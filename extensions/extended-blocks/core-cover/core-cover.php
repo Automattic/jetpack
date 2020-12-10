@@ -21,7 +21,7 @@ add_filter(
 // Set the core/cover block availability, depending on the site plan.
 add_action(
 	'jetpack_register_gutenberg_extensions',
-	function() {
+	function () {
 		\Jetpack_Gutenberg::set_availability_for_plan( 'core/cover' );
 	}
 );

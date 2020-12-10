@@ -52,7 +52,7 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 			 *      @type string $test Unique test identifier.
 			 *  }
 			 */
-			'test'  => function() use ( $test, $cxn_tests ) {
+			'test'  => function () use ( $test, $cxn_tests ) {
 				$results = $cxn_tests->run_test( $test['name'] );
 				if ( is_wp_error( $results ) ) {
 					return;

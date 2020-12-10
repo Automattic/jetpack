@@ -136,7 +136,7 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_script(
 			'postmessage',
 			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
-			array( 'jquery' ),
+			array(),
 			JETPACK__VERSION,
 			true
 		);

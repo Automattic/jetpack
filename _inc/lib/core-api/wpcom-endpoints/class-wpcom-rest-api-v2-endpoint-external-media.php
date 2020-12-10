@@ -264,7 +264,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		// Build query string to pass to wpcom endpoint.
 		$service_args = array_filter(
 			$params,
-			function( $key ) {
+			function ( $key ) {
 				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter' ), true );
 			},
 			ARRAY_FILTER_USE_KEY

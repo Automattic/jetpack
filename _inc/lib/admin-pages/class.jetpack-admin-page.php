@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {

@@ -633,8 +633,10 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		$status = new Status();
+
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! ( new Status() )->is_offline_mode() && Jetpack::is_active() ) {
+		if ( ! $status->is_offline_mode() && Jetpack::is_active() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
@@ -661,14 +663,6 @@ class Jetpack_Gutenberg {
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			: JETPACK__VERSION;
-
-		if ( method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-			$site_fragment = Jetpack::build_raw_urls( home_url() );
-		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-			$site_fragment = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-		} else {
-			$site_fragment = '';
-		}
 
 		wp_enqueue_script(
 			'jetpack-blocks-editor',
@@ -709,7 +703,7 @@ class Jetpack_Gutenberg {
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 				),
-				'siteFragment'     => $site_fragment,
+				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
@@ -775,7 +769,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return string $classes List of CSS classes for a block.
 	 */
-	public static function block_classes( $slug = '', $attr, $extra = array() ) {
+	public static function block_classes( $slug, $attr, $extra = array() ) {
 		_deprecated_function( __METHOD__, '9.0.0', 'Automattic\\Jetpack\\Blocks::classes' );
 		return Blocks::classes( $slug, $attr, $extra );
 	}

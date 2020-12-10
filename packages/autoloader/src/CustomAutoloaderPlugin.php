@@ -15,11 +15,11 @@
 namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Composer;
+use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
+use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use Composer\Plugin\PluginInterface;
-use Composer\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class CustomAutoloaderPlugin.
@@ -81,7 +81,6 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		 */
 	}
 
-
 	/**
 	 * Tell composer to listen for events and do something with them.
 	 *
@@ -113,14 +112,50 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		$localRepo           = $repoManager->getLocalRepository();
 		$package             = $this->composer->getPackage();
 		$optimize            = $event->getFlags()['optimize'];
-		$suffix              = $config->get( 'autoloader-suffix' )
-			? $config->get( 'autoloader-suffix' )
-			: md5( uniqid( '', true ) );
+		$suffix              = $this->determineSuffix();
 
 		$generator = new AutoloadGenerator( $this->io );
-
-		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix );
+		$generator->dump( $this->composer, $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix );
 		$this->generated = true;
+	}
+
+	/**
+	 * Determine the suffix for the autoloader class.
+	 *
+	 * Reuses an existing suffix from vendor/autoload_packages.php or vendor/autoload.php if possible.
+	 *
+	 * @return string Suffix.
+	 */
+	private function determineSuffix() {
+		$config     = $this->composer->getConfig();
+		$vendorPath = $config->get( 'vendor-dir' );
+
+		// Command line.
+		$suffix = $config->get( 'autoloader-suffix' );
+		if ( $suffix ) {
+			return $suffix;
+		}
+
+		// Reuse our own suffix, if any.
+		if ( is_readable( $vendorPath . '/autoload_packages.php' ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$content = file_get_contents( $vendorPath . '/autoload_packages.php' );
+			if ( preg_match( '/^namespace Automattic\\\\Jetpack\\\\Autoloader\\\\jp([^;\s]+);/m', $content, $match ) ) {
+				return $match[1];
+			}
+		}
+
+		// Reuse Composer's suffix, if any.
+		if ( is_readable( $vendorPath . '/autoload.php' ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$content = file_get_contents( $vendorPath . '/autoload.php' );
+			if ( preg_match( '{ComposerAutoloaderInit([^:\s]+)::}', $content, $match ) ) {
+				return $match[1];
+			}
+		}
+
+		// Generate a random suffix.
+		return md5( uniqid( '', true ) );
 	}
 
 }

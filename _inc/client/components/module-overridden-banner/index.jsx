@@ -4,7 +4,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -36,7 +40,7 @@ class ModuleOverridenBanner extends JetpackBanner {
 				className={ classes }
 				title={ this.props.moduleName }
 				icon="cog"
-				description={ jetpackCreateInterpolateElement(
+				description={ createInterpolateElement(
 					sprintf(
 						/* translators: placeholder is a feature name. */
 						__(

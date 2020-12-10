@@ -17,11 +17,12 @@ class UtilsTest extends TestCase {
 
 	/**
 	 * This method is called after each test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Constants::clear_constants();
 	}
-
 
 	/**
 	 * Tests the Utils::jetpack_api_constant_filter() method.

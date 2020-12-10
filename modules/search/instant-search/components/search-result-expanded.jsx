@@ -8,26 +8,10 @@ import { h } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchResultComments from './search-result-comments';
+import PathBreadcrumbs from './path-breadcrumbs';
 import PhotonImage from './photon-image';
-import Gridicon from './gridicon';
-
-function getGridiconName( postType ) {
-	if ( postType === 'post' || postType === 'page' ) {
-		return `${ postType }s`;
-	}
-	return 'image';
-}
-
-function getPostTypeIcon( postType ) {
-	return <Gridicon icon={ getGridiconName( postType ) } size={ 32 } />;
-}
-
-function splitDomainPath( path ) {
-	const splits = path.split( '/' ).filter( piece => piece.length > 0 );
-	splits.shift(); // Removes domain name from splits; e.g. 'jetpack.com'
-	return splits;
-}
+import SearchResultComments from './search-result-comments';
+import './search-result-expanded.scss';
 
 export default function SearchResultExpanded( props ) {
 	const { result_type, fields, highlight } = props.result;
@@ -57,23 +41,11 @@ export default function SearchResultExpanded( props ) {
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
 				</h3>
-				<div className="jetpack-instant-search__result-expanded__path">
-					<a
-						className="jetpack-instant-search__result-expanded__path-link"
-						href={ `//${ fields[ 'permalink.url.raw' ] }` }
-						onClick={ props.onClick }
-						rel="noopener noreferrer"
-						target="_blank"
-					>
-						{ splitDomainPath( fields[ 'permalink.url.raw' ] ).map( ( piece, index, pieces ) => (
-							<span className="jetpack-instant-search__result-expanded__path-piece">
-								{ piece }
-								{ index !== pieces.length - 1 ? ' › ' : '' }
-							</span>
-						) ) }
-					</a>
-				</div>
-
+				<PathBreadcrumbs
+					className="jetpack-instant-search__result-expanded__path"
+					onClick={ props.onClick }
+					url={ `//${ fields[ 'permalink.url.raw' ] }` }
+				/>
 				<div
 					className="jetpack-instant-search__result-expanded__content"
 					//eslint-disable-next-line react/no-danger

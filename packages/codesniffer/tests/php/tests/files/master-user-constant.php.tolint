@@ -6,5 +6,5 @@
  */
 
 if ( defined( 'JETPACK_MASTER_USER' ) ) {
-	$const = JETPACK_MASTER_USER;
+	JETPACK_MASTER_USER;
 }

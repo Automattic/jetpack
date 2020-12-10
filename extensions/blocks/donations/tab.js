@@ -140,7 +140,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 					/>
 				</>
 			) }
-			<div className="donations__separator">——</div>
+			<hr className="donations__separator" />
 			<RichText
 				tagName="p"
 				placeholder={ __( 'Write a message…', 'jetpack' ) }

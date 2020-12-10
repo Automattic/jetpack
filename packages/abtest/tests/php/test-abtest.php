@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Tests the AB Test package.
  *
@@ -7,10 +7,7 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Abtest;
 use PHPUnit\Framework\TestCase;
-use phpmock\Mock;
-use phpmock\MockBuilder;
 
 /**
  * Class Test_Abtest
@@ -20,29 +17,13 @@ use phpmock\MockBuilder;
 class Test_Abtest extends TestCase {
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->abtest = $this->getMockBuilder( 'Automattic\\Jetpack\\Abtest' )
 								->setMethods( array( 'request_variation' ) )
 								->getMock();
-
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'is_wp_error' )
-			->setFunction(
-				function( $object ) {
-					return is_a( $object, __NAMESPACE__ . '\\Error' );
-				}
-			);
-		$mock = $builder->build();
-		$mock->enable();
-	}
-
-	/**
-	 * Test teardown.
-	 */
-	public function tearDown() {
-		Mock::disableAll();
 	}
 
 	/**
@@ -155,8 +136,3 @@ class Test_Abtest extends TestCase {
 		$this->assertEquals( $variation, $result );
 	}
 }
-
-/**
- * We're declaring this class to mock Automattic\Jetpack\Error in the tests.
- */
-class Error {} // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound

@@ -1,4 +1,9 @@
 /**
+ * Internal dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * External dependencies
  */
 import { Button } from '@wordpress/components';
@@ -8,7 +13,15 @@ import { Warning } from '@wordpress/block-editor';
 
 import './style.scss';
 
-export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subtitle, title } ) => (
+export const BlockNudge = ( {
+	autosaveAndRedirect,
+	buttonLabel,
+	href,
+	icon,
+	subtitle,
+	title,
+	className,
+} ) => (
 	<Warning
 		actions={
 			// Use href to determine whether or not to display the Upgrade button.
@@ -24,7 +37,7 @@ export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subt
 				</Button>,
 			]
 		}
-		className="jetpack-block-nudge wp-block"
+		className={ classNames( className, 'jetpack-block-nudge wp-block' ) }
 	>
 		<span className="jetpack-block-nudge__info">
 			{ icon }

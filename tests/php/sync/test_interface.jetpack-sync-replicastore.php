@@ -645,7 +645,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 				),
 		);
 
-		$store->set_theme_support( $theme_features );
+		$store->set_callable( 'theme_support', $theme_features );
 
 		// the "current_theme_supports" API is only supposed to return "true" if there's a setting
 		foreach ( $theme_features as $theme_feature => $theme_feature_value ) {

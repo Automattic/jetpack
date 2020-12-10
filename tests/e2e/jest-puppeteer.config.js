@@ -2,12 +2,28 @@
  * For a detailed explanation of configuration properties, visit:
  * https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#puppeteerlaunchoptions
  */
-
+const fs = require( 'fs' );
 const { CI, E2E_DEBUG, PUPPETEER_HEADLESS, PUPPETEER_SLOWMO } = process.env;
 let executablePath = '';
 let dumpio = false;
+const isMacOS = process.platform === 'darwin';
+const isLinux = process.platform === 'linux';
+
+// Workaround for detached iFrames, which is needed for in-place connection. https://stackoverflow.com/a/59999976/3078381
+const launchArgs = [
+	'--disable-features=IsolateOrigins,site-per-process,SameSiteByDefaultCookies',
+];
 if ( ! CI ) {
-	executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+	if ( isMacOS ) {
+		try {
+			fs.accessSync( `/Applications/Google Chrome.app` );
+			executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+		} catch ( err ) {
+			console.log( 'Chrome is not installed. Using bundled Chromium' );
+		}
+	} else if ( isLinux ) {
+		launchArgs.push( '--no-sandbox' );
+	}
 }
 
 if ( E2E_DEBUG ) {
@@ -21,8 +37,7 @@ module.exports = {
 		slowMo: parseInt( PUPPETEER_SLOWMO, 10 ) || 0,
 		executablePath,
 		dumpio,
-		// Workaround for detached iFrames, which is needed for in-place connection. https://stackoverflow.com/a/59999976/3078381
-		args: [ '--disable-features=site-per-process' ],
+		args: launchArgs,
 	},
 	/**
 	 * Switched to false to make tests work with WP.com due to Chromium error:

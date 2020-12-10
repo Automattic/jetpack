@@ -4,15 +4,19 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
-import DashItem from 'components/dash-item';
 import { get, isEmpty, noop } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
+import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
@@ -94,7 +98,7 @@ class DashBackups extends Component {
 					<span>
 						{ get( vaultPressData, 'message', '' ) }
 						&nbsp;
-						{ jetpackCreateInterpolateElement( __( '<a>View backup details</a>.', 'jetpack' ), {
+						{ createInterpolateElement( __( '<a>View backup details</a>.', 'jetpack' ), {
 							a: (
 								<a
 									href={ getRedirectUrl( 'vaultpress-dashboard' ) }
@@ -114,7 +118,7 @@ class DashBackups extends Component {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
-					content: jetpackCreateInterpolateElement(
+					content: createInterpolateElement(
 						__(
 							'To automatically back up your entire site, please <a>install and activate</a> VaultPress.',
 							'jetpack'
@@ -191,7 +195,7 @@ class DashBackups extends Component {
 							__( "You need to enter your server's credentials to finish the setup.", 'jetpack' )
 						) }
 						{ buildAction(
-							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
+							getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ),
 							__( 'Enter credentials', 'jetpack' )
 						) }
 					</React.Fragment>

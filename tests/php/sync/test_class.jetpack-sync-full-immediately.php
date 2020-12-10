@@ -659,7 +659,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
-		$terms = array_map( array( $this, 'upgrade_terms_to_pass_test' ), $terms );
 		$this->assertEqualsObject( $terms, $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' ), 'Full sync doesn\'t work' );
 	}
 
@@ -719,9 +718,17 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $local_option, $remote_option );
 
 		$synced_theme_caps_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_theme_data' );
-		$synced_theme_caps       = $synced_theme_caps_event->args[0];
+		$synced_theme_info       = $synced_theme_caps_event->args[0];
 
-		$this->assertTrue( $synced_theme_caps['post-thumbnails'] );
+		$this->assertTrue( isset( $synced_theme_info['name'] ) );
+		$this->assertTrue( isset( $synced_theme_info['slug'] ) );
+		$this->assertTrue( isset( $synced_theme_info['uri'] ) );
+		$this->assertTrue( isset( $synced_theme_info['version'] ) );
+
+		$theme_support = $this->server_replica_storage->get_callable( 'theme_support' );
+		$this->assertTrue( isset( $theme_support['post-thumbnails'] ) );
+
+		$this->assertTrue( $theme_support['post-thumbnails'] );
 
 		$this->assertTrue( $this->server_replica_storage->current_theme_supports( 'post-thumbnails' ) );
 	}
@@ -1255,14 +1262,5 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	function _do_cron() {
 		$_GET['check'] = wp_hash( '187425' );
 		require( ABSPATH . '/wp-cron.php' );
-	}
-
-	function upgrade_terms_to_pass_test( $term ) {
-		global $wp_version;
-		if ( version_compare( $wp_version, '4.4', '<' ) ) {
-			unset( $term->filter );
-		}
-
-		return $term;
 	}
 }

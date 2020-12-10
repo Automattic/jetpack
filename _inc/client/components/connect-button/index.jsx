@@ -4,7 +4,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -179,7 +183,7 @@ export class ConnectButton extends React.Component {
 			<div>
 				{ ! this.props.isSiteConnected && (
 					<p className="jp-banner__tos-blurb">
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							__(
 								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
 								'jetpack'

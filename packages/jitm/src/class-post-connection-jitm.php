@@ -11,8 +11,8 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\JITMS\JITM;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -228,7 +228,7 @@ class Post_Connection_JITM extends JITM {
 			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins:', 'jetpack' ) . ' </label>';
 
 			$connected_admin_ids = array_map(
-				function( $connected_admin ) {
+				function ( $connected_admin ) {
 						return $connected_admin->ID;
 				},
 				$connected_admins
@@ -466,11 +466,9 @@ class Post_Connection_JITM extends JITM {
 				)
 			);
 
-			$normalized_site_url = \Jetpack::build_raw_urls( get_home_url() );
-
 			$url_params = array(
 				'source' => "jitm-$envelope->id",
-				'site'   => $normalized_site_url,
+				'site'   => ( new Status() )->get_site_suffix(),
 				'u'      => $user->ID,
 			);
 

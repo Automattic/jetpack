@@ -155,7 +155,7 @@ class REST_Connector {
 		$connection_status = array(
 			'isActive'     => $connection->is_active(),
 			'isStaging'    => $status->is_staging_site(),
-			'isRegistered' => $connection->is_registered(),
+			'isRegistered' => $connection->is_connected(),
 			'offlineMode'  => array(
 				'isActive'        => $status->is_offline_mode(),
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
@@ -176,7 +176,6 @@ class REST_Connector {
 		}
 	}
 
-
 	/**
 	 * Get plugins connected to the Jetpack.
 	 *
@@ -193,7 +192,7 @@ class REST_Connector {
 
 		array_walk(
 			$plugins,
-			function( &$data, $slug ) {
+			function ( &$data, $slug ) {
 				$data['slug'] = $slug;
 			}
 		);

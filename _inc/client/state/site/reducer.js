@@ -159,6 +159,7 @@ export const errors = ( state = {}, action ) => {
 				code: action.error.hasOwnProperty( 'response' )
 					? action.error.response.code
 					: 'fetch_site_data_fail_other',
+				data: action.error.hasOwnProperty( 'response' ) ? action.error.response.data : {},
 			} );
 		default:
 			return state;
@@ -270,10 +271,6 @@ export function getAvailableFeatures( state ) {
  */
 export function getActiveFeatures( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'active' ], [] );
-}
-
-export function getAvailablePlans( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'sitePlans' ] );
 }
 
 export function getSitePurchases( state ) {

@@ -5,8 +5,8 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Debugger

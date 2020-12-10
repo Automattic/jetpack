@@ -4,10 +4,15 @@ jQuery( document ).ready( function ( $ ) {
 	var connectButton = $( '.jp-connect-button, .jp-banner__alt-connect-button' ).eq( 0 );
 	var tosText = $( '.jp-connect-full__tos-blurb' );
 	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
+	// Sections that only show up in the first Set Up screen
 	var connectionHelpSections = $(
 		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph, .jp-connect-full__testimonial'
 	);
+	// Sections that only show up in the "Authorize user" screen
+	var authenticationHelpSections = $( '#jp-authenticate-no_user_test_mode' );
 	var connectButtonFrom = '';
+
+	authenticationHelpSections.hide();
 
 	connectButton.on( 'click', function ( event ) {
 		event.preventDefault();
@@ -99,6 +104,7 @@ jQuery( document ).ready( function ( $ ) {
 			jetpackConnectIframe.on( 'load', function () {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
+				authenticationHelpSections.show();
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );

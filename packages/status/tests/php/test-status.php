@@ -7,13 +7,10 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Status;
-use PHPUnit\Framework\TestCase;
-use phpmock\Mock;
-use phpmock\MockBuilder;
 use Brain\Monkey;
-use Brain\Monkey\Functions;
 use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Status test suite.
@@ -27,9 +24,25 @@ class Test_Status extends TestCase {
 	private $site_url = 'https://yourjetpack.blog';
 
 	/**
-	 * Setup before running any of the tests.
+	 * Status instance.
+	 *
+	 * @var Automattic\Jetpack\Status
 	 */
-	public static function setUpBeforeClass() {
+	private $status_obj;
+
+	/**
+	 * Mocked constants.
+	 *
+	 * @var array
+	 */
+	private $mocked_constants = array();
+
+	/**
+	 * Setup before running any of the tests.
+	 *
+	 * @beforeClass
+	 */
+	public static function set_up_before_class() {
 		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
 			define( 'HOUR_IN_SECONDS', 60 * 60 );
 		}
@@ -37,18 +50,37 @@ class Test_Status extends TestCase {
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		Monkey\setUp();
-		$this->status = new Status();
+
+		// Set defaults for Core functionality.
+		Functions\when( 'site_url' )->justReturn( $this->site_url );
+		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+		Functions\expect( 'defined' )->andReturnUsing(
+			function ( $const ) {
+				return array_key_exists( $const, $this->mocked_constants ) ? true : defined( $const );
+			}
+		);
+		Functions\expect( 'constant' )->andReturnUsing(
+			function ( $const ) {
+				return array_key_exists( $const, $this->mocked_constants ) ? $this->mocked_constants[ $const ] : constant( $const );
+			}
+		);
+
+		$this->status_obj = new Status();
 	}
 
 	/**
 	 * Test teardown.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		// Call Monkey\tearDown(); here, but the following function takes care of it for now.
-		Mock::disableAll();
+	public function tear_down() {
+		Monkey\tearDown();
 	}
 
 	/**
@@ -57,10 +89,9 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_default() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
-		$this->assertFalse( $this->status->is_offline_mode() );
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
 	}
 
 	/**
@@ -69,10 +100,9 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_true() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( true );
 
-		$this->assertTrue( $this->status->is_offline_mode() );
+		$this->assertTrue( $this->status_obj->is_offline_mode() );
 	}
 
 	/**
@@ -81,10 +111,9 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_bool() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
-		$this->assertFalse( $this->status->is_offline_mode() );
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
 	}
 
 	/**
@@ -95,9 +124,9 @@ class Test_Status extends TestCase {
 	public function test_is_offline_mode_localhost() {
 		Functions\when( 'site_url' )->justReturn( 'localhost' );
 
-		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
 
-		$this->assertTrue( $this->status->is_offline_mode() );
+		$this->assertTrue( $this->status_obj->is_offline_mode() );
 	}
 
 	/**
@@ -108,9 +137,9 @@ class Test_Status extends TestCase {
 	public function test_is_local_wp_get_environment_type_local() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
 
-		Filters\expectApplied( 'jetpack_is_local_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_local_site' )->once()->with( true )->andReturn( true );
 
-		$this->assertTrue( $this->status->is_local_site() );
+		$this->assertTrue( $this->status_obj->is_local_site() );
 	}
 
 	/**
@@ -123,7 +152,7 @@ class Test_Status extends TestCase {
 
 		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
 
-		$this->assertFalse( $this->status->is_staging_site() );
+		$this->assertFalse( $this->status_obj->is_staging_site() );
 	}
 
 	/**
@@ -134,9 +163,9 @@ class Test_Status extends TestCase {
 	public function test_is_staging_wp_get_environment_type_staging() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'staging' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( true )->andReturn( true );
 
-		$this->assertTrue( $this->status->is_staging_site() );
+		$this->assertTrue( $this->status_obj->is_staging_site() );
 	}
 
 	/**
@@ -149,7 +178,7 @@ class Test_Status extends TestCase {
 
 		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
 
-		$this->assertFalse( $this->status->is_staging_site() );
+		$this->assertFalse( $this->status_obj->is_staging_site() );
 	}
 
 	/**
@@ -160,9 +189,9 @@ class Test_Status extends TestCase {
 	public function test_is_staging_wp_get_environment_type_random() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'random_string' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( true )->andReturn( true );
 
-		$this->assertTrue( $this->status->is_staging_site() ); // We assume a site is a staging site for any non-local or non-production value.
+		$this->assertTrue( $this->status_obj->is_staging_site() ); // We assume a site is a staging site for any non-local or non-production value.
 	}
 
 	/**
@@ -173,23 +202,10 @@ class Test_Status extends TestCase {
 	 * @runInSeparateProcess
 	 */
 	public function test_is_offline_mode_constant() {
-		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( true )->andReturn( true );
+		$this->mocked_constants['\\JETPACK_DEV_DEBUG'] = true;
 
-		$constants_mocks = $this->mock_constants(
-			array(
-				array( '\\JETPACK_DEV_DEBUG', true ),
-			)
-		);
-
-		$this->assertTrue( $this->status->is_offline_mode() );
-
-		array_map(
-			function( $mock ) {
-				$mock->disable();
-			},
-			$constants_mocks
-		);
+		$this->assertTrue( $this->status_obj->is_offline_mode() );
 	}
 
 	/**
@@ -200,7 +216,7 @@ class Test_Status extends TestCase {
 	public function test_is_multi_network_not_multisite() {
 		Functions\when( 'is_multisite' )->justReturn( false );
 
-		$this->assertFalse( $this->status->is_multi_network() );
+		$this->assertFalse( $this->status_obj->is_multi_network() );
 	}
 
 	/**
@@ -212,7 +228,7 @@ class Test_Status extends TestCase {
 		$this->mock_wpdb_get_var( 1 );
 		Functions\when( 'is_multisite' )->justReturn( true );
 
-		$this->assertFalse( $this->status->is_multi_network() );
+		$this->assertFalse( $this->status_obj->is_multi_network() );
 
 		$this->clean_mock_wpdb_get_var();
 	}
@@ -226,7 +242,7 @@ class Test_Status extends TestCase {
 		$this->mock_wpdb_get_var( 2 );
 		Functions\when( 'is_multisite' )->justReturn( true );
 
-		$this->assertTrue( $this->status->is_multi_network() );
+		$this->assertTrue( $this->status_obj->is_multi_network() );
 
 		$this->clean_mock_wpdb_get_var();
 	}
@@ -240,7 +256,7 @@ class Test_Status extends TestCase {
 		$this->mock_wpdb_get_var( 3 );
 		Functions\when( 'get_transient' )->justReturn( 1 );
 
-		$this->assertTrue( $this->status->is_single_user_site() );
+		$this->assertTrue( $this->status_obj->is_single_user_site() );
 
 		$this->clean_mock_wpdb_get_var();
 	}
@@ -255,7 +271,7 @@ class Test_Status extends TestCase {
 		Functions\when( 'get_transient' )->justReturn( false );
 		Functions\when( 'set_transient' )->justReturn( true );
 
-		$this->assertTrue( $this->status->is_single_user_site() );
+		$this->assertTrue( $this->status_obj->is_single_user_site() );
 
 		$this->clean_mock_wpdb_get_var();
 	}
@@ -270,54 +286,9 @@ class Test_Status extends TestCase {
 		Functions\when( 'get_transient' )->justReturn( false );
 		Functions\when( 'set_transient' )->justReturn( true );
 
-		$this->assertFalse( $this->status->is_single_user_site() );
+		$this->assertFalse( $this->status_obj->is_single_user_site() );
 
 		$this->clean_mock_wpdb_get_var();
-	}
-
-
-	/**
-	 * Mock a global function with particular arguments and make it return a certain value.
-	 *
-	 * @param string $function_name Name of the function.
-	 * @param array  $args          Array of argument sets, last value of each set is used as a return value.
-	 * @return phpmock\Mock The mock object.
-	 */
-	protected function mock_function_with_args( $function_name, $args = array() ) {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( $function_name )
-			->setFunction(
-				function( ...$current_args ) use ( &$args ) {
-					foreach ( $args as $arg ) {
-						if ( array_slice( $arg, 0, -1 ) === $current_args ) {
-							return array_pop( $arg );
-						}
-					}
-				}
-			);
-
-		$mock = $builder->build();
-		$mock->enable();
-
-		return $mock;
-	}
-
-	/**
-	 * Mock a set of constants.
-	 *
-	 * @param array $constants Array of sets with constants and their respective values.
-	 * @return phpmock\Mock The mock object.
-	 */
-	protected function mock_constants( $constants = array() ) {
-		$prepare_constant = function( $constant ) {
-			return array( $constant[0], true );
-		};
-
-		return array(
-			$this->mock_function_with_args( 'defined', array_map( $prepare_constant, $constants ) ),
-			$this->mock_function_with_args( 'constant', $constants ),
-		);
 	}
 
 	/**
@@ -351,51 +322,64 @@ class Test_Status extends TestCase {
 	}
 
 	/**
-	 * Tests a WP Engine staging site URL.
-	 *
-	 * @author  kraftbj
-	 * @covers is_staging_site
-	 * @since  3.9.0
-	 */
-	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		Functions\when( 'site_url' )->justReturn( 'http://bjk.staging.wpengine.com' );
-		$this->assertTrue( $this->status->is_staging_site() );
-	}
-
-	/**
 	 * Tests known staging sites.
 	 *
 	 * @dataProvider get_is_staging_site_known_hosting_providers_data
+	 * @covers Automattic\Jetpack\Status::is_staging_site
 	 *
 	 * @param string $site_url Site URL.
+	 * @param bool   $expected Expected return.
 	 */
-	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
+	public function test_is_staging_site_for_known_hosting_providers( $site_url, $expected ) {
 		Functions\when( 'site_url' )->justReturn( $site_url );
-		$result = $this->status->is_staging_site();
-		$this->assertTrue(
+		$result = $this->status_obj->is_staging_site();
+		$this->assertSame(
+			$expected,
 			$result,
-			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
+			sprintf(
+				'Expected %1$s to return %2$s for is_staging_site()',
+				$site_url,
+				var_export( $expected, 1 ) // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+			)
 		);
 	}
 
 	/**
 	 * Known hosting providers.
 	 *
+	 * Including a couple of general RegEx checks (subdir, ending slash).
+	 *
 	 * @return array
 	 */
 	public function get_is_staging_site_known_hosting_providers_data() {
 		return array(
-			'wpengine'   => array(
+			'wpengine'              => array(
 				'http://bjk.staging.wpengine.com',
+				true,
 			),
-			'kinsta'     => array(
+			'kinsta'                => array(
 				'http://test.staging.kinsta.com',
+				true,
 			),
-			'dreampress' => array(
+			'dreampress'            => array(
 				'http://ebinnion.stage.site',
+				true,
 			),
-			'newspack'   => array(
+			'newspack'              => array(
 				'http://test.newspackstaging.com',
+				true,
+			),
+			'wpengine_subdirectory' => array(
+				'http://bjk.staging.wpengine.com/staging',
+				true,
+			),
+			'wpengine_endslash'     => array(
+				'http://bjk.staging.wpengine.com/',
+				true,
+			),
+			'not_a_staging_site'    => array(
+				'http://staging.wpengine.com.example.com/',
+				false,
 			),
 		);
 	}
@@ -410,7 +394,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_local_site_for_known_tld( $site_url, $expected_response ) {
 		Functions\when( 'site_url' )->justReturn( $site_url );
-		$result = $this->status->is_local_site();
+		$result = $this->status_obj->is_local_site();
 		$this->assertEquals(
 			$expected_response,
 			$result,
@@ -452,6 +436,60 @@ class Test_Status extends TestCase {
 			'test_in_domain' => array(
 				'https://jetpack.test.jetpack.com',
 				false,
+			),
+		);
+	}
+
+	/**
+	 * Tests for site_suffix().
+	 *
+	 * @covers Automattic\Jetpack\Status::get_site_suffix
+	 * @dataProvider get_site_suffix_examples
+	 *
+	 * @param string $site     Given site URL.
+	 * @param string $expected Site suffix.
+	 */
+	public function test_jetpack_get_site_suffix( $site, $expected ) {
+		Functions\when( 'home_url' )->justReturn( $this->site_url );
+		$suffix = $this->status_obj->get_site_suffix( $site );
+
+		$this->assertSame( $expected, $suffix );
+	}
+
+	/**
+	 * Examples of sites passed to get_site_suffix
+	 *
+	 * @covers Automattic\Jetpack\Status::get_site_suffix
+	 */
+	public function get_site_suffix_examples() {
+		return array(
+			'no_site_home_url' => array(
+				'',
+				'yourjetpack.blog',
+			),
+			'tld'              => array(
+				'https://example.org',
+				'example.org',
+			),
+			'subdomain'        => array(
+				'https://borussia.dortmund.example.org',
+				'borussia.dortmund.example.org',
+			),
+			'subfolder'        => array(
+				'https://example.org/borussia-dortmund',
+				'example.org::borussia-dortmund',
+			),
+			'ip'               => array(
+				'127.0.0.1',
+				'127.0.0.1',
+			),
+			'no_tld'           => array(
+				'https://localhost',
+				'localhost',
+			),
+			'double_domain'    => array(
+				'https://example.org/http://example.com',
+				'example.org::http:::::example.com',
 			),
 		);
 	}

@@ -15,6 +15,10 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function process_render( $callback, $callback_arg ) {
 		global $wp_scripts, $wp_styles;
 
+		if ( false === defined( 'STYLESHEETPATH' ) ) {
+			wp_templating_constants();
+		}
+
 		// initial scripts & styles (to subtract)
 		ob_start();
 		wp_head();

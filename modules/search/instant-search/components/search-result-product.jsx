@@ -10,6 +10,7 @@ import { h, Component } from 'preact';
  */
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
+import './search-result-product.scss';
 
 class SearchResultProduct extends Component {
 	render() {

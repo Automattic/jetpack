@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Jetpack;
 use Jetpack_IXR_ClientMulticall;
 use Jetpack_Options;
 use WP_Error;

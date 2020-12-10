@@ -260,7 +260,6 @@ function jetpack_enhanced_distribution_more_info() {
 }
 add_action( 'jetpack_module_more_info_enhanced-distribution', 'jetpack_enhanced_distribution_more_info' );
 
-
 /**
  * Protect support link.
  */

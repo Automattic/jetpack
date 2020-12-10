@@ -24,6 +24,9 @@ new WPCOM_JSON_API_List_Terms_Endpoint( array(
 			'count' => 'Order by the number of posts in each tag.',
 		),
 	),
+
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'response_format' => array(
 		'found' => '(int) The number of terms returned.',
 		'terms' => '(array) Array of tag objects.',
@@ -44,7 +47,7 @@ class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$taxonomy_meta = get_taxonomy( $taxonomy );
-		if ( false === $taxonomy_meta || ( ! $taxonomy_meta->public && 
+		if ( false === $taxonomy_meta || ( ! $taxonomy_meta->public &&
 				! current_user_can( $taxonomy_meta->cap->assign_terms ) ) ) {
 			return new WP_Error( 'invalid_taxonomy', 'The taxonomy does not exist', 400 );
 		}

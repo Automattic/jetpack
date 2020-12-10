@@ -26,12 +26,10 @@ export default class InPlaceAuthorizeFrame extends Page {
 		const approveSelector = 'button#approve';
 		const iframe = await this.getFrame();
 		await waitAndClick( iframe, approveSelector );
+		return this.waitToDisappear();
 	}
 
 	async waitToDisappear() {
-		const spinnerSelector = '#spinner';
-		const iframe = await this.getFrame();
-
-		waitForSelector( iframe, spinnerSelector, { hidden: true } );
+		return await waitForSelector( this.page, this.expectedSelector, { hidden: true } );
 	}
 }

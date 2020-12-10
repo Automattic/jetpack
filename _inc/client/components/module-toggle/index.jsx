@@ -4,7 +4,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -75,7 +79,7 @@ class ModuleToggleComponent extends Component {
 
 		switch ( override ) {
 			case 'active':
-				return jetpackCreateInterpolateElement(
+				return createInterpolateElement(
 					__(
 						'This feature has been enabled by a site administrator. <link>Learn more</link>.',
 						'jetpack'
@@ -83,7 +87,7 @@ class ModuleToggleComponent extends Component {
 					args
 				);
 			case 'inactive':
-				return jetpackCreateInterpolateElement(
+				return createInterpolateElement(
 					__(
 						'This feature has been disabled by a site administrator. <link>Learn more</link>.',
 						'jetpack'
@@ -91,7 +95,7 @@ class ModuleToggleComponent extends Component {
 					args
 				);
 			default:
-				return jetpackCreateInterpolateElement(
+				return createInterpolateElement(
 					__(
 						'This feature is being managed by a site administrator. <link>Learn more</link>.',
 						'jetpack'

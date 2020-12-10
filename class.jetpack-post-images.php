@@ -778,29 +778,51 @@ class Jetpack_PostImages {
 	 * @param int    $height        Minimum Image height.
 	 * @return array|bool           Image data or false if unavailable.
 	 */
-	public static function get_attachment_data( $attachment_id, $post_url = '', $width, $height ) {
+	public static function get_attachment_data( $attachment_id, $post_url, $width, $height ) {
 		if ( empty( $attachment_id ) ) {
 			return false;
 		}
 
 		$meta = wp_get_attachment_metadata( $attachment_id );
 
-		// The image must be larger than 200x200.
-		if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
-			return false;
-		}
-		if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
+		if ( empty( $meta ) ) {
 			return false;
 		}
 
-		$url = wp_get_attachment_url( $attachment_id );
+		if ( ! empty( $meta['videopress'] ) ) {
+			// Use poster image for VideoPress videos.
+			$url         = $meta['videopress']['poster'];
+			$meta_width  = $meta['videopress']['width'];
+			$meta_height = $meta['videopress']['height'];
+		} elseif ( ! empty( $meta['thumb'] ) ) {
+			// On WordPress.com, VideoPress videos have a 'thumb' property with the
+			// poster image filename instead.
+			$media_url   = wp_get_attachment_url( $attachment_id );
+			$url         = str_replace( wp_basename( $media_url ), $meta['thumb'], $media_url );
+			$meta_width  = $meta['width'];
+			$meta_height = $meta['height'];
+		} elseif ( wp_attachment_is( 'video', $attachment_id ) ) {
+			// We don't have thumbnail images for non-VideoPress videos - skip them.
+			return false;
+		} else {
+			if ( ! isset( $meta['width'] ) || ! isset( $meta['height'] ) ) {
+				return false;
+			}
+			$url         = wp_get_attachment_url( $attachment_id );
+			$meta_width  = $meta['width'];
+			$meta_height = $meta['height'];
+		}
+
+		if ( $meta_width < $width || $meta_height < $height ) {
+			return false;
+		}
 
 		return array(
 			'type'       => 'image',
 			'from'       => 'attachment',
 			'src'        => $url,
-			'src_width'  => $meta['width'],
-			'src_height' => $meta['height'],
+			'src_width'  => $meta_width,
+			'src_height' => $meta_height,
 			'href'       => $post_url,
 			'alt_text'   => self::get_alt_text( $attachment_id ),
 		);
@@ -858,6 +880,18 @@ class Jetpack_PostImages {
 		) {
 			foreach ( $block['attrs']['ids'] as $img_id ) {
 				$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
+			}
+		} elseif (
+			/**
+			 * Parse content from Jetpack's Story block.
+			 */
+			'jetpack/story' === $block['blockName']
+			&& ! empty( $block['attrs']['mediaFiles'] )
+		) {
+			foreach ( $block['attrs']['mediaFiles'] as $media_file ) {
+				if ( ! empty( $media_file['id'] ) ) {
+					$images[] = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
+				}
 			}
 		}
 

@@ -3,7 +3,6 @@
  */
 import { danger, warn, markdown, results, schedule, fail } from 'danger';
 const moment = require( 'moment' );
-const phpRequirelist = require( './bin/phpcs-requirelist' );
 
 const github = danger.github;
 const pr = github.pr;
@@ -49,30 +48,6 @@ if ( ! pr.body.includes( 'data or activity we track or use' ) ) {
 	);
 }
 
-// Check if newly added .php files were added to phpcs linter require list.
-if ( newFiles.length > 0 ) {
-	const newPHPFiles = newFiles.filter(
-		fileName => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
-	);
-
-	const notRequireListedFiles = [];
-
-	newPHPFiles.forEach( file => {
-		const requireListedPath = phpRequirelist.find( path => file.includes( path ) );
-		if ( ! requireListedPath ) {
-			notRequireListedFiles.push( file );
-		}
-	} );
-
-	if ( notRequireListedFiles.length > 0 ) {
-		const stringifiedFilesList = '\n' + notRequireListedFiles.join( '\n' );
-		fail(
-			'Please add these new PHP files to PHPCS required list in bin/phpcs-requirelist.js for automatic linting:' +
-				stringifiedFilesList
-		);
-	}
-}
-
 // skip if there are no warnings.
 if ( results.warnings.length > 0 || results.fails.length > 0 ) {
 	markdown(
@@ -115,7 +90,17 @@ function setReleaseDates() {
 
 		if ( nextMilestone ) {
 			jetpackReleaseDate = moment( nextMilestone.due_on ).format( 'LL' );
-			codeFreezeDate = moment( nextMilestone.due_on ).subtract( 7, 'd' ).format( 'LL' );
+
+			// Look for a code freeze date in the milestone description.
+			const dateRegex = /^Code Freeze: (\d{4}-\d{2}-\d{2})\s*$/m;
+			const freezeDateDescription = nextMilestone.description.match( dateRegex );
+
+			// If we have a date and it is valid, use it, otherwise set code freeze to a week before the release.
+			if ( freezeDateDescription && moment( freezeDateDescription[ 1 ] ).isValid() ) {
+				codeFreezeDate = moment( freezeDateDescription[ 1 ] ).format( 'LL' );
+			} else {
+				codeFreezeDate = moment( nextMilestone.due_on ).subtract( 7, 'd' ).format( 'LL' );
+			}
 		} else {
 			// Fallback to raw math calculation
 			// Calculate next release date

@@ -3,7 +3,6 @@
 .git
 .gitignore
 .sass-cache
-.travis.yml
 .npmrc
 .nvmrc
 .eslines.json
@@ -13,7 +12,11 @@ readme.md
 babel.config*
 phpunit.xml.dist
 dangerfile.js
-bin/phpcs-requirelist.js
+bin/class-jetpack-phpcs-exclude-filter.php
+bin/compose-volumes.sh
+bin/parallel-lint.sh
+bin/phpcs-excludelist.txt
+bin/post-merge-checkout-hook.sh
 bin/pre-commit-hook.js
 bin/prepare-built-branch.sh
 bin/prepare-commit-msg.js
@@ -69,6 +72,7 @@ extensions/**/*.js
 extensions/**/*.json
 extensions/**/*.jsx
 extensions/**/*.md
+extensions/**/*.mock
 extensions/**/*.png
 extensions/**/*.sass
 extensions/**/*.scss

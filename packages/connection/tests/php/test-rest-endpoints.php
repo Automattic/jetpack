@@ -5,12 +5,11 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
-use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
+use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
 use WP_REST_Request;
 use WP_REST_Server;
-use Requests_Utility_CaseInsensitiveDictionary;
 use WP_User;
 
 /**
@@ -41,10 +40,10 @@ class Test_REST_Endpoints extends TestCase {
 
 	/**
 	 * Setting up the test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -68,10 +67,10 @@ class Test_REST_Endpoints extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		remove_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
 		$user = wp_get_current_user();
@@ -81,7 +80,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 
-		WorDBless_Options::init()->options = array();
+		WorDBless_Options::init()->clear_options();
 	}
 
 	/**
@@ -111,12 +110,12 @@ class Test_REST_Endpoints extends TestCase {
 		);
 
 		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$options_filter = function( $value ) use ( $secrets ) {
+		$options_filter = function ( $value ) use ( $secrets ) {
 			return $secrets;
 		};
 		add_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
 
-		$user_caps_filter = function( $allcaps, $caps, $args, $user ) {
+		$user_caps_filter = function ( $allcaps, $caps, $args, $user ) {
 			if ( $user instanceof WP_User && self::USER_ID === $user->ID ) {
 				$allcaps['manage_options'] = true;
 				$allcaps['administrator']  = true;
@@ -150,26 +149,19 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/connection` endpoint.
 	 */
 	public function test_connection() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( 'Automattic\Jetpack' )
-				->setName( 'apply_filters' )
-				->setFunction(
-					function( $hook, $value ) {
-						return 'jetpack_offline_mode' === $hook ? true : $value;
-					}
-				);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		try {
+			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
 
-		$mock = $builder->build();
-		$mock->enable();
+			$response = $this->server->dispatch( $this->request );
+			$data     = $response->get_data();
 
-		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
-
-		$response = $this->server->dispatch( $this->request );
-		$data     = $response->get_data();
-
-		$this->assertFalse( $data['isActive'] );
-		$this->assertFalse( $data['isRegistered'] );
-		$this->assertTrue( $data['offlineMode']['isActive'] );
+			$this->assertFalse( $data['isActive'] );
+			$this->assertFalse( $data['isRegistered'] );
+			$this->assertTrue( $data['offlineMode']['isActive'] );
+		} finally {
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+		}
 	}
 
 	/**
@@ -192,7 +184,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		array_walk(
 			$plugins,
-			function( $plugin ) {
+			function ( $plugin ) {
 				( new Connection_Plugin( $plugin['slug'] ) )->add( $plugin['name'] );
 			}
 		);

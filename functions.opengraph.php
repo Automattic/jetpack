@@ -316,23 +316,21 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 
 		// Attempt to find something good for this post using our generalized PostImages code.
 		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
-			$post_images = Jetpack_PostImages::get_images(
+			$post_image = Jetpack_PostImages::get_image(
 				get_the_ID(),
 				array(
 					'width'  => $width,
 					'height' => $height,
 				)
 			);
-			if ( $post_images && ! is_wp_error( $post_images ) ) {
-				foreach ( (array) $post_images as $post_image ) {
-					$image['src'] = $post_image['src'];
-					if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
-						$image['width']  = $post_image['src_width'];
-						$image['height'] = $post_image['src_height'];
-					}
-					if ( ! empty( $post_image['alt_text'] ) ) {
-						$image['alt_text'] = $post_image['alt_text'];
-					}
+			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
+				$image['src'] = $post_image['src'];
+				if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
+					$image['width']  = $post_image['src_width'];
+					$image['height'] = $post_image['src_height'];
+				}
+				if ( ! empty( $post_image['alt_text'] ) ) {
+					$image['alt_text'] = $post_image['alt_text'];
 				}
 			}
 		}
@@ -400,7 +398,6 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 
 	return $image;
 }
-
 
 /**
  * Validate the width and height against required width and height
