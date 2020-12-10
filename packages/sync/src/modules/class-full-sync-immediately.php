@@ -123,7 +123,7 @@ class Full_Sync_Immediately extends Module {
 	 * @return boolean
 	 */
 	public function is_started() {
-		return ! ! $this->get_status()['started'];
+		return (bool) $this->get_status()['started'];
 	}
 
 	/**
@@ -184,7 +184,7 @@ class Full_Sync_Immediately extends Module {
 	 * @return boolean
 	 */
 	public function is_finished() {
-		return ! ! $this->get_status()['finished'];
+		return (bool) $this->get_status()['finished'];
 	}
 
 	/**

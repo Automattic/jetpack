@@ -156,7 +156,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
  * Jetpack Protect Get IP.
  *
  * @access public
- * @return IP.
+ * @return string|false IP.
  */
 function jetpack_protect_get_ip() {
 	$trusted_header_data = get_site_option( 'trusted_ip_header' );
@@ -171,8 +171,6 @@ function jetpack_protect_get_ip() {
 	if ( ! $ip ) {
 		return false;
 	}
-
-
 
 	$ips = explode( ',', $ip );
 	if ( ! isset( $segments ) || ! $segments ) {
@@ -196,8 +194,8 @@ function jetpack_protect_get_ip() {
  * Jetpack Clean IP.
  *
  * @access public
- * @param mixed $ip IP.
- * @return $ip IP.
+ * @param string $ip IP.
+ * @return string|false IP.
  */
 function jetpack_clean_ip( $ip ) {
 
@@ -205,29 +203,25 @@ function jetpack_clean_ip( $ip ) {
 	$ips = explode( ' unless ', $ip );
 	$ip = $ips[0];
 
-	$ip = trim( $ip );
+	$ip = strtolower( trim( $ip ) );
+
+	// Check for IPv4 with port.
+	if ( preg_match( '/^(\d+\.\d+\.\d+\.\d+):\d+$/', $ip, $matches ) ) {
+		$ip = $matches[1];
+	}
+
+	// Check for IPv6 (or IPvFuture) with brackets and optional port.
+	if ( preg_match( '/^\[([a-z0-9\-._~!$&\'()*+,;=:]+)\](?::\d+)?$/', $ip, $matches ) ) {
+		$ip = $matches[1];
+	}
+
 	// Check for IPv4 IP cast as IPv6.
 	if ( preg_match( '/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
 		$ip = $matches[1];
 	}
 
-	if ( function_exists( 'wp_parse_url' ) ) {
-		$parsed_url = wp_parse_url( $ip );
-
-		if ( isset( $parsed_url['host'] ) ) {
-			$ip = $parsed_url['host'];
-		} elseif ( isset( $parsed_url['path'] ) ) {
-			$ip = $parsed_url['path'];
-		}
-	} else {
-		$colon_count = substr_count( $ip, ':' );
-		if ( 1 == $colon_count ) {
-			$ips = explode( ':', $ip );
-			$ip  = $ips[0];
-		}
-	}
-
-	return $ip;
+	// Validate and return.
+	return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : false;
 }
 
 /**

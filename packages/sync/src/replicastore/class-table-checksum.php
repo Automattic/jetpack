@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
+use Automattic\Jetpack\Sync\Modules\Comments;
 use Automattic\Jetpack\Sync\Settings;
 use Exception;
 use WP_Error;
@@ -156,6 +157,15 @@ class Table_Checksum {
 				'range_field'     => 'comment_ID',
 				'key_fields'      => array( 'comment_ID' ),
 				'checksum_fields' => array( 'comment_content' ),
+				'filter_values'   => array(
+					'comment_type' => array(
+						'operator' => 'IN',
+						'values'   => apply_filters(
+							'jetpack_sync_whitelisted_comment_types',
+							array( '', 'comment', 'trackback', 'pingback', 'review' )
+						),
+					),
+				),
 				'filter_sql'      => Settings::get_comments_filter_sql(),
 			),
 			'commentmeta'        => array(
@@ -260,7 +270,7 @@ class Table_Checksum {
 	private function validate_fields_against_table( $fields ) {
 		global $wpdb;
 
-		// TODO: Is this safe enough?
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->get_row( "SELECT * FROM {$this->table} LIMIT 1", ARRAY_A );
 		if ( ! is_array( $result ) ) {
 			throw new Exception( 'Unexpected $wpdb->query output: not array' );
@@ -306,14 +316,15 @@ class Table_Checksum {
 		$result = array();
 
 		foreach ( $filter_values as $field => $filter ) {
-			$key = ( $table_prefix ? $table_prefix . '.' : '' ) . $field;
+			$key = ( ! empty( $table_prefix ) ? $table_prefix : $this->table ) . '.' . $field;
 
 			switch ( $filter['operator'] ) {
 				case 'IN':
 				case 'NOT IN':
 					$values_placeholders = implode( ',', array_fill( 0, count( $filter['values'] ), '%s' ) );
+					$statement           = "{$key} {$filter['operator']} ( $values_placeholders )";
 
-					$statement          = "{$key} {$filter['operator']} ( $values_placeholders )";
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 					$prepared_statement = $wpdb->prepare( $statement, $filter['values'] );
 
 					$result[] = $prepared_statement;
@@ -339,7 +350,7 @@ class Table_Checksum {
 		global $wpdb;
 
 		// If there is a field prefix that we want to use with table aliases.
-		$parent_prefix = ! empty( $table_prefix ) ? $table_prefix . '.' : '';
+		$parent_prefix = ( ! empty( $table_prefix ) ? $table_prefix : $this->table ) . '.';
 
 		/**
 		 * Prepare the ranges.
@@ -347,10 +358,12 @@ class Table_Checksum {
 
 		$filter_array = array( '1 = 1' );
 		if ( null !== $range_from ) {
-			$filter_array[] = $wpdb->prepare( "{$this->range_field} >= %d", array( intval( $range_from ) ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} >= %d", array( intval( $range_from ) ) );
 		}
-		if ( null != $range_to ) {
-			$filter_array[] = $wpdb->prepare( "{$this->range_field} <= %d", array( intval( $range_to ) ) );
+		if ( null !== $range_to ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} <= %d", array( intval( $range_to ) ) );
 		}
 
 		/**
@@ -461,7 +474,6 @@ class Table_Checksum {
 		}
 
 		return $query;
-
 	}
 
 	/**
@@ -530,6 +542,7 @@ class Table_Checksum {
 			";
 		}
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$result = $wpdb->get_row( $query, ARRAY_A );
 
 		if ( ! $result || ! is_array( $result ) ) {
@@ -592,6 +605,7 @@ class Table_Checksum {
 		global $wpdb;
 
 		if ( ! $granular_result ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$result = $wpdb->get_row( $query, ARRAY_A );
 
 			if ( ! is_array( $result ) ) {
@@ -607,6 +621,7 @@ class Table_Checksum {
 				'checksum' => $result['checksum'],
 			);
 		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$result = $wpdb->get_results( $query, ARRAY_A );
 			$this->prepare_results_for_output( $result );
 

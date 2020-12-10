@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 /**
  * WordPress dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 
 /**
@@ -29,7 +30,6 @@ import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	getPlanClass,
@@ -151,7 +151,7 @@ class DashScan extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'not-registered',
-				content: jetpackCreateInterpolateElement(
+				content: createInterpolateElement(
 					__(
 						'VaultPress is having difficulties scanning. Please make sure your <keyLink>registration key is entered</keyLink>. If you require further assistance please <supportLink>contact support</supportLink>.',
 						'jetpack'
@@ -213,7 +213,7 @@ class DashScan extends Component {
 				status: 'pro-inactive',
 				content: [
 					<p className="jp-dash-item__description" key="inactive-scanning">
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							__(
 								'VaultPress is not active, <a>please activate</a> to enable automatic scanning for security for threats.',
 								'jetpack'
@@ -234,7 +234,7 @@ class DashScan extends Component {
 			status: 'pro-uninstalled',
 			content: [
 				<p className="jp-dash-item__description" key="inactive-scanning">
-					{ jetpackCreateInterpolateElement(
+					{ createInterpolateElement(
 						__(
 							'VaultPress is not installed, <a>please install</a> to enable automatic scanning for security for threats.',
 							'jetpack'
@@ -277,7 +277,7 @@ class DashScan extends Component {
 				{ renderActiveCard( [
 					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
 					<p className="jp-dash-item__description">
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							_n(
 								'Security threat found. <a>Click here</a> to fix them immediately.',
 								'Security threats found. <a>Click here</a> to fix them immediately.',
@@ -313,7 +313,7 @@ class DashScan extends Component {
 						__( 'Please finish your setup by entering your server’s credentials.', 'jetpack' )
 					) }
 					{ renderAction(
-						getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
+						getRedirectUrl( 'jetpack-scan-dash-credentials', { site: siteRawUrl } ),
 						__( 'Enter credentials', 'jetpack' )
 					) }
 				</>

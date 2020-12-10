@@ -556,12 +556,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_user_locale_changed_is_synced() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports user locale' );
-			return;
-		}
-
 		update_user_meta( $this->user_id, 'locale', 'en_GB' );
 		$this->sender->do_sync();
 
@@ -573,12 +567,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_delete_user_locale_is_synced() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports user locale' );
-			return;
-		}
-
 		delete_user_meta( $this->user_id, 'locale' );
 		$this->sender->do_sync();
 

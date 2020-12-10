@@ -249,13 +249,13 @@ interface Replicastore_Interface {
 	public function delete_option( $option );
 
 	/**
-	 * Change the features that the current theme supports.
+	 * Change the info of the current theme.
 	 *
 	 * @access public
 	 *
-	 * @param array $theme_support Features that the theme supports.
+	 * @param array $theme_info Theme info array.
 	 */
-	public function set_theme_support( $theme_support );
+	public function set_theme_info( $theme_info );
 
 	/**
 	 * Whether the current theme supports a certain feature.
@@ -416,9 +416,9 @@ interface Replicastore_Interface {
 	 *
 	 * @param string $taxonomy   Taxonomy slug.
 	 * @param int    $term_id    ID of the term.
-	 * @param bool   $is_term_id Whether this is a `term_id` or a `term_taxonomy_id`.
+	 * @param string $term_key   ID Field `term_id` or `term_taxonomy_id`.
 	 */
-	public function get_term( $taxonomy, $term_id, $is_term_id = true );
+	public function get_term( $taxonomy, $term_id, $term_key = 'term_id' );
 
 	/**
 	 * Insert or update a term.

@@ -7,13 +7,12 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
-use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Settings as Sync_Settings;
-use Automattic\Jetpack\Sync\Health as Sync_Health;
-use Automattic\Jetpack\Sync\Sender as Sync_Sender;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Health as Sync_Health;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Sender as Sync_Sender;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -747,7 +746,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					esc_html__( 'Error', 'jetpack' )
 				);
 				$description .= wp_kses(
-					__( 'Jetpack has detected an error while syncing your site. <strong>We recommend <a id="full_sync_request_link" href="#">a full sync</a> to align Jetpack with your site data.</strong>', 'jetpack' ),
+					__( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site’s functionality. <strong>Click <a id="full_sync_request_link" href="#">here</a> to start a full sync</strong> to align Jetpack with your site data. If you still notice this error after running a full sync, please contact support for additional assistance.', 'jetpack' ),
 					array(
 						'a'      => array(
 							'id'   => array(),
@@ -765,7 +764,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						'severity'          => 'critical',
 						'action'            => Redirect::get_url( 'jetpack-contact-support' ),
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
-						'short_description' => __( 'Jetpack has detected an error while syncing your site. We recommend a full sync to align Jetpack with your site data.', 'jetpack' ),
+						'short_description' => __( 'Jetpack has detected that data is not properly in sync which may be impacting some of your site’s functionality. We recommend a full sync to align Jetpack with your site data. If you still notice this error after running a full sync, please contact support for additional assistance.', 'jetpack' ),
 						'long_description'  => $description,
 					)
 				);

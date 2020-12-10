@@ -191,9 +191,16 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
+	 * @param bool $enable Should we initilize sender.
 	 * @return bool
 	 */
-	public static function should_initialize_sender_enqueue() {
+	public static function should_initialize_sender_enqueue( $enable ) {
+
+		// If $enabled is false don't modify it, only check cron if enabled.
+		if ( false === $enable ) {
+			return $enable;
+		}
+
 		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}

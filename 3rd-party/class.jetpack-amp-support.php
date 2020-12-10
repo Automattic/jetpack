@@ -1,5 +1,6 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -176,7 +177,7 @@ class Jetpack_AMP_Support {
 			$metadata = self::add_site_icon_to_metadata( $metadata );
 		}
 
-		if ( ! isset( $metadata['image'] ) ) {
+		if ( ! isset( $metadata['image'] ) && ! empty( $post ) ) {
 			$metadata = self::add_image_to_metadata( $metadata, $post );
 		}
 
@@ -299,7 +300,7 @@ class Jetpack_AMP_Support {
 		if ( function_exists( 'staticize_subdomain' ) ) {
 			return staticize_subdomain( $domain );
 		} else {
-			return Jetpack::staticize_subdomain( $domain );
+			return Assets::staticize_subdomain( $domain );
 		}
 	}
 
@@ -381,7 +382,7 @@ class Jetpack_AMP_Support {
 		}
 
 		$sharing_links = array();
-		foreach ( $sharing_enabled['visible'] as $id => $service ) {
+		foreach ( $sharing_enabled['visible'] as $service ) {
 			$sharing_link = $service->get_amp_display( $post );
 			if ( ! empty( $sharing_link ) ) {
 				$sharing_links[] = $sharing_link;
@@ -416,7 +417,7 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_enqueue_sharing_css() {
 		if ( self::is_amp_request() ) {
-			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
+			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( __DIR__ ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
 		}
 	}
 

@@ -13,7 +13,6 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 
@@ -134,6 +133,81 @@ function jetpack_instagram_embed_reversal( $content ) {
 }
 
 /**
+ * List of allowed and sanitized parameters
+ * that can be used with the Instagram oEmbed endpoint.
+ *
+ * Those parameters can be provided via the Instagram URL, or via shortcode parameters.
+ *
+ * @see https://developers.facebook.com/docs/graph-api/reference/instagram-oembed#parameters
+ *
+ * @since 9.1.0
+ *
+ * @param string $url  URL of the content to be embedded.
+ * @param array  $atts Shortcode attributes.
+ *
+ * @return array $params Array of parameters to be used in Instagram query.
+ */
+function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
+	global $content_width;
+
+	// Any URL passed via a shortcode attribute takes precedence.
+	if ( ! empty( $atts['url'] ) ) {
+		$url = $atts['url'];
+		unset( $atts['url'] );
+	}
+
+	/*
+	 * Get URL and parameters from the URL if possible.
+	 *
+	 * We'll also clean any other query params from the URL since Facebook's new API for Instagram
+	 * embeds does not like query parameters. See p7H4VZ-2DU-p2.
+	 */
+	$parsed_url = wp_parse_url( $url );
+	if ( $parsed_url && isset( $parsed_url['host'] ) && isset( $parsed_url['path'] ) ) {
+		// Bail early if this is not an Instagram URL.
+		if ( ! preg_match( '/(?:^|\.)instagr(?:\.am|am\.com)$/', $parsed_url['host'] ) ) {
+			return array();
+		}
+
+		$url = 'https://www.instagram.com' . $parsed_url['path'];
+
+		// If we have any parameters as part of the URL, we merge them with our attributes.
+		if ( ! empty( $parsed_url['query'] ) ) {
+			$query_args = array();
+			wp_parse_str( $parsed_url['query'], $query_args );
+
+			$atts = array_merge( $atts, $query_args );
+		}
+	} else {
+		return array();
+	}
+
+	$max_width = 698;
+	$min_width = 320;
+
+	$params = shortcode_atts(
+		array(
+			'url'         => $url,
+			'width'       => isset( $content_width ) ? $content_width : $max_width,
+			'height'      => '',
+			'hidecaption' => false,
+		),
+		$atts,
+		'instagram'
+	);
+
+	// Ensure width is within bounds.
+	$params['width'] = absint( $params['width'] );
+	if ( $params['width'] > $max_width ) {
+		$params['width'] = $max_width;
+	} elseif ( $params['width'] < $min_width ) {
+		$params['width'] = $min_width;
+	}
+
+	return $params;
+}
+
+/**
  * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
  *
  * @since 9.1.0
@@ -148,13 +222,21 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 		return $provider;
 	}
 
-	// Attempt to clean query params from the URL since Facebook's new API for Instagram
-	// embeds does not like query parameters. See p7H4VZ-2DU-p2.
-	$parsed_url = wp_parse_url( $url );
-	if ( $parsed_url ) {
-		$clean_url            = 'https://www.instagram.com' . $parsed_url['path'];
-		$provider_without_url = remove_query_arg( 'url', $provider );
-		$provider             = add_query_arg( 'url', rawurlencode( $clean_url ), $provider_without_url );
+	// Get a set of URL and parameters supported by Facebook.
+	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url );
+
+	// Replace existing URL by our clean version.
+	if ( ! empty( $clean_parameters['url'] ) ) {
+		$provider = add_query_arg( 'url', rawurlencode( $clean_parameters['url'] ), $provider );
+	}
+
+	// Our shortcode supports the width param, but the API expects maxwidth.
+	if ( ! empty( $clean_parameters['width'] ) ) {
+		$provider = add_query_arg( 'maxwidth', $clean_parameters['width'], $provider );
+	}
+
+	if ( ! empty( $clean_parameters['hidecaption'] ) ) {
+		$provider = add_query_arg( 'hidecaption', true, $provider );
 	}
 
 	$access_token = jetpack_instagram_get_access_token();
@@ -223,6 +305,12 @@ function jetpack_instagram_get_access_token() {
  */
 function jetpack_shortcode_instagram( $atts ) {
 	global $wp_embed;
+
+	if ( empty( $atts['url'] ) ) {
+		return '';
+	}
+
+	$atts = jetpack_instagram_get_allowed_parameters( $atts['url'], $atts );
 
 	if ( empty( $atts['url'] ) ) {
 		return '';

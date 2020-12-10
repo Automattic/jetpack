@@ -14,6 +14,7 @@ import uniqueId from 'lodash/uniqueId';
  */
 import Gridicon from './gridicon';
 import SearchSort from './search-sort';
+import './search-box.scss';
 
 let initiallyFocusedElement = null;
 const stealFocusWithInput = inputElement => () => {
@@ -49,6 +50,7 @@ const SearchBox = props => {
 						autocomplete="off"
 						id={ inputId }
 						className="search-field jetpack-instant-search__box-input"
+						inputmode="search"
 						onInput={ props.onChangeQuery }
 						ref={ inputRef }
 						placeholder={ __( 'Search…', 'jetpack' ) }

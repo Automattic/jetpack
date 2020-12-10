@@ -82,7 +82,7 @@ class Mocker {
 
 			add_filter(
 				'script_loader_tag',
-				function( $tag, $handle ) {
+				function ( $tag, $handle ) {
 					if ( 'mocker_script' === $handle ) {
 						$tag = str_replace( '<script ', '<script type="module" ', $tag );
 					}

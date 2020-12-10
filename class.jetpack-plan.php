@@ -292,7 +292,7 @@ class Jetpack_Plan {
 	 *  the feature or false if not found
 	 */
 	public static function get_minimum_plan_for_feature( $feature ) {
-		foreach ( self::PLAN_DATA as $class => $details ) {
+		foreach ( self::PLAN_DATA as $details ) {
 			if ( in_array( $feature, $details['supports'], true ) ) {
 				return $details['plans'][0];
 			}

@@ -11,6 +11,7 @@
  */
 
 // These are the plugins we don't want to update or delete.
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $jetpack_docker_avoided_plugins = array(
 	'jetpack/jetpack.php',
 );

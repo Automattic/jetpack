@@ -47,7 +47,7 @@ class REST_API_Tester {
 
 			add_filter(
 				'script_loader_tag',
-				function( $tag, $handle ) {
+				function ( $tag, $handle ) {
 					if ( 'rest_api_tester_script' === $handle ) {
 						$tag = str_replace( '<script ', '<script type="module" ', $tag );
 					}

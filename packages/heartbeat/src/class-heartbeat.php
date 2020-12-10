@@ -7,9 +7,8 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\A8c_Mc_Stats;
-use WP_CLI;
 use Jetpack_Options;
+use WP_CLI;
 
 /**
  * Heartbeat sends a batch of stats to wp.com once a day

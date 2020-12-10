@@ -79,7 +79,6 @@ function _manually_load_plugin() {
 }
 
 function _manually_install_woocommerce() {
-	global $wp_version;
 	// clean existing install first
 	define( 'WP_UNINSTALL_PLUGIN', true );
 	define( 'WC_REMOVE_ALL_DATA', true );
@@ -88,11 +87,7 @@ function _manually_install_woocommerce() {
 	WC_Install::install();
 
 	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
-	if ( version_compare( $wp_version, '4.7.0' ) >= 0 ) {
-		$GLOBALS['wp_roles'] = new WP_Roles();
-	} else {
-		$GLOBALS['wp_roles']->reinit();
-	}
+	$GLOBALS['wp_roles'] = new WP_Roles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 	echo "Installing WooCommerce..." . PHP_EOL;
 }
@@ -123,7 +118,7 @@ function jetpack_full_sync_immediately_off( $modules ) {
 	return $modules;
 }
 
-if ( false !== getenv( 'LEGACY_FULL_SYNC' ) ) {
+if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 

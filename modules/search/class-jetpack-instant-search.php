@@ -6,9 +6,6 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Constants;
-
 /**
  * Class to load Instant Search experience on the site.
  *
@@ -25,7 +22,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->base_load_php();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
-			require_once dirname( __FILE__ ) . '/class-jetpack-search-customize.php';
+			require_once __DIR__ . '/class-jetpack-search-customize.php';
 			new Jetpack_Search_Customize();
 		}
 	}
@@ -533,11 +530,16 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			);
 		}
 
-		$taxonomies = get_taxonomies(
-			array(
-				'public'   => true,
-				'_builtin' => false,
-			)
+		// Grab a maximum of 3 taxonomies.
+		$taxonomies = array_slice(
+			get_taxonomies(
+				array(
+					'public'   => true,
+					'_builtin' => false,
+				)
+			),
+			0,
+			3
 		);
 
 		foreach ( $taxonomies as $t ) {
@@ -555,12 +557,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'taxonomy' => 'category',
 			'count'    => 5,
 		);
+
 		$settings['filters'][] = array(
 			'name'     => '',
 			'type'     => 'taxonomy',
 			'taxonomy' => 'post_tag',
 			'count'    => 5,
 		);
+
 		$settings['filters'][] = array(
 			'name'     => '',
 			'type'     => 'date_histogram',
@@ -568,6 +572,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'field'    => 'post_date',
 			'interval' => 'year',
 		);
+
 		return $settings;
 	}
 	/**

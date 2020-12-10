@@ -590,7 +590,7 @@ class Users extends Module {
 	 * @param string $meta_key Meta key.
 	 * @param mixed  $value    Meta value.
 	 */
-	public function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
+	public function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( 'locale' === $meta_key ) {
 			$this->add_flags( $user_id, array( 'locale_changed' => true ) );
 		}
@@ -742,7 +742,7 @@ class Users extends Module {
 	 * @param int $user_id ID of the user.
 	 * @param int $blog_id ID of the blog.
 	 */
-	public function remove_user_from_blog_handler( $user_id, $blog_id ) {
+	public function remove_user_from_blog_handler( $user_id, $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// User is removed on add, see https://github.com/WordPress/WordPress/blob/0401cee8b36df3def8e807dd766adc02b359dfaf/wp-includes/ms-functions.php#L2114.
 		if ( $this->is_add_new_user_to_blog() ) {
 			return;

@@ -20,6 +20,7 @@ use RegexIterator;
  * Tests for the Jetpack phpcs standard.
  */
 class JetpackStandardTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Run phpcs on a file.
@@ -32,7 +33,7 @@ class JetpackStandardTest extends TestCase {
 	private function run_phpcs( $file, $fix ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$contents = file_get_contents( "{$file}.tolint" );
-		$this->assertInternalType( 'string', $contents );
+		$this->assertIsString( $contents );
 
 		$config = new Config();
 
@@ -44,6 +45,9 @@ class JetpackStandardTest extends TestCase {
 		$config->reportWidth = PHP_INT_MAX; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$config->showSources = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$config->tabWidth    = 4; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$config->exclude     = array(
+			'Generic.PHP.Syntax', // Tries to use `PHP_BINARY` to shell out to `php -l`, which breaks if tests are being run under phpdbg for coverage.
+		);
 
 		$ruleset = new Ruleset( $config );
 		$dummy   = new DummyFile( $contents, $ruleset, $config );
@@ -78,7 +82,7 @@ class JetpackStandardTest extends TestCase {
 	public function test_phpcs( $file, $fix ) {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$expect = file_get_contents( $fix ? "$file.fixed" : "$file.report" );
-		$this->assertInternalType( 'string', $expect );
+		$this->assertIsString( $expect );
 		$this->assertEquals( $expect, $this->run_phpcs( $file, $fix ) );
 	}
 

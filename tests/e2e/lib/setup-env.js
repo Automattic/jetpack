@@ -5,7 +5,6 @@
 import { wrap, get } from 'lodash';
 import fs from 'fs';
 import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
-
 /**
  * Internal dependencies
  */
@@ -18,6 +17,7 @@ import {
 	loginToWpcomIfNeeded,
 	loginToWpSite,
 } from './flows/jetpack-connect';
+import TunnelManager from './tunnel-manager';
 
 const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
@@ -25,13 +25,13 @@ let currentBlock;
 const defaultErrorHandler = async ( error, name ) => {
 	// If running tests in CI
 	if ( CI ) {
-		const filePath = await takeScreenshot( currentBlock, name );
+		await logDebugLog();
 		logger.slack( {
 			type: 'failure',
 			message: { block: currentBlock, name, error },
 		} );
+		const filePath = await takeScreenshot( currentBlock, name );
 		logger.slack( { type: 'file', message: filePath } );
-		await logDebugLog();
 		try {
 			reporter.addAttachment(
 				`Test failed: ${ currentBlock } :: ${ name }`,
@@ -141,7 +141,7 @@ function observeConsoleLogging() {
 		// @wordpress/jest-console matchers, will cause the intended test
 		// failure.
 
-		logger.info( `${ type.toUpperCase() }:` + text );
+		logger.info( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 	} );
 }
 
@@ -206,12 +206,17 @@ export const step = async ( stepName, fn ) => {
 };
 
 jasmine.getEnv().addReporter( {
+	jasmineStarted() {
+		logger.info( '############# \n\n\n' );
+	},
 	specStarted( result ) {
 		logger.info( `Spec name: ${ result.fullName }, description: ${ result.description }` );
 		jasmine.currentTest = result;
 	},
 	specDone: () => ( jasmine.currentTest = null ),
 } );
+
+const tunnelManager = new TunnelManager();
 
 // Before every test suite run, delete all content created by the test. This ensures
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
@@ -223,7 +228,13 @@ catchBeforeAll( async () => {
 	await enablePageDialogAccept();
 	observeConsoleLogging();
 
+	const url = await tunnelManager.create( process.env.SKIP_CONNECT );
+	global.tunnelUrl = url;
 	await maybePreConnect();
+} );
+
+afterAll( async () => {
+	await tunnelManager.close();
 } );
 
 afterEach( async () => {

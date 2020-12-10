@@ -18,6 +18,7 @@ import SearchResults from './search-results';
 import { search } from '../lib/api';
 import {
 	getFilterQuery,
+	getResultFormatQuery,
 	getSearchQuery,
 	getSortQuery,
 	hasFilter,
@@ -148,12 +149,11 @@ class SearchApp extends Component {
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
-
-		if ( event.target.dataset.filterType ) {
-			if ( event.target.dataset.filterType === 'taxonomy' ) {
-				setFilterQuery( event.target.dataset.taxonomy, event.target.dataset.val );
+		if ( event.currentTarget.dataset.filterType ) {
+			if ( event.currentTarget.dataset.filterType === 'taxonomy' ) {
+				setFilterQuery( event.currentTarget.dataset.taxonomy, event.currentTarget.dataset.val );
 			} else {
-				setFilterQuery( event.target.dataset.filterType, event.target.dataset.val );
+				setFilterQuery( event.currentTarget.dataset.filterType, event.currentTarget.dataset.val );
 			}
 		}
 		this.showResults();
@@ -184,8 +184,6 @@ class SearchApp extends Component {
 			this.setState( { showResults: false } );
 		} );
 	};
-
-	onChangeQuery = event => setSearchQuery( event.target.value );
 
 	onPopstate = () => {
 		this.onChangeQueryString();
@@ -234,6 +232,11 @@ class SearchApp extends Component {
 			adminQueryFilter: this.props.options.adminQueryFilter,
 		} )
 			.then( newResponse => {
+				if ( newResponse === null ) {
+					// Request has been cancelled by a more recent request
+					return;
+				}
+
 				if ( this.state.requestId === requestId ) {
 					const response = { ...newResponse };
 					if ( !! pageHandle ) {
@@ -254,15 +257,21 @@ class SearchApp extends Component {
 				this.setState( { isLoading: false } );
 			} )
 			.catch( error => {
+				// XHR errors are instances of ProgressEvents.
 				if ( error instanceof ProgressEvent ) {
 					this.setState( { isLoading: false, hasError: true } );
 					return;
 				}
+				// Stop loading indicator before throwing.
+				this.setState( { isLoading: false } );
 				throw error;
 			} );
 	};
 
 	render() {
+		// Override the result format from the query string if result_format= is specified
+		const resultFormatQuery = getResultFormatQuery();
+
 		return createPortal(
 			<Overlay
 				closeColor={ this.state.overlayOptions.closeColor }
@@ -289,7 +298,7 @@ class SearchApp extends Component {
 					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
-					resultFormat={ this.state.overlayOptions.resultFormat }
+					resultFormat={ resultFormatQuery || this.state.overlayOptions.resultFormat }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					sort={ this.getSort() }
 					widgets={ this.props.options.widgets }

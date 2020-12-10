@@ -8,8 +8,8 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Roles;
 
 /**
  * Class Users.

@@ -9,9 +9,7 @@ namespace Automattic\Jetpack\JITMS;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-use Automattic\Jetpack\Partner;
-use Automattic\Jetpack\JITMS\Post_Connection_JITM;
-use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
 /**
@@ -37,7 +35,7 @@ class JITM {
 	 * @return Post_Connection_JITM|Pre_Connection_JITM JITM instance.
 	 */
 	public static function get_instance() {
-		if ( \Jetpack::is_active() ) {
+		if ( ( new Connection_Manager() )->is_active() ) {
 			$jitm = new Post_Connection_JITM();
 		} else {
 			$jitm = new Pre_Connection_JITM();

@@ -177,8 +177,7 @@ class Grunion_Contact_Form_Plugin {
 					'not_found'          => __( 'No feedback found', 'jetpack' ),
 					'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
 				),
-				// Matrial Ballot icon
-				'menu_icon'             => 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z"/></svg>'),
+				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
@@ -340,6 +339,16 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
+		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.).
+		if ( ! jetpack_is_frontend() ) {
+			return sprintf(
+				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+				esc_url( get_the_permalink() ),
+				esc_html__( 'Submit a form.', 'jetpack' )
+			);
+		}
+
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
@@ -732,33 +741,18 @@ class Grunion_Contact_Form_Plugin {
 	 * @return bool Returns true if the form submission matches the disallowed list and false if it doesn't.
 	 */
 	public function is_in_disallowed_list( $in_disallowed_list, $form = array() ) {
-		global $wp_version;
-
 		if ( $in_disallowed_list ) {
 			return $in_disallowed_list;
 		}
 
-		/*
-		 * wp_blacklist_check was deprecated in WP 5.5.
-		 * @todo: remove when WordPress 5.5 is the minimum required version.
-		 */
-		if ( version_compare( $wp_version, '5.5-alpha', '>=' ) ) {
-			$check_comment_disallowed_list = 'wp_check_comment_disallowed_list';
-		} else {
-			$check_comment_disallowed_list = 'wp_blacklist_check';
-		}
-
 		if (
-			call_user_func_array(
-				$check_comment_disallowed_list,
-				array(
-					$form['comment_author'],
-					$form['comment_author_email'],
-					$form['comment_author_url'],
-					$form['comment_content'],
-					$form['user_ip'],
-					$form['user_agent'],
-				)
+			wp_check_comment_disallowed_list(
+				$form['comment_author'],
+				$form['comment_author_email'],
+				$form['comment_author_url'],
+				$form['comment_content'],
+				$form['user_ip'],
+				$form['user_agent']
 			)
 		) {
 			return true;
@@ -3515,7 +3509,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 
-	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text ) {
 
 		$type_class = $type ? ' ' .$type : '';
 		return

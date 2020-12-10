@@ -7,10 +7,11 @@
 
 namespace Automattic\Jetpack;
 
-use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Retrieves a URL within the plugins or mu-plugins directory.
@@ -57,18 +58,21 @@ function wp_enqueue_script( $handle, $src = '', $deps = array(), $ver = false, $
  *                          Defaults to -1 (= return all parts as an array).
  */
 function wp_parse_url( $url, $component = -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	return parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+	return parse_url( $url, $component ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 }
 
 /**
  * Assets test suite.
  */
 class AssetsTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * Test setup.
+	 *
+	 * @before
 	 */
-	public function setUp() {
+	public function set_up() {
 		Monkey\setUp();
 		$plugin_file = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/jetpack.php';
 		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $plugin_file );
@@ -77,8 +81,10 @@ class AssetsTest extends TestCase {
 
 	/**
 	 * Run after every test.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Monkey\tearDown();
 		$GLOBALS['_was_called_wp_enqueue_script'] = array();
 	}
@@ -100,8 +106,8 @@ class AssetsTest extends TestCase {
 		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path );
 
 		// note the double-$$ here, $(non_)min_path is referenced by var name.
-		$this->assertContains( $$expected, $file_url );
-		$this->assertNotContains( $$not_expected, $file_url );
+		$this->assertStringContainsString( $$expected, $file_url );
+		$this->assertStringNotContainsString( $$not_expected, $file_url );
 	}
 
 	/**
@@ -135,8 +141,8 @@ class AssetsTest extends TestCase {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path, $package_path );
 
-		$this->assertContains( $expected, $file_url );
-		$this->assertNotContains( $not_expected, $file_url );
+		$this->assertStringContainsString( $expected, $file_url );
+		$this->assertStringNotContainsString( $not_expected, $file_url );
 	}
 
 	/**
@@ -150,7 +156,7 @@ class AssetsTest extends TestCase {
 
 		$file_url = Assets::get_file_url_for_environment( 'test.min.js', 'test.js' );
 
-		$this->assertContains( 'special-test.js', $file_url );
+		$this->assertStringContainsString( 'special-test.js', $file_url );
 	}
 
 	/**
@@ -220,7 +226,7 @@ class AssetsTest extends TestCase {
 	public function test_enqueue_async_script_adds_script_loader_tag_filter() {
 		Assets::enqueue_async_script( 'handle', 'minpath.js', 'path.js', array(), '123', true );
 		$asset_instance = Assets::instance();
-		self::assertTrue( has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
+		self::assertEquals( 10, (int) has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
 	}
 
 	/**
@@ -231,6 +237,69 @@ class AssetsTest extends TestCase {
 		$this->assertEquals(
 			$GLOBALS['_was_called_wp_enqueue_script'],
 			array( array( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true ) )
+		);
+	}
+
+	/**
+	 * Test whether static resources are properly updated to use a WordPress.com static domain.
+	 *
+	 * @covers Automattic\Jetpack\Status::staticize_subdomain
+	 * @dataProvider get_resources_urls
+	 *
+	 * @param string $original       Source URL.
+	 * @param string $expected_http  Expected WordPress.com Static URL when we're mocking a site using HTTP.
+	 * @param string $expected_https Expected WordPress.com Static URL when we're mocking a site using HTTPS.
+	 */
+	public function test_staticize_subdomain( $original, $expected_http, $expected_https ) {
+		Functions\when( 'is_ssl' )->justReturn( false );
+		$static_resource = Assets::staticize_subdomain( $original );
+		$this->assertStringContainsString( $expected_http, $static_resource );
+
+		Functions\when( 'is_ssl' )->justReturn( true );
+		$static_resource = Assets::staticize_subdomain( $original );
+		$this->assertEquals( $expected_https, $static_resource );
+	}
+
+	/**
+	 * Data provider to test staticize_subdomain
+	 */
+	public function get_resources_urls() {
+		return array(
+			'non_wpcom_domain'  => array(
+				'https://example.org/thing.jpg',
+				'https://example.org/thing.jpg',
+				'https://example.org/thing.jpg',
+			),
+			'wp_in_the_name'    => array(
+				'https://examplewp.com/thing.jpg',
+				'https://examplewp.com/thing.jpg',
+				'https://examplewp.com/thing.jpg',
+			),
+			'local_domain'      => array(
+				'https://localhost/dir/thing.jpg',
+				'https://localhost/dir/thing.jpg',
+				'https://localhost/dir/thing.jpg',
+			),
+			'wordpresscom'      => array(
+				'https://wordpress.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
+			'wpcom'             => array(
+				'https://wp.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
+			'www_wordpresscom'  => array(
+				'https://www.wordpress.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
+			'http_wordpresscom' => array(
+				'http://wordpress.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
 		);
 	}
 }

@@ -290,7 +290,7 @@ class Jetpack_Media {
 	 * @param  array [$revision_history] - revision history array
 	 * @return array `revision_history` array updated.
 	 */
-	public static function remove_items_from_revision_history( $media_id, $criteria = array(), $revision_history ) {
+	public static function remove_items_from_revision_history( $media_id, $criteria, $revision_history ) {
 		if ( ! isset ( $revision_history ) ) {
 			$revision_history = self::get_revision_history( $media_id );
 		}

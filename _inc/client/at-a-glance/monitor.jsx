@@ -4,7 +4,11 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -65,7 +69,7 @@ class DashMonitor extends Component {
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode.', 'jetpack' )
-						: jetpackCreateInterpolateElement(
+						: createInterpolateElement(
 								__(
 									'<a>Activate Monitor</a> to receive email notifications if your site goes down.',
 									'jetpack'

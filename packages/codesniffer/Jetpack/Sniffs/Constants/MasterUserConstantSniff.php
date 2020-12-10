@@ -4,7 +4,6 @@ namespace Automattic\Jetpack\Sniffs\Constants;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
-use PHP_CodeSniffer\Util\Tokens;
 
 /**
  * Sniffer that looks for JETPACK_MASTER_USER constant usage
@@ -18,7 +17,6 @@ class MasterUserConstantSniff implements Sniff {
 	public function register() {
 		return array( T_STRING );
 	}
-
 
 	/**
 	 * Processes the tokens that this sniff is interested in.

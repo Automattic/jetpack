@@ -529,6 +529,7 @@ class SimplePaymentsEdit extends Component {
 						label={ __( 'Describe your item in a few words', 'jetpack' ) }
 						onChange={ this.handleContentChange }
 						placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
+						aria-label={ __( 'Describe your item in a few words', 'jetpack' ) }
 						value={ content }
 					/>
 

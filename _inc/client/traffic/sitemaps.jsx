@@ -5,7 +5,11 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -96,7 +100,7 @@ export class Sitemaps extends React.Component {
 					) : (
 						<FormFieldset>
 							<p className={ searchEngineVisibilityClasses }>
-								{ jetpackCreateInterpolateElement(
+								{ createInterpolateElement(
 									__(
 										'Search engines can’t access your site at the moment. If you’d like to make your site accessible, check your <a>Reading settings</a> and switch "Search Engine Visibility" on.',
 										'jetpack'

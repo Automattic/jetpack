@@ -14,6 +14,7 @@ import WidgetAreaContainer from './widget-area-container';
 import JetpackColophon from './jetpack-colophon';
 import PreselectedSearchFilters from './preselected-search-filters';
 import { hasPreselectedFilters } from '../lib/query-string';
+import './search-sidebar.scss';
 
 const SearchSidebar = props => {
 	return (

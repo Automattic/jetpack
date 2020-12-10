@@ -9,6 +9,7 @@ import { get, includes } from 'lodash';
 /**
  * WordPress dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 
 /**
@@ -22,7 +23,6 @@ import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/const
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isModuleActivated } from 'state/modules';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import { numberFormat } from 'components/number-format';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import SettingsCard from 'components/settings-card';
@@ -88,7 +88,7 @@ class BackupsScanRewind extends Component {
 						'You need to enter your server credentials to finish configuring Backups and Scan.',
 						'jetpack'
 					),
-					url: getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
+					url: getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteRawUrl } ),
 				};
 			case 'active':
 				return {
@@ -183,11 +183,11 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 							</strong>
 							<br />
 							<br />
-							{ jetpackCreateInterpolateElement( __( '<a>View details</a>', 'jetpack' ), {
+							{ createInterpolateElement( __( '<a>View details</a>', 'jetpack' ), {
 								a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } />,
 							} ) }
 							<br />
-							{ jetpackCreateInterpolateElement( __( '<a>Contact Support</a>', 'jetpack' ), {
+							{ createInterpolateElement( __( '<a>Contact Support</a>', 'jetpack' ), {
 								a: <a href={ getRedirectUrl( 'jetpack-support' ) } />,
 							} ) }
 						</div>
