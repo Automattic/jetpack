@@ -243,6 +243,21 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
+= 9.2.1 =
+
+* Release date: December 10, 2020
+
+**Improved compatibility**
+
+* Site Health Tools: improve PHP 8 compatibility.
+* Twenty Twenty One: add support for Jetpack's Content Options.
+
+**Bug fixes**
+
+* Instant Search: fix layout issues with filtering checkboxes with some themes.
+* WordPress.com Toolbar: avoid Fatal errors when the feature is not active.
+* WordPress.com Toolbar: avoid 404 errors when loading the toolbar.
+
 = 9.2 =
 
 * Release date: December 1, 2020
