@@ -227,6 +227,10 @@ class Jetpack_Search_Helpers {
 	static function generate_widget_filter_name( $widget_filter ) {
 		$name = '';
 
+		if ( ! isset( $widget_filter['type'] ) ) {
+			return $name;
+		}
+
 		switch ( $widget_filter['type'] ) {
 			case 'post_type':
 				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
