@@ -41,9 +41,9 @@ There are two ways to update your branch with changes to `master` or a parent PR
    * Con: Our pre-commit verification doesn't run on rebases, so you might wind up with all commits tagged as "[not verified]".
    * Note: When pushing the rebase to GitHub, use `git push --force-with-lease` as it's safer than the older `git push --force`.
 
-In general it's probably best to rebase if you haven't yet created the PR, and in particular it's good to rebase just before doing so. After the PR has been created, it's generally better for collaboration to merge instead.
+In general, it's best to rebase if you haven't yet created the PR, and, in particular, it's good to rebase just before doing so. After the PR has been created, it's better for collaboration to merge instead.
 
-If you're working on a collaborative branch, it's also a good idea to rebase your new commits on top of anyone else's new commits to the shared branch before pushing them.
+If you're working on a collaborative branch, it's also a good idea to rebase your new commits on top of anyone else's new commits to the shared branch before pushing them. Once your updated branch has been pushed, rebasing will require coordination with everyone else working on the branch and thus should be avoided.
 
 ### Keeping your PR up to date as an external contributor
 
