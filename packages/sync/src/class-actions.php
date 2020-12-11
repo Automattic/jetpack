@@ -337,7 +337,7 @@ class Actions {
 	 * @param float  $preprocess_duration    Time spent converting queue items into data to send.
 	 * @param int    $queue_size             The size of the sync queue at the time of processing.
 	 * @param string $buffer_id              The ID of the Queue buffer checked out for processing.
-	 * @return Jetpack_Error|mixed|WP_Error  The result of the sending request.
+	 * @return mixed|WP_Error                The result of the sending request.
 	 */
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
 
