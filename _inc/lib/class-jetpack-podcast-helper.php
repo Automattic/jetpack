@@ -123,7 +123,7 @@ class Jetpack_Podcast_Helper {
 	 * @param string $rss      The RSS feed to load and list tracks for.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	protected function get_track_list( $rss ) {
+	public function get_track_list( $rss ) {
 		// Get first ten items and format them.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
 
