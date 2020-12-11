@@ -1,36 +1,22 @@
 <?php
 /**
- * Mock class to help make Jetpack_Podcast_Helper more testable.
+ * Implements a basic interface of the SimplePie_Item class in environments where it doesn't exist.
  *
  * @package jetpack
  */
 
-/**
- * Class SimplePie_Item.
- */
-class SimplePie_Item {
+if ( ! class_exists( 'SimplePie_Item' ) ) {
 	/**
-	 * Holds ID.
-	 *
-	 * @var int
+	 * Class SimplePie_Item.
 	 */
-	private $id;
-
-	/**
-	 * Mock_SimplePie_Item constructor.
-	 *
-	 * @param int $id ID.
-	 */
-	public function __construct( $id ) {
-		$this->id = $id;
-	}
-
-	/**
-	 * Returns ID.
-	 *
-	 * @return int
-	 */
-	public function get_id() {
-		return $this->id;
+	class SimplePie_Item {
+		/**
+		 * Returns ID.
+		 *
+		 * @return int
+		 */
+		public function get_id() {
+			return null;
+		}
 	}
 }

@@ -1,23 +1,22 @@
 <?php
 /**
- * Mock class to help make Jetpack_Podcast_Helper more testable.
+ * Implements a basic interface of the SimplePie class in environments where it doesn't exist.
  *
  * @package jetpack
  */
 
-/**
- * Class SimplePie
- */
-class SimplePie {
+if ( ! class_exists( 'SimplePie' ) ) {
 	/**
-	 * Mock of get_items().
-	 *
-	 * @return \SimplePie_Item[]
+	 * Class SimplePie
 	 */
-	public function get_items() {
-		return array(
-			new SimplePie_Item( 0 ),
-			new SimplePie_Item( 1 ),
-		);
+	class SimplePie {
+		/**
+		 * Get a list or items.
+		 *
+		 * @return \SimplePie_Item[]
+		 */
+		public function get_items() {
+			return null;
+		}
 	}
 }
