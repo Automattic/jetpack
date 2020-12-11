@@ -75,7 +75,7 @@ function render_block( $attrs, $block_content, $block ) {
 	}
 
 	// Pick up conversation data from context.
-	$participants = isset( $block->context['jetpack/conversation-participants'] )
+	$participants = ! empty( $block->context['jetpack/conversation-participants'] )
 		? $block->context['jetpack/conversation-participants']
 		: $default_participants['list'];
 
