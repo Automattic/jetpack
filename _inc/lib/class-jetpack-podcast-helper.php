@@ -48,7 +48,7 @@ class Jetpack_Podcast_Helper {
 			}
 
 			// Get tracks.
-			$tracks = $this->get_track_list( $rss );
+			$tracks = $this->get_track_list();
 
 			if ( empty( $tracks ) ) {
 				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
@@ -120,10 +120,15 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a list of tracks for the supplied RSS feed.
 	 *
-	 * @param string $rss      The RSS feed to load and list tracks for.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	public function get_track_list( $rss ) {
+	public function get_track_list() {
+		$rss = $this->load_feed();
+
+		if ( is_wp_error( $rss ) ) {
+			return $rss;
+		}
+
 		// Get first ten items and format them.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
 
