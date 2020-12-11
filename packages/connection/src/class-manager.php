@@ -2127,7 +2127,7 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		$is_connection_owner = false === $this->get_connection_owner();
+		$is_connection_owner = ! $this->has_connected_owner();
 
 		Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
