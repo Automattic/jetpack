@@ -251,6 +251,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Enhancements**
 
 * Autoloader: improve performance by caching known plugins.
+* Related Posts: use the semantic time element when displaying dates.
 
 **Improved compatibility**
 
