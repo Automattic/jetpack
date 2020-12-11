@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
-use Automattic\Jetpack\Sync\Modules\Comments;
 use Automattic\Jetpack\Sync\Settings;
 use Exception;
 use WP_Error;
@@ -104,6 +103,11 @@ class Table_Checksum {
 	 * @throws Exception Throws exception from inner functions.
 	 */
 	public function __construct( $table, $salt = null ) {
+
+		if ( ! Settings::is_checksum_enabled() ) {
+			throw new Exception( 'Checksums are currently disabled.' );
+		}
+
 		$this->salt = $salt;
 
 		$this->default_tables = $this->get_default_tables();
@@ -584,6 +588,11 @@ class Table_Checksum {
 	 * @return array|mixed|object|WP_Error|null
 	 */
 	public function calculate_checksum( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false, $simple_return_value = true ) {
+
+		if ( ! Settings::is_checksum_enabled() ) {
+			return new WP_Error( 'checksum_disabled', 'Checksums are currently disabled.' );
+		}
+
 		try {
 			$this->validate_input();
 		} catch ( Exception $ex ) {
