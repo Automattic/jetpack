@@ -114,6 +114,16 @@ function process_anchor_params() {
 		}
 	}
 
+	// Display an outbound link after publishing a post (only to English-speaking users since Anchor
+	// is English only).
+	if (
+		'post' === get_post_type() &&
+		! get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) &&
+		0 === strpos( get_user_locale(), 'en' )
+	) {
+		$data['action'] = 'show-post-publish-outbound-link';
+	}
+
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
 

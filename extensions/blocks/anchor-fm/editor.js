@@ -3,6 +3,9 @@
  */
 import { createBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
+import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { __ } from '@wordpress/i18n';
+import { registerPlugin } from '@wordpress/plugins';
 
 /**
  * Internal dependencies
@@ -48,6 +51,26 @@ async function insertSpotifyBadge() {
 	}
 }
 
+const ConvertToAudio = () => (
+	<PluginPostPublishPanel>
+		<p className="post-publish-panel__postpublish-subheader">
+			<strong>{ __( 'Convert to audio', 'jetpack' ) }</strong>
+		</p>
+		<p>{ __( 'Let your readers listen to your post.', 'jetpack' ) }</p>
+		<p>
+			<a href="https://anchor.fm/wordpress" target="_top">
+				{ __( 'Create a podcast episode', 'jetpack' ) }
+			</a>
+		</p>
+	</PluginPostPublishPanel>
+);
+
+function showPostPublishOutboundLink() {
+	registerPlugin( 'post-publish-anchor-outbound-link', {
+		render: ConvertToAudio,
+	} );
+}
+
 function initAnchor() {
 	const isExtensionAvailable = getJetpackExtensionAvailability( name )?.available;
 	if ( ! isExtensionAvailable ) {
@@ -62,6 +85,9 @@ function initAnchor() {
 	switch ( data.action ) {
 		case 'insert-spotify-badge':
 			insertSpotifyBadge();
+			break;
+		case 'show-post-publish-outbound-link':
+			showPostPublishOutboundLink();
 			break;
 	}
 }
