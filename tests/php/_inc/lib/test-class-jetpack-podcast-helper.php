@@ -27,10 +27,8 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 			->getMock();
 
 		$podcast_helper->expects( $this->exactly( 1 ) )
-					->method( 'load_feed' )
-					->will(
-						$this->returnValue( new WP_Error( 'feed_error', 'Feed error.' ) )
-					);
+			->method( 'load_feed' )
+			->will( $this->returnValue( new WP_Error( 'feed_error', 'Feed error.' ) ) );
 
 		// `load_feed()` returns error.
 		$error = $podcast_helper->get_track_data( '' );
@@ -39,31 +37,29 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 		$this->assertSame( $error->get_error_message(), 'Feed error.' );
 
 		$podcast_helper = $this->getMockBuilder( 'Jetpack_Podcast_Helper' )
-							->disableOriginalConstructor()
-							->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
-							->getMock();
+			->disableOriginalConstructor()
+			->setMethods( array( 'load_feed', 'setup_tracks_callback' ) )
+			->getMock();
 
 		$podcast_helper->expects( $this->exactly( 2 ) )
-					->method( 'load_feed' )
-					->will(
-						$this->returnValue( new SimplePie() )
-					);
+			->method( 'load_feed' )
+			->will( $this->returnValue( new SimplePie() ) );
 
 		$podcast_helper->expects( $this->exactly( 1 ) )
-					->method( 'setup_tracks_callback' )
-					->will(
-						$this->returnValue(
-							array(
-								'id'          => wp_unique_id( 'podcast-track-' ),
-								'link'        => 'https://example.org',
-								'src'         => 'https://example.org',
-								'type'        => 'episode',
-								'description' => '',
-								'title'       => '',
-								'guid'        => '123',
-							)
-						)
-					);
+			->method( 'setup_tracks_callback' )
+			->will(
+				$this->returnValue(
+					array(
+						'id'          => wp_unique_id( 'podcast-track-' ),
+						'link'        => 'https://example.org',
+						'src'         => 'https://example.org',
+						'type'        => 'episode',
+						'description' => '',
+						'title'       => '',
+						'guid'        => '123',
+					)
+				)
+			);
 
 		// Can't find an episode.
 		$error = $podcast_helper->get_track_data( '' );

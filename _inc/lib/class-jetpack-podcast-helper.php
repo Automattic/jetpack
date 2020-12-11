@@ -161,7 +161,7 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * @return SimplePie|WP_Error The RSS object or error.
 	 */
-	protected function load_feed() {
+	public function load_feed() {
 		$rss = fetch_feed( $this->feed );
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
