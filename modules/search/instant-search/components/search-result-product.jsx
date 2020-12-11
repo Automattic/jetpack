@@ -4,6 +4,7 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -27,7 +28,10 @@ class SearchResultProduct extends Component {
 			? fields[ 'image.url.raw' ][ 0 ]
 			: fields[ 'image.url.raw' ];
 
-		const title = highlight.title[ 0 ].length > 0 ? highlight.title[ 0 ] : 'no title'; // @todo translate
+		const title =
+			Array.isArray( highlight.title ) && highlight.title[ 0 ].length > 0
+				? highlight.title[ 0 ]
+				: __( 'No title', 'jetpack' );
 
 		return (
 			<li className="jetpack-instant-search__search-result-product">
