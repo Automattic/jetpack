@@ -32,6 +32,7 @@ import {
 	userCanConnectSite,
 	getCurrentVersion,
 	getTracksUserData,
+	showRecommendations,
 	showSetupWizard,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
@@ -276,7 +277,12 @@ class Main extends React.Component {
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
 			case '/recommendations/summary':
-				pageComponent = <Recommendations />;
+				if ( this.props.showRecommendations ) {
+					pageComponent = <Recommendations />;
+				} else {
+					this.props.history.replace( '/dashboard' );
+					pageComponent = this.getAtAGlance();
+				}
 				break;
 			default:
 				this.props.history.replace( '/dashboard' );
@@ -284,11 +290,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		const pageOrder = this.props.showSetupWizard
-			? { dashboard: 1, setup: 2, settings: 3 }
-			: { setup: -1, recommendations: 1, dashboard: 2, settings: 3 }; // TODO: change this order once showSetupWizard is replaced with showRecommendations
-
-		window.wpNavMenuClassChange( pageOrder );
+		window.wpNavMenuClassChange();
 
 		return (
 			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
@@ -404,6 +406,7 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
+			showRecommendations: showRecommendations( state ),
 			showSetupWizard: showSetupWizard( state ),
 		};
 	},
@@ -425,7 +428,7 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
+window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
 
 	// Clear currently highlighted sub-nav item
@@ -443,11 +446,7 @@ window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, 
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if ( recommendationsRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.recommendations ).classList.add( 'current' );
-	} else if ( setupRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.setup ).classList.add( 'current' );
-	} else if ( dashboardRoutes.includes( hash ) ) {
+	if ( dashboardRoutes.includes( hash ) || recommendationsRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );

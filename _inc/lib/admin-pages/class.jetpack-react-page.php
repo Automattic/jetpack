@@ -46,13 +46,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Add Jetpack Recommendations sub-link.
-	 */
-	public function jetpack_add_recommendations_sub_nav_item() {
-		add_submenu_page( 'jetpack', __( 'Recommendations', 'jetpack' ), __( 'Recommendations', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/recommendations', '__return_null' );
-	}
-
-	/**
 	 * Add Jetpack Setup sub-link for eligible users
 	 */
 	function jetpack_add_set_up_sub_nav_item() {
@@ -309,6 +302,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isAtomicSite'               => jetpack_is_atomic_site(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
