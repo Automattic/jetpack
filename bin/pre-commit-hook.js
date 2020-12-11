@@ -14,11 +14,7 @@ let exitCode = 0;
  */
 function loadPhpcsExcludeList() {
 	if ( null === excludelist ) {
-		const regex = /^\s*#|^\s*$/;
-		excludelist = fs
-			.readFileSync( __dirname + '/phpcs-excludelist.txt', 'utf8' )
-			.split( '\n' )
-			.filter( line => ! line.match( regex ) );
+		excludelist = JSON.parse( fs.readFileSync( __dirname + '/phpcs-excludelist.json', 'utf8' ) );
 	}
 	return excludelist;
 }
