@@ -4,6 +4,7 @@
 import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { media } from '@wordpress/icons';
+import { useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -13,6 +14,20 @@ import MediaSources from './media-sources';
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace } = props;
 	const originalComponent = mediaProps.render;
+
+	const meta = useSelect( select => select( 'core/editor' ).getCurrentPostAttribute( 'meta' ), [] );
+	const { jetpack_anchor_track: track } = meta;
+
+	function setPodcastEpisodeCover( ...args ) {
+		if ( ! track ) {
+			return;
+		}
+
+		const dataTrack = JSON.parse( track );
+		if ( !dataTrack?.image ) {
+			return;
+		}
+	}
 
 	if ( isFeatured && mediaProps.value === undefined ) {
 		return originalComponent( { open } );
@@ -65,6 +80,12 @@ function MediaButtonMenu( props ) {
 							</MenuItem>
 
 							<MediaSources open={ open } setSource={ setSelectedSource } />
+
+							{ track && (
+								<MenuItem icon="microphone" onClick={ setPodcastEpisodeCover }>
+									{ __( 'Podcast episode cover', 'jetpack' ) }
+								</MenuItem>
+							) }
 						</MenuGroup>
 					</NavigableMenu>
 				) }

@@ -16,7 +16,7 @@ import { speak } from '@wordpress/a11y';
  */
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
-class AudioPlayer extends Component {
+export class AudioPlayer extends Component {
 	audioRef = el => {
 		if ( el ) {
 			// Construct audio element.
@@ -31,6 +31,8 @@ class AudioPlayer extends Component {
 
 			// Save audio reference from the MediaElement.js instance.
 			this.audio = this.mediaElement.domNode;
+			console.log( 'this.audio: ', this.audio );
+
 			this.audio.addEventListener( 'play', this.props.handlePlay );
 			this.audio.addEventListener( 'pause', this.props.handlePause );
 			this.audio.addEventListener( 'error', this.props.handleError );

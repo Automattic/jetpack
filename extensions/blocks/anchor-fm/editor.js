@@ -1,12 +1,21 @@
 /**
  * WordPress dependencies
  */
-import { createBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
+
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
+import { addFilter } from '@wordpress/hooks';
+import {
+	useBlockEditContext,
+	BlockControls,
+} from '@wordpress/block-editor';
+import {
+	ToolbarGroup,
+	ToolbarButton,
+} from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -14,6 +23,7 @@ import { registerPlugin } from '@wordpress/plugins';
 import { name } from '.';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import { waitForEditor } from '../../shared/wait-for-editor';
+import buidlTemplate from './basic-template';
 
 async function insertSpotifyBadge() {
 	const { Jetpack_AnchorFm = {} } = window;
@@ -24,32 +34,32 @@ async function insertSpotifyBadge() {
 
 	const { track = {} } = Jetpack_AnchorFm;
 
+	const templateParams = {
+		podcastLink: track?.link,
+		spotifyShowUrl,
+		spotifyImageUrl: image,
+		track,
+	};
+
 	await waitForEditor();
 
-	const { insertBlock } = dispatch( 'core/block-editor' );
 	const { editPost } = dispatch( 'core/editor' );
 	const { isEditedPostNew } = select( 'core/editor' );
-
-	insertBlock(
-		createBlock( 'core/image', {
-			url: image,
-			linkDestination: 'none',
-			href: spotifyShowUrl,
-			align: 'center',
-			width: 165,
-			height: 40,
-			className: 'is-spotify-podcast-badge',
-		} ),
-		0,
-		undefined,
-		false
-	);
 
 	// Set the post title when the post is new,
 	// and it can be picked up from the podcast track.
 	if ( isEditedPostNew() && track.title ) {
 		editPost( { title: track.title } );
 	}
+
+	// Build and insert podcast episode post content.
+	const { insertBlocks } = dispatch( 'core/block-editor' );
+	insertBlocks(
+		buidlTemplate( templateParams ),
+		0,
+		undefined,
+		false
+	);
 }
 
 const ConvertToAudio = () => (
@@ -95,3 +105,35 @@ function initAnchor() {
 }
 
 initAnchor();
+
+function functionHandler( OriginalBlockEdit ) {
+	return ( props ) => {
+		const { name: blockName } = useBlockEditContext();
+
+		if ( blockName !== 'core/paragraph' ) {
+			return (
+				<OriginalBlockEdit { ...props } />
+			);
+		}
+
+		return (
+			<>
+				<BlockControls>
+					<ToolbarGroup>
+						<ToolbarButton
+							icon="microphone"
+							onClick={ console.log }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+				<OriginalBlockEdit { ...props } />
+			</>
+		);
+	};
+}
+
+addFilter(
+	'editor.BlockEdit',
+	'jetpack/anchor-fm',
+	functionHandler
+);

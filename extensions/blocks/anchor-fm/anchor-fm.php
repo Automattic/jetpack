@@ -45,6 +45,17 @@ function register_block() {
 			'type'         => 'string',
 		)
 	);
+
+	register_post_meta(
+		'post',
+		'jetpack_anchor_track',
+		array(
+			'show_in_rest' => true,
+			'single'       => true,
+			'type'         => 'string',
+		)
+	);
+
 	register_post_meta(
 		'post',
 		'jetpack_anchor_spotify_show',
@@ -101,6 +112,7 @@ function process_anchor_params() {
 					$data['episodeId'] = $episode_id;
 					$data['track']     = $track;
 					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
+					update_post_meta( $post->ID, 'jetpack_anchor_track', json_encode( $track ) );
 				}
 			}
 		}

@@ -23,7 +23,7 @@ function insertExternalMediaBlocks( settings, name ) {
 	};
 }
 
-if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
+if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext || true ) {
 	const isFeaturedImage = props =>
 		props.unstableFeaturedImageFlow ||
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
