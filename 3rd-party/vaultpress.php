@@ -56,7 +56,7 @@ function jetpack_vaultpress_rewind_check() {
 		Jetpack::is_active() &&
 		Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) &&
 		Jetpack::is_rewind_enabled()
-		) {
+	) {
 		remove_submenu_page( 'jetpack', 'vaultpress' );
 
 		add_action( 'admin_notices', 'jetpack_vaultpress_rewind_enabled_notice' );

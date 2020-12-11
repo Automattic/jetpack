@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Third_Party;
 use Automattic\Jetpack\Constants;
 
 /**
- * Class Jetpack_3rd_Party_Domain_Mapping
+ * Class Automattic\Jetpack\Third_Party\Domain_Mapping.
  *
  * This class contains methods that are used to provide compatibility between Jetpack sync and domain mapping plugins.
  */
@@ -47,7 +47,7 @@ class Domain_Mapping {
 	}
 
 	/**
-	 * Jetpack_3rd_Party_Domain_Mapping constructor.
+	 * Class Automattic\Jetpack\Third_Party\Domain_Mapping constructor.
 	 */
 	private function __construct() {
 		add_action( 'plugins_loaded', array( $this, 'attempt_to_hook_domain_mapping_plugins' ) );
