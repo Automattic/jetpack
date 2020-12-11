@@ -255,6 +255,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Improved compatibility**
 
 * AMP: avoid PHP notice on sites using legacy versions of the AMP plugin.
+* General: use modern JavaScript best practices for loading scripts.
 * Synchronization: improve integrety of synchronization between your site and WordPress.com.
 
 **Bug fixes**
