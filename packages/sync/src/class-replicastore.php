@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
+use Exception;
 
 /**
  * An implementation of Replicastore Interface which returns data stored in a WordPress.org DB.
@@ -1085,7 +1086,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param \WP_User $user User object.
 	 */
@@ -1098,7 +1099,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -1111,7 +1112,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $local   The user locale.
@@ -1125,7 +1126,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -1240,23 +1241,29 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $table           Object type.
-	 * @param int    $buckets         Number of buckets to split the objects to.
-	 * @param int    $start_id        Minimum object ID.
-	 * @param int    $end_id          Maximum object ID.
-	 * @param array  $columns         Table columns to calculate the checksum from.
-	 * @param bool   $strip_non_ascii Whether to strip non-ASCII characters.
-	 * @param string $salt            Salt, used for $wpdb->prepare()'s args.
+	 * @param string $table            Object type.
+	 * @param int    $buckets          Number of buckets to split the objects to.
+	 * @param int    $start_id         Minimum object ID.
+	 * @param int    $end_id           Maximum object ID.
+	 * @param array  $columns          Table columns to calculate the checksum from.
+	 * @param bool   $strip_non_ascii  Whether to strip non-ASCII characters.
+	 * @param string $salt             Salt, used for $wpdb->prepare()'s args.
+	 * @param bool   $only_range_edges Only return the range edges and not the actual checksums.
 	 *
 	 * @return array The checksum histogram.
+	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
 	 */
-	public function checksum_histogram( $table, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
+	public function checksum_histogram( $table, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
 
 		$checksum_table = new Table_Checksum( $table, $salt );
 		$range_edges    = $checksum_table->get_range_edges( $start_id, $end_id );
+
+		if ( $only_range_edges ) {
+			return $range_edges;
+		}
 
 		$object_count = $range_edges['item_count'];
 
@@ -1310,13 +1317,13 @@ class Replicastore implements Replicastore_Interface {
 	 * Used in methods that are not implemented and shouldn't be invoked.
 	 *
 	 * @access private
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 */
 	private function invalid_call() {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		$backtrace = debug_backtrace();
 		$caller    = $backtrace[1]['function'];
-		throw new \Exception( "This function $caller is not supported on the WP Replicastore" );
+		throw new Exception( "This function $caller is not supported on the WP Replicastore" );
 	}
 
 	/**
