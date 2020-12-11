@@ -210,7 +210,7 @@ class Jetpack_Podcast_Helper {
 	}
 
 	/**
-	 * Retrieves an audio enclosure.
+	 * Retrieves an episode's image URL, if it's available.
 	 *
 	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
 	 * @param string         $itunes_ns The itunes namespace, defaulted to the standard 1.0 version.
