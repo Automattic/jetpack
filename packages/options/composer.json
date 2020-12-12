@@ -7,7 +7,7 @@
 		"automattic/jetpack-constants": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^0.2"
+		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {
 		"classmap": [

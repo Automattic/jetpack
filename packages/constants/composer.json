@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"brain/monkey": "^2.5",
-		"yoast/phpunit-polyfills": "^0.2"
+		"brain/monkey": "2.5.0",
+		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {
 		"classmap": [

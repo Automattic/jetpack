@@ -7,7 +7,7 @@
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^0.2"
+		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {
 		"classmap": [
