@@ -25,21 +25,20 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 *
 	 * @return int[][]
 	 */
-	public function table_provider()
-	{
-		return [
-			['posts', true],
-			['comments', true],
-			['postmeta', true],
-			['commentmeta', true],
-			['terms', true],
-			['termmeta', true],
+	public function table_provider() {
+		return array(
+			array( 'posts', true ),
+			array( 'comments', true],
+			array( 'postmeta', true],
+			array( 'commentmeta', true],
+			array( 'terms', true],
+			array( 'termmeta', true],
 			['term_relationships', true],
 			['term_taxonomy', true],
 			['not_a_table', false],
 			['comment_meta', false],
 			['post_meta', false],
-		];
+		);
 	}
 
 	/**
