@@ -63,7 +63,7 @@ jobs:
       run: yarn test-e2e --testPathIgnorePatterns=updater
 
     - name: Upload Allure artifacts
-      if: ${{ matrix.gutenberg == 'no' }}
+      if: ${{ matrix.gutenberg == 'no' && always() }}
       continue-on-error: true
       env:
         ALLURE_VERSION: 2.13.5
