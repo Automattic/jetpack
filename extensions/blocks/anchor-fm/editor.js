@@ -1,9 +1,10 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { createBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 
@@ -60,6 +61,7 @@ const ConvertToAudio = () => (
 		<p>
 			<a href="https://anchor.fm/wordpress" target="_top">
 				{ __( 'Create a podcast episode', 'jetpack' ) }
+				<Icon icon={ external } className="components-external-link__icon" />
 			</a>
 		</p>
 	</PluginPostPublishPanel>
