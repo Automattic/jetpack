@@ -136,6 +136,7 @@
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
 			<directory suffix=".php">.</directory>
+			<directory suffix=".php">vendor/automattic/.</directory>
 			<exclude>
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">vendor</directory>
