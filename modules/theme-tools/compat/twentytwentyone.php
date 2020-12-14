@@ -19,7 +19,6 @@ function twentytwentyone_jetpack_setup() {
 		array(
 			'type'      => 'click',
 			'container' => 'main',
-			'wrapper'   => false,
 			'render'    => 'twentytwentyone_infinite_scroll_render',
 			'footer'    => 'main',
 		)

@@ -26,6 +26,15 @@
 	display: block;
 }
 
+body[class*=" infinity-"] main#main > article:last-of-type .entry-footer {
+	border-bottom: var(--separator--height) solid var(--separator--border-color);
+}
+
+body:not(.infinity-end) .site-main > div:nth-last-child(2) > article:last-of-type .entry-footer,
+body.infinity-end .site-main > div:last-of-type > article:last-of-type .entry-footer {
+	border: none;
+}
+
 .site-main > .infinite-wrap > article > .entry-footer {
 	margin-top: var(--global--spacing-vertical);
 	padding-top: var(--global--spacing-unit);
