@@ -68,11 +68,6 @@ class Admin_Menu {
 
 		$domain = ( new Status() )->get_site_suffix();
 
-		// TODO: Remove once feature has shipped. See jetpack_parent_file().
-		if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
-			$domain = add_query_arg( 'flags', 'nav-unification', $domain );
-		}
-
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
 			$this->add_browse_sites_link();
@@ -410,12 +405,7 @@ class Admin_Menu {
 	 */
 	public function jetpack_parent_file( $parent_file ) {
 		if ( 'jetpack' === $parent_file ) {
-			$parent_file = 'https://wordpress.com/activity-log/' . wp_parse_url( get_home_url(), PHP_URL_HOST );
-
-			// TODO: Remove once feature has shipped. See reregister_menu_items().
-			if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
-				$parent_file = add_query_arg( 'flags', 'nav-unification', $parent_file );
-			}
+			$parent_file = 'https://wordpress.com/activity-log/' . ( new Status() )->get_site_suffix();
 		}
 
 		return $parent_file;

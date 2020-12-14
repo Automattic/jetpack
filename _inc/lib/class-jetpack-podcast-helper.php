@@ -152,7 +152,7 @@ class Jetpack_Podcast_Helper {
 	 * @param string $feed        The RSS feed URL to load.
 	 * @return SimplePie|WP_Error The RSS object or error.
 	 */
-	private static function load_feed( $feed ) {
+	public static function load_feed( $feed ) {
 		$rss = fetch_feed( esc_url_raw( $feed ) );
 
 		if ( is_wp_error( $rss ) ) {
@@ -195,6 +195,7 @@ class Jetpack_Podcast_Helper {
 			'type'        => esc_attr( $enclosure->type ),
 			'description' => self::get_plain_text( $episode->get_description() ),
 			'title'       => self::get_plain_text( $episode->get_title() ),
+			'image'       => esc_url( self::get_episode_image_url( $episode ) ),
 		);
 
 		if ( empty( $track['title'] ) ) {
@@ -206,6 +207,21 @@ class Jetpack_Podcast_Helper {
 		}
 
 		return $track;
+	}
+
+	/**
+	 * Retrieves an episode's image URL, if it's available.
+	 *
+	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
+	 * @param string         $itunes_ns The itunes namespace, defaulted to the standard 1.0 version.
+	 * @return string|null The image URL or null if not found.
+	 */
+	private static function get_episode_image_url( SimplePie_Item $episode, $itunes_ns = 'http://www.itunes.com/dtds/podcast-1.0.dtd' ) {
+		$image = $episode->get_item_tags( $itunes_ns, 'image' );
+		if ( isset( $image[0]['attribs']['']['href'] ) ) {
+			return $image[0]['attribs']['']['href'];
+		}
+		return null;
 	}
 
 	/**

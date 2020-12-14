@@ -1,5 +1,6 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -299,7 +300,7 @@ class Jetpack_AMP_Support {
 		if ( function_exists( 'staticize_subdomain' ) ) {
 			return staticize_subdomain( $domain );
 		} else {
-			return Jetpack::staticize_subdomain( $domain );
+			return Assets::staticize_subdomain( $domain );
 		}
 	}
 

@@ -1,9 +1,9 @@
 .eslintrc.js
 .eslintignore
 .git
+.gitattributes
 .gitignore
 .sass-cache
-.travis.yml
 .npmrc
 .nvmrc
 .eslines.json

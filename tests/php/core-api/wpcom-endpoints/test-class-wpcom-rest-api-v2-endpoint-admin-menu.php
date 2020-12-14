@@ -35,6 +35,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		parent::setUp();
 
 		wp_set_current_user( static::$user_id );
+		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
 	}
 
 	/**
@@ -80,6 +81,32 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		$response = $this->server->dispatch( $request );
 
 		$this->assertTrue( rest_validate_value_from_schema( $response->get_data(), ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema() ) );
+	}
+
+	/**
+	 * Tests that submenu items get promoted when the user doesn't have the caps for the top-level menu item.
+	 *
+	 * @covers ::prepare_menu_for_response
+	 */
+	public function test_parent_menu_item_always_exists() {
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$response = $this->server->dispatch( $request );
+
+		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
+		$menu_item = array_pop( $menu );
+
+		$this->assertNotEmpty( $menu_item );
+		$this->assertSame( $menu_item['children'][0]['slug'], $menu_item['slug'], 'Parent and submenu should be the same.' );
+	}
+
+	/**
+	 * Adds an orphan submenu.
+	 *
+	 * The user role for these tests is `Editor`, who don't have access to the Settings menu.
+	 * Unless it contains a menu item they do have access to.
+	 */
+	public function add_orphan_submenu() {
+		add_submenu_page( 'options-general.php', 'Title', 'Test Title', 'read', 'menu_slug' );
 	}
 
 	/**

@@ -1,0 +1,26 @@
+name: Danger CI
+
+on: pull_request_target
+env:
+  DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_TOKEN }}
+jobs:
+  dangerci:
+    name: "Danger CI"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: |
+          yarn install
+          yarn danger ci

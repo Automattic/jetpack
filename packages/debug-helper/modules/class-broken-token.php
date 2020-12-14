@@ -54,6 +54,13 @@ class Broken_Token {
 	public $id;
 
 	/**
+	 * Whether the user has agreed to the TOS.
+	 *
+	 * @var bool
+	 */
+	public $tos_agreed;
+
+	/**
 	 * Options.
 	 */
 	const STORED_OPTIONS_KEY = 'broken_token_stored_options';
@@ -84,6 +91,7 @@ class Broken_Token {
 		add_action( 'admin_post_clear_stored_options', array( $this, 'admin_post_clear_stored_options' ) );
 		add_action( 'admin_post_store_current_options', array( $this, 'admin_post_store_current_options' ) );
 		add_action( 'admin_post_restore_from_stored_options', array( $this, 'admin_post_restore_from_stored_options' ) );
+		add_action( 'admin_post_clear_tos', array( $this, 'admin_post_clear_tos' ) );
 
 		// Break stuff.
 		add_action( 'admin_post_set_invalid_blog_token', array( $this, 'admin_post_set_invalid_blog_token' ) );
@@ -101,6 +109,7 @@ class Broken_Token {
 		$this->user_tokens = Jetpack_Options::get_option( 'user_tokens' );
 		$this->master_user = Jetpack_Options::get_option( 'master_user' );
 		$this->id          = Jetpack_Options::get_option( 'id' );
+		$this->tos_agreed  = Jetpack_Options::get_option( 'tos_agreed' );
 
 		if ( isset( $_GET['notice'] ) && check_admin_referer( 'jetpack_debug_broken_token_admin_notice', 'nonce' ) ) {
 			$this->notice_type = $_GET['notice'];
@@ -150,6 +159,24 @@ class Broken_Token {
 		<p>User Tokens: <?php print_r( $this->user_tokens ); ?></p>
 		<p>Primary User: <?php echo esc_html( $this->master_user ); ?></p>
 		<p>Blog ID: <?php echo esc_html( $this->id ); ?></p>
+
+		<?php
+		if ( $this->tos_agreed ) {
+			?>
+			<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+				<p>TOS Accepted: ✅ &nbsp;
+				<input type="hidden" name="action" value="clear_tos">
+				<?php wp_nonce_field( 'clear-tos' ); ?>
+				<input type="submit" value="Clear" class="button button-secondary button-small">
+				</p>
+			</form>
+			<?php
+		} else {
+			?>
+			<p>TOS Accepted: ❌</p>
+			<?php
+		}
+		?>
 
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="store_current_options">
@@ -278,6 +305,10 @@ class Broken_Token {
 		$this->notice_type = 'restore-options';
 		foreach ( $this->get_stored_connection_options() as $key => $value ) {
 			if ( empty( $value ) ) {
+				if ( 'tos_agreed' === $key ) {
+					Jetpack_Options::delete_option( 'tos_agreed' );
+				}
+
 				continue;
 			}
 			Jetpack_Options::update_option( $key, $value );
@@ -422,6 +453,7 @@ class Broken_Token {
 				'user_tokens' => $this->user_tokens,
 				'master_user' => $this->master_user,
 				'id'          => $this->id,
+				'tos_agreed'  => $this->tos_agreed,
 			)
 		);
 	}
@@ -475,12 +507,33 @@ class Broken_Token {
 			case 'restore-options':
 				$message = 'Success! You\'ve restored the connection options. I hope things are working well now.';
 				break;
+			case 'clear-tos':
+				$message = 'You cleared the TOS option! Nicely done!';
+				break;
 			default:
 				$message = 'Setting saved!';
 				break;
 		}
 
 		printf( '<div class="notice notice-success"><p>%s</p></div>', esc_html( $message ) );
+	}
+
+	/**
+	 * Clear TOS action.
+	 */
+	public function admin_post_clear_tos() {
+		check_admin_referer( 'clear-tos' );
+		$this->notice_type = 'clear-tos';
+		$this->clear_tos();
+
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Clear the TOS option.
+	 */
+	public function clear_tos() {
+		Jetpack_Options::delete_option( 'tos_agreed' );
 	}
 }
 
