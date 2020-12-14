@@ -684,8 +684,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $menu, $submenu;
 
+		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
 		static::$admin_menu->add_tools_menu( static::$domain );
+		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
 		$tools_menu_item = array(
 			'Tools',
@@ -766,7 +768,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
+		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 		static::$admin_menu->add_options_menu( static::$domain );
+		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
 		$this->assertNotContains( 'options-discussion.php', $submenu['options-general.php'] );
 		$this->assertNotContains( 'options-writing.php', $submenu['options-general.php'] );
