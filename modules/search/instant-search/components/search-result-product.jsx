@@ -46,12 +46,19 @@ class SearchResultProduct extends Component {
 					/>
 				</h3>
 				{ firstImage && (
-					<PhotonImage
-						alt=""
-						className="jetpack-instant-search__search-result-product-img"
-						isPrivateSite={ this.props.isPrivateSite }
-						src={ `//${ firstImage }` }
-					/>
+					<a
+						href={ `//${ fields[ 'permalink.url.raw' ] }` }
+						onClick={ this.props.onClick }
+						rel="noopener noreferrer"
+						target="_blank"
+					>
+						<PhotonImage
+							alt=""
+							className="jetpack-instant-search__search-result-product-img"
+							isPrivateSite={ this.props.isPrivateSite }
+							src={ `//${ firstImage }` }
+						/>
+					</a>
 				) }
 				<div
 					className="jetpack-instant-search__search-result-product-content"
