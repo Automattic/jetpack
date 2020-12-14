@@ -1,4 +1,9 @@
 <?php
+/**
+ * Special cases for overriding modules.
+ *
+ * @package Jetpack.
+ */
 
 /**
  * Provides methods for dealing with module overrides.

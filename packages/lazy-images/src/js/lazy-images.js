@@ -1,17 +1,17 @@
 /* global jetpackLazyImagesL10n */
 
-const jetpackLazyImagesModule = function () {
-	const config = {
+var jetpackLazyImagesModule = function () {
+	var config = {
 		// If the image gets within 200px in the Y axis, start the download.
 		rootMargin: '200px 0px',
 		threshold: 0.01,
 	};
-	const loadingImages = [];
-	let lazyImages, loadingWarning, observer;
+	var loadingImages = [];
+	var lazyImages, loadingWarning, observer;
 
 	lazy_load_init();
 
-	const bodyEl = document.querySelector( 'body' );
+	var bodyEl = document.querySelector( 'body' );
 	if ( bodyEl ) {
 		// Lazy load images that are brought in from Infinite Scroll
 		bodyEl.addEventListener( 'is.post-load', lazy_load_init );
@@ -24,7 +24,8 @@ const jetpackLazyImagesModule = function () {
 	 * Initialize the module.
 	 */
 	function lazy_load_init() {
-		lazyImages = Array.from(
+		// @todo: Use Array.from once es6 is allowed.
+		lazyImages = [].slice.call(
 			document.querySelectorAll( 'img.jetpack-lazy-image:not(.jetpack-lazy-image--handled)' )
 		);
 
@@ -80,8 +81,8 @@ const jetpackLazyImagesModule = function () {
 	 */
 	function onIntersection( entries ) {
 		// Loop through the entries
-		for ( let i = 0; i < entries.length; i++ ) {
-			const entry = entries[ i ];
+		for ( var i = 0; i < entries.length; i++ ) {
+			var entry = entries[ i ];
 
 			// Are we in viewport?
 			if ( entry.intersectionRatio > 0 ) {
@@ -110,7 +111,7 @@ const jetpackLazyImagesModule = function () {
 			loadingWarning.style.fontWeight = 'bold';
 			loadingWarning.innerText = jetpackLazyImagesL10n.loading_warning;
 
-			const s = document.createElement( 'style' );
+			var s = document.createElement( 'style' );
 			s.innerHTML =
 				'#loadingWarning { display: none; }\n@media print {\n#loadingWarning { display: block; }\nbody > #loadingWarning ~ * { display: none !important; }\n}';
 			loadingWarning.appendChild( s );
@@ -135,14 +136,14 @@ const jetpackLazyImagesModule = function () {
 	 * @param {Element} image - The image object.
 	 */
 	function applyImage( image ) {
-		let lazyLoadedImageEvent;
+		var lazyLoadedImageEvent;
 
 		if ( ! ( image instanceof HTMLImageElement ) ) {
 			return;
 		}
 
-		const srcset = image.getAttribute( 'data-lazy-srcset' );
-		const sizes = image.getAttribute( 'data-lazy-sizes' );
+		var srcset = image.getAttribute( 'data-lazy-srcset' );
+		var sizes = image.getAttribute( 'data-lazy-sizes' );
 
 		// Remove lazy attributes.
 		image.removeAttribute( 'data-lazy-srcset' );
@@ -168,7 +169,7 @@ const jetpackLazyImagesModule = function () {
 		image.setAttribute( 'loading', 'eager' );
 
 		loadingImages.push( image );
-		const idx = lazyImages.indexOf( image );
+		var idx = lazyImages.indexOf( image );
 		if ( idx >= 0 ) {
 			lazyImages.splice( idx, 1 );
 		}
@@ -198,7 +199,7 @@ const jetpackLazyImagesModule = function () {
 	 * An image from applyImage() finished loading.
 	 */
 	function loadedImage() {
-		const idx = loadingImages.indexOf( this );
+		var idx = loadingImages.indexOf( this );
 		if ( idx >= 0 ) {
 			loadingImages.splice( idx, 1 );
 		}
