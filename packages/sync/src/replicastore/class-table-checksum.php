@@ -104,9 +104,9 @@ class Table_Checksum {
 	 */
 	public function __construct( $table, $salt = null ) {
 
-		if ( ! Settings::is_checksum_enabled() ) {
-			throw new Exception( 'Checksums are currently disabled.' );
-		}
+		// if ( ! Settings::is_checksum_enabled() ) {
+		// throw new Exception( 'Checksums are currently disabled.' );
+		// }
 
 		$this->salt = $salt;
 
@@ -560,20 +560,20 @@ class Table_Checksum {
 		// get the compound key.
 		// only return range and compound key for granular results.
 
+		$return_value = array();
+
 		foreach ( $results as &$result ) {
 			// Working on reference to save memory here.
 
-			$key = array();
+			$key = array( 'k' );
 			foreach ( $this->key_fields as $field ) {
 				$key[] = $result[ $field ];
 			}
 
-			$result = array(
-				'key'      => implode( '-', $key ),
-				'checksum' => $result['checksum'],
-			);
-
+			$return_value[ implode( '-', $key ) ] = $result['checksum'];
 		}
+
+		return $return_value;
 	}
 
 	/**
@@ -589,9 +589,9 @@ class Table_Checksum {
 	 */
 	public function calculate_checksum( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false, $simple_return_value = true ) {
 
-		if ( ! Settings::is_checksum_enabled() ) {
-			return new WP_Error( 'checksum_disabled', 'Checksums are currently disabled.' );
-		}
+		// if ( ! Settings::is_checksum_enabled() ) {
+		// return new WP_Error( 'checksum_disabled', 'Checksums are currently disabled.' );
+		// }
 
 		try {
 			$this->validate_input();
@@ -622,9 +622,7 @@ class Table_Checksum {
 		} else {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$result = $wpdb->get_results( $query, ARRAY_A );
-			$this->prepare_results_for_output( $result );
-
-			return $result;
+			return $this->prepare_results_for_output( $result );
 		}
 	}
 }
