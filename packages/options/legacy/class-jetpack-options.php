@@ -89,8 +89,6 @@ class Jetpack_Options {
 		}
 
 		return array(
-			'recommendations_data',         // (array)  The user choice and other data for the recommendations.
-			'recommendations_step',         // (string) The current step of the recommendations.
 			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',        // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
@@ -115,6 +113,9 @@ class Jetpack_Options {
 			'setup_wizard_questionnaire',   // (array)  (DEPRECATED) List of user choices from the setup wizard.
 			'setup_wizard_status',          // (string) (DEPRECATED) Status of the setup wizard.
 			'licensing_error',              // (string) Last error message occurred while attaching licenses that is yet to be surfaced to the user.
+			'recommendations_data',         // (array)  The user choice and other data for the recommendations.
+			'recommendations_enabled',      // (bool)   Whether the recommendations are enabled or not.
+			'recommendations_step',         // (string) The current step of the recommendations.
 		);
 	}
 
