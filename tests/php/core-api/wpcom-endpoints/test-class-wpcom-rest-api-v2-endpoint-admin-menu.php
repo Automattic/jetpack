@@ -152,23 +152,23 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular menu item.
 			array(
-				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
+				array( 'Media\'s', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-media',
 					'slug'  => 'upload-php',
-					'title' => 'Media',
+					'title' => 'Media\'s',
 					'url'   => admin_url( 'upload.php' ),
 				),
 			),
 			// Menu item with update count.
 			array(
-				array( 'Plugins <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
+				array( 'Plugin\'s <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-plugins',
 					'slug'  => 'plugins-php',
-					'title' => 'Plugins',
+					'title' => 'Plugin\'s',
 					'url'   => admin_url( 'plugins.php' ),
 					'count' => 5,
 				),
@@ -215,13 +215,13 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular submenu item.
 			array(
-				array( 'Library', 'upload_files', 'upload.php' ),
+				array( 'Library\'s', 'upload_files', 'upload.php' ),
 				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'parent' => 'upload-php',
 					'type'   => 'submenu-item',
 					'slug'   => 'upload-php',
-					'title'  => 'Library',
+					'title'  => 'Library\'s',
 					'url'    => admin_url( 'upload.php' ),
 				),
 			),
