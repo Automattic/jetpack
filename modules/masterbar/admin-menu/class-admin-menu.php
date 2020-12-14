@@ -478,11 +478,9 @@ class Admin_Menu {
 	 * @param string $domain  Site domain.
 	 */
 	public function add_plugins_menu( $domain ) {
-		$calypso = $this->is_wpcom_site();
-
 		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
-		if ( $calypso ) {
+		if ( $this->is_wpcom_site() ) {
 			remove_menu_page( 'plugins.php' );
 
 			if ( $this->is_api_request ) {
@@ -553,8 +551,10 @@ class Admin_Menu {
 		$admin_slug = 'tools.php';
 		$menu_slug  = $calypso ? 'https://wordpress.com/marketing/tools/' . $domain : $admin_slug;
 
-		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $domain, null, 5 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $domain, null, 10 );
+		if ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) {
+			add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $domain, null, 5 );
+			add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $domain, null, 10 );
+		}
 
 		if ( $calypso ) {
 			remove_menu_page( $admin_slug );
@@ -583,8 +583,10 @@ class Admin_Menu {
 			remove_submenu_page( 'options-general.php', 'options-writing.php' );
 		}
 
-		add_options_page( esc_attr__( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $domain, null, 1 );
-		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $domain, null, 6 );
+		if ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) {
+			add_options_page( esc_attr__( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $domain, null, 1 );
+			add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $domain, null, 6 );
+		}
 	}
 
 	/**
