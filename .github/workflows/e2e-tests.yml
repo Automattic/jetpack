@@ -48,6 +48,7 @@ jobs:
       run: yarn build-production-concurrently
 
     - name: "Install Puppeteer with ${{ matrix.browser }}"
+      if: matrix.browser != 'chrome'
       run: PUPPETEER_PRODUCT=${{ matrix.browser }} yarn add puppeteer
 
     - name: Set up environment
