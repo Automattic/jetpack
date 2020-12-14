@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
-use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing Table Checksum
@@ -25,8 +24,8 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 		$user_id = $this->factory->user->create();
 
 		// create posts.
-		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
-		$post_id2   = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$post_id  = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$post_id2 = $this->factory->post->create( array( 'post_author' => $user_id ) );
 
 		// add meta.
 		add_post_meta( $post_id, 'content_width', 220 );
@@ -34,7 +33,7 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 
 		// add comments.
 		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
-		$comment = get_comment( $comment_ids[0] );
+		$comment     = get_comment( $comment_ids[0] );
 
 		// add comment_meta.
 		add_comment_meta( $comment->comment_ID, 'hc_avatar', 'red' );
@@ -45,12 +44,12 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 			$taxonomy,
 			'post',
 			array(
-				'label'        => __( 'Genre' ),
+				'label'        => __( 'Genre', 'jetpack' ),
 				'rewrite'      => array( 'slug' => $taxonomy ),
 				'hierarchical' => true,
 			)
 		);
-		$term_object = wp_insert_term( 'fiction', $taxonomy );
+		$term_object  = wp_insert_term( 'fiction', $taxonomy );
 		$term_object2 = wp_insert_term( 'mystery', $taxonomy );
 
 		// add term relationships.
@@ -60,7 +59,6 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 		// add term meta.
 		add_term_meta( $term_object['term_id'], 'test', 'red' );
 		// TODO :: we don't sync this so if we every use this feature it will need to use allowed keys.
-
 	}
 
 	/**
@@ -68,18 +66,17 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 	 *
 	 * @return int[][]
 	 */
-	public function table_provider()
-	{
-		return [
-			['posts'],
-			['comments'],
-			['postmeta'],
-			['commentmeta'],
-			['terms'],
-			['termmeta'],
-			['term_relationships'],
-			['term_taxonomy'],
-		];
+	public function table_provider() {
+		return array(
+			array( 'posts' ),
+			array( 'comments' ),
+			array( 'postmeta' ),
+			array( 'commentmeta' ),
+			array( 'terms' ),
+			array( 'termmeta' ),
+			array( 'term_relationships' ),
+			array( 'term_taxonomy' ),
+		);
 	}
 
 	/**
@@ -92,7 +89,7 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 	public function test_checksum_validate_table_name( $table ) {
 
 		$tc  = new Table_Checksum( $table );
-		$sum = $tc->calculate_checksum( );
+		$sum = $tc->calculate_checksum();
 
 		// Validate we have a checksum value.
 		// NO Exceptions/Errors are thrown.
