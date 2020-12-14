@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
-use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync;
 use Exception;
 use WP_Error;
 
@@ -104,9 +104,9 @@ class Table_Checksum {
 	 */
 	public function __construct( $table, $salt = null ) {
 
-		// if ( ! Settings::is_checksum_enabled() ) {
-		// throw new Exception( 'Checksums are currently disabled.' );
-		// }
+		if ( ! Sync\Settings::is_checksum_enabled() ) {
+			throw new Exception( 'Checksums are currently disabled.' );
+		}
 
 		$this->salt = $salt;
 
@@ -141,14 +141,14 @@ class Table_Checksum {
 				'range_field'     => 'ID',
 				'key_fields'      => array( 'ID' ),
 				'checksum_fields' => array( 'post_modified_gmt' ),
-				'filter_values'   => Settings::get_disallowed_post_types_structured(),
+				'filter_values'   => Sync\Settings::get_disallowed_post_types_structured(),
 			),
 			'postmeta'           => array(
 				'table'           => $wpdb->postmeta,
 				'range_field'     => 'post_id',
 				'key_fields'      => array( 'post_id', 'meta_key' ),
 				'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'   => Settings::get_allowed_post_meta_structured(),
+				'filter_values'   => Sync\Settings::get_allowed_post_meta_structured(),
 				'parent_table'    => 'posts',
 			),
 			'comments'           => array(
@@ -165,14 +165,14 @@ class Table_Checksum {
 						),
 					),
 				),
-				'filter_sql'      => Settings::get_comments_filter_sql(),
+				'filter_sql'      => Sync\Settings::get_comments_filter_sql(),
 			),
 			'commentmeta'        => array(
 				'table'           => $wpdb->commentmeta,
 				'range_field'     => 'comment_id',
 				'key_fields'      => array( 'comment_id', 'meta_key' ),
 				'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'   => Settings::get_allowed_comment_meta_structured(),
+				'filter_values'   => Sync\Settings::get_allowed_comment_meta_structured(),
 				'parent_table'    => 'comments',
 			),
 			'terms'              => array(
@@ -589,9 +589,9 @@ class Table_Checksum {
 	 */
 	public function calculate_checksum( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false, $simple_return_value = true ) {
 
-		// if ( ! Settings::is_checksum_enabled() ) {
-		// return new WP_Error( 'checksum_disabled', 'Checksums are currently disabled.' );
-		// }
+		if ( ! Sync\Settings::is_checksum_enabled() ) {
+			return new WP_Error( 'checksum_disabled', 'Checksums are currently disabled.' );
+		}
 
 		try {
 			$this->validate_input();
