@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 			$this->assertTrue( true );
 		}
 
-		$tc = new Table_Checksum( $table );
+		new Table_Checksum( $table );
 	}
 
 	/**
@@ -134,7 +134,8 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 * @return array Table Configurations.
 	 */
 	public function set_allowed_tables( $tables ) {
-		return $this->allowed_tables;
+		$tables = $this->allowed_tables;
+		return $tables;
 	}
 
 	/**
