@@ -1242,20 +1242,20 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $table            Object type.
-	 * @param int    $buckets          Number of buckets to split the objects to.
-	 * @param int    $start_id         Minimum object ID.
-	 * @param int    $end_id           Maximum object ID.
-	 * @param array  $columns          Table columns to calculate the checksum from.
-	 * @param bool   $strip_non_ascii  Whether to strip non-ASCII characters.
-	 * @param string $salt             Salt, used for $wpdb->prepare()'s args.
-	 * @param bool   $only_range_edges Only return the range edges and not the actual checksums.
+	 * @param string $table              Object type.
+	 * @param null   $buckets            Number of buckets to split the objects to.
+	 * @param null   $start_id           Minimum object ID.
+	 * @param null   $end_id             Maximum object ID.
+	 * @param null   $columns            Table columns to calculate the checksum from.
+	 * @param bool   $strip_non_ascii    Whether to strip non-ASCII characters.
+	 * @param string $salt               Salt, used for $wpdb->prepare()'s args.
+	 * @param bool   $only_range_edges   Only return the range edges and not the actual checksums.
+	 * @param bool   $detailed_drilldown If the call should return a detailed drilldown for the checksum or only the checksum.
 	 *
-	 * @return array The checksum histogram.
-	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
 	 * @return array|WP_Error The checksum histogram.
+	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
 	 */
-	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false ) {
+	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false, $detailed_drilldown = false ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
@@ -1294,7 +1294,7 @@ class Replicastore implements Replicastore_Interface {
 			}
 
 			// Get the checksum value.
-			$batch_checksum = $checksum_table->calculate_checksum( $ids_range['min_range'], $ids_range['max_range'] );
+			$batch_checksum = $checksum_table->calculate_checksum( $ids_range['min_range'], $ids_range['max_range'], null, $detailed_drilldown );
 
 			if ( is_wp_error( $batch_checksum ) ) {
 				return $batch_checksum;
