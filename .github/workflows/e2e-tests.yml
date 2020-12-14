@@ -11,11 +11,12 @@ on:
 
 jobs:
   e2e-tests:
-    name: "E2E tests: with ${{ matrix.gutenberg }} plugin"
+    name: "E2E tests in ${{ matrix.browser }} with ${{ matrix.gutenberg }} plugin"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        browser: [ 'chrome', 'firefox' ]
         gutenberg: [ 'no', 'latest' ]
     env:
       GUTENBERG: ${{ matrix.gutenberg }}
@@ -46,6 +47,9 @@ jobs:
     - name: Build Production Jetpack
       run: yarn build-production-concurrently
 
+    - name: "Install Puppeteer with ${{ matrix.browser }}"
+      run: PUPPETEER_PRODUCT=${{ matrix.browser }} yarn add puppeteer
+
     - name: Set up environment
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
@@ -56,11 +60,11 @@ jobs:
 
     - name: Run tests
       if: matrix.gutenberg == 'no'
-      run: yarn test-e2e
+      run: PUPPETEER_PRODUCT=${{ matrix.browser }} yarn test-e2e
 
     - name: Run tests (excluding updater)
       if: matrix.gutenberg == 'latest'
-      run: yarn test-e2e --testPathIgnorePatterns=updater
+      run: PUPPETEER_PRODUCT=${{ matrix.browser }} yarn test-e2e --testPathIgnorePatterns=updater
 
     - name: Upload Allure artifacts
       if: matrix.gutenberg == 'no' && always()

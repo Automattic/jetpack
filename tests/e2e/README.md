@@ -28,7 +28,7 @@ Jetpack E2E tests relies on encrypted configuration file, which is included in t
 To decrypt the config file (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
+- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file [`local-test.js`](./config/local-test.js)
 
 #### WP Site Configuration
 
@@ -56,19 +56,19 @@ yarn test-e2e
 Puppeteer runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window and the running tests you can pass `PUPPETEER_HEADLESS=false` as follows:
 
 ```bash
-PUPPETEER_HEADLESS=false npm run test-e2e
+PUPPETEER_HEADLESS=false yarn test-e2e
 ```
 
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-npm run test-e2e ./tests/e2e/specs/dummy.test.js
+yarn test-e2e ./tests/e2e/specs/dummy.test.js
 ```
 
 For the best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended to use. Also Jest's `-t` argument could be used to run single test from the test suite(file)
 
 ```bash
-E2E_DEBUG=true PUPPETEER_HEADLESS=false npm run test-e2e ./tests/e2e/specs/some.test.js -t 'Test name'
+E2E_DEBUG=true PUPPETEER_HEADLESS=false yarn test-e2e ./tests/e2e/specs/some.test.js -t 'Test name'
 ```
 
 ## Writing tests
