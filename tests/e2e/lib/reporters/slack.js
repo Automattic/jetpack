@@ -12,7 +12,8 @@ export default class SlackReporter {
 		const token = config.get( 'slackToken' );
 		this.webCli = new WebClient( token );
 		this.runURL = `https://github.com/Automattic/jetpack/actions/runs/${ GITHUB_RUN_ID }`;
-		this.runType = GUTENBERG === 'latest' ? 'with latest :gutenberg:' : 'All';
+		this.runType =
+			GUTENBERG === 'latest' ? 'with latest :gutenberg: plugin' : 'with no :gutenberg: plugin';
 
 		this.conversationId = config.get( 'slackChannel' );
 		this.ccBrbrr = 'cc <@U6NSPV1LY>';
