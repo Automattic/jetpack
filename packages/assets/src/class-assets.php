@@ -14,11 +14,11 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
  */
 class Assets {
 	/**
-	 * Holds all the scripts handles that should be loaded in an async fashion.
+	 * Holds all the scripts handles that should be loaded in a deferred fashion.
 	 *
 	 * @var array
 	 */
-	private $async_script_handles = array();
+	private $defer_script_handles = array();
 	/**
 	 * The singleton instance of this class.
 	 *
@@ -63,23 +63,23 @@ class Assets {
 	 * @param string $script_handle Script handle.
 	 */
 	public function add_async_script( $script_handle ) {
-		$this->async_script_handles[] = $script_handle;
+		$this->defer_script_handles[] = $script_handle;
 	}
 
 	/**
-	 * Add an async attribute to scripts that can be loaded asynchronously.
-	 * https://www.w3schools.com/tags/att_script_async.asp
+	 * Add an async attribute to scripts that can be loaded deferred.
+	 * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
 	 *
 	 * @param string $tag    The <script> tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
 	 */
 	public function script_add_async( $tag, $handle ) {
-		if ( empty( $this->async_script_handles ) ) {
+		if ( empty( $this->defer_script_handles ) ) {
 			return $tag;
 		}
 
-		if ( in_array( $handle, $this->async_script_handles, true ) ) {
-			return preg_replace( '/^<script /i', '<script async defer ', $tag );
+		if ( in_array( $handle, $this->defer_script_handles, true ) ) {
+			return preg_replace( '/^<script /i', '<script defer ', $tag );
 		}
 
 		return $tag;
@@ -177,4 +177,49 @@ class Assets {
 		);
 	}
 
+	/**
+	 * Serve a WordPress.com static resource via a randomized wp.com subdomain.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @param string $url WordPress.com static resource URL.
+	 *
+	 * @return string $url
+	 */
+	public static function staticize_subdomain( $url ) {
+		// Extract hostname from URL.
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		// Explode hostname on '.'.
+		$exploded_host = explode( '.', $host );
+
+		// Retrieve the name and TLD.
+		if ( count( $exploded_host ) > 1 ) {
+			$name = $exploded_host[ count( $exploded_host ) - 2 ];
+			$tld  = $exploded_host[ count( $exploded_host ) - 1 ];
+			// Rebuild domain excluding subdomains.
+			$domain = $name . '.' . $tld;
+		} else {
+			$domain = $host;
+		}
+		// Array of Automattic domains.
+		$domains_allowed = array( 'wordpress.com', 'wp.com' );
+
+		// Return $url if not an Automattic domain.
+		if ( ! in_array( $domain, $domains_allowed, true ) ) {
+			return $url;
+		}
+
+		if ( \is_ssl() ) {
+			return preg_replace( '|https?://[^/]++/|', 'https://s-ssl.wordpress.com/', $url );
+		}
+
+		/*
+		 * Generate a random subdomain id by taking the modulus of the crc32 value of the URL.
+		 * Valid values are 0, 1, and 2.
+		 */
+		$static_counter = abs( crc32( basename( $url ) ) % 3 );
+
+		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
+	}
 }

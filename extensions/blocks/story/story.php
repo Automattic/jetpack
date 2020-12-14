@@ -17,6 +17,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 const EMBED_SIZE        = array( 180, 320 );
 const CROP_UP_TO        = 0.2;
+const MAX_BULLETS       = 7;
 const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
 
 /**
@@ -60,10 +61,13 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				return array_merge(
 					$media_file,
 					array(
-						'width'  => absint( $width ),
-						'height' => absint( $height ),
-						'srcset' => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-						'sizes'  => IMAGE_BREAKPOINTS,
+						'width'   => absint( $width ),
+						'height'  => absint( $height ),
+						'srcset'  => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
+						'sizes'   => IMAGE_BREAKPOINTS,
+						'title'   => get_the_title( $attachment_id ),
+						'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
 			} else {
@@ -76,10 +80,12 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				return array_merge(
 					$media_file,
 					array(
-						'width'  => absint( $video_meta['width'] ),
-						'height' => absint( $video_meta['height'] ),
-						'alt'    => $description,
-						'url'    => $url,
+						'width'   => absint( $video_meta['width'] ),
+						'height'  => absint( $video_meta['height'] ),
+						'alt'     => $description,
+						'url'     => $url,
+						'title'   => get_the_title( $attachment_id ),
+						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
 			}
@@ -116,6 +122,7 @@ function render_image( $media ) {
 		array(
 			'class' => sprintf( 'wp-story-image wp-image-%d %s', $media['id'], $crop_class ),
 			'sizes' => IMAGE_BREAKPOINTS,
+			'title' => get_the_title( $media['id'] ),
 		)
 	);
 }
@@ -161,17 +168,33 @@ function render_video( $media ) {
 	}
 
 	$metadata = wp_get_attachment_metadata( $media['id'] );
+
 	if ( ! empty( $metadata ) && ! empty( $metadata['videopress'] ) ) {
+		// Use poster image for VideoPress videos.
 		$poster_url  = $metadata['videopress']['poster'];
 		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
+		$meta_width  = ! empty( $metadata['videopress']['width'] ) ? $metadata['videopress']['width'] : '';
+		$meta_height = ! empty( $metadata['videopress']['height'] ) ? $metadata['videopress']['height'] : '';
+	} elseif ( ! empty( $metadata['thumb'] ) ) {
+		// On WordPress.com, VideoPress videos have a 'thumb' property with the
+		// poster image filename instead.
+		$video_url   = wp_get_attachment_url( $media['id'] );
+		$poster_url  = str_replace( wp_basename( $video_url ), $metadata['thumb'], $video_url );
+		$description = ! empty( $media['alt'] ) ? $media['alt'] : '';
+		$meta_width  = ! empty( $metadata['width'] ) ? $metadata['width'] : '';
+		$meta_height = ! empty( $metadata['height'] ) ? $metadata['height'] : '';
+	}
+
+	if ( ! empty( $poster_url ) ) {
 		return sprintf(
-			'<img
-				alt="%s"
-				class="wp-block-jetpack-story_image wp-story-image %s"
-				src="%s">',
+			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s"%5$s%6$s>',
+			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
-			get_image_crop_class( $metadata['videopress']['width'], $metadata['videopress']['height'] ),
-			esc_attr( $poster_url )
+			'wp-block-jetpack-story_image wp-story-image ' .
+			get_image_crop_class( $meta_width, $meta_height ),
+			esc_attr( $poster_url ),
+			! empty( $meta_width ) ? ' width="' . esc_attr( $meta_width ) . '"' : '',
+			! empty( $meta_height ) ? ' height="' . esc_attr( $meta_height ) . '"' : ''
 		);
 	}
 
@@ -183,7 +206,7 @@ function render_video( $media ) {
 			data-id="%3$s"
 			src="%4$s">
 		</video>',
-		esc_attr( $media['alt'] ),
+		esc_attr( get_the_title( $media['id'] ) ),
 		esc_attr( $media['mime'] ),
 		$media['id'],
 		esc_attr( $media['url'] )
@@ -211,12 +234,16 @@ function render_slide( $media, $index = 0 ) {
 		case 'video':
 			$media_template = render_video( $media, $index );
 			break;
+		case 'file':
+			// VideoPress videos can sometimes have type 'file', and mime 'video/videopress' or 'video/mp4'.
+			if ( 'video' === substr( $media['mime'], 0, 5 ) ) {
+				$media_template = render_video( $media, $index );
+			}
+			break;
 	}
 	return sprintf(
 		'<div class="wp-story-slide" style="display: %s;">
-			<figure>
-				%s
-			</figure>
+			<figure>%s</figure>
 		</div>',
 		0 === $index ? 'block' : 'none',
 		$media_template
@@ -263,14 +290,16 @@ function render_top_right_icon( $settings ) {
  * Render a pagination bullet
  *
  * @param array $slide_index The slide index it corresponds to.
+ * @param array $class_name Optional css class name(s) to customize the bullet element.
  *
  * @return string
  */
-function render_pagination_bullet( $slide_index ) {
+function render_pagination_bullet( $slide_index, $class_name = '' ) {
 	return sprintf(
-		'<a href="#" class="wp-story-pagination-bullet" aria-label="%s">
+		'<a href="#" class="wp-story-pagination-bullet %s" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
 		</a>',
+		esc_attr( $class_name ),
 		/* translators: %d is the slide number (1, 2, 3...) */
 		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
 	);
@@ -288,12 +317,16 @@ function render_pagination( $settings ) {
 	if ( $show_slide_count ) {
 		return '';
 	}
-	$slide_count = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$slide_count     = isset( $settings['slides'] ) ? count( $settings['slides'] ) : 0;
+	$bullet_count    = min( $slide_count, MAX_BULLETS );
+	$bullet_ellipsis = $slide_count > $bullet_count
+		? render_pagination_bullet( $bullet_count + 1, 'wp-story-pagination-ellipsis' )
+		: '';
 	return sprintf(
 		'<div class="wp-story-pagination wp-story-pagination-bullets">
 			%s
 		</div>',
-		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $slide_count ) ) )
+		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $bullet_count ) ) ) . $bullet_ellipsis
 	);
 }
 

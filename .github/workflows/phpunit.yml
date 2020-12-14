@@ -1,0 +1,110 @@
+name: PHPUnit tests
+
+on:
+  pull_request:
+  push:
+    branches: [master, master-stable, 'branch-*']
+
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
+jobs:
+  phpunit:
+    name: "PHPUnit tests:  PHP ${{ matrix.php }} WP ${{ matrix.wp }}"
+    runs-on: ubuntu-latest
+    services:
+      database:
+        image: mysql:5.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+    continue-on-error: ${{ matrix.experimental }}
+    env:
+      WP_BRANCH: ${{ matrix.wp }}
+      PHP_VERSION: ${{ matrix.php }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run tests against current WP in all supported PHP versions.
+        php: [ "5.6", "7.0", "7.2", "7.3", "7.4" ]
+        wp: [ "latest" ]
+        experimental: [ false ]
+
+        include:
+          # Run tests against WP previous and master in one PHP version.
+          - php: "7.4"
+            wp: "master"
+            experimental: false
+          - php: "7.4"
+            wp: "previous"
+            experimental: false
+          # Experimental PHP 8 tests
+          - php: "8.0"
+            wp: "latest"
+            experimental: true
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          php --version
+          composer --version
+
+      - name: Setup environment
+        run: ./.github/actions/php-pipeline/setup-env.sh
+
+      - name: Run tests
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        run: phpunit
+
+      - name: Multisite tests
+        if: matrix.wp == 'master'
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        env:
+          WP_MULTISITE: '1'
+        run: phpunit -c tests/php.multisite.xml
+
+      - name: Package tests
+        if: matrix.wp == 'latest'
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        run: |
+          for PACKAGE in ./packages/*/tests/php; do
+            cd "$PACKAGE/../.."
+            NAME=$(basename $(pwd))
+            echo "::group::Package $NAME"
+            if [ ! -e tests/php/ci-can-run.sh ] || tests/php/ci-can-run.sh; then
+              composer phpunit
+            fi
+            echo "::endgroup::"
+            cd ../..
+          done
+
+      - name: Legacy Full Sync tests
+        if: matrix.php == '7.0' && matrix.wp == 'latest'
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        env:
+          LEGACY_FULL_SYNC: '1'
+        run: phpunit --group=legacy-full-sync

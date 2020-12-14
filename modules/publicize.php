@@ -96,7 +96,6 @@ class Jetpack_Publicize {
 	}
 }
 
-global $publicize_ui;
 new Jetpack_Publicize();
 
 if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_init' ) ) {

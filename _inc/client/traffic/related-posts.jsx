@@ -2,7 +2,11 @@
  * External dependencies
  */
 import React from 'react';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
+
+/**
+ * WordPress dependencies
+ */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -73,7 +77,7 @@ class RelatedPostsComponent extends React.Component {
 					} }
 				>
 					<p>
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							__(
 								'Keep your visitors engaged with related content at the bottom of each post. These settings won’t apply to <a>related posts added using the block editor</a>.',
 								'jetpack'

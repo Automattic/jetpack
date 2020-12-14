@@ -30,7 +30,7 @@ function register_block() {
 		array(
 			'attributes'      => array(
 				'url'                    => array(
-					'type' => 'url',
+					'type' => 'string',
 				),
 				'itemsToShow'            => array(
 					'type'    => 'integer',
@@ -96,8 +96,7 @@ function render_block( $attributes, $content ) {
 
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
-
-	$player_data = Jetpack_Podcast_Helper::get_player_data( $attributes['url'] );
+	$player_data       = ( new Jetpack_Podcast_Helper( $attributes['url'] ) )->get_player_data();
 
 	if ( is_wp_error( $player_data ) ) {
 		return render_error( $player_data->get_error_message() );

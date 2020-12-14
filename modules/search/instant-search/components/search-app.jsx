@@ -18,6 +18,7 @@ import SearchResults from './search-results';
 import { search } from '../lib/api';
 import {
 	getFilterQuery,
+	getResultFormatQuery,
 	getSearchQuery,
 	getSortQuery,
 	hasFilter,
@@ -27,6 +28,7 @@ import {
 	restorePreviousHref,
 } from '../lib/query-string';
 import { bindCustomizerChanges } from '../lib/customize';
+import './search-app.scss';
 
 class SearchApp extends Component {
 	static defaultProps = {
@@ -231,6 +233,11 @@ class SearchApp extends Component {
 			adminQueryFilter: this.props.options.adminQueryFilter,
 		} )
 			.then( newResponse => {
+				if ( newResponse === null ) {
+					// Request has been cancelled by a more recent request
+					return;
+				}
+
 				if ( this.state.requestId === requestId ) {
 					const response = { ...newResponse };
 					if ( !! pageHandle ) {
@@ -251,15 +258,21 @@ class SearchApp extends Component {
 				this.setState( { isLoading: false } );
 			} )
 			.catch( error => {
+				// XHR errors are instances of ProgressEvents.
 				if ( error instanceof ProgressEvent ) {
 					this.setState( { isLoading: false, hasError: true } );
 					return;
 				}
+				// Stop loading indicator before throwing.
+				this.setState( { isLoading: false } );
 				throw error;
 			} );
 	};
 
 	render() {
+		// Override the result format from the query string if result_format= is specified
+		const resultFormatQuery = getResultFormatQuery();
+
 		return createPortal(
 			<Overlay
 				closeColor={ this.state.overlayOptions.closeColor }
@@ -286,7 +299,7 @@ class SearchApp extends Component {
 					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
-					resultFormat={ this.state.overlayOptions.resultFormat }
+					resultFormat={ resultFormatQuery || this.state.overlayOptions.resultFormat }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					sort={ this.getSort() }
 					widgets={ this.props.options.widgets }

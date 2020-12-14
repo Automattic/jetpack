@@ -1,0 +1,120 @@
+name: "PHP & JS Code coverage"
+on:
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  push:
+    branches: [master]
+    paths-ignore:
+    - '**.md'
+
+env:
+  DO_COVERAGE: true
+  WP_BRANCH: latest
+  PHP_VERSION: "7.3"
+  CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
+  CODECOV_TOKEN: 13375979-2ee3-4078-8763-da63dfbc8b35
+
+jobs:
+  coverage:
+    name: "Code coverage"
+    runs-on: ubuntu-latest
+    services:
+      database:
+        image: mysql:5.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.3"
+          tools: composer
+          coverage: none
+          extensions: mysql, imagick
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      # As suggested here https://github.com/codeclimate/test-reporter/issues/406#issuecomment-578483422
+      - name: Set ENV for CodeClimate (pull_request)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
+          echo "GIT_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
+          echo "GIT_COMMIT_SHA=$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GITHUB_ENV
+
+      - name: Set ENV for CodeClimate (push)
+        if: github.event_name == 'push'
+        run: |
+          echo "GIT_BRANCH=$GITHUB_REF" >> $GITHUB_ENV
+          echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
+
+      - name: Setup tests
+        run: |
+          ./.github/actions/php-pipeline/setup-env.sh
+          yarn install
+
+      - name: Init code climate
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+
+      - name: Adminpage coverage
+        run: yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
+
+      - name: Extensions coverage
+        run: yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
+
+      - name: Backend coverage
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        run: phpdbg -qrr $(which phpunit) --coverage-clover $GITHUB_WORKSPACE/coverage/backend/clover.xml
+
+      - name: Legacy full sync coverage
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        env:
+          LEGACY_FULL_SYNC: '1'
+        run: phpdbg -qrr $(which phpunit) --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync/clover.xml
+
+      - name: Multisite coverage
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        env:
+          WP_MULTISITE: '1'
+        run: phpdbg -qrr $(which phpunit) -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite/clover.xml
+
+      - name: Package coverage
+        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
+        run: |
+          for PACKAGE in ./packages/*/tests/php; do
+            cd "$PACKAGE/../.."
+            NAME=$(basename $(pwd))
+            echo "::group::Package $NAME"
+            composer install
+            phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $GITHUB_WORKSPACE/coverage/package-$NAME/clover.xml
+            echo "::endgroup::"
+            cd ../..
+          done
+
+      - name: Process coverage results
+        run: |
+          bash <(curl -s https://codecov.io/bash) -s ./coverage || echo 'Codecov failed to upload'
+          ./.github/actions/php-pipeline/process-coverage.sh
+
+

@@ -46,6 +46,7 @@ export const settings = {
 		'stripe',
 		_x( 'memberships', 'block search term', 'jetpack' ),
 	],
+	usesContext: [ 'isPremiumContentChild' ],
 	attributes: {
 		planId: {
 			type: 'integer',

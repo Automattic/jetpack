@@ -16,7 +16,7 @@ import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
 import {
-	getNgrokSiteUrl,
+	getTunnelSiteUrl,
 	provisionJetpackStartConnection,
 	execShellCommand,
 	execWpCommand,
@@ -89,7 +89,7 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
 	await persistPlanData( planType );
 
-	const siteUrl = getNgrokSiteUrl();
+	const siteUrl = getTunnelSiteUrl();
 	const jetpackUrl = siteUrl + '/wp-admin/admin.php?page=jetpack#/dashboard';
 
 	const jetpackPage = await JetpackPage.visit( page, jetpackUrl );
@@ -111,7 +111,7 @@ export async function syncJetpackPlanData( plan, mockPlanData = true ) {
 }
 
 export async function loginToWpSite( mockPlanData ) {
-	const siteUrl = getNgrokSiteUrl();
+	const siteUrl = getTunnelSiteUrl();
 	if ( ! siteUrl ) {
 		throw 'WOW, siteURL is empty!';
 	}
@@ -163,12 +163,12 @@ export async function connectThroughJetpackStart( {
 	const nextUrl = provisionJetpackStartConnection();
 	// sometimes after clicking on Approve button below user being redirected to wp-login page
 	// maybe waiting for a bit will help?
-	await page.waitFor( 10000 );
+	await page.waitForTimeout( 10000 );
 
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
-	const siteUrl = getNgrokSiteUrl();
+	const siteUrl = getTunnelSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
 	await ( await Sidebar.init( page ) ).selectJetpack();

@@ -10,32 +10,45 @@
  */
 class Jetpack_Podcast_Helper {
 	/**
+	 * The RSS feed of the podcast.
+	 *
+	 * @var string
+	 */
+	protected $feed = null;
+
+	/**
+	 * Initialize class.
+	 *
+	 * @param string $feed The RSS feed of the podcast.
+	 */
+	public function __construct( $feed ) {
+		$this->feed = esc_url_raw( $feed );
+	}
+
+	/**
 	 * Gets podcast data formatted to be used by the Podcast Player block in both server-side
 	 * block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
 	 *
 	 * The result is cached for one hour.
 	 *
-	 * @param string $feed     The RSS feed to load and list tracks for.
-	 * @return array|WP_Error The player data or a error object.
+	 * @return array|WP_Error  The player data or a error object.
 	 */
-	public static function get_player_data( $feed ) {
-		$feed = esc_url_raw( $feed );
-
+	public function get_player_data() {
 		// Try loading data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $feed );
+		$transient_key = 'jetpack_podcast_' . md5( $this->feed );
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
 		if ( false === $player_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			// Load feed.
-			$rss = self::load_feed( $feed );
+			$rss = $this->load_feed();
 
 			if ( is_wp_error( $rss ) ) {
 				return $rss;
 			}
 
 			// Get tracks.
-			$tracks = self::get_track_list( $rss );
+			$tracks = $this->get_track_list();
 
 			if ( empty( $tracks ) ) {
 				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
@@ -43,7 +56,7 @@ class Jetpack_Podcast_Helper {
 
 			// Get podcast meta.
 			$title = $rss->get_title();
-			$title = self::get_plain_text( $title );
+			$title = $this->get_plain_text( $title );
 
 			$cover = $rss->get_image_url();
 			$cover = ! empty( $cover ) ? esc_url( $cover ) : null;
@@ -66,12 +79,56 @@ class Jetpack_Podcast_Helper {
 	}
 
 	/**
+	 * Gets a specific track from the supplied feed URL.
+	 *
+	 * @param string $guid     The GUID of the track.
+	 * @return array|WP_Error  The track object or an error object.
+	 */
+	public function get_track_data( $guid ) {
+		// Try loading track data from the cache.
+		$transient_key = 'jetpack_podcast_' . md5( "$this->feed::$guid" );
+		$track_data    = get_transient( $transient_key );
+
+		// Fetch data if we don't have any cached.
+		if ( false === $track_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			// Load feed.
+			$rss = $this->load_feed();
+
+			if ( is_wp_error( $rss ) ) {
+				return $rss;
+			}
+
+			// Loop over all tracks to find the one.
+			foreach ( $rss->get_items() as $track ) {
+				if ( $guid === $track->get_id() ) {
+					$track_data = $this->setup_tracks_callback( $track );
+					break;
+				}
+			}
+
+			if ( false === $track_data ) {
+				return new WP_Error( 'no_track', __( 'The track was not found.', 'jetpack' ) );
+			}
+
+			// Cache for 1 hour.
+			set_transient( $transient_key, $track_data, HOUR_IN_SECONDS );
+		}
+
+		return $track_data;
+	}
+
+	/**
 	 * Gets a list of tracks for the supplied RSS feed.
 	 *
-	 * @param string $rss      The RSS feed to load and list tracks for.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	private static function get_track_list( $rss ) {
+	public function get_track_list() {
+		$rss = $this->load_feed();
+
+		if ( is_wp_error( $rss ) ) {
+			return $rss;
+		}
+
 		// Get first ten items and format them.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
 
@@ -88,7 +145,7 @@ class Jetpack_Podcast_Helper {
 	 * @param string $str Input string.
 	 * @return string Plain text string.
 	 */
-	private static function get_plain_text( $str ) {
+	protected function get_plain_text( $str ) {
 		// Trim string and return if empty.
 		$str = trim( (string) $str );
 		if ( empty( $str ) ) {
@@ -107,12 +164,10 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Loads an RSS feed using `fetch_feed`.
 	 *
-	 * @param string $feed        The RSS feed URL to load.
 	 * @return SimplePie|WP_Error The RSS object or error.
 	 */
-	private static function load_feed( $feed ) {
-		$rss = fetch_feed( esc_url_raw( $feed ) );
-
+	public function load_feed() {
+		$rss = fetch_feed( $this->feed );
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 		}
@@ -130,8 +185,8 @@ class Jetpack_Podcast_Helper {
 	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
 	 * @return array
 	 */
-	private static function setup_tracks_callback( SimplePie_Item $episode ) {
-		$enclosure = self::get_audio_enclosure( $episode );
+	protected function setup_tracks_callback( SimplePie_Item $episode ) {
+		$enclosure = $this->get_audio_enclosure( $episode );
 
 		// If the audio enclosure is empty then it is not playable.
 		// We therefore return an empty array for this track.
@@ -151,8 +206,10 @@ class Jetpack_Podcast_Helper {
 			'link'        => esc_url( $episode->get_link() ),
 			'src'         => esc_url( $enclosure->link ),
 			'type'        => esc_attr( $enclosure->type ),
-			'description' => self::get_plain_text( $episode->get_description() ),
-			'title'       => self::get_plain_text( $episode->get_title() ),
+			'description' => $this->get_plain_text( $episode->get_description() ),
+			'title'       => $this->get_plain_text( $episode->get_title() ),
+			'image'       => esc_url( $this->get_episode_image_url( $episode ) ),
+			'guid'        => $this->get_plain_text( $episode->get_id() ),
 		);
 
 		if ( empty( $track['title'] ) ) {
@@ -160,10 +217,25 @@ class Jetpack_Podcast_Helper {
 		}
 
 		if ( ! empty( $enclosure->duration ) ) {
-			$track['duration'] = esc_html( self::format_track_duration( $enclosure->duration ) );
+			$track['duration'] = esc_html( $this->format_track_duration( $enclosure->duration ) );
 		}
 
 		return $track;
+	}
+
+	/**
+	 * Retrieves an episode's image URL, if it's available.
+	 *
+	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
+	 * @param string         $itunes_ns The itunes namespace, defaulted to the standard 1.0 version.
+	 * @return string|null The image URL or null if not found.
+	 */
+	protected function get_episode_image_url( SimplePie_Item $episode, $itunes_ns = 'http://www.itunes.com/dtds/podcast-1.0.dtd' ) {
+		$image = $episode->get_item_tags( $itunes_ns, 'image' );
+		if ( isset( $image[0]['attribs']['']['href'] ) ) {
+			return $image[0]['attribs']['']['href'];
+		}
+		return null;
 	}
 
 	/**
@@ -172,7 +244,7 @@ class Jetpack_Podcast_Helper {
 	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
 	 * @return SimplePie_Enclosure|null
 	 */
-	private static function get_audio_enclosure( SimplePie_Item $episode ) {
+	protected function get_audio_enclosure( SimplePie_Item $episode ) {
 		foreach ( (array) $episode->get_enclosures() as $enclosure ) {
 			if ( 0 === strpos( $enclosure->type, 'audio/' ) ) {
 				return $enclosure;
@@ -188,7 +260,7 @@ class Jetpack_Podcast_Helper {
 	 * @param number $duration of the track in seconds.
 	 * @return string
 	 */
-	private static function format_track_duration( $duration ) {
+	protected function format_track_duration( $duration ) {
 		$format = $duration > HOUR_IN_SECONDS ? 'H:i:s' : 'i:s';
 
 		return date_i18n( $format, $duration );

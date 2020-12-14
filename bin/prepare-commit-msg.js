@@ -20,7 +20,11 @@ fs.readFile( '.git/last-commit-tree', ( err, data ) => {
 			newCommitMsg = notVerifiedPrefix + commitMsg;
 		}
 	} else if ( commitMsg.startsWith( notVerifiedPrefix ) ) {
-		newCommitMsg = commitMsg.substring( notVerifiedPrefix.length );
+		// Ideally we'd remove the tag here, but to reliably do that we'd have to have
+		// pre-commit-hook.js check all files in --amend instead of only the ones being
+		// changed in the amendment. So for now, don't do it.
+		//
+		// newCommitMsg = commitMsg.substring( notVerifiedPrefix.length );
 	}
 	if ( null !== newCommitMsg ) {
 		fs.writeFileSync( '.git/COMMIT_EDITMSG', newCommitMsg );

@@ -13,6 +13,11 @@ Branches use the following naming conventions:
 
 For example, you can run: `git checkout master` and then `git checkout -b fix/whatsits` to create a new `fix/whatsits` branch off of `origin/master`.
 
+The Jetpack repo uses the following "reserved" branch name conventions:
+
+* `branch-{X.Y|something}[-built]` -- Used for release branches
+* `feature/{something}` -- Used for feature branches for larger feature projects when anticipated there will be multiple PRs into that feature branch. 
+
 ## Mind your commits
 
 * [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).

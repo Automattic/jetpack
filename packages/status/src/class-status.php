@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use WPCOM_Masterbar;
+
 /**
  * Class Automattic\Jetpack\Status
  *
@@ -74,6 +76,34 @@ class Status {
 	}
 
 	/**
+	 * Is Jetpack in "No User test mode"?
+	 *
+	 * This will make Jetpack act as if there were no connected users, but only a site connection (aka blog token)
+	 *
+	 * @since 9.2.0
+	 *
+	 * @return bool Whether Jetpack's No User Testing Mode is active.
+	 */
+	public function is_no_user_testing_mode() {
+		$test_mode = false;
+		if ( defined( 'JETPACK_NO_USER_TEST_MODE' ) ) {
+			$test_mode = JETPACK_NO_USER_TEST_MODE;
+		}
+
+		/**
+		 * Filters Jetpack's No User testing mode.
+		 *
+		 * @since 9.2.0
+		 *
+		 * @param bool $test_mode Is Jetpack's No User testing mode active.
+		 */
+		$test_mode = (bool) apply_filters( 'jetpack_no_user_testing_mode', $test_mode );
+
+		return $test_mode;
+
+	}
+
+	/**
 	 * Whether this is a system with a multiple networks.
 	 * Implemented since there is no core is_multi_network function.
 	 * Right now there is no way to tell which network is the dominant network on the system.
@@ -123,9 +153,8 @@ class Status {
 		// Check for localhost and sites using an IP only first.
 		$is_local = site_url() && false === strpos( site_url(), '.' );
 
-		// @todo Remove function_exists when WP 5.5 is the minimum version.
-		// Use Core's environment check, if available.  Added in 5.5.0 / 5.5.1 (for `local` return value)
-		if ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() ) {
+		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
+		if ( 'local' === wp_get_environment_type() ) {
 			$is_local = true;
 		}
 
@@ -167,9 +196,8 @@ class Status {
 	 * @return bool
 	 */
 	public function is_staging_site() {
-		// @todo Remove function_exists when WP 5.5 is the minimum version.
 		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
-		$is_staging = function_exists( 'wp_get_environment_type' ) && ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
+		$is_staging = ! in_array( \wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		$known_staging = array(
 			'urls'      => array(
@@ -209,7 +237,7 @@ class Status {
 
 		if ( isset( $known_staging['urls'] ) ) {
 			foreach ( $known_staging['urls'] as $url ) {
-				if ( preg_match( $url, site_url() ) ) {
+				if ( preg_match( $url, wp_parse_url( site_url(), PHP_URL_HOST ) ) ) {
 					$is_staging = true;
 					break;
 				}
@@ -237,5 +265,32 @@ class Status {
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
 		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+	}
+
+	/**
+	 * Returns the site slug suffix to be used as part of Calypso URLs.
+	 *
+	 * Strips http:// or https:// from a url, replaces forward slash with ::.
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param string $url Optional. URL to build the site suffix from. Default: Home URL.
+	 *
+	 * @return string
+	 */
+	public function get_site_suffix( $url = '' ) {
+		// On WordPress.com, site suffixes are a bit different.
+		if ( method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+		}
+
+		if ( empty( $url ) ) {
+			$url = \home_url();
+		}
+
+		$url = preg_replace( '#^.*?://#', '', $url );
+		$url = str_replace( '/', '::', $url );
+
+		return $url;
 	}
 }

@@ -139,7 +139,7 @@ class MailChimp_Subscriber_Popup {
 		foreach ( $attrs as $key => $value ) {
 			// skip unsupported keys.
 			if (
-				! in_array( $key, array_keys( self::$allowed_config ), true )
+				! array_key_exists( $key, self::$allowed_config )
 				&& ! in_array( $key, self::$allowed_js_vars, true )
 			) {
 				continue;

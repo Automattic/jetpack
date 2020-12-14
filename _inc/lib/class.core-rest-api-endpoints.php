@@ -2800,7 +2800,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_posint( $value = 0, $request, $param ) {
+	public static function validate_posint( $value, $request, $param ) {
 		if ( ! is_numeric( $value ) || $value <= 0 ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
 		}
@@ -2818,7 +2818,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_list_item( $value = '', $request, $param ) {
+	public static function validate_list_item( $value, $request, $param ) {
 		$attributes = $request->get_attributes();
 		if ( ! isset( $attributes['args'][ $param ] ) || ! is_array( $attributes['args'][ $param ] ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s not recognized', 'jetpack' ), $param ) );
@@ -2849,7 +2849,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_module_list( $value = '', $request, $param ) {
+	public static function validate_module_list( $value, $request, $param ) {
 		if ( ! is_array( $value ) ) {
 			return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be an array', 'jetpack' ), $param ) );
 		}
@@ -2874,7 +2874,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_alphanum( $value = '', $request, $param ) {
+	public static function validate_alphanum( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^[a-z0-9]+$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
 		}
@@ -2892,7 +2892,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_verification_service( $value = '', $request, $param ) {
+	public static function validate_verification_service( $value, $request, $param ) {
 		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || jetpack_verification_get_code( $value ) !== false ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string or a verification tag.', 'jetpack' ), $param ) );
 		}
@@ -3034,7 +3034,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_custom_service_id( $value = '', $request, $param ) {
+	public static function validate_custom_service_id( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/custom\-[0-1]+/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( "%s must be a string prefixed with 'custom-' and followed by a numeric ID.", 'jetpack' ), $param ) );
 		}
@@ -3063,7 +3063,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_twitter_username( $value = '', $request, $param ) {
+	public static function validate_twitter_username( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^@?\w{1,15}$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a Twitter username.', 'jetpack' ), $param ) );
 		}
@@ -3081,7 +3081,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_string( $value = '', $request, $param ) {
+	public static function validate_string( $value, $request, $param ) {
 		if ( ! is_string( $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack' ), $param ) );
 		}

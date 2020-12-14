@@ -339,6 +339,16 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
+		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.).
+		if ( ! jetpack_is_frontend() ) {
+			return sprintf(
+				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+				esc_url( get_the_permalink() ),
+				esc_html__( 'Submit a form.', 'jetpack' )
+			);
+		}
+
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
@@ -731,33 +741,18 @@ class Grunion_Contact_Form_Plugin {
 	 * @return bool Returns true if the form submission matches the disallowed list and false if it doesn't.
 	 */
 	public function is_in_disallowed_list( $in_disallowed_list, $form = array() ) {
-		global $wp_version;
-
 		if ( $in_disallowed_list ) {
 			return $in_disallowed_list;
 		}
 
-		/*
-		 * wp_blacklist_check was deprecated in WP 5.5.
-		 * @todo: remove when WordPress 5.5 is the minimum required version.
-		 */
-		if ( version_compare( $wp_version, '5.5-alpha', '>=' ) ) {
-			$check_comment_disallowed_list = 'wp_check_comment_disallowed_list';
-		} else {
-			$check_comment_disallowed_list = 'wp_blacklist_check';
-		}
-
 		if (
-			call_user_func_array(
-				$check_comment_disallowed_list,
-				array(
-					$form['comment_author'],
-					$form['comment_author_email'],
-					$form['comment_author_url'],
-					$form['comment_content'],
-					$form['user_ip'],
-					$form['user_agent'],
-				)
+			wp_check_comment_disallowed_list(
+				$form['comment_author'],
+				$form['comment_author_email'],
+				$form['comment_author_url'],
+				$form['comment_content'],
+				$form['user_ip'],
+				$form['user_agent']
 			)
 		) {
 			return true;
@@ -3514,7 +3509,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 
-	function render_label( $type = '', $id, $label, $required, $required_field_text ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text ) {
 
 		$type_class = $type ? ' ' .$type : '';
 		return

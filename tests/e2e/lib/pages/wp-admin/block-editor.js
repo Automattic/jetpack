@@ -7,12 +7,12 @@ import Page from '../page';
  */
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
-import { getNgrokSiteUrl } from '../../utils-helper';
+import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.block-editor';
-		const url = getNgrokSiteUrl() + '/wp-admin/post-new.php';
+		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelector, url } );
 	}
 
@@ -55,7 +55,7 @@ export default class BlockEditorPage extends Page {
 		// Disable reason: Wait for the animation to complete, since otherwise the
 		// click attempt may occur at the wrong point.
 		// Also, for some reason post-publish bar wont show up it we click to fast :/
-		await page.waitFor( 500 );
+		await page.waitForTimeout( 500 );
 
 		await waitAndClick( this.page, '.editor-post-publish-button' );
 		return await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
@@ -78,7 +78,7 @@ export default class BlockEditorPage extends Page {
 		}
 		let count = 0;
 		while ( count < 20 && ! block ) {
-			await this.page.waitFor( 1000 ); // Trying to wait for plan data to be updated
+			await this.page.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
 			await this.reload( { waitFor: 'networkidle0' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;

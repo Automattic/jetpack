@@ -71,7 +71,6 @@ class JetpackSyncTestObjectFactory {
 	}
 
 	function comment( $id, $post_id, $props = array() ) {
-		global $wp_version;
 		$now     = current_time( 'mysql' );
 		$now_gmt = get_gmt_from_date( $now );
 
@@ -85,9 +84,6 @@ class JetpackSyncTestObjectFactory {
 				'comment_date_gmt' => $now_gmt,
 			)
 		);
-		if ( version_compare( $wp_version, '4.4', '<' ) ) {
-			return $comment;
-		}
 
 		return new WP_Comment( $comment );
 	}
@@ -105,7 +101,10 @@ class JetpackSyncTestObjectFactory {
 				'user_email'         => "$username@example.com",
 				'user_registered'    => $now,
 				'display_name'       => $username,
-				'allowed_mime_types' => array( 'jpg|jpeg|jpe' => 'image/jpeg', 'gif' => 'image/gif' ),
+				'allowed_mime_types' => array(
+					'jpg|jpeg|jpe' => 'image/jpeg',
+					'gif'          => 'image/gif',
+				),
 			)
 		);
 
@@ -114,7 +113,7 @@ class JetpackSyncTestObjectFactory {
 
 	function plugins() {
 		return array(
-			'polldaddy/polldaddy.php'   => array(
+			'polldaddy/crowdsignal.php' => array(
 				'Name'        => 'Polldaddy Polls & Ratings',
 				'PluginURI'   => 'https://wordpress.org/extend/plugins/polldaddy/',
 				'Version'     => '2.0.31',

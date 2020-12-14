@@ -3,12 +3,12 @@
  */
 import Page from '../page';
 import { isEventuallyVisible, waitAndClick } from '../../page-helper';
-import { getNgrokSiteUrl } from '../../utils-helper';
+import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class DashboardPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '#dashboard-widgets-wrap';
-		const url = getNgrokSiteUrl() + '/wp-admin';
+		const url = getTunnelSiteUrl() + '/wp-admin';
 		super( page, { expectedSelector, url } );
 	}
 

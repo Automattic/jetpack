@@ -131,7 +131,7 @@ class Device_Detection {
 	 *
 	 * @return bool|string Boolean indicating if current UA matches $kind. If `$return_matched_agent` is true, returns the UA string.
 	 */
-	private static function is_mobile( $kind = 'any', $return_matched_agent = false, $ua_info ) {
+	private static function is_mobile( $kind, $return_matched_agent, $ua_info ) {
 		$kinds         = array(
 			'smart' => false,
 			'dumb'  => false,

@@ -530,11 +530,16 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			);
 		}
 
-		$taxonomies = get_taxonomies(
-			array(
-				'public'   => true,
-				'_builtin' => false,
-			)
+		// Grab a maximum of 3 taxonomies.
+		$taxonomies = array_slice(
+			get_taxonomies(
+				array(
+					'public'   => true,
+					'_builtin' => false,
+				)
+			),
+			0,
+			3
 		);
 
 		foreach ( $taxonomies as $t ) {
@@ -552,12 +557,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'taxonomy' => 'category',
 			'count'    => 5,
 		);
+
 		$settings['filters'][] = array(
 			'name'     => '',
 			'type'     => 'taxonomy',
 			'taxonomy' => 'post_tag',
 			'count'    => 5,
 		);
+
 		$settings['filters'][] = array(
 			'name'     => '',
 			'type'     => 'date_histogram',
@@ -565,6 +572,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'field'    => 'post_date',
 			'interval' => 'year',
 		);
+
 		return $settings;
 	}
 	/**

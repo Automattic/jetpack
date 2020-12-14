@@ -135,7 +135,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		/** This filter is already documented in class.jetpack-modules-list-table.php */
 		$modules              = apply_filters( 'jetpack_modules_list_table_items', Jetpack_Admin::init()->get_modules() );
 		$array_of_module_tags = wp_list_pluck( $modules, 'module_tags' );
-		$module_tags          = call_user_func_array( 'array_merge', $array_of_module_tags );
+		$module_tags          = array_merge( ...array_values( $array_of_module_tags ) );
 		$module_tags_unique   = array_count_values( $module_tags );
 		ksort( $module_tags_unique );
 
@@ -332,7 +332,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	// Check if the info parameter provided in the URL corresponds to an actual module
-	function module_info_check( $info = false, $modules ) {
+	function module_info_check( $info, $modules ) {
 		if ( false == $info ) {
 			return false;
 		} elseif ( array_key_exists( $info, $modules ) ) {

@@ -14,4 +14,5 @@ namespace Jetpack\AutoloaderTestData\Plugin;
  * Class Test.
  */
 class Test {
+	const VERSION = '2.7.0.0';
 }

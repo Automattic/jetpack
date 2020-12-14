@@ -16,10 +16,10 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$this->rest_authentication = Rest_Authentication::init();
 
 		$this->manager = $this->getMockBuilder( 'Manager' )
@@ -34,10 +34,10 @@ class REST_Authentication_Test extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		$_GET = null;
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$this->rest_authentication->reset_saved_auth_state();
