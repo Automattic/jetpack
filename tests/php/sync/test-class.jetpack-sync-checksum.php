@@ -9,13 +9,15 @@ use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
- * Testing Table Checksum
+ * Testing Table Checksum.
  *
  * @group jetpack-sync
  */
 class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 
 	/**
+	 * Allowed Tables for current test.
+	 *
 	 * @var array Table Configurations
 	 */
 	protected $allowed_tables = array();
@@ -25,21 +27,20 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 *
 	 * @return int[][]
 	 */
-	public function table_provider()
-	{
-		return [
-			['posts', true],
-			['comments', true],
-			['postmeta', true],
-			['commentmeta', true],
-			['terms', true],
-			['termmeta', true],
-			['term_relationships', true],
-			['term_taxonomy', true],
-			['not_a_table', false],
-			['comment_meta', false],
-			['post_meta', false],
-		];
+	public function table_provider() {
+		return array(
+			array( 'posts', true ),
+			array( 'comments', true ),
+			array( 'postmeta', true ),
+			array( 'commentmeta', true ),
+			array( 'terms', true ),
+			array( 'termmeta', true ),
+			array( 'term_relationships', true ),
+			array( 'term_taxonomy', true ),
+			array( 'not_a_table', false ),
+			array( 'comment_meta', false ),
+			array( 'post_meta', false ),
+		);
 	}
 
 	/**
@@ -47,13 +48,13 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 *
 	 * @dataProvider table_provider
 	 *
-	 * @param string $table Table name.
+	 * @param string  $table    Table name.
 	 * @param boolean $is_valid Is it a valid table name.
 	 */
 	public function test_checksum_validate_table_name( $table, $is_valid ) {
-		if( ! $is_valid ) {
+		if ( ! $is_valid ) {
 			// Exception expected if not a valid table name.
-			$this->expectException(Exception::class);
+			$this->expectException( Exception::class );
 		} else {
 			// Valid Tables do not need any assertion. so need to do an assert to appeas older versions.
 			$this->assertTrue( true );
@@ -63,7 +64,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Array of Table Configurations with different field names
+	 * Array of Table Configurations with different field names.
 	 *
 	 * @return int[][]
 	 */
@@ -79,7 +80,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'key_fields'      => array( 'ID' ),
 						'checksum_fields' => array( 'post_modified_gmt' ),
 						'filter_values'   => Settings::get_disallowed_post_types_structured(),
-					)
+					),
 				),
 				true,
 				null,
@@ -105,10 +106,10 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'key_fields'      => array( 'ID' ),
 						'checksum_fields' => array( 'post_modified_gmt*/' ),
 						'filter_values'   => Settings::get_disallowed_post_types_structured(),
-					)
+					),
 				),
 				false,
-				'post_modified_gmt*/'
+				'post_modified_gmt*/',
 			),
 			array(
 				array(
@@ -118,19 +119,18 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'key_fields'      => array( 'ID/*' ),
 						'checksum_fields' => array( 'post_modified_gmt' ),
 						'filter_values'   => Settings::get_disallowed_post_types_structured(),
-					)
+					),
 				),
 				false,
-				'ID/*'
+				'ID/*',
 			),
 		);
 	}
 
 	/**
-	 * returns the allowed_tables Table Configurations.
+	 * Returns the allowed_tables Table Configurations.
 	 *
-	 * @param array $tables Table Configurations.
-	 *
+	 * @param  array $tables Table Configurations.
 	 * @return array Table Configurations.
 	 */
 	public function set_allowed_tables( $tables ) {
@@ -142,25 +142,26 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 *
 	 * @dataProvider field_validation_provider
 	 *
-	 * @param array $table_configurations Table Configuration to overide defaults.
-	 * @param boolean $is_valid  Is this a valid field name?
-	 * @param string $field Field under test
+	 * @param array   $table_configurations Table Configuration to overide defaults.
+	 * @param boolean $is_valid             Is this a valid field name.
+	 * @param string  $field                Field under test.
 	 */
 	public function test_checksum_validate_fields( $table_configurations, $is_valid, $field ) {
 
 		$this->allowed_tables = $table_configurations;
-		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables') );
+		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables' ) );
 
 		$user_id = $this->factory->user->create();
 
-		// create a post
+		// create a post.
 		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
+		// Perform Checksum.
 		$tc     = new Table_Checksum( 'posts' );
 		$result = $tc->calculate_checksum();
 
-		if( ! $is_valid ) {
+		if ( ! $is_valid ) {
 			$this->assertTrue( is_wp_error( $result ) );
 			$expected_message = "Invalid field name: $field is not allowed";
 			$this->assertSame( $result->get_error_message(), $expected_message );
@@ -187,7 +188,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'key_fields'      => array( 'ID' ),
 						'checksum_fields' => array( 'post_modified_gmt' ),
 						'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
-					)
+					),
 				),
 				true,
 				null,
@@ -213,10 +214,10 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'key_fields'      => array( 'ID' ),
 						'checksum_fields' => array( 'post_modified_gmt_2' ),
 						'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
-					)
+					),
 				),
 				false,
-				'post_modified_gmt_2'
+				'post_modified_gmt_2',
 			),
 			array(
 				array(
@@ -226,10 +227,10 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 						'key_fields'      => array( 'ID_2' ),
 						'checksum_fields' => array( 'post_modified_gmt' ),
 						'filter_sql'      => Settings::get_blacklisted_post_types_sql(),
-					)
+					),
 				),
 				false,
-				'ID_2'
+				'ID_2',
 			),
 		);
 	}
@@ -239,15 +240,15 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 *
 	 * @dataProvider field_table_validation_provider
 	 *
-	 * @param array $table_configurations Table Configuration to overide defaults.
-	 * @param boolean $is_valid Is this a valid field name?
-	 * @param string $field Field under test
+	 * @param array   $table_configurations Table Configuration to overide defaults.
+	 * @param boolean $is_valid             Is this a valid field name.
+	 * @param string  $field                Field under test.
 	 */
 	public function test_checksum_validate_fields_against_table( $table_configurations, $is_valid, $field ) {
 		global $wpdb;
 
 		$this->allowed_tables = $table_configurations;
-		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables') );
+		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables' ) );
 
 		$user_id = $this->factory->user->create();
 
@@ -255,10 +256,11 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
+		// Calculate checksum.
 		$tc     = new Table_Checksum( 'posts' );
 		$result = $tc->calculate_checksum();
 
-		if( ! $is_valid ) {
+		if ( ! $is_valid ) {
 			$this->assertTrue( is_wp_error( $result ) );
 			$expected_message = "Invalid field name: field '{$field}' doesn't exist in table {$wpdb->posts}";
 			$this->assertSame( $result->get_error_message(), $expected_message );
@@ -326,9 +328,9 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_field_ranges_posts_provider
 	 *
-	 * @param int $num_posts Number of Posts to Generate.
+	 * @param int $num_posts      Number of Posts to Generate.
 	 * @param int $disallow_index Index of generated post to be of disallowed post_type.
-	 * @param int $expected_count $expected number of posts to be returned.
+	 * @param int $expected_count expected number of posts to be returned.
 	 */
 	public function test_get_range_edges_posts( $num_posts, $disallow_index, $expected_count ) {
 
@@ -458,11 +460,11 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_field_ranges_posts_args_provider
 	 *
-	 * @param int      $num_posts Number of Posts to Generate.
+	 * @param int      $num_posts           Number of Posts to Generate.
 	 * @param int      $expected_item_count Expected item_count to return in range.
-	 * @param int|null $range_from_offset Offset to set on the range_from based on first post.
-	 * @param int|null $range_to_offset Offset to set on the range_to based on last post.
-	 * @param int|null $limit limit to be passed to get_range_edges.
+	 * @param int|null $range_from_offset   Offset to set on the range_from based on first post.
+	 * @param int|null $range_to_offset     Offset to set on the range_to based on last post.
+	 * @param int|null $limit               limit to be passed to get_range_edges.
 	 */
 	public function test_get_range_edges_posts_args( $num_posts, $expected_item_count, $range_from_offset, $range_to_offset, $limit ) {
 
@@ -507,9 +509,8 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	 * Test that Checksum generates consistently.
 	 *
 	 * Note that php's crc32 does not match MySQL's crc32 so this is a test of consistency.
-	 *
 	 */
-	public function test_calculate_checksum( ) {
+	public function test_calculate_checksum() {
 
 		// Generate Test Content.
 		$user_id            = $this->factory->user->create();
@@ -525,9 +526,9 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 			$max_range_expected = $post_id; // update last post_id.
 		}
 
-		// Calculate Checksum
+		// Calculate Checksum.
 		$tc              = new Table_Checksum( 'posts' );
-		$checksum_full   = $tc->calculate_checksum( );
+		$checksum_full   = $tc->calculate_checksum();
 		$checksum_half_1 = $tc->calculate_checksum( $min_range_expected, $max_range_expected - 5 );
 		$checksum_half_2 = $tc->calculate_checksum( $max_range_expected - 4, $max_range_expected );
 
