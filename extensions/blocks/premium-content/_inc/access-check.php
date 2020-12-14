@@ -40,9 +40,11 @@ function required_plan_checks() {
 		return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 	}
 
-	// For Jetpack sites, only Atomic sites (with a business plan
-	// or above) have the block, so no upgrade is required.
-	return true;
+	// For Jetpack sites.
+	return (
+		\Jetpack::is_active() &&
+		\Jetpack_Plan::supports( 'premium-content/container' )
+	);
 }
 
 /**
