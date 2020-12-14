@@ -1,9 +1,15 @@
 /**
+ * External dependencies
+ */
+import { castArray } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { createBlock } from '@wordpress/blocks';
-import { dispatch, select } from '@wordpress/data';
+import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { addFilter } from '@wordpress/hooks';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
@@ -11,30 +17,20 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
-import { name } from '.';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import { waitForEditor } from '../../shared/wait-for-editor';
 
-async function insertSpotifyBadge() {
-	const { Jetpack_AnchorFm = {} } = window;
-	const { image, spotifyShowUrl } = Jetpack_AnchorFm;
-	if ( ! spotifyShowUrl ) {
+async function insertSpotifyBadge( { image, url } ) {
+	if ( ! image || ! url ) {
 		return;
 	}
 
-	const { track = {} } = Jetpack_AnchorFm;
-
 	await waitForEditor();
-
-	const { insertBlock } = dispatch( 'core/block-editor' );
-	const { editPost } = dispatch( 'core/editor' );
-	const { isEditedPostNew } = select( 'core/editor' );
-
-	insertBlock(
+	dispatch( 'core/block-editor' ).insertBlock(
 		createBlock( 'core/image', {
 			url: image,
 			linkDestination: 'none',
-			href: spotifyShowUrl,
+			href: url,
 			align: 'center',
 			width: 165,
 			height: 40,
@@ -44,12 +40,14 @@ async function insertSpotifyBadge() {
 		undefined,
 		false
 	);
+}
 
-	// Set the post title when the post is new,
-	// and it can be picked up from the podcast track.
-	if ( isEditedPostNew() && track.title ) {
-		editPost( { title: track.title } );
+async function setEpisodeTitle( { title } ) {
+	if ( ! title ) {
+		return;
 	}
+	await waitForEditor();
+	dispatch( 'core/editor' ).editPost( { title } );
 }
 
 const ConvertToAudio = () => (
@@ -73,25 +71,42 @@ function showPostPublishOutboundLink() {
 	} );
 }
 
-function initAnchor() {
-	const isExtensionAvailable = getJetpackExtensionAvailability( name )?.available;
-	if ( ! isExtensionAvailable ) {
-		return;
-	}
+function overrideWelcomeGuide() {
+	addFilter( 'plugins.registerPlugin', 'jetpack/anchor-welcome-guide', ( settings, name ) => {
+		// WP.com uses a custom welcome guide provided by a plugin.
+		// See https://github.com/Automattic/wp-calypso/blob/2e1fe38b7bdbaf3eb997160f83ff71fd781b3fbe/apps/editing-toolkit/editing-toolkit-plugin/wpcom-block-editor-nux/src/wpcom-nux.js#L173
+		if ( name !== 'wpcom-block-editor-nux' ) {
+			return settings;
+		}
 
+		// TODO: Override welcome guide.
+		return settings;
+	} );
+}
+
+function initAnchor() {
 	const data = window.Jetpack_AnchorFm;
 	if ( typeof data !== 'object' ) {
 		return;
 	}
 
-	switch ( data.action ) {
-		case 'insert-spotify-badge':
-			insertSpotifyBadge();
-			break;
-		case 'show-post-publish-outbound-link':
-			showPostPublishOutboundLink();
-			break;
-	}
+	data.actions.forEach( action => {
+		const [ actionName, actionParams ] = castArray( action );
+		switch ( actionName ) {
+			case 'insert-spotify-badge':
+				insertSpotifyBadge( actionParams );
+				break;
+			case 'show-post-publish-outbound-link':
+				showPostPublishOutboundLink();
+				break;
+			case 'set-episode-title':
+				setEpisodeTitle( actionParams );
+				break;
+			case 'override-welcome-guide':
+				overrideWelcomeGuide();
+				break;
+		}
+	} );
 }
 
 initAnchor();
