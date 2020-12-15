@@ -565,7 +565,7 @@ class Table_Checksum {
 		foreach ( $results as &$result ) {
 			// Working on reference to save memory here.
 
-			$key = array( 'k' );
+			$key = array();
 			foreach ( $this->key_fields as $field ) {
 				$key[] = $result[ $field ];
 			}
