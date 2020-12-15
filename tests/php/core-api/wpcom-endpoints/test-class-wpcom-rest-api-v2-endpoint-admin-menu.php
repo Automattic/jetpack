@@ -220,7 +220,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array(
 					'parent' => 'upload-php',
 					'slug'   => 'upload-php',
-					'title'  => 'Library',
+					'title'  => 'Library\'s',
 					'type'   => 'submenu-item',
 					'url'    => 'http://example.org/wp-admin/upload.php',
 				),
@@ -232,7 +232,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array(
 					'parent' => 'upload-php',
 					'slug'   => 'upload-php',
-					'title'  => 'Library\'s',
+					'title'  => 'Library',
 					'type'   => 'submenu-item',
 					'url'    => admin_url( 'upload.php' ),
 					'count'  => 15,
