@@ -242,21 +242,6 @@ class Jetpack_Podcast_Helper {
 	 * Retrieves an audio enclosure.
 	 *
 	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
-	 * @param string         $itunes_ns The itunes namespace, defaulted to the standard 1.0 version.
-	 * @return string|null The image URL or null if not found.
-	 */
-	private static function get_episode_image_url( SimplePie_Item $episode, $itunes_ns = 'http://www.itunes.com/dtds/podcast-1.0.dtd' ) {
-		$image = $episode->get_item_tags( $itunes_ns, 'image' );
-		if ( isset( $image[0]['attribs']['']['href'] ) ) {
-			return $image[0]['attribs']['']['href'];
-		}
-		return null;
-	}
-
-	/**
-	 * Retrieves an audio enclosure.
-	 *
-	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
 	 * @return SimplePie_Enclosure|null
 	 */
 	protected function get_audio_enclosure( SimplePie_Item $episode ) {
