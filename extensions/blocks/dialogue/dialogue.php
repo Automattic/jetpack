@@ -37,45 +37,13 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Return participant list.
- * It will try to pick them up from the block context.
- * Otherwise, it will return the default participants list.
+ * Helper function to filter dialogue content,
+ * in order to provide a safe markup.
  *
- * @param object $block Block object data.
- * @param array $default Default conversation data.
- * @return array dialogue participants list.
- */
-function get_participantes_list( $block, $default ) {
-	return ! empty( $block->context['jetpack/conversation-participants'] )
-		? $block->context['jetpack/conversation-participants']
-		: $default['list'];
-}
-
-/**
- * Return participan slug,
- * dependng on the slug and label fo the dialogue block,
- * and default slug defined in the conversation data.
- *
- * @param string $slug Dialoge block slug.
- * @param string $label Dialoge block label.
- * @param object $block Block object data.
- * @param array $default Default conversation data.
- * @return array Dialoge slug if it's defined. Otherwise, default conversation slug.
- */
-function get_participant_slug( $slug, $label, $block, $default ) {
-	return ! $slug && ! $label
-		? $default['slug']
-		: $slug;
-}
-/**
- * Helper function to filter dialogue content.
- * It will filter teh content in oder to provide
- * safe markup.
- * 
  * @param string $content Dialogue content.
  * @return string Safe dialgue content markup.
  */
-function get_filtered_content( $content ) {
+function filter_content( $content ) {
 	if ( empty( $content ) ) {
 		return '';
 	}
@@ -92,51 +60,101 @@ function get_filtered_content( $content ) {
 }
 
 /**
- * Dialogue block registration/dependency declaration.
+ * Helper to check dialogue block attributes.
  *
- * @param array  $attrs    Array containing the Dialogue block attributes.
- * @param string $block_content String containing the Dialogue block content.
+ * @param array  $attrs Dialogue block attributes.
  * @param object $block Block object data.
- *
- * @return string
+ * @return array Checked block attribues.
  */
-function render_block( $attrs, $block_content, $block ) {
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-
-	// Pick up conversation data from context.
-	$default_participants = json_decode(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
-		true
+function check_dialogue_attrs( $attrs, $block ) {
+	return array(
+		'slug'           => isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null,
+		'label'          => isset( $attrs['participant'] ) ? $attrs['participant'] : null,
+		'timestamp'      => isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00',
+		'show_timestamp' => isset( $block->context['jetpack/conversation-showTimestamps'] ),
+		'content'        => filter_content( $attrs['content'] ),
 	);
+}
+/**
+ * Return participant list.
+ * It will try to pick them up from the block context.
+ * Otherwise, it will return the default participants list.
+ *
+ * @param object $block Block object data.
+ * @param array  $default Default conversation data.
+ * @return array dialogue participants list.
+ */
+function get_participantes_list( $block, $default ) {
+	return ! empty( $block->context['jetpack/conversation-participants'] )
+		? $block->context['jetpack/conversation-participants']
+		: $default['list'];
+}
 
-	// Dialogue Attributes.
-	$slug_attr      = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
-	$label_attr     = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
-	$timestamp      = isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00';
-	$show_timestamp = isset( $block->context['jetpack/conversation-showTimestamps'] );
+/**
+ * Return participan slug,
+ * dependng on the slug and label fo the dialogue block,
+ * and default slug defined in the conversation data.
+ *
+ * @param array  $attrs Checked dialogue attributes array.
+ * @param object $block Block object data.
+ * @param array  $default Default conversation data.
+ * @return array Dialoge slug if it's defined. Otherwise, default conversation slug.
+ */
+function get_participant_slug( $attrs, $block, $default ) {
+	return ! $attrs['slug'] && ! $attrs['label']
+		? $default['slug']
+		: $attrs['slug'];
+}
 
-	// Conversation/Dialogue data.
-	$participants      = get_participantes_list( $block, $default_participants );
-	$participant_slug  = get_participant_slug( $slug_attr, $label_attr, $block, $default_participants );
-	$is_custom_speaker = $label_attr && ! $slug_attr;
-	$content           = get_filtered_content( $attrs['content'] );
-
+/**
+ * Helper function to pick the dialogie participant object.
+ *
+ * @param array  $participants Dialogue participants.
+ * @param string $slug participant slug.
+ * @return array Dialogue participant when exists. Otherwise, False.
+ */
+function get_current_participant( $participants, $slug ) {
 	// Participant names map.
 	$participant_names_map = array();
 	foreach ( $participants as $participant ) {
 		$participant_names_map[ $participant['participantSlug'] ] = $participant;
 	}
 
-	// Current Participant object.
-	$current_participant = isset( $participant_names_map[ $participant_slug ] )
-		? $participant_names_map[ $participant_slug ]
+	return isset( $participant_names_map[ $slug ] )
+		? $participant_names_map[ $slug ]
 		: false;
+}
 
-	// Pick up participant data from context.
-	$participant_name = isset( $current_participant['participant'] )
-		? esc_attr( $current_participant['participant'] )
-		: $label_attr;
+/**
+ * Helper function to get the participant name.
+ *
+ * @param array  $participants Dialogue participants.
+ * @param string $slug participant slug.
+ * @param array  $attrs checked dialogue block atteributes.
+ * @return string Participant name.
+ */
+function get_participant_name( $participants, $slug, $attrs ) {
+	// Try to pick up participant data from context.
+	$participant = get_current_participant( $participants, $slug );
+
+	return isset( $participant['participant'] )
+		? esc_attr( $participant['participant'] )
+		: $attrs['label'];
+}
+
+/**
+ * Helper function to build CSS class,
+ * for the given participant.
+ *
+ * @param array  $participants Dialogue participants.
+ * @param string $slug participant slug.
+ * @param array  $attrs checked dialogue block atteributes.
+ * @param string $css_class Base dialogue block CSS classname.
+ * @return string Participant CSS classnames.
+ */
+function build_participant_css_classes( $participants, $slug, $attrs, $css_class ) {
+	$is_custom_speaker   = $attrs['label'] && ! $attrs['slug'];
+	$current_participant = get_current_participant( $participants, $slug );
 
 	$participant_has_bold_style = $is_custom_speaker && isset( $attrs['hasBoldStyle'] )
 		? $attrs['hasBoldStyle']
@@ -162,10 +180,7 @@ function render_block( $attrs, $block_content, $block ) {
 				: false
 		);
 
-	// CSS classes and inline styles..
-	$base_classname = 'wp-block-jetpack-dialogue';
-
-	$participant_css_classes = array( $base_classname . '__participant' );
+	$participant_css_classes = array( $css_class . '__participant' );
 	if ( $participant_has_bold_style ) {
 		array_push( $participant_css_classes, 'has-bold-style' );
 	}
@@ -178,19 +193,53 @@ function render_block( $attrs, $block_content, $block ) {
 		array_push( $participant_css_classes, 'has-uppercase-style' );
 	}
 
+	return implode( ' ', $participant_css_classes );
+}
+
+/**
+ * Dialogue block registration/dependency declaration.
+ *
+ * @param array  $dialogue_attrs Array containing the Dialogue block attributes.
+ * @param string $block_content String containing the Dialogue block content.
+ * @param object $block Block object data.
+ *
+ * @return string
+ */
+function render_block( $dialogue_attrs, $block_content, $block ) {
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
+	// Pick up conversation data from context.
+	$default_participants = json_decode(
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
+		true
+	);
+
+	// Dialogue Attributes.
+	$attrs = check_dialogue_attrs( $dialogue_attrs, $block );
+
+	// Conversation/Dialogue data.
+	$participants     = get_participantes_list( $block, $default_participants );
+	$participant_slug = get_participant_slug( $attrs, $block, $default_participants );
+	$participant_name = get_participant_name( $participants, $participant_slug, $attrs );
+
+	// CSS classes and inline styles.
+	$css_classname           = Blocks::classes( FEATURE_NAME, $dialogue_attrs );
+	$participant_css_classes = build_participant_css_classes( $participants, $participant_slug, $attrs, $css_classname );
+
 	// Markup.
-	return '<div class="' . $base_classname . '" >' .
-		'<div class="' . $base_classname . '__meta">' .
-			'<div class="' . implode( ' ', $participant_css_classes ) . '">' .
+	return '<div class="' . $css_classname . '" >' .
+		'<div class="' . $css_classname . '__meta">' .
+			'<div class="' . $participant_css_classes . '">' .
 				$participant_name .
 			'</div>' .
-			( $show_timestamp
-				? '<div class="' . $base_classname . '__timestamp">' .
-					$timestamp .
+			( $attrs['show_timestamp']
+				? '<div class="' . $css_classname . '__timestamp">' .
+					$attrs['timestamp'] .
 				'</div>'
 				: ''
 			) .
 		'</div>' .
-		'<div>' . $content . '</div>' .
+		'<div>' . $attrs['content'] . '</div>' .
 	'</div>';
 }
