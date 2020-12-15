@@ -74,7 +74,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 
 			<NumberControl
 				className={ `${ className }__timestamp-control__minute` }
-				label={ shortLabel ? __( 'Min', 'jetpack' ) : __( 'Minute', 'jetpack' ) }
+				label={ shortLabel ? _x( 'Min', 'Short for Minute', 'jetpack' ) : __( 'Minute', 'jetpack' ) }
 				value={ smh[ 1 ] }
 				min={ 0 }
 				max={ 59 }
@@ -85,7 +85,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 
 			<NumberControl
 				className={ `${ className }__timestamp-control__second` }
-				label={ shortLabel ? __( 'Sec', 'jetpack' ) : __( 'Second', 'jetpack' ) }
+				label={ shortLabel ? _x( 'Sec', 'Short for Second', 'jetpack' ) : __( 'Second', 'jetpack' ) }
 				value={ smh[ 2 ] }
 				min={ 0 }
 				max={ 59 }

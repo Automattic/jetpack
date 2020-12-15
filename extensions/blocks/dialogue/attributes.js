@@ -5,34 +5,34 @@ import { __ } from '@wordpress/i18n';
 
 export default {
 	participant: {
-		type: "string",
-		default: __( 'Participant', 'jetpack' )
+		type: 'string',
+		default: __( 'Participant', 'jetpack' ),
 	},
 	participantSlug: {
-		type: "string",
+		type: 'string',
 	},
 	timeStamp: {
-		type: "string",
-		default: "00:00",
+		type: 'string',
+		default: '00:00',
 	},
 	showTimeStamp: {
-		type: "boolean",
+		type: 'boolean',
 		default: false,
 	},
 	placeholder: {
-		type: "string",
+		type: 'string',
 	},
 	content: {
 		type: 'string',
 	},
 	hasBoldStyle: {
-		type: "boolean",
-		default: true
+		type: 'boolean',
+		default: true,
 	},
 	hasItalicStyle: {
-		type: "boolean",
+		type: 'boolean',
 	},
 	hasUppercaseStyle: {
-		type: "boolean",
-	}
+		type: 'boolean',
+	},
 };

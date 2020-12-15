@@ -58,7 +58,7 @@ function render_block( $attrs, $block_content, $block ) {
 	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
 	$participant_label_attr = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
 	$timestamp              = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
-	$is_custom_spaker       = $participant_label_attr && ! $participant_slug_attr;
+	$is_custom_speaker       = $participant_label_attr && ! $participant_slug_attr;
 	$content                = '';
 
 	if ( isset( $attrs['content'] ) ) {
