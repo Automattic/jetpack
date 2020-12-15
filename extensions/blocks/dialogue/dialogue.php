@@ -66,7 +66,6 @@ function render_block( $attrs, $block_content, $block ) {
 			$attrs['content'],
 			array(
 				'small'  => true,
-				'code'   => true,
 				'strong' => true,
 				'b'      => true,
 				'em'     => true,
