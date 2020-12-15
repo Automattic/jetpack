@@ -24,7 +24,7 @@ export const name = 'conversation';
 export const title = __( 'Conversation', 'jetpack' );
 export const settings = {
 	title,
-	description: __( 'Conversation', 'jetpack' ),
+	description: __( 'Create a transcription of a speech or conversation, with any number of participants, using dialogue blocks.', 'jetpack' ),
 	icon,
 	category: 'layout',
 	keywords: [
