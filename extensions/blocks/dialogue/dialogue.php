@@ -37,6 +37,27 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Return participant list.
+ * It will try to pick them up from the block context.
+ * Otherwise, it will return the default participants list.
+ *
+ * @param object $block Block object data.
+ * @return array dialogue participants list.
+ */
+function get_participantes_list( $block ) {
+	// Pick up conversation data from context.
+	$default_participants = json_decode(
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
+		true
+	);
+
+	return ! empty( $block->context['jetpack/conversation-participants'] )
+		? $block->context['jetpack/conversation-participants']
+		: $default_participants['list'];
+}
+
+/**
  * Dialogue block registration/dependency declaration.
  *
  * @param array  $attrs    Array containing the Dialogue block attributes.
@@ -47,12 +68,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-
-	$default_participants = json_decode(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
-		true
-	);
 
 	// Attributes..
 	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
@@ -73,10 +88,7 @@ function render_block( $attrs, $block_content, $block ) {
 		);
 	}
 
-	// Pick up conversation data from context.
-	$participants = ! empty( $block->context['jetpack/conversation-participants'] )
-		? $block->context['jetpack/conversation-participants']
-		: $default_participants['list'];
+	$participants = get_participantes_list( $block );
 
 	$show_timestamp = isset( $block->context['jetpack/conversation-showTimestamps'] );
 
