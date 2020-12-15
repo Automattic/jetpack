@@ -1,9 +1,9 @@
 export default {
 	participants: {
-		type: "array",
+		type: 'array',
 	},
 	showTimeStamp: {
-		type: "boolean",
+		type: 'boolean',
 		default: false,
 	},
 };
