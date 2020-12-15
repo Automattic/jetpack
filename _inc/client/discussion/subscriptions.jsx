@@ -24,8 +24,8 @@ class SubscriptionsComponent extends React.Component {
 	 * @returns {{stb_enabled: *, stc_enabled: *}}
 	 */
 	state = {
-		stb_enabled: this.props.getOptionValue( 'stb_enabled', 'subscriptions' ),
-		stc_enabled: this.props.getOptionValue( 'stc_enabled', 'subscriptions' ),
+		stb_enabled: this.props.getOptionValue( 'stb_enabled' ),
+		stc_enabled: this.props.getOptionValue( 'stc_enabled' ),
 	};
 
 	/**
