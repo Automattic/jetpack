@@ -32,7 +32,7 @@ import ParticipantsDropdown, {
 	ParticipantsControl,
 	ParticipantControl,
 } from './components/participants-control';
-import TimeStampControl, { TimeStampDropdown } from './components/time-stamp-control';
+import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
 import {
 	slug as defaultParticipantSlug,
@@ -65,8 +65,8 @@ export default function DialogueEdit ( {
 	const {
 		participant,
 		participantSlug,
-		timeStamp,
-		showTimeStamp: showTimeStampLocally,
+		timestamp,
+		showTimestamp: showTimestampLocally,
 		content,
 		placeholder,
 	} = attributes;
@@ -74,7 +74,7 @@ export default function DialogueEdit ( {
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showTimeStampGlobally = context[ 'jetpack/conversation-showtimestamp' ];
+	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
@@ -84,7 +84,7 @@ export default function DialogueEdit ( {
 	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
 	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
 
-	const showTimeStamp = isCustomParticipant ? showTimeStampLocally : showTimeStampGlobally;
+	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const transcritionBridge = useContext( ConversationContext );
@@ -146,12 +146,12 @@ export default function DialogueEdit ( {
 		} );
 	}
 
-	function setShowTimeStamp( value ) {
+	function setShowTimestamp( value ) {
 		if ( isCustomParticipant || ! participantsFromContext ) {
-			return setAttributes( { showTimeStamp: value } );
+			return setAttributes( { showTimestamp: value } );
 		}
 
-		transcritionBridge.setAttributes( { showTimeStamp: value } );
+		transcritionBridge.setAttributes( { showTimestamps: value } );
 	}
 
 	return (
@@ -196,19 +196,22 @@ export default function DialogueEdit ( {
 						/>
 					</PanelBody>
 
-					<PanelBody title={ __( 'Time stamp', 'jetpack' ) }>
+					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
-							label={ __( 'Show', 'jetpack' ) }
-							checked={ showTimeStamp }
-							onChange={ setShowTimeStamp }
+							label={ isCustomParticipant
+								? __( 'Show', 'jetpack' )
+								: __( 'Show conversation timestamps' )
+							}
+							checked={ showTimestamp }
+							onChange={ setShowTimestamp }
 						/>
 
-						{ showTimeStamp && (
-							<TimeStampControl
+						{ showTimestamp && (
+							<TimestampControl
 								className={ baseClassName }
-								value={ timeStamp }
-								onChange={ ( newTimeStampValue ) =>
-									setAttributes( { timeStamp: newTimeStampValue } )
+								value={ timestamp }
+								onChange={ ( newTimestampValue ) =>
+									setAttributes( { timestamp: newTimestampValue } )
 								}
 							/>
 						) }
@@ -231,12 +234,12 @@ export default function DialogueEdit ( {
 					/>
 				</div>
 
-				{ showTimeStamp && (
-					<TimeStampDropdown
+				{ showTimestamp && (
+					<TimestampDropdown
 						className={ baseClassName }
-						value={ timeStamp }
-						onChange={ ( newTimeStampValue ) => {
-							setAttributes( { timeStamp: newTimeStampValue } );
+						value={ timestamp }
+						onChange={ ( newTimestampValue ) => {
+							setAttributes( { timestamp: newTimestampValue } );
 						} }
 						shortLabel={ true }
 					/>

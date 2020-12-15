@@ -17,7 +17,7 @@ export default function save ( { attributes } ) {
 				baseClassName,
 				'entry-content',
 				{
-					'show-timestamp': attributes?.showTimeStamp,
+					'show-timestamps': attributes?.showTimestamp,
 				}
 			) }
 		>

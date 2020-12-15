@@ -29,8 +29,8 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$provides         => array(
-				'jetpack/conversation-participants'  => 'participants',
-				'jetpack/conversation-showtimestamp' => 'showTimeStamp',
+				'jetpack/conversation-participants'   => 'participants',
+				'jetpack/conversation-showTimestamps' => 'showTimestamps',
 			),
 		)
 	);

@@ -43,6 +43,6 @@ export const settings = {
 	save,
 	providesContext: {
 		'jetpack/conversation-participants': 'participants',
-		'jetpack/conversation-showtimestamp': 'showTimeStamp',
+		'jetpack/conversation-showTimestamps': 'showTimestamps',
 	},
 };

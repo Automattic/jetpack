@@ -46,7 +46,7 @@ function ConversationEdit ( {
 	attributes,
 	setAttributes,
 } ) {
-	const { participants, showTimeStamp, className: classNameAttr } = attributes;
+	const { participants, showTimestamps, className: classNameAttr } = attributes;
 	const containertRef = useRef();
 
 	// Set initial conversation participants.
@@ -76,7 +76,7 @@ function ConversationEdit ( {
 		updateParticipants,
 
 		attributes: {
-			showTimeStamp,
+			showTimestamps,
 			classNameAttr,
 		},
 	};
@@ -130,11 +130,11 @@ function ConversationEdit ( {
 							/>
 						</PanelBody>
 
-						<PanelBody title={ __( 'Time stamps', 'context' ) } className={ `${ baseClassName }__timestamps` }>
+						<PanelBody title={ __( 'Timestamps', 'context' ) } className={ `${ baseClassName }__timestamps` }>
 							<ToggleControl
-								label={ __( 'Show time stamps', 'jetpack' ) }
-								checked={ showTimeStamp }
-								onChange={ ( value ) => setAttributes( { showTimeStamp: value } ) }
+								label={ __( 'Show timestamps', 'jetpack' ) }
+								checked={ showTimestamps }
+								onChange={ ( value ) => setAttributes( { showTimestamps: value } ) }
 							/>
 						</PanelBody>
 					</Panel>

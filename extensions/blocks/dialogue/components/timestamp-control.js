@@ -6,25 +6,25 @@ import {
 	Button,
 	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
 }
 
-const timeStampMap = [ 'hour', 'min', 'sec' ];
+const timestampMap = [ 'hour', 'min', 'sec' ];
 
 /**
- * Helper function to parse and stringify the time stamp,
+ * Helper function to parse and stringify the timestamp,
  * in the HH:MM:SS format.
  * `HH` is optional, meaning when it's empty,
  * the string won't contain it, returning MM:SS.
  *
- * @param {object} typeValue - { type: value } pair value of the time stamp.
+ * @param {object} typeValue - { type: value } pair value of the timestamp.
  * @param {Array} smh - current [ second, menute, hour ] array values.
  * @returns {string} HH:MM:SS format.
  */
-function setTimeStampValue( typeValue, smh ) {
+function setTimestampValue( typeValue, smh ) {
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
 	}
@@ -43,7 +43,7 @@ function setTimeStampValue( typeValue, smh ) {
 		newValue = '00';
 	}
 
-	smh[ timeStampMap.indexOf( type ) ] = newValue;
+	smh[ timestampMap.indexOf( type ) ] = newValue;
 
 	// Remove HH when zero.
 	if ( smh.length === 3 && smh[ 0 ] === '00' ) {
@@ -53,7 +53,7 @@ function setTimeStampValue( typeValue, smh ) {
 	return smh.join( ':' );
 }
 
-function TimeStamp( { value, className, onChange, shortLabel = false } ) {
+function Timestamp( { value, className, onChange, shortLabel = false } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
@@ -68,7 +68,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 				min={ 0 }
 				max={ 23 }
 				onChange={ hour => {
-					onChange( setTimeStampValue( { hour }, smh ) );
+					onChange( setTimestampValue( { hour }, smh ) );
 				} }
 			/>
 
@@ -79,7 +79,7 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 				min={ 0 }
 				max={ 59 }
 				onChange={ min => {
-					onChange( setTimeStampValue( { min }, smh ) );
+					onChange( setTimestampValue( { min }, smh ) );
 				} }
 			/>
 
@@ -90,14 +90,14 @@ function TimeStamp( { value, className, onChange, shortLabel = false } ) {
 				min={ 0 }
 				max={ 59 }
 				onChange={ sec => {
-					onChange( setTimeStampValue( { sec }, smh ) );
+					onChange( setTimestampValue( { sec }, smh ) );
 				} }
 			/>
 		</div>
 	);
 }
 
-export function TimeStampDropdown( { className, value, onChange, shortLabel } ) {
+export function TimestampDropdown( { className, value, onChange, shortLabel } ) {
 	return (
 		<Dropdown
 			position="bottom right"
@@ -111,7 +111,7 @@ export function TimeStampDropdown( { className, value, onChange, shortLabel } ) 
 				);
 			} }
 			renderContent={ () => (
-				<TimeStamp
+				<Timestamp
 					className={ className }
 					value={ value }
 					onChange={ onChange }
@@ -122,6 +122,6 @@ export function TimeStampDropdown( { className, value, onChange, shortLabel } ) 
 	);
 }
 
-export default function TimeStampControl( { className, value, onChange } ) {
-	return <TimeStamp className={ className } value={ value } onChange={ onChange } />;
+export default function TimestampControl( { className, value, onChange } ) {
+	return <Timestamp className={ className } value={ value } onChange={ onChange } />;
 }

@@ -11,11 +11,11 @@ export default {
 	participantSlug: {
 		type: 'string',
 	},
-	timeStamp: {
+	timestamp: {
 		type: 'string',
 		default: '00:00',
 	},
-	showTimeStamp: {
+	showTimestamp: {
 		type: 'boolean',
 		default: false,
 	},

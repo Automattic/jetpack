@@ -29,7 +29,7 @@ function register_block() {
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$uses             => array(
 				'jetpack/conversation-participants',
-				'jetpack/conversation-showtimestamp',
+				'jetpack/conversation-showTimestamps',
 			),
 		)
 	);
@@ -57,7 +57,7 @@ function render_block( $attrs, $block_content, $block ) {
 	// Attributes..
 	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
 	$participant_label_attr = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
-	$timestamp              = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
+	$timestamp              = isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00';
 	$is_custom_speaker      = $participant_label_attr && ! $participant_slug_attr;
 	$content                = '';
 
@@ -79,7 +79,7 @@ function render_block( $attrs, $block_content, $block ) {
 		? $block->context['jetpack/conversation-participants']
 		: $default_participants['list'];
 
-	$show_timestamp = isset( $block->context['jetpack/conversation-showtimestamp'] );
+	$show_timestamp = isset( $block->context['jetpack/conversation-showTimestamps'] );
 
 	// Set current participant slug, considering it could be null from block $attrs.
 	$participant_slug = ! $participant_slug_attr && ! $participant_label_attr ? 'participant-0' : $participant_slug_attr;

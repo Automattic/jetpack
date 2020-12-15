@@ -28,7 +28,7 @@ export const settings = {
 	edit,
 	save,
 	attributes,
-	usesContext: [ 'jetpack/conversation-participants', 'jetpack/conversation-showtimestamp' ],
+	usesContext: [ 'jetpack/conversation-participants', 'jetpack/conversation-showTimestamps' ],
 	transforms: {
 		from: [
 			{

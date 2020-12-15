@@ -2,7 +2,7 @@ export default {
 	participants: {
 		type: 'array',
 	},
-	showTimeStamp: {
+	showTimestamps: {
 		type: 'boolean',
 		default: false,
 	},
