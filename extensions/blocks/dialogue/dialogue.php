@@ -58,7 +58,7 @@ function render_block( $attrs, $block_content, $block ) {
 	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
 	$participant_label_attr = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
 	$timestamp              = isset( $attrs['timeStamp'] ) ? esc_attr( $attrs['timeStamp'] ) : '00:00';
-	$is_custom_speaker       = $participant_label_attr && ! $participant_slug_attr;
+	$is_custom_speaker      = $participant_label_attr && ! $participant_slug_attr;
 	$content                = '';
 
 	if ( isset( $attrs['content'] ) ) {
@@ -100,7 +100,7 @@ function render_block( $attrs, $block_content, $block ) {
 		? esc_attr( $current_participant['participant'] )
 		: $participant_label_attr;
 
-	$participant_has_bold_style = $is_custom_spaker && isset( $attrs['hasBoldStyle'] )
+	$participant_has_bold_style = $is_custom_speaker && isset( $attrs['hasBoldStyle'] )
 		? $attrs['hasBoldStyle']
 		: (
 			isset( $current_participant['hasBoldStyle'] )
@@ -108,7 +108,7 @@ function render_block( $attrs, $block_content, $block ) {
 				: false
 		);
 
-	$participant_has_italic_style = $is_custom_spaker && isset( $attrs['hasItalicStyle'] )
+	$participant_has_italic_style = $is_custom_speaker && isset( $attrs['hasItalicStyle'] )
 		? $attrs['hasItalicStyle']
 		: (
 			isset( $current_participant['hasItalicStyle'] )
@@ -116,7 +116,7 @@ function render_block( $attrs, $block_content, $block ) {
 				: false
 		);
 
-	$participant_has_uppercase_style = $is_custom_spaker && isset( $attrs['hasUppercaseStyle'] )
+	$participant_has_uppercase_style = $is_custom_speaker && isset( $attrs['hasUppercaseStyle'] )
 		? $attrs['hasUppercaseStyle']
 		: (
 			isset( $current_participant['hasUppercaseStyle'] )
