@@ -10,8 +10,6 @@ import { assign, difference, get, mergeWith, remove, union } from 'lodash';
  */
 import { getInitialRecommendationsStep } from '../initial-state/reducer';
 import {
-	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
-	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
@@ -30,12 +28,6 @@ import { isPluginActive } from 'state/site/plugins';
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
 		return union( x, y );
-	}
-};
-
-const mergeArrays = ( obj, src ) => {
-	if ( Array.isArray( obj ) && Array.isArray( src ) ) {
-		return union( obj, src );
 	}
 };
 
@@ -327,10 +319,14 @@ export const getSummaryFeatureSlugs = state => {
 		'site-accelerator',
 	];
 
+	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
+		isStepEligibleToShow( state, slug )
+	);
+
 	const selected = [];
 	const skipped = [];
 
-	for ( const slug of featureSlugsInPreferenceOrder ) {
+	for ( const slug of featureSlugsEligibleToShow ) {
 		if ( isFeatureActive( state, slug ) ) {
 			selected.push( slug );
 		} else {

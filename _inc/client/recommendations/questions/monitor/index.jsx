@@ -13,12 +13,7 @@ import { QuestionLayout } from '../layout';
 import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
-import {
-	addSelectedRecommendation,
-	addSkippedRecommendation,
-	getNextRoute,
-	updateRecommendationsStep,
-} from 'state/recommendations';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 import { updateSettings } from 'state/settings';
 
 const MonitorQuestionComponent = props => {
@@ -29,7 +24,6 @@ const MonitorQuestionComponent = props => {
 	} );
 
 	const onEnableClick = useCallback( () => {
-		props.addSelectedRecommendation();
 		props.enableMonitor();
 	} );
 
@@ -62,9 +56,7 @@ const MonitorQuestionComponent = props => {
 					<Button primary href={ nextRoute } onClick={ onEnableClick }>
 						{ __( 'Enable Monitor' ) }
 					</Button>
-					<a href={ nextRoute } onClick={ props.addSkippedRecommendation }>
-						{ __( 'Decide later' ) }
-					</a>
+					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
 			illustrationPath="/recommendations/monitor-illustration.svg"
@@ -75,8 +67,6 @@ const MonitorQuestionComponent = props => {
 const MonitorQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
-		addSelectedRecommendation: () => dispatch( addSelectedRecommendation( 'monitor' ) ),
-		addSkippedRecommendation: () => dispatch( addSkippedRecommendation( 'monitor' ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		enableMonitor: () => dispatch( updateSettings( { monitor: true } ) ),
 	} )

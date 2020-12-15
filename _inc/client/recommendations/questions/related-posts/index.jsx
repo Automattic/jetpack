@@ -13,12 +13,7 @@ import { QuestionLayout } from '../layout';
 import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
-import {
-	addSelectedRecommendation,
-	addSkippedRecommendation,
-	getNextRoute,
-	updateRecommendationsStep,
-} from 'state/recommendations';
+import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 import { updateSettings } from 'state/settings';
 
 const RelatedPostsQuestionComponent = props => {
@@ -29,7 +24,6 @@ const RelatedPostsQuestionComponent = props => {
 	} );
 
 	const onEnableClick = useCallback( () => {
-		props.addSelectedRecommendation();
 		props.enableRelatedPosts();
 	} );
 
@@ -62,9 +56,7 @@ const RelatedPostsQuestionComponent = props => {
 					<Button primary href={ nextRoute } onClick={ onEnableClick }>
 						{ __( 'Enable Related Posts' ) }
 					</Button>
-					<a href={ nextRoute } onClick={ props.addSkippedRecommendation }>
-						{ __( 'Decide later' ) }
-					</a>
+					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
 				</div>
 			}
 			illustrationPath="/recommendations/related-posts-illustration.png"
@@ -75,8 +67,6 @@ const RelatedPostsQuestionComponent = props => {
 const RelatedPostsQuestion = connect(
 	state => ( { nextRoute: getNextRoute( state ) } ),
 	dispatch => ( {
-		addSelectedRecommendation: () => dispatch( addSelectedRecommendation( 'related-posts' ) ),
-		addSkippedRecommendation: () => dispatch( addSkippedRecommendation( 'related-posts' ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		enableRelatedPosts: () => dispatch( updateSettings( { 'related-posts': true } ) ),
 	} )

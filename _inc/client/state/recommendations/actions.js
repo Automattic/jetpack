@@ -3,8 +3,6 @@
  */
 import restApi from 'rest-api';
 import {
-	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
-	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
@@ -55,22 +53,6 @@ const saveRecommendations = ( dispatch, getState ) => {
 
 export const saveRecommendationsData = () => {
 	return ( dispatch, getState ) => {
-		return saveRecommendations( dispatch, getState );
-	};
-};
-
-// TODO: remove this and corresponding parts of the reducer
-export const addSelectedRecommendation = slug => {
-	return ( dispatch, getState ) => {
-		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION, slug } );
-		return saveRecommendations( dispatch, getState );
-	};
-};
-
-// TODO: remove this and corresponding parts of the reducer
-export const addSkippedRecommendation = slug => {
-	return ( dispatch, getState ) => {
-		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION, slug } );
 		return saveRecommendations( dispatch, getState );
 	};
 };
