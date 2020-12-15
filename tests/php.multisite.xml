@@ -75,7 +75,7 @@
 		</exclude>
 	</groups>
 	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="false">
+		<whitelist>
 			<directory suffix=".php">../</directory>
 			<exclude>
 				<directory suffix=".php">../packages/*/tests</directory>
