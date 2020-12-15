@@ -3,7 +3,7 @@
  * REST API endpoint for managing VideoPress metadata.
  *
  * @package Jetpack
- * @since 9.2.0
+ * @since 9.3.0
  */
 
 use Automattic\Jetpack\Connection\Client;
