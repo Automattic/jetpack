@@ -1,13 +1,10 @@
-// NOTE: We only import the difference package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import difference from 'lodash/difference';
-
 /**
  * Internal dependencies
  */
 import { SERVER_OBJECT_NAME } from './constants';
 
+// NOTE: This list is missing custom taxonomy names.
+//       getFilterKeys must be used to get the conclusive list of valid filter keys.
 const FILTER_KEYS = Object.freeze( [
 	// Post types
 	'post_types',
@@ -22,28 +19,37 @@ const FILTER_KEYS = Object.freeze( [
 	'year_post_modified_gmt',
 ] );
 
-export function getFilterKeys() {
+export function getFilterKeys(
+	widgets = window[ SERVER_OBJECT_NAME ]?.widgets,
+	widgetsOutsideOverlay = window[ SERVER_OBJECT_NAME ]?.widgetsOutsideOverlay
+) {
 	// Extract taxonomy names from server widget data
-	const taxonomies = window[ SERVER_OBJECT_NAME ].widgets
+	const taxonomies = [ ...( widgets ?? [] ), ...( widgetsOutsideOverlay ?? [] ) ]
 		.map( w => w.filters )
 		.filter( filters => Array.isArray( filters ) )
 		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
 		.filter( filter => filter.type === 'taxonomy' )
 		.map( filter => filter.taxonomy );
-	return [ ...FILTER_KEYS, ...taxonomies ];
+	return [ ...FILTER_KEYS, ...( taxonomies ?? [] ) ];
 }
 
 // These filter keys are selectable from sidebar filters
-function getSelectableFilterKeys( overlayWidgets ) {
-	return overlayWidgets
-		.map( extractFilters )
-		.reduce( ( prev, current ) => prev.concat( current ), [] );
+export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
+	return extractFilterKeysFromConfiguration( widgets );
 }
 
 // These filter keys are not selectable from sidebar filters
 // In other words, they were selected via filters outside the search sidebar
-export function getUnselectableFilterKeys( overlayWidgets ) {
-	return difference( getFilterKeys(), getSelectableFilterKeys( overlayWidgets ) );
+export function getUnselectableFilterKeys(
+	widgetsOutsideOverlay = window[ SERVER_OBJECT_NAME ]?.widgetsOutsideOverlay
+) {
+	return extractFilterKeysFromConfiguration( widgetsOutsideOverlay );
+}
+
+function extractFilterKeysFromConfiguration( widgets ) {
+	return (
+		widgets.map( extractFilters ).reduce( ( prev, current ) => prev.concat( current ), [] ) ?? []
+	);
 }
 
 function extractFilters( widget ) {
