@@ -11,9 +11,12 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
-import { name } from '.';
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import { waitForEditor } from '../../shared/wait-for-editor';
+
+/**
+ * Style dependencies
+ */
+import './editor.scss';
 
 async function insertSpotifyBadge() {
 	const { Jetpack_AnchorFm = {} } = window;
@@ -53,7 +56,7 @@ async function insertSpotifyBadge() {
 }
 
 const ConvertToAudio = () => (
-	<PluginPostPublishPanel>
+	<PluginPostPublishPanel className="anchor-post-publish-outbound-link">
 		<p className="post-publish-panel__postpublish-subheader">
 			<strong>{ __( 'Convert to audio', 'jetpack' ) }</strong>
 		</p>
@@ -61,24 +64,19 @@ const ConvertToAudio = () => (
 		<p>
 			<a href="https://anchor.fm/wordpress" target="_top">
 				{ __( 'Create a podcast episode', 'jetpack' ) }
-				<Icon icon={ external } className="components-external-link__icon" />
+				<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
 			</a>
 		</p>
 	</PluginPostPublishPanel>
 );
 
 function showPostPublishOutboundLink() {
-	registerPlugin( 'post-publish-anchor-outbound-link', {
+	registerPlugin( 'anchor-post-publish-outbound-link', {
 		render: ConvertToAudio,
 	} );
 }
 
 function initAnchor() {
-	const isExtensionAvailable = getJetpackExtensionAvailability( name )?.available;
-	if ( ! isExtensionAvailable ) {
-		return;
-	}
-
 	const data = window.Jetpack_AnchorFm;
 	if ( typeof data !== 'object' ) {
 		return;
