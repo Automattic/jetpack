@@ -22,7 +22,8 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 } from '@wordpress/components';
-import { useContext, useState } from '@wordpress/element';
+import { useContext, useState, useCallback } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -152,6 +153,22 @@ export default function DialogueEdit ( {
 		transcritionBridge.setAttributes( { showTimeStamp: value } );
 	}
 
+	const { player, isPlaying } = useSelect( select => {
+		const selector = select( 'jetpack/media-player-connector' );
+		return {
+			player: selector.getPlayer(),
+			isPlaying: selector.isPlaying,
+		};
+	}, [] );
+
+	// Register new media source
+	// const { play, stop, toggle } = useDispatch( 'jetpack/media-player-connector' );
+	const { toggle } = useDispatch( 'jetpack/media-player-connector' );
+	// const playAudio = useCallback( () => play( player.id ), [ player, play ] );
+	// const stopAudio = () => stop( player.id );
+	const togglePlaying = useCallback( () => toggle( player.id ), [ player, toggle ] );
+	const isPlayerPlaying = () => isPlaying( player.id );
+
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -168,19 +185,8 @@ export default function DialogueEdit ( {
 						/>
 
 						<ToolbarButton
-							icon={ transcritionBridge.player.isPlaying
-								? "controls-pause"
-								: "controls-play"
-							}
-							onClick={ () => {
-								const mediaAudio = transcritionBridge?.getMediaAudio();
-								if ( transcritionBridge.player.isPlaying ) {
-									return mediaAudio.pause();
-								}
-
-								mediaAudio.currentTime = transcritionBridge.timeCodeToSeconds( timeStamp );
-								mediaAudio.play();
-							} }
+							icon={ isPlayerPlaying() ? "controls-pause" : "controls-play" }
+							onClick={ togglePlaying }
 						/>
 						<ToolbarButton
 							icon={ controlForwardFive }

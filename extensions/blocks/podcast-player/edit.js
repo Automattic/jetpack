@@ -29,7 +29,7 @@ import {
 	PanelColorSettings,
 	ContrastChecker,
 } from '@wordpress/block-editor';
-import { withDispatch } from '@wordpress/data';
+import { withDispatch, useDispatch } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
 import { isURL, prependHTTP } from '@wordpress/url';
 
@@ -88,6 +88,13 @@ const PodcastPlayerEdit = ( {
 	} = validatedAttributes;
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
+
+	// Register new media source
+	const { registerMediaSource } = useDispatch( 'jetpack/media-player-connector' );
+	registerMediaSource( playerId, {
+		isPlaying: false,
+		position: 0,
+	} );
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
