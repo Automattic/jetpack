@@ -164,12 +164,11 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Loads an RSS feed using `fetch_feed`.
 	 *
-	 * @param string $feed The URL of the feed to fetch.
 	 * @return SimplePie|WP_Error The RSS object or error.
 	 */
-	public function load_feed( $feed ) {
+	public function load_feed() {
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
-		$rss = fetch_feed( esc_url_raw( $feed ) );
+		$rss = fetch_feed( $this->feed );
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
