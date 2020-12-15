@@ -154,7 +154,7 @@ const Summary = connect(
 			siteTypeDisplayName: getSiteTypeDisplayName( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
-			upsell: getUpsell( state ),
+			upsell,
 		};
 	},
 	dispatch => ( {

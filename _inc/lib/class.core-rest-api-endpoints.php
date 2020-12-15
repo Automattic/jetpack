@@ -830,18 +830,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get the upsell for the recommendations
 	 *
-	 * @param WP_REST_Request $request The request.
-	 *
 	 * @return string The response from the wpcom upsell endpoint as a JSON object
 	 */
-	public static function get_recommendations_upsell( $request ) {
+	public static function get_recommendations_upsell() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
 
-		$request_path = sprintf( '/sites/%s/jetpack-recommendations/upsell?locale=' . get_user_locale(), $blog_id );
-		$request      = Client::wpcom_json_api_request_as_user(
+		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/upsell?locale=' . get_user_locale(), $blog_id );
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			$request_path,
 			'2',
 			array(
@@ -852,7 +850,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		return json_decode( wp_remote_retrieve_body( $request ) );
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
 	}
 
 	/**
