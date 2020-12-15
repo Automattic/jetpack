@@ -667,6 +667,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		register_rest_route(
+			'jetpack/v4',
+			'/recommendations/upsell',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_upsell',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+			)
+		);
+
 		/*
 		 * Get and update the last licensing error message.
 		 */
@@ -813,6 +825,34 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! empty( $step ) ) {
 			Jetpack_Options::update_option( 'recommendations_step', $step );
 		}
+	}
+
+	/**
+	 * Get the upsell for the recommendations
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return string The response from the wpcom upsell endpoint as a JSON object
+	 */
+	public static function get_recommendations_upsell( $request ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
+
+		$request_path = sprintf( '/sites/%s/jetpack-recommendations/upsell?locale=' . get_user_locale(), $blog_id );
+		$request      = Client::wpcom_json_api_request_as_user(
+			$request_path,
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
+
+		return json_decode( wp_remote_retrieve_body( $request ) );
 	}
 
 	/**

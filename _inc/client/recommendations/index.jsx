@@ -17,6 +17,7 @@ import { WooCommerceQuestion } from './questions/woocommerce';
 import { Summary } from './summary';
 import QueryProducts from 'components/data/query-products';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -57,6 +58,7 @@ const RecommendationsComponent = props => {
 		<>
 			<QueryProducts />
 			<QueryRecommendationsData />
+			<QueryRecommendationsUpsell />
 			<QueryRewindStatus />
 			<QuerySite />
 			<QuerySitePlugins />

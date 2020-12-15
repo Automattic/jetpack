@@ -42,7 +42,7 @@ class Jetpack_Recommendations {
 		$request_path = sprintf( '/sites/%s/jetpack-recommendations/site-registered-date', $blog_id );
 		$request      = Client::wpcom_json_api_request_as_user(
 			$request_path,
-			'v2',
+			'2',
 			array(
 				'method'  => 'GET',
 				'headers' => array(

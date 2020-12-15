@@ -103,6 +103,11 @@ const requests = ( state = {}, action ) => {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsData: false } );
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
+			return assign( {}, state, { isFetchingRecommendationsUpsell: true } );
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL:
+			return assign( {}, state, { isFetchingRecommendationsUpsell: false } );
 		default:
 			return state;
 	}

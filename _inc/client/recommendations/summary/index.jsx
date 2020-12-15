@@ -21,14 +21,13 @@ import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import JetpackLogo from 'components/jetpack-logo';
 import { getUpgradeUrl } from 'state/initial-state';
-import { getProducts } from 'state/products';
 import {
 	getSidebarCardSlug,
 	getSiteTypeDisplayName,
 	getSummaryFeatureSlugs,
+	getUpsell,
 	updateRecommendationsStep,
 } from 'state/recommendations';
-import { getSitePlan } from 'state/site';
 
 /**
  * Style dependencies
@@ -37,20 +36,17 @@ import './style.scss';
 
 const SummaryComponent = props => {
 	const {
-		isFetchingProducts,
-		isFetchingSiteData,
-		productPrice,
+		isFetchingData,
 		sidebarCardSlug,
 		siteTypeDisplayName,
 		summaryFeatureSlugs,
 		upgradeUrl,
+		upsell,
 	} = props;
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'summary' );
 	} );
-
-	const isFetchingData = isFetchingProducts || isFetchingSiteData;
 
 	let sidebarCard;
 	if ( isFetchingData ) {
@@ -61,20 +57,10 @@ const SummaryComponent = props => {
 				sidebarCard = <LoadingCard />;
 				break;
 			case 'upsell':
-				sidebarCard = (
-					<ProductCardUpsell
-						title={ __( 'Backup Daily' ) }
-						description={ __(
-							'Never lose a word, image, page, or time worrying about your site with automated off-site backups and one-click restores.'
-						) }
-						upgradeUrl={ upgradeUrl }
-						features={ [
-							__( 'Automated daily off-site backups' ),
-							__( 'One-click restores' ),
-							__( 'Unlimited secure storage' ),
-						] }
-						productPrice={ productPrice }
-					/>
+				sidebarCard = upsell.hide_upsell ? (
+					<ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />
+				) : (
+					<ProductCardUpsell upsell={ upsell } upgradeUrl={ upgradeUrl } />
 				);
 				break;
 			case 'one-click-restores':
@@ -159,27 +145,16 @@ const SummaryComponent = props => {
 
 const Summary = connect(
 	state => {
-		const products = getProducts( state );
-		const sitePlan = getSitePlan( state );
-		const isFetchingProducts = isEmpty( products );
-		const isFetchingSiteData = isEmpty( sitePlan );
-
-		let backupDailyMonthly = {};
-		if ( ! isFetchingProducts ) {
-			backupDailyMonthly = {
-				price: products.jetpack_backup_daily_monthly.cost,
-				currencyCode: products.jetpack_backup_daily_monthly.currency_code,
-			};
-		}
+		const upsell = getUpsell( state );
+		const isFetchingData = isEmpty( upsell );
 
 		return {
-			isFetchingProducts,
-			isFetchingSiteData,
-			productPrice: backupDailyMonthly,
+			isFetchingData,
 			sidebarCardSlug: getSidebarCardSlug( state ),
 			siteTypeDisplayName: getSiteTypeDisplayName( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
+			upsell: getUpsell( state ),
 		};
 	},
 	dispatch => ( {

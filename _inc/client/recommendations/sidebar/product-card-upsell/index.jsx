@@ -19,15 +19,27 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const ProductCardUpsell = props => {
-	const { title, description, productPrice, upgradeUrl, features } = props;
+	const { upgradeUrl, upsell } = props;
 
-	const currencyObject = getCurrencyObject( productPrice.price, productPrice.currencyCode );
+	const {
+		billing_timeframe,
+		cost_timeframe,
+		cta_text,
+		currency_code,
+		description,
+		features,
+		header,
+		price,
+		title,
+	} = upsell;
+
+	const currencyObject = getCurrencyObject( price, currency_code );
 
 	return (
 		<div className="jp-recommendations-product-card-upsell">
 			<div className="jp-recommendations-product-card-upsell__header-chrome">
 				<img src={ imagePath + '/star.svg' } alt="" />
-				{ __( 'Recommended premium product' ) }
+				{ header }
 			</div>
 			<div className="jp-recommendations-product-card-upsell__padding">
 				<h1>{ title }</h1>
@@ -47,13 +59,13 @@ const ProductCardUpsell = props => {
 						</h2>
 					</span>
 					<span className="jp-recommendations-product-card-upsell__billing-time-frame">
-						{ __( 'per month' ) }
+						{ cost_timeframe }
 						<br />
-						{ __( 'billed yearly' ) }
+						{ billing_timeframe }
 					</span>
 				</div>
 				<Button primary href={ upgradeUrl }>
-					{ __( 'Learn more' ) }
+					{ cta_text }
 					<Gridicon icon="external" />
 				</Button>
 				<ul className="jp-recommendations-sidebar-card__features">
