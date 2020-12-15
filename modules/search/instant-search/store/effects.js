@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { search } from '../lib/api';
-import { SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
+import { DEFAULT_SORT_KEY, SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
 import { getFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
@@ -47,7 +47,7 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize sort value for the reducer.
 	//
-	let sort = 'revelance';
+	let sort = DEFAULT_SORT_KEY;
 	if ( VALID_SORT_KEYS.includes( queryObject.sort ) ) {
 		// Set sort value from `sort` query value.
 		sort = queryObject.sort;

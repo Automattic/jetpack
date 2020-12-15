@@ -10,6 +10,7 @@ export const RESULT_FORMAT_EXPANDED = 'expanded';
 export const RESULT_FORMAT_MINIMAL = 'minimal';
 export const RESULT_FORMAT_PRODUCT = 'product';
 export const MINUTE_IN_MILLISECONDS = 60 * 1000;
+export const DEFAULT_SORT_KEY = 'relevance';
 export const VALID_SORT_KEYS = [ 'newest', 'oldest', 'relevance' ];
 export const VALID_RESULT_FORMAT_KEYS = [
 	RESULT_FORMAT_EXPANDED,
