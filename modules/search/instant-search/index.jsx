@@ -20,6 +20,23 @@ import { initializeTracks, identifySite, resetTrackingCookies } from './lib/trac
 import { buildFilterAggregations } from './lib/api';
 import { bindCustomizerChanges } from './lib/customize';
 
+// IE11 polyfill for custom events
+// Based on https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill
+( function () {
+	if ( typeof window.CustomEvent === 'function' ) {
+		return false;
+	}
+
+	function CustomEvent( event, params ) {
+		params = params || { bubbles: false, cancelable: false, detail: null };
+		const evt = document.createEvent( 'CustomEvent' );
+		evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+		return evt;
+	}
+
+	window.CustomEvent = CustomEvent;
+} )();
+
 const injectSearchApp = () => {
 	render(
 		<SearchApp
@@ -44,6 +61,7 @@ const injectSearchApp = () => {
 if ( window[ SERVER_OBJECT_NAME ] ) {
 	bindCustomizerChanges();
 }
+
 document.addEventListener( 'DOMContentLoaded', function () {
 	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		initializeTracks();
