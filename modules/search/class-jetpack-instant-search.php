@@ -50,18 +50,33 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	}
 
 	/**
-	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
+	 * Loads assets for Jetpack Instant Search.
 	 */
 	public function load_assets() {
-		$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
-		$style_relative_path  = '_inc/build/instant-search/jp-search.bundle.css';
+		$relative_dir               = '_inc/build/instant-search';
+		$script_relative_path       = $relative_dir . '/jp-search.bundle.js';
+		$script_asset_relative_path = $relative_dir . '/jp-search.bundle.asset.php';
+		$style_relative_path        = $relative_dir . '/jp-search.bundle.css';
+
 		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) || ! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
 			return;
 		}
 
 		$script_version = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
 		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
+		$script_asset   = file_exists( $script_asset_relative_path )
+			? require $script_asset_relative_path
+			: array(
+				'dependencies' => array(),
+				'version'      => $script_version,
+			);
+		wp_enqueue_script(
+			'jetpack-instant-search',
+			$script_path,
+			$script_asset['dependencies'],
+			$script_asset['version'],
+			true
+		);
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
