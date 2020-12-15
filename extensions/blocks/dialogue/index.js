@@ -22,7 +22,7 @@ export const name = 'dialogue';
 export const title = __( 'Dialogue', 'jetpack' );
 export const settings = {
 	title,
-	description: __( 'Dialogue', 'jetpack' ),
+	description: __( 'Create a dialogue paragraph, setting the participant with an optional timestamp.', 'jetpack' ),
 	icon,
 	category: 'layout',
 	edit,
