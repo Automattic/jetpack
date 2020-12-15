@@ -42,19 +42,30 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * Otherwise, it will return the default participants list.
  *
  * @param object $block Block object data.
+ * @param array $default Default conversation data.
  * @return array dialogue participants list.
  */
-function get_participantes_list( $block ) {
-	// Pick up conversation data from context.
-	$default_participants = json_decode(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
-		true
-	);
-
+function get_participantes_list( $block, $default ) {
 	return ! empty( $block->context['jetpack/conversation-participants'] )
 		? $block->context['jetpack/conversation-participants']
-		: $default_participants['list'];
+		: $default['list'];
+}
+
+/**
+ * Return participan slug,
+ * dependng on the slug and label fo the dialogue block,
+ * and default slug defined in the conversation data.
+ *
+ * @param string $slug Dialoge block slug.
+ * @param string $label Dialoge block label.
+ * @param object $block Block object data.
+ * @param array $default Default conversation data.
+ * @return array Dialoge slug if it's defined. Otherwise, default conversation slug.
+ */
+function get_participant_slug( $slug, $label, $block, $default ) {
+	return ! $slug && ! $label
+		? $default['slug']
+		: $slug;
 }
 
 /**
@@ -69,12 +80,24 @@ function get_participantes_list( $block ) {
 function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	// Attributes..
-	$participant_slug_attr  = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
-	$participant_label_attr = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
-	$timestamp              = isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00';
-	$is_custom_speaker      = $participant_label_attr && ! $participant_slug_attr;
-	$content                = '';
+	// Pick up conversation data from context.
+	$default_participants = json_decode(
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		file_get_contents( JETPACK__PLUGIN_DIR . 'extensions/blocks/conversation/participants.json' ),
+		true
+	);
+
+	// Dialogue Attributes.
+	$slug_attr      = isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null;
+	$label_attr     = isset( $attrs['participant'] ) ? $attrs['participant'] : null;
+	$timestamp      = isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00';
+	$show_timestamp = isset( $block->context['jetpack/conversation-showTimestamps'] );
+
+	// Conversation/Dialogue data.
+	$participants      = get_participantes_list( $block, $default_participants );
+	$participant_slug  = get_participant_slug( $slug_attr, $label_attr, $block, $default_participants );
+	$is_custom_speaker = $label_attr && ! $slug_attr;
+	$content           = '';
 
 	if ( isset( $attrs['content'] ) ) {
 		$content = wp_kses(
@@ -87,13 +110,6 @@ function render_block( $attrs, $block_content, $block ) {
 			)
 		);
 	}
-
-	$participants = get_participantes_list( $block );
-
-	$show_timestamp = isset( $block->context['jetpack/conversation-showTimestamps'] );
-
-	// Set current participant slug, considering it could be null from block $attrs.
-	$participant_slug = ! $participant_slug_attr && ! $participant_label_attr ? 'participant-0' : $participant_slug_attr;
 
 	// Participant names map.
 	$participant_names_map = array();
@@ -109,7 +125,7 @@ function render_block( $attrs, $block_content, $block ) {
 	// Pick up participant data from context.
 	$participant_name = isset( $current_participant['participant'] )
 		? esc_attr( $current_participant['participant'] )
-		: $participant_label_attr;
+		: $label_attr;
 
 	$participant_has_bold_style = $is_custom_speaker && isset( $attrs['hasBoldStyle'] )
 		? $attrs['hasBoldStyle']
