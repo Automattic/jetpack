@@ -633,14 +633,14 @@ class Admin_Menu {
 		wp_enqueue_style(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.css', __FILE__ ),
-			array(),
-			'1'
+			defined( 'IS_WPCOM' ) && IS_WPCOM ? array( 'wpcom-admin-bar' ) : array( 'a8c-wpcom-masterbar' ),
+			20201215
 		);
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
 			array(),
-			'1',
+			20201215,
 			true
 		);
 	}
