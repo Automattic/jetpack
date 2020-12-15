@@ -67,6 +67,29 @@ function get_participant_slug( $slug, $label, $block, $default ) {
 		? $default['slug']
 		: $slug;
 }
+/**
+ * Helper function to filter dialogue content.
+ * It will filter teh content in oder to provide
+ * safe markup.
+ * 
+ * @param string $content Dialogue content.
+ * @return string Safe dialgue content markup.
+ */
+function get_filtered_content( $content ) {
+	if ( empty( $content ) ) {
+		return '';
+	}
+
+	return wp_kses(
+		$content,
+		array(
+			'small'  => true,
+			'strong' => true,
+			'b'      => true,
+			'em'     => true,
+		)
+	);
+}
 
 /**
  * Dialogue block registration/dependency declaration.
@@ -97,19 +120,7 @@ function render_block( $attrs, $block_content, $block ) {
 	$participants      = get_participantes_list( $block, $default_participants );
 	$participant_slug  = get_participant_slug( $slug_attr, $label_attr, $block, $default_participants );
 	$is_custom_speaker = $label_attr && ! $slug_attr;
-	$content           = '';
-
-	if ( isset( $attrs['content'] ) ) {
-		$content = wp_kses(
-			$attrs['content'],
-			array(
-				'small'  => true,
-				'strong' => true,
-				'b'      => true,
-				'em'     => true,
-			)
-		);
-	}
+	$content           = get_filtered_content( $attrs['content'] );
 
 	// Participant names map.
 	$participant_names_map = array();
