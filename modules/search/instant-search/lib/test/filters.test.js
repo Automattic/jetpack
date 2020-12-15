@@ -71,7 +71,24 @@ describe( 'getUnselectableFilterKeys', () => {
 		expect( getUnselectableFilterKeys( undefined ) ).toEqual( [] );
 	} );
 	test( 'extracts filter keys from widgets outside the search overlay sidebar', () => {
+		const widgets = [];
 		const widgetsOutsideOverlay = [ { filters: [ { type: 'taxonomy', taxonomy: 'post_tag' } ] } ];
-		expect( getUnselectableFilterKeys( widgetsOutsideOverlay ) ).toEqual( [ 'post_tag' ] );
+		expect( getUnselectableFilterKeys( widgets, widgetsOutsideOverlay ) ).toEqual( [ 'post_tag' ] );
+	} );
+	test( 'excludes filter keys included in widgets inside the search overlay sidebar', () => {
+		const widgets = [
+			{ filters: [ { type: 'taxonomy', taxonomy: 'post_tag' } ] },
+			{ filters: [ { type: 'date_histogram', field: 'post_date', interval: 'year' } ] },
+			{ filters: [ { type: 'post_type' } ] },
+		];
+		const widgetsOutsideOverlay = [
+			{
+				filters: [
+					{ type: 'taxonomy', taxonomy: 'category' },
+					{ type: 'taxonomy', taxonomy: 'post_tag' },
+				],
+			},
+		];
+		expect( getUnselectableFilterKeys( widgets, widgetsOutsideOverlay ) ).toEqual( [ 'category' ] );
 	} );
 } );

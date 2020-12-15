@@ -1,3 +1,8 @@
+// NOTE: We only import the difference package here for to reduced bundle size.
+//       Do not import the entire lodash library!
+// eslint-disable-next-line lodash/import-scope
+import difference from 'lodash/difference';
+
 /**
  * Internal dependencies
  */
@@ -41,14 +46,17 @@ export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?
 // These filter keys are not selectable from sidebar filters
 // In other words, they were selected via filters outside the search sidebar
 export function getUnselectableFilterKeys(
+	widgets = window[ SERVER_OBJECT_NAME ]?.widgets,
 	widgetsOutsideOverlay = window[ SERVER_OBJECT_NAME ]?.widgetsOutsideOverlay
 ) {
-	return extractFilterKeysFromConfiguration( widgetsOutsideOverlay );
+	const selectableKeys = getSelectableFilterKeys( widgets );
+	const keysOutsideOverlay = extractFilterKeysFromConfiguration( widgetsOutsideOverlay );
+	return difference( keysOutsideOverlay, selectableKeys );
 }
 
 function extractFilterKeysFromConfiguration( widgets ) {
 	return (
-		widgets.map( extractFilters ).reduce( ( prev, current ) => prev.concat( current ), [] ) ?? []
+		widgets?.map( extractFilters ).reduce( ( prev, current ) => prev.concat( current ), [] ) ?? []
 	);
 }
 
