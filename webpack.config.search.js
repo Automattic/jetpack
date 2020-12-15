@@ -3,6 +3,10 @@
  */
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const {
+	defaultRequestToExternal,
+	defaultRequestToHandle,
+} = require( '@wordpress/dependency-extraction-webpack-plugin/util' );
 const path = require( 'path' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -17,23 +21,34 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
-const sharedWebpackConfig = {
+function requestToExternal( request ) {
+	// Prevent React from being externalized. This ensures that React will be properly aliased to preact/compat.
+	if ( request === 'react' || request === 'react-dom' ) {
+		return;
+	}
+	return defaultRequestToExternal( request );
+}
+
+module.exports = {
 	...baseWebpackConfig,
 	resolve: {
 		...baseWebpackConfig.resolve,
+		alias: {
+			...baseWebpackConfig.resolve.alias,
+			react: 'preact/compat',
+			'react-dom/test-utils': 'preact/test-utils',
+			'react-dom': 'preact/compat', // Must be aliased after test-utils
+		},
 		modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
 	},
-	node: {
-		fs: 'empty',
-		process: true,
-	},
 	devtool: isDevelopment ? 'source-map' : false,
-};
-
-module.exports = {
-	...sharedWebpackConfig,
 	plugins: [
-		...sharedWebpackConfig.plugins,
-		new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
+		...baseWebpackConfig.plugins,
+		new DependencyExtractionWebpackPlugin( {
+			injectPolyfill: true,
+			useDefaults: false,
+			requestToExternal,
+			requestToHandle: defaultRequestToHandle,
+		} ),
 	],
 };
