@@ -110,7 +110,7 @@
 .site__info .site__title,
 .site__info .site__domain {
 	overflow: hidden;
-	#333333 !important; /* Calypso --theme-text-color */-space: nowrap;
+	white-space: nowrap;
 }
 .site__info .site__title::after,
 .site__info .site__domain::after {
