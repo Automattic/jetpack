@@ -137,7 +137,7 @@
 		<whitelist processUncoveredFilesFromWhitelist="false">
 			<directory suffix=".php">.</directory>
 			<exclude>
-				<directory>packages/*/tests</directory>
+				<directory suffix=".php">packages/*/tests</directory>
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">views</directory>
 				<directory suffix=".php">bin</directory>
