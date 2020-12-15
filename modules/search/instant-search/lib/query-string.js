@@ -7,7 +7,12 @@ import { encode } from 'qss';
 /**
  * Internal dependencies
  */
-import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC, VALID_SORT_KEYS } from './constants';
+import {
+	SERVER_OBJECT_NAME,
+	SORT_DIRECTION_ASC,
+	VALID_RESULT_FORMAT_KEYS,
+	VALID_SORT_KEYS,
+} from './constants';
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
 import { decode } from '../external/query-string-decode';
 
@@ -154,6 +159,16 @@ export function setFilterQuery( filterKey, filterValue ) {
 	const query = getQuery();
 	query[ filterKey ] = filterValue;
 	pushQueryString( encode( query ) );
+}
+
+export function getResultFormatQuery() {
+	const query = getQuery();
+
+	if ( ! VALID_RESULT_FORMAT_KEYS.includes( query.result_format ) ) {
+		return null;
+	}
+
+	return query.result_format;
 }
 
 export function restorePreviousHref( initialHref, callback ) {

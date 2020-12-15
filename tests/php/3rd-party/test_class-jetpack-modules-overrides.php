@@ -1,14 +1,36 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
+ * Tests the Module Override functionality.
+ *
+ * @package Jetpack.
+ */
 
-require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-modules-overrides.php';
+/**
+ * Include the code to test.
+ */
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class-jetpack-modules-overrides.php';
 
+/**
+ * Class WP_Test_Jetpack_Modules_Overrides
+ */
 class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
+	/**
+	 * Holder for the module override instance.
+	 *
+	 * @var Jetpack_Modules_Overrides
+	 */
 	private $instance = null;
 
+	/**
+	 * Test setup.
+	 */
 	public function setUp() {
 		$this->instance = Jetpack_Modules_Overrides::instance();
 	}
 
+	/**
+	 * Test tear down.
+	 */
 	public function tearDown() {
 		remove_all_filters( 'option_jetpack_active_modules' );
 		remove_all_filters( 'jetpack_active_modules' );
@@ -16,7 +38,12 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that an override exists.
+	 *
+	 * @param string $filter_name Filter to test against.
+	 *
 	 * @dataProvider get_supported_filters
+	 * @covers Jetpack_Modules_Overrides::do_overrides_exist
 	 */
 	public function test_do_overrides_exist( $filter_name ) {
 		$this->assertFalse( $this->instance->do_overrides_exist() );
@@ -27,23 +54,28 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests getting the list of overrides.
+	 *
+	 * @param string $filter_name Filter to test against.
+	 *
 	 * @dataProvider get_supported_filters
+	 * @covers Jetpack_Modules_Overrides::get_overrides
 	 */
 	public function test_get_overrides( $filter_name ) {
 		$this->assertEmpty( $this->instance->get_overrides() );
 
 		add_filter( $filter_name, array( $this, 'force_active_modules' ) );
 		$expected = array(
-			'photon' => 'active',
+			'photon'      => 'active',
 			'lazy-images' => 'active',
 		);
 		$this->assertSame( $expected, $this->instance->get_overrides( false ) );
 
 		add_filter( $filter_name, array( $this, 'force_inactive_module' ) );
 		$expected = array(
-			'photon' => 'active',
+			'photon'      => 'active',
 			'lazy-images' => 'active',
-			'sitemaps' => 'inactive',
+			'sitemaps'    => 'inactive',
 		);
 		$this->assertSame( $expected, $this->instance->get_overrides( false ) );
 
@@ -60,14 +92,19 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tets the override cache.
+	 *
+	 * @param string $filter_name Filter to test against.
+	 *
 	 * @dataProvider get_supported_filters
+	 * @covers Jetpack_Modules_Overrides::get_overrides
 	 */
 	public function test_get_overrides_cache( $filter_name ) {
 		$this->assertEmpty( $this->instance->get_overrides() );
 
 		add_filter( $filter_name, array( $this, 'force_active_modules' ) );
 		$expected = array(
-			'photon' => 'active',
+			'photon'      => 'active',
 			'lazy-images' => 'active',
 		);
 		$this->assertSame( $expected, $this->instance->get_overrides() );
@@ -78,7 +115,12 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests get_module_override.
+	 *
+	 * @param string $filter_name Filter to test against.
+	 *
 	 * @dataProvider get_supported_filters
+	 * @covers Jetpack_Modules_Overrides::get_module_override
 	 */
 	public function test_get_module_override( $filter_name ) {
 		$this->assertFalse( $this->instance->get_module_override( 'photon' ) );
@@ -97,12 +139,26 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * Helpers
 	 */
 
-	function force_active_modules( $modules ) {
+	/**
+	 * Helper to force active Photon and Lazy Images
+	 *
+	 * @param array $modules Jetpack modules.
+	 *
+	 * @return array Jetpack modules.
+	 */
+	public function force_active_modules( $modules ) {
 		return array_merge( $modules, array( 'photon', 'lazy-images' ) );
 	}
 
-	function force_inactive_module( $modules ) {
-		$found = array_search( 'sitemaps', $modules );
+	/**
+	 * Helper to force the `sitemaps` module as inactive.
+	 *
+	 * @param array $modules Jetpack modules.
+	 *
+	 * @return array Jetpack modules.
+	 */
+	public function force_inactive_module( $modules ) {
+		$found = array_search( 'sitemaps', $modules, true );
 		if ( $found ) {
 			unset( $modules[ $found ] );
 		}
@@ -110,14 +166,17 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 		return $modules;
 	}
 
+	/**
+	 * Helper to get supported filters.
+	 */
 	public function get_supported_filters() {
 		return array(
 			'option_jetpack_active_modules' => array( // Case for filtering the option via core filter.
-				'option_jetpack_active_modules'
+				'option_jetpack_active_modules',
 			),
-			'jetpack_active_modules' => array( // Case for filtering using Jetpack filter.
+			'jetpack_active_modules'        => array( // Case for filtering using Jetpack filter.
 				'jetpack_active_modules',
-			)
+			),
 		);
 	}
 }

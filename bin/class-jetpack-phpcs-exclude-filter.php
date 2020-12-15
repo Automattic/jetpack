@@ -1,6 +1,6 @@
 <?php
 /**
- * Filter for PHPCS to exclude files in bin/phpcs-excludelist.txt.
+ * Filter for PHPCS to exclude files in bin/phpcs-excludelist.json.
  *
  * @package Jetpack
  */
@@ -9,7 +9,7 @@ use PHP_CodeSniffer\Filters\Filter;
 use PHP_CodeSniffer\Util;
 
 /**
- * Filter for PHPCS to exclude files in bin/phpcs-excludelist.txt.
+ * Filter for PHPCS to exclude files in bin/phpcs-excludelist.json.
  */
 class Jetpack_Phpcs_Exclude_Filter extends Filter {
 	/**
@@ -27,7 +27,7 @@ class Jetpack_Phpcs_Exclude_Filter extends Filter {
 			return;
 		}
 
-		$lines = explode( "\n", file_get_contents( __DIR__ . '/phpcs-excludelist.txt' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$lines = json_decode( file_get_contents( __DIR__ . '/phpcs-excludelist.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$lines = array_filter(
 			$lines,
 			function ( $line ) {
