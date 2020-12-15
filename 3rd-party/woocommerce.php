@@ -1,9 +1,17 @@
 <?php
 /**
  * This file contains compatibility functions for WooCommerce to improve Jetpack feature support.
+ *
+ * @package Jetpack.
  */
+
 add_action( 'woocommerce_init', 'jetpack_woocommerce_integration' );
 
+/**
+ * Loads JP+WC integration.
+ *
+ * Fires on `woocommerce_init` hook
+ */
 function jetpack_woocommerce_integration() {
 	/**
 	 * Double check WooCommerce exists - unlikely to fail due to the hook being used but better safe than sorry.
@@ -23,14 +31,14 @@ function jetpack_woocommerce_integration() {
 	}
 }
 
-/*
+/**
  * Make sure the social sharing icons show up under the product's short description
  */
 function jetpack_woocommerce_social_share_icons() {
 	if ( function_exists( 'sharing_display' ) ) {
 		remove_filter( 'the_content', 'sharing_display', 19 );
 		remove_filter( 'the_excerpt', 'sharing_display', 19 );
-		echo sharing_display();
+		sharing_display( '', true );
 	}
 }
 
@@ -57,7 +65,7 @@ add_action( 'loop_start', 'jetpack_woocommerce_remove_share' );
 /**
  * Add a callback for WooCommerce product rendering in infinite scroll.
  *
- * @param array $callbacks
+ * @param array $callbacks Array of render callpacks for IS.
  * @return array
  */
 function jetpack_woocommerce_infinite_scroll_render_callback( $callbacks ) {
@@ -87,15 +95,20 @@ function jetpack_woocommerce_infinite_scroll_render() {
  * Basic styling when infinite scroll is active only.
  */
 function jetpack_woocommerce_infinite_scroll_style() {
-	$custom_css = "
+	$custom_css = '
 	.infinite-scroll .woocommerce-pagination {
 		display: none;
-	}";
+	}';
 	wp_add_inline_style( 'woocommerce-layout', $custom_css );
 }
 
+/**
+ * Adds compat for WooCommerce and Lazy Loading.
+ */
 function jetpack_woocommerce_lazy_images_compat() {
-	wp_add_inline_script( 'wc-cart-fragments', "
+	wp_add_inline_script(
+		'wc-cart-fragments',
+		"
 		jQuery( 'body' ).bind( 'wc_fragments_refreshed', function() {
 			var jetpackLazyImagesLoadEvent;
 			try {
@@ -109,7 +122,8 @@ function jetpack_woocommerce_lazy_images_compat() {
 			}
 			jQuery( 'body' ).get( 0 ).dispatchEvent( jetpackLazyImagesLoadEvent );
 		} );
-	" );
+		"
+	);
 }
 
 add_action( 'wp_enqueue_scripts', 'jetpack_woocommerce_lazy_images_compat', 11 );
