@@ -29,7 +29,7 @@ import {
 	PanelColorSettings,
 	ContrastChecker,
 } from '@wordpress/block-editor';
-import { withDispatch, useDispatch } from '@wordpress/data';
+import { withDispatch, useDispatch, useSelect } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
 import { isURL, prependHTTP } from '@wordpress/url';
 
@@ -75,6 +75,7 @@ const PodcastPlayerEdit = ( {
 	fallbackBackgroundColor,
 	isSelected,
 	replaceWithEmbedBlock,
+	registerMediaSource,
 } ) => {
 	// Validated attributes.
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
@@ -89,12 +90,26 @@ const PodcastPlayerEdit = ( {
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
-	// Register new media source
-	const { registerMediaSource } = useDispatch( 'jetpack/media-player-connector' );
-	registerMediaSource( playerId, {
-		isPlaying: false,
-		position: 0,
-	} );
+
+	const { isPlaying, position, isPlayerRegistered } = useSelect( select => {
+		const selector = select( 'jetpack/media-player-connector' );
+		return {
+			isPlaying: selector.isPlayingById( playerId ),
+			position: selector.getPositionById( playerId ),
+			isPlayerRegistered: selector.isPlayerRegistered( playerId ),
+		};
+	}, [] );
+
+	if ( ! isPlayerRegistered ) {
+		registerMediaSource( playerId, {
+			isPlaying: false,
+			position: 0,
+			current: true,
+		} );
+	}
+
+	// console.log( 'isPlaying: ', isPlaying );
+	console.log( 'position: ', position );
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
@@ -381,6 +396,13 @@ export default compose( [
 					} )
 				);
 			},
+			registerMediaSource( playerId) {
+				dispatch( 'jetpack/media-player-connector' ).registerMediaSource( playerId, {
+					isPlaying: false,
+					position: 0,
+					current: true,
+				} );
+			}
 		};
 	} ),
 	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),

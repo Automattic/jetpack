@@ -153,52 +153,46 @@ export default function DialogueEdit ( {
 		transcritionBridge.setAttributes( { showTimeStamp: value } );
 	}
 
-	const { player, isPlaying } = useSelect( select => {
+	const { isPlaying, position } = useSelect( select => {
 		const selector = select( 'jetpack/media-player-connector' );
 		return {
-			player: selector.getPlayer(),
-			isPlaying: selector.isPlaying,
+			isPlaying: selector.isPlaying(),
+			position: selector.getPosition(),
 		};
 	}, [] );
 
 	// Register new media source
 	// const { play, stop, toggle } = useDispatch( 'jetpack/media-player-connector' );
-	const { toggle } = useDispatch( 'jetpack/media-player-connector' );
+	const { toggle, moveBack, moveForward } = useDispatch( 'jetpack/media-player-connector' );
 	// const playAudio = useCallback( () => play( player.id ), [ player, play ] );
 	// const stopAudio = () => stop( player.id );
-	const togglePlaying = useCallback( () => toggle( player.id ), [ player, toggle ] );
-	const isPlayerPlaying = () => isPlaying( player.id );
+	// const togglePlaying = useCallback( () => toggle( player.id ), [ player, toggle ] );
+	// const movePlayerTo = ( position2 ) => moveTo( player.id, position2 );
 
 	return (
 		<div className={ className }>
 			<BlockControls>
-				{ transcritionBridge?.getMediaAudio() && (
-					<ToolbarGroup>
-						<ToolbarButton
-							icon={ controlBackFive }
-							onClick={ () => {
-								const mediaAudio = transcritionBridge?.getMediaAudio();
-								const forward = mediaAudio.currentTime - 5;
-								setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( forward ) } );
-								mediaAudio.currentTime = forward;
-							} }
-						/>
+				<ToolbarGroup>
+					<ToolbarButton
+						icon={ controlBackFive }
+						onClick={ () => {
+							moveBack();
+							// setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( position ) } );
+						} }
+					/>
 
-						<ToolbarButton
-							icon={ isPlayerPlaying() ? "controls-pause" : "controls-play" }
-							onClick={ togglePlaying }
-						/>
-						<ToolbarButton
-							icon={ controlForwardFive }
-							onClick={ () => {
-								const mediaAudio = transcritionBridge?.getMediaAudio();
-								const forward = mediaAudio.currentTime + 5;
-								setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( forward ) } );
-								mediaAudio.currentTime = forward;
-							} }
-						/>
-					</ToolbarGroup>
-				) }
+					<ToolbarButton
+						icon={ isPlaying ? "controls-pause" : "controls-play" }
+						onClick={ toggle }
+					/>
+					<ToolbarButton
+						icon={ controlForwardFive }
+						onClick={ () => {
+							moveForward();
+							// setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( position ) } );
+						} }
+					/>
+				</ToolbarGroup>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>

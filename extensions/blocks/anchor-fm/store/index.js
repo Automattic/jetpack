@@ -16,37 +16,71 @@ const actions = {
 		};
 	},
 
-	play( id ) {
+	play() {
 		return {
 			type: 'PLAY_MEDIA',
-			id,
 		};
 	},
 
-	stop( id ) {
+	stop() {
 		return {
 			type: 'STOP_MEDIA',
-			id,
 		};
 	},
 
-	toggle( id ) {
+	toggle() {
 		return {
 			type: 'TOGGLE_MEDIA',
-			id,
 		};
 	},
+
+	moveTo( position ) {
+		return {
+			type: 'SET_PLAYER_POSITION',
+			position,
+		};
+	},
+
+	moveBack( ) {
+		return {
+			type: 'MOVE_PLAYER_BACK',
+		};
+	},
+
+	moveForward() {
+		return {
+			type: 'MOVE_PLAYER_FORWARD',
+		};
+	}
 };
+
+function getDefaultPlayerId( state ) {
+	if ( state?.current ) {
+		return state.current;
+	}
+
+	if ( Object.keys( state?.players )?.length ) {
+		return Object.keys( state.players )?.[ 0 ];
+	}
+
+	return null;
+}
 
 const store = createReduxStore( 'jetpack/media-player-connector', {
     reducer( state = DEFAULT_STATE, action ) {
         switch ( action.type ) {
 			case 'REGISTER_MEDIA_PLAYER':
+				if ( state.players[ action?.id ] ) {
+					// do not re-register.
+					return state;
+				}
+
 				return {
 					...state,
+					current: action?.playerState?.current ? action.id : state.current,
 					players: {
 						...state.players,
-						[ action.id ]: { id: action.id, ...action.playerState },
+						[ action.id ]: { id: action.id, ...action.playerState, current: undefined },
 					},
 				};
 
@@ -55,8 +89,8 @@ const store = createReduxStore( 'jetpack/media-player-connector', {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
+						[ state.current ]: {
+							...state.players[ state.current ],
 							isPlaying: true,
 						},
 					},
@@ -67,8 +101,8 @@ const store = createReduxStore( 'jetpack/media-player-connector', {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
+						[ state.current ]: {
+							...state.players[ state.current ],
 							isPlaying: false,
 						},
 					},
@@ -79,9 +113,45 @@ const store = createReduxStore( 'jetpack/media-player-connector', {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
-							isPlaying: ! state.players[ action.id ].isPlaying,
+						[ state.current ]: {
+							...state.players[ state.current ],
+							isPlaying: ! state.players[ state.current ].isPlaying,
+						},
+					},
+				};
+
+			case 'SET_PLAYER_POSITION':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ state.current ]: {
+							...state.players[ state.current ],
+							position: action.position,
+						},
+					},
+				};
+
+			case 'MOVE_PLAYER_BACK':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ state.current ]: {
+							...state.players[ state.current ],
+							position: state.players[ state.current ].position - 5,
+						},
+					},
+				};
+
+			case 'MOVE_PLAYER_FORWARD':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ state.current ]: {
+							...state.players[ state.current ],
+							position: state.players[ state.current ].position + 5,
 						},
 					},
 				};
@@ -93,14 +163,27 @@ const store = createReduxStore( 'jetpack/media-player-connector', {
     actions,
 
     selectors: {
-        getPlayer( state ) {
-			const id = Object.keys( state.players )?.[ 0 ];
-            return state.players[ id ];
+		isPlaying( state ) {
+			const id = getDefaultPlayerId( state );
+            return state?.players[ id ]?.isPlaying;
 		},
 
-		isPlaying( state, id ) {
+		getPosition( state ) {
+			const id = getDefaultPlayerId( state );
+            return state?.players[ id ]?.position;
+		},
+
+		isPlayingById( state, id ) {
             return state?.players[ id ]?.isPlaying;
-        },
+		},
+
+		getPositionById( state, id ) {
+            return state?.players[ id ]?.position;
+		},
+
+		isPlayerRegistered( state, id ) {
+			return !! state.players[ id ];
+		}
     },
 } );
 

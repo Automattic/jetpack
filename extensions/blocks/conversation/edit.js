@@ -104,7 +104,7 @@ function ConversationEdit ( {
 			return;
 		}
 
-		const mediaAudio = document.querySelector( 'audio' );
+		const mediaAudio = wrapperElement.querySelector( 'audio' );
 		if ( ! mediaAudio ) {
 			return;
 		}
