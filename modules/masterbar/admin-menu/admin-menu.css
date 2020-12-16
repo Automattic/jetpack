@@ -333,8 +333,8 @@
 /* Masterbar */
 .admin-color-light #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #fff;
-    -moz-box-shadow: inset 0 -1px 0 #fff;
-    box-shadow: inset 0 -1px 0 #fff; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #fff;
+	box-shadow: inset 0 -1px 0 #fff; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-light #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
@@ -388,8 +388,8 @@
 /* Masterbar */
 .admin-color-modern #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #0c0c0c;
-    -moz-box-shadow: inset 0 -1px 0 #0c0c0c;
-    box-shadow: inset 0 -1px 0 #0c0c0c; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #0c0c0c;
+	box-shadow: inset 0 -1px 0 #0c0c0c; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-modern #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
@@ -438,8 +438,8 @@
 /* Masterbar */
 .admin-color-blue #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #4796b3;
-    -moz-box-shadow: inset 0 -1px 0 #4796b3;
-    box-shadow: inset 0 -1px 0 #4796b3; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #4796b3;
+	box-shadow: inset 0 -1px 0 #4796b3; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-blue #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
@@ -488,8 +488,8 @@
 /* Masterbar */
 .admin-color-coffee #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #46403c;
-    -moz-box-shadow: inset 0 -1px 0 #46403c;
-    box-shadow: inset 0 -1px 0 #46403c; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #46403c;
+	box-shadow: inset 0 -1px 0 #46403c; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-coffee #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
@@ -538,8 +538,8 @@
 /* Masterbar */
 .admin-color-ectoplasm #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #413256;
-    -moz-box-shadow: inset 0 -1px 0 #413256;
-    box-shadow: inset 0 -1px 0 #413256; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #413256;
+	box-shadow: inset 0 -1px 0 #413256; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-ectoplasm #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
@@ -588,8 +588,8 @@
 /* Masterbar */
 .admin-color-midnight #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #26292c;
-    -moz-box-shadow: inset 0 -1px 0 #26292c;
-    box-shadow: inset 0 -1px 0 #26292c; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #26292c;
+	box-shadow: inset 0 -1px 0 #26292c; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-midnight #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
@@ -638,8 +638,8 @@
 /* Masterbar */
 .admin-color-ocean #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #627c83;
-    -moz-box-shadow: inset 0 -1px 0 #627c83;
-    box-shadow: inset 0 -1px 0 #627c83; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #627c83;
+	box-shadow: inset 0 -1px 0 #627c83; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-ocean #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
@@ -688,8 +688,8 @@
 /* Masterbar */
 .admin-color-sunrise #wpadminbar {
 	-webkit-box-shadow: inset 0 -1px 0 #be3631;
-    -moz-box-shadow: inset 0 -1px 0 #be3631;
-    box-shadow: inset 0 -1px 0 #be3631; /* Calypso --theme-submenu-background-color */
+	-moz-box-shadow: inset 0 -1px 0 #be3631;
+	box-shadow: inset 0 -1px 0 #be3631; /* Calypso --theme-submenu-background-color */
 }
 
 .admin-color-sunrise #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
