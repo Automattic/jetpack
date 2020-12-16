@@ -12,6 +12,15 @@ namespace Automattic\Jetpack;
  */
 class Tracking {
 	/**
+	 * The assets version.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @var string Assets version.
+	 */
+	const ASSETS_VERSION = '1.0.0';
+
+	/**
 	 * Slug of the product that we are tracking.
 	 *
 	 * @var string
@@ -44,7 +53,14 @@ class Tracking {
 	 * Enqueue script necessary for tracking.
 	 */
 	public function enqueue_tracks_scripts() {
-		wp_enqueue_script( 'jptracks', plugins_url( '_inc/lib/tracks/tracks-ajax.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
+		wp_enqueue_script(
+			'jptracks',
+			Assets::get_file_url_for_environment( 'js/tracks-ajax.js', 'js/tracks-ajax.js', __FILE__ ),
+			array(),
+			self::ASSETS_VERSION,
+			true
+		);
+
 		wp_localize_script(
 			'jptracks',
 			'jpTracksAJAX',
