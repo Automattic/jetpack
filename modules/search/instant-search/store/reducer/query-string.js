@@ -40,3 +40,33 @@ export function sort( state = 'relevance', action ) {
 
 	return state;
 }
+
+/**
+ * Reducer for keeping track of the user's selected filter value
+ *
+ * @param {object} state - Current state.
+ * @param {object} action - Dispatched action.
+ *
+ * @returns {object} Updated state.
+ */
+export function filters( state = {}, action ) {
+	switch ( action.type ) {
+		case 'CLEAR_FILTERS':
+			return {};
+		case 'SET_FILTER':
+			if ( ! getFilterKeys().includes( action.name ) || ! Array.isArray( action.value ) ) {
+				return state;
+			}
+			if ( action.value.length === 0 ) {
+				const newState = { ...state };
+				delete newState[ action.name ];
+				return newState;
+			}
+			return {
+				...state,
+				[ action.name ]: action.value,
+			};
+	}
+
+	return state;
+}

@@ -16,11 +16,15 @@ import {
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
 import { decode } from '../external/query-string-decode';
 
-function getQuery() {
+export function getQuery() {
 	return decode( window.location.search.substring( 1 ), false, false );
 }
 
-function pushQueryString( queryString, shouldEmitEvent = true ) {
+export function setQuery( queryObject ) {
+	pushQueryString( encode( queryObject ) );
+}
+
+function pushQueryString( queryString ) {
 	if ( history.pushState ) {
 		const url = new window.URL( window.location.href );
 		if ( window[ SERVER_OBJECT_NAME ] && 'homeUrl' in window[ SERVER_OBJECT_NAME ] ) {
