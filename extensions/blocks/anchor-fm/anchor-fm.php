@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\AnchorFm;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
 
 const FEATURE_NAME = 'anchor-fm';
@@ -21,9 +22,40 @@ if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
 }
 
 /**
+ * Determine if the Anchor integration extension for the block editor is available.
+ *
+ * @return boolean Whether the extension is available
+ */
+function is_extension_available() {
+	/**
+	 * Filter the availability of the Anchor integration extension for the block editor.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @param boolean $is_available Whether the extension is available.
+	 */
+	return apply_filters( 'jetpack_anchor_integration_availability', false );
+}
+
+/**
+ * Set the availability of the Anchor integration extension for the block editor.
+ */
+function set_extension_availability() {
+	if ( is_extension_available() ) {
+		Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
+	} else {
+		Jetpack_Gutenberg::set_extension_unavailable( BLOCK_NAME, 'Not supported' );
+	}
+}
+
+/**
  * Registers Anchor.fm integration for the block editor.
  */
-function register_block() {
+function register_extension() {
+	if ( ! is_extension_available() ) {
+		return;
+	}
+
 	Blocks::jetpack_register_block( BLOCK_NAME );
 
 	// Register post_meta for connecting Anchor podcasts with posts.
@@ -60,6 +92,10 @@ function register_block() {
  * Checks URL params to determine the Anchor integration action to perform.
  */
 function process_anchor_params() {
+	if ( ! is_extension_available() ) {
+		return;
+	}
+
 	if (
 		! function_exists( 'get_current_screen' )
 		|| is_null( \get_current_screen() )
@@ -141,5 +177,6 @@ function process_anchor_params() {
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
 
-add_action( 'init', __NAMESPACE__ . '\register_block' );
+add_action( 'init', __NAMESPACE__ . '\register_extension' );
 add_action( 'enqueue_block_assets', __NAMESPACE__ . '\process_anchor_params' );
+add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\set_extension_availability' );
