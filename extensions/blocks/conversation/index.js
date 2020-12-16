@@ -15,11 +15,6 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 
-/**
- * Style dependencies
- */
-import './style.scss';
-
 export const name = 'conversation';
 export const title = __( 'Conversation', 'jetpack' );
 export const settings = {
