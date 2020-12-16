@@ -47,7 +47,7 @@ function ConversationEdit ( {
 	setAttributes,
 } ) {
 	const { participants, showTimestamps, className: classNameAttr } = attributes;
-	const containertRef = useRef();
+	const containerRef = useRef();
 
 	// Set initial conversation participants.
 	useEffect( () => {
