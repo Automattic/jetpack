@@ -27,6 +27,15 @@
 }
 
 /**
+ * Fixes Gutenberg in not fullscreen mode.
+ */
+ @media (min-width: 783px) {
+	.interface-interface-skeleton {
+		left: 272px;
+	}
+}
+
+/**
  * Jetpack logo
  */
 #adminmenu [class*="activity-log"] .wp-menu-image img {
@@ -172,15 +181,6 @@
 
 .folded #adminmenu li.toplevel_page_site-card a {
 	padding-left: 0;
-}
-
-/**
- * Fix for Gutenberg in not fullscreen mode
- */
-@media (min-width: 783px) {
-	.interface-interface-skeleton {
-		left: 272px;
-	}
 }
 
 /* Auto-folding of the admin menu */
