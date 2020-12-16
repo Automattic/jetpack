@@ -31,6 +31,7 @@ function register_block() {
 		FEATURE_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			'enable_preview'  => true,
 			'plan_check'      => true,
 			'attributes'      => array(
 				'isPremiumContentChild' => array(
