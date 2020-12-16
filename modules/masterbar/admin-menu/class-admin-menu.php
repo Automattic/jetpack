@@ -88,7 +88,7 @@ class Admin_Menu {
 		 *
 		 * @param bool $calypso Whether menu item URLs should point to Calypso.
 		 */
-		$calypso = apply_filters( 'jetpack_admin_menu_calypso_links', true );
+		$calypso = apply_filters( 'jetpack_admin_menu_use_calypso_links', true );
 
 		// Remove separators.
 		remove_menu_page( 'separator1' );
