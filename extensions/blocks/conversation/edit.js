@@ -98,8 +98,8 @@ function ConversationEdit ( {
 	const baseClassName = 'wp-block-jetpack-conversation';
 
 	return (
-		<TranscritptionContext.Provider value={ contextProvision }>
-			<div ref={ containertRef } className={ className }>
+		<TranscriptionContext.Provider value={ contextProvision }>
+			<div ref={ containerRef } className={ className }>
 				<BlockControls>
 					<ToolbarGroup>
 						<ParticipantsDropdown
@@ -139,7 +139,7 @@ function ConversationEdit ( {
 					template={ TRANSCRIPTION_TEMPLATE }
 				/>
 			</div>
-		</TranscritptionContext.Provider>
+		</TranscriptionContext.Provider>
 	);
 }
 
