@@ -27,14 +27,18 @@ if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
  * @return boolean Whether the extension is available
  */
 function is_extension_available() {
-	/**
-	 * Filter the availability of the Anchor integration extension for the block editor.
-	 *
-	 * @since 9.3.0
-	 *
-	 * @param boolean $is_available Whether the extension is available.
-	 */
-	return apply_filters( 'jetpack_anchor_integration_availability', false );
+	// Enable on WP.com Simple sites.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return true;
+	}
+
+	// Enable on WP.com Atomic sites.
+	if ( jetpack_is_atomic_site() ) {
+		return true;
+	}
+
+	// There are no plans to extend the Anchor integration to Jetpack sites at the moment.
+	return false;
 }
 
 /**
