@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\Extensions\AnchorFm;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
-use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
 
 const FEATURE_NAME = 'anchor-fm';
@@ -22,44 +21,9 @@ if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
 }
 
 /**
- * Determine if the Anchor integration extension for the block editor is available.
- *
- * @return boolean Whether the extension is available
- */
-function is_extension_available() {
-	// Enable on WP.com Simple sites.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		return true;
-	}
-
-	// Enable on WP.com Atomic sites.
-	if ( jetpack_is_atomic_site() ) {
-		return true;
-	}
-
-	// There are no plans to extend the Anchor integration to Jetpack sites at the moment.
-	return false;
-}
-
-/**
- * Set the availability of the Anchor integration extension for the block editor.
- */
-function set_extension_availability() {
-	if ( is_extension_available() ) {
-		Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
-	} else {
-		Jetpack_Gutenberg::set_extension_unavailable( BLOCK_NAME, 'Not supported' );
-	}
-}
-
-/**
  * Registers Anchor.fm integration for the block editor.
  */
 function register_extension() {
-	if ( ! is_extension_available() ) {
-		return;
-	}
-
 	Blocks::jetpack_register_block( BLOCK_NAME );
 
 	// Register post_meta for connecting Anchor podcasts with posts.
@@ -96,10 +60,6 @@ function register_extension() {
  * Checks URL params to determine the Anchor integration action to perform.
  */
 function process_anchor_params() {
-	if ( ! is_extension_available() ) {
-		return;
-	}
-
 	if (
 		! function_exists( 'get_current_screen' )
 		|| is_null( \get_current_screen() )
