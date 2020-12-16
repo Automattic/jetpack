@@ -76,13 +76,19 @@ class Admin_Menu {
 			$this->add_site_card_menu( $domain );
 		}
 
-		/*
+		/**
 		 * Whether links should point to Calypso or wp-admin.
 		 *
+		 * Options:
 		 * true  - Calypso.
 		 * false - wp-admin.
+		 *
+		 * @module masterbar
+		 * @since 9.3.0
+		 *
+		 * @param bool $calypso Whether menu item URLs should point to Calypso.
 		 */
-		$calypso = true;
+		$calypso = apply_filters( 'jetpack_admin_menu_calypso_links', true );
 
 		// Remove separators.
 		remove_menu_page( 'separator1' );
