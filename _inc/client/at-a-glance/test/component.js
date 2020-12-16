@@ -15,7 +15,7 @@ describe( 'Connections', () => {
 		siteConnectionStatus: true,
 		isOfflineMode: false,
 		userCanDisconnectSite: true,
-		userIsMaster: true,
+		isConnectionOwner: true,
 		isLinked: true,
 		userGravatar:'https://example.org/avatar.png',
 		username: 'jetpack',
@@ -89,7 +89,7 @@ describe( 'Connections', () => {
 
 	describe( 'when user is not linked', () => {
 
-		const wrapper = shallow( <DashConnections { ...testProps } userIsMaster={ false } isLinked={ false } /> ).find( '.jp-connection-type' ).at( 1 );
+		const wrapper = shallow( <DashConnections { ...testProps } isConnectionOwner={ false } isLinked={ false } /> ).find( '.jp-connection-type' ).at( 1 );
 
 		it( 'shows a link to connect the account', () => {
 			expect( wrapper.find( 'Connect(ConnectButton)' ) ).to.have.length( 1 );
