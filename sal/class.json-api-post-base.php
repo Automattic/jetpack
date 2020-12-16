@@ -9,7 +9,8 @@
 
 require_once dirname( __FILE__ ) . '/class.json-api-metadata.php';
 require_once dirname( __FILE__ ) . '/class.json-api-date.php';
-require_once ( ABSPATH . "wp-includes/post.php" );
+require_once ABSPATH . 'wp-admin/includes/post.php';
+require_once ABSPATH . 'wp-includes/post.php';
 
 abstract class SAL_Post {
 	public $post;

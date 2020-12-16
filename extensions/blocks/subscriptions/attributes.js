@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 export default {
 	subscribePlaceholder: {
 		type: 'string',
-		default: __( 'Enter your email address', 'jetpack' ),
+		default: __( 'Email Address', 'jetpack' ),
 	},
 	showSubscribersTotal: {
 		type: 'boolean',
@@ -18,7 +18,7 @@ export default {
 	},
 	submitButtonText: {
 		type: 'string',
-		default: __( 'Sign Up', 'jetpack' ),
+		default: __( 'Subscribe', 'jetpack' ),
 	},
 	emailFieldBackgroundColor: {
 		type: 'string',

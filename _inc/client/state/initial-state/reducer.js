@@ -135,6 +135,14 @@ export function userCanConnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
 }
 
+/**
+ * Returns true if current user is connection owner.
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool} true if the current user is connection owner, false otherwise
+ *
+ * @deprecated 9.3.0
+ */
 export function userIsMaster( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'isMaster', false );
 }
