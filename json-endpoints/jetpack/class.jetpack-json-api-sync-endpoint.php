@@ -74,6 +74,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 // GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
+		Actions::mark_sync_read_only();
 		$store = new Replicastore();
 		return $store->checksum_all();
 	}
@@ -173,6 +174,7 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 
 		$codec = Sender::get_instance()->get_codec();
 
+		Actions::mark_sync_read_only();
 		Settings::set_is_syncing( true );
 		$objects = $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) );
 		Settings::set_is_syncing( false );
