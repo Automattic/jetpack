@@ -88,7 +88,7 @@ function ConversationEdit ( {
 	function addNewParticipant( newSpakerValue ) {
 		const newParticipantSlug = participants.length
 			? ( participants[ participants.length - 1 ].participantSlug ).replace( /(\d+)/, ( n ) => Number( n ) + 1 )
-			: 'sepaker-0';
+			: 'speaker-0';
 		setAttributes( {
 			participants: [
 				...participants,
