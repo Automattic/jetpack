@@ -66,6 +66,10 @@
 	}
 
 	// Site Card
+	 #adminmenu li.toplevel_page_site-card {
+		border-color: $menu-submenu-background; // Calypso --color-sidebar-border
+	}
+
 	.site__info .site__title {
 		color: $menu-text; // Calypso --color-sidebar-text
 	}
