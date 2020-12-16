@@ -75,19 +75,6 @@ function showPostPublishOutboundLink() {
 	} );
 }
 
-function overrideWelcomeGuide() {
-	addFilter( 'plugins.registerPlugin', 'jetpack/anchor-welcome-guide', ( settings, name ) => {
-		// WP.com uses a custom welcome guide provided by a plugin.
-		// See https://github.com/Automattic/wp-calypso/blob/2e1fe38b7bdbaf3eb997160f83ff71fd781b3fbe/apps/editing-toolkit/editing-toolkit-plugin/wpcom-block-editor-nux/src/wpcom-nux.js#L173
-		if ( name !== 'wpcom-block-editor-nux' ) {
-			return settings;
-		}
-
-		// TODO: Override welcome guide.
-		return settings;
-	} );
-}
-
 function initAnchor() {
 	const data = window.Jetpack_AnchorFm;
 	if ( typeof data !== 'object' ) {
@@ -105,9 +92,6 @@ function initAnchor() {
 				break;
 			case 'set-episode-title':
 				setEpisodeTitle( actionParams );
-				break;
-			case 'override-welcome-guide':
-				overrideWelcomeGuide();
 				break;
 		}
 	} );

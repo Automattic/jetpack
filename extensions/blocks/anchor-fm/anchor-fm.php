@@ -100,7 +100,6 @@ function process_anchor_params() {
 				$track = $podcast_helper->get_track_data( $episode_id );
 				if ( ! \is_wp_error( $track ) ) {
 					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
-					$data['actions'][] = 'override-welcome-guide';
 
 					if ( 'post-new.php' === $GLOBALS['pagenow'] ) {
 						$data['actions'][] = array(
