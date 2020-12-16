@@ -127,14 +127,14 @@ export function getFilterQuery( filterKey ) {
 }
 
 // These filter keys have been activated/selected outside of the overlay sidebar
-export function getPreselectedFilterKeys( overlayWidgets ) {
-	return getUnselectableFilterKeys( overlayWidgets ).filter(
+export function getPreselectedFilterKeys() {
+	return getUnselectableFilterKeys().filter(
 		key => Array.isArray( getFilterQueryByKey( key ) ) && getFilterQueryByKey( key ).length > 0
 	);
 }
 
-export function getPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ) {
-	const keys = getPreselectedFilterKeys( widgetsInOverlay );
+export function getPreselectedFilters( _, widgetsOutsideOverlay ) {
+	const keys = getPreselectedFilterKeys();
 	return widgetsOutsideOverlay
 		.map( widget => widget.filters )
 		.reduce( ( prev, current ) => prev.concat( current ), [] )
