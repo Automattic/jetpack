@@ -198,10 +198,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_plugins_menu();
 
 		remove_menu_page( 'plugins.php' );
-
-		if ( $this->is_api_request ) {
-			remove_submenu_page( 'plugins.php', 'plugins.php' );
-		}
+		remove_submenu_page( 'plugins.php', 'plugins.php' );
 
 		$count = '';
 		if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
