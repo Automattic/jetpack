@@ -101,7 +101,10 @@ class JetpackSyncTestObjectFactory {
 				'user_email'         => "$username@example.com",
 				'user_registered'    => $now,
 				'display_name'       => $username,
-				'allowed_mime_types' => array( 'jpg|jpeg|jpe' => 'image/jpeg', 'gif' => 'image/gif' ),
+				'allowed_mime_types' => array(
+					'jpg|jpeg|jpe' => 'image/jpeg',
+					'gif'          => 'image/gif',
+				),
 			)
 		);
 
@@ -110,7 +113,7 @@ class JetpackSyncTestObjectFactory {
 
 	function plugins() {
 		return array(
-			'polldaddy/polldaddy.php'   => array(
+			'polldaddy/crowdsignal.php' => array(
 				'Name'        => 'Polldaddy Polls & Ratings',
 				'PluginURI'   => 'https://wordpress.org/extend/plugins/polldaddy/',
 				'Version'     => '2.0.31',

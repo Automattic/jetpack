@@ -88,14 +88,15 @@ function process_anchor_params() {
 	$data = array();
 
 	if ( ! empty( $podcast_id ) ) {
-		$feed = 'https://anchor.fm/s/' . $podcast_id . '/podcast/rss';
-		$rss  = Jetpack_Podcast_Helper::load_feed( $feed );
+		$feed           = 'https://anchor.fm/s/' . $podcast_id . '/podcast/rss';
+		$podcast_helper = new Jetpack_Podcast_Helper( $feed );
+		$rss            = $podcast_helper->load_feed();
 		if ( ! \is_wp_error( $rss ) ) {
 			$data['podcastId'] = $podcast_id;
 			update_post_meta( $post->ID, 'jetpack_anchor_podcast', $podcast_id );
 
 			if ( ! empty( $episode_id ) ) {
-				$track = Jetpack_Podcast_Helper::get_track_data( $feed, $episode_id );
+				$track = $podcast_helper->get_track_data( $episode_id );
 				if ( ! \is_wp_error( $track ) ) {
 					$data['episodeId'] = $episode_id;
 					$data['track']     = $track;
@@ -112,6 +113,16 @@ function process_anchor_params() {
 			$data['action'] = 'insert-spotify-badge';
 			$data['image']  = Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' );
 		}
+	}
+
+	// Display an outbound link after publishing a post (only to English-speaking users since Anchor
+	// is English only).
+	if (
+		'post' === get_post_type() &&
+		! get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) &&
+		0 === strpos( get_user_locale(), 'en' )
+	) {
+		$data['action'] = 'show-post-publish-outbound-link';
 	}
 
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
