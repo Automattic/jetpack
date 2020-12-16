@@ -143,4 +143,3 @@ function process_anchor_params() {
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
 add_action( 'enqueue_block_assets', __NAMESPACE__ . '\process_anchor_params' );
-add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\set_extension_availability' );
