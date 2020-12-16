@@ -90,57 +90,10 @@ function ConversationEdit ( {
 		} ) } )
 	), [ setAttributes, participants ] );
 
-	// Catch the audio element reference.
-	const [ mediaAudioEl, setMediaAudioEl ] = useState();
-	const [ playerStatus, setPlayerStatus ] = useState();
-
-	const pickMediaPlayer = useCallback( () => {
-		if ( ! containertRef?.current ) {
-			return;
-		}
-
-		const { current: wrapperElement } = containertRef;
-		if ( ! wrapperElement ) {
-			return;
-		}
-
-		const mediaAudio = wrapperElement.querySelector( 'audio' );
-		if ( ! mediaAudio ) {
-			return;
-		}
-
-		return mediaAudio;
-	}, [] );
-
-	const getMediaAudio = useCallback( () => {
-		if ( mediaAudioEl ) {
-			return mediaAudioEl;
-		}
-
-		const mediaAudio = pickMediaPlayer();
-		if ( ! mediaAudio ) {
-			return;
-		}
-
-		mediaAudio.addEventListener( 'play', () => setPlayerStatus( 'playing' ) );
-		mediaAudio.addEventListener( 'pause', () => setPlayerStatus( 'paused' ) );
-
-		setMediaAudioEl( mediaAudio );
-		return mediaAudio;
-	}, [ pickMediaPlayer, mediaAudioEl ] );
-
 	// Context bridge.
 	const contextProvider = {
-		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
+		setAttributes,
 		updateParticipants,
-		getMediaAudio,
-		timeCodeToSeconds: mejs.Utils.timeCodeToSeconds,
-		secondsToTimeCode: mejs.Utils.secondsToTimeCode,
-
-		player: {
-			isPaused: playerStatus === 'paused',
-			isPlaying: playerStatus === 'playing',
-		},
 
 		attributes: {
 			showTimeStamp,
