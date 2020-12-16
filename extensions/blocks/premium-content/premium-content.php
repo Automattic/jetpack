@@ -31,7 +31,7 @@ function register_block() {
 		FEATURE_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'enable_preview'  => true,
+			'enable_frontend_preview'  => true,
 			'plan_check'      => true,
 			'attributes'      => array(
 				'isPremiumContentChild' => array(
@@ -68,7 +68,7 @@ function render_block( $attributes, $content ) {
 		&& current_user_can_edit()
 		&& ! membership_checks()
 	) {
-		$stripe_nudge = render_stripe_nudge;
+		$stripe_nudge = render_stripe_nudge();
 		return $stripe_nudge . $content;
 	}
 

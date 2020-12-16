@@ -1071,10 +1071,10 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string   $slug The block slug, used to check for availability.
 	 * @param callable $render_callback The render_callback that will be called if the block is available.
-	 * @param bool     $enable_preview Whether a preview should be rendered for admins when an upgrade is required.
+	 * @param bool     $enable_frontend_preview Whether a preview should be rendered for admins when an upgrade is required.
 	 */
-	public static function get_render_callback_with_availability_check( $slug, $render_callback, $enable_preview ) {
-		return function ( $prepared_attributes, $block_content ) use ( $enable_preview, $render_callback, $slug ) {
+	public static function get_render_callback_with_availability_check( $slug, $render_callback, $enable_frontend_preview ) {
+		return function ( $prepared_attributes, $block_content ) use ( $enable_frontend_preview, $render_callback, $slug ) {
 			$availability = self::get_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
@@ -1084,7 +1084,7 @@ class Jetpack_Gutenberg {
 			// A preview of the block is rendered for admins on the frontend with an upgrade nudge if
 			// enabled during block registration.
 			if (
-				$enable_preview &&
+				$enable_frontend_preview &&
 				self::should_show_frontend_preview( $bare_slug )
 			) {
 				$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
