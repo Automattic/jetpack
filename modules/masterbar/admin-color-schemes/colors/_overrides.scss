@@ -17,6 +17,7 @@
 		background: $masterbar-background !important;
 	}
 
+	#wpadminbar .ab-top-menu > li.my-sites > .ab-item,
 	#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
 	#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
 	#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
@@ -46,4 +47,36 @@
 	&:hover, &:focus {
 		color: $menu-submenu-current-text;
 	}
+}
+
+// Nav unification
+.admin-color-aquatic,
+.admin-color-classic-blue,
+.admin-color-classic-bright,
+.admin-color-classic-dark,
+.admin-color-contrast,
+.admin-color-nightfall,
+.admin-color-powder-snow,
+.admin-color-sakura,
+.admin-color-sunset {
+
+	// Masterbar
+	#wpadminbar {
+		box-shadow: inset 0 -1px 0 $masterbar-background; // Calypso --color-masterbar-background
+	}
+
+	// Site Card
+	#adminmenu li.toplevel_page_site-card {
+		border-color: $menu-submenu-background; // Calypso --color-sidebar-border
+	}
+
+	.site__info .site__title {
+		color: $menu-text; // Calypso --color-sidebar-text
+	}
+
+	#adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+	#adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+		background-color: $menu-current-background; // Calypso --color-sidebar-menu-selected-background
+	}
+
 }
