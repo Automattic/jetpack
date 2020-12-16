@@ -30,7 +30,7 @@ import {
  */
 import './editor.scss';
 import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
-import TranscritptionContext from './components/context';
+import TranscriptionContext from './components/context';
 
 import { list as defaultParticipants } from './participants.json';
 
