@@ -24,5 +24,10 @@ $menu-submenu-current-text: #ffffff; // Calypso --color-sidebar-submenu-selected
 // masterbar overrides
 $masterbar-background: #00131c; // Calypso --color-masterbar-background
 $masterbar-highlight-background: #01263a; // Calypso --color-masterbar-item-hover-background
+$masterbar-active-background: #043959; // Calypso --color-masterbar-item-active-background
+
+// nav unification overrides
+$nav-unification-sidebar-border: #01263a; // Calypso --color-sidebar-border
+$nav-unification-sidebar-text-alternative: #72aee6; // Calypso --color-sidebar-text-alternative
 
 @import "../admin";
