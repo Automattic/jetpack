@@ -4186,16 +4186,26 @@ p {
 				case 'authorize_redirect':
 					self::log( 'authorize_redirect' );
 
-					add_filter( 'allowed_redirect_hosts', function( $domains ) {
-						$domains[] = 'jetpack.com';
-						$domains[] = 'jetpack.wordpress.com';
-						return $domains;
-					} );
+					add_filter(
+						'allowed_redirect_hosts',
+						function ( $domains ) {
+							$domains[] = 'jetpack.com';
+							$domains[] = 'jetpack.wordpress.com';
+							$domains[] = 'wordpress.com';
+							return $domains;
+						}
+					);
+
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					$dest_url = empty( $_GET['dest_url'] ) ? null : $_GET['dest_url'];
+
+					if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
+						// The destination URL is missing or invalid, nothing to do here.
+						exit;
+					}
 
 					if ( self::is_active() && self::is_user_connected() ) {
-						$redirect_url = 'https://jetpack.com/redirect/?' . ( empty( $_GET['query_string'] )  ? '' : $_GET['query_string'] );
-
-						wp_safe_redirect( $redirect_url );
+						wp_safe_redirect( $dest_url );
 						exit;
 					}
 
@@ -4203,11 +4213,11 @@ p {
 						array(
 							'page'         => 'jetpack',
 							'action'       => 'authorize_redirect',
-							'query_string' => empty( $_GET['query_string'] )  ? '' : urlencode( $_GET['query_string'] ),
+							'dest_url'     => rawurlencode( $dest_url ),
 						)
 					);
 
-					wp_safe_redirect( Jetpack::build_authorize_url( $redirect_url ) );
+					wp_safe_redirect( static::build_authorize_url( $redirect_url ) );
 					exit;
 				case 'authorize':
 					if ( self::is_active() && self::is_user_connected() ) {

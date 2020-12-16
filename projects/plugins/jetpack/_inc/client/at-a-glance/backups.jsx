@@ -262,6 +262,6 @@ export default connect( state => {
 		isOfflineMode: isOfflineMode( state ),
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
+		upgradeUrl: getUpgradeUrl( state, 'aag-backups', '', false, true ),
 	};
 } )( DashBackups );
