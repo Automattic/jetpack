@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { ProgressBar } from '@automattic/components';
@@ -12,8 +12,10 @@ import { ProgressBar } from '@automattic/components';
 import { QuestionLayout } from '../layout';
 import { CheckboxAnswer } from '../checkbox-answer';
 import Button from 'components/button';
+import analytics from 'lib/analytics';
 import { getSiteTitle } from 'state/initial-state';
 import {
+	getDataByKey,
 	getNextRoute,
 	saveRecommendationsData,
 	updateRecommendationsStep,
@@ -25,10 +27,15 @@ import {
 import './style.scss';
 
 const SiteTypeQuestionComponent = props => {
-	const { nextRoute, siteTitle } = props;
+	const { answers, nextRoute, siteTitle } = props;
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'site-type-question' );
+	} );
+
+	const onContinueClick = useCallback( () => {
+		props.saveRecommendationsData();
+		analytics.tracks.recordEvent( 'jetpack_recommendations_site_type_answered', answers );
 	} );
 
 	const answerSection = (
@@ -63,7 +70,7 @@ const SiteTypeQuestionComponent = props => {
 					) }
 				/>
 			</div>
-			<Button primary href={ nextRoute } onClick={ props.saveRecommendationsData }>
+			<Button primary href={ nextRoute } onClick={ onContinueClick }>
 				{ __( 'Continue' ) }
 			</Button>
 			<div className="jp-recommendations-site-type-question__continue-description">
@@ -89,7 +96,16 @@ const SiteTypeQuestionComponent = props => {
 };
 
 export const SiteTypeQuestion = connect(
-	state => ( { nextRoute: getNextRoute( state ), siteTitle: getSiteTitle( state ) } ),
+	state => ( {
+		nextRoute: getNextRoute( state ),
+		siteTitle: getSiteTitle( state ),
+		answers: {
+			personal: getDataByKey( state, 'site-type-personal' ),
+			business: getDataByKey( state, 'site-type-business' ),
+			store: getDataByKey( state, 'site-type-store' ),
+			other: getDataByKey( state, 'site-type-other' ),
+		},
+	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		saveRecommendationsData: () => dispatch( saveRecommendationsData() ),
