@@ -72,7 +72,7 @@ function check_dialogue_attrs( $attrs, $block ) {
 		'label'          => isset( $attrs['participant'] ) ? $attrs['participant'] : null,
 		'timestamp'      => isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00',
 		'show_timestamp' => isset( $block->context['jetpack/conversation-showTimestamps'] ),
-		'content'        => filter_content( $attrs['content'] ),
+		'content'        => ! empty( $attrs['content'] ) ? filter_content( $attrs['content'] ) : '',
 	);
 }
 /**
