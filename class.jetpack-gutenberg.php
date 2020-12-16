@@ -942,10 +942,6 @@ class Jetpack_Gutenberg {
 		return (
 			isset( $availability[ $slug ]['details']['required_plan'] ) &&
 			current_user_can( 'manage_options' )
-			/** This filter is documented in class.jetpack-gutenberg.php */
-			&& apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
-			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-			&& apply_filters( 'jetpack_show_promotions', true )
 			&& ! is_feed()
 		);
 	}
