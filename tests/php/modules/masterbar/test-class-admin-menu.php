@@ -360,16 +360,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_wpcom_upgrades_menu
+	 * Tests add_upgrades_menu
 	 *
-	 * @covers ::add_wpcom_upgrades_menu
+	 * @covers ::add_upgrades_menu
 	 */
 	public function test_add_wpcom_upgrades_menu() {
 		global $menu, $submenu;
 
-		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
-		static::$admin_menu->add_upgrades_menu( static::$domain );
-		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
+		static::$admin_menu->add_upgrades_menu();
 
 		$slug = 'https://wordpress.com/plans/' . static::$domain;
 
@@ -391,14 +389,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Plans',
 		);
 		$this->assertContains( $plans_submenu_item, $submenu[ $slug ] );
-
-		$domains_submenu_item = array(
-			'Domains',
-			'manage_options',
-			'https://wordpress.com/domains/manage/' . static::$domain,
-			'Domains',
-		);
-		$this->assertContains( $domains_submenu_item, $submenu[ $slug ] );
 
 		$purchases_submenu_item = array(
 			'Purchases',
@@ -557,21 +547,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests jetpack_parent_file
-	 *
-	 * @covers ::jetpack_parent_file
-	 */
-	public function test_jetpack_parent_file() {
-		$parent_file = 'edit.php';
-		$this->assertSame( $parent_file, static::$admin_menu->jetpack_parent_file( $parent_file ) );
-
-		$this->assertSame(
-			'https://wordpress.com/activity-log/' . static::$domain,
-			static::$admin_menu->jetpack_parent_file( 'jetpack' )
-		);
-	}
-
-	/**
 	 * Tests add_appearance_menu
 	 *
 	 * @covers ::add_appearance_menu
@@ -630,61 +605,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_plugins_menu
-	 *
-	 * @covers ::add_plugins_menu
-	 */
-	public function test_add_plugins_menu() {
-		global $menu, $submenu;
-
-		add_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
-
-		static::$admin_menu->add_plugins_menu( static::$domain );
-
-		remove_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
-
-		$slug  = 'https://wordpress.com/plugins/' . static::$domain;
-		$label = is_multisite() ? 'Plugins ' : 'Plugins <span class="update-plugins count-0"><span class="plugin-count">0</span></span>';
-
-		$plugins_menu_item = array(
-			$label,
-			'activate_plugins',
-			$slug,
-			'Plugins',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-plugins',
-		);
-
-		$this->assertEquals( $plugins_menu_item, $menu[65] );
-		$this->assertArrayNotHasKey( 'plugins.php', $submenu );
-
-		$editor_submenu_item = array(
-			'Plugin Editor',
-			'edit_plugins',
-			'plugin-editor.php',
-		);
-		$this->assertNotContains( $editor_submenu_item, $submenu[ $slug ] );
-	}
-
-	/**
-	 * Filters the returned array of update data for plugins, themes, and WordPress core.
-	 */
-	public function mock_update_data() {
-		return array(
-			'counts' => array(
-				'plugins'      => 0,
-				'themes'       => 0,
-				'translations' => 0,
-				'wordpress'    => 0,
-			),
-			'title'  => '',
-		);
-	}
-
-	/**
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
@@ -696,30 +616,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
 		$menu = array();
 
-		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
-		static::$admin_menu->add_users_menu( static::$domain, true );
-		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
+		static::$admin_menu->add_users_menu( true );
 
-		$profile_menu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-			'menu-top toplevel_page_https://wordpress.com/me',
-			'toplevel_page_https://wordpress.com/me',
-			'dashicons-admin-users',
-		);
-
-		$this->assertSame( $menu[70], $profile_menu_item );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu['https://wordpress.com/me'] );
-		$this->assertArrayNotHasKey( 'profile.php', $submenu );
+		$this->assertEmpty( $menu );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );
@@ -782,10 +681,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $menu, $submenu;
 
-		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
 		static::$admin_menu->add_tools_menu( static::$domain );
-		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
 		$tools_menu_item = array(
 			'Tools',
@@ -801,22 +698,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'tools.php', $submenu );
 
 		// Contains the following menu items.
-
-		$marketing_submenu_item = array(
-			'Marketing',
-			'manage_options',
-			'https://wordpress.com/marketing/tools/' . static::$domain,
-			'Marketing',
-		);
-		$this->assertContains( $marketing_submenu_item, $submenu[ $slug ] );
-
-		$earn_submenu_item = array(
-			'Earn',
-			'manage_options',
-			'https://wordpress.com/earn/' . static::$domain,
-			'Earn',
-		);
-		$this->assertContains( $earn_submenu_item, $submenu[ $slug ] );
 
 		$import_submenu_item = array(
 			'Import',
@@ -866,14 +747,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
-		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 		static::$admin_menu->add_options_menu( static::$domain );
-		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
 		$this->assertNotContains( 'options-discussion.php', $submenu['options-general.php'] );
 		$this->assertNotContains( 'options-writing.php', $submenu['options-general.php'] );
-
-		$this->assertContains( 'Hosting Configuration', $submenu['options-general.php'][6] );
 	}
 
 	/**
