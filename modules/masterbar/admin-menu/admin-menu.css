@@ -311,7 +311,7 @@
 }
 
 .admin-color-fresh .site__info .site__title {
-	color: white;
+	color: #fff;
 }
 
 .admin-color-fresh .site__info .site__domain {
@@ -432,9 +432,303 @@
 	background: #3858e9; /* Calypso --theme-highlight-color */
 	color: #fff; /* Calypso --theme-text-color */
 }
+
 /* Blue */
+
+/* Masterbar */
+.admin-color-blue #wpadminbar {
+	-webkit-box-shadow: inset 0 -1px 0 #4796b3;
+    -moz-box-shadow: inset 0 -1px 0 #4796b3;
+    box-shadow: inset 0 -1px 0 #4796b3; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-blue #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
+	background: #4796b3; /* Calypso --theme-submenu-background-color */
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-blue #wpadminbar .ab-top-menu > #wp-admin-bar-newdash > .ab-item {
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-blue #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #4796b3; /* Calypso --theme-submenu-background-color */
+}
+
+/**
+ * Site Card
+ */
+.admin-color-blue  #adminmenu li.toplevel_page_site-card {
+	border-bottom: 1px solid #4796b3; /* Calypso --theme-submenu-background-color */
+	border-top: 1px solid #4796b3; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-blue .site__info .site__title,
+.admin-color-blue .site__info .site__domain {
+	color: #ffffff !important; /* Calypso --theme-text-color */;
+}
+
+.admin-color-blue #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+.admin-color-blue #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+	background-color: #096484; /* Calypso --theme-highlight-color */
+}
+
+.admin-color-blue .site__info .site__title::after,
+.admin-color-blue .site__info .site__domain::after {
+	background: linear-gradient(90deg,rgba(82, 172, 204,0),rgba(82, 172, 204,1) 90%); /* Calypso --theme-base-color-rgb */
+}
+
+.admin-color-blue .site__info > .site__badge {
+	background: #096484; /* Calypso --theme-highlight-color */
+	color: #fff; /* Calypso --theme-text-color */
+}
+
 /* Coffee */
+
+/* Masterbar */
+.admin-color-coffee #wpadminbar {
+	-webkit-box-shadow: inset 0 -1px 0 #46403c;
+    -moz-box-shadow: inset 0 -1px 0 #46403c;
+    box-shadow: inset 0 -1px 0 #46403c; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-coffee #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
+	background: #46403c; /* Calypso --theme-submenu-background-color */
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-coffee #wpadminbar .ab-top-menu > #wp-admin-bar-newdash > .ab-item {
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-coffee #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #46403c; /* Calypso --theme-submenu-background-color */
+}
+
+/**
+ * Site Card
+ */
+.admin-color-coffee  #adminmenu li.toplevel_page_site-card {
+	border-bottom: 1px solid #46403c; /* Calypso --theme-submenu-background-color */
+	border-top: 1px solid #46403c; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-coffee .site__info .site__title,
+.admin-color-coffee .site__info .site__domain {
+	color: #ffffff !important; /* Calypso --theme-text-color */;
+}
+
+.admin-color-coffee #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+.admin-color-coffee #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+	background-color: #c7a589; /* Calypso --theme-highlight-color */
+}
+
+.admin-color-coffee .site__info .site__title::after,
+.admin-color-coffee .site__info .site__domain::after {
+	background: linear-gradient(90deg,rgba(89, 82, 76,0),rgba(89, 82, 76,1) 90%); /* Calypso --theme-base-color-rgb */
+}
+
+.admin-color-coffee .site__info > .site__badge {
+	background: #c7a589; /* Calypso --theme-highlight-color */
+	color: #fff; /* Calypso --theme-text-color */
+}
+
 /* Ectoplasm */
+
+/* Masterbar */
+.admin-color-ectoplasm #wpadminbar {
+	-webkit-box-shadow: inset 0 -1px 0 #413256;
+    -moz-box-shadow: inset 0 -1px 0 #413256;
+    box-shadow: inset 0 -1px 0 #413256; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-ectoplasm #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
+	background: #413256; /* Calypso --theme-submenu-background-color */
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-ectoplasm #wpadminbar .ab-top-menu > #wp-admin-bar-newdash > .ab-item {
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-ectoplasm #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #413256; /* Calypso --theme-submenu-background-color */
+}
+
+/**
+ * Site Card
+ */
+.admin-color-ectoplasm  #adminmenu li.toplevel_page_site-card {
+	border-bottom: 1px solid #413256; /* Calypso --theme-submenu-background-color */
+	border-top: 1px solid #413256; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-ectoplasm .site__info .site__title,
+.admin-color-ectoplasm .site__info .site__domain {
+	color: #ffffff !important; /* Calypso --theme-text-color */;
+}
+
+.admin-color-ectoplasm #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+.admin-color-ectoplasm #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+	background-color: #a3b745; /* Calypso --theme-highlight-color */
+}
+
+.admin-color-ectoplasm .site__info .site__title::after,
+.admin-color-ectoplasm .site__info .site__domain::after {
+	background: linear-gradient(90deg,rgba(82, 63, 109,0),rgba(82, 63, 109,1) 90%); /* Calypso --theme-base-color-rgb */
+}
+
+.admin-color-ectoplasm .site__info > .site__badge {
+	background: #a3b745; /* Calypso --theme-highlight-color */
+	color: #fff; /* Calypso --theme-text-color */
+}
+
 /* Midnight */
+
+/* Masterbar */
+.admin-color-midnight #wpadminbar {
+	-webkit-box-shadow: inset 0 -1px 0 #26292c;
+    -moz-box-shadow: inset 0 -1px 0 #26292c;
+    box-shadow: inset 0 -1px 0 #26292c; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-midnight #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
+	background: #26292c; /* Calypso --theme-submenu-background-color */
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-midnight #wpadminbar .ab-top-menu > #wp-admin-bar-newdash > .ab-item {
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-midnight #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #26292c; /* Calypso --theme-submenu-background-color */
+}
+
+/**
+ * Site Card
+ */
+.admin-color-midnight  #adminmenu li.toplevel_page_site-card {
+	border-bottom: 1px solid #26292c; /* Calypso --theme-submenu-background-color */
+	border-top: 1px solid #26292c; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-midnight .site__info .site__title,
+.admin-color-midnight .site__info .site__domain {
+	color: #ffffff !important; /* Calypso --theme-text-color */;
+}
+
+.admin-color-midnight #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+.admin-color-midnight #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+	background-color: #e14d43; /* Calypso --theme-highlight-color */
+}
+
+.admin-color-midnight .site__info .site__title::after,
+.admin-color-midnight .site__info .site__domain::after {
+	background: linear-gradient(90deg,rgba(54, 59, 63,0),rgba(54, 59, 63,1) 90%); /* Calypso --theme-base-color-rgb */
+}
+
+.admin-color-midnight .site__info > .site__badge {
+	background: #e14d43; /* Calypso --theme-highlight-color */
+	color: #fff; /* Calypso --theme-text-color */
+}
+
 /* Ocean */
+
+/* Masterbar */
+.admin-color-ocean #wpadminbar {
+	-webkit-box-shadow: inset 0 -1px 0 #627c83;
+    -moz-box-shadow: inset 0 -1px 0 #627c83;
+    box-shadow: inset 0 -1px 0 #627c83; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-ocean #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
+	background: #627c83; /* Calypso --theme-submenu-background-color */
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-ocean #wpadminbar .ab-top-menu > #wp-admin-bar-newdash > .ab-item {
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-ocean #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #627c83; /* Calypso --theme-submenu-background-color */
+}
+
+/**
+ * Site Card
+ */
+.admin-color-ocean  #adminmenu li.toplevel_page_site-card {
+	border-bottom: 1px solid #627c83; /* Calypso --theme-submenu-background-color */
+	border-top: 1px solid #627c83; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-ocean .site__info .site__title,
+.admin-color-ocean .site__info .site__domain {
+	color: #ffffff !important; /* Calypso --theme-text-color */;
+}
+
+.admin-color-ocean #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+.admin-color-ocean #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+	background-color: #9ebaa0; /* Calypso --theme-highlight-color */
+}
+
+.admin-color-ocean .site__info .site__title::after,
+.admin-color-ocean .site__info .site__domain::after {
+	background: linear-gradient(90deg,rgba(115, 142, 150,0),rgba(115, 142, 150,1) 90%); /* Calypso --theme-base-color-rgb */
+}
+
+.admin-color-ocean .site__info > .site__badge {
+	background: #9ebaa0; /* Calypso --theme-highlight-color */
+	color: #fff; /* Calypso --theme-text-color */
+}
+
 /* Sunrise */
+
+/* Masterbar */
+.admin-color-sunrise #wpadminbar {
+	-webkit-box-shadow: inset 0 -1px 0 #be3631;
+    -moz-box-shadow: inset 0 -1px 0 #be3631;
+    box-shadow: inset 0 -1px 0 #be3631; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-sunrise #wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
+	background: #be3631; /* Calypso --theme-submenu-background-color */
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-sunrise #wpadminbar .ab-top-menu > #wp-admin-bar-newdash > .ab-item {
+	color: #ffffff !important; /* Calypso --theme-text-color */
+}
+
+.admin-color-sunrise #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: #be3631; /* Calypso --theme-submenu-background-color */
+}
+
+/**
+ * Site Card
+ */
+.admin-color-sunrise  #adminmenu li.toplevel_page_site-card {
+	border-bottom: 1px solid #be3631; /* Calypso --theme-submenu-background-color */
+	border-top: 1px solid #be3631; /* Calypso --theme-submenu-background-color */
+}
+
+.admin-color-sunrise .site__info .site__title,
+.admin-color-sunrise .site__info .site__domain {
+	color: #ffffff !important; /* Calypso --theme-text-color */;
+}
+
+.admin-color-sunrise #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+.admin-color-sunrise #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+	background-color: #dd823b; /* Calypso --theme-highlight-color */
+}
+
+.admin-color-sunrise .site__info .site__title::after,
+.admin-color-sunrise .site__info .site__domain::after {
+	background: linear-gradient(90deg,rgba(207, 73, 68,0),rgba(207, 73, 68,1) 90%); /* Calypso --theme-base-color-rgb */
+}
+
+.admin-color-sunrise .site__info > .site__badge {
+	background: #dd823b; /* Calypso --theme-highlight-color */
+	color: #fff; /* Calypso --theme-text-color */
+}
