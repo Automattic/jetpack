@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { map } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { DropdownMenu, TextControl, Button } from '@wordpress/components';
@@ -29,7 +24,7 @@ function AddParticipantButton( { className, onAdd, participants = [] } ) {
 function ParticipantsLabelControl( { className, participants, onChange, onDelete } ) {
 	return (
 		<div className={ `${ className }__participant-control` }>
-			{ map( participants, ( { participant, participantSlug } ) => (
+			{ participants.map( ( { participant, participantSlug } ) => (
 				<div key={ `${ participantSlug }-key` } className={ `${ className }__participant` }>
 					<TextControl
 						value={ participant }

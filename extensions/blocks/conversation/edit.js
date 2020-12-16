@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { filter, map } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -59,7 +54,7 @@ function ConversationEdit ( {
 	}, [ participants, setAttributes ] );
 
 	const updateParticipants = useCallback( ( updatedParticipant ) => (
-		setAttributes( { participants: map( participants, ( participant ) => {
+		setAttributes( { participants: participants.map( ( participant ) => {
 			if ( participant.participantSlug !== updatedParticipant.participantSlug ) {
 				return participant;
 			}
@@ -82,7 +77,7 @@ function ConversationEdit ( {
 	};
 
 	function deleteParticipant( deletedParticipantSlug ) {
-		setAttributes( { participants: filter( participants, ( { participantSlug } ) => ( participantSlug !== deletedParticipantSlug ) ) } );
+		setAttributes( { participants: participants.filter( ( { participantSlug } ) => ( participantSlug !== deletedParticipantSlug ) ) } );
 	}
 
 	function addNewParticipant( newSpakerValue ) {

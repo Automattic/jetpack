@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { map } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import {
@@ -19,7 +14,7 @@ import { Fragment } from '@wordpress/element';
 function ParticipantsMenu( { participants, className, onSelect } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ map( participants, ( { participant, participantSlug } ) => (
+			{ participants.map( ( { participant, participantSlug } ) => (
 				<MenuItem key={ participantSlug } onClick={ () => onSelect( { participantSlug } ) }>
 					{ participant }
 				</MenuItem>
@@ -58,7 +53,7 @@ export function ParticipantsControl( { participants, participantSlug: slug, onSe
 		<SelectControl
 			label={ __( 'Participant name', 'jetpack' ) }
 			value={ slug }
-			options={ map( participants, ( { participantSlug: value, participant: label } ) => ( {
+			options={ participants.map( ( { participantSlug: value, participant: label } ) => ( {
 				label,
 				value,
 			} ) ) }
