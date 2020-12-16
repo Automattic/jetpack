@@ -70,6 +70,7 @@ gulp.task( 'sass:color-schemes', function ( done ) {
 		.pipe(
 			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
 		)
+		.pipe( prepend.prependText( '/* NOAUTORTL */\n' ) )
 		.pipe( autoprefixer() )
 		.pipe( gulp.dest( dest ) )
 		.on( 'end', function () {
