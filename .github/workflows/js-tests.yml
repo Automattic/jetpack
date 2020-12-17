@@ -37,7 +37,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - run:  |
           yarn install
-          yarn lint-changed
+          yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }}
 
 
   js-tests:
