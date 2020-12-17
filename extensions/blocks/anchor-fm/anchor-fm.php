@@ -117,6 +117,7 @@ function process_anchor_params() {
 							),
 						);
 
+						// Add insert basic template action.
 						$data['actions'][] = array(
 							'insert-episode-template',
 							array(
@@ -131,7 +132,7 @@ function process_anchor_params() {
 		}
 	}
 
-	// Insert Spotify Badge action.
+	// Add Spotify Badge template action.
 	if ( ! empty( $spotify_show_url ) && is_null( $episode_id ) ) {
 		$data['actions'][] = array(
 			'insert-spotify-badge',

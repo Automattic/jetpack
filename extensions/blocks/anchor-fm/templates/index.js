@@ -23,6 +23,40 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 	} ];
 }
 
+function podcastSection( { episodeTrack } ) {
+	const { image, link } = episodeTrack;
+
+	return [ 'core/columns', {
+		align: 'wide',
+	}, [
+		[ 'core/column', { width: '30%' }, [
+			[ 'core/image', {
+				url: image ? image : null,
+			} ],
+		] ],
+		[ 'core/column', { width: '70%' }, [
+			[ 'jetpack/podcast-player', {
+				customPrimaryColor: getIconColor(),
+				hexPrimaryColor: getIconColor(),
+				url: link,
+			} ],
+		] ],
+	] ];
+}
+
+function podcastSummarySection( { episodeTrack } ) {
+	return [ 'core/group', {}, [
+		[ 'core/heading', {
+			content: 'Summary',
+			placeholder: __( 'Podcast episode title', 'jetpack' ),
+		} ],
+		[ 'core/paragraph', {
+			placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			content: episodeTrack.description,
+		} ],
+	] ];
+}
+
 /*
  * Template parts
  */
@@ -31,39 +65,15 @@ function buildPlayerSection( {
 	spotifyImageUrl,
 	episodeTrack = {},
 } ) {
-	return [
-		// Podcast player section.
-		[ 'core/columns', {
-			align: 'wide',
-		}, [
-			[ 'core/column', { width: '30%' }, [
-				[ 'core/image', {
-					url: episodeTrack?.image ? episodeTrack.image : null,
-				} ],
-			] ],
-			[ 'core/column', { width: '70%' }, [
-				[ 'jetpack/podcast-player', {
-					customPrimaryColor: getIconColor(),
-					hexPrimaryColor: getIconColor(),
-					url: episodeTrack.link,
-				} ],
-			] ],
-		] ],
+	const tpl = [ podcastSection( { episodeTrack } ) ];
 
-		spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ),
+	if ( spotifyShowUrl && spotifyImageUrl ) {
+		tpl.push( spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) );
+	}
 
-		// Summary section.
-		[ 'core/group', {}, [
-			[ 'core/heading', {
-				content: 'Summary',
-				placeholder: __( 'Podcast episode title', 'jetpack' ),
-			} ],
-			[ 'core/paragraph', {
-				placeholder: __( 'Podcast episode summary', 'jetpack' ),
-				content: episodeTrack.description,
-			} ],
-		] ],
-	];
+	tpl.push( podcastSummarySection( { episodeTrack } ) );
+
+	return tpl;
 }
 
 export function basicTemplate( params ) {
@@ -71,5 +81,9 @@ export function basicTemplate( params ) {
 }
 
 export function spotifyBadgeTemplate( params ) {
+	if ( ! params.spotifyImageUrl || ! params.spotifyShowUrl ) {
+		return;
+	}
+
 	return createBlocksFromInnerBlocksTemplate( [ spotifyTemplate( params ) ] );
 }

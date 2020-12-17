@@ -23,34 +23,23 @@ import { basicTemplate, spotifyBadgeTemplate } from './templates';
  */
 import './editor.scss';
 
-async function insertTemplate( {
-	spotifyImageUrl,
-	spotifyShowUrl,
-	tpl,
-	episodeTrack
-} ) {
+async function insertTemplate( params ) {
 	await waitForEditor();
 
 	const { insertBlocks } = dispatch( 'core/block-editor' );
 
-	let templateBlocks = [];
-	switch ( tpl ) {
+	let templateBlocks;
+	switch ( params.tpl ) {
 		case 'sporifyBadge':
-			if ( spotifyImageUrl && spotifyShowUrl ) {
-				templateBlocks = spotifyBadgeTemplate( { spotifyShowUrl, spotifyImageUrl } );
-			}
+			templateBlocks = spotifyBadgeTemplate( params );
 		break;
 
 		case 'basicEpisode':
-			templateBlocks = basicTemplate( {
-				spotifyShowUrl,
-				spotifyImageUrl,
-				episodeTrack,
-			} );
+			templateBlocks = basicTemplate( params );
 		break;
 	}
 
-	if ( templateBlocks.length ) {
+	if ( templateBlocks?.length ) {
 		insertBlocks(
 			templateBlocks,
 			0,
