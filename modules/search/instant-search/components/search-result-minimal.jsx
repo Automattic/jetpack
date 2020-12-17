@@ -49,24 +49,24 @@ class SearchResultMinimal extends Component {
 			<div className="jetpack-instant-search__search-result-minimal-content">
 				{ noTags && <PathBreadcrumbs url={ this.props.result.fields[ 'permalink.url.raw' ] } /> }
 				{ tags.length !== 0 && (
-					<div className="jetpack-instant-search__search-result-minimal-tags">
+					<ul className="jetpack-instant-search__search-result-minimal-tags">
 						{ tags.map( tag => (
-							<span className="jetpack-instant-search__search-result-minimal-tag">
+							<li className="jetpack-instant-search__search-result-minimal-tag">
 								<Gridicon icon="tag" size={ this.getIconSize() } />
 								{ tag }
-							</span>
+							</li>
 						) ) }
-					</div>
+					</ul>
 				) }
 				{ cats.length !== 0 && (
-					<div className="jetpack-instant-search__search-result-minimal-cats">
+					<ul className="jetpack-instant-search__search-result-minimal-cats">
 						{ cats.map( cat => (
-							<span className="jetpack-instant-search__search-result-minimal-cat">
+							<li className="jetpack-instant-search__search-result-minimal-cat">
 								<Gridicon icon="folder" size={ this.getIconSize() } />
 								{ cat }
-							</span>
+							</li>
 						) ) }
-					</div>
+					</ul>
 				) }
 			</div>
 		);
