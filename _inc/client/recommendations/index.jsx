@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { CreativeMailQuestion } from './questions/creative-mail';
 import { MonitorQuestion } from './questions/monitor';
 import { RelatedPostsQuestion } from './questions/related-posts';
+import { Question } from './questions/question';
 import { SiteAcceleratorQuestion } from './questions/site-accelerator';
 import { SiteTypeQuestion } from './questions/site-type';
 import { WooCommerceQuestion } from './questions/woocommerce';
@@ -68,19 +69,19 @@ const RecommendationsComponent = props => {
 					<SiteTypeQuestion />
 				</Route>
 				<Route path="/recommendations/woocommerce">
-					<WooCommerceQuestion />
+					<Question stepSlug="woocommerce" />
 				</Route>
 				<Route path="/recommendations/monitor">
-					<MonitorQuestion />
+					<Question stepSlug="monitor" />
 				</Route>
 				<Route path="/recommendations/related-posts">
-					<RelatedPostsQuestion />
+					<Question stepSlug="related-posts" />
 				</Route>
 				<Route path="/recommendations/creative-mail">
-					<CreativeMailQuestion />
+					<Question stepSlug="creative-mail" />
 				</Route>
 				<Route path="/recommendations/site-accelerator">
-					<SiteAcceleratorQuestion />
+					<Question stepSlug="site-accelerator" />
 				</Route>
 				<Route path="/recommendations/summary">
 					<Summary />
