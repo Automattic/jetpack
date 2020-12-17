@@ -74,6 +74,12 @@
 		"php:lint:errors": "DEPRECATED. Use `composer phpcs:lint:errors` instead.",
 		"php:requirelist": "DEPRECATED. Use `composer phpcs:lint:required` and/or `composer phpcs:fix:required` instead."
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "projects/packages/*"
+		}
+	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
