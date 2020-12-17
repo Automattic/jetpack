@@ -66,29 +66,28 @@ describe( 'getSelectableFilterKeys', () => {
 } );
 
 describe( 'getUnselectableFilterKeys', () => {
-	test( 'defaults to an empty array on nullish inputs', () => {
-		expect( getUnselectableFilterKeys( null ) ).toEqual( [] );
-		expect( getUnselectableFilterKeys( undefined ) ).toEqual( [] );
+	test( 'defaults to getFilterKeys() value on nullish inputs', () => {
+		expect( getUnselectableFilterKeys( null ) ).toEqual( getFilterKeys( null, null ) );
+		expect( getUnselectableFilterKeys( undefined ) ).toEqual( getFilterKeys( null, null ) );
 	} );
-	test( 'extracts filter keys from widgets outside the search overlay sidebar', () => {
+	test( 'defaults to getFilterKeys() value on empty inputs', () => {
 		const widgets = [];
-		const widgetsOutsideOverlay = [ { filters: [ { type: 'taxonomy', taxonomy: 'post_tag' } ] } ];
-		expect( getUnselectableFilterKeys( widgets, widgetsOutsideOverlay ) ).toEqual( [ 'post_tag' ] );
+		expect( getUnselectableFilterKeys( widgets ) ).toEqual( getFilterKeys( null, null ) );
 	} );
-	test( 'excludes filter keys included in widgets inside the search overlay sidebar', () => {
+	test( 'excludes filter keys included by widgets inside the search overlay sidebar', () => {
 		const widgets = [
 			{ filters: [ { type: 'taxonomy', taxonomy: 'post_tag' } ] },
 			{ filters: [ { type: 'date_histogram', field: 'post_date', interval: 'year' } ] },
 			{ filters: [ { type: 'post_type' } ] },
 		];
-		const widgetsOutsideOverlay = [
-			{
-				filters: [
-					{ type: 'taxonomy', taxonomy: 'category' },
-					{ type: 'taxonomy', taxonomy: 'post_tag' },
-				],
-			},
-		];
-		expect( getUnselectableFilterKeys( widgets, widgetsOutsideOverlay ) ).toEqual( [ 'category' ] );
+		expect( getUnselectableFilterKeys( widgets ) ).toEqual( [
+			'month_post_date',
+			'month_post_date_gmt',
+			'month_post_modified',
+			'month_post_modified_gmt',
+			'year_post_date_gmt',
+			'year_post_modified',
+			'year_post_modified_gmt',
+		] );
 	} );
 } );

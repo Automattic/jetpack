@@ -127,15 +127,14 @@ export function getFilterQuery( filterKey ) {
 }
 
 // These filter keys have been activated/selected outside of the overlay sidebar
-export function getPreselectedFilterKeys() {
-	return getUnselectableFilterKeys().filter(
+export function getPreselectedFilterKeys( overlayWidgets ) {
+	return getUnselectableFilterKeys( overlayWidgets ).filter(
 		key => Array.isArray( getFilterQueryByKey( key ) ) && getFilterQueryByKey( key ).length > 0
 	);
 }
 
-// First parameter is ignored; it's there to preserve the function signature.
-export function getPreselectedFilters( _, widgetsOutsideOverlay ) {
-	const keys = getPreselectedFilterKeys();
+export function getPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ) {
+	const keys = getPreselectedFilterKeys( widgetsInOverlay );
 	return widgetsOutsideOverlay
 		.map( widget => widget.filters )
 		.reduce( ( prev, current ) => prev.concat( current ), [] )
