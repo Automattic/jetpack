@@ -1,0 +1,20 @@
+{
+	"slug": "participant-0",
+	"list": [
+		{
+			"participantSlug": "participant-0",
+			"participant": "Participant 1",
+			"hasBoldStyle": true
+		},
+		{
+			"participantSlug": "participant-1",
+			"participant": "Participant 2",
+			"hasBoldStyle": true
+		},
+		{
+			"participantSlug": "participant-2",
+			"participant": "Participant 3",
+			"hasBoldStyle": true
+		}
+	]
+}
