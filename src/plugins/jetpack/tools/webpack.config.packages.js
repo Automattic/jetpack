@@ -1,21 +1,22 @@
 const path = require( 'path' );
+const packagesFolder = path.resolve( path.dirname( path.dirname( path.dirname( __dirname ) ) ), 'packages/lazy-images/src/js' )
 
 module.exports = [
 	{
 		mode: 'production',
-		context: path.resolve( __dirname, 'packages/lazy-images/src/js' ),
+		context: packagesFolder,
 		entry: './lazy-images.js',
 		output: {
-			path: path.resolve( __dirname, 'packages/lazy-images/src/js' ),
+			path: packagesFolder,
 			filename: 'lazy-images.min.js',
 		},
 	},
 	{
 		mode: 'production',
-		context: path.resolve( __dirname, 'packages/lazy-images/src/js' ),
+		context: packagesFolder,
 		entry: './intersectionobserver-polyfill.js',
 		output: {
-			path: path.resolve( __dirname, 'packages/lazy-images/src/js' ),
+			path: packagesFolder,
 			filename: 'intersectionobserver-polyfill.min.js',
 		},
 	},
