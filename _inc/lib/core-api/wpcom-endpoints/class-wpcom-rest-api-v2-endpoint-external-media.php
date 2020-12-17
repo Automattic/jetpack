@@ -277,7 +277,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 		switch ( wp_remote_retrieve_response_code( $response ) ) {
 			case 200:
-				$response = json_decode( wp_remote_retrieve_body( $response ) );
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
 				break;
 
 			case 401:
@@ -356,21 +356,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$wpcom_path = sprintf( '/meta/external-media/connection/%s', $service );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
-			$request->set_query_params( $request->get_params() );
+			$internal_request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
 
-			return rest_do_request( $request );
+			return rest_do_request( $internal_request );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user( $wpcom_path );
-		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( isset( $response->code, $response->message, $response->data ) ) {
-			$response->data = empty( $response->data->status ) ? array( 'status' => $response->data ) : $response->data;
-			$response       = new WP_Error( $response->code, $response->message, $response->data );
-		}
-
-		return $response;
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
@@ -384,10 +378,10 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$wpcom_path = sprintf( '/meta/external-media/connection/%s', $service );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$request = new WP_REST_Request( REQUESTS::DELETE, '/' . $this->namespace . $wpcom_path );
-			$request->set_query_params( $request->get_params() );
+			$internal_request = new WP_REST_Request( REQUESTS::DELETE, '/' . $this->namespace . $wpcom_path );
+			$internal_request->set_query_params( $request->get_params() );
 
-			return rest_do_request( $request );
+			return rest_do_request( $internal_request );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
@@ -397,14 +391,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'method' => REQUESTS::DELETE,
 			)
 		);
-		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( isset( $response->code, $response->message, $response->data ) ) {
-			$response->data = empty( $response->data->status ) ? array( 'status' => $response->data ) : $response->data;
-			$response       = new WP_Error( $response->code, $response->message, $response->data );
-		}
-
-		return $response;
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**

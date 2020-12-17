@@ -62,6 +62,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * Test that the checksum values between implementations are the same
 	 */
 	function test_all_checksums_match() {
+		$this->markTestSkipped( 'Not a Valid E2E test.' );
 		$post           = self::$factory->post( 5 );
 		$second_post    = self::$factory->post( 10 );
 		$comment        = self::$factory->comment( 3, $post->ID );

@@ -146,7 +146,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'count'    => array(
-					'description' => 'Plugin/Theme update count or unread comments count.',
+					'description' => 'Core/Plugin/Theme update count or unread comments count.',
 					'type'        => 'integer',
 				),
 				'icon'     => array(
@@ -158,6 +158,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				),
 				'children' => array(
 					'items' => array(
+						'count'  => array(
+							'description' => 'Core/Plugin/Theme update count or unread comments count.',
+							'type'        => 'integer',
+						),
 						'parent' => array(
 							'type' => 'string',
 						),
@@ -213,21 +217,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		$item = array(
 			'icon'  => $this->prepare_menu_item_icon( $menu_item[6] ),
 			'slug'  => sanitize_title_with_dashes( $menu_item[2] ),
-			'title' => wptexturize( $menu_item[0] ),
+			'title' => $menu_item[0],
 			'type'  => 'menu-item',
 			'url'   => $this->prepare_menu_item_url( $menu_item[2] ),
 		);
 
-		if ( false !== strpos( $menu_item[0], 'count-' ) ) {
-			preg_match( '/class="(.+\s)?count-(\d*)/', $menu_item[0], $matches );
-
-			$count = absint( $matches[2] );
-			if ( $count > 0 ) {
-				$item['count'] = $count;
-			}
-
-			// Remove count badge HTML from title.
-			$item['title'] = wptexturize( trim( substr( $menu_item[0], 0, strpos( $menu_item[0], '<' ) ) ) );
+		$update_count = $this->parse_update_count( $item['title'] );
+		if ( ! empty( $update_count ) ) {
+			$item = array_merge( $item, $update_count );
 		}
 
 		return $item;
@@ -247,10 +244,15 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$item = array(
 				'parent' => sanitize_title_with_dashes( $menu_item[2] ),
 				'slug'   => sanitize_title_with_dashes( $submenu_item[2] ),
-				'title'  => wptexturize( $submenu_item[0] ),
+				'title'  => $submenu_item[0],
 				'type'   => 'submenu-item',
 				'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
 			);
+
+			$update_count = $this->parse_update_count( $item['title'] );
+			if ( ! empty( $update_count ) ) {
+				$item = array_merge( $item, $update_count );
+			}
 		}
 
 		return $item;
@@ -316,6 +318,33 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Parses the update count from a given menu item title and removes the associated markup.
+	 *
+	 * "Plugin" and "Updates" menu items have a count badge when there are updates available.
+	 * This method parses that information and adds it to the response.
+	 *
+	 * @param string $title Title to parse.
+	 * @return array
+	 */
+	private function parse_update_count( $title ) {
+		$item = array();
+
+		if ( false !== strpos( $title, 'count-' ) ) {
+			preg_match( '/class="(.+\s)?count-(\d*)/', $title, $matches );
+
+			$count = absint( $matches[2] );
+			if ( $count > 0 ) {
+				$item['count'] = $count;
+			}
+
+			// Remove count badge HTML from title.
+			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
+		}
+
+		return $item;
 	}
 }
 
