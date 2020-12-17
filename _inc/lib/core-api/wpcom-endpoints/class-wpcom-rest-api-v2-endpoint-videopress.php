@@ -74,7 +74,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	}
 
 	/**
-	 * Updates video metadata via the WPCOM REST API.
+	 * Updates attachment meta and video metadata via the WPCOM REST API.
 	 *
 	 * @param WP_REST_Request $request the request object.
 	 * @return object|WP_Error Success object or WP_Error with error details.
@@ -117,6 +117,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		$response_body = json_decode( wp_remote_retrieve_body( $result ) );
 		if ( is_bool( $response_body ) && $response_body ) {
+
+			if ( isset( $json_params['display_embed'] ) ) {
+				$meta['videopress']['display_embed'] = $json_params['display_embed'];
+			}
+
+			if ( isset( $json_params['rating'] ) ) {
+				$meta['videopress']['rating'] = $json_params['rating'];
+			}
+
+			wp_update_attachment_metadata( $post_id, $meta );
+
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
