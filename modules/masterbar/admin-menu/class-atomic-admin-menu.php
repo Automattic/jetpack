@@ -69,7 +69,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$icon    = get_site_icon_url( 32, $default );
 
 		$badge = '';
-		if ( site_is_private() ) {
+		if ( function_exists( 'site_is_private' ) && site_is_private() ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
 				site_is_coming_soon() ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
