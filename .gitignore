@@ -34,7 +34,7 @@ tests/php/files/jetpack-150x150.jpg
 yarn-error.log
 .phpcs.xml
 phpcs.xml
-/src/plugins/jetpack/modules/**/*.min.css.map
+/projects/plugins/jetpack/modules/**/*.min.css.map
 .phpunit.result.cache
 
 ## Things for docker-composer
