@@ -1081,7 +1081,7 @@ class Jetpack_Gutenberg {
 			// enabled during block registration.
 			if (
 				$enable_frontend_preview &&
-				self::should_show_frontend_preview( $bare_slug )
+				self::should_show_frontend_preview_for_block( $bare_slug )
 			) {
 				$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 				$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
