@@ -15,7 +15,7 @@ vendor/automattic/jetpack-autoloader
 /logs
 /allure-results/
 
-/src/plugins/**/node_modules/
+/projects/plugins/**/node_modules/
 
 ### Jetpack plugin
 /projects/plugins/jetpack/vendor
