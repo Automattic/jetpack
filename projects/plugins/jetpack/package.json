@@ -41,7 +41,7 @@
 		"docker:clean": "yarn docker:compose down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
 		"docker:compose": "yarn docker:env && yarn docker:compose-volumes && yarn docker:compose-extras && docker-compose -f docker/docker-compose.yml -f docker/compose-volumes.built.yml -f docker/compose-extras.yml",
 		"docker:compose-extras": "[ -f docker/compose-extras.yml ] || cp docker/compose-extras.yml.sample docker/compose-extras.yml",
-		"docker:compose-volumes": "[ -f docker/compose-volumes.yml ] || cp docker/compose-volumes.yml.sample docker/compose-volumes.yml; bash ./bin/compose-volumes.sh docker/compose-volumes.yml > docker/compose-volumes.built.yml",
+		"docker:compose-volumes": "[ -f docker/compose-volumes.yml ] || cp docker/compose-volumes.yml.sample docker/compose-volumes.yml; bash ./tools/compose-volumes.sh docker/compose-volumes.yml > docker/compose-volumes.built.yml",
 		"docker:db": "yarn docker:compose exec wordpress bash -c \"mysql --defaults-group-suffix=docker\"",
 		"docker:down": "yarn docker:compose down",
 		"docker:env": "node -e \"require('fs').createWriteStream( 'docker/.env', { flags: 'a' } );\"",
