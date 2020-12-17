@@ -226,11 +226,10 @@ const VideoPressEdit = CoreVideoEdit =>
 					rating: rating,
 				},
 			} )
-				.then( success => {
-					if ( ! success ) {
-						this.setState( { rating: originalRating } );
-					}
+				.then( () => {
+					// do nothing, request succeeded!
 				} )
+				.catch( () => this.setState( { rating: originalRating } ) ) // revert the setting since update failed
 				.finally( () => this.setState( { isUpdatingRating: false } ) );
 		};
 
