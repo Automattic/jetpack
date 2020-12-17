@@ -75,6 +75,11 @@
 		background: $masterbar-highlight-background;
 	}
 
+	// Masterbar - Notification active background
+	#wpadminbar .ab-top-menu > li.wpnt-show > .ab-item {
+		background: $masterbar-active-background !important; // important used in masterbar.css
+	}
+
 	// Site Card - Border around Site Card
 	#adminmenu li.toplevel_page_site-card {
 		border-color: $nav-unification-sidebar-border;
