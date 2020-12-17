@@ -60,7 +60,7 @@ function podcastSummarySection( { episodeTrack } ) {
 /*
  * Template parts
  */
-function buildPlayerSection( {
+function episodeBasicTemplate( {
 	spotifyShowUrl,
 	spotifyImageUrl,
 	episodeTrack = {},
@@ -77,7 +77,7 @@ function buildPlayerSection( {
 }
 
 export function basicTemplate( params ) {
-	return createBlocksFromInnerBlocksTemplate( buildPlayerSection( params ) );
+	return createBlocksFromInnerBlocksTemplate( episodeBasicTemplate( params ) );
 }
 
 export function spotifyBadgeTemplate( params ) {
