@@ -12,6 +12,8 @@ use Automattic\Jetpack\Status;
 
 echo 'hello world.';
 
+// this should fail from a different test though
+
 /**
  * Wrapper function to safely register a gutenberg block type
  *
