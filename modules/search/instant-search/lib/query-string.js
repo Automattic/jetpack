@@ -133,6 +133,7 @@ export function getPreselectedFilterKeys() {
 	);
 }
 
+// First parameter is ignored; it's there to preserve the function signature.
 export function getPreselectedFilters( _, widgetsOutsideOverlay ) {
 	const keys = getPreselectedFilterKeys();
 	return widgetsOutsideOverlay
