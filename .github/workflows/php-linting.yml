@@ -30,7 +30,7 @@ jobs:
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
-              - 'bin/phpcs-excludelist.txt'
+              - 'bin/phpcs-excludelist.json'
               # If other files used by this workflow changed, run it to test those changes.
               - 'bin/parallel-lint.sh'
               - '.github/files/php-linting-phpcs.xml'
@@ -40,12 +40,11 @@ jobs:
 
       - id: filter2
         shell: bash
+        env:
+          PHP_FILES: ${{ steps.filter.outputs.php_files }}
         run: |
-          printf '::set-output name=php_excluded_files::%s\n' $(
-          jq -r '.[]' <<'EOF' | grep -Fx -f bin/phpcs-excludelist.txt | jq -nRc '[ inputs ]'
-          ${{ steps.filter.outputs.php_files }}
-          EOF
-          )
+          EXCLUDED_FILES=$(jq --slurpfile excludes bin/phpcs-excludelist.json -nc '$ENV.PHP_FILES | fromjson | . - (. - $excludes[0])')
+          echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
 
       # When the `lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.
       - name: Hack around Github bug when skipping required matrixed jobs
