@@ -47,6 +47,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	return $block_content;
 
 	if ( true ) {
 		return "<div>Log in</div>";

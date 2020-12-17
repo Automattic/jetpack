@@ -29,7 +29,7 @@ import {
 	PanelColorSettings,
 	ContrastChecker,
 } from '@wordpress/block-editor';
-import { withDispatch, useDispatch, useSelect } from '@wordpress/data';
+import { withDispatch, useSelect } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
 import { isURL, prependHTTP } from '@wordpress/url';
 
@@ -46,6 +46,7 @@ import { makeCancellable } from './utils';
 import { fetchPodcastFeed } from './api';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
+import { STORE_ID } from '../../store/media-player';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -76,6 +77,7 @@ const PodcastPlayerEdit = ( {
 	isSelected,
 	replaceWithEmbedBlock,
 	registerMediaSource,
+	unregisterMediaSource,
 } ) => {
 	// Validated attributes.
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
@@ -90,33 +92,40 @@ const PodcastPlayerEdit = ( {
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
-
-	const { isPlaying, position, isPlayerRegistered } = useSelect( select => {
-		const selector = select( 'jetpack/media-player-connector' );
-		return {
-			isPlaying: selector.isPlayingById( playerId ),
-			position: selector.getPositionById( playerId ),
-			isPlayerRegistered: selector.isPlayerRegistered( playerId ),
-		};
-	}, [] );
-
-	if ( ! isPlayerRegistered ) {
-		registerMediaSource( playerId, {
-			isPlaying: false,
-			position: 0,
-			current: true,
-		} );
-	}
-
-	// console.log( 'isPlaying: ', isPlaying );
-	console.log( 'position: ', position );
-
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ feedData, setFeedData ] = useState( exampleFeedData || {} );
 	const cancellableFetch = useRef();
 	const [ isInteractive, setIsInteractive ] = useState( false );
+
+	const isPodcastPlayerLoaded = !! feedData?.tracks?.length;
+
+	useEffect( () => {
+		if ( ! isPodcastPlayerLoaded ) {
+			return;
+		}
+
+		registerMediaSource( playerId, {
+			isPlaying: false,
+			position: 0,
+			meta: {
+				url,
+			}
+		} );
+
+		return () => {
+			unregisterMediaSource( playerId );
+		};
+	}, [ unregisterMediaSource, isPodcastPlayerLoaded, playerId, registerMediaSource, url ] );
+
+	const { isPlaying, position } = useSelect( select => {
+		const selector = select( STORE_ID );
+		return {
+			isPlaying: selector.isPlayingById( playerId ),
+			position: selector.getPositionById( playerId ),
+		};
+	}, [] );
 
 	const fetchFeed = useCallback(
 		urlToFetch => {
@@ -396,13 +405,13 @@ export default compose( [
 					} )
 				);
 			},
-			registerMediaSource( playerId) {
-				dispatch( 'jetpack/media-player-connector' ).registerMediaSource( playerId, {
-					isPlaying: false,
-					position: 0,
-					current: true,
-				} );
-			}
+			registerMediaSource( playerId, metadata ) {
+				dispatch( STORE_ID ).registerMediaSource( playerId, metadata );
+			},
+
+			unregisterMediaSource( playerId ) {
+				dispatch( STORE_ID ).unregisterMediaSource( playerId );
+			},
 		};
 	} ),
 	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),

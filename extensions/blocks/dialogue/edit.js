@@ -22,7 +22,7 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 } from '@wordpress/components';
-import { useContext, useState, useCallback } from '@wordpress/element';
+import { useContext, useState } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
@@ -37,6 +37,8 @@ import TimeStampControl, { TimeStampDropdown } from './components/time-stamp-con
 import ConversationContext from '../conversation/components/context';
 import { defaultParticipants, defaultParticipantSlug } from '../conversation/edit';
 import { formatUppercase, controlForwardFive, controlBackFive } from '../../shared/icons';
+
+import { STORE_ID } from '../../store/media-player';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find( participants, ( contextParticipant ) => contextParticipant.participantSlug === slug );
@@ -73,7 +75,6 @@ export default function DialogueEdit ( {
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimeStampGlobally = context[ 'jetpack/conversation-showtimestamp' ];
-
 
 	// Participants list.
 	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
@@ -153,17 +154,19 @@ export default function DialogueEdit ( {
 		transcritionBridge.setAttributes( { showTimeStamp: value } );
 	}
 
-	const { isPlaying, position } = useSelect( select => {
-		const selector = select( 'jetpack/media-player-connector' );
-		return {
-			isPlaying: selector.isPlaying(),
-			position: selector.getPosition(),
-		};
-	}, [] );
+	// const { isPlaying, position } = useSelect( select => {
+	// 	const selector = select( STORE_ID );
+	// 	return {
+	// 		isPlaying: selector.isPlaying(),
+	// 		position: selector.getPosition(),
+	// 	};
+	// }, [] );
+
+	const isPlaying = false;
 
 	// Register new media source
-	// const { play, stop, toggle } = useDispatch( 'jetpack/media-player-connector' );
-	const { toggle, moveBack, moveForward } = useDispatch( 'jetpack/media-player-connector' );
+	// const { play, stop, toggle } = useDispatch( STORE_ID );
+	const { toggle, moveBack, moveForward } = useDispatch( STORE_ID );
 	// const playAudio = useCallback( () => play( player.id ), [ player, play ] );
 	// const stopAudio = () => stop( player.id );
 	// const togglePlaying = useCallback( () => toggle( player.id ), [ player, toggle ] );

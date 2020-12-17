@@ -1,7 +1,9 @@
 /**
  * WordPress dependencies
  */
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, registerStore, register } from '@wordpress/data';
+
+console.log( 'registerStore: ', registerStore );
 
 /**
  * Internal dependencies
@@ -17,12 +19,31 @@ const DEFAULT_STATE = {
     players: {},
 };
 
+function getDefaultPlayerId( state ) {
+	if ( state?.current ) {
+		return state.current;
+	}
+
+	if ( Object.keys( state.players )?.length ) {
+		return Object.keys( state.players )?.[ 0 ];
+	}
+
+	return null;
+}
+
 const actions = {
 	registerMediaSource( id, playerState ) {
 		return {
 			type: 'REGISTER_MEDIA_PLAYER',
 			id,
 			playerState,
+		};
+	},
+
+	unregisterMediaSource( id ) {
+		return {
+			type: 'UNREGISTER_MEDIA_PLAYER',
+			id,
 		};
 	},
 
@@ -64,27 +85,30 @@ const actions = {
 	}
 };
 
-function getDefaultPlayerId( state ) {
-	if ( state?.current ) {
-		return state.current;
-	}
+const selectors = {
+	isPlaying( state ) {
+		const id = getDefaultPlayerId( state );
+		return state.players[ id ]?.isPlaying;
+	},
 
-	if ( Object.keys( state?.players )?.length ) {
-		return Object.keys( state.players )?.[ 0 ];
-	}
+	getPosition( state ) {
+		const id = getDefaultPlayerId( state );
+		return state.players[ id ]?.position;
+	},
 
-	return null;
-}
+	isPlayingById( state, id ) {
+		return state.players?.[ id ]?.isPlaying;
+	},
 
-const store = createReduxStore( STORE_ID, {
+	getPositionById( state, id ) {
+		return state.players?.[ id ]?.position;
+	},
+};
+
+const storeDefinition = {
     reducer( state = DEFAULT_STATE, action ) {
         switch ( action.type ) {
 			case 'REGISTER_MEDIA_PLAYER':
-				if ( state.players[ action?.id ] ) {
-					// do not re-register.
-					return state;
-				}
-
 				return {
 					...state,
 					current: action?.playerState?.current ? action.id : state.current,
@@ -93,6 +117,14 @@ const store = createReduxStore( STORE_ID, {
 						[ action.id ]: { id: action.id, ...action.playerState, current: undefined },
 					},
 				};
+
+			case 'UNREGISTER_MEDIA_PLAYER':
+				// eslint-disable-next-line no-case-declarations
+				const currentState = Object.assign( {}, state );
+				if ( currentState.players[ action.id ] ) {
+					delete currentState.players[ action.id ];
+				}
+				return currentState;
 
 			case 'PLAY_MEDIA':
 				return {
@@ -172,25 +204,12 @@ const store = createReduxStore( STORE_ID, {
 
     actions,
 
-    selectors: {
-		isPlaying( state ) {
-			const id = getDefaultPlayerId( state );
-            return state?.players[ id ]?.isPlaying;
-		},
+    selectors,
+};
 
-		getPosition( state ) {
-			const id = getDefaultPlayerId( state );
-            return state?.players[ id ]?.position;
-		},
-
-		isPlayingById( state, id ) {
-            return state?.players[ id ]?.isPlaying;
-		},
-
-		getPositionById( state, id ) {
-            return state?.players[ id ]?.position;
-		},
-    },
-} );
-
-register( store );
+if ( typeof createReduxStore !== 'undefined' ) {
+	const store = createReduxStore( STORE_ID, storeDefinition );
+	register( store );
+} else {
+	registerStore( STORE_ID, storeDefinition );
+}
