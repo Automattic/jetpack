@@ -29,7 +29,7 @@ GET_VERSION_SCRIPT="`pwd`/tools/get-version.sh"
 TARGET_BRANCH=${1:-master}
 TARGET_REPO=${2:-"Automattic/jetpack"}
 TARGET_DIR=${3:-"/tmp/jetpack"}
-JETPACK_DIR=${4:-"/tmp/jetpack/projects/plugins/jetpack"}
+JETPACK_DIR=${4:-"$TARGET_DIR/projects/plugins/jetpack"}
 
 [ "$1" = "--" ] && shift
 
@@ -45,6 +45,11 @@ git clone \
     --no-single-branch \
     git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
+
+echo "!!!!!"
+echo $TARGET_BRANCH
+ls -la $TARGET_DIR
+ls -la $JETPACK_DIR
 
 cd $JETPACK_DIR
 
