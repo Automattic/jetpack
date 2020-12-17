@@ -200,7 +200,7 @@ export default function DialogueEdit ( {
 						<ToggleControl
 							label={ isCustomParticipant
 								? __( 'Show', 'jetpack' )
-								: __( 'Show conversation timestamps' )
+								: __( 'Show conversation timestamps', 'jetpack' )
 							}
 							checked={ showTimestamp }
 							onChange={ setShowTimestamp }
