@@ -31,11 +31,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$this->rest_base . '/meta',
 			array(
 				'args'                => array(
-					'guid'          => array(
-						'description'       => __( 'The VideoPress video guid.', 'jetpack' ),
-						'type'              => 'string',
+					'id'            => array(
+						'description'       => __( 'The post id for the attachment.', 'jetpack' ),
+						'type'              => 'int',
 						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param );
+						},
 					),
 					'title'         => array(
 						'description'       => __( 'The title of the video.', 'jetpack' ),
@@ -79,6 +81,21 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 */
 	public function videopress_block_update_meta( $request ) {
 		$json_params = $request->get_json_params();
+		$post_id     = $json_params['id'];
+		$meta        = wp_get_attachment_metadata( $post_id );
+
+		if ( ! $meta ) {
+			return rest_ensure_response(
+				new WP_Error(
+					'error',
+					__( 'An attachment with the provided id was not found', 'jetpack' )
+				)
+			);
+		}
+
+		$video_request_params = $json_params;
+		unset( $video_request_params['id'] );
+		$video_request_params['guid'] = $meta['videopress']['guid'];
 
 		$endpoint = 'videos';
 		$args     = array(
@@ -90,7 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$endpoint,
 			'2',
 			$args,
-			wp_json_encode( $json_params ),
+			wp_json_encode( $video_request_params ),
 			'wpcom'
 		);
 

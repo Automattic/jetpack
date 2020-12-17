@@ -205,10 +205,10 @@ const VideoPressEdit = CoreVideoEdit =>
 		};
 
 		onChangeRating = rating => {
-			const { guid } = this.props.attributes;
+			const { id } = this.props.attributes;
 			const originalRating = this.state.rating;
 
-			if ( ! guid ) {
+			if ( ! id ) {
 				return;
 			}
 
@@ -222,7 +222,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				path: '/wpcom/v2/videopress/meta',
 				method: 'POST',
 				data: {
-					guid: guid,
+					id: id,
 					rating: rating,
 				},
 			} )
