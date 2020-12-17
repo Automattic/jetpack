@@ -19,7 +19,7 @@
 		"build-client": "gulp",
 		"build-concurrently": "yarn install-if-deps-outdated && yarn clean && yarn concurrently 'yarn build-client' 'yarn build-php' 'yarn build-extensions' 'yarn build-search' 'yarn build-packages'",
 		"build-extensions": "webpack --config ./webpack.config.extensions.js",
-		"build-jetpack": "cd src/plugins/jetpack && yarn build",
+		"build-jetpack": "cd projects/plugins/jetpack && yarn build",
 		"build-packages": "webpack --config ./webpack.config.packages.js",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && yarn build-production-extensions && yarn build-production-search && yarn build-production-packages",
