@@ -9,10 +9,14 @@
 - ./wordpress:/var/www/html
 
 ## Jetpack plugin. You probably don't want to delete this either.
-- ..:/var/www/html/wp-content/plugins/jetpack
+- ../../projects/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
+
+## Jetpack packages. Don't delete this either.
+## It is super hacky. The symlink is jetpack-autoloader -> ../../../../packages/autoloader so we're putting it in the same place.
+- ../../projects/packages:/var/www/html/wp-content/packages
 
 ## Must Use Plugins directory. See docker/README.md
 - ./mu-plugins:/var/www/html/wp-content/mu-plugins
 
 ## Jetpack Debug Helper plugin.
-- ../packages/debug-helper:/var/www/html/wp-content/plugins/jetpack-debug-helper
+- ../../projects/packages/debug-helper:/var/www/html/wp-content/plugins/jetpack-debug-helper
