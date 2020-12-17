@@ -23,8 +23,9 @@ describe( 'getFilterKeys', () => {
 		expect( getFilterKeys( null, undefined ) ).toEqual( DEFAULT_KEYS );
 	} );
 
-	test( 'includes taxonomies from widget configurations', () => {
+	test( 'includes taxonomies from widget configurations without duplicates', () => {
 		const widgets = [
+			{ filters: [ { type: 'taxonomy', taxonomy: 'category' } ] },
 			{ filters: [ { type: 'taxonomy', taxonomy: 'category' } ] },
 			{ filters: [ { type: 'date_histogram', field: 'post_date', interval: 'year' } ] },
 			{ filters: [ { type: 'post_type' } ] },

@@ -29,13 +29,15 @@ export function getFilterKeys(
 	widgetsOutsideOverlay = window[ SERVER_OBJECT_NAME ]?.widgetsOutsideOverlay
 ) {
 	// Extract taxonomy names from server widget data
-	const taxonomies = [ ...( widgets ?? [] ), ...( widgetsOutsideOverlay ?? [] ) ]
+	const keys = new Set( FILTER_KEYS );
+	[ ...( widgets ?? [] ), ...( widgetsOutsideOverlay ?? [] ) ]
 		.map( w => w.filters )
 		.filter( filters => Array.isArray( filters ) )
 		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
 		.filter( filter => filter.type === 'taxonomy' )
-		.map( filter => filter.taxonomy );
-	return [ ...FILTER_KEYS, ...( taxonomies ?? [] ) ];
+		.forEach( filter => keys.add( filter.taxonomy ) );
+
+	return [ ...keys ];
 }
 
 // These filter keys are selectable from sidebar filters
