@@ -42,19 +42,15 @@ export function getFilterKeys(
 
 // These filter keys are selectable from sidebar filters
 export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
-	return extractFilterKeysFromConfiguration( widgets );
+	return (
+		widgets?.map( extractFilters ).reduce( ( prev, current ) => prev.concat( current ), [] ) ?? []
+	);
 }
 
 // These filter keys are not selectable from sidebar filters
 // In other words, they were selected via filters outside the search sidebar
 export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
 	return difference( getFilterKeys(), getSelectableFilterKeys( widgets ) );
-}
-
-function extractFilterKeysFromConfiguration( widgets ) {
-	return (
-		widgets?.map( extractFilters ).reduce( ( prev, current ) => prev.concat( current ), [] ) ?? []
-	);
 }
 
 function extractFilters( widget ) {
