@@ -22,9 +22,9 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - run:  |
+      - run: |
           yarn install
-          yarn lint
+          yarn jetpack:lint
 
 
   js-tests:
@@ -44,7 +44,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - run: |
           yarn install
-          yarn test-adminpage-and-extensions-and-search
+          yarn jetpack:test-js
 
 
   build:
@@ -63,4 +63,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: |
-          yarn build-concurrently
+          yarn jetpack:build
