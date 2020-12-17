@@ -39,7 +39,7 @@
 @media (min-width: 961px) {
 	.auto-fold .interface-interface-skeleton,
 	.auto-fold .edit-post-layout .components-editor-notices__snackbar {
-	  left: 272px;
+		left: 272px;
 	}
 }
 
