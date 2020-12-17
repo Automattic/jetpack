@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, mergeWith, remove, union } from 'lodash';
+import { assign, get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -320,7 +320,7 @@ export const getSummaryFeatureSlugs = state => {
 	];
 
 	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
-		isStepEligibleToShow( state, slug )
+		isFeatureEligibleToShowInSummary( state, slug )
 	);
 
 	const selected = [];
