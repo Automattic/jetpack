@@ -11,7 +11,11 @@ if [[ -n "$GITHUB_PATH" ]]; then
 	echo "$COMPOSER_BIN_DIR" >> $GITHUB_PATH
 fi
 
+# Don't symlink, it breaks when copied later.
+export COMPOSER_MIRROR_PATH_REPOS=true
+
 # Configure PHP and PHPUnit environment
+cd projects/plugins/jetpack
 if [[ ${PHP_VERSION:0:2} == "8." ]]; then
 	composer install --ignore-platform-reqs
 	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
@@ -27,6 +31,7 @@ elif [[ ${PHP_VERSION:0:2} == "5." ]]; then
 	composer install
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
 fi
+cd -
 
 # Setup MySQL
 cat <<EOF > ~/.my.cnf

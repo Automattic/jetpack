@@ -98,7 +98,7 @@ jobs:
               composer phpunit
             fi
             echo "::endgroup::"
-            cd ../..
+            cd -
           done
 
       - name: Legacy Full Sync tests
