@@ -13,7 +13,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{
 		entry: {}, // We'll override later
 		'output-filename': '[name].js',
-		'output-path': path.join( __dirname, '_inc', 'build' ),
+		'output-path': path.join( path.dirname( __dirname ), '_inc', 'build' ),
 	}
 );
 
@@ -21,7 +21,7 @@ const sharedWebpackConfig = {
 	...baseWebpackConfig,
 	resolve: {
 		...baseWebpackConfig.resolve,
-		modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
+		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
 	},
 	node: {
 		fs: 'empty',
@@ -37,7 +37,7 @@ module.exports = [
 		// Entry points point to the javascript module
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
-		entry: { admin: path.join( __dirname, './_inc/client/admin.js' ) },
+		entry: { admin: path.join( path.dirname( __dirname ), '_inc/client', 'admin.js' ) },
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
@@ -48,7 +48,7 @@ module.exports = [
 		// Entry points point to the javascript module
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
-		entry: { static: path.join( __dirname, './_inc/client/static.jsx' ) },
+		entry: { static: path.join( path.dirname( __dirname ), '_inc/client', 'static.jsx' ) },
 		output: {
 			...sharedWebpackConfig.output,
 			pathinfo: true,

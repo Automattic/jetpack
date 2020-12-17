@@ -22,8 +22,8 @@ const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin
 /**
  * Internal variables
  */
-const editorSetup = path.join( __dirname, 'extensions', 'editor' );
-const viewSetup = path.join( __dirname, 'extensions', 'view' );
+const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
+const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
 
 function blockScripts( type, inputDir, presetBlocks ) {
 	return presetBlocks
@@ -31,7 +31,7 @@ function blockScripts( type, inputDir, presetBlocks ) {
 		.filter( fs.existsSync );
 }
 
-const presetPath = path.join( __dirname, 'extensions', 'index.json' );
+const presetPath = path.join( path.dirname( __dirname ), 'extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = _.get( presetIndex, [ 'production' ], [] );
 const presetNoPostEditorBlocks = _.get( presetIndex, [ 'no-post-editor' ], [] );
@@ -45,7 +45,7 @@ const presetBetaBlocks = [ ...presetExperimentalBlocks, ..._.get( presetIndex, [
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join( __dirname, 'extensions', 'blocks', block, 'view.js' );
+	const viewScriptPath = path.join( path.dirname( __dirname ), 'extensions', 'blocks', block, 'view.js' );
 	if ( fs.existsSync( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
 	}
@@ -55,24 +55,24 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetProductionBlocks ),
+	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetProductionBlocks ),
 ];
 
 // Combines all the different Experimental blocks into one editor.js script
 const editorExperimentalScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetExperimentalBlocks ),
+	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetExperimentalBlocks ),
 ];
 
 // Combines all the different blocks into one editor-beta.js script
 const editorBetaScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetBetaBlocks ),
+	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetBetaBlocks ),
 ];
 
 const editorNoPostEditorScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetNoPostEditorBlocks ),
+	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetNoPostEditorBlocks ),
 ];
 
 const extensionsWebpackConfig = getBaseWebpackConfig(
@@ -86,7 +86,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			...viewBlocksScripts,
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
-		'output-path': path.join( __dirname, '_inc', 'blocks' ),
+		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 	}
 );
 
@@ -94,11 +94,11 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
 		entry: {
-			components: path.join( __dirname, './extensions/shared/components/index.jsx' ),
+			components: path.join( path.dirname( __dirname ), './extensions/shared/components/index.jsx' ),
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-library-target': 'commonjs2',
-		'output-path': path.join( __dirname, '_inc', 'blocks' ),
+		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
 		'output-pathinfo': true,
 	}
 );
@@ -124,7 +124,7 @@ module.exports = [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,
-				path.join( __dirname, './extensions/shared/i18n-to-php' )
+				path.join( path.dirname( __dirname ), './extensions/shared/i18n-to-php' )
 			),
 			new StaticSiteGeneratorPlugin( {
 				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.

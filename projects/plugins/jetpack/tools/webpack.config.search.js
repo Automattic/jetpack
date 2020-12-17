@@ -10,10 +10,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
-		entry: { search: path.join( __dirname, './modules/search/instant-search/index.jsx' ) },
+		entry: { search: path.join( path.dirname( __dirname ), './modules/search/instant-search/index.jsx' ) },
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
 		'output-filename': 'jp-search.bundle.js',
-		'output-path': path.join( __dirname, '_inc', 'build', 'instant-search' ),
+		'output-path': path.join( path.dirname( __dirname ), '_inc', 'build', 'instant-search' ),
 	}
 );
 
@@ -21,7 +21,7 @@ const sharedWebpackConfig = {
 	...baseWebpackConfig,
 	resolve: {
 		...baseWebpackConfig.resolve,
-		modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
+		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
 	},
 	node: {
 		fs: 'empty',
