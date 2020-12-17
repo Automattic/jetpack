@@ -313,27 +313,78 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_purchases_menu
+	 * Tests add_wpcom_upgrades_menu
 	 *
-	 * @covers ::add_purchases_menu
+	 * @covers ::add_wpcom_upgrades_menu
 	 */
-	public function test_add_purchases_menu() {
+	public function test_add_wpcom_upgrades_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_purchases_menu( static::$domain );
+		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
+		static::$admin_menu->add_upgrades_menu( static::$domain );
+		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
-		$purchases_menu_item = array(
-			'Purchases',
+		$slug = 'https://wordpress.com/plans/' . static::$domain;
+
+		$upgrades_menu_item = array(
+			'Upgrades',
 			'manage_options',
-			'https://wordpress.com/plans/' . static::$domain,
-			'Purchases',
+			$slug,
+			'Upgrades',
 			'menu-top toplevel_page_https://wordpress.com/plans/' . static::$domain,
 			'toplevel_page_https://wordpress.com/plans/' . static::$domain,
 			'dashicons-cart',
 		);
+		$this->assertSame( $menu['4.80608'], $upgrades_menu_item );
 
-		$this->assertSame( $menu['4.62024'], $purchases_menu_item );
-		$this->assertArrayNotHasKey( 'https://wordpress.com/plans/' . static::$domain, $submenu );
+		$plans_submenu_item = array(
+			'Plans',
+			'manage_options',
+			$slug,
+			'Plans',
+		);
+		$this->assertContains( $plans_submenu_item, $submenu[ $slug ] );
+
+		$domains_submenu_item = array(
+			'Domains',
+			'manage_options',
+			'https://wordpress.com/domains/manage/' . static::$domain,
+			'Domains',
+		);
+		$this->assertContains( $domains_submenu_item, $submenu[ $slug ] );
+
+		$purchases_submenu_item = array(
+			'Purchases',
+			'manage_options',
+			'https://wordpress.com/purchases/subscriptions/' . static::$domain,
+			'Purchases',
+		);
+		$this->assertContains( $purchases_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_jetpack_upgrades_menu
+	 *
+	 * @covers ::add_jetpack_upgrades_menu
+	 */
+	public function test_add_jetpack_upgrades_menu() {
+		global $menu, $submenu;
+
+		static::$admin_menu->add_upgrades_menu( static::$domain );
+
+		$slug = 'https://wordpress.com/plans/' . static::$domain;
+
+		$upgrades_menu_item = array(
+			'Upgrades',
+			'manage_options',
+			$slug,
+			'Upgrades',
+			'menu-top toplevel_page_https://wordpress.com/plans/' . static::$domain,
+			'toplevel_page_https://wordpress.com/plans/' . static::$domain,
+			'dashicons-cart',
+		);
+		$this->assertSame( $menu['4.80608'], $upgrades_menu_item );
+		$this->assertArrayNotHasKey( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu );
 	}
 
 	/**
@@ -775,7 +826,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertNotContains( 'options-discussion.php', $submenu['options-general.php'] );
 		$this->assertNotContains( 'options-writing.php', $submenu['options-general.php'] );
 
-		$this->assertContains( 'Domains', $submenu['options-general.php'][1] );
 		$this->assertContains( 'Hosting Configuration', $submenu['options-general.php'][6] );
 	}
 
