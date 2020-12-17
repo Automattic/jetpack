@@ -46,7 +46,8 @@ export function recordFailedSearchRequest( error ) {
 /**
  * Returns an action object used to initialize query value related reducers.
  *
- * @param {string} query - Inputted user query.
+ * @param {object} params - Input parameters.
+ * @param {object} params.defaultSort - Default sort value configured in the customizer.
  *
  * @returns {object} Action object.
  */
@@ -88,4 +89,3 @@ export function setSort( sort, propagateToWindow = true ) {
 		propagateToWindow,
 	};
 }
-
