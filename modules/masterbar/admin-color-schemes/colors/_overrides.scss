@@ -65,7 +65,8 @@
 	}
 
 	// Masterbar - My Sites active state
-	#wpadminbar .ab-top-menu > li.my-sites > .ab-item {
+	#wpadminbar .ab-top-menu > li.my-sites > .ab-item,
+	#wpadminbar .ab-top-menu > li.my-sites > .ab-item:hover {
 		background: $masterbar-active-background;
 	}
 
