@@ -14,6 +14,8 @@ import PostTypeIcon from './post-type-icon';
 import SearchResultComments from './search-result-comments';
 import './search-result-minimal.scss';
 
+const MAX_TAGS_OR_CATEGORIES = 5;
+
 class SearchResultMinimal extends Component {
 	getIconSize() {
 		return 18;
@@ -24,21 +26,26 @@ class SearchResultMinimal extends Component {
 		if ( ! tags ) {
 			return [];
 		}
+
 		if ( ! Array.isArray( tags ) ) {
 			tags = [ tags ];
 		}
-		return tags;
+
+		return tags.slice( 0, MAX_TAGS_OR_CATEGORIES );
 	}
 
 	getCategories() {
 		let cats = this.props.result.fields[ 'category.name.default' ];
+
 		if ( ! cats ) {
 			return [];
 		}
+
 		if ( ! Array.isArray( cats ) ) {
 			cats = [ cats ];
 		}
-		return cats;
+
+		return cats.slice( 0, MAX_TAGS_OR_CATEGORIES );
 	}
 
 	renderNoMatchingContent() {
