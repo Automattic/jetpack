@@ -75,13 +75,15 @@
 		background: $masterbar-highlight-background;
 	}
 
-	// Site Card
+	// Site Card - Border around Site Card
 	#adminmenu li.toplevel_page_site-card {
 		border-color: $nav-unification-sidebar-border;
-		
-		&:hover {
-			background: $menu-background;
-		}
+	}
+
+	// Site Card - Keep background the same color on hover
+	#adminmenu li.toplevel_page_site-card:hover,
+	#adminmenu li.toplevel_page_site-card a:hover {
+		background: $menu-background;
 	}
 
 	// Site Card - Site title
