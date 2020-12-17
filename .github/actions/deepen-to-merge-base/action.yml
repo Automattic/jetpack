@@ -37,5 +37,7 @@ runs:
       id: end
       shell: bash
       run: |
-        echo "::set-output name=merge-base::$( /usr/bin/git merge-base HEAD ${{ inputs.branch }} )"
+        MERGE_BASE=$( /usr/bin/git merge-base HEAD ${{ inputs.branch }} )
+        echo "Merge base is $MERGE_BASE"
+        echo "::set-output name=merge-base::$MERGE_BASE"
 
