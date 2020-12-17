@@ -15,6 +15,17 @@ vendor/automattic/jetpack-autoloader
 /logs
 /allure-results/
 
+/src/plugins/**/node_modules/
+
+### Jetpack plugin
+/src/plugins/jetpack/vendor
+/src/plugins/jetpack/_inc/blocks
+/src/plugins/jetpack/_inc/build
+/src/plugins/jetpack/modules/**/*.min.css
+/src/plugins/jetpack/modules/**/*-rtl.css
+/src/plugins/jetpack/css
+/src/plugins/jetpack/modules/**/*/block.js
+
 ## FILES
 .DS_Store
 *.code-workspace
