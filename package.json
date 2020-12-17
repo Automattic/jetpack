@@ -14,12 +14,12 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build-jetpack": "cd src/plugins/jetpack && yarn build",
 		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='!(docker|node_modules|tests|tools|vendor){*.php,**/*.php}'",
 		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php && yarn build-extensions && yarn build-search && yarn build-packages",
 		"build-client": "gulp",
 		"build-concurrently": "yarn install-if-deps-outdated && yarn clean && yarn concurrently 'yarn build-client' 'yarn build-php' 'yarn build-extensions' 'yarn build-search' 'yarn build-packages'",
 		"build-extensions": "webpack --config ./webpack.config.extensions.js",
+		"build-jetpack": "cd src/plugins/jetpack && yarn build",
 		"build-packages": "webpack --config ./webpack.config.packages.js",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-client && yarn build-production-php && yarn build-production-extensions && yarn build-production-search && yarn build-production-packages",
@@ -90,10 +90,10 @@
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "node bin/pre-commit-hook.js",
-			"prepare-commit-msg": "node bin/prepare-commit-msg.js",
-			"post-checkout": "./bin/post-merge-checkout-hook.sh",
-			"post-merge": "./bin/post-merge-checkout-hook.sh"
+			"pre-commit": "node tools/pre-commit-hook.js",
+			"prepare-commit-msg": "node tools/prepare-commit-msg.js",
+			"post-checkout": "./tools/post-merge-checkout-hook.sh",
+			"post-merge": "./tools/post-merge-checkout-hook.sh"
 		}
 	},
 	"browserslist": [
@@ -102,12 +102,12 @@
 	"resolutions": {
 		"**/@automattic/calypso-build/node-sass": "^4.13.1",
 		"**/gulp/gulp-cli/yargs/yargs-parser": "^20.0.0",
+		"**/ini": "1.3.7",
 		"**/lodash": "4.17.20",
 		"**/mkdirp/minimist": "^0.2.1",
 		"**/node-fetch": "^2.6.1",
 		"**/tar-stream/bl": "^4.0.0",
-		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0",
-		"**/ini": "1.3.7"
+		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "6.1.0",
