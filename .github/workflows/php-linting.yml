@@ -43,7 +43,7 @@ jobs:
         env:
           PHP_FILES: ${{ steps.filter.outputs.php_files }}
         run: |
-          EXCLUDED_FILES=$(jq --slurpfile excludes bin/phpcs-excludelist.json -nc '$ENV.PHP_FILES | fromjson | . - (. - $excludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes bin/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
 
       # When the `lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.
