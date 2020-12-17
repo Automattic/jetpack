@@ -108,7 +108,7 @@ jobs:
             composer install
             phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $GITHUB_WORKSPACE/coverage/package-$NAME/clover.xml
             echo "::endgroup::"
-            cd ../..
+            cd -
           done
 
       - name: Process coverage results
