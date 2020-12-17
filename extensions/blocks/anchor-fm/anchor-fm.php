@@ -116,6 +116,19 @@ function process_anchor_params() {
 								'title' => $track['title'],
 							),
 						);
+
+						$data['actions'][] = array(
+							'insert-episode-template',
+							array(
+								'track' => $track,
+								'badge' => ! is_null( $spotify_show_url )
+									? array(
+										'image' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
+										'url'   => $spotify_show_url,
+									)
+									: false,
+							),
+						);
 					}
 				}
 			}
