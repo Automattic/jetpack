@@ -89,6 +89,14 @@ function process_anchor_params() {
 		'actions' => array(),
 	);
 
+	// add / update Spotify Badge URL.
+	if ( ! empty( $spotify_show_url ) ) {
+		$data['spotifyShowUrl'] = $spotify_show_url;
+		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
+			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
+		}
+	}
+
 	if ( ! empty( $podcast_id ) ) {
 		$feed           = 'https://anchor.fm/s/' . $podcast_id . '/podcast/rss';
 		$podcast_helper = new Jetpack_Podcast_Helper( $feed );
@@ -114,18 +122,15 @@ function process_anchor_params() {
 		}
 	}
 
-	if ( ! empty( $spotify_show_url ) && empty ( $epi)) {
-		$data['spotifyShowUrl'] = $spotify_show_url;
-		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
-			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
-			$data['actions'][] = array(
-				'insert-spotify-badge',
-				array(
-					'image' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
-					'url'   => $spotify_show_url,
-				),
-			);
-		}
+	// Insert Spotify Badge action.
+	if ( ! empty( $spotify_show_url ) ) {
+		$data['actions'][] = array(
+			'insert-spotify-badge',
+			array(
+				'image' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
+				'url'   => $spotify_show_url,
+			),
+		);
 	}
 
 	// Display an outbound link after publishing a post (only to English-speaking users since Anchor
