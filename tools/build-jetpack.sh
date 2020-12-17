@@ -45,7 +45,7 @@ git clone \
     git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
 
-cd $TARGET_DIR
+cd $TARGET_DIR/projects/plugins/jetpack
 
 if [[ $ADD_BETA_VERSION -eq 1 ]]; then
     echo "Changing version of the Jetpack to reflect the latest changes.."
