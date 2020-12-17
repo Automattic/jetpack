@@ -15,12 +15,13 @@ use Automattic\Jetpack\Status;
 class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
-	 * Atomic_Admin_Menu constructor.
+	 * Sets up class properties for REST API requests.
 	 */
-	protected function __construct() {
-		parent::__construct();
+	public function rest_api_init() {
+		parent::rest_api_init();
 
-		$this->is_api_request = defined( 'REST_API_PLUGINS' ) && REST_API_PLUGINS;
+		// Get domain for requested site.
+		$this->domain = ( new Status() )->get_site_suffix();
 	}
 
 	/**

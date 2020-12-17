@@ -25,7 +25,7 @@ class Admin_Menu {
 	 *
 	 * @var bool
 	 */
-	protected $is_api_request;
+	protected $is_api_request = false;
 
 	/**
 	 * Domain of the current site.
@@ -42,9 +42,9 @@ class Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		add_action( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
-		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST;
-		$this->domain         = ( new Status() )->get_site_suffix();
+		$this->domain = ( new Status() )->get_site_suffix();
 	}
 
 	/**
@@ -63,10 +63,20 @@ class Admin_Menu {
 	}
 
 	/**
+	 * Sets up class properties for REST API requests.
+	 */
+	public function rest_api_init() {
+		$this->is_api_request = true;
+	}
+
+	/**
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		$this->is_api_request = ( defined( 'REST_API_PLUGINS' ) && REST_API_PLUGINS ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		// Constant is not defined until parse_request.
+		if ( ! $this->is_api_request ) {
+			$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST;
+		}
 
 		/**
 		 * Whether links should point to Calypso or wp-admin.
