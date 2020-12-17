@@ -16,20 +16,11 @@ export COMPOSER_MIRROR_PATH_REPOS=true
 
 # Configure PHP and PHPUnit environment
 cd projects/plugins/jetpack
+composer install
 if [[ ${PHP_VERSION:0:2} == "8." ]]; then
-	composer install --ignore-platform-reqs
 	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
-elif [[ ${PHP_VERSION:0:3} == "7.0" ]]; then
-	composer remove sirbrillig/phpcs-changed automattic/jetpack-codesniffer --dev
-	composer install
-	composer global require "phpunit/phpunit=6.5.*" --no-suggest
-elif [[ ${PHP_VERSION:0:2} == "7." ]]; then
-	composer install
-	composer global require "phpunit/phpunit=7.5.*" --no-suggest
-elif [[ ${PHP_VERSION:0:2} == "5." ]]; then
-	composer remove sirbrillig/phpcs-changed automattic/jetpack-codesniffer --dev
-	composer install
-	composer global require "phpunit/phpunit=5.7.*" --no-suggest
+else
+	composer global require "phpunit/phpunit=5.7.* || 6.5.* || 7.5.*"
 fi
 cd -
 
