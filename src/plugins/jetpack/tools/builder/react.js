@@ -13,7 +13,7 @@ import sourcemaps from 'gulp-sourcemaps';
 import webpack from 'webpack';
 
 function getWebpackConfig() {
-	return require( './../../webpack.config.js' );
+	return require( './../webpack.config.js' );
 }
 
 export const watch = function () {
