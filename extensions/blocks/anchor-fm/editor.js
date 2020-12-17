@@ -6,7 +6,6 @@ import { castArray } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { external, Icon } from '@wordpress/icons';
@@ -17,6 +16,7 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import { waitForEditor } from '../../shared/wait-for-editor';
+import { spotifyBadgeTemplate } from './templates';
 
 /**
  * Style dependencies
@@ -29,16 +29,11 @@ async function insertSpotifyBadge( { image, url } ) {
 	}
 
 	await waitForEditor();
-	dispatch( 'core/block-editor' ).insertBlock(
-		createBlock( 'core/image', {
-			url: image,
-			linkDestination: 'none',
-			href: url,
-			align: 'center',
-			width: 165,
-			height: 40,
-			className: 'is-spotify-podcast-badge',
-		} ),
+
+	const { insertBlocks } = dispatch( 'core/block-editor' );
+
+	insertBlocks(
+		spotifyBadgeTemplate( { spotifyShowUrl: url, spotifyImageUrl: image } ),
 		0,
 		undefined,
 		false
