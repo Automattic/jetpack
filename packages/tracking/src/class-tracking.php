@@ -50,6 +50,44 @@ class Tracking {
 	}
 
 	/**
+	 * Universal method for for all tracking events triggered via the JavaScript client.
+	 *
+	 * @access public
+	 */
+	public function ajax_tracks() {
+		// Check for nonce.
+		if (
+			empty( $_REQUEST['tracksNonce'] )
+			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' )
+		) {
+			wp_send_json_error(
+				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				403
+			);
+		}
+
+		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] ) ) {
+			wp_send_json_error(
+				__( 'No valid event name or type.', 'jetpack' ),
+				403
+			);
+		}
+
+		$tracks_data = array();
+		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
+			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
+				$tracks_data = $_REQUEST['tracksEventProp'];
+			} else {
+				$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
+			}
+		}
+
+		$this->record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
+
+		wp_send_json_success();
+	}
+
+	/**
 	 * Enqueue script necessary for tracking.
 	 */
 	public function enqueue_tracks_scripts() {
