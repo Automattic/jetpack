@@ -33,6 +33,9 @@ delete_option( 'jetpack_auto_installed' );
 delete_option( 'jetpack_register'       );
 delete_transient( 'jetpack_register'    );
 
+// This is a change that fails phpcs
+echo "hello world.";
+
 // Delete sync options
 //
 // Do not initialize any listeners.

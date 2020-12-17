@@ -10,6 +10,9 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
+// This file was fully in sync. So it should get really mad here
+echo "hello world.";
+
 /**
  * Wrapper function to safely register a gutenberg block type
  *
