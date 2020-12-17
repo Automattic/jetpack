@@ -24,7 +24,7 @@ export function setQuery( queryObject ) {
 	pushQueryString( encode( queryObject ) );
 }
 
-function pushQueryString( queryString ) {
+function pushQueryString( queryString, shouldEmitEvent = true ) {
 	if ( history.pushState ) {
 		const url = new window.URL( window.location.href );
 		if ( window[ SERVER_OBJECT_NAME ] && 'homeUrl' in window[ SERVER_OBJECT_NAME ] ) {
