@@ -212,18 +212,11 @@ jobs:
 
     steps:
       # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
-      # So fetch an arbitrary 10 revisions, then deepen until merge-base succeeds.
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
-      - run: |
-          depth=10
-          /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ github.event.pull_request.base.sha }}
-          while ! git merge-base HEAD ${{ github.event.pull_request.base.sha }} >/dev/null 2>&1; do
-            depth=$((depth * 2))
-            /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }}
-          done
+      - uses: ./.github/actions/deepen-to-merge-base
 
       - uses: shivammathur/setup-php@v2
         with:
