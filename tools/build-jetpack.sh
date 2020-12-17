@@ -41,15 +41,10 @@ fi
 
 git clone \
     --branch $TARGET_BRANCH \
-    --depth 1000 \
+    --depth 1 \
     --no-single-branch \
     git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
-
-echo "!!!!!"
-echo $TARGET_BRANCH
-ls -la $TARGET_DIR
-ls -la $JETPACK_DIR
 
 cd $JETPACK_DIR
 
@@ -91,10 +86,12 @@ yarn --cwd $JETPACK_DIR run build-production-concurrently
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore
-for file in $( cat "$TARGET_DIR/.svnignore" 2>/dev/null ); do
+for file in $( cat "$JETPACK_DIR/.svnignore" 2>/dev/null ); do
     if [[ $file == "to-test.md" || $file == "docs/testing/testing-tips.md" ]]; then
         continue
     fi
+
+	echo "removing $JETPACK_DIR/$file"
     rm -rf $JETPACK_DIR/$file
 done
 echo "Done!"
