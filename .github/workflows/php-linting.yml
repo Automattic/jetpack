@@ -30,9 +30,9 @@ jobs:
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
-              - 'bin/phpcs-excludelist.json'
+              - 'tools/phpcs-excludelist.json'
               # If other files used by this workflow changed, run it to test those changes.
-              - 'bin/parallel-lint.sh'
+              - 'tools/parallel-lint.sh'
               - '.github/files/php-linting-phpcs.xml'
               - '.github/matchers/phpcs-problem-matcher.json'
               - '.github/matchers/php-lint-problem-matcher.json'
@@ -43,7 +43,7 @@ jobs:
         env:
           PHP_FILES: ${{ steps.filter.outputs.php_files }}
         run: |
-          EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes bin/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes tools/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
 
       # When the `lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.

@@ -89,9 +89,8 @@ jobs:
 
       - name: Package tests
         if: matrix.wp == 'latest'
-        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: |
-          for PACKAGE in ./packages/*/tests/php; do
+          for PACKAGE in ./projects/packages/*/tests/php; do
             cd "$PACKAGE/../.."
             NAME=$(basename $(pwd))
             echo "::group::Package $NAME"

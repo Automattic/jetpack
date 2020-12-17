@@ -46,7 +46,7 @@ master)
 	git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
 	;;
 latest)
-	git clone --depth=1 --branch $(php ./tests/get-wp-version.php) git://develop.git.wordpress.org/ /tmp/wordpress-latest
+	git clone --depth=1 --branch $(php ./tools/get-wp-version.php) git://develop.git.wordpress.org/ /tmp/wordpress-latest
 	;;
 previous)
 	git clone --depth=1 --branch 5.5 git://develop.git.wordpress.org/ /tmp/wordpress-previous
@@ -59,8 +59,7 @@ if [ $clone_exit_code -ne 0 ]; then
 	exit 1
 fi
 
-cd ..
-cp -r jetpack "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
+cp -r projects/plugins/jetpack "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack"
 # Plugin dir for tests in WP >= 5.6-beta1
 ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/jetpack" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/jetpack"
 cd /tmp/wordpress-$WP_BRANCH

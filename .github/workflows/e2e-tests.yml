@@ -57,7 +57,7 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         yarn test-decrypt-config
-        ./tests/e2e/bin/env.sh start
+        ./projects/plugins/jetpack/tests/e2e/bin/env.sh start
 
     - name: Run tests
       if: matrix.gutenberg == 'no'
@@ -79,4 +79,4 @@ jobs:
         tar -zxf allure.tgz -C /opt/
         sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
 
-        ./tests/e2e/bin/push-allure-artifacts.sh
+        ./projects/plugins/jetpack/tests/e2e/bin/push-allure-artifacts.sh
