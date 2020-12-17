@@ -123,7 +123,7 @@ function process_anchor_params() {
 	}
 
 	// Insert Spotify Badge action.
-	if ( ! empty( $spotify_show_url ) ) {
+	if ( ! empty( $spotify_show_url ) && is_null( $episode_id ) ) {
 		$data['actions'][] = array(
 			'insert-spotify-badge',
 			array(
