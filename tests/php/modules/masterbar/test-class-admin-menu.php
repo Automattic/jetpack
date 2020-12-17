@@ -313,14 +313,16 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_upgrades_menu
+	 * Tests add_wpcom_upgrades_menu
 	 *
-	 * @covers ::add_upgrades_menu
+	 * @covers ::add_wpcom_upgrades_menu
 	 */
-	public function test_add_upgrades_menu() {
+	public function test_add_wpcom_upgrades_menu() {
 		global $menu, $submenu;
 
+		add_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 		static::$admin_menu->add_upgrades_menu( static::$domain );
+		remove_filter( 'jetpack_admin_menu_is_wpcom', '__return_true' );
 
 		$slug = 'https://wordpress.com/plans/' . static::$domain;
 
@@ -358,6 +360,31 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Purchases',
 		);
 		$this->assertContains( $purchases_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_jetpack_upgrades_menu
+	 *
+	 * @covers ::add_jetpack_upgrades_menu
+	 */
+	public function test_add_jetpack_upgrades_menu() {
+		global $menu, $submenu;
+
+		static::$admin_menu->add_upgrades_menu( static::$domain );
+
+		$slug = 'https://wordpress.com/plans/' . static::$domain;
+
+		$upgrades_menu_item = array(
+			'Upgrades',
+			'manage_options',
+			$slug,
+			'Upgrades',
+			'menu-top toplevel_page_https://wordpress.com/plans/' . static::$domain,
+			'toplevel_page_https://wordpress.com/plans/' . static::$domain,
+			'dashicons-cart',
+		);
+		$this->assertSame( $menu['4.80608'], $upgrades_menu_item );
+		$this->assertArrayNotHasKey( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu );
 	}
 
 	/**
