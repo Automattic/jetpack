@@ -33,9 +33,9 @@ vendor/automattic/jetpack-autoloader
 /.env
 /tools/docker/compose-extras.yml
 /tools/docker/compose-volumes.yml
-/tools//docker/compose-volumes.built.yml
+/tools/docker/compose-volumes.built.yml
 # File for personal customiziations, if desired.
-/tools//docker/mu-plugins/0-sandbox.php
+/tools/docker/mu-plugins/0-sandbox.php
 .idea
 *.iml
 npm-debug.log
@@ -45,7 +45,7 @@ tests/php/files/jetpack-150x150.jpg
 yarn-error.log
 .phpcs.xml
 phpcs.xml
-/src/plugins/jetpack/modules/**/*.min.css.map
+/projects/plugins/jetpack/modules/**/*.min.css.map
 .phpunit.result.cache
 
 ## Things for docker-composer
