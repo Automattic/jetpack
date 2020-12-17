@@ -29,8 +29,9 @@ async function insertTemplate( params ) {
 	const { insertBlocks } = dispatch( 'core/block-editor' );
 
 	let templateBlocks;
+
 	switch ( params.tpl ) {
-		case 'sporifyBadge':
+		case 'spotifyBadge':
 			templateBlocks = spotifyBadgeTemplate( params );
 		break;
 
