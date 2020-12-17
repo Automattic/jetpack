@@ -1,22 +1,22 @@
 <?php
 /**
- * Tests for WPcom_Admin_Menu class.
+ * Tests for Atomic_Admin_Menu class.
  *
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu;
+use Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu;
 use Automattic\Jetpack\Status;
 
 require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
-require_jetpack_file( 'modules/masterbar/admin-menu/class-wpcom-admin-menu.php' );
+require_jetpack_file( 'modules/masterbar/admin-menu/class-atomic-admin-menu.php' );
 
 /**
- * Class Test_WPcom_Admin_Menu.
+ * Class Test_Atomic_Admin_Menu.
  *
- * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu
+ * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu
  */
-class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
+class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 	/**
 	 * Menu data fixture.
@@ -49,7 +49,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Admin menu instance.
 	 *
-	 * @var WPcom_Admin_Menu
+	 * @var Atomic_Admin_Menu
 	 */
 	public static $admin_menu;
 
@@ -73,10 +73,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$menu_data    = $menu;
 		static::$submenu_data = $submenu;
 		static::$domain       = ( new Status() )->get_site_suffix();
-		static::$is_wpcom     = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
 		static::$user_id    = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$admin_menu = WPcom_Admin_Menu::get_instance();
+		static::$admin_menu = Atomic_Admin_Menu::get_instance();
 	}
 
 	/**
@@ -107,9 +106,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::__construct
 	 */
 	public function test_get_instance() {
-		$instance = WPcom_Admin_Menu::get_instance();
+		$instance = Atomic_Admin_Menu::get_instance();
 
-		$this->assertInstanceOf( WPcom_Admin_Menu::class, $instance );
+		$this->assertInstanceOf( Atomic_Admin_Menu::class, $instance );
 		$this->assertSame( $instance, static::$admin_menu );
 
 		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
@@ -124,10 +123,11 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_site_card_menu() {
 		global $menu;
 
-		if ( ! static::$is_wpcom ) {
-			$this->markTestSkipped( 'Only used on WP.com.' );
+		if ( ! function_exists( 'site_is_private' ) ) {
+			function site_is_private() { // phpcs:ignore
+				return false;
+			}
 		}
-
 		static::$admin_menu->add_site_card_menu();
 
 		$home_url            = home_url();
@@ -158,8 +158,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_set_site_card_menu_class() {
 		global $menu;
 
-		if ( ! static::$is_wpcom ) {
-			$this->markTestSkipped( 'Only used on WP.com.' );
+		if ( ! function_exists( 'site_is_private' ) ) {
+			function site_is_private() { // phpcs:ignore
+				return false;
+			}
 		}
 
 		static::$admin_menu->add_site_card_menu();
@@ -262,57 +264,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_plugins_menu
-	 *
-	 * @covers ::add_plugins_menu
-	 */
-	public function test_add_plugins_menu() {
-		global $menu, $submenu;
-
-		add_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-		static::$admin_menu->add_plugins_menu( static::$domain );
-		remove_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-
-		$slug  = 'https://wordpress.com/plugins/' . static::$domain;
-		$label = is_multisite() ? 'Plugins ' : 'Plugins <span class="update-plugins count-0"><span class="plugin-count">0</span></span>';
-
-		$plugins_menu_item = array(
-			$label,
-			'activate_plugins',
-			$slug,
-			'Plugins',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-plugins',
-		);
-
-		$this->assertEquals( $plugins_menu_item, $menu[65] );
-		$this->assertArrayNotHasKey( 'plugins.php', $submenu );
-
-		$editor_submenu_item = array(
-			'Plugin Editor',
-			'edit_plugins',
-			'plugin-editor.php',
-		);
-		$this->assertNotContains( $editor_submenu_item, $submenu[ $slug ] );
-	}
-
-	/**
-	 * Filters the returned array of update data for plugins, themes, and WordPress core.
-	 */
-	public function mock_update_data() {
-		return array(
-			'counts' => array(
-				'plugins'      => 0,
-				'themes'       => 0,
-				'translations' => 0,
-				'wordpress'    => 0,
-			),
-			'title'  => '',
-		);
-	}
-
-	/**
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
@@ -326,25 +277,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu( true );
 
-		$profile_menu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-			'menu-top toplevel_page_https://wordpress.com/me',
-			'toplevel_page_https://wordpress.com/me',
-			'dashicons-admin-users',
-		);
-		$this->assertSame( $menu[70], $profile_menu_item );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu['https://wordpress.com/me'] );
-		$this->assertArrayNotHasKey( 'profile.php', $submenu );
+		$this->assertEmpty( $menu );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );
