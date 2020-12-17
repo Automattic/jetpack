@@ -26,10 +26,10 @@ MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
 COMMIT_MESSAGE=$( echo "${MONOREPO_COMMIT_MESSAGE}\n\nCommitted via a GitHub action: https://github.com/automattic/jetpack/runs/${GITHUB_RUN_ID}" )
 COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
 
-echo "Cloning folders in /packages and pushing to Automattic package repos"
+echo "Cloning folders in projects/packages and pushing to Automattic package repos"
 
 # sync to read-only clones
-for package in packages/*; do
+for package in projects/packages/*; do
 	[ -d "$package" ] || continue # We are only interested in directories (i.e. packages)
 
 	cd $BASE
@@ -62,9 +62,9 @@ for package in packages/*; do
 
 	find . | grep -v ".git" | grep -v "^\.*$" | xargs rm -rf # delete all files (to handle deletions in monorepo)
 
-	echo "  Copying from ${BASE}/packages/${NAME}/."
+	echo "  Copying from ${BASE}/projects/packages/${NAME}/."
 
-	cp -r $BASE/packages/$NAME/. .
+	cp -r $BASE/projects/packages/$NAME/. .
 
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
 	if $COMPOSER_JSON_EXISTED && [ ! -f "composer.json" ]; then

@@ -4,7 +4,7 @@ on:
     branches:
       - master # Every time a PR is merged to master.
     paths:
-      - 'packages/**' # Only when package files are modified.
+      - 'projects/packages/**' # Only when package files are modified.
 
 jobs:
   update_package:
