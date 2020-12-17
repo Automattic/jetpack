@@ -179,11 +179,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
 	 */
 	public function add_tools_menu( $calypso = true ) {
-		parent::add_tools_menu( $calypso );
 		$menu_slug = $calypso ? 'https://wordpress.com/marketing/tools/' . $this->domain : 'tools.php';
 
 		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
 		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 10 );
+
+		parent::add_tools_menu( $calypso );
 	}
 
 	/**
@@ -192,8 +193,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
 	 */
 	public function add_options_menu( $calypso = true ) {
-		parent::add_options_menu( $calypso );
-
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
+
+		parent::add_options_menu( $calypso );
 	}
 }
