@@ -111,21 +111,18 @@ function AudioPlayer( {
 	// If we get lots of events from clicking on the progress bar in the MediaElement
 	// then we can get stuck in a loop. We can so by debouncing here we wait until the
 	// next tick before acting on the playStatus prop value changing.
-	useEffect(
-		() => {
-			// Get the current status of the audio element and the required action to toggle it.
-			const [ audioStatus, action ] =
-				audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
-			const debouncedAction = debounce( action, 100 );
-			if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
-				debouncedAction();
-			}
-			return () => {
-				debouncedAction.cancel();
-			};
-		},
-		[ audioRef, playStatus, trackSource ]
-	);
+	useEffect( () => {
+		// Get the current status of the audio element and the required action to toggle it.
+		const [ audioStatus, action ] =
+			audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
+		const debouncedAction = debounce( action, 100 );
+		if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
+			debouncedAction();
+		}
+		return () => {
+			debouncedAction.cancel();
+		};
+	}, [ audioRef, playStatus, trackSource ] );
 
 	useEffect( () => {
 		if ( ! onTimeChange ) {
@@ -138,7 +135,7 @@ function AudioPlayer( {
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
-			audio?.removeEventListener( onTimeUpdate );
+			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
 	}, [ audioRef, onTimeChange ] );
 
