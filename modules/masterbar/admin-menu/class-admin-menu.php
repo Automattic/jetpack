@@ -270,7 +270,11 @@ class Admin_Menu {
 
 		add_menu_page( __( 'Upgrades', 'jetpack' ), __( 'Upgrades', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-cart', 4 );
 		add_submenu_page( $menu_slug, __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', $menu_slug, null, 1 );
-		add_submenu_page( $menu_slug, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $domain, null, 2 );
+
+		if ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) {
+			add_submenu_page( $menu_slug, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $domain, null, 2 );
+		}
+
 		add_submenu_page( $menu_slug, __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $domain, null, 3 );
 
 		$this->migrate_submenus( 'paid-upgrades.php', 'https://wordpress.com/plans/' . $domain );
