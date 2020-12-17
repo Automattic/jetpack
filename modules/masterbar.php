@@ -27,7 +27,7 @@ new Admin_Color_Schemes();
  * @use add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
  * @module masterbar
  *
- * @since 9.2.0
+ * @since 9.3.0
  *
  * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
  */

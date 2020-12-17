@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
+use Exception;
+use WP_Error;
+
 /**
  * An implementation of Replicastore Interface which returns data stored in a WordPress.org DB.
  * This is useful to compare values in the local WP DB to values in the synced replica store
@@ -266,8 +270,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
-		global $wpdb;
-		return $this->table_checksum( $wpdb->posts, Defaults::$default_post_checksum_columns, 'ID', Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'posts', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -280,8 +283,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
-		global $wpdb;
-		return $this->table_checksum( $wpdb->postmeta, Defaults::$default_post_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_post_meta_sql(), $min_id, $max_id );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'postmeta', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -506,8 +508,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comments_checksum( $min_id = null, $max_id = null ) {
-		global $wpdb;
-		return $this->table_checksum( $wpdb->comments, Defaults::$default_comment_checksum_columns, 'comment_ID', Settings::get_comments_filter_sql(), $min_id, $max_id );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'comments', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -520,23 +521,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @return int The checksum.
 	 */
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
-		global $wpdb;
-		return $this->table_checksum( $wpdb->commentmeta, Defaults::$default_comment_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_comment_meta_sql(), $min_id, $max_id );
-	}
-
-	/**
-	 * Retrieve the checksum for all options.
-	 *
-	 * @access public
-	 *
-	 * @return int The checksum.
-	 */
-	public function options_checksum() {
-		global $wpdb;
-		$options_whitelist = "'" . implode( "', '", Defaults::$default_options_whitelist ) . "'";
-		$where_sql         = "option_name IN ( $options_whitelist )";
-
-		return $this->table_checksum( $wpdb->options, Defaults::$default_option_checksum_columns, null, $where_sql, null, null );
+		return $this->summarize_checksum_histogram( $this->checksum_histogram( 'commentmeta', null, $min_id, $max_id ) );
 	}
 
 	/**
@@ -1102,7 +1087,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param \WP_User $user User object.
 	 */
@@ -1115,7 +1100,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -1128,7 +1113,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $local   The user locale.
@@ -1142,7 +1127,7 @@ class Replicastore implements Replicastore_Interface {
 	 * Not supported in this replicastore.
 	 *
 	 * @access public
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -1183,45 +1168,37 @@ class Replicastore implements Replicastore_Interface {
 	 * @return array Checksums.
 	 */
 	public function checksum_all() {
-		$post_meta_checksum    = $this->checksum_histogram( 'post_meta', 1 );
-		$comment_meta_checksum = $this->checksum_histogram( 'comment_meta', 1 );
+		$post_checksum               = $this->checksum_histogram( 'posts' );
+		$comments_checksum           = $this->checksum_histogram( 'comments' );
+		$post_meta_checksum          = $this->checksum_histogram( 'postmeta' );
+		$comment_meta_checksum       = $this->checksum_histogram( 'commentmeta' );
+		$terms_checksum              = $this->checksum_histogram( 'terms' );
+		$term_relationships_checksum = $this->checksum_histogram( 'term_relationships' );
+		$term_taxonomy_checksum      = $this->checksum_histogram( 'term_taxonomy' );
 
 		return array(
-			'posts'        => $this->posts_checksum(),
-			'comments'     => $this->comments_checksum(),
-			'post_meta'    => reset( $post_meta_checksum ),
-			'comment_meta' => reset( $comment_meta_checksum ),
+			'posts'              => $this->summarize_checksum_histogram( $post_checksum ),
+			'comments'           => $this->summarize_checksum_histogram( $comments_checksum ),
+			'post_meta'          => $this->summarize_checksum_histogram( $post_meta_checksum ),
+			'comment_meta'       => $this->summarize_checksum_histogram( $comment_meta_checksum ),
+			'terms'              => $this->summarize_checksum_histogram( $terms_checksum ),
+			'term_relationships' => $this->summarize_checksum_histogram( $term_relationships_checksum ),
+			'term_taxonomy'      => $this->summarize_checksum_histogram( $term_taxonomy_checksum ),
 		);
 	}
 
 	/**
-	 * Retrieve the columns that are needed to calculate a checksum for an object type.
+	 * Return the summarized checksum from buckets or the WP_Error.
 	 *
-	 * @access public
+	 * @param array $histogram checksum_histogram result.
 	 *
-	 * @todo Refactor to not use interpolated values and prepare the SQL query.
-	 *
-	 * @param string $object_type Object type.
-	 * @return array|bool Columns, or false if invalid object type is specified.
+	 * @return int|WP_Error checksum or Error.
 	 */
-	public function get_checksum_columns_for_object_type( $object_type ) {
-		switch ( $object_type ) {
-			case 'posts':
-				return Defaults::$default_post_checksum_columns;
-			case 'post_meta':
-				return Defaults::$default_post_meta_checksum_columns;
-			case 'comments':
-				return Defaults::$default_comment_checksum_columns;
-			case 'comment_meta':
-				return Defaults::$default_post_meta_checksum_columns;
-			case 'terms':
-				return Defaults::$default_term_checksum_columns;
-			case 'term_taxonomy':
-				return Defaults::$default_term_taxonomy_checksum_columns;
-			case 'term_relationships':
-				return Defaults::$default_term_relationships_checksum_columns;
-			default:
-				return false;
+	protected function summarize_checksum_histogram( $histogram ) {
+		if ( is_wp_error( $histogram ) ) {
+			return $histogram;
+		} else {
+			return array_sum( $histogram );
 		}
 	}
 
@@ -1265,185 +1242,78 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @todo Refactor to not use interpolated values and properly prepare the SQL query.
+	 * @param string $table              Object type.
+	 * @param null   $buckets            Number of buckets to split the objects to.
+	 * @param null   $start_id           Minimum object ID.
+	 * @param null   $end_id             Maximum object ID.
+	 * @param null   $columns            Table columns to calculate the checksum from.
+	 * @param bool   $strip_non_ascii    Whether to strip non-ASCII characters.
+	 * @param string $salt               Salt, used for $wpdb->prepare()'s args.
+	 * @param bool   $only_range_edges   Only return the range edges and not the actual checksums.
+	 * @param bool   $detailed_drilldown If the call should return a detailed drilldown for the checksum or only the checksum.
 	 *
-	 * @param string $object_type     Object type.
-	 * @param int    $buckets         Number of buckets to split the objects to.
-	 * @param int    $start_id        Minimum object ID.
-	 * @param int    $end_id          Maximum object ID.
-	 * @param array  $columns         Table columns to calculate the checksum from.
-	 * @param bool   $strip_non_ascii Whether to strip non-ASCII characters.
-	 * @param string $salt            Salt, used for $wpdb->prepare()'s args.
-	 * @return array The checksum histogram.
+	 * @return array|WP_Error The checksum histogram.
+	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
 	 */
-	public function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
+	public function checksum_histogram( $table, $buckets = null, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '', $only_range_edges = false, $detailed_drilldown = false ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
-
-		if ( empty( $columns ) ) {
-			$columns = $this->get_checksum_columns_for_object_type( $object_type );
+		try {
+			$checksum_table = new Table_Checksum( $table, $salt );
+		} catch ( Exception $ex ) {
+			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
 		}
 
-		switch ( $object_type ) {
-			case 'posts':
-				$object_count = $this->post_count( null, $start_id, $end_id );
-				$object_table = $wpdb->posts;
-				$id_field     = 'ID';
-				$where_sql    = Settings::get_blacklisted_post_types_sql();
-				break;
-			case 'post_meta':
-				$object_table = $wpdb->postmeta;
-				$where_sql    = Settings::get_whitelisted_post_meta_sql();
-				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
-				$id_field     = 'meta_id';
-				break;
-			case 'comments':
-				$object_count = $this->comment_count( null, $start_id, $end_id );
-				$object_table = $wpdb->comments;
-				$id_field     = 'comment_ID';
-				$where_sql    = Settings::get_comments_filter_sql();
-				break;
-			case 'comment_meta':
-				$object_table = $wpdb->commentmeta;
-				$where_sql    = Settings::get_whitelisted_comment_meta_sql();
-				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
-				$id_field     = 'meta_id';
-				break;
-			case 'terms':
-				$object_table = $wpdb->terms;
-				$object_count = $this->term_count();
-				$id_field     = 'term_id';
-				$where_sql    = '1=1';
-				break;
-			case 'term_taxonomy':
-				$object_table = $wpdb->term_taxonomy;
-				$object_count = $this->term_taxonomy_count();
-				$id_field     = 'term_taxonomy_id';
-				$where_sql    = '1=1';
-				break;
-			case 'term_relationships':
-				$object_table = $wpdb->term_relationships;
-				$object_count = $this->term_relationship_count();
-				$id_field     = 'object_id';
-				$where_sql    = '1=1';
-				break;
-			default:
-				return false;
+		// Validate / Determine Buckets.
+		if ( is_null( $buckets ) || $buckets < 1 ) {
+			$buckets = $this->calculate_buckets( $table, $start_id, $end_id );
 		}
+		if ( is_wp_error( $buckets ) ) {
+			return $buckets;
+		}
+
+		$range_edges = $checksum_table->get_range_edges( $start_id, $end_id );
+
+		if ( $only_range_edges ) {
+			return $range_edges;
+		}
+
+		$object_count = $range_edges['item_count'];
 
 		$bucket_size     = (int) ceil( $object_count / $buckets );
-		$previous_max_id = 0;
+		$previous_max_id = max( 0, $range_edges['min_range'] );
 		$histogram       = array();
 
-		// This is used for the min / max query, while $where_sql is used for the checksum query.
-		$where = $where_sql;
-
-		if ( $start_id ) {
-			$where .= " AND $id_field >= " . (int) $start_id;
-		}
-
-		if ( $end_id ) {
-			$where .= " AND $id_field <= " . (int) $end_id;
-		}
-
 		do {
-			$result = $this->get_min_max_object_id(
-				$id_field,
-				$object_table,
-				$where . " AND $id_field > $previous_max_id",
-				$bucket_size
-			);
+			$ids_range = $checksum_table->get_range_edges( $previous_max_id, null, $bucket_size );
 
-			if ( null === $result->min || null === $result->max ) {
+			if ( empty( $ids_range['min_range'] ) || empty( $ids_range['max_range'] ) ) {
 				// Nothing to checksum here...
 				break;
 			}
 
 			// Get the checksum value.
-			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $result->min, $result->max, $strip_non_ascii, $salt );
+			$batch_checksum = $checksum_table->calculate_checksum( $ids_range['min_range'], $ids_range['max_range'], null, $detailed_drilldown );
 
-			if ( is_wp_error( $value ) ) {
-				return $value;
+			if ( is_wp_error( $batch_checksum ) ) {
+				return $batch_checksum;
 			}
 
-			if ( null === $result->min || null === $result->max ) {
-				break;
-			} elseif ( $result->min === $result->max ) {
-				$histogram[ $result->min ] = $value;
+			if ( $ids_range['min_range'] === $ids_range['max_range'] ) {
+				$histogram[ $ids_range['min_range'] ] = $batch_checksum;
 			} else {
-				$histogram[ "{$result->min}-{$result->max}" ] = $value;
+				$histogram[ "{$ids_range[ 'min_range' ]}-{$ids_range[ 'max_range' ]}" ] = $batch_checksum;
 			}
 
-			$previous_max_id = $result->max;
+			$previous_max_id = $ids_range['max_range'] + 1;
+			// If we've reached the max_range lets bail out.
+			if ( $previous_max_id >= $range_edges['max_range'] ) {
+				break;
+			}
 		} while ( true );
 
 		return $histogram;
-	}
-
-	/**
-	 * Retrieve the checksum for a specific database table.
-	 *
-	 * @access private
-	 *
-	 * @todo Refactor to properly prepare the SQL query.
-	 *
-	 * @param string $table           Table name.
-	 * @param array  $columns         Table columns to calculate the checksum from.
-	 * @param int    $id_column       Name of the unique ID column.
-	 * @param string $where_sql       Additional WHERE clause SQL.
-	 * @param int    $min_id          Minimum object ID.
-	 * @param int    $max_id          Maximum object ID.
-	 * @param bool   $strip_non_ascii Whether to strip non-ASCII characters.
-	 * @param string $salt            Salt, used for $wpdb->prepare()'s args.
-	 * @return int|\WP_Error The table histogram, or \WP_Error on failure.
-	 */
-	private function table_checksum( $table, $columns, $id_column, $where_sql = '1=1', $min_id = null, $max_id = null, $strip_non_ascii = true, $salt = '' ) {
-		global $wpdb;
-
-		// Sanitize to just valid MySQL column names.
-		$sanitized_columns = preg_grep( '/^[0-9,a-z,A-Z$_]+$/i', $columns );
-
-		if ( $strip_non_ascii ) {
-			$columns_sql = implode( ',', array_map( array( $this, 'strip_non_ascii_sql' ), $sanitized_columns ) );
-		} else {
-			$columns_sql = implode( ',', $sanitized_columns );
-		}
-
-		if ( null !== $min_id && null !== $max_id ) {
-			if ( $min_id === $max_id ) {
-				$min_id     = (int) $min_id;
-				$where_sql .= " AND $id_column = $min_id LIMIT 1";
-			} else {
-				$min_id     = (int) $min_id;
-				$max_id     = (int) $max_id;
-				$size       = $max_id - $min_id;
-				$where_sql .= " AND $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
-			}
-		} else {
-			if ( null !== $min_id ) {
-				$min_id     = (int) $min_id;
-				$where_sql .= " AND $id_column >= $min_id";
-			}
-
-			if ( null !== $max_id ) {
-				$max_id     = (int) $max_id;
-				$where_sql .= " AND $id_column <= $max_id";
-			}
-		}
-
-		$query = <<<ENDSQL
-			SELECT CAST( SUM( CRC32( CONCAT_WS( '#', '%s', {$columns_sql} ) ) ) AS UNSIGNED INT )
-			FROM $table
-			WHERE $where_sql;
-ENDSQL;
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$result = $wpdb->get_var( $wpdb->prepare( $query, $salt ) );
-		if ( $wpdb->last_error ) {
-			return new \WP_Error( 'database_error', $wpdb->last_error );
-		}
-
-		return $result;
 	}
 
 	/**
@@ -1458,55 +1328,49 @@ ENDSQL;
 	}
 
 	/**
-	 * Count the meta values in a table, within a specified range.
-	 *
-	 * @access private
-	 *
-	 * @todo Refactor to not use interpolated values when preparing the SQL query.
-	 *
-	 * @param string $table     Table name.
-	 * @param string $where_sql Additional WHERE SQL.
-	 * @param int    $min_id    Minimum meta ID.
-	 * @param int    $max_id    Maximum meta ID.
-	 * @return int Number of meta values.
-	 */
-	private function meta_count( $table, $where_sql, $min_id, $max_id ) {
-		global $wpdb;
-
-		if ( ! empty( $min_id ) ) {
-			$where_sql .= ' AND meta_id >= ' . (int) $min_id;
-		}
-
-		if ( ! empty( $max_id ) ) {
-			$where_sql .= ' AND meta_id <= ' . (int) $max_id;
-		}
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where_sql" );
-	}
-
-	/**
-	 * Wraps a column name in SQL which strips non-ASCII chars.
-	 * This helps normalize data to avoid checksum differences caused by
-	 * badly encoded data in the DB.
-	 *
-	 * @param string $column_name Name of the column.
-	 * @return string Column name, without the non-ASCII chars.
-	 */
-	public function strip_non_ascii_sql( $column_name ) {
-		return "REPLACE( CONVERT( $column_name USING ascii ), '?', '' )";
-	}
-
-	/**
 	 * Used in methods that are not implemented and shouldn't be invoked.
 	 *
 	 * @access private
-	 * @throws \Exception If this method is invoked.
+	 * @throws Exception If this method is invoked.
 	 */
 	private function invalid_call() {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		$backtrace = debug_backtrace();
 		$caller    = $backtrace[1]['function'];
-		throw new \Exception( "This function $caller is not supported on the WP Replicastore" );
+		throw new Exception( "This function $caller is not supported on the WP Replicastore" );
+	}
+
+	/**
+	 * Determine number of buckets to use in full table checksum.
+	 *
+	 * @param string $table Object Type.
+	 * @param int    $start_id Min Object ID.
+	 * @param int    $end_id Max Object ID.
+	 * @return int|WP_Error Number of Buckets to use.
+	 */
+	private function calculate_buckets( $table, $start_id = null, $end_id = null ) {
+		// Get # of objects.
+		try {
+			$checksum_table = new Table_Checksum( $table );
+		} catch ( Exception $ex ) {
+			return new WP_Error( 'checksum_disabled', $ex->getMessage() );
+		}
+		$range_edges  = $checksum_table->get_range_edges( $start_id, $end_id );
+		$object_count = $range_edges['item_count'];
+
+		// Ensure no division by 0.
+		if ( 0 === (int) $object_count ) {
+			return 1;
+		}
+
+		// Default Bucket sizes.
+		$bucket_size = 10000; // Default bucket size is 10,000 items.
+		switch ( $table ) {
+			case 'postmeta':
+			case 'commentmeta':
+				$bucket_size = 5000; // Meta bucket size is restricted to 5,000 items.
+		}
+
+		return (int) ceil( $object_count / $bucket_size );
 	}
 }
