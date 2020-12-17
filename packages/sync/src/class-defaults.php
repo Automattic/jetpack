@@ -1141,6 +1141,13 @@ class Defaults {
 	public static $default_network_disable = 0;
 
 	/**
+	 * Default for disabling checksums.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_checksum_disable = 0;
+
+	/**
 	 * Should Sync use cron?
 	 *
 	 * @var int Bool-ish value. Default 1.
