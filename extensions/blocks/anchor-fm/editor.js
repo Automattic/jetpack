@@ -16,28 +16,48 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import { waitForEditor } from '../../shared/wait-for-editor';
-import { spotifyBadgeTemplate } from './templates';
+import { basicTemplate, spotifyBadgeTemplate } from './templates';
 
 /**
  * Style dependencies
  */
 import './editor.scss';
 
-async function insertSpotifyBadge( { image, url } ) {
-	if ( ! image || ! url ) {
-		return;
-	}
-
+async function insertTemplate( {
+	spotifyImageUrl,
+	spotifyShowUrl,
+	tpl,
+	episodeTrack
+} ) {
 	await waitForEditor();
 
 	const { insertBlocks } = dispatch( 'core/block-editor' );
 
-	insertBlocks(
-		spotifyBadgeTemplate( { spotifyShowUrl: url, spotifyImageUrl: image } ),
-		0,
-		undefined,
-		false
-	);
+	let templateBlocks = [];
+	switch ( tpl ) {
+		case 'sporifyBadge':
+			if ( spotifyImageUrl && spotifyShowUrl ) {
+				templateBlocks = spotifyBadgeTemplate( { spotifyShowUrl, spotifyImageUrl } );
+			}
+		break;
+
+		case 'basicEpisode':
+			templateBlocks = basicTemplate( {
+				spotifyShowUrl,
+				spotifyImageUrl,
+				episodeTrack,
+			} );
+		break;
+	}
+
+	if ( templateBlocks.length ) {
+		insertBlocks(
+			templateBlocks,
+			0,
+			undefined,
+			false
+		);
+	}
 }
 
 async function setEpisodeTitle( { title } ) {
@@ -79,7 +99,10 @@ function initAnchor() {
 		const [ actionName, actionParams ] = castArray( action );
 		switch ( actionName ) {
 			case 'insert-spotify-badge':
-				insertSpotifyBadge( actionParams );
+				insertTemplate( { ...actionParams, tpl: 'spotifyBadge' } );
+				break;
+			case 'insert-episode-template':
+				insertTemplate( { ...actionParams, tpl: 'basicEpisode' } );
 				break;
 			case 'show-post-publish-outbound-link':
 				showPostPublishOutboundLink();
