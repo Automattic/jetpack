@@ -48,8 +48,7 @@ export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?
 // These filter keys are not selectable from sidebar filters
 // In other words, they were selected via filters outside the search sidebar
 export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
-	const selectableKeys = getSelectableFilterKeys( widgets );
-	return difference( getFilterKeys(), selectableKeys );
+	return difference( getFilterKeys(), getSelectableFilterKeys( widgets ) );
 }
 
 function extractFilterKeysFromConfiguration( widgets ) {
