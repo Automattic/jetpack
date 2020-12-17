@@ -30,16 +30,16 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		FEATURE_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'enable_frontend_preview'  => true,
-			'plan_check'      => true,
-			'attributes'      => array(
+			'render_callback'         => __NAMESPACE__ . '\render_block',
+			'enable_frontend_preview' => true,
+			'plan_check'              => true,
+			'attributes'              => array(
 				'isPremiumContentChild' => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
 			),
-			$provides         => array(
+			$provides                 => array(
 				'premium-content/planId' => 'selectedPlanId',
 				'isPremiumContentChild'  => 'isPremiumContentChild',
 			),
@@ -62,7 +62,7 @@ function render_block( $attributes, $content ) {
 	}
 
 	// Do not render the Stripe nudge if the Upgrade nudge is
-	// already being displayed
+	// already being displayed.
 	if (
 		required_plan_checks()
 		&& current_user_can_edit()

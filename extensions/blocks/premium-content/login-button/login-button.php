@@ -43,7 +43,7 @@ function render_login_button_block( $attributes, $content ) {
 	}
 
 	if ( should_render_frontend_preview() ) {
-		// Render the button as-is, without connecting the actual href
+		// Render the button as-is, without connecting the actual href.
 		return $content;
 	}
 
