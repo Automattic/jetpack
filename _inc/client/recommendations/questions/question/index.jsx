@@ -14,6 +14,7 @@ import { QuestionLayout } from '../layout';
 import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
+import analytics from 'lib/analytics';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
 const QuestionComponent = props => {
@@ -32,8 +33,23 @@ const QuestionComponent = props => {
 		props.updateRecommendationsStep( stepSlug );
 	} );
 
+	const onExternalLinkClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
+			feature: stepSlug,
+		} );
+	} );
+
 	const onInstallClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommended_feature_enable_click', {
+			feature: stepSlug,
+		} );
 		props.enable();
+	}, [ props.enable ] );
+
+	const onDecideLaterClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommended_feature_decide_later_click', {
+			feature: stepSlug,
+		} );
 	} );
 
 	return (
@@ -43,7 +59,13 @@ const QuestionComponent = props => {
 			description={ jetpackCreateInterpolateElement( description, {
 				strong: <strong />,
 				ExternalLink: (
-					<ExternalLink href={ descriptionLink } target="_blank" icon={ true } iconSize={ 16 } />
+					<ExternalLink
+						href={ descriptionLink }
+						target="_blank"
+						icon={ true }
+						iconSize={ 16 }
+						onClick={ onExternalLinkClick }
+					/>
 				),
 			} ) }
 			answer={
@@ -51,7 +73,9 @@ const QuestionComponent = props => {
 					<Button primary href={ nextRoute } onClick={ onInstallClick }>
 						{ ctaText }
 					</Button>
-					<a href={ nextRoute }>{ __( 'Decide later' ) }</a>
+					<a href={ nextRoute } onClick={ onDecideLaterClick }>
+						{ __( 'Decide later' ) }
+					</a>
 				</div>
 			}
 			illustrationPath={ illustrationPath }
