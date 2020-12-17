@@ -116,6 +116,54 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_browse_sites_link.
+	 *
+	 * @covers ::add_browse_sites_link
+	 */
+	public function test_add_browse_sites_link() {
+		global $menu;
+
+		// No output when executed in sinle site mode.
+		static::$admin_menu->add_browse_sites_link();
+		$this->assertArrayNotHasKey( 0, $menu );
+	}
+
+	/**
+	 * Tests add_browse_sites_link.
+	 *
+	 * @covers ::add_browse_sites_link
+	 */
+	public function test_add_browse_sites_link_multisite() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Only used on multisite' );
+		}
+
+		global $menu;
+
+		// No output when user has just one site.
+		static::$admin_menu->add_browse_sites_link();
+		$this->assertArrayNotHasKey( 0, $menu );
+
+		// Give user a second site.
+		set_transient( 'jetpack_connected_user_data_' . static::$user_id, array( 'site_count' => 2 ) );
+
+		static::$admin_menu->add_browse_sites_link();
+
+		$browse_sites_menu_item = array(
+			'Browse sites',
+			'read',
+			'https://wordpress.com/home',
+			'Browse sites',
+			'menu-top toplevel_page_https://wordpress.com/home',
+			'toplevel_page_https://wordpress.com/home',
+			'dashicons-arrow-left-alt2',
+		);
+		$this->assertSame( $menu[0], $browse_sites_menu_item );
+
+		delete_transient( 'jetpack_connected_user_data_' . static::$user_id );
+	}
+
+	/**
 	 * Tests add_site_card_menu
 	 *
 	 * @covers ::add_site_card_menu
@@ -133,12 +181,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$home_url            = home_url();
 		$site_card_menu_item = array(
 			// phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
-			"
-<div class=\"site__info\">
-	<div class=\"site__title\">Test Blog</div>
-	<div class=\"site__domain\">" . static::$domain . "</div>
-\t
-</div>",
+			'
+<div class="site__info">
+	<div class="site__title">' . get_option( 'blogname' ) . '</div>
+	<div class="site__domain">' . static::$domain . "</div>\n\t\n</div>",
 			'read',
 			$home_url,
 			'site-card',
