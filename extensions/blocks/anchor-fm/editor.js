@@ -9,7 +9,6 @@ import { castArray } from 'lodash';
 import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { addFilter } from '@wordpress/hooks';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';

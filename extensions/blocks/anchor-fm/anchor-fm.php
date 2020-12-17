@@ -114,7 +114,7 @@ function process_anchor_params() {
 		}
 	}
 
-	if ( ! empty( $spotify_show_url ) ) {
+	if ( ! empty( $spotify_show_url ) && empty ( $epi)) {
 		$data['spotifyShowUrl'] = $spotify_show_url;
 		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
 			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
