@@ -112,14 +112,18 @@ function AudioPlayer( {
 	// then we can get stuck in a loop. We can so by debouncing here we wait until the
 	// next tick before acting on the playStatus prop value changing.
 	useEffect(
-		debounce( () => {
+		() => {
 			// Get the current status of the audio element and the required action to toggle it.
 			const [ audioStatus, action ] =
 				audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
+			const debouncedAction = debounce( action, 100 );
 			if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
-				action();
+				debouncedAction();
 			}
-		} ),
+			return () => {
+				debouncedAction.cancel();
+			};
+		},
 		[ audioRef, playStatus, trackSource ]
 	);
 
