@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e41ac2e45c59f769b7137cf3f1a7db3c",
+    "content-hash": "a04612dcf4920d7ecefa0f6d5f719e91",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -929,14 +929,14 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-update/codesniffer-mw-dep",
+            "version": "dev-renovate/dealerdirect-phpcodesniffer-composer-installer-0.x",
             "dist": {
                 "type": "path",
                 "url": "./packages/codesniffer",
-                "reference": "e3de65ac1cf91624f5498262c08294ad4cef9430"
+                "reference": "804fc627b8372a1f5d31b77afa9e76f956e30af5"
             },
             "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "0.7.1",
                 "mediawiki/mediawiki-codesniffer": "34.0.0",
                 "phpcompatibility/phpcompatibility-wp": "2.1.0",
                 "sirbrillig/phpcs-variable-analysis": "2.10.0",
@@ -1117,22 +1117,22 @@
         },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
-            "version": "v0.7.0",
+            "version": "v0.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer.git",
-                "reference": "e8d808670b8f882188368faaf1144448c169c0b7"
+                "reference": "fe390591e0241955f22eb9ba327d137e501c771c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/e8d808670b8f882188368faaf1144448c169c0b7",
-                "reference": "e8d808670b8f882188368faaf1144448c169c0b7",
+                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/fe390591e0241955f22eb9ba327d137e501c771c",
+                "reference": "fe390591e0241955f22eb9ba327d137e501c771c",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^1.0 || ^2.0",
                 "php": ">=5.3",
-                "squizlabs/php_codesniffer": "^2 || ^3 || 4.0.x-dev"
+                "squizlabs/php_codesniffer": "^2.0 || ^3.0 || ^4.0"
             },
             "require-dev": {
                 "composer/composer": "*",
@@ -1179,7 +1179,7 @@
                 "stylecheck",
                 "tests"
             ],
-            "time": "2020-06-25T14:57:39+00:00"
+            "time": "2020-12-07T18:04:37+00:00"
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",

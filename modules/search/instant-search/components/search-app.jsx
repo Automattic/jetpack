@@ -18,6 +18,7 @@ import SearchResults from './search-results';
 import { search } from '../lib/api';
 import {
 	getFilterQuery,
+	getResultFormatQuery,
 	getSearchQuery,
 	getSortQuery,
 	hasFilter,
@@ -27,6 +28,7 @@ import {
 	restorePreviousHref,
 } from '../lib/query-string';
 import { bindCustomizerChanges } from '../lib/customize';
+import './search-app.scss';
 
 class SearchApp extends Component {
 	static defaultProps = {
@@ -268,6 +270,9 @@ class SearchApp extends Component {
 	};
 
 	render() {
+		// Override the result format from the query string if result_format= is specified
+		const resultFormatQuery = getResultFormatQuery();
+
 		return createPortal(
 			<Overlay
 				closeColor={ this.state.overlayOptions.closeColor }
@@ -294,7 +299,7 @@ class SearchApp extends Component {
 					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
-					resultFormat={ this.state.overlayOptions.resultFormat }
+					resultFormat={ resultFormatQuery || this.state.overlayOptions.resultFormat }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					sort={ this.getSort() }
 					widgets={ this.props.options.widgets }

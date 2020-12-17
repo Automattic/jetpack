@@ -23,7 +23,7 @@ reset_env() {
 }
 
 configure_wp_env() {
-	if [ -n "$LATEST_GUTENBERG" ]; then
+	if [ "$GUTENBERG" == "latest" ]; then
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
 	fi
 

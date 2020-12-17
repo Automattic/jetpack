@@ -152,24 +152,24 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular menu item.
 			array(
-				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
+				array( 'Media\'s', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-media',
 					'slug'  => 'upload-php',
-					'title' => 'Media',
-					'url'   => 'http://example.org/wp-admin/upload.php',
+					'title' => 'Media\'s',
+					'url'   => admin_url( 'upload.php' ),
 				),
 			),
 			// Menu item with update count.
 			array(
-				array( 'Plugins <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
+				array( 'Plugin\'s <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-plugins',
 					'slug'  => 'plugins-php',
-					'title' => 'Plugins',
-					'url'   => 'http://example.org/wp-admin/plugins.php',
+					'title' => 'Plugin\'s',
+					'url'   => admin_url( 'plugins.php' ),
 					'count' => 5,
 				),
 			),
@@ -215,14 +215,14 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular submenu item.
 			array(
-				array( 'Library', 'upload_files', 'upload.php' ),
+				array( 'Library\'s', 'upload_files', 'upload.php' ),
 				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'parent' => 'upload-php',
 					'type'   => 'submenu-item',
 					'slug'   => 'upload-php',
-					'title'  => 'Library',
-					'url'    => 'http://example.org/wp-admin/upload.php',
+					'title'  => 'Library\'s',
+					'url'    => admin_url( 'upload.php' ),
 				),
 			),
 		);
@@ -345,28 +345,28 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'upload.php',
 				'',
 				null,
-				'http://example.org/wp-admin/upload.php',
+				admin_url( 'upload.php' ),
 			),
 			// Submenu item URL.
 			array(
 				'custom_settings',
 				'upload.php',
 				'__return_true',
-				'http://example.org/wp-admin/upload.php?page=custom_settings',
+				admin_url( 'upload.php?page=custom_settings' ),
 			),
 			// Plugin menu item URL.
 			array(
 				'custom_settings',
 				'',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=custom_settings',
+				admin_url( 'admin.php?page=custom_settings' ),
 			),
 			// Plugin menu item URL without a parent.
 			array(
 				'custom_settings',
 				'admin.php',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=custom_settings',
+				admin_url( 'admin.php?page=custom_settings' ),
 			),
 			// Jetpack.
 			array(
@@ -380,19 +380,19 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'product_attributes',
 				'edit.php?post_type=product',
 				'__return_true',
-				'http://example.org/wp-admin/edit.php?post_type=product&page=product_attributes',
+				admin_url( 'edit.php?post_type=product&page=product_attributes' ),
 			),
 			array(
 				'wc-admin&amp;path=/analytics/products',
 				'wc-admin&amp;path=/analytics/overview',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=/analytics/products',
+				admin_url( 'admin.php?page=wc-admin&amp;path=/analytics/products' ),
 			),
 			array(
 				'wc-admin&amp;path=customers',
 				'woocommerce',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=customers',
+				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
 			),
 		);
 	}

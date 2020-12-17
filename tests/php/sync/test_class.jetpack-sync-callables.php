@@ -102,6 +102,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'paused_plugins'                   => Functions::get_paused_plugins(),
 			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
 			'theme_support'                    => Functions::get_theme_support(),
+			'wp_get_environment_type'          => wp_get_environment_type(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {

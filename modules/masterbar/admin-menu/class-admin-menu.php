@@ -45,6 +45,8 @@ class Admin_Menu {
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 	}
 
 	/**
@@ -68,24 +70,25 @@ class Admin_Menu {
 
 		$domain = ( new Status() )->get_site_suffix();
 
-		// TODO: Remove once feature has shipped. See jetpack_parent_file().
-		if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
-			$domain = add_query_arg( 'flags', 'nav-unification', $domain );
-		}
-
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu( $domain );
 		}
 
-		/*
+		/**
 		 * Whether links should point to Calypso or wp-admin.
 		 *
+		 * Options:
 		 * true  - Calypso.
 		 * false - wp-admin.
+		 *
+		 * @module masterbar
+		 * @since 9.3.0
+		 *
+		 * @param bool $calypso Whether menu item URLs should point to Calypso.
 		 */
-		$calypso = true;
+		$calypso = apply_filters( 'jetpack_admin_menu_use_calypso_links', true );
 
 		// Remove separators.
 		remove_menu_page( 'separator1' );
@@ -410,12 +413,7 @@ class Admin_Menu {
 	 */
 	public function jetpack_parent_file( $parent_file ) {
 		if ( 'jetpack' === $parent_file ) {
-			$parent_file = 'https://wordpress.com/activity-log/' . wp_parse_url( get_home_url(), PHP_URL_HOST );
-
-			// TODO: Remove once feature has shipped. See reregister_menu_items().
-			if ( ! $this->is_api_request && ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
-				$parent_file = add_query_arg( 'flags', 'nav-unification', $parent_file );
-			}
+			$parent_file = 'https://wordpress.com/activity-log/' . ( new Status() )->get_site_suffix();
 		}
 
 		return $parent_file;
@@ -651,6 +649,13 @@ class Admin_Menu {
 			'1',
 			true
 		);
+	}
+
+	/**
+	 * Dequeues unnecessary scripts.
+	 */
+	public function dequeue_scripts() {
+		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
 	}
 
 	/**
