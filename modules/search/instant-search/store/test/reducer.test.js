@@ -122,8 +122,14 @@ describe( 'filters Reducer', () => {
 		const state = filters( undefined, {} );
 		expect( state ).toEqual( {} );
 	} );
-	test( 'is updated by a set filter action', () => {
-		const state = filters( undefined, setFilter( 'post_types', [ 'post' ] ) );
+	test( 'is updated by a set filter action with an arrayed value', () => {
+		const state = filters( undefined, setFilter( 'post_types', [ 'post', 'page' ] ) );
+		expect( state ).toEqual( {
+			post_types: [ 'post', 'page' ],
+		} );
+	} );
+	test( 'is updated by a set filter action with a string value', () => {
+		const state = filters( undefined, setFilter( 'post_types', 'post' ) );
 		expect( state ).toEqual( {
 			post_types: [ 'post' ],
 		} );
@@ -132,9 +138,9 @@ describe( 'filters Reducer', () => {
 		const state = filters( undefined, setFilter( 'apple', [ 'tart' ] ) );
 		expect( state ).toEqual( {} );
 	} );
-	test( 'ignores set filter actions with non-array values', () => {
-		const state = filters( undefined, setFilter( 'post_types', 'tart' ) );
-		expect( state ).toEqual( {} );
+	test( 'ignores set filter actions with unexpected value types', () => {
+		expect( filters( undefined, setFilter( 'post_types', 1 ) ) ).toEqual( {} );
+		expect( filters( undefined, setFilter( 'post_types', {} ) ) ).toEqual( {} );
 	} );
 	test( 'is reset by a clear filters action', () => {
 		const state = filters( { post_types: [ 'post' ] }, clearFilters() );
