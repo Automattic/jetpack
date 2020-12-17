@@ -13,6 +13,12 @@ use Automattic\Jetpack\Status;
  * Class Admin_Menu.
  */
 class Admin_Menu {
+	/**
+	 * Holds class instances.
+	 *
+	 * @var array
+	 */
+	protected static $instances;
 
 	/**
 	 * Whether the current request is a REST API request.
@@ -47,15 +53,13 @@ class Admin_Menu {
 	 * @return Admin_Menu
 	 */
 	public static function get_instance() {
-		static $instances = array();
-
 		$class = get_called_class();
 
-		if ( empty( $instances[ $class ] ) ) {
-			$instances[ $class ] = new $class();
+		if ( empty( static::$instances[ $class ] ) ) {
+			static::$instances[ $class ] = new $class();
 		}
 
-		return $instances[ $class ];
+		return static::$instances[ $class ];
 	}
 
 	/**

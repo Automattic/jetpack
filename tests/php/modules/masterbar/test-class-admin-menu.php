@@ -6,8 +6,10 @@
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
+use Automattic\Jetpack\Status;
 
 require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
+require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
 
 /**
  * Class Test_Admin_Menu
@@ -57,16 +59,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		global $menu, $submenu;
+		static::$domain  = ( new Status() )->get_site_suffix();
+		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
-		require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
-
-		static::$menu_data    = $menu;
-		static::$submenu_data = $submenu;
-		static::$domain       = wp_parse_url( get_home_url(), PHP_URL_HOST );
-
-		static::$user_id    = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$admin_menu = Admin_Menu::get_instance();
+		static::$menu_data    = get_menu_fixture();
+		static::$submenu_data = get_submenu_fixture();
 	}
 
 	/**
@@ -74,20 +71,15 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-
-		wp_set_current_user( static::$user_id );
-	}
-
-	/**
-	 * Reset data.
-	 */
-	public function tearDown() {
 		global $menu, $submenu;
+
+		// Initialize in setUp so it registers hooks for every test.
+		static::$admin_menu = Admin_Menu::get_instance();
 
 		$menu    = static::$menu_data;
 		$submenu = static::$submenu_data;
 
-		parent::tearDown();
+		wp_set_current_user( static::$user_id );
 	}
 
 	/**
