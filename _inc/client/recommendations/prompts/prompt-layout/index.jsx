@@ -14,7 +14,7 @@ import { imagePath } from 'constants/urls';
  */
 import './style.scss';
 
-const QuestionLayout = props => {
+const PromptLayout = props => {
 	const { answer, description, illustrationPath, progressBar, question } = props;
 
 	return (
@@ -41,7 +41,7 @@ const QuestionLayout = props => {
 	);
 };
 
-QuestionLayout.propTypes = {
+PromptLayout.propTypes = {
 	answer: PropTypes.element.isRequired,
 	description: PropTypes.element.isRequired,
 	illustration: PropTypes.element.isRequired,
@@ -49,4 +49,4 @@ QuestionLayout.propTypes = {
 	question: PropTypes.element.isRequired,
 };
 
-export { QuestionLayout };
+export { PromptLayout };

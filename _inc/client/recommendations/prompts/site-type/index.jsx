@@ -9,7 +9,7 @@ import { ProgressBar } from '@automattic/components';
 /**
  * Internal dependencies
  */
-import { QuestionLayout } from '../layout';
+import { PromptLayout } from '../prompt-layout';
 import { CheckboxAnswer } from '../checkbox-answer';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
@@ -82,7 +82,7 @@ const SiteTypeQuestionComponent = props => {
 	);
 
 	return (
-		<QuestionLayout
+		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '17' } /> }
 			/* translators: placeholder is the title of the site */
 			question={ sprintf( __( 'What type of site is %s?', 'jetpack' ), siteTitle ) }

@@ -10,14 +10,14 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { getStepContent, mapDispatchToProps } from './props';
-import { QuestionLayout } from '../layout';
+import { PromptLayout } from '../prompt-layout';
 import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
 
-const QuestionComponent = props => {
+const FeaturePromptComponent = props => {
 	const {
 		ctaText,
 		description,
@@ -53,7 +53,7 @@ const QuestionComponent = props => {
 	} );
 
 	return (
-		<QuestionLayout
+		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ progressValue } /> }
 			question={ question }
 			description={ jetpackCreateInterpolateElement( description, {
@@ -83,7 +83,7 @@ const QuestionComponent = props => {
 	);
 };
 
-const Question = connect(
+const FeaturePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
 		...getStepContent( ownProps.stepSlug ),
@@ -92,6 +92,6 @@ const Question = connect(
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		...mapDispatchToProps( dispatch, ownProps.stepSlug ),
 	} )
-)( QuestionComponent );
+)( FeaturePromptComponent );
 
-export { Question };
+export { FeaturePrompt };

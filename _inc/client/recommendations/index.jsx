@@ -8,8 +8,8 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { Question } from './questions/question';
-import { SiteTypeQuestion } from './questions/site-type';
+import { FeaturePrompt } from './prompts/feature-prompt';
+import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
 import QueryProducts from 'components/data/query-products';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
@@ -64,19 +64,19 @@ const RecommendationsComponent = props => {
 					<SiteTypeQuestion />
 				</Route>
 				<Route path="/recommendations/woocommerce">
-					<Question stepSlug="woocommerce" />
+					<FeaturePrompt stepSlug="woocommerce" />
 				</Route>
 				<Route path="/recommendations/monitor">
-					<Question stepSlug="monitor" />
+					<FeaturePrompt stepSlug="monitor" />
 				</Route>
 				<Route path="/recommendations/related-posts">
-					<Question stepSlug="related-posts" />
+					<FeaturePrompt stepSlug="related-posts" />
 				</Route>
 				<Route path="/recommendations/creative-mail">
-					<Question stepSlug="creative-mail" />
+					<FeaturePrompt stepSlug="creative-mail" />
 				</Route>
 				<Route path="/recommendations/site-accelerator">
-					<Question stepSlug="site-accelerator" />
+					<FeaturePrompt stepSlug="site-accelerator" />
 				</Route>
 				<Route path="/recommendations/summary">
 					<Summary />
