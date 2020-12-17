@@ -75,10 +75,15 @@
 		</exclude>
 	</groups>
 	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">.</directory>
+		<whitelist>
+			<directory suffix=".php">../</directory>
 			<exclude>
 				<directory suffix=".php">php</directory>
+				<directory suffix=".php">../packages/*/tests</directory>
+				<directory suffix=".php">../views</directory>
+				<directory suffix=".php">../bin</directory>
+				<directory suffix=".php">../tools</directory>
+				<directory suffix=".php">../docker</directory>
 			</exclude>
 		</whitelist>
 	</filter>
