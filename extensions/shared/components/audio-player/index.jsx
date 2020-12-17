@@ -31,6 +31,8 @@ function createJumpButton( containerClass, label, clickHandler ) {
 	const button = document.createElement( 'button' );
 	button.innerText = label;
 	button.addEventListener( 'click', clickHandler );
+	button.setAttribute( 'aria-label', label );
+	button.setAttribute( 'title', label );
 	buttonContainer.appendChild( button );
 	return buttonContainer;
 }
@@ -76,13 +78,6 @@ function AudioPlayer( {
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
 			const containerClass = `${ mediaElement.options.classPrefix }button ${ mediaElement.options.classPrefix }jump-button`;
-			if ( onSkipForward ) {
-				const buttonClass = `${ containerClass } ${ mediaElement.options.classPrefix }skip-forward-button`;
-				mediaElement.addControlElement(
-					createJumpButton( buttonClass, 'Skip Forward', onSkipForward ),
-					'skipForwardButton'
-				);
-			}
 
 			if ( onJumpBack ) {
 				const buttonClass = `${ containerClass } ${ mediaElement.options.classPrefix }jump-backward-button`;
@@ -91,8 +86,15 @@ function AudioPlayer( {
 					'jumpBackwardButton'
 				);
 			}
-		}
 
+			if ( onSkipForward ) {
+				const buttonClass = `${ containerClass } ${ mediaElement.options.classPrefix }skip-forward-button`;
+				mediaElement.addControlElement(
+					createJumpButton( buttonClass, 'Skip Forward', onSkipForward ),
+					'skipForwardButton'
+				);
+			}
+		}
 		onPlay && audio.addEventListener( 'play', onPlay );
 		onPause && audio.addEventListener( 'pause', onPause );
 		onError && audio.addEventListener( 'error', onError );
