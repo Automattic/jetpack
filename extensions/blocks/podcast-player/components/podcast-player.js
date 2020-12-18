@@ -189,11 +189,20 @@ export class PodcastPlayer extends Component {
 	};
 
 	componentDidMount() {
-		if ( ! this.props.playerId ) {
+		const { playerId } = this.props;
+		if ( ! playerId ) {
 			return;
 		}
 
-		this.props.registerMediaSource( this.props.playerId );
+		const { title, link, cover, tracks } = this.props;
+
+		this.props.registerMediaSource( playerId, {
+			title,
+			link,
+			cover,
+			tracks,
+			track: this.getTrack( this.state.currentTrack ),
+		} );
 	}
 
 	componentWillUnmount() {
