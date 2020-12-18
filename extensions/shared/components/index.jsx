@@ -6,8 +6,12 @@ import { renderToStaticMarkup } from 'react-dom/server';
 /**
  * Internal dependencies
  */
-import { UpgradeNudge } from './upgrade-nudge';
+import { Nudge } from './upgrade-nudge';
 import { StripeNudge } from './stripe-nudge';
+import {
+	UPGRADE_NUDGE_BUTTON_TEXT,
+	UPGRADE_NUDGE_DESCRIPTION
+} from '../../extended-blocks/paid-blocks/upgrade-plan-banner';
 
 import './style.scss';
 
@@ -21,7 +25,7 @@ import './style.scss';
 // initialised Redux state when rendering ir (probably through globals set as arguments
 // to the `StaticSiteGeneratorPlugin` call in `webpack.config.extensions.js`).
 const upgradeNudge = renderToStaticMarkup(
-	<UpgradeNudge checkoutUrl="#checkoutUrl#" />
+	<Nudge checkoutUrl="#checkoutUrl#" description={UPGRADE_NUDGE_DESCRIPTION} buttonText={UPGRADE_NUDGE_BUTTON_TEXT} />
 );
 
 const stripeNudge = renderToStaticMarkup(
