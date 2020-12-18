@@ -45,7 +45,13 @@ const presetBetaBlocks = [ ...presetExperimentalBlocks, ..._.get( presetIndex, [
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join( path.dirname( __dirname ), 'extensions', 'blocks', block, 'view.js' );
+	const viewScriptPath = path.join(
+		path.dirname( __dirname ),
+		'extensions',
+		'blocks',
+		block,
+		'view.js'
+	);
 	if ( fs.existsSync( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
 	}
@@ -55,24 +61,40 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetProductionBlocks ),
+	...blockScripts(
+		'editor',
+		path.join( path.dirname( __dirname ), 'extensions' ),
+		presetProductionBlocks
+	),
 ];
 
 // Combines all the different Experimental blocks into one editor.js script
 const editorExperimentalScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetExperimentalBlocks ),
+	...blockScripts(
+		'editor',
+		path.join( path.dirname( __dirname ), 'extensions' ),
+		presetExperimentalBlocks
+	),
 ];
 
 // Combines all the different blocks into one editor-beta.js script
 const editorBetaScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetBetaBlocks ),
+	...blockScripts(
+		'editor',
+		path.join( path.dirname( __dirname ), 'extensions' ),
+		presetBetaBlocks
+	),
 ];
 
 const editorNoPostEditorScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( path.dirname( __dirname ), 'extensions' ), presetNoPostEditorBlocks ),
+	...blockScripts(
+		'editor',
+		path.join( path.dirname( __dirname ), 'extensions' ),
+		presetNoPostEditorBlocks
+	),
 ];
 
 const extensionsWebpackConfig = getBaseWebpackConfig(
@@ -94,7 +116,10 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
 		entry: {
-			components: path.join( path.dirname( __dirname ), './extensions/shared/components/index.jsx' ),
+			components: path.join(
+				path.dirname( __dirname ),
+				'./extensions/shared/components/index.jsx'
+			),
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-library-target': 'commonjs2',
@@ -126,6 +151,10 @@ module.exports = [
 				/^@wordpress\/i18n$/,
 				path.join( path.dirname( __dirname ), './extensions/shared/i18n-to-php' )
 			),
+			new webpack.NormalModuleReplacementPlugin(
+				/^\.\/create-interpolate-element$/,
+				path.join( __dirname, './extensions/shared/element-to-php' )
+			),
 			new StaticSiteGeneratorPlugin( {
 				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
 				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
@@ -137,6 +166,7 @@ module.exports = [
 					document: {
 						addEventListener: _.noop,
 						createElement: _.noop,
+						documentElement: _.noop,
 						head: { appendChild: _.noop },
 					},
 					navigator: {},
@@ -153,6 +183,7 @@ module.exports = [
 							DOCUMENT_POSITION_PRECEDING: '',
 							DOCUMENT_POSITION_FOLLOWING: '',
 						},
+						removeEventListener: _.noop,
 						URL: {},
 					},
 				},
