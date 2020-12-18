@@ -259,6 +259,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Anchor.fm: set post title for new blog post with track title.
 * Dashboard: avoid errors on sites using PHP 8.
 * General: use modern JavaScript best practices for loading scripts.
+* Infinite Scroll: add compatibility for the TwentyTwentyOne theme.
 * Search: improve styling for the TwentyTwenty theme.
 * Synchronization: improve integrety of synchronization between your site and WordPress.com.
 
