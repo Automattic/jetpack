@@ -91,7 +91,7 @@ const VideoPressEdit = CoreVideoEdit =>
 		setRating = async () => {
 			const id = get( this.props, 'attributes.id' );
 			const media = await this.requestMedia( id );
-			const rating = get( media, 'media_details.videopress.rating' );
+			const rating = get( media, 'jetpack_videopress.rating' );
 
 			if ( rating ) {
 				this.setState( { rating } );
