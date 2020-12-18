@@ -3,13 +3,15 @@
  */
 import { __ } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, get } from 'lodash';
+import { assign, difference, get, mergeWith, union } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import { getInitialRecommendationsStep } from '../initial-state/reducer';
 import {
+	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
+	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,

@@ -15,7 +15,12 @@ import Button from 'components/button';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
-import { getNextRoute, updateRecommendationsStep } from 'state/recommendations';
+import {
+	addSelectedRecommendation,
+	addSkippedRecommendation,
+	getNextRoute,
+	updateRecommendationsStep,
+} from 'state/recommendations';
 
 const FeaturePromptComponent = props => {
 	const {
@@ -43,6 +48,7 @@ const FeaturePromptComponent = props => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_enable_click', {
 			feature: stepSlug,
 		} );
+		props.addSelectedRecommendation( stepSlug );
 		props.enable();
 	}, [ props.enable ] );
 
@@ -50,6 +56,7 @@ const FeaturePromptComponent = props => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_decide_later_click', {
 			feature: stepSlug,
 		} );
+		props.addSkippedRecommendation( stepSlug );
 	} );
 
 	return (
@@ -89,6 +96,8 @@ const FeaturePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 	} ),
 	( dispatch, ownProps ) => ( {
+		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendation( stepSlug ) ),
+		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendation( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStep( step ) ),
 		...mapDispatchToProps( dispatch, ownProps.stepSlug ),
 	} )
