@@ -59,7 +59,6 @@ function register_extension() {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_podcast'] ) ) : null;
 	$episode_id       = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_episode'] ) ) : null;
-	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? esc_url_raw( wp_unslash( $_GET['spotify_show_url'] ) ) : null;
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	$post = get_post();
@@ -81,7 +80,7 @@ function register_extension() {
 				if ( ! \is_wp_error( $track ) ) {
 					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
 
-					// Update the post into the database
+					// Update the post into the database.
 					wp_update_post(
 						array(
 							'ID'    => $post->ID,
@@ -92,7 +91,6 @@ function register_extension() {
 			}
 		}
 	}
-
 }
 
 /**
@@ -168,8 +166,6 @@ function process_anchor_params() {
 		$data['actions'][] = 'show-post-publish-outbound-link';
 	}
 
-
-	wp_localize_script( 'jetpack-blocks-editor', 'coco', array( 'name' => 'Damian' ) );
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
 
