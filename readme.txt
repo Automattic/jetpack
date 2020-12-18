@@ -265,6 +265,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Blocks: improve sidebar display in non-fullscreen mode.
 * Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
 * Podcast Player Block: avoid PHP notices in some scenarios.
 * Search: limit number of filters automatically set up.
