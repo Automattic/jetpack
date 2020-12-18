@@ -10,6 +10,8 @@ import './extended-blocks/core-embed';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
 
+import './store';
+
 import analytics from '../_inc/client/lib/analytics';
 
 // @TODO Please make a shared analytics solution and remove this!
