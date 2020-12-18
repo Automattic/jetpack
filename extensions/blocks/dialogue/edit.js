@@ -1,3 +1,5 @@
+/* global mejs */
+
 /**
  * External dependencies
  */
@@ -77,9 +79,15 @@ export default function DialogueEdit ( {
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
 
-	const { toggleMediaSource } = useDispatch( STORE_ID );
+	const { toggleMediaSource, setMediaPosition } = useDispatch( STORE_ID );
 	const currentMediaSource = useSelect( select => select( STORE_ID ).getCurrent(), [] );
+
 	const togglePlayer = () => toggleMediaSource( currentMediaSource.id );
+
+	const setTimestamp = ( newTimestampValue ) => {
+		setMediaPosition( currentMediaSource.id, mejs.Utils.timeCodeToSeconds( newTimestampValue ) );
+		setAttributes( { timestamp: newTimestampValue } );
+	};
 
 	// Participants list.
 	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
@@ -242,9 +250,7 @@ export default function DialogueEdit ( {
 							<TimestampControl
 								className={ baseClassName }
 								value={ timestamp }
-								onChange={ ( newTimestampValue ) =>
-									setAttributes( { timestamp: newTimestampValue } )
-								}
+								onChange={ setTimestamp }
 							/>
 						) }
 					</PanelBody>
@@ -270,9 +276,7 @@ export default function DialogueEdit ( {
 					<TimestampDropdown
 						className={ baseClassName }
 						value={ timestamp }
-						onChange={ ( newTimestampValue ) => {
-							setAttributes( { timestamp: newTimestampValue } );
-						} }
+						onChange={ setTimestamp }
 						shortLabel={ true }
 					/>
 				) }
