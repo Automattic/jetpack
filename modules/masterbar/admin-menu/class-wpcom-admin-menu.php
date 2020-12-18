@@ -111,7 +111,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			}
 
 			$classes = ' toplevel_page_site-card';
-			if ( blavatar_exists( ( new Status() )->get_site_suffix() ) ) {
+			if ( blavatar_exists( $this->domain ) ) {
 				$classes .= ' has-site-icon';
 			}
 
@@ -186,7 +186,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 */
 	public function jetpack_parent_file( $parent_file ) {
 		if ( 'jetpack' === $parent_file ) {
-			$parent_file = 'https://wordpress.com/activity-log/' . ( new Status() )->get_site_suffix();
+
+			$parent_file = 'https://wordpress.com/activity-log/' . $this->domain;
 		}
 
 		return $parent_file;
