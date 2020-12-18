@@ -162,7 +162,7 @@ export default function DialogueEdit ( {
 	return (
 		<div className={ className }>
 			<BlockControls>
-				{ currentMediaSource && (
+				{ showTimestamp && currentMediaSource && (
 					<ToolbarGroup>
 						<ToolbarButton
 							icon={ controlBackFive }
