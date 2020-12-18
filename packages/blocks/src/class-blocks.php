@@ -64,11 +64,9 @@ class Blocks {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
 				if ( isset( $args['render_callback'] ) ) {
-					$enable_frontend_preview = isset( $args['enable_frontend_preview'] ) ? $args['enable_frontend_preview'] : false;
 					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check(
 						$feature_name,
-						$args['render_callback'],
-						$enable_frontend_preview
+						$args['render_callback']
 					);
 				}
 				$method_name = 'set_availability_for_plan';
