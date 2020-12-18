@@ -11,7 +11,8 @@
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"scripts"
 		]
 	},
 	"scripts": {
@@ -21,6 +22,9 @@
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"core-calls": [
+			"Automattic\\Jetpack\\Analyzer\\CoreCalls::callback"
 		]
 	},
 	"minimum-stability": "dev",
