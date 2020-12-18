@@ -9,6 +9,8 @@ import classnames from 'classnames';
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import { compose } from '@wordpress/compose';
+import { withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -23,6 +25,7 @@ import AudioPlayer from '../../../shared/components/audio-player';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
+import { STORE_ID } from '../../../store/media-source';
 
 export class PodcastPlayer extends Component {
 	state = {
@@ -185,6 +188,22 @@ export class PodcastPlayer extends Component {
 		this.setState( { currentTime: this.state.currentTime + 30 } );
 	};
 
+	componentDidMount() {
+		if ( ! this.props.playerId ) {
+			return;
+		}
+
+		this.props.registerMediaSource( this.props.playerId );
+	}
+
+	componentWillUnmount() {
+		if ( ! this.props.playerId ) {
+			return;
+		}
+
+		this.props.unregisterMediaSource( this.props.playerId );
+	}
+
 	render() {
 		const { playerId, title, link, cover, tracks, attributes } = this.props;
 		const {
@@ -322,4 +341,13 @@ PodcastPlayer.defaultProps = {
 	tracks: [],
 };
 
-export default withErrorBoundary( PodcastPlayer );
+export default compose( [
+	withErrorBoundary,
+	withDispatch( dispatch => {
+		const { registerMediaSource, unregisterMediaSource } = dispatch( STORE_ID );
+		return {
+			registerMediaSource,
+			unregisterMediaSource,
+		};
+	} ),
+] )( PodcastPlayer );
