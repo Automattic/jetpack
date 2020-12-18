@@ -53,7 +53,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_browse_sites_link() {
 		$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
-		if ( $wpcom_user_data['site_count'] < 2 ) {
+		if ( empty( $wpcom_user_data['site_count'] ) || $wpcom_user_data['site_count'] < 2 ) {
 			return;
 		}
 

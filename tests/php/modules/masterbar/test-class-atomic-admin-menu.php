@@ -114,7 +114,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_browse_sites_link() {
 		global $menu;
 
-		// No output when executed in sinle site mode.
+		// No output when executed in single site mode.
 		static::$admin_menu->add_browse_sites_link();
 		$this->assertArrayNotHasKey( 0, $menu );
 	}
