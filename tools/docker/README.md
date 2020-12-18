@@ -79,7 +79,7 @@ Customizations should go into a `./tools/docker/.env` file you create, though, n
 
 You can use the file `tools/docker/compose-extras.yml` to add mounts or alter the configuration provided by `docker/docker-compose.yml`.
 
-You can use the file `tools/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
+You can use the file `tools/docker/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
 
 ## Working with containers
 
