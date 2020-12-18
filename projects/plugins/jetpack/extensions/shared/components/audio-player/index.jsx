@@ -11,18 +11,19 @@ import { debounce, throttle } from 'lodash';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import { dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
+const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
+import { STORE_ID } from '../../../store/media-source';
 
 /**
  * Style dependencies
  */
 import './style.scss';
-
-const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {
 	const buttonContainer = document.createElement( 'div' );
@@ -72,8 +73,15 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		// Initialize MediaElement.js.
-		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
+		const mediaElement = new MediaElementPlayer( audio, {
+			...meJsSettings,
+			success: function() {
+				dispatch( STORE_ID ).registerMediaSource( audio.id, {
+					status: 'is-paused',
+					timestamp: 0,
+				} );
+			}
+		} );
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -105,6 +113,7 @@ function AudioPlayer( {
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
+			dispatch( STORE_ID ).unregisterMediaSource( audio.id );
 		};
 	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
 
