@@ -150,10 +150,11 @@ function AudioPlayer( {
 		}
 
 		// We only want to change the play position if the difference between our current play position
-		// and the prop is greater than 2. This is because we throttle the callback to 1 second and there
-		// could be a delay of some kind. Two seconds or more is likely because we've been explicitly asked
-		// to update the position via the prop.
-		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 2 ) {
+		// and the prop is greater than 1. We're throttling the time change events to once per second, so
+		// if the floored time has changed by more than a second, we haven't received an event in the past
+		// two seconds. That's unlikely and so a change of more than a second should be as a result of us
+		// wanting to update the position, so we set the audio element's current time as a result.
+		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 1 ) {
 			audio.currentTime = currentTime;
 		}
 	}, [ audioRef, currentTime ] );
