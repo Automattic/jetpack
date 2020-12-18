@@ -9,7 +9,6 @@ import { castArray } from 'lodash';
 import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { addFilter } from '@wordpress/hooks';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
@@ -44,14 +43,6 @@ async function insertSpotifyBadge( { image, url } ) {
 		undefined,
 		false
 	);
-}
-
-async function setEpisodeTitle( { title } ) {
-	if ( ! title ) {
-		return;
-	}
-	await waitForEditor();
-	dispatch( 'core/editor' ).editPost( { title } );
 }
 
 const ConvertToAudio = () => (
@@ -89,9 +80,6 @@ function initAnchor() {
 				break;
 			case 'show-post-publish-outbound-link':
 				showPostPublishOutboundLink();
-				break;
-			case 'set-episode-title':
-				setEpisodeTitle( actionParams );
 				break;
 		}
 	} );
