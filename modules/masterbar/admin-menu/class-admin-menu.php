@@ -647,7 +647,7 @@ class Admin_Menu {
 		wp_enqueue_style(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.css', __FILE__ ),
-			defined( 'IS_WPCOM' ) && IS_WPCOM ? array( 'wpcom-admin-bar' ) : array( 'a8c-wpcom-masterbar' ),
+			defined( 'IS_WPCOM' ) && IS_WPCOM ? array( 'wpcom-admin-bar', 'wpcom-masterbar-css' ) : array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' ),
 			JETPACK__VERSION
 		);
 		wp_enqueue_script(
