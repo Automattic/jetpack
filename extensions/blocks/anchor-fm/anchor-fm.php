@@ -90,9 +90,11 @@ function process_anchor_params() {
 	);
 
 	// add / update Spotify Badge URL.
+	$insert_spotify_badge = false;
 	if ( ! empty( $spotify_show_url ) ) {
 		$data['spotifyShowUrl'] = $spotify_show_url;
 		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
+			$insert_spotify_badge = true;
 			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
 		}
 	}
@@ -133,7 +135,12 @@ function process_anchor_params() {
 	}
 
 	// Add Spotify Badge template action.
-	if ( ! empty( $spotify_show_url ) && is_null( $episode_id ) ) {
+	if (
+		$insert_spotify_badge && (
+			'post-new.php' !== $GLOBALS['pagenow'] || // Delegate badge insertion to podcast template.
+			is_null( $episode_id ) // Add badge since basic template depends on episode.
+		)
+	) {
 		$data['actions'][] = array(
 			'insert-spotify-badge',
 			array(
