@@ -10,7 +10,7 @@
  *
  * { # Attachment Object
  *   ...
- *   jetpack_videopress_guid: (string) VideoPress identifier
+ *   jetpack_videopress: (object) VideoPress data
  *   ...
  * }
  *
@@ -18,7 +18,7 @@
  */
 class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Field_Controller {
 	/**
-	 * The REST Object Type to which the jetpack_videopress_guid field will be added.
+	 * The REST Object Type to which the jetpack_videopress field will be added.
 	 *
 	 * @var string
 	 */
@@ -29,7 +29,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 *
 	 * @var string $field_name
 	 */
-	protected $field_name = 'jetpack_videopress_guid';
+	protected $field_name = 'jetpack_videopress';
 
 	/**
 	 * Registers the jetpack_videopress field and adds a filter to remove it for attachments that are not videos.
@@ -47,10 +47,10 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 		return array(
 			'$schema'     => 'http://json-schema.org/draft-04/schema#',
 			'title'       => $this->field_name,
-			'type'        => 'string',
+			'type'        => 'object',
 			'context'     => array( 'view', 'edit' ),
 			'readonly'    => true,
-			'description' => __( 'Unique VideoPress ID', 'jetpack' ),
+			'description' => __( 'VideoPress Data', 'jetpack' ),
 		);
 	}
 
@@ -71,13 +71,13 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 
 		$post_id = absint( $attachment['id'] );
 
-		$videopress_guid = $this->get_videopress_guid( $post_id, $blog_id );
+		$videopress = $this->get_videopress_data( $post_id, $blog_id );
 
-		if ( ! $videopress_guid ) {
-			return '';
+		if ( ! $videopress ) {
+			return array();
 		}
 
-		return $videopress_guid;
+		return $videopress;
 	}
 
 	/**
@@ -90,8 +90,12 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	 *
 	 * @return string
 	 */
-	public function get_videopress_guid( $attachment_id, $blog_id ) {
-		return video_get_info_by_blogpostid( $blog_id, $attachment_id )->guid;
+	public function get_videopress_data( $attachment_id, $blog_id ) {
+		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id );
+		return array(
+			'guid'   => $info->guid,
+			'rating' => $info->rating,
+		);
 	}
 
 	/**
@@ -106,7 +110,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 	}
 
 	/**
-	 * Removes the jetpack_videopress_guid field from the response if the
+	 * Removes the jetpack_videopress field from the response if the
 	 * given attachment is not a video.
 	 *
 	 * @param WP_REST_Response $response Response from the attachment endpoint.

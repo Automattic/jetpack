@@ -540,6 +540,12 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 
 	// Since this is a VideoPress post, lt's fill out the rest of the object.
 	$video_info->guid = get_post_meta( $post_id, 'videopress_guid', true );
+	$meta             = wp_get_attachment_metadata( $post_id );
+
+	if ( $meta && isset( $meta['videopress'] ) ) {
+		$videopress_meta    = $meta['videopress'];
+		$video_info->rating = $videopress_meta['rating'];
+	}
 
 	if ( videopress_is_finished_processing( $post_id ) ) {
 		$video_info->finish_date_gmt = date( 'Y-m-d H:i:s' );

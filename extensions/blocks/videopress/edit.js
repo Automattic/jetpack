@@ -125,7 +125,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 
 				this.setState( { media } );
-				const guid = get( media, 'jetpack_videopress_guid' );
+				const guid = get( media, 'jetpack_videopress.guid' );
 				if ( guid ) {
 					setAttributes( { guid } );
 				} else {
