@@ -14,7 +14,7 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import {
 	Panel,
 	PanelBody,
@@ -38,7 +38,7 @@ import {
 	slug as defaultParticipantSlug,
 	list as defaultParticipants,
 } from '../conversation/participants.json';
-import { formatUppercase } from '../../shared/icons';
+import { formatUppercase, controlForwardFive, controlBackFive } from '../../shared/icons';
 import { STORE_ID } from '../../store/media-source';
 
 function getParticipantBySlug( participants, slug ) {
@@ -77,7 +77,9 @@ export default function DialogueEdit ( {
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
 
+	const { toggleMediaSource } = useDispatch( STORE_ID );
 	const currentMediaSource = useSelect( select => select( STORE_ID ).getCurrent(), [] );
+	const togglePlayer = () => toggleMediaSource( currentMediaSource.id );
 
 	// Participants list.
 	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
@@ -160,6 +162,33 @@ export default function DialogueEdit ( {
 	return (
 		<div className={ className }>
 			<BlockControls>
+				{ currentMediaSource && (
+					<ToolbarGroup>
+						<ToolbarButton
+							icon={ controlBackFive }
+							onClick={ () => {
+								// moveBack();
+								// setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( position ) } );
+							} }
+						/>
+
+						<ToolbarButton
+							icon={ currentMediaSource.status === 'is-paused'
+								? 'controls-play'
+								: 'controls-pause'
+							}
+							onClick={ togglePlayer }
+						/>
+						<ToolbarButton
+							icon={ controlForwardFive }
+							onClick={ () => {
+								// moveForward();
+								// setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( position ) } );
+							} }
+						/>
+					</ToolbarGroup>
+				) }
+
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
