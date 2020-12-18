@@ -29,6 +29,29 @@ const actions = {
 			id,
 		};
 	},
+
+	playMediaSource( id ) {
+		return {
+			type: 'PLAY_MEDIA_SOURCE',
+			id,
+			status: 'is-playing'
+		};
+	},
+
+	stopMediaSource( id ) {
+		return {
+			type: 'STOP_MEDIA_SOURCE',
+			id,
+			status: 'is-playing'
+		};
+	},
+
+	toggleMediaSource( id ) {
+		return {
+			id,
+			type: 'TOGGLE_MEDIA_SOURCE',
+		};
+	}
 };
 
 const selectors = {
@@ -64,6 +87,44 @@ const storeDefinition = {
 					delete currentState.players[ action.id ];
 				}
 				return currentState;
+
+			case 'PLAY_MEDIA_SOURCE':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							status: 'is-playing',
+						},
+					},
+				};
+
+			case 'STOP_MEDIA_SOURCE':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							status: 'is-paused',
+						},
+					},
+				};
+
+			case 'TOGGLE_MEDIA_SOURCE':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							status: state.players[ action.id ].status !== 'is-playing'
+								? 'is-playing'
+								: 'is-paused',
+						},
+					},
+				};
 		}
 
         return state;
