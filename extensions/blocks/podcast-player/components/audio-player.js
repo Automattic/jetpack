@@ -10,11 +10,13 @@
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import { dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
+import { STORE_ID } from '../../../store/media-source';
 
 class AudioPlayer extends Component {
 	audioRef = el => {
@@ -27,7 +29,15 @@ class AudioPlayer extends Component {
 			el.appendChild( audio );
 
 			// Initialize MediaElement.js.
-			this.mediaElement = new MediaElementPlayer( audio, meJsSettings );
+			this.mediaElement = new MediaElementPlayer( audio, {
+				...meJsSettings,
+				success: function() {
+					dispatch( STORE_ID ).registerMediaSource( audio.id, {
+						status: 'is-paused',
+						timestamp: 0,
+					} );
+				}
+			} );
 
 			// Save audio reference from the MediaElement.js instance.
 			this.audio = this.mediaElement.domNode;
@@ -76,6 +86,14 @@ class AudioPlayer extends Component {
 	setAudioSource = src => {
 		this.audio.src = src;
 	};
+
+	componentWillUnmount() {
+		if ( ! this?.audio?.id ) {
+			return;
+		}
+
+		dispatch( STORE_ID ).unregisterMediaSource( this.audio.id );
+	}
 
 	render() {
 		return <div ref={ this.audioRef } className="jetpack-podcast-player__audio-player"></div>;
