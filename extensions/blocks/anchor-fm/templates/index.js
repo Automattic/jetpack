@@ -66,17 +66,17 @@ function podcastConversationSection() {
 			placeholder: __( 'Podcast episode transcription', 'jetpack' ),
 		} ],
 		[ 'jetpack/dialogue', {
-			placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
 			participantSlug: 'participant-0',
 			hasBoldStyle: true
 		} ],
 		[ 'jetpack/dialogue', {
-			placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
 			participantSlug: 'participant-1',
 			hasBoldStyle: true
 		} ],
 		[ 'jetpack/dialogue', {
-			placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
 			participantSlug: 'participant-2',
 			hasBoldStyle: true
 		} ],
