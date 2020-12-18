@@ -51,6 +51,14 @@ const actions = {
 			id,
 			type: 'TOGGLE_MEDIA_SOURCE',
 		};
+	},
+
+	setMediaPosition( id, position ) {
+		return {
+			id,
+			type: 'SET_MEDIA_POSITION',
+			position,
+		};
 	}
 };
 
@@ -65,6 +73,10 @@ const selectors = {
 
 	getMediaStatus( state, id ) {
 		return state.players?.[ id ]?.status;
+	},
+
+	getMediaPosition( state, id ) {
+		return state.players?.[ id ]?.position;
 	},
 
 	getMediaSource( state, id ) {
@@ -126,6 +138,18 @@ const storeDefinition = {
 							status: state.players[ action.id ].status !== 'is-playing'
 								? 'is-playing'
 								: 'is-paused',
+						},
+					},
+				};
+
+			case 'SET_MEDIA_POSITION':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							position: action.position,
 						},
 					},
 				};
