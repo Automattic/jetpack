@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -12,6 +12,7 @@ import { Layout } from '../layout';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
 import { containsBackupRealtime, getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl } from 'state/initial-state';
@@ -24,6 +25,24 @@ import './style.scss';
 
 const OneClickRestoresComponent = props => {
 	const { planClass, siteRawUrl } = props;
+
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
+			type: 'one-click-restores',
+		} );
+	}, [] );
+
+	const onCtaClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'one_click_restores',
+		} );
+	} );
+
+	const onFindCredentialsClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'find_credentials',
+		} );
+	} );
 
 	const backupsName = containsBackupRealtime( planClass )
 		? __( 'Real-time Backups' )
@@ -53,6 +72,7 @@ const OneClickRestoresComponent = props => {
 						<Button
 							primary
 							href={ getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ) }
+							onClick={ onCtaClick }
 						>
 							{ __( 'Enable one-click restores' ) }
 						</Button>
@@ -60,6 +80,7 @@ const OneClickRestoresComponent = props => {
 							href="https://jetpack.com/support/ssh-sftp-and-ftp-credentials/"
 							target="_blank"
 							rel="noopener noreferrer"
+							onClick={ onFindCredentialsClick }
 							icon={ true }
 						>
 							{ __( 'Find your server credentials' ) }

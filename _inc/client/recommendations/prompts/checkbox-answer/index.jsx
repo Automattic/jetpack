@@ -10,6 +10,7 @@ import InfoPopover from 'components/info-popover';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 
 /**
@@ -22,6 +23,16 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 		const newCheckedValue = ! checked;
 		updateCheckboxAnswer( { [ answerKey ]: newCheckedValue } );
 	} );
+
+	const stopEventPropagation = useCallback( e => {
+		e.stopPropagation();
+	} );
+
+	const onPopoverClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_site_type_popover_click', {
+			type: answerKey.replace( '-', '_' ),
+		} );
+	}, [ answerKey ] );
 
 	return (
 		<div
@@ -36,8 +47,15 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 				<input type="checkbox" checked={ checked } tabIndex={ -1 } />
 			</div>
 			<div className="jp-checkbox-answer__title">{ title }</div>
-			<div className="jp-checkbox-answer__info">
-				<InfoPopover position="top right">{ info }</InfoPopover>
+			<div
+				className="jp-checkbox-answer__info"
+				onClick={ stopEventPropagation }
+				onKeyPress={ stopEventPropagation }
+				role="presentation"
+			>
+				<InfoPopover position="top right" onClick={ onPopoverClick }>
+					{ info }
+				</InfoPopover>
 			</div>
 		</div>
 	);

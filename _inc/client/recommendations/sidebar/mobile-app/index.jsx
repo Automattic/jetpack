@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 /**
  * Internal dependencies
@@ -12,6 +12,7 @@ import { Layout } from '../layout';
 import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 
 /**
  * Style dependencies
@@ -27,6 +28,18 @@ const MobileApp = () => {
 		__( 'Update your site from any device' ),
 	];
 
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
+			type: 'mobile_app',
+		} );
+	}, [] );
+
+	const onWpcomClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'mobile_app_wpcom',
+		} );
+	} );
+
 	return (
 		<Layout
 			illustrationPath={ imagePath + '/recommendations/mobile-app.svg' }
@@ -40,7 +53,14 @@ const MobileApp = () => {
 							),
 							{
 								strong: <strong />,
-								a: <a href="https://wordpress.com" target="_blank" rel="noreferrer" />,
+								a: (
+									<a
+										href="https://wordpress.com"
+										target="_blank"
+										rel="noreferrer"
+										onClick={ onWpcomClick }
+									/>
+								),
 							}
 						) }
 					</p>

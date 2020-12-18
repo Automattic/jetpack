@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -12,11 +12,24 @@ import { Layout } from '../layout';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getSiteRawUrl } from 'state/initial-state';
 
 const SecurityComponent = props => {
 	const { siteRawUrl } = props;
+
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
+			type: 'security',
+		} );
+	}, [] );
+
+	const onCtaClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'security',
+		} );
+	} );
 
 	return (
 		<Layout
@@ -35,6 +48,7 @@ const SecurityComponent = props => {
 						href={ getRedirectUrl( 'jetpack-backup', { site: siteRawUrl } ) }
 						target="_blank"
 						rel="noopener noreferrer"
+						onClick={ onCtaClick }
 					>
 						{ __( 'Manage security on Jetpack.com' ) }
 						<Gridicon icon="external" />

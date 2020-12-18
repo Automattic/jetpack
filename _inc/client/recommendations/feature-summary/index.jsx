@@ -12,6 +12,7 @@ import { getFeatureDispatch, getFeatureState } from '../feature-utils';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
+import analytics from 'lib/analytics';
 import { isFeatureActive } from 'state/recommendations';
 
 /**
@@ -25,22 +26,34 @@ const FeatureSummaryComponent = props => {
 		configLink,
 		configureButtonLabel,
 		displayName,
+		featureSlug,
 		summaryActivateButtonLabel,
 	} = props;
 
 	const [ isInstalling, setIsInstalling ] = useState( false );
 
+	const onConfigureClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_configure_click', {
+			feature: featureSlug,
+		} );
+	} );
+
 	const onInstallClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_enable_click', {
+			feature: featureSlug,
+		} );
 		setIsInstalling( true );
 		activateFeature().finally( () => {
 			setIsInstalling( false );
 		} );
-	} );
+	}, [ featureSlug ] );
 
 	const ctaButton = (
 		<div className="jp-recommendations-feature-summary__cta">
 			{ props.isFeatureActive ? (
-				<Button href={ configLink }>{ configureButtonLabel }</Button>
+				<Button href={ configLink } onClick={ onConfigureClick }>
+					{ configureButtonLabel }
+				</Button>
 			) : (
 				<InstallButton primary isInstalling={ isInstalling } onClick={ onInstallClick }>
 					{ summaryActivateButtonLabel }

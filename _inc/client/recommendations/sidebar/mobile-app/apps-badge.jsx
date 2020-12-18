@@ -14,6 +14,7 @@ import classNames from 'classnames';
  */
 import { getUserLocale as getLocaleSlug } from 'components/number-format';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 
 /**
  * Style dependencies
@@ -116,9 +117,12 @@ class AppsBadge extends PureComponent {
 	};
 
 	onLinkClick = () => {
+		analytics.tracks.record;
 		const { storeName } = this.props;
-		// TODO:
-		// this.props.recordTracksEvent( APP_STORE_BADGE_URLS[ storeName ].tracksEvent );
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'mobile_app_badge',
+			store: storeName,
+		} );
 	};
 
 	render() {

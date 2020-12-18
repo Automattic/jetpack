@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { getCurrencyObject } from '@automattic/format-currency';
 
 /**
@@ -12,6 +12,7 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 
 /**
  * Style dependencies
@@ -32,6 +33,18 @@ const ProductCardUpsell = props => {
 		price,
 		title,
 	} = upsell;
+
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
+			type: 'upsell_with_price',
+		} );
+	}, [] );
+
+	const onUpsellClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'upsell_with_price',
+		} );
+	} );
 
 	const currencyObject = getCurrencyObject( price, currency_code );
 
@@ -64,7 +77,13 @@ const ProductCardUpsell = props => {
 						{ billing_timeframe }
 					</span>
 				</div>
-				<Button primary href={ upgradeUrl }>
+				<Button
+					primary
+					href={ upgradeUrl }
+					onClick={ onUpsellClick }
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					{ cta_text }
 					<Gridicon icon="external" />
 				</Button>

@@ -3,7 +3,7 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -20,6 +20,7 @@ import { jetpackCreateInterpolateElement } from 'components/create-interpolate-e
 import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import JetpackLogo from 'components/jetpack-logo';
+import analytics from 'lib/analytics';
 import { getUpgradeUrl } from 'state/initial-state';
 import {
 	getSidebarCardSlug,
@@ -43,6 +44,10 @@ const SummaryComponent = props => {
 		upgradeUrl,
 		upsell,
 	} = props;
+
+	const onLearnMoreClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommended_summary_learn_more_click' );
+	} );
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'summary' );
@@ -129,6 +134,8 @@ const SummaryComponent = props => {
 									<ExternalLink
 										href="https://jetpack.com/features/comparison/"
 										target="_blank"
+										rel="noopener noreferrer"
+										onClick={ onLearnMoreClick }
 										icon={ true }
 										iconSize={ 16 }
 									/>

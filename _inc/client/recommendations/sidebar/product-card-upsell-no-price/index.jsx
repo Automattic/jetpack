@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 /**
  * Internal dependencies
@@ -11,6 +10,7 @@ import React from 'react';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 
 /**
  * Style dependencies
@@ -19,6 +19,18 @@ import './style.scss';
 
 const ProductCardUpsellNoPrice = props => {
 	const { upgradeUrl } = props;
+
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
+			type: 'upsell_no_price',
+		} );
+	}, [] );
+
+	const onLearnMoreClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
+			type: 'upsell_no_price',
+		} );
+	} );
 
 	const features = [
 		__( 'Robust security to keep your site safe' ),
@@ -47,7 +59,13 @@ const ProductCardUpsellNoPrice = props => {
 						'Explore premium Jetpack product bundles or pick and choose exactly what you need.'
 					) }
 				</p>
-				<Button primary href={ upgradeUrl }>
+				<Button
+					primary
+					href={ upgradeUrl }
+					onClick={ onLearnMoreClick }
+					target="blank"
+					rel="noopener noreferrer"
+				>
 					{ __( 'Learn more' ) }
 					<Gridicon icon="external" />
 				</Button>
