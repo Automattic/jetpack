@@ -82,20 +82,27 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	public function videopress_block_update_meta( $request ) {
 		$json_params = $request->get_json_params();
 		$post_id     = $json_params['id'];
-		$meta        = wp_get_attachment_metadata( $post_id );
 
-		if ( ! $meta ) {
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$guid = get_post_meta( $post_id, 'videopress_guid', true );
+		} else {
+			$blog_id = get_current_blog_id();
+			$info    = video_get_info_by_blogpostid( $blog_id, $post_id );
+			$guid    = $info->guid;
+		}
+
+		if ( ! $guid ) {
 			return rest_ensure_response(
 				new WP_Error(
 					'error',
-					__( 'An attachment with the provided id was not found', 'jetpack' )
+					__( 'This attachment cannot be updated yet.', 'jetpack' )
 				)
 			);
 		}
 
 		$video_request_params = $json_params;
 		unset( $video_request_params['id'] );
-		$video_request_params['guid'] = $meta['videopress']['guid'];
+		$video_request_params['guid'] = $guid;
 
 		$endpoint = 'videos';
 		$args     = array(
@@ -118,15 +125,28 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$response_body = json_decode( wp_remote_retrieve_body( $result ) );
 		if ( is_bool( $response_body ) && $response_body ) {
 
-			if ( isset( $json_params['display_embed'] ) ) {
-				$meta['videopress']['display_embed'] = $json_params['display_embed'];
-			}
+			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+				$meta = wp_get_attachment_metadata( $post_id );
 
-			if ( isset( $json_params['rating'] ) ) {
-				$meta['videopress']['rating'] = $json_params['rating'];
-			}
+				if ( ! $meta ) {
+					return rest_ensure_response(
+						new WP_Error(
+							'error',
+							__( 'Attachment meta was not found.', 'jetpack' )
+						)
+					);
+				}
 
-			wp_update_attachment_metadata( $post_id, $meta );
+				if ( isset( $json_params['display_embed'] ) ) {
+					$meta['videopress']['display_embed'] = $json_params['display_embed'];
+				}
+
+				if ( isset( $json_params['rating'] ) ) {
+					$meta['videopress']['rating'] = $json_params['rating'];
+				}
+
+				wp_update_attachment_metadata( $post_id, $meta );
+			}
 
 			return rest_ensure_response(
 				array(
