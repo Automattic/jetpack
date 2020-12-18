@@ -4,7 +4,7 @@ Unified environment for developing Jetpack using Docker containers providing fol
 
 * An Ubuntu base operating system.
 * Latest stable version of WordPress.
-* Jetpack source code will be available as plugin from parent directory.
+* All monorepo plugins will be available as plugins within the Docker WP instance.
 * PHPUnit setup.
 * Xdebug setup.
 * WP-CLI installed.
@@ -395,6 +395,8 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
    yarn docker:up
    ```
 
+Note that any folder within the `projects/plugins` directory will be automatically linked.
+If you're starting a new monorepo plugin, you may need to `yarn docker:stop` and `yarn docker:up` to re-run the initial linking step so it can be added.
 ## Debugging
 
 ### Accessing logs
