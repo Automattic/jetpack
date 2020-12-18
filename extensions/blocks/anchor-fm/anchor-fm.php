@@ -137,8 +137,7 @@ function process_anchor_params() {
 	// Add Spotify Badge template action.
 	if (
 		$insert_spotify_badge && (
-			'post-new.php' !== $GLOBALS['pagenow'] || // Delegate badge insertion to podcast template.
-			is_null( $episode_id ) // Add badge since basic template depends on episode.
+			'post-new.php' !== $GLOBALS['pagenow'] // Delegate badge insertion to podcast template.
 		)
 	) {
 		$data['actions'][] = array(
