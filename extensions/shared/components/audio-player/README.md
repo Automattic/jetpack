@@ -30,7 +30,7 @@ Used in conjunction with `onTimeChange` this tracks the current position in the 
 
 While the file is playing, this callback will be triggered every second to update the controlling component that the time position has changed. This value is then expected to be passed back in using the `currentTime` prop.
 
-If the value passed in is more than 2 seconds different to the current position in the audio file, then it's assumed we would like to seek to that time.
+If the value passed in is more than a second different to the current position in the audio file, then it's assumed we would like to seek to that time.
 
 #### `onPlay` and `onPause`
 
