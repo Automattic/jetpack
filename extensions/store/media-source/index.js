@@ -38,7 +38,7 @@ const actions = {
 		};
 	},
 
-	stopMediaSource( id ) {
+	pauseMediaSource( id ) {
 		return {
 			type: 'STOP_MEDIA_SOURCE',
 			id,
@@ -61,6 +61,10 @@ const selectors = {
 		}
 
 		return state.players[ Object.keys( state.players )[ 0 ] ];
+	},
+
+	getMediaStatus( state, id ) {
+		return state.players?.[ id ]?.status;
 	},
 
 	getMediaSource( state, id ) {
