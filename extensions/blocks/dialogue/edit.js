@@ -83,9 +83,10 @@ export default function DialogueEdit ( {
 	const currentMediaSource = useSelect( select => select( STORE_ID ).getCurrent(), [] );
 
 	const togglePlayer = () => toggleMediaSource( currentMediaSource.id );
+	const setPosition = ( pos ) => setMediaPosition( currentMediaSource.id, mejs.Utils.timeCodeToSeconds( pos ) );
 
 	const setTimestamp = ( newTimestampValue ) => {
-		setMediaPosition( currentMediaSource.id, mejs.Utils.timeCodeToSeconds( newTimestampValue ) );
+		setPosition( newTimestampValue );
 		setAttributes( { timestamp: newTimestampValue } );
 	};
 
@@ -185,7 +186,13 @@ export default function DialogueEdit ( {
 								? 'controls-play'
 								: 'controls-pause'
 							}
-							onClick={ togglePlayer }
+							onClick={ () => {
+								if ( currentMediaSource.status === 'is-paused' ) {
+									setPosition( timestamp );
+								}
+
+								togglePlayer();
+							} }
 						/>
 						<ToolbarButton
 							icon={ controlForwardFive }
