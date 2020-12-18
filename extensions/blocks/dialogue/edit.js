@@ -10,7 +10,7 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-
+import { useSelect, dispatch } from '@wordpress/data';
 import {
 	Panel,
 	PanelBody,
@@ -19,7 +19,6 @@ import {
 	ToolbarButton,
 } from '@wordpress/components';
 import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
-import { useSelect, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -36,6 +35,7 @@ import {
 	list as defaultParticipants,
 } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
+import { STORE_ID } from '../../store/media-source';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -85,6 +85,8 @@ export default function DialogueEdit( {
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
+
+	const currentMediaSource = useSelect( select => select( STORE_ID ).getCurrent(), [] );
 
 	// Participants list.
 	const participants = participantsFromContext?.length
