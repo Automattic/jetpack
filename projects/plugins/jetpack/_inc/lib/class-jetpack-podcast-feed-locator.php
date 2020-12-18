@@ -32,12 +32,49 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 		if ( ! class_exists( 'DOMDocument' ) ) {
 			return true;
 		}
-		$feed_dom = new DOMDocument();
-		$feed_dom->loadXML( $file->body );
+
+		$feed_dom = $this->safely_load_xml( $file->body );
 
 		// Do this as either/or but prioritise the itunes namespace. It's pretty likely
 		// that it's a podcast feed we've found if that namespace is present.
-		return $this->has_itunes_ns( $feed_dom ) || $this->has_audio_enclosures( $feed_dom );
+		return $feed_dom && ( $this->has_itunes_ns( $feed_dom ) || $this->has_audio_enclosures( $feed_dom ) );
+	}
+
+	/**
+	 * Safely loads an XML file
+	 *
+	 * @param string $xml A string of XML to load.
+	 * @return DOMDocument|false A restulting DOM document or `false` if there is an error.
+	 */
+	private function safely_load_xml( $xml ) {
+		$disable_entity_loader = PHP_VERSION_ID < 80000;
+
+		if ( $disable_entity_loader && ! function_exists( 'libxml_disable_entity_loader' ) ) {
+			return false;
+		}
+
+		if ( $disable_entity_loader ) {
+			// This function has been deprecated in PHP 8.0 because in libxml 2.9.0, external entity loading
+			// is disabled by default, so this function is no longer needed to protect against XXE attacks.
+			// phpcs:ignore Generic.PHP.DeprecatedFunctions.Deprecated
+			$loader = libxml_disable_entity_loader( true );
+		}
+
+		$errors = libxml_use_internal_errors( true );
+
+		$return = new DOMDocument();
+		if ( ! $return->loadXML( $xml ) ) {
+			return false;
+		}
+
+		libxml_use_internal_errors( $errors );
+
+		if ( $disable_entity_loader && isset( $loader ) ) {
+			// phpcs:ignore Generic.PHP.DeprecatedFunctions.Deprecated
+			libxml_disable_entity_loader( $loader );
+		}
+
+		return $return;
 	}
 
 	/**
