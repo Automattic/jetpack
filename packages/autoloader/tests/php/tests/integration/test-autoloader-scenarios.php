@@ -33,6 +33,10 @@ class Test_Autoloader_Scenarios extends TestCase {
 		// We need to make sure there's an autoloader containing the current files for testing.
 		$this->generate_autoloader( 'plugin_current' );
 		$this->generate_autoloader( 'plugin_newer' );
+
+		// We also want a symlink version of the plugin for testing.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@symlink( WP_PLUGIN_DIR . '/plugin_current', WP_PLUGIN_DIR . '/plugin_symlink' );
 	}
 
 	/**
@@ -47,6 +51,7 @@ class Test_Autoloader_Scenarios extends TestCase {
 		// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
 		@unlink( TEST_DATA_PATH . '/cache/jetpack-autoloader-' . Plugins_Handler::TRANSIENT_KEY . '.json' );
 		@rmdir( TEST_DATA_PATH . '/cache' );
+		@unlink( WP_PLUGIN_DIR . '/plugin_symlink' );
 		// phpcs:enable WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
@@ -223,6 +228,38 @@ class Test_Autoloader_Scenarios extends TestCase {
 	}
 
 	/**
+	 * Tests that the autoloader is able to resolve symbolic links to avoid duplicate plugin entries.
+	 */
+	public function test_autoloader_resolves_symlinks() {
+		$this->activate_plugin( 'plugin_current', 'plugin_symlink' );
+
+		$this->load_autoloader( 'plugin_symlink' );
+
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		// Since there's no cache we should expect the resolved path.
+		$this->assertAutoloaderCache( array( 'plugin_current' ) );
+	}
+
+	/**
+	 * Tests that the autoloader can handle cases where the cached path is a symlink.
+	 */
+	public function test_autoloader_resolves_cached_symlinks() {
+		$this->cache_plugins( array( 'plugin_symlink' ) );
+
+		$this->activate_plugin( 'plugin_current', 'plugin_symlink' );
+
+		$this->load_autoloader( 'plugin_symlink' );
+
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		// The cache shouldn't be updated since internally real paths are always used.
+		$this->assertAutoloaderCache( array( 'plugin_symlink' ) );
+	}
+
+	/**
 	 * Generates a new autoloader from the current source files for the "plugin_current" plugin.
 	 *
 	 * @param string $plugin The plugin to generate the autoloader for.
@@ -251,14 +288,19 @@ class Test_Autoloader_Scenarios extends TestCase {
 	 * "Activate" a plugin so that the autoloader can detect it.
 	 *
 	 * @param string $plugin The plugin we want to activate.
+	 * @param string $folder The folder that the plugin is in. If empty this will default to $plugin.
 	 */
-	private function activate_plugin( $plugin ) {
+	private function activate_plugin( $plugin, $folder = '' ) {
 		$active_plugins = get_option( 'active_plugins' );
 		if ( ! $active_plugins ) {
 			$active_plugins = array();
 		}
 
-		$active_plugins[] = $plugin . '/' . $plugin . '.php';
+		if ( empty( $folder ) ) {
+			$folder = $plugin;
+		}
+
+		$active_plugins[] = $folder . '/' . $plugin . '.php';
 
 		add_test_option( 'active_plugins', $active_plugins );
 	}
