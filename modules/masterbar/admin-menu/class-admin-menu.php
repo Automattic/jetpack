@@ -73,6 +73,7 @@ class Admin_Menu {
 		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu( $domain );
+			$this->add_new_site_link();
 		}
 
 		/**
@@ -145,6 +146,19 @@ class Admin_Menu {
 		}
 
 		return $menu;
+	}
+
+	/**
+	 * Adds a link to the menu to create a new site.
+	 */
+	public function add_new_site_link() {
+		// Only show the menu on atomic or simple.
+		if ( ! jetpack_is_atomic_site() && ! $this->is_wpcom_site() ) {
+			return;
+		}
+
+		// Add the menu item.
+		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start', null, 'dashicons-plus-alt', 98 );
 	}
 
 	/**
