@@ -80,13 +80,18 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
-# Symlink jetpack into the wp-content dir.
-if [ ! -e /var/www/html/wp-content/plugins/jetpack ]; then
-	ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack /var/www/html/wp-content/plugins/jetpack
-fi
+for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
+	[ -d "$DIR" ] || continue # We are only interested in directories, e.g. different plugins.
+	PLUGIN="$(basename $DIR)"
+	# Symlink plugins into the wp-content dir.
+	if [ ! -e /var/www/html/wp-content/plugins/"$PLUGIN" ]; then
+		echo "Linking the $PLUGIN plugin."
+		ln -s "$DIR" /var/www/html/wp-content/plugins/"$PLUGIN"
+	fi
+done
 
-# Symlink debug helper into the wp-content dir.
-if [ ! -e /var/www/html/wp-content/plugins/jetpack ]; then
+# Symlink debug helper into the wp-content dir since it isn't a plugin. But, it probably should move to /projects/plugins/ in a follow-up. @todo
+if [ ! -e /var/www/html/wp-content/plugins/jetpack-debug-helper ]; then
 	ln -s /usr/local/src/jetpack-monorepo/projects/packages/debug-helper /var/www/html/wp-content/plugins/jetpack-debug-helper
 fi
 

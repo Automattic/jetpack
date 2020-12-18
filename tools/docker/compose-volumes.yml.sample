@@ -9,7 +9,7 @@
 - ./wordpress:/var/www/html
 
 ## The Monorepo. Don't delete this. Think of it as the flux capacitor—it makes time travel possible.
-- ..:/usr/local/src/jetpack-monorepo
+- ../..:/usr/local/src/jetpack-monorepo
 
 ## Must Use Plugins directory. See tools/docker/README.md
 - ./mu-plugins:/var/www/html/wp-content/mu-plugins
