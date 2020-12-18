@@ -18,6 +18,7 @@ class Admin_Color_Schemes {
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'register_admin_color_schemes' ) );
 		add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
 	}
 
 	/**
@@ -178,5 +179,21 @@ class Admin_Color_Schemes {
 			)
 		);
 
+	}
+
+	/**
+	 * Enqueues current color-scheme overrides for core color schemes
+	 */
+	public function enqueue_core_color_schemes_overrides() {
+		$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
+		$color_scheme       = get_user_option( 'admin_color' );
+		if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
+			wp_enqueue_style(
+				'jetpack-core-color-schemes-overrides',
+				$this->get_admin_color_scheme_url( $color_scheme ),
+				defined( 'IS_WPCOM' ) && IS_WPCOM ? array( 'wpcom-admin-bar', 'wpcom-masterbar-css' ) : array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' ),
+				JETPACK__VERSION
+			);
+		}
 	}
 }

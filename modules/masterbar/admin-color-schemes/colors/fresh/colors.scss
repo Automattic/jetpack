@@ -1,0 +1,24 @@
+$menu-submenu-background: #333333;
+$text-color: #fff;
+$highlight-color: #006fad;
+$base-color-rgb: rgb(35,40,45);
+
+@import "../_core-overrides";
+
+// Fresh theme specifics
+.admin-color-fresh #wpadminbar {
+	background: #101517;
+}
+
+#wpadminbar .ab-top-menu > #wp-admin-bar-blog.my-sites > .ab-item {
+	background: #23282d;
+}
+
+.site__info > .site__badge {
+	background: #dcdcde;
+	color: #1d2327;
+}
+
+.site__info .site__domain {
+	color: #a2aab2;
+}

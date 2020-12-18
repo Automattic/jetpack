@@ -1,0 +1,12 @@
+$menu-submenu-background: #fff;
+$text-color: #333;
+$highlight-color: #888;
+$base-color-rgb: rgb(229, 229, 229);
+
+// Light theme specifics
+#wpadminbar #wp-admin-bar-blog > a.ab-item:before,
+#wpadminbar #wp-admin-bar-newdash > a.ab-item:before {
+	filter: brightness(0.1);
+}
+
+@import "../_core-overrides";

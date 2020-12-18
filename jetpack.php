@@ -16,7 +16,7 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.5' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '9.3-alpha' );
+define( 'JETPACK__VERSION', '9.3-alpha-20201218' );
 
 /**
  * Constant used to fetch the connection owner token

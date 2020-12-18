@@ -1,0 +1,47 @@
+/* Masterbar */
+#wpadminbar {
+	-webkit-box-shadow: inset 0 -1px 0 $menu-submenu-background;
+	-moz-box-shadow: inset 0 -1px 0 $menu-submenu-background;
+	box-shadow: inset 0 -1px 0 $menu-submenu-background;
+}
+
+#wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
+	background: $menu-submenu-background;
+	color: $text-color !important;
+}
+
+#wpadminbar .ab-top-menu > #wp-admin-bar-newdash > .ab-item {
+	color: $text-color !important;
+}
+
+#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
+	background: $menu-submenu-background;
+}
+
+/**
+ * Site Card
+ */
+ #adminmenu li.toplevel_page_site-card {
+	border-bottom: 1px solid $menu-submenu-background;
+	border-top: 1px solid $menu-submenu-background;
+}
+
+#adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+#adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+	background-color: $highlight-color;
+}
+
+.site__info .site__title,
+.site__info .site__domain {
+	color: $text-color;
+}
+
+.site__info .site__title::after,
+.site__info .site__domain::after {
+	background: linear-gradient(90deg,rgba( $base-color-rgb, 0 ),rgba( $base-color-rgb, 1 ) 90%);
+}
+
+.site__info > .site__badge {
+	background: $highlight-color;
+	color: $text-color;
+}
