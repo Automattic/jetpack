@@ -9,46 +9,39 @@
 import { getWidgetOutsideOverlay } from '../selectors';
 
 describe( 'getWidgetOutsideOverlay', () => {
-	test( 'defaults to an empty object for a clean state', () => {
-		const state = { serverOptions: {} };
-		expect( getWidgetOutsideOverlay( state ) ).toEqual( {} );
+	test( 'defaults to an object with an empty array for the filters value for a clean state', () => {
+		expect( getWidgetOutsideOverlay( { filters: {}, serverOptions: { widgets: [] } } ) ).toEqual( {
+			filters: [],
+		} );
 	} );
 
-	test( 'defaults to an empty object when either widget configurations are falsy', () => {
-		expect(
-			getWidgetOutsideOverlay( {
-				serverOptions: {
-					widgets: [],
-					widgetsOutsideOverlay: null,
-				},
-			} )
-		).toEqual( {} );
-		expect(
-			getWidgetOutsideOverlay( {
-				serverOptions: {
-					widgets: undefined,
-					widgetsOutsideOverlay: [],
-				},
-			} )
-		).toEqual( {} );
-	} );
-
-	test( 'extracts filter keys from widgets outside the overlay', () => {
+	test( 'extracts filters that could not have been selected via overlay widgets', () => {
 		const state = {
-			filters: { category: [ '1', '2' ], post_types: [ 'post', 'page' ] },
+			filters: {
+				category: [ '1', '2' ],
+				post_types: [ 'post', 'page' ],
+				month_post_date: [ '2019-08-01 00:00:00' ],
+				year_post_modified_gmt: [ '2019-01-01 00:00:00' ],
+			},
 			serverOptions: {
 				widgets: [ { filters: [ { type: 'taxonomy', taxonomy: 'category' } ] } ],
-				widgetsOutsideOverlay: [
-					{ filters: [ { type: 'taxonomy', taxonomy: 'category' } ] },
-					{ filters: [ { type: 'date_histogram', field: 'post_date', interval: 'year' } ] },
-					{ filters: [ { type: 'post_type' } ] },
-				],
 			},
 		};
 		// Category filter is excluded since it's also available in state.serverOptions.widgets.
-		// Year post-date filter is excluded since it's not one of the selected filters in state.filters.
 		expect( getWidgetOutsideOverlay( state ) ).toEqual( {
-			filters: [ { type: 'post_type' } ],
+			filters: [
+				{ type: 'post_type' },
+				{
+					field: 'post_date',
+					interval: 'month',
+					type: 'date_histogram',
+				},
+				{
+					field: 'post_modified_gmt',
+					interval: 'year',
+					type: 'date_histogram',
+				},
+			],
 		} );
 	} );
 } );

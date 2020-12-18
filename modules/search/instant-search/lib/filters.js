@@ -70,6 +70,32 @@ export function mapFilterToFilterKey( filter ) {
 	return null;
 }
 
+export function mapFilterKeyToFilter( filterKey ) {
+	// TODO: Write a test for this function
+	if ( filterKey.includes( 'month' ) ) {
+		return {
+			field: filterKey.split( 'month_' ).pop(),
+			type: 'date_histogram',
+			interval: 'month',
+		};
+	} else if ( filterKey.includes( 'year' ) ) {
+		return {
+			field: filterKey.split( 'year_' ).pop(),
+			type: 'date_histogram',
+			interval: 'year',
+		};
+	} else if ( filterKey === 'post_types' ) {
+		return {
+			type: 'post_type',
+		};
+	}
+
+	return {
+		type: 'taxonomy',
+		taxonomy: filterKey,
+	};
+}
+
 export function mapFilterToType( filter ) {
 	if ( filter.type === 'date_histogram' ) {
 		return 'date';

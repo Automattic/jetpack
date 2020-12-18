@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import { getUnselectableFilterKeys, mapFilterToFilterKey } from '../lib/filters';
+import {
+	getUnselectableFilterKeys,
+	mapFilterKeyToFilter,
+	mapFilterToFilterKey,
+} from '../lib/filters';
 
 /**
  * Get response.
@@ -89,19 +93,13 @@ export function hasFilters( state ) {
 // This is used to render a single SearchFilters component for all filters selected outside the search overlay.
 export function getWidgetOutsideOverlay( state ) {
 	// Both of these values should default to [] when empty; they should never be falsy.
-	if ( ! state.serverOptions.widgetsOutsideOverlay || ! state.serverOptions.widgets ) {
+	if ( ! state.serverOptions.widgets || ! state.filters ) {
 		return {};
 	}
-	const keys = getUnselectableFilterKeys(
-		state.serverOptions.widgets,
-		state.serverOptions.widgetsOutsideOverlay
-	);
-	const selectedKeys = Object.keys( state.filters ).filter( key => keys.includes( key ) );
-	const filters = state.serverOptions.widgetsOutsideOverlay
-		.map( widget => widget.filters )
-		.reduce( ( prev, current ) => prev.concat( current ), [] )
-		// Server-side filter keys are named differently than client-side; conversion is required.
-		.filter( serverFilter => selectedKeys.includes( mapFilterToFilterKey( serverFilter ) ) );
+	const keys = getUnselectableFilterKeys( state.serverOptions.widgets );
+	const filters = Object.keys( state.filters )
+		.filter( key => keys.includes( key ) )
+		.map( mapFilterKeyToFilter );
 
 	return { filters };
 }
