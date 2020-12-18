@@ -9,7 +9,7 @@
 
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
 		<!-- Template files use extracted variables. -->
-		<exclude-pattern>/extensions/blocks/podcast-player/templates/*</exclude-pattern>
+		<exclude-pattern>/projects/plugins/jetpack/extensions/blocks/podcast-player/templates/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
