@@ -1279,7 +1279,11 @@ class Replicastore implements Replicastore_Interface {
 			return $range_edges;
 		}
 
-		$object_count = $range_edges['item_count'];
+		$object_count = (int) $range_edges['item_count'];
+
+		if ( 0 === $object_count ) {
+			return array();
+		}
 
 		$bucket_size     = (int) ceil( $object_count / $buckets );
 		$previous_max_id = max( 0, $range_edges['min_range'] );
