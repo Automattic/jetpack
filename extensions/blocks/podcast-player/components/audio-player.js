@@ -34,7 +34,7 @@ class AudioPlayer extends Component {
 				success: function() {
 					dispatch( STORE_ID ).registerMediaSource( audio.id, {
 						status: 'is-paused',
-						timestamp: 0,
+						position: 0,
 					} );
 				}
 			} );
