@@ -65,5 +65,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - working-directory: 'projects/plugins/jetpack'
-        run: |
-          yarn build-concurrently
+        run: yarn build-concurrently

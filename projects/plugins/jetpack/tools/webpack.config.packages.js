@@ -1,5 +1,5 @@
 const path = require( 'path' );
-const packagesFolder = path.resolve( path.dirname( path.dirname( path.dirname( __dirname ) ) ), 'packages/lazy-images/src/js' )
+const packagesFolder = path.resolve( path.dirname( path.dirname( path.dirname( __dirname ) ) ), 'packages/lazy-images/src/js' );
 
 module.exports = [
 	{
