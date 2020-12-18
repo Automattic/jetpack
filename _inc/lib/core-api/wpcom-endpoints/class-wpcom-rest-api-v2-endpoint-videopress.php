@@ -137,11 +137,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					);
 				}
 
-				if ( isset( $json_params['display_embed'] ) ) {
+				if ( isset( $json_params['display_embed'] ) && isset( $meta['videopress']['display_embed'] ) ) {
 					$meta['videopress']['display_embed'] = $json_params['display_embed'];
 				}
 
-				if ( isset( $json_params['rating'] ) ) {
+				if ( isset( $json_params['rating'] ) && isset( $meta['videopress']['rating'] ) ) {
 					$meta['videopress']['rating'] = $json_params['rating'];
 				}
 
