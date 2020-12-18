@@ -54,6 +54,33 @@ function register_extension() {
 			'type'         => 'string',
 		)
 	);
+
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_podcast'] ) ) : null;
+	$episode_id       = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_episode'] ) ) : null;
+	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? esc_url_raw( wp_unslash( $_GET['spotify_show_url'] ) ) : null;
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+	$template_blocks = array();
+
+	if ( ! empty( $spotify_show_url ) ) {
+		$data['spotifyShowUrl'] = $spotify_show_url;
+
+			array_push( $template_blocks,
+				array( 'core/image', array(
+					'url'             => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
+					'linkDestination' => 'none',
+					'href'            => $spotify_show_url,
+					'align'           => 'center',
+					'width'           => 165,
+					'height'          => 40,
+					'className'       => 'is-spotify-podcast-badge',
+				)
+			) );
+	}
+	
+	$post_type_object = get_post_type_object( 'post' );
+	$post_type_object->template = $template_blocks;
 }
 
 /**
@@ -111,20 +138,6 @@ function process_anchor_params() {
 					}
 				}
 			}
-		}
-	}
-
-	if ( ! empty( $spotify_show_url ) ) {
-		$data['spotifyShowUrl'] = $spotify_show_url;
-		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
-			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
-			$data['actions'][] = array(
-				'insert-spotify-badge',
-				array(
-					'image' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
-					'url'   => $spotify_show_url,
-				),
-			);
 		}
 	}
 
