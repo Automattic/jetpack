@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Status;
 
 /**
  * Class Atomic_Admin_Menu.
@@ -86,7 +85,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$site_card = sprintf(
 			$site_card,
 			get_option( 'blogname' ),
-			( new Status() )->get_site_suffix(),
+			$this->domain,
 			$badge
 		);
 
@@ -154,7 +153,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		remove_menu_page( 'jetpack' );
 		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 5 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
 
 		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
 	}
@@ -167,7 +167,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function jetpack_parent_file( $parent_file ) {
 		if ( 'jetpack' === $parent_file ) {
-			$parent_file = 'https://wordpress.com/activity-log/' . ( new Status() )->get_site_suffix();
+			$parent_file = 'https://wordpress.com/activity-log/' . $this->domain;
 		}
 
 		return $parent_file;

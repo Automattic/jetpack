@@ -173,7 +173,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		remove_menu_page( 'jetpack' );
 		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 5 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
 
 		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
 	}
