@@ -40,19 +40,18 @@ class Jetpack_Recommendations {
 		}
 
 		$request_path = sprintf( '/sites/%s/jetpack-recommendations/site-registered-date', $blog_id );
-		$request      = Client::wpcom_json_api_request_as_user(
+		$result       = Client::wpcom_json_api_request_as_blog(
 			$request_path,
-			'2',
+			2,
 			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
-				),
-			)
+				'headers' => array( 'content-type' => 'application/json' ),
+			),
+			null,
+			'wpcom'
 		);
 
-		$body = json_decode( wp_remote_retrieve_body( $request ) );
-		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+		$body = json_decode( wp_remote_retrieve_body( $result ) );
+		if ( 200 === wp_remote_retrieve_response_code( $result ) ) {
 			$site_registered_date = $body->site_registered_date;
 		} else {
 			$connection           = new Connection_Manager( 'jetpack' );
