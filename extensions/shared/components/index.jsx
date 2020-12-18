@@ -21,7 +21,7 @@ import './style.scss';
 // initialised Redux state when rendering ir (probably through globals set as arguments
 // to the `StaticSiteGeneratorPlugin` call in `webpack.config.extensions.js`).
 const upgradeNudge = renderToStaticMarkup(
-	<UpgradeNudge planName="#planName#" upgradeUrl="#upgradeUrl#" />
+	<UpgradeNudge checkoutUrl="#checkoutUrl#" />
 );
 
 const stripeNudge = renderToStaticMarkup(
