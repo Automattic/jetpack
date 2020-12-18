@@ -31,7 +31,19 @@ const actions = {
 	},
 };
 
-const selectors = {};
+const selectors = {
+	getCurrent( state ) {
+		if ( ! Object.keys( state.players ).length ) {
+			return;
+		}
+
+		return state.players[ Object.keys( state.players )[ 0 ] ];
+	},
+
+	getMediaSource( state, id ) {
+		return state.players?.[ id ];
+	}
+};
 
 const storeDefinition = {
     reducer( state = DEFAULT_STATE, action ) {
