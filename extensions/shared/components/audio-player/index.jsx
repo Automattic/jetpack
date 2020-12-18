@@ -12,13 +12,12 @@ import { speak } from '@wordpress/a11y';
  */
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
 import { pickCurrentTime } from './utils';
+const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 /**
  * Style dependencies
  */
 import './style.scss';
-
-const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {
 	const buttonContainer = document.createElement( 'div' );
@@ -68,7 +67,6 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		// Initialize MediaElement.js.
 		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
 
 		// Try to catch play event from the media player button.
