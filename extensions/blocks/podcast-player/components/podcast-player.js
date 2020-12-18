@@ -197,6 +197,7 @@ export class PodcastPlayer extends Component {
 		const { title, link, cover, tracks } = this.props;
 
 		this.props.registerMediaSource( playerId, {
+			id: playerId,
 			title,
 			link,
 			cover,
