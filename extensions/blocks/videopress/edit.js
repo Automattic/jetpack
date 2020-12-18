@@ -218,6 +218,8 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			this.setState( { isUpdatingRating: true, rating } );
 
+			const revertSetting = () => this.setState( { rating: originalRating } );
+
 			apiFetch( {
 				path: '/wpcom/v2/videopress/meta',
 				method: 'POST',
@@ -226,10 +228,14 @@ const VideoPressEdit = CoreVideoEdit =>
 					rating: rating,
 				},
 			} )
-				.then( () => {
-					// do nothing, request succeeded!
+				.then( result => {
+					// check for wpcom status field, if set
+					if ( status in result && 200 !== result.status ) {
+						revertSetting();
+						return;
+					}
 				} )
-				.catch( () => this.setState( { rating: originalRating } ) ) // revert the setting since update failed
+				.catch( () => revertSetting() )
 				.finally( () => this.setState( { isUpdatingRating: false } ) );
 		};
 
