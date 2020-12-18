@@ -80,6 +80,16 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
+# Symlink jetpack into the wp-content dir.
+if [ ! -e /var/www/html/wp-content/plugins/jetpack ]; then
+	ln -s /usr/local/src/jetpack-monorepo/projects/plugins/jetpack /var/www/html/wp-content/plugins/jetpack
+fi
+
+# Symlink debug helper into the wp-content dir.
+if [ ! -e /var/www/html/wp-content/plugins/jetpack ]; then
+	ln -s /usr/local/src/jetpack-monorepo/projects/packages/debug-helper /var/www/html/wp-content/plugins/jetpack-debug-helper
+fi
+
 # Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
 if [ ! -e /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack ]; then
 	ln -s /var/www/html/wp-content/plugins/jetpack /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack
