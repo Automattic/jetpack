@@ -301,7 +301,7 @@ export class PodcastPlayer extends Component {
 						onPause={ this.handlePause }
 						onError={ this.handleError }
 						playStatus={ this.props.playerStatus }
-						currentTime={ this.state.currentTime }
+						currentTime={ this.props.playerPosition }
 						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
@@ -358,10 +358,11 @@ PodcastPlayer.defaultProps = {
 export default compose( [
 	withErrorBoundary,
 	withSelect( ( select, props ) => {
-		const { getMediaStatus } = select( STORE_ID );
+		const { getMediaStatus, getMediaPosition } = select( STORE_ID );
 
 		return {
 			playerStatus: getMediaStatus( props.playerId ),
+			playerPosition: getMediaPosition( props.playerId ),
 		};
 	} ),
 	withDispatch( dispatch => {
