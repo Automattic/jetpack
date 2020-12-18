@@ -54,6 +54,45 @@ function register_extension() {
 			'type'         => 'string',
 		)
 	);
+
+	// Pick up Anchor.fm data from the query string.
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended
+	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_podcast'] ) ) : null;
+	$episode_id       = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_episode'] ) ) : null;
+	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? esc_url_raw( wp_unslash( $_GET['spotify_show_url'] ) ) : null;
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+	$post = get_post();
+	if ( ! $post || ! $post->ID ) {
+		return;
+	}
+
+	// Set the post title when it's new,
+	// and the episode has a title.
+	if ( ! empty( $podcast_id ) ) {
+		$feed           = 'https://anchor.fm/s/' . $podcast_id . '/podcast/rss';
+		$podcast_helper = new Jetpack_Podcast_Helper( $feed );
+		$rss            = $podcast_helper->load_feed();
+		if ( ! \is_wp_error( $rss ) ) {
+			update_post_meta( $post->ID, 'jetpack_anchor_podcast', $podcast_id );
+
+			if ( ! empty( $episode_id ) ) {
+				$track = $podcast_helper->get_track_data( $episode_id );
+				if ( ! \is_wp_error( $track ) ) {
+					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
+
+					// Update the post into the database
+					wp_update_post(
+						array(
+							'ID'    => $post->ID,
+							'title' => $track['title'],
+						)
+					);
+				}
+			}
+		}
+	}
+
 }
 
 /**
@@ -100,15 +139,6 @@ function process_anchor_params() {
 				$track = $podcast_helper->get_track_data( $episode_id );
 				if ( ! \is_wp_error( $track ) ) {
 					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
-
-					if ( 'post-new.php' === $GLOBALS['pagenow'] ) {
-						$data['actions'][] = array(
-							'set-episode-title',
-							array(
-								'title' => $track['title'],
-							),
-						);
-					}
 				}
 			}
 		}
@@ -138,6 +168,8 @@ function process_anchor_params() {
 		$data['actions'][] = 'show-post-publish-outbound-link';
 	}
 
+
+	wp_localize_script( 'jetpack-blocks-editor', 'coco', array( 'name' => 'Damian' ) );
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
 
