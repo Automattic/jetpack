@@ -292,6 +292,10 @@ export function getActiveProductPurchases( state ) {
 	);
 }
 
+export function hasActiveProductPurchase( state ) {
+	return getActiveProductPurchases( state ).length > 0;
+}
+
 export function getActiveBackupPurchase( state ) {
 	return find( getActiveProductPurchases( state ), product =>
 		isJetpackBackup( product.product_slug )

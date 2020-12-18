@@ -298,3 +298,21 @@ export function getMonthlyPlanByYearly( plan ) {
 			return '';
 	}
 }
+
+export function containsBackupDaily( planClass ) {
+	return [
+		'is-personal-plan',
+		'is-premium-plan',
+		'is-daily-security-plan',
+		'is-daily-backup-plan',
+	].includes( planClass );
+}
+
+export function containsBackupRealtime( planClass ) {
+	return [
+		'is-business-plan',
+		'is-realtime-security-plan',
+		'is-complete-plan',
+		'is-realtime-backup-plan',
+	].includes( planClass );
+}
