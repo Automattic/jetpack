@@ -117,6 +117,8 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test processing of vimeo URLs in post content.
+	 *
 	 * @author Toro_Unit
 	 * @covers ::vimeo_shortcode
 	 * @since 3.9
@@ -130,8 +132,8 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		global $post;
 
 		$video_id = '141358';
-		$url = 'http://vimeo.com/' . $video_id;
-		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
+		$url      = 'http://vimeo.com/' . $video_id;
+		$post     = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
 
 		do_action( 'init' );
 		setup_postdata( $post );
@@ -140,7 +142,12 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$actual = ob_get_clean();
 		wp_reset_postdata();
 		$this->assertContains( '<div class="embed-vimeo"', $actual );
-		$this->assertContains( '<iframe src="https://player.vimeo.com/video/'.$video_id.'"', $actual );
+
+		if ( wp_lazy_loading_enabled( 'iframe', null ) ) {
+			$this->assertContains( '<iframe loading="lazy" src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
+		} else {
+			$this->assertContains( '<iframe src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
+		}
 	}
 
 	/**

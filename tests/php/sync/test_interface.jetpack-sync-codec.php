@@ -34,6 +34,9 @@ class WP_Test_Jetpack_Sync_Codec_Interface extends PHPUnit_Framework_TestCase {
 
 		// basically this function will explode unless there's some checks on infinite recursion
 		$decoded_object = $codec->decode( $codec->encode( $object_a ) );
+
+		// PHPUnit complains unless there's at least one assertion in the test.
+		$this->assertTrue( true );
 	}
 
 	/**

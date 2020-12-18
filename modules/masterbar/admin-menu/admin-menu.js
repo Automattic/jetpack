@@ -27,7 +27,7 @@
 				wpwrap.classList.toggle( 'wp-responsive-open' );
 				if ( wpwrap.classList.contains( 'wp-responsive-open' ) ) {
 					setAriaExpanded( 'true' );
-					var first = document.querySelector( '#adminmenu a:first' );
+					var first = document.querySelector( '#adminmenu a' );
 					if ( first ) {
 						first.focus();
 					}

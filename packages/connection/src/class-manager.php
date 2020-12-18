@@ -2127,9 +2127,9 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		$is_master_user = ! $this->is_active();
+		$is_connection_owner = ! $this->has_connected_owner();
 
-		Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
+		Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
 		/**
 		 * Fires after user has successfully received an auth token.
@@ -2138,7 +2138,7 @@ class Manager {
 		 */
 		do_action( 'jetpack_user_authorized' );
 
-		if ( ! $is_master_user ) {
+		if ( ! $is_connection_owner ) {
 			/**
 			 * Action fired when a secondary user has been authorized.
 			 *

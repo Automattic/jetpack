@@ -1595,14 +1595,22 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return array The Twitter card data.
 	 */
 	public static function generate_cards( $urls ) {
+		$validator = new Twitter_Validator();
+
 		$requests = array_map(
-			function ( $url ) {
-				return array(
-					'url' => $url,
-				);
+			function ( $url ) use ( $validator ) {
+				if ( $validator->isValidURL( $url ) ) {
+					return array(
+						'url' => $url,
+					);
+				}
+
+				return false;
 			},
 			$urls
 		);
+
+		$requests = array_filter( $requests );
 
 		$results = Requests::request_multiple( $requests );
 
@@ -1629,12 +1637,8 @@ class Jetpack_Tweetstorm_Helper {
 		);
 
 		$cards = array();
-		foreach ( $results as $result ) {
-			if ( count( $result->history ) > 0 ) {
-				$url = $result->history[0]->url;
-			} else {
-				$url = $result->url;
-			}
+		foreach ( $results as $id => $result ) {
+			$url = $requests[ $id ]['url'];
 
 			if ( ! $result->success ) {
 				$cards[ $url ] = array(
