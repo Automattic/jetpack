@@ -10,7 +10,7 @@ import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -147,6 +147,8 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePlay = () => {
+		this.props.playMediaSource( this.props.playerId );
+
 		this.setState( {
 			playerState: STATE_PLAYING,
 			hasUserInteraction: true,
@@ -159,6 +161,7 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePause = () => {
+		this.props.pauseMediaSource( this.props.playerId );
 		// Ignore pauses if we are showing an error.
 		if ( this.state.playerState === STATE_ERROR ) {
 			return;
@@ -176,6 +179,7 @@ export class PodcastPlayer extends Component {
 	 * @public
 	 */
 	togglePlayPause = () => {
+		this.props.toggleMediaSource( this.props.playerId );
 		const action = this.state.playerState === STATE_PLAYING ? this.handlePause : this.handlePlay;
 		action();
 	};
@@ -296,7 +300,7 @@ export class PodcastPlayer extends Component {
 						onPlay={ this.handlePlay }
 						onPause={ this.handlePause }
 						onError={ this.handleError }
-						playStatus={ this.state.playerState }
+						playStatus={ this.props.playerStatus }
 						currentTime={ this.state.currentTime }
 						onTimeChange={ this.handleTimeChange }
 					/>
@@ -353,11 +357,27 @@ PodcastPlayer.defaultProps = {
 
 export default compose( [
 	withErrorBoundary,
+	withSelect( ( select, props ) => {
+		const { getMediaStatus } = select( STORE_ID );
+
+		return {
+			playerStatus: getMediaStatus( props.playerId ),
+		};
+	} ),
 	withDispatch( dispatch => {
-		const { registerMediaSource, unregisterMediaSource } = dispatch( STORE_ID );
+		const {
+			registerMediaSource,
+			unregisterMediaSource,
+			playMediaSource,
+			pauseMediaSource,
+			toggleMediaSource,
+		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
 			unregisterMediaSource,
+			playMediaSource,
+			pauseMediaSource,
+			toggleMediaSource,
 		};
 	} ),
 ] )( PodcastPlayer );
