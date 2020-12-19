@@ -308,13 +308,14 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_themes' );
 		$themes     = $event_data->args[0];
 
-		// TODO :: add testing for version.
-		$this->assertEquals( 'Parent Sync Theme', $themes['theme-file-sync-parent']['name'] );
-		$this->assertEquals( 'https://jetpack.com/themes/sync-parent/', $themes['theme-file-sync-parent']['uri'] );
-		$this->assertEquals( 'theme-file-sync-parent', $themes['theme-file-sync-parent']['stylesheet'] );
-		$this->assertEquals( 'Child Sync Theme', $themes['theme-file-sync-child']['name'] );
-		$this->assertEquals( 'https://jetpack.com/themes/sync-child/', $themes['theme-file-sync-child']['uri'] );
-		$this->assertEquals( 'theme-file-sync-child', $themes['theme-file-sync-child']['stylesheet'] );
+		$this->assertSame( 'Parent Sync Theme', $themes['theme-file-sync-parent']['name'] );
+		$this->assertSame( 'https://jetpack.com/themes/sync-parent/', $themes['theme-file-sync-parent']['uri'] );
+		$this->assertSame( 'theme-file-sync-parent', $themes['theme-file-sync-parent']['stylesheet'] );
+		$this->assertSame( '2.0', $themes['theme-file-sync-parent']['version'] );
+		$this->assertSame( 'Child Sync Theme', $themes['theme-file-sync-child']['name'] );
+		$this->assertSame( 'https://jetpack.com/themes/sync-child/', $themes['theme-file-sync-child']['uri'] );
+		$this->assertSame( 'theme-file-sync-child', $themes['theme-file-sync-child']['stylesheet'] );
+		$this->assertSame( '1.0', $themes['theme-file-sync-child']['version'] );
 	}
 
 	public function test_update_theme_sync() {
@@ -334,10 +335,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_themes' );
 		$themes     = $event_data->args[0];
 
-		// TODO :: update testing to include versions.
-		$this->assertEquals( 'Child Sync Theme', $themes['theme-file-sync-child']['name'] );
-		$this->assertEquals( 'https://jetpack.com/themes/sync-child/', $themes['theme-file-sync-child']['uri'] );
-		$this->assertEquals( 'theme-file-sync-child', $themes['theme-file-sync-child']['stylesheet'] );
+		$this->assertSame( 'Child Sync Theme', $themes['theme-file-sync-child']['name'] );
+		$this->assertSame( 'https://jetpack.com/themes/sync-child/', $themes['theme-file-sync-child']['uri'] );
+		$this->assertSame( 'theme-file-sync-child', $themes['theme-file-sync-child']['stylesheet'] );
+		$this->assertSame( '1.0', $themes['theme-file-sync-child']['version'] );
 	}
 
 	public function test_widgets_changes_get_synced() {
