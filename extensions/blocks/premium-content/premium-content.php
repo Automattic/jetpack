@@ -30,15 +30,15 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		FEATURE_NAME,
 		array(
-			'render_callback'         => __NAMESPACE__ . '\render_block',
-			'plan_check'              => true,
-			'attributes'              => array(
+			'render_callback' => __NAMESPACE__ . '\render_block',
+			'plan_check'      => true,
+			'attributes'      => array(
 				'isPremiumContentChild' => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
 			),
-			$provides                 => array(
+			$provides         => array(
 				'premium-content/planId' => 'selectedPlanId',
 				'isPremiumContentChild'  => 'isPremiumContentChild',
 			),
