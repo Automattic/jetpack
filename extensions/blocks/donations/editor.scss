@@ -6,7 +6,7 @@
 		cursor: text;
 
 		&.has-focus {
-			box-shadow: 0 0 0 1px $white, 0 0 0 3px var(--wp-admin-theme-color);
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px var( --wp-admin-theme-color );
 			outline: 2px solid transparent;
 			outline-offset: -2px;
 		}
@@ -27,13 +27,13 @@
 		}
 	}
 
-	.donations__amount [data-rich-text-placeholder]:after {
-		color: $light-gray-700;
+	.donations__amount [data-rich-text-placeholder]::after {
+		color: $gray-400;
 		opacity: 1;
 	}
 
 	.donations__custom-amount .donations__amount-value {
-		color: $light-gray-700;
+		color: $gray-400;
 	}
 
 	.donations__donate-button-wrapper:not( .alignleft ):not( .alignright ) {

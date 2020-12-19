@@ -38,36 +38,61 @@ class Meta extends Module {
 	 * @return array
 	 */
 	public function get_objects_by_id( $object_type, $config ) {
-		global $wpdb;
-
 		$table = _get_meta_table( $object_type );
 
 		if ( ! $table ) {
 			return array();
 		}
 
-		if ( ! isset( $config['meta_key'] ) || ! isset( $config['ids'] ) || ! is_array( $config['ids'] ) ) {
+		if ( ! is_array( $config ) ) {
 			return array();
 		}
 
-		$meta_key         = $config['meta_key'];
-		$ids              = $config['ids'];
+		$meta_objects = array();
+		foreach ( $config as $item ) {
+			$meta = null;
+			if ( isset( $item['id'] ) && isset( $item['meta_key'] ) ) {
+				$meta = $this->get_object_by_id( $object_type, (int) $item['id'], (string) $item['meta_key'] );
+			}
+			$meta_objects[ $item['id'] . '-' . $item['meta_key'] ] = $meta;
+		}
+
+		return $meta_objects;
+	}
+
+	/**
+	 * Get a single Meta Result.
+	 *
+	 * @param string $object_type  post, comment, term, user.
+	 * @param null   $id           Object ID.
+	 * @param null   $meta_key     Meta Key.
+	 *
+	 * @return mixed|null
+	 */
+	public function get_object_by_id( $object_type, $id = null, $meta_key = null ) {
+		global $wpdb;
+
+		if ( ! is_int( $id ) || ! is_string( $meta_key ) ) {
+			return null;
+		}
+
+		$table            = _get_meta_table( $object_type );
 		$object_id_column = $object_type . '_id';
 
 		// Sanitize so that the array only has integer values.
-		$ids_string = implode( ', ', array_map( 'intval', $ids ) );
-		$metas      = $wpdb->get_results(
+		$meta = $wpdb->get_row(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM {$table} WHERE {$object_id_column} IN ( {$ids_string} ) AND meta_key = %s",
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$table} WHERE {$object_id_column} = %d AND meta_key = %s",
+				$id,
 				$meta_key
 			)
 		);
 
-		$meta_objects = array();
-		foreach ( (array) $metas as $meta_object ) {
-			$meta_object                                       = (array) $meta_object;
-			$meta_objects[ $meta_object[ $object_id_column ] ] = array(
+		$meta_object = null;
+		if ( ! is_null( $meta ) ) {
+			$meta_object = (array) $meta;
+			$meta_object = array(
 				'meta_type'  => $object_type,
 				'meta_id'    => $meta_object['meta_id'],
 				'meta_key'   => $meta_key,
@@ -76,6 +101,6 @@ class Meta extends Module {
 			);
 		}
 
-		return $meta_objects;
+		return $meta_object;
 	}
 }
