@@ -14,7 +14,9 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"bin": {
-		"jetpack": "tools/cli/bin/jetpack"
+		"jetpack": "tools/cli/bin/jetpack",
+		"jetpack-build": "tools/cli/bin/build",
+		"jetpack-clicheck202012": "tools/cli/bin/clicheck"
 	},
 	"scripts": {
 		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='!(docker|node_modules|tests|tools|vendor){*.php,**/*.php}'",
@@ -39,6 +41,7 @@
 		"clean-composer": "rm -rf vendor/",
 		"clean-extensions": "rm -rf _inc/blocks/ ",
 		"clean-search": "rm -rf _inc/build/instant-search/* ",
+		"cli-init": "yarn install && yarn unlink || true && yarn link",
 		"distclean": "rm -rf node_modules && yarn clean",
 		"docker:build": "docker run -it --rm  -v ${PWD}:/usr/src/app -w /usr/src/app node yarn build",
 		"docker:build-image": "docker build -t automattic/jetpack-wordpress-dev docker",
@@ -216,6 +219,7 @@
 		"@wordpress/eslint-plugin": "4.0.0",
 		"@wordpress/server-side-render": "1.8.6",
 		"arg": "5.0.0",
+		"args": "5.0.1",
 		"babel-eslint": "10.1.0",
 		"chai": "4.2.0",
 		"chalk": "4.1.0",

@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+try {
+	// eslint-disable-next-line no-global-assign
+	require = require( 'esm' )( module /*, options*/ );
+	console.log('this worked');
+	//require( '../builder' ).cli( process.argv );
+} catch ( error ) {
+	if ( error.code === "MODULE_NOT_FOUND" ) {
+		console.log( 'Something is missing from your install. Please run `yarn install` and try again.' );
+	} else {
+		console.log( error );
+		console.log( 'Something unexpected happened. See error above.' );
+	}
+}

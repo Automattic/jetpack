@@ -1,7 +1,6 @@
 /**
  * Stuff to do to this!!!
  *
- * Change it to a `jetpack` command.
  * Make `jetpack build` do what this does now.
  * Add a `jetpack docker` command to do all of the Docker stuff to it.
  * Add a `jetpack new` command to setup a new package, new editor-extension, new plugin.
@@ -13,6 +12,7 @@
  * import for handling args in the CLI.
  */
 import arg from 'arg';
+import Args from 'args';
 import inquirer from 'inquirer';
 import { builder } from './builder';
 const { readdirSync } = require( 'fs' );
@@ -23,19 +23,26 @@ const { readdirSync } = require( 'fs' );
 function parseArgsIntoOptions( raw ) {
 	const args = arg(
 		{
+			'--help': Boolean,
 			'--production': Boolean,
 			'--yes': Boolean,
+			'--verbose': Boolean,
 			'-y': '--yes',
+			'-v': '--verbose',
 		},
 		{
 			argv: raw.slice( 2 ),
+			permissive: true,
 		}
 	);
 
 	return {
+		help: args[ '--help' ] || false,
 		production: args[ '--production' ] || false,
-		project: args._[ 0 ],
+		command: args._[ 0 ],
 		skipPrompts: args[ '--yes' ] || false,
+		verbose: args[ '--verbose' ] || false,
+		additionalArgs: args,
 	};
 }
 
@@ -63,7 +70,8 @@ async function promptForMissingOptions( options ) {
 			type: 'list',
 			name: 'type',
 			message: 'What type of project are you building today?',
-			choices: [ 'editor-extensions', 'packages', 'plugins' ],
+			choices: [ 'packages', 'plugins' ],
+			// choices: [ 'editor-extensions', 'packages', 'plugins' ], // Swap out line above once there's editor-extensions in place.
 			default: 'plugins',
 		} );
 		questions.push( {
@@ -91,6 +99,8 @@ async function promptForMissingOptions( options ) {
 export async function cli( args ) {
 	let options = parseArgsIntoOptions( args );
 	options = await promptForMissingOptions( options );
-	console.log( options );
+	if ( options.verbose ) {
+		console.log( options );
+	}
 	await builder( options );
 }

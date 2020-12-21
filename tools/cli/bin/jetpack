@@ -1,4 +1,35 @@
 #!/usr/bin/env node
 
-require = require('esm')(module /*, options*/);
-require( '../index' ).cli( process.argv );
+try {
+	// eslint-disable-next-line no-global-assign
+	require = require( 'esm' )( module /*, options*/ );
+	var args = require( 'args' );
+	const child_process = require( 'child_process' );
+	child_process.execSync( 'jetpack-clicheck202012', { stdio: 'ignore' } );
+} catch ( error ) {
+	if ( error.code === "MODULE_NOT_FOUND" ) { // if yarn install hasn't been run, esm require will fail here.
+		console.log( 'Something is missing from your install. Please run `yarn cli-init` and try again.' );
+	} if ( error.status === 127 ) { // If the execSync command failes above, this is the result.
+		console.log( 'A command has been added since the last time you initiated. Please run `yarn cli-init` and try again.' );
+	} else {
+		console.log( error );
+		console.log( 'Something unexpected happened. See error above.' );
+	}
+	process.exit( 1 );
+} finally {
+	args.option( 'verbose', 'Display verbose output.' )
+		.command( 'build', 'Builds Jetpack projects.' );
+
+	const flags = args.parse( process.argv );
+	console.log( flags );
+}
+
+/**
+try {
+	require( '../index' ).cli( process.argv );
+} catch ( error ) {
+
+}
+ **/
+
+// require = require( 'esm' )( module /*, options*/ );
