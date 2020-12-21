@@ -86,7 +86,12 @@ export default function DialogueEdit ( {
 	const setPosition = ( pos ) => setMediaPosition( currentMediaSource.id, mejs.Utils.timeCodeToSeconds( pos ) );
 	const playInPosition = ( pos ) => playMediaInPosition( currentMediaSource.id, mejs.Utils.timeCodeToSeconds( pos ) );
 
-	const setTimestamp = ( newTimestampValue ) => {
+	const setTimestamp = ( newTimestampValue, offeset = 0 ) => {
+		if ( offeset ) {
+			newTimestampValue = mejs.Utils.secondsToTimeCode( mejs.Utils.timeCodeToSeconds( newTimestampValue ) + offeset );
+			newTimestampValue = newTimestampValue < 0 ? 0 : newTimestampValue;
+		}
+
 		setPosition( newTimestampValue );
 		setAttributes( { timestamp: newTimestampValue } );
 	};
@@ -176,10 +181,7 @@ export default function DialogueEdit ( {
 					<ToolbarGroup>
 						<ToolbarButton
 							icon={ controlBackFive }
-							onClick={ () => {
-								// moveBack();
-								// setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( position ) } );
-							} }
+							onClick={ () => setTimestamp( timestamp, -5 ) }
 						/>
 
 						<ToolbarButton
@@ -189,7 +191,6 @@ export default function DialogueEdit ( {
 							}
 							onClick={ () => {
 								if ( currentMediaSource.status === 'is-paused' ) {
-									// setPosition( timestamp );
 									return playInPosition( timestamp );
 								}
 
@@ -198,7 +199,7 @@ export default function DialogueEdit ( {
 						/>
 						<ToolbarButton
 							icon={ controlForwardFive }
-							onClick={ togglePlayer }
+							onClick={ () => setTimestamp( timestamp, 5 ) }
 						/>
 					</ToolbarGroup>
 				) }
