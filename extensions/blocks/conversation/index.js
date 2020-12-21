@@ -11,6 +11,7 @@ import { ConversationIcon as icon } from '../../shared/icons';
 /**
  * Local dependencies
  */
+import './extensions';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
