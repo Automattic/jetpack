@@ -1,6 +1,12 @@
+@import '../scss/mixin_breakpoint.scss';
+
 .jp-recommendations-question__main {
 	display: grid;
-	grid-template-columns: 50% 50%;
+	grid-template-columns: 55% 45%;
+
+	@include breakpoint( '<660px' ) {
+		grid-template-columns: 100% 0%;
+	}
 
 	min-height: 480px;
 	background: linear-gradient(

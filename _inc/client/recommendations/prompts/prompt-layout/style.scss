@@ -1,3 +1,5 @@
+@import '../../../scss/mixin_breakpoint.scss';
+
 .jp-recommendations-question__content {
 	display: flex;
 	flex-direction: column;
@@ -7,16 +9,29 @@
 	.progress-bar {
 		width: 70px;
 	}
+
 	margin: 32px 32px 0 32px;
+
+	@include breakpoint( '<660px' ) {
+		margin: 32px;
+	}
 }
 
 .jp-recommendations-question__question {
-	margin: 32px 32px 0 32px;
 	font-size: 1.5rem;
+	margin: 32px 32px 0 32px;
+
+	@include breakpoint( '<660px' ) {
+		margin: 32px;
+	}
 }
 
 .jp-recommendations-question__description {
 	margin: 32px 0 24px 32px;
+
+	@include breakpoint( '<660px' ) {
+		margin: 32px 32px 24px 32px;
+	}
 }
 
 .jp-recommendations-question__answer {
@@ -33,6 +48,10 @@
 		position: absolute;
 		bottom: 0;
 		right: 0;
+	}
+
+	@include breakpoint( '<660px' ) {
+		display: none;
 	}
 }
 
