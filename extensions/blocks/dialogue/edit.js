@@ -262,13 +262,9 @@ export default function DialogueEdit ( {
 						return createBlock( blockNameFallback );
 					}
 
-					if ( ! value ) {
-						return createBlock( blockName );
-					}
-
 					return createBlock( blockName, {
 						...attributes,
-						content: value,
+						content: value || '',
 					} );
 				} }
 				onReplace={ onReplace }
