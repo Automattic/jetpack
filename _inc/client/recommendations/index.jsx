@@ -11,7 +11,6 @@ import { connect } from 'react-redux';
 import { FeaturePrompt } from './prompts/feature-prompt';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
-import QueryProducts from 'components/data/query-products';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
 import QueryRewindStatus from 'components/data/query-rewind-status';
@@ -52,7 +51,6 @@ const RecommendationsComponent = props => {
 
 	return (
 		<>
-			<QueryProducts />
 			<QueryRecommendationsData />
 			<QueryRecommendationsUpsell />
 			<QueryRewindStatus />
