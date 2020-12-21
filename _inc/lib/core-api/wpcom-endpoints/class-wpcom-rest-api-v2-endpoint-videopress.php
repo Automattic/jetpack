@@ -125,8 +125,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$response_body = json_decode( wp_remote_retrieve_body( $result ) );
 		if ( is_bool( $response_body ) && $response_body ) {
 
+			// VideoPress data is stored in attachment meta for Jetpack sites, but not on wpcom.
 			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-				$meta = wp_get_attachment_metadata( $post_id );
+				$meta               = wp_get_attachment_metadata( $post_id );
+				$should_update_meta = false;
 
 				if ( ! $meta ) {
 					return rest_ensure_response(
@@ -139,13 +141,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 				if ( isset( $json_params['display_embed'] ) && isset( $meta['videopress']['display_embed'] ) ) {
 					$meta['videopress']['display_embed'] = $json_params['display_embed'];
+					$should_update_meta                  = true;
 				}
 
 				if ( isset( $json_params['rating'] ) && isset( $meta['videopress']['rating'] ) ) {
 					$meta['videopress']['rating'] = $json_params['rating'];
+					$should_update_meta           = true;
 				}
 
-				wp_update_attachment_metadata( $post_id, $meta );
+				if ( $should_update_meta ) {
+					wp_update_attachment_metadata( $post_id, $meta );
+				}
 			}
 
 			return rest_ensure_response(
