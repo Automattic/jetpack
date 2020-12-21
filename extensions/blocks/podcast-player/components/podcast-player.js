@@ -304,7 +304,7 @@ export class PodcastPlayer extends Component {
 						onError={ this.handleError }
 						playStatus={ this.props.playerStatus }
 						currentTime={ this.props.playerPosition }
-						onTimeChange={ this.handleTimeChange }
+						// onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
 

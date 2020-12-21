@@ -79,11 +79,12 @@ export default function DialogueEdit ( {
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
 
-	const { toggleMediaSource, setMediaPosition } = useDispatch( STORE_ID );
+	const { toggleMediaSource, setMediaPosition, playMediaInPosition } = useDispatch( STORE_ID );
 	const currentMediaSource = useSelect( select => select( STORE_ID ).getCurrent(), [] );
 
 	const togglePlayer = () => toggleMediaSource( currentMediaSource.id );
 	const setPosition = ( pos ) => setMediaPosition( currentMediaSource.id, mejs.Utils.timeCodeToSeconds( pos ) );
+	const playInPosition = ( pos ) => playMediaInPosition( currentMediaSource.id, mejs.Utils.timeCodeToSeconds( pos ) );
 
 	const setTimestamp = ( newTimestampValue ) => {
 		setPosition( newTimestampValue );
@@ -188,7 +189,8 @@ export default function DialogueEdit ( {
 							}
 							onClick={ () => {
 								if ( currentMediaSource.status === 'is-paused' ) {
-									setPosition( timestamp );
+									// setPosition( timestamp );
+									return playInPosition( timestamp );
 								}
 
 								togglePlayer();
@@ -196,10 +198,7 @@ export default function DialogueEdit ( {
 						/>
 						<ToolbarButton
 							icon={ controlForwardFive }
-							onClick={ () => {
-								// moveForward();
-								// setAttributes( { timeStamp: transcritionBridge.secondsToTimeCode( position ) } );
-							} }
+							onClick={ togglePlayer }
 						/>
 					</ToolbarGroup>
 				) }
