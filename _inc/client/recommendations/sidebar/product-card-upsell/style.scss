@@ -24,6 +24,11 @@
 		background: $color-plan;
 		border-color: $color-plan;
 		text-align: center;
+
+		&:hover {
+			background: $color-plan-dark;
+			border-color: $color-plan-dark;
+		}
 	}
 }
 
