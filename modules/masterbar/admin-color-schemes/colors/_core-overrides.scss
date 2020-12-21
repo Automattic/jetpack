@@ -21,6 +21,22 @@
 }
 
 /**
+ * Site Switcher - Browse Sites button text & arrow
+ */
+#adminmenuwrap > #adminmenu .site-switcher {
+	color: $nav-unification-sidebar-text-alternative;
+
+	div.wp-menu-image:before {
+		color: $nav-unification-sidebar-text-alternative;
+	}
+
+	&:hover,
+	&:hover div.wp-menu-image:before {
+		color: $menu-highlight-text;
+	}
+}
+
+/**
  * Site Card
  */
 #adminmenu li.toplevel_page_site-card {
@@ -33,9 +49,12 @@
 	background-color: $highlight-color;
 }
 
-.site__info .site__title,
-.site__info .site__domain {
+.site__info .site__title {
 	color: $text-color;
+}
+
+.site__info .site__domain {
+	color: $nav-unification-sidebar-text-alternative;
 }
 
 .site__info .site__title::after,

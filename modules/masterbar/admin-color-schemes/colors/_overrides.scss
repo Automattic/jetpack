@@ -114,14 +114,14 @@
 	}
 
 	// Site Card - Browse Sites button text & arrow
-	#adminmenuwrap > #adminmenu > .wp-first-item.menu-top-first > .wp-first-item.menu-top-first {
+	#adminmenuwrap > #adminmenu .site-switcher {
 		color: $nav-unification-sidebar-text-alternative;
 
 		div.wp-menu-image:before {
 			color: $nav-unification-sidebar-text-alternative;
 		}
 
-		&:hover, 
+		&:hover,
 		&:hover div.wp-menu-image:before {
 			color: $menu-highlight-text;
 		}

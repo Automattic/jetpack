@@ -2,6 +2,8 @@ $menu-submenu-background: #333333;
 $text-color: #fff;
 $highlight-color: #006fad;
 $base-color-rgb: rgb(35,40,45);
+$nav-unification-sidebar-text-alternative: #a2aab2;
+$menu-highlight-text: #00b9eb;
 
 @import "../_core-overrides";
 
@@ -17,8 +19,4 @@ $base-color-rgb: rgb(35,40,45);
 .site__info > .site__badge {
 	background: #dcdcde;
 	color: #1d2327;
-}
-
-.site__info .site__domain {
-	color: #a2aab2;
 }

@@ -124,7 +124,27 @@ class Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'Browse sites', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( 'site-switcher', __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
+	}
+
+	/**
+	 * Adds a custom element class for Site Switcher menu item.
+	 *
+	 * @param array $menu Associative array of administration menu items.
+	 * @return array
+	 */
+	public function set_browse_sites_link_class( array $menu ) {
+		foreach ( $menu as $key => $menu_item ) {
+			if ( 'site-switcher' !== $menu_item[3] ) {
+				continue;
+			}
+
+			$menu[ $key ][4] = add_cssclass( 'site-switcher', $menu_item[4] );
+			break;
+		}
+
+		return $menu;
 	}
 
 	/**
