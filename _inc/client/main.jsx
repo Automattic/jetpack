@@ -327,9 +327,12 @@ class Main extends React.Component {
 
 	shouldShowMasthead() {
 		// Only show on the setup pages, dashboard, and settings page
-		return [ ...setupRoutes, ...dashboardRoutes, ...settingsRoutes ].includes(
-			this.props.location.pathname
-		);
+		return [
+			...setupRoutes,
+			...dashboardRoutes,
+			...recommendationsRoutes,
+			...settingsRoutes,
+		].includes( this.props.location.pathname );
 	}
 
 	shouldShowFooter() {
