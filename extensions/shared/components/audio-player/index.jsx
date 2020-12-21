@@ -1,11 +1,6 @@
 /* global _wpmejsSettings, MediaElementPlayer */
 
 /**
- * External dependencies
- */
-import { debounce, throttle } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
@@ -15,12 +10,18 @@ import { speak } from '@wordpress/a11y';
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
+import {
+	STATE_PLAYING,
+	STATE_PAUSED,
+	STATE_ERROR,
+	STATE_PLAYING_IN_POSITION,
+} from './constants';
 
 /**
  * Style dependencies
  */
 import './style.scss';
+import { useCallback } from 'react';
 
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
@@ -55,10 +56,14 @@ function AudioPlayer( {
 	 *
 	 * @public
 	 */
-	const play = () => {
+	const play = useCallback( () => {
+		if ( currentTime !== false && playStatus === STATE_PLAYING_IN_POSITION ) {
+			audioRef.current.currentTime = currentTime;
+		}
+
 		// Ignoring exceptions as they are handled globally from the audio element.
 		audioRef.current.play().catch( () => {} );
-	};
+	}, [ currentTime, playStatus ] );
 
 	/**
 	 * Pause current audio.
@@ -108,55 +113,24 @@ function AudioPlayer( {
 		};
 	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
 
-	// If we get lots of events from clicking on the progress bar in the MediaElement
-	// then we can get stuck in a loop. We can so by debouncing here we wait until the
-	// next tick before acting on the playStatus prop value changing.
 	useEffect( () => {
 		// Get the current status of the audio element and the required action to toggle it.
 		const [ audioStatus, action ] =
 			audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
-		const debouncedAction = debounce( action, 100 );
+
 		if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
-			debouncedAction();
+			action();
 		}
-		return () => {
-			debouncedAction.cancel();
-		};
-	}, [ audioRef, playStatus, trackSource ] );
-
-	useEffect( () => {
-		if ( ! onTimeChange ) {
-			return;
-		}
-		//Add time change event listener
-		const audio = audioRef.current;
-		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000 );
-		const onTimeUpdate = e => throttledTimeChange( e.target.currentTime );
-		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
-
-		return () => {
-			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
-		};
-	}, [ audioRef, onTimeChange ] );
+	}, [ audioRef, play, playStatus ] );
 
 	//Check current time against prop and potentially jump
 	useEffect( () => {
 		const audio = audioRef.current;
-
-		// If there's no audio component or we're not controlling time with the `currentTime` prop,
-		// then bail early.
 		if ( ! currentTime || ! audio ) {
 			return;
 		}
 
-		// We only want to change the play position if the difference between our current play position
-		// and the prop is greater than 1. We're throttling the time change events to once per second, so
-		// if the floored time has changed by more than a second, we haven't received an event in the past
-		// two seconds. That's unlikely and so a change of more than a second should be as a result of us
-		// wanting to update the position, so we set the audio element's current time as a result.
-		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 1 ) {
-			audio.currentTime = currentTime;
-		}
+		audio.currentTime = currentTime;
 	}, [ audioRef, currentTime ] );
 
 	return (
