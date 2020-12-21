@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 
@@ -9,7 +10,6 @@ import React, { useCallback, useEffect } from 'react';
  */
 import AppsBadge from './apps-badge';
 import { Layout } from '../layout';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import Gridicon from 'components/gridicon';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
@@ -47,7 +47,7 @@ const MobileApp = () => {
 				<div>
 					<h2>{ __( 'Explore a better editing experience' ) }</h2>
 					<p>
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							__(
 								'With Jetpack, you have <strong>free access</strong> to managing your site with <a>WordPress.com</a> and the Android and iOS WordPress apps.'
 							),

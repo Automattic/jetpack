@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ProgressBar } from '@automattic/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -12,7 +13,6 @@ import { connect } from 'react-redux';
 import { getStepContent, mapDispatchToProps } from './props';
 import { PromptLayout } from '../prompt-layout';
 import Button from 'components/button';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
 import {
@@ -63,7 +63,7 @@ const FeaturePromptComponent = props => {
 		<PromptLayout
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ progressValue } /> }
 			question={ question }
-			description={ jetpackCreateInterpolateElement( description, {
+			description={ createInterpolateElement( description, {
 				strong: <strong />,
 				ExternalLink: (
 					<ExternalLink

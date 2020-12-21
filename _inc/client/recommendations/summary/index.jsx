@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
@@ -16,7 +17,6 @@ import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { ProductCardUpsell } from '../sidebar/product-card-upsell';
-import { jetpackCreateInterpolateElement } from 'components/create-interpolate-element';
 import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import JetpackLogo from 'components/jetpack-logo';
@@ -125,7 +125,7 @@ const SummaryComponent = props => {
 				<div className="jp-recommendations-summary__more-features">
 					<Gridicon icon="info-outline" size={ 28 } />
 					<p>
-						{ jetpackCreateInterpolateElement(
+						{ createInterpolateElement(
 							__(
 								'Curious what else Jetpack has to offer? <ExternalLink>View all Jetpack features</ExternalLink>'
 							),
