@@ -147,10 +147,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_browse_sites_link();
 
 		$browse_sites_menu_item = array(
-			'site-switcher',
+			'Browse sites',
 			'read',
 			'https://wordpress.com/home',
-			'Browse sites',
+			'site-switcher',
 			'menu-top toplevel_page_https://wordpress.com/home',
 			'toplevel_page_https://wordpress.com/home',
 			'dashicons-arrow-left-alt2',
