@@ -8,11 +8,8 @@
 ## WordPress itself. You probably don't want to delete this.
 - ./wordpress:/var/www/html
 
-## Jetpack plugin. You probably don't want to delete this either.
-- ..:/var/www/html/wp-content/plugins/jetpack
+## The Monorepo. Don't delete this. Think of it as the flux capacitor—it makes time travel possible.
+- ../..:/usr/local/src/jetpack-monorepo
 
-## Must Use Plugins directory. See docker/README.md
+## Must Use Plugins directory. See tools/docker/README.md
 - ./mu-plugins:/var/www/html/wp-content/mu-plugins
-
-## Jetpack Debug Helper plugin.
-- ../packages/debug-helper:/var/www/html/wp-content/plugins/jetpack-debug-helper
