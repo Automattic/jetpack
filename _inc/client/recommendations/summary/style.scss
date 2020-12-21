@@ -20,6 +20,10 @@
 .jp-recommendations-summary__configuration {
 	margin: 48px 48px 32px 48px;
 
+	@include breakpoint( '<480px' ) {
+		margin: 16px 16px 0 16px;
+	}
+
 	h2 {
 		margin: 32px 0 16px 0;
 	}
@@ -29,6 +33,10 @@
 	background: #e9eff5;
 	box-shadow: -1px 0px 0px #b4b9be;
 	padding: 24px;
+
+	@include breakpoint( '<660px' ) {
+		padding: 0;
+	}
 }
 
 .jp-recommendations-summary__more-features {
