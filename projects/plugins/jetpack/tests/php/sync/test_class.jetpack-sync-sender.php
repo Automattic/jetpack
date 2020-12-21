@@ -562,6 +562,19 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( is_wp_error( $response ) );
 	}
 
+	/**
+	 * Validate that WP_Error is returned in do_full_sync if JETPACK_SYNC_READ_ONLY is defined and true.
+	 */
+	public function test_do_full_sync_errors_if_read_only() {
+		\Automattic\Jetpack\Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+
+		$this->factory->post->create();
+		$response = $this->sender->do_full_sync();
+		\Automattic\Jetpack\Constants::clear_single_constant( 'JETPACK_SYNC_READ_ONLY' );
+
+		$this->assertTrue( is_wp_error( $response ) );
+	}
+
 	function run_filter( $data ) {
 		$this->filter_ran = true;
 		return $data;
