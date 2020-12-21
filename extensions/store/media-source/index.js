@@ -32,7 +32,7 @@ const actions = {
 
 	playMediaSource( id ) {
 		return {
-			type: 'PLAY_MEDIA_SOURCE',
+			type: 'SET_PLAYING_STATUS',
 			id,
 			status: 'is-playing'
 		};
@@ -40,9 +40,9 @@ const actions = {
 
 	pauseMediaSource( id ) {
 		return {
-			type: 'STOP_MEDIA_SOURCE',
+			type: 'SET_PLAYING_STATUS',
 			id,
-			status: 'is-playing'
+			status: 'is-paused'
 		};
 	},
 
@@ -59,7 +59,17 @@ const actions = {
 			type: 'SET_MEDIA_POSITION',
 			position,
 		};
-	}
+	},
+
+	playMediaInPosition( id, position ) {
+		return {
+			type: 'SET_PLAYING_IN_POSITION',
+			id,
+			status: 'is-playing-in-position',
+			position,
+		};
+	},
+
 };
 
 const selectors = {
@@ -104,26 +114,14 @@ const storeDefinition = {
 				}
 				return currentState;
 
-			case 'PLAY_MEDIA_SOURCE':
+			case 'SET_PLAYING_STATUS':
 				return {
 					...state,
 					players: {
 						...state.players,
 						[ action.id ]: {
 							...state.players[ action.id ],
-							status: 'is-playing',
-						},
-					},
-				};
-
-			case 'STOP_MEDIA_SOURCE':
-				return {
-					...state,
-					players: {
-						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
-							status: 'is-paused',
+							status: action.status,
 						},
 					},
 				};
@@ -149,6 +147,19 @@ const storeDefinition = {
 						...state.players,
 						[ action.id ]: {
 							...state.players[ action.id ],
+							position: action.position,
+						},
+					},
+				};
+
+			case 'SET_PLAYING_IN_POSITION':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							status: action.status,
 							position: action.position,
 						},
 					},
