@@ -17,7 +17,7 @@
 #wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
 #wpadminbar #wp-admin-bar-notes.hover > .ab-item,
 #wpadminbar #wp-admin-bar-notes.wpnt-show > .ab-item {
-	background: $menu-submenu-background;
+	background: $menu-submenu-background !important;
 }
 
 /**
