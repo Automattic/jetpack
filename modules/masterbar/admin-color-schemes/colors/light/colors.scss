@@ -7,7 +7,8 @@ $menu-highlight-text: #fff;
 
 // Light theme specifics
 #wpadminbar #wp-admin-bar-blog > a.ab-item:before,
-#wpadminbar #wp-admin-bar-newdash > a.ab-item:before {
+#wpadminbar #wp-admin-bar-newdash > a.ab-item:before,
+#wpadminbar #wp-admin-bar-notes .noticon-bell:before {
 	filter: brightness(0.1);
 }
 
