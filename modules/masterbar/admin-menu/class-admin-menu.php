@@ -644,10 +644,17 @@ class Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
+		$style_dependencies = array();
+		$rtl                = is_rtl() ? '-rtl' : '';
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
+		} else {
+			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
+		}
 		wp_enqueue_style(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.css', __FILE__ ),
-			defined( 'IS_WPCOM' ) && IS_WPCOM ? array( 'wpcom-admin-bar', 'wpcom-masterbar-css' ) : array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' ),
+			$style_dependencies,
 			JETPACK__VERSION
 		);
 		wp_enqueue_script(
