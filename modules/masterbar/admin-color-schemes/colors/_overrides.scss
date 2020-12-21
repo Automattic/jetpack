@@ -82,7 +82,8 @@
 
 	// Site Card - Border around Site Card
 	#adminmenu li.toplevel_page_site-card {
-		border-color: $nav-unification-sidebar-border;
+		border-bottom: 1px solid $menu-submenu-background;
+		border-top: 1px solid $menu-submenu-background;
 	}
 
 	// Site Card - Keep background the same color on hover
