@@ -147,7 +147,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_browse_sites_link();
 
 		$browse_sites_menu_item = array(
-			'Browse sites',
+			'site-switcher',
 			'read',
 			'https://wordpress.com/home',
 			'Browse sites',
