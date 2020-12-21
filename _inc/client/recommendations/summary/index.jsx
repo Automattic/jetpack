@@ -19,7 +19,6 @@ import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-pric
 import { ProductCardUpsell } from '../sidebar/product-card-upsell';
 import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
-import JetpackLogo from 'components/jetpack-logo';
 import analytics from 'lib/analytics';
 import { getUpgradeUrl } from 'state/initial-state';
 import {
@@ -86,7 +85,6 @@ const SummaryComponent = props => {
 		<div className="jp-recommendations-summary">
 			<div>
 				<div className="jp-recommendations-summary__configuration">
-					<JetpackLogo hideText />
 					<h1>
 						{ sprintf(
 							/* translators: placeholder indicates the type of site, such as "personal site" or "store" */
