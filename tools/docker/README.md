@@ -397,6 +397,7 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
 
 Note that any folder within the `projects/plugins` directory will be automatically linked.
 If you're starting a new monorepo plugin, you may need to `yarn docker:stop` and `yarn docker:up` to re-run the initial linking step so it can be added.
+
 ## Debugging
 
 ### Accessing logs
