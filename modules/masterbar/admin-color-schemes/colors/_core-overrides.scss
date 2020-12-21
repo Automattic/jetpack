@@ -14,12 +14,9 @@
 	color: $text-color !important;
 }
 
-#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
-	background: $menu-submenu-background;
-}
-
+#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
 #wpadminbar #wp-admin-bar-notes.hover > .ab-item {
-	background: $masterbar-highlight-background;
+	background: $menu-submenu-background;
 }
 
 /**
