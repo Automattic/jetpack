@@ -38,12 +38,6 @@ const OneClickRestoresComponent = props => {
 		} );
 	} );
 
-	const onFindCredentialsClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
-			type: 'find_credentials',
-		} );
-	} );
-
 	const backupsName = containsBackupRealtime( planClass )
 		? __( 'Real-time Backups' )
 		: __( 'Daily Backups' );
@@ -76,15 +70,6 @@ const OneClickRestoresComponent = props => {
 						>
 							{ __( 'Enable one-click restores' ) }
 						</Button>
-						<ExternalLink
-							href="https://jetpack.com/support/ssh-sftp-and-ftp-credentials/"
-							target="_blank"
-							rel="noopener noreferrer"
-							onClick={ onFindCredentialsClick }
-							icon={ true }
-						>
-							{ __( 'Find your server credentials' ) }
-						</ExternalLink>
 					</div>
 				</div>
 			}
