@@ -2,12 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	useEffect,
-	useRef,
-	useCallback,
-	useMemo,
-} from '@wordpress/element';
+import { useEffect, useRef, useCallback } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -70,7 +65,7 @@ function ConversationEdit ( {
 
 	// Context bridge.
 	const contextProvision = {
-		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
+		setAttributes,
 		updateParticipants,
 
 		attributes: {
