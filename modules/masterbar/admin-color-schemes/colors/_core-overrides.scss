@@ -14,7 +14,7 @@
 	color: $text-color !important;
 }
 
-#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
+#wpadminbar:not(.mobile) .ab-top-menu > li:not(#wp-admin-bar-ab-new-post):hover > .ab-item,
 #wpadminbar #wp-admin-bar-notes.hover > .ab-item,
 #wpadminbar #wp-admin-bar-notes.wpnt-show > .ab-item {
 	background: $menu-submenu-background !important;
