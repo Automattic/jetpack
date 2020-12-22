@@ -24,7 +24,7 @@ import {
 	ToolbarButton,
 } from '@wordpress/components';
 import { useContext, useState, useEffect } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
+import { useSelect, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -298,6 +298,7 @@ export default function DialogueEdit ( {
 						! blocks[ 0 ]?.attributes.content &&
 						! blocks[ 1 ]?.attributes.content
 					) {
+						dispatch( 'core/block-editor' ).selectBlock( blocks[ 0 ].clientId );
 						return onReplace( [ blocks[ 0 ] ], ...args );
 					}
 
