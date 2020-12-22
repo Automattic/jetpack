@@ -60,6 +60,7 @@ export default function DialogueEdit ( {
 	attributes,
 	setAttributes,
 	instanceId,
+	clientId,
 	context,
 	onReplace,
 	mergeBlocks,
@@ -73,6 +74,12 @@ export default function DialogueEdit ( {
 		placeholder,
 	} = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
+
+	// Pick the previous block atteobutes from the state.
+	const prevBlock = useSelect( select => {
+		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
+		return select( 'core/block-editor' ).getBlock( prevPartClientId );
+	}, [] );
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
@@ -88,6 +95,22 @@ export default function DialogueEdit ( {
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const transcritionBridge = useContext( ConversationContext );
+
+	// Set initial attributes according to the context.
+	useEffect( () => {
+		// Bail when block already has an slug,
+		// or participant doesn't exist.
+		if ( participantSlug || ! participants?.length || ! transcritionBridge ) {
+			return;
+		}
+
+		const nextParticipantSlug = transcritionBridge.getNextParticipantSlug( prevBlock?.attributes?.participantSlug );
+
+		setAttributes( {
+			...( prevBlock?.attributes || {} ),
+			participantSlug: nextParticipantSlug,
+		} );
+	}, [ participantSlug, participants, prevBlock, setAttributes, transcritionBridge ] );
 
 	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
