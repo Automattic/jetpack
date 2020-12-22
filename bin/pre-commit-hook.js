@@ -5,7 +5,8 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 const fs = require( 'fs' );
-let excludelist = null;
+let phpcsExcludelist = null;
+let eslintExcludelist = null;
 let exitCode = 0;
 
 /**
@@ -13,10 +14,26 @@ let exitCode = 0;
  * @returns {Array} Files to exclude.
  */
 function loadPhpcsExcludeList() {
-	if ( null === excludelist ) {
-		excludelist = JSON.parse( fs.readFileSync( __dirname + '/phpcs-excludelist.json', 'utf8' ) );
+	if ( null === phpcsExcludelist ) {
+		phpcsExcludelist = JSON.parse(
+			fs.readFileSync( __dirname + '/phpcs-excludelist.json', 'utf8' )
+		);
 	}
-	return excludelist;
+	return phpcsExcludelist;
+}
+
+/**
+ * Load the eslint exclude list.
+ *
+ * @returns {Array} Files to exclude.
+ */
+function loadEslintExcludeList() {
+	if ( null === eslintExcludelist ) {
+		eslintExcludelist = JSON.parse(
+			fs.readFileSync( __dirname + '/eslint-excludelist.json', 'utf8' )
+		);
+	}
+	return eslintExcludelist;
 }
 
 /**
@@ -62,10 +79,10 @@ function filterJsFiles( file ) {
  * @returns {boolean} whether file needs to be linted
  */
 function filterEslintFiles( file ) {
-	const rootMatch = /^([a-zA-Z-]+\.)/g; // *.js(x)
-	const folderArray = [ '_inc', 'extensions', 'modules', 'tests/e2e' ];
-	const folderMatches = folderArray.some( folder => file.startsWith( folder ) );
-	return ! file.endsWith( '.json' ) && ( folderMatches || file.match( rootMatch ) );
+	return (
+		! file.endsWith( '.json' ) &&
+		-1 === loadEslintExcludeList().findIndex( filePath => file === filePath )
+	);
 }
 
 /**
@@ -134,19 +151,41 @@ function capturePreCommitTreeHash() {
  * Spawns a eslint process against list of files
  *
  * @param {Array} toLintFiles - List of files to lint
- * @returns {number} shell return code
  */
-function runJSLinter( toLintFiles ) {
+function runEslint( toLintFiles ) {
 	if ( ! toLintFiles.length ) {
-		return false;
+		return;
 	}
 
-	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLintFiles ], {
+	const eslintResult = spawnSync( 'yarn', [ 'lint-file', '--max-warnings=0', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 
-	return lintResult.status;
+	if ( eslintResult && eslintResult.status ) {
+		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
+		exit( exitCode );
+	}
+}
+
+/**
+ * Run eslint-changed
+ *
+ * @param {Array} toLintFiles - List of files to lint
+ */
+function runEslintChanged( toLintFiles ) {
+	if ( ! toLintFiles.length ) {
+		return;
+	}
+
+	const eslintResult = spawnSync( 'yarn', [ 'lint-changed', ...toLintFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	if ( eslintResult && eslintResult.status ) {
+		checkFailed();
+	}
 }
 
 /**
@@ -295,11 +334,13 @@ if ( toPrettify.length ) {
 }
 
 // linting should happen after formatting
-const filesToLint = jsFiles.filter( filterEslintFiles );
-const lintResult = runJSLinter( filesToLint );
-
-if ( lintResult ) {
-	checkFailed();
+const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
+const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
+if ( eslintFiles.length > 0 ) {
+	runEslint( eslintFiles );
+}
+if ( jsOnlyFiles.length > 0 ) {
+	runEslintChanged( jsOnlyFiles );
 }
 
 let phpLintResult;
