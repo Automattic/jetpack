@@ -162,8 +162,11 @@ class Admin_Menu {
 			return;
 		}
 
-		// Get last position.
-		$position = key( array_slice( $GLOBALS['menu'], -1 ) );
+		// Attempt to get last position.
+		$position = 1000;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
 
 		$this->add_admin_menu_separator( ++$position );
 		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start', null, 'dashicons-plus-alt', ++$position );
