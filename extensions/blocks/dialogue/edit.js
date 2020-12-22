@@ -60,7 +60,6 @@ export default function DialogueEdit ( {
 	attributes,
 	setAttributes,
 	instanceId,
-	clientId,
 	context,
 	onReplace,
 	mergeBlocks,
@@ -75,11 +74,6 @@ export default function DialogueEdit ( {
 	} = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
 
-	const prevParticipantAttr = useSelect( select => {
-		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
-		return select( 'core/block-editor' ).getBlockAttributes( prevPartClientId );
-	}, [] );
-
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
@@ -92,36 +86,10 @@ export default function DialogueEdit ( {
 	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
 	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
 
-	// Set initial attributes according to context.
-	useEffect( () => {
-		if ( participantSlug || ! participants?.length ) {
-			return;
-		}
-
-		// Set the slug according to the prev participant,
-		// and the participants list.
-		let participantIndex = 0;
-		if ( prevParticipantAttr.participantSlug ) {
-			participantIndex = participants.map( ( part ) => part.participantSlug ).indexOf( prevParticipantAttr.participantSlug );
-			if ( participantIndex < 0 ) {
-				participantIndex = 0;
-			} else if ( ( participantIndex + 1 ) >= participants.length ) {
-				participantIndex = 0;
-			} else {
-				participantIndex++;
-			}
-		}
-
-		setAttributes( {
-			participantSlug: participants[ participantIndex ].participantSlug,
-			timestamp: prevParticipantAttr.timestamp,
-		} );
-	}, [ participantSlug, participants, setAttributes, prevParticipantAttr ] );
-
-	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
-
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const transcritionBridge = useContext( ConversationContext );
+
+	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
 	const baseClassName = 'wp-block-jetpack-dialogue';
 	const blockProps = useBlockProps( { className: baseClassName } );
@@ -297,10 +265,22 @@ export default function DialogueEdit ( {
 
 					return createBlock( blockName, {
 						...attributes,
-						content: value || '',
+						content: value,
 					} );
 				} }
-				onReplace={ onReplace }
+				onReplace={ ( blocks, ...args ) => {
+					// pick up the next participant slug.
+					const nextParticipantSlug = transcritionBridge.getNextParticipantSlug( attributes.participantSlug );
+
+					// Update new block attributes.
+					blocks[ 1 ].attributes = {
+						...blocks[ 1 ].attributes,
+						participantSlug: nextParticipantSlug,
+						timestamp: attributes.timestamp,
+					};
+
+					onReplace( blocks, ...args );
+				} }
 				onRemove={
 					onReplace ? () => onReplace( [] ) : undefined
 				}
