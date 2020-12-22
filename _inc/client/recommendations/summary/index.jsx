@@ -50,7 +50,7 @@ const SummaryComponent = props => {
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'summary' );
-	} );
+	}, [] );
 
 	let sidebarCard;
 	if ( isFetchingData ) {

@@ -31,7 +31,7 @@ const SiteTypeQuestionComponent = props => {
 
 	useEffect( () => {
 		props.updateRecommendationsStep( 'site-type-question' );
-	} );
+	}, [] );
 
 	const onContinueClick = useCallback( () => {
 		props.saveRecommendationsData();

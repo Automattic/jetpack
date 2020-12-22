@@ -36,7 +36,7 @@ const FeaturePromptComponent = props => {
 
 	useEffect( () => {
 		props.updateRecommendationsStep( stepSlug );
-	} );
+	}, [] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
