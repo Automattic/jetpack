@@ -15,7 +15,7 @@ export const getFeatureState = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
 		case 'creative-mail':
 			return {
-				configureButtonLabel: __( 'Set up', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Creative Mail', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'Jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=creativemail',
@@ -43,7 +43,7 @@ export const getFeatureState = ( state, featureSlug ) => {
 			};
 		case 'woocommerce':
 			return {
-				configureButtonLabel: __( 'Set up', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'WooCommerce', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'Jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=wc-admin&path=%2Fsetup-wizard',
