@@ -1,12 +1,12 @@
 /**
- * External imports.
+ * External dependencies
  */
 import child_process from 'child_process';
 import chalk from 'chalk';
 import path from 'path';
 
 /**
- * Internal imports.
+ * Internal dependencies
  */
 import { chalkJetpackGreen } from './helpers/styling';
 import { promptForProject } from './helpers/promptForProject';

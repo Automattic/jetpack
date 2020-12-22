@@ -8,7 +8,7 @@
  */
 
 /**
- * import for setting up the CLI.
+ * External dependencies
  */
 import { cliFunctions } from './helpers/cliFunctions';
 

@@ -1,5 +1,5 @@
 /**
- * External imports.
+ * External dependencies
  */
 import inquirer from 'inquirer';
 import { readdirSync } from 'fs';
