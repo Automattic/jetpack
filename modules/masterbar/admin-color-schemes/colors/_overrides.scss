@@ -82,7 +82,8 @@
 
 	// Site Card - Border around Site Card
 	#adminmenu li.toplevel_page_site-card {
-		border-color: $nav-unification-sidebar-border;
+		border-bottom: 1px solid $nav-unification-sidebar-border;
+		border-top: 1px solid $nav-unification-sidebar-border;
 	}
 
 	// Site Card - Keep background the same color on hover
@@ -114,14 +115,14 @@
 	}
 
 	// Site Card - Browse Sites button text & arrow
-	#adminmenuwrap > #adminmenu > .wp-first-item.menu-top-first > .wp-first-item.menu-top-first {
+	#adminmenuwrap > #adminmenu .site-switcher {
 		color: $nav-unification-sidebar-text-alternative;
 
 		div.wp-menu-image:before {
 			color: $nav-unification-sidebar-text-alternative;
 		}
 
-		&:hover, 
+		&:hover,
 		&:hover div.wp-menu-image:before {
 			color: $menu-highlight-text;
 		}
