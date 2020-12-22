@@ -152,6 +152,8 @@ class Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
+		global $menu;
+
 		if ( jetpack_is_atomic_site() ) {
 			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
