@@ -14,6 +14,8 @@ import PostTypeIcon from './post-type-icon';
 import SearchResultComments from './search-result-comments';
 import './search-result-minimal.scss';
 
+const MAX_TAGS_OR_CATEGORIES = 5;
+
 class SearchResultMinimal extends Component {
 	getIconSize() {
 		return 18;
@@ -24,21 +26,26 @@ class SearchResultMinimal extends Component {
 		if ( ! tags ) {
 			return [];
 		}
+
 		if ( ! Array.isArray( tags ) ) {
 			tags = [ tags ];
 		}
-		return tags;
+
+		return tags.slice( 0, MAX_TAGS_OR_CATEGORIES );
 	}
 
 	getCategories() {
 		let cats = this.props.result.fields[ 'category.name.default' ];
+
 		if ( ! cats ) {
 			return [];
 		}
+
 		if ( ! Array.isArray( cats ) ) {
 			cats = [ cats ];
 		}
-		return cats;
+
+		return cats.slice( 0, MAX_TAGS_OR_CATEGORIES );
 	}
 
 	renderNoMatchingContent() {
@@ -49,24 +56,24 @@ class SearchResultMinimal extends Component {
 			<div className="jetpack-instant-search__search-result-minimal-content">
 				{ noTags && <PathBreadcrumbs url={ this.props.result.fields[ 'permalink.url.raw' ] } /> }
 				{ tags.length !== 0 && (
-					<div className="jetpack-instant-search__search-result-minimal-tags">
+					<ul className="jetpack-instant-search__search-result-minimal-tags">
 						{ tags.map( tag => (
-							<span className="jetpack-instant-search__search-result-minimal-tag">
+							<li className="jetpack-instant-search__search-result-minimal-tag">
 								<Gridicon icon="tag" size={ this.getIconSize() } />
 								{ tag }
-							</span>
+							</li>
 						) ) }
-					</div>
+					</ul>
 				) }
 				{ cats.length !== 0 && (
-					<div className="jetpack-instant-search__search-result-minimal-cats">
+					<ul className="jetpack-instant-search__search-result-minimal-cats">
 						{ cats.map( cat => (
-							<span className="jetpack-instant-search__search-result-minimal-cat">
+							<li className="jetpack-instant-search__search-result-minimal-cat">
 								<Gridicon icon="folder" size={ this.getIconSize() } />
 								{ cat }
-							</span>
+							</li>
 						) ) }
-					</div>
+					</ul>
 				) }
 			</div>
 		);

@@ -1,6 +1,8 @@
 <?php
 /**
  * Only load these if WPML plugin is installed and active.
+ *
+ * @package Jetpack.
  */
 
 /**
@@ -17,13 +19,11 @@ add_action( 'wpml_loaded', 'wpml_jetpack_init' );
 /**
  * Filter the Top Posts and Pages by language.
  *
- * @param array  $posts    Array of the most popular posts.
- * @param array  $post_ids Array of Post IDs.
- * @param string $count    Number of Top Posts we want to display.
+ * @param array $posts    Array of the most popular posts.
  *
  * @return array
  */
-function wpml_jetpack_widget_get_top_posts( $posts, $post_ids, $count ) {
+function wpml_jetpack_widget_get_top_posts( $posts ) {
 	global $sitepress;
 
 	foreach ( $posts as $k => $post ) {
@@ -42,13 +42,12 @@ function wpml_jetpack_widget_get_top_posts( $posts, $post_ids, $count ) {
 /**
  * Filter the HTML of the Contact Form and output the one requested by language.
  *
- * @param string   $r           Contact Form HTML output.
- * @param string   $field_label Field label.
- * @param int|null $id          Post ID.
+ * @param string $r           Contact Form HTML output.
+ * @param string $field_label Field label.
  *
  * @return string
  */
-function grunion_contact_form_field_html_filter( $r, $field_label, $id ){
+function grunion_contact_form_field_html_filter( $r, $field_label ) {
 	global $sitepress;
 
 	if ( function_exists( 'icl_translate' ) ) {

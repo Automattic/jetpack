@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"brain/monkey": "2.5.0",
+		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {

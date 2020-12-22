@@ -13,12 +13,11 @@ import { get } from 'lodash';
 import {
 	isDevVersion as _isDevVersion,
 	userCanViewStats,
-	userIsMaster,
 	userCanDisconnectSite,
 	userCanEditPosts,
 } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
-import { isCurrentUserLinked } from 'state/connection';
+import { isConnectionOwner, isCurrentUserLinked } from 'state/connection';
 import {
 	switchPlanPreview,
 	canDisplayDevCard,
@@ -95,42 +94,40 @@ export class DevCard extends React.Component {
 		}
 	};
 
-	maybeShowIsLinkedToggle = () => {
-		if ( ! this.props.isMaster ) {
-			return (
-				<div>
-					<hr />
-					<ul>
-						<li>
-							<label htmlFor="is_linked">
-								<input
-									type="radio"
-									id="is_linked"
-									value="is_linked"
-									name="is_linked"
-									checked={ this.props.isUserLinked }
-									onChange={ this.onPermissionsChange }
-								/>
-								Linked
-							</label>
-						</li>
-						<li>
-							<label htmlFor="is_unlinked">
-								<input
-									type="radio"
-									id="is_unlinked"
-									value="is_unlinked"
-									name="is_unlinked"
-									checked={ ! this.props.isUserLinked }
-									onChange={ this.onPermissionsChange }
-								/>
-								Unlinked
-							</label>
-						</li>
-					</ul>
-				</div>
-			);
-		}
+	showIsLinkedToggle = () => {
+		return (
+			<div>
+				<hr />
+				<ul>
+					<li>
+						<label htmlFor="is_linked">
+							<input
+								type="radio"
+								id="is_linked"
+								value="is_linked"
+								name="is_linked"
+								checked={ this.props.isUserLinked }
+								onChange={ this.onPermissionsChange }
+							/>
+							Linked
+						</label>
+					</li>
+					<li>
+						<label htmlFor="is_unlinked">
+							<input
+								type="radio"
+								id="is_unlinked"
+								value="is_unlinked"
+								name="is_unlinked"
+								checked={ ! this.props.isUserLinked }
+								onChange={ this.onPermissionsChange }
+							/>
+							Unlinked
+						</label>
+					</li>
+				</ul>
+			</div>
+		);
 	};
 
 	render() {
@@ -284,7 +281,7 @@ export class DevCard extends React.Component {
 								id="admin_master"
 								value="admin_master"
 								name="admin_master"
-								checked={ this.props.isMaster }
+								checked={ this.props.isConnectionOwner }
 								onChange={ this.onPermissionsChange }
 							/>
 							Admin (master)
@@ -297,7 +294,7 @@ export class DevCard extends React.Component {
 								id="admin_secondary"
 								value="admin_secondary"
 								name="admin_secondary"
-								checked={ this.props.isAdmin && ! this.props.isMaster }
+								checked={ this.props.isAdmin && ! this.props.isConnectionOwner }
 								onChange={ this.onPermissionsChange }
 							/>
 							Admin (secondary)
@@ -471,7 +468,7 @@ export class DevCard extends React.Component {
 					</li>
 				</ul>
 				{ this.maybeShowStatsToggle() }
-				{ this.maybeShowIsLinkedToggle() }
+				{ this.showIsLinkedToggle() }
 			</Card>
 		);
 	}
@@ -485,7 +482,7 @@ export default connect(
 			canDisplayDevCard: canDisplayDevCard( state ),
 			isUserLinked: isCurrentUserLinked( state ),
 			canViewStats: userCanViewStats( state ),
-			isMaster: userIsMaster( state ),
+			isConnectionOwner: isConnectionOwner( state ),
 			isAdmin: userCanDisconnectSite( state ),
 			canEditPosts: userCanEditPosts( state ),
 			getVaultPressScanThreatCount: () => getVaultPressScanThreatCount( state ),

@@ -45,7 +45,7 @@ $tools = array(
 
 // Some features are only available when connected to WordPress.com.
 $connected_tools = array(
-	'calypsoify/class.jetpack-calypsoify.php',
+	'calypsoify/class-jetpack-calypsoify.php',
 	'plugin-search.php',
 	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',

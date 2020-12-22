@@ -150,7 +150,7 @@ class Site_Logo {
 		if ( ! current_theme_supports( 'custom-header' ) ) {
 			$classes = jetpack_sanitize_header_text_classes( $this->header_text_classes() );
 			wp_enqueue_script( 'site-logo-header-text', plugins_url( '../js/site-logo-header-text.js', __FILE__ ), array( 'media-views' ), '', true );
-			wp_localize_script( 'site-logo-header-text', 'site_logo_header_classes', $classes );
+			wp_localize_script( 'site-logo-header-text', 'site_logo_header_classes', array( 'classes' => $classes ) );
 		}
 	}
 

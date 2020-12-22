@@ -1,0 +1,43 @@
+// Settings sidebar.
+$participant-height: 30px;
+
+.components-panel__body.wp-block-jetpack-conversation__participants {
+	.components-base-control {
+		margin-bottom: 0;
+	}
+}
+
+.wp-block-jetpack-conversation__participant {
+	display: flex;
+
+	.components-base-control {
+		margin-bottom: 5px;
+		flex-grow: 2;
+	}
+
+	.components-button {
+		height: $participant-height;
+		line-height: $participant-height;
+	}
+}
+
+.wp-block-jetpack-conversation__participant-control {
+	margin-bottom: 0;
+}
+
+.wp-block-jetpack-conversation__remove-participant {
+	margin-left: 8px;
+}
+
+.wp-block-jetpack-conversation__participant-label {
+	height: 2em;
+	line-height: 2em;
+	font-size: 16px;
+}
+
+.wp-block-jetpack-conversation__participant-formats {
+	display: flex;
+	.components-button {
+		margin-right: 5px;
+	}
+}
