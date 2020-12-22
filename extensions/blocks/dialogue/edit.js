@@ -109,6 +109,7 @@ export default function DialogueEdit ( {
 		setAttributes( {
 			...( prevBlock?.attributes || {} ),
 			participantSlug: nextParticipantSlug,
+			content: '',
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, transcritionBridge ] );
 
