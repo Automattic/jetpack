@@ -219,7 +219,6 @@
 		"@wordpress/env": "1.6.0",
 		"@wordpress/eslint-plugin": "4.0.0",
 		"@wordpress/server-side-render": "1.8.6",
-		"arg": "5.0.0",
 		"args": "5.0.1",
 		"babel-eslint": "10.1.0",
 		"chai": "4.2.0",
