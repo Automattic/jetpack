@@ -21,6 +21,9 @@ export default {
 		type: 'integer',
 		default: 5,
 	},
+	singleEpisode: {
+		type: 'object',
+	},
 	showCoverArt: {
 		type: 'boolean',
 		default: true,

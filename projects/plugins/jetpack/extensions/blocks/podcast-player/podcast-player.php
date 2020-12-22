@@ -48,6 +48,9 @@ function register_block() {
 					'type'    => 'boolean',
 					'default' => true,
 				),
+				'singleEpisode'          => array(
+					'type' => 'object',
+				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
 		)
@@ -96,10 +99,17 @@ function render_block( $attributes, $content ) {
 
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
-	$player_data       = ( new Jetpack_Podcast_Helper( $attributes['url'] ) )->get_player_data();
+	$player_data       = ( new Jetpack_Podcast_Helper( $attributes['url'] ) )->get_player_data(
+		isset( $attributes['singleEpisode']['guid'] ) ? $attributes['singleEpisode']['guid'] : false
+	);
 
 	if ( is_wp_error( $player_data ) ) {
 		return render_error( $player_data->get_error_message() );
+	}
+
+	// If we haven't managed to get the episode details fallback to what is saved in the attribute.
+	if ( empty( $player_data['tracks'] ) && isset( $attributes['singleEpisode'] ) ) {
+		$player_data['tracks'] = $attributes['singleEpisode'];
 	}
 
 	return render_player( $player_data, $attributes );

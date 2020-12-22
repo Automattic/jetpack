@@ -31,11 +31,12 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * The result is cached for one hour.
 	 *
+	 * @param string|int|false $guid The ID of a specific episode to return rather than a list.
 	 * @return array|WP_Error  The player data or a error object.
 	 */
-	public function get_player_data() {
+	public function get_player_data( $guid = false ) {
 		// Try loading data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $this->feed );
+		$transient_key = 'jetpack_podcast_' . md5( $this->feed . $guid ? "-$guid" : '' );
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
@@ -47,11 +48,15 @@ class Jetpack_Podcast_Helper {
 				return $rss;
 			}
 
-			// Get tracks.
-			$tracks = $this->get_track_list();
-
-			if ( empty( $tracks ) ) {
-				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
+			// Get tracks or a single episode.
+			if ( false !== $guid ) {
+				$track  = $this->get_track_data( $guid );
+				$tracks = is_wp_error( $track ) ? null : array( $track );
+			} else {
+				$tracks = $this->get_track_list();
+				if ( empty( $tracks ) ) {
+					return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
+				}
 			}
 
 			// Get podcast meta.
@@ -65,11 +70,14 @@ class Jetpack_Podcast_Helper {
 			$link = ! empty( $link ) ? esc_url( $link ) : null;
 
 			$player_data = array(
-				'title'  => $title,
-				'link'   => $link,
-				'cover'  => $cover,
-				'tracks' => $tracks,
+				'title' => $title,
+				'link'  => $link,
+				'cover' => $cover,
 			);
+
+			if ( $tracks ) {
+				$player_data['tracks'] = $tracks;
+			}
 
 			// Cache for 1 hour.
 			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );

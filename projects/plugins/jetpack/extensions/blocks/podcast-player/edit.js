@@ -2,6 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
+import { isEqual, isEmpty } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -85,6 +86,7 @@ const PodcastPlayerEdit = ( {
 		showEpisodeTitle,
 		showEpisodeDescription,
 		exampleFeedData,
+		singleEpisode,
 	} = validatedAttributes;
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
@@ -95,11 +97,11 @@ const PodcastPlayerEdit = ( {
 	const [ feedData, setFeedData ] = useState( exampleFeedData || {} );
 	const cancellableFetch = useRef();
 	const [ isInteractive, setIsInteractive ] = useState( false );
+	const episodeGuid = singleEpisode?.guid;
 
 	const fetchFeed = useCallback(
-		urlToFetch => {
-			cancellableFetch.current = makeCancellable( fetchPodcastFeed( urlToFetch ) );
-
+		( urlToFetch, guid ) => {
+			cancellableFetch.current = makeCancellable( fetchPodcastFeed( { url: urlToFetch, guid } ) );
 			cancellableFetch.current.promise.then(
 				response => {
 					if ( response?.isCanceled ) {
@@ -136,11 +138,19 @@ const PodcastPlayerEdit = ( {
 		[ createErrorNotice, replaceWithEmbedBlock ]
 	);
 
+	// Sets the singleEpisode attribute once we've finished getting the feed data.
 	useEffect( () => {
-		return () => {
-			cancellableFetch?.current?.cancel?.();
-		};
-	}, [] );
+		if ( ! singleEpisode || isEmpty( feedData ) ) {
+			return;
+		}
+		if ( feedData.tracks ) {
+			if ( ! isEqual( feedData.tracks[ 0 ], singleEpisode ) ) {
+				setAttributes( { singleEpisode: feedData.tracks[ 0 ] } );
+			}
+		} else {
+			setFeedData( { ...feedData, tracks: [ singleEpisode ] } );
+		}
+	}, [ singleEpisode, feedData, setAttributes ] );
 
 	// Load RSS feed.
 	useEffect( () => {
@@ -154,8 +164,9 @@ const PodcastPlayerEdit = ( {
 
 		// Clean current podcast feed and fetch a new one.
 		setFeedData( {} );
-		fetchFeed( url );
-	}, [ fetchFeed, removeAllNotices, url ] );
+		fetchFeed( url, episodeGuid );
+		return () => cancellableFetch?.current?.cancel?.();
+	}, [ fetchFeed, removeAllNotices, url, episodeGuid ] );
 
 	// Bring back the overlay after block gets deselected.
 	useEffect( () => {
