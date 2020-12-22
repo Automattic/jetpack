@@ -292,6 +292,15 @@ export default function DialogueEdit ( {
 					} );
 				} }
 				onReplace={ ( blocks, ...args ) => {
+					if (
+						blocks[ 0 ]?.name === blockNameFallback &&
+						blocks[ 1 ]?.name === blockNameFallback &&
+						! blocks[ 0 ]?.attributes.content &&
+						! blocks[ 1 ]?.attributes.content
+					) {
+						return onReplace( [ blocks[ 0 ] ], ...args );
+					}
+
 					// pick up the next participant slug.
 					const nextParticipantSlug = transcritionBridge.getNextParticipantSlug( attributes.participantSlug );
 
