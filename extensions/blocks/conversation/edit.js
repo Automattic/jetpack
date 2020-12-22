@@ -82,7 +82,7 @@ function ConversationEdit ( {
 			return index + 1;
 		},
 		getNextParticipantSlug: ( slug, offset = 0 ) =>
-			participants[ contextProvision.getNextParticpantIndex( slug, offset ) ].participantSlug,
+			participants[ contextProvision.getNextParticpantIndex( slug, offset ) ]?.participantSlug,
 
 		attributes: {
 			showTimestamps,
