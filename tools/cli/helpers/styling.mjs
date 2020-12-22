@@ -1,5 +1,5 @@
 /**
- * Just a brief helper to
+ * Just a brief helper to keep styling DRY.
  */
 import chalk from 'chalk';
 

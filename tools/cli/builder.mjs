@@ -8,9 +8,9 @@ import path from 'path';
 /**
  * Internal dependencies
  */
-import { chalkJetpackGreen } from './helpers/styling';
-import { promptForProject } from './helpers/promptForProject';
-import { cliFunctions } from './helpers/cliFunctions';
+import { chalkJetpackGreen } from './helpers/styling.mjs';
+import { promptForProject } from './helpers/promptForProject.mjs';
+import { cliFunctions } from './helpers/cliFunctions.mjs';
 
 // eslint-disable-next-line no-console
 const log = console.log;

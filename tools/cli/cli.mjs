@@ -10,7 +10,7 @@
 /**
  * External dependencies
  */
-import { cliFunctions } from './helpers/cliFunctions';
+import { cliFunctions } from './helpers/cliFunctions.mjs';
 
 /**
  * The entrypoint to the script.
@@ -20,5 +20,4 @@ export async function cli() {
 	cli.command( 'build', 'Builds Jetpack projects.' );
 
 	const flags = cli.parse( process.argv, { version: false } );
-	console.log( flags );
 }
