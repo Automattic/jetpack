@@ -422,7 +422,14 @@ class Table_Checksum {
 		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement.
 
 		// Prepare the compound key.
-		$key_fields = implode( ',', $this->key_fields );
+		$key_fields = array();
+
+		// Prefix the fields with the table name, to avoid clashes in queries with sub-queries (e.g. meta tables).
+		foreach ( $this->key_fields as $field ) {
+			$key_fields[] = $this->table . '.' . $field;
+		}
+
+		$key_fields = implode( ',', $key_fields );
 
 		// Prepare the checksum fields.
 		$checksum_fields_string = implode( ',', array_merge( $this->checksum_fields, array( $salt ) ) );
@@ -431,7 +438,7 @@ class Table_Checksum {
 		if ( $granular_result ) {
 			// TODO uniq the fields as sometimes(most) range_index is the key and there's no need to select the same field twice.
 			$additional_fields = "
-				{$this->range_field} as range_index,
+				{$this->table}.{$this->range_field} as range_index,
 			    {$key_fields},
 			";
 		}
@@ -469,6 +476,7 @@ class Table_Checksum {
 		if ( $granular_result ) {
 			$query .= "
 				GROUP BY {$key_fields}
+				LIMIT 9999999
 			";
 		}
 

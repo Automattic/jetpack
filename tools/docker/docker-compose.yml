@@ -50,7 +50,7 @@ services:
     volumes:
       ## WordPress and its plugins and themes should be defined in docker/compose-volumes.yml{.sample}, not here!
       ## That avoids having to define them both here and in the "wordpress" service.
-      - dockerdirectory:/home/wordpress/var/www/html/wp-content/plugins/jetpack/docker
+      - dockerdirectory:/usr/local/src/jetpack-monorepo/tools/docker
       - ./data/ssh.keys:/home/wordpress/.ssh/keys:ro
     ports:
       - "${PORT_SFTP:-1022}:22"
@@ -79,7 +79,7 @@ services:
     volumes:
       ## WordPress and its plugins and themes should be defined in docker/compose-volumes.yml{.sample}, not here!
       ## That avoids having to define them both here and in the "sftp" service.
-      - dockerdirectory:/var/www/html/wp-content/plugins/jetpack/docker
+      - dockerdirectory:/usr/local/src/jetpack-monorepo/tools/docker
       - ./wordpress-develop:/tmp/wordpress-develop
       - ./logs/apache2/:/var/log/apache2
       - ./logs/php:/var/log/php

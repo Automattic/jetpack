@@ -45,7 +45,7 @@ class Path_Processor {
 				continue;
 			}
 
-			return substr_replace( $tokenized_path, $constant_path, 0, $len );
+			return $this->get_real_path( substr_replace( $tokenized_path, $constant_path, 0, $len ) );
 		}
 
 		return $tokenized_path;
@@ -61,21 +61,22 @@ class Path_Processor {
 	public function find_directory_with_autoloader( $file, $directories_to_check ) {
 		$file = wp_normalize_path( $file );
 
-		// We need an absolute path to the plugin directory to check for an autoloader.
-		if ( $this->is_absolute_path( $file ) ) {
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			$directory = @is_file( $file ) ? dirname( $file ) : $file;
-		} else {
-			$directory = $this->find_plugin_directory( $file, $directories_to_check );
-			if ( ! isset( $directory ) ) {
+		if ( ! $this->is_absolute_path( $file ) ) {
+			$file = $this->find_absolute_plugin_path( $file, $directories_to_check );
+			if ( ! isset( $file ) ) {
 				return false;
 			}
 		}
 
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		// We need the real path for consistency with __DIR__ paths.
+		$file = $this->get_real_path( $file );
+
+		// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+		$directory = @is_file( $file ) ? dirname( $file ) : $file;
 		if ( ! @is_file( $directory . '/vendor/composer/jetpack_autoload_classmap.php' ) ) {
 			return false;
 		}
+		// phpcs:enable WordPress.PHP.NoSilencedErrors.Discouraged
 
 		return $directory;
 	}
@@ -136,9 +137,9 @@ class Path_Processor {
 	 * @param string $normalized_path The normalized path to the plugin or theme file to resolve.
 	 * @param array  $directories_to_check The directories we should check for the file if it isn't an absolute path.
 	 *
-	 * @return string|null The absolute path to the plugin directory, otherwise null.
+	 * @return string|null The absolute path to the plugin file, otherwise null.
 	 */
-	private function find_plugin_directory( $normalized_path, $directories_to_check ) {
+	private function find_absolute_plugin_path( $normalized_path, $directories_to_check ) {
 		// We're only able to find the absolute path for plugin/theme PHP files.
 		if ( ! is_string( $normalized_path ) || '.php' !== substr( $normalized_path, -4 ) ) {
 			return null;
@@ -148,10 +149,34 @@ class Path_Processor {
 			$normalized_check = wp_normalize_path( trailingslashit( $directory ) ) . $normalized_path;
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			if ( @is_file( $normalized_check ) ) {
-				return dirname( $normalized_check );
+				return $normalized_check;
 			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Given a path this will figure out the real path that we should be using.
+	 *
+	 * @param string $path The path to resolve.
+	 *
+	 * @return string The resolved path.
+	 */
+	private function get_real_path( $path ) {
+		// We want to resolve symbolic links for consistency with __DIR__ paths.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$real_path = @realpath( $path );
+		if ( false === $real_path ) {
+			// Let the autoloader deal with paths that don't exist.
+			$real_path = $path;
+		}
+
+		// Using realpath will make it platform-specific so we must normalize it after.
+		if ( $path !== $real_path ) {
+			$real_path = wp_normalize_path( $real_path );
+		}
+
+		return $real_path;
 	}
 }

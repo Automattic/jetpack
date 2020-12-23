@@ -26,32 +26,54 @@ class Test_Path_Processor extends TestCase {
 	 */
 	public function set_up() {
 		$this->processor = new Path_Processor();
+
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@symlink( WP_PLUGIN_DIR . '/dummy_current', WP_PLUGIN_DIR . '/dummy_symlink' );
 	}
 
 	/**
-	 * Tests that the process is able to successfully tokenize and untokenize paths.
+	 * Teardown runs after each test.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@unlink( WP_PLUGIN_DIR . '/dummy_symlink' );
+	}
+
+	/**
+	 * Tests that the processor is able to successfully tokenize and untokenize paths.
 	 */
 	public function test_handles_path_tokenization_and_untokenization() {
-		$path = $this->processor->tokenize_path_constants( WP_PLUGIN_DIR . '/test/path' );
+		$path = $this->processor->tokenize_path_constants( WP_PLUGIN_DIR . '/dummy_current' );
 
-		$this->assertEquals( '{{WP_PLUGIN_DIR}}/test/path', $path );
+		$this->assertEquals( '{{WP_PLUGIN_DIR}}/dummy_current', $path );
 
 		$path = $this->processor->untokenize_path_constants( $path );
 
-		$this->assertEquals( WP_PLUGIN_DIR . '/test/path', $path );
+		$this->assertEquals( WP_PLUGIN_DIR . '/dummy_current', $path );
 	}
 
 	/**
-	 * Tests that find_directory_with_autoloader is able to successfully tokenize and untokenize paths on Windows.
+	 * Tests that the processor is able to successfully tokenize and untokenize paths on Windows.
 	 */
 	public function test_handles_path_tokenization_and_untokenization_with_windows_paths() {
-		$path = $this->processor->tokenize_path_constants( WP_PLUGIN_DIR . '/test/path' );
+		$path = $this->processor->tokenize_path_constants( WP_PLUGIN_DIR . '/dummy_current' );
 
-		$this->assertEquals( '{{WP_PLUGIN_DIR}}/test/path', $path );
+		$this->assertEquals( '{{WP_PLUGIN_DIR}}/dummy_current', $path );
 
 		$path = $this->processor->untokenize_path_constants( $path );
 
-		$this->assertEquals( WP_PLUGIN_DIR . '/test/path', $path );
+		$this->assertEquals( WP_PLUGIN_DIR . '/dummy_current', $path );
+	}
+
+	/**
+	 * Tests that the processor resolves symlinks when untokenizing.
+	 */
+	public function test_path_untokenization_resolves_symlinks() {
+		$path = $this->processor->untokenize_path_constants( '{{WP_PLUGIN_DIR}}/dummy_symlink' );
+
+		$this->assertEquals( WP_PLUGIN_DIR . '/dummy_current', $path );
 	}
 
 	/**
@@ -96,6 +118,18 @@ class Test_Path_Processor extends TestCase {
 	public function test_finds_directory_for_autoloaded_plugin_with_windows_paths() {
 		$path = $this->processor->find_directory_with_autoloader(
 			'dummy_current\dummy_current.php',
+			array( WP_PLUGIN_DIR )
+		);
+
+		$this->assertEquals( TEST_DATA_PATH . '/plugins/dummy_current', $path );
+	}
+
+	/**
+	 * Tests that find_directory_with_autoloader finds the realpath of directories that use symlinks.
+	 */
+	public function test_finds_directory_realpath_for_symlinked_plugin() {
+		$path = $this->processor->find_directory_with_autoloader(
+			'dummy_symlink\dummy_current.php',
 			array( WP_PLUGIN_DIR )
 		);
 

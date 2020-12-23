@@ -9,8 +9,15 @@ jobs:
   lint:
     name: "JavaScript & CSS lint"
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
+      # We don't need full git history, but eslint-changed does need everything up to the merge-base.
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+
       - uses: actions/setup-node@v1
         with:
           node-version: '12'
@@ -25,7 +32,7 @@ jobs:
       - working-directory: 'projects/plugins/jetpack'
         run: |
           yarn install
-          yarn lint
+          yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }}
 
 
   js-tests:

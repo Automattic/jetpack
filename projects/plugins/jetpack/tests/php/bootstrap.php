@@ -43,6 +43,14 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 	$test_root = '/tmp/wordpress-tests-lib';
 }
 
+if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.php' ) ) {
+	echo 'Failed to automatically locate WordPress or wordpress-develop to run tests.' . PHP_EOL;
+	echo PHP_EOL;
+	echo 'Set the WP_DEVELOP_DIR environment variable to point to a copy of WordPress' . PHP_EOL;
+	echo 'or wordpress-develop.' . PHP_EOL;
+	exit( 1 );
+}
+
 echo "Using test root $test_root\n";
 
 // WordPress requires PHPUnit 7.5 or earlier and hacks around a few things to

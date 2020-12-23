@@ -2426,13 +2426,46 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 
 		$expected = array(
 			'https://jetpack.me/'  => array(
-				'description' => 'Essential Security & Performance for WordPress',
+				'description' => 'The ultimate WordPress plugin for security, backups, malware scan, anti-spam, CDN, site search, CRM, Stripe, Facebook, & Instagram',
 				'image'       => 'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png?w=240',
 				'title'       => 'Jetpack',
 				'type'        => 'summary',
 			),
 			'https://jetpack.com/' => array(
-				'description' => 'Essential Security & Performance for WordPress',
+				'description' => 'The ultimate WordPress plugin for security, backups, malware scan, anti-spam, CDN, site search, CRM, Stripe, Facebook, & Instagram',
+				'image'       => 'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png?w=240',
+				'title'       => 'Jetpack',
+				'type'        => 'summary',
+			),
+		);
+
+		$cards = Jetpack_Tweetstorm_Helper::generate_cards( $urls );
+
+		$this->assertEqualSetsWithIndex( $expected, $cards );
+	}
+
+	/**
+	 * Test that the return data is keyed by the URLs passed.
+	 *
+	 * @group external-http
+	 */
+	public function test_twitter_cards_with_odd_URLs() {
+		$urls = array(
+			'https://Jetpack.com/',
+			'https://jetpack.com',
+			'jetpack.com/',
+			'JETPACK.com',
+		);
+
+		$expected = array(
+			'https://Jetpack.com/' => array(
+				'description' => 'The ultimate WordPress plugin for security, backups, malware scan, anti-spam, CDN, site search, CRM, Stripe, Facebook, & Instagram',
+				'image'       => 'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png?w=240',
+				'title'       => 'Jetpack',
+				'type'        => 'summary',
+			),
+			'https://jetpack.com'  => array(
+				'description' => 'The ultimate WordPress plugin for security, backups, malware scan, anti-spam, CDN, site search, CRM, Stripe, Facebook, & Instagram',
 				'image'       => 'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png?w=240',
 				'title'       => 'Jetpack',
 				'type'        => 'summary',
