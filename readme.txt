@@ -268,12 +268,13 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Autoloader: resolve symbolic links in active plugin paths.
 * Blocks: improve sidebar display in non-fullscreen mode.
+* Instant Search: improve display of tags and categories in search results.
 * Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
 * Podcast Player Block: avoid PHP notices in some scenarios.
 * Search: limit number of filters automatically set up.
 * Slideshow Block: ensure that image captions are always shown, regardless of the theme you're using.
 * Subscription Block: display the correct default placeholder and button text strings in the post editor.
-* Twitter Threads: Improve how Twitter Cards are generated for embeds in the thread preview.
+* Twitter Threads: improve how Twitter Cards are generated for embeds in the thread preview.
 * VideoPress: detect aspect ratios rounding to both 1.77 and 1.78 as 16:9.
 
 --------
