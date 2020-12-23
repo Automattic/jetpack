@@ -39,6 +39,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
+			$this->add_new_site_link();
 		}
 
 		$this->add_jetpack_menu();
@@ -52,12 +53,53 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_browse_sites_link() {
 		$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
-		if ( empty( $wpcom_user_data['site_count'] ) || $wpcom_user_data['site_count'] < 2 ) {
+		if ( $wpcom_user_data && empty( $wpcom_user_data['site_count'] ) || $wpcom_user_data['site_count'] < 2 ) {
 			return;
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'Browse sites', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
+	}
+
+	/**
+	 * Adds a custom element class for Site Switcher menu item.
+	 *
+	 * @param array $menu Associative array of administration menu items.
+	 * @return array
+	 */
+	public function set_browse_sites_link_class( array $menu ) {
+		foreach ( $menu as $key => $menu_item ) {
+			if ( 'site-switcher' !== $menu_item[3] ) {
+				continue;
+			}
+
+			$menu[ $key ][4] = add_cssclass( 'site-switcher', $menu_item[4] );
+			break;
+		}
+
+		return $menu;
+	}
+
+	/**
+	 * Adds a link to the menu to create a new site.
+	 */
+	public function add_new_site_link() {
+		global $menu;
+
+		$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
+		if ( $wpcom_user_data && $wpcom_user_data['site_count'] > 1 ) {
+			return;
+		}
+
+		// Attempt to get last position.
+		$position = 1000;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
+
+		$this->add_admin_menu_separator( ++$position );
+		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt', ++$position );
 	}
 
 	/**
