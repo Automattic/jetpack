@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getStepContent, mapDispatchToProps } from './props';
+import { getStepContent, mapDispatchToProps } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
@@ -36,28 +36,28 @@ const FeaturePromptComponent = props => {
 
 	useEffect( () => {
 		props.updateRecommendationsStep( stepSlug );
-	}, [] );
+	}, [ stepSlug ] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
 			feature: stepSlug,
 		} );
-	} );
+	}, [ stepSlug ] );
 
 	const onInstallClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_enable_click', {
 			feature: stepSlug,
 		} );
 		props.addSelectedRecommendation( stepSlug );
-		props.enable();
-	}, [ props.enable ] );
+		props.activateFeature();
+	}, [ props.activateFeature, props.addSelectedRecommendation ] );
 
 	const onDecideLaterClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_decide_later_click', {
 			feature: stepSlug,
 		} );
 		props.addSkippedRecommendation( stepSlug );
-	} );
+	}, [ stepSlug ] );
 
 	return (
 		<PromptLayout

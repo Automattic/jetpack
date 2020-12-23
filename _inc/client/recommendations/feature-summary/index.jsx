@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getFeatureDispatch, getFeatureState } from '../feature-utils';
+import { mapDispatchToProps, mapStateToSummaryFeatureProps } from '../feature-utils';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
@@ -82,10 +82,10 @@ const FeatureSummaryComponent = props => {
 const FeatureSummary = connect(
 	( state, ownProps ) => ( {
 		isFeatureActive: isFeatureActive( state, ownProps.featureSlug ),
-		...getFeatureState( state, ownProps.featureSlug ),
+		...mapStateToSummaryFeatureProps( state, ownProps.featureSlug ),
 	} ),
 	( dispatch, ownProps ) => ( {
-		...getFeatureDispatch( dispatch, ownProps.featureSlug ),
+		...mapDispatchToProps( dispatch, ownProps.featureSlug ),
 	} )
 )( FeatureSummaryComponent );
 
