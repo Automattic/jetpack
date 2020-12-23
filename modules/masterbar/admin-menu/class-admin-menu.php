@@ -73,6 +73,7 @@ class Admin_Menu {
 		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu( $domain );
+			$this->add_new_site_link();
 		}
 
 		/**
@@ -116,7 +117,7 @@ class Admin_Menu {
 		if ( jetpack_is_atomic_site() ) {
 			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
-			if ( $wpcom_user_data['site_count'] < 2 ) {
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] < 2 ) {
 				return;
 			}
 		} elseif ( ! is_multisite() || count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
@@ -145,6 +146,32 @@ class Admin_Menu {
 		}
 
 		return $menu;
+	}
+
+	/**
+	 * Adds a link to the menu to create a new site.
+	 */
+	public function add_new_site_link() {
+		global $menu;
+
+		if ( jetpack_is_atomic_site() ) {
+			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
+
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] > 1 ) {
+				return;
+			}
+		} elseif ( is_multisite() && count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+			return;
+		}
+
+		// Attempt to get last position.
+		$position = 1000;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
+
+		$this->add_admin_menu_separator( ++$position );
+		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start', null, 'dashicons-plus-alt', ++$position );
 	}
 
 	/**
