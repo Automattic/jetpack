@@ -142,9 +142,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->reregister_menu_items();
 
 		$this->assertSame(
-			array( 0, 1, 2, '3.86682', 4, 5, 10, 15, 20, 25, 50, 51, 59, 60, 65, 70, 75, 80, 1001, 1002 ),
 			array_keys( $menu ),
-			'Admin menu should not have unexpected items.'
+			array( 2, 3, '3.86682', 4, 5, 10, 15, 20, 25, 59, 60, 65, 70, 75, 80 ),
+			'Admin menu should not have unexpected top menu items.'
 		);
 
 		$this->assertEquals( static::$menu_data[80], $menu[80], 'Settings menu should stay the same.' );
