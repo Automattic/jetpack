@@ -162,6 +162,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_new_site_link() {
 		global $menu;
 
+		// Set jetpack user data.
+		set_transient( 'jetpack_connected_user_data_' . static::$user_id, array( 'site_count' => 1 ) );
+
 		static::$admin_menu->add_new_site_link();
 
 		$new_site_menu_item = array(
@@ -174,6 +177,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			'dashicons-plus-alt',
 		);
 		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
+
+		delete_transient( 'jetpack_connected_user_data_' . static::$user_id );
 	}
 
 	/**
