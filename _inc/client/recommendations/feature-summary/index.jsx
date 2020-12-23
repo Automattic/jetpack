@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
@@ -8,8 +9,13 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { mapDispatchToProps, mapStateToSummaryFeatureProps } from '../feature-utils';
+import {
+	getStepContent,
+	mapDispatchToProps,
+	mapStateToSummaryFeatureProps,
+} from '../feature-utils';
 import Button from 'components/button';
+import ExternalLink from 'components/external-link';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
@@ -27,6 +33,7 @@ const FeatureSummaryComponent = props => {
 		configureButtonLabel,
 		displayName,
 		featureSlug,
+		learnMoreLink,
 		summaryActivateButtonLabel,
 	} = props;
 
@@ -34,6 +41,12 @@ const FeatureSummaryComponent = props => {
 
 	const onConfigureClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_configure_click', {
+			feature: featureSlug,
+		} );
+	}, [ featureSlug ] );
+
+	const onLearnMoreClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_learn_more_click', {
 			feature: featureSlug,
 		} );
 	}, [ featureSlug ] );
@@ -74,7 +87,12 @@ const FeatureSummaryComponent = props => {
 				</div>
 			) }
 			<div className="jp-recommendations-feature-summary__display-name">{ displayName }</div>
-			<div className="jp-recommendations-feature-summary__cta">{ ctaButton }</div>
+			<div className="jp-recommendations-feature-summary__actions">
+				<ExternalLink href={ learnMoreLink } onClick={ onLearnMoreClick }>
+					{ __( 'Learn more' ) }
+				</ExternalLink>
+				{ ctaButton }
+			</div>
 		</div>
 	);
 };
@@ -83,6 +101,7 @@ const FeatureSummary = connect(
 	( state, ownProps ) => ( {
 		isFeatureActive: isFeatureActive( state, ownProps.featureSlug ),
 		...mapStateToSummaryFeatureProps( state, ownProps.featureSlug ),
+		learnMoreLink: getStepContent( ownProps.featureSlug ).descriptionLink,
 	} ),
 	( dispatch, ownProps ) => ( {
 		...mapDispatchToProps( dispatch, ownProps.featureSlug ),

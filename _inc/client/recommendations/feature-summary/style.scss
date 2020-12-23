@@ -2,7 +2,7 @@
 
 .jp-recommendations-feature-summary {
 	display: grid;
-	grid-template-columns: auto 120px;
+	grid-template-columns: auto 200px;
 
 	&.is-feature-enabled {
 		grid-template-columns: 30px auto 120px;
@@ -32,8 +32,6 @@
 }
 
 .jp-recommendations-feature-summary__cta {
-	padding: 8px;
-
 	button {
 		width: 100%;
 	}
@@ -42,4 +40,11 @@
 		width: 100%;
 		text-align: center;
 	}
+}
+
+.jp-recommendations-feature-summary__actions {
+	padding: 8px;
+	display: grid;
+	grid-template-columns: auto 100px;
+	align-items: center;
 }
