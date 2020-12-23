@@ -13,7 +13,7 @@ const debug = debugFactory( 'dops:analytics' );
 let _superProps, _user;
 
 // Load tracking scripts
-window._tkq = window._tkq || [];
+window._tkq = window._tkq || []
 window.ga =
 	window.ga ||
 	function () {
@@ -24,6 +24,10 @@ window.ga.l = +new Date();
 // loadScript( '//stats.wp.com/w.js?48' );
 // loadScript( '//www.google-analytics.com/analytics.js' );
 
+/**
+ * @param group
+ * @param name
+ */
 function buildQuerystring( group, name ) {
 	let uriComponent = '';
 
@@ -40,6 +44,10 @@ function buildQuerystring( group, name ) {
 	return uriComponent;
 }
 
+/**
+ * @param group
+ * @param name
+ */
 function buildQuerystringNoPrefix( group, name ) {
 	let uriComponent = '';
 
