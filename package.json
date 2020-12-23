@@ -111,6 +111,7 @@
 		"prettier": "npm:wp-prettier@2.0.5"
 	},
 	"devDependencies": {
+		"commander": "6.2.0",
 		"babel-eslint": "10.1.0",
 		"eslint": "7.14.0",
 		"eslint-config-prettier": "6.15.0",
