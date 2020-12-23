@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-12-02 17:46+0100\n"
+"POT-Creation-Date: 2020-12-23 18:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -820,33 +820,33 @@ msgstr ""
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging purposes.
-#: wpcomsh.php:297 wpcomsh.php:303 wpcomsh.php:309
+#: wpcomsh.php:300 wpcomsh.php:306 wpcomsh.php:312
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
-#: wpcomsh.php:409
+#: wpcomsh.php:412
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: wpcomsh.php:412
+#: wpcomsh.php:415
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
 msgstr ""
 
-#: wpcomsh.php:944
+#: wpcomsh.php:947
 #, php-format
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
 msgstr ""
 
-#: wpcomsh.php:972
+#: wpcomsh.php:975
 msgid "Disk space used"
 msgstr ""
 
-#: wpcomsh.php:976
+#: wpcomsh.php:979
 msgid "Disk space quota"
 msgstr ""
 

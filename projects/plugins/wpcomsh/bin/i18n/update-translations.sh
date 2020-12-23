@@ -2,7 +2,7 @@
 
 cd $(dirname "$(dirname "$(dirname "$0")")")
 
-curl -s https://translate.wordpress.com/api/projects/wpcom/wpcomsh | jq -c '.translation_sets[]' | while IFS= read -r lang; do
+curl -Ls https://translate.wordpress.com/api/projects/wpcom/wpcomsh | jq -c '.translation_sets[]' | while IFS= read -r lang; do
 	LANG_NAME=$(echo $lang | jq -r '.name')
 	LANG_LOCALE=$(echo $lang | jq -r '.locale')
 	LANG_SLUG=$(echo $lang | jq -r '.slug')
