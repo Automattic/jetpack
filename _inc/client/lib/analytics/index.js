@@ -11,7 +11,8 @@ import config from '../../config';
 
 const debug = debugFactory( 'dops:analytics' );
 let _superProps, _user;
-var testVar;
+var testVar
+asfafa;
 
 // Load tracking scripts
 window._tkq = window._tkq || []
