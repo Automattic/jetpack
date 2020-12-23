@@ -117,7 +117,7 @@ class Admin_Menu {
 		if ( jetpack_is_atomic_site() ) {
 			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
-			if ( $wpcom_user_data['site_count'] < 2 ) {
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] < 2 ) {
 				return;
 			}
 		} elseif ( ! is_multisite() || count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
@@ -157,7 +157,7 @@ class Admin_Menu {
 		if ( jetpack_is_atomic_site() ) {
 			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
-			if ( $wpcom_user_data['site_count'] > 1 ) {
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] > 1 ) {
 				return;
 			}
 		} elseif ( is_multisite() && count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
