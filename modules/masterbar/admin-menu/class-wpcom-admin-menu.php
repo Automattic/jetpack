@@ -34,6 +34,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
+			$this->add_new_site_link();
 		}
 
 		$this->add_jetpack_menu();
@@ -51,6 +52,26 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Add the menu item.
 		add_menu_page( __( 'Browse sites', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+	}
+
+	/**
+	 * Adds a link to the menu to create a new site.
+	 */
+	public function add_new_site_link() {
+		global $menu;
+
+		if ( count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+			return;
+		}
+
+		// Attempt to get last position.
+		$position = 1000;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
+
+		$this->add_admin_menu_separator( ++$position );
+		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt', ++$position );
 	}
 
 	/**
