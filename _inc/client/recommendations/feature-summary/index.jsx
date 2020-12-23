@@ -36,7 +36,7 @@ const FeatureSummaryComponent = props => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_configure_click', {
 			feature: featureSlug,
 		} );
-	} );
+	}, [ featureSlug ] );
 
 	const onInstallClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_enable_click', {
@@ -46,7 +46,7 @@ const FeatureSummaryComponent = props => {
 		activateFeature().finally( () => {
 			setIsInstalling( false );
 		} );
-	}, [ featureSlug ] );
+	}, [ activateFeature, featureSlug, setIsInstalling ] );
 
 	const ctaButton = (
 		<div className="jp-recommendations-feature-summary__cta">
