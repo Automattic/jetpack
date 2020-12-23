@@ -78,3 +78,4 @@ phpcs.xml
 /vendor/class-version-selector.php
 /vendor/jetpack-autoloader
 /vendor/nojimage
+/packages/connection-ui/build
