@@ -49,7 +49,7 @@ module.exports = [
 			process: true,
 		},
 		devtool: isDevelopment ? 'source-map' : false,
-		entry: { index: path.join( __dirname, './packages/connection-ui/_inc/admin.js' ) },
+		entry: { index: path.join( __dirname, './packages/connection-ui/_inc/admin.jsx' ) },
 		plugins: [
 			...baseConfigs.connection.plugins,
 			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),

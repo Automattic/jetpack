@@ -36,13 +36,13 @@ class Admin {
 	 * Register's submenu.
 	 */
 	public function register_submenu_page() {
-		add_menu_page(
+		add_submenu_page(
+			'tools.php',
 			'Connection Manager',
 			'Connection Manager',
 			'manage_options',
 			'wpcom-connection-manager',
 			array( $this, 'render_ui' ),
-			'dashicons-networking',
 			4
 		);
 	}
@@ -53,9 +53,12 @@ class Admin {
 	 * @param string $hook Page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'toplevel_page_wpcom-connection-manager' ) === 0 ) {
+		if ( strpos( $hook, 'tools_page_wpcom-connection-manager' ) === 0 ) {
 			$build_assets = require_once __DIR__ . '/../build/index.asset.php';
 			wp_enqueue_script( 'jetpack_connection_ui_script', plugin_dir_url( __DIR__ ) . 'build/index.js', $build_assets['dependencies'], $build_assets['version'], true );
+
+			wp_enqueue_style( 'jetpack_connection_ui_style', plugin_dir_url( __DIR__ ) . 'build/index.css', array(), $build_assets['version'] );
+			wp_style_add_data( 'jetpack_connection_ui_style', 'rtl', plugin_dir_url( __DIR__ ) . 'build/index.rtl.css' );
 		}
 	}
 
