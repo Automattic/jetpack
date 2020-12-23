@@ -1,10 +1,10 @@
+### Root
 tools/docker/wordpress-develop/
 tools/docker/wordpress/
 
 /vendor/
 
 *.min.js
-
 
 ### Jetpack
 projects/plugins/jetpack/3rd-party/debug-bar/debug-bar.js
