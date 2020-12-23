@@ -1,17 +1,36 @@
+# This workflow holds jobs for linting, currently PHP and JavaScript.
+#
+# The jobs are all set up to only run if appropriate files have changed; the
+# `changed_files` job is used to determine whether files have changed in
+# various categories so the rest of the jobs can know whether to run or not.
+
 name: Linting
 
 on: pull_request
 
 jobs:
+
+  ### Job to categorize changed files. Other jobs depend on this to know when they should run.
   changed_files:
     name: detect changed files
     runs-on: ubuntu-latest
     outputs:
+      # Whether any PHP files have changed.
       php: ${{ steps.filter.outputs.php == 'true' }}
+
+      # Whether any JavaScript files have changed.
       js: ${{ steps.filter.outputs.js == 'true' }}
+
+      # Whether any miscellaneous files related to PHP linting have changed.
       misc_php: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' }}
+
+      # Whether any miscellaneous files related to JS linting have changed.
       misc_js: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_js == 'true' }}
+
+      # JSON string holding an array of files in phpcs-excludelist.json that have changed.
       php_excluded_files: ${{ steps.filterPHP.outputs.php_excluded_files }}
+
+      # JSON string holding an array of files in eslint-excludelist.json that have changed.
       js_excluded_files: ${{ steps.filterJS.outputs.js_excluded_files }}
 
     steps:
@@ -92,6 +111,8 @@ jobs:
           done
 
 
+  ### Runs `php -l` over all PHP files, in all relevant PHP versions
+  # Local equivalent: `composer php:lint`
   php_lint:
     name: PHP lint (${{ matrix.php-versions }})
     runs-on: ubuntu-latest
@@ -145,6 +166,8 @@ jobs:
           composer php:lint -- --checkstyle
           echo "::remove-matcher owner=php-lint"
 
+  ### Runs phpcs on all PHP files not listed in phpcs-excludelist.json.
+  # Local equivalent: `composer phpcs:lint:required`
   phpcs:
     name: PHP Code Sniffer (non-excluded files only)
     runs-on: ubuntu-latest
@@ -185,6 +208,8 @@ jobs:
           composer phpcs:lint:required -- --report=emacs --standard=.github/files/php-linting-phpcs.xml
           echo "::remove-matcher owner=phpcs"
 
+  ### Runs PHPCompatibility over all PHP files.
+  # Local equivalent: `composer phpcs:compatibility`
   phpcompatibility:
     name: PHP Compatibility
     runs-on: ubuntu-latest
@@ -225,6 +250,11 @@ jobs:
           composer phpcs:compatibility -- --report=emacs .
           echo "::remove-matcher owner=phpcs"
 
+  ### Runs phpcs-changed on PHP files listed in phpcs-excludelist.json.
+  # Local equivalent: `composer phpcs:changed -- --git-branch=<base> <files...>`
+  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  #
+  # Pre-commit, you might also `git add` the relevant files and run `composer phpcs:changed`
   phpcs_changed:
     name: PHP Code Sniffer (changes to excluded files only)
     runs-on: ubuntu-latest
@@ -276,6 +306,8 @@ jobs:
             jq -r '.files | to_entries | .[] | .key as $key | .value.messages[] | [ $key, ":", .line, ":", .column, ": ", .type, " - ", .message, " (", .source, ")" ] | map(tostring) | join("")'
           echo "::remove-matcher owner=phpcs"
 
+  ### Runs eslint on JS files not listed in eslint-excludelist.json
+  # Local equivalent: `yarn lint-required`
   eslint:
     name: ESLint (non-excluded files only)
     runs-on: ubuntu-latest
@@ -299,6 +331,11 @@ jobs:
       - run: yarn install
       - run: yarn lint-required
 
+  ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
+  # Local equivalent: `yarn lint-changed --git-branch=<base>`
+  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  #
+  # Pre-commit, you might also `git add` the relevant files and run `yarn lint-changed`
   eslint_changed:
     name: ESLint (changes to excluded files only)
     runs-on: ubuntu-latest
