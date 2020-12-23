@@ -1,6 +1,6 @@
 ## FOLDERS
 /.sass-cache/
-/node_modules
+**/node_modules
 vendor/bin
 vendor/dealerdirect
 vendor/mediawiki/mediawiki-codesniffer
@@ -14,8 +14,6 @@ vendor/automattic/jetpack-autoloader
 /.vscode/
 /logs
 /allure-results/
-
-/projects/plugins/**/node_modules/
 
 ### Jetpack plugin
 /projects/plugins/jetpack/vendor

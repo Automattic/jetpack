@@ -1,5 +1,5 @@
 /**
- * Just a brief helper to keep styling DRY.
+ * External dependencies.
  */
 import chalk from 'chalk';
 

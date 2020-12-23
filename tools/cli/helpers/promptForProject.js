@@ -4,6 +4,7 @@
 import inquirer from 'inquirer';
 import { readdirSync } from 'fs';
 
+
 /**
  * Prompt for project.
  *
@@ -32,21 +33,20 @@ export async function promptForProject( options ) {
 
 	const questions = [];
 	let typeAnswer;
-	if ( ! options.project ) {
+
+	if ( ! options.project || options.project.length === 0 ) {
 		typeAnswer = await inquirer.prompt( {
 			type: 'list',
 			name: 'type',
 			message: 'What type of project are you building today?',
 			choices: [ 'packages', 'plugins' ],
 			// choices: [ 'editor-extensions', 'packages', 'plugins' ], // Swap out line above once there's editor-extensions in place.
-			default: 'plugins',
 		} );
 		questions.push( {
 			type: 'list',
 			name: 'project',
 			message: 'Please choose which project to build',
-			choices: dirs( './projects/' + typeAnswer.type ),
-			default: defaultProject,
+			choices: dirs( './projects/' + typeAnswer.type )
 		} );
 	}
 

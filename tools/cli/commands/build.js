@@ -8,9 +8,8 @@ import path from 'path';
 /**
  * Internal dependencies
  */
-import { chalkJetpackGreen } from './helpers/styling.mjs';
-import { promptForProject } from './helpers/promptForProject.mjs';
-import { cliFunctions } from './helpers/cliFunctions.mjs';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+import { promptForProject } from '../helpers/promptForProject.js';
 
 // eslint-disable-next-line no-console
 const log = console.log;
@@ -20,11 +19,13 @@ const log = console.log;
  *
  * @param options
  */
-export async function builder( options ) {
+export async function build( options ) {
 	options = {
 		...options,
+		project: options.project || false,
 		targetDirectory: options.targetDirectory || process.cwd(),
 	};
+
 	switch ( options.project ) {
 		case 'plugins/jetpack':
 			log(
@@ -39,6 +40,9 @@ export async function builder( options ) {
 				stdio: 'inherit',
 			} );
 			break;
+		case false:
+			log ( chalk.red( 'You did not choose a project!' ) ) ;
+			break;
 		default:
 			log( chalk.yellow( 'This project does not have a build step defined.' ) );
 	}
@@ -48,15 +52,28 @@ export async function builder( options ) {
 /**
  * Entry point for the CLI.
  */
-export async function cli() {
-	const cli = cliFunctions();
-	// Add cli. commands here to string together options.
+export async function buildCli( argv ) {
+	argv = await promptForProject( argv );
+	await build( argv );
+}
 
-	let options = cli.parse( process.argv, { version: false } );
+/**
+ * Command definition for the build subcommand.
+ */
+export function buildDefine( yargs ) {
+	yargs.command( 'build [project]', 'Builds a monorepo project', ( yarg ) => {
+			yarg.positional( 'project', {
+				describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+				type: 'string'
+			} );
+		},
+		async ( argv ) => {
+			await buildCli( argv );
+			if ( argv.v ) {
+				console.log( argv );
+			}
+		}
+	);
 
-	options = await promptForProject( options );
-	if ( options.verbose ) {
-		console.log( options );
-	}
-	await builder( options );
+	return yargs;
 }
