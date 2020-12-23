@@ -54,7 +54,7 @@ jobs:
               - '.github/files/php-linting-phpcs.xml'
               - '.github/matchers/phpcs-problem-matcher.json'
               - '.github/matchers/php-lint-problem-matcher.json'
-              - '.github/workflows/php-linting.yml'
+              - '.github/workflows/linting.yml'
 
       - id: filterPHP
         shell: bash
