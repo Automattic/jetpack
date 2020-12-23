@@ -131,7 +131,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'Browse sites',
 			'read',
 			'https://wordpress.com/home',
-			'Browse sites',
+			'site-switcher',
 			'menu-top toplevel_page_https://wordpress.com/home',
 			'toplevel_page_https://wordpress.com/home',
 			'dashicons-arrow-left-alt2',

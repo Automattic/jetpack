@@ -144,40 +144,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link() {
-		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Only used on multisite' );
-		}
-		global $menu;
-
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-
-		// Give user a second site.
-		$blog_id = $this->factory->blog->create();
-		add_user_to_blog( $blog_id, get_current_user_id(), 'editor' );
-
-		static::$admin_menu->add_browse_sites_link();
-
-		$browse_sites_menu_item = array(
-			'Browse sites',
-			'read',
-			'https://wordpress.com/home',
-			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/home',
-			'toplevel_page_https://wordpress.com/home',
-			'dashicons-arrow-left-alt2',
-		);
-		$this->assertSame( $menu[0], $browse_sites_menu_item );
-
-		remove_user_from_blog( get_current_user_id(), $blog_id );
-	}
-
-	/**
 	 * Shim wpcomsh fallback site icon.
 	 *
 	 * @return string
