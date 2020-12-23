@@ -155,6 +155,28 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_new_site_link.
+	 *
+	 * @covers ::add_new_site_link
+	 */
+	public function test_add_new_site_link() {
+		global $menu;
+
+		static::$admin_menu->add_new_site_link();
+
+		$new_site_menu_item = array(
+			'Add new site',
+			'read',
+			'https://wordpress.com/start?ref=calypso-sidebar',
+			'Add new site',
+			'menu-top toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
+			'toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
+			'dashicons-plus-alt',
+		);
+		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
+	}
+
+	/**
 	 * Tests add_site_card_menu
 	 *
 	 * @covers ::add_site_card_menu
