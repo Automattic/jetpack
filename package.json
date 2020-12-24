@@ -64,7 +64,7 @@
 		"docker:update-core-unit-tests": "yarn docker:compose exec wordpress svn up /tmp/wordpress-develop/tests/phpunit/data/ /tmp/wordpress-develop/tests/phpunit/includes",
 		"docker:wp": "yarn docker:compose exec wordpress wp --allow-root --path=/var/www/html/",
 		"install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files --production=false --frozen-lockfile",
-		"lint": "eslint --ext .js,.jsx . _inc extensions modules",
+		"lint": "yarn lint-file .",
 		"lint-changed": "tools/eslint-changed.js --ext .js,.jsx --git",
 		"lint-file": "eslint --ext .js,.jsx",
 		"php:autofix": "composer phpcs:fix",
@@ -111,8 +111,9 @@
 		"prettier": "npm:wp-prettier@2.0.5"
 	},
 	"devDependencies": {
-		"commander": "6.2.0",
+		"@wordpress/eslint-plugin": "4.0.0",
 		"babel-eslint": "10.1.0",
+		"commander": "6.2.0",
 		"eslint": "7.14.0",
 		"eslint-config-prettier": "6.15.0",
 		"eslint-config-wpcalypso": "5.0.0",

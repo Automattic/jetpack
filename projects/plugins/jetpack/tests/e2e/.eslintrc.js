@@ -15,6 +15,11 @@ module.exports = {
 		reporter: true,
 		jasmine: true,
 	},
+	settings: {
+		jest: {
+			version: 26,
+		},
+	},
 	rules: {
 		'arrow-parens': [ 0, 'as-needed' ],
 		'wpcalypso/import-docblock': 0,
