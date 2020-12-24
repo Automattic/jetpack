@@ -6,34 +6,6 @@ on:
     branches: [master, master-stable, 'branch-*']
 
 jobs:
-  lint:
-    name: "JavaScript & CSS lint"
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      # We don't need full git history, but eslint-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 10
-      - uses: ./.github/actions/deepen-to-merge-base
-
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-
-      - name: Use yarn cache
-        uses: actions/cache@v2
-        with:
-          path: /home/runner/.cache/yarn/v6
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - run: |
-          yarn install
-          yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }}
-
-
   js-tests:
     name: "test dashboard, extensions and search"
     runs-on: ubuntu-latest
