@@ -796,12 +796,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Update the data for the recommendations
 	 *
 	 * @param WP_REST_Request $request The request.
+	 * @return bool true
 	 */
 	public static function update_recommendations_data( $request ) {
 		$data = $request['data'];
 		if ( ! empty( $data ) ) {
 			Jetpack_Options::update_option( 'recommendations_data', $data );
 		}
+		return true;
 	}
 
 	/**
@@ -812,19 +814,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_recommendations_step() {
 		self::initialize_jetpack_recommendations();
 
-		return Jetpack_Options::get_option( 'recommendations_step', 'not-started' );
+		return array(
+			'step' => Jetpack_Options::get_option( 'recommendations_step', 'not-started' ),
+		);
 	}
 
 	/**
 	 * Update the step for the recommendations
 	 *
 	 * @param WP_REST_Request $request The request.
+	 * @return bool true
 	 */
 	public static function update_recommendations_step( $request ) {
 		$step = $request['step'];
 		if ( ! empty( $step ) ) {
 			Jetpack_Options::update_option( 'recommendations_step', $step );
 		}
+		return true;
 	}
 
 	/**
