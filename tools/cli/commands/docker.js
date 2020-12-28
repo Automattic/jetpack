@@ -36,6 +36,8 @@ import path from 'path';
 import ora from 'ora';
 
 const spinner = ora( 'Starting...' );
+// eslint-disable-next-line no-console
+const log = console.log;
 
 /**
  * Returns the docker-compose options.
@@ -43,7 +45,9 @@ const spinner = ora( 'Starting...' );
  * Basically mimics:
  * docker-compose -f docker-compose.yml -f compose-volumes.built.yml -f compose-extras.yml"
  *
- * @param verbose bool To output verbose logging or not.
+ * @param {boolean} verbose - To output verbose logging or not.
+ *
+ * @returns {object} Options for docker compose.
  */
 function dockerOptions( verbose ) {
 	return {
@@ -54,14 +58,9 @@ function dockerOptions( verbose ) {
 }
 
 /**
- * @param argv
- */
-export async function dockerCli( argv ) {
-	// do something.
-}
-
-/**
- * @param argv
+ * Executes the jetpack docker up command.
+ *
+ * @param {object} argv - The argv object.
  */
 async function dockerUp( argv ) {
 	// The below is for `yarn docker:up` except it runs in detached mode. This means it ends up reporting back
@@ -77,28 +76,32 @@ async function dockerUp( argv ) {
 		);
 	} catch ( e ) {
 		spinner.isSpinning && spinner.stop();
-		console.log( e );
-		console.log( 'There was an error. See above.' );
+		log( e );
+		log( 'There was an error. See above.' );
 	}
 	spinner.isSpinning && spinner.succeed( 'Docker is up. Visit http://localhost/ to see the test site.' );
 }
 
 /**
- * @param yargs
+ * Defines the jetpack docker commands.
+ *
+ * @param {object} yargs - The yargs dependency.
+ *
+ * @returns {object} Yargs with the docker commands defined.
  */
 export function dockerDefine( yargs ) {
 	yargs.command( {
 		command: "docker",
 		description: "Manages the Jetpack Docker instance",
-		builder: ( yargs ) => {
-			return yargs.command( {
+		builder: ( builder ) => {
+			return builder.command( {
 				command: 'up',
 				description: 'Brings up the Docker instance',
 				handler: async ( argv ) => {
 					await dockerUp( argv );
 
 					if ( argv.v ) {
-						console.log( argv );
+						log( argv );
 					}
 				}
 			} )

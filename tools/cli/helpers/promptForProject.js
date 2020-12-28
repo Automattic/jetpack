@@ -4,7 +4,6 @@
 import inquirer from 'inquirer';
 import { readdirSync } from 'fs';
 
-
 /**
  * Prompt for project.
  *
@@ -12,7 +11,9 @@ import { readdirSync } from 'fs';
  *
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
- * @param options
+ * @param {object} options - Passthrough of the argv object.
+ *
+ * @returns {object} argv object with the project property.
  */
 export async function promptForProject( options ) {
 	const defaultProject = 'plugins/jetpack';
