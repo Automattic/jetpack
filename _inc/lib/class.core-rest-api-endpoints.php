@@ -909,12 +909,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		foreach ( $value as $answer ) {
 			if ( is_array( $answer ) ) {
-				foreach ( $answer as $array_item ) {
-					$validate = self::validate_string( $array_item, $request, $param );
-					if ( is_wp_error( $validate ) ) {
-						return $validate;
-					}
-				}
+				$validate = self::validate_array( $answer, $request, $param );
 			} elseif ( is_string( $answer ) ) {
 				$validate = self::validate_string( $answer, $request, $param );
 			} else {
@@ -3280,6 +3275,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! is_string( $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack' ), $param ) );
 		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is an array of strings.
+	 *
+	 * @param array           $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to the endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_array( $value, $request, $param ) {
+		foreach ( $value as $array_item ) {
+			$validate = self::validate_string( $array_item, $request, $param );
+			if ( is_wp_error( $validate ) ) {
+				return $validate;
+			}
+		}
+
 		return true;
 	}
 
