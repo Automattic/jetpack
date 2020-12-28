@@ -92,8 +92,10 @@
 	},
 	"dependencies": {
 		"chalk": "4.1.0",
+		"docker-compose": "0.23.5",
 		"esm": "3.2.25",
 		"inquirer": "7.3.3",
+		"ora": "5.1.0",
 		"yargs": "16.2.0"
 	},
 	"devDependencies": {

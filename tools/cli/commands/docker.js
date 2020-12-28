@@ -24,28 +24,87 @@
 		"docker:stop": "yarn docker:compose stop",
 		"docker:tail": "yarn docker:compose exec wordpress bash -c \"/var/scripts/tail.sh\"",
 		"docker:uninstall": "yarn docker:compose exec wordpress bash -c \"/var/scripts/uninstall.sh\"",
-		"docker:up": "yarn docker:compose up",
 		"docker:update-core-unit-tests": "yarn docker:compose exec wordpress svn up /tmp/wordpress-develop/tests/phpunit/data/ /tmp/wordpress-develop/tests/phpunit/includes",
 		"docker:wp": "yarn docker:compose exec wordpress wp --allow-root --path=/var/www/html/",
  */
 
+/**
+ * External dependencies
+ */
+import * as compose from 'docker-compose';
+import path from 'path';
+import ora from 'ora';
+
+const spinner = ora( 'Starting...' );
+
+/**
+ * Returns the docker-compose options.
+ *
+ * Basically mimics:
+ * docker-compose -f docker-compose.yml -f compose-volumes.built.yml -f compose-extras.yml"
+ *
+ * @param verbose bool To output verbose logging or not.
+ */
+function dockerOptions( verbose ) {
+	return {
+		cwd: path.join( __dirname, '../../docker' ),
+		config: ['docker-compose.yml', 'compose-volumes.built.yml', 'compose-extras.yml'],
+		log: verbose,
+	};
+}
+
+/**
+ * @param argv
+ */
 export async function dockerCli( argv ) {
 	// do something.
 }
 
-export function dockerDefine( yargs ) {
-	yargs.command(
-		'docker', 'Manages the Jetpack Docker instance',
-		( yarg ) => {
-			// add builder things here.
-		},
-		async ( argv ) => {
-			await dockerCli( argv );
+/**
+ * @param argv
+ */
+async function dockerUp( argv ) {
+	// The below is for `yarn docker:up` except it runs in detached mode. This means it ends up reporting back
+	// success BEFORE the run.sh script finishes. Need to figure out how to read that?
+	// maybe something like https://stackoverflow.com/questions/31746182/docker-compose-wait-for-container-x-before-starting-y/41854997#41854997 ?
+	const verbose = ( !! argv.v );
 
-			if ( argv.v ) {
-				console.log( argv );
-			}
+	verbose || spinner.start( 'Bringing Docker up!' ); // The spinner will pollute the terminal in verbose mode.
+
+	try {
+		await compose.upAll(
+			dockerOptions( verbose )
+		);
+	} catch ( e ) {
+		spinner.isSpinning && spinner.stop();
+		console.log( e );
+		console.log( 'There was an error. See above.' );
+	}
+	spinner.isSpinning && spinner.succeed( 'Docker is up. Visit http://localhost/ to see the test site.' );
+}
+
+/**
+ * @param yargs
+ */
+export function dockerDefine( yargs ) {
+	yargs.command( {
+		command: "docker",
+		description: "Manages the Jetpack Docker instance",
+		builder: ( yargs ) => {
+			return yargs.command( {
+				command: 'up',
+				description: 'Brings up the Docker instance',
+				handler: async ( argv ) => {
+					await dockerUp( argv );
+
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
+			} )
+				.demandCommand( 1, 'jetpack docker requires a subcommand.' );
 		}
-	);
+	} )
+		.argv;
 	return yargs;
 }
