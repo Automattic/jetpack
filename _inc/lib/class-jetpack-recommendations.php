@@ -34,10 +34,11 @@ class Jetpack_Recommendations {
 			return $recommendations_enabled;
 		}
 
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		if ( ! Jetpack::connection()->is_connected() ) {
+			return new WP_Error( 'site_not_connected', 'Site not connected.' );
 		}
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$request_path = sprintf( '/sites/%s/jetpack-recommendations/site-registered-date', $blog_id );
 		$result       = Client::wpcom_json_api_request_as_blog(
