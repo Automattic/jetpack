@@ -27,21 +27,27 @@
 }
 
 /**
+ * Fixes Gutenberg in not fullscreen mode.
+ */
+ @media (min-width: 783px) {
+	.interface-interface-skeleton,
+	.edit-post-layout .components-editor-notices__snackbar {
+		left: 272px;
+	}
+}
+
+@media (min-width: 961px) {
+	.auto-fold .interface-interface-skeleton,
+	.auto-fold .edit-post-layout .components-editor-notices__snackbar {
+		left: 272px;
+	}
+}
+
+/**
  * Jetpack logo
  */
 #adminmenu [class*="activity-log"] .wp-menu-image img {
 	padding-top: 7px;
-}
-
-/**
- * Site Switcher
- */
-#adminmenu a.site-switcher {
-	color: #A2AAB2;
-}
-
-#adminmenu a.site-switcher:hover {
-	color: #00b9eb;
 }
 
 /**
@@ -50,11 +56,6 @@
 #adminmenu .toplevel_page_site-card .wp-menu-name {
 	margin-left: 40px; /* icon width (32) + padding (8). */
 	padding: 0;
-}
-
-#adminmenu li.toplevel_page_site-card {
-	border-bottom: 1px solid #333333;
-	border-top: 1px solid #333333;
 }
 
 #adminmenu li.toplevel_page_site-card a {
@@ -73,8 +74,10 @@
 	width: 32px;
 
 }
-#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image {
-	background-color: #c3c4c7;
+
+#adminmenu a.toplevel_page_site-card:hover,
+#adminmenu li.toplevel_page_site-card:hover {
+	background-color: inherit;
 }
 
 #adminmenu .toplevel_page_site-card img {
@@ -87,9 +90,11 @@
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
 #adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
-	background-color: #006fad;
-	background-image: url("data:image/svg+xml,%3Csvg class='gridicon gridicons-house' height='24' width='24' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg%3E%3Cpath fill='%230a4b78' d='M22 9L12 1 2 9v2h2v10h5v-4c0-1.657 1.343-3 3-3s3 1.343 3 3v4h5V11h2V9z'/%3E%3C/g%3E%3C/svg%3E%0A");
-	width: 34px;
+	background-image: url("data:image/svg+xml,%3Csvg class='gridicon gridicons-house' height='24' width='24' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg%3E%3Cpath fill='%23fff' d='M22 9L12 1 2 9v2h2v10h5v-4c0-1.657 1.343-3 3-3s3 1.343 3 3v4h5V11h2V9z'/%3E%3C/g%3E%3C/svg%3E%0A");
+}
+
+#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image {
+	background-color: #c3c4c7;
 }
 
 #adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img[src^="data:image/svg"] {
@@ -104,7 +109,6 @@
 }
 
 .site__info .site__title {
-	color: white;
 	display: block;
 	font-size: 14px;
 	font-weight: 400;
@@ -112,7 +116,6 @@
 }
 
 .site__info .site__domain {
-	color: #a2aab2;
 	display: block;
 	max-width: 95%;
 	font-size: 12px;
@@ -134,7 +137,6 @@
 	-webkit-user-select: none;
 	user-select: none;
 	pointer-events: none;
-	background: linear-gradient(90deg,rgba(35,40,45,0),rgba(35,40,45,1) 90%);
 	top: 0;
 	bottom: 0;
 	right: 0;
@@ -144,8 +146,6 @@
 }
 
 .site__info > .site__badge {
-	background: #dcdcde;
-	color: #1d2327;
 	font-size: 12px;
 	border-radius: 12px;
 	clear: both;
@@ -249,42 +249,24 @@
  * Styles for the nav-unification prototype (see pbAPfg-O2)
  * TODO: depending on project outcome move or delete styles
  */
-
-#wpadminbar {
-	background: #101517;
-}
-
 #wpadminbar #wp-admin-bar-notes #wpnt-notes-unread-count.wpn-unread {
 	top: 50%;
 	left: 50%;
 	transform: translate( -10px, -13px );
-	background-color: #f283aa !important;
-	border-color: #101517;
-}
 
-#wpadminbar .ab-top-menu > li.my-sites > .ab-item {
-	background: #23282d;
-}
-
-#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item {
-	background: #333333;
 }
 
 #wpadminbar .quicklinks li#wp-admin-bar-my-account.with-avatar {
 	transform: translateX( 1px );
 }
 
-#wpadminbar .ab-top-menu > li.wpnt-show > .ab-item, #wpadminbar .ab-top-menu > li.ab-hover.wpnt-show > .ab-item {
-	background: #23282d !important;
-	color: #ffffff !important;
-}
-
-#wpadminbar > #wp-toolbar .wpnt-show span.noticon, #wpadminbar #wp-admin-bar-notes.wpnt-show .noticon {
-	color: #ffffff;
-}
-
 #wpadminbar #wp-admin-bar-notes.active .noticon-bell:before {
 	background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cmVjdCB4PSIwIiBmaWxsPSJub25lIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiLz48Zz48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNNi4xNCAxNC45N2wyLjgyOCAyLjgyN2MtLjM2Mi4zNjItLjg2Mi41ODYtMS40MTQuNTg2LTEuMTA1IDAtMi0uODk1LTItMiAwLS41NTIuMjI0LTEuMDUyLjU4Ni0xLjQxNHptOC44NjcgNS4zMjRMMTQuMyAyMSAzIDkuN2wuNzA2LS43MDcgMS4xMDIuMTU3Yy43NTQuMTA4IDEuNjktLjEyMiAyLjA3Ny0uNTFsMy44ODUtMy44ODRjMi4zNC0yLjM0IDYuMTM1LTIuMzQgOC40NzUgMHMyLjM0IDYuMTM1IDAgOC40NzVsLTMuODg1IDMuODg2Yy0uMzg4LjM4OC0uNjE4IDEuMzIzLS41MSAyLjA3N2wuMTU3IDEuMXoiLz48L2c+PC9zdmc+") !important;
+}
+
+#wpadminbar > #wp-toolbar .wpnt-show span.noticon,
+#wpadminbar #wp-admin-bar-notes.wpnt-show .noticon {
+	color: #ffffff;
 }
 
 #wpadminbar ul#wp-admin-bar-root-default {

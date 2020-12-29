@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 /**
@@ -74,22 +73,29 @@ class Admin_Menu {
 		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu( $domain );
+			$this->add_new_site_link();
 		}
 
-		/*
+		/**
 		 * Whether links should point to Calypso or wp-admin.
 		 *
+		 * Options:
 		 * true  - Calypso.
 		 * false - wp-admin.
+		 *
+		 * @module masterbar
+		 * @since 9.3.0
+		 *
+		 * @param bool $calypso Whether menu item URLs should point to Calypso.
 		 */
-		$calypso = true;
+		$calypso = apply_filters( 'jetpack_admin_menu_use_calypso_links', true );
 
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 
 		$this->add_my_home_menu( $domain, $calypso );
 		$this->add_stats_menu( $domain );
-		$this->add_purchases_menu( $domain );
+		$this->add_upgrades_menu( $domain );
 		$this->add_posts_menu( $domain, $calypso );
 		$this->add_media_menu( $domain, $calypso );
 		$this->add_page_menu( $domain, $calypso );
@@ -111,7 +117,7 @@ class Admin_Menu {
 		if ( jetpack_is_atomic_site() ) {
 			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
-			if ( $wpcom_user_data['site_count'] < 2 ) {
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] < 2 ) {
 				return;
 			}
 		} elseif ( ! is_multisite() || count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
@@ -119,7 +125,53 @@ class Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'Browse sites', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( 'site-switcher', __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
+	}
+
+	/**
+	 * Adds a custom element class for Site Switcher menu item.
+	 *
+	 * @param array $menu Associative array of administration menu items.
+	 * @return array
+	 */
+	public function set_browse_sites_link_class( array $menu ) {
+		foreach ( $menu as $key => $menu_item ) {
+			if ( 'site-switcher' !== $menu_item[3] ) {
+				continue;
+			}
+
+			$menu[ $key ][4] = add_cssclass( 'site-switcher', $menu_item[4] );
+			break;
+		}
+
+		return $menu;
+	}
+
+	/**
+	 * Adds a link to the menu to create a new site.
+	 */
+	public function add_new_site_link() {
+		global $menu;
+
+		if ( jetpack_is_atomic_site() ) {
+			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
+
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] > 1 ) {
+				return;
+			}
+		} elseif ( is_multisite() && count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+			return;
+		}
+
+		// Attempt to get last position.
+		$position = 1000;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
+
+		$this->add_admin_menu_separator( ++$position );
+		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start', null, 'dashicons-plus-alt', ++$position );
 	}
 
 	/**
@@ -254,13 +306,24 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Adds Purchases menu.
+	 * Adds Upgrades menu.
 	 *
 	 * @param string $domain Site domain.
 	 */
-	public function add_purchases_menu( $domain ) {
+	public function add_upgrades_menu( $domain ) {
 		remove_menu_page( 'paid-upgrades.php' );
-		add_menu_page( __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $domain, null, 'dashicons-cart', 4 );
+
+		$menu_slug = 'https://wordpress.com/plans/' . $domain;
+
+		add_menu_page( __( 'Upgrades', 'jetpack' ), __( 'Upgrades', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-cart', 4 );
+		add_submenu_page( $menu_slug, __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', $menu_slug, null, 1 );
+
+		if ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) {
+			add_submenu_page( $menu_slug, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $domain, null, 2 );
+		}
+
+		add_submenu_page( $menu_slug, __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $domain, null, 3 );
+
 		$this->migrate_submenus( 'paid-upgrades.php', 'https://wordpress.com/plans/' . $domain );
 	}
 
@@ -388,13 +451,9 @@ class Admin_Menu {
 		$menu[ $position ][5] = 'toplevel_page_jetpack'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		remove_menu_page( 'jetpack' );
-		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-
 		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $domain, null, 5 );
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $domain, null, 10 );
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $domain, null, 15 );
 
 		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
 	}
@@ -475,11 +534,9 @@ class Admin_Menu {
 	 * @param string $domain  Site domain.
 	 */
 	public function add_plugins_menu( $domain ) {
-		$calypso = $this->is_wpcom_site();
-
 		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
-		if ( $calypso ) {
+		if ( $this->is_wpcom_site() ) {
 			remove_menu_page( 'plugins.php' );
 
 			if ( $this->is_api_request ) {
@@ -511,8 +568,9 @@ class Admin_Menu {
 	public function add_users_menu( $domain, $calypso = true ) {
 		$users_slug   = $calypso ? 'https://wordpress.com/people/team/' . $domain : 'users.php';
 		$add_new_slug = 'https://wordpress.com/people/new/' . $domain;
-		$profile_slug = $calypso ? 'https://wordpress.com/me' : 'grofiles-editor';
-		$account_slug = $calypso ? 'https://wordpress.com/me/account' : 'grofiles-user-settings';
+		$profile_slug = $this->is_wpcom_site() ? 'grofiles-editor' : 'profile.php';
+		$profile_slug = $calypso ? 'https://wordpress.com/me' : $profile_slug;
+		$account_slug = $this->is_wpcom_site() && ! $calypso ? 'grofiles-user-settings' : 'https://wordpress.com/me/account';
 
 		if ( current_user_can( 'list_users' ) ) {
 			remove_menu_page( 'users.php' );
@@ -528,7 +586,7 @@ class Admin_Menu {
 			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
 			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 20 );
 			$this->migrate_submenus( 'users.php', $users_slug );
-		} else {
+		} elseif ( $calypso && $this->is_wpcom_site() ) {
 			remove_menu_page( 'profile.php' );
 			remove_submenu_page( 'profile.php', 'grofiles-editor' );
 			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
@@ -549,8 +607,10 @@ class Admin_Menu {
 		$admin_slug = 'tools.php';
 		$menu_slug  = $calypso ? 'https://wordpress.com/marketing/tools/' . $domain : $admin_slug;
 
-		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $domain, null, 5 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $domain, null, 10 );
+		if ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) {
+			add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $domain, null, 5 );
+			add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $domain, null, 10 );
+		}
 
 		if ( $calypso ) {
 			remove_menu_page( $admin_slug );
@@ -579,8 +639,9 @@ class Admin_Menu {
 			remove_submenu_page( 'options-general.php', 'options-writing.php' );
 		}
 
-		add_options_page( esc_attr__( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $domain, null, 1 );
-		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $domain, null, 6 );
+		if ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) {
+			add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $domain, null, 6 );
+		}
 	}
 
 	/**
@@ -630,17 +691,24 @@ class Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
+		$style_dependencies = array();
+		$rtl                = is_rtl() ? '-rtl' : '';
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
+		} else {
+			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
+		}
 		wp_enqueue_style(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.css', __FILE__ ),
-			array(),
-			'1'
+			$style_dependencies,
+			JETPACK__VERSION
 		);
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
 			array(),
-			'1',
+			JETPACK__VERSION,
 			true
 		);
 	}
@@ -662,6 +730,10 @@ class Admin_Menu {
 		 * Filters whether this request is executed in a WordPress.com environment.
 		 *
 		 * Filterable to make it easier to unit test other parts of this class.
+		 *
+		 * @module masterbar
+		 *
+		 * @since 9.3.0
 		 *
 		 * @param bool $is_wpcom Whether this is a WordPress.com request. Defaults to the value of IS_WPCOM,
 		 */

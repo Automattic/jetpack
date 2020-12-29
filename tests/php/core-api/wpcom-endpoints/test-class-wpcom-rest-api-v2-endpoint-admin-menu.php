@@ -152,23 +152,23 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular menu item.
 			array(
-				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
+				array( 'Media\'s', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-media',
 					'slug'  => 'upload-php',
-					'title' => 'Media',
+					'title' => 'Media\'s',
 					'url'   => admin_url( 'upload.php' ),
 				),
 			),
 			// Menu item with update count.
 			array(
-				array( 'Plugins <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
+				array( 'Plugin\'s <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-plugins',
 					'slug'  => 'plugins-php',
-					'title' => 'Plugins',
+					'title' => 'Plugin\'s',
 					'url'   => admin_url( 'plugins.php' ),
 					'count' => 5,
 				),
@@ -193,7 +193,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		$prepare_submenu_item = $class->getMethod( 'prepare_submenu_item' );
 		$prepare_submenu_item->setAccessible( true );
 
-		$this->assertEquals(
+		$this->assertSame(
 			$expected,
 			$prepare_submenu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $submenu_item, $menu_item ) )
 		);
@@ -215,14 +215,27 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular submenu item.
 			array(
-				array( 'Library', 'upload_files', 'upload.php' ),
+				array( 'Library\'s', 'upload_files', 'upload.php' ),
 				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'parent' => 'upload-php',
+					'slug'   => 'upload-php',
+					'title'  => 'Library\'s',
 					'type'   => 'submenu-item',
+					'url'    => 'http://example.org/wp-admin/upload.php',
+				),
+			),
+			// Submenu item with update count.
+			array(
+				array( 'Library <span class="update-plugins count-15"><span class="update-count">15</span></span>', 'upload_files', 'upload.php' ),
+				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
+				array(
+					'parent' => 'upload-php',
 					'slug'   => 'upload-php',
 					'title'  => 'Library',
+					'type'   => 'submenu-item',
 					'url'    => admin_url( 'upload.php' ),
+					'count'  => 15,
 				),
 			),
 		);
@@ -393,6 +406,62 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'woocommerce',
 				'__return_true',
 				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
+			),
+		);
+	}
+
+	/**
+	 * Tests parsing an update count.
+	 *
+	 * @param string $menu_item Menu item.
+	 * @param string $expected  Parsed menu title & count. Or not.
+	 *
+	 * @throws \ReflectionException Noop.
+	 * @dataProvider menu_item_update_data
+	 * @covers ::parse_update_count
+	 */
+	public function test_parse_update_count( $menu_item, $expected ) {
+		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
+
+		$prepare_menu_item_url = $class->getMethod( 'parse_update_count' );
+		$prepare_menu_item_url->setAccessible( true );
+
+		$this->assertSame(
+			$expected,
+			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item ) )
+		);
+	}
+
+	/**
+	 * Data provider for test_prepare_menu_item_url.
+	 *
+	 * @return \string[][]
+	 */
+	public function menu_item_update_data() {
+		return array(
+			array(
+				'No Updates here',
+				array(),
+			),
+			array(
+				'Zero updates <span class="update-plugins count-0"><span class="update-count">0</span></span>',
+				array(
+					'title' => 'Zero updates',
+				),
+			),
+			array(
+				'Finally some updates <span class="update-plugins count-5"><span class="update-count">5</span></span>',
+				array(
+					'count' => 5,
+					'title' => 'Finally some updates',
+				),
+			),
+			array(
+				'Plugin updates <span class="update-plugins count-5"><span class="plugin-count">5</span></span>',
+				array(
+					'count' => 5,
+					'title' => 'Plugin updates',
+				),
 			),
 		);
 	}

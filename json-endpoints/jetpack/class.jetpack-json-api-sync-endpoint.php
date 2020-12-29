@@ -74,6 +74,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 // GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
+		Actions::mark_sync_read_only();
 		$store = new Replicastore();
 		return $store->checksum_all();
 	}
@@ -95,7 +96,26 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		if ( ! isset( $args['strip_non_ascii'] ) ) {
 			$args['strip_non_ascii'] = true;
 		}
-		$histogram = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'], $args['shared_salt'] );
+
+		/**
+		 * Hack: nullify the values of `start_id` and `end_id` if we're only requesting ranges.
+		 *
+		 * The endpoint doesn't support nullable values :(
+		 */
+		if ( true === $args['only_range_edges'] ) {
+			if ( 0 === $args['start_id'] ) {
+				$args['start_id'] = null;
+			}
+
+			if ( 0 === $args['end_id'] ) {
+				$args['end_id'] = null;
+			}
+		}
+
+		$histogram = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'], $args['shared_salt'], $args['only_range_edges'], $args['detailed_drilldown'] );
+
+		// Hack to disable Sync during this call, so we can resolve faster.
+		Actions::mark_sync_read_only();
 
 		return array( 'histogram' => $histogram, 'type' => $store->get_checksum_type() );
 	}
@@ -154,6 +174,7 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 
 		$codec = Sender::get_instance()->get_codec();
 
+		Actions::mark_sync_read_only();
 		Settings::set_is_syncing( true );
 		$objects = $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) );
 		Settings::set_is_syncing( false );
