@@ -327,7 +327,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ), // TODO: delete.
-			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step(),
+			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
 			'isSafari'                    => $is_safari,
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
