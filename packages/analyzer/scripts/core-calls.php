@@ -36,7 +36,6 @@ class CoreCalls {
 			return;
 		}
 
-		$io->write( "Find invocations\n" );
 		try {
 			$declarations = CoreDefinitions::get_declarations( $core_path );
 
