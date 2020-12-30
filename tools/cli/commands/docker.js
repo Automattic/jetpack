@@ -2,12 +2,10 @@
  * "docker:build": "docker run -it --rm  -v ${PWD}:/usr/src/app -w /usr/src/app node yarn build",
 		"docker:build-image": "docker build -t automattic/jetpack-wordpress-dev tools/docker",
 		"docker:clean": "yarn docker:compose down --rmi all -v && rm -rf tools/docker/wordpress/* tools/docker/wordpress/.htaccess tools/docker/wordpress-develop/* tools/docker/logs/* tools/docker/data/mysql/*",
-		"docker:compose": "yarn docker:env && yarn docker:compose-volumes && yarn docker:compose-extras && docker-compose -f tools/docker/docker-compose.yml -f tools/docker/compose-volumes.built.yml -f tools/docker/compose-extras.yml",
+		"docker:compose": "yarn docker:compose-volumes && yarn docker:compose-extras && docker-compose -f tools/docker/docker-compose.yml -f tools/docker/compose-volumes.built.yml -f tools/docker/compose-extras.yml",
 		"docker:compose-extras": "[ -f tools/docker/compose-extras.yml ] || cp tools/docker/compose-extras.yml.sample tools/docker/compose-extras.yml",
 		"docker:compose-volumes": "[ -f tools/docker/compose-volumes.yml ] || cp tools/docker/compose-volumes.yml.sample tools/docker/compose-volumes.yml; bash ./tools/compose-volumes.sh tools/docker/compose-volumes.yml > tools/docker/compose-volumes.built.yml",
 		"docker:db": "yarn docker:compose exec wordpress bash -c \"mysql --defaults-group-suffix=docker\"",
-		"docker:down": "yarn docker:compose down",
-		"docker:env": "node -e \"require('fs').createWriteStream( 'tools/docker/.env', { flags: 'a' } );\"",
 		"docker:install": "yarn docker:compose exec wordpress bash -c \"/var/scripts/install.sh\"",
 		"docker:jt-config": "[ -f ./tools/docker/bin/jt/config.sh ] || { echo 'Tunneling scripts are not installed. See the section \"Jurassic Tube Tunneling Service\" in tools/docker/README.md.'; exit; }; ./tools/docker/bin/jt/config.sh",
 		"docker:jt-down": "[ -f ./tools/docker/bin/jt/tunnel.sh ] || { echo 'Tunneling scripts are not installed. See the section \"Jurassic Tube Tunneling Service\" in tools/docker/README.md.'; exit; }; ./tools/docker/bin/jt/tunnel.sh break",
@@ -34,6 +32,7 @@
 import * as compose from 'docker-compose';
 import path from 'path';
 import ora from 'ora';
+import fs from 'fs';
 
 const spinner = ora( 'Starting...' );
 // eslint-disable-next-line no-console
@@ -58,6 +57,17 @@ function dockerOptions( verbose ) {
 }
 
 /**
+ * Checks and ensures a .env and standard compose files are present.
+ *
+ * @todo Finish adding the composer files to replace docker:compose.
+ */
+function defaultDockerFiles() {
+	spinner.start( 'Ensuring expected .env and compose files are present.');
+	fs.createWriteStream( path.join( __dirname, '../../docker/.env' ), { flags: 'a' } );
+	spinner.succeed( 'Ensured expected .env and compose files are present!' );
+}
+
+/**
  * Executes the jetpack docker up command.
  *
  * @param {object} argv - The argv object.
@@ -67,7 +77,7 @@ async function dockerUp( argv ) {
 	// success BEFORE the run.sh script finishes. Need to figure out how to read that?
 	// maybe something like https://stackoverflow.com/questions/31746182/docker-compose-wait-for-container-x-before-starting-y/41854997#41854997 ?
 	const verbose = ( !! argv.v );
-
+	defaultDockerFiles();
 	verbose || spinner.start( 'Bringing Docker up!' ); // The spinner will pollute the terminal in verbose mode.
 
 	try {
@@ -83,6 +93,28 @@ async function dockerUp( argv ) {
 }
 
 /**
+ * Executes the jetpack docker down command.
+ *
+ * @param {object} argv - The argv object.
+ */
+async function dockerDown( argv ) {
+	const verbose = ( !! argv.v );
+	defaultDockerFiles();
+	verbose || spinner.start( 'Bringing Docker down!' ); // The spinner will pollute the terminal in verbose mode.
+
+	try {
+		await compose.down(
+			dockerOptions( verbose )
+		);
+	} catch ( e ) {
+		spinner.isSpinning && spinner.stop();
+		log( e );
+		log( 'There was an error. See above.' );
+	}
+	spinner.isSpinning && spinner.succeed( 'Docker is down.' );
+}
+
+/**
  * Defines the jetpack docker commands.
  *
  * @param {object} yargs - The yargs dependency.
@@ -94,7 +126,8 @@ export function dockerDefine( yargs ) {
 		command: "docker",
 		description: "Manages the Jetpack Docker instance",
 		builder: ( builder ) => {
-			return builder.command( {
+			return builder
+				.command( {
 				command: 'up',
 				description: 'Brings up the Docker instance',
 				handler: async ( argv ) => {
@@ -105,9 +138,25 @@ export function dockerDefine( yargs ) {
 					}
 				}
 			} )
+				.command( {
+					command: 'down',
+					description: 'Brings down the Docker instance',
+					handler: async ( argv ) => {
+						await dockerDown( argv );
+
+						if ( argv.v ) {
+							log( argv );
+						}
+					}
+				} )
 				.demandCommand( 1, 'jetpack docker requires a subcommand.' );
 		}
 	} )
 		.argv;
 	return yargs;
 }
+
+export const testable = {
+	dockerOptionsFalse: dockerOptions( false ),
+	dockerOptionsTrue: dockerOptions( true )
+};
