@@ -20,7 +20,7 @@ import {
 import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { Comments } from './comments';
-import { Subscriptions } from './subscriptions';
+import Subscriptions from './subscriptions';
 
 export class Discussion extends React.Component {
 	static displayName = 'DiscussionSettings';
