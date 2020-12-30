@@ -12,7 +12,7 @@ import { spy } from 'sinon';
 import { UnwrappedComponent as SubscriptionsComponent } from '../subscriptions';
 
 describe( 'SubscriptionsComponent', () => {
-	let store, theSpy, props;
+	let theSpy, props;
 
 	before( () => {
 		theSpy = spy(),
@@ -26,7 +26,7 @@ describe( 'SubscriptionsComponent', () => {
 			isUnavailableInOfflineMode: () => {},
 			isSavingAnyOption: () => {}
 		};
-		let component = shallow( <SubscriptionsComponent { ...props } /> );
+		shallow( <SubscriptionsComponent { ...props } /> );
 	} );
 
 	describe( 'initial state', () => {
@@ -34,8 +34,8 @@ describe( 'SubscriptionsComponent', () => {
 			expect( theSpy.calledThrice ).to.be.true;
 		} );
 		it( 'does not pass the second argument to getOptionValue', () => {
-			expect( theSpy.getCall(1).args[1] ).to.be.undefined;
-			expect( theSpy.getCall(2).args[1] ).to.be.undefined;
+			expect( theSpy.getCall( 1 ).args[ 1 ] ).to.be.undefined;
+			expect( theSpy.getCall( 2 ).args[ 1 ] ).to.be.undefined;
 		} );
 		it( 'gets certain option values from getOptionValue', () => {
 			expect( theSpy.calledWith( 'stb_enabled' ) ).to.be.true;
