@@ -73,6 +73,7 @@ class Admin_Menu {
 		if ( ! $this->is_api_request && ( $this->is_wpcom_site() || jetpack_is_atomic_site() ) ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu( $domain );
+			$this->add_new_site_link();
 		}
 
 		/**
@@ -116,7 +117,7 @@ class Admin_Menu {
 		if ( jetpack_is_atomic_site() ) {
 			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
 
-			if ( $wpcom_user_data['site_count'] < 2 ) {
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] < 2 ) {
 				return;
 			}
 		} elseif ( ! is_multisite() || count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
@@ -124,7 +125,53 @@ class Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'Browse sites', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( 'site-switcher', __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
+	}
+
+	/**
+	 * Adds a custom element class for Site Switcher menu item.
+	 *
+	 * @param array $menu Associative array of administration menu items.
+	 * @return array
+	 */
+	public function set_browse_sites_link_class( array $menu ) {
+		foreach ( $menu as $key => $menu_item ) {
+			if ( 'site-switcher' !== $menu_item[3] ) {
+				continue;
+			}
+
+			$menu[ $key ][4] = add_cssclass( 'site-switcher', $menu_item[4] );
+			break;
+		}
+
+		return $menu;
+	}
+
+	/**
+	 * Adds a link to the menu to create a new site.
+	 */
+	public function add_new_site_link() {
+		global $menu;
+
+		if ( jetpack_is_atomic_site() ) {
+			$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
+
+			if ( $wpcom_user_data && $wpcom_user_data['site_count'] > 1 ) {
+				return;
+			}
+		} elseif ( is_multisite() && count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+			return;
+		}
+
+		// Attempt to get last position.
+		$position = 1000;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
+
+		$this->add_admin_menu_separator( ++$position );
+		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start', null, 'dashicons-plus-alt', ++$position );
 	}
 
 	/**
@@ -644,10 +691,17 @@ class Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
+		$style_dependencies = array();
+		$rtl                = is_rtl() ? '-rtl' : '';
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
+		} else {
+			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
+		}
 		wp_enqueue_style(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.css', __FILE__ ),
-			defined( 'IS_WPCOM' ) && IS_WPCOM ? array( 'wpcom-admin-bar', 'wpcom-masterbar-css' ) : array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' ),
+			$style_dependencies,
 			JETPACK__VERSION
 		);
 		wp_enqueue_script(

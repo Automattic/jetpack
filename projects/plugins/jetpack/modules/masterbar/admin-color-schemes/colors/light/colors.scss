@@ -1,0 +1,16 @@
+$masterbar-background: #e5e5e5;
+$menu-submenu-background: #fff;
+$text-color: #333;
+$highlight-color: #888;
+$base-color-rgb: rgb(229, 229, 229);
+$nav-unification-sidebar-text-alternative: #1d2327;
+$menu-highlight-text: #fff;
+
+// Light theme specifics
+#wpadminbar #wp-admin-bar-blog > a.ab-item:before,
+#wpadminbar #wp-admin-bar-newdash > a.ab-item:before,
+#wpadminbar #wp-admin-bar-notes .noticon-bell:before {
+	filter: brightness(0.1);
+}
+
+@import "../_core-overrides";

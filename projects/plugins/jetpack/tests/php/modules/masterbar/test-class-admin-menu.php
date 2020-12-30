@@ -107,6 +107,31 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_admin_menu_separator
+	 *
+	 * @covers ::add_admin_menu_separator
+	 */
+	public function test_add_admin_menu_separator() {
+		global $menu;
+
+		// Start with a clean slate.
+		$temp_menu = $menu;
+		$menu      = array();
+
+		static::$admin_menu->add_admin_menu_separator( 15 );
+		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
+
+		$this->assertSame( array( 10, 15 ), array_keys( $menu ), 'Menu should be ordered by position parameter.' );
+		$this->assertSame( 'manage_options', $menu[10][1] );
+		$this->assertSame( 'separator-custom-5', $menu[10][2] );
+		$this->assertSame( 'read', $menu[15][1] );
+		$this->assertSame( 'separator-custom-4', $menu[15][2] );
+
+		// Restore filtered $menu.
+		$menu = $temp_menu;
+	}
+
+	/**
 	 * Test_Admin_Menu.
 	 *
 	 * @covers ::reregister_menu_items
@@ -150,7 +175,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Browse sites',
 			'read',
 			'https://wordpress.com/home',
-			'Browse sites',
+			'site-switcher',
 			'menu-top toplevel_page_https://wordpress.com/home',
 			'toplevel_page_https://wordpress.com/home',
 			'dashicons-arrow-left-alt2',
@@ -158,6 +183,28 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( $menu[0], $browse_sites_menu_item );
 
 		remove_user_from_blog( get_current_user_id(), $blog_id );
+	}
+
+	/**
+	 * Tests add_new_site_link.
+	 *
+	 * @covers ::add_new_site_link
+	 */
+	public function test_add_new_site_link() {
+		global $menu;
+
+		static::$admin_menu->add_new_site_link();
+
+		$new_site_menu_item = array(
+			'Add new site',
+			'read',
+			'https://wordpress.com/start',
+			'Add new site',
+			'menu-top toplevel_page_https://wordpress.com/start',
+			'toplevel_page_https://wordpress.com/start',
+			'dashicons-plus-alt',
+		);
+		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
 	}
 
 	/**
@@ -868,30 +915,5 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// Restore filtered $submenu.
 		$submenu = $temp_submenu;
-	}
-
-	/**
-	 * Tests add_admin_menu_separator
-	 *
-	 * @covers ::add_admin_menu_separator
-	 */
-	public function test_add_admin_menu_separator() {
-		global $menu;
-
-		// Start with a clean slate.
-		$temp_menu = $menu;
-		$menu      = array();
-
-		static::$admin_menu->add_admin_menu_separator( 15 );
-		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
-
-		$this->assertSame( array( 10, 15 ), array_keys( $menu ), 'Menu should be ordered by position parameter.' );
-		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertSame( 'separator-custom-5', $menu[10][2] );
-		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertSame( 'separator-custom-4', $menu[15][2] );
-
-		// Restore filtered $menu.
-		$menu = $temp_menu;
 	}
 }
