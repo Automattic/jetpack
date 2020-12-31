@@ -73,7 +73,8 @@ class Plugins_Handler {
 			}
 		}
 
-		$plugins = $this->plugin_locator->find_activating_this_request();
+		// These actions contain plugins that are being activated during this request.
+		$plugins = $this->plugin_locator->find_using_request_action( array( 'activate', 'activate-selected' ) );
 		foreach ( $plugins as $path ) {
 			$active_plugins[ $path ] = $path;
 		}

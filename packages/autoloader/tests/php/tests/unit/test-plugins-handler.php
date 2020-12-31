@@ -72,7 +72,8 @@ class Test_Plugins_Handler extends TestCase {
 			->with( 'active_plugins', false )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
 		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
+			->method( 'find_using_request_action' )
+			->with( array( 'activate', 'activate-selected' ) )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
@@ -110,7 +111,8 @@ class Test_Plugins_Handler extends TestCase {
 				array( TEST_DATA_PATH . '/plugins/dummy_newer' )
 			);
 		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
+			->method( 'find_using_request_action' )
+			->with( array( 'activate', 'activate-selected' ) )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
@@ -139,7 +141,8 @@ class Test_Plugins_Handler extends TestCase {
 			->with( 'active_plugins', false )
 			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
+			->method( 'find_using_request_action' )
+			->with( array( 'activate', 'activate-selected' ) )
 			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
@@ -171,7 +174,8 @@ class Test_Plugins_Handler extends TestCase {
 			->with( 'active_plugins', false )
 			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
+			->method( 'find_using_request_action' )
+			->with( array( 'activate', 'activate-selected' ) )
 			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
