@@ -35,6 +35,8 @@ import ora from 'ora';
 import fs from 'fs';
 
 const spinner = ora( 'Starting...' );
+const dockerDir = path.join( __dirname, '../../docker' );
+
 // eslint-disable-next-line no-console
 const log = console.log;
 
@@ -50,7 +52,7 @@ const log = console.log;
  */
 function dockerOptions( verbose ) {
 	return {
-		cwd: path.join( __dirname, '../../docker' ),
+		cwd: dockerDir,
 		config: ['docker-compose.yml', 'compose-volumes.built.yml', 'compose-extras.yml'],
 		log: verbose,
 	};
@@ -63,7 +65,7 @@ function dockerOptions( verbose ) {
  */
 function defaultDockerFiles() {
 	spinner.start( 'Ensuring expected .env and compose files are present.');
-	fs.createWriteStream( path.join( __dirname, '../../docker/.env' ), { flags: 'a' } );
+	fs.createWriteStream( path.join( dockerDir, '.env' ), { flags: 'a' } );
 	spinner.succeed( 'Ensured expected .env and compose files are present!' );
 }
 
@@ -89,7 +91,24 @@ async function dockerUp( argv ) {
 		log( e );
 		log( 'There was an error. See above.' );
 	}
-	spinner.isSpinning && spinner.succeed( 'Docker is up. Visit http://localhost/ to see the test site.' );
+	spinner.isSpinning && spinner.succeed( 'Docker is up.' );
+
+	verbose || spinner.start( 'Running initial commands.' ); // The spinner will pollute the terminal in verbose mode.
+
+	try {
+		await compose.exec(
+			'wordpress',
+			'/usr/local/bin/run',
+			dockerOptions( verbose )
+		);
+	} catch ( e ) {
+		spinner.isSpinning && spinner.stop();
+		log( e );
+		log( 'There was an error. See above.' );
+	}
+
+
+	spinner.isSpinning && spinner.succeed( 'Initial commands finished! Check out http://localhost/ to see the test site.' );
 }
 
 /**
