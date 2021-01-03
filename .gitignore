@@ -1,6 +1,6 @@
 ## FOLDERS
 /.sass-cache/
-/node_modules
+**/node_modules
 vendor/bin
 vendor/dealerdirect
 vendor/mediawiki/mediawiki-codesniffer
