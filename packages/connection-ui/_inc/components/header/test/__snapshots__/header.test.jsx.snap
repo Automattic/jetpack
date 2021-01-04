@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Displays the header 1`] = `
+<div
+  className="jetpack-cui__header"
+>
+  <h1>
+    Connection Manager
+  </h1>
+  <p>
+    The Connection Manager handles all your WordPress.com connections in one place.						Here is where you can disconnect or connect features that require a WordPress.com connection,						as well as, refresh all the reconnections at once in case of connection issues.
+  </p>
+</div>
+`;

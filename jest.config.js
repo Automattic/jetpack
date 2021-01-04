@@ -5,12 +5,16 @@ const path = require( 'path' );
 
 module.exports = {
 	preset: '@automattic/calypso-build',
-	roots: [ '<rootDir>/extensions/', '<rootDir>/modules/search/instant-search' ],
+	roots: [
+		'<rootDir>/extensions/',
+		'<rootDir>/modules/search/instant-search',
+		'<rootDir>/packages/connection-ui/',
+	],
 	transform: {
 		'\\.[jt]sx?$': path.join( __dirname, 'tests', 'jest-extensions-babel-transform' ),
 		'\\.(gif|jpg|jpeg|png|svg|scss|sass|css)$': require.resolve(
 			'@automattic/calypso-build/jest/transform/asset'
 		),
 	},
-	coverageDirectory: "coverage/extensions"
+	coverageDirectory: 'coverage/extensions',
 };

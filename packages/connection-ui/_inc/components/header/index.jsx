@@ -14,7 +14,7 @@ import './style.scss';
  *
  * @returns {JSX.Element} The header component.
  */
-export default function Header() {
+const Header = () => {
 	return (
 		<div className="jetpack-cui__header">
 			<h1>{ __( 'Connection Manager', 'jetpack' ) }</h1>
@@ -29,4 +29,6 @@ export default function Header() {
 			</p>
 		</div>
 	);
-}
+};
+
+export default Header;
