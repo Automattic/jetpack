@@ -7,7 +7,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"brain/monkey": "2.5.0",
+		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
 	"autoload": {

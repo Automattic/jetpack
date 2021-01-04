@@ -1,0 +1,14 @@
+/*
+ * This file ensures scheme colors propagating into the block editor. The editor expects colors
+ * as CSS variables. We generate them the same way it does for core color schemes.
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/HEAD/packages/base-styles/_mixins.scss
+ */
+
+body {
+	--wp-admin-theme-color: #{$highlight-color};
+
+	// Darker shades.
+	--wp-admin-theme-color-darker-10: #{darken($highlight-color, 5%)};
+	--wp-admin-theme-color-darker-20: #{darken($highlight-color, 10%)};
+}

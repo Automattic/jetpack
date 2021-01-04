@@ -45,7 +45,7 @@ foreach ( $versions as $offer ) {
 
 	if (
 		! isset( $version_stack[ $base ] )
-		|| version_compare( $offer->version, $version_stack[ $base ] ) ) {
+		|| version_compare( $offer->version, $version_stack[ $base ], '>' ) ) {
 
 		// There is no version like this yet or there is a newer patch to this major version.
 		$version_stack[ $base ] = $offer->version;
