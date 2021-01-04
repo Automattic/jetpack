@@ -159,7 +159,7 @@ const storeDefinition = {
 						...state.players,
 						[ action.id ]: {
 							...state.players[ action.id ],
-							status: action.status,
+							status: 'is-playing',
 							position: action.position,
 						},
 					},
