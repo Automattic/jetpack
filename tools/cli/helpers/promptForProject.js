@@ -16,21 +16,10 @@ import { readdirSync } from 'fs';
  * @returns {object} argv object with the project property.
  */
 export async function promptForProject( options ) {
-	const defaultProject = 'plugins/jetpack';
 	const dirs = source =>
 		readdirSync( source, { withFileTypes: true } )
 			.filter( dirent => dirent.isDirectory() )
 			.map( dirent => dirent.name );
-
-	/**
-	 * Held over from previous attempt. need to convert to new way.
-	 */
-	if ( options.default ) {
-		return {
-			...options,
-			project: options.project || defaultProject,
-		};
-	}
 
 	const questions = [];
 	let typeAnswer;
