@@ -257,6 +257,16 @@ export function isCurrentUserLinked( state ) {
 }
 
 /**
+ * Returns true if current user is connection owner.
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool} true if the current user is connection owner, false otherwise
+ */
+export function isConnectionOwner( state ) {
+	return !! state.jetpack.connection.user.currentUser.isMaster;
+}
+
+/**
  * Checks if the site is currently in offline mode.
  *
  * @param  {Object}  state Global state tree

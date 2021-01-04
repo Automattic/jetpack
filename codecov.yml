@@ -3,8 +3,11 @@ coverage:
   status:
     project:
       default:
-        # basic
         target: auto
-        threshold: 5%
+        threshold: 3%
+
 ignore:
   - tests
+
+github_checks:
+  annotations: false

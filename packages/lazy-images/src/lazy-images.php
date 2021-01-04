@@ -37,7 +37,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * @var string Assets version.
 	 */
-	const ASSETS_VERSION = '1.1.1';
+	const ASSETS_VERSION = '1.1.2';
 
 	/**
 	 * Class instance.

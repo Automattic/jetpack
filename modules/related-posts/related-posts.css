@@ -181,7 +181,8 @@
 /* Related posts item content */
 
 #jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
-#jp-relatedposts .jp-relatedposts-items p {
+#jp-relatedposts .jp-relatedposts-items p,
+#jp-relatedposts .jp-relatedposts-items time {
 	font-size: 14px;
 	line-height: 20px;
 	margin: 0;
@@ -199,7 +200,8 @@
 	border-bottom: 0;
 }
 
-#jp-relatedposts .jp-relatedposts-items p {
+#jp-relatedposts .jp-relatedposts-items p,
+#jp-relatedposts .jp-relatedposts-items time {
 	margin-bottom: 0;
 }
 
