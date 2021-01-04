@@ -4,12 +4,17 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
+
+/**
+ * Style dependencies
+ */
 import './search-result-product.scss';
 
 class SearchResultProduct extends Component {
@@ -23,26 +28,37 @@ class SearchResultProduct extends Component {
 			? fields[ 'image.url.raw' ][ 0 ]
 			: fields[ 'image.url.raw' ];
 
+		const title =
+			Array.isArray( highlight.title ) && highlight.title[ 0 ].length > 0
+				? highlight.title[ 0 ]
+				: __( 'No title', 'jetpack' );
+
 		return (
 			<li className="jetpack-instant-search__search-result-product">
-				<h3>
+				<h3 className="jetpack-instant-search__result-product-title">
 					<a
-						className="jetpack-instant-search__result-product-title"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
 						rel="noopener noreferrer"
 						target="_blank"
 						//eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ { __html: highlight.title } }
+						dangerouslySetInnerHTML={ { __html: title } }
 					/>
 				</h3>
 				{ firstImage && (
-					<PhotonImage
-						alt=""
-						className="jetpack-instant-search__search-result-product-img"
-						isPrivateSite={ this.props.isPrivateSite }
-						src={ `//${ firstImage }` }
-					/>
+					<a
+						href={ `//${ fields[ 'permalink.url.raw' ] }` }
+						onClick={ this.props.onClick }
+						rel="noopener noreferrer"
+						target="_blank"
+					>
+						<PhotonImage
+							alt=""
+							className="jetpack-instant-search__search-result-product-img"
+							isPrivateSite={ this.props.isPrivateSite }
+							src={ `//${ firstImage }` }
+						/>
+					</a>
 				) }
 				<div
 					className="jetpack-instant-search__search-result-product-content"
