@@ -41,7 +41,9 @@ function load_assets( $attr, $content ) {
 	wp_localize_script(
 		'jetpack-block-' . sanitize_title_with_dashes( FEATURE_NAME ),
 		'imageCompareHandle',
-		__( 'Slide to compare images', 'jetpack' )
+		array(
+			'msg' => __( 'Slide to compare images', 'jetpack' ),
+		)
 	);
 	if ( Blocks::is_amp_request() ) {
 		$content = preg_replace(

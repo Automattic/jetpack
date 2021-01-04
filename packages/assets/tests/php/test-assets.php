@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -57,7 +58,7 @@ function wp_enqueue_script( $handle, $src = '', $deps = array(), $ver = false, $
  *                          Defaults to -1 (= return all parts as an array).
  */
 function wp_parse_url( $url, $component = -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	return parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+	return parse_url( $url, $component ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 }
 
 /**
@@ -236,6 +237,69 @@ class AssetsTest extends TestCase {
 		$this->assertEquals(
 			$GLOBALS['_was_called_wp_enqueue_script'],
 			array( array( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true ) )
+		);
+	}
+
+	/**
+	 * Test whether static resources are properly updated to use a WordPress.com static domain.
+	 *
+	 * @covers Automattic\Jetpack\Status::staticize_subdomain
+	 * @dataProvider get_resources_urls
+	 *
+	 * @param string $original       Source URL.
+	 * @param string $expected_http  Expected WordPress.com Static URL when we're mocking a site using HTTP.
+	 * @param string $expected_https Expected WordPress.com Static URL when we're mocking a site using HTTPS.
+	 */
+	public function test_staticize_subdomain( $original, $expected_http, $expected_https ) {
+		Functions\when( 'is_ssl' )->justReturn( false );
+		$static_resource = Assets::staticize_subdomain( $original );
+		$this->assertStringContainsString( $expected_http, $static_resource );
+
+		Functions\when( 'is_ssl' )->justReturn( true );
+		$static_resource = Assets::staticize_subdomain( $original );
+		$this->assertEquals( $expected_https, $static_resource );
+	}
+
+	/**
+	 * Data provider to test staticize_subdomain
+	 */
+	public function get_resources_urls() {
+		return array(
+			'non_wpcom_domain'  => array(
+				'https://example.org/thing.jpg',
+				'https://example.org/thing.jpg',
+				'https://example.org/thing.jpg',
+			),
+			'wp_in_the_name'    => array(
+				'https://examplewp.com/thing.jpg',
+				'https://examplewp.com/thing.jpg',
+				'https://examplewp.com/thing.jpg',
+			),
+			'local_domain'      => array(
+				'https://localhost/dir/thing.jpg',
+				'https://localhost/dir/thing.jpg',
+				'https://localhost/dir/thing.jpg',
+			),
+			'wordpresscom'      => array(
+				'https://wordpress.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
+			'wpcom'             => array(
+				'https://wp.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
+			'www_wordpresscom'  => array(
+				'https://www.wordpress.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
+			'http_wordpresscom' => array(
+				'http://wordpress.com/i/blank.jpg',
+				'.wp.com/i/blank.jpg',
+				'https://s-ssl.wordpress.com/i/blank.jpg',
+			),
 		);
 	}
 }

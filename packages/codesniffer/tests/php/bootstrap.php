@@ -13,6 +13,6 @@ require_once __DIR__ . '/../../vendor/squizlabs/php_codesniffer/tests/bootstrap.
 
 // Register all the phpcs installed standards.
 $installed_standards = PHP_CodeSniffer\Util\Standards::getInstalledStandardDetails();
-foreach ( $installed_standards as $name => $details ) {
+foreach ( $installed_standards as $details ) {
 	PHP_CodeSniffer\Autoload::addSearchPath( $details['path'], $details['namespace'] );
 }

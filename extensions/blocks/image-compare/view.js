@@ -357,7 +357,7 @@ domReady( function () {
 				this.controller.setAttribute( 'aria-valuemax', 100 );
 				this.controller.setAttribute(
 					'aria-label',
-					window.imageCompareHandle || 'Slide to compare images'
+					window.imageCompareHandle?.msg || 'Slide to compare images'
 				);
 
 				this.handle.appendChild( this.leftArrow );

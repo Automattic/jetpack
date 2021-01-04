@@ -35,6 +35,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		parent::setUp();
 
 		wp_set_current_user( static::$user_id );
+		add_action( 'admin_menu', array( $this, 'add_orphan_submenu' ) );
 	}
 
 	/**
@@ -43,7 +44,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -62,7 +63,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -76,10 +77,36 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @covers ::prepare_menu_for_response
 	 */
 	public function test_get_item() {
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertTrue( rest_validate_value_from_schema( $response->get_data(), ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema() ) );
+	}
+
+	/**
+	 * Tests that submenu items get promoted when the user doesn't have the caps for the top-level menu item.
+	 *
+	 * @covers ::prepare_menu_for_response
+	 */
+	public function test_parent_menu_item_always_exists() {
+		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$response = $this->server->dispatch( $request );
+
+		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
+		$menu_item = array_pop( $menu );
+
+		$this->assertNotEmpty( $menu_item );
+		$this->assertSame( $menu_item['children'][0]['slug'], $menu_item['slug'], 'Parent and submenu should be the same.' );
+	}
+
+	/**
+	 * Adds an orphan submenu.
+	 *
+	 * The user role for these tests is `Editor`, who don't have access to the Settings menu.
+	 * Unless it contains a menu item they do have access to.
+	 */
+	public function add_orphan_submenu() {
+		add_submenu_page( 'options-general.php', 'Title', 'Test Title', 'read', 'menu_slug' );
 	}
 
 	/**
@@ -125,24 +152,24 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular menu item.
 			array(
-				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
+				array( 'Media\'s', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-media',
 					'slug'  => 'upload-php',
-					'title' => 'Media',
-					'url'   => 'http://example.org/wp-admin/upload.php',
+					'title' => 'Media\'s',
+					'url'   => admin_url( 'upload.php' ),
 				),
 			),
 			// Menu item with update count.
 			array(
-				array( 'Plugins <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
+				array( 'Plugin\'s <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
 				array(
 					'type'  => 'menu-item',
 					'icon'  => 'dashicons-admin-plugins',
 					'slug'  => 'plugins-php',
-					'title' => 'Plugins',
-					'url'   => 'http://example.org/wp-admin/plugins.php',
+					'title' => 'Plugin\'s',
+					'url'   => admin_url( 'plugins.php' ),
 					'count' => 5,
 				),
 			),
@@ -166,7 +193,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		$prepare_submenu_item = $class->getMethod( 'prepare_submenu_item' );
 		$prepare_submenu_item->setAccessible( true );
 
-		$this->assertEquals(
+		$this->assertSame(
 			$expected,
 			$prepare_submenu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $submenu_item, $menu_item ) )
 		);
@@ -188,14 +215,27 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			),
 			// Regular submenu item.
 			array(
-				array( 'Library', 'upload_files', 'upload.php' ),
+				array( 'Library\'s', 'upload_files', 'upload.php' ),
 				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
 					'parent' => 'upload-php',
+					'slug'   => 'upload-php',
+					'title'  => 'Library\'s',
 					'type'   => 'submenu-item',
+					'url'    => 'http://example.org/wp-admin/upload.php',
+				),
+			),
+			// Submenu item with update count.
+			array(
+				array( 'Library <span class="update-plugins count-15"><span class="update-count">15</span></span>', 'upload_files', 'upload.php' ),
+				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
+				array(
+					'parent' => 'upload-php',
 					'slug'   => 'upload-php',
 					'title'  => 'Library',
-					'url'    => 'http://example.org/wp-admin/upload.php',
+					'type'   => 'submenu-item',
+					'url'    => admin_url( 'upload.php' ),
+					'count'  => 15,
 				),
 			),
 		);
@@ -318,28 +358,28 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'upload.php',
 				'',
 				null,
-				'http://example.org/wp-admin/upload.php',
+				admin_url( 'upload.php' ),
 			),
 			// Submenu item URL.
 			array(
 				'custom_settings',
 				'upload.php',
 				'__return_true',
-				'http://example.org/wp-admin/upload.php?page=custom_settings',
+				admin_url( 'upload.php?page=custom_settings' ),
 			),
 			// Plugin menu item URL.
 			array(
 				'custom_settings',
 				'',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=custom_settings',
+				admin_url( 'admin.php?page=custom_settings' ),
 			),
 			// Plugin menu item URL without a parent.
 			array(
 				'custom_settings',
 				'admin.php',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=custom_settings',
+				admin_url( 'admin.php?page=custom_settings' ),
 			),
 			// Jetpack.
 			array(
@@ -353,19 +393,75 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'product_attributes',
 				'edit.php?post_type=product',
 				'__return_true',
-				'http://example.org/wp-admin/edit.php?post_type=product&page=product_attributes',
+				admin_url( 'edit.php?post_type=product&page=product_attributes' ),
 			),
 			array(
 				'wc-admin&amp;path=/analytics/products',
 				'wc-admin&amp;path=/analytics/overview',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=/analytics/products',
+				admin_url( 'admin.php?page=wc-admin&amp;path=/analytics/products' ),
 			),
 			array(
 				'wc-admin&amp;path=customers',
 				'woocommerce',
 				'__return_true',
-				'http://example.org/wp-admin/admin.php?page=wc-admin&amp;path=customers',
+				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
+			),
+		);
+	}
+
+	/**
+	 * Tests parsing an update count.
+	 *
+	 * @param string $menu_item Menu item.
+	 * @param string $expected  Parsed menu title & count. Or not.
+	 *
+	 * @throws \ReflectionException Noop.
+	 * @dataProvider menu_item_update_data
+	 * @covers ::parse_update_count
+	 */
+	public function test_parse_update_count( $menu_item, $expected ) {
+		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
+
+		$prepare_menu_item_url = $class->getMethod( 'parse_update_count' );
+		$prepare_menu_item_url->setAccessible( true );
+
+		$this->assertSame(
+			$expected,
+			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item ) )
+		);
+	}
+
+	/**
+	 * Data provider for test_prepare_menu_item_url.
+	 *
+	 * @return \string[][]
+	 */
+	public function menu_item_update_data() {
+		return array(
+			array(
+				'No Updates here',
+				array(),
+			),
+			array(
+				'Zero updates <span class="update-plugins count-0"><span class="update-count">0</span></span>',
+				array(
+					'title' => 'Zero updates',
+				),
+			),
+			array(
+				'Finally some updates <span class="update-plugins count-5"><span class="update-count">5</span></span>',
+				array(
+					'count' => 5,
+					'title' => 'Finally some updates',
+				),
+			),
+			array(
+				'Plugin updates <span class="update-plugins count-5"><span class="plugin-count">5</span></span>',
+				array(
+					'count' => 5,
+					'title' => 'Plugin updates',
+				),
 			),
 		);
 	}

@@ -4,7 +4,7 @@
  */
 ( function ( $ ) {
 	var api = wp.customize,
-		$classes = site_logo_header_classes;
+		$classes = site_logo_header_classes.classes;
 
 	api( 'site_logo_header_text', function ( value ) {
 		value.bind( function ( to ) {

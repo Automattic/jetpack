@@ -14,15 +14,9 @@ import analytics from 'lib/analytics';
 import Card from 'components/card';
 import Button from 'components/button';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
-import { getSiteConnectionStatus } from 'state/connection';
+import { getSiteConnectionStatus, isCurrentUserLinked, isConnectionOwner } from 'state/connection';
 import getRedirectUrl from 'lib/jp-redirect';
-import {
-	isAtomicSite,
-	isDevVersion as _isDevVersion,
-	getUpgradeUrl,
-	getUserWpComLogin,
-	userIsMaster,
-} from 'state/initial-state';
+import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import {
@@ -43,7 +37,7 @@ class SupportCard extends React.Component {
 			target: 'banner-click',
 			feature: 'support',
 			page: this.props.path,
-			is_user_wpcom_connected: this.props.wpcomUserLogin ? 'yes' : 'no',
+			is_user_wpcom_connected: this.props.isCurrentUserLinked ? 'yes' : 'no',
 			is_connection_owner: this.props.isConnectionOwner ? 'yes' : 'no',
 		} );
 	};
@@ -142,7 +136,7 @@ class SupportCard extends React.Component {
 SupportCard.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,
 	className: PropTypes.string,
-	wpcomUserLogin: PropTypes.string,
+	isCurrentUserLinked: PropTypes.string,
 	isConnectionOwner: PropTypes.bool,
 };
 
@@ -154,7 +148,7 @@ export default connect( state => {
 		isAtomicSite: isAtomicSite( state ),
 		isDevVersion: _isDevVersion( state ),
 		supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
-		wpcomUserLogin: getUserWpComLogin( state ),
-		isConnectionOwner: userIsMaster( state ),
+		isCurrentUserLinked: isCurrentUserLinked( state ),
+		isConnectionOwner: isConnectionOwner( state ),
 	};
 } )( SupportCard );

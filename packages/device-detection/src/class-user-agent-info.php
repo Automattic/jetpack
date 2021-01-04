@@ -1402,13 +1402,11 @@ class User_Agent_Info {
 		if ( ! ( false === $pos_webkit ) ) {
 			return 'blackberry-webkit';
 		} else {
-			if ( preg_match( '#BlackBerry\w+\/([\d\.]+)#i', $agent, $matches ) ) {
-				$version = $matches[1];
-			} else {
+			if ( ! preg_match( '#BlackBerry\w+\/([\d\.]+)#i', $agent, $matches ) ) {
 				return false; // not a BB device that match our rule.
 			}
 
-			$version_num = explode( '.', $version );
+			$version_num = explode( '.', $matches[1] );
 
 			if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
 				return false;
