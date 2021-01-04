@@ -14,10 +14,19 @@
 	}
 }
 
+.jetpack-instant-search__search-result-minimal-tags,
+.jetpack-instant-search__search-result-minimal-cats {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
 .jetpack-instant-search__search-result-minimal-tag,
 .jetpack-instant-search__search-result-minimal-cat {
-	margin-right: 0.75em;
-	white-space: nowrap;
+	margin: 0 0.75em 0 0;
 
 	.gridicon {
 		margin-right: 0.25em;
@@ -28,10 +37,6 @@
 	vertical-align: middle;
 }
 
-.jetpack-instant-search__search-result-minimal-tags,
-.jetpack-instant-search__search-result-minimal-cats {
-	padding-left: 10px;
-}
 
 .jetpack-instant-search__search-result-minimal-content {
 	word-break: break-word;

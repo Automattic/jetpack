@@ -88,6 +88,7 @@ export const switchPlanPreview = slug => {
 const adminMasterPerms = {
 	currentUser: {
 		isMaster: true,
+		isConnected: true,
 		permissions: {
 			admin_page: true,
 			connect: true,
@@ -170,6 +171,7 @@ const isLinked = {
 const isUnlinked = {
 	currentUser: {
 		isConnected: false,
+		isMaster: false,
 	},
 };
 
