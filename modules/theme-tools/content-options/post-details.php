@@ -40,6 +40,11 @@ function jetpack_post_details_enqueue_scripts() {
 		$elements[] = $comment;
 	}
 
+	// No need to output any CSS if there are no elements.
+	if ( empty( $elements ) ) {
+		return;
+	}
+
 	// Get the list of classes.
 	$elements = implode( ', ', $elements );
 
