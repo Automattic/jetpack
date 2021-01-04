@@ -306,7 +306,7 @@ class Defaults {
 		'paused_themes'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 		'theme_support'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_theme_support' ),
-
+		'wp_get_environment_type'          => 'wp_get_environment_type',
 	);
 
 	/**
@@ -1139,6 +1139,13 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_network_disable = 0;
+
+	/**
+	 * Default for disabling checksums.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_checksum_disable = 0;
 
 	/**
 	 * Should Sync use cron?

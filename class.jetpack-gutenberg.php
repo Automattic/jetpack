@@ -593,7 +593,9 @@ class Jetpack_Gutenberg {
 		wp_localize_script(
 			'jetpack-block-' . $type,
 			'Jetpack_Block_Assets_Base_Url',
-			plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE )
+			array(
+				'url' => plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ),
+			)
 		);
 	}
 
@@ -675,7 +677,9 @@ class Jetpack_Gutenberg {
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Block_Assets_Base_Url',
-			plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE )
+			array(
+				'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
+			)
 		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

@@ -8,7 +8,7 @@ export PATH="$COMPOSER_BIN_DIR:$PATH"
 
 # Update path for subsequent Github Action steps
 if [[ -n "$GITHUB_PATH" ]]; then
-    echo "$COMPOSER_BIN_DIR" >> $GITHUB_PATH
+	echo "$COMPOSER_BIN_DIR" >> $GITHUB_PATH
 fi
 
 # Configure PHP and PHPUnit environment
@@ -29,9 +29,16 @@ elif [[ ${PHP_VERSION:0:2} == "5." ]]; then
 fi
 
 # Setup MySQL
-sudo systemctl start mysql.service
-mysql -u root --password=root -e "set global wait_timeout = 3600;"
-mysql -u root --password=root -e "CREATE DATABASE wordpress_tests;"
+cat <<EOF > ~/.my.cnf
+[client]
+host=127.0.0.1
+port=3306
+user=root
+password=root
+EOF
+chmod 0600 ~/.my.cnf
+mysql -e "set global wait_timeout = 3600;"
+mysql -e "CREATE DATABASE wordpress_tests;"
 
 echo "Preparing WordPress from \"$WP_BRANCH\" branch...";
 case $WP_BRANCH in
@@ -62,5 +69,6 @@ cp wp-tests-config-sample.php wp-tests-config.php
 sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
 sed -i "s/yourusernamehere/root/" wp-tests-config.php
 sed -i "s/yourpasswordhere/root/" wp-tests-config.php
+sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
 
 exit 0;
