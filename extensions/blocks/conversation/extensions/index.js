@@ -45,7 +45,7 @@ function dialogAvailibilityHandler( OriginalBlockEdit ) {
 			} else {
 				showBlockTypes( [ 'jetpack/dialogue' ] );
 			}
-		}, [ hideBlockTypes, parentBlocks, showBlockTypes] );
+		}, [ hideBlockTypes, parentBlocks, showBlockTypes ] );
 
 		return (
 			<OriginalBlockEdit { ...props } />
