@@ -248,6 +248,7 @@ export default function DialogueEdit ( {
 
 			<RichText
 				identifier="content"
+				tagName="p"
 				className={ `${ baseClassName }__content` }
 				value={ content }
 				onChange={ ( value ) =>

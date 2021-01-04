@@ -39,6 +39,11 @@
 	}
 }
 
+// dialogue content.
+.block-editor-block-list__block .wp-block-jetpack-dialogue__content {
+	margin-top: 0;
+}
+
 // Conversation styles.
 .wp-block-jetpack-conversation.is-style-column {
 	.wp-block-jetpack-dialogue {
