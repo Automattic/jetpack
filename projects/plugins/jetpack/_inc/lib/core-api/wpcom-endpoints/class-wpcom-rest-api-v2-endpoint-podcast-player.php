@@ -50,6 +50,12 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 								return wp_http_validate_url( $param );
 							},
 						),
+						'q'    => array(
+							'description'       => __( 'A query term to search the available episodes', 'jetpack' ),
+							'type'              => 'string',
+							'required'          => 'false',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
 						'guid' => array(
 							'description'       => __( 'The unique identifier of a podcast episode', 'jetpack' ),
 							'type'              => 'string',
@@ -70,7 +76,14 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function get_player_data( $request ) {
-		$player_data = ( new Jetpack_Podcast_Helper( $request['url'] ) )->get_player_data( empty( $request['guid'] ) ? false : $request['guid'] );
+		$helper = new Jetpack_Podcast_Helper( $request['url'] );
+		if ( isset( $request['guid'] ) ) {
+			$player_data = $helper->get_player_data( array( 'guid' => $request['guid'] ) );
+		} elseif ( ! empty( $request['q'] ) ) {
+			$player_data = $helper->get_player_data( array( 'query' => $request['q'] ) );
+		} else {
+			$player_data = $helper->get_player_data();
+		}
 
 		if ( is_wp_error( $player_data ) ) {
 			return rest_ensure_response( $player_data );

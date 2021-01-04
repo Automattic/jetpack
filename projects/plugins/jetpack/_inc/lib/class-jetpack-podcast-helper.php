@@ -31,10 +31,16 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * The result is cached for one hour.
 	 *
-	 * @param string|int|false $guid The ID of a specific episode to return rather than a list.
+	 * @param array $args {
+	 *    Optional array of arguments.
+	 *    @type string|int $guid  The ID of a specific episode to return rather than a list.
+	 *    @type string     $query A search query to find podcast episodes.
+	 * }
 	 * @return array|WP_Error  The player data or a error object.
 	 */
-	public function get_player_data( $guid = false ) {
+	public function get_player_data( $args = array() ) {
+		$guid = ! empty( $args['guid'] ) ? $args['guid'] : false;
+
 		// Try loading data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . $guid ? "-$guid" : '' );
 		$player_data   = get_transient( $transient_key );
@@ -52,6 +58,9 @@ class Jetpack_Podcast_Helper {
 			if ( false !== $guid ) {
 				$track  = $this->get_track_data( $guid );
 				$tracks = is_wp_error( $track ) ? null : array( $track );
+			} elseif ( ! empty( $args['query'] ) ) {
+				$tracks = $this->search_tracks( $args['query'] );
+				$tracks = is_wp_error( $tracks ) ? null : $tracks;
 			} else {
 				$tracks = $this->get_track_list();
 				if ( empty( $tracks ) ) {
@@ -84,6 +93,109 @@ class Jetpack_Podcast_Helper {
 		}
 
 		return $player_data;
+	}
+
+	/**
+	 * Does a simplistic fuzzy search of the podcast episode titles using the given search term.
+	 *
+	 * @param  string $query  The search term to find.
+	 * @return array|WP_Error An array of up to 10 matching episode details, or a `WP_Error` if there's an error
+	 */
+	public function search_tracks( $query ) {
+		// We're going to sanitize strings by removing accents, and we need to set a locale for that.
+		$current_locale = setlocale( LC_ALL, 0 );
+		$transient_key  = 'jetpack_podcast_search_' . md5( $this->feed );
+		$search_data    = get_transient( $transient_key );
+		$needle         = $this->sanitize_for_search( $query );
+
+		// Check we have a valid search term.
+		if ( empty( $needle ) ) {
+			return new WP_Error( 'no_query', __( 'The search query is invalid as it contains no alphanumeric characters.', 'jetpack' ) );
+		}
+
+		// Fetch data if we don't have any cached.
+		if ( false === $search_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			$rss = $this->load_feed();
+
+			if ( is_wp_error( $rss ) ) {
+				return $rss;
+			}
+
+			setlocale( LC_ALL, 'en_US.utf8' );
+			$track_list  = array_values( array_filter( array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items() ) ) );
+			$search_data = array_map(
+				function ( $track ) {
+					// We don't want the search string to be too long or it could cause problems with levenshtein.
+					$track['search_cache'] = $this->sanitize_for_search( substr( $track['title'], 0, 255 ) );
+					return $track;
+				},
+				$track_list
+			);
+			set_transient( $transient_key, $search_data, HOUR_IN_SECONDS );
+		}
+
+		// Calculate the levenshtein scores for each track.
+		$search_data = array_map(
+			function ( $track ) use ( $needle ) {
+				$track['score'] = levenshtein( $track['search_cache'], $needle );
+				return $track;
+			},
+			$search_data
+		);
+
+		// Filter out any values that are too far away.
+		$needle_length = strlen( $needle );
+		$search_data   = array_filter(
+			$search_data,
+			function ( $track ) use ( $needle_length ) {
+				return $track['score'] <= ( strlen( $track['search_cache'] ) - $needle_length );
+			}
+		);
+
+		// Sort the data by doing a fuzzy search for the query string.
+		usort(
+			$search_data,
+			function ( $a, $b ) use ( $needle ) {
+				$in_a = strpos( $a['search_cache'], $needle ) !== false;
+				$in_b = strpos( $b['search_cache'], $needle ) !== false;
+				if ( $in_a && ! $in_b ) {
+					return -1;
+				}
+				if ( ! $in_a && $in_b ) {
+					return 1;
+				}
+
+				if ( $a['score'] === $b['score'] ) {
+					return 0;
+				}
+				return $a['score'] < $b['score'] ? -1 : 1;
+			}
+		);
+
+		// Make sure we restore the locale.
+		setlocale( LC_ALL, $current_locale );
+		return array_slice( $search_data, 0, 10 );
+	}
+
+	/**
+	 * Converts a string to alphanumeric values and spaces, in order to help with matching
+	 *
+	 * @param  string $string The string to sanitize.
+	 * @return string         The string converted to just alphanumeric characters, removing accents etc.
+	 */
+	private function sanitize_for_search( $string ) {
+		$unaccented = iconv( 'UTF-8', 'ASCII//TRANSLIT//IGNORE', $string );
+		return trim(
+			preg_replace(
+				'/\s+/',
+				' ',
+				preg_replace(
+					'/[^a-z0-9]+/',
+					' ',
+					strtolower( $unaccented )
+				)
+			)
+		);
 	}
 
 	/**
