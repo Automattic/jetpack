@@ -82,7 +82,7 @@ function AudioPlayer( {
 			if ( onJumpBack ) {
 				const buttonClass = `${ containerClass } ${ mediaElement.options.classPrefix }jump-backward-button`;
 				mediaElement.addControlElement(
-					createJumpButton( buttonClass, 'Jump Back', onJumpBack ),
+					createJumpButton( buttonClass, __( 'Jump Back', 'jetpack' ), onJumpBack ),
 					'jumpBackwardButton'
 				);
 			}
@@ -90,7 +90,7 @@ function AudioPlayer( {
 			if ( onSkipForward ) {
 				const buttonClass = `${ containerClass } ${ mediaElement.options.classPrefix }skip-forward-button`;
 				mediaElement.addControlElement(
-					createJumpButton( buttonClass, 'Skip Forward', onSkipForward ),
+					createJumpButton( buttonClass, __( 'Skip Forward', 'jetpack' ), onSkipForward ),
 					'skipForwardButton'
 				);
 			}
