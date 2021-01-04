@@ -12,6 +12,7 @@ import {
 	InspectorControls,
 	RichText,
 	BlockControls,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
@@ -90,6 +91,7 @@ export default function DialogueEdit ( {
 	const transcritionBridge = useContext( ConversationContext );
 
 	const baseClassName = 'wp-block-jetpack-dialogue';
+	const blockProps = useBlockProps( { className: baseClassName } );
 
 	/**
 	 * Helper to check if the gven style is set, or not.
@@ -155,7 +157,7 @@ export default function DialogueEdit ( {
 	}
 
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<BlockControls>
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
