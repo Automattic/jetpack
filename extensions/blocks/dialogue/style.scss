@@ -1,0 +1,62 @@
+.wp-block-jetpack-dialogue {
+	.wp-block-jetpack-dialogue__meta {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.wp-block-jetpack-dialogue__participant {
+		font-size: inherit;
+		padding: 0;
+		line-height: 17px;
+		line-height: var( --global--line-height-body );
+	}
+
+	.wp-block-jetpack-dialogue__timestamp {
+		margin-right: 0;
+		padding: 6px 12px;
+		text-align: right;
+		font-size: 16px;
+	}
+}
+
+.wp-block-jetpack-dialogue__participant {
+	white-space: nowrap;
+	padding: 3px 0;
+	height: auto;
+	line-height: 1.2;
+
+	&.has-bold-style {
+		font-weight: bold;
+	}
+
+	&.has-italic-style {
+		font-style: italic;
+	}
+
+	&.has-uppercase-style {
+		text-transform: uppercase;
+	}
+}
+
+// Conversation styles.
+.wp-block-jetpack-conversation.is-style-column {
+	.wp-block-jetpack-dialogue {
+		display: flex;
+		.wp-block-jetpack-dialogue__meta {
+			display: block;
+			align-items: initial;
+		}
+
+		.wp-block-jetpack-dialogue__participant {
+			text-align: right;
+			margin-right: 12px;
+		}
+
+		.components-dropdown,
+		.wp-block-jetpack-dialogue__timestamp-dropdown {
+			text-align: right;
+			display: block;
+		}
+	}
+}

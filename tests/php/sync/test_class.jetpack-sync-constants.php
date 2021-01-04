@@ -44,19 +44,15 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		foreach ( Defaults::$default_constants_whitelist as $constant ) {
-			try {
-				$value = constant( $constant );
-				$this->assertEquals( $value, $this->server_replica_storage->get_constant( $constant ) );
-			} catch ( Exception $e ) {
-				$this->markTestSkipped( $constant . ' not defined.' );
-			}
+			$value = defined( $constant ) ? constant( $constant ) : null;
+			$this->assertSame( $value, $this->server_replica_storage->get_constant( $constant ) );
 		}
 
 		$this->server_replica_storage->reset();
 		$this->sender->do_sync();
 
 		foreach ( Defaults::$default_constants_whitelist as $constant ) {
-			$this->assertEquals( null, $this->server_replica_storage->get_constant( $constant ) );
+			$this->assertNull( $this->server_replica_storage->get_constant( $constant ) );
 		}
 	}
 

@@ -28,6 +28,7 @@ import {
 	restorePreviousHref,
 } from '../lib/query-string';
 import { bindCustomizerChanges } from '../lib/customize';
+import './search-app.scss';
 
 class SearchApp extends Component {
 	static defaultProps = {
