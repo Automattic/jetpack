@@ -235,7 +235,7 @@ function render_block( $dialogue_attrs, $block_content, $block ) {
 			'</div>' .
 			( $attrs['show_timestamp']
 				? '<div class="' . $css_classname . '__timestamp">' .
-					$attrs['timestamp'] .
+					'<a href="#" class="' . $css_classname . '__timestamp_link">' . $attrs['timestamp'] . '</a>' .
 				'</div>'
 				: ''
 			) .
