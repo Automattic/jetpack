@@ -55,6 +55,7 @@ function filter_content( $content ) {
 			'strong' => true,
 			'b'      => true,
 			'em'     => true,
+			'br'     => true,
 		)
 	);
 }
