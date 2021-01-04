@@ -831,6 +831,7 @@ add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
 function grunion_check_for_spam_button() {
 	// Nonce name.
 	$nonce_name = 'jetpack_check_feedback_spam_' . (string) get_current_blog_id();
+
 	// Get HTML for the button.
 	$button_html  = get_submit_button(
 		__( 'Check for Spam', 'jetpack' ),
