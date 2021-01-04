@@ -26,7 +26,13 @@ import { bindCustomizerChanges } from './lib/customize';
 	if ( typeof window.CustomEvent === 'function' ) {
 		return false;
 	}
-
+	/**
+	 * Polyfills custom DOM events.
+	 *
+	 * @param {object} event - Event.
+	 * @param {object} params - Parameters.
+	 * @returns {object} event
+	 */
 	function CustomEvent( event, params ) {
 		params = params || { bubbles: false, cancelable: false, detail: null };
 		const evt = document.createEvent( 'CustomEvent' );
