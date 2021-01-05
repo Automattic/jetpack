@@ -308,4 +308,4 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 --------
 
-[See the previous changelogs here](https://raw.githubusercontent.com/Automattic/jetpack/master/changelog.txt).
+[See the previous changelogs here](https://raw.githubusercontent.com/Automattic/jetpack/master/projects/plugin/jetpack/changelog.txt)
