@@ -269,6 +269,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Bug fixes**
 
 * Autoloader: resolve symbolic links in active plugin paths.
+* Autoloader: ensure deactivating plugins aren't cached.
 * Blocks: improve sidebar display in non-fullscreen mode.
 * Instant Search: improve display of tags and categories in search results.
 * Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
