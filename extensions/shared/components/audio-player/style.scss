@@ -40,7 +40,6 @@ $gutter-m: 15px !default;
 	--jetpack-audio-player-background: var( --jetpack-podcast-player-background, #{$jetpack-audio-player-background} );
 	
 	height: 40px; // mirroring .mejs-container
-	margin-bottom: $gutter-l;
 			
 	/**
 	 * Style player by overriding mejs default styles
@@ -60,15 +59,16 @@ $gutter-m: 15px !default;
 
 	.mejs-controls {
 		position: static;
-		padding-top: 0;
-		padding-bottom: 0;
+		padding: 0;
 		/**
 		* Lines up the mejs player padding with our wrapper spacing.
 		* Magic numbers are due to needing to line-up the player spacing with buttons
 		* and fixed widths inside of the mediaplayer.
 		*/
-		padding-left: $gutter-l - 9px;
-		padding-right: $gutter-l - 6px;
+		.jetpack-podcast-player__header & {
+			padding-left: $gutter-l - 9px;
+			padding-right: $gutter-l - 6px;
+		}
 	}
 
 	.mejs-time {

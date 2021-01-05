@@ -169,7 +169,7 @@ $jetpack-podcast-player-error: $alert-red;
 		list-style-type: none;
 		display: flex;
 		flex-direction: column;
-		margin: 0;
+		margin: $gutter-l 0 0;
 		padding: 0 0 $gutter-m 0;
 	}
 
