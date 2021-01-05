@@ -115,6 +115,7 @@
 		"@wordpress/eslint-plugin": "4.0.0",
 		"babel-eslint": "10.1.0",
 		"commander": "6.2.0",
+		"danger": "10.5.4",
 		"eslint": "7.14.0",
 		"eslint-config-prettier": "6.15.0",
 		"eslint-config-wpcalypso": "5.0.0",
