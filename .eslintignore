@@ -19,12 +19,12 @@ projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css.co
 projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css.js
 projects/plugins/jetpack/modules/widgets/search/js/search-widget-admin.js
 
-### Packages
-projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
-projects/packages/*/vendor
-projects/packages/*/wordpress
-
 projects/plugins/jetpack/vendor/
 
 # Temporary ignore until Jest is set up
 projects/plugins/jetpack/extensions/**/test/
+
+### Packages
+projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
+projects/packages/*/vendor
+projects/packages/*/wordpress
