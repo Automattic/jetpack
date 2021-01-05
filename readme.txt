@@ -251,7 +251,6 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Enhancements**
 
 * Autoloader: improve performance by caching known plugins.
-* Conversation Block: added this new block for formatting a conversation or similar dialog structure.
 * Instant Search: improve compatibility with IE11.
 * Related Posts: use the semantic time element when displaying dates.
 * Sharing: defer loading of the reCAPTCHA library by default.
@@ -259,7 +258,6 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Improved compatibility**
 
 * AMP: avoid PHP notice on sites using legacy versions of the AMP plugin.
-* Anchor.fm: set post title for new blog post with track title.
 * Dashboard: avoid errors on sites using PHP 8.
 * General: use modern JavaScript best practices for loading scripts.
 * Infinite Scroll: add compatibility for the TwentyTwentyOne theme.
