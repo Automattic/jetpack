@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'JPBETA__PLUGIN_FOLDER',  basename( dirname( __FILE__ ) ) );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JPBETA__PLUGIN_FILE', __FILE__ );
-define( 'JPBETA_VERSION', '2.4.3' );
+define( 'JPBETA_VERSION', '2.4.4' );
 
 define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
 
@@ -54,6 +54,8 @@ define( 'JETPACK_PLUGIN_FILE', 'jetpack/jetpack.php' );
 define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
 
 define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-group/' );
+
+defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
 
 
 require_once 'autoupdate-self.php';
@@ -333,7 +335,7 @@ class Jetpack_Beta {
 
 		if ( self::get_plugin_slug() === JETPACK_DEV_PLUGIN_SLUG ) {
 			// Highlight the menu if you are running the BETA Versions..
-			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #00BE28; }</style>";
+			echo sprintf( "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: %s; }</style>", JETPACK_GREEN );
 		}
 
 		$args = array(
