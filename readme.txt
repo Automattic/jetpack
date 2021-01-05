@@ -254,6 +254,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Conversation Block: added this new block for formatting a conversation or similar dialog structure.
 * Instant Search: improve compatibility with IE11.
 * Related Posts: use the semantic time element when displaying dates.
+* Sharing: defer loading of the reCAPTCHA library by default.
 
 **Improved compatibility**
 
