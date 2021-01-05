@@ -616,14 +616,12 @@ function grunion_ajax_spam() {
 	if ( $_POST['make_it'] == 'spam' ) {
 		$post->post_status = 'spam';
 		$status            = wp_insert_post( $post );
-		wp_transition_post_status( 'spam', 'publish', $post );
 
 		/** This action is already documented in modules/contact-form/admin.php */
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	} elseif ( $_POST['make_it'] == 'ham' ) {
 		$post->post_status = 'publish';
 		$status            = wp_insert_post( $post );
-		wp_transition_post_status( 'publish', 'spam', $post );
 
 		/** This action is already documented in modules/contact-form/admin.php */
 		do_action( 'contact_form_akismet', 'ham', $akismet_values );
