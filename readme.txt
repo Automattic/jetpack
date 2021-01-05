@@ -263,6 +263,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Infinite Scroll: add compatibility for the TwentyTwentyOne theme.
 * Search: improve styling for the TwentyTwenty theme.
 * Synchronization: improve integrety of synchronization between your site and WordPress.com.
+* WordPress.com Toolbar: iterate on the design and functionality of the toolbar to match the toolbar in use on WordPress.com.
 
 **Bug fixes**
 
