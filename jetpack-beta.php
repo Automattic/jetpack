@@ -488,7 +488,7 @@ class Jetpack_Beta {
 
 	static function is_on_tag() {
 		$option = (array) self::get_option();
-		if ( $option[1] == 'tags' ) {
+		if ( isset( $option[1] ) && 'tags' === $option[1] ) {
 			return true;
 		}
 		return false;
