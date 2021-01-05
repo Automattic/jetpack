@@ -25,6 +25,10 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '12'
+    - run: |
+        echo "PATH=$PATH"
+        which node
+        node --version
     - uses: shivammathur/setup-php@v2
       with:
         php-version: '7.4'
@@ -50,6 +54,7 @@ jobs:
 
     - name: Tool versions
       run: |
+        echo "PATH=$PATH"
         which node
         node --version
         which yarn
