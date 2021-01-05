@@ -30,11 +30,8 @@ import { requiresPaidPlan } from './register-jetpack-block';
  * @returns {string}                     Upgrade URL.
  */
 export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
-	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
-	// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
-	const planPathSlug = startsWith( planSlug, 'jetpack_' )
-		? planSlug.substr( 'jetpack_'.length )
-		: get( plan, [ 'path_slug' ] );
+	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
+	const planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
 
 	// The editor for CPTs has an `edit/` route fragment prefixed
 	const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
