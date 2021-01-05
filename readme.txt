@@ -277,6 +277,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Subscription Block: display the correct default placeholder and button text strings in the post editor.
 * Twitter Threads: improve how Twitter Cards are generated for embeds in the thread preview.
 * VideoPress: detect aspect ratios rounding to both 1.77 and 1.78 as 16:9.
+* Widgets: avoid JavaScript errors when displaying the Cookies & Consent Widget.
 * WordPress.com REST API: avoid fatal errors in some scenarios, when updating a post's metadata.
 
 --------
