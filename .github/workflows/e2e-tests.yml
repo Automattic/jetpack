@@ -22,7 +22,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
         node-version: '12'
     - uses: shivammathur/setup-php@v2
@@ -47,6 +47,17 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-composer-
+
+    - name: Tool versions
+      run: |
+        which node
+        node --version
+        which yarn
+        yarn --version
+        which php
+        php --version
+        which composer
+        composer --version
 
     - name: Build Production Jetpack
       working-directory: projects/plugins/jetpack

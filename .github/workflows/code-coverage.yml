@@ -37,7 +37,7 @@ jobs:
           tools: composer
           coverage: none
           extensions: mysql, imagick
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
           node-version: '12'
       - name: Get Composer cache directory
@@ -70,6 +70,9 @@ jobs:
         run: |
           ./.github/actions/php-pipeline/setup-env.sh
           yarn install
+
+      - working-directory: projects/plugins/jetpack
+        run: yarn install
 
       - name: Init code climate
         run: |
