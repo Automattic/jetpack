@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="351" height="264" fill="none">
+  <path fill="#fff" stroke="#DCDCDE" d="M.5.5h350V263H.5z"/>
+  <path fill="#fff" stroke="#DCDCDE" d="M47.6.5H.5V263h47z"/>
+  <mask id="a" width="18" height="18" x="15" y="18" maskUnits="userSpaceOnUse">
+    <path fill="#fff" fill-rule="evenodd" d="M23.9 18.8a8.6 8.6 0 100 17.2 8.6 8.6 0 000-17.2zm-7.3 8.6c0-1 .2-2 .6-3l3.5 9.5a7.3 7.3 0 01-4-6.5zm5.2 7a7.3 7.3 0 004.5-.1v-.1L24 28l-2.2 6.4zM25 24l.8-.1c.4 0 .4-.6 0-.6l-2 .1-1.9-.1c-.4 0-.4.6 0 .6h.7l1.2 3.2-1.6 4.8-2.7-8h.9c.4 0 .3-.6 0-.6l-2 .1h-.5a7.3 7.3 0 0111-1.4c-.8 0-1.3.6-1.3 1.3 0 .6.3 1 .6 1.6l.1.1c.3.5.6 1.1.6 2 0 .6-.2 1.3-.5 2.2v.2l-.8 2.4L25 24zm4.9 3.3l-2.2 6.4a7.3 7.3 0 002.7-9.8v.7c0 .8-.1 1.6-.5 2.7z" clip-rule="evenodd"/>
+  </mask>
+  <g mask="url(#a)">
+    <path fill="#101517" d="M15.3 18.8h17.1v17.1H15.3z"/>
+  </g>
+  <g clip-path="url(#clip0)">
+    <path fill="#1877F2" d="M32.5 90a8.6 8.6 0 10-10 8.5v-6h-2.1V90h2.2v-1.9c0-2.1 1.2-3.3 3.2-3.3l2 .1V87h-1.2c-1 0-1.4.7-1.4 1.4V90h2.4l-.4 2.5h-2v6a8.6 8.6 0 007.3-8.5z"/>
+    <path fill="#fff" d="M27.2 92.5l.4-2.5h-2.4v-1.6c0-.7.4-1.4 1.4-1.4h1.1v-2l-2-.2c-1.9 0-3.1 1.2-3.1 3.3V90h-2.2v2.5h2.2v6a8.6 8.6 0 002.6 0v-6h2z"/>
+  </g>
+  <g clip-path="url(#clip1)">
+    <path fill="#1DA1F2" d="M20.4 126.2c6 0 9.4-5 9.4-9.4v-.4c.6-.5 1.1-1 1.6-1.7l-1.9.5c.7-.4 1.2-1 1.4-1.8-.6.4-1.3.6-2 .8a3.3 3.3 0 00-5.7 3 9.4 9.4 0 01-6.8-3.5 3.3 3.3 0 001 4.4c-.5 0-1-.1-1.4-.4a3.3 3.3 0 002.6 3.3c-.5.1-1 .2-1.5 0a3.3 3.3 0 003.1 2.3 6.6 6.6 0 01-4.9 1.4c1.5 1 3.3 1.5 5 1.5"/>
+  </g>
+  <g clip-path="url(#clip2)">
+    <path fill="#4285F4" d="M33 58.7l-.1-1.7h-8.2v3.2h4.7a4 4 0 01-1.8 2.6V65h2.8a8.2 8.2 0 002.6-6.2z"/>
+    <path fill="#34A853" d="M24.7 67c2.3 0 4.3-.8 5.7-2l-2.8-2.2c-.8.5-1.8.8-3 .8a5.2 5.2 0 01-4.8-3.5h-2.9v2.2a8.7 8.7 0 007.8 4.7z"/>
+    <path fill="#FBBC04" d="M19.8 60.1a5 5 0 010-3.2v-2.2h-2.9a8.4 8.4 0 000 7.6l2.9-2.2z"/>
+    <path fill="#EA4335" d="M24.7 53.4c1.2 0 2.4.4 3.3 1.2l2.5-2.4a8.7 8.7 0 00-13.6 2.5l2.9 2.2c.7-2 2.6-3.5 4.9-3.5z"/>
+  </g>
+  <path fill="#191E23" fill-opacity=".8" d="M87.2 160.1H128v11.2H87.2z"/>
+  <path fill="#D7D8DA" d="M86.9 175.8h210.2v7.2H86.9zM86.9 187.9h198.2v7.2H86.9zM86.9 206.5H136v7.1H86.9zM71.2 21.1h256.2v123.2H71.2z"/>
+  <path stroke="#DCDCDE" d="M71.7 21.6h255.2V226H71.7z"/>
+  <defs>
+    <clipPath id="clip0">
+      <path fill="#fff" d="M0 0h17.1v17.1H0z" transform="translate(15.3 81.4)"/>
+    </clipPath>
+    <clipPath id="clip1">
+      <path fill="#fff" d="M0 0h17.1v17.1H0z" transform="translate(15.3 109.3)"/>
+    </clipPath>
+    <clipPath id="clip2">
+      <path fill="#fff" d="M0 0h17v17H0z" transform="translate(16 50)"/>
+    </clipPath>
+  </defs>
+</svg>

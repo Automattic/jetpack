@@ -1,0 +1,521 @@
+/*!
+* Do not modify this file directly.  It is compiled SASS code.
+*/
+@charset "UTF-8";
+/*
+The MIT License (MIT)
+
+Copyright © 2011–2015 thoughtbot, inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/thoughtbot/bourbon
+*/
+.updated.jp-banner {
+  position: relative;
+  padding: 0;
+}
+
+.updated .jp-banner__header {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-top: 0;
+}
+
+.updated .jp-banner__button-container {
+  padding: 2rem 0 0;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (min-width: 600px) {
+  .updated .jp-banner__button-container {
+    display: flex;
+  }
+}
+
+.updated .jp-banner__tos-blurb {
+  display: block;
+  padding: 0.375rem 0;
+  line-height: 1.5;
+  font-size: 0.75rem;
+  color: #414141;
+}
+
+@media (min-width: 600px) {
+  .updated .jp-banner__tos-blurb {
+    margin-right: 1.125rem;
+  }
+}
+
+.updated .jp-banner__tos-blurb a {
+  color: inherit;
+}
+
+.jp-banner .notice-dismiss {
+  text-decoration: none;
+}
+
+.jp-banner__description {
+  font-size: 0.875rem;
+}
+
+.jp-banner__description-container {
+  padding: 1rem;
+}
+
+.jetpack-disconnected .jp-connect-full__container {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 1.25rem;
+  right: 0;
+  z-index: 999;
+  background: #f1f1f1;
+  text-align: center;
+}
+
+@media (max-width: 530px) {
+  .jetpack-disconnected .jp-connect-full__container {
+    top: 42px;
+  }
+}
+
+@media (min-width: 782px) {
+  .jetpack-disconnected .jp-connect-full__container {
+    right: -20px;
+  }
+}
+
+.jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card {
+  padding: 4rem 4rem 6rem;
+  background: white;
+  margin: 1em;
+}
+
+@media (max-width: 530px) {
+  .jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card {
+    padding: 2rem 2rem;
+  }
+}
+
+.jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card img.jetpack-logo {
+  width: 160px;
+}
+
+.jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card img.support-characters {
+  margin-top: 1.5rem;
+  width: 50%;
+}
+
+.jetpack-disconnected .jp-connect-full__container h4 {
+  line-height: 1.25;
+  font-size: 1.5rem;
+  font-weight: normal;
+  margin: 1em 0;
+}
+
+.jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
+  position: relative;
+  bottom: 0;
+  box-shadow: 0 0 0 1px #ccd0d4, 0 1px 1px 1px rgba(0, 0, 0, 0.04);
+  display: none;
+}
+
+.jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container .jp-connect-full__container-card {
+  margin: 0;
+}
+
+@media (min-width: 782px) {
+  .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
+    right: 0;
+  }
+}
+
+@media (max-width: 782px) {
+  .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
+    top: 32px;
+  }
+}
+
+@media (max-width: 530px) {
+  .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
+    top: 0px;
+  }
+}
+
+.jetpack-disconnected.toplevel_page_jetpack .jp-jetpack-connect__container .jp-connect-full__container {
+  display: block;
+}
+
+@media (max-width: 530px) {
+  .jetpack-disconnected.toplevel_page_jetpack .jp-jetpack-connect__container .jp-connect-full__container .jp-connect-full__step-header h2 {
+    margin: 0;
+  }
+}
+
+.jp-connect-full__svg-dismiss {
+  position: absolute;
+  left: 0;
+  top: 0;
+  fill: #a2a2a2;
+  padding: 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.jp-connect-full__step-header {
+  max-width: 700px;
+  margin: 0 auto 40px auto;
+  line-height: 1.5;
+}
+
+@media (max-width: 530px) {
+  .jp-connect-full__step-header {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.jp-connect-full__step-header h2 {
+  margin: 1.5rem 10% 0;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.2;
+  color: black;
+}
+
+@media (max-width: 530px) {
+  .jp-connect-full__step-header h2 {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+  }
+}
+
+.jp-connect-full__step-header h3 {
+  color: #747474;
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 0.625rem 0 1.5rem;
+}
+
+.jp-connect-full__step-header.bottom {
+  margin-top: 5rem;
+}
+
+.jp-connect-full__tos-blurb {
+  font-size: 0.75rem;
+  margin: 0 auto 1rem;
+}
+
+.jp-connect-full__dismiss {
+  cursor: pointer;
+}
+
+.jp-connect-full__dismiss-paragraph {
+  font-size: 0.75rem;
+}
+
+.jp-connect-full__tos-blurb a,
+.jp-connect-full__dismiss-paragraph a {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+}
+
+.jp-connect-full__row {
+  display: flex;
+  justify-content: space-around;
+  justify-content: space-evenly;
+  text-align: right;
+  align-items: baseline;
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.jp-connect-full__slide {
+  max-width: 38%;
+  margin: 3rem 0;
+}
+
+@media (max-width: 782px) {
+  .jp-connect-full__slide {
+    margin: 1.875rem 0;
+  }
+}
+
+.jp-connect-full__slide h3 {
+  font-size: 1.25rem;
+}
+
+.jp-connect-full__slide img {
+  max-width: 100%;
+}
+
+.jp-connect-full__slide ul {
+  list-style: disc;
+  margin-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .jp-connect-full__slide .illustration {
+    margin-bottom: 2rem;
+  }
+}
+
+.jp-connect-full__step-support {
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.25;
+}
+
+.jp-connect-full__step-support h2 {
+  margin: 1rem 0 0;
+  font-size: 1.5rem;
+  font-weight: normal;
+  color: black;
+}
+
+.jp-connect-full__step-support h3 {
+  color: #747474;
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 0.625rem 0 1.5rem;
+}
+
+.jp-connect-full__button-container-loading {
+  font-size: 0.875rem;
+  animation: jetpack-loading-fade 1.6s ease-in-out infinite;
+}
+
+.jp-connect-full__button-container .jp-spinner {
+  width: 100%;
+}
+
+@media screen and (max-width: 480px) {
+  .jp-connect-full__row {
+    display: block;
+  }
+  .jp-connect-full__slide {
+    margin: 2em 0;
+    max-width: 100%;
+  }
+}
+
+.updated.jp-wpcom-connect__container {
+  border-right: none;
+  padding: 0;
+  border: 1px solid #ccd0d4;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+@media screen and (max-width: 782px) {
+  .updated.jp-wpcom-connect__container {
+    padding: 0 !important;
+  }
+}
+
+.updated.jp-wpcom-connect__container .dops-button {
+  padding: 7px 14px 9px;
+}
+
+.updated .notice-dismiss {
+  z-index: 1;
+  text-decoration: none;
+}
+
+.jp-wpcom-connect__container-top-text + .jp-wpcom-connect__inner-container .notice-dismiss::before {
+  color: white;
+}
+
+.jp-wpcom-connect__container-top-text {
+  padding: 15px 15px 25px 35px;
+  background-color: #00be28;
+  color: white;
+  display: flex;
+  align-items: baseline;
+}
+
+.jp-wpcom-connect__container-top-text svg {
+  width: 24px;
+  height: 24px;
+  margin-left: 10px;
+  position: relative;
+  top: 7px;
+}
+
+@media (max-width: 530px) {
+  .jp-wpcom-connect__container-top-text svg {
+    flex: 1;
+  }
+}
+
+.jp-wpcom-connect__container-top-text svg path {
+  fill: #fff;
+}
+
+.jp-wpcom-connect__container-top-text span {
+  display: inline-block;
+}
+
+@media (max-width: 530px) {
+  .jp-wpcom-connect__container-top-text span {
+    flex: 9;
+  }
+}
+
+.jp-wpcom-connect__container {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  background-color: #00be28;
+}
+
+.jp-wpcom-connect__inner-container > a:first-child {
+  z-index: 1;
+}
+
+.jp-wpcom-connect__inner-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: left;
+  background: #fff;
+}
+
+.jp-wpcom-connect__content-container {
+  width: 1250px;
+  position: relative;
+  padding: 2rem;
+  z-index: 0;
+}
+
+.jp-wpcom-connect__content-container p {
+  color: #6f6f6f;
+  font-size: 0.875rem;
+}
+
+.jp-wpcom-connect__content-container h2 {
+  margin-top: 0;
+  line-height: 1.6;
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 530px) {
+  .jp-wpcom-connect__hide-phone-and-smaller {
+    display: none !important;
+  }
+}
+
+.jp-wpcom-connect__content-icon {
+  margin: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.jp-connect-illo img {
+  display: block;
+  margin: 0 auto;
+}
+
+.jp-connect-illo .jetpack-logo {
+  margin-bottom: 2.25rem;
+}
+
+@media (max-width: 530px) {
+  .jp-connect-illo .jetpack-logo {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 782px) {
+  .jp-connect-illo {
+    width: 100%;
+    margin: 0.5rem 0;
+    display: block;
+  }
+}
+
+@media (min-width: 900px) {
+  .jp-wpcom-connect__slide-text {
+    padding-right: 2.8125rem;
+  }
+}
+
+.jp-wpcom-connect__slide {
+  display: none;
+}
+
+.jp-wpcom-connect__slide.jp__slide-is-active {
+  display: flex;
+  align-items: flex-start;
+}
+
+@media (max-width: 782px) {
+  .jp-wpcom-connect__slide.jp__slide-is-active {
+    display: block;
+  }
+}
+
+.jp-wpcom-connect__slide ul {
+  list-style: disc;
+  padding: 0 0.9375rem 0 0;
+}
+
+.jp-wpcom-connect__slide ul li {
+  color: #6f6f6f;
+  font-size: 0.75rem;
+}
+
+.jp-banner__button-container .dops-button {
+  margin: 0.3125rem 0;
+}
+
+.jp-banner__button-container .dops-button.is-primary {
+  background: #00be28;
+  border-color: #00a523;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  flex-shrink: 0;
+}
+
+.jp-banner__button-container .dops-button.is-primary:hover, .jp-banner__button-container .dops-button.is-primary:focus {
+  background: #00a523;
+  border-color: #008b1d;
+}
+
+.jp-banner__button-container .dops-button.is-primary:focus {
+  box-shadow: 0 0 0 1px white, 0 0 0 3px #008b1d;
+}
+
+.jp-wpcom-connect__quest {
+  position: relative;
+  padding-right: 2.8125rem;
+  font-size: 1.25rem;
+}
+
+.jp-wpcom-connect__quest-marker.gridicon {
+  position: absolute;
+  right: 0;
+  top: -0.1875rem;
+  fill: #eec74f;
+}
+
+#jp-authenticate-no_user_test_mode {
+  display: none;
+}
+
+/*# sourceMappingURL=jetpack-banners-rtl.css.map */
