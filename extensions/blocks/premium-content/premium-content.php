@@ -61,54 +61,6 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
-	// Show upgrade nudge.
-	if ( ! required_plan_checks() && current_user_can_edit()
-	) {
-		$upgrade_nudge = render_upgrade_nudge();
-		return $upgrade_nudge . $content;
-	}
-
-	// Stripe connection nudge.
-	if ( ! membership_checks() && current_user_can_edit() ) {
-		$stripe_nudge = render_stripe_nudge();
-		return $stripe_nudge . $content;
-	}
-
 	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	return $content;
-}
-
-/**
- * Server-side rendering for the upgrade nudge.
- *
- * @return string Final content to render.
- */
-function render_upgrade_nudge() {
-	$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
-
-	jetpack_require_lib( 'components' );
-
-	return \Jetpack_Components::render_upgrade_nudge(
-		array(
-			'plan' => $required_plan,
-		)
-	);
-}
-
-/**
- * Server-side rendering for the stripe connection nudge.
- *
- * @return string Final content to render.
- */
-function render_stripe_nudge() {
-	jetpack_require_lib( 'components' );
-
-	return \Jetpack_Components::render_component(
-		'stripe-nudge',
-		array(
-			'blockName'        => 'premium-content',
-			'postId'           => get_the_ID(),
-			'stripeConnectUrl' => null,
-		)
-	);
 }

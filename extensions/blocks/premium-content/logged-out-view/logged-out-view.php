@@ -48,10 +48,6 @@ function render_loggedout_view_block( $attributes, $content, $block = null ) {
 		return '';
 	}
 
-	if ( should_render_frontend_preview() ) {
-		return $content;
-	}
-
 	$visitor_has_access = current_visitor_can_access( $attributes, $block );
 
 	if ( $visitor_has_access ) {
