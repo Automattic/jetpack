@@ -279,6 +279,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Search: limit number of filters automatically set up.
 * Slideshow Block: ensure that image captions are always shown, regardless of the theme you're using.
 * Subscription Block: display the correct default placeholder and button text strings in the post editor.
+* Subscriptions: fix the behavior of the toggle switches for the comment subscription settings.
 * Twitter Threads: improve how Twitter Cards are generated for embeds in the thread preview.
 * VideoPress: detect aspect ratios rounding to both 1.77 and 1.78 as 16:9.
 * Widgets: avoid JavaScript errors when displaying the Cookies & Consent Widget.
