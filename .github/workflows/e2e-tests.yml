@@ -22,18 +22,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '12'
-    - run: |
-        echo "PATH=$PATH"
-        which node
-        node --version
     - uses: shivammathur/setup-php@v2
       with:
         php-version: '7.4'
         tools: composer
         coverage: none
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '12'
 
     - name: Use yarn cache
       uses: actions/cache@v2
