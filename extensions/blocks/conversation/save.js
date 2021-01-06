@@ -9,13 +9,10 @@ import classnames from 'classnames';
 import { InnerBlocks } from '@wordpress/block-editor';
 
 export default function save ( { attributes } ) {
-	const baseClassName = 'wp-block-jetpack-conversation';
-
 	return (
 		<div
 			className={ classnames(
-				baseClassName,
-				'entry-content',
+				'wp-block-jetpack-conversation',
 				{
 					'show-timestamps': attributes?.showTimestamp,
 				}
