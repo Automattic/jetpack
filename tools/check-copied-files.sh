@@ -70,7 +70,7 @@ compare () {
 	fi
 }
 
-compare readme.md projects/plugins/jetpack/readme.md '^## Security'
+compare readme.md projects/plugins/jetpack/readme.md '^## Security' '^<!-- end sync section -->$'
 compare LICENSE.txt projects/plugins/jetpack/LICENSE.txt
 
 exit $EXIT

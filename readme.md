@@ -40,6 +40,7 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).
 
+<!-- end sync section -->
 ## Team
 
 Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @anomiex, @bisko, @brbrr, @dereksmart, @fgiannar, @jeherve, @kbrown9, @kraftbj, @leogermani, @mdbitz, @sergeymitr and @zinigor.
