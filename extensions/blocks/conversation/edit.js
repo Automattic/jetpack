@@ -69,7 +69,7 @@ function ConversationEdit ( {
 		updateParticipants,
 		getParticipantIndex: ( slug ) =>
 			participants.map( ( part ) => part.participantSlug ).indexOf( slug ),
-		getNextParticpantIndex: ( slug, offset = 0 ) => {
+		getNextParticipantIndex: ( slug, offset = 0 ) => {
 			const index = contextProvision.getParticipantIndex( slug ) + offset;
 			if ( index < 0 ) {
 				return 0;
@@ -82,7 +82,7 @@ function ConversationEdit ( {
 			return index + 1;
 		},
 		getNextParticipantSlug: ( slug, offset = 0 ) =>
-			participants[ contextProvision.getNextParticpantIndex( slug, offset ) ]?.participantSlug,
+			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
 
 		attributes: {
 			showTimestamps,
