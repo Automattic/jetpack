@@ -368,3 +368,14 @@ jobs:
         env:
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
         run: yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
+
+
+  ### Checks that copied files (e.g. readme, license) are in sync
+  # Local equivalent: `./tools/check-copied-files.sh`
+  copied_files:
+    name: Copied files are in sync
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./tools/check-copied-files.sh

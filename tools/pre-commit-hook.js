@@ -306,6 +306,19 @@ function checkComposerLock() {
 }
 
 /**
+ * Check that copied files are in sync.
+ */
+function runCheckCopiedFiles() {
+	const result = spawnSync( './tools/check-copied-files.sh', [], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	if ( result && result.status ) {
+		checkFailed( '' );
+	}
+}
+
+/**
  * Exit script
  *
  * @param {number} exitCodePassed - Shell exit code.
@@ -314,6 +327,8 @@ function exit( exitCodePassed ) {
 	capturePreCommitTreeHash();
 	process.exit( exitCodePassed );
 }
+
+runCheckCopiedFiles();
 
 dirtyFiles.forEach( file =>
 	console.log(
