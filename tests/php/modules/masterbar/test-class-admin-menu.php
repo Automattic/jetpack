@@ -627,10 +627,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
+		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
 		static::$admin_menu->add_options_menu( static::$domain );
 
-		$this->assertNotContains( 'options-discussion.php', $submenu['options-general.php'] );
-		$this->assertNotContains( 'options-writing.php', $submenu['options-general.php'] );
+		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
+		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
+
+		$general_submenu_item = array(
+			'General',
+			'manage_options',
+			$slug,
+			'General',
+		);
+		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
