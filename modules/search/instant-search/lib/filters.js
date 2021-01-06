@@ -8,6 +8,8 @@ import difference from 'lodash/difference';
  */
 import { SERVER_OBJECT_NAME } from './constants';
 
+// NOTE: This list is missing custom taxonomy names.
+//       getFilterKeys must be used to get the conclusive list of valid filter keys.
 const FILTER_KEYS = Object.freeze( [
 	// Post types
 	'post_types',
@@ -22,28 +24,33 @@ const FILTER_KEYS = Object.freeze( [
 	'year_post_modified_gmt',
 ] );
 
-export function getFilterKeys() {
+export function getFilterKeys(
+	widgets = window[ SERVER_OBJECT_NAME ]?.widgets,
+	widgetsOutsideOverlay = window[ SERVER_OBJECT_NAME ]?.widgetsOutsideOverlay
+) {
 	// Extract taxonomy names from server widget data
-	const taxonomies = window[ SERVER_OBJECT_NAME ].widgets
+	const keys = new Set( FILTER_KEYS );
+	[ ...( widgets ?? [] ), ...( widgetsOutsideOverlay ?? [] ) ]
 		.map( w => w.filters )
 		.filter( filters => Array.isArray( filters ) )
 		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
 		.filter( filter => filter.type === 'taxonomy' )
-		.map( filter => filter.taxonomy );
-	return [ ...FILTER_KEYS, ...taxonomies ];
+		.forEach( filter => keys.add( filter.taxonomy ) );
+
+	return [ ...keys ];
 }
 
 // These filter keys are selectable from sidebar filters
-function getSelectableFilterKeys( overlayWidgets ) {
-	return overlayWidgets
-		.map( extractFilters )
-		.reduce( ( prev, current ) => prev.concat( current ), [] );
+export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
+	return (
+		widgets?.map( extractFilters ).reduce( ( prev, current ) => prev.concat( current ), [] ) ?? []
+	);
 }
 
 // These filter keys are not selectable from sidebar filters
 // In other words, they were selected via filters outside the search sidebar
-export function getUnselectableFilterKeys( overlayWidgets ) {
-	return difference( getFilterKeys(), getSelectableFilterKeys( overlayWidgets ) );
+export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
+	return difference( getFilterKeys(), getSelectableFilterKeys( widgets ) );
 }
 
 function extractFilters( widget ) {
