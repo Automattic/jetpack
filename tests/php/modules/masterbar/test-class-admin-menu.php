@@ -436,11 +436,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_appearance_menu( static::$domain );
 
-		$slug = 'https://wordpress.com/customize/' . static::$domain;
+		$slug = 'https://wordpress.com/themes/' . static::$domain;
 
 		$appearance_menu_item = array(
 			'Appearance',
-			'customize',
+			'switch_themes',
 			$slug,
 			'Appearance',
 			'menu-top toplevel_page_' . $slug,
@@ -451,14 +451,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( $menu[60], $appearance_menu_item );
 		$this->assertArrayNotHasKey( 'themes.php', $submenu );
 
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			'https://wordpress.com/customize/' . static::$domain,
-			'Customize',
-		);
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
-
 		$themes_submenu_item = array(
 			'Themes',
 			'switch_themes',
@@ -466,6 +458,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Themes',
 		);
 		$this->assertContains( $themes_submenu_item, $submenu[ $slug ] );
+
+		$customize_submenu_item = array(
+			'Customize',
+			'customize',
+			'https://wordpress.com/customize/' . static::$domain,
+			'Customize',
+		);
+		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 
 		$widgets_submenu_item = array(
 			'Widgets',
