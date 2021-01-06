@@ -25,6 +25,14 @@ const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin
 const editorSetup = path.join( path.dirname( __dirname ), 'extensions', 'editor' );
 const viewSetup = path.join( path.dirname( __dirname ), 'extensions', 'view' );
 
+/**
+ * Filters block scripts
+ *
+ * @param {string} type - script type
+ * @param {string} inputDir - input directory
+ * @param {Array} presetBlocks - preset blocks
+ * @returns {Array} list of block scripts
+ */
 function blockScripts( type, inputDir, presetBlocks ) {
 	return presetBlocks
 		.map( block => path.join( inputDir, 'blocks', block, `${ type }.js` ) )
@@ -153,7 +161,7 @@ module.exports = [
 			),
 			new webpack.NormalModuleReplacementPlugin(
 				/^\.\/create-interpolate-element$/,
-				path.join( __dirname, './extensions/shared/element-to-php' )
+				path.join( path.dirname( __dirname ), './extensions/shared/element-to-php' )
 			),
 			new StaticSiteGeneratorPlugin( {
 				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.

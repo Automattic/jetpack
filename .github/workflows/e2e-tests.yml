@@ -22,14 +22,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12'
     - uses: shivammathur/setup-php@v2
       with:
         php-version: '7.4'
         tools: composer
         coverage: none
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '12'
 
     - name: Use yarn cache
       uses: actions/cache@v2
@@ -48,28 +48,45 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-composer-
 
+    - name: Tool versions
+      run: |
+        echo "PATH=$PATH"
+        which node
+        node --version
+        which yarn
+        yarn --version
+        which php
+        php --version
+        which composer
+        composer --version
+
     - name: Build Production Jetpack
+      working-directory: projects/plugins/jetpack
       run: yarn build-production-concurrently
 
     - name: Set up environment
+      working-directory: projects/plugins/jetpack
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         yarn test-decrypt-config
-        ./projects/plugins/jetpack/tests/e2e/bin/env.sh start
+        ./tests/e2e/bin/env.sh start
 
     - name: Run tests
       if: matrix.gutenberg == 'no'
+      working-directory: projects/plugins/jetpack
       run: yarn test-e2e
 
     - name: Run tests (excluding updater)
       if: matrix.gutenberg == 'latest'
+      working-directory: projects/plugins/jetpack
       run: yarn test-e2e --testPathIgnorePatterns=updater
 
     - name: Upload Allure artifacts
       if: matrix.gutenberg == 'no' && always()
       continue-on-error: true
+      working-directory: projects/plugins/jetpack
       env:
         ALLURE_VERSION: 2.13.5
         ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
@@ -79,4 +96,4 @@ jobs:
         tar -zxf allure.tgz -C /opt/
         sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
 
-        ./projects/plugins/jetpack/tests/e2e/bin/push-allure-artifacts.sh
+        ./tests/e2e/bin/push-allure-artifacts.sh
