@@ -203,7 +203,7 @@
 		"@size-limit/preset-app": "4.9.0",
 		"@slack/web-api": "5.14.0",
 		"@testing-library/jest-dom": "5.11.6",
-		"@testing-library/preact": "2.0.0",
+		"@testing-library/preact": "2.0.1",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/core-data": "2.12.3",
 		"@wordpress/dependency-extraction-webpack-plugin": "2.4.0",
