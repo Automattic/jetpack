@@ -369,22 +369,21 @@ class Admin_Menu {
 	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
 	 */
 	public function add_options_menu( $calypso = true ) {
-		$options_slug = $calypso ? 'https://wordpress.com/settings/general/' . $this->domain : 'options-general.php';
-
-		if ( current_user_can( 'manage_options' ) ) {
-			remove_menu_page( 'options-general.php' );
-			remove_submenu_page( 'options-general.php', 'options-general.php' );
-
-			if ( $calypso ) {
-				remove_submenu_page( 'options-general.php', 'options-discussion.php' );
-				remove_submenu_page( 'options-general.php', 'options-writing.php' );
-			}
-
-			add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', $options_slug, null, 'dashicons-admin-settings', 80 );
-			add_submenu_page( $options_slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $options_slug, null, 10 );
-
-			$this->migrate_submenus( 'options-general.php', $options_slug );
+		if ( ! $calypso ) {
+			return;
 		}
+
+		$options_slug = 'https://wordpress.com/settings/general/' . $this->domain;
+
+		remove_menu_page( 'options-general.php' );
+		remove_submenu_page( 'options-general.php', 'options-general.php' );
+		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
+		remove_submenu_page( 'options-general.php', 'options-writing.php' );
+
+		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', $options_slug, null, 'dashicons-admin-settings', 80 );
+		add_submenu_page( $options_slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $options_slug, null, 10 );
+
+		$this->migrate_submenus( 'options-general.php', $options_slug );
 	}
 
 	/**
