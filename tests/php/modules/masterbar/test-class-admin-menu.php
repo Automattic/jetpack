@@ -139,7 +139,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Admin menu should not have unexpected top menu items.'
 		);
 
-		$this->assertEquals( static::$menu_data[80], $menu[80], 'Settings menu should stay the same.' );
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
 
