@@ -16,10 +16,21 @@ EOF
   git config --global user.name "matticbot"
 }
 
+yarn_build()
+{
+	if [ -f "package.json" ]; then
+		yarn install
+		yarn build-production-concurrently
+	fi
+}
+
 # Halt on error
 set -e
 
 git_setup
+
+# Install Yarn generally.
+yarn install
 
 BASE=$(pwd)
 MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
@@ -66,6 +77,8 @@ for package in projects/packages/*; do
 
 	cp -r $BASE/projects/packages/$NAME/. .
 
+	yarn_build
+
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
 	if $COMPOSER_JSON_EXISTED && [ ! -f "composer.json" ]; then
 		echo "  Those changes remove essential parts of the package. They will not be committed."
@@ -100,7 +113,7 @@ for plugin in projects/plugins/*; do
 	CLONE_DIR="__${NAME}__clone__"
 	echo "  Clone dir: $CLONE_DIR"
 
-	if $NAME == 'jetpack'; then
+	if [ "$NAME" == 'jetpack' ]; then
 		GIT_SLUG='jetpack-production'
 	else
 		GIT_SLUG="jetpack-${NAME}";
@@ -122,6 +135,8 @@ for plugin in projects/plugins/*; do
 	echo "  Copying from ${BASE}/projects/plugins/${NAME}/."
 
 	cp -r $BASE/projects/plugins/$NAME/. .
+
+	yarn_build
 
 	if [ -n "$(git status --porcelain)" ]; then
 

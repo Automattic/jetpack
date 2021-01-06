@@ -2,13 +2,13 @@ name: Update a package when it is updated in the monorepo
 on:
   push:
     branches:
-      - master # Every time a PR is merged to master.
+      - master # Every time a PR is merged to master
     paths:
       - 'projects/packages/**' # Only when package files are modified.
       - 'projects/plugins/**' # Only when plugin files are modified.
 
 jobs:
-  update_package:
+  update_project:
     runs-on: ubuntu-latest
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     steps:
@@ -17,5 +17,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        shell: bash -l {0}
         run: |
-          sh ./.github/actions/update-project/update-project.sh
+          nvm install
+          nvm use
+          ./.github/actions/update-project/update-project.sh
