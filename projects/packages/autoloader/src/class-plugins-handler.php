@@ -38,9 +38,10 @@ class Plugins_Handler {
 	/**
 	 * Gets all of the active plugins we can find.
 	 *
+	 * @param bool $include_deactivating When true, plugins deactivating this request will be considered active. Default true.
 	 * @return string[]
 	 */
-	public function get_active_plugins() {
+	public function get_active_plugins( $include_deactivating = true ) {
 		global $jetpack_autoloader_activating_plugins_paths;
 		global $jetpack_autoloader_including_latest;
 
@@ -73,9 +74,20 @@ class Plugins_Handler {
 			}
 		}
 
-		$plugins = $this->plugin_locator->find_activating_this_request();
+		// These actions contain plugins that are being activated during this request.
+		$plugins = $this->plugin_locator->find_using_request_action( array( 'activate', 'activate-selected' ) );
 		foreach ( $plugins as $path ) {
 			$active_plugins[ $path ] = $path;
+		}
+
+		// While it's true that the deactivating plugins are more than likely already in the active list
+		// at this point, we should make sure in order to avoid any strange misbehavior.
+		if ( $include_deactivating ) {
+			// These actions contain plugins that are being deactivated during this request.
+			$plugins = $this->plugin_locator->find_using_request_action( array( 'deactivate', 'deactivate-selected' ) );
+			foreach ( $plugins as $path ) {
+				$active_plugins[ $path ] = $path;
+			}
 		}
 
 		// When the current plugin isn't considered "active" there's a problem.
@@ -89,6 +101,15 @@ class Plugins_Handler {
 		if ( ! in_array( $current_plugin, $active_plugins, true ) && ! $jetpack_autoloader_including_latest ) {
 			$active_plugins[ $current_plugin ]             = $current_plugin;
 			$jetpack_autoloader_activating_plugins_paths[] = $current_plugin;
+		}
+
+		// When deactivating plugins aren't desired we should entirely remove them from the active list.
+		if ( ! $include_deactivating ) {
+			// These actions contain plugins that are being deactivated during this request.
+			$plugins = $this->plugin_locator->find_using_request_action( array( 'deactivate', 'deactivate-selected' ) );
+			foreach ( $plugins as $path ) {
+				unset( $active_plugins[ $path ] );
+			}
 		}
 
 		// Transform the array so that we don't have to worry about the keys interacting with other array types later.

@@ -260,6 +260,28 @@ class Test_Autoloader_Scenarios extends TestCase {
 	}
 
 	/**
+	 * Tests that the autoloader does not cache plugins that are deactivating in the request.
+	 */
+	public function test_autoloader_does_not_cache_deactivating_plugins() {
+		// Make sure to cache the plugin so that the cache is dirty on shutdown.
+		$this->cache_plugins( array( 'plugin_current' ) );
+
+		// Make sure that we're deactivating the plugin in the request.
+		$_REQUEST['_wpnonce'] = '123abc';
+		$_REQUEST['action']   = 'deactivate';
+		$_REQUEST['plugin']   = 'plugin_current/plugin_current.php';
+
+		$this->activate_plugin( 'plugin_current' );
+
+		$this->load_autoloader( 'plugin_current' );
+
+		$this->shutdown_autoloader( true );
+
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+		$this->assertAutoloaderCache( array() );
+	}
+
+	/**
 	 * Generates a new autoloader from the current source files for the "plugin_current" plugin.
 	 *
 	 * @param string $plugin The plugin to generate the autoloader for.
