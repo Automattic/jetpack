@@ -69,18 +69,8 @@ function ConversationEdit ( {
 		updateParticipants,
 		getParticipantIndex: ( slug ) =>
 			participants.map( ( part ) => part.participantSlug ).indexOf( slug ),
-		getNextParticipantIndex: ( slug, offset = 0 ) => {
-			const index = contextProvision.getParticipantIndex( slug ) + offset;
-			if ( index < 0 ) {
-				return 0;
-			}
-
-			if ( ( index + 1 ) >= participants.length ) {
-				return 0;
-			}
-
-			return index + 1;
-		},
+		getNextParticipantIndex: ( slug, offset = 0 ) => (
+			contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
 		getNextParticipantSlug: ( slug, offset = 0 ) =>
 			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
 
