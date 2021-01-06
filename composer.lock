@@ -934,14 +934,14 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/codesniffer",
-                "reference": "804fc627b8372a1f5d31b77afa9e76f956e30af5"
+                "reference": "ac27fa3a6634874143014f575b62632e6d04f983"
             },
             "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "0.7.1",
-                "mediawiki/mediawiki-codesniffer": "34.0.0",
-                "phpcompatibility/phpcompatibility-wp": "2.1.0",
-                "sirbrillig/phpcs-variable-analysis": "2.10.0",
-                "wp-coding-standards/wpcs": "2.3.0"
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+                "mediawiki/mediawiki-codesniffer": "^34.0",
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "sirbrillig/phpcs-variable-analysis": "^2.10",
+                "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
                 "yoast/phpunit-polyfills": "0.2.0"
@@ -1534,16 +1534,16 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.10.0",
+            "version": "v2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "50486555fae72a6401ad0337d0b71fd9e775b2f2"
+                "reference": "c6716a98fe7bee25d31306e14fb62c3ffa16d70a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/50486555fae72a6401ad0337d0b71fd9e775b2f2",
-                "reference": "50486555fae72a6401ad0337d0b71fd9e775b2f2",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/c6716a98fe7bee25d31306e14fb62c3ffa16d70a",
+                "reference": "c6716a98fe7bee25d31306e14fb62c3ffa16d70a",
                 "shasum": ""
             },
             "require": {
@@ -1583,7 +1583,7 @@
                 "source": "https://github.com/sirbrillig/phpcs-variable-analysis",
                 "wiki": "https://github.com/sirbrillig/phpcs-variable-analysis/wiki"
             },
-            "time": "2020-11-23T17:43:05+00:00"
+            "time": "2020-12-12T18:28:57+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
