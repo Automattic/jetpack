@@ -292,11 +292,17 @@ export default function DialogueEdit ( {
 						content: value,
 					} );
 				} }
+
 				onReplace={ ( blocks, ...args ) => {
+					// If transcription bridge doesn't exist,
+					// then run the default replace process.
 					if ( ! transcritionBridge ) {
 						return onReplace( blocks, ...args );
 					}
 
+					// Detect if the block content is empty.
+					// If so, keep only one paragraph block,
+					// in order to avoid duplicated blocks.
 					if (
 						blocks[ 0 ]?.name === blockNameFallback &&
 						blocks[ 1 ]?.name === blockNameFallback &&
@@ -307,7 +313,11 @@ export default function DialogueEdit ( {
 						return onReplace( [ blocks[ 0 ] ], ...args );
 					}
 
-					// pick up the next participant slug.
+					// When creating a new dialogue block in a `conversation` context,
+					// try to assign the dialogue participant
+					// with the next participant slug.
+
+					// Pick up the next participant slug.
 					const nextParticipantSlug = transcritionBridge.getNextParticipantSlug( attributes.participantSlug );
 
 					// Update new block attributes.
