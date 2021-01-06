@@ -94,24 +94,24 @@ export default function DialogueEdit ( {
 	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
-	const transcritionBridge = useContext( ConversationContext );
+	const conversationBridge = useContext( ConversationContext );
 
 	// Set initial attributes according to the context.
 	useEffect( () => {
 		// Bail when block already has an slug,
 		// or participant doesn't exist.
-		if ( participantSlug || ! participants?.length || ! transcritionBridge ) {
+		if ( participantSlug || ! participants?.length || ! conversationBridge ) {
 			return;
 		}
 
-		const nextParticipantSlug = transcritionBridge.getNextParticipantSlug( prevBlock?.attributes?.participantSlug );
+		const nextParticipantSlug = conversationBridge.getNextParticipantSlug( prevBlock?.attributes?.participantSlug );
 
 		setAttributes( {
 			...( prevBlock?.attributes || {} ),
 			participantSlug: nextParticipantSlug,
 			content: '',
 		} );
-	}, [ participantSlug, participants, prevBlock, setAttributes, transcritionBridge ] );
+	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
 
 	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
@@ -145,7 +145,7 @@ export default function DialogueEdit ( {
 			return setAttributes( { [ style ]: ! attributes[ style ] } );
 		}
 
-		transcritionBridge.updateParticipants( {
+		conversationBridge.updateParticipants( {
 			participantSlug: currentParticipantSlug,
 			[ style ]: ! currentParticipant[ style ],
 		} );
@@ -178,7 +178,7 @@ export default function DialogueEdit ( {
 			return setAttributes( { showTimestamp: value } );
 		}
 
-		transcritionBridge.setAttributes( { showTimestamps: value } );
+		conversationBridge.setAttributes( { showTimestamps: value } );
 	}
 
 	return (
@@ -296,7 +296,7 @@ export default function DialogueEdit ( {
 				onReplace={ ( blocks, ...args ) => {
 					// If transcription bridge doesn't exist,
 					// then run the default replace process.
-					if ( ! transcritionBridge ) {
+					if ( ! conversationBridge ) {
 						return onReplace( blocks, ...args );
 					}
 
@@ -318,7 +318,7 @@ export default function DialogueEdit ( {
 					// with the next participant slug.
 
 					// Pick up the next participant slug.
-					const nextParticipantSlug = transcritionBridge.getNextParticipantSlug( attributes.participantSlug );
+					const nextParticipantSlug = conversationBridge.getNextParticipantSlug( attributes.participantSlug );
 
 					// Update new block attributes.
 					blocks[ 1 ].attributes = {
