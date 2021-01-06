@@ -83,3 +83,56 @@ for package in projects/packages/*; do
 
 	cd $BASE
 done
+
+echo "Cloning folders in projects/plugins and pushing to Automattic package repos"
+
+# sync to read-only clones
+for plugin in projects/plugins/*; do
+	[ -d "$plugin" ] || continue # We are only interested in directories (i.e. plugins)
+
+	cd $BASE
+
+	# Only keep the plugin's name
+	NAME=${plugin##*/}
+
+	echo " Name: $NAME"
+
+	CLONE_DIR="__${NAME}__clone__"
+	echo "  Clone dir: $CLONE_DIR"
+
+	if $NAME == 'jetpack'; then
+		GIT_SLUG='jetpack-production'
+	else
+		GIT_SLUG="jetpack-${NAME}";
+	fi
+	# Check if a remote exists for that package.
+	$( git ls-remote --exit-code -h "https://github.com/automattic/${GIT_SLUG}.git" >/dev/null 2>&1 ) || continue
+	echo "  ${NAME} exists. Let's clone it."
+
+	# clone, delete files in the clone, and copy (new) files over
+	# this handles file deletions, additions, and changes seamlessly
+	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/automattic/$GIT_SLUG.git $CLONE_DIR
+
+	echo "  Cloning of ${NAME} completed"
+
+	cd $CLONE_DIR
+
+	find . | grep -v ".git" | grep -v "^\.*$" | xargs rm -rf # delete all files (to handle deletions in monorepo)
+
+	echo "  Copying from ${BASE}/projects/plugins/${NAME}/."
+
+	cp -r $BASE/projects/plugins/$NAME/. .
+
+	if [ -n "$(git status --porcelain)" ]; then
+
+		echo  "  Committing $NAME to $NAME's mirror repository"
+		git add -A
+		git commit --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}"
+		git push origin master
+		echo  "  Completed $NAME"
+	else
+		echo "  No changes, skipping $NAME"
+	fi
+
+	cd $BASE
+done
