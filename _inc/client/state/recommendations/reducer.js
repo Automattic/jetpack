@@ -90,23 +90,6 @@ const requests = ( state = {}, action ) => {
 	}
 };
 
-const requests = ( state = {}, action ) => {
-	switch ( action ) {
-		case JETPACK_RECOMMENDATIONS_DATA_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsData: true } );
-		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
-		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsData: false } );
-		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsUpsell: true } );
-		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
-		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsUpsell: false } );
-		default:
-			return state;
-	}
-};
-
 const stepReducer = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_STEP_FETCH_RECEIVE:
@@ -254,62 +237,6 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		default:
 			return true;
 	}
-};
-
-export const getSummaryFeatureSlugs = state => {
-	const featureSlugsInPreferenceOrder = [
-		'woocommerce',
-		'monitor',
-		'related-posts',
-		'creative-mail',
-		'site-accelerator',
-	];
-
-	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
-		isFeatureEligibleToShowInSummary( state, slug )
-	);
-
-	const selected = [];
-	const skipped = [];
-
-	for ( const slug of featureSlugsEligibleToShow ) {
-		if ( isFeatureActive( state, slug ) ) {
-			selected.push( slug );
-		} else {
-			skipped.push( slug );
-		}
-	}
-
-	return {
-		selected,
-		skipped,
-	};
-};
-
-export const getSidebarCardSlug = state => {
-	const sitePlan = getSitePlan( state );
-	const rewindStatus = getRewindStatus( state );
-
-	const planSlug = sitePlan.product_slug;
-	const rewindState = rewindStatus.state;
-
-	if ( ! sitePlan.product_slug || ! rewindState ) {
-		return 'loading';
-	}
-
-	if ( 'jetpack_free' === planSlug && ! hasActiveProductPurchase( state ) ) {
-		return 'upsell';
-	}
-
-	if ( 'awaiting_credentials' === rewindState && ! hasActiveScanPurchase( state ) ) {
-		return 'one-click-restores';
-	}
-
-	if ( 'active' === rewindState ) {
-		return 'manage-security';
-	}
-
-	return 'download-app';
 };
 
 export const getSummaryFeatureSlugs = state => {
