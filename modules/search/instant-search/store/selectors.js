@@ -1,14 +1,10 @@
 /**
  * Internal dependencies
  */
-import {
-	getUnselectableFilterKeys,
-	mapFilterKeyToFilter,
-	mapFilterToFilterKey,
-} from '../lib/filters';
+import { getUnselectableFilterKeys, mapFilterKeyToFilter } from '../lib/filters';
 
 /**
- * Get response.
+ * Get the stored API response.
  *
  * @param {object} state - Current state.
  * @returns {object} Response object.
@@ -18,79 +14,84 @@ export function getResponse( state ) {
 }
 
 /**
- * Get hasError flag.
+ * Get the hasError flag.
  *
  * @param {object} state - Current state.
- * @returns {boolean} Flag.
+ * @returns {boolean} hasError - Whether the API returned an erroneous response.
  */
 export function hasError( state ) {
 	return state.hasError;
 }
 
 /**
- * Get hasNextPage flag.
+ * Get the hasNextPage flag.
  *
  * @param {object} state - Current state.
- * @returns {boolean} Flag.
+ * @returns {boolean} hasNextPage - Whether the API contains a page handle for a subsequent page.
  */
 export function hasNextPage( state ) {
 	return ! hasError( state ) && getResponse( state )?.page_handle;
 }
 
 /**
- * Get isLoading flag.
+ * Get the isLoading flag.
  *
  * @param {object} state - Current state.
- * @returns {boolean} Flag.
+ * @returns {boolean} isLoading - Whether the API request is still loading.
  */
 export function isLoading( state ) {
 	return state.isLoading;
 }
 
 /**
- * Get search query.
+ * Get the search query.
  *
  * @param {object} state - Current state.
- * @returns {string} Search query.
+ * @returns {string} searchQuery - The search query entered by the user.
  */
 export function getSearchQuery( state ) {
 	return state.searchQuery;
 }
 
 /**
- * Get sort key.
+ * Get the sort key.
  *
  * @param {object} state - Current state.
- * @returns {string} Sort key.
+ * @returns {string} sort - The selected sort key for the search interface.
  */
 export function getSort( state ) {
 	return state.sort;
 }
 
 /**
- * Get filters.
+ * Get the filters.
  *
  * @param {object} state - Current state.
- * @returns {Array} Filters.
+ * @returns {object} filters - An object mapping filter keys and its selected values.
  */
 export function getFilters( state ) {
 	return state.filters;
 }
 
 /**
- * Get hasFilters flag.
+ * Checks if any filters have been selected.
  *
  * @param {object} state - Current state.
- * @returns {boolean} Flag.
+ * @returns {object} hasFilters - true if any filter has been selected.
  */
 export function hasFilters( state ) {
 	return Object.keys( state.filters ).length > 0;
 }
 
-// This selector combines multiple widgets outside overlay into a single widget consisting only of the `filters` key.
-// After combining the widgets, we the filter out all unselected filter values.
-//
-// This is used to render a single SearchFilters component for all filters selected outside the search overlay.
+/**
+ * This selector combines multiple widgets outside overlay into a single widget consisting only of the `filters` key.
+ * After combining the widgets, we the filter out all unselected filter values.
+ *
+ * This is used to render a single SearchFilters component for all filters selected outside the search overlay.
+ *
+ * @param {object} state - Redux state tree.
+ * @returns {{ filters: object[] }} pseudoWidget - contains `filters`, an array of filter objects selected outside the search overlay.
+ */
 export function getWidgetOutsideOverlay( state ) {
 	// Both of these values should default to [] when empty; they should never be falsy.
 	if ( ! state.serverOptions.widgets || ! state.filters ) {

@@ -37,7 +37,7 @@ function makeSearchAPIRequest( action, store ) {
 }
 
 /**
- * Initialize query values.
+ * Initialize query values from the browser's address bar.
  *
  * @param {object} action - Action which had initiated the effect handler.
  * @param {object} store -  Store instance.
