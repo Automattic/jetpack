@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
 const name = 'premium-content/subscriber-view';
 const settings = {
 	title: __( 'Subscriber View', 'jetpack' ),
-	description: __( 'Subscriber View.', 'jetpack' ),
+	description: __( 'The container for all content shown to subscribers.', 'jetpack' ),
 	icon,
 	category: 'grow',
 	attributes: {},

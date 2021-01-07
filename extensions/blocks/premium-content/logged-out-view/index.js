@@ -24,7 +24,7 @@ const name = 'premium-content/logged-out-view';
  */
 const settings = {
 	title: __( 'Logged Out View', 'jetpack' ),
-	description: __( 'Logged out view for Premium content block.', 'jetpack' ),
+	description: __( 'The container for all content shown to site visitors who are not subscribers.', 'jetpack' ),
 	icon,
 	category: 'grow',
 	parent: [ 'premium-content/container' ],
