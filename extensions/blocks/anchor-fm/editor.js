@@ -6,10 +6,8 @@ import { castArray } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { addFilter } from '@wordpress/hooks';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
@@ -18,32 +16,38 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import { waitForEditor } from '../../shared/wait-for-editor';
+import { basicTemplate, spotifyBadgeTemplate } from './templates';
 
 /**
  * Style dependencies
  */
 import './editor.scss';
 
-async function insertSpotifyBadge( { image, url } ) {
-	if ( ! image || ! url ) {
-		return;
+async function insertTemplate( params ) {
+	await waitForEditor();
+
+	const { insertBlocks } = dispatch( 'core/block-editor' );
+
+	let templateBlocks;
+
+	switch ( params.tpl ) {
+		case 'spotifyBadge':
+			templateBlocks = spotifyBadgeTemplate( params );
+		break;
+
+		case 'basicEpisode':
+			templateBlocks = basicTemplate( params );
+		break;
 	}
 
-	await waitForEditor();
-	dispatch( 'core/block-editor' ).insertBlock(
-		createBlock( 'core/image', {
-			url: image,
-			linkDestination: 'none',
-			href: url,
-			align: 'center',
-			width: 165,
-			height: 40,
-			className: 'is-spotify-podcast-badge',
-		} ),
-		0,
-		undefined,
-		false
-	);
+	if ( templateBlocks?.length ) {
+		insertBlocks(
+			templateBlocks,
+			0,
+			undefined,
+			false
+		);
+	}
 }
 
 async function setEpisodeTitle( { title } ) {
@@ -85,7 +89,10 @@ function initAnchor() {
 		const [ actionName, actionParams ] = castArray( action );
 		switch ( actionName ) {
 			case 'insert-spotify-badge':
-				insertSpotifyBadge( actionParams );
+				insertTemplate( { ...actionParams, tpl: 'spotifyBadge' } );
+				break;
+			case 'insert-episode-template':
+				insertTemplate( { ...actionParams, tpl: 'basicEpisode' } );
 				break;
 			case 'show-post-publish-outbound-link':
 				showPostPublishOutboundLink();
