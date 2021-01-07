@@ -20,6 +20,11 @@ export function getQuery() {
 	return decode( window.location.search.substring( 1 ), false, false );
 }
 
+/**
+ * Updates the browser's query string.
+ *
+ * @param {object} queryObject - a query object.
+ */
 export function setQuery( queryObject ) {
 	pushQueryString( encode( queryObject ) );
 }
