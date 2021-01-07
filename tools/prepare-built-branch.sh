@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -f "class.jetpack.php" ]; then
+	echo "This must be executed from the /projects/plugins/jetpack/ dir."
+	exit 1
+fi
+
 # This creates a new .gitignore file based on master, but removes the items we need for release builds
 function create_release_gitignore {
 	# Copy .gitignore to temp file
