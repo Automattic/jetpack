@@ -2,12 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	useEffect,
-	useRef,
-	useCallback,
-	useMemo,
-} from '@wordpress/element';
+import { useEffect, useRef, useCallback } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -70,8 +65,14 @@ function ConversationEdit ( {
 
 	// Context bridge.
 	const contextProvision = {
-		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
+		setAttributes,
 		updateParticipants,
+		getParticipantIndex: ( slug ) =>
+			participants.map( ( part ) => part.participantSlug ).indexOf( slug ),
+		getNextParticipantIndex: ( slug, offset = 0 ) => (
+			contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
+		getNextParticipantSlug: ( slug, offset = 0 ) =>
+			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
 
 		attributes: {
 			showTimestamps,
