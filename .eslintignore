@@ -17,6 +17,9 @@
 /modules/widgets/search/js/search-widget-admin.js
 /vendor/
 
+# Ignored by default, but we should check it
+!.github/
+
 # Temporary ignore until Jest is set up
 /extensions/**/test/
 
