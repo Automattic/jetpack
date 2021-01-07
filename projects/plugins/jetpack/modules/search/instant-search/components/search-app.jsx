@@ -143,6 +143,12 @@ class SearchApp extends Component {
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
 
+	getResultFormat = () => {
+		// Override the result format from the query string if result_format= is specified
+		const resultFormatQuery = getResultFormatQuery();
+		return resultFormatQuery || this.state.overlayOptions.resultFormat;
+	};
+
 	hasActiveQuery() {
 		return this.props.searchQuery !== '' || this.props.hasFilters;
 	}
