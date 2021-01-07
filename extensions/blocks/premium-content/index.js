@@ -13,13 +13,13 @@ import edit from './edit';
 import save from './save';
 import icon from './_inc/icon';
 import {
-    blockContainsPremiumBlock,
-    blockHasParentPremiumBlock,
+	blockContainsPremiumBlock,
+	blockHasParentPremiumBlock,
 } from './_inc/premium';
 
 export const name = 'premium-content/container';
 export const settings = {
-    title: __( 'Premium Content', 'jetpack' ),
+	title: __( 'Premium Content', 'jetpack' ),
 	description: __(
 		'Restrict access to your content for paying subscribers.',
 		'jetpack'
@@ -61,7 +61,7 @@ export const settings = {
 			type: 'bool',
 			default: true,
 		},
-    },
+	},
 	edit,
 	save,
 	providesContext: {

@@ -106,7 +106,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				'message' => self::DECODE_EXCEPTION_MESSAGE,
 				'extra'   => wp_json_encode( compact( 'exception', 'token' ) ),
 			);
-         // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
+		 // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 			log2logstash( $logstash );
 			return false;
 		}
