@@ -20,11 +20,11 @@ import {
     settings as loginButtonBlockSettings
 } from './login-button/.';
 
-const noPrefix = true;
+const prefix = false;
 registerJetpackBlock( name, settings, [
     { name: loggedOutViewBlockName, settings: loggedOutViewBlockSettings },
     { name: subscriberViewBlockName, settings: subscriberViewBlockSettings },
     { name: buttonsBlockName, settings: buttonsBlockSettings },
     { name: loginButtonBlockName, settings: loginButtonBlockSettings },
-], noPrefix );
+], prefix );
 

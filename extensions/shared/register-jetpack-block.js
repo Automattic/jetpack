@@ -69,14 +69,14 @@ function buildBlockTitle( blockTitle, blockTags = [] ) {
  * @param {string} name - The block's name.
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
- * @param {boolean} noPrefix - Should this block be prefixed with `jetpack/`?
+ * @param {boolean} prefix - Should this block be prefixed with `jetpack/`?
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
-export default function registerJetpackBlock( name, settings, childBlocks = [], noPrefix = false ) {
+export default function registerJetpackBlock( name, settings, childBlocks = [], prefix = true ) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 
 	const requiredPlan = requiresPaidPlan( unavailableReason, details );
-	const prefix = noPrefix ? '' : 'jetpack/';
+	const jpPrefix = prefix ? 'jetpack/' : '';
 
 	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
@@ -88,7 +88,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
 		return false;
 	}
 
-	const result = registerBlockType( prefix + name, {
+	const result = registerBlockType( jpPrefix + name, {
 		...settings,
 		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
 	} );
@@ -96,15 +96,15 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
-			`${ prefix + name }-with-has-warning-is-interactive-class-names`,
-			withHasWarningIsInteractiveClassNames( prefix + name )
+			`${ jpPrefix + name }-with-has-warning-is-interactive-class-names`,
+			withHasWarningIsInteractiveClassNames( jpPrefix + name )
 		);
 	}
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
 	childBlocks.forEach( childBlock =>
-		registerBlockType( prefix + childBlock.name, childBlock.settings )
+		registerBlockType( jpPrefix + childBlock.name, childBlock.settings )
 	);
 
 	return result;
