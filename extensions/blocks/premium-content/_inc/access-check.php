@@ -61,7 +61,12 @@ function current_visitor_can_access( $attributes, $block ) {
 	$can_view = $paywall->visitor_can_view_content( array( $selected_plan_id ) );
 
 	if ( $can_view ) {
-		do_action( 'earn_remove_cache_headers' );
+		/**
+		 * Fires when a visitor can view protected content on a site.
+		 *
+		 * @since 9.4.0
+		 */
+		do_action( 'jetpack_earn_remove_cache_headers' );
 	}
 
 	return $can_view;
