@@ -132,10 +132,14 @@ export default function DialogueEdit ( {
 			return;
 		}
 
+		if ( content?.length ) {
+			return;
+		}
+
 		setTimeout( () => {
 			richTextRef.current.focus();
 		}, 0 );
-	}, [ isSelected ] );
+	}, [ isSelected, content ] );
 
 	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
