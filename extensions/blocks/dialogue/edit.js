@@ -305,6 +305,12 @@ export default function DialogueEdit( {
 				className={ `${ baseClassName }__content` }
 				value={ content }
 				onChange={ value => setAttributes( { content: value } ) }
+				onClick={ ( event ) => {
+					if ( ! event.target ) {
+						return;
+					}
+					event.target.focus();
+				} }
 				onMerge={ mergeBlocks }
 				onSplit={ value => {
 					if ( ! content?.length ) {
