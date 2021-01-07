@@ -243,68 +243,45 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
-= 9.2.1 =
+= 9.3 =
 
-* Release date: December 10, 2020
-
-**Improved compatibility**
-
-* Site Health Tools: improve PHP 8 compatibility.
-* Twenty Twenty One: add support for Jetpack's Content Options.
-
-**Bug fixes**
-
-* Instant Search: fix layout issues with filtering checkboxes with some themes.
-* WordPress.com Toolbar: avoid Fatal errors when the feature is not active.
-* WordPress.com Toolbar: avoid 404 errors when loading the toolbar.
-
-= 9.2 =
-
-* Release date: December 1, 2020
-* Release post: https://wp.me/p1moTy-scn
+* Release date: January 12, 2021
+* Release post: https://wp.me/p1moTy-sgZ
 
 **Enhancements**
 
-* Connection Flow: clarify error message when the options table is not writable.
-* Contact Form Block: display fallback link when the block is rendered in non-WordPress contexts, such as subscription emails.
-* Contact Form Block: display the correct default email address and subject in the form block settings.
-* Dashboard: clarify language around support options.
-* Instagram Embeds: add support for embed parameters supported by Instagram.
-* Payments Block: move unreadable notice to the sidebar.
-* Pinterest Block: ensure that Pinterest embeds are displayed nicely in non-WordPress contexts, such as subscription emails.
-* Podcast Block: display fallback link when the block is rendered in non-WordPress contexts, such as RSS feeds.
-* Search: improve URL formatting for the expanded search layout.
-* Sharing: ensure the first suitable image found in a post is always the one used in Open Graph Image meta tags.
-* Site Health Tools: update description of Synchronization issues for better usability.
-* Slideshow Block: ensure that slideshows are displayed nicely in subscription emails.
-* Status: improve detection of staging servers.
-* Story Block: improve display of the block.
-* Synchronization: improve synchronization of comment status, taxononmies, and terms between your site and WordPress.com.
-* Tiled Gallery Block: improve rendering when the block is rendered in non-WordPress contexts, such as subscription emails.
-* WhatsApp button Block: improve text alignment on mobile devices.
-* WordPress.com Toolbar: include admin color in user's REST API output.
+* Autoloader: improve performance by caching known plugins.
+* Instant Search: improve compatibility with IE11.
+* Related Posts: use the semantic time element when displaying dates.
+* Sharing: defer loading of the reCAPTCHA library by default.
 
 **Improved compatibility**
 
-* Autoloader: support Composer 2.0.7.
-* General: continued work towards ensuring that Jetpack is fully compatible with the upcoming version of PHP, PHP 8.
-* General: ensure Jetpack's full compatibility with the upcoming WordPress 5.6 release.
-* General: update Jetpack's minimum required WordPress version to 5.5, in anticipation of the upcoming WordPress 5.6 release.
-* Sharing: disable Open Graph Meta tags added by the Web Stories plugin when Jetpack's tags are active.
-* Stats: support Web Stories plugin.
-* Synchronization: ensure better synchronization of post meta data (used by Publicize, Subscriptions, Search) in WordPress 5.6.
+* AMP: avoid PHP notice on sites using legacy versions of the AMP plugin.
+* Dashboard: avoid errors on sites using PHP 8.
+* General: use modern JavaScript best practices for loading scripts.
+* Infinite Scroll: add compatibility for the TwentyTwentyOne theme.
+* Search: improve styling for the TwentyTwenty theme.
+* Synchronization: improve integrity of synchronization between your site and WordPress.com.
+* WordPress.com Toolbar: iterate on the design and functionality of the toolbar to match the toolbar in use on WordPress.com.
 
 **Bug fixes**
 
-* Connection: handle XMLRPC requests when SERVER_PORT is not defined.
-* External Media: fix a conflict with CoBlock's image replace feature.
-* Dashboard: fix incorrect links to Jetpack credentials form.
-* Google Analytics: ensure compatibility with Google Analytics 4 (GA4).
-* Sitemaps: ensure that the Home URL is slashed on subdirectory websites.
-* Social Icons widget: display only one icon when a URL matches both a domain and the feed URL match.
-* Sync: avoid trying to sync when something else disabled syncing a request.
-* Whatsapp Button Block: fix Guyana country code metadata.
-* WordPress.com REST API: restore post comments when untrashing a post, such as via the mobile apps.
+* Autoloader: resolve symbolic links in active plugin paths.
+* Autoloader: ensure deactivating plugins aren't cached.
+* Blocks: improve sidebar display in non-fullscreen mode.
+* Content Options: do not output CSS when it is not needed.
+* Instant Search: improve display of tags and categories in search results.
+* Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
+* Podcast Player Block: avoid PHP notices in some scenarios.
+* Search: limit number of filters automatically set up.
+* Slideshow Block: ensure that image captions are always shown, regardless of the theme you're using.
+* Subscription Block: display the correct default placeholder and button text strings in the post editor.
+* Subscriptions: fix the behavior of the toggle switches for the comment subscription settings.
+* Twitter Threads: improve how Twitter Cards are generated for embeds in the thread preview.
+* VideoPress: detect aspect ratios rounding to both 1.77 and 1.78 as 16:9.
+* Widgets: avoid JavaScript errors when displaying the Cookies & Consent Widget.
+* WordPress.com REST API: avoid fatal errors in some scenarios, when updating a post's metadata.
 
 --------
 

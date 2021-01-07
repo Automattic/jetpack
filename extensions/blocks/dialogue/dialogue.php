@@ -55,6 +55,7 @@ function filter_content( $content ) {
 			'strong' => true,
 			'b'      => true,
 			'em'     => true,
+			'br'     => true,
 		)
 	);
 }
@@ -240,6 +241,6 @@ function render_block( $dialogue_attrs, $block_content, $block ) {
 				: ''
 			) .
 		'</div>' .
-		'<div>' . $attrs['content'] . '</div>' .
+		'<p>' . $attrs['content'] . '</p>' .
 	'</div>';
 }

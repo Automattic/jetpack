@@ -12,6 +12,7 @@ import {
 	InnerBlocks,
 	InspectorControls,
 	BlockControls,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import {
 	Panel,
@@ -43,6 +44,8 @@ function ConversationEdit ( {
 } ) {
 	const { participants = [], showTimestamps, className: classNameAttr } = attributes;
 	const containerRef = useRef();
+
+	const blockProps = useBlockProps( { ref: containerRef, className } );
 
 	// Set initial conversation participants.
 	useEffect( () => {
@@ -99,7 +102,7 @@ function ConversationEdit ( {
 
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
-			<div ref={ containerRef } className={ className }>
+			<div { ...blockProps }>
 				<BlockControls>
 					<ToolbarGroup>
 						<ParticipantsDropdown
