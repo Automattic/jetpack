@@ -22,6 +22,7 @@ function register_buttons_block() {
 		BUTTONS_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_buttons_block',
+			'plan_check'      => true,
 		)
 	);
 }

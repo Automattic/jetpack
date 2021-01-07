@@ -24,6 +24,7 @@ function register_login_button_block() {
 		LOGIN_BUTTON_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_login_button_block',
+			'plan_check'      => true,
 		)
 	);
 }

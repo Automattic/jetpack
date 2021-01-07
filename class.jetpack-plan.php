@@ -63,6 +63,8 @@ class Jetpack_Plan {
 				'akismet',
 				'recurring-payments',
 				'premium-content/container',
+				'premium-content/buttons',
+				'premium-content/login-button',
 			),
 		),
 		'premium'  => array(
