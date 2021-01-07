@@ -423,7 +423,9 @@
 	function init() {
 		// Move email dialog to end of body.
 		var emailDialog = document.querySelector( '#sharing_email' );
-		emailDialog && document.body.appendChild( emailDialog );
+		if ( emailDialog ) {
+			document.body.appendChild( emailDialog );
+		}
 
 		WPCOMSharing_do();
 	}
