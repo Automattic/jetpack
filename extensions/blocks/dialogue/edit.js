@@ -124,21 +124,24 @@ export default function DialogueEdit ( {
 
 	// Try to focus the RichText component when mounted.
 	useEffect( () => {
+		// Bail if component is not selected.
 		if ( ! isSelected ) {
 			return;
 		}
 
+		// Bail if context reference is not valid.
 		if ( ! richTextRef?.current ) {
 			return;
 		}
 
+		// Bail if context is not empty.
 		if ( content?.length ) {
 			return;
 		}
 
-		setTimeout( () => {
-			richTextRef.current.focus();
-		}, 0 );
+		// Focus the rich text component,
+		// through a delay hack.
+		setTimeout( () => richTextRef.current.focus(), 250 );
 	}, [ isSelected, content ] );
 
 	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
