@@ -1,13 +1,41 @@
 @import '../../styles/gutenberg-base-styles.scss';
 
-.jetpack-upgrade-nudge__icon {
-	align-self: center;
-	background: var( --color-plan-premium );
-	border-radius: 50%;
-	box-sizing: content-box;
-	color: $white;
-	fill: $white;
-	flex-shrink: 0;
-	margin-right: 16px;
-	padding: 6px;
-}
+.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 14px;
+	height: 48px;
+	background: black;
+	padding: 0 20px;
+	border-radius: 2px;
+	box-shadow: 0 0 1px inset #fff; }
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .banner-title,
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .banner-description {
+		color: #fff; }
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .jetpack-upgrade-plan-banner__title,
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .jetpack-upgrade-plan-banner__description {
+		margin-right: 10px; }
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button {
+		flex-shrink: 0;
+		line-height: 1;
+		margin-left: auto;
+		height: 28px; }
+		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary {
+			background: #e34c84;
+			color: #fff; }
+		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary:hover {
+			background: #eb6594; }
+		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary.is-busy {
+			background-size: 100px 100%;
+			background-image: linear-gradient(-45deg, #e34c84 28%, #ab235a 28%, #ab235a 72%, #e34c84 72%); }
+
+.jetpack-upgrade-plan-banner.block-editor-block-list__block {
+	margin-top: 0;
+	margin-bottom: 0; }
+
+.jetpack-upgrade-plan-banner.wp-block[data-align=right], .jetpack-upgrade-plan-banner.wp-block[data-align=left] {
+	height: 48px; }
+	.jetpack-upgrade-plan-banner.wp-block[data-align=right] .jetpack-upgrade-plan-banner__wrapper, .jetpack-upgrade-plan-banner.wp-block[data-align=left] .jetpack-upgrade-plan-banner__wrapper {
+		max-width: 580px;
+		width: 100%; }
