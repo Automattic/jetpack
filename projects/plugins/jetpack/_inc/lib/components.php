@@ -48,6 +48,20 @@ class Jetpack_Components {
 	}
 
 	/**
+     * Renders the frontend-nudge with the provided props.
+     *
+     * @param array $props Component properties.
+     *
+     * @return string The component markup.
+     */
+    public static function render_frontend_nudge( $props ) {
+        return self::render_component(
+            'frontend-nudge',
+            $props
+        );
+    }
+
+	/**
 	 * Load and display a pre-rendered component
 	 *
 	 * @since 7.7.0
@@ -62,8 +76,7 @@ class Jetpack_Components {
 		$plan = Jetpack_Plans::get_plan( $plan_slug );
 
 		if ( ! $plan ) {
-			return self::render_component(
-				'upgrade-nudge',
+			return self::render_frontend_nudge(
 				array(
 					'checkoutUrl' => '',
 				)
@@ -95,8 +108,7 @@ class Jetpack_Components {
 				"https://wordpress.com/checkout/${site_slug}/${plan_path_slug}"
 			) : '';
 
-		return self::render_component(
-			'upgrade-nudge',
+		return self::render_frontend_nudge(
 			array(
 				'checkoutUrl' => $upgrade_url,
 			)
