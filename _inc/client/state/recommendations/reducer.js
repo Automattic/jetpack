@@ -39,33 +39,25 @@ const data = ( state = {}, action ) => {
 		case JETPACK_RECOMMENDATIONS_DATA_UPDATE:
 			return assign( {}, state, action.data );
 		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION:
-			const selectedState = mergeWith(
+			return mergeWith(
 				{},
 				state,
 				{
 					selectedRecommendations: [ action.slug ],
-					skippedRecommendations: [],
+					skippedRecommendations: difference( state.skippedRecommendations, [ action.slug ] ),
 				},
 				mergeArrays
 			);
-			selectedState.skippedRecommendations = difference( state.skippedRecommendations, [
-				action.slug,
-			] );
-			return selectedState;
 		case JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION:
-			const skippedState = mergeWith(
+			return mergeWith(
 				{},
 				state,
 				{
-					selectedRecommendations: [],
+					selectedRecommendations: difference( state.selectedRecommendations, [ action.slug ] ),
 					skippedRecommendations: [ action.slug ],
 				},
 				mergeArrays
 			);
-			skippedState.selectedRecommendations = difference( state.selectedRecommendations, [
-				action.slug,
-			] );
-			return skippedState;
 		default:
 			return state;
 	}
