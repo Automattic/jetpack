@@ -305,7 +305,7 @@ export default function DialogueEdit( {
 				className={ `${ baseClassName }__content` }
 				value={ content }
 				onChange={ value => setAttributes( { content: value } ) }
-				onClick={ ( event ) => {
+				onMouseDown={ ( event ) => {
 					if ( ! event.target ) {
 						return;
 					}
