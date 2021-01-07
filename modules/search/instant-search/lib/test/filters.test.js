@@ -1,7 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-/* global expect */
 /**
  * Internal dependencies
  */
