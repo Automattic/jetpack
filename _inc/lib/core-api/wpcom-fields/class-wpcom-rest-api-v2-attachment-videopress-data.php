@@ -106,7 +106,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 	 * @return false|int
 	 */
 	public function is_video( $attachment ) {
-		return wp_startswith( $attachment->post_mime_type, 'video/' );
+		return isset( $attachment->post_mime_type ) && wp_startswith( $attachment->post_mime_type, 'video/' );
 	}
 
 	/**
