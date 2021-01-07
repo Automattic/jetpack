@@ -47,12 +47,38 @@ function podcastSection( { episodeTrack } ) {
 function podcastSummarySection( { episodeTrack } ) {
 	return [ 'core/group', {}, [
 		[ 'core/heading', {
+			level: 3,
 			content: 'Summary',
 			placeholder: __( 'Podcast episode title', 'jetpack' ),
 		} ],
 		[ 'core/paragraph', {
 			placeholder: __( 'Podcast episode summary', 'jetpack' ),
 			content: episodeTrack.description,
+		} ],
+	] ];
+}
+
+function podcastConversationSection() {
+	return [ 'jetpack/conversation', {}, [
+		[ 'core/heading', {
+			level: 3,
+			content: 'Transcription',
+			placeholder: __( 'Podcast episode transcription', 'jetpack' ),
+		} ],
+		[ 'jetpack/dialogue', {
+			placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+			participantSlug: 'participant-0',
+			hasBoldStyle: true
+		} ],
+		[ 'jetpack/dialogue', {
+			placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+			participantSlug: 'participant-1',
+			hasBoldStyle: true
+		} ],
+		[ 'jetpack/dialogue', {
+			placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+			participantSlug: 'participant-2',
+			hasBoldStyle: true
 		} ],
 	] ];
 }
@@ -72,6 +98,7 @@ function episodeBasicTemplate( {
 	}
 
 	tpl.push( podcastSummarySection( { episodeTrack } ) );
+	tpl.push( podcastConversationSection() );
 
 	return tpl;
 }
