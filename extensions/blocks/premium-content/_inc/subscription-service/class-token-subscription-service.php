@@ -99,15 +99,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			$key = $this->get_key();
 			return $key ? (array) JWT::decode( $token, $key, array( 'HS256' ) ) : false;
 		} catch ( \Exception $exception ) {
-			// TODO: The SignatureInvalidException is in a different namespace from JWT, so if we want to catch that
-			// one specifically then we'll have to alias it.
-			$logstash = array(
-				'feature' => self::DECODE_EXCEPTION_FEATURE,
-				'message' => self::DECODE_EXCEPTION_MESSAGE,
-				'extra'   => wp_json_encode( compact( 'exception', 'token' ) ),
-			);
-		 // phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
-			log2logstash( $logstash );
 			return false;
 		}
 	}
