@@ -8,7 +8,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InspectorControls, RichText, BlockControls, useBlockProps } from '@wordpress/block-editor';
+import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
 import {
@@ -75,7 +75,6 @@ export default function DialogueEdit( {
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
 	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
-	const blockProps = useBlockProps( { className } );
 
 	// Pick the previous block atteobutes from the state.
 	const prevBlock = useSelect( select => {
@@ -208,7 +207,7 @@ export default function DialogueEdit( {
 	}
 
 	return (
-		<div { ...blockProps }>
+		<div className={ className }>
 			<BlockControls>
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
@@ -305,12 +304,6 @@ export default function DialogueEdit( {
 				className={ `${ baseClassName }__content` }
 				value={ content }
 				onChange={ value => setAttributes( { content: value } ) }
-				onMouseDown={ ( event ) => {
-					if ( ! event.target ) {
-						return;
-					}
-					event.target.focus();
-				} }
 				onMerge={ mergeBlocks }
 				onSplit={ value => {
 					if ( ! content?.length ) {
