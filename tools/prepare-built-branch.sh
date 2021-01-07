@@ -18,7 +18,6 @@ function create_release_gitignore {
 
 	# Add custom stuff to .gitignore release
 	echo "/_inc/client" >> .gitignore
-	echo "/docker/" >> .gitignore
 
 	# Needs to stay in sync with .svnignore and `create_new_release_branches` in this file.
 	echo "__snapshots__/" >> .gitignore
