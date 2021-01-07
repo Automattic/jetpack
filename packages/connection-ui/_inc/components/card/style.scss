@@ -1,0 +1,12 @@
+@import "../../definitions";
+
+#jetpack-connection-ui-container .jetpack-cui__card {
+	.jetpack-cui__card-body {
+		@include clearfix;
+
+		background: white;
+		border: 1px solid #CCD0D4;
+		box-sizing: border-box;
+		padding: 8px 30px;
+	}
+}

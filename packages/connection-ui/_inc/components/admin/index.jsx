@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -9,6 +10,8 @@ import React from 'react';
 import Header from '../header';
 import './style.scss';
 import Section from '../section';
+import Card from '../card';
+import Refresh from '../refresh';
 
 /**
  * The Connection IU Admin App.
@@ -20,7 +23,11 @@ export default function Admin() {
 		<React.Fragment>
 			<Header />
 
-			<Section title="Refresh Connection" />
+			<Section title={ __( 'Refresh Connection', 'jetpack' ) }>
+				<Card>
+					<Refresh />
+				</Card>
+			</Section>
 		</React.Fragment>
 	);
 }

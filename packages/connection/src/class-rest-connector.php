@@ -100,6 +100,9 @@ class REST_Connector {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'connection_reconnect' ),
 				'permission_callback' => __CLASS__ . '::jetpack_reconnect_permission_check',
+				'args'                => array(
+					'from' => array( 'type' => 'string' ),
+				),
 			)
 		);
 	}
@@ -242,11 +245,13 @@ class REST_Connector {
 	/**
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
+	 * @param WP_REST_Request|\ArrayAccess|array $request The request sent to the WP REST API.
+	 *
 	 * @since 8.8.0
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
-	public function connection_reconnect() {
+	public function connection_reconnect( $request = array() ) {
 		$response = array();
 
 		$next = null;
@@ -263,8 +268,19 @@ class REST_Connector {
 
 		switch ( $next ) {
 			case 'authorize':
+				$redirect_url = null;
+
+				if ( ! empty( $request['from'] ) && 'connection-ui' === $request['from'] ) {
+					$redirect_url = admin_url( 'tools.php?page=wpcom-connection-manager' );
+				}
+
 				$response['status']       = 'in_progress';
-				$response['authorizeUrl'] = $this->connection->get_authorization_url();
+				$response['authorizeUrl'] = $this->connection->get_authorization_url( null, $redirect_url );
+
+				if ( $redirect_url ) {
+					$response['authorizeUrl'] = add_query_arg( 'from', $request['from'], $response['authorizeUrl'] );
+				}
+
 				break;
 			case 'completed':
 				$response['status'] = 'completed';

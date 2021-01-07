@@ -57,7 +57,10 @@ class Admin {
 			$build_assets = require_once __DIR__ . '/../build/index.asset.php';
 			wp_enqueue_script( 'jetpack_connection_ui_script', plugin_dir_url( __DIR__ ) . 'build/index.js', $build_assets['dependencies'], $build_assets['version'], true );
 
-			wp_enqueue_style( 'jetpack_connection_ui_style', plugin_dir_url( __DIR__ ) . 'build/index.css', array(), $build_assets['version'] );
+			wp_set_script_translations( 'react-jetpack_connection_ui_script', 'jetpack' );
+			wp_add_inline_script( 'jetpack_connection_ui_script', $this->get_initial_state(), 'before' );
+
+			wp_enqueue_style( 'jetpack_connection_ui_style', plugin_dir_url( __DIR__ ) . 'build/index.css', array( 'wp-components' ), $build_assets['version'] );
 			wp_style_add_data( 'jetpack_connection_ui_style', 'rtl', plugin_dir_url( __DIR__ ) . 'build/index.rtl.css' );
 		}
 	}
@@ -69,6 +72,15 @@ class Admin {
 		?>
 		<div id="jetpack-connection-ui-container"></div>
 		<?php
+	}
+
+	/**
+	 * Return the rendered initial state JavaScript code.
+	 *
+	 * @return string
+	 */
+	private function get_initial_state() {
+		return ( new Initial_State() )->render();
 	}
 
 }

@@ -4,12 +4,14 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { registerStore } from '@wordpress/data';
-import { Provider } from 'react-redux';
 
 /**
  * Internal dependencies
  */
-import Admin from "./components/admin";
+import Admin from './components/admin';
+import { STORE_ID, storeConfig } from './store';
+
+registerStore( STORE_ID, storeConfig );
 
 /**
  * The initial renderer function.
@@ -21,18 +23,7 @@ function render() {
 		return;
 	}
 
-	const reducer = function ( state = {}, action ) {
-		return state;
-	};
-
-	ReactDOM.render(
-		<div>
-			<Provider store={ registerStore( 'jetpack-connection-ui', { reducer } ) }>
-				<Admin />
-			</Provider>
-		</div>,
-		container
-	);
+	ReactDOM.render( <Admin />, container );
 }
 
 render();
