@@ -1069,7 +1069,10 @@ class Jetpack_Gutenberg {
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
-			} elseif ( self::should_show_frontend_preview( $bare_slug ) ) {
+			}
+
+			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
+			if ( self::should_show_frontend_preview( $bare_slug ) ) {
 				$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 				$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
 				return $upgrade_nudge . $block_preview;
