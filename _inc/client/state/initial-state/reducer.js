@@ -277,9 +277,9 @@ export function showBackups( state ) {
 /**
  * Determines if the Jetpack Recommendations should be displayed
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
- * @return {boolean} True if the Jetpack Recommendations should be displayed, false otherwise.
+ * @returns {boolean} True if the Jetpack Recommendations should be displayed, false otherwise.
  */
 export function showRecommendations( state ) {
 	return get( state.jetpack.initialState.siteData, 'showRecommendations', false );
@@ -431,9 +431,9 @@ export function getInitialSetupWizardStatus( state ) {
 /**
  * The current step of the Recommendations.
  *
- * @param {*} state Global state tree.
+ * @param {*} state - Global state tree.
  *
- * @return {string} The current Recommendations step.
+ * @returns {string} The current Recommendations step.
  */
 export function getInitialRecommendationsStep( state ) {
 	return get( state.jetpack.initialState, 'recommendationsStep', '' );
