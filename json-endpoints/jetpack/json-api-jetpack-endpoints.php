@@ -564,6 +564,7 @@ $sync_settings_response = array(
 	'post_meta_whitelist'      => '(array|string|bool=false) List of post meta to be included in sync. Send "empty" to unset.',
 	'comment_meta_whitelist'   => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
 	'disable'                  => '(int|bool=false) Set to 1 or true to disable sync entirely.',
+	'checksum_disable'         => '(int|bool=false) Set to 1 or true to disable checksums entirely.',
 	'render_filtered_content'  => '(int|bool=true) Set to 1 or true to render filtered content.',
 	'max_enqueue_full_sync'    => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
 	'max_queue_size_full_sync' => '(int|bool=false) Maximum queue size that full sync is allowed to use',

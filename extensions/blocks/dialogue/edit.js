@@ -12,6 +12,7 @@ import {
 	InspectorControls,
 	RichText,
 	BlockControls,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
@@ -22,7 +23,8 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 } from '@wordpress/components';
-import { useContext, useState, } from '@wordpress/element';
+import { useContext, useState, useEffect } from '@wordpress/element';
+import { useSelect, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -58,6 +60,7 @@ export default function DialogueEdit ( {
 	attributes,
 	setAttributes,
 	instanceId,
+	clientId,
 	context,
 	onReplace,
 	mergeBlocks,
@@ -72,6 +75,12 @@ export default function DialogueEdit ( {
 	} = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
 
+	// Pick the previous block atteobutes from the state.
+	const prevBlock = useSelect( select => {
+		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
+		return select( 'core/block-editor' ).getBlock( prevPartClientId );
+	}, [] );
+
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
@@ -84,12 +93,30 @@ export default function DialogueEdit ( {
 	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
 	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
 
+	// Conversation context. A bridge between dialogue and conversation blocks.
+	const conversationBridge = useContext( ConversationContext );
+
+	// Set initial attributes according to the context.
+	useEffect( () => {
+		// Bail when block already has an slug,
+		// or participant doesn't exist.
+		if ( participantSlug || ! participants?.length || ! conversationBridge ) {
+			return;
+		}
+
+		const nextParticipantSlug = conversationBridge.getNextParticipantSlug( prevBlock?.attributes?.participantSlug );
+
+		setAttributes( {
+			...( prevBlock?.attributes || {} ),
+			participantSlug: nextParticipantSlug,
+			content: '',
+		} );
+	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
+
 	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
-	// Conversation context. A bridge between dialogue and conversation blocks.
-	const transcritionBridge = useContext( ConversationContext );
-
 	const baseClassName = 'wp-block-jetpack-dialogue';
+	const blockProps = useBlockProps( { className: baseClassName } );
 
 	/**
 	 * Helper to check if the gven style is set, or not.
@@ -118,7 +145,7 @@ export default function DialogueEdit ( {
 			return setAttributes( { [ style ]: ! attributes[ style ] } );
 		}
 
-		transcritionBridge.updateParticipants( {
+		conversationBridge.updateParticipants( {
 			participantSlug: currentParticipantSlug,
 			[ style ]: ! currentParticipant[ style ],
 		} );
@@ -151,11 +178,11 @@ export default function DialogueEdit ( {
 			return setAttributes( { showTimestamp: value } );
 		}
 
-		transcritionBridge.setAttributes( { showTimestamps: value } );
+		conversationBridge.setAttributes( { showTimestamps: value } );
 	}
 
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<BlockControls>
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
@@ -248,6 +275,7 @@ export default function DialogueEdit ( {
 
 			<RichText
 				identifier="content"
+				tagName="p"
 				className={ `${ baseClassName }__content` }
 				value={ content }
 				onChange={ ( value ) =>
@@ -259,16 +287,48 @@ export default function DialogueEdit ( {
 						return createBlock( blockNameFallback );
 					}
 
-					if ( ! value ) {
-						return createBlock( blockName );
-					}
-
 					return createBlock( blockName, {
 						...attributes,
 						content: value,
 					} );
 				} }
-				onReplace={ onReplace }
+
+				onReplace={ ( blocks, ...args ) => {
+					// If transcription bridge doesn't exist,
+					// then run the default replace process.
+					if ( ! conversationBridge ) {
+						return onReplace( blocks, ...args );
+					}
+
+					// Detect if the block content is empty.
+					// If so, keep only one paragraph block,
+					// in order to avoid duplicated blocks.
+					if (
+						blocks[ 0 ]?.name === blockNameFallback &&
+						blocks[ 1 ]?.name === blockNameFallback &&
+						! blocks[ 0 ]?.attributes.content &&
+						! blocks[ 1 ]?.attributes.content
+					) {
+						dispatch( 'core/block-editor' ).selectBlock( blocks[ 0 ].clientId );
+						return onReplace( [ blocks[ 0 ] ], ...args );
+					}
+
+					// When creating a new dialogue block in a `conversation` context,
+					// try to assign the dialogue participant
+					// with the next participant slug.
+
+					// Pick up the next participant slug.
+					const nextParticipantSlug = conversationBridge.getNextParticipantSlug( attributes.participantSlug );
+
+					// Update new block attributes.
+					blocks[ 1 ].attributes = {
+						...blocks[ 1 ].attributes,
+						participantSlug: nextParticipantSlug,
+						timestamp: attributes.timestamp,
+					};
+
+					onReplace( blocks, ...args );
+				} }
 				onRemove={
 					onReplace ? () => onReplace( [] ) : undefined
 				}

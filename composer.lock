@@ -8,14 +8,14 @@
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/a8c-mc-stats",
-                "reference": "72e8464c053658a730113aa3cfb6d8b292cd16e2"
+                "reference": "9bfb1aa0f01da872ea8c176b0b38a8bb7b7051df"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -39,19 +39,19 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
-                "reference": "8295c4e5fe6e61ad3f2848f294763398f966e8e9"
+                "reference": "5e403fd81e5c322796ca1407341a81c7e5a65e46"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-error": "@dev"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -63,6 +63,9 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
@@ -75,19 +78,18 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "2e25ad7667693395602e6a1962357901c842b067"
+                "reference": "7efa513121185c90a438ccf235f1b65f634eb62a"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
-                "brain/monkey": "2.4.0",
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -111,17 +113,17 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "557195e755ff951fe3f8544056c5696eecc4d2cb"
+                "reference": "e6fd3eacb67a0add0c397463f106396a85b66406"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -151,7 +153,7 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
@@ -176,15 +178,15 @@
         },
         {
             "name": "automattic/jetpack-blocks",
-            "version": "dev-add/nonce-removal",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/blocks",
-                "reference": "057e0ecae8c03cbc335bb5ea488f67b51603fd7a"
+                "reference": "f5127ace65b294802fd6d3ba13de9d8ca4837b27"
             },
             "require-dev": {
                 "automattic/wordbless": "dev-master",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -211,15 +213,14 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
-                "reference": "68d64fff654a688bab6db5d79d1609c9ec288701"
+                "reference": "32e206d3b83a843f65b381ee460573208570af0b"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -246,7 +247,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/config",
@@ -268,14 +269,15 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "bb68aeb045a837fe2fe4784ca41ac667fe5b6fa5"
+                "reference": "ff4e5605623c0faa6000d9691496f116fee98bd3"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-heartbeat": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -283,8 +285,7 @@
             },
             "require-dev": {
                 "automattic/wordbless": "@dev",
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -315,15 +316,15 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "d8c1e77b35ab7d05f228ddd1bef563fabeb0628b"
+                "reference": "ae159fdb1b045cdf2875ed587782203f5ae52248"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -347,15 +348,14 @@
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/device-detection",
-                "reference": "235a1225b76554ca04daece6ca94bcf28dd23399"
+                "reference": "d7b51065dd1f9a69ff7b1f5d78d40f461ece11da"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -379,14 +379,14 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
-                "reference": "a4c523b50f710b69579f95b2c9de8a4f97d976d6"
+                "reference": "0b871ba15caa7fdb87ec222cdd2f37e0ecc04ecb"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -410,18 +410,18 @@
         },
         {
             "name": "automattic/jetpack-heartbeat",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/heartbeat",
-                "reference": "ad4ce7ae64a1881dea8f09a7f94c789a02956f00"
+                "reference": "ff91bf284c8b71856d9cf23652c37f0107797455"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -445,11 +445,11 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "705eb87a82f661570e546e65671dddf6f80035fa"
+                "reference": "c1e3e5049d1e3de1a7343136dbef43f7181a6b40"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -463,9 +463,8 @@
                 "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
-                "mockery/mockery": "^1.2",
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -489,18 +488,19 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/lazy-images",
-                "reference": "16409fc61cce65c8b914b08c80cae2cc0662ca2d"
+                "reference": "59413e8615f8d8773bd5d4fdc10a8774ddb87f27"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
                 "automattic/wordbless": "dev-master",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -527,11 +527,11 @@
         },
         {
             "name": "automattic/jetpack-licensing",
-            "version": "dev-add/license-support",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/licensing",
-                "reference": "0b3150892c93b9bdb252933500b80db692a1d1e9"
+                "reference": "977bc8aed9e8eccfd552287094c45f66ca78cf7c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -539,8 +539,7 @@
             },
             "require-dev": {
                 "automattic/wordbless": "@dev",
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -567,15 +566,14 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "c62a9f8e0d4a881097cc7c65500badd5065f80b6"
+                "reference": "c93ff0bb312f32e25fbf71c6555e719297868175"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -599,18 +597,17 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "6602d93381bb43d69627484fb8d7af5ce939d880"
+                "reference": "c369cee23808f673eea3b88a4afa262c21bd7dd3"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
-                "10up/wp_mock": "0.4.2",
-                "phpunit/phpunit": "7.*.*"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -628,17 +625,15 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
-                "reference": "14332b26281567bc6691096875176862fba01300"
+                "reference": "0ec7c91d658797b5262d68cb2e91bf40c37ad99c"
             },
             "require-dev": {
-                "brain/monkey": "2.4.0",
-                "mockery/mockery": "^1.2",
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -662,14 +657,18 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
-                "reference": "84327fef3be2e9321aa99d081b71ac3013f06dc7"
+                "reference": "e1af6b7f48c45b0f0be0cba55ee9e7d583ee09ce"
+            },
+            "require": {
+                "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -693,15 +692,15 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
-                "reference": "139dfbbf05e2f6c45682a9c8bf13ef29c9f9bd83"
+                "reference": "8fcd9e3f1f5e50e43e52a12d974c968b0ff695a1"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -725,16 +724,15 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
-                "reference": "65e70cc54dc8141a328e6d43fbe9bb4286281afb"
+                "reference": "672624ca66bb9435c5db9d16ef749c7f7997bddd"
             },
             "require-dev": {
-                "brain/monkey": "2.4.0",
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -758,11 +756,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-add/publishing-tweetstorms",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
+                "reference": "c79e43785c0f1b6f0e9f8873bb6e588ecda5f61b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -787,20 +785,19 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "f97241d09352c4ca44eab26520cac4c1903d08d3"
+                "reference": "d645fa0ba05faebc72a60d5e32e2b5a1944b15db"
             },
             "require": {
-                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -824,19 +821,19 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-add/jetpack-lazy-images-package",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "b2686165f1137a485f5f923c170d9d5b00871fe0"
+                "reference": "59f736a60432a39181eaec1173ae1fc17ebc7a29"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-terms-of-service": "@dev"
             },
             "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "autoload": {
@@ -923,24 +920,28 @@
                 "text",
                 "twitter"
             ],
+            "support": {
+                "issues": "https://github.com/nojimage/twitter-text-php/issues",
+                "source": "https://github.com/nojimage/twitter-text-php/tree/v3.1.1"
+            },
             "time": "2020-09-30T13:30:59+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-renovate/dealerdirect-phpcodesniffer-composer-installer-0.x",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "./packages/codesniffer",
-                "reference": "804fc627b8372a1f5d31b77afa9e76f956e30af5"
+                "reference": "ac27fa3a6634874143014f575b62632e6d04f983"
             },
             "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "0.7.1",
-                "mediawiki/mediawiki-codesniffer": "34.0.0",
-                "phpcompatibility/phpcompatibility-wp": "2.1.0",
-                "sirbrillig/phpcs-variable-analysis": "2.10.0",
-                "wp-coding-standards/wpcs": "2.3.0"
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+                "mediawiki/mediawiki-codesniffer": "^34.0",
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "sirbrillig/phpcs-variable-analysis": "^2.10",
+                "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
                 "yoast/phpunit-polyfills": "0.2.0"
@@ -1025,6 +1026,11 @@
                 "validation",
                 "versioning"
             ],
+            "support": {
+                "irc": "irc://irc.freenode.org/composer",
+                "issues": "https://github.com/composer/semver/issues",
+                "source": "https://github.com/composer/semver/tree/3.2.4"
+            },
             "funding": [
                 {
                     "url": "https://packagist.com",
@@ -1099,6 +1105,11 @@
                 "spdx",
                 "validator"
             ],
+            "support": {
+                "irc": "irc://irc.freenode.org/composer",
+                "issues": "https://github.com/composer/spdx-licenses/issues",
+                "source": "https://github.com/composer/spdx-licenses/tree/1.5.5"
+            },
             "funding": [
                 {
                     "url": "https://packagist.com",
@@ -1179,6 +1190,10 @@
                 "stylecheck",
                 "tests"
             ],
+            "support": {
+                "issues": "https://github.com/dealerdirect/phpcodesniffer-composer-installer/issues",
+                "source": "https://github.com/dealerdirect/phpcodesniffer-composer-installer"
+            },
             "time": "2020-12-07T18:04:37+00:00"
         },
         {
@@ -1225,6 +1240,9 @@
                 "codesniffer",
                 "mediawiki"
             ],
+            "support": {
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v34.0.0"
+            },
             "time": "2020-12-05T07:12:58+00:00"
         },
         {
@@ -1278,6 +1296,10 @@
             ],
             "description": "This tool check syntax of PHP files about 20x faster than serial check.",
             "homepage": "https://github.com/php-parallel-lint/PHP-Parallel-Lint",
+            "support": {
+                "issues": "https://github.com/php-parallel-lint/PHP-Parallel-Lint/issues",
+                "source": "https://github.com/php-parallel-lint/PHP-Parallel-Lint/tree/master"
+            },
             "time": "2020-04-04T12:18:32+00:00"
         },
         {
@@ -1336,6 +1358,10 @@
                 "phpcs",
                 "standards"
             ],
+            "support": {
+                "issues": "https://github.com/PHPCompatibility/PHPCompatibility/issues",
+                "source": "https://github.com/PHPCompatibility/PHPCompatibility"
+            },
             "time": "2019-12-27T09:44:58+00:00"
         },
         {
@@ -1388,6 +1414,10 @@
                 "polyfill",
                 "standards"
             ],
+            "support": {
+                "issues": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie/issues",
+                "source": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie"
+            },
             "time": "2019-11-04T15:17:54+00:00"
         },
         {
@@ -1438,6 +1468,10 @@
                 "standards",
                 "wordpress"
             ],
+            "support": {
+                "issues": "https://github.com/PHPCompatibility/PHPCompatibilityWP/issues",
+                "source": "https://github.com/PHPCompatibility/PHPCompatibilityWP"
+            },
             "time": "2019-08-28T14:22:28+00:00"
         },
         {
@@ -1492,20 +1526,24 @@
                 }
             ],
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
+            "support": {
+                "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/2.5"
+            },
             "time": "2020-06-24T15:36:36+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.10.0",
+            "version": "v2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "50486555fae72a6401ad0337d0b71fd9e775b2f2"
+                "reference": "c6716a98fe7bee25d31306e14fb62c3ffa16d70a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/50486555fae72a6401ad0337d0b71fd9e775b2f2",
-                "reference": "50486555fae72a6401ad0337d0b71fd9e775b2f2",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/c6716a98fe7bee25d31306e14fb62c3ffa16d70a",
+                "reference": "c6716a98fe7bee25d31306e14fb62c3ffa16d70a",
                 "shasum": ""
             },
             "require": {
@@ -1540,7 +1578,12 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2020-11-23T17:43:05+00:00"
+            "support": {
+                "issues": "https://github.com/sirbrillig/phpcs-variable-analysis/issues",
+                "source": "https://github.com/sirbrillig/phpcs-variable-analysis",
+                "wiki": "https://github.com/sirbrillig/phpcs-variable-analysis/wiki"
+            },
+            "time": "2020-12-12T18:28:57+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1591,6 +1634,11 @@
                 "phpcs",
                 "standards"
             ],
+            "support": {
+                "issues": "https://github.com/squizlabs/PHP_CodeSniffer/issues",
+                "source": "https://github.com/squizlabs/PHP_CodeSniffer",
+                "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
+            },
             "time": "2020-10-23T02:01:07+00:00"
         },
         {
@@ -1637,6 +1685,11 @@
                 "standards",
                 "wordpress"
             ],
+            "support": {
+                "issues": "https://github.com/WordPress/WordPress-Coding-Standards/issues",
+                "source": "https://github.com/WordPress/WordPress-Coding-Standards",
+                "wiki": "https://github.com/WordPress/WordPress-Coding-Standards/wiki"
+            },
             "time": "2020-05-13T23:57:56+00:00"
         }
     ],
@@ -1681,5 +1734,5 @@
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }

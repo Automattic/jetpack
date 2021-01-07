@@ -73,7 +73,8 @@ class Jetpack_ReCaptcha {
 	public function get_default_config() {
 		return array(
 			'language'       => get_locale(),
-			'script_async'   => true,
+			'script_async'   => false,
+			'script_defer'   => true,
 			'tag_class'      => 'g-recaptcha',
 			'tag_attributes' => array(
 				'theme'    => 'light',
@@ -188,7 +189,9 @@ class Jetpack_ReCaptcha {
 				data-theme="%s"
 				data-type="%s"
 				data-tabindex="%s"></div>
-			<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=%s"%s></script>
+			' .
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			'<script src="https://www.google.com/recaptcha/api.js?hl=%s"%s%s></script>
 			',
 			esc_attr( $this->config['tag_class'] ),
 			esc_attr( $this->site_key ),
@@ -196,7 +199,8 @@ class Jetpack_ReCaptcha {
 			esc_attr( $this->config['tag_attributes']['type'] ),
 			esc_attr( $this->config['tag_attributes']['tabindex'] ),
 			rawurlencode( $this->config['language'] ),
-			$this->config['script_async'] ? ' async' : ''
+			$this->config['script_async'] && ! $this->config['script_defer'] ? ' async' : '',
+			$this->config['script_defer'] ? ' defer' : ''
 		);
 	}
 }

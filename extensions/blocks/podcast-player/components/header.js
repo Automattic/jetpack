@@ -25,47 +25,50 @@ const Header = memo(
 		showCoverArt,
 		showEpisodeDescription,
 		colors,
-	} ) => (
-		<div className="jetpack-podcast-player__header">
-			<div className="jetpack-podcast-player__current-track-info">
-				{ showCoverArt && cover && (
-					<div className="jetpack-podcast-player__cover">
-						{ /*
-						 * alt="" will prevent the src from being announced by a screen reader.
-						 * Ideally we'd have a cover.alt, but we can't get that from the RSS.
-						 */ }
-						<img className="jetpack-podcast-player__cover-image" src={ cover } alt="" />
-					</div>
+	} ) =>
+		showCoverArt || showEpisodeTitle || showEpisodeDescription ? (
+			<div className="jetpack-podcast-player__header">
+				<div className="jetpack-podcast-player__current-track-info">
+					{ showCoverArt && cover && (
+						<div className="jetpack-podcast-player__cover">
+							{ /*
+							 * alt="" will prevent the src from being announced by a screen reader.
+							 * Ideally we'd have a cover.alt, but we can't get that from the RSS.
+							 */ }
+							<img className="jetpack-podcast-player__cover-image" src={ cover } alt="" />
+						</div>
+					) }
+
+					{ showEpisodeTitle && !! ( title || ( track && track.title ) ) && (
+						<Title
+							playerId={ playerId }
+							title={ title }
+							link={ link }
+							track={ track }
+							colors={ colors }
+						/>
+					) }
+				</div>
+
+				{ /*
+				 * Putting this above the audio player for source order HTML with screen
+				 * readers, then visually switching it with the audio player via flex.
+				 */ }
+				{ !! ( showEpisodeDescription && track && track.description ) && (
+					<p
+						id={ `${ playerId }__track-description` }
+						className="jetpack-podcast-player__track-description"
+					>
+						{ track.description }
+					</p>
 				) }
 
-				{ showEpisodeTitle && !! ( title || ( track && track.title ) ) && (
-					<Title
-						playerId={ playerId }
-						title={ title }
-						link={ link }
-						track={ track }
-						colors={ colors }
-					/>
-				) }
+				{ /* children contains the audio player */ }
+				{ children }
 			</div>
-
-			{ /*
-			 * Putting this above the audio player for source order HTML with screen
-			 * readers, then visually switching it with the audio player via flex.
-			 */ }
-			{ !! ( showEpisodeDescription && track && track.description ) && (
-				<p
-					id={ `${ playerId }__track-description` }
-					className="jetpack-podcast-player__track-description"
-				>
-					{ track.description }
-				</p>
-			) }
-
-			{ /* children contains the audio player */ }
-			{ children }
-		</div>
-	)
+		) : (
+			children
+		)
 );
 
 const Title = memo(

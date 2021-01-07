@@ -265,4 +265,81 @@ class Jetpack_Podcast_Helper {
 
 		return date_i18n( $format, $duration );
 	}
+
+	/**
+	 * Gets podcast player data schema.
+	 *
+	 * Useful for json schema in REST API endpoints.
+	 *
+	 * @return array Player data json schema.
+	 */
+	public static function get_player_data_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-podcast-player-data',
+			'type'       => 'object',
+			'properties' => array(
+				'title'  => array(
+					'description' => __( 'The title of the podcast.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'link'   => array(
+					'description' => __( 'The URL of the podcast website.', 'jetpack' ),
+					'type'        => 'string',
+					'format'      => 'uri',
+				),
+				'cover'  => array(
+					'description' => __( 'The URL of the podcast cover image.', 'jetpack' ),
+					'type'        => 'string',
+					'format'      => 'uri',
+				),
+				'tracks' => self::get_tracks_schema(),
+			),
+		);
+	}
+
+	/**
+	 * Gets tracks data schema.
+	 *
+	 * Useful for json schema in REST API endpoints.
+	 *
+	 * @return array Tracks json schema.
+	 */
+	public static function get_tracks_schema() {
+		return array(
+			'description' => __( 'Latest episodes of the podcast.', 'jetpack' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'id'          => array(
+						'description' => __( 'The episode id. Generated per request, not globally unique.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'link'        => array(
+						'description' => __( 'The external link for the episode.', 'jetpack' ),
+						'type'        => 'string',
+						'format'      => 'uri',
+					),
+					'src'         => array(
+						'description' => __( 'The audio file URL of the episode.', 'jetpack' ),
+						'type'        => 'string',
+						'format'      => 'uri',
+					),
+					'type'        => array(
+						'description' => __( 'The mime type of the episode.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'description' => array(
+						'description' => __( 'The episode description, in plaintext.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'title'       => array(
+						'description' => __( 'The episode title.', 'jetpack' ),
+						'type'        => 'string',
+					),
+				),
+			),
+		);
+	}
 }

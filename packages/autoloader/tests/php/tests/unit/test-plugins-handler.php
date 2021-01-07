@@ -71,9 +71,16 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
-		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
+		$this->plugin_locator->expects( $this->exactly( 2 ) )
+			->method( 'find_using_request_action' )
+			->withConsecutive(
+				array( array( 'activate', 'activate-selected' ) ),
+				array( array( 'deactivate', 'deactivate-selected' ) )
+			)
+			->willReturnOnConsecutiveCalls(
+				array( TEST_DATA_PATH . '/plugins/dummy_dev' ),
+				array()
+			);
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
@@ -109,9 +116,16 @@ class Test_Plugins_Handler extends TestCase {
 				array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 				array( TEST_DATA_PATH . '/plugins/dummy_newer' )
 			);
-		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
-			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
+		$this->plugin_locator->expects( $this->exactly( 2 ) )
+			->method( 'find_using_request_action' )
+			->withConsecutive(
+				array( array( 'activate', 'activate-selected' ) ),
+				array( array( 'deactivate', 'deactivate-selected' ) )
+			)
+			->willReturnOnConsecutiveCalls(
+				array( TEST_DATA_PATH . '/plugins/dummy_dev' ),
+				array()
+			);
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins' );
@@ -138,9 +152,16 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array() );
-		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
-			->willReturn( array() );
+		$this->plugin_locator->expects( $this->exactly( 2 ) )
+			->method( 'find_using_request_action' )
+			->withConsecutive(
+				array( array( 'activate', 'activate-selected' ) ),
+				array( array( 'deactivate', 'deactivate-selected' ) )
+			)
+			->willReturnOnConsecutiveCalls(
+				array(),
+				array()
+			);
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
@@ -170,9 +191,16 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array() );
-		$this->plugin_locator->expects( $this->once() )
-			->method( 'find_activating_this_request' )
-			->willReturn( array() );
+		$this->plugin_locator->expects( $this->exactly( 2 ) )
+			->method( 'find_using_request_action' )
+			->withConsecutive(
+				array( array( 'activate', 'activate-selected' ) ),
+				array( array( 'deactivate', 'deactivate-selected' ) )
+			)
+			->willReturnOnConsecutiveCalls(
+				array(),
+				array()
+			);
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
@@ -183,6 +211,74 @@ class Test_Plugins_Handler extends TestCase {
 
 		global $jetpack_autoloader_activating_plugins_paths;
 		$this->assertEmpty( $jetpack_autoloader_activating_plugins_paths );
+	}
+
+	/**
+	 * Tests that the active plugin list includes those are deactivating
+	 */
+	public function test_gets_active_plugins_includes_deactivating() {
+		global $jetpack_autoloader_activating_plugins_paths;
+		$jetpack_autoloader_activating_plugins_paths = array();
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_using_option' )
+			->with( 'active_plugins', false )
+			->willReturn( array() );
+		$this->plugin_locator->expects( $this->exactly( 2 ) )
+			->method( 'find_using_request_action' )
+			->withConsecutive(
+				array( array( 'activate', 'activate-selected' ) ),
+				array( array( 'deactivate', 'deactivate-selected' ) )
+			)
+			->willReturnOnConsecutiveCalls(
+				array(),
+				array( TEST_DATA_PATH . '/plugins/dummy_newer' )
+			);
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_current_plugin' )
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current' );
+
+		$plugin_paths = $this->plugins_handler->get_active_plugins();
+
+		$this->assertEquals(
+			array(
+				TEST_DATA_PATH . '/plugins/dummy_newer',
+				TEST_DATA_PATH . '/plugins/dummy_current',
+			),
+			$plugin_paths
+		);
+	}
+
+	/**
+	 * Tests that the active plugin list excludes those that are deactivating.
+	 */
+	public function test_gets_active_plugins_excludes_deactivating() {
+		global $jetpack_autoloader_activating_plugins_paths;
+		$jetpack_autoloader_activating_plugins_paths = array();
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_using_option' )
+			->with( 'active_plugins', false )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
+		$this->plugin_locator->expects( $this->exactly( 2 ) )
+			->method( 'find_using_request_action' )
+			->withConsecutive(
+				array( array( 'activate', 'activate-selected' ) ),
+				array( array( 'deactivate', 'deactivate-selected' ) )
+			)
+			->willReturnOnConsecutiveCalls(
+				array( TEST_DATA_PATH . '/plugins/dummy_dev' ),
+				array(
+					TEST_DATA_PATH . '/plugins/dummy_current',
+					TEST_DATA_PATH . '/plugins/dummy_newer',
+					TEST_DATA_PATH . '/plugins/dummy_dev',
+				)
+			);
+		$this->plugin_locator->expects( $this->once() )
+			->method( 'find_current_plugin' )
+			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current' );
+
+		$plugin_paths = $this->plugins_handler->get_active_plugins( false );
+
+		$this->assertEmpty( $plugin_paths );
 	}
 
 	/**

@@ -177,32 +177,59 @@ class Test_Plugin_Locator extends TestCase {
 	}
 
 	/**
-	 * Tests that plugins activating this request are not discovered if a nonce is not set.
+	 * Tests that plugins in request parameters are not discovered if a nonce is not set.
 	 */
-	public function test_activating_this_request_does_nothing_without_nonce() {
+	public function test_using_request_action_returns_nothing_without_nonce() {
 		$_REQUEST['action'] = 'activate';
 		$_REQUEST['plugin'] = 'dummy_current/dummy_current.php';
 
-		$plugin_paths = $this->locator->find_activating_this_request();
+		$plugin_paths = $this->locator->find_using_request_action( array( 'activate' ) );
+
+		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertEmpty( $plugin_paths );
+
+		$_REQUEST['action'] = 'deactivate';
+		$_REQUEST['plugin'] = 'dummy_current/dummy_current.php';
+
+		$plugin_paths = $this->locator->find_using_request_action( array( 'deactivate' ) );
+
+		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertEmpty( $plugin_paths );
+
+		$_REQUEST['action']  = 'activate-selected';
+		$_REQUEST['checked'] = array( 'dummy_current/dummy_current.php' );
+
+		$plugin_paths = $this->locator->find_using_request_action( array( 'activate-selected' ) );
 
 		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertEmpty( $plugin_paths );
 	}
 
 	/**
-	 * Tests that plugins activating this request are not discovered if there aren't any.
+	 * Tests that plugins in the request action are not found if the action is not found.
 	 */
-	public function test_activating_this_request_does_nothing_without_parameters() {
-		$plugin_paths = $this->locator->find_activating_this_request();
+	public function test_using_request_action_returns_nothing_without_action() {
+		$_REQUEST['_wpnonce'] = '123abc';
+		$_REQUEST['action']   = '';
+
+		$plugin_paths = $this->locator->find_using_request_action( array( 'activate' ) );
+
+		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertEmpty( $plugin_paths );
+
+		$_REQUEST['action'] = 'activate';
+		$_REQUEST['plugin'] = 'dummy_current\\\\dummy_current.php';
+
+		$plugin_paths = $this->locator->find_using_request_action( array() );
 
 		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertEmpty( $plugin_paths );
 	}
 
 	/**
-	 * Tests that single plugins activating this request are found.
+	 * Tests that plugins in the request action can be found for single actions.
 	 */
-	public function test_activating_this_request_works_for_single() {
+	public function test_using_request_action_works_for_single() {
 		$_REQUEST['_wpnonce'] = '123abc';
 		$_REQUEST['action']   = 'activate';
 		$_REQUEST['plugin']   = 'dummy_current\\\\dummy_current.php';
@@ -215,7 +242,7 @@ class Test_Plugin_Locator extends TestCase {
 			)
 			->willReturnOnConsecutiveCalls( false, TEST_DATA_PATH . '/plugins/dummy_current' );
 
-		$plugin_paths = $this->locator->find_activating_this_request();
+		$plugin_paths = $this->locator->find_using_request_action( array( 'activate' ) );
 
 		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertCount( 1, $plugin_paths );
@@ -223,9 +250,9 @@ class Test_Plugin_Locator extends TestCase {
 	}
 
 	/**
-	 * Tests that multiple plugins activating this request are found.
+	 * Tests that plugins in the request action can be found for multiple actions.
 	 */
-	public function test_activating_this_request_works_for_multiple() {
+	public function test_using_request_action_works_for_multiple() {
 		$_REQUEST['_wpnonce'] = '123abc';
 		$_REQUEST['action']   = 'activate-selected';
 		$_REQUEST['checked']  = array( 'dummy_current\\\\dummy_current.php' );
@@ -238,7 +265,7 @@ class Test_Plugin_Locator extends TestCase {
 			)
 			->willReturnOnConsecutiveCalls( false, TEST_DATA_PATH . '/plugins/dummy_current' );
 
-		$plugin_paths = $this->locator->find_activating_this_request();
+		$plugin_paths = $this->locator->find_using_request_action( array( 'activate-selected' ) );
 
 		$this->assertTrue( is_array( $plugin_paths ) );
 		$this->assertCount( 1, $plugin_paths );
