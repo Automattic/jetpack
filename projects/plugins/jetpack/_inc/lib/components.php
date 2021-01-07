@@ -65,8 +65,7 @@ class Jetpack_Components {
 			return self::render_component(
 				'upgrade-nudge',
 				array(
-					'planName'   => __( 'a paid plan', 'jetpack' ),
-					'upgradeUrl' => '',
+					'checkoutUrl' => '',
 				)
 			);
 		}
@@ -99,8 +98,7 @@ class Jetpack_Components {
 		return self::render_component(
 			'upgrade-nudge',
 			array(
-				'planName'   => $plan->product_name,
-				'upgradeUrl' => $upgrade_url,
+				'checkoutUrl' => $upgrade_url,
 			)
 		);
 	}
