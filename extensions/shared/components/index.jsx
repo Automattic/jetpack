@@ -7,12 +7,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
  * Internal dependencies
  */
 import { Nudge } from './upgrade-nudge';
-import { StripeNudge } from './stripe-nudge';
 import {
 	UPGRADE_NUDGE_BUTTON_TEXT,
 	UPGRADE_NUDGE_DESCRIPTION
 } from '../../extended-blocks/paid-blocks/upgrade-plan-banner';
-
 
 import './style.scss';
 
@@ -25,6 +23,11 @@ import './style.scss';
 // If we wanted to use the 'smart' component instead, we'd need to provide sufficiently
 // initialised Redux state when rendering ir (probably through globals set as arguments
 // to the `StaticSiteGeneratorPlugin` call in `webpack.config.extensions.js`).
+const frontendNudge = renderToStaticMarkup(
+	<Nudge checkoutUrl="#checkoutUrl#" description="#description#" buttonText="#buttonText#" />
+);
+
+// An upgrade frontend nudge using the preset copy for the Upgrade banner
 const upgradeNudge = renderToStaticMarkup(
 	<Nudge
 		checkoutUrl="#checkoutUrl#"
@@ -33,13 +36,9 @@ const upgradeNudge = renderToStaticMarkup(
 	/>
 );
 
-const stripeNudge = renderToStaticMarkup(
-	<StripeNudge blockName="#blockName#" />
-);
-
 // StaticSiteGeneratorPlugin only supports `.html` extensions, even though
 // our rendered components contain some PHP.
 export default () => ( {
+	'frontend-nudge.html': frontendNudge,
 	'upgrade-nudge.html': upgradeNudge,
-	'stripe-nudge.html': stripeNudge,
 } );
