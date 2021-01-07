@@ -1714,7 +1714,7 @@ class Share_Pinterest extends Sharing_Source {
 		?>
 		<?php if ( $this->smart ) : ?>
 			<script type="text/javascript">
-			  ( function () {
+				( function () {
 					// Pinterest shared resources
 					var s = document.createElement( 'script' );
 					s.type = 'text/javascript';
