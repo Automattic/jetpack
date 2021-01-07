@@ -23,7 +23,12 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 } from '@wordpress/components';
-import { useContext, useState, useEffect } from '@wordpress/element';
+import {
+	useContext,
+	useState,
+	useEffect,
+	useRef,
+ } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 
 /**
@@ -74,6 +79,9 @@ export default function DialogueEdit ( {
 		placeholder,
 	} = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
+	const richTextRef = useRef();
+	const baseClassName = 'wp-block-jetpack-dialogue';
+	const blockProps = useBlockProps( { className } );
 
 	// Pick the previous block atteobutes from the state.
 	const prevBlock = useSelect( select => {
@@ -114,9 +122,6 @@ export default function DialogueEdit ( {
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
 
 	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
-
-	const baseClassName = 'wp-block-jetpack-dialogue';
-	const blockProps = useBlockProps( { className: baseClassName } );
 
 	/**
 	 * Helper to check if the gven style is set, or not.
@@ -274,6 +279,7 @@ export default function DialogueEdit ( {
 			</div>
 
 			<RichText
+				ref={ richTextRef }
 				identifier="content"
 				tagName="p"
 				className={ `${ baseClassName }__content` }
