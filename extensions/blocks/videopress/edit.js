@@ -340,24 +340,32 @@ const VideoPressEdit = CoreVideoEdit =>
 						</PanelBody>
 						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
 							<SelectControl
-								label={ __( 'Rating', 'jetpack' ) }
+								label={ _x( 'Rating', 'The age rating for this video.', 'jetpack' ) }
 								value={ rating }
 								disabled={ isFetchingMedia || isUpdatingRating }
 								options={ [
 									{
-										label: __( 'G', 'jetpack' ),
+										label: _x( 'G', 'Video rating for "General Audiences".', 'jetpack' ),
 										value: 'G',
 									},
 									{
-										label: __( 'PG-13', 'jetpack' ),
+										label: _x(
+											'PG-13',
+											'Video rating for "Parental Guidance", unsuitable for children under 13.',
+											'jetpack'
+										),
 										value: 'PG-13',
 									},
 									{
-										label: __( 'R', 'jetpack' ),
+										label: _x(
+											'R',
+											'Video rating for "Restricted", not recommended for children under 17.',
+											'jetpack'
+										),
 										value: 'R-17',
 									},
 									{
-										label: __( 'X', 'jetpack' ),
+										label: _x( 'X', 'Video rating for "Explicit" content.', 'jetpack' ),
 										value: 'X-18',
 									},
 								] }
