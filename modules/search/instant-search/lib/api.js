@@ -171,7 +171,12 @@ function generateApiQueryString( {
 
 	switch ( resultFormat ) {
 		case 'product':
-			fields = fields.concat( [ 'wc.price' ] );
+			fields = fields.concat( [
+				'wc.price',
+				'wc.sale_price',
+				'wc.currency_symbol',
+				'wc.currency_position',
+			] );
 	}
 
 	return encode(
