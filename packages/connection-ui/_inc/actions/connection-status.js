@@ -2,6 +2,7 @@ export const CONNECTION_STATUS_ACTIVE = 'CONNECTION_STATUS_ACTIVE';
 export const CONNECTION_STATUS_INACTIVE = 'CONNECTION_STATUS_INACTIVE';
 export const CONNECTION_STATUS_REFRESHING = 'CONNECTION_STATUS_REFRESHING';
 export const CONNECTION_STATUS_REFRESHED = 'CONNECTION_STATUS_REFRESHED';
+export const CONNECTION_STATUS_REFRESHED_RESET = 'CONNECTION_STATUS_REFRESHED_RESET';
 
 export const connectionStatusActions = {
 	connectionStatusSetActive: () => {
@@ -15,5 +16,8 @@ export const connectionStatusActions = {
 	},
 	connectionStatusRefreshed: () => {
 		return { type: CONNECTION_STATUS_REFRESHED };
+	},
+	connectionStatusRefreshedReset: () => {
+		return { type: CONNECTION_STATUS_REFRESHED_RESET };
 	},
 };

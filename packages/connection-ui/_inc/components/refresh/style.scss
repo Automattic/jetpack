@@ -6,4 +6,12 @@
 	p {
 		max-width: 65%;
 	}
+
+	button {
+		&.refreshed {
+			background: #00A32A;
+			border: 1px solid #00A32A;
+			color: white;
+		}
+	}
 }

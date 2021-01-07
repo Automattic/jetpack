@@ -6,6 +6,7 @@ import {
 	CONNECTION_STATUS_INACTIVE,
 	CONNECTION_STATUS_REFRESHING,
 	CONNECTION_STATUS_REFRESHED,
+	CONNECTION_STATUS_REFRESHED_RESET,
 } from '../actions/connection-status';
 
 const connectionStatus = ( state = {}, action ) => {
@@ -25,12 +26,19 @@ const connectionStatus = ( state = {}, action ) => {
 				...state,
 				isActive: false,
 				isRefreshing: true,
+				isRefreshed: false,
 			};
 		case CONNECTION_STATUS_REFRESHED:
 			return {
 				...state,
 				isActive: true,
 				isRefreshing: false,
+				isRefreshed: true,
+			};
+		case CONNECTION_STATUS_REFRESHED_RESET:
+			return {
+				...state,
+				isRefreshed: false,
 			};
 	}
 

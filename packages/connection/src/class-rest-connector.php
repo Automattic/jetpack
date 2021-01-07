@@ -271,7 +271,7 @@ class REST_Connector {
 				$redirect_url = null;
 
 				if ( ! empty( $request['from'] ) && 'connection-ui' === $request['from'] ) {
-					$redirect_url = admin_url( 'tools.php?page=wpcom-connection-manager' );
+					$redirect_url = admin_url( 'tools.php?page=wpcom-connection-manager#refreshed' );
 				}
 
 				$response['status']       = 'in_progress';

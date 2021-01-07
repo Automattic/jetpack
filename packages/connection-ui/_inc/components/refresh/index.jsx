@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
+import { Button, Dashicon } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -19,8 +19,9 @@ import { STORE_ID } from '../../store';
  *
  * @param {function} refreshingAction - The `connectionStatusRefreshing` action.
  * @param {function} refreshedAction - The `connectionStatusRefreshed` action.
+ * @param {function} refreshedResetAction - The `connectionStatusRefreshedReset` action.
  */
-function doRefresh( refreshingAction, refreshedAction ) {
+function doRefresh( refreshingAction, refreshedAction, refreshedResetAction ) {
 	refreshingAction();
 
 	apiFetch( {
@@ -41,6 +42,7 @@ function doRefresh( refreshingAction, refreshedAction ) {
 				throw new Error( 'Authorize URL is missing' );
 			case 'completed':
 				refreshedAction();
+				setTimeout( () => refreshedResetAction(), 5000 );
 				return;
 		}
 
@@ -49,14 +51,38 @@ function doRefresh( refreshingAction, refreshedAction ) {
 }
 
 /**
+ * Handle the `#refreshed` key in the URL.
+ * Needed to handle users coming back from the Calypso auth flow.
+ *
+ * @param {function} refreshedAction - The `connectionStatusRefreshed` action.
+ * @param {function} refreshedResetAction - The `connectionStatusRefreshedReset` action.
+ */
+function handleRefreshedURL( refreshedAction, refreshedResetAction ) {
+	if ( '#refreshed' === location.hash ) {
+		refreshedAction();
+		setTimeout( () => refreshedResetAction(), 5000 );
+		location.hash = '';
+	}
+}
+
+/**
  * The Refresh component.
  *
  * @returns {JSX.Element} - The Section component.
  */
 const Refresh = () => {
-	const { connectionStatusRefreshing, connectionStatusRefreshed } = useDispatch( STORE_ID );
-	const { isActive, isRegistered, isRefreshing } = useSelect(
+	const {
+		connectionStatusRefreshing,
+		connectionStatusRefreshed,
+		connectionStatusRefreshedReset,
+	} = useDispatch( STORE_ID );
+	const { isActive, isRegistered, isRefreshing, isRefreshed } = useSelect(
 		select => select( STORE_ID ).getConnectionStatus(),
+		[]
+	);
+
+	useEffect(
+		() => handleRefreshedURL( connectionStatusRefreshed, connectionStatusRefreshedReset ),
 		[]
 	);
 
@@ -64,8 +90,18 @@ const Refresh = () => {
 		() =>
 			isActive &&
 			isRegistered &&
-			doRefresh( connectionStatusRefreshing, connectionStatusRefreshed ),
-		[ isActive, isRegistered, connectionStatusRefreshed, connectionStatusRefreshing ]
+			doRefresh(
+				connectionStatusRefreshing,
+				connectionStatusRefreshed,
+				connectionStatusRefreshedReset
+			),
+		[
+			isActive,
+			isRegistered,
+			connectionStatusRefreshed,
+			connectionStatusRefreshing,
+			connectionStatusRefreshedReset,
+		]
 	);
 
 	return (
@@ -78,8 +114,14 @@ const Refresh = () => {
 			</p>
 
 			{ isActive && isRegistered ? (
-				<Button isPrimary onClick={ refreshConnection }>
-					Refresh Connection
+				<Button isPrimary onClick={ refreshConnection } className={ isRefreshed && 'refreshed' }>
+					{ isRefreshed ? (
+						<React.Fragment>
+							<Dashicon icon="yes" /> { __( 'Refreshed', 'jetpack' ) }{ ' ' }
+						</React.Fragment>
+					) : (
+						__( 'Refresh Connection', 'jetpack' )
+					) }
 				</Button>
 			) : (
 				<Button isPrimary disabled>
