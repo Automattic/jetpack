@@ -43,14 +43,14 @@ echo "Cloning folders in projects/packages and pushing to Automattic package rep
 for package in projects/packages/*; do
 	[ -d "$package" ] || continue # We are only interested in directories (i.e. packages)
 
-	cd $BASE
-
 	# Only keep the package's name
 	NAME=${package##*/}
+	PROJECT_DIR="${BASE}/projects/packages/${NAME}"
 
+	cd ${PROJECT_DIR}
 	echo " Name: $NAME"
 
-	CLONE_DIR="__${NAME}__clone__"
+	CLONE_DIR="${BASE}/__${NAME}__clone__"
 	echo "  Clone dir: $CLONE_DIR"
 
 	# Check if a remote exists for that package.
@@ -62,6 +62,8 @@ for package in projects/packages/*; do
 	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/automattic/jetpack-$NAME.git $CLONE_DIR
 
 	echo "  Cloning of ${NAME} completed"
+  echo "  Building project"
+  yarn_build
 
 	cd $CLONE_DIR
 
@@ -73,11 +75,11 @@ for package in projects/packages/*; do
 
 	find . | grep -v ".git" | grep -v "^\.*$" | xargs rm -rf # delete all files (to handle deletions in monorepo)
 
-	echo "  Copying from ${BASE}/projects/packages/${NAME}/."
+	echo "  Copying from ${PROJECT_DIR}/."
 
-	cp -r $BASE/projects/packages/$NAME/. .
+	cp -r $PROJECT_DIR/. .
 
-	yarn_build
+
 
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
 	if $COMPOSER_JSON_EXISTED && [ ! -f "composer.json" ]; then
@@ -108,9 +110,13 @@ for plugin in projects/plugins/*; do
 	# Only keep the plugin's name
 	NAME=${plugin##*/}
 
+	PROJECT_DIR="${BASE}/projects/plugins/${NAME}"
+
+	cd "${PROJECT_DIR}"
+
 	echo " Name: $NAME"
 
-	CLONE_DIR="__${NAME}__clone__"
+	CLONE_DIR="${BASE}/__${NAME}__clone__"
 	echo "  Clone dir: $CLONE_DIR"
 
 	if [ "$NAME" == 'jetpack' ]; then
@@ -127,16 +133,16 @@ for plugin in projects/plugins/*; do
 	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/automattic/$GIT_SLUG.git $CLONE_DIR
 
 	echo "  Cloning of ${NAME} completed"
+  echo "  Building project"
+  yarn_build
 
 	cd $CLONE_DIR
 
 	find . | grep -v ".git" | grep -v "^\.*$" | xargs rm -rf # delete all files (to handle deletions in monorepo)
 
-	echo "  Copying from ${BASE}/projects/plugins/${NAME}/."
+	echo "  Copying from ${PROJECT_DIR}/."
 
-	cp -r $BASE/projects/plugins/$NAME/. .
-
-	yarn_build
+	cp -r "${PROJECT_DIR}/." .
 
 	if [ -n "$(git status --porcelain)" ]; then
 
@@ -149,5 +155,5 @@ for plugin in projects/plugins/*; do
 		echo "  No changes, skipping $NAME"
 	fi
 
-	cd $BASE
+	cd "${BASE}"
 done
