@@ -62,7 +62,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 	 *
 	 * @return string
 	 */
-	public function get( $attachment, $request ) {
+	public function get( $attachment, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
 		} else {
@@ -135,7 +135,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 	 *
 	 * @return null
 	 */
-	public function update( $value, $object, $request ) {
+	public function update( $value, $object, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return null;
 	}
 
@@ -148,7 +148,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 	 *
 	 * @return true
 	 */
-	public function get_permission_check( $object, $request ) {
+	public function get_permission_check( $object, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return true;
 	}
 
@@ -162,7 +162,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 	 *
 	 * @return true
 	 */
-	public function update_permission_check( $value, $object, $request ) {
+	public function update_permission_check( $value, $object, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return true;
 	}
 }
