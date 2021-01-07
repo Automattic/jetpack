@@ -168,7 +168,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_my_home_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_my_home_menu( static::$domain );
+		static::$admin_menu->add_my_home_menu( false );
 
 		$slug = 'https://wordpress.com/home/' . static::$domain;
 
@@ -200,7 +200,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			0 => array( 'Home', 'read', 'index.php' ),
 		);
 
-		static::$admin_menu->add_my_home_menu( static::$domain );
+		static::$admin_menu->add_my_home_menu( false );
 
 		$this->assertArrayNotHasKey( 'https://wordpress.com/home/' . static::$domain, $submenu );
 	}
@@ -213,7 +213,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_stats_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_stats_menu( static::$domain );
+		static::$admin_menu->add_stats_menu();
 
 		$menu_title = __( 'Stats', 'jetpack' );
 
@@ -286,7 +286,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_jetpack_upgrades_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_upgrades_menu( static::$domain );
+		static::$admin_menu->add_upgrades_menu();
 
 		$slug = 'https://wordpress.com/plans/' . static::$domain;
 
@@ -311,7 +311,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_posts_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_posts_menu( static::$domain );
+		static::$admin_menu->add_posts_menu( false );
 
 		$posts_menu_item = array(
 			'Posts',
@@ -335,7 +335,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_media_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_media_menu( static::$domain );
+		static::$admin_menu->add_media_menu( false );
 
 		$slug = 'https://wordpress.com/media/' . static::$domain;
 
@@ -375,7 +375,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_page_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_page_menu( static::$domain );
+		static::$admin_menu->add_page_menu( false );
 
 		$posts_menu_item = array(
 			'Pages',
@@ -461,14 +461,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		// Only users that can edit posts get to see the comments menu.
 		wp_set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
 		$menu = array();
-		static::$admin_menu->add_comments_menu( static::$domain );
+		static::$admin_menu->add_comments_menu( false );
 		$this->assertEmpty( $menu );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );
 		$menu = static::$menu_data;
 
-		static::$admin_menu->add_comments_menu( static::$domain );
+		static::$admin_menu->add_comments_menu( false );
 
 		$comments_menu_item = array(
 			'Comments <span class="awaiting-mod count-0"><span class="pending-count" aria-hidden="true">0</span><span class="comments-in-moderation-text screen-reader-text">0 Comments in moderation</span></span>',
@@ -492,7 +492,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_appearance_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_appearance_menu( static::$domain );
+		static::$admin_menu->add_appearance_menu( false );
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
 
@@ -554,7 +554,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
 		$menu = array();
 
-		static::$admin_menu->add_users_menu( true );
+		static::$admin_menu->add_users_menu( false );
 
 		$this->assertEmpty( $menu );
 
@@ -562,7 +562,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( static::$user_id );
 		$menu = static::$menu_data;
 
-		static::$admin_menu->add_users_menu( static::$domain );
+		static::$admin_menu->add_users_menu( false );
 
 		$slug = 'https://wordpress.com/people/team/' . static::$domain;
 
@@ -620,7 +620,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( static::$domain );
+		static::$admin_menu->add_tools_menu( false );
 
 		$tools_menu_item = array(
 			'Tools',
@@ -671,7 +671,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( static::$domain );
+		static::$admin_menu->add_options_menu( false );
 
 		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
 		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
