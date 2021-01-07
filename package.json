@@ -68,7 +68,7 @@
 		"lint": "yarn lint-file .",
 		"lint-changed": "tools/eslint-changed.js --ext .js,.jsx --git",
 		"lint-file": "eslint --ext .js,.jsx",
-		"lint-required": "node -e \"const fs = require('fs'); fs.copyFileSync('.eslintignore','.eslintignore-required'); const w=fs.createWriteStream('.eslintignore-required',{flags:'a'}); w.write('\\n# bin/eslint-excludelist.json\\n'); w.end(JSON.parse(fs.readFileSync('bin/eslint-excludelist.json','utf8')).join('\\n')+'\\n')\" && yarn lint --ignore-path .eslintignore-required",
+		"lint-required": "node -e \"const fs = require('fs'); fs.copyFileSync('.eslintignore','.eslintignore-required'); const w=fs.createWriteStream('.eslintignore-required',{flags:'a'}); w.write('\\n# bin/eslint-excludelist.json\\n'); w.end(JSON.parse(fs.readFileSync('bin/eslint-excludelist.json','utf8')).join('\\n')+'\\n')\" && yarn lint --max-warnings=0 --ignore-path .eslintignore-required",
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
