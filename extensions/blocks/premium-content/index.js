@@ -35,7 +35,7 @@ export const settings = {
 	attributes: {
 		newPlanName: {
 			type: 'string',
-			default: 'Monthly Subscription',
+			default: __( 'Monthly Subscription', 'jetpack' )
 		},
 		newPlanCurrency: {
 			type: 'string',
