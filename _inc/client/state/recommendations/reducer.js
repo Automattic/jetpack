@@ -44,7 +44,7 @@ const data = ( state = {}, action ) => {
 				state,
 				{
 					selectedRecommendations: [ action.slug ],
-					skippedRecommendations: [],
+					skippedRecommendations: difference( state.skippedRecommendations, [ action.slug ] ),
 				},
 				mergeArrays
 			);
@@ -58,7 +58,7 @@ const data = ( state = {}, action ) => {
 				{},
 				state,
 				{
-					selectedRecommendations: [],
+					selectedRecommendations: difference( state.selectedRecommendations, [ action.slug ] ),
 					skippedRecommendations: [ action.slug ],
 				},
 				mergeArrays
