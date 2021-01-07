@@ -45,6 +45,9 @@
 		"sirbrillig/phpcs-changed": "2.5.1"
 	},
 	"scripts": {
+		"pre-update-cmd": [
+			"@putenv COMPOSER_ROOT_VERSION=dev-monorepo"
+		],
 		"php:lint": [
 			"printf '\\e[30;43m`composer php:lint` now lints. If you want to run phpcs, use `composer phpcs:lint`.\\e[0m\\n'",
 			"bin/parallel-lint.sh"

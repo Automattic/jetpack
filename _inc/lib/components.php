@@ -71,10 +71,9 @@ class Jetpack_Components {
 			);
 		}
 
-		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
-		// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
+		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
 		$plan_path_slug = wp_startswith( $plan_slug, 'jetpack_' )
-			? substr( $plan_slug, strlen( 'jetpack_' ) )
+			? $plan_slug
 			: $plan->path_slug;
 
 		$post_id = get_the_ID();

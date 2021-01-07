@@ -74,10 +74,12 @@ class Autoloader {
 					return;
 				}
 
-				// Load the active plugins fresh since the list we have above might not contain
+				// Load the active plugins fresh since the list we pulled earlier might not contain
 				// plugins that were activated but did not reset the autoloader. This happens
-				// because they were already included in the cache.
-				$active_plugins = $plugins_handler->get_active_plugins();
+				// when a plugin is in the cache but not "active" when the autoloader loads.
+				// We also want to make sure that plugins which are deactivating are not
+				// considered "active" so that they will be removed from the cache now.
+				$active_plugins = $plugins_handler->get_active_plugins( false );
 
 				// The paths should be sorted for easy comparisons with those loaded from the cache.
 				// Note we don't need to sort the cached entries because they're already sorted.
