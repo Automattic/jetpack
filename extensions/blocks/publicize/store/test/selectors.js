@@ -5,15 +5,22 @@
 /**
  * Internal dependencies
  */
-import { getTweetStorm, getTweetsForBlock, getTwitterCardForURLs, twitterCardIsCached, checkForTagsInContentAttributes } from '../selectors';
+import {
+	getTweetStorm,
+	getTweetsForBlock,
+	getTwitterCardForURLs,
+	twitterCardIsCached,
+	checkForTagsInContentAttributes,
+} from '../selectors';
 
 /**
  * getTweetstorm() adds a tweet to the start and the end of the thread, but
  * we really don't need to test for them here.
  *
- * @param {object} state State data.
+ * @param {object} state - State data.
+ * @returns {object[]} Tweet data
  */
-const getTweetstormHelper = ( state ) => {
+const getTweetstormHelper = state => {
 	return getTweetStorm( state ).slice( 1, -1 );
 };
 
@@ -90,16 +97,16 @@ describe( 'getTweetStorm', () => {
 
 		expect( tweets.length ).toEqual( expected.length );
 
-		expect( tweets[0] ).toMatchObject( expected[0] );
-		expect( tweets[1] ).toMatchObject( expected[1] );
-		expect( tweets[2] ).toMatchObject( expected[2] );
+		expect( tweets[ 0 ] ).toMatchObject( expected[ 0 ] );
+		expect( tweets[ 1 ] ).toMatchObject( expected[ 1 ] );
+		expect( tweets[ 2 ] ).toMatchObject( expected[ 2 ] );
 	} );
 
 	it( 'returns the default twitter account details when none is provided.', () => {
 		const state = {
 			connections: [
 				{
-					service_name: 'twitter'
+					service_name: 'twitter',
 				},
 			],
 			tweets: [
@@ -111,16 +118,17 @@ describe( 'getTweetStorm', () => {
 		};
 		const expected = {
 			name: 'Account Name',
-			profileImage: 'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
+			profileImage:
+				'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
 			screenName: '',
 		};
 
 		const tweets = getTweetstormHelper( state );
 
 		const accountInfo = {
-			name: tweets[0].name,
-			profileImage: tweets[0].profileImage,
-			screenName: tweets[0].screenName,
+			name: tweets[ 0 ].name,
+			profileImage: tweets[ 0 ].profileImage,
+			screenName: tweets[ 0 ].screenName,
 		};
 
 		expect( accountInfo ).toEqual( expected );
@@ -131,21 +139,13 @@ describe( 'getTweetsForBlock', () => {
 	const stateWithTweetsWithBlocks = {
 		tweets: [
 			{
-				blocks: [
-					{ clientId: 'uuid-2' },
-					{ clientId: 'uuid-3' },
-				],
+				blocks: [ { clientId: 'uuid-2' }, { clientId: 'uuid-3' } ],
 			},
 			{
-				blocks: [
-					{ clientId: 'uuid-4' },
-				],
+				blocks: [ { clientId: 'uuid-4' } ],
 			},
 			{
-				blocks: [
-					{ clientId: 'uuid-4' },
-					{ clientId: 'uuid-5' },
-				],
+				blocks: [ { clientId: 'uuid-4' }, { clientId: 'uuid-5' } ],
 			},
 		],
 	};
@@ -162,11 +162,15 @@ describe( 'getTweetsForBlock', () => {
 	} );
 
 	it( 'returns a single tweet when one tweet matches', () => {
-		expect( getTweetsForBlock( stateWithTweetsWithBlocks, 'uuid-5' ) ).toEqual( stateWithTweetsWithBlocks.tweets.slice( 2, 3 ) );
+		expect( getTweetsForBlock( stateWithTweetsWithBlocks, 'uuid-5' ) ).toEqual(
+			stateWithTweetsWithBlocks.tweets.slice( 2, 3 )
+		);
 	} );
 
 	it( 'returns all matching tweets when multiple tweets match', () => {
-		expect( getTweetsForBlock( stateWithTweetsWithBlocks, 'uuid-4' ) ).toEqual( stateWithTweetsWithBlocks.tweets.slice( 1, 3 ) );
+		expect( getTweetsForBlock( stateWithTweetsWithBlocks, 'uuid-4' ) ).toEqual(
+			stateWithTweetsWithBlocks.tweets.slice( 1, 3 )
+		);
 	} );
 } );
 
@@ -181,7 +185,7 @@ describe( 'getTwitterCardForURLs', () => {
 	it( 'returns undefined when no URLs are passed', () => {
 		const state = {
 			twitterCards: {
-				'foo': { title: 'bar' },
+				foo: { title: 'bar' },
 			},
 		};
 		expect( getTwitterCardForURLs( state ) ).toEqual( undefined );
@@ -192,7 +196,7 @@ describe( 'getTwitterCardForURLs', () => {
 	it( 'returns undefined when a matching URL is an error', () => {
 		const state = {
 			twitterCards: {
-				'foo': { error: 'loading' },
+				foo: { error: 'loading' },
 			},
 		};
 		expect( getTwitterCardForURLs( state, [ 'foo' ] ) ).toEqual( undefined );
@@ -201,8 +205,8 @@ describe( 'getTwitterCardForURLs', () => {
 	it( 'returns the matching card when the URL is found', () => {
 		const state = {
 			twitterCards: {
-				'foo': { title: 'bar' },
-				'baz': { title: 'cat' },
+				foo: { title: 'bar' },
+				baz: { title: 'cat' },
 			},
 		};
 		const expected = {
@@ -224,7 +228,7 @@ describe( 'twitterCardIsCached', () => {
 	it( 'returns false when the URL is not found', () => {
 		const state = {
 			twitterCards: {
-				'foo': { title: 'bar' },
+				foo: { title: 'bar' },
 			},
 		};
 		expect( twitterCardIsCached( state, 'bar' ) ).toEqual( false );
@@ -233,7 +237,7 @@ describe( 'twitterCardIsCached', () => {
 	it( 'returns true when the URL matches a card with an error', () => {
 		const state = {
 			twitterCards: {
-				'foo': { error: 'loading' },
+				foo: { error: 'loading' },
 			},
 		};
 		expect( twitterCardIsCached( state, 'foo' ) ).toEqual( true );
@@ -242,7 +246,7 @@ describe( 'twitterCardIsCached', () => {
 	it( 'returns true when the URL matches a card that is not an error', () => {
 		const state = {
 			twitterCards: {
-				'foo': { title: 'bar' },
+				foo: { title: 'bar' },
 			},
 		};
 		expect( twitterCardIsCached( state, 'foo' ) ).toEqual( true );
