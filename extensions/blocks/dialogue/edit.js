@@ -69,6 +69,7 @@ export default function DialogueEdit ( {
 	context,
 	onReplace,
 	mergeBlocks,
+	isSelected,
 } ) {
 	const {
 		participant,
@@ -120,6 +121,21 @@ export default function DialogueEdit ( {
 			content: '',
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
+
+	// Try to focus the RichText component when mounted.
+	useEffect( () => {
+		if ( ! isSelected ) {
+			return;
+		}
+
+		if ( ! richTextRef?.current ) {
+			return;
+		}
+
+		setTimeout( () => {
+			richTextRef.current.focus();
+		}, 0 );
+	}, [ isSelected ] );
 
 	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
