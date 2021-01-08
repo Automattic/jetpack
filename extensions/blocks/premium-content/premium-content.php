@@ -89,13 +89,13 @@ function render_stripe_nudge() {
 
 		$connect_url = $settings['connect_url'];
 		$description = _('Connect to Stripe to use this block on your site.', 'jetpack');
-		$buttonText  = _('Connect', 'jetpack');
+		$button_text  = _('Connect', 'jetpack');
 	} else {
 		// On Jetpack, redirect them to the post in the editor in
 		// order to connect Stripe.
 		$connect_url = get_edit_post_link( get_the_ID() );
 		$description = _('Connect to Stripe to use this block on your site.', 'jetpack');
-		$buttonText  = _('Edit', 'jetpack');
+		$button_text  = _('Edit', 'jetpack');
 	}
 
 	jetpack_require_lib('components');
