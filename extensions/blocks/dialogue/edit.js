@@ -30,12 +30,12 @@ import ParticipantsDropdown, {
 } from './components/participants-control';
 import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
+import MediaPlayerControl from './components/media-player-control';
 import {
 	slug as defaultParticipantSlug,
 	list as defaultParticipants,
 } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
-import { STORE_ID } from '../../store/media-source';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -85,8 +85,6 @@ export default function DialogueEdit( {
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
-
-	const currentMediaSource = useSelect( select => select( STORE_ID ).getCurrent(), [] );
 
 	// Participants list.
 	const participants = participantsFromContext?.length
@@ -211,6 +209,11 @@ export default function DialogueEdit( {
 	return (
 		<div className={ className }>
 			<BlockControls>
+				<MediaPlayerControl
+					timestamp={ timestamp }
+					onTimeChange={ setAttributes }
+				/>
+
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
