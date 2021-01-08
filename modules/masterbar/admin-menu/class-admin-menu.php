@@ -290,10 +290,10 @@ class Admin_Menu {
 			remove_submenu_page( 'themes.php', esc_url( $customize_background_url ) );
 
 			// TODO: Remove Colors_Manager::modify_header_menu_links() and Colors_Manager_Common::modify_header_menu_links().
-			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'colors_manager_tool' ) ), $customize_url );
+			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), admin_url( 'customize.php' ) );
 			remove_submenu_page( 'themes.php', esc_url( $customize_background_url ) );
 
-			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'colors_manager_tool' ) ), $customize_slug );
+			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_slug );
 			add_submenu_page( $themes_slug, esc_attr__( 'Background', 'jetpack' ), __( 'Background', 'jetpack' ), 'customize', esc_url( $customize_background_url ), null, 20 );
 		}
 
