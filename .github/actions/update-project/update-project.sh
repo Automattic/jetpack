@@ -144,6 +144,10 @@ for plugin in projects/plugins/*; do
 
 	cp -r "${PROJECT_DIR}/." .
 
+	if [ "$NAME" == 'jetpack' ]; then
+	./tools/prepare-build-branch.sh
+	fi
+
 	if [ -n "$(git status --porcelain)" ]; then
 
 		echo  "  Committing $NAME to $NAME's mirror repository"
