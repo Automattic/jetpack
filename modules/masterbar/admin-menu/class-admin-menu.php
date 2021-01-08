@@ -277,7 +277,7 @@ class Admin_Menu {
 			$customize_header_url = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_url );
 			remove_submenu_page( 'themes.php', esc_url( $customize_header_url ) );
 
-			// TODO: Remove WPCom_Theme_Customizer::modify_header_menu_links().
+			// TODO: Remove WPCom_Theme_Customizer::modify_header_menu_links() and WPcom_Custom_Header::modify_admin_menu_links().
 			$customize_header_url = admin_url( 'themes.php?page=custom-header' );
 			remove_submenu_page( 'themes.php', esc_url( $customize_header_url ) );
 
@@ -289,7 +289,11 @@ class Admin_Menu {
 			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'background_image' ) ), $customize_url );
 			remove_submenu_page( 'themes.php', esc_url( $customize_background_url ) );
 
-			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'background_image' ) ), $customize_slug );
+			// TODO: Remove Colors_Manager::modify_header_menu_links() and Colors_Manager_Common::modify_header_menu_links().
+			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'colors_manager_tool' ) ), $customize_url );
+			remove_submenu_page( 'themes.php', esc_url( $customize_background_url ) );
+
+			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'colors_manager_tool' ) ), $customize_slug );
 			add_submenu_page( $themes_slug, esc_attr__( 'Background', 'jetpack' ), __( 'Background', 'jetpack' ), 'customize', esc_url( $customize_background_url ), null, 20 );
 		}
 
