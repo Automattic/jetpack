@@ -64,6 +64,41 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
+	if (
+		! membership_checks()
+		// Only display Stripe nudge if Upgrade nudge isn't displaying
+		&& required_plan_checks()
+	) {
+		$stripe_nudge = render_stripe_nudge();
+		return $stripe_nudge . $content;
+	}
+
 	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	return $content;
+}
+
+/**
+ * Server-side rendering for the stripe connection nudge.
+ *
+ * @return string Final content to render.
+ */
+function render_stripe_nudge() {
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		// The Premium Content block should not be supported on Jetpack sites;
+		// check just in case.
+		return '';
+	}
+
+	jetpack_require_lib( 'memberships' );
+	$blog_id = get_current_blog_id();
+	$settings = (array) get_memberships_settings_for_site($blog_id);
+
+	jetpack_require_lib('components');
+	return \Jetpack_Components::render_frontend_nudge(
+		array(
+			'checkoutUrl' => $settings['connect_url'],
+			'description' => _('Connect to Stripe to use this block on your site.', 'jetpack'),
+			'buttonText'  => _('Connect', 'jetpack'),
+		)
+	);
 }

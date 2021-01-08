@@ -27,6 +27,18 @@ function membership_checks() {
 }
 
 /**
+ * Determines if the site has a plan that supports the
+ * Premium Content block.
+ *
+ * @return bool
+ */
+function required_plan_checks() {
+    $availability = \Jetpack_Gutenberg::get_availability();
+    $slug         = 'premium-content/container';
+    return ( isset( $availability[ $slug ] ) && $availability[ $slug ]['available'] );
+}
+
+/**
  * Determines if the block should be rendered. Returns true
  * if the block passes all required checks, or if the user is
  * an editor.
