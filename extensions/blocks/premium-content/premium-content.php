@@ -80,30 +80,22 @@ function render_block( $attributes, $content ) {
  * @return string Final content to render.
  */
 function render_stripe_nudge() {
-	$connect_url = '';
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-		jetpack_require_lib( 'memberships' );
-
-		$blog_id = get_current_blog_id();
-		$settings = (array) get_memberships_settings_for_site($blog_id);
-
-		$connect_url = $settings['connect_url'];
-		$description = _('Connect to Stripe to use this block on your site.', 'jetpack');
-		$button_text  = _('Connect', 'jetpack');
-	} else {
-		// On Jetpack, redirect them to the post in the editor in
-		// order to connect Stripe.
-		$connect_url = get_edit_post_link( get_the_ID() );
-		$description = _('Connect to Stripe to use this block on your site.', 'jetpack');
-		$button_text  = _('Edit', 'jetpack');
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		// The Premium Content block should not be supported on Jetpack sites;
+		// check just in case.
+		return '';
 	}
+
+	jetpack_require_lib( 'memberships' );
+	$blog_id = get_current_blog_id();
+	$settings = (array) get_memberships_settings_for_site($blog_id);
 
 	jetpack_require_lib('components');
 	return \Jetpack_Components::render_frontend_nudge(
 		array(
-			'checkoutUrl' => $connect_url,
-			'description' => $description,
-			'buttonText'  => $buttonText,
+			'checkoutUrl' => $settings['connect_url'],
+			'description' => _('Connect to Stripe to use this block on your site.', 'jetpack'),
+			'buttonText'  => _('Connect', 'jetpack'),
 		)
 	);
 }
