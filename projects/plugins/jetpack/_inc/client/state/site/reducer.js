@@ -292,6 +292,16 @@ export function getActiveProductPurchases( state ) {
 	);
 }
 
+/**
+ * Determines if the site has an active product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active product purchase, false otherwise.
+ */
+export function hasActiveProductPurchase( state ) {
+	return getActiveProductPurchases( state ).length > 0;
+}
+
 export function getActiveBackupPurchase( state ) {
 	return find( getActiveProductPurchases( state ), product =>
 		isJetpackBackup( product.product_slug )

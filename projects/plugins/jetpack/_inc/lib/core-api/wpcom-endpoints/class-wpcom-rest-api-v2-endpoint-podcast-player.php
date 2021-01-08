@@ -16,6 +16,10 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
+		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+			jetpack_require_lib( 'class-jetpack-podcast-helper' );
+		}
+
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'podcast-player';
 		// This endpoint *does not* need to connect directly to Jetpack sites.
@@ -60,10 +64,6 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function get_player_data( $request ) {
-		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
-			jetpack_require_lib( 'class-jetpack-podcast-helper' );
-		}
-
 		$player_data = ( new Jetpack_Podcast_Helper( $request['url'] ) )->get_player_data();
 
 		if ( is_wp_error( $player_data ) ) {
@@ -104,60 +104,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return array
 	 */
 	public function get_item_schema() {
-		$schema = array(
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'jetpack-podcast-player',
-			'type'       => 'object',
-			'properties' => array(
-				'title'  => array(
-					'description' => __( 'The title of the podcast.', 'jetpack' ),
-					'type'        => 'string',
-				),
-				'link'   => array(
-					'description' => __( 'The URL of the podcast website.', 'jetpack' ),
-					'type'        => 'string',
-				),
-				'cover'  => array(
-					'description' => __( 'The URL of the podcast cover image.', 'jetpack' ),
-					'type'        => 'string',
-				),
-				'tracks' => array(
-					'description' => __( 'Latest episodes of the podcast.', 'jetpack' ),
-					'type'        => 'array',
-					'items'       => array(
-						'type'       => 'object',
-						'properties' => array(
-							'id'          => array(
-								'description' => __( 'The episode id. Generated per request, not globally unique.', 'jetpack' ),
-								'type'        => 'string',
-							),
-							'link'        => array(
-								'description' => __( 'The external link for the episode.', 'jetpack' ),
-								'type'        => 'string',
-							),
-							'src'         => array(
-								'description' => __( 'The audio file URL of the episode.', 'jetpack' ),
-								'type'        => 'string',
-							),
-							'type'        => array(
-								'description' => __( 'The mime type of the episode.', 'jetpack' ),
-								'type'        => 'string',
-							),
-							'description' => array(
-								'description' => __( 'The episode description, in plaintext.', 'jetpack' ),
-								'type'        => 'string',
-							),
-							'title'       => array(
-								'description' => __( 'The episode title.', 'jetpack' ),
-								'type'        => 'string',
-							),
-						),
-					),
-				),
-			),
-		);
-
-		return $schema;
+		return Jetpack_Podcast_Helper::get_player_data_schema();
 	}
 }
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Podcast_Player' );

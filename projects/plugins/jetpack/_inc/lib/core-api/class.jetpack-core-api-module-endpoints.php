@@ -911,6 +911,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
+				case 'stb_enabled':
+				case 'stc_enabled':
+					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
+					$sub_value = $value ? $value : 0;
+					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
+					break;
+
 				default:
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;

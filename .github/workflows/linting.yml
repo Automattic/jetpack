@@ -351,7 +351,7 @@ jobs:
           fetch-depth: 10
       - uses: ./.github/actions/deepen-to-merge-base
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
           node-version: '12'
 
