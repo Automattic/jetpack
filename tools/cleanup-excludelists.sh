@@ -11,7 +11,7 @@ fi
 trap "rm \"$TEMP\"" EXIT
 
 : > "$TEMP"
-yarn lint-file --format=json --output-file="$TEMP" --ignore-path=<(echo '*.js'; echo '*.jsx'; jq -r '"!/" + .[]' bin/eslint-excludelist.json) . || true
+yarn lint-file --max-warnings=0 --format=json --output-file="$TEMP" --ignore-path=<(echo '*.js'; echo '*.jsx'; jq -r '"!/" + .[]' bin/eslint-excludelist.json) . || true
 [[ -s "$TEMP" ]] && jq -e '.' < "$TEMP" >/dev/null || { echo "No JSON data found"; cat "$TEMP"; exit 1; }
 jq -r --arg pwd "$PWD/" '[ .[] | select( .messages[0] ) | .filePath | ltrimstr($pwd) ] | sort' "$TEMP" | yarn run -s prettier --parser=json > bin/eslint-excludelist.json
 
