@@ -125,12 +125,12 @@ for plugin in projects/plugins/*; do
 		GIT_SLUG="jetpack-${NAME}";
 	fi
 	# Check if a remote exists for that package.
-	$( git ls-remote --exit-code -h "https://github.com/automattic/${GIT_SLUG}.git" >/dev/null 2>&1 ) || continue
+	$( git ls-remote --exit-code -h "https://github.com/Automattic/${GIT_SLUG}.git" >/dev/null 2>&1 ) || continue
 	echo "  ${NAME} exists. Let's clone it."
 
 	# clone, delete files in the clone, and copy (new) files over
 	# this handles file deletions, additions, and changes seamlessly
-	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/automattic/$GIT_SLUG.git $CLONE_DIR
+	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/Automattic/$GIT_SLUG.git $CLONE_DIR
 
 	echo "  Cloning of ${NAME} completed"
 	echo "  Building project"
