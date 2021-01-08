@@ -17,13 +17,14 @@ import { dispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
-const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 import { STORE_ID } from '../../../store/media-source';
 
 /**
  * Style dependencies
  */
 import './style.scss';
+
+const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {
 	const buttonContainer = document.createElement( 'div' );
