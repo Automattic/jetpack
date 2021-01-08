@@ -16,3 +16,6 @@
 
 /modules/widgets/search/js/search-widget-admin.js
 /vendor/
+
+# Ignored by default, but we should check it
+!.github/
