@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import { VALID_SORT_KEYS } from '../../lib/constants';
-import { getFilterKeys } from '../../lib/filters';
 
 /**
  * Reducer for keeping track of the user's inputted search query

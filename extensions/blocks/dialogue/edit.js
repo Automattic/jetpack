@@ -8,12 +8,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	InspectorControls,
-	RichText,
-	BlockControls,
-	useBlockProps,
-} from '@wordpress/block-editor';
+import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
 import {
@@ -23,7 +18,7 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 } from '@wordpress/components';
-import { useContext, useState, useEffect } from '@wordpress/element';
+import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 
 /**
@@ -43,7 +38,10 @@ import {
 import { formatUppercase } from '../../shared/icons';
 
 function getParticipantBySlug( participants, slug ) {
-	const participant = find( participants, ( contextParticipant ) => contextParticipant.participantSlug === slug );
+	const participant = find(
+		participants,
+		contextParticipant => contextParticipant.participantSlug === slug
+	);
 	if ( participant ) {
 		return participant;
 	}
@@ -55,7 +53,7 @@ function getParticipantBySlug( participants, slug ) {
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
 
-export default function DialogueEdit ( {
+export default function DialogueEdit( {
 	className,
 	attributes,
 	setAttributes,
@@ -64,6 +62,7 @@ export default function DialogueEdit ( {
 	context,
 	onReplace,
 	mergeBlocks,
+	isSelected,
 } ) {
 	const {
 		participant,
@@ -74,6 +73,8 @@ export default function DialogueEdit ( {
 		placeholder,
 	} = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
+	const richTextRef = useRef();
+	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	// Pick the previous block atteobutes from the state.
 	const prevBlock = useSelect( select => {
@@ -86,7 +87,9 @@ export default function DialogueEdit ( {
 	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
-	const participants = participantsFromContext?.length ? participantsFromContext : defaultParticipants;
+	const participants = participantsFromContext?.length
+		? participantsFromContext
+		: defaultParticipants;
 
 	const isCustomParticipant = !! participant && ! participantSlug;
 	const currentParticipantSlug = isCustomParticipant ? defaultParticipantSlug : participantSlug;
@@ -104,7 +107,9 @@ export default function DialogueEdit ( {
 			return;
 		}
 
-		const nextParticipantSlug = conversationBridge.getNextParticipantSlug( prevBlock?.attributes?.participantSlug );
+		const nextParticipantSlug = conversationBridge.getNextParticipantSlug(
+			prevBlock?.attributes?.participantSlug
+		);
 
 		setAttributes( {
 			...( prevBlock?.attributes || {} ),
@@ -113,10 +118,30 @@ export default function DialogueEdit ( {
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
 
-	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
+	// Try to focus the RichText component when mounted.
+	const hasContent = content?.length > 0;
+	const richTextRefCurrent = richTextRef?.current;
+	useLayoutEffect( () => {
+		// Bail if component is not selected.
+		if ( ! isSelected ) {
+			return;
+		}
 
-	const baseClassName = 'wp-block-jetpack-dialogue';
-	const blockProps = useBlockProps( { className: baseClassName } );
+		// Bail if context reference is not valid.
+		if ( ! richTextRefCurrent ) {
+			return;
+		}
+
+		// Bail if context is not empty.
+		if ( hasContent ) {
+			return;
+		}
+
+		// Focus the rich text component
+		richTextRefCurrent.focus();
+	}, [ isSelected, hasContent, richTextRefCurrent ] );
+
+	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
 
 	/**
 	 * Helper to check if the gven style is set, or not.
@@ -182,7 +207,7 @@ export default function DialogueEdit ( {
 	}
 
 	return (
-		<div { ...blockProps }>
+		<div className={ className }>
 			<BlockControls>
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
@@ -225,9 +250,10 @@ export default function DialogueEdit ( {
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
-							label={ isCustomParticipant
-								? __( 'Show', 'jetpack' )
-								: __( 'Show conversation timestamps', 'jetpack' )
+							label={
+								isCustomParticipant
+									? __( 'Show', 'jetpack' )
+									: __( 'Show conversation timestamps', 'jetpack' )
 							}
 							checked={ showTimestamp }
 							onChange={ setShowTimestamp }
@@ -237,9 +263,7 @@ export default function DialogueEdit ( {
 							<TimestampControl
 								className={ baseClassName }
 								value={ timestamp }
-								onChange={ ( newTimestampValue ) =>
-									setAttributes( { timestamp: newTimestampValue } )
-								}
+								onChange={ newTimestampValue => setAttributes( { timestamp: newTimestampValue } ) }
 							/>
 						) }
 					</PanelBody>
@@ -265,7 +289,7 @@ export default function DialogueEdit ( {
 					<TimestampDropdown
 						className={ baseClassName }
 						value={ timestamp }
-						onChange={ ( newTimestampValue ) => {
+						onChange={ newTimestampValue => {
 							setAttributes( { timestamp: newTimestampValue } );
 						} }
 						shortLabel={ true }
@@ -274,15 +298,14 @@ export default function DialogueEdit ( {
 			</div>
 
 			<RichText
+				ref={ richTextRef }
 				identifier="content"
 				tagName="p"
 				className={ `${ baseClassName }__content` }
 				value={ content }
-				onChange={ ( value ) =>
-					setAttributes( { content: value } )
-				}
+				onChange={ value => setAttributes( { content: value } ) }
 				onMerge={ mergeBlocks }
-				onSplit={ ( value ) => {
+				onSplit={ value => {
 					if ( ! content?.length ) {
 						return createBlock( blockNameFallback );
 					}
@@ -292,7 +315,6 @@ export default function DialogueEdit ( {
 						content: value,
 					} );
 				} }
-
 				onReplace={ ( blocks, ...args ) => {
 					// If transcription bridge doesn't exist,
 					// then run the default replace process.
@@ -318,7 +340,9 @@ export default function DialogueEdit ( {
 					// with the next participant slug.
 
 					// Pick up the next participant slug.
-					const nextParticipantSlug = conversationBridge.getNextParticipantSlug( attributes.participantSlug );
+					const nextParticipantSlug = conversationBridge.getNextParticipantSlug(
+						attributes.participantSlug
+					);
 
 					// Update new block attributes.
 					blocks[ 1 ].attributes = {
@@ -329,9 +353,7 @@ export default function DialogueEdit ( {
 
 					onReplace( blocks, ...args );
 				} }
-				onRemove={
-					onReplace ? () => onReplace( [] ) : undefined
-				}
+				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				isSelected={ ! isFocusedOnParticipantLabel }
