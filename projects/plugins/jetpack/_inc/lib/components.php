@@ -48,18 +48,18 @@ class Jetpack_Components {
 	}
 
 	/**
-     * Renders the frontend-nudge with the provided props.
-     *
-     * @param array $props Component properties.
-     *
-     * @return string The component markup.
-     */
-    public static function render_frontend_nudge( $props ) {
-        return self::render_component(
-            'frontend-nudge',
-            $props
-        );
-    }
+	 * Renders the frontend-nudge with the provided props.
+	 *
+	 * @param array $props Component properties.
+	 *
+	 * @return string The component markup.
+	 */
+	public static function render_frontend_nudge( $props ) {
+		return self::render_component(
+			'frontend-nudge',
+			$props
+		);
+	}
 
 	/**
 	 * Load and display a pre-rendered component
