@@ -61,6 +61,49 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
+	if (
+		! membership_checks()
+		// Only display Stripe nudge if Upgrade nudge isn't displaying
+		&& required_plan_checks()
+	) {
+		$stripe_nudge = render_stripe_nudge();
+		return $stripe_nudge . $content;
+	}
+
 	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	return $content;
+}
+
+/**
+ * Server-side rendering for the stripe connection nudge.
+ *
+ * @return string Final content to render.
+ */
+function render_stripe_nudge() {
+	$connect_url = '';
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		jetpack_require_lib( 'memberships' );
+
+		$blog_id = get_current_blog_id();
+		$settings = (array) get_memberships_settings_for_site($blog_id);
+
+		$connect_url = $settings['connect_url'];
+		$description = _('Connect to Stripe to use this block on your site.', 'jetpack');
+		$buttonText  = _('Connect', 'jetpack');
+	} else {
+		// On Jetpack, redirect them to the post in the editor in
+		// order to connect Stripe.
+		$connect_url = get_edit_post_link( get_the_ID() );
+		$description = _('Connect to Stripe to use this block on your site.', 'jetpack');
+		$buttonText  = _('Edit', 'jetpack');
+	}
+
+	jetpack_require_lib('components');
+	return \Jetpack_Components::render_frontend_nudge(
+		array(
+			'checkoutUrl' => $connect_url,
+			'description' => $description,
+			'buttonText'  => $buttonText,
+		)
+	);
 }
