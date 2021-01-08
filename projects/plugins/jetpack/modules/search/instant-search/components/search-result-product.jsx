@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import SearchResultComments from './search-result-comments';
+import SearchResultProductPrice from './search-result-product-price';
 import PhotonImage from './photon-image';
 import ProductRatings from './product-ratings';
 
@@ -82,6 +83,25 @@ class SearchResultProduct extends Component {
 						__html: highlight.content.join( ' ... ' ),
 					} }
 				/>
+
+				{ fields[ 'wc.price' ] && (
+					<div className="jetpack-instant-search__search-result-product-prices">
+						{ fields[ 'wc.sale_price' ] && (
+							<s className="jetpack-instant-search__search-result-product-sale-price">
+								<SearchResultProductPrice
+									value={ fields[ 'wc.sale_price' ] }
+									currencySymbol={ fields[ 'wc.currency_symbol' ] }
+									currencyPosition={ fields[ 'wc.currency_position' ] }
+								/>
+							</s>
+						) }
+						<SearchResultProductPrice
+							value={ fields[ 'wc.price' ] }
+							currencySymbol={ fields[ 'wc.currency_symbol' ] }
+							currencyPosition={ fields[ 'wc.currency_position' ] }
+						/>
+					</div>
+				) }
 
 				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
 			</li>
