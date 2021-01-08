@@ -21,14 +21,12 @@
 .idea
 *.iml
 npm-debug.log
-tests/php/files/jetpack-150x150.jpg
 *.unison.tmp
 .eslintcache
 .eslintignore-required
 yarn-error.log
 .phpcs.xml
 phpcs.xml
-/projects/plugins/jetpack/modules/**/*.min.css.map
 .phpunit.result.cache
 
 ## Things for docker-composer
