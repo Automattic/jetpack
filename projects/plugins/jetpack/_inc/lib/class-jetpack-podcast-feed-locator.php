@@ -17,7 +17,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 	 * @param boolean        $check_html Adds text/html to the mimetypes checked.
 	 */
 	public function is_feed( $file, $check_html = false ) {
-		return parent::is_feed( $file, $check_html ) && self::is_podcast_feed( $file );
+		return parent::is_feed( $file, $check_html ) && $this->is_podcast_feed( $file );
 	}
 
 	/**
