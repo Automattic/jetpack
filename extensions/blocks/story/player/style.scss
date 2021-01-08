@@ -480,6 +480,11 @@
 			.wp-story-title {
 				font-size: 14px;
 				font-weight: 600;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
 
 				@media ( max-width: $break-medium ) {
 					font-size: 12px;
@@ -489,6 +494,8 @@
 			.wp-story-exit-fullscreen {
 				margin-left: auto;
 				order: 3;
+				min-width: 24px;
+				min-height: 24px;
 			}
 		}
 
