@@ -1,6 +1,6 @@
 <?php
 /**
- * Extension of the SimplePieLocator class, to detect podcast feeds
+ * Extension of the SimplePie_Locator class, to detect podcast feeds
  *
  * @package jetpack
  */
