@@ -94,6 +94,7 @@ function ConversationEdit ( {
 				{
 					participant: newSpakerValue,
 					participantSlug: newParticipantSlug,
+					hasBoldStyle: true,
 				},
 			],
 		} );
