@@ -14,7 +14,9 @@ import './match-media.mock';
 import addTweetstormToTweets from '../editor';
 
 describe( 'addTweetstormToTweets', () => {
-	const baseEditFunction = ( props ) => { return <div id='baseEdit'>Base Edit </div> };
+	const baseEditFunction = () => {
+		return <div id="baseEdit">Base Edit </div>;
+	};
 
 	it( 'should expose the function', () => {
 		expect( addTweetstormToTweets ).toBeDefined();
