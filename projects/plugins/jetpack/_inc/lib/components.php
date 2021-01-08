@@ -76,7 +76,8 @@ class Jetpack_Components {
 		$plan = Jetpack_Plans::get_plan( $plan_slug );
 
 		if ( ! $plan ) {
-			return self::render_frontend_nudge(
+			return self::render_component(
+				'upgrade-nudge',
 				array(
 					'checkoutUrl' => '',
 				)
@@ -108,7 +109,8 @@ class Jetpack_Components {
 				"https://wordpress.com/checkout/${site_slug}/${plan_path_slug}"
 			) : '';
 
-		return self::render_frontend_nudge(
+		return self::render_component(
+			'upgrade-nudge',
 			array(
 				'checkoutUrl' => $upgrade_url,
 			)
