@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -f "class.jetpack.php" ]; then
+	echo "This must be executed from the /projects/plugins/jetpack/ dir."
+	exit 1
+fi
+
 # This creates a new .gitignore file based on master, but removes the items we need for release builds
 function create_release_gitignore {
 	# Copy .gitignore to temp file
@@ -18,7 +23,6 @@ function create_release_gitignore {
 
 	# Add custom stuff to .gitignore release
 	echo "/_inc/client" >> .gitignore
-	echo "/docker/" >> .gitignore
 
 	# Needs to stay in sync with .svnignore and `create_new_release_branches` in this file.
 	echo "__snapshots__/" >> .gitignore
