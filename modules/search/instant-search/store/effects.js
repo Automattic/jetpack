@@ -34,6 +34,12 @@ function makeSearchAPIRequest( action, store ) {
 		} );
 }
 
+/**
+ * Initialize query values.
+ *
+ * @param {object} action - Action which had initiated the effect handler.
+ * @param {object} store -  Store instance.
+ */
 function initializeQueryValues( action, store ) {
 	const queryObject = getQuery();
 

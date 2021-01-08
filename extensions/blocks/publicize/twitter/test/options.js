@@ -26,7 +26,7 @@ describe( 'PublicizeTwitterOptions', () => {
 		useSelect.mockImplementation( () => {
 			return {
 				connections: [ { service_name: 'facebook' }, { service_name: 'instagram' } ],
-			}
+			};
 		} );
 		const wrapper = mount( <PublicizeTwitterOptions /> );
 
@@ -38,7 +38,7 @@ describe( 'PublicizeTwitterOptions', () => {
 		useSelect.mockImplementation( () => {
 			return {
 				connections: [ { service_name: 'twitter', enabled: false } ],
-			}
+			};
 		} );
 		const wrapper = mount( <PublicizeTwitterOptions /> );
 
@@ -50,7 +50,7 @@ describe( 'PublicizeTwitterOptions', () => {
 		useSelect.mockImplementation( () => {
 			return {
 				connections: [ { service_name: 'twitter', enabled: true } ],
-			}
+			};
 		} );
 		const wrapper = mount( <PublicizeTwitterOptions /> );
 
@@ -65,7 +65,7 @@ describe( 'PublicizeTwitterOptions', () => {
 			return {
 				connections: [ { service_name: 'twitter', enabled: true } ],
 				isTweetStorm: true,
-			}
+			};
 		} );
 		const wrapper = mount( <PublicizeTwitterOptions /> );
 
@@ -78,7 +78,7 @@ describe( 'PublicizeTwitterOptions', () => {
 			return {
 				connections: [ { service_name: 'twitter', enabled: true } ],
 				isTweetStorm: false,
-			}
+			};
 		} );
 
 		const mockSetTweetstorm = jest.fn();

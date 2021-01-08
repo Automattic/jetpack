@@ -1,21 +1,18 @@
 /**
  * @jest-environment jsdom
  */
-/* global expect */
 
 /**
  * Internal dependencies
  */
 import {
-	clearFilters,
 	makeSearchRequest,
 	recordSuccessfulSearchRequest,
 	recordFailedSearchRequest,
-	setFilter,
 	setSearchQuery,
 	setSort,
 } from '../actions';
-import { filters, hasError, isLoading, response, searchQuery, sort } from '../reducer';
+import { hasError, isLoading, response, searchQuery, sort } from '../reducer';
 
 describe( 'hasError Reducer', () => {
 	test( 'defaults to false', () => {
@@ -117,4 +114,3 @@ describe( 'sort Reducer', () => {
 		expect( state ).toBe( 'newest' );
 	} );
 } );
-

@@ -28,7 +28,7 @@ _em_
 __strong__
 ***em strong***
 
-\\\*Literal asterisks\\\*
+\\*Literal asterisks\\*
 
 Link to [WordPress](https://wordpress.com) and <https://jetpack.com/>
 
