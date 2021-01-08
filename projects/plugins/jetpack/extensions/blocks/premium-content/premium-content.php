@@ -66,7 +66,7 @@ function render_block( $attributes, $content ) {
 
 	if (
 		! membership_checks()
-		// Only display Stripe nudge if Upgrade nudge isn't displaying
+		// Only display Stripe nudge if Upgrade nudge isn't displaying.
 		&& required_plan_checks()
 	) {
 		$stripe_nudge = render_stripe_nudge();
@@ -90,15 +90,15 @@ function render_stripe_nudge() {
 	}
 
 	jetpack_require_lib( 'memberships' );
-	$blog_id = get_current_blog_id();
-	$settings = (array) get_memberships_settings_for_site($blog_id);
+	$blog_id  = get_current_blog_id();
+	$settings = (array) get_memberships_settings_for_site( $blog_id );
 
-	jetpack_require_lib('components');
+	jetpack_require_lib( 'components' );
 	return \Jetpack_Components::render_frontend_nudge(
 		array(
 			'checkoutUrl' => $settings['connect_url'],
-			'description' => _('Connect to Stripe to use this block on your site.', 'jetpack'),
-			'buttonText'  => _('Connect', 'jetpack'),
+			'description' => __( 'Connect to Stripe to use this block on your site.', 'jetpack' ),
+			'buttonText'  => __( 'Connect', 'jetpack' ),
 		)
 	);
 }
