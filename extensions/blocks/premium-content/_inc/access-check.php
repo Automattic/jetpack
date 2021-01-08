@@ -43,9 +43,9 @@ function pre_render_checks() {
  * @return bool Whether the user can edit.
  */
 function current_user_can_edit() {
-    $user = wp_get_current_user();
+	$user = wp_get_current_user();
 
-    return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
+	return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
 }
 
 /**
