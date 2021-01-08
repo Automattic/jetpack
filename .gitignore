@@ -6,8 +6,6 @@
 /logs
 /allure-results/
 
-/projects/plugins/**/node_modules/
-
 ## FILES
 .DS_Store
 *.code-workspace
