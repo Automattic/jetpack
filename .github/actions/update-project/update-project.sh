@@ -62,8 +62,8 @@ for package in projects/packages/*; do
 	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/automattic/jetpack-$NAME.git $CLONE_DIR
 
 	echo "  Cloning of ${NAME} completed"
-  echo "  Building project"
-  yarn_build
+	echo "  Building project"
+	yarn_build
 
 	cd $CLONE_DIR
 
@@ -133,8 +133,8 @@ for plugin in projects/plugins/*; do
 	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/automattic/$GIT_SLUG.git $CLONE_DIR
 
 	echo "  Cloning of ${NAME} completed"
-  echo "  Building project"
-  yarn_build
+	echo "  Building project"
+	yarn_build
 
 	cd $CLONE_DIR
 
