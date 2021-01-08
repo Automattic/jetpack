@@ -15,6 +15,7 @@ import './extend';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
+import example from './example';
 
 export const name = 'conversation';
 export const title = __( 'Conversation', 'jetpack' );
@@ -34,6 +35,7 @@ export const settings = {
 		align: true,
 	},
 	attributes,
+	example,
 	styles: [
 		{ name: 'row', label: __( 'Row', 'jetpack' ), isDefault: true },
 		{ name: 'column', label: __( 'Column', 'jetpack' ) },
