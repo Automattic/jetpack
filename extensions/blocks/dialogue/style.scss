@@ -17,6 +17,7 @@
 		padding: 6px 12px;
 		text-align: right;
 		font-size: 16px;
+		white-space: nowrap;
 	}
 }
 
@@ -37,6 +38,11 @@
 	&.has-uppercase-style {
 		text-transform: uppercase;
 	}
+}
+
+// dialogue content.
+.block-editor-block-list__block .wp-block-jetpack-dialogue__content {
+	margin: 0 0 1em 0;
 }
 
 // Conversation styles.

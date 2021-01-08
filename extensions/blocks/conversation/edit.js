@@ -2,16 +2,12 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	useEffect,
-	useRef,
-	useCallback,
-	useMemo,
-} from '@wordpress/element';
+import { useEffect, useRef, useCallback } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
 	BlockControls,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import {
 	Panel,
@@ -44,6 +40,8 @@ function ConversationEdit ( {
 	const { participants = [], showTimestamps, className: classNameAttr } = attributes;
 	const containerRef = useRef();
 
+	const blockProps = useBlockProps( { ref: containerRef, className } );
+
 	// Set initial conversation participants.
 	useEffect( () => {
 		if ( participants?.length ) {
@@ -67,8 +65,14 @@ function ConversationEdit ( {
 
 	// Context bridge.
 	const contextProvision = {
-		setAttributes: useMemo( () => setAttributes, [ setAttributes ] ),
+		setAttributes,
 		updateParticipants,
+		getParticipantIndex: ( slug ) =>
+			participants.map( ( part ) => part.participantSlug ).indexOf( slug ),
+		getNextParticipantIndex: ( slug, offset = 0 ) => (
+			contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
+		getNextParticipantSlug: ( slug, offset = 0 ) =>
+			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
 
 		attributes: {
 			showTimestamps,
@@ -90,6 +94,7 @@ function ConversationEdit ( {
 				{
 					participant: newSpakerValue,
 					participantSlug: newParticipantSlug,
+					hasBoldStyle: true,
 				},
 			],
 		} );
@@ -99,7 +104,7 @@ function ConversationEdit ( {
 
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
-			<div ref={ containerRef } className={ className }>
+			<div { ...blockProps }>
 				<BlockControls>
 					<ToolbarGroup>
 						<ParticipantsDropdown
