@@ -31,6 +31,7 @@ const automations = [
 		return;
 	}
 
+	// eslint-disable-next-line new-cap
 	const octokit = new getOctokit( token );
 
 	// Get info about the event.
