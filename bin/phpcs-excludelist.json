@@ -575,6 +575,7 @@
 	"tests/php/test_class.functions.opengraph.php",
 	"tests/php/test_class.jetpack-idc.php",
 	"tests/php/test_functions.photon.php",
+	"tests/php/test_deprecation.php",
 	"tools/build-module-headings-translations.php",
 	"views/admin/must-connect-main-blog.php",
 	"views/admin/network-activated-notice.php",
