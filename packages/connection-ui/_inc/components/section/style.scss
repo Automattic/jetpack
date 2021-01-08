@@ -1,6 +1,10 @@
 #jetpack-connection-ui-container .jetpack-cui__section {
 	margin-top: 40px;
 
+	&.faded {
+		opacity: 0.5;
+	}
+
 	h2 {
 		margin: 0 0 8px 0;
 	}

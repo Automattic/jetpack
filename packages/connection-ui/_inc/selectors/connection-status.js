@@ -1,7 +1,5 @@
 const connectionStatusSelectors = {
-	getConnectionStatus: state => {
-		return state.connectionStatus || {};
-	},
+	getConnectionStatus: state => state.connectionStatus || {},
 };
 
 export default connectionStatusSelectors;

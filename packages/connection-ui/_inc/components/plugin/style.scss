@@ -1,0 +1,41 @@
+#jetpack-connection-ui-container .jetpack-cui__plugin {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	button {
+		width: 102px;
+		justify-content: center;
+		box-shadow: none;
+
+		&.connected, &.disconnected {
+			&:hover {
+				background: #eee;
+			}
+		}
+
+		&.connected {
+			background: #F1F1F1;
+			border: 1px solid #016087;
+			color: #016087;
+		}
+
+		&.disconnected {
+			background: #F3F5F6;
+			border: 1px solid #B52727;
+			color: #B52727;
+		}
+	}
+
+	.dot-connected {
+		font-size: 0.9em;
+		line-height: 1.4em;
+
+		&::before {
+			content: '•';
+			color: #00BE28;
+			font-size: 1.5em;
+			margin-right: 5px;
+		}
+	}
+}

@@ -14,13 +14,14 @@ import './style.scss';
  * @param {object} props         The properties.
  * @param {string} props.title   The section title.
  * @param {array} props.children The section title.
+ * @param {boolean} props.faded  Makes the section faded out.
  * @returns {JSX.Element}        The Section component.
  */
 export default function Section( props ) {
-	const { title, children } = props;
+	const { title, children, faded } = props;
 
 	return (
-		<div className="jetpack-cui__section">
+		<div className={ 'jetpack-cui__section ' + ( faded && 'faded' ) }>
 			<h2>{ title }</h2>
 
 			{ children && <div className="jetpack-cui__section-body">{ children }</div> }

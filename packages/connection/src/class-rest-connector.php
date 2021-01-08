@@ -105,6 +105,22 @@ class REST_Connector {
 				),
 			)
 		);
+
+		// Softly disconnect or reconnect a plugin.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/connect_disconnect_plugin',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'connect_disconnect_plugin' ),
+				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+				'args'                => array(
+					'slug'       => array( 'type' => 'string' ),
+					'connect'    => array( 'type' => 'boolean' ),
+					'disconnect' => array( 'type' => 'boolean' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -297,6 +313,35 @@ class REST_Connector {
 		}
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Softly disconnect or reconnect a plugin.
+	 *
+	 * @param WP_REST_Request|\ArrayAccess|array $request The request sent to the WP REST API.
+	 *
+	 * @return WP_Error|\WP_HTTP_Response|WP_REST_Response
+	 */
+	public function connect_disconnect_plugin( $request = array() ) {
+		if ( empty( $request['slug'] ) ) {
+			return new WP_Error( 'Plugin slug is required' );
+		}
+
+		if ( empty( $request['connect'] ) && empty( $request['disconnect'] ) ) {
+			return new WP_Error( "The 'connect' or 'disconnect' flag is required." );
+		}
+
+		$plugin = new Plugin( $request['slug'] );
+
+		if ( $request['connect'] ) {
+			$plugin->enable();
+		}
+
+		if ( $request['disconnect'] ) {
+			$plugin->disable();
+		}
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 }

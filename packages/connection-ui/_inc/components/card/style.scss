@@ -1,6 +1,8 @@
 @import "../../definitions";
 
 #jetpack-connection-ui-container .jetpack-cui__card {
+	margin-bottom: 24px;
+
 	.jetpack-cui__card-body {
 		@include clearfix;
 
@@ -8,5 +10,9 @@
 		border: 1px solid #CCD0D4;
 		box-sizing: border-box;
 		padding: 8px 30px;
+
+		p {
+			max-width: 65%;
+		}
 	}
 }
