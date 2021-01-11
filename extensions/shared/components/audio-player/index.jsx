@@ -10,14 +10,16 @@ import { speak } from '@wordpress/a11y';
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
+import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
 import { pickCurrentTime } from './utils';
-const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 /**
  * Style dependencies
  */
 import './style.scss';
+
+// MediaElement global settings.
+const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {
 	const buttonContainer = document.createElement( 'div' );
