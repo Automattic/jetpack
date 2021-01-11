@@ -120,7 +120,6 @@
 	"_inc/jetpack-wizard-banner.js",
 	"_inc/jquery.jetpack-resize.js",
 	"_inc/lib/debugger/jetpack-debugger-site-health.js",
-	"_inc/lib/tracks/tracks-ajax.js",
 	"_inc/polldaddy-shortcode.js",
 	"_inc/twitter-timeline.js",
 	"bin/pre-commit-hook.js",
