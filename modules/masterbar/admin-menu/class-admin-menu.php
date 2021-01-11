@@ -259,19 +259,27 @@ class Admin_Menu {
 		$customize_slug     = $calypso ? 'https://wordpress.com/customize/' . $this->domain : 'customize.php';
 		$themes_slug        = $calypso ? 'https://wordpress.com/themes/' . $this->domain : 'themes.php';
 		$customize_url      = add_query_arg( 'return', urlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ); // phpcs:ignore
-
 		remove_menu_page( 'themes.php' );
 		remove_submenu_page( 'themes.php', 'themes.php' );
 		remove_submenu_page( 'themes.php', 'theme-editor.php' );
 		remove_submenu_page( 'themes.php', $customize_url );
+		remove_submenu_page( 'themes.php', 'custom-header' );
+		remove_submenu_page( 'themes.php', 'custom-background' );
 
 		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), $appearance_cap, $themes_slug, null, 'dashicons-admin-appearance', 60 );
 		add_submenu_page( $themes_slug, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', $themes_slug, null, 5 );
 		add_submenu_page( $themes_slug, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_slug, null, 10 );
 
+		// Maintain id as JS selector.
+		$GLOBALS['menu'][60][5] = 'menu-appearance'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		if ( current_theme_supports( 'custom-header' ) && $user_can_customize ) {
 			$customize_header_url = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_url );
-			remove_submenu_page( 'themes.php', $customize_header_url );
+			remove_submenu_page( 'themes.php', esc_url( $customize_header_url ) );
+
+			// TODO: Remove WPCom_Theme_Customizer::modify_header_menu_links() and WPcom_Custom_Header::modify_admin_menu_links().
+			$customize_header_url = admin_url( 'themes.php?page=custom-header' );
+			remove_submenu_page( 'themes.php', esc_url( $customize_header_url ) );
 
 			$customize_header_url = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_slug );
 			add_submenu_page( $themes_slug, __( 'Header', 'jetpack' ), __( 'Header', 'jetpack' ), 'customize', esc_url( $customize_header_url ), null, 15 );
@@ -279,9 +287,13 @@ class Admin_Menu {
 
 		if ( current_theme_supports( 'custom-background' ) && $user_can_customize ) {
 			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'background_image' ) ), $customize_url );
-			remove_submenu_page( 'themes.php', $customize_background_url );
+			remove_submenu_page( 'themes.php', esc_url( $customize_background_url ) );
 
-			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'control' => 'background_image' ) ), $customize_slug );
+			// TODO: Remove Colors_Manager::modify_header_menu_links() and Colors_Manager_Common::modify_header_menu_links().
+			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), admin_url( 'customize.php' ) );
+			remove_submenu_page( 'themes.php', esc_url( $customize_background_url ) );
+
+			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_slug );
 			add_submenu_page( $themes_slug, esc_attr__( 'Background', 'jetpack' ), __( 'Background', 'jetpack' ), 'customize', esc_url( $customize_background_url ), null, 20 );
 		}
 
@@ -300,6 +312,21 @@ class Admin_Menu {
 		}
 
 		$this->migrate_submenus( 'themes.php', $themes_slug );
+		add_filter( 'parent_file', array( $this, 'appearance_parent_file' ) );
+	}
+
+	/**
+	 * Filters the parent file of an admin menu sub-menu item.
+	 *
+	 * @param string $parent_file The parent file.
+	 * @return string Updated parent file.
+	 */
+	public function appearance_parent_file( $parent_file ) {
+		if ( 'themes.php' === $parent_file ) {
+			$parent_file = 'https://wordpress.com/themes/' . $this->domain;
+		}
+
+		return $parent_file;
 	}
 
 	/**
