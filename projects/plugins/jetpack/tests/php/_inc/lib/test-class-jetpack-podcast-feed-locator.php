@@ -17,6 +17,14 @@ jetpack_require_lib( 'class-jetpack-podcast-feed-locator' );
  * @coversDefaultClass Jetpack_Podcast_Feed_Locator
  */
 class WP_Test_Jetpack_Podcast_Feed_Locator extends WP_UnitTestCase {
+	public function setUp() {
+		if ( ! class_exists( 'DOMDocument' ) ) {
+			$this->markTestSkipped( 'DOMDocument is not available - can\'t run feed tests' );
+		} else {
+			parent::setUp();
+		}
+	}
+
 	/**
 	 * Tests that class extends SimplePie_Locator, so that it can be set as the locator
 	 * class, e.g. `$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' )`.
@@ -29,12 +37,11 @@ class WP_Test_Jetpack_Podcast_Feed_Locator extends WP_UnitTestCase {
 	}
 
 	public function test_finds_podcast_feed_with_itunes_ns() {
-		$file = new SimplePie_File(
-			<<<FEED
-			<?xml version="1.0" encoding="UTF-8"?>
-			<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"></rss>
-			FEED
-		);
+		$rss  = <<<FEED
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"></rss>
+FEED;
+		$file = new SimplePie_File( $rss );
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
@@ -42,18 +49,17 @@ class WP_Test_Jetpack_Podcast_Feed_Locator extends WP_UnitTestCase {
 	}
 
 	public function test_finds_podcast_feed_with_audio_enclosures() {
-		$file = new SimplePie_File(
-			<<<FEED
-			<?xml version="1.0" encoding="UTF-8"?>
-			<rss>
-				<channel>
-					<item>
-						<enclosure url="https://example.com/audio.mp3" type="audio/mpeg"/>
-					</item>
-				</channel>
-			</rss>
-			FEED
-		);
+		$rss  = <<<FEED
+<?xml version="1.0" encoding="UTF-8"?>
+<rss>
+	<channel>
+		<item>
+			<enclosure url="https://example.com/audio.mp3" type="audio/mpeg"/>
+		</item>
+	</channel>
+</rss>
+FEED;
+		$file = new SimplePie_File( $rss );
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
@@ -61,18 +67,17 @@ class WP_Test_Jetpack_Podcast_Feed_Locator extends WP_UnitTestCase {
 	}
 
 	public function test_does_not_locate_non_podcast_feeds() {
-		$file = new SimplePie_File(
-			<<<FEED
-			<?xml version="1.0" encoding="UTF-8"?>
-			<rss>
-				<channel>
-					<item>
-						<title>My Post</title>
-					</item>
-				</channel>
-			</rss>
-			FEED
-		);
+		$rss = <<<FEED
+<?xml version="1.0" encoding="UTF-8"?>
+<rss>
+	<channel>
+		<item>
+			<title>My Post</title>
+		</item>
+	</channel>
+</rss>
+FEED;
+		$file = new SimplePie_File( $rss );
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
