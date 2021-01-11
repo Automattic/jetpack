@@ -61,6 +61,7 @@ const settings = {
 		alignWide: false,
 		html: false,
 		lightBlockWrapper: true,
+		inserter: false,
 	},
 	styles: [
 		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },

@@ -23,6 +23,7 @@ const settings = {
 		align: true,
 		alignWide: false,
 		lightBlockWrapper: true,
+		inserter: false,
 	},
 	keywords: [ __( 'link', 'jetpack' ) ],
 	edit,
