@@ -4,7 +4,7 @@ set -eo pipefail
 
 cd $(dirname "${BASH_SOURCE[0]}")/..
 
-TEMP=$(mktemp --tmpdir cleanup-excludelists-XXXXXXXX)
+TEMP=$(mktemp cleanup-excludelists-XXXXXXXX)
 if [[ ! -e "$TEMP" ]]; then
 	exit 1
 fi
