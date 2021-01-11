@@ -10,13 +10,12 @@ import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import {
-	STATE_PLAYING,
 	STATE_ERROR,
 	STATE_PAUSED,
 	STORE_ID,
@@ -30,7 +29,6 @@ import { syncOffsetTime } from '../../../shared/components/audio-player/utils';
 
 export class PodcastPlayer extends Component {
 	state = {
-		playerState: STATE_PAUSED,
 		currentTrack: 0,
 		hasUserInteraction: false,
 		currentTime: 0,
@@ -59,13 +57,13 @@ export class PodcastPlayer extends Component {
 		// Current track already selected.
 		if ( currentTrack === track ) {
 			this.recordUserInteraction();
-			this.togglePlayPause();
+			this.toggleMediaSourceState();
 			return;
 		}
 
 		// Something else is playing.
 		if ( currentTrack !== -1 ) {
-			this.setState( { playerState: STATE_PAUSED } );
+			this.props.pauseMediaSourceState();
 		}
 
 		// Load a new track.
@@ -87,7 +85,8 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-		this.setState( { currentTrack: track, playerState: STATE_PLAYING } );
+		this.setState( { currentTrack: track } );
+		this.props.playMediaSourceState();
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -147,10 +146,7 @@ export class PodcastPlayer extends Component {
 	 */
 	handlePlay = () => {
 		this.props.playMediaSourceState( this.props.playerId );
-		this.setState( {
-			playerState: STATE_PLAYING,
-			hasUserInteraction: true,
-		} );
+		this.setState( { hasUserInteraction: true } );
 	};
 
 	/**
@@ -159,22 +155,12 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePause = () => {
-		this.props.pauseMediaSourceState( this.props.playerId );
 		// Ignore pauses if we are showing an error.
-		if ( this.state.playerState === STATE_ERROR ) {
+		if ( this.props.playerState === STATE_ERROR ) {
 			return;
 		}
-		this.setState( { playerState: STATE_PAUSED } );
-	};
 
-	/**
-	 * Toggle playing state.
-	 *
-	 * @public
-	 */
-	togglePlayPause = () => {
-		const action = this.state.playerState === STATE_PLAYING ? this.handlePause : this.handlePlay;
-		action();
+		this.props.pauseMediaSourceState( this.props.playerId );
 	};
 
 	handleJump = () => {
@@ -213,7 +199,7 @@ export class PodcastPlayer extends Component {
 	}
 
 	render() {
-		const { playerId, title, link, cover, tracks, attributes } = this.props;
+		const { playerId, title, link, cover, tracks, attributes, playerState } = this.props;
 		const {
 			itemsToShow,
 			primaryColor,
@@ -229,7 +215,7 @@ export class PodcastPlayer extends Component {
 			showEpisodeTitle,
 			showEpisodeDescription,
 		} = attributes;
-		const { playerState, currentTrack } = this.state;
+		const { currentTrack } = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 		const track = this.getTrack( currentTrack );
@@ -294,7 +280,7 @@ export class PodcastPlayer extends Component {
 						onPlay={ this.handlePlay }
 						onPause={ this.handlePause }
 						onError={ this.handleError }
-						playStatus={ this.state.playerState }
+						playStatus={ playerState }
 						currentTime={ this.state.currentTime }
 					/>
 				</Header>
@@ -352,6 +338,13 @@ PodcastPlayer.defaultProps = {
 
 export default compose( [
 	withErrorBoundary,
+	withSelect( ( select, props ) => {
+		const { getMediaPlayerStatus } = select( STORE_ID );
+
+		return {
+			playerState: getMediaPlayerStatus( props.playerId ),
+		};
+	} ),
 	withDispatch( dispatch => {
 		const {
 			registerMediaSource,
@@ -359,6 +352,7 @@ export default compose( [
 			setMediaSourceAsDefault,
 			playMediaSourceState,
 			pauseMediaSourceState,
+			toggleMediaSourceState,
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
@@ -366,6 +360,7 @@ export default compose( [
 			setMediaSourceAsDefault,
 			playMediaSourceState,
 			pauseMediaSourceState,
+			toggleMediaSourceState,
 		};
 	} ),
 ] )( PodcastPlayer );
