@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
@@ -39,7 +39,7 @@
         },
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/abtest",
@@ -78,7 +78,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
@@ -113,7 +113,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
@@ -153,7 +153,7 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
@@ -178,7 +178,7 @@
         },
         {
             "name": "automattic/jetpack-blocks",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
@@ -213,7 +213,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/compat",
@@ -247,7 +247,7 @@
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
@@ -269,7 +269,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
@@ -316,7 +316,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
@@ -348,7 +348,7 @@
         },
         {
             "name": "automattic/jetpack-device-detection",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
@@ -379,7 +379,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/error",
@@ -410,7 +410,7 @@
         },
         {
             "name": "automattic/jetpack-heartbeat",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/heartbeat",
@@ -445,7 +445,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
@@ -488,7 +488,7 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
@@ -527,7 +527,7 @@
         },
         {
             "name": "automattic/jetpack-licensing",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
@@ -566,7 +566,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
@@ -597,7 +597,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/options",
@@ -625,7 +625,7 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
@@ -657,7 +657,7 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
@@ -692,7 +692,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
@@ -724,7 +724,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
@@ -756,7 +756,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
@@ -785,7 +785,7 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
@@ -821,7 +821,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-feature/reorg",
+            "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
