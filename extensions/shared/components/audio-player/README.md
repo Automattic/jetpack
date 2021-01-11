@@ -2,7 +2,7 @@
 
 ## Overview
 
-This component forms the audio element of the podcast player. It has been abstracted and moved to the shared components, so that it can be used by other blocks.
+This component forms the audio element of any  podcast player. It has been abstracted and moved to the shared components, so that it can be used by other blocks.
 
 The principle behind the component is for it to act like a controlled `form` input, with its state being managed elsewhere.
 
@@ -11,6 +11,42 @@ The principle behind the component is for it to act like a controlled `form` inp
 In a similar way to a controlled input the component takes some props to determine its current state, along with some callbacks so that other parts of the system can be informed of the need to change the state. This in turn should cause a change to the props passed into the component. 
 
 For example, someone clicks on the play button, the `onPlay` handler is called, which updates some state and passes `STATE_PLAYING` back to the component in the `playStatus` prop. In reality there are some issues with this approach outlined below.
+
+## Imperative vs Declarative
+
+A common method of playing audio in a client is just rendering an `<audio>` element, then get its reference to finally change their status either through methods or properties, provided by [its API](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio). Natively, the API is implemented to be consumed in an imperative mode, quite away from how an app that uses React. Let's see the difference with an example when we want to play the audio track.
+
+```es6
+// Get elements reference.
+const audioElement = document.getElementById( 'audio-id' );
+const buttonElement = document.getElementById( 'play-button' );
+
+// Handle play state, imperatively.
+buttonElement.onClick = function() {
+	audioElement.play(); // just do what I say.
+}
+```
+
+Now, the same example but with a declarative API:
+
+```es6
+import { useState } from '@wordpress/element';
+
+function player() () {
+	const [ syatus, setStatus ] = useState( 'is-paused' );
+	return (
+		<Button
+			onClick={ () => setStatus( 'is-playing' ) }
+		>
+
+		<AudioPlayer
+			playStatus={ status } // please follow the status changes.
+		>
+	);
+}
+```
+
+A layer connection between the imperative API (native) wit da declarative API (React component is this case) is not always straightforward, requiring some kinda tricks to make it work. `currentTime` and `reportedTime` properties are a good example of how to deal with setting the track time position, pragmatically.
 
 ### Props
 
