@@ -10,7 +10,6 @@ import storeDefinition from './storeDefinition';
 /**
  * Internal dependencies
  */
-
 import { STORE_ID } from './constants';
 
 // Register the store, considering the API changes.

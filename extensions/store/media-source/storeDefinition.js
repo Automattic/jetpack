@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import { STATE_PLAYING, STATE_PAUSED } from './constants';
+
 const DEFAULT_STATE = {
 	players: {},
 };
@@ -28,7 +33,23 @@ const actions = {
 			type: 'SET_MEDIA_SOURCE_AS_DEFAULT',
 			id,
 		};
-	}
+	},
+
+	playMediaSourceState( id ) {
+		return {
+			type: 'SET_MEDIA_PLAYER_STATE',
+			id,
+			state: STATE_PLAYING,
+		};
+	},
+
+	pauseMediaSourceState( id ) {
+		return {
+			type: 'SET_MEDIA_PLAYER_STATE',
+			id,
+			state: STATE_PAUSED,
+		};
+	},
 };
 
 const selectors = {};
@@ -66,6 +87,19 @@ const storeDefinition = {
 					default: action.id,
 				};
 			}
+
+			case 'SET_MEDIA_PLAYER_STATE': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							state: action.state,
+						},
+					},
+				};
+			}
 		}
 
 		return state;
@@ -75,4 +109,5 @@ const storeDefinition = {
 
 	selectors,
 };
+
 export default storeDefinition;
