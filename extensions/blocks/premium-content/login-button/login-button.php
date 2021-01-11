@@ -26,7 +26,6 @@ function register_login_button_block() {
 			LOGIN_BUTTON_NAME,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_login_button_block',
-				'plan_check'      => true,
 			)
 		);
 	}
@@ -54,5 +53,6 @@ function render_login_button_block( $attributes, $content ) {
 	Jetpack_Gutenberg::load_styles_as_required( LOGIN_BUTTON_NAME );
 
 	$url = subscription_service()->access_url();
+
 	return preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
 }

@@ -42,10 +42,12 @@
 		"amazon",
 		"anchor-fm",
 		"conversation",
-		"dialogue",
+		"dialogue"
+	],
+	"experimental": [
+		"seo",
 		"premium-content"
 	],
-	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
