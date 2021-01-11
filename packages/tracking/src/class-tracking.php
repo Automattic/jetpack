@@ -14,7 +14,7 @@ class Tracking {
 	/**
 	 * The assets version.
 	 *
-	 * @since 9.3.0
+	 * @since 9.4.0
 	 *
 	 * @var string Assets version.
 	 */
