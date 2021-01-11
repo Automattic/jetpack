@@ -52,10 +52,27 @@ const actions = {
 	},
 };
 
-const selectors = {};
+const selectors = {
+	getDefaultMediaSource( state ) {
+		let playerId = null;
+		if ( state.default ) {
+			playerId = state.default;
+		} else if ( Object.keys( state.players ).length ) {
+			playerId = state.players[ Object.keys[ 0 ] ].id;
+		}
+
+		if ( ! playerId ) {
+			return;
+		}
+
+		return state.players[ playerId ];
+	},
+};
 
 const storeDefinition = {
 	reducer( state = DEFAULT_STATE, action ) {
+		const playerId = action.id || state.default;
+
 		switch ( action.type ) {
 			case 'REGISTER_MEDIA_SOURCE': {
 				return {
@@ -77,7 +94,6 @@ const storeDefinition = {
 				if ( action.id === state.default ) {
 					currentState.default = null;
 				}
-
 				return currentState;
 			}
 
@@ -93,8 +109,8 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
+						[ playerId ]: {
+							...state.players[ playerId ],
 							state: action.state,
 						},
 					},
@@ -102,12 +118,12 @@ const storeDefinition = {
 			}
 		}
 
-		return state;
-	},
+        return state;
+    },
 
-	actions,
+    actions,
 
-	selectors,
+    selectors,
 };
 
 export default storeDefinition;
