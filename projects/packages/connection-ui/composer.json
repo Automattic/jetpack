@@ -1,0 +1,22 @@
+{
+	"name": "automattic/jetpack-connection-ui",
+	"description": "Jetpack Connection UI",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}

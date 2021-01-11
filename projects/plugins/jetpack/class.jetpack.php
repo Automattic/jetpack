@@ -824,6 +824,7 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
+			Automattic\Jetpack\ConnectionUI\Admin::init();
 		}
 
 		/*
