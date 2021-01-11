@@ -26,7 +26,7 @@ import {
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { get } from 'lodash';
+import { get, indexOf } from 'lodash';
 
 /**
  * Internal dependencies
@@ -52,6 +52,9 @@ const VideoPressEdit = CoreVideoEdit =>
 				isFetchingMedia: false,
 				fallback: false,
 				interactive: false,
+				rating: null,
+				lastRequestedMediaId: null,
+				isUpdatingRating: false,
 			};
 			this.posterImageButton = createRef();
 		}
@@ -76,18 +79,31 @@ const VideoPressEdit = CoreVideoEdit =>
 			this.setState( { interactive: true } );
 		};
 
-		componentDidMount() {
+		async componentDidMount() {
 			const { guid } = this.props.attributes;
 			if ( ! guid ) {
-				this.setGuid();
+				await this.setGuid();
 			}
+
+			this.setRating();
 		}
 
-		componentDidUpdate( prevProps ) {
+		setRating = async () => {
+			const id = get( this.props, 'attributes.id' );
+			const media = await this.requestMedia( id );
+			const rating = get( media, 'jetpack_videopress.rating' );
+
+			if ( rating ) {
+				this.setState( { rating } );
+			}
+		};
+
+		async componentDidUpdate( prevProps ) {
 			const { attributes, invalidateCachedEmbedPreview, url } = this.props;
 
 			if ( attributes.id !== prevProps.attributes.id ) {
-				this.setGuid();
+				await this.setGuid();
+				this.setRating();
 			}
 
 			if ( url && url !== prevProps.url ) {
@@ -114,18 +130,13 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			try {
-				this.setState( { isFetchingMedia: true } );
-				const media = await apiFetch( { path: `/wp/v2/media/${ id }` } );
-				this.setState( { isFetchingMedia: false } );
+				const media = await this.requestMedia( id );
 
-				const { id: currentId } = this.props.attributes;
-				if ( id !== currentId ) {
-					// Video was changed in the editor while fetching data for the previous video;
+				if ( null === media ) {
 					return;
 				}
 
-				this.setState( { media } );
-				const guid = get( media, 'jetpack_videopress_guid' );
+				const guid = get( media, 'jetpack_videopress.guid' );
 				if ( guid ) {
 					setAttributes( { guid } );
 				} else {
@@ -135,6 +146,29 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setState( { isFetchingMedia: false } );
 				this.fallbackToCore();
 			}
+		};
+
+		requestMedia = async id => {
+			if ( ! id ) {
+				return null;
+			}
+
+			if ( null !== this.state.media && this.state.lastRequestedMediaId === id ) {
+				return this.state.media;
+			}
+
+			this.setState( { isFetchingMedia: true } );
+			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } );
+			this.setState( { isFetchingMedia: false } );
+
+			const { id: currentId } = this.props.attributes;
+			if ( id !== currentId ) {
+				// Video was changed in the editor while fetching data for the previous video;
+				return null;
+			}
+
+			this.setState( { media, lastRequestedMediaId: id } );
+			return media;
 		};
 
 		switchToEditing = () => {
@@ -170,6 +204,41 @@ const VideoPressEdit = CoreVideoEdit =>
 				: null;
 		};
 
+		onChangeRating = rating => {
+			const { id } = this.props.attributes;
+			const originalRating = this.state.rating;
+
+			if ( ! id ) {
+				return;
+			}
+
+			if ( -1 === indexOf( [ 'G', 'PG-13', 'R-17', 'X-18' ], rating ) ) {
+				return;
+			}
+
+			this.setState( { isUpdatingRating: true, rating } );
+
+			const revertSetting = () => this.setState( { rating: originalRating } );
+
+			apiFetch( {
+				path: '/wpcom/v2/videopress/meta',
+				method: 'POST',
+				data: {
+					id: id,
+					rating: rating,
+				},
+			} )
+				.then( result => {
+					// check for wpcom status field, if set
+					if ( status in result && 200 !== result.status ) {
+						revertSetting();
+						return;
+					}
+				} )
+				.catch( () => revertSetting() )
+				.finally( () => this.setState( { isUpdatingRating: false } ) );
+		};
+
 		render() {
 			const {
 				attributes,
@@ -181,7 +250,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				preview,
 				setAttributes,
 			} = this.props;
-			const { fallback, isFetchingMedia, interactive } = this.state;
+			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
 			const { autoplay, caption, controls, loop, muted, poster, preload } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
@@ -268,6 +337,40 @@ const VideoPressEdit = CoreVideoEdit =>
 									) }
 								</BaseControl>
 							</MediaUploadCheck>
+						</PanelBody>
+						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
+							<SelectControl
+								label={ _x( 'Rating', 'The age rating for this video.', 'jetpack' ) }
+								value={ rating }
+								disabled={ isFetchingMedia || isUpdatingRating }
+								options={ [
+									{
+										label: _x( 'G', 'Video rating for "General Audiences".', 'jetpack' ),
+										value: 'G',
+									},
+									{
+										label: _x(
+											'PG-13',
+											'Video rating for "Parental Guidance", unsuitable for children under 13.',
+											'jetpack'
+										),
+										value: 'PG-13',
+									},
+									{
+										label: _x(
+											'R',
+											'Video rating for "Restricted", not recommended for children under 17.',
+											'jetpack'
+										),
+										value: 'R-17',
+									},
+									{
+										label: _x( 'X', 'Video rating for "Explicit" content.', 'jetpack' ),
+										value: 'X-18',
+									},
+								] }
+								onChange={ this.onChangeRating }
+							/>
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>

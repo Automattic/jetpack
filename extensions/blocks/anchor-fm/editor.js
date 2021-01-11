@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { castArray } from 'lodash';
+import { useEffect, useCallback } from 'react';
 
 /**
  * WordPress dependencies
@@ -17,6 +18,7 @@ import { registerPlugin } from '@wordpress/plugins';
  */
 import { waitForEditor } from '../../shared/wait-for-editor';
 import { basicTemplate, spotifyBadgeTemplate } from './templates';
+import analytics from '../../../_inc/client/lib/analytics';
 
 /**
  * Style dependencies
@@ -33,20 +35,15 @@ async function insertTemplate( params ) {
 	switch ( params.tpl ) {
 		case 'spotifyBadge':
 			templateBlocks = spotifyBadgeTemplate( params );
-		break;
+			break;
 
 		case 'basicEpisode':
 			templateBlocks = basicTemplate( params );
-		break;
+			break;
 	}
 
 	if ( templateBlocks?.length ) {
-		insertBlocks(
-			templateBlocks,
-			0,
-			undefined,
-			false
-		);
+		insertBlocks( templateBlocks, 0, undefined, false );
 	}
 }
 
@@ -58,20 +55,29 @@ async function setEpisodeTitle( { title } ) {
 	dispatch( 'core/editor' ).editPost( { title } );
 }
 
-const ConvertToAudio = () => (
-	<PluginPostPublishPanel className="anchor-post-publish-outbound-link">
-		<p className="post-publish-panel__postpublish-subheader">
-			<strong>{ __( 'Convert to audio', 'jetpack' ) }</strong>
-		</p>
-		<p>{ __( 'Let your readers listen to your post.', 'jetpack' ) }</p>
-		<p>
-			<a href="https://anchor.fm/wordpress" target="_top">
-				{ __( 'Create a podcast episode', 'jetpack' ) }
-				<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
-			</a>
-		</p>
-	</PluginPostPublishPanel>
-);
+const ConvertToAudio = () => {
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_editor_block_anchor_fm_post_publish_impression' );
+	}, [] );
+	const handleClick = useCallback(
+		() => analytics.tracks.recordEvent( 'jetpack_editor_block_anchor_fm_post_publish_click' ),
+		[]
+	);
+	return (
+		<PluginPostPublishPanel className="anchor-post-publish-outbound-link">
+			<p className="post-publish-panel__postpublish-subheader">
+				<strong>{ __( 'Convert to audio', 'jetpack' ) }</strong>
+			</p>
+			<p>{ __( 'Let your readers listen to your post.', 'jetpack' ) }</p>
+			<div role="link" tabIndex={ 0 } onClick={ handleClick } onKeyDown={ handleClick }>
+				<a href="https://anchor.fm/wordpress" target="_top">
+					{ __( 'Create a podcast episode', 'jetpack' ) }
+					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
+				</a>
+			</div>
+		</PluginPostPublishPanel>
+	);
+};
 
 function showPostPublishOutboundLink() {
 	registerPlugin( 'anchor-post-publish-outbound-link', {

@@ -9,14 +9,16 @@ const moment = require( 'moment' );
 const debug = require( '../../debug' );
 const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
 
+/* global GitHub, OktokitIssuesListMilestonesForRepoResponseItem, WebhookPayloadPullRequest */
+
 /**
  * Returns a promise resolving to the next valid milestone, if exists.
  *
- * @param {GitHub} octokit Initialized Octokit REST client.
- * @param {string} owner   Repository owner.
- * @param {string} repo    Repository name.
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
  *
- * @return {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
+ * @returns {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
  */
 async function getNextValidMilestone( octokit, owner, repo ) {
 	const params = {
@@ -48,8 +50,8 @@ async function getNextValidMilestone( octokit, owner, repo ) {
 /**
  * Assigns any issues that are being worked to the author of the matching PR.
  *
- * @param {WebhookPayloadPullRequest} payload Pull request event payload.
- * @param {GitHub}                    octokit Initialized Octokit REST client.
+ * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function addMilestone( payload, octokit ) {
 	// We should not get to that point as the action is triggered on pushes to master, but...

@@ -97,7 +97,7 @@ class VideoPress_Edit_Attachment {
 		if ( isset( $attachment['rating'] ) ) {
 			$rating = $attachment['rating'];
 
-			if ( ! empty( $rating ) && in_array( $rating, array( 'G', 'PG-13', 'R-17', 'X-18' ) ) ) {
+			if ( ! empty( $rating ) && videopress_is_valid_video_rating( $rating ) ) {
 				$values['rating'] = $rating;
 			}
 		}

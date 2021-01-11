@@ -443,7 +443,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			$slug,
 			'Appearance',
 			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
+			'menu-appearance',
 			'dashicons-admin-appearance',
 		);
 
