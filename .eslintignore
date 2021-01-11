@@ -6,6 +6,9 @@ tools/docker/wordpress/
 
 *.min.js
 
+# Ignored by default, but we should check it
+!.github/
+
 ### Jetpack
 projects/plugins/jetpack/3rd-party/debug-bar/debug-bar.js
 projects/plugins/jetpack/_inc/blocks

@@ -164,6 +164,7 @@ function runEslint( toLintFiles ) {
 
 	if ( eslintResult && eslintResult.status ) {
 		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
+		checkFailed();
 		exit( exitCode );
 	}
 }

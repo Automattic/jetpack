@@ -33,6 +33,9 @@ jobs:
       # JSON string holding an array of files in eslint-excludelist.json that have changed.
       js_excluded_files: ${{ steps.filterJS.outputs.js_excluded_files }}
 
+      # Whether any excluded files were modified or deleted.
+      excludelist: ${{ steps.filterExcludeList.outputs.excluded_files != '[]' || steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' || steps.filter.outputs.misc_js == 'true' || steps.filter.outputs.misc_excludelist == 'true' }}
+
     steps:
       - uses: actions/checkout@v2
 
@@ -48,6 +51,12 @@ jobs:
             js:
               # If any JS file changed, they need checking.
               - added|modified:
+                - '**.js'
+                - '**.jsx'
+            excludelist:
+              # If any PHP or JS file changed or was deleted, we need to check the excludelist.
+              - modified|deleted:
+                - '**.php'
                 - '**.js'
                 - '**.jsx'
             misc_php:
@@ -72,6 +81,9 @@ jobs:
               - '**/.eslintrc'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
               - 'tools/eslint-excludelist.json'
+            misc_excludelist:
+              - 'tools/cleanup-excludelists.sh'
+              - '.github/files/check-excludelist-diff.js'
             misc:
               # If the workflow itself changed, everything should re-run.
               - '.github/workflows/linting.yml'
@@ -91,6 +103,14 @@ jobs:
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes tools/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=js_excluded_files::$EXCLUDED_FILES"
+
+      - id: filterExcludeList
+        shell: bash
+        env:
+          FILES: ${{ steps.filter.outputs.excludelist_files }}
+        run: |
+          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/phpcs-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
+          echo "::set-output name=excluded_files::$EXCLUDED_FILES"
 
       # When the `php_lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.
       - name: Hack around Github bug when skipping required matrixed jobs
@@ -369,7 +389,6 @@ jobs:
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
         run: yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
 
-
   ### Checks that copied files (e.g. readme, license) are in sync
   # Local equivalent: `./tools/check-copied-files.sh`
   copied_files:
@@ -379,3 +398,50 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: ./tools/check-copied-files.sh
+
+  ### Runs tools/cleanup-excludelists.sh and checks for any changes
+  # Local equivalent: `tools/cleanup-excludelists.sh`
+  check_excludelists:
+    name: Check linter exclude lists
+    runs-on: ubuntu-latest
+    needs: changed_files
+    if: needs.changed_files.outputs.excludelist
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer
+          coverage: none
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Use yarn cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: composer install
+      - run: yarn install
+
+      - name: Cleanup excludelists
+        run: tools/cleanup-excludelists.sh
+      - name: Check for changes to exclude lists
+        run: .github/files/check-excludelist-diff.js
