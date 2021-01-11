@@ -135,7 +135,7 @@ export class PodcastPlayer extends Component {
 		}
 
 		// Otherwise, let's just mark the episode as broken.
-		this.setState( { playerState: STATE_ERROR } );
+		this.props.errorMediaSourceState();
 		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
@@ -353,6 +353,7 @@ export default compose( [
 			playMediaSourceState,
 			pauseMediaSourceState,
 			toggleMediaSourceState,
+			errorMediaSourceState,
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
@@ -361,6 +362,7 @@ export default compose( [
 			playMediaSourceState,
 			pauseMediaSourceState,
 			toggleMediaSourceState,
+			errorMediaSourceState,
 		};
 	} ),
 ] )( PodcastPlayer );
