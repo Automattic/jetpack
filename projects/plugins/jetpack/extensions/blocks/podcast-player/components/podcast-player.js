@@ -187,6 +187,29 @@ export class PodcastPlayer extends Component {
 		this.setState( { currentTime: this.state.currentTime + 30 } );
 	};
 
+	componentDidMount() {
+		const { playerId } = this.props;
+		if ( ! playerId ) {
+			return;
+		}
+
+		// Register Media source monstly episode data.
+		const track = this.getTrack( this.state.currentTrack ) || {};
+
+		this.props.registerMediaSource( playerId, {
+			title: track.title,
+			link: track.link,
+		} );
+	}
+
+	componentWillUnmount() {
+		if ( ! this.props.playerId ) {
+			return;
+		}
+
+		this.props.unregisterMediaSource( this.props.playerId );
+	}
+
 	render() {
 		const { playerId, title, link, cover, tracks, attributes } = this.props;
 		const {
