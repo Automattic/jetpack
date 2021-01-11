@@ -25,9 +25,9 @@ const actions = {
 		};
 	},
 
-	setMediaSourceAsDefault( id ) {
+	setDefaultMediaSource( id ) {
 		return {
-			type: 'SET_MEDIA_SOURCE_AS_DEFAULT',
+			type: 'SET_DEFAULT_MEDIA_SOURCE',
 			id,
 		};
 	}
@@ -59,7 +59,7 @@ const storeDefinition = {
 				return currentState;
 			}
 
-			case 'SET_MEDIA_SOURCE_AS_DEFAULT': {
+			case 'SET_DEFAULT_MEDIA_SOURCE': {
 				return {
 					...state,
 					default: action.id,
