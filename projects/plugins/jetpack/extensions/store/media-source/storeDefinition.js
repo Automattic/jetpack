@@ -56,6 +56,12 @@ const storeDefinition = {
 				if ( currentState.players[ action.id ] ) {
 					delete currentState.players[ action.id ];
 				}
+
+				// Unset default if it's the case.
+				if ( action.id === state.default ) {
+					currentState.default = null;
+				}
+
 				return currentState;
 			}
 
