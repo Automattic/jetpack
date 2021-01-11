@@ -7,7 +7,11 @@ import { createReduxStore, registerStore, register } from '@wordpress/data';
  */
 import storeDefinition from './storeDefinition';
 
-export const STORE_ID = 'jetpack/media-source';
+/**
+ * Internal dependencies
+ */
+
+import { STORE_ID } from './constants';
 
 // Register the store, considering the API changes.
 if ( typeof createReduxStore !== 'undefined' ) {
