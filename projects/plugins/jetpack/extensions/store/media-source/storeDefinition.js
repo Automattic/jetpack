@@ -24,6 +24,13 @@ const actions = {
 			id,
 		};
 	},
+
+	setMediaSourceAsDefault( id ) {
+		return {
+			type: 'SET_MEDIA_SOURCE_AS_DEFAULT',
+			id,
+		};
+	}
 };
 
 const selectors = {};
@@ -31,7 +38,7 @@ const selectors = {};
 const storeDefinition = {
 	reducer( state = DEFAULT_STATE, action ) {
 		switch ( action.type ) {
-			case 'REGISTER_MEDIA_SOURCE':
+			case 'REGISTER_MEDIA_SOURCE': {
 				return {
 					...state,
 					players: {
@@ -42,6 +49,7 @@ const storeDefinition = {
 						}
 					},
 				};
+			}
 
 			case 'UNREGISTER_MEDIA_SOURCE': {
 				const currentState = Object.assign( {}, state );
@@ -49,6 +57,13 @@ const storeDefinition = {
 					delete currentState.players[ action.id ];
 				}
 				return currentState;
+			}
+
+			case 'SET_MEDIA_SOURCE_AS_DEFAULT': {
+				return {
+					...state,
+					default: action.id,
+				};
 			}
 		}
 
