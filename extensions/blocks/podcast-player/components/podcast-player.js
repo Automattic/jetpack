@@ -30,6 +30,7 @@ export class PodcastPlayer extends Component {
 		currentTrack: 0,
 		hasUserInteraction: false,
 		currentTime: 0,
+		reportedTime: 0,
 		skipDuration: 30,
 		rewindDuration: 5,
 	};
@@ -163,8 +164,11 @@ export class PodcastPlayer extends Component {
 		this.setState( { playerState: STATE_PAUSED } );
 	};
 
-	handleTimeChange = currentTime => {
-		this.setState( { currentTime } );
+	handleTimeChange = reportedTime => {
+		this.setState( {
+			reportedTime,
+			currentTime: reportedTime,
+		} );
 	};
 
 	/**
@@ -178,11 +182,11 @@ export class PodcastPlayer extends Component {
 	};
 
 	handleJump = () => {
-		this.setState( { currentTime: this.state.currentTime - 5 } );
+		this.setState( { currentTime: this.state.reportedTime - 5 } );
 	};
 
 	handleSkip = () => {
-		this.setState( { currentTime: this.state.currentTime + 30 } );
+		this.setState( { currentTime: this.state.reportedTime + 30 } );
 	};
 
 	render() {
@@ -269,6 +273,7 @@ export class PodcastPlayer extends Component {
 						onError={ this.handleError }
 						playStatus={ this.state.playerState }
 						currentTime={ this.state.currentTime }
+						reportedTime={ this.state.reportedTime }
 						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
