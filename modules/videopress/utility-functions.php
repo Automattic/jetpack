@@ -791,4 +791,14 @@ function jetpack_videopress_flash_embed_filter( $content ) {
 	return $content;
 }
 
+/**
+ * Checks if the provided rating string is a valid VideoPress video rating value.
+ *
+ * @param mixed $rating The video rating to validate.
+ * @return bool
+ */
+function videopress_is_valid_video_rating( $rating ) {
+	return in_array( $rating, array( 'G', 'PG-13', 'R-17', 'X-18' ), true );
+}
+
 add_filter( 'the_content', 'jetpack_videopress_flash_embed_filter', 7 ); // Needs to be priority 7 to allow Core to oEmbed.
