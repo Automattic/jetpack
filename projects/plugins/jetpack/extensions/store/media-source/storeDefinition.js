@@ -1,18 +1,20 @@
+
+/**
+ * Internal dependencies
+ */
+import { STATE_PAUSED } from './constants';
+
 const DEFAULT_STATE = {
 	players: {},
-};
-
-const defaultMediaStatus = {
-	status: 'is-paused',
-	position: 0,
+	default: null,
 };
 
 const actions = {
-	registerMediaSource( id, mediaStatus ) {
+	registerMediaSource( id, mediaSourceState ) {
 		return {
 			type: 'REGISTER_MEDIA_SOURCE',
 			id,
-			status: { ...defaultMediaStatus, ...mediaStatus },
+			mediaSourceState,
 		};
 	},
 
@@ -34,7 +36,10 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: action.status,
+						[ action.id ]: {
+							id: action.id,
+							...action.mediaSourceState,
+						}
 					},
 				};
 
