@@ -9,6 +9,8 @@ import classnames from 'classnames';
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import { compose } from '@wordpress/compose';
+import { withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -17,6 +19,7 @@ import {
 	STATE_PLAYING,
 	STATE_ERROR,
 	STATE_PAUSED,
+	STORE_ID,
 } from '../../../store/media-source/constants';
 import AudioPlayer from '../../../shared/components/audio-player';
 import Playlist from './playlist';
@@ -323,4 +326,16 @@ PodcastPlayer.defaultProps = {
 	tracks: [],
 };
 
-export default withErrorBoundary( PodcastPlayer );
+export default compose( [
+	withErrorBoundary,
+	withDispatch( dispatch => {
+		const {
+			registerMediaSource,
+			unregisterMediaSource,
+		} = dispatch( STORE_ID );
+		return {
+			registerMediaSource,
+			unregisterMediaSource,
+		};
+	} ),
+] )( PodcastPlayer );

@@ -13,6 +13,7 @@ import { render, createElement, unmountComponentAtNode } from '@wordpress/elemen
 /**
  * Internal dependencies
  */
+import '../../store/media-source';
 import PodcastPlayer from './components/podcast-player';
 
 import './style.scss';
