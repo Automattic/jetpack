@@ -9,6 +9,7 @@ import debugFactory from 'debug';
  * WordPress dependencies
  */
 import { render, createElement, unmountComponentAtNode } from '@wordpress/element';
+import '../../store/media-source';
 
 /**
  * Internal dependencies
