@@ -920,6 +920,10 @@
                 "text",
                 "twitter"
             ],
+            "support": {
+                "issues": "https://github.com/nojimage/twitter-text-php/issues",
+                "source": "https://github.com/nojimage/twitter-text-php/tree/v3.1.1"
+            },
             "time": "2020-09-30T13:30:59+00:00"
         }
     ],
@@ -964,5 +968,5 @@
     "platform-overrides": {
         "ext-intl": "0.0.0"
     },
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }
