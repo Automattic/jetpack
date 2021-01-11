@@ -57,6 +57,13 @@ const actions = {
 			state: STATE_PAUSED,
 		};
 	},
+
+	toggleMediaSourceState( id ) {
+		return {
+			type: 'TOGGLE_MEDIA_PLAYER_STATE',
+			id,
+		};
+	},
 };
 
 const selectors = {
@@ -122,6 +129,20 @@ const storeDefinition = {
 						[ playerId ]: {
 							...state.players[ playerId ],
 							state: action.state,
+						},
+					},
+				};
+
+			case 'TOGGLE_MEDIA_PLAYER_STATE':
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ playerId ]: {
+							...state.players[ playerId ],
+							state: state.players[ playerId ].state === STATE_PLAYING
+								? STATE_PAUSED
+								: STATE_PLAYING,
 						},
 					},
 				};
