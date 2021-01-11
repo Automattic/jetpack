@@ -12,13 +12,34 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer
+          coverage: none
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+
+      - name: Use yarn cache
+        uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
       - name: Keep Jetpack Projects up to date
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        shell: bash -l {0}
-        run: |
-          nvm install
-          nvm use
-          ./.github/actions/update-project/update-project.sh
+        run: ./.github/actions/update-project/update-project.sh
