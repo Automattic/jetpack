@@ -199,7 +199,11 @@ export class PodcastPlayer extends Component {
 		this.props.registerMediaSource( playerId, {
 			title: track.title,
 			link: track.link,
+			state: STATE_PAUSED,
 		} );
+
+		// Set podcast player instance as default.
+		this.props.setDefaultMediaSource( playerId );
 	}
 
 	componentWillUnmount() {
@@ -355,10 +359,12 @@ export default compose( [
 		const {
 			registerMediaSource,
 			unregisterMediaSource,
+			setDefaultMediaSource,
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
 			unregisterMediaSource,
+			setDefaultMediaSource
 		};
 	} ),
 ] )( PodcastPlayer );
