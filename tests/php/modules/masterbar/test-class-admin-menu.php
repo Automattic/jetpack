@@ -392,6 +392,15 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_custom_post_type_menu
+	 *
+	 * @covers ::add_custom_post_type_menu
+	 */
+	public function test_add_custom_post_type_menu() {
+		// TODO.
+	}
+
+	/**
 	 * Tests add_comments_menu
 	 *
 	 * @covers ::add_comments_menu

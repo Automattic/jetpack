@@ -101,6 +101,8 @@ class Admin_Menu {
 		$this->add_posts_menu( $calypso );
 		$this->add_media_menu( $calypso );
 		$this->add_page_menu( $calypso );
+		$this->add_testimonials_menu( $calypso );
+		$this->add_portfolio_menu( $calypso );
 		$this->add_comments_menu( $calypso );
 		$this->add_appearance_menu( $calypso );
 		$this->add_plugins_menu();
@@ -219,6 +221,75 @@ class Admin_Menu {
 		add_submenu_page( $menu_slug, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $menu_slug, null, 5 );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/page/' . $this->domain, null, 10 );
 		$this->migrate_submenus( 'edit.php?post_type=page', $menu_slug );
+	}
+
+	/**
+	 * Adds Testimonials menu.
+	 *
+	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 */
+	public function add_testimonials_menu( $calypso = true ) {
+		$this->add_custom_post_type_menu( 'jetpack-testimonial', $calypso );
+	}
+
+	/**
+	 * Adds Portfolio menu.
+	 *
+	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 */
+	public function add_portfolio_menu( $calypso = true ) {
+		$this->add_custom_post_type_menu( 'jetpack-portfolio', $calypso );
+	}
+
+	/**
+	 * Adds a custom post type menu.
+	 *
+	 * @param string $post_type Custom post type.
+	 * @param bool   $calypso   Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 */
+	public function add_custom_post_type_menu( $post_type, $calypso = true ) {
+		if ( ! $calypso ) {
+			return;
+		}
+
+		$ptype_obj = get_post_type_object( $post_type );
+		if ( empty( $ptype_obj ) ) {
+			return;
+		}
+
+		$menu_slug = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+
+		remove_menu_page( 'edit.php?post_type=' . $post_type );
+		remove_submenu_page( 'edit.php?post_type=' . $post_type, 'edit.php?post_type=' . $post_type );
+		remove_submenu_page( 'edit.php?post_type=' . $post_type, 'post-new.php?post_type=' . $post_type );
+
+		// Menu icon.
+		$menu_icon = 'dashicons-admin-post';
+		if ( is_string( $ptype_obj->menu_icon ) ) {
+			// Special handling for data:image/svg+xml and Dashicons.
+			if ( 0 === strpos( $ptype_obj->menu_icon, 'data:image/svg+xml;base64,' ) || 0 === strpos( $ptype_obj->menu_icon, 'dashicons-' ) ) {
+				$menu_icon = $ptype_obj->menu_icon;
+			} else {
+				$menu_icon = esc_url( $ptype_obj->menu_icon );
+			}
+		}
+
+		/*
+		 * Menu position.
+		 *
+		 * If $ptype_menu_position is already populated or will be populated
+		 * by a hard-coded value below, increment the position.
+		 */
+		$ptype_menu_position = is_int( $ptype_obj->menu_position ) ? $ptype_obj->menu_position : ++$GLOBALS['_wp_last_object_menu'];
+		$core_menu_positions = array( 59, 60, 65, 70, 75, 80, 85, 99 );
+		while ( isset( $menu[ $ptype_menu_position ] ) || in_array( $ptype_menu_position, $core_menu_positions, true ) ) {
+			$ptype_menu_position++;
+		}
+
+		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon, $ptype_menu_position );
+		add_submenu_page( $menu_slug, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $menu_slug, null, 5 );
+		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/edit/' . $post_type . '/' . $this->domain, null, 10 );
+		$this->migrate_submenus( 'edit.php?post_type=' . $post_type, $menu_slug );
 	}
 
 	/**
