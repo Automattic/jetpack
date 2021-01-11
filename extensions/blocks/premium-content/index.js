@@ -16,6 +16,7 @@ import {
 	blockContainsPremiumBlock,
 	blockHasParentPremiumBlock,
 } from './_inc/premium';
+import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 
 export const name = 'premium-content/container';
 export const settings = {
@@ -112,33 +113,6 @@ export const settings = {
 			},
 		],
 	},
-};
-
-/**
- * Currencies we support and Stripe's minimum amount for a transaction in that currency.
- *
- * https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
- *
- * @type { [currency: string]: number }
- */
-export const SUPPORTED_CURRENCIES = {
-	USD: 0.5,
-	AUD: 0.5,
-	BRL: 0.5,
-	CAD: 0.5,
-	CHF: 0.5,
-	DKK: 2.5,
-	EUR: 0.5,
-	GBP: 0.3,
-	HKD: 4.0,
-	INR: 0.5,
-	JPY: 50,
-	MXN: 10,
-	NOK: 3.0,
-	NZD: 0.5,
-	PLN: 2.0,
-	SEK: 3.0,
-	SGD: 0.5,
 };
 
 /**
