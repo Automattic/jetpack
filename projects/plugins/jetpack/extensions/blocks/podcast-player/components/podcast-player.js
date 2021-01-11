@@ -146,6 +146,7 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePlay = () => {
+		this.props.playMediaSource( this.props.playerId );
 		this.setState( {
 			playerState: STATE_PLAYING,
 			hasUserInteraction: true,
@@ -158,6 +159,7 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePause = () => {
+		this.props.pauseMediaSource( this.props.playerId );
 		// Ignore pauses if we are showing an error.
 		if ( this.state.playerState === STATE_ERROR ) {
 			return;
@@ -360,11 +362,15 @@ export default compose( [
 			registerMediaSource,
 			unregisterMediaSource,
 			setDefaultMediaSource,
+			playMediaSource,
+			pauseMediaSource,
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
 			unregisterMediaSource,
-			setDefaultMediaSource
+			setDefaultMediaSource,
+			playMediaSource,
+			pauseMediaSource,
 		};
 	} ),
 ] )( PodcastPlayer );
