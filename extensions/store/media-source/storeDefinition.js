@@ -38,13 +38,13 @@ const storeDefinition = {
 					},
 				};
 
-			case 'UNREGISTER_MEDIA_SOURCE':
-				// eslint-disable-next-line no-case-declarations
+			case 'UNREGISTER_MEDIA_SOURCE': {
 				const currentState = Object.assign( {}, state );
 				if ( currentState.players[ action.id ] ) {
 					delete currentState.players[ action.id ];
 				}
 				return currentState;
+			}
 		}
 
 		return state;
