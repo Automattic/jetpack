@@ -16,10 +16,21 @@ EOF
   git config --global user.name "matticbot"
 }
 
+yarn_build()
+{
+	if [ -f "package.json" ]; then
+		yarn install
+		yarn build-production-concurrently
+	fi
+}
+
 # Halt on error
 set -e
 
 git_setup
+
+# Install Yarn generally.
+yarn install
 
 BASE=$(pwd)
 MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
@@ -32,14 +43,14 @@ echo "Cloning folders in projects/packages and pushing to Automattic package rep
 for package in projects/packages/*; do
 	[ -d "$package" ] || continue # We are only interested in directories (i.e. packages)
 
-	cd $BASE
-
 	# Only keep the package's name
 	NAME=${package##*/}
+	PROJECT_DIR="${BASE}/projects/packages/${NAME}"
 
+	cd ${PROJECT_DIR}
 	echo " Name: $NAME"
 
-	CLONE_DIR="__${NAME}__clone__"
+	CLONE_DIR="${BASE}/__${NAME}__clone__"
 	echo "  Clone dir: $CLONE_DIR"
 
 	# Check if a remote exists for that package.
@@ -51,6 +62,8 @@ for package in projects/packages/*; do
 	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/automattic/jetpack-$NAME.git $CLONE_DIR
 
 	echo "  Cloning of ${NAME} completed"
+	echo "  Building project"
+	yarn_build
 
 	cd $CLONE_DIR
 
@@ -62,9 +75,11 @@ for package in projects/packages/*; do
 
 	find . | grep -v ".git" | grep -v "^\.*$" | xargs rm -rf # delete all files (to handle deletions in monorepo)
 
-	echo "  Copying from ${BASE}/projects/packages/${NAME}/."
+	echo "  Copying from ${PROJECT_DIR}/."
 
-	cp -r $BASE/projects/packages/$NAME/. .
+	cp -r $PROJECT_DIR/. .
+
+
 
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
 	if $COMPOSER_JSON_EXISTED && [ ! -f "composer.json" ]; then
@@ -82,4 +97,67 @@ for package in projects/packages/*; do
 	fi
 
 	cd $BASE
+done
+
+echo "Cloning folders in projects/plugins and pushing to Automattic package repos"
+
+# sync to read-only clones
+for plugin in projects/plugins/*; do
+	[ -d "$plugin" ] || continue # We are only interested in directories (i.e. plugins)
+
+	cd $BASE
+
+	# Only keep the plugin's name
+	NAME=${plugin##*/}
+
+	PROJECT_DIR="${BASE}/projects/plugins/${NAME}"
+
+	cd "${PROJECT_DIR}"
+
+	echo " Name: $NAME"
+
+	CLONE_DIR="${BASE}/__${NAME}__clone__"
+	echo "  Clone dir: $CLONE_DIR"
+
+	if [ "$NAME" == 'jetpack' ]; then
+		GIT_SLUG='jetpack-production'
+	else
+		GIT_SLUG="jetpack-${NAME}";
+	fi
+	# Check if a remote exists for that package.
+	$( git ls-remote --exit-code -h "https://github.com/Automattic/${GIT_SLUG}.git" >/dev/null 2>&1 ) || continue
+	echo "  ${NAME} exists. Let's clone it."
+
+	# clone, delete files in the clone, and copy (new) files over
+	# this handles file deletions, additions, and changes seamlessly
+	git clone --depth 1 https://$API_TOKEN_GITHUB@github.com/Automattic/$GIT_SLUG.git $CLONE_DIR
+
+	echo "  Cloning of ${NAME} completed"
+	echo "  Building project"
+	yarn_build
+
+	cd $CLONE_DIR
+
+	find . | grep -v ".git" | grep -v "^\.*$" | xargs rm -rf # delete all files (to handle deletions in monorepo)
+
+	echo "  Copying from ${PROJECT_DIR}/."
+
+	cp -r "${PROJECT_DIR}/." .
+
+	if [ "$NAME" == 'jetpack' ]; then
+	./tools/prepare-build-branch.sh
+	fi
+
+	if [ -n "$(git status --porcelain)" ]; then
+
+		echo  "  Committing $NAME to $NAME's mirror repository"
+		git add -A
+		git commit --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}"
+		git push origin master
+		echo  "  Completed $NAME"
+	else
+		echo "  No changes, skipping $NAME"
+	fi
+
+	cd "${BASE}"
 done
