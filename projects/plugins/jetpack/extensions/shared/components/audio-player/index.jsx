@@ -16,14 +16,15 @@ import { dispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
-import { STORE_ID } from '../../../store/media-source';
+import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR, STORE_ID } from '../../../store/media-source/constants';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
+
+// MediaElement global settings.
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {

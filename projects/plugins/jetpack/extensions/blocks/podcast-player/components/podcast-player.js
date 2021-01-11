@@ -17,9 +17,9 @@ import {
 	STATE_PLAYING,
 	STATE_ERROR,
 	STATE_PAUSED,
-} from '../../../shared/components/audio-player/constants';
-import Playlist from './playlist';
+} from '../../../store/media-source/constants';
 import AudioPlayer from '../../../shared/components/audio-player';
+import Playlist from './playlist';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
