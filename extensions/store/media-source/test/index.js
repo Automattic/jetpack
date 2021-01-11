@@ -1,8 +1,4 @@
 /**
- * @jest-environment jsdom
- */
-
-/**
  * WordPress dependencies
  */
 import { registerStore } from '@wordpress/data';
