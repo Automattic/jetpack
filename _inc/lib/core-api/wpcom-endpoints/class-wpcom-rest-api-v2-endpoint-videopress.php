@@ -31,11 +31,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$this->rest_base . '/meta',
 			array(
 				'args'                => array(
-					'guid'          => array(
-						'description'       => __( 'The VideoPress video guid.', 'jetpack' ),
-						'type'              => 'string',
+					'id'            => array(
+						'description'       => __( 'The post id for the attachment.', 'jetpack' ),
+						'type'              => 'int',
 						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param );
+						},
 					),
 					'title'         => array(
 						'description'       => __( 'The title of the video.', 'jetpack' ),
@@ -72,13 +74,35 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	}
 
 	/**
-	 * Updates video metadata via the WPCOM REST API.
+	 * Updates attachment meta and video metadata via the WPCOM REST API.
 	 *
 	 * @param WP_REST_Request $request the request object.
 	 * @return object|WP_Error Success object or WP_Error with error details.
 	 */
 	public function videopress_block_update_meta( $request ) {
 		$json_params = $request->get_json_params();
+		$post_id     = $json_params['id'];
+
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$guid = get_post_meta( $post_id, 'videopress_guid', true );
+		} else {
+			$blog_id = get_current_blog_id();
+			$info    = video_get_info_by_blogpostid( $blog_id, $post_id );
+			$guid    = $info->guid;
+		}
+
+		if ( ! $guid ) {
+			return rest_ensure_response(
+				new WP_Error(
+					'error',
+					__( 'This attachment cannot be updated yet.', 'jetpack' )
+				)
+			);
+		}
+
+		$video_request_params = $json_params;
+		unset( $video_request_params['id'] );
+		$video_request_params['guid'] = $guid;
 
 		$endpoint = 'videos';
 		$args     = array(
@@ -90,7 +114,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$endpoint,
 			'2',
 			$args,
-			wp_json_encode( $json_params ),
+			wp_json_encode( $video_request_params ),
 			'wpcom'
 		);
 
@@ -100,6 +124,36 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		$response_body = json_decode( wp_remote_retrieve_body( $result ) );
 		if ( is_bool( $response_body ) && $response_body ) {
+
+			// VideoPress data is stored in attachment meta for Jetpack sites, but not on wpcom.
+			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+				$meta               = wp_get_attachment_metadata( $post_id );
+				$should_update_meta = false;
+
+				if ( ! $meta ) {
+					return rest_ensure_response(
+						new WP_Error(
+							'error',
+							__( 'Attachment meta was not found.', 'jetpack' )
+						)
+					);
+				}
+
+				if ( isset( $json_params['display_embed'] ) && isset( $meta['videopress']['display_embed'] ) ) {
+					$meta['videopress']['display_embed'] = $json_params['display_embed'];
+					$should_update_meta                  = true;
+				}
+
+				if ( isset( $json_params['rating'] ) && isset( $meta['videopress']['rating'] ) && videopress_is_valid_video_rating( $meta['videopress']['rating'] ) ) {
+					$meta['videopress']['rating'] = $json_params['rating'];
+					$should_update_meta           = true;
+				}
+
+				if ( $should_update_meta ) {
+					wp_update_attachment_metadata( $post_id, $meta );
+				}
+			}
+
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
