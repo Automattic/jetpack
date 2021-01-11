@@ -4,9 +4,13 @@
 import {
 	Dropdown,
 	Button,
-	__experimentalNumberControl as NumberControl,
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import { NumberControl } from '../../../shared/number-control.js';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
