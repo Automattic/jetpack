@@ -67,6 +67,15 @@ const selectors = {
 
 		return state.players[ playerId ];
 	},
+
+	getMediaPlayerStatus( state, id ) {
+		if ( ! id ) {
+			const defaultMediaSource = selectors.getDefaultMediaSource( state );
+			return defaultMediaSource?.state;
+		}
+
+		return state.players?.[ id ]?.state;
+	}
 };
 
 const storeDefinition = {
