@@ -8,6 +8,7 @@
 
 ( function () {
 	var currentScript = document.currentScript;
+	var recaptchaScriptAdded = false;
 
 	// -------------------------- UTILITY FUNCTIONS -------------------------- //
 
@@ -563,6 +564,16 @@
 				emailButton.addEventListener( 'click', function ( event ) {
 					event.preventDefault();
 					event.stopPropagation();
+
+					// Load reCAPTCHA if needed.
+					if ( typeof grecaptcha !== 'object' && ! recaptchaScriptAdded ) {
+						var configEl = document.querySelector( '.g-recaptcha' );
+
+						if ( configEl && configEl.getAttribute( 'data-lazy' ) === 'true' ) {
+							recaptchaScriptAdded = true;
+							loadScript( decodeURI( configEl.getAttribute( 'data-url' ) ) );
+						}
+					}
 
 					var url = emailButton.getAttribute( 'href' );
 					var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';

@@ -173,7 +173,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$menu_title .= sprintf(
 				'<img class="sidebar-unified__sparkline" width="80" height="20" src="%1$s" alt="%2$s">',
-				esc_url( home_url( 'wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=' . get_current_blog_id() ) ),
+				esc_url( site_url( 'wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=' . get_current_blog_id() ) ),
 				esc_attr__( 'Hourly views', 'jetpack' )
 			);
 		}
