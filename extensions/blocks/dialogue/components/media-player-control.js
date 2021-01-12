@@ -10,51 +10,43 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import { controlBackFive, controlForwardFive } from '../../../shared/icons';
-import { STORE_ID } from '../../../store/media-source';
+import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 
 export default function MediaPlayerControl( {
 	timestamp,
 	onTimeChange,
 } ) {
-	const { mediaId, status } = useSelect( select => {
-		const { getCurrent, getMediaStatus, getCurrentMediaId } = select( STORE_ID );
-		const currentMediaId = getCurrentMediaId();
+	const { mediaId, playerState } = useSelect( select => {
+		const { getDefaultMediaSource } = select( STORE_ID );
+		const mediaSource = getDefaultMediaSource();
+
 		return {
-			mediaId: currentMediaId,
-			currentMediaSource: getCurrent(),
-			status: getMediaStatus( currentMediaId ),
+			mediaId: mediaSource?.id,
+			playerState: STATE_PAUSED,
 		};
 	}, [] );
 
-	const { toggleMediaSource, setMediaPosition } = useDispatch( STORE_ID );
-	const toggleMedia = () => toggleMediaSource( mediaId );
-	const moveOffset = ( offset ) => {
-		let pos = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
-		if ( pos < 0 ) {
-			pos = 0;
-		}
-
-		onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( pos ) } );
-		setMediaPosition( mediaId, pos );
-	};
+	if ( ! mediaId ) {
+		return null;
+	}
 
 	return (
 		<ToolbarGroup>
 			<ToolbarButton
 				icon={ controlBackFive }
-				onClick={ () => moveOffset( -5 ) }
+				onClick={ console.log }
 			/>
 
 			<ToolbarButton
-				icon={ status === 'is-paused'
+				icon={ playerState === STATE_PAUSED
 					? 'controls-play'
 					: 'controls-pause'
 				}
-				onClick={ toggleMedia }
+				onClick={ console.log }
 			/>
 			<ToolbarButton
 				icon={ controlForwardFive }
-				onClick={ () => moveOffset( 5 ) }
+				onClick={ console.log }
 			/>
 		</ToolbarGroup>
 	);
