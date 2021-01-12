@@ -42,7 +42,7 @@ function AudioPlayer( {
 	onTimeChange,
 	onSkipForward,
 	onJumpBack,
-	currentTime,
+	currentTime = 0,
 	playStatus = STATE_PAUSED,
 } ) {
 	const audioRef = useRef();
