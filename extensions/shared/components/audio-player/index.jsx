@@ -125,19 +125,35 @@ function AudioPlayer( {
 		};
 	}, [ audioRef, playStatus, trackSource ] );
 
+	/*
+	 * Handle onTimeChange() event
+	 */
 	useEffect( () => {
 		if ( ! onTimeChange ) {
 			return;
 		}
-		//Add time change event listener
+
+		// Add time change event listener
 		const audio = audioRef.current;
-		const onTimeUpdate = e => onTimeChange( e.target.currentTime );
+		function onTimeUpdate( event ) {
+			// bail early if the current time
+			// defined by the prop has been already udated.
+			if (
+				typeof currentTime === 'number' &&
+				event.target.currentTime === currentTime
+			) {
+				return;
+			}
+
+			onTimeChange( event.target.currentTime );
+		}
+
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
 			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
-	}, [ audioRef, onTimeChange ] );
+	}, [ audioRef, onTimeChange, currentTime ] );
 
 	/*
 	 * Current Time handling
