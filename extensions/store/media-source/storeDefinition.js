@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
+import { syncOffsetTime } from '../../shared/components/audio-player/utils';
 
 const DEFAULT_STATE = {
 	players: {},
@@ -9,7 +10,7 @@ const DEFAULT_STATE = {
 
 const defaultMediaSourceData = {
 	state: 'is-paused',
-	position: 0,
+	currentTime: 0,
 };
 
 const actions = {
@@ -65,6 +66,14 @@ const actions = {
 			id,
 		};
 	},
+
+	setMediaSourceOffset( id, currentTime ) {
+		return {
+			type: 'SET_MEDIA_PLAYER_OFFSET',
+			id,
+			currentTime: syncOffsetTime( currentTime ),
+		};
+	},
 };
 
 const selectors = {
@@ -90,6 +99,15 @@ const selectors = {
 		}
 
 		return state.players?.[ id ]?.state;
+	},
+
+	getMediaSourceCurrentTime( state, id ) {
+		if ( ! id ) {
+			const defaultMediaSource = selectors.getDefaultMediaSource( state );
+			return defaultMediaSource?.state;
+		}
+
+		return state.players?.[ id ]?.currentTime;
 	}
 };
 
@@ -149,6 +167,19 @@ const storeDefinition = {
 							state: state.players[ action.id ].state === STATE_PLAYING
 								? STATE_PAUSED
 								: STATE_PLAYING,
+						},
+					},
+				};
+			}
+
+			case 'SET_MEDIA_PLAYER_OFFSET': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							currentTime: action.currentTime,
 						},
 					},
 				};
