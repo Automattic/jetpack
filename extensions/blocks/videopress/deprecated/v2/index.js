@@ -69,8 +69,9 @@ export default {
 		const { align, className, classNames } = attributes;
 		return {
 			...attributes,
-			className: 'wp-block-video',
-			classNames: classnames( className, classNames, { [ `align${ align }` ]: align } ),
+			className: classnames( 'wp-block-video', className, classNames, {
+				[ `align${ align }` ]: align,
+			} ),
 		};
 	},
 	save,

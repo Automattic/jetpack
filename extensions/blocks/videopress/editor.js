@@ -77,12 +77,12 @@ const preventBlockClassOnDeprecations = ( props, blockType, attributes ) => {
 	// - Not a video block
 	// - Is a placeholder video block ( no guid )
 	// - Already has wp-block-video CSS class ( block was added after Gutenberg change )
-	// - Block has been migrated ( previous bug meant classNames was undefined )
+	// - Block has been migrated ( previous bug meant className was undefined )
 	if (
 		blockType.name !== 'core/video' ||
 		! attributes.guid ||
 		attributes.className?.indexOf( 'wp-block-video' ) >= 0 ||
-		attributes.classNames
+		attributes.className
 	) {
 		return props;
 	}
@@ -164,9 +164,6 @@ const addVideoPressSupport = ( settings, name ) => {
 					default: 'metadata',
 				},
 				src: {
-					type: 'string',
-				},
-				classNames: {
 					type: 'string',
 				},
 			},
