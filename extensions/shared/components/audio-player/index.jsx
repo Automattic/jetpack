@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { debounce, throttle } from 'lodash';
+import { debounce } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -131,8 +131,7 @@ function AudioPlayer( {
 		}
 		//Add time change event listener
 		const audio = audioRef.current;
-		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000 );
-		const onTimeUpdate = e => throttledTimeChange( e.target.currentTime );
+		const onTimeUpdate = e => onTimeChange( e.target.currentTime );
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
