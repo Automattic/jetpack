@@ -1,11 +1,6 @@
 /* global _wpmejsSettings, MediaElementPlayer */
 
 /**
- * External dependencies
- */
-import { debounce } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
@@ -128,21 +123,19 @@ function AudioPlayer( {
 		};
 	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
 
-	// If we get lots of events from clicking on the progress bar in the MediaElement
-	// then we can get stuck in a loop. We can so by debouncing here we wait until the
-	// next tick before acting on the playStatus prop value changing.
+	/*
+	 * `playStatus` property handleing.
+	 */
 	useEffect( () => {
 		// Get the current status of the audio element and the required action to toggle it.
-		const [ audioStatus, action ] =
-			audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
-		const debouncedAction = debounce( action, 100 );
+		const [ audioStatus, action ] = audioRef.current?.paused === false
+			? [ STATE_PLAYING, pause ]
+			: [ STATE_PAUSED, play ];
+
 		if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
-			debouncedAction();
+			action();
 		}
-		return () => {
-			debouncedAction.cancel();
-		};
-	}, [ audioRef, playStatus, trackSource ] );
+	}, [ audioRef, playStatus ] );
 
 	/*
 	 * Handle onTimeChange() event
@@ -175,7 +168,7 @@ function AudioPlayer( {
 	}, [ audioRef, onTimeChange, currentTime ] );
 
 	/*
-	 * Current Time handling
+	 * `currentTime` property handling
 	 * The audio current time is defined by the `currentTime` property.
 	 * It's important to keep in mind that its value can be a string,
 	 * which in that case will contain action-meta-information beside the time value.
