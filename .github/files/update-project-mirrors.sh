@@ -27,7 +27,9 @@ yarn_build()
 # Halt on error
 set -e
 
-git_setup
+if [[ -n "$CI" ]]; then
+	git_setup
+fi
 
 # Install Yarn generally.
 yarn install
@@ -90,7 +92,9 @@ for package in projects/packages/*; do
 		echo  "  Committing $NAME to $NAME's mirror repository"
 		git add -A
 		git commit --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}"
-		git push origin master
+		if [[ -n "$CI" ]]; then # Only do the actual push from the GitHub Action
+			git push origin master
+		fi
 		echo  "  Completed $NAME"
 	else
 		echo "  No changes, skipping $NAME"
@@ -153,7 +157,9 @@ for plugin in projects/plugins/*; do
 		echo  "  Committing $NAME to $NAME's mirror repository"
 		git add -A
 		git commit --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}"
-		git push origin master
+		if [[ -n "$CI" ]]; then # Only do the actual push from the GitHub Action
+			git push origin master
+		fi
 		echo  "  Completed $NAME"
 	else
 		echo "  No changes, skipping $NAME"
