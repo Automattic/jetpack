@@ -18,14 +18,14 @@ EOF
 
 yarn_build()
 {
-	if [ -f "package.json" ]; then
+	if [[ -f "package.json" ]]; then
 		yarn install
 		yarn build-production-concurrently
 	fi
 }
 
 # Halt on error
-set -e
+set -eo pipefail
 
 if [[ -n "$CI" ]]; then
 	git_setup
@@ -44,7 +44,7 @@ echo "Cloning projects and pushing to Automattic mirror repos"
 
 # sync to read-only clones
 for project in projects/packages/* projects/plugins/*; do
-	[ -d "$project" ] || continue # We are only interested in directories (i.e. projects)
+	[[ -d "$project" ]] || continue # We are only interested in directories (i.e. projects)
 
 	# Only keep the project's name
 	NAME=${project##*/}
@@ -58,7 +58,7 @@ for project in projects/packages/* projects/plugins/*; do
 	CLONE_DIR="${CLONE_BASE}/${NAME}"
 	echo "  Clone dir: $CLONE_DIR"
 
-	if [ "$NAME" == 'jetpack' ]; then
+	if [[ "$NAME" == 'jetpack' ]]; then
 		GIT_SLUG='Automattic/jetpack-production'
 	else
 		GIT_SLUG="Automattic/jetpack-${NAME}";
@@ -79,7 +79,7 @@ for project in projects/packages/* projects/plugins/*; do
 
 	# check if composer.json exists
 	COMPOSER_JSON_EXISTED=false
-	if [ -f "composer.json" ]; then
+	if [[ -f "composer.json" ]]; then
 		COMPOSER_JSON_EXISTED=true
 	fi
 
@@ -89,14 +89,14 @@ for project in projects/packages/* projects/plugins/*; do
 
 	cp -r "${PROJECT_DIR}/." .
 
-	if [ "$NAME" == 'jetpack' ]; then
+	if [[ "$NAME" == 'jetpack' ]]; then
 		./tools/prepare-build-branch.sh
 	fi
 
 	# Before we commit any changes, ensure that the repo has the basics we need for any project
-	if $COMPOSER_JSON_EXISTED && [ ! -f "composer.json" ]; then
+	if $COMPOSER_JSON_EXISTED && [[ ! -f "composer.json" ]]; then
 		echo "  Those changes remove essential parts of the project. They will not be committed."
-	elif [ -n "$(git status --porcelain)" ]; then
+	elif [[ -n "$(git status --porcelain)" ]]; then
 
 		echo  "  Committing $NAME to $NAME's mirror repository"
 		git add -A
