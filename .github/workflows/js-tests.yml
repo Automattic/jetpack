@@ -7,7 +7,7 @@ on:
 
 jobs:
   js-tests:
-    name: "test dashboard, extensions and search"
+    name: "test cli dashboard, extensions, and search"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,6 +24,7 @@ jobs:
       - run: |
           yarn install
           yarn test-adminpage-and-extensions-and-search
+          yarn test-cli
 
 
   build:
