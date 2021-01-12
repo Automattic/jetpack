@@ -57,13 +57,13 @@ export class PodcastPlayer extends Component {
 		// Current track already selected.
 		if ( currentTrack === track ) {
 			this.recordUserInteraction();
-			this.toggleMediaSourceState();
+			this.toggleMediaSourceState( this.props.playerId );
 			return;
 		}
 
 		// Something else is playing.
 		if ( currentTrack !== -1 ) {
-			this.props.pauseMediaSourceState();
+			this.props.pauseMediaSourceState( this.props.playerId );
 		}
 
 		// Load a new track.
@@ -86,7 +86,7 @@ export class PodcastPlayer extends Component {
 		}
 
 		this.setState( { currentTrack: track } );
-		this.props.playMediaSourceState();
+		this.props.playMediaSourceState( this.props.playMediaSourceState );
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -135,7 +135,7 @@ export class PodcastPlayer extends Component {
 		}
 
 		// Otherwise, let's just mark the episode as broken.
-		this.props.errorMediaSourceState();
+		this.props.errorMediaSourceState( this.props.playerId );
 		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
