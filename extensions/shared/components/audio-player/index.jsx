@@ -16,6 +16,7 @@ import { speak } from '@wordpress/a11y';
  * Internal dependencies
  */
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
+import { pickCurrentTime } from './utils';
 
 /**
  * Style dependencies
@@ -46,7 +47,6 @@ function AudioPlayer( {
 	onSkipForward,
 	onJumpBack,
 	currentTime,
-	reportedTime,
 	playStatus = STATE_PAUSED,
 } ) {
 	const audioRef = useRef();
@@ -139,30 +139,46 @@ function AudioPlayer( {
 		};
 	}, [ audioRef, onTimeChange ] );
 
-	// Handle `currentTime` property, based on `reportedTime` property.
-	// It will change the player time declaratively.
+	/*
+	 * Current Time handling
+	 * The audio current time is defined by the `currentTime` property.
+	 * It's important to keep in mind that its value can be a string,
+	 * which in that case will contain action-meta-information beside the time value.
+	 * In order to avoid usage mistakes,
+	 * it's strongly encouraged to use the helpoer functions,
+	 * defined in the ./utils file
+	 */
 	useEffect( () => {
 		// If there's no audio component,
 		// or we're not controlling time with the `currentTime` and `reportedTime` prop,
 		// then bail early.
 		const audio = audioRef.current;
-		if (
-			! audio ||
-			typeof currentTime === 'undefined' ||
-			typeof reportedTime === 'undefined'
-		) {
+
+		if ( typeof currentTime === 'number' ) {
 			return;
 		}
 
-		// If there is not differece between `currentTime`
-		// and `reportedTime`,
-		// then bail early.
-		if ( currentTime === reportedTime ) {
+		// Pick value and action using helper funtion.
+		const [ value, action ] = pickCurrentTime( currentTime );
+
+		// If there is not an audio player, or if the current time is a number, bail early.
+		if ( ! audio || typeof value !== 'number' ) {
 			return;
 		}
 
-		audio.currentTime = currentTime;
-	}, [ audioRef, currentTime, reportedTime ] );
+		// Set the new current time according to value and action.
+		const newCurrentTime = value + (
+			action === 'offset' ? audio.currentTime : 0
+		);
+
+		// Bail early if there are no changes in the current time.
+		if ( newCurrentTime === audio.currentTime ) {
+			return;
+		}
+
+		audio.currentTime = newCurrentTime;
+		onTimeChange && onTimeChange( audio.currentTime );
+	}, [ audioRef, currentTime, onTimeChange ] );
 	return (
 		<div className="jetpack-audio-player">
 			{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
