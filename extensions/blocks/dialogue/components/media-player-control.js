@@ -23,8 +23,22 @@ export default function MediaPlayerControl( {
 		return {
 			mediaId: mediaSource?.id,
 			playerState: STATE_PAUSED,
+			// currentMediaSource: getCurrent(),
+			// state: getMediaStatus( currentMediaId ),
 		};
 	}, [] );
+
+	const { playMediaSourceInCurrentTime } = useDispatch( STORE_ID );
+	// const toggleMedia = () => toggleMediaSource( mediaId );
+	// const moveOffset = ( offset ) => {
+	// 	let pos = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
+	// 	if ( pos < 0 ) {
+	// 		pos = 0;
+	// 	}
+
+	// 	onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( pos ) } );
+	// 	setMediaPosition( mediaId, pos );
+	// };
 
 	if ( ! mediaId ) {
 		return null;
@@ -42,7 +56,10 @@ export default function MediaPlayerControl( {
 					? 'controls-play'
 					: 'controls-pause'
 				}
-				onClick={ console.log }
+				onClick={ () => {
+					const currentTime = mejs.Utils.timeCodeToSeconds( timestamp );
+					playMediaSourceInCurrentTime( mediaId, currentTime );
+				} }
 			/>
 			<ToolbarButton
 				icon={ controlForwardFive }
