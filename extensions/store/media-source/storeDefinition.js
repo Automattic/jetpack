@@ -119,7 +119,10 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: action.data,
+						[ action.id ]: {
+							id: action.id,
+							...action.data,
+						},
 					},
 				};
 			}
