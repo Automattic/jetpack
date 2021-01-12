@@ -31,8 +31,6 @@ export class PodcastPlayer extends Component {
 		hasUserInteraction: false,
 		currentTime: 0,
 		reportedTime: 0,
-		skipDuration: 30,
-		rewindDuration: 5,
 	};
 
 	/**
