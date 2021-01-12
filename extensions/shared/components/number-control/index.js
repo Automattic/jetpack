@@ -14,9 +14,11 @@ import {
  * @param {any} props - the NumberControl component props
  * @returns {object} - NumberControl component
  */
-export const NumberControl =
+const NumberControl =
 	BlockEditorNumberControl ||
 	ExperimentalNumberControl ||
 	function CustomNumberControl( props ) {
 		return <TextControl type="number" inputMode="numeric" { ...props } />;
 	};
+
+export default NumberControl;

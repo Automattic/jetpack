@@ -20,7 +20,7 @@ import {
 	MONTH_SELECT_OPTIONS,
 	CURRENT_YEAR,
 } from '../../constants';
-import { NumberControl } from '../../../number-control.js';
+import NumberControl from '../../../components/number-control';
 
 function CategoryOption( { value, updateFilter } ) {
 	return (
