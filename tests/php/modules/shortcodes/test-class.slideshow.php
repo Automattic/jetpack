@@ -48,6 +48,8 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			restore_current_blog();
 		}
+
+		parent::tearDown();
 	}
 
 	/**

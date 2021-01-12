@@ -10,14 +10,15 @@ export const RESULT_FORMAT_EXPANDED = 'expanded';
 export const RESULT_FORMAT_MINIMAL = 'minimal';
 export const RESULT_FORMAT_PRODUCT = 'product';
 export const MINUTE_IN_MILLISECONDS = 60 * 1000;
-export const VALID_SORT_KEYS = [ 'newest', 'oldest', 'relevance' ];
+export const RELEVANCE_SORT_KEY = 'relevance';
+export const VALID_SORT_KEYS = [ 'newest', 'oldest', RELEVANCE_SORT_KEY ];
 export const VALID_RESULT_FORMAT_KEYS = [
 	RESULT_FORMAT_EXPANDED,
 	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_PRODUCT,
 ];
 export const SORT_OPTIONS = new Map( [
-	[ 'relevance', __( 'Relevance', 'jetpack' ) ],
+	[ RELEVANCE_SORT_KEY, __( 'Relevance', 'jetpack' ) ],
 	[ 'newest', __( 'Newest', 'jetpack' ) ],
 	[ 'oldest', __( 'Oldest', 'jetpack' ) ],
 ] );

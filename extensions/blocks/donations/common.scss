@@ -3,12 +3,12 @@
 
 .wp-block-jetpack-donations {
 	.donations__container {
-		border: 1px solid $light-gray-700;
+		border: 1px solid $gray-400;
 	}
 
 	.donations__nav {
 		display: flex;
-		border-bottom: 1px solid $light-gray-700;
+		border-bottom: 1px solid $gray-400;
 	}
 
 	.donations__nav-item {
@@ -18,7 +18,7 @@
 		text-align: center;
 		font-size: 16px;
 		padding: 12px;
-		border-left: 1px solid $light-gray-700;
+		border-left: 1px solid $gray-400;
 		background: $white;
 		color: $gray-900;
 		cursor: pointer;
@@ -32,7 +32,7 @@
 		}
 
 		&.is-active {
-			background: var(--wp-admin-theme-color);
+			background: var( --wp-admin-theme-color );
 			color: $white;
 			cursor: default;
 		}
@@ -70,7 +70,7 @@
 		padding: 16px 24px;
 		background-color: $white;
 		color: $gray-900;
-		border: 1px solid $light-gray-700;
+		border: 1px solid $gray-400;
 		margin-right: 8px;
 		margin-bottom: 8px;
 		font-weight: 600;

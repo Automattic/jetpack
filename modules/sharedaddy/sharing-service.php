@@ -933,7 +933,7 @@ function sharing_display( $text = '', $echo = false ) {
 			if ( defined( 'JETPACK__VERSION' ) ) {
 				$ver = JETPACK__VERSION;
 			} else {
-				$ver = '20141212';
+				$ver = '20201124';
 			}
 
 			// @todo: Investigate if we can load this JS in the footer instead.
@@ -943,7 +943,7 @@ function sharing_display( $text = '', $echo = false ) {
 					'_inc/build/sharedaddy/sharing.min.js',
 					'modules/sharedaddy/sharing.js'
 				),
-				array( 'jquery' ),
+				array(),
 				$ver,
 				false
 			);

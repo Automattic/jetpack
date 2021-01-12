@@ -16,6 +16,10 @@
 		{
 			"depTypeList": [ "monorepo:wordpress", "monorepo:react" ],
 			"groupName": "React and WordPress monorepos"
+		},
+		{
+			"paths": [ "packages/codesniffer/composer.json" ],
+			"rangeStrategy": "replace"
 		}
 	]
 }

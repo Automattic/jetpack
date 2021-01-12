@@ -4,8 +4,6 @@
 ############################################
 
 # Individual Modules:
-/modules/contact-form/    @georgestephanis
-/modules/custom-css/      @georgestephanis
 /modules/search/          @Automattic/jetpack-search
 
 # Other bits of the Codebase

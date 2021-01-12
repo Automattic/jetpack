@@ -6,9 +6,6 @@
 		<testsuite name="general">
 			<directory prefix="test" suffix=".php">tests/php/general</directory>
 		</testsuite>
-		<testsuite name="composer-lint">
-			<file>tests/php/test-composer-lint.php</file>
-		</testsuite>
 		<testsuite name="core-api">
 			<directory prefix="test" suffix=".php">tests/php/core-api</directory>
 		</testsuite>
@@ -134,13 +131,12 @@
 		</exclude>
 	</groups>
 	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="false">
+		<whitelist>
 			<directory suffix=".php">.</directory>
 			<exclude>
+				<directory suffix=".php">packages/*/tests</directory>
 				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">vendor</directory>
 				<directory suffix=".php">views</directory>
-				<directory suffix=".php">packages</directory>
 				<directory suffix=".php">bin</directory>
 				<directory suffix=".php">tools</directory>
 				<directory suffix=".php">docker</directory>
