@@ -17,14 +17,6 @@ jetpack_require_lib( 'class-jetpack-podcast-feed-locator' );
  * @coversDefaultClass Jetpack_Podcast_Feed_Locator
  */
 class WP_Test_Jetpack_Podcast_Feed_Locator extends WP_UnitTestCase {
-	public function setUp() {
-		if ( ! class_exists( 'DOMDocument' ) ) {
-			$this->markTestSkipped( 'DOMDocument is not available - can\'t run feed tests' );
-		} else {
-			parent::setUp();
-		}
-	}
-
 	/**
 	 * Tests that class extends SimplePie_Locator, so that it can be set as the locator
 	 * class, e.g. `$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' )`.

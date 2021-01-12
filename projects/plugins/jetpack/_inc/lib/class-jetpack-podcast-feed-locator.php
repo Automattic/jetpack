@@ -104,8 +104,9 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 	 * @return boolean Whether enclosures were found.
 	 */
 	private function has_audio_enclosures( $dom ) {
-		$xpath = new DOMXPath( $dom );
-		return count( $xpath->query( "//enclosure[starts-with(@type,'audio/')]" ) ) > 0;
+		$xpath      = new DOMXPath( $dom );
+		$enclosures = $xpath->query( "//enclosure[starts-with(@type,'audio/')]" );
+		return ! $enclosures ? false : $enclosures->length > 0;
 	}
 
 }
