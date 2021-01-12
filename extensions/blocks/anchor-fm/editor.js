@@ -35,20 +35,15 @@ async function insertTemplate( params ) {
 	switch ( params.tpl ) {
 		case 'spotifyBadge':
 			templateBlocks = spotifyBadgeTemplate( params );
-		break;
+			break;
 
 		case 'basicEpisode':
 			templateBlocks = basicTemplate( params );
-		break;
+			break;
 	}
 
 	if ( templateBlocks?.length ) {
-		insertBlocks(
-			templateBlocks,
-			0,
-			undefined,
-			false
-		);
+		insertBlocks( templateBlocks, 0, undefined, false );
 	}
 }
 
