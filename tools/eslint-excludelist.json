@@ -1,8 +1,5 @@
 [
 	"dangerfile.js",
-	"projects/packages/debug-helper/modules/inc/js/loader.js",
-	"projects/packages/debug-helper/modules/inc/js/mocker.js",
-	"projects/packages/debug-helper/modules/inc/js/xmlrpc-errors.js",
 	"projects/plugins/jetpack/_inc/.eslintrc.js",
 	"projects/plugins/jetpack/_inc/client/admin.js",
 	"projects/plugins/jetpack/_inc/client/at-a-glance/backups.jsx",
