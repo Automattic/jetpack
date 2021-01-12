@@ -31,7 +31,6 @@ export class PodcastPlayer extends Component {
 	state = {
 		currentTrack: 0,
 		hasUserInteraction: false,
-		currentTime: 0,
 	};
 
 	/**
@@ -163,13 +162,9 @@ export class PodcastPlayer extends Component {
 		this.props.pauseMediaSourceState( this.props.playerId );
 	};
 
-	handleJump = () => {
-		this.setState( { currentTime: syncOffsetTime( -5 ) } );
-	};
+	handleJump = () => this.props.setMediaSourceOffset( this.props.playerId, -5 );
 
-	handleSkip = () => {
-		this.setState( { currentTime: syncOffsetTime( 30 ) } );
-	};
+	handleSkip = () => this.props.setMediaSourceOffset( this.props.playerId, 30 );
 
 	componentDidMount() {
 		const { playerId } = this.props;
@@ -199,7 +194,17 @@ export class PodcastPlayer extends Component {
 	}
 
 	render() {
-		const { playerId, title, link, cover, tracks, attributes, playerState } = this.props;
+		const {
+			playerId,
+			title,
+			link,
+			cover,
+			tracks,
+			attributes,
+			playerState,
+			currentTime,
+		} = this.props;
+
 		const {
 			itemsToShow,
 			primaryColor,
@@ -281,7 +286,7 @@ export class PodcastPlayer extends Component {
 						onPause={ this.handlePause }
 						onError={ this.handleError }
 						playStatus={ playerState }
-						currentTime={ this.state.currentTime }
+						currentTime={ currentTime }
 					/>
 				</Header>
 
@@ -339,10 +344,11 @@ PodcastPlayer.defaultProps = {
 export default compose( [
 	withErrorBoundary,
 	withSelect( ( select, props ) => {
-		const { getMediaPlayerStatus } = select( STORE_ID );
+		const { getMediaPlayerStatus, getMediaSourceCurrentTime } = select( STORE_ID );
 
 		return {
 			playerState: getMediaPlayerStatus( props.playerId ),
+			currentTime: getMediaSourceCurrentTime( props.playerId ),
 		};
 	} ),
 	withDispatch( dispatch => {
@@ -354,6 +360,7 @@ export default compose( [
 			pauseMediaSourceState,
 			toggleMediaSourceState,
 			errorMediaSourceState,
+			setMediaSourceOffset,
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
@@ -363,6 +370,7 @@ export default compose( [
 			pauseMediaSourceState,
 			toggleMediaSourceState,
 			errorMediaSourceState,
+			setMediaSourceOffset,
 		};
 	} ),
 ] )( PodcastPlayer );
