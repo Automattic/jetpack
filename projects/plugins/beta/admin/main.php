@@ -27,7 +27,7 @@
 				<span class="dops-foldable-card__secondary">
 					<?php Jetpack_Beta_Admin::show_toggle_emails(); ?>
 					<?php if ( ! Jetpack_Beta::is_on_tag() ) : ?>
-					<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
+						<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
 					<?php endif; ?>
 				</span>
 			</div>
@@ -59,15 +59,16 @@
 			</div>
 		</div>
 
-	<?php } else {
+		<?php
+	} else {
 		Jetpack_Beta_Admin::start_notice();
 	}
 	?>
 	<div class="jetpack-beta__wrap">
 	<?php
 		Jetpack_Beta_Admin::show_stable_branch();
-		Jetpack_Beta_Admin::show_branch( __( 'Release Candidate' ), 'rc', null, 'rc' );
-		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge' ), 'master', null, 'master' );
+		Jetpack_Beta_Admin::show_branch( __( 'Release Candidate', 'jetpack' ), 'rc', null, 'rc' );
+		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge', 'jetpack' ), 'master', null, 'master' );
 		Jetpack_Beta_Admin::show_search_prs();
 		Jetpack_Beta_Admin::show_branches( 'pr' );
 		Jetpack_Beta_Admin::show_search_org_tags();
@@ -85,12 +86,12 @@
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<?php echo $to_test ; ?>
+				<?php echo $to_test; ?>
 			</div>
 		</div>
 	<?php } ?>
 
-	<?php if ( $what_changed = Jetpack_Beta::what_changed()  ) { ?>
+	<?php if ( $what_changed = Jetpack_Beta::what_changed() ) { ?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">

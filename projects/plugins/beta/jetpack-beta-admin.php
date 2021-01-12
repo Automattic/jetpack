@@ -55,7 +55,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function admin_plugin_settings_link( $links ) {
-		$settings_link = '<a href="'. esc_url( self::settings_link() ) . '">' . __( 'Settings', 'jetpack-beta' ) . '</a>';
+		$settings_link = '<a href="' . esc_url( self::settings_link() ) . '">' . __( 'Settings', 'jetpack-beta' ) . '</a>';
 		array_unshift( $links, $settings_link );
 		return $links;
 	}
@@ -124,17 +124,19 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function admin_styles() {
-		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( "admin/admin.css", JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION );
+		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION );
 	}
 
 	static function admin_scripts() {
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array( ), JPBETA_VERSION, true );
-		wp_localize_script( 'jetpack-admin-js', 'JetpackBeta',
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION, true );
+		wp_localize_script(
+			'jetpack-admin-js',
+			'JetpackBeta',
 			array(
-				'activate' => __( 'Activate', 'jetpack-beta' ),
+				'activate'   => __( 'Activate', 'jetpack-beta' ),
 				'activating' => __( 'Activating...', 'jetpack-beta' ),
-				'updating' => __( 'Updating...', 'jetpack-beta' ),
-				'leaving' => __( 'Don\'t go Plugin is still installing!', 'jetpack-beta' ),
+				'updating'   => __( 'Updating...', 'jetpack-beta' ),
+				'leaving'    => __( 'Don\'t go Plugin is still installing!', 'jetpack-beta' ),
 			)
 		);
 	}
@@ -164,7 +166,7 @@ class Jetpack_Beta_Admin {
 
 	static function to_test_pr_content( $branch_key ) {
 		$manifest = Jetpack_Beta::get_beta_manifest();
-		$pr =  isset( $manifest->pr->{$branch_key}->pr ) ? $manifest->pr->{$branch_key}->pr : null;
+		$pr       = isset( $manifest->pr->{$branch_key}->pr ) ? $manifest->pr->{$branch_key}->pr : null;
 
 		if ( ! $pr ) {
 			return null;
@@ -189,18 +191,20 @@ class Jetpack_Beta_Admin {
 
 		jetpack_require_lib( 'markdown' );
 		if ( ! class_exists( 'WPCom_Markdown' ) ) {
-			require_once( WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/modules/markdown/easy-markdown.php' );
+			require_once WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/modules/markdown/easy-markdown.php';
 		}
-		$rendered_html = WPCom_Markdown::get_instance()->transform( $content, array(
-			'id'      => false,
-			'unslash' => false
-		) );
+		$rendered_html = WPCom_Markdown::get_instance()->transform(
+			$content,
+			array(
+				'id'      => false,
+				'unslash' => false,
+			)
+		);
 
 		// Lets convert #hash numbers into links to issues.
-		$rendered_html = preg_replace('/\#([0-9]+)/', '<a href="https://github.com/Automattic/jetpack/issues/$1">#$1</a>', $rendered_html );
+		$rendered_html = preg_replace( '/\#([0-9]+)/', '<a href="https://github.com/Automattic/jetpack/issues/$1">#$1</a>', $rendered_html );
 
 		$rendered_html = apply_filters( 'jetpack_beta_test_content', $rendered_html );
-
 
 		return $rendered_html;
 	}
@@ -233,12 +237,23 @@ class Jetpack_Beta_Admin {
 		<div id="jetpack-beta-tester__start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
 			<h1><?php _e( 'Welcome to Jetpack Beta Tester', 'jetpack-beta' ); ?></h1>
 			<p><?php _e( 'Thank you for helping to test Jetpack!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>
-			<p><?php _e( 'When you select a Jetpack branch to test, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
-			When you are finished testing, you can switch back to the current version of Jetpack by selecting <em>Latest Stable</em>.', 'jetpack-beta' ); ?></p>
-			<p><?php printf(
+			<p>
+			<?php
+			_e(
+				'When you select a Jetpack branch to test, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
+			When you are finished testing, you can switch back to the current version of Jetpack by selecting <em>Latest Stable</em>.',
+				'jetpack-beta'
+			);
+			?>
+				</p>
+			<p>
+			<?php
+			printf(
 				__( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get <a href="%1$s">all the cool new features</a> we\'re planning to ship in our next release.', 'jetpack-beta' ),
 				esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )
-			); ?></p>
+			);
+			?>
+			</p>
 			<?php if ( $is_notice ) { ?>
 			<a href="<?php echo esc_url( Jetpack_Beta::admin_url() ); ?>"><?php _e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
 			<?php } ?>
@@ -253,7 +268,7 @@ class Jetpack_Beta_Admin {
 			if ( empty( $manifest->{$section} ) ) {
 				return;
 			}
-			$branch   = $manifest->{$section};
+			$branch = $manifest->{$section};
 		}
 
 		$is_compact = $is_last ? '' : 'is-compact';
@@ -261,7 +276,7 @@ class Jetpack_Beta_Admin {
 		$pr         = '';
 		if ( isset( $branch->pr ) && is_int( $branch->pr ) ) {
 			$pr        = sprintf( 'data-pr="%s"', esc_attr( $branch->pr ) );
-			$more_info = sprintf( __( '<a target="_blank" rel="external noopener noreferrer" href="%s">more info #%s</a> - ', 'jetpack-beta' ), Jetpack_Beta::get_url( $branch_key, $section ), $branch->pr );
+			$more_info = sprintf( __( '<a target="_blank" rel="external noopener noreferrer" href="%1$s">more info #%2$s</a> - ', 'jetpack-beta' ), Jetpack_Beta::get_url( $branch_key, $section ), $branch->pr );
 		}
 
 		$update_time = ( isset( $branch->update_date )
@@ -269,7 +284,7 @@ class Jetpack_Beta_Admin {
 			: ''
 		);
 
-		$branch_class    = 'branch-card';
+		$branch_class                             = 'branch-card';
 		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
 		if ( $current_branch === $branch_key && $current_section === $section ) {
 			$action       = __( 'Active', 'jetpack-beta' );
@@ -310,7 +325,7 @@ class Jetpack_Beta_Admin {
 			$data_tag = sprintf( 'data-tag="%s"', $tag );
 		}
 
-		$className = 'tag-card';
+		$className                                = 'tag-card';
 		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
 		if ( $current_branch === $tag && $current_section === $section ) {
 			$action    = __( 'Active', 'jetpack-beta' );
@@ -410,7 +425,7 @@ class Jetpack_Beta_Admin {
 		if ( empty( $manifest->versions ) ) {
 			return;
 		}
-		$tags = array_reverse( (array) $manifest->versions );
+		$tags      = array_reverse( (array) $manifest->versions );
 		$count_all = count( $tags );
 
 		foreach ( $tags as $tag => $url ) {
@@ -428,8 +443,8 @@ class Jetpack_Beta_Admin {
 			__( 'Latest Stable', 'jetpack-beta' ),
 			'stable',
 			(object) array(
-				'branch' => 'stable',
-		        'update_date' => $org_data->last_updated
+				'branch'      => 'stable',
+				'update_date' => $org_data->last_updated,
 			),
 			'stable'
 		);
@@ -447,18 +462,18 @@ class Jetpack_Beta_Admin {
 					<div class="is-pinned is-open dops-search" role="search">
 						<div aria-controls="search-component" aria-label="<?php esc_attr_e( 'Open Search', 'jetpack-beta' ); ?>" tabindex="-1">
 							<svg class="gridicon gridicons-search dops-search-open__icon" height="24"
-							     viewbox="0 0 24 24" width="24">
+								 viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z"></path>
 								</g>
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-prs"
-						       placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
-						<span aria-controls="search-component" id="search-component-prs-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
-						      tabindex="0">
+							   placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+						<span aria-controls="search-component" id="search-component-prs-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>"
+							  tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
-							     viewbox="0 0 24 24" width="24">
+								 viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
 								</g>
@@ -483,18 +498,18 @@ class Jetpack_Beta_Admin {
 					<div class="is-pinned is-open dops-search" role="search">
 						<div aria-controls="search-component" aria-label="<?php esc_attr_e( 'Open Search', 'jetpack-beta' ); ?>" tabindex="-1">
 							<svg class="gridicon gridicons-search dops-search-open__icon" height="24"
-							     viewbox="0 0 24 24" width="24">
+								 viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z"></path>
 								</g>
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-tags"
-						       placeholder="<?php esc_attr_e( 'Search for a Jetpack tag', 'jetpack-beta' ); ?>" role="search" type="search" value="">
-						<span aria-controls="search-component" id="search-component-tags-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
-						      tabindex="0">
+							   placeholder="<?php esc_attr_e( 'Search for a Jetpack tag', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+						<span aria-controls="search-component" id="search-component-tags-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>"
+							  tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
-							     viewbox="0 0 24 24" width="24">
+								 viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
 								</g>
@@ -522,9 +537,9 @@ class Jetpack_Beta_Admin {
 
 	static function show_toggle( $name, $option, $value ) {
 		$query = array(
-			'page'          => 'jetpack-beta',
-			'_action'       => 'toggle_enable_' . $option,
-			'_nonce'        => wp_create_nonce( 'enable_' . $option ),
+			'page'    => 'jetpack-beta',
+			'_action' => 'toggle_enable_' . $option,
+			'_nonce'  => wp_create_nonce( 'enable_' . $option ),
 		);
 
 		?>
@@ -544,8 +559,8 @@ class Jetpack_Beta_Admin {
 	static function show_needed_updates() {
 		// Jetpack Stable not up to date?
 		$should_update_stable_version = Jetpack_Beta::should_update_stable_version();
-		$should_update_dev_version = Jetpack_Beta::should_update_dev_version();
-		$should_update_dev_to_master = Jetpack_Beta::should_update_dev_to_master();
+		$should_update_dev_version    = Jetpack_Beta::should_update_dev_version();
+		$should_update_dev_to_master  = Jetpack_Beta::should_update_dev_to_master();
 
 		if ( ! $should_update_stable_version
 			&& ! $should_update_dev_version
@@ -580,12 +595,14 @@ class Jetpack_Beta_Admin {
 				__( 'Go back to Jetpack\'s Bleeding Edge version.', 'jetpack-beta' ),
 				self::update_action_url( 'master', 'master' )
 			);
-		} ?>
+		}
+		?>
 		</div>
 		<?php
 	}
 
-	static function update_card( $header, $sub_header, $url ) { ?>
+	static function update_card( $header, $sub_header, $url ) {
+		?>
 		<div class="dops-foldable-card has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border" >
 				<span class="dops-foldable-card__main">
