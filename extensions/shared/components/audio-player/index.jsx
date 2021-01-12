@@ -82,10 +82,10 @@ function AudioPlayer( {
 			}
 
 			if ( audio?.paused ) {
-				return onPlay();
+				return play();
 			}
 
-			onPause();
+			pause();
 		}
 
 		// Add the skip and jump buttons if needed
