@@ -36,7 +36,7 @@ const actions = {
 		};
 	},
 
-	playMediaSourceState( id ) {
+	playMediaSource( id ) {
 		return {
 			type: 'SET_MEDIA_PLAYER_STATE',
 			id,
@@ -44,7 +44,7 @@ const actions = {
 		};
 	},
 
-	pauseMediaSourceState( id ) {
+	pauseMediaSource( id ) {
 		return {
 			type: 'SET_MEDIA_PLAYER_STATE',
 			id,
@@ -60,7 +60,7 @@ const actions = {
 		};
 	},
 
-	toggleMediaSourceState( id ) {
+	toggleMediaSource( id ) {
 		return {
 			type: 'TOGGLE_MEDIA_PLAYER_STATE',
 			id,

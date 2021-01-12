@@ -56,13 +56,13 @@ export class PodcastPlayer extends Component {
 		// Current track already selected.
 		if ( currentTrack === track ) {
 			this.recordUserInteraction();
-			this.toggleMediaSourceState( this.props.playerId );
+			this.toggleMediaSource( this.props.playerId );
 			return;
 		}
 
 		// Something else is playing.
 		if ( currentTrack !== -1 ) {
-			this.props.pauseMediaSourceState( this.props.playerId );
+			this.props.pauseMediaSource( this.props.playerId );
 		}
 
 		// Load a new track.
@@ -85,7 +85,7 @@ export class PodcastPlayer extends Component {
 		}
 
 		this.setState( { currentTrack: track } );
-		this.props.playMediaSourceState( this.props.playMediaSourceState );
+		this.props.playMediaSource( this.props.playMediaSource );
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -144,7 +144,7 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePlay = () => {
-		this.props.playMediaSourceState( this.props.playerId );
+		this.props.playMediaSource( this.props.playerId );
 		this.setState( { hasUserInteraction: true } );
 	};
 
@@ -159,7 +159,7 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-		this.props.pauseMediaSourceState( this.props.playerId );
+		this.props.pauseMediaSource( this.props.playerId );
 	};
 
 	handleJump = () => this.props.setMediaSourceOffset( this.props.playerId, -5 );
@@ -356,9 +356,9 @@ export default compose( [
 			registerMediaSource,
 			unregisterMediaSource,
 			setDefaultMediaSource,
-			playMediaSourceState,
-			pauseMediaSourceState,
-			toggleMediaSourceState,
+			playMediaSource,
+			pauseMediaSource,
+			toggleMediaSource,
 			errorMediaSourceState,
 			setMediaSourceOffset,
 		} = dispatch( STORE_ID );
@@ -366,9 +366,9 @@ export default compose( [
 			registerMediaSource,
 			unregisterMediaSource,
 			setDefaultMediaSource,
-			playMediaSourceState,
-			pauseMediaSourceState,
-			toggleMediaSourceState,
+			playMediaSource,
+			pauseMediaSource,
+			toggleMediaSource,
 			errorMediaSourceState,
 			setMediaSourceOffset,
 		};
