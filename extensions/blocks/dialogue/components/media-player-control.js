@@ -23,26 +23,14 @@ export default function MediaPlayerControl( {
 		return {
 			mediaId: mediaSource?.id,
 			playerState: mediaSource?.state,
-			// currentMediaSource: getCurrent(),
-			// state: getMediaStatus( currentMediaId ),
 		};
 	}, [] );
 
 	const {
 		playMediaSourceInCurrentTime,
 		pauseMediaSource,
+		setMediaSourceOffset
 	} = useDispatch( STORE_ID );
-	// const toggleMedia = () => toggleMediaSource( mediaId );
-	// const moveOffset = ( offset ) => {
-	// 	let pos = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
-	// 	if ( pos < 0 ) {
-	// 		pos = 0;
-	// 	}
-
-	// 	onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( pos ) } );
-	// 	setMediaPosition( mediaId, pos );
-	// };
-
 	if ( ! mediaId ) {
 		return null;
 	}
@@ -51,7 +39,7 @@ export default function MediaPlayerControl( {
 		<ToolbarGroup>
 			<ToolbarButton
 				icon={ controlBackFive }
-				onClick={ console.log }
+				onClick={ () => setMediaSourceOffset( mediaId, -5 ) }
 			/>
 
 			<ToolbarButton
@@ -69,7 +57,7 @@ export default function MediaPlayerControl( {
 			/>
 			<ToolbarButton
 				icon={ controlForwardFive }
-				onClick={ console.log }
+				onClick={ () => setMediaSourceOffset( mediaId, 5 ) }
 			/>
 		</ToolbarGroup>
 	);
