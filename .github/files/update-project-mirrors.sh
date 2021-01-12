@@ -35,6 +35,7 @@ fi
 yarn install
 
 BASE=$(pwd)
+CLONE_BASE=$(mktemp -d "${TMPDIR:-/tmp}/jetpack-update-project-mirrors.XXXXXXXX")
 MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
 COMMIT_MESSAGE=$( echo "${MONOREPO_COMMIT_MESSAGE}\n\nCommitted via a GitHub action: https://github.com/automattic/jetpack/runs/${GITHUB_RUN_ID}" )
 COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
@@ -52,7 +53,7 @@ for package in projects/packages/*; do
 	cd ${PROJECT_DIR}
 	echo " Name: $NAME"
 
-	CLONE_DIR="${BASE}/__${NAME}__clone__"
+	CLONE_DIR="${CLONE_BASE}/${NAME}"
 	echo "  Clone dir: $CLONE_DIR"
 
 	# Check if a remote exists for that package.
@@ -120,7 +121,7 @@ for plugin in projects/plugins/*; do
 
 	echo " Name: $NAME"
 
-	CLONE_DIR="${BASE}/__${NAME}__clone__"
+	CLONE_DIR="${CLONE_BASE}/${NAME}"
 	echo "  Clone dir: $CLONE_DIR"
 
 	if [ "$NAME" == 'jetpack' ]; then
