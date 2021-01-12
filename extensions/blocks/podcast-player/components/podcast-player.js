@@ -187,7 +187,7 @@ export class PodcastPlayer extends Component {
 		} );
 
 		// Set podcast player instance as defaul.
-		this.props.setMediaSourceAsDefault( playerId );
+		this.props.setDefaultMediaSource( playerId );
 	}
 
 	componentWillUnmount() {
@@ -349,7 +349,7 @@ export default compose( [
 		const {
 			registerMediaSource,
 			unregisterMediaSource,
-			setMediaSourceAsDefault,
+			setDefaultMediaSource,
 			playMediaSourceState,
 			pauseMediaSourceState,
 			toggleMediaSourceState,
@@ -358,7 +358,7 @@ export default compose( [
 		return {
 			registerMediaSource,
 			unregisterMediaSource,
-			setMediaSourceAsDefault,
+			setDefaultMediaSource,
 			playMediaSourceState,
 			pauseMediaSourceState,
 			toggleMediaSourceState,
