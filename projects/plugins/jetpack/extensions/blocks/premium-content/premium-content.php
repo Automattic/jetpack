@@ -99,7 +99,7 @@ function render_stripe_nudge() {
 		// to connect.
 		return stripe_nudge(
 			get_edit_post_link( get_the_ID() ),
-			__( 'Connect to Stripe to use this block on your site.', 'jetpack' ),
+			__( 'Connect to Stripe in the editor to use this block on your site.', 'jetpack' ),
 			__( 'Edit post', 'jetpack' )
 		);
 	}
