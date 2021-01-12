@@ -76,6 +76,23 @@ function AudioPlayer( {
 		// Initialize MediaElement.js.
 		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
 
+		// Try to catch play event from the media player button.
+		const playButton = mediaElement.container?.[ 0 ]?.querySelector( '.mejs-play button' );
+		function onPlayButtonHandler( event ) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			if ( audio?.error ) {
+				return onError( audio.error );
+			}
+
+			if ( audio?.paused ) {
+				return onPlay();
+			}
+
+			onPause();
+		}
+
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
 			const containerClass = `${ mediaElement.options.classPrefix }button ${ mediaElement.options.classPrefix }jump-button`;
@@ -99,6 +116,7 @@ function AudioPlayer( {
 		onPlay && audio.addEventListener( 'play', onPlay );
 		onPause && audio.addEventListener( 'pause', onPause );
 		onError && audio.addEventListener( 'error', onError );
+		playButton && playButton.addEventListener( 'click', onPlayButtonHandler );
 
 		return () => {
 			// Cleanup.
@@ -106,6 +124,7 @@ function AudioPlayer( {
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
+			playButton && playButton.removeEventListener( 'click', onPlayButtonHandler );
 		};
 	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
 
