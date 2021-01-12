@@ -1,8 +1,4 @@
-## 9.3
-
-In this release, we've focussed on improving the behaviour and reliability of the synchronization process between your site and WordPress.com. This process ensures that features such as Related Posts, Subscriptions, Publicize, and more work properly and use the latest data from your site.
-
-To test those changes, you can try using any of those features and ensure that they're working properly.
+## 9.4
 
 ### Before you start
 
