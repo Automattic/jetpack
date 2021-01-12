@@ -10,7 +10,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import { controlBackFive, controlForwardFive } from '../../../shared/icons';
-import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
+import { STATE_PAUSED, STATE_PLAYING, STORE_ID } from '../../../store/media-source/constants';
 
 export default function MediaPlayerControl( {
 	timestamp,
@@ -22,13 +22,16 @@ export default function MediaPlayerControl( {
 
 		return {
 			mediaId: mediaSource?.id,
-			playerState: STATE_PAUSED,
+			playerState: mediaSource?.state,
 			// currentMediaSource: getCurrent(),
 			// state: getMediaStatus( currentMediaId ),
 		};
 	}, [] );
 
-	const { playMediaSourceInCurrentTime } = useDispatch( STORE_ID );
+	const {
+		playMediaSourceInCurrentTime,
+		pauseMediaSource,
+	} = useDispatch( STORE_ID );
 	// const toggleMedia = () => toggleMediaSource( mediaId );
 	// const moveOffset = ( offset ) => {
 	// 	let pos = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
@@ -57,6 +60,9 @@ export default function MediaPlayerControl( {
 					: 'controls-pause'
 				}
 				onClick={ () => {
+					if ( playerState === STATE_PLAYING ) {
+						return pauseMediaSource( mediaId );
+					}
 					const currentTime = mejs.Utils.timeCodeToSeconds( timestamp );
 					playMediaSourceInCurrentTime( mediaId, currentTime );
 				} }
