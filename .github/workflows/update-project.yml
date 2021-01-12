@@ -42,4 +42,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        run: ./.github/actions/update-project/update-project.sh
+        run: .github/files/update-project-mirrors.sh
