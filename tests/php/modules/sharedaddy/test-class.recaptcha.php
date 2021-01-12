@@ -6,9 +6,14 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->site_key   = 'sitekey';
-		$this->secret_key = 'secretkey';
-		$this->recaptcha  = new Jetpack_ReCaptcha( $this->site_key, $this->secret_key );
+		$this->site_key       = 'sitekey';
+		$this->secret_key     = 'secretkey';
+		$this->recaptcha      = new Jetpack_ReCaptcha( $this->site_key, $this->secret_key );
+		$this->recaptcha_lazy = new Jetpack_ReCaptcha(
+			$this->site_key,
+			$this->secret_key,
+			array( 'script_lazy' => true )
+		);
 	}
 
 	public function test_get_default_config() {
@@ -98,6 +103,21 @@ class WP_Test_Jetpack_ReCaptcha extends WP_UnitTestCase {
 		$this->assertContains( '<script', $html );
 		$this->assertContains( $config['language'], $html );
 		$this->assertContains( '</script>', $html );
+	}
+
+	/**
+	 * Test reCAPTCHA lazy loading.
+	 */
+	public function test_get_recaptcha_html_lazy() {
+		$config = $this->recaptcha_lazy->get_default_config();
+		$html   = $this->recaptcha_lazy->get_recaptcha_html();
+
+		// Make sure div tag appears with expected attributes.
+		$this->assertContains( '<div', $html );
+		$this->assertContains( $this->site_key, $html );
+		// Make sure script URL contains expected language.
+		$this->assertContains( $config['language'], $html );
+		$this->assertContains( '</div>', $html );
 	}
 
 	public function pre_http_request_response_success() {

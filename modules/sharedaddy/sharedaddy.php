@@ -258,14 +258,14 @@ function sharing_global_resources_save() {
 function sharing_email_dialog() {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
+	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY, array( 'script_lazy' => true ) );
 	echo $recaptcha->get_recaptcha_html(); // xss ok
 }
 
 function sharing_email_check( $true, $post, $data ) {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
+	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY, array( 'script_lazy' => true ) );
 	$response  = ! empty( $_POST['g-recaptcha-response'] ) ? $_POST['g-recaptcha-response'] : '';
 	$result    = $recaptcha->verify( $response, $_SERVER['REMOTE_ADDR'] );
 
