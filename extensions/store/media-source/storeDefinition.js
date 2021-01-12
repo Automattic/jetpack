@@ -7,17 +7,17 @@ const DEFAULT_STATE = {
 	players: {},
 };
 
-const defaultMediaStatus = {
-	status: 'is-paused',
+const defaultMediaSourceData = {
+	state: 'is-paused',
 	position: 0,
 };
 
 const actions = {
-	registerMediaSource( id, mediaStatus ) {
+	registerMediaSource( id, data ) {
 		return {
 			type: 'REGISTER_MEDIA_SOURCE',
 			id,
-			status: { ...defaultMediaStatus, ...mediaStatus },
+			data: { ...defaultMediaSourceData, ...data },
 		};
 	},
 
@@ -101,7 +101,7 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: action.status,
+						[ action.id ]: action.data,
 					},
 				};
 			}
