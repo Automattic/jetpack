@@ -26,6 +26,7 @@ class Plugin_Locator {
 	 * Finds the path to the current plugin.
 	 *
 	 * @return string $path The path to the current plugin.
+	 *
 	 * @throws \RuntimeException If the current plugin does not have an autoloader.
 	 */
 	public function find_current_plugin() {
@@ -62,6 +63,7 @@ class Plugin_Locator {
 	 * Checks for plugins in the `action` request parameter.
 	 *
 	 * @param string[] $allowed_actions The actions that we're allowed to return plugins for.
+	 *
 	 * @return array $plugin_paths The list of absolute paths we've found.
 	 */
 	public function find_using_request_action( $allowed_actions ) {
