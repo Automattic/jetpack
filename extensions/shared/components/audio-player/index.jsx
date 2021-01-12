@@ -46,6 +46,7 @@ function AudioPlayer( {
 	onSkipForward,
 	onJumpBack,
 	currentTime,
+	reportedTime,
 	playStatus = STATE_PAUSED,
 } ) {
 	const audioRef = useRef();
@@ -139,26 +140,30 @@ function AudioPlayer( {
 		};
 	}, [ audioRef, onTimeChange ] );
 
-	//Check current time against prop and potentially jump
+	// Handle `currentTime` property, based on `reportedTime` property.
+	// It will change the player time declaratively.
 	useEffect( () => {
-		const audio = audioRef.current;
-
-		// If there's no audio component or we're not controlling time with the `currentTime` prop,
+		// If there's no audio component,
+		// or we're not controlling time with the `currentTime` and `reportedTime` prop,
 		// then bail early.
-		if ( ! currentTime || ! audio ) {
+		const audio = audioRef.current;
+		if (
+			! audio ||
+			typeof currentTime === 'undefined' ||
+			typeof reportedTime === 'undefined'
+		) {
 			return;
 		}
 
-		// We only want to change the play position if the difference between our current play position
-		// and the prop is greater than 1. We're throttling the time change events to once per second, so
-		// if the floored time has changed by more than a second, we haven't received an event in the past
-		// two seconds. That's unlikely and so a change of more than a second should be as a result of us
-		// wanting to update the position, so we set the audio element's current time as a result.
-		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 1 ) {
-			audio.currentTime = currentTime;
+		// If there is not differece between `currentTime`
+		// and `reportedTime`,
+		// then bail early.
+		if ( currentTime === reportedTime ) {
+			return;
 		}
-	}, [ audioRef, currentTime ] );
 
+		audio.currentTime = currentTime;
+	}, [ audioRef, currentTime, reportedTime ] );
 	return (
 		<div className="jetpack-audio-player">
 			{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
