@@ -128,16 +128,20 @@ class Jetpack_SEO {
 			$obj = get_queried_object();
 
 			$meta['description'] = sprintf(
+				/* translators: first property is an user's display name, the second is the site's title. */
 				_x( 'Read all of the posts by %1$s on %2$s', 'Read all of the posts by Author Name on Blog Title', 'jetpack' ),
-				$obj->display_name,
+				isset( $obj->display_name ) ? $obj->display_name : __( 'the author', 'jetpack' ),
 				get_bloginfo( 'title' )
 			);
 		} elseif ( is_tag() || is_category() || is_tax() ) {
-			$obj = get_queried_object();
+			$obj         = get_queried_object();
+			$description = '';
 
-			$description = get_term_field( 'description', $obj->term_id, $obj->taxonomy, 'raw' );
+			if ( isset( $obj->term_id ) && isset( $obj->taxonomy ) ) {
+				$description = get_term_field( 'description', $obj->term_id, $obj->taxonomy, 'raw' );
+			}
 
-			if ( ! is_wp_error( $description ) && '' != $description ) {
+			if ( ! is_wp_error( $description ) && $description ) {
 				$meta['description'] = wp_trim_words( $description );
 			} else {
 				$authors = $this->get_authors();
