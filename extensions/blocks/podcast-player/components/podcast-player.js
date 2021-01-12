@@ -23,6 +23,7 @@ import AudioPlayer from '../../../shared/components/audio-player';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
+import { syncOffsetTime } from '../../../shared/components/audio-player/utils';
 
 export class PodcastPlayer extends Component {
 	state = {
@@ -30,7 +31,6 @@ export class PodcastPlayer extends Component {
 		currentTrack: 0,
 		hasUserInteraction: false,
 		currentTime: 0,
-		reportedTime: 0,
 	};
 
 	/**
@@ -162,13 +162,6 @@ export class PodcastPlayer extends Component {
 		this.setState( { playerState: STATE_PAUSED } );
 	};
 
-	handleTimeChange = reportedTime => {
-		this.setState( {
-			reportedTime,
-			currentTime: reportedTime,
-		} );
-	};
-
 	/**
 	 * Toggle playing state.
 	 *
@@ -180,11 +173,11 @@ export class PodcastPlayer extends Component {
 	};
 
 	handleJump = () => {
-		this.setState( { currentTime: this.state.reportedTime - 5 } );
+		this.setState( { currentTime: syncOffsetTime( -5 ) } );
 	};
 
 	handleSkip = () => {
-		this.setState( { currentTime: this.state.reportedTime + 30 } );
+		this.setState( { currentTime: syncOffsetTime( 30 ) } );
 	};
 
 	render() {
@@ -271,8 +264,6 @@ export class PodcastPlayer extends Component {
 						onError={ this.handleError }
 						playStatus={ this.state.playerState }
 						currentTime={ this.state.currentTime }
-						reportedTime={ this.state.reportedTime }
-						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
 
