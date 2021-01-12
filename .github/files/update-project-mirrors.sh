@@ -98,15 +98,23 @@ for project in projects/packages/* projects/plugins/*; do
 	fi
 
 	echo "Preparing commit"
+
+	# Delete all files in the target dir except .git
+	find "$CLONE_DIR/." -maxdepth 1 ! \( -name .git -o -name . \) -exec rm -rf {} +
+
+	# Copy only wanted files, based on .gitignore and .gitattributes.
+	{
+		# Include unignored files by default.
+		git ls-files
+		# Include ignored files that are tagged as production-include.
+		git ls-files --others --ignored --exclude-standard | git check-attr --stdin production-include | sed -n 's/: production-include: \(unspecified\|unset\)$//;t;s/: production-include: .*//p'
+	} |
+		# Remove all files tagged with production-exclude. This can override production-include.
+		git check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
+		# Copy the resulting list of files into the clone.
+		xargs cp --parents --target-directory="$CLONE_DIR"
+
 	cd "$CLONE_DIR"
-
-	# Delete all files except .git
-	find . -maxdepth 1 ! \( -name .git -o -name . \) -exec rm -rf {} +
-	cp -r "${PROJECT_DIR}/." .
-
-	if [[ "$GIT_SLUG" == 'Automattic/jetpack-production' ]]; then
-		./tools/prepare-build-branch.sh
-	fi
 
 	# Before we commit any changes, ensure that the repo has the basics we need for any project
 	if $COMPOSER_JSON_EXISTED && [[ ! -f "composer.json" ]]; then
