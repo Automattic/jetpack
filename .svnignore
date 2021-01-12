@@ -15,6 +15,7 @@ phpunit.xml.dist
 dangerfile.js
 bin/class-jetpack-phpcs-exclude-filter.php
 bin/compose-volumes.sh
+bin/eslint-excludelist.json
 bin/parallel-lint.sh
 bin/phpcs-excludelist.json
 bin/post-merge-checkout-hook.sh
@@ -22,6 +23,7 @@ bin/pre-commit-hook.js
 bin/prepare-built-branch.sh
 bin/prepare-commit-msg.js
 bin/version-packages.sh
+codecov.yml
 css/*.css.map
 css/*.css.min.map
 docs
