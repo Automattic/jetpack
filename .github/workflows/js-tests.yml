@@ -7,7 +7,7 @@ on:
 
 jobs:
   js-tests:
-    name: "test cli dashboard, extensions, and search"
+    name: "test dashboard, extensions, and search"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
