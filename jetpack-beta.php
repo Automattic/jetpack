@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.4
+ * Version: 2.4.4
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'JPBETA__PLUGIN_FOLDER',  basename( dirname( __FILE__ ) ) );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JPBETA__PLUGIN_FILE', __FILE__ );
-define( 'JPBETA_VERSION', '2.4' );
+define( 'JPBETA_VERSION', '2.4.4' );
 
 define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
 
@@ -55,17 +55,23 @@ define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
 
 define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-group/' );
 
+defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
+
 
 require_once 'autoupdate-self.php';
 require_once 'class-jetpackbetaclicommand.php';
 add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 
+set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) );
+
 class Jetpack_Beta {
 
 	protected static $_instance = null;
 
-	static $option = 'jetpack_beta_active';
+	static $option               = 'jetpack_beta_active';
 	static $option_dev_installed = 'jetpack_beta_dev_currently_installed';
+	static $option_autoupdate    = 'jp_beta_autoupdate';
+	static $option_email_notif   = 'jp_beta_email_notifications';
 
 	static $auto_update_cron_hook = 'jetpack_beta_autoupdate_hourly_cron';
 
@@ -103,6 +109,8 @@ class Jetpack_Beta {
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 
 		add_action( 'jetpack_beta_autoupdate_hourly_cron', array( 'Jetpack_Beta', 'run_autoupdate' ) );
+
+		add_filter( 'jetpack_options_whitelist', array( $this, 'add_to_options_whitelist' ) );
 
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
@@ -248,7 +256,7 @@ class Jetpack_Beta {
 
 	public static function get_plugin_slug() {
 		$installed = self::get_branch_and_section();
-		if ( empty( $installed ) || $installed[1] === 'stable' ) {
+		if ( empty( $installed ) || $installed[1] === 'stable' || $installed[1] === 'tags' ) {
 			return 'jetpack';
 		}
 		return JETPACK_DEV_PLUGIN_SLUG;
@@ -329,7 +337,7 @@ class Jetpack_Beta {
 
 		if ( self::get_plugin_slug() === JETPACK_DEV_PLUGIN_SLUG ) {
 			// Highlight the menu if you are running the BETA Versions..
-			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #00BE28; }</style>";
+			echo sprintf( "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: %s; }</style>", JETPACK_GREEN );
 		}
 
 		$args = array(
@@ -480,6 +488,14 @@ class Jetpack_Beta {
 		return false;
 	}
 
+	static function is_on_tag() {
+		$option = (array) self::get_option();
+		if ( isset( $option[1] ) && 'tags' === $option[1] ) {
+			return true;
+		}
+		return false;
+	}
+
 	static function get_branch_and_section_dev() {
 		$option = (array) self::get_dev_installed();
 		if ( false !== $option[0] && isset( $option[1] )) {
@@ -508,6 +524,13 @@ class Jetpack_Beta {
 
 		if ( 'stable' === $section ) {
 			return 'Latest Stable';
+		}
+
+		if ( 'tags' === $section ) {
+			return sprintf(
+				__( 'Public release (<a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%1$s" target="_blank" rel="noopener noreferrer">available on WordPress.org</a>)', 'jetpack-beta' ),
+				esc_attr( $branch )
+			);
 		}
 
 		if ( 'rc' === $section ) {
@@ -587,6 +610,9 @@ class Jetpack_Beta {
 		if ( 'stable' === $section ) {
 			$org_data = self::get_org_data();
 			return $org_data->download_link;
+		} else if ( 'tags' === $section ) {
+			$org_data = self::get_org_data();
+			return $org_data->versions->{$branch} ?: false;
 		}
 		$manifest = Jetpack_Beta::get_beta_manifest( true );
 
@@ -631,6 +657,7 @@ class Jetpack_Beta {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 		$plugin_file_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_file;
+
 		if ( file_exists( $plugin_file_path ) ) {
 			return get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_file );
 		}
@@ -778,7 +805,7 @@ class Jetpack_Beta {
 	static function proceed_to_install_and_activate( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
 		self::proceed_to_install( $url, $plugin_folder, $section );
 
-		if ( 'stable' === $section ) {
+		if ( 'stable' === $section || 'tags' === $section ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
 		} else {
 			self::replace_active_plugin( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE, true );
@@ -800,7 +827,7 @@ class Jetpack_Beta {
 		}
 
 		global $wp_filesystem;
-		if ( 'stable' === $section ) {
+		if ( 'stable' === $section || 'tags' === $section ) {
 			$plugin_path = WP_PLUGIN_DIR;
 		} else {
 			$plugin_path = str_replace( ABSPATH, $wp_filesystem->abspath(), WP_PLUGIN_DIR  );
@@ -868,6 +895,11 @@ class Jetpack_Beta {
 			return false;
 		}
 
+		// Check if running a tag directly from svn
+		if ( Jetpack_Beta::is_on_tag() ) {
+			return false;
+		}
+
 		$updates = get_site_transient( 'update_plugins' );
 
 		if ( isset( $updates->response, $updates->response[ JETPACK_PLUGIN_FILE ] ) ) {
@@ -888,7 +920,7 @@ class Jetpack_Beta {
 	static function should_update_dev_to_master() {
 		list( $branch, $section ) = self::get_branch_and_section_dev();
 
-		if ( false === $branch || 'master' === $section || 'rc' === $section ) {
+		if ( false === $branch || 'master' === $section || 'rc' === $section || 'tags' === $section ) {
 			return false;
 		}
 		$manifest = self::get_beta_manifest();
@@ -1001,7 +1033,7 @@ class Jetpack_Beta {
 			! Jetpack_Beta::is_on_stable() &&
 			( Jetpack_Beta::should_update_dev_to_master() || Jetpack_Beta::should_update_dev_version() )
 		) {
-			add_filter( 'upgrader_source_selection', array( 'Jetpack_Beta', 'check_for_main_file' ), 10, 2 );
+			add_filter( 'upgrader_source_selection', array( 'Jetpack_Beta', 'check_for_main_files' ), 10, 2 );
 
 			// If response is false, don't alter the transient
 			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
@@ -1035,64 +1067,86 @@ class Jetpack_Beta {
 		}
 
 		if ( $result && ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) && self::is_set_to_email_notifications() ) {
-			$admin_email = get_site_option( 'admin_email' );
-
-			if ( empty( $admin_email ) ) {
-				return;
-			}
-			// Calling empty() on a function return value crashes in PHP < 5.5.
-			// Thus we assign the return value explicitly and then check with empty().
-			$bloginfo_name = get_bloginfo( 'name' );
-			$site_title = ! empty( $bloginfo_name ) ? get_bloginfo( 'name' ) : get_site_url();
-			$what_updated = 'Jetpack Beta Tester Plugin';
-			$subject = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
-			if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins ) ) {
-				$subject = sprintf(  __( '[%s] Autoupdated Jetpack %s ', 'jetpack-beta' ),
-					$site_title,
-					Jetpack_Beta::get_jetpack_plugin_pretty_version()
-				);
-
-				$what_updated = sprintf( __( 'Jetpack %s (%s)', 'jetpack-beta' ),
-					Jetpack_Beta::get_jetpack_plugin_pretty_version(),
-					Jetpack_Beta::get_jetpack_plugin_version()
-				);
-
-				if ( count( $plugins ) > 1 ) {
-					$subject = sprintf( __( '[%s] Autoupdated Jetpack %s and the Jetpack Beta Tester', 'jetpack-beta' ),
-						$site_title,
-						Jetpack_Beta::get_jetpack_plugin_pretty_version()
-					);
-
-					$what_updated = sprintf( __(  'Jetpack %s (%s) and the Jetpack Beta Tester', 'jetpack-beta' ),
-						Jetpack_Beta::get_jetpack_plugin_pretty_version(),
-						Jetpack_Beta::get_jetpack_plugin_version()
-					);
-				}
-			}
-
-			$message  = sprintf(
-				__( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ),
-				home_url(),
-				$what_updated
-			);
-			$message .= "\n\n";
-
-			if ( $what_changed = Jetpack_Beta::what_changed() ) {
-				$message .= __( 'What changed?', 'jetpack-beta' );
-				$message .= strip_tags( $what_changed );
-			}
-
-			$message  .= __( 'During the autoupdate the following happened:', 'jetpack-beta' );
-			$message .= "\n\n";
-			// Can only reference the About screen if their update was successful.
-			$log = array_map( 'html_entity_decode', $log );
-			$message .= ' - ' . implode( "\n - ", $log );
-
-			$message .= "\n\n";
-
-			wp_mail( $admin_email, $subject, $message );
-
+			self::send_autoupdate_email( $plugins, $log );
 		}
+	}
+
+	/**
+	 * Builds and sends an email about succesfull plugin autoupdate
+	 *
+	 * @param Array  $plugins List of plugins that were updated.
+	 * @param String $log upgrade message from core's plugin upgrader.
+	 */
+	private static function send_autoupdate_email( $plugins, $log ) {
+		$admin_email = get_site_option( 'admin_email' );
+
+		if ( empty( $admin_email ) ) {
+			return;
+		}
+
+		// In case the code is called in a scope different from wp-admin.
+		require_once JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
+
+		// Calling empty() on a function return value crashes in PHP < 5.5.
+		// Thus we assign the return value explicitly and then check with empty().
+		$bloginfo_name = get_bloginfo( 'name' );
+		$site_title    = ! empty( $bloginfo_name ) ? get_bloginfo( 'name' ) : get_site_url();
+		$what_updated  = 'Jetpack Beta Tester Plugin';
+		$subject       = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
+
+		if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins, true ) ) {
+			$subject = sprintf(
+				__( '[%s] Autoupdated Jetpack %s ', 'jetpack-beta' ),
+				$site_title,
+				self::get_jetpack_plugin_pretty_version()
+			);
+
+			$what_updated = sprintf(
+				__( 'Jetpack %s (%s)', 'jetpack-beta' ),
+				self::get_jetpack_plugin_pretty_version(),
+				self::get_jetpack_plugin_version()
+			);
+
+			if ( count( $plugins ) > 1 ) {
+				$subject = sprintf(
+					__( '[%s] Autoupdated Jetpack %s and the Jetpack Beta Tester', 'jetpack-beta' ),
+					$site_title,
+					self::get_jetpack_plugin_pretty_version()
+				);
+
+				$what_updated = sprintf(
+					__( 'Jetpack %s (%s) and the Jetpack Beta Tester', 'jetpack-beta' ),
+					self::get_jetpack_plugin_pretty_version(),
+					self::get_jetpack_plugin_version()
+				);
+			}
+		}
+
+		$message  = sprintf(
+			__( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ),
+			home_url(),
+			$what_updated
+		);
+		$message .= "\n\n";
+
+		$what_changed = self::what_changed();
+		if ( $what_changed ) {
+			$message .= __( 'What changed?', 'jetpack-beta' );
+			$message .= wp_strip_all_tags( $what_changed );
+		}
+
+		$message .= __( 'During the autoupdate the following happened:', 'jetpack-beta' );
+		$message .= "\n\n";
+		// Can only reference the About screen if their update was successful.
+		$log      = array_map( 'html_entity_decode', $log );
+		$message .= ' - ' . implode( "\n - ", $log );
+		$message .= "\n\n";
+
+		// Adds To test section. for PR's it's a PR description, for master/RC - it's a to_test.md file contents.
+		$message .= Jetpack_Beta_Admin::to_test_content();
+		$message .= "\n\n";
+
+		wp_mail( $admin_email, $subject, $message );
 	}
 
 	/**
@@ -1102,16 +1156,21 @@ class Jetpack_Beta {
 	 *
 	 * @return WP_Error
 	 */
-	static function check_for_main_file( $source, $remote_source ) {
+	static function check_for_main_files( $source, $remote_source ) {
 		if ( $source === $remote_source . '/jetpack-dev/' ) {
-			if ( ! file_exists( $source. 'jetpack.php' ) ) {
+			if ( ! file_exists( $source . 'jetpack.php' ) ) {
 				return new WP_Error( 'plugin_file_does_not_exist', __( 'Main Plugin File does not exist', 'jetpack-beta' ) );
 			}
-			if ( ! file_exists( $source. '_inc/build/static.html' ) ) {
+			if ( ! file_exists( $source . '_inc/build/static.html' ) ) {
 				return new WP_Error( 'static_admin_page_does_not_exist', __( 'Static Admin Page File does not exist', 'jetpack-beta' ) );
 			}
-			if ( ! file_exists( $source. '_inc/build/admin.js' ) ) {
+			if ( ! file_exists( $source . '_inc/build/admin.js' ) ) {
 				return new WP_Error( 'admin_page_does_not_exist', __( 'Admin Page File does not exist', 'jetpack-beta' ) );
+			}
+			// It has happened that sometimes a generated bundle from the master branch ends up with an empty
+			// vendor directory. Used to be a problem in the beta building process.
+			if ( self::is_dir_empty( $source . 'vendor' ) ) {
+				return new WP_Error( 'vendor_dir_is_empty', __( 'The dependencies dir (vendor) is empty', 'jetpack-beta' ) );
 			}
 		}
 
@@ -1193,6 +1252,62 @@ class Jetpack_Beta {
 		if ( ! defined( 'JETPACK_BETA_BLOCKS' ) && self::constant_get_option( 'jetpack_beta_blocks', '' ) ) {
 			define( 'JETPACK_BETA_BLOCKS', self::constant_get_option( 'jetpack_beta_blocks', '' ) ? true : false );
 		}
+	 * Checks if a dir is empty
+	 *
+	 * @param [type] $dir The absolute directory path to check
+	 * @return boolean
+	 */
+	static function is_dir_empty( $dir ) {
+		return ( count( scandir( $dir ) ) == 2 );
+	}
+
+	/**
+	 * Callback function to include Jetpack beta options into Jetpack sync whitelist
+	 *
+	 * @param Array $whitelist List of whitelisted options to sync
+	 */
+	public function add_to_options_whitelist( $whitelist ) {
+		$whitelist[] = self::$option;
+		$whitelist[] = self::$option_dev_installed;
+		$whitelist[] = self::$option_autoupdate;
+		$whitelist[] = self::$option_email_notif;
+		return $whitelist;
+	}
+
+	/**
+	 * Custom error handler to intercept errors and log them using Jetpack's own logger.
+	 *
+	 * @param int $errno error code.
+	 * @param string $errstr error message.
+	 * @param string $errfile file name where the error happened.
+	 * @param int $errline line in the code.
+	 *
+	 * @return bool whether to make the default handler handle the error as well.
+	 */
+	public static function custom_error_handler( $errno, $errstr, $errfile, $errline ) {
+
+		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'log' ) ) {
+			$error_string = sprintf( "%s, %s:%d", $errstr, $errfile, $errline );
+
+			// Only adding to log if the message is related to Jetpack.
+			if ( false !== stripos( $error_string, 'jetpack' ) ) {
+				Jetpack::log( $errno, $error_string );
+			}
+		}
+
+		/**
+		 * The error_reporting call returns current error reporting level as an integer. Bitwise
+		 * AND lets us determine whether the current error is included in the current error
+		 * reporting level
+		 */
+		if ( ! ( error_reporting() & $errno ) ) {
+
+			// If this error is not being reported in the current settings, stop reporting here by returning true.
+			return true;
+		}
+
+		// Returning false makes the error go through the standard error handler as well.
+		return false;
 	}
 }
 
