@@ -598,6 +598,5 @@
 	"projects/plugins/jetpack/views/admin/network-admin-footer.php",
 	"projects/plugins/jetpack/views/admin/network-admin-header.php",
 	"projects/plugins/jetpack/views/admin/network-settings.php",
-	"tools/build-asset-cdn-json.php",
 	"tools/get-wp-version.php"
 ]
