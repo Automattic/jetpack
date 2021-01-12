@@ -39,6 +39,7 @@ class Plugins_Handler {
 	 * Gets all of the active plugins we can find.
 	 *
 	 * @param bool $include_deactivating When true, plugins deactivating this request will be considered active. Default true.
+	 *
 	 * @return string[]
 	 */
 	public function get_active_plugins( $include_deactivating = true ) {
