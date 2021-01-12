@@ -29,6 +29,13 @@ MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
 COMMIT_MESSAGE=$( echo "${MONOREPO_COMMIT_MESSAGE}\n\nCommitted via a GitHub action: https://github.com/automattic/jetpack/runs/${GITHUB_RUN_ID}" )
 COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
 
+if [[ "$GITHUB_REF" =~ ^refs/heads/ ]]; then
+	BRANCH=${GITHUB_REF#refs/heads/}
+else
+	echo "Could not determine branch name from $GITHUB_REF"
+	exit 1
+fi
+
 # Install Yarn generally.
 echo "::group::Monorepo setup"
 yarn install
@@ -76,8 +83,13 @@ for project in projects/packages/* projects/plugins/*; do
 	echo "Clone dir: $CLONE_DIR"
 
 	echo "::group::Cloning ${GIT_SLUG}"
-	if git clone --depth 1 "https://$API_TOKEN_GITHUB@github.com/$GIT_SLUG.git" "$CLONE_DIR"; then
+	FORCE_COMMIT=
+	if git clone --branch="$BRANCH" --depth 1 "https://$API_TOKEN_GITHUB@github.com/$GIT_SLUG.git" "$CLONE_DIR"; then
 		echo "::endgroup::"
+	elif [[ "$BRANCH" != "master" ]] && rm -rf "$CLONE_DIR" && git clone --branch=master --depth 1 "https://$API_TOKEN_GITHUB@github.com/$GIT_SLUG.git" "$CLONE_DIR"; then
+		(cd "$CLONE_DIR" && git checkout -b "$BRANCH")
+		echo "::endgroup::"
+		FORCE_COMMIT=--allow-empty
 	else
 		echo "::endgroup::"
 		echo "::error::Cloning of ${GIT_SLUG} failed"
@@ -123,11 +135,11 @@ for project in projects/packages/* projects/plugins/*; do
 		continue
 	fi
 
-	if [[ -n "$(git status --porcelain)" ]]; then
+	if [[ -n "$FORCE_COMMIT" || -n "$(git status --porcelain)" ]]; then
 		echo "Committing to $GIT_SLUG"
 		git add -A
-		if git commit --quiet --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}" &&
-			{ [[ -z "$CI" ]] || git push origin master; } # Only do the actual push from the GitHub Action
+		if git commit --quiet $FORCE_COMMIT --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}" &&
+			{ [[ -z "$CI" ]] || git push origin "$BRANCH"; } # Only do the actual push from the GitHub Action
 		then
 			echo "Completed $GIT_SLUG"
 		else
