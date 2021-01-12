@@ -283,7 +283,6 @@
 	"projects/plugins/jetpack/modules/monitor.php",
 	"projects/plugins/jetpack/modules/notes.php",
 	"projects/plugins/jetpack/modules/photon-cdn.php",
-	"projects/plugins/jetpack/modules/photon-cdn/jetpack-manifest.php",
 	"projects/plugins/jetpack/modules/plugin-search.php",
 	"projects/plugins/jetpack/modules/protect.php",
 	"projects/plugins/jetpack/modules/protect/blocked-login-page.php",
@@ -598,6 +597,5 @@
 	"projects/plugins/jetpack/views/admin/network-admin-footer.php",
 	"projects/plugins/jetpack/views/admin/network-admin-header.php",
 	"projects/plugins/jetpack/views/admin/network-settings.php",
-	"tools/build-asset-cdn-json.php",
 	"tools/get-wp-version.php"
 ]
