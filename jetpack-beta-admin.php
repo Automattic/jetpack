@@ -141,7 +141,7 @@ class Jetpack_Beta_Admin {
 	 * General rules and recommendations for new Beta Testers.
 	 * Displayed when no specific branch is picked.
 	 *
-	 * @since 2.1.0
+	 * @since 2.5.0
 	 */
 	static function to_test_general_rules_content() {
 		$test_rules = WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/docs/testing/testing-tips.md';
