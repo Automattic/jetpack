@@ -75,9 +75,15 @@ class Autoloader_Handler {
 	public function reset_autoloader() {
 		global $jetpack_autoloader_loader;
 		global $jetpack_autoloader_latest_version;
+		global $jetpack_packages_classmap;
+		global $jetpack_packages_psr4;
+		global $jetpack_packages_filemap;
 
 		$this->hook_manager->reset();
 		$jetpack_autoloader_loader         = null;
 		$jetpack_autoloader_latest_version = null;
+		$jetpack_packages_classmap         = null;
+		$jetpack_packages_psr4             = null;
+		$jetpack_packages_filemap          = null;
 	}
 }
