@@ -61,5 +61,8 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		}
+	},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-production"
 	}
 }

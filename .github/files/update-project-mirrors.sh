@@ -46,13 +46,18 @@ for project in projects/packages/* projects/plugins/*; do
 
 	cd "${PROJECT_DIR}"
 
-	NAME=${project##*/}
-	echo " Name: $NAME"
-
-	if [[ "$NAME" == 'jetpack' ]]; then
-		GIT_SLUG='Automattic/jetpack-production'
+	# Read mirror repo from composer.json, if it exists
+	if [[ -f "composer.json" ]]; then
+		COMPOSER_JSON_EXISTED=true
+		GIT_SLUG=$(jq -r '.extra["mirror-repo"] // ( .name | sub( "^automattic/"; "Automattic/" ) )' composer.json)
+		if [[ -z "$GIT_SLUG" ]]; then
+			echo "::error::Failed to determine mirror repo from composer.json"
+			EXIT=1
+			continue
+		fi
 	else
-		GIT_SLUG="Automattic/jetpack-${NAME}";
+		COMPOSER_JSON_EXISTED=false
+		GIT_SLUG="Automattic/jetpack-${project##*/}"
 	fi
 	echo "Mirror repo: $GIT_SLUG"
 
@@ -94,12 +99,6 @@ for project in projects/packages/* projects/plugins/*; do
 
 	echo "Preparing commit"
 	cd "$CLONE_DIR"
-
-	# check if composer.json exists
-	COMPOSER_JSON_EXISTED=false
-	if [[ -f "composer.json" ]]; then
-		COMPOSER_JSON_EXISTED=true
-	fi
 
 	# Delete all files except .git
 	find . -maxdepth 1 ! \( -name .git -o -name . \) -exec rm -rf {} +
