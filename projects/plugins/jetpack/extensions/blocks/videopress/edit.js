@@ -115,12 +115,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			if ( preview ) {
-				const { align } = attributes;
 				const sandboxClassnames = getClassNames(
 					preview.html,
-					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress', {
-						[ `align${ align }` ]: align,
-					} ),
+					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
 					true
 				);
 
@@ -426,7 +423,7 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			const { html, scripts } = preview;
 			const {
-				attributes: { className },
+				attributes: { className, align },
 			} = this.props;
 
 			// Disabled because the overlay div doesn't actually have a role or functionality
@@ -437,7 +434,9 @@ const VideoPressEdit = CoreVideoEdit =>
 				<Fragment>
 					{ blockSettings }
 					<BlockFigureWrapper
-						className={ classnames( 'wp-block-video', className, videoPressClassNames ) }
+						className={ classnames( 'wp-block-video', className, videoPressClassNames, {
+							[ `align${ align }` ]: align,
+						} ) }
 					>
 						<div className="wp-block-embed__wrapper">
 							<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />

@@ -23,6 +23,7 @@ const VideoPressSave = CoreVideoSave => props => {
 			preload,
 			videoPressClassNames,
 			className,
+			align,
 		} = {},
 	} = props;
 
@@ -49,7 +50,11 @@ const VideoPressSave = CoreVideoSave => props => {
 	} );
 
 	return (
-		<figure className={ classnames( 'wp-block-video', className, videoPressClassNames ) }>
+		<figure
+			className={ classnames( 'wp-block-video', className, videoPressClassNames, {
+				[ `align${ align }` ]: align,
+			} ) }
+		>
 			<div className="wp-block-embed__wrapper">
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>
