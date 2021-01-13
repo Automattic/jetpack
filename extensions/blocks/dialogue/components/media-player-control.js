@@ -38,12 +38,12 @@ export default function MediaPlayerControl( {
 	const {
 		playMediaSource,
 		pauseMediaSource,
-		setMediaSourceCurrentTime,
+		// setMediaSourceCurrentTime,
 	} = useDispatch( STORE_ID );
 
 	const debouncedMoveTimestamp = useCallback( debounce( function( newCurrentTime, ref ) {
-		// ref.currentTime = newCurrentTime;
-		setMediaSourceCurrentTime( mediaId, newCurrentTime );
+		ref.currentTime = newCurrentTime;
+		// setMediaSourceCurrentTime( mediaId, String( newCurrentTime ) );
 	}, 500 ), [ mediaId ] );
 
 	const moveTimestamp = ( offset ) => {
