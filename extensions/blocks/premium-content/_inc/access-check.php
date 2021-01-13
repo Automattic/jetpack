@@ -35,6 +35,8 @@ function pre_render_checks() {
  * @return bool Whether the use can view the content.
  */
 function current_visitor_can_access( $attributes, $block ) {
+	$user = wp_get_current_user();
+
 	/**
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.
