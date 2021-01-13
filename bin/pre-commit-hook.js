@@ -157,6 +157,14 @@ function runEslint( toLintFiles ) {
 		return;
 	}
 
+	// Apply .eslintignore.
+	const ignore = require( 'ignore' )();
+	ignore.add( fs.readFileSync( __dirname + '/../.eslintignore', 'utf8' ) );
+	toLintFiles = ignore.filter( toLintFiles );
+	if ( ! toLintFiles.length ) {
+		return;
+	}
+
 	const eslintResult = spawnSync( 'yarn', [ 'lint-file', '--max-warnings=0', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',
@@ -164,6 +172,7 @@ function runEslint( toLintFiles ) {
 
 	if ( eslintResult && eslintResult.status ) {
 		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
+		checkFailed();
 		exit( exitCode );
 	}
 }

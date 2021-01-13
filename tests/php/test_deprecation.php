@@ -109,7 +109,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Provides deprecated files and expected relacements.
+	 * Provides deprecated files and expected replacements.
 	 *
 	 * @return array
 	 */
@@ -117,10 +117,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		return array(
 			array(
 				'class.jetpack-ixr-client.php',
-				'',
-			),
-			array(
-				'class.jetpack-xmlrpc-server.php',
 				'',
 			),
 		);

@@ -139,7 +139,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Admin menu should not have unexpected top menu items.'
 		);
 
-		$this->assertEquals( static::$menu_data[80], $menu[80], 'Settings menu should stay the same.' );
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
 
@@ -436,28 +435,20 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_appearance_menu( static::$domain );
 
-		$slug = 'https://wordpress.com/customize/' . static::$domain;
+		$slug = 'https://wordpress.com/themes/' . static::$domain;
 
 		$appearance_menu_item = array(
 			'Appearance',
-			'customize',
+			'switch_themes',
 			$slug,
 			'Appearance',
 			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
+			'menu-appearance',
 			'dashicons-admin-appearance',
 		);
 
 		$this->assertSame( $menu[60], $appearance_menu_item );
 		$this->assertArrayNotHasKey( 'themes.php', $submenu );
-
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			'https://wordpress.com/customize/' . static::$domain,
-			'Customize',
-		);
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 
 		$themes_submenu_item = array(
 			'Themes',
@@ -466,6 +457,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Themes',
 		);
 		$this->assertContains( $themes_submenu_item, $submenu[ $slug ] );
+
+		$customize_submenu_item = array(
+			'Customize',
+			'customize',
+			'https://wordpress.com/customize/' . static::$domain,
+			'Customize',
+		);
+		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 
 		$widgets_submenu_item = array(
 			'Widgets',
@@ -627,10 +626,19 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
+		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
 		static::$admin_menu->add_options_menu( static::$domain );
 
-		$this->assertNotContains( 'options-discussion.php', $submenu['options-general.php'] );
-		$this->assertNotContains( 'options-writing.php', $submenu['options-general.php'] );
+		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
+		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
+
+		$general_submenu_item = array(
+			'General',
+			'manage_options',
+			$slug,
+			'General',
+		);
+		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**

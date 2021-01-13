@@ -13,7 +13,6 @@ env:
   WP_BRANCH: latest
   PHP_VERSION: "7.3"
   CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
-  CODECOV_TOKEN: 13375979-2ee3-4078-8763-da63dfbc8b35
 
 jobs:
   coverage:
@@ -29,6 +28,9 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v2
+        with:
+          # codecov.io requires a fetch depth > 1.
+          fetch-depth: 2
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -37,7 +39,7 @@ jobs:
           tools: composer
           coverage: none
           extensions: mysql, imagick
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
           node-version: '12'
       - name: Get Composer cache directory

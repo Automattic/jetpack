@@ -60,8 +60,7 @@ describe( 'reducer', () => {
 			twitterCards: {
 				foo: { title: 'some title' },
 			},
-
-		}
+		};
 		const urls = [ 'foo', 'bar', 'baz' ];
 		const action = {
 			type: 'GET_TWITTER_CARDS',
@@ -75,6 +74,6 @@ describe( 'reducer', () => {
 				baz: { error: 'loading' },
 			},
 		};
-		expect( reducer( DEFAULT_STATE, action ) ).toEqual( expected );
+		expect( reducer( startState, action ) ).toEqual( expected );
 	} );
 } );

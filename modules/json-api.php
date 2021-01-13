@@ -9,4 +9,8 @@
  * Module Tags: Writing, Developers
  * Feature: General
  * Additional Search Queries: api, rest, develop, developers, json, klout, oauth
+ *
+ * @package Jetpack
  */
+
+// Nothing fires here. Module status is checked on the WP.com-side to allow third-party applications.

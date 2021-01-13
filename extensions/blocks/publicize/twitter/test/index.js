@@ -29,7 +29,7 @@ describe( 'TwitterThreadListener', () => {
 			};
 		} );
 
-		const wrapper = mount( <TwitterThreadListener /> );
+		mount( <TwitterThreadListener /> );
 
 		expect( global.document.body.classList ).not.toContain( 'jetpack-tweetstorm' );
 		expect( global.document.body.classList ).not.toContain( 'jetpack-tweetstorm-is-typing' );
@@ -43,7 +43,7 @@ describe( 'TwitterThreadListener', () => {
 			};
 		} );
 
-		const wrapper = mount( <TwitterThreadListener /> );
+		mount( <TwitterThreadListener /> );
 
 		expect( global.document.body.classList ).not.toContain( 'jetpack-tweetstorm' );
 		expect( global.document.body.classList ).not.toContain( 'jetpack-tweetstorm-is-typing' );
@@ -57,7 +57,7 @@ describe( 'TwitterThreadListener', () => {
 			};
 		} );
 
-		const wrapper = mount( <TwitterThreadListener /> );
+		mount( <TwitterThreadListener /> );
 
 		expect( global.document.body.classList ).toContain( 'jetpack-tweetstorm' );
 		expect( global.document.body.classList ).not.toContain( 'jetpack-tweetstorm-is-typing' );
@@ -71,10 +71,9 @@ describe( 'TwitterThreadListener', () => {
 			};
 		} );
 
-		const wrapper = mount( <TwitterThreadListener /> );
+		mount( <TwitterThreadListener /> );
 
 		expect( global.document.body.classList ).toContain( 'jetpack-tweetstorm' );
 		expect( global.document.body.classList ).toContain( 'jetpack-tweetstorm-is-typing' );
 	} );
-
 } );

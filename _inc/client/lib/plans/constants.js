@@ -298,3 +298,33 @@ export function getMonthlyPlanByYearly( plan ) {
 			return '';
 	}
 }
+
+/**
+ * Determines if the plan class contains backup daily.
+ *
+ * @param {string} planClass - A plan class.
+ * @returns {boolean} True if the plan class contains backup daily, false otherwise.
+ */
+export function containsBackupDaily( planClass ) {
+	return [
+		'is-personal-plan',
+		'is-premium-plan',
+		'is-daily-security-plan',
+		'is-daily-backup-plan',
+	].includes( planClass );
+}
+
+/**
+ * Determines if the plan class contains backup realtime.
+ *
+ * @param {string} planClass - A plan class.
+ * @returns {boolean} True if the plan class contains backup realtime, false otherwise.
+ */
+export function containsBackupRealtime( planClass ) {
+	return [
+		'is-business-plan',
+		'is-realtime-security-plan',
+		'is-complete-plan',
+		'is-realtime-backup-plan',
+	].includes( planClass );
+}

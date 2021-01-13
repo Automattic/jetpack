@@ -13,28 +13,25 @@ import { speak } from '@wordpress/a11y';
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
+import {
+	STATE_PLAYING,
+	STATE_ERROR,
+	STATE_PAUSED,
+} from '../../../shared/components/audio-player/constants';
 import Playlist from './playlist';
-import AudioPlayer from './audio-player';
+import AudioPlayer from '../../../shared/components/audio-player';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
-
-const noop = () => {};
 
 export class PodcastPlayer extends Component {
 	state = {
 		playerState: STATE_PAUSED,
 		currentTrack: 0,
 		hasUserInteraction: false,
-	};
-
-	playerRef = player => {
-		this.player = player;
-		this.play = player ? player.play : noop;
-		this.pause = player ? player.pause : noop;
-		this.togglePlayPause = player ? player.togglePlayPause : noop;
-		this.setAudioSource = player ? player.setAudioSource : noop;
+		currentTime: 0,
+		skipDuration: 30,
+		rewindDuration: 5,
 	};
 
 	/**
@@ -66,7 +63,7 @@ export class PodcastPlayer extends Component {
 
 		// Something else is playing.
 		if ( currentTrack !== -1 ) {
-			this.pause();
+			this.setState( { playerState: STATE_PAUSED } );
 		}
 
 		// Load a new track.
@@ -88,8 +85,7 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-		this.setState( { currentTrack: track } );
-		this.setAudioSource( trackData.src );
+		this.setState( { currentTrack: track, playerState: STATE_PLAYING } );
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -101,8 +97,6 @@ export class PodcastPlayer extends Component {
 			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
 			'assertive'
 		);
-
-		this.play();
 	};
 
 	/**
@@ -169,34 +163,27 @@ export class PodcastPlayer extends Component {
 		this.setState( { playerState: STATE_PAUSED } );
 	};
 
-	/**
-	 * Play current audio.
-	 *
-	 * @public
-	 */
-	play = noop;
-
-	/**
-	 * Pause current audio.
-	 *
-	 * @public
-	 */
-	pause = noop;
+	handleTimeChange = currentTime => {
+		this.setState( { currentTime } );
+	};
 
 	/**
 	 * Toggle playing state.
 	 *
 	 * @public
 	 */
-	togglePlayPause = noop;
+	togglePlayPause = () => {
+		const action = this.state.playerState === STATE_PLAYING ? this.handlePause : this.handlePlay;
+		action();
+	};
 
-	/**
-	 * Set audio source.
-	 *
-	 * @param {string} src - The url of audio content.
-	 * @public
-	 */
-	setAudioSource = noop;
+	handleJump = () => {
+		this.setState( { currentTime: this.state.currentTime - 5 } );
+	};
+
+	handleSkip = () => {
+		this.setState( { currentTime: this.state.currentTime + 30 } );
+	};
 
 	render() {
 		const { playerId, title, link, cover, tracks, attributes } = this.props;
@@ -274,43 +261,49 @@ export class PodcastPlayer extends Component {
 					colors={ colors }
 				>
 					<AudioPlayer
-						initialTrackSource={ this.getTrack( 0 ).src }
-						handlePlay={ this.handlePlay }
-						handlePause={ this.handlePause }
-						handleError={ this.handleError }
-						ref={ this.playerRef }
+						onJumpBack={ this.handleJump }
+						onSkipForward={ this.handleSkip }
+						trackSource={ this.getTrack( currentTrack ).src }
+						onPlay={ this.handlePlay }
+						onPause={ this.handlePause }
+						onError={ this.handleError }
+						playStatus={ this.state.playerState }
+						currentTime={ this.state.currentTime }
+						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
 
-				<h4
-					id={ `jetpack-podcast-player__tracklist-title--${ playerId }` }
-					className="jetpack-podcast-player--visually-hidden"
-				>
-					{ /*
-					 * This describes what the playlist goes with, like "Playlist: [name
-					 * of the podcast]".
-					 */ }
-					{ sprintf(
-						// translators: %s is the track title.
-						__( 'Playlist: %s', 'jetpack' ),
-						title
-					) }
-				</h4>
-				<p
-					id={ `jetpack-podcast-player__tracklist-description--${ playerId }` }
-					className="jetpack-podcast-player--visually-hidden"
-				>
-					{ __( 'Select an episode to play it in the audio player.', 'jetpack' ) }
-				</p>
 				{ tracksToDisplay.length > 1 && (
-					<Playlist
-						playerId={ playerId }
-						playerState={ playerState }
-						currentTrack={ currentTrack }
-						tracks={ tracksToDisplay }
-						selectTrack={ this.selectTrack }
-						colors={ colors }
-					/>
+					<>
+						<h4
+							id={ `jetpack-podcast-player__tracklist-title--${ playerId }` }
+							className="jetpack-podcast-player--visually-hidden"
+						>
+							{ /*
+							 * This describes what the playlist goes with, like "Playlist: [name
+							 * of the podcast]".
+							 */ }
+							{ sprintf(
+								// translators: %s is the track title.
+								__( 'Playlist: %s', 'jetpack' ),
+								title
+							) }
+						</h4>
+						<p
+							id={ `jetpack-podcast-player__tracklist-description--${ playerId }` }
+							className="jetpack-podcast-player--visually-hidden"
+						>
+							{ __( 'Select an episode to play it in the audio player.', 'jetpack' ) }
+						</p>
+						<Playlist
+							playerId={ playerId }
+							playerState={ playerState }
+							currentTrack={ currentTrack }
+							tracks={ tracksToDisplay }
+							selectTrack={ this.selectTrack }
+							colors={ colors }
+						/>
+					</>
 				) }
 			</section>
 		);

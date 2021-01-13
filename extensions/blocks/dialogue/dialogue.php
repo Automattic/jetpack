@@ -241,6 +241,6 @@ function render_block( $dialogue_attrs, $block_content, $block ) {
 				: ''
 			) .
 		'</div>' .
-		'<div>' . $attrs['content'] . '</div>' .
+		'<p>' . $attrs['content'] . '</p>' .
 	'</div>';
 }

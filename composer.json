@@ -42,9 +42,12 @@
 		"automattic/jetpack-codesniffer": "@dev",
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.1",
 		"php-parallel-lint/php-parallel-lint": "1.2.0",
-		"sirbrillig/phpcs-changed": "2.5.1"
+		"sirbrillig/phpcs-changed": "2.6.0"
 	},
 	"scripts": {
+		"pre-update-cmd": [
+			"@putenv COMPOSER_ROOT_VERSION=dev-monorepo"
+		],
 		"php:lint": [
 			"printf '\\e[30;43m`composer php:lint` now lints. If you want to run phpcs, use `composer phpcs:lint`.\\e[0m\\n'",
 			"bin/parallel-lint.sh"

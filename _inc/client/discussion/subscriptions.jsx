@@ -21,17 +21,24 @@ class SubscriptionsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{stb_enabled: *, stc_enabled: *}}
+	 * @returns {{stb_enabled: *, stc_enabled: *}} initial state for the component.
 	 */
-	state = {
-		stb_enabled: this.props.getOptionValue( 'stb_enabled', 'subscriptions' ),
-		stc_enabled: this.props.getOptionValue( 'stc_enabled', 'subscriptions' ),
+	getInitialState = () => {
+		return {
+			stb_enabled: this.props.getOptionValue( 'stb_enabled' ),
+			stc_enabled: this.props.getOptionValue( 'stc_enabled' ),
+		};
 	};
+
+	constructor( props ) {
+		super( props );
+		this.state = this.getInitialState();
+	}
 
 	/**
 	 * Update state so toggles are updated.
 	 *
-	 * @param {string} optionName the slug of the option to update
+	 * @param {string} optionName - the slug of the option to update.
 	 */
 	updateOptions = optionName => {
 		this.setState(
@@ -149,4 +156,5 @@ class SubscriptionsComponent extends React.Component {
 	}
 }
 
-export const Subscriptions = withModuleSettingsFormHelpers( SubscriptionsComponent );
+export const UnwrappedComponent = SubscriptionsComponent;
+export default withModuleSettingsFormHelpers( SubscriptionsComponent );

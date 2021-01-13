@@ -28,7 +28,7 @@ function pushQueryString( queryString, shouldEmitEvent = true ) {
 		}
 		url.search = queryString;
 		window.history.pushState( null, null, url.toString() );
-		shouldEmitEvent && window.dispatchEvent( new Event( 'queryStringChange' ) );
+		shouldEmitEvent && window.dispatchEvent( new CustomEvent( 'queryStringChange' ) );
 	}
 }
 
