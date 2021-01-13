@@ -3,6 +3,11 @@
 /**
  * External dependencies
  */
+import { debounce } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -40,17 +45,15 @@ export default function MediaPlayerControl( {
 		pauseMediaSource,
 	} = useDispatch( STORE_ID );
 
-	const moveTimestamp = useCallback( ( offset ) => {
-		const prevPlayerState = playerState;
-		pauseMediaSource( mediaId );
+	const debouncedMoveTimestamp = useCallback( debounce( function( newCurrentTime, ref ) {
+		ref.currentTime = newCurrentTime;
+	}, 500 ), [] );
 
+	const moveTimestamp = ( offset ) => {
 		const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
-		domEl.currentTime = newCurrentTime;
 		onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( newCurrentTime ) } );
-		if ( prevPlayerState === STATE_PLAYING ) {
-			playMediaSource( mediaId );
-		}
-	}, [ domEl.currentTime, mediaId, onTimeChange, pauseMediaSource, playMediaSource, playerState, timestamp ] );
+		debouncedMoveTimestamp( newCurrentTime, domEl );
+	};
 
 	if ( ! mediaId ) {
 		return null;
