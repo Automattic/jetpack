@@ -310,7 +310,7 @@ export class PodcastPlayer extends Component {
 						onPause={ this.handlePause }
 						onError={ this.handleError }
 						playStatus={ playerState }
-						currentTime={ currentTime }
+						// currentTime={ currentTime }
 						onTimeChange={ this.handleOnTimeChange }
 					/>
 				</Header>
