@@ -153,7 +153,7 @@ class Domain_Mapping {
 	 * @return Domainmap_Utils
 	 */
 	public function get_domain_mapping_utils_instance() {
-		return domain_map::utils();
+		return \domain_map::utils();
 	}
 }
 
