@@ -8,7 +8,7 @@ import { expect } from 'chai';
 /**
  * Internal dependencies
  */
-import { DevVersionNotice } from '../index'
+import { DevVersionNotice } from '../index';
 import { PlanConflictWarning } from '../plan-conflict-warning';
 
 describe( 'PlanConflictWarning', () => {
