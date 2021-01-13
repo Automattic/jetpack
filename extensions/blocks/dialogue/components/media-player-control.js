@@ -16,21 +16,41 @@ export default function MediaPlayerControl( {
 	timestamp,
 	onTimeChange,
 } ) {
-	const { mediaId, playerState } = useSelect( select => {
-		const { getDefaultMediaSource } = select( STORE_ID );
+	const { mediaId, playerState, domEl } = useSelect( select => {
+		const { getDefaultMediaSource, getMediaSourceCurrentTime, getMediaElementDomReference } = select( STORE_ID );
 		const mediaSource = getDefaultMediaSource();
+		const domRef = getMediaElementDomReference( mediaId );
+
+		let domElement;
+		if ( getMediaElementDomReference( mediaId ) ) {
+			domElement = document.getElementById( domRef );
+		}
 
 		return {
 			mediaId: mediaSource?.id,
 			playerState: mediaSource?.state,
+			currentTime: getMediaSourceCurrentTime( mediaSource?.id, true ),
+			domEl: domElement,
 		};
 	}, [] );
 
 	const {
-		playMediaSourceInCurrentTime,
+		playMediaSource,
 		pauseMediaSource,
-		setMediaSourceOffset
 	} = useDispatch( STORE_ID );
+
+	const moveTimestamp = ( offset ) => {
+		const prevPlayerState = playerState;
+		pauseMediaSource( mediaId );
+
+		const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
+		domEl.currentTime = newCurrentTime;
+		onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( newCurrentTime ) } );
+		if ( prevPlayerState === STATE_PLAYING ) {
+			playMediaSource( mediaId );
+		}
+	};
+
 	if ( ! mediaId ) {
 		return null;
 	}
@@ -39,7 +59,7 @@ export default function MediaPlayerControl( {
 		<ToolbarGroup>
 			<ToolbarButton
 				icon={ controlBackFive }
-				onClick={ () => setMediaSourceOffset( mediaId, -5 ) }
+				onClick={ () => moveTimestamp( -5 ) }
 			/>
 
 			<ToolbarButton
@@ -51,13 +71,14 @@ export default function MediaPlayerControl( {
 					if ( playerState === STATE_PLAYING ) {
 						return pauseMediaSource( mediaId );
 					}
-					const currentTime = mejs.Utils.timeCodeToSeconds( timestamp );
-					playMediaSourceInCurrentTime( mediaId, currentTime );
+					const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp );
+					domEl.currentTime = newCurrentTime;
+					playMediaSource( mediaId );
 				} }
 			/>
 			<ToolbarButton
 				icon={ controlForwardFive }
-				onClick={ () => setMediaSourceOffset( mediaId, 5 ) }
+				onClick={ () => moveTimestamp( 5 ) }
 			/>
 		</ToolbarGroup>
 	);
