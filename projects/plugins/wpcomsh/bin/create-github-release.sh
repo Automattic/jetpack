@@ -42,6 +42,14 @@ if [ ! -r $ZIP_FILE ]; then
 fi
 
 status "Creating the release and attaching the build artifact"
+echo ""
+echo "!!! When hub asks for your github password, provide a Personal Access Token (with at least repo scope) instead."
+echo "You may generate one here: https://github.com/settings/tokens"
+echo "This is accurate as of Jan 2021, but GitHub may make changes to 'hub' in the future."
+echo ""
+# GitHub deprecated its Authorizations API, so a direct password no longer works.
+# Reference: https://github.com/github/hub/issues/2655#issuecomment-735836048
+
 BRANCH="build/${VERSION}"
 git checkout -b $BRANCH
 hub release create -m $VERSION -m "Release of version $VERSION. See README.md for details." "v${VERSION}" --attach="${ZIP_FILE}" \
