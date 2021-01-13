@@ -1,17 +1,22 @@
 /* global _wpmejsSettings, MediaElementPlayer */
 
 /**
+ * External dependencies
+ */
+import { throttle } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import { dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
-import { pickCurrentTime } from './utils';
+import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR, STORE_ID } from '../../../store/media-source/constants';
 
 /**
  * Style dependencies
@@ -44,6 +49,7 @@ function AudioPlayer( {
 	onJumpBack,
 	currentTime = 0,
 	playStatus = STATE_PAUSED,
+	playerId,
 } ) {
 	const audioRef = useRef();
 
@@ -113,6 +119,8 @@ function AudioPlayer( {
 		onError && audio.addEventListener( 'error', onError );
 		playButton && playButton.addEventListener( 'click', onPlayButtonHandler );
 
+		dispatch( STORE_ID ).setMediaElementDomReference( playerId, audioRef.current.id );
+
 		return () => {
 			// Cleanup.
 			mediaElement.remove();
@@ -121,7 +129,7 @@ function AudioPlayer( {
 			onError && audio.removeEventListener( 'error', onError );
 			playButton && playButton.removeEventListener( 'click', onPlayButtonHandler );
 		};
-	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
+	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward, playerId ] );
 
 	/*
 	 * `playStatus` property handleing.
@@ -137,76 +145,41 @@ function AudioPlayer( {
 		}
 	}, [ audioRef, playStatus ] );
 
-	/*
-	 * Handle onTimeChange() event
-	 */
 	useEffect( () => {
 		if ( ! onTimeChange ) {
 			return;
 		}
-
-		// Add time change event listener
+		//Add time change event listener
 		const audio = audioRef.current;
-		function onTimeUpdate( event ) {
-			// bail early if the current time
-			// defined by the prop has been already udated.
-			if (
-				typeof currentTime === 'number' &&
-				event.target.currentTime === currentTime
-			) {
-				return;
-			}
-
-			onTimeChange( event.target.currentTime );
-		}
-
+		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000 );
+		const onTimeUpdate = e => throttledTimeChange( e.target.currentTime );
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
 			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
-	}, [ audioRef, onTimeChange, currentTime ] );
+	}, [ audioRef, onTimeChange ] );
 
-	/*
-	 * `currentTime` property handling
-	 * The audio current time is defined by the `currentTime` property.
-	 * It's important to keep in mind that its value can be a string,
-	 * which in that case will contain action-meta-information beside the time value.
-	 * In order to avoid usage mistakes,
-	 * it's strongly encouraged to use the helpoer functions,
-	 * defined in the ./utils file
-	 */
+	//Check current time against prop and potentially jump
 	useEffect( () => {
-		// If there's no audio component,
-		// or we're not controlling time with the `currentTime` and `reportedTime` prop,
-		// then bail early.
 		const audio = audioRef.current;
 
-		if ( typeof currentTime === 'number' ) {
+		// If there's no audio component or we're not controlling time with the `currentTime` prop,
+		// then bail early.
+		if ( ! currentTime || ! audio ) {
 			return;
 		}
 
-		// Pick value and action using helper funtion.
-		const [ value, action ] = pickCurrentTime( currentTime );
-
-		// If there is not an audio player, or if the current time is a number, bail early.
-		if ( ! audio || typeof value !== 'number' ) {
-			return;
+		// We only want to change the play position if the difference between our current play position
+		// and the prop is greater than 1. We're throttling the time change events to once per second, so
+		// if the floored time has changed by more than a second, we haven't received an event in the past
+		// two seconds. That's unlikely and so a change of more than a second should be as a result of us
+		// wanting to update the position, so we set the audio element's current time as a result.
+		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 1 ) {
+			audio.currentTime = currentTime;
 		}
+	}, [ audioRef, currentTime ] );
 
-		// Set the new current time according to value and action.
-		const newCurrentTime = value + (
-			action === 'offset' ? audio.currentTime : 0
-		);
-
-		// Bail early if there are no changes in the current time.
-		if ( newCurrentTime === audio.currentTime ) {
-			return;
-		}
-
-		audio.currentTime = newCurrentTime;
-		onTimeChange && onTimeChange( audio.currentTime );
-	}, [ audioRef, currentTime, onTimeChange ] );
 	return (
 		<div className="jetpack-audio-player">
 			{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }

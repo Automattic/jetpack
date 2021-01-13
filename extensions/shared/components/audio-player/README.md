@@ -46,7 +46,7 @@ function player() () {
 }
 ```
 
-A layer connection between the imperative API (native) wit da declarative API (React component is this case) is not always straightforward, requiring some kinda tricks to make it work. `currentTime` and `reportedTime` properties are a good example of how to deal with setting the track time position, pragmatically.
+A layer connection between the imperative API (native) with da declarative API (React component is this case) is not always straightforward, requiring some kinda tricks to make it work.
 
 ### Props
 
