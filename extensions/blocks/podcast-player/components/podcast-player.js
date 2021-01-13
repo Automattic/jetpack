@@ -164,8 +164,8 @@ export class PodcastPlayer extends Component {
 
 	handleOnTimeChange = ( currentTime ) => {
 		// Global state.
-		// this.props.setMediaSourceCurrentTime( this.props.playerId, currentTime );
-		this.setState( { currentTime } );
+		this.props.setMediaSourceCurrentTime( this.props.playerId, currentTime );
+		// this.setState( { currentTime } );
 	}
 
 	handleJump = () => {
@@ -179,10 +179,10 @@ export class PodcastPlayer extends Component {
 
 	handleSkip = () => {
 		// Global state.
-		// this.props.setMediaSourceCurrentTime(
-		// 	this.props.playerId,
-		// 	this.props.currentTime + 30
-		// );
+		this.props.setMediaSourceCurrentTime(
+			this.props.playerId,
+			this.props.currentTime + 30
+		);
 		this.setState( { currentTime: this.state.currentTime + 30 } );
 	};
 
@@ -222,7 +222,7 @@ export class PodcastPlayer extends Component {
 			tracks,
 			attributes,
 			playerState,
-			// currentTime, // From global state
+			currentTime, // From global state
 		} = this.props;
 
 		const {
@@ -242,7 +242,7 @@ export class PodcastPlayer extends Component {
 		} = attributes;
 		const {
 			currentTrack,
-			currentTime,
+			// currentTime,
 		} = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
