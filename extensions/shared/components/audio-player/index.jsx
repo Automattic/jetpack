@@ -23,7 +23,6 @@ import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR, STORE_ID } from '../../../sto
  */
 import './style.scss';
 
-// MediaElement global settings.
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {
@@ -47,7 +46,7 @@ function AudioPlayer( {
 	onTimeChange,
 	onSkipForward,
 	onJumpBack,
-	currentTime = 0,
+	currentTime,
 	playStatus = STATE_PAUSED,
 	playerId,
 } ) {
@@ -75,24 +74,8 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
+		// Initialize MediaElement.js.
 		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
-
-		// Try to catch play event from the media player button.
-		const playButton = mediaElement.container?.[ 0 ]?.querySelector( '.mejs-play button' );
-		function onPlayButtonHandler( event ) {
-			event.preventDefault();
-			event.stopPropagation();
-
-			if ( audio?.error ) {
-				return onError( audio.error );
-			}
-
-			if ( audio?.paused ) {
-				return play();
-			}
-
-			pause();
-		}
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -117,7 +100,6 @@ function AudioPlayer( {
 		onPlay && audio.addEventListener( 'play', onPlay );
 		onPause && audio.addEventListener( 'pause', onPause );
 		onError && audio.addEventListener( 'error', onError );
-		playButton && playButton.addEventListener( 'click', onPlayButtonHandler );
 
 		dispatch( STORE_ID ).setMediaElementDomReference( playerId, audioRef.current.id );
 
@@ -127,23 +109,26 @@ function AudioPlayer( {
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
-			playButton && playButton.removeEventListener( 'click', onPlayButtonHandler );
 		};
 	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward, playerId ] );
 
-	/*
-	 * `playStatus` property handleing.
-	 */
+	// If we get lots of events from clicking on the progress bar in the MediaElement
+	// then we can get stuck in a loop. We can so by debouncing here we wait until the
+	// next tick before acting on the playStatus prop value changing.
 	useEffect( () => {
 		// Get the current status of the audio element and the required action to toggle it.
-		const [ audioStatus, action ] = audioRef.current?.paused === false
-			? [ STATE_PLAYING, pause ]
-			: [ STATE_PAUSED, play ];
+		const [ audioStatus, action ] =
+			audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
+		// const debouncedAction = debounce( action, 100 );
 
 		if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
 			action();
+			// debouncedAction();
 		}
-	}, [ audioRef, playStatus ] );
+		// return () => {
+			// debouncedAction.cancel();
+		// };
+	}, [ audioRef, playStatus, trackSource ] );
 
 	useEffect( () => {
 		if ( ! onTimeChange ) {
