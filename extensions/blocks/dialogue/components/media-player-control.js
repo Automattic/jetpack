@@ -71,10 +71,12 @@ export default function MediaPlayerControl( {
 				}
 				onClick={ () => {
 					if ( playerState === STATE_PLAYING ) {
+						domEl.pause();
 						return pauseMediaSource( mediaId );
 					}
 					const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp );
 					domEl.currentTime = newCurrentTime;
+					domEl.play();
 					playMediaSource( mediaId );
 				} }
 			/>
