@@ -404,7 +404,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				classnames( className, 'wp-block-embed', 'is-type-video', 'is-provider-videopress' ),
 				true
 			);
-			setAttributes( { classNames: sandboxClassnames } ); // We set classNames attribute to be used in ./save.js
+			setAttributes( { className: sandboxClassnames } ); // We set classNames attribute to be used in ./save.js
 
 			// Disabled because the overlay div doesn't actually have a role or functionality
 			// as far as the user is concerned. We're just catching the first click so that
