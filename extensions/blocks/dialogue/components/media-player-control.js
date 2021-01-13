@@ -27,29 +27,27 @@ export default function MediaPlayerControl( {
 		const mediaSource = getDefaultMediaSource();
 		const domRef = getMediaElementDomReference( mediaId );
 
-		let domElement;
-		if ( getMediaElementDomReference( mediaId ) ) {
-			domElement = document.getElementById( domRef );
-		}
-
 		return {
 			mediaId: mediaSource?.id,
 			playerState: mediaSource?.state,
 			currentTime: getMediaSourceCurrentTime( mediaSource?.id, true ),
-			domEl: domElement,
+			domEl: domRef && document.getElementById( domRef ),
 		};
 	}, [] );
 
 	const {
 		playMediaSource,
 		pauseMediaSource,
+		setMediaSourceCurrentTime,
 	} = useDispatch( STORE_ID );
 
 	const debouncedMoveTimestamp = useCallback( debounce( function( newCurrentTime, ref ) {
-		ref.currentTime = newCurrentTime;
-	}, 500 ), [] );
+		// ref.currentTime = newCurrentTime;
+		setMediaSourceCurrentTime( mediaId, newCurrentTime );
+	}, 500 ), [ mediaId ] );
 
 	const moveTimestamp = ( offset ) => {
+		pauseMediaSource( mediaId );
 		const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
 		onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( newCurrentTime ) } );
 		debouncedMoveTimestamp( newCurrentTime, domEl );
